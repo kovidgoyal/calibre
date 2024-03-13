@@ -167,6 +167,24 @@ def create_selection_panel(container, apply_func, cancel_func):
         inp.style.marginTop = '1ex'
         return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
 
+    def copy_custom(name, text, title):
+        ans = E.textarea(name=name, style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10')
+        ans.value = sd.get(name) or '{text} {url}'
+        return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
+
+    container.appendChild(copy_custom(
+        'copy_custom_template', _('Template for copying highlight info:')))
+    container.appendChild(E.div(
+        E.div(
+            style='margin-bottom: 1ex',
+            _('Support variable: {text}, {url}, {timestamp}, {chapter}, {notes}, {style_type}, {style_kind}, {style_which}.')
+        ),
+        E.div(
+            style='margin-bottom: 2ex; border-bottom: solid 1px; padding-bottom: 1ex;',
+            _('Use "}}" and "{{" to escape "}" and "{".')
+        )
+    ))
+    
     container.appendChild(cb(
         'show_selection_bar', _('Show a popup bar with common actions next to selected text')))
     container.appendChild(url(
@@ -201,6 +219,15 @@ def commit_selection(onchange):
     container = get_container()
     changed = False
     save_ev = new Event('save_history')
+    # Save textarea copy_custom_template
+    ta = container.querySelector('[name=copy_custom_template]')
+    val = ta.value or ''
+    old = sd.get('copy_custom_template')
+    changed = False
+    if old is not val:
+        sd.set('copy_custom_template', val)
+        changed = True
+    # Save inputs
     for x in container.querySelectorAll('[data-calibre-history-input]'):
         x.dispatchEvent(save_ev)
     for control in container.querySelectorAll('input[name]'):

@@ -18,6 +18,7 @@ from read_book.shortcuts import shortcut_for_key_event
 from read_book.toc import family_for_toc_node, get_toc_nodes_bordering_spine_item
 from uuid import short_uuid
 from widgets import create_button
+from utils import parse_url_params
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 BUTTON_MARGIN = '0.5rem'
@@ -185,6 +186,7 @@ def all_actions():
     if not all_actions.ans:
         all_actions.ans = {
             'copy': a('copy', _('Copy to clipboard') + ' [Ctrl+C]', 'copy_to_clipboard'),
+            'copy_highlight_info': a('copy-custom', _('Copy highlight info with custom template'), 'copy_highlight_info', True),
             'lookup': a('library', _('Lookup/search selected word') + ' [L]', 'lookup'),
             'quick_highlight': a('highlight', _('Quick highlight in current style') + ' [Q]', 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection') + ' [H]', 'create_highlight'),
@@ -638,6 +640,8 @@ class SelectionBar:
         }
         if sc_name is 'show_chrome':
             self.clear_selection()
+        elif sc_name is 'copy_highlight_info':
+            self.copy_highlight_info()
         elif sc_name is 'copy_to_clipboard':
             self.copy_to_clipboard()
         elif sc_name is 'toggle_lookup':
@@ -1002,6 +1006,38 @@ class SelectionBar:
     # Actions  {{{
     def copy_to_clipboard(self):
         self.view.copy_to_clipboard()
+
+    def copy_highlight_info(self):
+        annot_id = self.view.currently_showing.selection.annot_id
+        if annot_id:
+
+            data = self.annotations_manager.data_for_highlight(annot_id)
+            spine_index = self.view.currently_showing.spine_index
+            cfi = self.annotations_manager.cfi_for_highlight(annot_id, spine_index)
+
+            if runtime.is_standalone_viewer:
+                url = get_current_link_prefix() + "?open_at=" + cfi
+            else:
+                url = get_current_link_prefix() + f"bookpos={cfi}" 
+                print(parse_url_params())
+                for key, value in Object.entries(parse_url_params()):
+                    print(key, value)
+                    if key != "bookpos":
+                        url = url + f"&{key}={value}"
+
+            hl_info = { "text" : data.highlighted_text, 
+                        "url": url,
+                        "timestamp": data.timestamp,
+                        "style_type": data.style.type,
+                        "style_kind": data.style.kind,
+                        "style_which": data.style.which,
+                        "chapter": data.toc_family_titles[0] if data.toc_family_titles[0] else "",
+                        "notes": data.notes if "notes" in data else "",
+                    }
+
+            copy_info = get_session_data().get('copy_custom_template').format(**hl_info)
+            
+            ui_operations.copy_selection(copy_info)
 
     def lookup(self):
         if ui_operations.toggle_lookup:
