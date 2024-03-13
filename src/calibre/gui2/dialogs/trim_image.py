@@ -35,10 +35,9 @@ class Region(QDialog):
         self.const_aspect = ca = QCheckBox(_('Keep the ratio of width to height fixed'))
         ca.toggled.connect(self.const_aspect_toggled)
         l.addRow(ca)
-        k = QKeySequence('alt+1', QKeySequence.SequenceFormat.PortableText)
+        k = QKeySequence('alt+1', QKeySequence.SequenceFormat.PortableText).toString(QKeySequence.SequenceFormat.NativeText).partition('+')[0]
         la = QLabel('<p>'+_('Note that holding down the {} key while dragging the selection handles'
-                          ' will resize the selection while preserving its aspect ratio.').format(
-            k.toString(QKeySequence.SequenceFormat.NativeText)))
+                          ' will resize the selection while preserving its aspect ratio.').format(k))
         la.setWordWrap(True)
         la.setMinimumWidth(400)
         l.addRow(la)
