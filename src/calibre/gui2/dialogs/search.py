@@ -294,7 +294,15 @@ def create_template_tab(self):
     self.template_program_box = le = TemplateLineEditor(self.tab_widget)
     le.setObjectName('template_program_box')
     le.setPlaceholderText(_('The template that generates the value'))
-    le.setToolTip(_('Right click to open a template editor'))
+    le.setToolTip('<p>' +
+                  _('Right click to open a template editor. <br>'
+                    'Technical note: the set of book ids already matched by '
+                    'previous search terms in the search expression is passed '
+                    'to the template in the global variables dictionary with the '
+                    'key "{0}". You can use the set to limit any work the '
+                    'template does to the set of books already matched, possibly '
+                    'improving performance.'
+                    ).format('_candidates')  + '</p>')
     lo = QHBoxLayout()
     lo.addWidget(le)
     self.edit_template_button = tb = QToolButton()
