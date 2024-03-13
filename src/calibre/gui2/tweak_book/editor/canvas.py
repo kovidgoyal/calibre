@@ -492,14 +492,66 @@ class Canvas(QWidget):
         ny = max(miny, min(maxy, ny))
         sr.moveCenter(QPointF(nx, ny))
 
-    def move_selection(self, dp):
+    def preserve_aspect_ratio_after_move(self, orig_rect, hedge, vedge):
+        r = self.selection_state.rect
+
+        def is_equal(a, b):
+            return abs(a - b) < 0.001
+
+        if vedge is None:
+            new_height = r.width() * (orig_rect.height() / orig_rect.width())
+            if not is_equal(new_height, r.height()):
+                delta = (r.height() - new_height) / 2.0
+                r.setTop(max(self.target.top(), r.top() + delta))
+                r.setBottom(min(r.bottom() - delta, self.target.bottom()))
+                if not is_equal(new_height, r.height()):
+                    new_width = r.height() * (orig_rect.width() / orig_rect.height())
+                    delta = r.width() - new_width
+                    r.setLeft(r.left() + delta) if hedge == 'left' else r.setRight(r.right() - delta)
+        elif hedge is None:
+            new_width = r.height() * (orig_rect.width() / orig_rect.height())
+            if not is_equal(new_width, r.width()):
+                delta = (r.width() - new_width) / 2.0
+                r.setLeft(max(self.target.left(), r.left() + delta))
+                r.setRight(min(r.right() - delta, self.target.right()))
+                if not is_equal(new_width, r.width()):
+                    new_height = r.width() * (orig_rect.height() / orig_rect.width())
+                    delta = r.height() - new_height
+                    r.setTop(r.top() + delta) if hedge == 'top' else r.setBottom(r.bottom() - delta)
+        else:
+            buf = 50
+
+            def set_width(new_width):
+                if hedge == 'left':
+                    r.setLeft(max(self.target.left(), min(r.right() - new_width, r.right() - buf)))
+                else:
+                    r.setRight(max(r.left() + buf, min(r.left() + new_width, self.target.right())))
+
+            def set_height(new_height):
+                if vedge == 'top':
+                    r.setTop(max(self.target.top(), min(r.bottom() - new_height, r.bottom() - buf)))
+                else:
+                    r.setBottom(max(r.top() + buf, min(r.top() + new_height, self.target.bottom())))
+
+            fractional_h, fractional_v = r.width() / orig_rect.width(), r.height() / orig_rect.height()
+            smaller_frac = fractional_h if abs(fractional_h - 1) < abs(fractional_v - 1) else fractional_v
+            set_width(orig_rect.width() * smaller_frac)
+            frac = r.width() / orig_rect.width()
+            set_height(orig_rect.height() * frac)
+            if r.height() / orig_rect.height() != frac:
+                set_width(orig_rect.width() * frac)
+
+    def move_selection(self, dp, preserve_aspect_ratio=False):
         dm = self.selection_state.dragging
         if dm is None:
             self.move_selection_rect(dp.x(), dp.y())
         else:
+            orig = QRectF(self.selection_state.rect)
             for edge in dm:
                 if edge is not None:
                     self.move_edge(edge, dp)
+            if preserve_aspect_ratio and dm:
+                self.preserve_aspect_ratio_after_move(orig, dm[0], dm[1])
 
     def rect_for_trim(self):
         img = self.current_image
@@ -545,7 +597,7 @@ class Canvas(QWidget):
                         self.selection_state.drag_corner = self.selection_state.dragging
                         dp = pos - self.selection_state.last_drag_pos
                         self.selection_state.last_drag_pos = pos
-                        self.move_selection(dp)
+                        self.move_selection(dp, preserve_aspect_ratio=ev.modifiers() & Qt.KeyboardModifier.AltModifier == Qt.KeyboardModifier.AltModifier)
                         cursor = self.get_cursor()
                         changed = True
             else:
