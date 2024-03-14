@@ -85,7 +85,7 @@
 
 - Edit book: Live CSS: Fix regression causing incorrect colors in calibre 7
 
-- Windows: Fix a regression in calibre 7 that caused images in long text columns to not be displayed in the tooltip for the tooltip
+- Windows: Fix a regression in calibre 7 that caused images in long text columns to not be displayed in the tooltip for the column
 
 - Fix disabled items in menus having blurry text
 
