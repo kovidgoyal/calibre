@@ -98,7 +98,7 @@ class TrimImage(QDialog):
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         ac.setEnabled(False)
         self.size_selection = ac = self.bar.addAction(QIcon.ic('resize.png'), _('&Region'), self.do_region)
-        ac.setToolTip(_('Specify a selection size using numbers to allow for precise control'))
+        ac.setToolTip(_('Specify a selection region size using numbers to allow for precise control'))
         c.selection_state_changed.connect(self.selection_changed)
         c.selection_area_changed.connect(self.selection_area_changed)
         l.addWidget(c)
