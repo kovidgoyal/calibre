@@ -54,7 +54,7 @@
 :: improved recipes
 - LiveMint
 - Bloomberg
-- Natural Geographic
+- National Geographic
 - MIT Technology Review
 - NY Review of Books
 - Scientific American
