@@ -6,6 +6,7 @@ from elementmaker import E
 
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list, create_side_action
+from book_list.top_bar import create_top_bar
 from dom import clear, unique_id
 from gettext import gettext as _
 from modals import question_dialog
@@ -90,6 +91,7 @@ def load_profiles(container_id):
 
 
 def create_profiles_panel(container, hide_panel, on_change):
+    create_top_bar(container, title=_('Profiles'), icon='close', action=hide_panel)
     c = E.div(style='margin: 1rem', id=unique_id('placeholder-prefs'))
     c.addEventListener('close_panel', def(): hide_panel();, False)
     c.addEventListener('settings_changed', def(): on_change();, False)
