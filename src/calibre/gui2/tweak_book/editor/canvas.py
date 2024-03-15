@@ -590,6 +590,7 @@ class Canvas(QWidget):
                                            width * self.target.width() / i.width(), height * self.target.height() / i.height())
         self.selection_state.current_mode = 'selected'
         self.update()
+        self.selection_state_changed.emit(self.has_selection)
 
     def mouseMoveEvent(self, ev):
         changed = False

@@ -134,7 +134,6 @@ class TrimImage(QDialog):
         if d.exec() == QDialog.DialogCode.Accepted:
             width, height = d.selection_size
             self.canvas.set_selection_size_in_image_coords(width, height)
-            self.selection_changed(True)
 
     def do_trim(self):
         self.canvas.trim_image()
