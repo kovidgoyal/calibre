@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -131,6 +130,15 @@ class SharedMemory:
                 raise
 
         self._size = size
+
+    @property
+    def memory_address(self) -> int:
+        import ctypes
+        obj = ctypes.py_object(self.mmap)
+        address = ctypes.c_void_p()
+        length = ctypes.c_ssize_t()
+        ctypes.pythonapi.PyObject_AsReadBuffer(obj, ctypes.byref(address), ctypes.byref(length))
+        return address.value
 
     def read(self, sz: int = 0) -> bytes:
         if sz <= 0:

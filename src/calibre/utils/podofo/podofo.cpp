@@ -7,34 +7,19 @@
 using namespace PoDoFo;
 
 #include "global.h"
+#include <iostream>
 
 PyObject *pdf::Error = NULL;
 
-class PyLogMessage : public PdfError::LogMessageCallback {
-
-    public:
-        ~PyLogMessage() {}
-
-        void LogMessage(ELogSeverity severity, const char* prefix, const char* msg, va_list & args ) {
-            if (severity > eLogSeverity_Warning) return;
-            if (prefix)
-                fprintf(stderr, "%s", prefix);
-
-            vfprintf(stderr, msg, args);
-        }
-
-        void LogMessage(ELogSeverity severity, const wchar_t* prefix, const wchar_t* msg, va_list & args ) {
-            if (severity > eLogSeverity_Warning) return;
-            if (prefix)
-                fwprintf(stderr, prefix);
-
-            vfwprintf(stderr, msg, args);
-        }
-};
-
-PyLogMessage log_message;
-
 static char podofo_doc[] = "Wrapper for the PoDoFo PDF library";
+
+static void
+pdf_log_message(PdfLogSeverity logSeverity, const std::string_view& msg) {
+    if (logSeverity == PdfLogSeverity::Error || logSeverity == PdfLogSeverity::Warning) {
+        const char *level = logSeverity == PdfLogSeverity::Error ? "ERROR" : "WARNING";
+        std::cerr << "PoDoFo" << level << ": " << msg << std::endl;
+    }
+}
 
 static int
 exec_module(PyObject *m) {
@@ -45,11 +30,10 @@ exec_module(PyObject *m) {
     if (pdf::Error == NULL) return -1;
     PyModule_AddObject(m, "Error", pdf::Error);
 
-    PdfError::SetLogMessageCallback((PdfError::LogMessageCallback*)&log_message);
-    PdfError::EnableDebug(false);
-
     Py_INCREF(&pdf::PDFDocType);
     PyModule_AddObject(m, "PDFDoc", (PyObject *)&pdf::PDFDocType);
+
+    PdfCommon::SetLogMessageCallback(pdf_log_message);
 	return 0;
 }
 

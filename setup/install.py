@@ -303,8 +303,9 @@ class Sdist(Command):
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
         for x in open('.gitignore').readlines():
-            if not x.startswith('resources/'):
+            if not x.startswith('/resources/'):
                 continue
+            x = x[1:]
             p = x.strip().replace('/', os.sep)
             for p in glob.glob(p):
                 d = self.j(tdir, os.path.dirname(p))
@@ -338,7 +339,7 @@ class Sdist(Command):
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
         shutil.rmtree(os.path.join(tdir, '.github'))
-        subprocess.check_call(['tar', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
+        subprocess.check_call(['tar', '--mtime=now', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
         self.info('\tCompressing tarfile...')
         if os.path.exists(self.a(self.DEST)):
             os.remove(self.a(self.DEST))

@@ -6,7 +6,7 @@
         "lib_dirs": "!hunspell_lib_dirs",
         "libraries": "hunspell-1.7",
         "windows_libraries": "libhunspell",
-		"needs_c++11": true
+		"needs_c++": "11"
     },
     {
         "name": "hyphen",
@@ -14,7 +14,7 @@
 		"libraries": "hyphen",
         "inc_dirs": "!hyphen_inc_dirs",
         "lib_dirs": "!hyphen_lib_dirs",
-		"needs_c99": true
+		"needs_c": "99"
     },
     {
         "name": "uchardet",
@@ -27,7 +27,7 @@
         "name": "unicode_names",
         "headers": "unicode_names/names.h unicode_names/data-types.h",
         "sources": "unicode_names/unicode_names.c",
-        "needs_c99": true
+        "needs_c": "99"
     },
     {
         "name": "speedup",
@@ -82,7 +82,7 @@
         "name": "sqlite_extension",
         "headers": "calibre/utils/cpp_binding.h",
         "sources": "calibre/db/sqlite_extension.cpp",
-		"needs_c++14": true,
+		"needs_c++": "14",
         "libraries": "icudata icui18n icuuc icuio stemmer",
         "windows_libraries": "icudt icuin icuuc icuio libstemmer",
         "lib_dirs": "!icu_lib_dirs",
@@ -97,9 +97,9 @@
     {
         "name": "freetype",
         "sources": "calibre/utils/fonts/freetype.cpp",
-        "libraries": "!ft_libs",
-        "inc_dirs": "!ft_inc_dirs",
-        "lib_dirs": "!ft_lib_dirs"
+        "libraries": "!freetype_libs",
+        "inc_dirs": "!freetype_inc_dirs",
+        "lib_dirs": "!freetype_lib_dirs"
     },
     {
         "name": "msdes",
@@ -120,23 +120,23 @@
         "name": "podofo",
         "sources": "calibre/utils/podofo/utils.cpp calibre/utils/podofo/output.cpp calibre/utils/podofo/doc.cpp calibre/utils/podofo/outline.cpp calibre/utils/podofo/fonts.cpp calibre/utils/podofo/impose.cpp calibre/utils/podofo/images.cpp calibre/utils/podofo/outlines.cpp calibre/utils/podofo/podofo.cpp",
         "headers": "calibre/utils/podofo/global.h",
-        "libraries": "podofo",
-        "lib_dirs": "!podofo_lib",
-        "inc_dirs": "!podofo_inc",
+        "libraries": "!podofo",
+        "lib_dirs": "!podofo_lib_dirs",
+        "inc_dirs": "!podofo_inc_dirs",
         "error": "!podofo_error",
-		"needs_c++11": true
+		"needs_c++": "17"
     },
     {
         "name": "html_as_json",
         "sources": "calibre/srv/html_as_json.cpp",
-		"needs_c++11": true
+		"needs_c++": "11"
     },
     {
         "name": "fast_css_transform",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/stb_sprintf.h",
         "sources": "calibre/srv/fast_css_transform.cpp",
 		"inc_dirs": "perfect-hashing",
-		"needs_c++14": true
+		"needs_c++": "14"
     },
     {
         "name": "rcc_backend",
@@ -173,7 +173,7 @@
         "only": "windows",
         "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winutil.cpp",
-        "libraries": "shell32 wininet advapi32",
+        "libraries": "shell32 wininet advapi32 gdi32 rstrtmgr",
         "cflags": "/X"
     },
     {
@@ -183,6 +183,15 @@
         "sources": "calibre/utils/windows/winsapi.cpp",
         "libraries": "SAPI Ole32",
         "cflags": "/X"
+    },
+    {
+        "name": "winspeech",
+        "only": "windows",
+        "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
+        "sources": "calibre/utils/windows/winspeech.cpp",
+        "libraries": "WindowsApp",
+		"needs_c++": "20",
+        "cflags": "/X /Zc:__cplusplus /bigobj /permissive- /WX /Zc:twoPhase-"
     },
     {
         "name": "wpd",
@@ -209,19 +218,13 @@
         "name": "cocoa",
         "only": "macos",
         "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m",
-        "ldflags": "-framework Cocoa"
+        "ldflags": "-framework Cocoa -framework UserNotifications"
     },
     {
         "name": "libusb",
-        "only": "macos linux haiku",
+        "only": "macos linux haiku freebsd",
         "sources": "calibre/devices/libusb/libusb.c",
-        "libraries": "usb-1.0"
-    },
-    {
-        "name": "libusb",
-        "only": "freebsd",
-        "sources": "calibre/devices/libusb/libusb.c",
-        "libraries": "usb"
+        "libraries": "!usb_library"
     },
     {
         "name": "libmtp",

@@ -289,13 +289,20 @@ def metadata_from_xmp_packet(raw_bytes):
             if val:
                 setattr(mi, x, val)
                 break
-    for x in ('author_link_map', 'user_categories'):
+    for x in ('link_maps', 'user_categories'):
         val = first_simple('//calibre:'+x, root)
         if val:
             try:
                 setattr(mi, x, json.loads(val))
-            except:
+            except Exception:
                 pass
+        elif x == 'link_maps':
+            val = first_simple('//calibre:author_link_map', root)
+            if val:
+                try:
+                    setattr(mi, x, {'authors': json.loads(val)})
+                except Exception:
+                    pass
 
     languages = multiple_sequences('//dc:language', root)
     if languages:
@@ -526,7 +533,7 @@ def metadata_to_xmp_packet(mi):
         create_series(calibre, mi.series, mi.series_index)
     if not mi.is_null('timestamp'):
         create_simple_property(calibre, 'calibre:timestamp', isoformat(mi.timestamp, as_utc=False))
-    for x in ('author_link_map', 'user_categories'):
+    for x in ('link_maps', 'user_categories'):
         val = getattr(mi, x, None)
         if val:
             create_simple_property(calibre, 'calibre:'+x, dump_dict(val))
@@ -542,7 +549,8 @@ def metadata_to_xmp_packet(mi):
 
 
 def find_used_namespaces(elem):
-    getns = lambda x: (x.partition('}')[0][1:] if '}' in x else None)
+    def getns(x):
+        return (x.partition('}')[0][1:] if '}' in x else None)
     ans = {getns(x) for x in list(elem.attrib) + [elem.tag]}
     for child in elem.iterchildren(etree.Element):
         ans |= find_used_namespaces(child)

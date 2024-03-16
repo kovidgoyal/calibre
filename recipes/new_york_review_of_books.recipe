@@ -62,7 +62,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         # Find cover
         cover = soup.find('img', attrs={'class':'border-light-gray'})
         if cover is not None:
-            self.cover_url = absurl(cover['src'])
+            self.cover_url = absurl(cover['data-lazy-src'])
             self.log('Found cover at:', self.cover_url)
 
         # Find date
@@ -91,3 +91,8 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                                 'description': desc})
 
         return [('Current Issue', articles)]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
+            img['src'] = img['data-lazy-src']
+        return soup

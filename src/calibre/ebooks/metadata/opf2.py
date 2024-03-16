@@ -8,21 +8,30 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, functools, os, uuid, glob, io, json, copy
-
+import copy
+import functools
+import glob
+import io
+import json
+import os
+import re
+import sys
+import uuid
+from contextlib import suppress
 from lxml import etree
 
-from calibre.ebooks import escape_xpath_attr
+from calibre import guess_type, prints
 from calibre.constants import __appname__, __version__, filesystem_encoding
+from calibre.ebooks import escape_xpath_attr
+from calibre.ebooks.metadata import MetaInformation, check_isbn, string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
-from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_date, isoformat
-from calibre.utils.localization import get_lang, canonicalize_lang
-from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
+from calibre.utils.date import isoformat, parse_date
+from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
 from polyglot.urllib import unquote, urlparse
@@ -450,6 +459,37 @@ class MetadataField:
         obj.set_text(elem, self.renderer(val))
 
 
+class LinkMapsField:
+
+    def __get__(self, obj, type=None):
+        ans = obj.get_metadata_element('link_maps')
+        if ans is not None:
+            ans = obj.get_text(ans)
+            if ans:
+                with suppress(Exception):
+                    return json.loads(ans)
+        ans = obj.get_metadata_element('author_link_map')
+        if ans is not None:
+            ans = obj.get_text(ans)
+            if ans:
+                with suppress(Exception):
+                    return {'authors': json.loads(ans)}
+        return {}
+
+    def __set__(self, obj, val):
+        elem = obj.get_metadata_element('author_link_map')
+        if elem is not None:
+            elem.getparent().remove(elem)
+        elem = obj.get_metadata_element('link_maps')
+        if not val:
+            if elem is not None:
+                elem.getparent().remove(elem)
+            return
+        if elem is None:
+            elem = obj.create_metadata_element('link_maps', is_dc=False)
+        obj.set_text(elem, dump_dict(val))
+
+
 class TitleSortField(MetadataField):
 
     def __get__(self, obj, type=None):
@@ -480,9 +520,10 @@ class TitleSortField(MetadataField):
 
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
+    from calibre.ebooks.metadata.book.json_codec import (
+        encode_is_multiple, object_to_unicode,
+    )
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
-                                                         encode_is_multiple)
 
     for name, fm in all_user_metadata.items():
         try:
@@ -584,8 +625,7 @@ class OPF:  # {{{
     user_categories = MetadataField('user_categories', is_dc=False,
                                     formatter=json.loads,
                                     renderer=dump_dict)
-    author_link_map = MetadataField('author_link_map', is_dc=False,
-                                formatter=json.loads, renderer=dump_dict)
+    link_maps = LinkMapsField()
 
     def __init__(self, stream, basedir=os.getcwd(), unquote_urls=True,
             populate_spine=True, try_to_guess_cover=False, preparsed_opf=None, read_toc=True):
@@ -626,8 +666,8 @@ class OPF:  # {{{
     def read_user_metadata(self):
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
-        from calibre.utils.config import from_json
         from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
+        from calibre.utils.config import from_json
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
         for elem in elems:
@@ -656,6 +696,7 @@ class OPF:  # {{{
             ans.set_user_metadata(n, v)
 
         ans.set_identifiers(self.get_identifiers())
+        ans.link_maps = self.link_maps
 
         return ans
 
@@ -1097,9 +1138,14 @@ class OPF:  # {{{
         for x in matches:
             x.getparent().remove(x)
 
+        num_done = 0
         for lang in val:
             l = self.create_metadata_element('language')
             self.set_text(l, str(lang))
+            num_done += 1
+        if num_done == 0:
+            l = self.create_metadata_element('language')
+            self.set_text(l, 'und')
 
     @property
     def raw_languages(self):
@@ -1296,7 +1342,7 @@ class OPF:  # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments', 'book_producer',
-                     'pubdate', 'user_categories', 'author_link_map'):
+                     'pubdate', 'user_categories', 'link_maps'):
             val = getattr(mi, attr, None)
             if attr == 'rating' and val:
                 val = float(val)
@@ -1448,7 +1494,8 @@ class OPFCreator(Metadata):
 
         # Actual rendering
         from lxml.builder import ElementMaker
-        from calibre.ebooks.oeb.base import OPF2_NS, DC11_NS, CALIBRE_NS
+
+        from calibre.ebooks.oeb.base import CALIBRE_NS, DC11_NS, OPF2_NS
         DNS = OPF2_NS+'___xx___'
         E = ElementMaker(namespace=DNS, nsmap={None:DNS})
         M = ElementMaker(namespace=DNS,
@@ -1571,9 +1618,10 @@ class OPFCreator(Metadata):
 
 
 def metadata_to_opf(mi, as_string=True, default_lang=None):
-    from lxml import etree
     import textwrap
-    from calibre.ebooks.oeb.base import OPF, DC
+    from lxml import etree
+
+    from calibre.ebooks.oeb.base import DC, OPF
 
     if not mi.application_id:
         mi.application_id = str(uuid.uuid4())
@@ -1652,9 +1700,11 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)
-    meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
-    if getattr(mi, 'author_link_map', None) is not None:
-        meta('author_link_map', dump_dict(mi.author_link_map))
+
+    def meta(n, c):
+        return factory('meta', name='calibre:' + n, content=c)
+    if not mi.is_null('link_maps'):
+        meta('link_maps', dump_dict(mi.link_maps))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:

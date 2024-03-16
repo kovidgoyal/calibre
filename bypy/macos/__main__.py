@@ -20,13 +20,14 @@ from functools import partial, reduce
 from itertools import repeat
 
 from bypy.constants import (
-    OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
+    OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version,
 )
 from bypy.freeze import (
-    extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
+    extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
+    path_to_freeze_dir,
 )
 from bypy.utils import (
-    current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk
+    current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk,
 )
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
@@ -44,11 +45,14 @@ ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
     SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
+    OPENSSL_ENGINES='@executable_path/../Frameworks/engines-3',
+    OPENSSL_MODULES='@executable_path/../Frameworks/ossl-modules',
 )
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
 ARCH_FLAGS = '-arch x86_64 -arch arm64'.split()
 EXPECTED_ARCHES = {'x86_64', 'arm64'}
+MINIMUM_SYSTEM_VERSION = '13.0.0'
 
 
 def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
@@ -99,7 +103,7 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
         is_gui = 'true' if ptype == 'gui' else 'false'
         cmd = [gcc] + ARCH_FLAGS + [
             '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
-            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names'
+            '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names',
         ]
         # print('\t'+' '.join(cmd))
         sys.stdout.flush()
@@ -270,12 +274,10 @@ class Freeze:
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            if x.startswith('@rpath/Qt') or x.startswith('@rpath/libexpat'):
-                yield x, x[len('@rpath/'):], is_id
-            elif x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib') and not is_id:
+            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib', 'libjbig.2.1.dylib') and not is_id:
                 yield x, x, is_id
             else:
-                for y in (PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
+                for y in ('@rpath/', PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
                     if x.startswith(y):
                         if y == PREFIX + '/python/Python.framework/':
                             y = PREFIX + '/python/'
@@ -395,7 +397,7 @@ class Freeze:
                 CFBundlePackageType='APPL',
                 CFBundleSignature='????',
                 CFBundleExecutable='pdftohtml',
-                LSMinimumSystemVersion='10.15.0',
+                LSMinimumSystemVersion=MINIMUM_SYSTEM_VERSION,
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 CFBundleIconFile='',
@@ -414,9 +416,6 @@ class Freeze:
             raise SystemExit('No calibre plugins found in: ' + self.ext_dir)
         for f in plugins:
             self.fix_dependencies_in_lib(f)
-            if f.endswith('/podofo.so'):
-                self.change_dep('libpodofo.0.9.7.dylib',
-                    '@executable_path/../Frameworks/libpodofo.0.9.7.dylib', False, f)
 
     @flush
     def create_plist(self):
@@ -448,7 +447,7 @@ class Freeze:
             CFBundleExecutable='calibre',
             CFBundleDocumentTypes=docs,
             CFBundleURLTypes=url_handlers,
-            LSMinimumSystemVersion='10.15.0',
+            LSMinimumSystemVersion=MINIMUM_SYSTEM_VERSION,
             LSRequiresNativeExecution=True,
             NSAppleScriptEnabled=False,
             NSSupportsAutomaticGraphicsSwitching=True,
@@ -476,13 +475,13 @@ class Freeze:
     @flush
     def add_podofo(self):
         print('\nAdding PoDoFo')
-        pdf = join(PREFIX, 'lib', 'libpodofo.0.9.7.dylib')
+        pdf = join(PREFIX, 'lib', 'libpodofo.2.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.115.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.130.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdftotext'):
             self.install_dylib(
@@ -491,9 +490,9 @@ class Freeze:
     @flush
     def add_imaging_libs(self):
         print('\nAdding libjpeg, libpng, libwebp, optipng and mozjpeg')
-        for x in ('jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2'):
+        for x in ('jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2', 'sharpyuv.0'):
             self.install_dylib(join(PREFIX, 'lib', 'lib%s.dylib' % x))
-        for x in 'optipng', 'JxrDecApp':
+        for x in 'optipng', 'JxrDecApp', 'cwebp':
             self.install_dylib(join(PREFIX, 'bin', x), set_id=False, dest=self.helpers_dir)
         for x in ('jpegtran', 'cjpeg'):
             self.install_dylib(
@@ -527,10 +526,10 @@ class Freeze:
     def add_misc_libraries(self):
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
-            'icudata.70', 'icui18n.70', 'icuio.70', 'icuuc.70', 'hyphen.0', 'uchardet.0',
+            'icudata.73', 'icui18n.73', 'icuio.73', 'icuuc.73', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
-            'brotlicommon.1', 'brotlidec.1', 'brotlienc.1',
-            'crypto.1.1', 'ssl.1.1', 'iconv.2',  # 'ltdl.7'
+            'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
+            'crypto.3', 'ssl.3', 'iconv.2',  # 'ltdl.7'
         ):
             print('\nAdding', x)
             x = 'lib%s.dylib' % x
@@ -539,6 +538,16 @@ class Freeze:
             dest = join(self.frameworks_dir, x)
             self.set_id(dest, self.FID + '/' + x)
             self.fix_dependencies_in_lib(dest)
+
+        # OpenSSL modules and engines
+        for x in ('ossl-modules', 'engines-3'):
+            dest = join(self.frameworks_dir, x)
+            shutil.copytree(join(PREFIX, 'lib', x), dest)
+            for dylib in os.listdir(dest):
+                if dylib.endswith('.dylib'):
+                    dylib = join(dest, dylib)
+                    self.set_id(dylib, self.FID + '/' + x + '/' + os.path.basename(dylib))
+                    self.fix_dependencies_in_lib(dylib)
 
     @flush
     def add_site_packages(self):
@@ -587,7 +596,7 @@ class Freeze:
     def add_packages_from_dir(self, src):
         for x in os.listdir(src):
             x = join(src, x)
-            if os.path.isdir(x) and os.path.exists(join(x, '__init__.py')):
+            if os.path.isdir(x) and is_package_dir(x):
                 if self.filter_package(basename(x)):
                     continue
                 self.add_package_dir(x)
@@ -742,15 +751,24 @@ class Freeze:
             e = plist['CFBundleDocumentTypes'][0]
             e['CFBundleTypeExtensions'] = [x.lower() for x in formats]
 
+        def headless_plist(plist):
+            plist['CFBundleDisplayName'] = 'calibre worker process'
+            plist['CFBundleExecutable'] = 'calibre-parallel'
+            plist['CFBundleIdentifier'] = 'com.calibre-ebook.calibre-parallel'
+            plist['LSBackgroundOnly'] = '1'
+            plist.pop('CFBundleDocumentTypes')
+
         self.create_app_clone('ebook-viewer.app', partial(specialise_plist, 'ebook-viewer', input_formats))
         self.create_app_clone('ebook-edit.app', partial(specialise_plist, 'ebook-edit', edit_formats),
                 base_dir=join(self.contents_dir, 'ebook-viewer.app', 'Contents'))
+        self.create_app_clone('headless.app', headless_plist,
+                base_dir=join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents'))
         # We need to move the webengine resources into the deepest sub-app
         # because the sandbox gets set to the nearest enclosing app which
         # means that WebEngine will fail to access its resources when running
         # in the sub-apps unless they are present inside the sub app bundle
         # somewhere
-        base_dest = join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents', 'SharedSupport')
+        base_dest = join(self.contents_dir, 'ebook-viewer.app', 'Contents', 'ebook-edit.app', 'Contents', 'headless.app', 'Contents', 'SharedSupport')
         os.mkdir(base_dest)
         base_src = os.path.realpath(join(self.frameworks_dir, 'QtWebEngineCore.framework/Resources'))
         items = [join(base_src, 'qtwebengine_locales')] + glob.glob(join(base_src, '*.pak')) + glob.glob(join(base_src, '*.dat'))
@@ -810,7 +828,8 @@ def main(args, ext_dir, test_runner):
     build_dir = abspath(join(mkdtemp('frozen-'), APPNAME + '.app'))
     inc_dir = abspath(mkdtemp('include'))
     if args.skip_tests:
-        test_runner = lambda *a: None
+        def test_runner(*a):
+            return None
     Freeze(build_dir, ext_dir, inc_dir, test_runner, dont_strip=args.dont_strip, sign_installers=args.sign_installers, notarize=args.notarize)
 
 

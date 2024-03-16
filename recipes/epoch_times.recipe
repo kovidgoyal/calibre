@@ -7,40 +7,45 @@ class EpochTimes(BasicNewsRecipe):
     title = 'The Epoch Times'
     __author__ = 'Kovid Goyal'
     description = 'US general news'
-    language = 'en_US'
+    language = 'en'
     encoding = 'utf-8'
-    oldest_article = 2
-    max_articles_per_feed = 10
-    extra_css = """
-        body{font-family: Arial,sans-serif }
-        .featured_caption{font-size: small}
-        .author,.date{font-size: small}
-    """
+    oldest_article = 1.2
+    max_articles_per_feed = 20
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['height', 'width', 'style']
+    remove_empty_feeds =  True
+    no_stylesheets = True
+    resolve_internal_links = True
+    masthead_url = 'https://epochtimes-ny.newsmemory.com/eeLayout/epochtimes/1.0.a/images/webapp/banner.png'
+    extra_css = '.post_caption, .text-sm, .uppercase {font-size:small;}'
+
     keep_only_tags = [
-        classes('post_title featured_image pricat_name author date post_content'),
+        dict(name='article')
     ]
     remove_tags = [
-        classes('author_wrapper bottom_row'),
+        classes('print:hidden h-header shortcode aspect-square'),
+        dict(name=['button', 'svg']),
+        dict(name='img', attrs={'src':lambda x: x and x.endswith('svg')})
     ]
 
+	# feeds can be found at https://www.theepochtimes.com/rssfeeds
     feeds = [
-        ('US', 'https://www.theepochtimes.com/c-us/feed/'),
-        ('World', 'https://www.theepochtimes.com/c-world/feed/'),
-        ('General', 'https://www.theepochtimes.com/feed/'),
-        ('Opinion', 'https://www.theepochtimes.com/c-opinion/feed/'),
-        ('Business and Economy', 'https://www.theepochtimes.com/c-business/feed/'),
-        ('Science', 'https://www.theepochtimes.com/c-science/feed/'),
-        ('Tech', 'https://www.theepochtimes.com/c-tech/feed/'),
-        ('Health', 'https://www.theepochtimes.com/c-wellness/feed/'),
-        ('Entertainment', 'https://www.theepochtimes.com/c-entertainment/feed/'),
+        ('Special Series', 'https://feed.theepochtimes.com/health/special-series/feed'),
+        ('US', 'https://feed.theepochtimes.com/us/feed'),
+        ('China News', 'https://feed.theepochtimes.com/china/feed'),
+        ('World', 'https://feed.theepochtimes.com/world/feed'),
+        ('Opinion', 'https://feed.theepochtimes.com/opinion/feed'),
+        ('Business & Markets', 'https://feed.theepochtimes.com/business/feed'),
+        ('Science', 'https://feed.theepochtimes.com/science/feed'),
+        ('Tech', 'https://feed.theepochtimes.com/tech/feed'),
+        ('Health & Wellness', 'https://feed.theepochtimes.com/wellness/feed'),
+        ('Epoch Taste', 'https://feed.theepochtimes.com/epoch-taste/feed'),
+        ('Entertainment', 'https://feed.theepochtimes.com/entertainment/feed'),
     ]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
-        title = soup.find(attrs={'class': 'post_title'})
-        fi = soup.find(attrs={'class': 'featured_image'})
-        if title is not None and fi is not None:
-            title.extract()
-            fi.insert_before(title)
+        for fig_c in soup.findAll('figcaption'):
+            fig_c['class'] = 'post_caption'
         return soup

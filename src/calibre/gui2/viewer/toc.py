@@ -6,14 +6,15 @@ import re
 from functools import partial
 from qt.core import (
     QAbstractItemView, QApplication, QEvent, QFont, QHBoxLayout, QIcon, QMenu,
-    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate,
-    Qt, QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal
+    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate, Qt,
+    QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal,
 )
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.gestures import GestureManager
+from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
+from calibre.utils.localization import _
 
 
 class Delegate(QStyledItemDelegate):
@@ -87,13 +88,8 @@ class TOCView(QTreeView):
                 padding-bottom:0.5ex;
             }
 
-            QTreeView::item:hover {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
-                color: black;
-                border: 1px solid #bfcde4;
-                border-radius: 6px;
-            }
-        ''')
+        ''' + QApplication.instance().palette_manager.tree_view_hover_style())
+        self.setProperty('hovered_item_is_highlighted', True)
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():

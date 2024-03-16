@@ -20,7 +20,7 @@ class TheBudgetFashionista(BasicNewsRecipe):
     encoding = 'utf-8'
     publisher = 'TBF GROUP, LLC.'
     category = 'news, fashion, cosmetics, women'
-    lang = 'en-US'
+    lang = 'en'
     language = 'en'
     auto_cleanup = True
 

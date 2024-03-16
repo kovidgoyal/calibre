@@ -1,19 +1,23 @@
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import mechanize
 
 
 class AdvancedUserRecipe1283848012(BasicNewsRecipe):
-    description = 'This is a recipe of Ynet.co.il. The recipe opens the article page and clicks on an advertisement to not hurt the sites advertising income.'
-    cover_url = 'http://www.bneiakiva.net/uploads/images/ynet%282%29.jpg'
+    description = 'This is a recipe of Ynet.co.il.'
+    cover_url = 'http://www.ynet.co.il/images/CENTRAL_logo.gif'
     title = u'Ynet'
-    __author__ = 'marbs'
+    __author__ = 'marbs & barakplasma'
     language = 'he'
     extra_css = 'img {max-width:100%;direction: rtl;} #article{direction: rtl;} div{direction: rtl;} title{direction: rtl; } article_description{direction: rtl; } a.article{direction: rtl; } calibre_feed_description{direction: rtl; } body{direction: ltr;}'  # noqa
     remove_attributes = ['width']
     simultaneous_downloads = 5
-    keep_only_tags = dict(name='div', attrs={'id': 'articleContainer'})
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'mainTitle'}),
+        dict(name='h2', attrs={'class': 'subTitle'}),
+        dict(name='div', attrs={'class': 'text_editor_paragraph rtl'}),
+        dict(name='div', attrs={'class': 'ArticleBodyComponent'}),
+    ]
     remove_javascript = True
     timefmt = '[%a, %d %b, %Y]'
     oldest_article = 1
@@ -28,48 +32,51 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         soup.body['dir'] = 'rtl'
         return soup
 
-    feeds = [(u'\u05d7\u05d3\u05e9\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss2.xml'),
-             (u'\u05db\u05dc\u05db\u05dc\u05d4',
-              u'http://www.ynet.co.il/Integration/StoryRss6.xml'),
-             (u'\u05e6\u05e8\u05db\u05e0\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss437.xml'),
-             (u'\u05e1\u05e4\u05d5\u05e8\u05d8',
-              u'http://www.ynet.co.il/Integration/StoryRss3.xml'),
-             (u'\u05ea\u05e8\u05d1\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss538.xml'),
-             (u'\u05de\u05e2\u05d5\u05e8\u05d1\u05d5\u05ea \u05d5\u05d7\u05d1\u05e8\u05d4',
-              u'http://www.ynet.co.il/Integration/StoryRss3262.xml'),
-             (u'\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss1208.xml'),
-             (u'\u05d9\u05e8\u05d5\u05e7',
-              u'http://www.ynet.co.il/Integration/StoryRss4872.xml'),
-             (u'\u05de\u05d7\u05e9\u05d1\u05d9\u05dd',
-              u'http://www.ynet.co.il/Integration/StoryRss544.xml'),
-             (u'\u05e8\u05db\u05d1', u'http://www.ynet.co.il/Integration/StoryRss550.xml'),
-             (u'\u05ea\u05d9\u05d9\u05e8\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss598.xml'),
-             (u'\u05d4\u05d5\u05e8\u05d9\u05dd',
-              u'http://www.ynet.co.il/Integration/StoryRss3052.xml'),
-             (u'\u05d0\u05d5\u05db\u05dc',
-              u'http://www.ynet.co.il/Integration/StoryRss975.xml'),
-             (u'\u05d9\u05d4\u05d3\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss4403.xml'),
-             (u'\u05de\u05d3\u05e2 \u05d5\u05d8\u05d1\u05e2',
-              u'http://www.ynet.co.il/Integration/StoryRss2142.xml'),
-             (u'\u05d9\u05d7\u05e1\u05d9\u05dd',
-              u'http://www.ynet.co.il/Integration/StoryRss3925.xml'),
-             (u'\u05d3\u05e2\u05d5\u05ea',
-              u'http://www.ynet.co.il/Integration/StoryRss194.xml')]
-
-    def print_version(self, url):
-        # remove from here
-        br = BasicNewsRecipe.get_browser(self)
-        br.open(url)
-        br.follow_link(mechanize.Link(base_url='', url=url,
-                                      text='', tag='a', attrs=[{'id': 'buzzerATop'}]))
-# to here to stop supporting ynet...
-        split1 = url.split("-")
-        print_url = 'http://www.ynet.co.il/Ext/Comp/ArticleLayout/CdaArticlePrintPreview/1,2506,L-' + \
-            split1[1]
-        return print_url
+    feeds = [
+        (u'כל ערוץ החדשות', u'http://www.ynet.co.il/Integration/StoryRss2.xml'),
+        (u'מבזקי החדשות', u'http://www.ynet.co.il/Integration/StoryRss1854.xml'),
+        (u'בלוגוס', u'http://www.ynet.co.il/Integration/StoryRss3764.xml'),
+        (u'כל ערוץ הדעות', u'http://www.ynet.co.il/Integration/StoryRss194.xml'),
+        (u'יומני סבר', u'http://www.ynet.co.il/Integration/StoryRss3487.xml'),
+        (u'כל ערוץ הצרכנות', u'http://www.ynet.co.il/Integration/StoryRss5363.xml'),
+        (u'כל ערוץ הספורט', u'http://www.ynet.co.il/Integration/StoryRss3.xml'),
+        (u'כדורגל ישראלי', u'http://www.ynet.co.il/Integration/StoryRss57.xml'),
+        (u'כל ערוץ התרבות', u'http://www.ynet.co.il/Integration/StoryRss538.xml'),
+        (u'בלוג הפרעות', u'http://www.ynet.co.il/Integration/StoryRss4450.xml'),
+        (u'חיים בסרט', u'http://www.ynet.co.il/Integration/StoryRss3908.xml'),
+        (u'כל ערוץ מעורבות', u'http://www.ynet.co.il/Integration/StoryRss3262.xml'),
+        (u'בית', u'http://www.ynet.co.il/Integration/StoryRss4113.xml'),
+        (u'זוגיות', u'http://www.ynet.co.il/Integration/StoryRss4107.xml'),
+        (u'מלחשים', u'http://www.ynet.co.il/Integration/StoryRss4105.xml'),
+        (u'סטייל', u'http://www.ynet.co.il/Integration/StoryRss4104.xml'),
+        (u'קריירה', u'http://www.ynet.co.il/Integration/StoryRss4111.xml'),
+        (u'שף', u'http://www.ynet.co.il/Integration/StoryRss4335.xml'),
+        (u'כל ערוץ הבריאות', u'http://www.ynet.co.il/Integration/StoryRss1208.xml'),
+        (u'כל הערוץ הירוק', u'http://www.ynet.co.il/Integration/StoryRss4872.xml'),
+        (u'סביבה', u'http://www.ynet.co.il/Integration/StoryRss4879.xml'),
+        (u'בעלי חיים', u'http://www.ynet.co.il/Integration/StoryRss4880.xml'),
+        (u'שאלות חיות', u'http://www.ynet.co.il/Integration/StoryRss4926.xml'),
+        (u'כל ערוץ המחשבים', u'http://www.ynet.co.il/Integration/StoryRss544.xml'),
+        (u'סקירות', u'http://www.ynet.co.il/Integration/StoryRss2424.xml'),
+        (u'אינטרנט', u'http://www.ynet.co.il/Integration/StoryRss546.xml'),
+        (u'משחקים', u'http://www.ynet.co.il/Integration/StoryRss571.xml'),
+        (u'PC מגזין', u'http://www.ynet.co.il/Integration/StoryRss1694.xml'),
+        (u'טכנולוגיה', u'http://www.ynet.co.il/Integration/StoryRss545.xml'),
+        (u'קטעי קישור', u'http://www.ynet.co.il/Integration/StoryRss4540.xml'),
+        (u'מרושתים', u'http://www.ynet.co.il/Integration/StoryRss4541.xml'),
+        (u'מדריכים ותוכנה', u'http://www.ynet.co.il/Integration/StoryRss786.xml'),
+        (u'כל ערוץ הרכב', u'http://www.ynet.co.il/Integration/StoryRss550.xml'),
+        (u'כל ערוץ התיירות', u'http://www.ynet.co.il/Integration/StoryRss598.xml'),
+        (u'כל ערוץ ההורים', u'http://www.ynet.co.il/Integration/StoryRss3052.xml'),
+        (u'כל ערוץ האוכל', u'http://www.ynet.co.il/Integration/StoryRss975.xml'),
+        (u'כל ערוץ היהדות', u'http://www.ynet.co.il/Integration/StoryRss4403.xml'),
+        (u'במנהרת הזמן', u'http://www.ynet.co.il/Integration/StoryRss4542.xml'),
+        (u'כל ערוץ הכלכלה', u'http://www.ynet.co.il/Integration/StoryRss6.xml'),
+        (u'כל ערוץ מדע וטבע', u'http://www.ynet.co.il/Integration/StoryRss2142.xml'),
+        (u'כל ערוץ יחסים', u'http://www.ynet.co.il/Integration/StoryRss3925.xml'),
+        (u'News', u'https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3082/'),
+        (u'News updates', u'https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3089/'),
+        (u'Opinion', u'https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3084/'),
+        (u'Culture', u'https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3086/'),
+        (u'Jewish', u'https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3443/')
+    ]

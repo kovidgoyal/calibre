@@ -5,14 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-
 from qt.core import (
-    QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout, QSize,
-    QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu, QInputDialog)
+    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QIcon,
+    QInputDialog, QLabel, QMainWindow, QMenu, QSize, QSpinBox, Qt, QToolButton,
+    pyqtSignal,
+)
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions, tprefs, editors
+from calibre.gui2.tweak_book import actions, editors, tprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
+from calibre.startup import connect_lambda
 from polyglot.builtins import itervalues
 
 

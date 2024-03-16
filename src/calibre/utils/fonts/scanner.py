@@ -9,11 +9,13 @@ import os
 from collections import defaultdict
 from threading import Thread
 
-from calibre import walk, prints, as_unicode
-from calibre.constants import (config_dir, iswindows, ismacos, DEBUG,
-        isworker, filesystem_encoding)
+from calibre import as_unicode, prints, walk
+from calibre.constants import (
+    DEBUG, config_dir, filesystem_encoding, ismacos, iswindows, isworker,
+)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import itervalues
 
 
@@ -198,7 +200,7 @@ class FontScanner(Thread):
     CACHE_VERSION = 2
 
     def __init__(self, folders=[], allowed_extensions={'ttf', 'otf'}):
-        Thread.__init__(self)
+        super().__init__(daemon=True)
         self.folders = folders + font_dirs() + [os.path.join(config_dir, 'fonts'),
                 P('fonts/liberation')]
         self.folders = [os.path.normcase(os.path.abspath(f)) for f in
@@ -253,7 +255,7 @@ class FontScanner(Thread):
         path = font_or_path
         if isinstance(font_or_path, dict):
             path = font_or_path['path']
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             return f.read()
 
     def find_font_for_text(self, text, allowed_families={'serif', 'sans-serif'},
@@ -267,8 +269,9 @@ class FontScanner(Thread):
 
         :return: (family name, faces) or None, None
         '''
-        from calibre.utils.fonts.utils import (supports_text,
-                panose_to_css_generic_family, get_printable_characters)
+        from calibre.utils.fonts.utils import (
+            get_printable_characters, panose_to_css_generic_family, supports_text,
+        )
         if not isinstance(text, str):
             raise TypeError('%r is not unicode'%text)
         text = get_printable_characters(text)
@@ -365,6 +368,7 @@ class FontScanner(Thread):
         self.font_family_map, self.font_families = build_families(self.cached_fonts, self.folders)
 
     def write_cache(self):
+        # writing to the cache is atomic thanks to JSONConfig
         with self.cache:
             self.cache['version'] = self.CACHE_VERSION
             self.cache['fonts'] = self.cached_fonts
@@ -374,7 +378,7 @@ class FontScanner(Thread):
         self.write_cache()
 
     def read_font_metadata(self, path, fileid):
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             try:
                 fm = FontMetadata(f)
             except UnsupportedFont:

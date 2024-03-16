@@ -7,12 +7,65 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import sys
 from qt.core import (
-    QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QKeySequence,
-    QLabel, QSize, Qt, QToolBar, QVBoxLayout
+    QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QKeySequence,
+    QLabel, QSize, QSpinBox, Qt, QToolBar, QVBoxLayout,
 )
 
 from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
+
+
+class Region(QDialog):
+
+    ignore_value_changes = False
+
+    def __init__(self, parent, width, height, max_width, max_height):
+        super().__init__(parent)
+        self.setWindowTitle(_('Set size of selected area'))
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        self.width_input = w = QSpinBox(self)
+        w.setRange(20, max_width), w.setSuffix(' px'), w.setValue(width)
+        w.valueChanged.connect(self.value_changed)
+        l.addRow(_('&Width:'), w)
+        self.height_input = h = QSpinBox(self)
+        h.setRange(20, max_height), h.setSuffix(' px'), h.setValue(height)
+        h.valueChanged.connect(self.value_changed)
+        l.addRow(_('&Height:'), h)
+        self.const_aspect = ca = QCheckBox(_('Keep the ratio of width to height fixed'))
+        ca.toggled.connect(self.const_aspect_toggled)
+        l.addRow(ca)
+        k = QKeySequence('alt+1', QKeySequence.SequenceFormat.PortableText).toString(QKeySequence.SequenceFormat.NativeText).partition('+')[0]
+        la = QLabel('<p>'+_('Note that holding down the {} key while dragging the selection handles'
+                          ' will resize the selection while preserving its aspect ratio.').format(k))
+        la.setWordWrap(True)
+        la.setMinimumWidth(400)
+        l.addRow(la)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addRow(bb)
+        self.resize(self.sizeHint())
+        self.current_aspect = width / height
+
+    def const_aspect_toggled(self):
+        if self.const_aspect.isChecked():
+            self.current_aspect = self.width_input.value() / self.height_input.value()
+
+    def value_changed(self):
+        if self.ignore_value_changes or not self.const_aspect.isChecked():
+            return
+        src = self.sender()
+        self.ignore_value_changes = True
+        if src is self.height_input:
+            self.width_input.setValue(int(self.current_aspect * self.height_input.value()))
+        else:
+            self.height_input.setValue(int(self.width_input.value() / self.current_aspect))
+        self.ignore_value_changes = False
+
+    @property
+    def selection_size(self):
+        return self.width_input.value(), self.height_input.value()
 
 
 class TrimImage(QDialog):
@@ -44,6 +97,8 @@ class TrimImage(QDialog):
         ac.setToolTip('{} [{}]'.format(_('Trim image by removing borders outside the selected region'),
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         ac.setEnabled(False)
+        self.size_selection = ac = self.bar.addAction(QIcon.ic('resize.png'), _('&Region'), self.do_region)
+        ac.setToolTip(_('Specify a selection region size using numbers to allow for precise control'))
         c.selection_state_changed.connect(self.selection_changed)
         c.selection_area_changed.connect(self.selection_area_changed)
         l.addWidget(c)
@@ -72,6 +127,13 @@ class TrimImage(QDialog):
 
     def sizeHint(self):
         return QSize(900, 600)
+
+    def do_region(self):
+        rect = self.canvas.selection_rect_in_image_coords
+        d = Region(self, int(rect.width()), int(rect.height()), self.canvas.current_image.width(), self.canvas.current_image.height())
+        if d.exec() == QDialog.DialogCode.Accepted:
+            width, height = d.selection_size
+            self.canvas.set_selection_size_in_image_coords(width, height)
 
     def do_trim(self):
         self.canvas.trim_image()

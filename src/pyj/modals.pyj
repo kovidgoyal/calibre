@@ -38,13 +38,14 @@ class Modal:
         modal_count += 1
         self.id = modal_count
 
+
 class ModalContainer:
 
     def __init__(self):
         div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
-                E.div(),  # content area
-                E.a(svgicon('close'), title=_('Close'))
+                E.div(class_='modal_height_container'),  # content area
+                E.a(svgicon('close'), title=_('Close'), onclick=self.close_current_modal.bind(self))
             )
         )
         div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
@@ -54,12 +55,12 @@ class ModalContainer:
         set_css(div,
             position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
             background_color='rgba(0,0,0,0.8)', z_index=MODAL_Z_INDEX + '',
-            display='none', text_align='center', user_select='none'
+            display='none', user_select='none', justify_content='center', align_items='center',
         )
 
         # Popup style
         set_css(div.firstChild,
-            position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
+            position='relative', display='inline-block',
             min_width='25vw', max_width='70vw',  # Needed for iPhone 5
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
@@ -73,8 +74,6 @@ class ModalContainer:
             background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
             border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black'
         )
-        div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_current_modal(event);)
-
         # Content container style
         # need padding: 1px to avoid scrollbar in modal on Qt WebEngine 6.3
         set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto', padding='1px')
@@ -116,7 +115,7 @@ class ModalContainer:
                 self.current_modal = None
                 raise
             if c.style.display is 'none':
-                set_css(c, display='block')
+                c.style.display = 'flex'
             c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
 
     def clear_current_modal(self):
@@ -191,13 +190,13 @@ def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_
 def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown=None):
     def create_func(parent, close_modal):
         content_div = E.div()
-        content_generator_func(content_div, close_modal)
         parent.appendChild(
             E.div(
                 style='max-width:60em; text-align: left',
                 E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
                 E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
         ))
+        content_generator_func(content_div, close_modal)
     show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
 
 

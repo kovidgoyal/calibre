@@ -8,7 +8,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from gettext import gettext as _
-from read_book.globals import runtime, ui_operations
+from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
@@ -29,6 +29,7 @@ def is_flow_mode():
 class ReadAloud:
 
     dont_hide_on_content_loaded = True
+    prevent_navigation = True
 
     def __init__(self, view):
         self.view = view
@@ -44,6 +45,10 @@ class ReadAloud:
             style='border: solid 1px currentColor; border-radius: 5px;'
             'display: flex; flex-direction: column; margin: 1rem;'
         ))
+        container.appendChild(E.style(
+            f'#{self.bar_id}.speaking '+'{ opacity: 0.5 }\n\n',
+            f'#{self.bar_id}.speaking:hover '+'{ opacity: 1.0 }\n\n',
+        ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
         container.addEventListener('contextmenu', self.toggle, {'passive': False})
@@ -54,7 +59,7 @@ class ReadAloud:
 
     @property
     def supports_css_min_max(self):
-        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+        return True
 
     @property
     def bar(self):
@@ -99,6 +104,10 @@ class ReadAloud:
             return
         self.container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
         bar_container = self.bar
+        if self.state is PLAYING:
+            bar_container.classList.add('speaking')
+        else:
+            bar_container.classList.remove('speaking')
         clear(bar_container)
         bar_container.style.maxWidth = 'min(40rem, 80vw)' if self.supports_css_min_max else '40rem'
         bar_container.style.backgroundColor = get_color("window-background")
@@ -136,7 +145,7 @@ class ReadAloud:
         bar.appendChild(cb('slower', 'slower', _('Slow down speech')))
         bar.appendChild(cb('faster', 'faster', _('Speed up speech')))
         bar.appendChild(cb('configure', 'cogs', _('Configure Read aloud')))
-        bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
+        bar.appendChild(cb('hide', 'off', _('Close Read aloud')))
         if self.state is not WAITING_FOR_PLAY_TO_START:
             notes_container = bar_container.lastChild
             notes_container.style.display = notes_container.previousSibling.style.display = 'block'
@@ -218,8 +227,6 @@ class ReadAloud:
         elif sc_name is 'quit':
             self.hide()
             ui_operations.quit()
-        elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
-            self.send_message('trigger-shortcut', name=sc_name)
 
     def handle_tts_event(self, which, data):
         if which is 'mark':

@@ -186,7 +186,7 @@ def do_convert(path, temp_path, key, instance):
                     )))
                 p.stdin.close()
             if p.wait() != 0:
-                with lopen(logpath, 'rb') as logf:
+                with open(logpath, 'rb') as logf:
                     worker_output = logf.read().decode('utf-8', 'replace')
                 raise ConversionFailure(path, worker_output)
     finally:
@@ -311,7 +311,8 @@ def find_tests():
             def convert_mock(path, temp_path, key, instance):
                 self.ae(instance['status'], 'working')
                 self.ae(instance['key'], key)
-                open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb').write(b'test')
+                with open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb') as f:
+                    f.write(b'test')
 
             def set_data(x):
                 if not isinstance(x, bytes):
@@ -322,7 +323,10 @@ def find_tests():
             book_src = os.path.join(self.tdir, 'book.epub')
             set_data('a')
             path = prepare_book(book_src, convert_func=convert_mock)
-            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'test')
+            def read(x, mode='r'):
+                with open(x, mode) as f:
+                    return f.read()
+            self.ae(read(os.path.join(path, 'sentinel'), 'rb'), b'test')
 
             # Test that opening the same book uses the cache
             second_path = prepare_book(book_src, convert_func=convert_mock)
@@ -365,11 +369,11 @@ def find_tests():
             book_src = os.path.join(self.tdir, 'book2.epub')
             set_data('bb')
             path = prepare_book(book_src, convert_func=convert_mock)
-            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'test')
+            self.ae(read(os.path.join(path, 'sentinel'), 'rb'), b'test')
             bs = os.stat(book_src)
             set_data('cde')
             update_book(book_src, bs, name_data_map={'sentinel': b'updated'})
-            self.ae(open(os.path.join(path, 'sentinel'), 'rb').read(), b'updated')
+            self.ae(read(os.path.join(path, 'sentinel'), 'rb'), b'updated')
             self.ae(1, len(os.listdir(os.path.join(book_cache_dir(), 'f'))))
             with cache_lock() as f:
                 metadata = json.loads(f.read())

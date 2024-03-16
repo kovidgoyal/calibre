@@ -1,0 +1,73 @@
+'''
+https://www.economist.com/the-world-in-brief
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
+class Espresso(BasicNewsRecipe):
+    title = 'The Economist Espresso'
+    language = 'en'
+    __author__ = 'unkn0wn'
+    description = (
+        'Espresso is a rich, full-flavoured shot of daily global analysis'
+        ' from the editors of The Economist to get you up to speed, fast.'
+         'Maximise your understanding of the most significant business, '
+         'economic, political and cultural developments globally.'
+    )
+    cover_url = 'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
+    no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    use_embedded_content = False
+    masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
+
+    extra_css = '''
+        h1 { text-align:center; }
+        ._main-image, ._description, .sub { text-align:center; font-size:small; }
+        ._quote-container { font-size:x-large; font-style:italic; color:#202020; }
+    '''
+
+    keep_only_tags = [
+        dict(name='main', attrs={'id':'content'})
+    ]
+
+    remove_tags = [
+        classes('_podcast-promo _newsletter-promo-container _time-last-updated')
+    ]
+
+    def parse_index(self):
+        return [
+            ('Espresso',
+                [
+                    {
+                        'title': 'The World in Brief',
+                        'url': 'https://www.economist.com/the-world-in-brief',
+                        'description': 'Catch up quickly on the global stories that matter'
+                    },
+                ]
+            ),
+        ]
+
+    def preprocess_html(self, soup):
+        if h1 := soup.find('h1'):
+            if p := h1.find_next_sibling('p'):
+                p['class'] = 'sub'
+        for hr in soup.findAll(attrs={'class':['_gobbet', '_article']}):
+            nt = new_tag(soup, 'hr')
+            hr.append(nt)
+        return soup
+
+    def get_browser(self, *args, **kwargs):
+        # Needed to bypass cloudflare
+        kwargs['user_agent'] = 'common_words/based'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+        return br

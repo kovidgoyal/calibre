@@ -62,7 +62,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         main_articles, articles = [], []
         feeds = [('Features', main_articles), ('Latest', articles)]
         for li in toc.findAll('li'):
-            h2 = li.find('h2')
+            h2 = li.find(['h2', 'h3'])
             a = h2.find('a', href=True)
             if a is not None:
                 title = self.tag_to_string(a)
@@ -77,7 +77,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                 if desc:
                     self.log('\t', desc)
         for li in soup.find(id='stream-panel').find('ol').findAll('li'):
-            h2 = li.find('h2')
+            h2 = li.find(['h2', 'h3'])
             a = h2.findParent('a')
             url = absolutize(a['href'])
             p = h2.findNextSibling('p')

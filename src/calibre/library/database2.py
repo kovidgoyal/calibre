@@ -6,47 +6,64 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 
-import os, sys, shutil, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, numbers
+import copy
+import functools
+import glob
+import hashlib
+import json
+import numbers
+import os
+import random
+import re
+import shutil
+import sys
+import threading
+import time
+import traceback
+import uuid
 from collections import defaultdict, namedtuple
-import threading, random
 
-from calibre import prints, force_unicode
-from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
-        string_to_authors, get_title_sort_pat)
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.library.database import LibraryDatabase
-from calibre.library.field_metadata import FieldMetadata
-from calibre.library.schema_upgrades import SchemaUpgrade
-from calibre.library.caches import ResultCache
-from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError
-from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
-from calibre.ptempfile import (PersistentTemporaryFile,
-        base_dir, SpooledTemporaryFile)
-from calibre.customize.ui import (run_plugins_on_import,
-                                  run_plugins_on_postimport)
-from calibre import isbytestring
-from calibre.utils.filenames import (ascii_filename, samefile,
-        WindowsAtomicFolderMove, hardlink_file)
-from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
-        parse_only_date, UNDEFINED_DATE, parse_date)
-from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key, strcmp, lower
-from calibre.utils.search_query_parser import saved_searches, set_saved_searches
-from calibre.ebooks import check_ebook_format
-from calibre.utils.img import save_cover_data_to
-from calibre.utils.recycle_bin import delete_file, delete_tree
-from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
-from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
+from calibre import force_unicode, isbytestring, prints
+from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
+from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
+from calibre.db import (
+    _get_next_series_num_for_list, _get_series_values, get_data_as_dict,
+)
+from calibre.db.adding import (
+    find_books_in_directory, import_book_directory, import_book_directory_multiple,
+    recursive_import,
+)
+from calibre.db.categories import CATEGORY_SORTS, Tag
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
-from calibre.db.categories import Tag, CATEGORY_SORTS
-from calibre.utils.localization import (canonicalize_lang,
-        calibre_langcode_to_name)
+from calibre.ebooks import check_ebook_format
+from calibre.ebooks.metadata import (
+    author_to_author_sort, get_title_sort_pat, string_to_authors, title_sort,
+)
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.library.caches import ResultCache
+from calibre.library.custom_columns import CustomColumns
+from calibre.library.database import LibraryDatabase
+from calibre.library.field_metadata import FieldMetadata
+from calibre.library.prefs import DBPrefs
+from calibre.library.schema_upgrades import SchemaUpgrade
+from calibre.library.sqlite import IntegrityError, connect
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
+from calibre.utils.config import from_json, prefs, to_json, tweaks
+from calibre.utils.date import (
+    UNDEFINED_DATE, now as nowf, parse_date, parse_only_date, utcfromtimestamp, utcnow,
+)
+from calibre.utils.filenames import (
+    WindowsAtomicFolderMove, ascii_filename, hardlink_file, samefile,
+)
+from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.utils.icu import lower, lower as icu_lower, sort_key, strcmp
+from calibre.utils.img import save_cover_data_to
+from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
+from calibre.utils.recycle_bin import delete_file, delete_tree
+from calibre.utils.resources import get_path as P
+from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from polyglot.builtins import iteritems, string_or_bytes
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
@@ -188,7 +205,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # we need to do it before we call initialize_dynamic
         if apply_default_prefs and default_prefs is not None:
             if progress_callback is None:
-                progress_callback = lambda x, y: True
+                def progress_callback(x, y):
+                    return True
             dbprefs = DBPrefs(self)
             progress_callback(None, len(default_prefs))
             for i, key in enumerate(default_prefs):
@@ -755,10 +773,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
             try:
-                f = lopen(path, 'rb')
+                f = open(path, 'rb')
             except OSError:
                 time.sleep(0.2)
-                f = lopen(path, 'rb')
+                f = open(path, 'rb')
             with f:
                 if as_path:
                     pt = PersistentTemporaryFile('_dbcover.jpg')
@@ -872,7 +890,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             try:
                 raw = metadata_to_opf(mi)
-                with lopen(path, 'wb') as f:
+                with open(path, 'wb') as f:
                     f.write(raw)
                 if remove_from_dirtied:
                     self.clear_dirtied(book_id, sequence)
@@ -1311,7 +1329,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path is None:
             raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
         sha = hashlib.sha256()
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             while True:
                 raw = f.read(SPOOL_SIZE)
                 sha.update(raw)
@@ -1407,7 +1425,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     windows_atomic_move.copy_path_to(path, dest)
         else:
             if hasattr(dest, 'write'):
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     shutil.copyfileobj(f, dest)
                 if hasattr(dest, 'flush'):
                     dest.flush()
@@ -1426,7 +1444,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             return
                         except:
                             pass
-                    with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    with open(path, 'rb') as f, open(dest, 'wb') as d:
                         shutil.copyfileobj(f, d)
 
     def copy_cover_to(self, index, dest, index_is_id=False,
@@ -1457,10 +1475,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if os.access(path, os.R_OK):
                 try:
-                    f = lopen(path, 'rb')
+                    f = open(path, 'rb')
                 except OSError:
                     time.sleep(0.2)
-                f = lopen(path, 'rb')
+                    f = open(path, 'rb')
                 with f:
                     if hasattr(dest, 'write'):
                         shutil.copyfileobj(f, dest)
@@ -1474,7 +1492,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 return True
                             except:
                                 pass
-                        with lopen(dest, 'wb') as d:
+                        with open(dest, 'wb') as d:
                             shutil.copyfileobj(f, d)
                         return True
         return False
@@ -1499,7 +1517,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            with lopen(path, mode) as f:
+            with open(path, mode) as f:
                 if as_path:
                     if preserve_filename:
                         bd = base_dir()
@@ -1510,7 +1528,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             pass
                         fname = os.path.basename(path)
                         ret = os.path.join(d, fname)
-                        with lopen(ret, 'wb') as f2:
+                        with open(ret, 'wb') as f2:
                             shutil.copyfileobj(f, f2)
                     else:
                         with PersistentTemporaryFile('.'+format.lower()) as pt:
@@ -1531,7 +1549,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                               path=None, notify=True, replace=True):
         npath = self.run_import_plugins(fpath, format)
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-        stream = lopen(npath, 'rb')
+        stream = open(npath, 'rb')
         format = check_ebook_format(stream, format)
         id = index if index_is_id else self.id(index)
         retval = self.add_format(id, format, stream, replace=replace,
@@ -1563,7 +1581,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             if (not getattr(stream, 'name', False) or not samefile(dest,
                 stream.name)):
-                with lopen(dest, 'wb') as f:
+                with open(dest, 'wb') as f:
                     shutil.copyfileobj(stream, f)
                     size = f.tell()
             elif os.path.exists(dest):
@@ -1586,7 +1604,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if opath is None:
             return False
         nfmt = 'ORIGINAL_'+fmt
-        with lopen(opath, 'rb') as f:
+        with open(opath, 'rb') as f:
             return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
 
     def original_fmt(self, book_id, fmt):
@@ -1599,7 +1617,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         opath = self.format_abspath(book_id, original_fmt, index_is_id=True)
         if opath is not None:
             fmt = original_fmt.partition('_')[2]
-            with lopen(opath, 'rb') as f:
+            with open(opath, 'rb') as f:
                 self.add_format(book_id, fmt, f, index_is_id=True, notify=False)
             self.remove_format(book_id, original_fmt, index_is_id=True, notify=notify)
             return True
@@ -1972,32 +1990,40 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     icon_map[category] = icon
 
             datatype = cat['datatype']
-            avgr = lambda x: 0.0 if x.rc == 0 else x.rt/x.rc
+
+            def avgr(x):
+                return (0.0 if x.rc == 0 else x.rt / x.rc)
             # Duplicate the build of items below to avoid using a lambda func
             # in the main Tag loop. Saves a few %
             if datatype == 'rating':
-                formatter = (lambda x:'\u2605'*int(x//2))
-                avgr = lambda x: x.n
+                def formatter(x):
+                    return ('★' * int(x // 2))
+                def avgr(x):  # noqa
+                    return x.n
                 # eliminate the zero ratings line as well as count == 0
                 items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]
             elif category == 'authors':
                 # Clean up the authors strings to human-readable form
-                formatter = (lambda x: x.replace('|', ','))
+                def formatter(x):
+                    return x.replace('|', ',')
                 items = [v for v in tcategories[category].values() if v.c > 0]
             elif category == 'languages':
                 # Use a human readable language string
                 formatter = calibre_langcode_to_name
                 items = [v for v in tcategories[category].values() if v.c > 0]
             else:
-                formatter = (lambda x:str(x))
+                def formatter(x):
+                    return str(x)
                 items = [v for v in tcategories[category].values() if v.c > 0]
 
             # sort the list
             if sort == 'name':
-                kf = lambda x:sort_key(x.s)
+                def kf(x):
+                    return sort_key(x.s)
                 reverse=False
             elif sort == 'popularity':
-                kf = lambda x: x.c
+                def kf(x):
+                    return x.c
                 reverse=True
             else:
                 kf = avgr
@@ -2327,7 +2353,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif isinstance(mi.cover, string_or_bytes) and mi.cover:
             if os.access(mi.cover, os.R_OK):
-                with lopen(mi.cover, 'rb') as f:
+                with open(mi.cover, 'rb') as f:
                     raw = f.read()
                 if raw:
                     doit(self.set_cover, id, raw, commit=False)
@@ -3349,7 +3375,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        with lopen(path, 'rb') as stream:
+        with open(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
             if matches:
                 tag_matches = self.data.get_matches('tags', '='+_('Catalog'))
@@ -3385,7 +3411,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         from calibre.ebooks.metadata.meta import get_metadata
 
         format = os.path.splitext(path)[1][1:].lower()
-        stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+        stream = path if hasattr(path, 'read') else open(path, 'rb')
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False,
                 force_read_metadata=True)
@@ -3516,7 +3542,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_metadata(id, mi, commit=True, ignore_errors=True)
             npath = self.run_import_plugins(path, format)
             format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            with lopen(npath, 'rb') as stream:
+            with open(npath, 'rb') as stream:
                 format = check_ebook_format(stream, format)
                 self.add_format(id, format, stream, index_is_id=True)
             postimport.append((id, format))
@@ -3565,7 +3591,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if import_hooks:
                 self.add_format_with_hooks(id, ext, path, index_is_id=True)
             else:
-                with lopen(path, 'rb') as f:
+                with open(path, 'rb') as f:
                     self.add_format(id, ext, f, index_is_id=True)
         # Mark the book dirty, It probably already has been done by
         # set_metadata, but probably isn't good enough
@@ -3597,7 +3623,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def move_library_to(self, newloc, progress=None):
         if progress is None:
-            progress = lambda x:x
+            def progress(x):
+                return x
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs = set()

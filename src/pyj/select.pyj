@@ -53,7 +53,6 @@ def first_visible_word():
             if r?:
                 return r
 
-
 def empty_range_extents():
     return {
         'start': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False},
@@ -95,7 +94,10 @@ def range_extents(q, in_flow_mode):
     end = q.cloneRange()
 
     def rect_onscreen(r):
-        if r.right <= window.innerWidth and r.bottom <= window.innerHeight and r.left >= 0 and r.top >= 0:
+        # we use -1 rather than zero for the top limit because on some
+        # platforms the browser engine returns that for top line selections.
+        # See https://bugs.launchpad.net/calibre/+bug/2024375/ for a test case.
+        if r.right <= window.innerWidth and r.bottom <= window.innerHeight and r.left >= 0 and r.top >= -1:
             return True
         return False
 
@@ -212,26 +214,32 @@ def move_end_of_selection(pos, start):
     if not sel.rangeCount:
         return
     p = caret_position_from_point(pos.x, pos.y)
-    if p:
-        r = sel.getRangeAt(0)
-        if start is None:
-            q = document.createRange()
-            q.setStart(p.offsetNode, p.offset)
-            q.setEnd(p.offsetNode, p.offset)
-            if r.compareBoundaryPoints(window.Range.START_TO_START, q) >= 0:
-                start = True
-            elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
-                start = False
-            else:
-                # point is inside the selection
-                start = False
-        if start:
-            if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
-                r.setStart(p.offsetNode, p.offset)
-                sel.removeAllRanges()
-                sel.addRange(r)
+    if not p:
+        return
+    r = sel.getRangeAt(0)
+    if start is None:
+        q = document.createRange()
+        q.setStart(p.offsetNode, p.offset)
+        q.setEnd(p.offsetNode, p.offset)
+        if r.compareBoundaryPoints(window.Range.START_TO_START, q) >= 0:
+            start = True
+        elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
+            start = False
         else:
-            if r.endContainer is not p.offsetNode or r.endOffset is not p.offset:
-                r.setEnd(p.offsetNode, p.offset)
-                sel.removeAllRanges()
-                sel.addRange(r)
+            # point is inside the selection
+            start = False
+    new_range = document.createRange()
+    if start:
+        new_range.setStart(p.offsetNode, p.offset)
+        new_range.setEnd(r.endContainer, r.endOffset)
+        other_boundary_changed = r.endContainer is not new_range.endContainer or r.endOffset is not new_range.endOffset
+    else:
+        new_range.setStart(r.startContainer, r.startOffset)
+        new_range.setEnd(p.offsetNode, p.offset)
+        other_boundary_changed = r.startContainer is not new_range.startContainer or r.startOffset is not new_range.startOffset
+    if new_range.collapsed and other_boundary_changed:
+        # we ignore the case when the new range is collapsed and the other end
+        # of the selection is also moved as this is a chromium bug. See https://bugs.launchpad.net/bugs/2054934
+        return
+    sel.removeAllRanges()
+    sel.addRange(new_range)

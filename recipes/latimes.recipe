@@ -63,6 +63,7 @@ class LATimes(BasicNewsRecipe):
 
     keep_only_tags = [
         classes('headline page-lead-media authors published-date page-article-container'),
+        dict(attrs={'data-element':'story-body'}),
     ]
 
     remove_tags= [

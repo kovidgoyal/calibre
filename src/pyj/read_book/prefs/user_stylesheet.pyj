@@ -3,14 +3,16 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
+from ajax import absolute_path
 from book_list.globals import get_session_data
 from dom import ensure_id, unique_id
+from encodings import hexlify
+from gettext import gettext as _
 from read_book.globals import runtime, ui_operations
 from read_book.prefs.utils import create_button_box
-from session import defaults
-from viewer.constants import READER_BACKGROUND_URL
+from session import session_defaults
+from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
 from widgets import create_button
 
 BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
@@ -21,19 +23,33 @@ def change_background_image(img_id):
 
 
 def clear_image(img_id):
-    document.getElementById(img_id).src = BLANK
+    i = document.getElementById(img_id)
+    i.src = BLANK
+    i.dataset.url = ''
+
+
+def modify_background_image_url_for_fetch(url):
+    if not url:
+        return BLANK
+    if runtime.is_standalone_viewer:
+        if url.startswith(f'{FAKE_PROTOCOL}:'):
+            return url
+        encoded = hexlify(url)
+        return f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}'
+    if url.startswith(f'{FAKE_PROTOCOL}:'):
+        x = str.split(url, '/')[-1].partition('?')[0].partition('-')[2]
+        return absolute_path(f'reader-background/{x}')
+    return url
 
 
 def standalone_background_widget(sd):
-    if sd.get('background_image'):
-        src = READER_BACKGROUND_URL
-    else:
-        src = BLANK
+    url = sd.get('background_image')
+    src = modify_background_image_url_for_fetch(url)
     img_id = unique_id('bg-image')
 
     return E.div(
         style='display: flex; align-items: center',
-        E.div(E.img(src=src, id=img_id, class_='bg-image-preview', style='width: 75px; height: 75px; border: solid 1px')),
+        E.div(E.img(src=src, data_url=url, id=img_id, class_='bg-image-preview', style='width: 75px; height: 75px; border: solid 1px')),
         E.div('\xa0', style='margin: 0.5rem'),
         create_button(_('Change image'), action=change_background_image.bind(None, img_id)),
         E.div('\xa0', style='margin: 0.5rem'),
@@ -77,11 +93,12 @@ def restore_defaults():
     container = document.getElementById(create_user_stylesheet_panel.container_id)
     container.querySelector('[name=user-stylesheet]').value = ''
     if runtime.is_standalone_viewer:
-        clear_image(container.querySelector('img').id)
+        i = container.querySelector('img')
+        clear_image(i.id)
     else:
         container.querySelector('[name=background_image]').value = ''
-    container.querySelector('select[name=background_image_style]').value = defaults.background_image_style
-    container.querySelector('input[name=background_image_fade]').value = str(defaults.background_image_fade)
+    container.querySelector('select[name=background_image_style]').value = session_defaults().background_image_style
+    container.querySelector('input[name=background_image_fade]').value = str(session_defaults().background_image_fade)
 
 
 def create_user_stylesheet_panel(container, apply_func, cancel_func):
@@ -132,8 +149,8 @@ def commit_user_stylesheet(onchange, container):
         sd.set('user_stylesheet', val)
         changed = True
     if runtime.is_standalone_viewer:
-        bg_image = container.querySelector('img.bg-image-preview').src
-        if bg_image is BLANK:
+        bg_image = container.querySelector('img.bg-image-preview').dataset.url
+        if bg_image is BLANK or not bg_image:
             bg_image = None
     else:
         bg_image = container.querySelector('input[name=background_image]').value

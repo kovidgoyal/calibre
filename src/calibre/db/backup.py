@@ -68,6 +68,7 @@ class MetadataBackup(Thread):
                 if self.stop_running.is_set() or self.db.is_closed:
                     return
                 traceback.print_exc()
+
         try:
             book_id = self.db.get_a_dirtied_book()
             if book_id is None:

@@ -15,6 +15,7 @@ from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import itervalues
 
 
@@ -41,18 +42,25 @@ def compile_rule(rule):
     if 'with' in mt:
         q = icu_lower(rule['query'])
         if 'startswith' in mt:
-            func = lambda filename: icu_lower(filename).startswith(q)
+            def func(filename):
+                return icu_lower(filename).startswith(q)
         else:
-            func = lambda filename: icu_lower(filename).endswith(q)
+            def func(filename):
+                return icu_lower(filename).endswith(q)
     elif 'glob' in mt:
         q = compile_glob(rule['query'])
-        func  = lambda filename: q.match(filename) is not None
+
+        def func(filename):
+            return (q.match(filename) is not None)
     else:
         q = re.compile(rule['query'])
-        func  = lambda filename: q.match(filename) is not None
+
+        def func(filename):
+            return (q.match(filename) is not None)
     ans = func
     if mt.startswith('not_'):
-        ans = lambda filename: not func(filename)
+        def ans(filename):
+            return (not func(filename))
     return ans, rule['action'] == 'add'
 
 
@@ -239,7 +247,7 @@ def add_catalog(cache, path, title, dbapi=None):
 
     fmt = os.path.splitext(path)[1][1:].lower()
     new_book_added = False
-    with lopen(path, 'rb') as stream:
+    with open(path, 'rb') as stream:
         with cache.write_lock:
             matches = cache._search('title:="{}" and tags:="{}"'.format(title.replace('"', '\\"'), _('Catalog')), None)
             db_id = None
@@ -248,18 +256,22 @@ def add_catalog(cache, path, title, dbapi=None):
             try:
                 mi = get_metadata(stream, fmt)
                 mi.authors = ['calibre']
-            except:
+            except Exception:
                 mi = Metadata(title, ['calibre'])
             mi.title, mi.authors = title, ['calibre']
             mi.author_sort = 'calibre'  # The MOBI/AZW3 format sets author sort to date
-            mi.tags = [_('Catalog')]
             mi.pubdate = mi.timestamp = utcnow()
             if fmt == 'mobi':
                 mi.cover, mi.cover_data = None, (None, None)
             if db_id is None:
+                mi.tags = [_('Catalog')]
                 db_id = cache._create_book_entry(mi, apply_import_tags=False)
                 new_book_added = True
             else:
+                tags = list(cache._field_for('tags', db_id) or ())
+                if _('Catalog') not in tags:
+                    tags.append(_('Catalog'))
+                mi.tags = tags
                 cache._set_metadata(db_id, mi)
         cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
 
@@ -271,7 +283,7 @@ def add_news(cache, path, arg, dbapi=None):
     from calibre.utils.date import utcnow
 
     fmt = os.path.splitext(getattr(path, 'name', path))[1][1:].lower()
-    stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+    stream = path if hasattr(path, 'read') else open(path, 'rb')
     stream.seek(0)
     mi = get_metadata(stream, fmt, use_libprs_metadata=False,
             force_read_metadata=True)

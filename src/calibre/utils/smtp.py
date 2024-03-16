@@ -11,6 +11,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring
 from calibre.constants import iswindows
+from calibre.utils.localization import _
 from polyglot.builtins import as_unicode, native_string_type
 
 

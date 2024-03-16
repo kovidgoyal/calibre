@@ -1,9 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, zipfile, importlib, enum
+import enum
+import importlib
+import os
+import sys
+import zipfile
 
-from calibre.constants import numeric_version, iswindows, ismacos
+from calibre.constants import ismacos, iswindows, numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
 
 if iswindows:
@@ -141,8 +145,11 @@ class Plugin:  # {{{
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from qt.core import QDialog, QDialogButtonBox, QVBoxLayout, \
-                QLabel, Qt, QLineEdit
+        from qt.core import (
+            QApplication, QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, Qt,
+            QVBoxLayout, QSize
+        )
+
         from calibre.gui2 import gprefs
 
         prefname = 'plugin config dialog:'+self.type + ':' + self.name
@@ -164,9 +171,18 @@ class Plugin:  # {{{
             return False
 
         if config_widget is not None:
-            v.addWidget(config_widget)
+            class SA(QScrollArea):
+                def sizeHint(self):
+                    sz = self.widget().sizeHint()
+                    fw = 2 * self.frameWidth()
+                    return QSize(sz.width() + self.verticalScrollBar().sizeHint().width() + fw, sz.height() + fw)
+            sa = SA(config_dialog)
+            sa.setWidget(config_widget)
+            sa.setWidgetResizable(True)
+            v.addWidget(sa)
             v.addWidget(button_box)
-            config_dialog.restore_geometry(gprefs, prefname)
+            if not config_dialog.restore_geometry(gprefs, prefname):
+                QApplication.instance().ensure_window_on_screen(config_dialog)
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
@@ -176,8 +192,7 @@ class Plugin:  # {{{
                 else:
                     self.save_settings(config_widget)
         else:
-            from calibre.customize.ui import plugin_customization, \
-                customize_plugin
+            from calibre.customize.ui import customize_plugin, plugin_customization
             help_text = self.customization_help(gui=True)
             help_text = QLabel(help_text, config_dialog)
             help_text.setWordWrap(True)
@@ -273,8 +288,9 @@ class Plugin:  # {{{
                 import something
         '''
         if self.plugin_path is not None:
-            from calibre.utils.zipfile import ZipFile
             from importlib.machinery import EXTENSION_SUFFIXES
+
+            from calibre.utils.zipfile import ZipFile
             with ZipFile(self.plugin_path) as zf:
                 extensions = {x.lower() for x in EXTENSION_SUFFIXES}
                 zip_safe = True
@@ -334,6 +350,15 @@ class FileTypePlugin(Plugin):  # {{{
     #: methods of the plugin are called.
     on_postimport  = False
 
+    #: If True, this plugin is run after a book is converted.
+    #: In this case the postconvert method of the plugin is called.
+    on_postconvert = False
+
+    #: If True, this plugin is run after a book file is deleted
+    #: from the database. In this case the postdelete method of
+    #: the plugin is called.
+    on_postdelete = False
+
     #: If True, this plugin is run just before a conversion
     on_preprocess  = False
 
@@ -371,6 +396,31 @@ class FileTypePlugin(Plugin):  # {{{
         this is different from :meth:`postadd` which is called when the book record is created for
         the first time. This method is called whenever a new file is added to a book record. It is
         useful for modifying the book record based on the contents of the newly added file.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+        :param db: Library database.
+        '''
+        pass  # Default implementation does nothing
+
+    def postconvert(self, book_id, book_format, db):
+        '''
+        Called post conversion, i.e., after the conversion output book file has been added to the database.
+        Note that it is run after a conversion only, not after a book is added. It is useful for modifying
+        the book record based on the contents of the newly added file.
+
+        :param book_id: Database id of the added book.
+        :param book_format: The file type of the book that was added.
+        :param db: Library database.
+        '''
+        pass  # Default implementation does nothing
+
+    def postdelete(self, book_id, book_format, db):
+        '''
+        Called post deletion, i.e., after the book file has been deleted from the database. Note
+        that it is not run when a book record is deleted, only when one or more formats from the
+        book are deleted. It is useful for modifying the book record based on the format of the
+        deleted file.
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
@@ -552,7 +602,7 @@ class CatalogPlugin(Plugin):  # {{{
         from calibre.customize.ui import config
         from calibre.ptempfile import PersistentTemporaryDirectory
 
-        if not type(self) in builtin_plugins and self.name not in config['disabled_plugins']:
+        if type(self) not in builtin_plugins and self.name not in config['disabled_plugins']:
             files_to_copy = [f"{self.name.lower()}.{ext}" for ext in ["ui","py"]]
             resources = zipfile.ZipFile(self.plugin_path,'r')
 

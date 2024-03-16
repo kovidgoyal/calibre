@@ -14,20 +14,40 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="opt_timefmt"/>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="SaveTemplate" name="save_template" native="true"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="opt_write_opf">
+     <property name="text">
+      <string>Save metadata in a separate &amp;OPF file</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="opt_save_extra_files">
+     <property name="text">
+      <string>Save &amp;data files as well</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Here you can control how calibre will save your books when you click the "Save to disk" button:</string>
+      <string>Here you can control how calibre will save your books when you click the &quot;Save to disk&quot; button:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_save_cover">
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="opt_to_lowercase">
      <property name="text">
-      <string>Save &amp;cover separately</string>
+      <string>Change paths to &amp;lowercase</string>
      </property>
     </widget>
    </item>
@@ -38,19 +58,8 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_update_metadata">
-     <property name="text">
-      <string>Update &amp;metadata in saved copies</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="opt_to_lowercase">
-     <property name="text">
-      <string>Change paths to &amp;lowercase</string>
-     </property>
-    </widget>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="opt_formats"/>
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_2">
@@ -62,8 +71,12 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
-    <widget class="QLineEdit" name="opt_timefmt"/>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="opt_update_metadata">
+     <property name="text">
+      <string>Update &amp;metadata in saved copies</string>
+     </property>
+    </widget>
    </item>
    <item row="7" column="0">
     <widget class="QLabel" name="label_3">
@@ -75,11 +88,12 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="opt_formats"/>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="SaveTemplate" name="save_template" native="true"/>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="opt_save_cover">
+     <property name="text">
+      <string>Save &amp;cover separately</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="1">
     <widget class="QCheckBox" name="opt_asciiize">
@@ -88,14 +102,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_write_opf">
-     <property name="text">
-      <string>Save metadata in a separate &amp;OPF file</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="1">
     <widget class="QCheckBox" name="opt_show_files_after_save">
      <property name="text">
       <string>&amp;Show files in the file browser after saving to disk</string>

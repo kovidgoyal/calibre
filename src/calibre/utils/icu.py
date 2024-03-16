@@ -183,7 +183,7 @@ def make_two_arg_func(collator_function, func_name='strcmp'):
     return two_args
 
 
-def make_change_case_func(which):
+def make_change_case_func(which, name):
 
     def change_case(x):
         try:
@@ -201,6 +201,7 @@ def make_change_case_func(which):
                     return x
                 return _icu.change_case(x, which, _locale)
             raise
+    change_case.__name__ = name
     return change_case
 # }}}
 
@@ -216,9 +217,9 @@ collation_order_for_partitioning = make_sort_key_func(non_numeric_sort_collator,
 strcmp = make_two_arg_func(sort_collator)
 case_sensitive_strcmp = make_two_arg_func(case_sensitive_collator)
 primary_strcmp = make_two_arg_func(primary_collator)
-upper = make_change_case_func(_icu.UPPER_CASE)
-lower = make_change_case_func(_icu.LOWER_CASE)
-title_case = make_change_case_func(_icu.TITLE_CASE)
+upper = make_change_case_func(_icu.UPPER_CASE, 'upper')
+lower = make_change_case_func(_icu.LOWER_CASE, 'lower')
+title_case = make_change_case_func(_icu.TITLE_CASE, 'title_case')
 
 
 def capitalize(x):
@@ -228,10 +229,7 @@ def capitalize(x):
         return x
 
 
-try:
-    swapcase = _icu.swap_case
-except AttributeError:  # For people running from source
-    swapcase = lambda x:x.swapcase()
+swapcase = swap_case = _icu.swap_case
 
 find = make_two_arg_func(collator, 'find')
 primary_find = make_two_arg_func(primary_collator, 'find')
@@ -286,7 +284,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
     ans = OrderedDict()
     last_c, last_ordnum = ' ', 0
     for item in items:
-        c = icu_upper(key(item) or ' ')
+        c = upper(key(item) or ' ')
         ordnum, ordlen = collation_order(c)
         if last_ordnum != ordnum:
             last_c = c[0:1]

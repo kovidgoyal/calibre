@@ -5,41 +5,21 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-
-from qt.core import QTimer, QProgressDialog, Qt
+from qt.core import QProgressDialog, Qt, QTimer
 
 from calibre import force_unicode
 from calibre.gui2 import gprefs
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
+from calibre.utils.localization import ngettext
 
 
-class EmbedAction(InterfaceAction):
+class EmbedAction(InterfaceActionWithLibraryDrop):
 
     name = 'Embed Metadata'
     action_spec = (_('Embed metadata'), 'modified.png', _('Embed metadata into book files'), None)
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Embed metadata into book files')
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids
@@ -124,5 +104,10 @@ class EmbedAction(InterfaceAction):
         def report_error(mi, fmt, tb):
             mi.book_id = book_id
             errors.append((mi, fmt, tb))
-        db.embed_metadata((book_id,), only_fmts=only_fmts, report_error=report_error)
+        try:
+            db.embed_metadata((book_id,), only_fmts=only_fmts, report_error=report_error)
+        except Exception:
+            import traceback
+            mi = db.get_metadata(book_id)
+            report_error(mi, '', traceback.format_exc())
         self.job_data = (i + 1, book_ids, pd, only_fmts, errors)

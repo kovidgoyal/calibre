@@ -1,0 +1,118 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list, create_side_action
+from book_list.top_bar import create_top_bar
+from dom import clear, unique_id
+from gettext import gettext as _
+from modals import question_dialog
+from read_book.globals import ui_operations
+from session import apply_reader_profile, settings_for_reader_profile
+from widgets import create_button
+
+
+def save_profile(container_id, hide_panel):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    name = container.querySelector('[name=profile_name]').value
+    sd = get_session_data()
+    settings = settings_for_reader_profile(sd)
+    ui_operations.save_profile(name, settings, def():
+        container = document.getElementById(container_id)
+        if container:
+            r = container.querySelector('.saved_msg')
+            if r:
+                clear(r)
+                r.appendChild(E.div(E.i(_('Saved: ') + name), style='margin-top: 1rem; margin-bottom: 1rem'))
+                load_profiles(container_id)
+    )
+
+
+def use_profile(container_id, profile_name, profile_data):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    sd = get_session_data()
+    apply_reader_profile(sd, profile_data)
+    if ui_operations.apply_profile:
+        ui_operations.apply_profile(profile_data)
+    container.dispatchEvent(new Event('settings_changed'))
+    container.dispatchEvent(new Event('close_panel'))
+
+
+def delete_profile(container_id, profile_name):
+    question_dialog(_('Are you sure?'), _('Are you sure you want to delete the saved profile named: {}?').format(profile_name),
+        def (ok):
+            if ok:
+                ui_operations.save_profile(profile_name, None, def():
+                    load_profiles(container_id)
+                )
+    )
+
+
+def got_all_profiles(container_id, all_profiles):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    all_profiles['__default__'] = {}
+    names = list_wrap(Object.keys(all_profiles))
+    names.pysort(def(x): return '' if x is '__default__' else x.toLowerCase();)
+    pl = container.querySelector('.profiles_list_container')
+    clear(pl)
+    pl.appendChild(E.div(
+        _('Load settings from one of the previously saved profiles below…')
+    ))
+    pl.appendChild(E.div())
+    items = []
+    for name in names:
+        display_name = name
+        if name is '__default__':
+            display_name = _('Restore settings to default values')
+            side_actions = []
+        else:
+            side_actions = [create_side_action('trash', delete_profile.bind(None, container_id, name), _('Delete this profile'))]
+        items.push(create_item(display_name, action=use_profile.bind(None, container_id, name, all_profiles[name]), side_actions=side_actions))
+    create_item_list(pl.lastChild, items)
+
+
+def load_profiles(container_id):
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    pl = container.querySelector('.profiles_list_container')
+    clear(pl)
+    pl.appendChild(E.div(_('Loading saved profiles, please wait…'), style='padding-bottom: 1rem'))
+    ui_operations.get_all_profiles(got_all_profiles.bind(None, container_id))
+
+
+def create_profiles_panel(container, hide_panel, on_change):
+    create_top_bar(container, title=_('Profiles'), icon='close', action=hide_panel)
+    c = E.div(style='margin: 1rem', id=unique_id('placeholder-prefs'))
+    c.addEventListener('close_panel', def(): hide_panel();, False)
+    c.addEventListener('settings_changed', def(): on_change();, False)
+    container_id = c.id
+    a = E.div(
+        style='display:flex',
+        E.div(
+            E.label(_('Save current settings as profile:') + ' '), E.input(
+                name='profile_name', placeholder=_('Name of profile'), onkeydown=def(e):
+                    if e.key is 'Enter':
+                        save_profile(container_id, hide_panel)
+        ),
+        ),
+        E.div('\xa0'),
+        E.div(
+            create_button(_('Save'), 'bookmark', save_profile.bind(None, container_id, hide_panel))
+        )
+    )
+    container.appendChild(c)
+    c.appendChild(a)
+    c.appendChild(E.div(class_='saved_msg'))
+    c.appendChild(E.hr())
+    c.appendChild(E.div(class_='profiles_list_container'))
+    load_profiles(container_id)

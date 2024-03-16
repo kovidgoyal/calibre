@@ -20,10 +20,10 @@ from multiprocessing.pool import ThreadPool
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
     QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader,
-    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen,
-    QPixmap, QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout,
-    QStaticText, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout,
-    QWidget, pyqtSignal, sip
+    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen, QPixmap,
+    QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout, QStaticText, QStyle,
+    QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout, QWidget, pyqtSignal,
+    sip,
 )
 from threading import Event, Thread
 
@@ -32,7 +32,7 @@ from calibre.constants import cache_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import (
     choose_dir, choose_save_file, empty_index, error_dialog, gprefs,
-    icon_resource_manager, must_use_qt, safe_open_url
+    icon_resource_manager, must_use_qt, safe_open_url,
 )
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -42,6 +42,7 @@ from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_png
+from calibre.utils.resources import get_image_path as I, get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
 from polyglot.builtins import as_bytes, iteritems, reraise
@@ -127,7 +128,9 @@ def read_theme_from_folder(path):
             return int(x)
         except Exception:
             return -1
-    g = lambda x, defval='': metadata.get(x, defval)
+
+    def g(x, defval=''):
+        return metadata.get(x, defval)
     theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'), g('url', None))
 
     ans = Report(path, name_map, extra, missing, theme)
@@ -186,7 +189,7 @@ def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=Fal
                 ipath = os.path.join(report.path, report.name_map[icon])
             else:
                 ipath = I(icon, allow_user_override=False)
-            with lopen(ipath, 'rb') as f:
+            with open(ipath, 'rb') as f:
                 img = image_from_data(f.read())
             scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
             img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -402,7 +405,7 @@ def create_themeball(report, theme_metadata, progress=None, abort=None):
     with ZipFile(buf, 'w') as zf:
         for name in report.name_map:
             srcpath = os.path.join(report.path, name)
-            with lopen(srcpath, 'rb') as f:
+            with open(srcpath, 'rb') as f:
                 zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
     icon_zip_data = buf
@@ -417,7 +420,7 @@ def create_themeball(report, theme_metadata, progress=None, abort=None):
     if abort is not None and abort.is_set():
         return None, None, None
     with ZipFile(buf, 'w') as zf:
-        with lopen(os.path.join(report.path, THEME_METADATA), 'rb') as f:
+        with open(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
         zf.writestr(prefix + '/' + THEME_COVER, create_cover(report, darkbg=theme_metadata.get('color_palette') == 'dark'))
         zf.writestr(prefix + '/' + 'icons.zip.xz', compressed, compression=ZIP_STORED)
@@ -449,7 +452,7 @@ def create_theme(folder=None, parent=None):
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
     if not dest:
         return
-    with lopen(dest, 'wb') as f:
+    with open(dest, 'wb') as f:
         f.write(raw)
 
     if use_in_calibre:

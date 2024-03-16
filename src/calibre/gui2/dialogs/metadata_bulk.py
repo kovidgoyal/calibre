@@ -7,9 +7,8 @@ import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from qt.core import (
-    QApplication, QComboBox, QCompleter, QDateTime, QDialog,
-    QDialogButtonBox, QFont, QGridLayout, QInputDialog, QLabel, QLineEdit,
-    QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
+    QComboBox, QCompleter, QDateTime, QDialog, QDialogButtonBox, QFont, QGridLayout,
+    QInputDialog, QLabel, QLineEdit, QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal,
 )
 from threading import Thread
 
@@ -21,16 +20,22 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import (
     UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, info_dialog,
-    question_dialog
+    question_dialog,
 )
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.gui2.widgets import LineEditECM
+from calibre.gui2.widgets import (
+    LineEditECM, setup_status_actions, update_status_actions,
+)
+from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import internal_iso_format_string, qt_to_dt
-from calibre.utils.icu import capitalize, sort_key
+from calibre.utils.icu import (
+    capitalize, lower as icu_lower, sort_key, upper as icu_upper,
+)
+from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
 
@@ -317,7 +322,7 @@ class MyBlockingBusy(QDialog):  # {{{
         elif args.cover_action == 'trim':
             self.progress_next_step_range.emit(len(self.ids))
             from calibre.utils.img import (
-                image_from_data, image_to_data, remove_borders_from_image
+                image_from_data, image_to_data, remove_borders_from_image,
             )
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
@@ -495,6 +500,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
+        setup_status_actions(self.test_result)
         self.series.set_sort_func(title_sort)
         self.model = model
         self.db = model.db
@@ -895,10 +901,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
     def s_r_set_colors(self):
+        tt = ''
         if self.s_r_error is not None:
-            self.test_result.setText(error_message(self.s_r_error))
-        self.test_result.setStyleSheet(
-                QApplication.instance().stylesheet_for_line_edit(self.s_r_error is not None))
+            tt = error_message(self.s_r_error)
+            self.test_result.setText(tt)
+        update_status_actions(self.test_result, self.s_r_error is None, tt)
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
@@ -1214,9 +1221,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
-            pubdate = qt_to_dt(self.pubdate.dateTime())
+            pubdate = qt_to_dt(self.pubdate.dateTime(), as_utc=False)
         if self.apply_adddate.isChecked():
-            adddate = qt_to_dt(self.adddate.dateTime())
+            adddate = qt_to_dt(self.adddate.dateTime(), as_utc=False)
 
         cover_action = None
         if self.cover_remove.isChecked():

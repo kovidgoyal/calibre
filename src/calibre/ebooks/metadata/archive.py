@@ -60,29 +60,62 @@ class KPFExtract(FileTypePlugin):
                 of.write(zf.read(candidates[0]))
         return of.name
 
+class RAR:
+
+    def __init__(self, archive):
+        self.archive = archive
+
+    def close(self):
+        pass
+
+    def namelist(self):
+        from calibre.utils.unrar import names
+        return list(names(self.archive))
+
+    def read(self, fname):
+        from calibre.utils.unrar import extract_member
+        return extract_member(self.archive, match=None, name=fname)[1]
+
+
+class SevenZip:
+
+    def __init__(self, archive):
+        from py7zr import SevenZipFile
+        self.zf = SevenZipFile(archive, 'r')
+
+    def namelist(self):
+        return list(self.zf.getnames())
+
+    def close(self):
+        self.zf.close()
+
+    def read(self, fname):
+        return self.zf.read((fname,))[fname].read()
+
 
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
     author = 'Kovid Goyal'
     description = _('Extract common e-book formats from archive files '
-        '(ZIP/RAR). Also try to autodetect if they are actually '
-        'CBZ/CBR files.')
-    file_types = {'zip', 'rar'}
+        '(ZIP/RAR/7z). Also try to autodetect if they are actually '
+        'CBZ/CBR/CB7 files.')
+    file_types = {'zip', 'rar', '7z'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
     def run(self, archive):
-        from calibre.utils.zipfile import ZipFile
-        is_rar = archive.lower().endswith('.rar')
-        if is_rar:
-            from calibre.utils.unrar import extract_member, names
+        import shutil
+        q = archive.lower()
+        if q.endswith('.rar'):
+            comic_ext = 'cbr'
+            zf = RAR(archive)
+        elif q.endswith('.7z'):
+            comic_ext = 'cb7'
+            zf = SevenZip(archive)
         else:
+            from calibre.utils.zipfile import ZipFile
             zf = ZipFile(archive, 'r')
-
-        if is_rar:
-            fnames = list(names(archive))
-        else:
-            fnames = zf.namelist()
+            comic_ext = 'cbz'
 
         def fname_ok(fname):
             bn = os.path.basename(fname).lower()
@@ -96,31 +129,27 @@ class ArchiveExtract(FileTypePlugin):
                 return False
             return True
 
-        fnames = list(filter(fname_ok, fnames))
-        if is_comic(fnames):
-            ext = '.cbr' if is_rar else '.cbz'
-            of = self.temporary_file('_archive_extract'+ext)
-            with open(archive, 'rb') as f:
-                of.write(f.read())
-            of.close()
-            return of.name
-        if len(fnames) > 1 or not fnames:
-            return archive
-        fname = fnames[0]
-        ext = os.path.splitext(fname)[1][1:]
-        if ext.lower() not in {
-                'lit', 'epub', 'mobi', 'prc', 'rtf', 'pdf', 'mp3', 'pdb',
-                'azw', 'azw1', 'azw3', 'fb2', 'docx', 'doc', 'odt'}:
-            return archive
+        with closing(zf):
+            fnames = zf.namelist()
+            fnames = list(filter(fname_ok, fnames))
+            if is_comic(fnames):
+                of = self.temporary_file('_archive_extract.'+comic_ext)
+                with closing(of), open(archive, 'rb') as f:
+                    shutil.copyfileobj(f, of)
+                return of.name
+            if len(fnames) > 1 or not fnames:
+                return archive
+            fname = fnames[0]
+            ext = os.path.splitext(fname)[1][1:]
+            if ext.lower() not in {
+                    'lit', 'epub', 'mobi', 'prc', 'rtf', 'pdf', 'mp3', 'pdb',
+                    'azw', 'azw1', 'azw3', 'fb2', 'docx', 'doc', 'odt'}:
+                return archive
 
-        of = self.temporary_file('_archive_extract.'+ext)
-        with closing(of):
-            if is_rar:
-                data = extract_member(archive, match=None, name=fname)[1]
-                of.write(data)
-            else:
+            of = self.temporary_file('_archive_extract.'+ext)
+            with closing(of):
                 of.write(zf.read(fname))
-        return of.name
+            return of.name
 
 
 def get_comic_book_info(d, mi, series_index='volume'):
@@ -199,3 +228,60 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
         comment = get_comment(stream)
 
     return parse_comic_comment(comment or b'{}', series_index=series_index)
+
+
+def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based indexing
+    from functools import partial
+    with open(path, 'rb') as f:
+        fmt = archive_type(f)
+        if fmt not in ('zip', 'rar'):
+            return 0
+    items = {}
+    if fmt == 'rar':
+        from calibre.utils.unrar import headers
+        for h in headers(path):
+            items[h['filename']] = lambda : partial(h.get, 'file_time', 0)
+    else:
+        from zipfile import ZipFile
+        with ZipFile(path) as zf:
+            for i in zf.infolist():
+                items[i.filename] = partial(getattr, i, 'date_time')
+    from calibre.ebooks.comic.input import find_pages
+    pages = find_pages(items)
+    if last <= 0:
+        last = len(pages)
+    pages = pages[first-1:last]
+
+    def make_filename(num, ext):
+        return f'{num:08d}{ext}'
+
+    if fmt == 'rar':
+        all_pages = {p:i+first for i, p in enumerate(pages)}
+        from calibre.utils.unrar import extract_members
+        current = None
+        def callback(x):
+            nonlocal current
+            if isinstance(x, dict):
+                if current is not None:
+                    current.close()
+                fname = x['filename']
+                if fname in all_pages:
+                    ext = os.path.splitext(fname)[1]
+                    num = all_pages[fname]
+                    current = open(os.path.join(tdir, make_filename(num, ext)), 'wb')
+                    return True
+                return False
+            if isinstance(x, bytes):
+                current.write(x)
+        extract_members(path, callback)
+        if current is not None:
+            current.close()
+    else:
+        import shutil
+        with ZipFile(path) as zf:
+            for i, name in enumerate(pages):
+                num = i + first
+                ext = os.path.splitext(name)[1]
+                with open(os.path.join(tdir, make_filename(num, ext)), 'wb') as dest, zf.open(name) as src:
+                    shutil.copyfileobj(src, dest)
+    return len(pages)

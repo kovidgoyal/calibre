@@ -1,530 +1,63 @@
-# vim:fileencoding=UTF-8
-from __future__ import unicode_literals
-__license__ = 'GPL v3'
-__copyright__ = '2011-2013, Eddie Lau'
-
-# data source: normal, mobile
-__Source__ = 'mobile'
-# please replace the following "True" with "False". (Default: True)
-__MakePeriodical__ = True
-# Turn below to True if your device supports display of CJK titles
-# (Default: False)
-__UseChineseTitle__ = True
-# Set it to False if you want to skip images (Default: True)
-__KeepImages__ = True
-# Set it to True if you want to include a summary in Kindle's article view
-# (Default: False)
-__IncludeSummary__ = True
-# Set it to True if you want thumbnail images in Kindle's article view
-# (Default: True)
-__IncludeThumbnails__ = True
-
-
-'''
-Change Log:
-2013/03/31 -- fix cover retrieval code and heading size, and remove &nbsp; in summary
-2011/12/29 -- first version done
-'''
-
-from calibre.utils.date import now as nowf
-import os
-import datetime
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.localization import canonicalize_lang
-
-# MAIN CLASS
-
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class STHKRecipe(BasicNewsRecipe):
-    if __UseChineseTitle__ is True:
-        title = u'\u661f\u5cf6\u65e5\u5831 (\u9999\u6e2f)'
-    else:
-        title = 'Sing Tao Daily - Hong Kong'
-    description = 'Hong Kong Chinese Newspaper (http://singtao.com)'
+    title = '星島日報 (香港)'
+    __author__ = 'unkn0wn'
+    description = 'The Sing Tao Daily is among Hong Kong\'s oldest Chinese language newspapers. (https://std.stheadline.com/)'
     category = 'Chinese, News, Hong Kong'
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} td[class=caption] {font-size:50%;} td[class=bodyhead]{font-weight:bold; font-size:150%;} td[class=stmobheadline]{font-weight:bold; font-size:200%;}'  # noqa
-    masthead_url = 'http://upload.wikimedia.org/wikipedia/en/d/dd/Singtao-usa.png'
-    if __Source__ == 'normal':
-        keep_only_tags = [
-            dict(name='td', attrs={'class': ['bodyhead', 'bodytext']})]
-    else:
-        keep_only_tags = [dict(name='td', attrs={'class': ['stmobheadline']}),
-                          dict(name='img', attrs={'width': ['146']}),
-                          dict(name='td', attrs={'class': ['bodytextg']}),
-                          ]
-    if __KeepImages__:
-        remove_tags = [dict(name='hr')]
-    else:
-        remove_tags = [dict(name='hr'), dict(name='img')]
-    remove_attributes = ['align']
-    preprocess_regexps = [
-        (re.compile(r'<font class="bodytext">', re.DOTALL | re.IGNORECASE),
-         lambda match: '<br><br><font class="bodytext">'),
+    language = 'zh'
+    encoding = 'utf-8'
+    masthead_url = 'https://std.stheadline.com/dist/images/logo-v2@2x.png'
+    no_stylesheets = True
+    remove_javascript = True
+    ignore_duplicate_articles = {'title'}
+    remove_empty_feeds = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .date { font-size:small; }
+        .caption-text, .media-library-item__attributes { font-size:small; text-align:center; }
+    '''
+
+    keep_only_tags = [
+        dict(name='article', attrs={'class':'content'})
+    ]
+    remove_tags = [
+        dict(name=['video', 'svg', 'button']),
+        dict(attrs={'id':'articleShareIcons'}),
+        classes('in-article-banner stick-box-gray article-pagination comments')
     ]
 
-    oldest_article = 1
-    max_articles_per_feed = 200
-    __author__ = 'Eddie Lau'
-    publisher = 'Sing Tao Ltd.'
-    remove_javascript = True
-    use_embedded_content = False
-    no_stylesheets = True
-    language = 'zh'
-    encoding = 'Big5-HKSCS'
-    recursions = 0
-    conversion_options = {'linearize_tables': True}
-    timefmt = ''
-    auto_cleanup = False
+    articles_are_obfuscated = True
 
-    def get_dtlocal(self):
-        dt_utc = datetime.datetime.utcnow()
-        # convert UTC to local hk time - at HKT 4.00am, all news are available
-        dt_local = dt_utc + \
-            datetime.timedelta(8.0 / 24) - datetime.timedelta(4.0 / 24)
-        return dt_local
-
-    def get_fetchdate(self):
-        return self.get_dtlocal().strftime("%Y%m%d")
-
-    def get_fetchformatteddate(self):
-        return self.get_dtlocal().strftime("%Y-%m-%d")
-
-    def get_fetchyear(self):
-        return self.get_dtlocal().strftime("%Y")
-
-    def get_fetchmonth(self):
-        return self.get_dtlocal().strftime("%m")
-
-    def get_fetchday(self):
-        return self.get_dtlocal().strftime("%d")
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://m.singtao.com/')
-        cover = soup.find(attrs={'class': 'special'}).get('src', False)
-        br = BasicNewsRecipe.get_browser(self)
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
         try:
-            br.open(cover)
-        except:
-            cover = None
-        return cover
-
-    def parse_index(self):
-        feeds = []
-        dateStr = self.get_fetchdate()
-        dateStr
-
-        if __Source__ == 'normal':
-            # single-item section
-            for title, url in [(u'\u793e\u8ad6 Editorial', 'http://singtao.com/yesterday/jou/j_index.html')]:
-                article = self.parse_singleitem_section(url)
-                if article:
-                    feeds.append((title, article))
-
-            # multiple items
-    #        for title, url in [(u'\u8981\u805e\u6e2f\u805e Local', 'http://singtao.com/yesterday/loc/a_index.html'),
-    #                           (u'\u8ca1\u7d93 Finance', 'http://singtao.com/yesterday/fin/d_index.html'),
-    #                           (u'\u5730\u7522 Properties', 'http://singtao.com/yesterday/pro/h_index.html'),
-    #                           (u'\u6559\u80b2 Education', 'http://singtao.com/yesterday/edu/g_index.asp'),
-    #                           (u'\u5a1b\u6a02 Entertainment', 'http://singtao.com/yesterday/ent/f_index.html'),
-    #                           (u'\u9ad4\u80b2 Sports', 'http://singtao.com/yesterday/spo/c_index.html'),
-    #                           (u'\u99ac\u7d93 Horse Racing', 'http://singtao.com/yesterday/rac/n_index.html')
-    #                           ]:
-    #            articles = self.parse_section(url)
-    #            if articles:
-    #                feeds.append((title, articles))
-
-    # special: supplement
-    #        for title, url, baseurl in [(u'\u526f\u520a Supplements', 'http://singtao.com/yesterday/sup/m_index.html', '/')]:
-    #            articles = self.parse_section_withouttext(url, baseurl)
-    #            if articles:
-    #                feeds.append((title, articles))
-
-    # multiple-item sections
-    #        for title, url in [(u'\u570b\u969b World', 'http://singtao.com/yesterday/int/b_index.html'),
-    #                           (u'\u4e2d\u570b China', 'http://singtao.com/yesterday/chi/e_index.html')
-    #                           ]:
-    #            articles = self.parse_section(url)
-    #            if articles:
-    #                feeds.append((title, articles))
-
-            for title, url, baseurl in [(u'\u8981\u805e\u6e2f\u805e Local', 'http://singtao.com/yesterday/loc/a_index.html', '/'),
-                                        (u'\u8ca1\u7d93 Finance',
-                                         'http://singtao.com/yesterday/fin/d_index.html', '/'),
-                                        (u'\u5730\u7522 Properties',
-                                         'http://singtao.com/yesterday/pro/h_index.html', '/'),
-                                        (u'\u6559\u80b2 Education',
-                                         'http://singtao.com/yesterday/edu/g_index.asp', '/'),
-                                        (u'\u5a1b\u6a02 Entertainment',
-                                         'http://singtao.com/yesterday/ent/f_index.html', '/'),
-                                        (u'\u9ad4\u80b2 Sports',
-                                         'http://singtao.com/yesterday/spo/c_index.html', '/'),
-                                        (u'\u99ac\u7d93 Horse Racing',
-                                         'http://singtao.com/yesterday/rac/n_index.html', '/'),
-                                        (u'\u526f\u520a Supplements',
-                                         'http://singtao.com/yesterday/sup/m_index.html', '/'),
-                                        (u'\u570b\u969b World',
-                                         'http://singtao.com/yesterday/int/b_index.html', '/'),
-                                        (u'\u4e2d\u570b China', 'http://singtao.com/yesterday/chi/e_index.html', '/')]:
-                articles = self.parse_section_withouttext(url, baseurl)
-                if articles:
-                    feeds.append((title, articles))
-        else:  # use mobile
-            # single-item section
-            for title, url in [(u'\u793e\u8ad6 Editorial', 'http://m.singtao.com/showContent.php?main=paper&sub=0&title=0')]:
-                article = self.parse_singleitem_section_m(url)
-                if article:
-                    feeds.append((title, article))
-            # multiple-item section
-            for title, url, baseurl in [(u'\u8981\u805e\u6e2f\u805e Local', 'http://m.singtao.com/showTitle.php?main=paper&sub=1', 'http://m.singtao.com/'),
-                                        (u'\u8ca1\u7d93 Finance', 'http://m.singtao.com/showTitle.php?main=paper&sub=2',
-                                         'http://m.singtao.com/'),
-                                        (u'\u5730\u7522 Properties',
-                                         'http://m.singtao.com/showTitle.php?main=paper&sub=3', 'http://m.singtao.com/'),
-                                        (u'\u6559\u80b2 Education',
-                                         'http://m.singtao.com/showTitle.php?main=paper&sub=4', 'http://m.singtao.com/'),
-                                        (u'\u5a1b\u6a02 Entertainment',
-                                         'http://m.singtao.com/showTitle.php?main=paper&sub=5', 'http://m.singtao.com/'),
-                                        (u'\u99ac\u7d93 Horse Racing',
-                                         'http://m.singtao.com/showTitle.php?main=paper&sub=6', 'http://m.singtao.com/'),
-                                        (u'\u9ad4\u80b2 Sports', 'http://m.singtao.com/showTitle.php?main=paper&sub=7',
-                                         'http://m.singtao.com/'),
-                                        (u'\u526f\u520a Supplements',
-                                         'http://m.singtao.com/showTitle.php?main=paper&sub=8', 'http://m.singtao.com/'),
-                                        (u'\u570b\u969b World', 'http://m.singtao.com/showTitle.php?main=paper&sub=9',
-                                         'http://m.singtao.com/'),
-                                        (u'\u4e2d\u570b China', 'http://m.singtao.com/showTitle.php?main=paper&sub=10', 'http://m.singtao.com/')]:
-                articles = self.parse_multiitem_section_m(url, baseurl)
-                if articles:
-                    feeds.append((title, articles))
-        return feeds
-
-    def parse_singleitem_section(self, url):
-        current_articles = []
-        current_articles.append(
-            {'title': '', 'url': url, 'description': '', 'date': ''})
-        return current_articles
-
-    def parse_singleitem_section_m(self, url):
-        current_articles = []
-        current_articles.append(
-            {'title': '', 'url': url, 'description': '', 'date': ''})
-        return current_articles
-
-    def parse_section(self, url):
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
-        # find <table width=436 border=0 cellspacing=0 align=center
-        # cellpadding=0> tag
-        tables = soup.findAll(name={'table'}, attrs={'width': ['436']})
-        current_articles_all = []
-        for table in tables:
-            divs = table.findAll(name={'a'})
-            current_articles = []
-            included_urls = []
-            for i in divs:
-                title = self.tag_to_string(i)
-                urlstr = i.get('href', False)
-                urlstr = url + '/../' + urlstr
-                if urlstr not in included_urls:
-                    current_articles.append(
-                        {'title': title, 'url': urlstr, 'description': '', 'date': ''})
-                    included_urls.append(urlstr)
-            current_articles_all.extend(current_articles)
-        return current_articles_all
+        link = soup.find('a', href=True)['href']
+        skip_sections = [ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast'
+        ]
+        if any(x in link for x in skip_sections):
+            self.log('Aborting Article ', link)
+            self.abort_article('skipping video links')
+        html = br.open(link).read()
+        return ({ 'data': html, 'url': link }) 
 
-    def parse_section_withouttext(self, url, baseurl):
-        soup = self.index_to_soup(url)
-        # find all a tag
-        links = soup.findAll(name={'a'})
-        linksexcluded = soup.findAll(name={'a'}, attrs={'class': 'secondhead'})
-        for elink in linksexcluded:
-            links.remove(elink)
-        linksexcluded = soup.findAll(name={'a'}, attrs={'class': 'second02'})
-        for elink in linksexcluded:
-            links.remove(elink)
-        current_articles_all = []
-        included_urls = []
-        for link in links:
-            title = self.tag_to_string(link)
-            if len(title.strip()) > 0:
-                urlstr = link.get('href', False)
-                if urlstr.rfind(baseurl) == -1 and urlstr.rfind('mailto:') == -1:
-                    urlstr = url + '/../' + urlstr
-                    if urlstr not in included_urls:
-                        current_articles_all.append(
-                            {'title': title, 'url': urlstr, 'description': '', 'date': ''})
-                        included_urls.append(urlstr)
-        return current_articles_all
-
-    def parse_multiitem_section_m(self, url, baseurl):
-        soup = self.index_to_soup(url)
-        # find all a tag
-        links = soup.findAll(name={'span'}, attrs={'class': 'urlurl'})
-        current_articles_all = []
-        included_urls = []
-        for linkraw in links:
-            linkclean = soup.findAll(name={'a'})
-            for link in linkclean:
-                title = self.tag_to_string(link)
-                if len(title.strip()) > 0:
-                    urlstr = link.get('href', False)
-                    urlstr = baseurl + urlstr
-                    if urlstr not in included_urls:
-                        current_articles_all.append(
-                            {'title': title, 'url': urlstr, 'description': '', 'date': ''})
-                        included_urls.append(urlstr)
-        return current_articles_all
+    feeds = [
+        ('日報', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Fdaily%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
+        ('即時', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Frealtime%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
+        ('副刊', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Fsupplement%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
+        ('其他的 新聞', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com&hl=zh-HK&gl=HK&ceid=HK:zh')
+    ]
 
     def populate_article_metadata(self, article, soup, first):
-        if __Source__ == 'normal':
-            # get title if not fetched in parse_section() function
-            if article.title == '' or len(article.title.strip()) == 0:
-                articletitle = soup.findAll('td', attrs={'class': 'bodyhead'})
-                if articletitle:
-                    articletitlemod = articletitle[0].find('font')
-                    if articletitlemod:
-                        article.title = articletitlemod.string.strip()
-                    else:
-                        article.title = articletitle[0].string.strip()
-        else:
-            # use the title in the text in any case
-            articletitle = soup.findAll('td', attrs={'class': 'stmobheadline'})
-            if articletitle:
-                articletitle[0].br.extract()
-                article.title = articletitle[0].contents[0]
-        # get thumbnail image
-        if __IncludeThumbnails__ and first and hasattr(self, 'add_toc_thumbnail'):
-            img = soup.find('img')
-            if img is not None:
-                self.add_toc_thumbnail(article, img['src'])
+        article.title = article.title.replace(' - 星島頭條', '')
 
-        try:
-            if __IncludeSummary__ and len(article.text_summary.strip()) == 0:
-                # look for content
-                if __Source__ == 'normal':
-                    articlebodies = soup.findAll(
-                        'font', attrs={'class': 'bodytext'})
-                else:
-                    articlebodies = soup.findAll(
-                        'div', attrs={'class': 'hkadj'})
-                if articlebodies:
-                    for articlebody in articlebodies:
-                        if articlebody:
-                            # the text may or may not be enclosed in <p></p>
-                            # tag
-                            paras = articlebody.findAll('p')
-                            if not paras:
-                                paras = articlebody
-                            textFound = False
-                            for p in paras:
-                                if not textFound:
-                                    summary_candidate = self.tag_to_string(
-                                        p).strip().replace('&nbsp;', '')
-                                    if len(summary_candidate) > 0:
-                                        summary_candidate = summary_candidate.replace(
-                                            u'(\u661f\u5cf6\u65e5\u5831\u5831\u9053)', '', 1)
-                                        article.summary = article.text_summary = summary_candidate
-                                        textFound = True
-            else:
-                # display a simple text
-                # article.summary = article.text_summary = u'\u66f4\u591a......'
-                # display word counts
-                counts = 0
-                if __Source__ == 'normal':
-                    articlebodies = soup.findAll(
-                        'font', attrs={'class': 'bodytext'})
-                else:
-                    articlebodies = soup.findAll(
-                        'div', attrs={'class': 'hkadj'})
-                if articlebodies:
-                    for articlebody in articlebodies:
-                        # the text may or may not be enclosed in <p></p> tag
-                        paras = articlebody.findAll('p')
-                        if not paras:
-                            paras = articlebody
-                        for p in paras:
-                            summary_candidate = self.tag_to_string(p).strip()
-                            counts += len(summary_candidate)
-                    article.summary = article.text_summary = u'\uff08' + \
-                        str(counts) + u'\u5b57\uff09'
-        except:
-            self.log("Error creating article descriptions")
-            return
-
-    # override from the one in version 0.8.31
-    def create_opf(self, feeds, dir=None):
-        if dir is None:
-            dir = self.output_dir
-        title = self.short_title()
-        # change 1: allow our own flag to tell if a periodical is to be generated
-        # also use customed date instead of current time
-        if __MakePeriodical__ is False or self.output_profile.periodical_date_in_title:
-            title = title + ' ' + self.get_fetchformatteddate()
-        # end of change 1
-        # change 2: __appname__ replaced by newspaper publisher
-        __appname__ = self.publisher
-        mi = MetaInformation(title, [__appname__])
-        mi.publisher = __appname__
-        mi.author_sort = __appname__
-        # change 3: use __MakePeriodical__ flag to tell if a periodical should
-        # be generated
-        if __MakePeriodical__ is True:
-            mi.publication_type = 'periodical:' + \
-                self.publication_type + ':' + self.short_title()
-        else:
-            mi.publication_type = self.publication_type + ':' + self.short_title()
-        # mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
-        # change 4: in the following, all the nowf() are changed to adjusted time
-        # This one doesn't matter
-        mi.timestamp = nowf()
-        # change 5: skip listing the articles
-        # article_titles, aseen = [], set()
-        # for f in feeds:
-        #    for a in f:
-        #        if a.title and a.title not in aseen:
-        #            aseen.add(a.title)
-        #            article_titles.append(force_unicode(a.title, 'utf-8'))
-
-        # mi.comments = self.description
-        # if not isinstance(mi.comments, unicode):
-        #    mi.comments = mi.comments.decode('utf-8', 'replace')
-        # mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
-        #        '\n\n'.join(article_titles))
-
-        language = canonicalize_lang(self.language)
-        if language is not None:
-            mi.language = language
-        # This one affects the pub date shown in kindle title
-        # mi.pubdate = nowf()
-        # now appears to need the time field to be > 12.00noon as well
-        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(
-            self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
-        opf_path = os.path.join(dir, 'index.opf')
-        ncx_path = os.path.join(dir, 'index.ncx')
-
-        opf = OPFCreator(dir, mi)
-        # Add mastheadImage entry to <guide> section
-        mp = getattr(self, 'masthead_path', None)
-        if mp is not None and os.access(mp, os.R_OK):
-            from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(
-                self.masthead_path), os.getcwd())
-            ref.type = 'masthead'
-            ref.title = 'Masthead Image'
-            opf.guide.append(ref)
-
-        manifest = [os.path.join(dir, 'feed_%d' % i)
-                    for i in range(len(feeds))]
-        manifest.append(os.path.join(dir, 'index.html'))
-        manifest.append(os.path.join(dir, 'index.ncx'))
-
-        # Get cover
-        cpath = getattr(self, 'cover_path', None)
-        if cpath is None:
-            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
-            if self.default_cover(pf):
-                cpath = pf.name
-        if cpath is not None and os.access(cpath, os.R_OK):
-            opf.cover = cpath
-            manifest.append(cpath)
-
-        # Get masthead
-        mpath = getattr(self, 'masthead_path', None)
-        if mpath is not None and os.access(mpath, os.R_OK):
-            manifest.append(mpath)
-
-        opf.create_manifest_from_files_in(manifest)
-        for mani in opf.manifest:
-            if mani.path.endswith('.ncx'):
-                mani.id = 'ncx'
-            if mani.path.endswith('mastheadImage.jpg'):
-                mani.id = 'masthead-image'
-
-        entries = ['index.html']
-        toc = TOC(base_path=dir)
-        self.play_order_counter = 0
-        self.play_order_map = {}
-
-        def feed_index(num, parent):
-            f = feeds[num]
-            for j, a in enumerate(f):
-                if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/' % (num, j)
-                    auth = a.author
-                    if not auth:
-                        auth = None
-                    desc = a.text_summary
-                    if not desc:
-                        desc = None
-                    else:
-                        desc = self.description_limiter(desc)
-                    tt = a.toc_thumbnail if a.toc_thumbnail else None
-                    entries.append('%sindex.html' % adir)
-                    po = self.play_order_map.get(entries[-1], None)
-                    if po is None:
-                        self.play_order_counter += 1
-                        po = self.play_order_counter
-                    parent.add_item('%sindex.html' % adir, None,
-                                    a.title if a.title else (
-                                        'Untitled Article'),
-                                    play_order=po, author=auth,
-                                    description=desc, toc_thumbnail=tt)
-                    last = os.path.join(
-                        self.output_dir, ('%sindex.html' % adir).replace('/', os.sep))
-                    for sp in a.sub_pages:
-                        prefix = os.path.commonprefix([opf_path, sp])
-                        relp = sp[len(prefix):]
-                        entries.append(relp.replace(os.sep, '/'))
-                        last = sp
-
-                    if os.path.exists(last):
-                        with open(last, 'rb') as fi:
-                            src = fi.read().decode('utf-8')
-                        soup = BeautifulSoup(src)
-                        body = soup.find('body')
-                        if body is not None:
-                            prefix = '/'.join('..'for i in range(2 *
-                                                                 len(re.findall(r'link\d+', last))))
-                            templ = self.navbar.generate(True, num, j, len(f),
-                                                         not self.has_single_feed,
-                                                         a.orig_url, __appname__, prefix=prefix,
-                                                         center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(
-                                doctype='xhtml').decode('utf-8')).find('div')
-                            body.insert(len(body.contents), elem)
-                            with open(last, 'wb') as fi:
-                                fi.write(type(u'')(soup).encode('utf-8'))
-        if len(feeds) == 0:
-            raise Exception('All feeds are empty, aborting.')
-
-        if len(feeds) > 1:
-            for i, f in enumerate(feeds):
-                entries.append('feed_%d/index.html' % i)
-                po = self.play_order_map.get(entries[-1], None)
-                if po is None:
-                    self.play_order_counter += 1
-                    po = self.play_order_counter
-                auth = getattr(f, 'author', None)
-                if not auth:
-                    auth = None
-                desc = getattr(f, 'description', None)
-                if not desc:
-                    desc = None
-                feed_index(i, toc.add_item('feed_%d/index.html' % i, None,
-                                           f.title, play_order=po, description=desc, author=auth))
-
-        else:
-            entries.append('feed_%d/index.html' % 0)
-            feed_index(0, toc)
-
-        for i, p in enumerate(entries):
-            entries[i] = os.path.join(dir, p.replace('/', os.sep))
-        opf.create_spine(entries)
-        opf.set_toc(toc)
-
-        with open(opf_path, 'wb') as opf_file, open(ncx_path, 'wb') as ncx_file:
-            opf.render(opf_file, ncx_file)
+    def preprocess_raw_html(self, raw, *a):
+        return raw.replace('<p></p>', '')

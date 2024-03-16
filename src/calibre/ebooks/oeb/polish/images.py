@@ -4,22 +4,23 @@
 
 import os
 from functools import partial
-from threading import Thread, Event
+from threading import Event, Thread
 
-from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
+from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
 from polyglot.builtins import iteritems
-from polyglot.queue import Queue, Empty
+from polyglot.queue import Empty, Queue
 
 
 class Worker(Thread):
 
     daemon = True
 
-    def __init__(self, abort, name, queue, results, jpeg_quality, progress_callback):
+    def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback):
         Thread.__init__(self, name=name)
         self.queue, self.results = queue, results
         self.progress_callback = progress_callback
         self.jpeg_quality = jpeg_quality
+        self.webp_quality = webp_quality
         self.abort = abort
         self.start()
 
@@ -43,20 +44,27 @@ class Worker(Thread):
                 self.queue.task_done()
 
     def compress(self, name, path, mime_type):
-        from calibre.utils.img import optimize_png, optimize_jpeg, encode_jpeg
+        from calibre.utils.img import (
+            encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp,
+        )
         if 'png' in mime_type:
             func = optimize_png
+        elif 'webp' in mime_type:
+            if self.webp_quality is None:
+                func = optimize_webp
+            else:
+                func = partial(encode_webp, quality=self.jpeg_quality)
         elif self.jpeg_quality is None:
             func = optimize_jpeg
         else:
             func = partial(encode_jpeg, quality=self.jpeg_quality)
         before = os.path.getsize(path)
-        with lopen(path, 'rb') as f:
+        with open(path, 'rb') as f:
             old_data = f.read()
         func(path)
         after = os.path.getsize(path)
         if after >= before:
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(old_data)
             after = before
         self.results[name] = (True, (before, after))
@@ -65,12 +73,12 @@ class Worker(Thread):
 def get_compressible_images(container):
     mt_map = container.manifest_type_map
     images = set()
-    for mt in 'png jpg jpeg'.split():
+    for mt in 'png jpg jpeg webp'.split():
         images |= set(mt_map.get('image/' + mt, ()))
     return images
 
 
-def compress_images(container, report=None, names=None, jpeg_quality=None, progress_callback=lambda n, t, name:True):
+def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, progress_callback=lambda n, t, name:True):
     images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
@@ -92,7 +100,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
         if not keep_going:
             abort.set()
     progress_callback(0, num_to_process, '')
-    [Worker(abort, 'CompressImage%d' % i, queue, results, jpeg_quality, pc) for i in range(min(detect_ncpus(), num_to_process))]
+    [Worker(abort, 'CompressImage%d' % i, queue, results, jpeg_quality, webp_quality, pc) for i in range(min(detect_ncpus(), num_to_process))]
     queue.join()
     before_total = after_total = 0
     processed_num = 0

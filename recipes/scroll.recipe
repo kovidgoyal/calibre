@@ -1,0 +1,63 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+
+class scroll(BasicNewsRecipe):
+    title = 'Scroll.in'
+    __author__ = 'unkn0wn'
+    description = (
+        'The leading destination for original reporting on news, politics, and culture in India. '
+        'Our award-winning team of journalists brings readers insightful analysis and opinion on the day’s '
+        'headlines alongside a fresh mix of features on music, books, and cinema.'
+    )
+    language = 'en_IN'
+    masthead_url = 'https://scroll.in/static/assets/scroll-logo.0f68c78dd023e2598248ea107feba562.003.svg'
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_attributes = ['style', 'height', 'width']
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/announcements/'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Downloading ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    extra_css = '''
+        .orange-tag, .article-meta-container { font-size:small; }
+        .featured-image, .cms-block-image { text-align:center; font-size:small; }
+    '''
+
+    keep_only_tags = [
+        dict(name = 'header'),
+        classes('featured-image article-body')
+    ]
+
+    remove_tags = [classes('comments-entry-point-meta')]
+
+    feeds = [('Articles', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fscroll.in&hl=en-IN&gl=IN&ceid=IN:en')]
+
+    def populate_article_metadata(self, article, soup, first):
+        # article.url = ''
+        article.summary = self.tag_to_string(soup.find('h2'))
+        article.text_summary = self.tag_to_string(soup.find('h2'))
+        article.title = article.title.replace(' - Scroll.in', '')

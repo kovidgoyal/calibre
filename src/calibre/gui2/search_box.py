@@ -5,19 +5,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, time
+import re
+import time
 from functools import partial
-
-
 from qt.core import (
-    QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, QEvent,
-    pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
-    QIcon, QApplication, QKeyEvent)
+    QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent,
+    QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot,
+)
 
-from calibre.gui2 import config, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
+from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION, config, gprefs, question_dialog
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
+from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import pgettext
 from polyglot.builtins import native_string_type, string_or_bytes
 
 
@@ -142,6 +143,7 @@ class SearchBox2(QComboBox):  # {{{
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
+        self.parse_error_action = None
 
     def add_action(self, icon, position=QLineEdit.ActionPosition.TrailingPosition):
         if not isinstance(icon, QIcon):
@@ -157,7 +159,6 @@ class SearchBox2(QComboBox):  # {{{
                 items.append(item)
         self.addItems(items)
         self.line_edit.setPlaceholderText(help_text)
-        self.colorize = colorize
         self.clear()
 
     def clear_history(self):
@@ -174,12 +175,14 @@ class SearchBox2(QComboBox):  # {{{
 
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
-        self.line_edit.setStyleSheet('')
+        self.setStyleSheet('')
+        self.show_parse_error_action(False)
 
     def text(self):
         return self.currentText()
 
     def clear(self, emit_search=True):
+        self.show_parse_error_action(False)
         self.normalize_state()
         self.setEditText('')
         if emit_search:
@@ -191,18 +194,25 @@ class SearchBox2(QComboBox):  # {{{
         self.clear()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
+    def show_parse_error_action(self, to_show, tooltip=''):
+        if self.parse_error_action is not None:
+            self.parse_error_action.setVisible(to_show)
+            self.parse_error_action.setToolTip(tooltip)
+
     def search_done(self, ok):
         if isinstance(ok, string_or_bytes):
             self.setToolTip(ok)
+            self.show_parse_error_action(True, tooltip=ok)
             ok = False
         if not str(self.currentText()).strip():
+            self.setStyleSheet('')
             self.clear(emit_search=False)
             return
         self._in_a_search = ok
-        if self.colorize:
-            self.line_edit.setStyleSheet(QApplication.instance().stylesheet_for_line_edit(not ok))
+        if self.parse_error_action is not None and not ok:
+            self.setStyleSheet(stylesheet_for_lineedit(bool(ok), 'QComboBox'))
         else:
-            self.line_edit.setStyleSheet('')
+            self.setStyleSheet('')
 
     # Comes from the lineEdit control
     def key_pressed(self, event):
@@ -223,6 +233,7 @@ class SearchBox2(QComboBox):  # {{{
 
     # Comes from the combobox itself
     def keyPressEvent(self, event):
+        self.show_parse_error_action(False)
         k = event.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             return self.do_search()
@@ -325,7 +336,7 @@ class SearchBoxMixin:  # {{{
         pass
 
     def init_search_box_mixin(self):
-        self.search.initialize('main_search_history', colorize=True,
+        self.search.initialize('main_search_history',
                 help_text=_('Search (For advanced search click the gear icon to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
         # Queued so that search.current_text will be correct
@@ -390,7 +401,7 @@ class SearchBoxMixin:  # {{{
         else:
             b.setIcon(QIcon.ic('highlight_only_off.png'))
             if gprefs['search_tool_bar_shows_text']:
-                b.setText(_('Highlight'))
+                b.setText(pgettext('mark books matching search result instead of filtering them', 'Highlight'))
                 b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             else:
                 b.setText(None)
@@ -432,27 +443,22 @@ class SavedSearchBoxMixin:  # {{{
     def init_saved_seach_box_mixin(self):
         pass
 
-    def populate_add_saved_search_menu(self, to_menu):
-        m = to_menu
-        m.clear()
-        m.clear()
-        m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
-        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
-                     self.get_saved_search_text)
-        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
-                     partial(self.do_saved_search_edit, None))
-        m.addSeparator()
-        db = self.current_db
+    def add_saved_searches_to_menu(self, menu, db, add_action_func=None):
+        def add_action(current_menu, whole_name, last_component, func=None):
+            if add_action_func is None:
+                return current_menu.addAction(last_component, func)
+            return add_action_func(current_menu, whole_name, last_component)
+
         folder_icon = QIcon.ic('folder_saved_search.png')
         search_icon = QIcon.ic('search.png')
         use_hierarchy = 'search' in db.new_api.pref('categories_using_hierarchy', [])
         submenus = {}
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
+            current_menu = menu
             if use_hierarchy:
                 components = tuple(n.strip() for n in name.split('.'))
                 hierarchy = components[:-1]
                 last = components[-1]
-                current_menu = m
                 # Walk the hierarchy, creating submenus as needed
                 for i,c in enumerate(hierarchy, start=1):
                     hierarchical_prefix = '.'.join(hierarchy[:i])
@@ -462,10 +468,22 @@ class SavedSearchBoxMixin:  # {{{
                         submenus[hierarchical_prefix] = current_menu
                     else:
                         current_menu = submenus[hierarchical_prefix]
-                ac = current_menu.addAction(last, partial(self.search.set_search_string, 'search:"='+name+'"'))
+                ac = add_action(current_menu, name, last, partial(self.search.set_search_string, 'search:"='+name+'"'))
             else:
-                ac = m.addAction(name, partial(self.search.set_search_string, 'search:"='+name+'"'))
-            ac.setIcon(search_icon)
+                ac = add_action(current_menu, name, name, partial(self.search.set_search_string, 'search:"='+name+'"'))
+            if ac.icon().isNull():
+                ac.setIcon(search_icon)
+
+    def populate_add_saved_search_menu(self, to_menu):
+        m = to_menu
+        m.clear()
+        m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
+        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
+                     self.get_saved_search_text)
+        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
+                     partial(self.do_saved_search_edit, None))
+        m.addSeparator()
+        self.add_saved_searches_to_menu(m, self.current_db)
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()

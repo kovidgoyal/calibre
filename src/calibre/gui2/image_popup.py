@@ -149,7 +149,7 @@ class ImageView(QDialog):
         self.save_button = so = bb.addButton(_('&Save as'), QDialogButtonBox.ButtonRole.ActionRole)
         self.copy_button = co = bb.addButton(_('&Copy'), QDialogButtonBox.ButtonRole.ActionRole)
         self.rotate_button = ro = bb.addButton(_('&Rotate'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.fullscreen_button = fo = bb.addButton(_('&Full screen'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.fullscreen_button = fo = bb.addButton(_('F&ull screen'), QDialogButtonBox.ButtonRole.ActionRole)
         zi.setIcon(QIcon.ic('plus.png'))
         zo.setIcon(QIcon.ic('minus.png'))
         so.setIcon(QIcon.ic('save.png'))
@@ -176,9 +176,16 @@ class ImageView(QDialog):
         i.setToolTip(_('Fit image inside the available space'))
         i.setChecked(bool(self.prefs.get('image_popup_fit_image')))
         i.stateChanged.connect(self.fit_changed)
-        h.addWidget(i), h.addStretch(), h.addWidget(bb)
+        self.remember_zoom = z = QCheckBox(_('Remember &zoom'))
+        z.setChecked(not i.isChecked() and bool(self.prefs.get('image_popup_remember_zoom', False)))
+        z.stateChanged.connect(self.remember_zoom_changed)
+        h.addWidget(i), h.addWidget(z), h.addStretch(), h.addWidget(bb)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
+        elif z.isChecked():
+            factor = self.prefs.get('image_popup_zoom_factor', self.factor)
+            if factor != self.factor and not self.fit_image.isChecked():
+                self.factor = factor
         self.restore_geometry(self.prefs, self.geom_name)
         fo.setChecked(self.isFullScreen())
         fo.toggled.connect(self.toggle_fullscreen)
@@ -213,6 +220,7 @@ class ImageView(QDialog):
             self.fit_image.setChecked(False)
             self.factor = factor
         self.factor *= 1.25
+        self.prefs.set('image_popup_zoom_factor', self.factor)
         self.adjust_image(1.25)
 
     def zoom_out(self):
@@ -221,6 +229,7 @@ class ImageView(QDialog):
             self.fit_image.setChecked(False)
             self.factor = factor
         self.factor *= 0.8
+        self.prefs.set('image_popup_zoom_factor', self.factor)
         self.adjust_image(0.8)
 
     def save_image(self):
@@ -241,9 +250,15 @@ class ImageView(QDialog):
         self.prefs.set('image_popup_fit_image', fitted)
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
+            self.remember_zoom.setChecked(False)
         else:
             self.factor = 1
+            self.prefs.set('image_popup_zoom_factor', self.factor)
             self.adjust_image(1)
+
+    def remember_zoom_changed(self):
+        val = bool(self.remember_zoom.isChecked())
+        self.prefs.set('image_popup_remember_zoom', val)
 
     def toggle_fit(self):
         self.fit_image.toggle()
@@ -273,6 +288,7 @@ class ImageView(QDialog):
             self.set_to_viewport_size()
         else:
             self.factor = 1
+            self.prefs.set('image_popup_zoom_factor', self.factor)
             for sb in (self.scrollarea.horizontalScrollBar(),
                     self.scrollarea.verticalScrollBar()):
                 sb.setValue(0)
@@ -289,6 +305,8 @@ class ImageView(QDialog):
             self.current_image_name = self.current_url
         reso = ''
         if self.current_img and not self.current_img.isNull():
+            if self.factor != 1:
+                self.adjust_image(self.factor)
             reso = f'[{self.current_img.width()}x{self.current_img.height()}]'
         title = _('Image: {name} {resolution}').format(name=self.current_image_name, resolution=reso)
         self.setWindowTitle(title)
@@ -336,14 +354,18 @@ class ImagePopup:
                 self.dialogs.remove(d)
 
 
-if __name__ == '__main__':
-    import sys
-
+def show_image(path=None):
+    if path is None:
+        import sys
+        path = sys.argv[-1]
     from calibre.gui2 import Application
     app = Application([])
     p = QPixmap()
-    p.load(sys.argv[-1])
-    u = QUrl.fromLocalFile(sys.argv[-1])
+    p.load(path)
+    u = QUrl.fromLocalFile(path)
     d = ImageView(None, p, u)
     d()
     app.exec()
+
+if __name__ == '__main__':
+    show_image()

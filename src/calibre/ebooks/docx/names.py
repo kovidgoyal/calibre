@@ -46,6 +46,7 @@ TRANSITIONAL_NAMESPACES = {
     'xml': 'http://www.w3.org/XML/1998/namespace',
     # Drawing
     'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+    'a14': 'http://schemas.microsoft.com/office/drawing/2010/main',
     'm': 'http://schemas.openxmlformats.org/officeDocument/2006/math',
     'mv': 'urn:schemas-microsoft-com:mac:vml',
     'pic': 'http://schemas.openxmlformats.org/drawingml/2006/picture',
@@ -63,7 +64,9 @@ TRANSITIONAL_NAMESPACES = {
     'pr': 'http://schemas.openxmlformats.org/package/2006/relationships',
     # Dublin Core document properties
     'dcmitype': 'http://purl.org/dc/dcmitype/',
-    'dcterms': 'http://purl.org/dc/terms/'
+    'dcterms': 'http://purl.org/dc/terms/',
+    # SVG embeds
+    'asvg': 'http://schemas.microsoft.com/office/drawing/2016/SVG/main',
 }
 
 STRICT_NAMESPACES = {
@@ -73,6 +76,8 @@ STRICT_NAMESPACES = {
         'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
     for k, v in iteritems(TRANSITIONAL_NAMESPACES)
 }
+SVG_BLIP_URI = '{96DAC541-7B7A-43D3-8B79-37D633B846F1}'
+USE_LOCAL_DPI_URI = '{28A0092B-C50C-407E-A947-70E740481C1C}'
 # }}}
 
 

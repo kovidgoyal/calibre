@@ -172,11 +172,13 @@ class DB:
             transaction = self.idb.transaction(stores)
             req = transaction.objectStore(store).get(data)
             req.onsuccess = def(event):
-                proceed(req.result)
+                if proceed:
+                    proceed(req.result)
         elif op is 'put':
             transaction = self.idb.transaction(stores, 'readwrite')
             req = transaction.objectStore(store).put(data)
-            req.onsuccess = proceed
+            if proceed:
+                req.onsuccess = proceed
         req.onerror = def(event):
             self.display_error(error_msg, event)
 
@@ -299,11 +301,11 @@ class DB:
         if book.metadata:
             for key in Object.keys(new_metadata):
                 book.metadata[key] = new_metadata[key]
-            self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+            self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
 
     def save_reading_rates(self, book, rates):
         book.saved_reading_rates = rates
-        self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+        self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
 
     def update_annotations_data_from_key(self, library_id, book_id, fmt, new_data):
         unkey = username_key(get_interface_data().username)
@@ -327,7 +329,7 @@ class DB:
                             changed = True
                             book.annotations_map[unkey] = merged
                 if changed:
-                    self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+                    self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
         )
 
     def get_file(self, book, name, proceed):

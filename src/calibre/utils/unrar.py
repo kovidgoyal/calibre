@@ -12,6 +12,7 @@ from io import BytesIO
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
+from calibre.utils.filenames import make_long_path_useable
 from polyglot.builtins import string_or_bytes
 
 
@@ -52,19 +53,27 @@ class StreamAsPath:
 def extract(path_or_stream, location):
     from unrardll import extract
     with StreamAsPath(path_or_stream) as path:
-        return extract(path, location)
+        return extract(make_long_path_useable(path), make_long_path_useable(location, threshold=0))
 
 
 def names(path_or_stream):
     from unrardll import names
     with StreamAsPath(path_or_stream) as path:
-        yield from names(path, only_useful=True)
+        yield from names(make_long_path_useable(path), only_useful=True)
+
+
+def headers(path_or_stream):
+    from unrardll import headers, is_useful
+    with StreamAsPath(path_or_stream) as path:
+        for h in headers(make_long_path_useable(path)):
+            if is_useful(h):
+                yield h
 
 
 def comment(path_or_stream):
     from unrardll import comment
     with StreamAsPath(path_or_stream) as path:
-        return comment(path)
+        return comment(make_long_path_useable(path))
 
 
 def extract_member(
@@ -81,9 +90,15 @@ def extract_member(
                (match is not None and match.search(fname) is not None)
 
     with StreamAsPath(path_or_stream) as path:
-        name, data = extract_member(path, is_match)
+        name, data = extract_member(make_long_path_useable(path), is_match)
         if name is not None:
             return name, data
+
+
+def extract_members(path_or_stream, callback):
+    from unrardll import extract_members
+    with StreamAsPath(path_or_stream) as path:
+        extract_members(make_long_path_useable(path), callback)
 
 
 def extract_first_alphabetically(stream):

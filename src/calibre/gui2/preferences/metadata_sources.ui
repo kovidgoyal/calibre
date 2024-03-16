@@ -163,8 +163,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>356</width>
-              <height>462</height>
+              <width>350</width>
+              <height>441</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -226,20 +226,25 @@
               </widget>
              </item>
              <item row="5" column="0" colspan="2">
-              <widget class="QPushButton" name="tag_map_rules_button">
+              <widget class="QToolButton" name="map_rules_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
-                <string>Create &amp;rules to filter/transform tags</string>
+                <string>Create &amp;rules to transform tags/authors/publishers</string>
+               </property>
+               <property name="popupMode">
+                <enum>QToolButton::InstantPopup</enum>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextOnly</enum>
                </property>
               </widget>
              </item>
-             <item row="6" column="0" colspan="2">
-              <widget class="QPushButton" name="author_map_rules_button">
-               <property name="text">
-                <string>Create rules to &amp;transform author names</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
+             <item row="6" column="0">
               <widget class="QLabel" name="label_2">
                <property name="text">
                 <string>Max. &amp;number of tags to download:</string>
@@ -249,10 +254,10 @@
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
+             <item row="6" column="1">
               <widget class="QSpinBox" name="opt_max_tags"/>
              </item>
-             <item row="8" column="0">
+             <item row="7" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
                 <string>Max. &amp;time to wait after first match is found:</string>
@@ -262,14 +267,14 @@
                </property>
               </widget>
              </item>
-             <item row="8" column="1">
+             <item row="7" column="1">
               <widget class="QSpinBox" name="opt_wait_after_first_identify_result">
                <property name="suffix">
                 <string> secs</string>
                </property>
               </widget>
              </item>
-             <item row="9" column="0">
+             <item row="8" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
                 <string>Max. time to wait after first &amp;cover is found:</string>
@@ -279,7 +284,7 @@
                </property>
               </widget>
              </item>
-             <item row="9" column="1">
+             <item row="8" column="1">
               <widget class="QSpinBox" name="opt_wait_after_first_cover_result">
                <property name="suffix">
                 <string> secs</string>

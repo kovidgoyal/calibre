@@ -14,7 +14,7 @@ from session import get_interface_data
 
 from book_list.library_data import library_data, current_library_id, current_virtual_library
 from book_list.ui import show_panel
-from book_list.router import back
+from book_list.router import back, show_note
 from book_list.top_bar import create_top_bar, add_button
 from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
@@ -222,20 +222,21 @@ def menu_clicked(i):
         node = node_for_path().children[i]
         data = node.data
         name = data.original_name or data.name or data.sort
-        items = []
-        if data.count is not undefined:
-            items.append(_('Count: ') + data.count)
-        if data.avg_rating is not undefined:
-            items.append(_('Rating: {:.1f}').format(data.avg_rating))
-        suffix = ''
-        if items.length:
-            suffix = ' [' + items.join(' ') + ']'
-
         title = E.h2(
             style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
-            E.img(src=icon_for_node(node), style='height:2ex'),
-            E.span('\xa0' + name + suffix)
+            E.img(src=icon_for_node(node), style='height:2ex; margin-right: 0.5rem'),
+            E.span(name)
         )
+        def edit_note(field, item_name):
+            hide_modal()
+            show_note(field, 0, item_name, panel='edit_note')
+
+        if data.category and data.name and library_data.fields_that_support_notes.indexOf(data.category):
+            title.appendChild(E.a(svgicon('pencil'),
+                class_='blue-link', style='margin-left: 0.5em', href='javascript:void(0)',
+                onclick=edit_note.bind(None, data.category, data.name),
+                title=_('Edit or add notes for {}').format(data.name),
+            ))
         container.appendChild(title)
         container.appendChild(E.div(
             style='margin-top:1ex; margin-bottom: 1ex',
@@ -257,8 +258,8 @@ def menu_clicked(i):
         for text, search_type in items:
             li = E.li(
                 style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
-                E.img(src=absolute_path('{}/{}.png'.format(interface_data.icon_path, search_type)), style='max-height: 2.5ex'),
-                E.span('\xa0' + text)
+                E.img(src=absolute_path('{}/{}.png'.format(interface_data.icon_path, search_type)), style='max-height: 2.5ex; margin-right:0.5rem'),
+                E.span(text)
             )
             li.addEventListener('click', add_to_search.bind(None, node, search_type))
             li.addEventListener('click', hide_modal)
@@ -280,6 +281,19 @@ def menu_clicked(i):
         f.firstChild.nextSibling.addEventListener('change', def(ev):
             get_session_data().set('and_search_terms', not ev.target.checked)
         )
+        about_items = v'[]'
+        if data.count is not undefined:
+            about_items.push(_('Number of books: {}').format(data.count))
+        if data.avg_rating is not undefined:
+            about_items.push(_('Average rating of books: {:.1f}').format(data.avg_rating))
+        footer = E.div(
+            style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex;',
+        )
+        if about_items.length:
+            footer.appendChild(E.div(style='font-size: smaller', ' '.join(about_items)))
+        if footer.firstChild:
+            container.appendChild(footer)
+
     show_modal(create_details)
 
 

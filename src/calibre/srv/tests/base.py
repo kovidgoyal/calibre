@@ -5,12 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, time, shutil, gc, tempfile, atexit, os
-from io import BytesIO
+import atexit
+import gc
+import os
+import shutil
+import tempfile
+import time
+import unittest
 from functools import partial
+from io import BytesIO
 from threading import Thread
 
 from calibre.srv.utils import ServerLog
+from calibre.utils.resources import get_image_path as I, get_path as P
 from polyglot import http_client
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
@@ -34,13 +41,14 @@ class BaseTest(SimpleTest):
         for i in range(max_retries + 1):
             failures_before = len(result.failures)
             errors_before = len(result.errors)
-            super().run(result=result)
+            ret = super().run(result=result)
             if len(result.failures) == failures_before and len(result.errors) == errors_before:
-                return
+                return ret
             print(f'Retrying test {self._testMethodName} after failure/error')
-            q = result.failures if len(result.failures) > failures_before else result.errors
-            q.pop(-1)
-            time.sleep(1)
+            if i < max_retries:
+                q = result.failures if len(result.failures) > failures_before else result.errors
+                q.pop(-1)
+                time.sleep(1)
 
 
 class LibraryBaseTest(BaseTest):
@@ -69,8 +77,8 @@ class LibraryBaseTest(BaseTest):
         return ans
 
     def create_db(self, library_path):
-        from calibre.db.legacy import create_backend
         from calibre.db.cache import Cache
+        from calibre.db.legacy import create_backend
         d = os.path.dirname
         src = os.path.join(d(d(d(os.path.abspath(__file__)))), 'db', 'tests', 'metadata.db')
         dest = os.path.join(library_path, 'metadata.db')
@@ -79,7 +87,8 @@ class LibraryBaseTest(BaseTest):
         db.init()
         db.set_cover({1:I('lt.png', data=True), 2:I('polish.png', data=True)})
         db.add_format(1, 'FMT1', BytesIO(b'book1fmt1'), run_hooks=False)
-        db.add_format(1, 'EPUB', open(P('quick_start/eng.epub'), 'rb'), run_hooks=False)
+        with open(P('quick_start/eng.epub'), 'rb') as src:
+            db.add_format(1, 'EPUB', src, run_hooks=False)
         db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), run_hooks=False)
         db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), run_hooks=False)
         db.backend.conn.close()
@@ -96,9 +105,9 @@ class TestServer(Thread):
 
     def __init__(self, handler, plugins=(), **kwargs):
         Thread.__init__(self, name='ServerMain')
-        from calibre.srv.opts import Options
-        from calibre.srv.loop import ServerLoop
         from calibre.srv.http_response import create_http_handler
+        from calibre.srv.loop import ServerLoop
+        from calibre.srv.opts import Options
         self.setup_defaults(kwargs)
         self.loop = ServerLoop(
             create_http_handler(handler),
@@ -153,10 +162,10 @@ class LibraryServer(TestServer):
 
     def __init__(self, library_path, libraries=(), plugins=(), **kwargs):
         Thread.__init__(self, name='ServerMain')
-        from calibre.srv.opts import Options
-        from calibre.srv.loop import ServerLoop
         from calibre.srv.handler import Handler
         from calibre.srv.http_response import create_http_handler
+        from calibre.srv.loop import ServerLoop
+        from calibre.srv.opts import Options
         self.setup_defaults(kwargs)
         opts = Options(**kwargs)
         self.libraries = libraries or (library_path,)

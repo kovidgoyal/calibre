@@ -22,6 +22,7 @@ from calibre.startup import initialize_calibre
 initialize_calibre()
 from calibre.utils.icu import safe_chr
 from calibre.prints import prints
+from calibre.utils.resources import get_path as P
 
 if False:
     # Prevent pyflakes from complaining
@@ -77,7 +78,9 @@ def to_unicode(raw, encoding='utf-8', errors='strict'):
 
 def patheq(p1, p2):
     p = os.path
-    d = lambda x : p.normcase(p.normpath(p.realpath(p.normpath(x))))
+
+    def d(x):
+        return p.normcase(p.normpath(p.realpath(p.normpath(x))))
     if not p1 or not p2:
         return False
     return d(p1) == d(p2)
@@ -342,6 +345,8 @@ def fit_image(width, height, pwidth, pheight):
     @param pheight: Height of box
     @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
     '''
+    if height < 1 or width < 1:
+        return False, int(width), int(height)
     scaled = height > pheight or width > pwidth
     if height > pheight:
         corrf = pheight / float(height)

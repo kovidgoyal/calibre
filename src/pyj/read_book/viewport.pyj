@@ -330,6 +330,22 @@ for attr in FUNCTIONS:
         scroll_viewport['paged_' + attr] = scroll_viewport[attr]
 viewport_mode_changer(scroll_viewport.set_mode)
 
+
+def get_unit_size_in_pixels(unit):
+    d = document.createElement('span')
+    d.style.position = 'absolute'
+    d.style.visibility = 'hidden'
+    d.style.width = f'1{unit}'
+    d.style.fontSize = f'1{unit}'
+    d.style.paddingTop = d.style.paddingBottom = d.style.paddingLeft = d.style.paddingRight = '0'
+    d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
+    d.style.borderStyle = 'none'
+    document.body.appendChild(d)
+    ans = d.clientWidth
+    document.body.removeChild(d)
+    return ans
+
+
 def rem_size(reset):
     if reset:
         rem_size.ans = None
@@ -344,7 +360,7 @@ def rem_size(reset):
         d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
         d.style.borderStyle = 'none'
         document.body.appendChild(d)
-        rem_size.ans = d.clientWidth
+        rem_size.ans = max(2, d.clientWidth)
         document.body.removeChild(d)
     return rem_size.ans
 

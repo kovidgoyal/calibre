@@ -5,32 +5,44 @@ SVG rasterization transform.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os, re
+import os
+import re
+from base64 import standard_b64encode
+from functools import lru_cache
 
+from lxml import etree
 from qt.core import (
-    Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
-from calibre.ebooks.oeb.base import XHTML, XLINK
-from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
-from calibre.ebooks.oeb.base import xml2str, xpath
-from calibre.ebooks.oeb.base import urlnormalize
+    QBuffer, QByteArray, QColor, QImage, QIODevice, QPainter, QSvgRenderer, Qt,
+)
+
+from calibre import guess_type
+from calibre.ebooks.oeb.base import (
+    PNG_MIME, SVG_MIME, XHTML, XLINK, urlnormalize, xml2str, xpath,
+)
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
 from polyglot.urllib import urldefrag
 
 IMAGE_TAGS = {XHTML('img'), XHTML('object')}
 KEEP_ATTRS = {'class', 'style', 'width', 'height', 'align'}
-TEST_SVG = b'''
-<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-<path d="M4.5 11H3v4h4v-1.5H4.5V11zM3 7h1.5V4.5H7V3H3v4zm10.5 6.5H11V15h4v-4h-1.5v2.5zM11 3v1.5h2.5V7H15V3h-4z"/>
-</svg>'''
+
+def test_svg():  # {{{
+    TEST_PNG_DATA_URI='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAWJQTFRFAAAAAAAAAAAAAAAAAAAAAQEAAgIBAwIBBgQCBwUCCAYDCggECwkEDgsFDwwFEA0GHRcKHxkLIBkLIxwMJR0NJx8OKCAOKCAPKSAPMScSPTAWQTQXQzUYSjsaSjsbSzsbUD8dUUAdVEMeWkggW0ggW0ghW0khXUohYk4ja1Umb1gocVoocVopclspc1spdV0qd18reF8riW0xjXEzl3g2mns3nn04nn45n345oIA6ooE7o4I7pII7pIM7pYQ7p4U8qYY8rYo+s45Bxp1Hx55Hy6FJy6JJzaRJz6RKz6RLz6VL0qdL1KpM1apM1qtN16xN2KxN2K1O2a1O2q1O265P3K9P3bBQ3rBP37FP37FQ37JQ4rNR47VR5LVR7LxV7bxV7r1V7r5W8L9W8MBW8b9V8b9W8cBW8cBX8sBW8sBX8sFW8sFX88BX88FW88FX88FY88JX88JY9MFX9MJX9MJY9MNYSw0rOAAAAAR0Uk5T2+rr8giKtGMAAAFDSURBVDjLhdNFUwNBEIbhJWkkuLu7u5PgHtwWl0CGnW34aJLl/3OgUlRlGfKepqafmstUW1Yw8E9By6IMWVn/z7OsQOpYNrE0H4lEwuFwZHmyLnUb+AUzIiLMItDgrWIfKH3mnz4RA6PX/8Im8xuEgVfxxG33g+rVi9OT46OdPQ0kDgv8gCg3FMrLphkNyCD9BYiIqEErraP5ZrDGDrw2MoIhsPACGUH5g2gVqzWDKQ/gETKCZmHwbo4ZbHhJ1q1kBMMJCKbJCCof35V+qjCDOUCrMTKCFkc8vU5GENpW8NwmMxhVccYsGUHVvWKOFhlBySJicV6u7+7s6Ozq6anxgT44Lwy4jlKK4br96WDl09GA/gA4zp7gLh2MM3MS+EgCGl+iD9JB4cDZzbV9ZV/atn1+frvfaPhuX4HMq0cZsjKt/zfXXmDab9zjGwAAAABJRU5ErkJggg=='
+    return f'''
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+    <path d="M4.5 11H3v4h4v-1.5H4.5V11zM3 7h1.5V4.5H7V3H3v4zm10.5 6.5H11V15h4v-4h-1.5v2.5zM11 3v1.5h2.5V7H15V3h-4z"/>
+    <image width="32" height="32" x="32" y="32" xlink:href="{TEST_PNG_DATA_URI}"/>
+    </svg>'''.encode()
+# }}}
 
 
 class Unavailable(Exception):
     pass
 
 
-def rasterize_svg(data=TEST_SVG, sizes=(), width=0, height=0, print=None, fmt='PNG', as_qimage=False):
+def rasterize_svg(data=None, sizes=(), width=0, height=0, print=None, fmt='PNG', as_qimage=False):
+    if data is None:
+        data = test_svg()
     svg = QSvgRenderer(QByteArray(data))
     size = svg.defaultSize()
     if size.width() == 100 and size.height() == 100 and sizes:
@@ -54,10 +66,16 @@ def rasterize_svg(data=TEST_SVG, sizes=(), width=0, height=0, print=None, fmt='P
     return array.data()
 
 
+@lru_cache(maxsize=128)
+def data_url(mime_type: str, data: bytes) -> str:
+    return f'data:{mime_type};base64,' + standard_b64encode(data).decode('ascii')
+
+
 class SVGRasterizer:
 
-    def __init__(self, base_css=''):
+    def __init__(self, base_css='', save_svg_originals=False):
         self.base_css = base_css
+        self.save_svg_originals = save_svg_originals
         from calibre.gui2 import must_use_qt
         must_use_qt()
 
@@ -71,20 +89,15 @@ class SVGRasterizer:
 
     def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
-        self.temp_files = []
         self.stylizer_cache = {}
         self.oeb = oeb
         self.opts = context
         self.profile = context.dest
         self.images = {}
-        self.dataize_manifest()
+        self.svg_originals = {}
+        self.scan_for_linked_resources_in_manifest()
         self.rasterize_spine()
         self.rasterize_cover()
-        for pt in self.temp_files:
-            try:
-                os.remove(pt)
-            except:
-                pass
 
     def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
         view_box = elem.get('viewBox', elem.get('viewbox', None))
@@ -110,38 +123,41 @@ class SVGRasterizer:
 
         return rasterize_svg(xml2str(elem, with_tail=False), sizes=sizes, width=width, height=height, print=logger.info, fmt=format)
 
-    def dataize_manifest(self):
+    def scan_for_linked_resources_in_manifest(self):
         for item in self.oeb.manifest.values():
             if item.media_type == SVG_MIME and item.data is not None:
-                self.dataize_svg(item)
+                self.scan_for_linked_resources_in_svg(item)
 
-    def dataize_svg(self, item, svg=None):
+    def scan_for_linked_resources_in_svg(self, item, svg=None):
         if svg is None:
             svg = item.data
         hrefs = self.oeb.manifest.hrefs
+        ha = XLINK('href')
         for elem in xpath(svg, '//svg:*[@xl:href]'):
-            href = urlnormalize(elem.attrib[XLINK('href')])
+            href = urlnormalize(elem.get(ha))
             path = urldefrag(href)[0]
             if not path:
                 continue
             abshref = item.abshref(path)
-            if abshref not in hrefs:
+            linkee = hrefs.get(abshref)
+            if linkee is None:
                 continue
-            linkee = hrefs[abshref]
             data = linkee.bytes_representation
-            ext = what(None, data) or 'jpg'
-            with PersistentTemporaryFile(suffix='.'+ext) as pt:
-                pt.write(data)
-                self.temp_files.append(pt.name)
-            elem.attrib[XLINK('href')] = pt.name
+            ext = what(None, data)
+            if not ext:
+                continue
+            mt = guess_type('file.'+ext)[0]
+            if not mt or not mt.startswith('image/'):
+                continue
+            elem.set(ha, data_url(mt, data))
+
         return svg
 
     def stylizer(self, item):
         ans = self.stylizer_cache.get(item, None)
         if ans is None:
-            ans = Stylizer(item.data, item.href, self.oeb, self.opts,
+            ans = self.stylizer_cache[item] = Stylizer(item.data, item.href, self.oeb, self.opts,
                     self.profile, base_css=self.base_css)
-            self.stylizer_cache[item] = ans
         return ans
 
     def rasterize_spine(self):
@@ -172,13 +188,19 @@ class SVGRasterizer:
         height = style['height']
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
-        elem = self.dataize_svg(item, elem)
+        self.scan_for_linked_resources_in_svg(item, elem)
         data = self.rasterize_svg(elem, width, height)
         manifest = self.oeb.manifest
         href = os.path.splitext(item.href)[0] + '.png'
         id, href = manifest.generate(item.id, href)
         manifest.add(id, href, PNG_MIME, data=data)
         img = elem.makeelement(XHTML('img'), src=item.relhref(href))
+        if self.save_svg_originals:
+            svg_bytes = etree.tostring(elem, encoding='utf-8', xml_declaration=True, pretty_print=True, with_tail=False)
+            svg_id, svg_href = manifest.generate(item.id, 'inline.svg')
+            manifest.add(svg_id, svg_href, SVG_MIME, data=svg_bytes)
+            self.svg_originals[href] = svg_href
+        img.tail = elem.tail
         elem.getparent().replace(elem, img)
         for prop in ('width', 'height'):
             if prop in elem.attrib:
@@ -215,6 +237,7 @@ class SVGRasterizer:
             id, href = manifest.generate(svgitem.id, href)
             manifest.add(id, href, PNG_MIME, data=data)
             self.images[key] = href
+        self.svg_originals[href] = svgitem.href
         elem.tag = XHTML('img')
         for attr in elem.attrib:
             if attr not in KEEP_ATTRS:
@@ -244,3 +267,7 @@ class SVGRasterizer:
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)
         covers[0].value = id
+
+
+if __name__ == '__main__':
+    open('/t/test-svg-rasterization.png', 'wb').write(rasterize_svg())

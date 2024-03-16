@@ -406,7 +406,10 @@ class MTP_DEVICE(MTPDeviceBase):
         e = parent.folder_named(name)
         if e is not None:
             return e
-        ans = self.dev.create_folder(parent.object_id, name)
+        try:
+            ans = self.dev.create_folder(parent.object_id, name)
+        except Exception as err:
+            raise OSError(f'Failed to create the folder: {name} in {parent.full_path} with error: {err}') from err
         ans['storage_id'] = parent.storage_id
         return parent.add_child(ans)
 

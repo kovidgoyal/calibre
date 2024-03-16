@@ -10,14 +10,16 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.magick import Image
+from datetime import date, timedelta
+
+dates = [ date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d') ]
 
 # ----------- CUSTOMIZATION OPTIONS START -----------
 
 # Comment (add # in front) to disable the sections you are not interested in
 # Commenta (aggiungi # davanti alla riga) per disabilitare le sezioni che non vuoi scaricare
 sections = [
-    ("Prima Pagina", "https://www.ilpost.it/prime-pagine"),
+    ("Italia", "https://www.ilpost.it/italia/"),
     ("Mondo", "https://www.ilpost.it/mondo/"),
     ("Politica", "https://www.ilpost.it/politica/"),
     ("Tecnologia", "https://www.ilpost.it/tecnologia/"),
@@ -33,16 +35,11 @@ sections = [
     ("Konrad", "https://www.ilpost.it/europa/"),
 ]
 
-# Change this to True if you want grey images
-convert_to_grayscale = False
-
 # ----------- CUSTOMIZATION OPTIONS OVER -----------
-
-prefixes = {"Permalink to", "Commenta", "Link all'articolo"}
 
 
 class IlPost(BasicNewsRecipe):
-    __author__ = 'Marco Scirea'
+    __author__ = 'Marco Scirea, unkn0wn'
     __license__ = 'GPL v3'
     __copyright__ = '2019, Marco Scirea <marco.prolog at gmail.com>'
 
@@ -54,59 +51,42 @@ class IlPost(BasicNewsRecipe):
         ' la ricetta puo\' essere configurata per tenerle a colori'
     )
     tags = "news"
-    cover_url = "https://www.ilpost.it/wp-content/themes/ilpost/images/ilpost.svg"
+    masthead_url = 'https://www.ilpost.it/error/images/ilpost.svg'
     ignore_duplicate_articles = {"title", "url"}
     no_stylesheets = True
-    keep_only_tags = [dict(id=["expanding", "singleBody"])]
+    extra_css = ' .wp-caption-text { font-size:small; } '
+    keep_only_tags = [dict(name='main', attrs={'id':lambda x: x and x.startswith('index_main-content__')})]
+    remove_tags_before = [dict(name='article')]
+    remove_tags_after = [dict(name='article')]
+    remove_tags = [
+        dict(attrs={'class':lambda x: x and x.startswith(
+            ('index_actions__', 'index_il-post-comments___', 'index_art_tag__')
+        )}),
+        dict(attrs={'id':'audioPlayerArticle'})
+    ]
 
     def parse_page(self, name, url):
         self.log.debug(url)
         soup = self.index_to_soup(url)
         entries = []
         for article in soup.findAll('article'):
-            for link in article.findAll('a', href=True, title=True):
-                if not link["href"].startswith("https://www.ilpost.it/20"):
+            for link in article.findAll('a', href=True):
+                if not any(x in link['href'] for x in dates):
                     continue
-                title = link["title"]
-                for prefix in prefixes:
-                    if title.startswith(prefix):
-                        title = title.lstrip(prefix)
-                        break
-                title = title.strip()
+                title = self.tag_to_string(link.h2)
+                desc = self.tag_to_string(link.p)
+                if not title:
+                    continue
+                self.log('\t', title)
                 entries.append({
                     "url": link["href"],
                     "title": title,
+                    "description": desc
                 })
         return (name, entries)
-
-    def populate_article_metadata(self, article, soup, first):
-        description = soup.find(attrs={"name": "description"})
-        article.summary = description[
-            "content"] if description else "No meta description given"
-        article.text_summary = description[
-            "content"] if description else "No meta description given"
 
     def parse_index(self):
         feeds = []
         for section in sections:
             feeds.append(self.parse_page(section[0], section[1]))
         return feeds
-
-    if convert_to_grayscale:
-        # Image conversion to greyscale by Starson17
-        # https://www.mobileread.com/forums/showpost.php?p=1814815&postcount=15
-        def postprocess_html(self, soup, first):
-            # process all the images
-            for tag in soup.findAll('img', src=True):
-                iurl = tag['src']
-                img = Image()
-                img.open(iurl)
-                img.type = "GrayscaleType"
-                img.save(iurl)
-            return soup
-
-    def preprocess_html(self, soup):
-        galleryItems = soup.findAll("figure", {"class": "gallery-item"})
-        if galleryItems:
-            self.abort_article()
-        return soup

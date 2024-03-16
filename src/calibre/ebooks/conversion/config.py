@@ -27,7 +27,7 @@ def save_defaults(name, recs):
 
     os.makedirs(config_dir, exist_ok=True)
 
-    with lopen(path, 'wb'):
+    with open(path, 'wb'):
         pass
     with ExclusiveFile(path) as f:
         f.write(raw)
@@ -278,7 +278,7 @@ OPTIONS = {
         'epub': (
             'dont_split_on_page_breaks', 'flow_size', 'no_default_epub_cover',
             'no_svg_cover', 'epub_inline_toc', 'epub_toc_at_end', 'toc_title',
-            'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version'),
+            'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version', 'epub_max_image_size',),
 
         'fb2': ('sectionize', 'fb2_genre'),
 
@@ -305,7 +305,7 @@ OPTIONS = {
             'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
             'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
             'toc_title', 'pdf_page_margin_left', 'pdf_page_margin_top',
-            'pdf_page_margin_right', 'pdf_page_margin_bottom',
+            'pdf_page_margin_right', 'pdf_page_margin_bottom', 'pdf_no_cover',
             'pdf_use_document_margins', 'pdf_page_number_map', 'pdf_odd_even_offset'),
 
         'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),

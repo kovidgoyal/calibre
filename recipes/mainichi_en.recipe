@@ -1,24 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-__license__ = "GPL v3"
-__copyright__ = (
-    "2010, Hiroshi Miura <miurahr@linux.com>. "
-    "2021, Albert Aparicio Isarn <aaparicio at posteo.net>"
-)
-
 """
 www.mainichi.jp/english
 """
 
-from datetime import datetime
-
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-
 
 class MainichiEnglishNews(BasicNewsRecipe):
     title = u"The Mainichi"
-    __author__ = "Albert Aparicio Isarn (old version by Hiroshi Miura)"
+    __author__ = 'unkn0wn'
 
     description = "Japanese traditional newspaper Mainichi news in English"
     publisher = "Mainichi News"
@@ -29,114 +18,28 @@ class MainichiEnglishNews(BasicNewsRecipe):
     index = "http://mainichi.jp/english/"
     masthead_url = index + "images/themainichi.png"
 
-    oldest_article = 2
-    max_articles_per_feed = 40
     no_stylesheets = True
     remove_javascript = True
+    auto_cleanup = True
 
-    remove_tags_before = {"id": "main-cont"}
-    remove_tags_after = {"class": "main-text"}
-    remove_tags = [{"name": "div", "id": "tools"}, {"name": "div", "class": "sub"}]
+    ignore_duplicate_articles = {'title'}
 
-    def get_pickup_section(self, soup):
-        # Topmost story
-        top = soup.find("section", attrs={"class": "pickup section"})
-        top_link = top.find("p", attrs={"class": "midashi"}).find("a")
+    articles_are_obfuscated = True
 
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
         try:
-            top_date = (
-                soup.find("div", attrs={"id": "main"})
-                .find("div", attrs={"class": "date-box"})
-                .find("p", attrs={"class": "date"})
-                .string
-            )
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
 
-            top_date_formatted = datetime.strptime(top_date, "%A, %B %d, %Y").strftime("%Y/%m/%d")
-        except AttributeError:
-            # If date not present, assume it is from today
-            top_date_formatted = datetime.now().strftime("%Y/%m/%d")
-
-        top_description = top.find("p", attrs={"class": "txt"}).text
-
-        return [
-            {
-                "title": top_link.string,
-                "date": top_date_formatted,
-                "url": "https:" + top_link["href"],
-                "description": top_description,
-            }
-        ]
-
-    def retrieve_news_from_column(self, column):
-        column_news = []
-
-        for item in column.findAll("li"):
-            if item:
-                itema = item.find("a")
-                date_item = itema.find("p", attrs={"class": "date"})
-
-                column_news.append(
-                    {
-                        "title": itema.find("span").string,
-                        "date": date_item.string.strip("（）") if date_item else "",
-                        "url": "https:" + itema["href"],
-                        "description": "",
-                    }
-                )
-
-        return column_news
-
-    def get_top_stories(self, soup):
-        top_stories = self.get_pickup_section(soup)
-
-        news_section = soup.find("section", attrs={"class": "newslist"})
-        top_news = news_section.find("div", attrs={"class": "main-box"}).find("ul")
-
-        top_stories.extend(self.retrieve_news_from_column(top_news))
-
-        return top_stories
-
-    def get_editor_picks(self, soup):
-        editor_picks = []
-
-        news_section = soup.find("section", attrs={"class": "newslist"})
-        news = news_section.find("div", attrs={"class": "sub-box"}).find("ul")
-
-        editor_picks.extend(self.retrieve_news_from_column(news))
-
-        return editor_picks
-
-    def get_section(self, section):
-        soup = self.index_to_soup(self.index + section + "index.html")
-
-        section_news_items = self.get_pickup_section(soup)
-
-        news_columns = (
-            soup.find("section", attrs={"class": "newslist section"})
-            .find("div", attrs={"class": "col-set"})
-            .find("ul")
-        )
-
-        section_news_items.extend(self.retrieve_news_from_column(news_columns))
-
-        return section_news_items
-
-    def parse_index(self):
-        soup = self.index_to_soup(self.index + "index.html")
-
-        feeds = [
-            ("Top Stories", self.get_top_stories(soup)),
-            ("Editor's Picks", self.get_editor_picks(soup)),
-            # ("Latest Articles", self.get_section(self.index + "latest"+"index.html")),
-            ("Japan", self.get_section("japan")),
-            ("World", self.get_section("world")),
-            ("Business", self.get_section("business")),
-            ("Sports", self.get_section("sports")),
-            ("Science", self.get_section("science")),
-            ("Entertainment", self.get_section("entertainment")),
-            ("Opinion", self.get_section("opinion")),
-            ("Lifestyle", self.get_section("lifestyle")),
-            ("Obituaries", self.get_section("obituaries")),
-        ]
-
-        return feeds
+    feeds = [
+        ('Articles', 'https://news.google.com/rss/search?q=when:48h+allinurl:mainichi.jp%2Fenglish%2Farticles%2F&hl=en-US&gl=US&ceid=US:en')
+    ]

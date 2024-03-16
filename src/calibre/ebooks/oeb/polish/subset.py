@@ -5,15 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import os
+import sys
+from io import BytesIO
 
-from calibre import prints, as_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath, css_text
-from calibre.ebooks.oeb.polish.utils import guess_type, OEB_FONTS
-from calibre.utils.fonts.sfnt.subset import subset
-from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from calibre import as_unicode, prints
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath, css_text
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS
+from calibre.utils.fonts.subset import subset
 from calibre.utils.fonts.utils import get_font_names
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 def remove_font_face_rules(container, sheet, remove_names, base):
@@ -33,9 +34,8 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 
 def iter_subsettable_fonts(container):
-    woff_font_types = guess_type('a.woff'), guess_type('a.woff2')
     for name, mt in iteritems(container.mime_map):
-        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt not in woff_font_types:
+        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}):
             yield name, mt
 
 
@@ -47,7 +47,7 @@ def subset_all_fonts(container, font_stats, report):
         chars = font_stats.get(name, set())
         with container.open(name, 'rb') as f:
             f.seek(0, os.SEEK_END)
-            total_old += f.tell()
+            font_size = f.tell()
         if not chars:
             remove.add(name)
             report(_('Removed unused font: %s')%name)
@@ -57,25 +57,28 @@ def subset_all_fonts(container, font_stats, report):
             try:
                 font_name = get_font_names(raw)[-1]
             except Exception as e:
-                container.log.warning(
+                report(
                     'Corrupted font: %s, ignoring.  Error: %s'%(
                         name, as_unicode(e)))
                 continue
             warnings = []
-            container.log('Subsetting font: %s'%(font_name or name))
+            report('Subsetting font: %s'%(font_name or name))
+            font_type = os.path.splitext(name)[1][1:].lower()
+            output = BytesIO()
             try:
-                nraw, old_sizes, new_sizes = subset(raw, chars,
-                                                warnings=warnings)
-            except UnsupportedFont as e:
-                container.log.warning(
-                    'Unsupported font: %s, ignoring.  Error: %s'%(
+                warnings = subset(BytesIO(raw), output, font_type, chars)
+            except Exception as e:
+                report(
+                    'Unsupported font: %s, ignoring. Error: %s'%(
                         name, as_unicode(e)))
                 continue
+            nraw = output.getvalue()
+            total_old += font_size
 
             for w in warnings:
-                container.log.warn(w)
-            olen = sum(itervalues(old_sizes))
-            nlen = sum(itervalues(new_sizes))
+                report(w)
+            olen = len(raw)
+            nlen = len(nraw)
             total_new += len(nraw)
             if nlen == olen:
                 report(_('The font %s was already subset')%font_name)

@@ -14,7 +14,7 @@ country_defs = {
         'Business': 'business',
         'Markets': 'markets',
         'Tech': 'technology',
-        'Sports': 'lifestyle/sports',
+        # 'Sports': 'lifestyle/sports',
         'Wealth': 'markets/wealth',
     })
 }
@@ -58,27 +58,29 @@ class Reuters(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     language = 'en'
 
+
     keep_only_tags = [
         prefixed_classes('article-body__container__ article-header__container__'),
     ]
     remove_tags = [
         prefixed_classes(
-            'context-widget__tabs___'
+            'context-widget__tabs___ article-header__toolbar__ read-next-mobile__container__ toolbar__container__ button__link__'
             ' ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer- RegistrationPrompt__container___'
-            ' SocialEmbed__inner___'
+            ' SocialEmbed__inner___ trust-badge author-bio__social__ with-spinner__spinner__ author-bio__author-image__'
         ),
-        dict(name=['button', 'link']),
+        dict(name=['button', 'link', 'svg']),
     ]
-    remove_attributes = ['style']
-    extra_css = '''
-    img { max-width: 100%; }
-    '''
+    remove_attributes = ['style', 'height', 'width']
 
-    def preprocess_html(self, soup, *a):
-        for noscript in soup.findAll('noscript'):
-            if noscript.findAll('img'):
-                noscript.name = 'div'
-        return soup
+    extra_css = '''
+        img { max-width: 100%; }
+        [class^="article-header__tags__"],
+        [class^="author-bio__author-card__"],
+        [class^="article-header__author-date__"] {
+            font-size:small;
+        }
+        [data-testid="primary-gallery"], [data-testid="primary-image"] { font-size:small; text-align:center; }
+    '''
 
     def parse_index(self):
         base, sections = country_defs[country]
@@ -101,3 +103,11 @@ class Reuters(BasicNewsRecipe):
             article['url'] = 'https://{}{}'.format(base, article['url'])
             yield article
             self.log('\t', article['title'], article['url'])
+
+    def preprocess_html(self, soup):
+        for noscript in soup.findAll('noscript'):
+            if noscript.findAll('img'):
+                noscript.name = 'div'
+        for img in soup.findAll('img', attrs={'srcset':True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup

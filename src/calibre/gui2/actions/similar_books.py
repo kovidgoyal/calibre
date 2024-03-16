@@ -9,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
+from calibre.startup import connect_lambda
+from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import string_or_bytes
 
 
@@ -66,6 +68,7 @@ class SimilarBooksAction(InterfaceAction):
                 v = mi.get(f, None)
                 if not v:
                     continue
+                v = db.new_api.split_if_is_multiple_composite(f, v)
                 if isinstance(v, list):
                     val.update(v)
                 else:
@@ -74,7 +77,7 @@ class SimilarBooksAction(InterfaceAction):
             # Get the value of the requested field. Can be a list or a simple
             # val. It is possible that col no longer exists, in which case fall
             # back to the default
-            if col not in mi:
+            if col not in mi.all_field_keys():
                 col = db.prefs.defaults[key]
             val = mi.get(col, None)
         if not val:

@@ -2,22 +2,23 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import os
+import stat
 from functools import partial
-from threading import Thread, Event
-import os, stat
-
 from qt.core import (
-    QSize, QStackedLayout, QWidget, QVBoxLayout, QLabel, QPushButton,
-    QListWidget, QListWidgetItem, QIcon, Qt, pyqtSignal, QGridLayout,
-    QProgressBar, QDialog, QDialogButtonBox, QScrollArea, QLineEdit, QFrame, QAbstractItemView
+    QAbstractItemView, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QProgressBar, QPushButton, QScrollArea,
+    QSize, QStackedLayout, Qt, QVBoxLayout, QWidget, pyqtSignal,
 )
+from threading import Event, Thread
 
-from calibre import human_readable, as_unicode
+from calibre import as_unicode, human_readable
 from calibre.constants import iswindows
 from calibre.db.legacy import LibraryDatabase
 from calibre.gui2 import choose_dir, error_dialog, question_dialog
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.exim import all_known_libraries, export, Importer, import_data
+from calibre.startup import connect_lambda
+from calibre.utils.exim import Importer, all_known_libraries, export, import_data
 from calibre.utils.icu import numeric_sort_key
 
 

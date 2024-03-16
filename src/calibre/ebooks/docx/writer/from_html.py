@@ -116,8 +116,17 @@ class TextRun:
                 if text:
                     for x in self.soft_hyphen_pat.split(text):
                         if x == '\u00ad':
+                            # trailing spaces in <w:t> before a soft hyphen are
+                            # ignored, so put them in a preserve whitespace
+                            # element with a single space.
+                            if not preserve_whitespace and len(r) and r[-1].text and r[-1].text.endswith(' '):
+                                r[-1].text = r[-1].text.rstrip()
+                                add_text(' ', True)
                             makeelement(r, 'w:softHyphen')
                         elif x:
+                            if not preserve_whitespace and x.startswith(' ') and len(r) and r[-1].tag and 'softHyphen' in r[-1].tag:
+                                x = x.lstrip()
+                                add_text(' ', True)
                             add_text(x, preserve_whitespace)
                 else:
                     add_text('', preserve_whitespace)
@@ -440,7 +449,7 @@ class Convert:
 
         self.styles_manager = StylesManager(self.docx.namespace, self.log, self.mi.language)
         self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships, self.log)
-        self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships, self.opts)
+        self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships, self.opts, self.svg_rasterizer)
         self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
         self.blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)
@@ -481,9 +490,7 @@ class Convert:
 
     def process_item(self, item):
         self.current_item = item
-        stylizer = self.svg_rasterizer.stylizer_cache.get(item)
-        if stylizer is None:
-            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, profile=self.opts.output_profile, base_css=self.base_css)
+        stylizer = self.svg_rasterizer.stylizer(item)
         self.abshref = self.images_manager.abshref = item.abshref
 
         self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang

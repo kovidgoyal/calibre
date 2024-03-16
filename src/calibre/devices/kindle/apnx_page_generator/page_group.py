@@ -54,4 +54,4 @@ class PageGroup:
             values = str(self.__first_value)
         else:
             values = "|".join(self.__page_number_labels)
-        return "(%s,%s,%s)" % (starting_location, self.__page_number_type.value, values)
+        return "({},{},{})".format(starting_location, self.__page_number_type.value, values)

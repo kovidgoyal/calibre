@@ -16,7 +16,8 @@ def get_text_around_cursor(editor, before=True):
 
 
 get_text_before_cursor = get_text_around_cursor
-get_text_after_cursor = lambda editor: get_text_around_cursor(editor, before=False)
+def get_text_after_cursor(editor):
+    return get_text_around_cursor(editor, before=False)
 
 
 def is_cursor_on_wrapped_line(editor):

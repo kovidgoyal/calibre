@@ -9,11 +9,12 @@ class AdvancedUserRecipe1384137533(BasicNewsRecipe):
     max_articles_per_feed = 50
     auto_cleanup = True
 
-    feeds = [(u'Top Stories', u'http://rss.cbc.ca/lineup/topstories.xml'),
-             (u'World', u'http://rss.cbc.ca/lineup/world.xml'),
-             (u'National', u'http://rss.cbc.ca/lineup/canada.xml'),
-             (u'Toronto', u'http://rss.cbc.ca/lineup/canada-toronto.xml'),
-             (u'Business', u'http://rss.cbc.ca/lineup/business.xml'),
-             (u'Politics', u'http://rss.cbc.ca/lineup/politics.xml'),
-             (u'Sci & Tech', u'http://rss.cbc.ca/lineup/technology.xml'),
-             (u'Offbeat', u'http://rss.cbc.ca/lineup/offbeat.xml')]
+    feeds = [(u'Top Stories', u'https://www.cbc.ca/webfeed/rss/rss-topstories'),
+             (u'World', u'https://www.cbc.ca/webfeed/rss/rss-world'),
+             (u'Canada', u'https://www.cbc.ca/webfeed/rss/rss-canada'),
+             (u'Politics', u'https://www.cbc.ca/webfeed/rss/rss-politics'),
+             (u'Business', u'https://www.cbc.ca/webfeed/rss/rss-business'),
+             (u'Arts', u'https://www.cbc.ca/webfeed/rss/rss-arts'),
+             (u'Health', u'https://www.cbc.ca/webfeed/rss/rss-health'),
+             (u'Technology', u'https://www.cbc.ca/webfeed/rss/rss-technology'),
+             (u'Indigenous', u'https://www.cbc.ca/webfeed/rss/rss-Indigenous'),]

@@ -5,22 +5,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, traceback, locale
-from itertools import repeat
-from datetime import timedelta
-from threading import Thread
+import locale
+import time
+import traceback
 from contextlib import suppress
+from datetime import timedelta
+from itertools import repeat
+from threading import Thread
 
-from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
-from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.utils.search_query_parser import ParseException
-from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc)
+from calibre import force_unicode, prints
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre import prints, force_unicode
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, cmp
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_date
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _, canonicalize_lang, get_udc, lang_map
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
 
 
 class MetadataBackup(Thread):  # {{{
@@ -114,7 +116,7 @@ class MetadataBackup(Thread):  # {{{
         self.break_cycles()
 
     def write(self, path, raw):
-        with lopen(path, 'wb') as f:
+        with open(path, 'wb') as f:
             f.write(raw)
 
 
@@ -437,21 +439,27 @@ class ResultCache(SearchQueryParser):  # {{{
 
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
-            val_func = lambda item, loc=loc: item[loc]
+
+            def val_func(item, loc=loc):
+                return item[loc]
         q = ''
         cast = adjust = lambda x: x
         dt = self.field_metadata[location]['datatype']
 
         if query == 'false':
             if dt == 'rating' or location == 'cover':
-                relop = lambda x,y: not bool(x)
+                def relop(x, y):
+                    return (not bool(x))
             else:
-                relop = lambda x,y: x is None
+                def relop(x, y):
+                    return (x is None)
         elif query == 'true':
             if dt == 'rating' or location == 'cover':
-                relop = lambda x,y: bool(x)
+                def relop(x, y):
+                    return bool(x)
             else:
-                relop = lambda x,y: x is not None
+                def relop(x, y):
+                    return (x is not None)
         else:
             relop = None
             for k in self.numeric_search_relops.keys():
@@ -462,14 +470,20 @@ class ResultCache(SearchQueryParser):  # {{{
                 (p, relop) = self.numeric_search_relops['=']
 
             if dt == 'int':
-                cast = lambda x: int(x)
+                def cast(x):
+                    return int(x)
             elif dt == 'rating':
-                cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x//2
+                def cast(x):
+                    return (0 if x is None else int(x))
+
+                def adjust(x):
+                    return (x // 2)
             elif dt in ('float', 'composite'):
-                cast = lambda x : float(x)
+                def cast(x):
+                    return float(x)
             else:  # count operation
-                cast = (lambda x: int(x))
+                def cast(x):
+                    return int(x)
 
             if len(query) > 1:
                 mult = query[-1:].lower()
@@ -720,9 +734,8 @@ class ResultCache(SearchQueryParser):  # {{{
                 if fm['is_multiple'] and \
                         len(query) > 1 and query.startswith('#') and \
                         query[1:1] in '=<>!':
-                    vf = lambda item, loc=fm['rec_index'], \
-                                ms=fm['is_multiple']['cache_to_list']:\
-                                len(item[loc].split(ms)) if item[loc] is not None else 0
+                    def vf(item, loc=fm['rec_index'], ms=fm['is_multiple']['cache_to_list']):
+                        return (len(item[loc].split(ms)) if item[loc] is not None else 0)
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 

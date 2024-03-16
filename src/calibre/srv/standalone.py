@@ -9,7 +9,6 @@ import sys
 
 from calibre import as_unicode
 from calibre.constants import is_running_from_develop, ismacos, iswindows
-from calibre.db.delete_service import shutdown as shutdown_delete_service
 from calibre.db.legacy import LibraryDatabase
 from calibre.srv.bonjour import BonJour
 from calibre.srv.handler import Handler
@@ -21,10 +20,10 @@ from calibre.srv.opts import opts_to_parser
 from calibre.srv.users import connect
 from calibre.srv.utils import HandleInterrupt, RotatingLog
 from calibre.utils.config import prefs
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.lock import singleinstance
-from polyglot.builtins import error_message
 from calibre_extensions import speedup
+from polyglot.builtins import error_message
 
 
 def daemonize():  # {{{
@@ -68,10 +67,10 @@ class Server:
             access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
         if opts.custom_list_template:
-            with lopen(os.path.expanduser(opts.custom_list_template), 'rb') as f:
+            with open(os.path.expanduser(opts.custom_list_template), 'rb') as f:
                 self.handler.router.ctx.custom_list_template = json.load(f)
         if opts.search_the_net_urls:
-            with lopen(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
+            with open(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
                 self.handler.router.ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
@@ -234,7 +233,7 @@ def main(args=sys.argv):
             )
         daemonize()
     if opts.pidfile:
-        with lopen(opts.pidfile, 'wb') as f:
+        with open(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()).encode('ascii'))
     signal.signal(signal.SIGTERM, lambda s, f: server.stop())
     if not getattr(opts, 'daemonize', False) and not iswindows:
@@ -243,7 +242,4 @@ def main(args=sys.argv):
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
     with HandleInterrupt(server.stop):
-        try:
-            server.serve_forever()
-        finally:
-            shutdown_delete_service()
+        server.serve_forever()

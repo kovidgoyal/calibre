@@ -10,35 +10,36 @@ import unicodedata
 from collections import OrderedDict
 from math import ceil
 from qt.core import (
-    QAbstractListModel, QApplication, QCheckBox, QComboBox, QDialog,
-    QDialogButtonBox, QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox,
-    QHBoxLayout, QIcon, QItemSelectionModel, QLabel, QLineEdit, QListView, QMimeData,
-    QModelIndex, QPainter, QPalette, QPixmap, QPlainTextEdit, QPoint, QRect, QSize,
-    QSizePolicy, QSplitter, QStaticText, QStyle, QStyledItemDelegate, Qt, QTextCursor,
-    QTextDocument, QTextOption, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractListModel, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
+    QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
+    QItemSelectionModel, QLabel, QLineEdit, QListView, QMimeData, QModelIndex, QPainter,
+    QPalette, QPixmap, QPlainTextEdit, QPoint, QRect, QSize, QSizePolicy, QSplitter,
+    QStaticText, QStyle, QStyledItemDelegate, Qt, QTextCursor, QTextDocument,
+    QTextOption, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.toc import (
-    ensure_container_has_nav, get_guide_landmarks, get_nav_landmarks, set_landmarks
+    ensure_container_has_nav, get_guide_landmarks, get_nav_landmarks, set_landmarks,
 )
 from calibre.ebooks.oeb.polish.upgrade import guide_epubtype_map
 from calibre.ebooks.oeb.polish.utils import guess_type, lead_text
 from calibre.gui2 import (
-    choose_files, choose_images, choose_save_file, error_dialog, info_dialog
+    choose_files, choose_images, choose_save_file, error_dialog, info_dialog,
 )
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.widgets2 import (
-    PARAGRAPH_SEPARATOR, Dialog as BaseDialog, HistoryComboBox, to_plain_text
+    PARAGRAPH_SEPARATOR, Dialog as BaseDialog, HistoryComboBox, to_plain_text,
 )
+from calibre.startup import connect_lambda
 from calibre.utils.icu import (
-    numeric_sort_key, primary_contains, primary_sort_key, sort_key
+    numeric_sort_key, primary_contains, primary_sort_key, sort_key,
 )
 from calibre.utils.matcher import (
-    DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char
+    DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char,
 )
 from polyglot.builtins import iteritems
 
@@ -806,7 +807,8 @@ class InsertSemantics(Dialog):
         return QSize(800, 600)
 
     def create_known_type_map(self):
-        _ = lambda x: x
+        def _(x):
+            return x
         self.epubtype_guide_map = {v: k for k, v in guide_epubtype_map.items()}
         self.known_type_map = {
             'titlepage': _('Title page'),
@@ -986,7 +988,12 @@ class InsertSemantics(Dialog):
             return title
 
         for item_type, (name, frag) in self.changes.items():
-            set_guide_item(container, self.epubtype_guide_map[item_type], title_for_type(item_type), name, frag=frag)
+            guide_type = self.epubtype_guide_map.get(item_type)
+            if not guide_type:
+                if container.opf_version_parsed.major < 3:
+                    raise KeyError(_('Cannot set {} type semantics in EPUB 2 or AZW3 books').format(name))
+                continue
+            set_guide_item(container, guide_type, title_for_type(item_type), name, frag=frag)
 
         if container.opf_version_parsed.major > 2:
             final = self.original_nav_map.copy()

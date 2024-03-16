@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import sys
+import json
 from collections import defaultdict, namedtuple
 from functools import partial
 from itertools import chain
@@ -16,7 +17,8 @@ from calibre.constants import config_dir, filesystem_encoding, iswindows
 from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
-from calibre.utils.localization import get_lang, get_system_locale
+from calibre.utils.localization import _, get_lang, get_system_locale
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems, itervalues
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
@@ -59,6 +61,18 @@ def builtin_dictionaries():
                 os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
+
+
+def catalog_online_dictionaries():
+    loaded = json.loads(P('dictionaries/online-catalog.json', allow_user_override=False, data=True))
+    try:
+        loaded.update(json.loads(P('dictionaries/online-catalog.json', data=True)))
+    except:
+        pass
+    rslt = []
+    for lang, directory in loaded.items():
+        rslt.append({'primary_locale':parse_lang_code(lang), 'name':lang,'directory':directory})
+    return rslt
 
 
 def custom_dictionaries(reread=False):

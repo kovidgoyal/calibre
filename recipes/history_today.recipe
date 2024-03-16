@@ -23,13 +23,13 @@ class HistoryToday(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.historytoday.com/user/login')
+            br.open('https://www.historytoday.com/user/login')
             br.select_form(nr=1)
             br['name'] = self.username
             br['pass'] = self.password
             res = br.submit()
             raw = res.read()
-            if 'Session limit exceeded' in raw:
+            if b'Session limit exceeded' in raw:
                 br.select_form(nr=1)
             control = br.find_control('sid').items[1]
             sid = []
@@ -40,13 +40,13 @@ class HistoryToday(BasicNewsRecipe):
     def parse_index(self):
 
         # Find date
-        soup0 = self.index_to_soup('http://www.historytoday.com/')
+        soup0 = self.index_to_soup('https://www.historytoday.com/')
         dates = self.tag_to_string(soup0.find(
             'div', attrs={'id': 'block-block-226'}).span)
         self.timefmt = u' [%s]' % dates
 
         # Go to issue
-        soup = self.index_to_soup('http://www.historytoday.com/contents')
+        soup = self.index_to_soup('https://www.historytoday.com/contents')
         cover = soup.find('div', attrs={
                           'id': 'content-area'}).find('img', attrs={'src': re.compile('.*cover.*')})['src']
         self.cover_url = cover
@@ -69,12 +69,12 @@ class HistoryToday(BasicNewsRecipe):
                 if len(subarticle) < 2:
                     continue
                 title = self.tag_to_string(subarticle[0])
-                originalurl = "http://www.historytoday.com" + \
+                originalurl = "https://www.historytoday.com" + \
                     subarticle[0].span.a['href'].strip()
                 originalpage = self.index_to_soup(originalurl)
                 printurl = originalpage.find(
                     'div', attrs={'id': 'ht-tools'}).a['href'].strip()
-                url = "http://www.historytoday.com" + printurl
+                url = "https://www.historytoday.com" + printurl
                 desc = self.tag_to_string(subarticle[1])
                 articles.append({'title': title, 'url': url,
                                  'description': desc, 'date': ''})
@@ -88,4 +88,4 @@ class HistoryToday(BasicNewsRecipe):
         return ans
 
     def cleanup(self):
-        self.browser.open('http://www.historytoday.com/logout')
+        self.browser.open('https://www.historytoday.com/logout')

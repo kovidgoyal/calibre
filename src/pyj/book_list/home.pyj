@@ -3,16 +3,18 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
-from ajax import ajax_send
+from ajax import absolute_path, ajax_send, ajax
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
-from book_list.library_data import last_virtual_library_for, sync_library_books, all_libraries
+from book_list.library_data import (
+    all_libraries, last_virtual_library_for, sync_library_books
+)
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
+from gettext import gettext as _
 from modals import create_custom_dialog
 from session import get_device_uuid, get_interface_data
 from utils import conditional_timeout, safe_set_inner_html, username_key
@@ -25,11 +27,26 @@ add_extra_css(def():
     sel = f'.{CLASS_NAME} '
     ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
     sel += '.recently-read img'
-    ans += build_rule(sel, max_width='25vw', max_height='40vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
+    ans += build_rule(sel, max_width='25vw', max_height='30vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
     return ans
 )
+
+recently_read_by_user = {'updated': False}
+
+
+def update_recently_read_by_user(items):
+    if items:
+        recently_read_by_user.items = items
+    recently_read_by_user.updated = True
+
+
+def update_book_in_recently_read_by_user_on_home_page(library_id, book_id, book_format, cfi):
+    if recently_read_by_user.items:
+        for item in recently_read_by_user.items:
+            if item.library_id is library_id and item.book_id is book_id and item.format is book_format:
+                item.cfi = cfi
 
 
 def show_cover(blob, name, mt, book):
@@ -41,8 +58,12 @@ def show_cover(blob, name, mt, book):
     img.src = window.URL.createObjectURL(blob)
 
 
-def read_book(library_id, book_id, fmt):
-    open_book(book_id, fmt, library_id)
+def read_book(library_id, book_id, fmt, extra_query):
+    open_book(book_id, fmt, library_id, extra_query=extra_query)
+
+
+def view_book_page(library_id, book_id):
+    show_panel('book_details', {'library_id': library_id, 'book_id': book_id + ''}, replace=False)
 
 
 def get_last_read_position(last_read_positions, prev_last_read):
@@ -98,17 +119,46 @@ def start_sync(to_sync):
         sync_library_books(lid, libraries[lid], sync_data_received)
 
 
-def show_recent_stage2(books):
-    container = document.getElementById(this)
-    if not container or not books.length:
-        return
+def prepare_recent_container(container):
     container.style.display = 'block'
     container.style.borderBottom = 'solid 1px currentColor'
     container.style.paddingBottom = '1em'
     container.appendChild(E.h2(_(
         'Continue reading…')))
     container.appendChild(E.div(style='display:flex'))
-    images = container.lastChild
+    cover_container = container.lastChild
+    container.appendChild(E.div(style='margin: 1rem 1rem',
+        create_button(
+            _('Browse all downloaded books…'),
+            action=def():
+                show_panel('local_books')
+    )))
+    return cover_container
+
+
+def show_recent_for_user(container_id):
+    container = document.getElementById(container_id)
+    images = prepare_recent_container(container)
+    for item in recently_read_by_user.items[:3]:
+        q = {}
+        if item.cfi:
+            q.bookpos = item.cfi
+        rb = read_book.bind(None, item.library_id, item.book_id, item.format, q)
+        img = E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
+        images.appendChild(E.div(
+            style='margin: 0 1em',
+            E.a(title=item.tooltip, href='javascript:void(0)', img, onclick=rb)
+        ))
+        img.onerror = def(err):
+            failed = err.target
+            failed.parentNode.parentNode.style.display = 'none'
+
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container or not books.length:
+        return
+    images = prepare_recent_container(container)
     db = get_db()
     to_sync = v'[]'
     username = get_interface_data().username
@@ -123,18 +173,21 @@ def show_recent_stage2(books):
         img_id = ensure_id(img)
         images.appendChild(E.div(style='margin: 0 1em',
             E.a(img, href='javascript: void(0)', title=img.alt,
-                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2])
+                onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2], None)
             ),
         ))
         if book.cover_name:
             db.get_file(book, book.cover_name, show_cover.bind(img_id))
     start_sync(to_sync)
-    container.appendChild(E.div(style='margin: 1rem 1rem',
-        create_button(
-            _('Browse all downloaded books…'),
-            action=def():
-                show_panel('local_books')
-    )))
+
+
+def show_recent_for_user_if_fetched():
+    container = this
+    if not recently_read_by_user.updated:
+        return conditional_timeout(container.id, 5, show_recent_for_user_if_fetched)
+    if recently_read_by_user.items and recently_read_by_user.items.length > 0:
+        return show_recent_for_user(container.id)
+    return show_recent.call(container)
 
 
 def show_recent():
@@ -147,6 +200,29 @@ def show_recent():
         db.get_recently_read_books(show_recent_stage2.bind(container.id))
     else:
         print(db.initialize_error_msg)
+
+
+def newly_added_received(newly_container_id, end_type, xhr, ev):
+    container = document.getElementById(newly_container_id)
+    if not container or end_type is not 'load':
+        return
+    data = JSON.parse(xhr.responseText)
+    if not data.books or not data.books.length:
+        return
+    container.style.display = 'block'
+    container.appendChild(E.div(style='display:flex'))
+    images = container.lastChild
+
+    for book_id in data.books:
+        authors = data.authors[book_id].join(' & ')
+        alt=_('{} by {}').format(data.titles[book_id], authors)
+        img = E.img(alt=alt, src=absolute_path(f'get/cover/{book_id}/{data.library_id}'))
+        images.appendChild(E.div(style='margin: 0 1em',
+            E.a(img, href='javascript: void(0)', title=img.alt,
+                onclick=view_book_page.bind(None, data.library_id, book_id)
+            ),
+        ))
+
 
 # User account {{{
 
@@ -242,7 +318,10 @@ def init(container_id):
     recent = E.div(style='display:none', class_='recently-read')
     recent_container_id = ensure_id(recent)
     container.appendChild(recent)
-    conditional_timeout(recent_container_id, 5, show_recent)
+    if interface_data.username:
+        conditional_timeout(recent_container_id, 5, show_recent_for_user_if_fetched)
+    else:
+        conditional_timeout(recent_container_id, 5, show_recent)
 
     # Choose library
     container.appendChild(E.h2(_('Choose the calibre library to browse…')))
@@ -262,5 +341,12 @@ def init(container_id):
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
+
+    # Newly added
+    newly = E.div(style='border-top: solid 1px currentColor; padding-top: 1em; display: none', class_='recently-read')
+    newly.appendChild(E.h2(_('Newly added…')))
+    newly_container_id = ensure_id(newly)
+    container.appendChild(newly)
+    ajax('interface-data/newly-added', newly_added_received.bind(None, newly_container_id)).send()
 
 set_default_panel_handler(init)

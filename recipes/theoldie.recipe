@@ -1,0 +1,251 @@
+'''
+Fetch The Oldie (Online Edition)
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import datetime
+
+class PrivateEyeRecipe(BasicNewsRecipe):
+    ##
+    # Last Edited:  2023-08-07
+    #
+    # Remark:   Version 1.0 2023-08-07
+    #               Initial version
+
+    title = u'The Oldie (Online Edition)'
+    description = ('The Oldie has been dubbed ‘Private Eye for grown-ups’ and is read by intelligent people who are fed'
+                   ' up with the formulaic nature of the celebrity-obsessed national press. The Oldie was cooked up in'
+                   ' 1992 by Richard Ingrams (who previously co-founded Private Eye in 1961) as a free-thinking,'
+                   ' funny magazine, a light-hearted alternative to a press obsessed with youth and celebrity.'
+                   ' The editors claim that the Oldie is ageless and timeless, free of retirement advice, crammed'
+                   ' with rejuvenating wit, intelligence and delight.')
+    publication_type = 'magazine'
+    language = 'en_GB'
+    encoding = 'utf-8'
+    oldest_article = 31
+    max_articles_per_feed = 100
+    remove_javascript = True
+    ignore_duplicate_articles = {'url'}
+
+    __author__ = u'Sophist-UK'
+    __copyright__ = '2023, Sophist-UK <sophist-uk@sodalis.co.uk>'
+
+    web_root        = 'https://www.theoldie.co.uk'
+    current_issue   = web_root + '/magazine'
+    about_pages     = {
+        'About Us':         web_root + '/about-us',
+        'Our History':      web_root + '/about-us/history',
+    }
+    masthead_url    = web_root + '/assets/images/theoldie_logo_22.png'
+    name = 'Oldie Online'
+    series = 'The ' + name
+    now = datetime.now().strftime(' %Y-%m')
+    title = series + now
+    title_sort = name + now + ', The'
+    conversion_options = {
+        'authors':      'The Oldie',
+        'author_sort':  'Oldie, The',
+        'series':       series,
+        'series_index': 0,
+        'title':        title,
+        'title_sort':   title_sort,
+    }
+    cover_suburl = '-front-cover-'
+
+    # Convert relative URLS to absolute ones i.e. /cover to https://theoldie.co.uk/cover
+    def abs_url(self, url):
+        return self.web_root + url if url.startswith('/') else url
+
+    # Create a correctly formated DICT entry for Calibre parse_index return
+    def article_entry(self, title, url, author=None):
+        article = {
+            'title': title,
+            'url': url,
+        }
+        if author:
+            article['author'] = author
+        return article
+
+    edition_re = re.compile('(?:-front-cover-)(\d+)-')
+
+    # Identify the cover image and extract the edition# from the url
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.current_issue)
+
+        for img in soup.findAll('img'):
+            src = self.abs_url(img['src'])
+            editions = self.edition_re.findall(src)
+            if editions:
+                try:
+                    self.conversion_options.update({'series_index': int(editions[0])})
+                    self.log('series-index:', self.conversion_options['series_index'])
+                except (TypeError, ValueError):
+                    continue
+                self.log('cover_url:', src)
+                return src
+        return None
+
+    # oldie links/headings often contain the author (in one of various formats
+    # 1. Title. By author
+    #.2. Title by author: subtitle
+    # 3. Title: author: subtitle
+    title_author_re = re.compile('^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
+
+    # Separate author from title (where it is specified)
+    def title_author(self, head):
+        if '. By ' in head:
+            return head.rsplit('. By ', 1)
+        matches = self.title_author_re.findall(head)
+        if matches and len(matches[0]) == 3:
+            (title_1, author, title_2) = matches[0]
+            title = ': '.join((title_1, title_2))
+            return (title, author)
+        return (head, None)
+
+    # Return the list of articles from blocks in the content of an index/listing page
+    def parse_content(self, soup):
+        content_articles = []
+
+        content = soup.find('div', class_='content-wrapper')
+
+        if not content:
+            return content_articles
+
+        for article in content.findAll('div', class_='listing-block'):
+            for a in article.findAll('a', href=True):
+                for h in a.findAll('h3'):
+                    (title, author) = self.title_author(h.getText())
+                    content_articles.append(self.article_entry(
+                        title = title,
+                        url = self.abs_url(a.get('href')),
+                        author = author,
+                    ))
+                    break
+                else:
+                    continue
+                break
+
+        return content_articles
+
+    def parse_index(self):
+        # The set of pages to be used in the online edition are:
+        # 1. The list of articles in the body of the magazine index page
+        # 2. The contents / pages linked to by each of the links in the #categories menu
+        # 3. The div.only-in-the-magazine contents in the magazine index page
+        # 4. The about pages
+        # Obviously repeated content is de-duplicated by Calibre
+
+        self.log('masthead_url:', self.masthead_url)
+        soup = self.index_to_soup(self.current_issue)
+
+        # 1. The list of articles in the body of the magazine index page
+        articles = self.parse_content(soup)
+
+        # 2. The contents / pages linked to by each of the links in the #categories menu
+        categories = soup.find('nav', class_='categories')
+        for li in categories.findAll('li'):
+            a = li.find('a', href=True)
+            href = self.abs_url(a.get('href'))
+            self.log('Checking page for sub-index:', href)
+            content = self.parse_content(self.index_to_soup(href))
+            if content:
+                self.log('Subpages found:', href, len(content))
+                articles.extend(content)
+            else:
+                (title, author) = self.title_author(a.getText())
+                articles.append(self.article_entry(
+                    title = title,
+                    url = self.abs_url(a.get('href')),
+                    author = author,
+                ))
+
+        if not articles:
+            raise ValueError('The Oldie Online index of pages not found')
+
+        # 3. The div.only-in-the-magazine contents in the magazine index page
+        articles.append({
+            'title': 'In the full issue…',
+            'url': self.current_issue,
+        })
+
+        pages = [('In this issue…', articles)]
+        self.log('n this issue…', articles)
+
+        # 4. The about pages
+        abouts = []
+        for (title, url) in self.about_pages.items():
+            abouts.append({
+                'title': title,
+                'url': url,
+            })
+
+        if abouts:
+            pages.append(('About The Oldie', abouts))
+            self.log('About The Oldie', abouts)
+
+        return pages
+
+    def preprocess_html(self, soup):
+        for h in soup.findAll('h1'):
+            (title, author) = self.title_author(h.getText())
+            self.log('Replacing h3 "', h.getText(), '" with "', title, '"')
+            h.string = title
+
+        return soup
+
+
+    # Remove features not wanted and tweak HTML
+    preprocess_regexps = [
+        # Remove big blank spaces
+        (
+            re.compile(
+                r'<p>\s*<br\/?>\s*</p>',
+                re.DOTALL | re.IGNORECASE
+            ),
+            lambda match: ''
+        ),
+        # Local fix for paragraph HTML issues join paragraphs that do not end in a full-stop.
+        (
+            re.compile(
+                r'(?<=[^\.\s])\s*</p>\s*<p>',
+                re.DOTALL | re.IGNORECASE
+            ),
+            lambda match: ' ' # space
+        ),
+    ]
+
+    # We remove vast swathes of HTML which is not part of the articles.
+    remove_tags_before =  [
+        {'name': 'div', 'class': "container"},
+        {'name': 'div', 'class': "content-wrapper"},
+        {'name': 'div', 'class': "only-in-the-magazine"},
+    ]
+    remove_tags_after = [
+        {'name': 'div', 'class': "container"},
+        {'name': 'div', 'class': "content-wrapper"},
+        {'name': 'h2', 'string': "Find out more about The Oldie"},
+    ]
+    # Remove non-sibling content
+    remove_tags = [
+        {'name': 'nav', 'class': "categories"},
+        {'name': 'div', 'class': "internal-placeholders"},
+        {'name': 'div', 'class': "leaderboard"},
+        {'name': 'div', 'class': "share"},
+        {'name': 'div', 'class': "most-popular"},
+        {'name': 'div', 'class': "article-convert"},
+        # {'name': 'p', 'class': "article-convert"},
+        # {'name': 'p', 'class': "meta"},
+        {'name': 'hr'},
+        {'name': 'a', 'class': "view-full-screen"},
+        {'name': 'div', 'class': "image-counter"},
+        {'name': 'h2', 'string': "Find out more about The Oldie"},
+        {'name': 'a', 'href': re.compile("^https?:\/\/issuu.com\/")},
+        {'name': 'img', 'src': re.compile("\/assets\/images\/icons\/icon-")},
+    ]
+
+    # The following extra css is to tweak the formatting of various elements of various article pages.
+    extra_css = ' \n '.join([
+        'div.image-captions div.caption {text-align: center; font-weight: bold; width:750px;}',
+        'p.article-convert {text-align: center;}',
+    ])

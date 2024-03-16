@@ -33,7 +33,7 @@ def download_file(url):
 def sw():
     sw = os.environ['SW']
     os.chdir(sw)
-    url = 'https://download.calibre-ebook.com/ci/calibre6/windows-64.tar.xz'
+    url = 'https://download.calibre-ebook.com/ci/calibre7/windows-64.tar.xz'
     tarball = download_file(url)
     with tarfile.open(fileobj=io.BytesIO(tarball)) as tf:
         tf.extractall()
@@ -84,6 +84,7 @@ def setup_env():
     os.environ['QMAKE'] = os.path.join(SW, r'qt\bin\qmake')
     os.environ['CALIBRE_QT_PREFIX'] = os.path.join(SW, r'qt')
     os.environ['CI'] = 'true'
+    os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
 
 
 def main():

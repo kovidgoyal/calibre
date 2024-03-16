@@ -5,9 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, shutil, tempfile, atexit, gc, time
+import atexit
+import gc
+import os
+import shutil
+import tempfile
+import time
+import unittest
 from functools import partial
 from io import BytesIO
+
+from calibre.utils.resources import get_image_path as I
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -94,7 +102,7 @@ class BaseTest(unittest.TestCase):
         self.assertEqual(allfk1, allfk2)
 
         all_keys = {'format_metadata', 'id', 'application_id',
-                    'author_sort_map', 'author_link_map', 'book_size',
+                    'author_sort_map', 'link_maps', 'book_size',
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:

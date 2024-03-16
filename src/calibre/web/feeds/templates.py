@@ -13,6 +13,7 @@ from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
         TABLE, TD, TR
 
 from calibre import strftime, isbytestring
+from calibre.utils.localization import _
 
 
 def attrs(*args, **kw):

@@ -63,7 +63,6 @@ class CHMInput(InputFormatPlugin):
                 from calibre.ebooks.metadata.book.base import Metadata
                 metadata = Metadata(os.path.basename(chm_name))
             encoding = self._chm_reader.get_encoding() or options.input_encoding or 'cp1252'
-            self._chm_reader.CloseCHM()
             # print((tdir, mainpath))
             # from calibre import ipython
             # ipython()
@@ -74,6 +73,7 @@ class CHMInput(InputFormatPlugin):
             if os.path.abspath(mainpath) in self._chm_reader.re_encoded_files:
                 uenc = 'utf-8'
             htmlpath, toc = self._create_html_root(mainpath, log, uenc)
+            self._chm_reader.CloseCHM()
             oeb = self._create_oebbook_html(htmlpath, tdir, options, log, metadata)
             options.debug_pipeline = odi
             if toc.count() > 1:
@@ -102,7 +102,11 @@ class CHMInput(InputFormatPlugin):
         # use HTMLInput plugin to generate book
         from calibre.customize.builtins import HTMLInput
         opts.breadth_first = True
+        opts.max_levels = 30
+        opts.correct_case_mismatches = True
         htmlinput = HTMLInput(None)
+        htmlinput.set_root_dir_of_input(basedir)
+        htmlinput.root_dir_for_absolute_links = basedir
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
 
@@ -111,7 +115,12 @@ class CHMInput(InputFormatPlugin):
         from polyglot.urllib import unquote as _unquote
         from calibre.ebooks.oeb.base import urlquote
         from calibre.ebooks.chardet import xml_to_unicode
-        hhcdata = self._read_file(hhcpath)
+        try:
+            hhcdata = self._read_file(hhcpath)
+        except FileNotFoundError:
+            log.warn('No HHC file found in CHM, using the default topic as the first HTML file')
+            from calibre.ebooks.oeb.base import TOC
+            return os.path.join(os.path.dirname(hhcpath), self._chm_reader.relpath_to_first_html_file()), TOC()
         hhcdata = hhcdata.decode(encoding)
         hhcdata = xml_to_unicode(hhcdata, verbose=True,
                             strip_encoding_pats=True, resolve_entities=True)[0]
@@ -131,17 +140,21 @@ class CHMInput(InputFormatPlugin):
             return _unquote(x).decode('utf-8')
 
         def unquote_path(x):
-            y = unquote(x)
-            if (not os.path.exists(os.path.join(base, x)) and os.path.exists(os.path.join(base, y))):
-                x = y
-            return x
+            x, _, frag = x.partition('#')
+            if frag:
+                frag = '#' + frag
+            if not os.path.exists(os.path.join(base, x)):
+                y = unquote(x)
+                if os.path.exists(os.path.join(base, y)):
+                    x = y
+            return x, frag
 
         def donode(item, parent, base, subpath):
             for child in item:
                 title = child.title
                 if not title:
                     continue
-                raw = unquote_path(child.href or '')
+                raw, frag = unquote_path(child.href or '')
                 rsrcname = os.path.basename(raw)
                 rsrcpath = os.path.join(subpath, rsrcname)
                 if (not os.path.exists(os.path.join(base, rsrcpath)) and os.path.exists(os.path.join(base, raw))):
@@ -151,7 +164,7 @@ class CHMInput(InputFormatPlugin):
                     rsrcpath = urlquote(rsrcpath)
                 if not raw:
                     rsrcpath = ''
-                c = DIV(A(title, href=rsrcpath))
+                c = DIV(A(title, href=rsrcpath + frag))
                 donode(child, c, base, subpath)
                 parent.append(c)
 
@@ -159,7 +172,7 @@ class CHMInput(InputFormatPlugin):
             if toc.count() > 1:
                 from lxml.html.builder import HTML, BODY, DIV, A
                 path0 = toc[0].href
-                path0 = unquote_path(path0)
+                path0 = unquote_path(path0)[0]
                 subpath = os.path.dirname(path0)
                 base = os.path.dirname(f.name)
                 root = DIV()
@@ -172,7 +185,7 @@ class CHMInput(InputFormatPlugin):
         return htmlpath, toc
 
     def _read_file(self, name):
-        with lopen(name, 'rb') as f:
+        with open(name, 'rb') as f:
             data = f.read()
         return data
 

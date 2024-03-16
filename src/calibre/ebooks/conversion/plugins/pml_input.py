@@ -26,14 +26,14 @@ class PMLInput(InputFormatPlugin):
         hclose = False
 
         if not hasattr(pml_path, 'read'):
-            pml_stream = lopen(pml_path, 'rb')
+            pml_stream = open(pml_path, 'rb')
             pclose = True
         else:
             pml_stream = pml_path
             pml_stream.seek(0)
 
         if not hasattr(html_path, 'write'):
-            html_stream = lopen(html_path, 'wb')
+            html_stream = open(html_path, 'wb')
             hclose = True
         else:
             html_stream = html_path
@@ -134,8 +134,8 @@ class PMLInput(InputFormatPlugin):
         opf.create_manifest(manifest_items)
         opf.create_spine(pages)
         opf.set_toc(toc)
-        with lopen('metadata.opf', 'wb') as opffile:
-            with lopen('toc.ncx', 'wb') as tocfile:
+        with open('metadata.opf', 'wb') as opffile:
+            with open('toc.ncx', 'wb') as tocfile:
                 opf.render(opffile, tocfile, 'toc.ncx')
 
         return os.path.join(os.getcwd(), 'metadata.opf')

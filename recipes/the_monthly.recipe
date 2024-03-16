@@ -1,0 +1,61 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class monthly(BasicNewsRecipe):
+    title = 'The Monthly'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Monthly is one of Australia’s boldest voices, providing enlightening commentary and vigorous,'
+        ' at times controversial, debate on the issues that affect the nation.'
+    )
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en_AU'
+    remove_attributes = ['height', 'width']
+    ignore_duplicate_articles = {'url'}
+
+    timefmt = ' [%B %Y]'
+
+    extra_css = '''
+        .article-page__title {font-weight:bold; font-size:large;}
+        .article-page__author, .category, .caption {font-size:small; color:#404040;}
+        .article__summary, .author-details-bottom-wrapper, em {font-style:italic; color:#202020;}
+    '''
+    keep_only_tags = [
+        classes('article-page')
+    ]
+    remove_tags = [
+        classes(
+            'node-teaser-hidden article-page__social__icons sidebar-toc article-footer-container'
+            ' article-page__sidebar toc-list-container tm-promo-banner-article-p4-wrapper edition'
+        )
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.themonthly.com.au/latest-edition')
+        if cov := soup.find(**classes('article__edition-image')):
+            self.cover_url = cov.find('img')['src']
+            self.log(self.cover_url)
+
+        feeds = []
+        main = soup.find(**classes('main'))
+        for art in main.findAll(**classes('article')):
+            if hr := art.find('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
+                url = 'https://www.themonthly.com.au' + hr['href']
+            else:
+                if hr := art.findParent('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
+                    url = 'https://www.themonthly.com.au' + hr['href']
+            title = self.tag_to_string(art.find(**classes('article__title')))
+            desc = ''
+            if text := art.find(**classes('article__text')):
+                desc = self.tag_to_string(text)
+            if auth := art.find(**classes('article__author')):
+                desc = self.tag_to_string(auth) + ' | ' + desc
+            if cat := art.find(**classes('category')):
+                desc = self.tag_to_string(cat) + ' | ' + desc
+            if not title or not url:
+                continue
+            self.log(' ', title, '\n\t', url, '\n\t', desc)
+            feeds.append({'title': title, 'url': url, 'description':desc})
+        return [('The Monthly', feeds)]

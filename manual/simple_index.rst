@@ -21,7 +21,7 @@ available <help>`.
 
 .. only:: online
 
-    **An e-book version of this User Manual is available in** `EPUB format <calibre.epub>`_,  `AZW3 (Kindle Fire) format <calibre.azw3>`_ and `PDF format <calibre.pdf>`_.
+    **An e-book version of this User Manual is available in** `EPUB format <calibre.epub>`_,  `AZW3 (Kindle) format <calibre.azw3>`_ and `PDF format <calibre.pdf>`_.
 
 .. rubric:: Sections
 

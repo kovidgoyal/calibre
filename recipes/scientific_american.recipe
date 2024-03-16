@@ -1,117 +1,112 @@
 #!/usr/bin/env python
-__license__ = 'GPL v3'
+__license__ = "GPL v3"
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
-from css_selectors import Select
+import json
+from datetime import datetime
+from urllib.parse import urljoin
 
-
-def absurl(url):
-    if url.startswith('/'):
-        url = 'https://www.scientificamerican.com' + url
-    return url
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class ScientificAmerican(BasicNewsRecipe):
-    title = u'Scientific American'
-    description = u'Popular Science. Monthly magazine. Should be downloaded around the middle of each month.'
-    category = 'science'
-    __author__ = 'Kovid Goyal'
+    title = "Scientific American"
+    description = "Popular Science. Monthly magazine. Should be downloaded around the middle of each month."
+    category = "science"
+    __author__ = "Kovid Goyal"
     no_stylesheets = True
-    language = 'en'
-    publisher = 'Nature Publishing Group'
+    language = "en"
+    publisher = "Nature Publishing Group"
     remove_empty_feeds = True
     remove_javascript = True
-    timefmt = ' [%B %Y]'
-    remove_attributes = ['height','width']
-    masthead_url = 'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
-    extra_css = '''
-        .image-captioned{font-size:small;}
-        .feature-article__byline-authors{font-size:small;}
-        .article-header__inner__category{font-size:small; color:gray;}
-        .t_caption{font-size:small; text-align:center;}
-        .author-bio{font-size:small;}
-        .opinion-article__byline-authors{font-size:small;}
-        .article-author{font-size:small;}
-        [role="presentation"]{font-size:small;}
-    '''
+    timefmt = " [%B %Y]"
+    remove_attributes = ["height", "width"]
+    masthead_url = (
+        "https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png"
+    )
+    extra_css = """
+        [class^="article_dek-"] { font-style:italic; color:#202020; }
+        [class^="article_authors-"] {font-size:small; color:#202020; }
+        [class^="article__image-"] { font-size:small; text-align:center; }
+        [class^="lead_image-"] { font-size:small; text-align:center; }
+        [class^="bio-"] { font-size:small; color:#404040; }
+        em { color:#202020; }
+    """
 
-    needs_subscription = 'optional'
+    needs_subscription = "optional"
 
     keep_only_tags = [
-        classes(
-            'article-header article-content article-media article-author article-text feature-article--header'
-            ' feature-article--header-title opinion-article__header-title author-bio'),
+        prefixed_classes(
+            'article_hed- article_dek- article_authors- lead_image- article__content- bio-'
+        ),
     ]
     remove_tags = [
-        classes('aside-banner moreToExplore article-footer flex-column--25 article-author__suggested medium-up-hide'),
-        dict(id=['seeAlsoLinks']),
+        dict(name=['button', 'svg', 'iframe', 'source'])
     ]
+
+    def preprocess_html(self, soup):
+        for fig in soup.findAll('figcaption'):
+            for p in fig.findAll('p'):
+                p.name = 'span'
+        return soup
 
     def get_browser(self, *args):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
-            br.open('https://www.scientificamerican.com/my-account/login/')
-            br.select_form(predicate=lambda f: f.attrs.get('id') == 'login')
-            br['emailAddress'] = self.username
-            br['password'] = self.password
+            br.open("https://www.scientificamerican.com/account/login/")
+            br.select_form(predicate=lambda f: f.attrs.get("id") == "login")
+            br["emailAddress"] = self.username
+            br["password"] = self.password
             br.submit()
         return br
 
     def parse_index(self):
         # Get the cover, date and issue URL
-        root = self.index_to_soup(
-            'https://www.scientificamerican.com/sciammag/', as_tree=True)
-        select = Select(root)
-        self.cover_url = [x.get('src', '') for x in select('main .store-listing__img img')][0]
-        url = [x.get('href', '') for x in select('main .store-listing__img a')][0]
-        url = absurl(url)
+        fp_soup = self.index_to_soup("https://www.scientificamerican.com")
+        curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
+        if not curr_issue_link:
+            self.abort_recipe_processing("Unable to find issue link")
+        issue_url = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
+        # for past editions https://www.scientificamerican.com/archive/issues/
+        # issue_url = 'https://www.scientificamerican.com/issue/sa/2024/01-01/'
+        soup = self.index_to_soup(issue_url)
+        script = soup.find("script", id="__DATA__")
+        if not script:
+            self.abort_recipe_processing("Unable to find script")
 
-        # Now parse the actual issue to get the list of articles
-        select = Select(self.index_to_soup(url, as_tree=True))
-        self.cover_url = [x.get('src', '') for x in select('main .product-detail__image img')][0].split('?')[0]
-        self.cover_url += '?w=800'
-        feeds = []
-        for i, section in enumerate(select('#sa_body .toc-articles')):
-            if i == 0:
-                feeds.append(
-                    ('Features', list(self.parse_sciam_features(select, section))))
-            else:
-                feeds.extend(self.parse_sciam_departments(select, section))
+        JSON = script.contents[0].split('JSON.parse(`')[1].replace("\\\\", "\\")
+        data = json.JSONDecoder().raw_decode(JSON)[0]
+        issue_info = (
+            data
+            .get("initialData", {})
+            .get("issueData", {})
+        )
+        if not issue_info:
+            self.abort_recipe_processing("Unable to find issue info")
 
-        return feeds
+        self.cover_url = issue_info["image_url"] + "?w=800"
 
-    def parse_sciam_features(self, select, section):
-        for article in select('article[data-article-title]', section):
-            title = article.get('data-article-title')
-            url = 'https://www.scientificamerican.com/{}/'.format(article.get('id').replace('-', '/', 1))
-            desc = ''
-            for p in select('p.t_body', article):
-                desc += self.tag_to_string(p)
-                break
-            for p in select('.t_meta', article):
-                desc += ' ' + self.tag_to_string(p)
-                break
-            self.log('Found feature article: %s at %s' % (title, url))
-            self.log('\t' + desc)
-            yield {'title': title, 'url': url, 'description': desc}
+        edition_date = datetime.strptime(issue_info["issue_date"], "%Y-%m-%d")
+        self.timefmt = f" [{edition_date:%B %Y}]"
 
-    def parse_sciam_departments(self, select, section):
-        section_title, articles = 'Unknown', []
-        for li in select('li[data-article-title]', section):
-            for span in select('span.department-title', li):
-                if articles:
-                    yield section_title, articles
-                section_title, articles = self.tag_to_string(span), []
-                self.log('\nFound section: %s' % section_title)
-                break
-            url = 'https://www.scientificamerican.com/{}/'.format(li.get('id').replace('-', '/', 1))
-            for h2 in select('h2.t_listing-title', li):
-                title = self.tag_to_string(h2)
-                break
-            else:
-                continue
-            articles.append(
-                    {'title': title, 'url': url, 'description': ''})
-            self.log('\tFound article: %s at %s' % (title, url))
-        if articles:
-            yield section_title, articles
+        feeds = {}
+        for section in ("featured", "departments"):
+            for article in issue_info.get("article_previews", {}).get(section, []):
+                self.log('\t', article["title"])
+                if section == "featured":
+                    feed_name = "Features"
+                else:
+                    feed_name = article["category"]
+                if feed_name not in feeds:
+                    feeds[feed_name] = []
+                feeds[feed_name].append(
+                    {
+                        "title": article["title"],
+                        "url": urljoin(
+                            "https://www.scientificamerican.com/article/",
+                            article["slug"],
+                        ),
+                        "description": article["summary"],
+                    }
+                )
+
+        return feeds.items()

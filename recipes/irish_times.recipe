@@ -32,13 +32,30 @@ class IrishTimes(BasicNewsRecipe):
     no_stylesheets = True
     temp_files = []
     keep_only_tags = [
-        dict(name=['h1', 'h2']),
-        classes('lead-art-wrapper article-body-wrapper'),
+        classes('custom-headline custom-subheadline lead-art-wrapper article-body-wrapper byline-text'),
     ]
     remove_tags = [
-        dict(name='button')
+        dict(name='button'),
+        classes('sm-promo-headline top-table-list-container single-divider interstitial-link'),
     ]
     remove_attributes = ['width', 'height']
+    
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/ie/irish_times.750.jpg'
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
+        try:
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/ie/np/irish_times.html'
+            soup = self.index_to_soup(index)
+            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
+                if image['src'].startswith('/'):
+                    return 'https:' + image['src']
+                return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.irishtimes.com/')

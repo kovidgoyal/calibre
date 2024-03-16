@@ -81,9 +81,10 @@ def remove_recently_opened(path):
     sd = get_session_data()
     rl = sd.get('standalone_recently_opened')
     newl = v'[]'
-    for entry in rl:
-        if entry.key is not path:
-            newl.push(entry)
+    if path:
+        for entry in rl:
+            if entry.key is not path:
+                newl.push(entry)
     sd.set('standalone_recently_opened', newl)
     if current_container_id:
         container = document.getElementById(current_container_id)

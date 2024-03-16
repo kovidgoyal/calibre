@@ -16,14 +16,19 @@ class KyivPost(BasicNewsRecipe):
     remove_javascript = True
     auto_cleanup = False
     oldest_article = 7
-    max_articles_per_feed = 10
+    max_articles_per_feed = 20
 
-    remove_tags_before = dict(name='article', attrs={'class': 'article'})
+    remove_tags_before = dict(attrs={'class': 'single-article'})
 
-    remove_tags_after = dict(name='article', attrs={'class': 'article'})
+    remove_tags_after = dict(attrs={'class': 'post-author-block'})
 
     remove_tags = [
-        dict(name='div', attrs={'class': 'entry-footer hide_post_header'})
+        dict(attrs={'class': 'post-label-and-topic'}),
+        dict(attrs={'class': 'sidebar-start'}),
+        dict(attrs={'class': 'correction'}),
+        dict(attrs={'id': 'correction'}),
+        dict(attrs={'class': 'ad_between_paragraphs'}),
+        dict(attrs={'id': 'insert-post-by-topic'})
     ]
 
     feeds = [

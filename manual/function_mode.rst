@@ -176,9 +176,9 @@ Contents based on these headings. Create the custom function below:
                     parent = root.children[-1] if tag_name == 'h2' and root.children else root
                     parent.add(text, file_name, anchor)
                 toc = toc_to_html(root, current_container(), 'toc.html', 'Table of Contents for ' + metadata.title, metadata.language)
-                print (xml2str(toc))
+                print(xml2str(toc))
             else:
-                print ('No headings to build ToC from found')
+                print('No headings to build ToC from found')
         else:
             # Add an entry corresponding to this match to the Table of Contents
             if 'toc' not in data:
@@ -207,7 +207,7 @@ HTML Table of Contents, ready to be pasted into :file:`toc.html`.
 The function above is heavily commented, so it should be easy to follow. The
 key new feature is the use of another useful extra argument to the
 ``replace()`` function, the ``data`` object. The ``data`` object is a Python
-*dict* that persists between all successive invocations of ``replace()`` during
+*dictionary* that persists between all successive invocations of ``replace()`` during
 a single :guilabel:`Replace All` operation.
 
 Another new feature is the use of ``call_after_last_match`` -- setting that to
@@ -278,9 +278,9 @@ for the current book's language.
 The ``data`` argument
 ^^^^^^^^^^^^^^^^^^^^^
 
-This a simple Python ``dict``. When you run
+This a simple Python ``dictionary``. When you run
 :guilabel:`Replace all`, every successive match will cause ``replace()`` to be
-called with the same ``dict`` as data. You can thus use it to store arbitrary
+called with the same ``dictionary`` as data. You can thus use it to store arbitrary
 data between invocations of ``replace()`` during a :guilabel:`Replace all`
 operation.
 

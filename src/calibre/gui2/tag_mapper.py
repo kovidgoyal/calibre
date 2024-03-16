@@ -6,9 +6,9 @@ import textwrap
 from collections import OrderedDict
 from qt.core import (
     QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
-    QInputDialog, QItemSelectionModel, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMenu, QPalette, QPushButton, QSize, QStaticText, QStyle,
-    QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QInputDialog, QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QMenu, QPalette, QPushButton, QSize, QStaticText, QStyle, QStyledItemDelegate, Qt,
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.ebooks.metadata.tag_mapper import compile_pat, map_tags
@@ -16,6 +16,7 @@ from calibre.gui2 import Application, error_dialog, question_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import iteritems
@@ -391,7 +392,7 @@ class Rules(QWidget):
     @rules.setter
     def rules(self, rules):
         self.rule_list.clear()
-        for rule in rules:
+        for rule in (rules or ()):
             if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
                 self.RuleItemClass(rule, self.rule_list)
 

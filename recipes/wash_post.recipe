@@ -5,21 +5,17 @@ www.washingtonpost.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from html5_parser import parse
+import json
 
 
 class TheWashingtonPost(BasicNewsRecipe):
     title = 'The Washington Post'
-    __author__ = 'Darko Miletic'
+    __author__ = 'Darko Miletic, unkn0wn'
     description = 'Leading source for news, video and opinion on politics, business, world and national news, science, travel, entertainment and more. Our local coverage includes reporting on education, crime, weather, traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing, entertainment information and restaurant reviews.'  # noqa
     publisher = 'The Washington Post Company'
     category = 'news, politics, USA'
-    oldest_article = 2
+    oldest_article = 1.2
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf8'
@@ -27,37 +23,69 @@ class TheWashingtonPost(BasicNewsRecipe):
     language = 'en'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.washingtonpost.com/pb/resources/img/twp-masthead-415x57.svg'
     publication_type = 'newspaper'
     remove_attributes = ['style', 'width', 'height']
 
-    keep_only_tags = [
-        dict(name=['h1', 'figure']),
-        dict(attrs={'data-qa': 'lede-art'}),
-        classes('byline article-body'),
-    ]
-    remove_tags = [
-        dict(name=['meta', 'link', 'svg']),
-        classes('inline-video author-tooltip author-image powa-wrapper'),
-        dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
-    ]
+    extra_css = '''
+        .img { text-align:center; font-size:small; }
+        .auth { font-weight:bold; font-size:small; }
+        .time { font-size:small; color: #202020; }
+    '''
 
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False, user_agent='common_words/based')
+
+    # Official feeds: https://www.washingtonpost.com/discussions/2018/10/12/washington-post-rss-feeds/
     feeds = [
-        (u'World', u'http://feeds.washingtonpost.com/rss/world'),
-        (u'National', u'http://feeds.washingtonpost.com/rss/national'),
-        (u'White House',
-         u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
-        (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
+        (u'Politics', u'http://feeds.washingtonpost.com/rss/politics'),
         (u'Opinions', u'http://feeds.washingtonpost.com/rss/opinions'),
         (u'Local', u'http://feeds.washingtonpost.com/rss/local'),
+        (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
+        (u'Technology', u'http://feeds.washingtonpost.com/rss/business/technology'),
+        (u'National', u'http://feeds.washingtonpost.com/rss/national'),
+        (u'World', u'http://feeds.washingtonpost.com/rss/world'),
+        (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
+        (u'Lifestyle', u'http://feeds.washingtonpost.com/rss/lifestyle'),
         (u'Entertainment',
          u'http://feeds.washingtonpost.com/rss/entertainment'),
-        (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
-        (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
+
+        # Undocumented feeds.
+        (u'White House',
+         u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
+        (u'Commanders', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
 
-    def preprocess_html(self, soup, *a):
-        for img in soup.findAll('img', src=True):
-            src = img['src']
-            if src.endswith('&w=32'):
-                img['src'] = src[:-2] + '440'
+    def preprocess_raw_html(self, raw, *a):
+        root = parse(raw)
+        m = root.xpath('//script[@id="__NEXT_DATA__"]')
+
+        data = json.loads(m[0].text)
+        data = data['props']['pageProps']['globalContent']
+
+        title = '<h1>' + data['headlines']['basic'] + '</h1>'
+        subhead = '<h3>' + data['description'].get('basic', '') + '</h3>'
+
+        author = ''
+        if 'credits' in data:
+            author = '<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) \
+                 + '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>'
+
+        body = ''
+        for x in data['content_elements']:
+            if x['type'] == 'text':
+                body += '<p>' + x['content'] + '</p>'
+            elif x['type'] == 'video':
+                if 'promo_image' in x:
+                    body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                        x['promo_image']['url'], x['description'].get('basic', '')
+                    )
+            elif x['type'] == 'image':
+                body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(x['url'], x['credits_caption_display'])
+
+        return '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'src':True}):
+            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=916'
         return soup

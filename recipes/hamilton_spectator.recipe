@@ -1,4 +1,5 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
 
 '''
 Hamilton Spectator Calibre Recipe
@@ -7,10 +8,8 @@ Hamilton Spectator Calibre Recipe
 
 class HamiltonSpectator(BasicNewsRecipe):
     title = u'Hamilton Spectator'
-    oldest_article = 2
-    max_articles_per_feed = 100
-    auto_cleanup = True
-    __author__ = u'Eric Coolman'
+    max_articles_per_feed = 50
+    __author__ = u'unkn0wn'
     publisher = u'thespec.com'
     description = u'Ontario Canada Newspaper'
     category = u'News, Ontario, Canada'
@@ -19,47 +18,69 @@ class HamiltonSpectator(BasicNewsRecipe):
     no_stylesheets = True
     language = 'en_CA'
     encoding = 'utf-8'
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://bloximages.chicago2.vip.townnews.com/thespec.com/content/tncms/custom/image/c0094646-1108-11ee-8af0-b3954ce40e5e.png'
 
-    feeds = [
-        (u'Top Stories', u'http://www.thespec.com/rss?query=/&assetType=Article'),
-        (u'All News', u'http://www.thespec.com/rss?query=/news&assetType=Article'),
-        (u'Local', u'http://www.thespec.com/rss?query=/local&assetType=Article'),
-        (u'Ontario', u'http://www.thespec.com/rss?query=/ontario&assetType=Article'),
-        (u'Canada', u'http://www.thespec.com/rss?query=/canada&assetType=Article'),
-        (u'World News', u'http://www.thespec.com/rss?query=/world&assetType=Article'),
-        (u'Business', u'http://www.thespec.com/rss?query=/business&assetType=Article'),
-        (u'Crime', u'http://www.thespec.com/rss?query=/crime&assetType=Article'),
-        (u'All Sports', u'http://www.thespec.com/rss?query=/sports&assetType=Article'),
-        (u'Ticats', u'http://www.thespec.com/rss?query=/sports/ticats&assetType=Article'),
-        (u'Bulldogs', u'http://www.thespec.com/rss?query=/sports/bulldogs&assetType=Article'),
-        (u'High School Sports',
-         u'http://www.thespec.com/rss?query=/sports/highschools&assetType=Article'),
-        (u'Local Sports', u'http://www.thespec.com/rss?query=/sports/local&assetType=Article'),
-        (u'What''s On', u'http://www.thespec.com/rss?query=/whatson&assetType=Article'),
-        (u'Arts and Entertainment',
-         u'http://www.thespec.com/rss?query=/whatson/artsentertainment&assetType=Article'),
-        (u'Books', u'http://www.thespec.com/rss?query=/whatson/books&assetType=Article'),
-        (u'Movies', u'http://www.thespec.com/rss?query=/whatson/movies&assetType=Article'),
-        (u'Music', u'http://www.thespec.com/rss?query=/whatson/music&assetType=Article'),
-        (u'Restaurant Reviews',
-         u'http://www.thespec.com/rss?query=/whatson/restaurants&assetType=Article'),
-        (u'Opinion', u'http://www.thespec.com/rss?query=/opinion&assetType=Article'),
-        (u'Opinion Columns',
-         u'http://www.thespec.com/rss?query=/opinion/columns&assetType=Article'),
-        (u'Cartoons', u'http://www.thespec.com/rss?query=/opinion/cartoons&assetType=Article'),
-        (u'Letters', u'http://www.thespec.com/rss?query=/opinion/letters&assetType=Article'),
-        (u'Editorial', u'http://www.thespec.com/rss?query=/opinion/editorial&assetType=Article'),
-        (u'Community', u'http://www.thespec.com/rss?query=/community&assetType=Article'),
-        (u'Education', u'http://www.thespec.com/rss?query=/community/education&assetType=Article'),
-        (u'Faith', u'http://www.thespec.com/rss?query=/community/faith&assetType=Article'),
-        (u'Contests', u'http://www.thespec.com/rss?query=/community/contests&assetType=Article'),
-        (u'Living', u'http://www.thespec.com/rss?query=/living&assetType=Article'),
-        (u'Food', u'http://www.thespec.com/rss?query=/living/food&assetType=Article'),
-        (u'Health and Fitness',
-         u'http://www.thespec.com/rss?query=/living/healthfitness&assetType=Article'),
-        (u'Your Home', u'http://www.thespec.com/rss?query=/living/home&assetType=Article'),
-        (u'Travel', u'http://www.thespec.com/rss?query=/living/travel&assetType=Article'),
-        (u'Family and Parenting',
-         u'http://www.thespec.com/rss?query=/living/familyparenting&assetType=Article'),
-        (u'Style', u'http://www.thespec.com/rss?query=/living/style&assetType=Article')
+    ignore_duplicate_articles = {'title'}
+    articles_are_obfuscated = True
+
+    extra_css = '''
+        .caption { font-size:small; text-align:center; }
+        .authorList, .endnote_contrib { font-size:small; }
+    '''
+
+    keep_only_tags = [
+        classes(
+            'headline asset-summary authorList articleMainArt asset-body'
+        )
     ]
+
+    remove_tags = [
+        dict(name=['svg', 'button']),
+        dict(attrs={'id':['tncms-region-article_instory_top', 'tncms-region-article_bottom', 'asset-video-primary']}),
+        classes(
+            'tnt-blurred-image share-container subscriber-offers access-offers-in-page '
+            'access-offers-wrapper tnt-ads-container adLabelWrapperManual shareIcons '
+            'articleFeedbackCTA comments-container card-image'
+        )
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset':True}):
+            for x in img['data-srcset'].split(','):
+                if '640w' in x.split():
+                    img['src'] = x.split()[0]
+        return soup
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Downloading ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    feeds = []
+
+    sections = [
+        'news', 'politics', 'opinion', 'business', 'sports', 'life', 'entertainment'
+    ]
+
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:thespec.com{}&hl=en-CA&gl=IN&ceid=CA:en'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    feeds.append(('Others', a.format('')))

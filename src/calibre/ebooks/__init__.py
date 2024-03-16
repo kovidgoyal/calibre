@@ -6,7 +6,12 @@ Code for the conversion of ebook formats and the reading of metadata
 from various formats.
 '''
 
-import os, re, numbers, sys
+import numbers
+import os
+import re
+import sys
+from contextlib import suppress
+
 from calibre import prints
 from calibre.ebooks.chardet import xml_to_unicode
 
@@ -48,7 +53,7 @@ def return_raster_image(path):
 
 
 def extract_cover_from_embedded_svg(html, base, log):
-    from calibre.ebooks.oeb.base import XPath, SVG, XLINK
+    from calibre.ebooks.oeb.base import SVG, XLINK, XPath
     from calibre.utils.xml_parse import safe_xml_fromstring
     root = safe_xml_fromstring(html)
 
@@ -114,7 +119,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750, root=''
 
 def render_html_data(path_to_html, width, height, root=''):
     from calibre.ptempfile import TemporaryDirectory
-    from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+    from calibre.utils.ipc.simple_worker import WorkerError, fork_job
     result = {}
 
     def report_error(text=''):
@@ -173,14 +178,15 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
     ' Return value in pts'
     if isinstance(value, numbers.Number):
         return value
-    try:
+    with suppress(Exception):
         return float(value) * 72.0 / dpi
-    except:
-        pass
     result = value
     m = UNIT_RE.match(value)
     if m is not None and m.group(1):
-        value = float(m.group(1))
+        try:
+            value = float(m.group(1))
+        except ValueError:
+            value = 0
         unit = m.group(2)
         if unit == '%':
             result = (value / 100.0) * base

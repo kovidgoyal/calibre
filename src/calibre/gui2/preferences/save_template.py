@@ -18,8 +18,8 @@ class SaveTemplate(QWidget, Ui_Form):
 
     changed_signal = pyqtSignal()
 
-    def __init__(self, *args):
-        QWidget.__init__(self, *args)
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
         Ui_Form.__init__(self)
         self.setupUi(self)
         self.orig_help_text = self.help_label.text()
@@ -49,7 +49,17 @@ class SaveTemplate(QWidget, Ui_Form):
         self.open_editor.clicked.connect(self.do_open_editor)
 
     def do_open_editor(self):
-        t = TemplateDialog(self, self.opt_template.text(), fm=self.field_metadata)
+        # Try to get selected books
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
+        view = get_gui().library_view
+        mi = tuple(map(db.new_api.get_proxy_metadata, view.get_selected_ids()[:10]))
+        if not mi:
+            error_dialog(self, _('Must select books'),
+                         _('One or more books must be selected so the template '
+                           'editor can show the template results'), show=True)
+            return
+        t = TemplateDialog(self, self.opt_template.text(), fm=self.field_metadata, mi=mi)
         t.setWindowTitle(_('Edit template'))
         if t.exec():
             self.opt_template.set_value(t.rule[1])
@@ -64,6 +74,9 @@ class SaveTemplate(QWidget, Ui_Form):
         custom fields, because they may or may not exist.
         '''
         tmpl = preprocess_template(self.opt_template.text())
+        # Allow PTM or GPM templates without checking
+        if tmpl.startswith(('program:', 'python:')):
+            return True
         try:
             t = validation_formatter.validate(tmpl)
             if t.find(validation_formatter._validation_string) < 0:

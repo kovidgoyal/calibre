@@ -6,42 +6,11 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import QAction
+from qt.core import QAction, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
-from calibre.gui2 import error_dialog, gprefs
-from calibre.gui2.widgets import LayoutButton
-
-
-class QuickviewButton(LayoutButton):  # {{{
-
-    def __init__(self, gui, quickview_manager):
-        self.qv = quickview_manager
-        qaction = quickview_manager.qaction
-        LayoutButton.__init__(self, 'quickview.png', _('Quickview'),
-                              parent=gui, shortcut=qaction.shortcut().toString())
-        self.toggled.connect(self.update_state)
-        self.action_toggle = qaction
-        self.action_toggle.triggered.connect(self.toggle)
-        self.action_toggle.changed.connect(self.update_shortcut)
-
-    def update_state(self, checked):
-        if checked:
-            self.set_state_to_hide()
-            self.qv._show_quickview()
-        else:
-            self.set_state_to_show()
-            self.qv._hide_quickview()
-
-    def save_state(self):
-        gprefs['quickview visible'] = bool(self.isChecked())
-
-    def restore_state(self):
-        if gprefs.get('quickview visible', False):
-            self.toggle()
-
-# }}}
+from calibre.gui2 import error_dialog
 
 
 current_qv_action_pi = None
@@ -59,17 +28,15 @@ def get_quickview_action_plugin():
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Quickview'
-    action_spec = (_('Quickview'), 'quickview.png', None, None)
+    action_spec = (_('Quickview'), 'quickview.png', _('Toggle Quickview'), 'Q')
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
     current_instance = None
 
     def genesis(self):
-        self.gui.keyboard.register_shortcut('Toggle Quickview', _('Toggle Quickview'),
-                     description=_('Open/close the Quickview panel/window'),
-                     default_keys=('Q',), action=self.qaction,
-                     group=self.action_spec[0])
+        self.menuless_qaction.changed.connect(self.update_layout_button)
+        self.qaction.triggered.connect(self.toggle_quick_view)
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
         self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
@@ -104,10 +71,26 @@ class ShowQuickviewAction(InterfaceAction):
                      group=self.action_spec[0])
         self.search_action.triggered.connect(self.search_quickview)
 
-        self.qv_button = QuickviewButton(self.gui, self)
+    def update_layout_button(self):
+        self.qv_button.update_shortcut(self.menuless_qaction)
+
+    def toggle_quick_view(self):
+        if self.current_instance and not self.current_instance.is_closed:
+            self._hide_quickview()
+        else:
+            self._show_quickview()
+
+    @property
+    def qv_button(self):
+        return self.gui.layout_container.quick_view_button
 
     def initialization_complete(self):
         set_quickview_action_plugin(self)
+        self.qv_button.toggled.connect(self.toggle_quick_view)
+
+    def show_on_startup(self):
+        self.gui.hide_panel('quick_view')
+        self._show_quickview()
 
     def _hide_quickview(self):
         '''
@@ -131,9 +114,15 @@ class ShowQuickviewAction(InterfaceAction):
                 _('Quickview is not available for books '
                   'on the device.')).exec()
             return
+        self.qv_button.blockSignals(True)
         self.qv_button.set_state_to_hide()
+        self.qv_button.blockSignals(False)
+        self._create_current_instance()
+
+    def _create_current_instance(self):
         index = self.gui.library_view.currentIndex()
-        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut())
+        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(),
+                                          focus_booklist_shortcut=self.focus_bl_action.shortcut())
 
         self.current_instance.reopen_after_dock_change.connect(self.open_quickview)
         self.current_instance.show()
@@ -170,6 +159,10 @@ class ShowQuickviewAction(InterfaceAction):
         if show or (self.current_instance and not self.current_instance.is_closed):
             self.focus_quickview()
             self.current_instance.slave(idx)
+            # This is needed because if this method is invoked from the library
+            # view header context menu, the library view takes back the focus. I
+            # don't know if this happens for any context menu.
+            QTimer.singleShot(0, self.current_instance.set_focus)
 
     def library_changed(self, db):
         '''

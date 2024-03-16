@@ -27,9 +27,11 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
         # Amazon's MOBI renderer can't render JPEG images without JFIF metadata
         # and images with EXIF data dont get displayed on the cover screen
         changed = not img.info
-        if hasattr(img, '_getexif') and img._getexif():
-            changed = True
-            img = ImageOps.exif_transpose(img)
+        if hasattr(img, 'getexif'):
+            exif = img.getexif()
+            if exif.get(0x0112) in (2,3,4,5,6,7,8):
+                changed = True
+                img = ImageOps.exif_transpose(img)
         if changed:
             out = BytesIO()
             img.save(out, 'JPEG')
@@ -70,7 +72,7 @@ class Resources:
             try:
                 from calibre.utils.img import optimize_png
                 optimize_png(pt.name)
-                data = lopen(pt.name, 'rb').read()
+                data = open(pt.name, 'rb').read()
             finally:
                 os.remove(pt.name)
             return func(data)

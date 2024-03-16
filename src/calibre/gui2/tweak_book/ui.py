@@ -6,19 +6,14 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from functools import partial
-from gettext import pgettext
 from itertools import product
 from qt.core import (
-    QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel,
-    QMenu, QMenuBar, QPalette, QSize, QStackedWidget, Qt, QTabWidget, QTimer, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal
+    QAction, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel, QMenu, QMenuBar, QSize,
+    QStackedWidget, Qt, QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal,
 )
 
-from calibre import prepare_string_for_xml, prints
-from calibre.constants import (
-    DEBUG, __appname__, builtin_colors_dark, builtin_colors_light, get_version,
-    ismacos
-)
+from calibre import prints
+from calibre.constants import DEBUG, __appname__, get_version, ismacos
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
@@ -26,7 +21,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.tweak_book import (
     actions, capitalize, current_container, editors, toolbar_actions, tprefs,
-    update_mark_text_action
+    update_mark_text_action,
 )
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.char_select import CharSelect
@@ -47,9 +42,10 @@ from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.text_search import TextSearch
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.undo import CheckpointView
+from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.icu import ord_string, sort_key
 from calibre.utils.localization import (
-    localize_user_manual_link, localize_website_link
+    localize_user_manual_link, localize_website_link, pgettext,
 )
 from calibre.utils.unicode_names import character_name_from_code
 from polyglot.builtins import iteritems, itervalues
@@ -261,64 +257,11 @@ def install_new_plugins():
         prefs['newly_installed_plugins'] = []
 
 
-class MessagePopup(QLabel):
-
-    undo_requested = pyqtSignal()
-
-    def __init__(self, parent):
-        QLabel.__init__(self, parent)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        if QApplication.instance().is_dark_theme:
-            c = builtin_colors_dark['green']
-        else:
-            c = builtin_colors_light['green']
-        self.color = self.palette().color(QPalette.ColorRole.WindowText).name()
-        bg = QColor(c).getRgb()
-        self.setStyleSheet(f'''QLabel {{
-            background-color: rgba({bg[0]}, {bg[1]}, {bg[2]}, 0.85);
-            border-radius: 4px;
-            color: {self.color};
-            padding: 0.5em;
-        }}'''
-        )
-        self.linkActivated.connect(self.link_activated)
-        self.close_timer = t = QTimer()
-        t.setSingleShot(True)
-        t.timeout.connect(self.hide)
-        self.setMouseTracking(True)
-        self.hide()
-
-    def mouseMoveEvent(self, ev):
-        self.close_timer.start()
-        return super().mouseMoveEvent(ev)
-
-    def link_activated(self, link):
-        self.hide()
-        if link.startswith('undo://'):
-            self.undo_requested.emit()
-
-    def __call__(self, text='Testing message popup', show_undo=True, timeout=5000, has_markup=False):
-        text = '<p>' + (text if has_markup else prepare_string_for_xml(text))
-        if show_undo:
-            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com">{}</a>'.format(_('Undo'))
-        text += f'\xa0\xa0<a style="text-decoration: none; color: {self.color}" href="close://me.com">✖</a>'
-        self.setText(text)
-        self.resize(self.sizeHint())
-        self.position_in_parent()
-        self.show()
-        self.raise_()
-        self.close_timer.start(timeout)
-
-    def position_in_parent(self):
-        p = self.parent()
-        self.move((p.width() - self.width()) // 2, 25)
-
-
 class Main(MainWindow):
 
     APP_NAME = _('Edit book')
     STATE_VERSION = 0
-    undo_requested = pyqtSignal()
+    undo_requested = pyqtSignal(object)
 
     def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
@@ -362,8 +305,10 @@ class Main(MainWindow):
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
-        self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
+        v = get_version()
+        self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, v, 'Kovid Goyal'))
         la.base_template = str(la.text())
+        la.editing_template = _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v)
         self.status_bar.addWidget(la)
 
         self.boss(self)
@@ -388,6 +333,13 @@ class Main(MainWindow):
 
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))
+
+    def update_status_bar_default_message(self, path=''):
+        m = self.status_bar_default_msg
+        if path:
+            m.setText(m.editing_template.format(path=path))
+        else:
+            m.setText(m.base_template)
 
     def elided_text(self, text, width=300):
         return elided_text(text, font=self.font(), width=width)
@@ -437,6 +389,10 @@ class Main(MainWindow):
         self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
+        self.action_save_copy_edit = treg('save.png', _('Save a &copy and edit in new window'), partial(self.boss._save_copy, 'edit'), 'save-copy-edit',
+                                          'Ctrl+Shift+S', _( 'Save a copy of the book and edit it in a new window'))
+        self.action_save_copy_replace = treg('save.png', _('Save a &copy and edit here'), partial(self.boss._save_copy, 'replace'),
+                                             'save-copy-replace', 'Ctrl+Alt+Shift+S', _('Save a copy of the book and edit it in this window'))
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
         self.action_new_book = treg('plus.png', _('Create new, &empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
@@ -603,6 +559,9 @@ class Main(MainWindow):
         self.action_manage_snippets = treg(
             'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
                 'Manage user created Snippets'))
+        self.action_merge_files = treg(
+            'merge.png', _('&Merge files'), self.boss.merge_files, 'merge-files', 'Ctrl+M', _(
+                'Merge two or more selected files'))
 
         self.plugin_menu_actions = []
 
@@ -629,7 +588,10 @@ class Main(MainWindow):
         self.update_recent_books()
         f.addSeparator()
         f.addAction(self.action_save)
-        f.addAction(self.action_save_copy)
+        m = f.addMenu(_('Save a copy'))
+        m.addAction(self.action_save_copy)
+        m.addAction(self.action_save_copy_edit)
+        m.addAction(self.action_save_copy_replace)
         f.addSeparator()
         f.addAction(self.action_compare_book)
         f.addAction(self.action_quit)

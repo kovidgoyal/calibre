@@ -193,7 +193,7 @@ class Server(Thread):
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
-                        with lopen(worker.rfile, 'rb') as f:
+                        with open(worker.rfile, 'rb') as f:
                             job.result = pickle_loads(f.read())
                         os.remove(worker.rfile)
                     except:

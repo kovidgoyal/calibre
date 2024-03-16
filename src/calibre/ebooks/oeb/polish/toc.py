@@ -8,20 +8,22 @@ __docformat__ = 'restructuredtext en'
 import re
 from collections import Counter, OrderedDict
 from functools import partial
-from operator import itemgetter
-
 from lxml import etree
 from lxml.builder import ElementMaker
+from operator import itemgetter
 
 from calibre import __version__
 from calibre.ebooks.oeb.base import (
-    XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize, EPUB_NS, XML_NS, OEB_DOCS)
+    EPUB_NS, NCX, NCX_NS, OEB_DOCS, XHTML, XHTML_NS, XML, XML_NS, XPath, serialize,
+    uuid_id, xml2text,
+)
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
-from calibre.ebooks.oeb.polish.utils import guess_type, extract
-from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
+from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
+from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.translations.dynamic import translate
-from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
+from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 from polyglot.urllib import urlparse
 

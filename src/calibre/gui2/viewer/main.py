@@ -16,6 +16,7 @@ from calibre.gui2.viewer.ui import EbookViewer, is_float
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import viewer_socket_address
+from calibre.utils.localization import _
 
 singleinstance_name = 'calibre_viewer'
 
@@ -136,6 +137,8 @@ View an e-book.
     ))
     a('--continue', default=False, action='store_true', dest='continue_reading',
         help=_('Continue reading the last opened book'))
+    a('--new-instance', default=False, action='store_true', help=_(
+        'Open a new viewer window even when the option to use only a single viewer window is set'))
 
     setup_gui_option_parser(parser)
     return parser
@@ -159,7 +162,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
         listener.message_received.connect(main.message_from_other_instance, type=Qt.ConnectionType.QueuedConnection)
     QTimer.singleShot(0, acc.flush)
     if opts.raise_window:
-        main.raise_()
+        main.raise_and_focus()
     if opts.full_screen:
         main.set_full_screen(True)
 
@@ -168,6 +171,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
 
 def main(args=sys.argv):
     from calibre.utils.webengine import setup_fake_protocol
+
     # Ensure viewer can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
@@ -182,7 +186,7 @@ def main(args=sys.argv):
         processed_args.append(arg)
     if internal_book_data_path:
         try:
-            with lopen(internal_book_data_path, 'rb') as f:
+            with open(internal_book_data_path, 'rb') as f:
                 internal_book_data = json.load(f)
         finally:
             try:
@@ -202,7 +206,7 @@ def main(args=sys.argv):
             oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:') or oat.startswith('search:') or oat.startswith('regex:')):
         raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
-    if get_session_pref('singleinstance', False):
+    if not opts.new_instance and get_session_pref('singleinstance', False):
         from calibre.gui2.listener import Listener
         from calibre.utils.lock import SingleInstance
         with SingleInstance(singleinstance_name) as si:

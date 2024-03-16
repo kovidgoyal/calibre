@@ -3,8 +3,8 @@
 
 
 import os
-from copy import copy
 from collections import namedtuple
+from copy import copy
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
@@ -12,14 +12,14 @@ from threading import Lock
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
-from calibre.utils.config import tweaks
-from calibre.utils.formatter import EvalFormatter
-from calibre.utils.file_type_icons import EXT_MAP
-from calibre.utils.icu import collation_order_for_partitioning
-from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
+from calibre.utils.config import tweaks
+from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
+from calibre.utils.file_type_icons import EXT_MAP
+from calibre.utils.formatter import EvalFormatter
+from calibre.utils.icu import collation_order_for_partitioning, upper as icu_upper
+from calibre.utils.localization import _, calibre_langcode_to_name
 from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import quote
 
@@ -87,6 +87,12 @@ def book_as_json(db, book_id):
         langs = ans.get('languages')
         if langs:
             ans['lang_names'] = {l:calibre_langcode_to_name(l) for l in langs}
+        link_maps = db.get_all_link_maps_for_book(book_id)
+        if link_maps:
+            ans['link_maps'] = link_maps
+        x = db.items_with_notes_in_book(book_id)
+        if x:
+            ans['items_with_notes'] = {field: {v: k for k, v in items.items()} for field, items in x.items()}
     return ans
 
 

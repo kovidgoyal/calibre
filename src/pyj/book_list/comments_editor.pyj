@@ -5,11 +5,13 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from book_list.theme import color_scheme, get_color, get_color_as_rgba
-from dom import add_extra_css, build_rule, clear, svgicon
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from gettext import gettext as _
 from iframe_comm import IframeClient, create_wrapped_iframe
+from image_popup import fit_image
 from modals import create_custom_dialog
 from utils import html_escape
+from uuid import short_uuid4
 from widgets import create_button
 
 CLASS_NAME = 'comments-editor'
@@ -60,6 +62,144 @@ def insert_heading(editor_id, cmd):
     editor.focus()
 
 
+def insert_image(editor):
+    acceptable_image_types = v'["image/png", "image/jpeg", "image/gif", "image/webp"]'
+    parent_id = ''
+    accepted = False
+    align_name = 'align-radio-button'
+
+    def on_close(evt):
+        parent = document.getElementById(parent_id)
+        if parent:
+            img = parent.querySelector('img')
+            if img:
+                if accepted and img.src:
+                    align = parent.querySelector(f'input[name="{align_name}"]:checked').value
+                    s = style_from_align(align)
+
+                    w = parseInt(parent.querySelector(f'input[name="width"]').value or '0')
+                    page_width = (0 if isNaN(w) else w) or 1000000000
+                    h = parseInt(parent.querySelector(f'input[name="height"]').value or '0')
+                    page_height = (0 if isNaN(h) else h) or 1000000000
+                    w, h = img.naturalWidth, img.naturalHeight
+                    resized, nw, nh = fit_image(w, h, page_width, page_height)
+                    if resized:
+                        markup = (
+                            f'<img src="{img.src}" data-filename="{html_escape(img.dataset.filename)}"' +
+                            f' data-align="{html_escape(align)}" width="{nw}" height="{nh}" style="{s}"></img>'
+                        )
+                    else:
+                        markup = (
+                            f'<img src="{img.src}" data-filename="{html_escape(img.dataset.filename)}"' +
+                            f' data-align="{html_escape(align)}" style="{s}"></img>'
+                        )
+                    editor.exec_command('insertHTML', markup)
+
+    def dialog(parent, close_modal):
+        nonlocal parent_id
+        parent_id = ensure_id(parent)
+        container = parent.closest('.modal_height_container')
+        max_container_height = container.style.maxHeight
+
+        def action(ok, evt):
+            nonlocal accepted
+            img = parent.getElementsByTagName('img')[0]
+            if ok and not img.src:
+                parent.querySelector('.no-image-selected').style.display = 'block'
+                return
+            accepted = ok
+            close_modal()
+
+        def handle_files(files):
+            parent.querySelector('.no-image-selected').style.display = 'none'
+            parent.querySelector('.image-alignment').style.display = 'none'
+            parent.querySelector('.image-shrink').style.display = 'none'
+            img = parent.getElementsByTagName('img')[0]
+            img.src = ''
+            img.dataset.filename = ''
+            img.dataset.align = ''
+            img.parentElement.style.display = 'none'
+            for f in files:
+                if acceptable_image_types.indexOf(f.type) > -1:
+                    r = new FileReader()
+                    r.onload = def():
+                        img.src = r.result
+                    r.readAsDataURL(f)
+                    h = parent.querySelector('.button-box').offsetHeight
+                    img.parentElement.style.display = 'block'
+                    non_content_height = (container.offsetHeight - parent.offsetHeight) + 'px'
+                    img.style.maxHeight = f'calc({max_container_height} - {non_content_height} - {h}px - 1rem)'
+                    if f.name:
+                        img.dataset.filename = f.name
+                    parent.querySelector('.image-alignment').style.display = 'block'
+                    parent.querySelector('.image-shrink').style.display = 'block'
+                    return
+            alert(_('No valid image file found'))
+
+        parent.appendChild(E.div(
+            ondragenter=def(e):
+                e.stopPropagation(), e.preventDefault()
+            ,
+            ondragover=def(e):
+                e.stopPropagation(), e.preventDefault()
+            ,
+            ondrop=def(e):
+                e.stopPropagation(), e.preventDefault()
+                handle_files(e.dataTransfer.files)
+            ,
+            E.div(
+                style='display: flex;',
+                E.div(
+                    style='display: none; min-width: 40%; max-width: 40%; margin-right: 0.5rem',
+                    E.img(style='max-width: 100%'),
+                ),
+                E.div(
+                    E.input(
+                        type='file', accept=','.join(acceptable_image_types),
+                        onchange=def(e): handle_files(e.target.files);, style='display: none'
+                    ),
+
+                    E.p(E.a(
+                        _('Select an image from your files'),
+                        class_='blue-link', href='javascript:void(0)', onclick=def ():
+                        parent.querySelector('input[type=file]').click()
+                    ), E.span(_(' or drag and drop an image here.'))),
+
+                    E.div(
+                        style='display: none; margin-top: 0.5rem', class_='image-alignment',
+                        _('Place image:'), E.br(),
+                        E.label(E.input(type='radio', name=align_name, value='left'), _('Float left'), style='margin-right: 0.5rem'),
+                        ' ',
+                        E.label(E.input(type='radio', name=align_name, value='inline', checked=True), _('Inline'),
+                                title=_('Place the image inline with surrounding text'), style='margin-right: 0.5rem'
+                        ),
+                        ' ',
+                        E.label(E.input(type='radio', name=align_name, value='right'), _('Float right')),
+                    ),
+                    E.div(
+                        style='display: none; margin-top: 0.5rem', class_='image-shrink',
+                        _('Shrink image to fit (px):'),
+                        E.div(style='display: flex; flex-wrap: wrap',
+                        E.label(_('Width:') + '\xa0', E.input(type='number', min='0', max='10000', name='width'),
+                                style='margin-left: 0.5rem', title=_('A value of zero means no effect')),
+                        E.label(_('Height:') + '\xa0', E.input(type='number', min='0', max='10000', name='height'),
+                                style='margin-left: 0.5rem', title=_('A value of zero means no effect')
+                        )),
+                    ),
+
+                    E.p(_('No image selected!'), class_='no-image-selected', style='color:red; display:none'),
+                ),
+            ),
+            E.div(class_='button-box',
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
+                  '\xa0',
+                  create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+            ),
+
+        ))
+    create_custom_dialog(_('Insert image'), dialog, on_close=on_close)
+
+
 def insert_link(title, msg, proceed):
     create_custom_dialog(title, def(parent, close_modal):
 
@@ -89,7 +229,7 @@ def insert_link_or_image(editor_id, is_image, ok, url, title):
     editor = registry[editor_id]
     if ok:
         if title:
-            markup = '<img src="{}" title="{}"></img>' if is_image else '<a href="{}">{}</a>'
+            markup = '<img src="{}" alt="{}"></img>' if is_image else '<a href="{}">{}</a>'
             editor.exec_command('insertHTML', markup.format(html_escape(url), html_escape(title)))
         else:
             cmd = 'insertImage' if is_image else 'createLink'
@@ -258,7 +398,10 @@ def all_editor_actions():  # {{{
                 'icon': 'image',
                 'title': _('Insert an image'),
                 'execute': def (editor, activated):
-                    insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
+                    if editor.insert_image_files:
+                        insert_image(editor)
+                    else:
+                        insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
             },
             'fg': {
                 'icon': 'fg',
@@ -275,6 +418,14 @@ def all_editor_actions():  # {{{
         }
     return all_editor_actions.ans
 # }}}
+
+
+def style_from_align(align):
+    if align is 'left':
+        return 'float: left; margin-right: 0.5em'
+    if align is 'right':
+        return 'float: right; margin-left: 0.5em'
+    return ''
 
 
 class CommentsEditorBoss:
@@ -296,10 +447,9 @@ class CommentsEditorBoss:
         document.execCommand("styleWithCSS", False, False)
         document.body.style.margin = '0'
         document.body.style.padding = '0'
-        document.documentElement.style.height = document.body.style.height = '100%'
-        document.documentElement.style.overflow = document.body.style.overflow = 'hidden'
         document.body.style.fontFamily = window.default_font_family
-        document.body.appendChild(E.div(style='width: 100%; height: 100%; padding: 0; margin: 0; border: solid 3px transparent; box-sizing: border-box'))
+        document.body.appendChild(E.style('div:focus { outline: none }'))
+        document.body.appendChild(E.div(style='width: 100%; padding: 0.5rem; margin: 0; border-width: 0; box-sizing: border-box'))
         document.body.lastChild.contentEditable = True
         document.body.lastChild.addEventListener('keyup', self.update_state)
         document.body.lastChild.addEventListener('mouseup', self.update_state)
@@ -325,7 +475,23 @@ class CommentsEditorBoss:
         document.body.lastChild.innerHTML = data.html
 
     def get_html(self, data):
-        self.comm.send_message('html', html=document.body.lastChild.innerHTML)
+        c = document.body.lastChild.cloneNode(True)
+        images = v'{}'
+        if data.extract_images:
+            for img in c.getElementsByTagName('img'):
+                if img.src:
+                    key = short_uuid4()
+                    images[key] = {'data': img.src, 'filename': img.dataset.filename}
+                    if img.dataset.filename:  # this is an added image
+                        s = style_from_align(img.dataset.align)
+                        if s:
+                            img.setAttribute('style', s)
+                        else:
+                            img.removeAttribute('style')
+                    img.src = key
+                    v'delete img.dataset.filename'
+                    v'delete img.dataset.align'
+        self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images, 'text': c.innerText})
 
     def exec_command(self, data):
         document.execCommand(data.name, False, data.value)
@@ -340,17 +506,24 @@ class CommentsEditorBoss:
 
 registry = {}
 
-def add_editor(editor):
+def destroy_removed_editors():
     for k in Object.keys(registry):
         if not document.getElementById(k):
             registry[k].destroy()
             v'delete registry[k]'
+
+def add_editor(editor):
+    destroy_removed_editors()
     registry[editor.id] = editor
+
+
+def destroy_editor(container):
+    v'delete registry[container.querySelector("iframe").id]'
 
 
 class Editor:
 
-    def __init__(self, iframe_kw):
+    def __init__(self, iframe_kw, insert_image_files):
         handlers = {
             'ready': self.on_iframe_ready,
             'html': self.on_html_received,
@@ -361,8 +534,10 @@ class Editor:
         self.id = iframe.id
         self.ready = False
         self.pending_set_html = None
+        self.pending_get_html = v'[]'
         self.get_html_callbacks = v'[]'
         self.iframe_obj = iframe
+        self.insert_image_files = v'!!insert_image_files'
 
     def init(self):
         self.iframe_wrapper.init()
@@ -388,8 +563,9 @@ class Editor:
         if self.pending_set_html is not None:
             self.set_html(self.pending_set_html)
             self.pending_set_html = None
-        if self.get_html_callbacks.length:
-            self.get_html(self.get_html_callback)
+        if self.pending_get_html.length > 0:
+            for x in self.pending_get_html:
+                self.get_html(x)
 
     def set_html(self, html):
         if not self.ready:
@@ -401,12 +577,14 @@ class Editor:
     def get_html(self, proceed):
         self.get_html_callbacks.push(proceed)
         if self.ready:
-            self.iframe_wrapper.send_message('get_html')
+            self.iframe_wrapper.send_message('get_html', extract_images=self.insert_image_files)
+        else:
+            self.pending_get_html.push(proceed)
 
     def on_html_received(self, data):
         if self.get_html_callbacks.length:
             for f in self.get_html_callbacks:
-                f(data.html)
+                f(data.html, data.extra_data)
             self.get_html_callbacks = v'[]'
 
     def exec_command(self, name, value=None):
@@ -424,11 +602,11 @@ class Editor:
                     div.classList.remove('activated')
 
 
-def create_editor():
+def create_editor(insert_image_files):
     iframe_kw = {
         'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: solid 1px currentColor'
     }
-    editor = Editor(iframe_kw)
+    editor = Editor(iframe_kw, insert_image_files)
     iframe = editor.iframe_obj
     v'delete editor.iframe_obj'
     add_editor(editor)
@@ -452,8 +630,9 @@ def add_action(toolbar, ac_name, action, editor_id):
     toolbar.appendChild(b)
 
 
-def create_comments_editor(container):
-    iframe, editor = create_editor()
+def create_comments_editor(container, options):
+    options = options or {}
+    iframe, editor = create_editor(options.insert_image_files)
     toolbars = E.div(style='flex-grow: 0')
     toolbar1 = E.div(class_=TOOLBAR_CLASS)
     toolbar2 = E.div(class_=TOOLBAR_CLASS)

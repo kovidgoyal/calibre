@@ -300,7 +300,7 @@ def main():
                 if os.path.isdir(outfile):
                     outfile = os.path.join(outfile, path[path.rfind("/")+1:])
                 try:
-                    outfile = lopen(outfile, "wb")
+                    outfile = open(outfile, "wb")
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -310,7 +310,7 @@ def main():
                 outfile.close()
             elif args[1].startswith("dev:"):
                 try:
-                    infile = lopen(args[0], "rb")
+                    infile = open(args[0], "rb")
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -361,7 +361,7 @@ def main():
                 return 1
             path = args[0]
             from calibre.ebooks.metadata.meta import get_metadata
-            mi = get_metadata(lopen(path, 'rb'), path.rpartition('.')[-1].lower())
+            mi = get_metadata(open(path, 'rb'), path.rpartition('.')[-1].lower())
             print(dev.upload_books([args[0]], [os.path.basename(args[0])],
                     end_session=False, metadata=[mi]))
             dev.eject()

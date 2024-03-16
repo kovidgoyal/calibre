@@ -1,0 +1,375 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, DO LE DUY <duy.dole.00ece at gmail.com>
+
+
+# Public domain audio eBooks can be found on https://www.readbeyond.it/ebooks.html.
+# ReadBeyond also offers Aeneas (https://github.com/readbeyond/aeneas),
+# an open-source tool for force-alignment of audio and text to generate smil files.
+# Another notable tool is https://github.com/r4victor/syncabook,
+# builds upon Aeneas to complete a workflow for creating EPUB3 with Media Overlays.
+
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.theme import get_color
+from dom import change_icon_image, svgicon
+from gettext import gettext as _
+from modals import error_dialog
+from read_book.globals import ui_operations
+from read_book.highlights import ICON_SIZE
+from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
+from read_book.shortcuts import shortcut_for_key_event
+from read_book.smil import (
+    find_next_audio_in_spine, get_smil_id_for_timestamp, next_audio_file_for_spine_item
+)
+
+HIDDEN, PLAYING, PAUSED = 'HIDDEN', 'PLAYING', 'PAUSED'
+
+
+def seconds_to_ms(seconds):
+    minutes = Math.floor(seconds / 60)
+    remaining_seconds = int(seconds % 60)
+    return str(minutes) + ':' + (str(remaining_seconds).zfill(2))
+
+
+
+class ReadAudioEbook:
+
+    dont_hide_on_content_loaded = True
+    prevent_navigation = True
+    CONTAINER_DISPLAY = 'flex'
+
+    def __init__(self, view):
+        self.view = view
+        self._state = HIDDEN
+        self.initialized = False
+        self.current_audio_src = ''
+
+    def initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
+
+        container = self.container
+        container.style.backgroundColor = "rgba(0, 0, 0, 0)"
+        container.style.justifyContent = 'center'
+        container.style.alignItems = 'flex-end'
+        container.setAttribute("tabindex", "0")
+        container.appendChild(E.div(
+            data_component='bar',
+            style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'
+        ))
+        bar_container = container.lastChild
+        container.appendChild(E.style(
+            f'#{container.id} .speaking '+'{ opacity: 0.5 }\n\n',
+            f'#{container.id} .speaking:hover '+'{ opacity: 1.0 }\n\n',
+        ))
+        container.addEventListener("keydown", self.on_keydown, {"passive": False})
+        container.addEventListener("click", self.on_container_clicked, {"passive": False})
+        container.addEventListener("contextmenu", self.toggle, {"passive": False})
+
+        def create_button(name, icon, text):
+            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+            if name:
+                ans.addEventListener("click", def(ev):
+                    ev.stopPropagation(), ev.preventDefault()
+                    self[name](ev)
+                    self.view.focus_iframe()
+                )
+            ans.dataset.button = name
+            ans.classList.add("simple-link")
+            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
+            return ans
+
+        for x in [
+            E.div (
+                style='height: 3ex; display: flex; align-items: center; justify-content: center',
+                create_button("toggle", "pause", _('Pause audio')),
+            ),
+            E.div(
+                data_component="time_display", E.text("")
+            ),
+            E.div(
+                data_component="progress_bar",
+                style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block; background-color:{get_color("window-background2")}; margin:1em; cursor: pointer',
+                E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),
+            ),
+            E.div(
+                style='height: 3ex; display: flex; align-items: center; justify-content: center',
+                create_button("slower", "slower", _("Slow down audio")),
+                create_button("faster", "faster", _("Speed up audio")),
+                create_button("hide", "off", _("Close Read aloud"))
+            )
+
+        ]:
+            bar_container.appendChild(x)
+
+        bar_container.addEventListener("click", self.on_bar_clicked, {"passive": False})
+        self.container.appendChild(E.audio(data_component='audio', style="display:none"))
+        ap = self.container.lastChild
+
+        ap.addEventListener("timeupdate", def():
+            if self.state is not HIDDEN:
+                ap = self.audio_player
+                if ap.duration:
+                    audio_current_time = ap.currentTime
+                    progress = (audio_current_time / ap.duration) * 100
+                    self.progress_bar.firstChild.style.width = progress + "%"
+                    self.time_display.textContent = f'{seconds_to_ms(audio_current_time)}/{seconds_to_ms(ap.duration)}'
+                    self.mark_for_timeupdate(audio_current_time)
+                else:
+                    self.time_display.textContent = "00:00"
+                    self.progress_bar.firstChild.style.width = "0%"
+
+        )
+
+        ap.addEventListener("ended", def():
+            self.play_next_audio_file()
+        )
+
+        self.progress_bar.addEventListener("click", def(event):
+            ap = self.audio_player
+            if ap.duration:
+                rect = self.progress_bar.getBoundingClientRect()
+                x = event.clientX - rect.left
+                total_width = rect.width
+                if total_width:
+                    skip_time = (x / total_width) * ap.duration
+                    ap.currentTime = skip_time
+        )
+
+    @property
+    def bar(self):
+        return self.container.querySelector('[data-component=bar]')
+
+    @property
+    def time_display(self):
+        return self.container.querySelector('[data-component=time_display]')
+
+    @property
+    def progress_bar(self):
+        return self.container.querySelector('[data-component=progress_bar]')
+
+    def mark_for_timeupdate(self, audio_time):
+        sam = self.view.currently_showing.smil_audio_map
+        if sam:
+            smil_id, idx = get_smil_id_for_timestamp(self.current_audio_src, audio_time, sam, self.last_marked_smil_idx)
+            if smil_id and smil_id is not self.last_marked_smil_id:
+                self.send_message('mark', anchor=smil_id, idx=idx)
+
+    def play_next_audio_file(self):
+        next_audio_file, par = next_audio_file_for_spine_item(self.current_audio_src, self.view.currently_showing.smil_audio_map)
+        if next_audio_file:
+            self.set_audio_src(next_audio_file, def():
+                self.audio_player.currentTime = par.audio?.start or 0
+                self.play()
+            )
+            return
+        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
+        if spine_name:
+            self.view.show_name(spine_name, initial_position={'type': 'smil_id', 'anchor': par.anchor})
+        else:
+            self.hide()
+
+    def set_audio_src(self, name, proceed):
+        if self.current_audio_src is name:
+            proceed()
+            return
+        self.last_marked_smil_id = self.last_marked_smil_idx = None
+        self.current_audio_src = name
+        ap = self.audio_player
+        if ui_operations.get_url_for_book_file_name:
+            ap.onloadeddata = def():
+                proceed()
+            ap.onerror = def(evt):
+                console.error(evt)
+                error_dialog(_('Could not load audio'), _(
+                    'Could not load the audio file: {} with error: {}').format(name, evt.message))
+            ap.src = ui_operations.get_url_for_book_file_name(name)
+            return
+        if ap.src:
+            ap.onloadeddata = def():
+                pass
+            ap.onerror = def():
+                pass
+            window.URL.revokeObjectURL(ap.src)
+            ap.src = ''
+        ui_operations.get_file(self.view.book, name, def(blob, name, mimetype):
+            ap = self.audio_player
+            ap.onloadeddata = def():
+                proceed()
+            ap.onerror = def(evt):
+                console.error(evt)
+                error_dialog(_('Could not load audio'), _(
+                    'Could not load the audio file: {} with error: {}').format(name, evt.message))
+            ap.src = window.URL.createObjectURL(blob)
+        )
+
+    def start_playback(self):
+        cn = self.view.currently_showing.name
+        if self.view.book.manifest.files[cn]?.smil_map:
+            self.send_message('play')
+            return
+        spine_name, par = find_next_audio_in_spine(self.view.currently_showing.spine_index, self.view.book.manifest)
+        if not spine_name:
+            spine_name, par = find_next_audio_in_spine(-1, self.view.book.manifest)
+        if spine_name:
+            self.view.show_name(spine_name, initial_position={'type': 'smil_id', 'anchor': par.anchor})
+        else:
+            self.hide()
+            error_dialog(_('No audio'), _('No audio found in this book'))
+
+    @property
+    def container(self):
+        return document.getElementById("audio-ebooks-overlay")
+
+    @property
+    def audio_player(self):
+        return self.container.querySelector('[data-component=audio]')
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not "none"
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, val):
+        if val is not self._state:
+            speaking = False
+            if val is HIDDEN:
+                self._state = HIDDEN
+            elif val is PLAYING:
+                self._state = PLAYING
+                speaking = True
+            elif val is PAUSED:
+                self._state = PAUSED
+            if speaking:
+                self.bar.classList.add('speaking')
+            else:
+                self.bar.classList.remove('speaking')
+
+    def hide(self):
+        if self.state is not HIDDEN:
+            self.send_message("mark")
+            self.pause()
+            self.container.style.display = "none"
+            self.view.focus_iframe()
+            self.state = HIDDEN
+            if ui_operations.read_aloud_state_changed:
+                ui_operations.read_aloud_state_changed(False)
+
+    @property
+    def play_pause_button(self):
+        return self.container.querySelector('[data-button="toggle"]')
+
+    def show(self):
+        if self.state is HIDDEN:
+            self.initialize()
+            self.state = PLAYING
+            change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
+            self.start_playback()
+            self.container.style.display = self.CONTAINER_DISPLAY
+            self.focus()
+            if ui_operations.read_aloud_state_changed:
+                ui_operations.read_aloud_state_changed(True)
+
+    def focus(self):
+        self.container.focus()
+
+    def slower(self):
+        self.audio_player.playbackRate -= 0.1
+
+    def faster(self):
+        self.audio_player.playbackRate += 0.1
+
+    def play(self):
+        self.state = PLAYING
+        change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
+        ap = self.audio_player
+        if ap.getAttribute("src"):
+            ap.play()
+
+    def pause(self):
+        self.state = PAUSED
+        change_icon_image(self.play_pause_button, "play", _('Play audio'))
+        ap = self.audio_player
+        if ap.getAttribute("src"):
+            ap.pause()
+
+    def toggle(self):
+        if self.state is PLAYING:
+            self.pause()
+        elif self.state is PAUSED:
+            self.play()
+
+    def on_bar_clicked(self, ev):
+        # prevent the container click handler from handling this
+        ev.stopPropagation(), ev.preventDefault()
+
+    def on_container_clicked(self, ev):
+        if ev.button is not 0:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        margins = get_margins()
+        pos = {"x": ev.clientX, "y": ev.clientY}
+        pos = map_to_iframe_coords(pos, margins)
+        self.send_message("play", pos=pos)
+
+    def on_keydown(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if ev.key is "Escape":
+            self.hide()
+            return
+        if ev.key is " " or ev.key is "MediaPlayPause" or ev.key is "PlayPause":
+            self.toggle()
+            return
+        if ev.key is "Play" or ev.key is "MediaPlay":
+            self.play()
+            return
+        if ev.key is "Pause" or ev.key is "MediaPause":
+            self.pause()
+            return
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if not sc_name:
+            return
+        if sc_name is "show_chrome":
+            self.hide()
+        elif sc_name is "quit":
+            self.hide()
+
+    def send_message(self, message_type, **kw):
+        self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
+
+    def handle_message(self, message):
+        if message.type is 'start_play_at':
+            if message.par:
+                self.set_audio_src(
+                    message.par.audio, def():
+                        self.audio_player.currentTime = message.par.start or 0
+                        self.play()
+                )
+            else:
+                if message.anchor:
+                    # start playing from where we are
+                    self.send_message('play')
+                    return
+                if message.pos:
+                    # this is a click ignore it as no smil element was found at
+                    # click location
+                    pass
+                else:
+                    self.pause()
+                    error_dialog(_('Audio element not found'), _(
+                        'Could not play audio as no associated audio was found'))
+        elif message.type is 'marked':
+            if message.anchor:
+                self.last_marked_smil_id = message.anchor
+                self.last_marked_smil_idx = message.idx
+            else:
+                self.last_marked_smil_id = self.last_marked_smil_idx = None
+        else:
+            console.error(f'Unknown audio ebook message type from iframe: {message.type}')

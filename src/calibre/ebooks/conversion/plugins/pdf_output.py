@@ -63,7 +63,7 @@ class PDFOutput(OutputFormatPlugin):
                 'The font family used to render monospace fonts. Will work only if the font is available system-wide.')),
         OptionRecommendation(name='pdf_standard_font', choices=ui_data['font_types'],
             recommended_value='serif', help=_(
-                'The font family used to render monospace fonts')),
+                'The type of font family used to render font for which no font family is specified.')),
         OptionRecommendation(name='pdf_default_font_size',
             recommended_value=20, help=_(
                 'The default font size (in pixels)')),
@@ -138,6 +138,11 @@ class PDFOutput(OutputFormatPlugin):
                 ' are smaller than the specified offset. Shifting is done by setting'
                 ' the PDF CropBox, not all software respects the CropBox.'
             )
+        ),
+        OptionRecommendation(name='pdf_no_cover',
+            recommended_value=False,
+            help=_('Do not insert the book cover as an image at the start of the document.'
+                   ' If you use this option, the book cover will be discarded.')
         ),
 
     }
@@ -229,7 +234,8 @@ class PDFOutput(OutputFormatPlugin):
     def convert_text(self, oeb_book):
         import json
         from calibre.ebooks.pdf.html_writer import convert
-        self.get_cover_data()
+        if not self.opts.pdf_no_cover:
+            self.get_cover_data()
         self.process_fonts()
 
         if self.opts.pdf_use_document_margins and self.stored_page_margins:

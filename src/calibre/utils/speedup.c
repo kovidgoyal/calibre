@@ -164,7 +164,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     if (radius <= 0) { PyErr_SetString(PyExc_ValueError, "The radius must be positive"); return NULL; }
     if (width > 100000 || height > 10000) { PyErr_SetString(PyExc_ValueError, "The width or height is too large"); return NULL; }
     if (width < 1 || height < 1) { PyErr_SetString(PyExc_ValueError, "The width or height is too small"); return NULL; }
-    snprintf(header, 99, "P6\n%d %d\n255\n", (int)width, (int)height);
+    snprintf(header, sizeof(header)-1, "P6\n%d %d\n255\n", (int)width, (int)height); // NOLINT
 
     kernel = (double*)calloc(weight * weight, sizeof(double));
     if (kernel == NULL) { PyErr_NoMemory(); return NULL; }
@@ -177,7 +177,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
 
     // Random noise, noisy pixels are blend_alpha, other pixels are 0
     for (i = 0; i < width * height; i++) {
-        if (((float)(rand()) / RAND_MAX) <= density) mask[i] = blend_alpha;
+        if (((float)(rand()) / (float)RAND_MAX) <= density) mask[i] = blend_alpha;
     }
 
     // Blur the noise using the gaussian kernel
@@ -195,7 +195,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     }
 
     // Create the texture in PPM (P6) format
-    memcpy(ppm, header, strlen(header));
+    memcpy(ppm, header, strlen(header));  // NOLINT
     t = ppm + strlen(header);
     for (i = 0, j = 0; j < width * height; i += 3, j += 1) {
 #define BLEND(src, dest) ( ((unsigned char)(src * mask[j])) + ((unsigned char)(dest * (1 - mask[j]))) )

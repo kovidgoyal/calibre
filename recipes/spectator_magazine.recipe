@@ -1,6 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from calibre import browser
-
 
 def absurl(url):
     if url.startswith('/'):
@@ -22,20 +20,24 @@ class spectator(BasicNewsRecipe):
     resolve_internal_links = True
 
     extra_css = '''
-        .author-bio {font-size:small;}
+        .writers-link__text, .author-bio__content {font-size:small; color:#404040;}
         #fig-c {text-align:center; font-size:small;}
-        blockquote, em {color:#404040;}
+        blockquote, em, i {color:#202020;}
+        img {display:block; margin:0 auto;}
     '''
 
     keep_only_tags = [
         classes(
-            'entry-header__heading entry-header__thumbnail entry-content__wrapper author-bio'),
-        ]
+            'writers-link entry-header__author entry-header__title entry-header__thumbnail entry-content '
+            'author-bio__content '
+        )
+    ]
 
     remove_tags = [
+        dict(name = ['svg', 'button']),
         classes(
-            'entry-header__author entry-header__meta entry-meta insert--most-popular '
-            'subscribe-ribbon subscription-banner paywall__card'
+            'entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content '
+            'subscription-banner ' 
         )
     ]
 
@@ -43,6 +45,15 @@ class spectator(BasicNewsRecipe):
         for fc in soup.findAll('figcaption'):
             fc['id'] = 'fig-c'
         return soup
+    
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.spectator.co.uk/magazine')
@@ -50,9 +61,10 @@ class spectator(BasicNewsRecipe):
             'magazine-header__container')).img['src'].split('?')[0]
         issue = self.tag_to_string(soup.find(**classes(
             'magazine-header__title'))).strip()
-        self.timefmt = ' (' + issue + ') [' + self.tag_to_string(soup.find(**classes(
-            'magazine-header__date'))).strip() + ']'
-        self.log('Downloading Issue: ', self.timefmt)
+        time = soup.find('time')
+        self.title = 'The Spectator ' + issue
+        self.timefmt = ' [' + self.tag_to_string(time) + ']'
+        self.log('Downloading Issue: ', self.title, self.timefmt)
         nav_div = soup.find('ul', **classes('archive-entry__nav-list'))
         section_list = []
 
@@ -94,17 +106,3 @@ class spectator(BasicNewsRecipe):
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
             ans.append({'title': title, 'description':desc, 'url': url})
         return ans
-
-    # Spectator changes the content it delivers based on cookies, so the
-    # following ensures that we send no cookies
-    def get_browser(self, *args, **kwargs):
-        return self
-
-    def clone_browser(self, *args, **kwargs):
-        return self.get_browser()
-
-    def open_novisit(self, *args, **kwargs):
-        br = browser()
-        return br.open_novisit(*args, **kwargs)
-
-    open = open_novisit

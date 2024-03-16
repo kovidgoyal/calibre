@@ -118,7 +118,7 @@ class USBMS(CLI, Device):
     def _update_driveinfo_file(self, prefix, location_code, name=None):
         from calibre.utils.config import from_json, to_json
         if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
-            with lopen(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
+            with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
                 try:
                     driveinfo = json.loads(f.read(), object_hook=from_json)
                 except:
@@ -128,7 +128,7 @@ class USBMS(CLI, Device):
             data = json.dumps(driveinfo, default=to_json)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(data)
                 fsync(f)
         else:
@@ -136,7 +136,7 @@ class USBMS(CLI, Device):
             data = json.dumps(driveinfo, default=to_json)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with lopen(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(data)
                 fsync(f)
         return driveinfo
@@ -239,6 +239,9 @@ class USBMS(CLI, Device):
 
         def update_booklist(filename, path, prefix):
             changed = False
+            # Ignore AppleDouble files
+            if filename.startswith("._"):
+                return False
             if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
@@ -460,7 +463,7 @@ class USBMS(CLI, Device):
                     isinstance(booklists[listid], self.booklist_class)):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
-                with lopen(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
+                with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
                     json_codec.encode_to_file(f, booklists[listid])
                     fsync(f)
         write_prefix(self._main_prefix, 0)
@@ -506,7 +509,7 @@ class USBMS(CLI, Device):
         cache_file = cls.normalize_path(os.path.join(prefix, name))
         if os.access(cache_file, os.R_OK):
             try:
-                with lopen(cache_file, 'rb') as f:
+                with open(cache_file, 'rb') as f:
                     json_codec.decode_from_file(f, bl, cls.book_class, prefix)
             except:
                 import traceback

@@ -11,6 +11,7 @@ from contextlib import suppress
 from functools import lru_cache
 
 from calibre.constants import DEBUG, __appname__, get_osx_version, islinux, ismacos
+from calibre.utils.resources import get_image_path as I
 
 
 class Notifier:

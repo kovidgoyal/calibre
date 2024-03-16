@@ -303,7 +303,7 @@ class MobiReader:
         def write_as_utf8(path, data):
             if isinstance(data, str):
                 data = data.encode('utf-8')
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
                 f.write(data)
 
         parse_cache[htmlfile] = root
@@ -311,7 +311,7 @@ class MobiReader:
         ncx = io.BytesIO()
         opf, ncx_manifest_entry = self.create_opf(htmlfile, guide, root)
         self.created_opf_path = os.path.splitext(htmlfile)[0] + '.opf'
-        opf.render(lopen(self.created_opf_path, 'wb'), ncx,
+        opf.render(open(self.created_opf_path, 'wb'), ncx,
             ncx_manifest_entry=ncx_manifest_entry)
         ncx = ncx.getvalue()
         if ncx:
@@ -788,7 +788,11 @@ class MobiReader:
             flags >>= 1
         if self.book_header.extra_flags & 1:
             off = size - num - 1
-            num += (ord(data[off:off+1]) & 0x3) + 1
+            try:
+                num += (ord(data[off:off+1]) & 0x3) + 1
+            except TypeError:
+                self.log.warn('Invalid sizeof trailing entries')
+                num += 1
         return num
 
     def warn_about_trailing_entry_corruption(self):
@@ -823,7 +827,8 @@ class MobiReader:
             unpack = decompress_doc
 
         elif self.book_header.compression_type == b'\x00\x01':
-            unpack = lambda x: x
+            def unpack(x):
+                return x
         else:
             raise MobiError('Unknown compression algorithm: %r' % self.book_header.compression_type)
         self.mobi_html = b''.join(map(unpack, text_sections))

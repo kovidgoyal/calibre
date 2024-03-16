@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -19,7 +18,7 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
     uquery[field_keywords] = query
 
     def asbytes(x):
-        if isinstance(x, type('')):
+        if isinstance(x, str):
             x = x.encode('utf-8')
         return x
     uquery = {asbytes(k):asbytes(v) for k, v in uquery.items()}
@@ -32,7 +31,7 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
             f.write(raw)
     doc = html.fromstring(raw)
     for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
-        kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(self.KINDLE_EDITION)))
+        kformat = ''.join(result.xpath(f'.//a[contains(text(), "{self.KINDLE_EDITION}")]//text()'))
         # Even though we are searching digital-text only Amazon will still
         # put in results for non Kindle books (author pages). So we need
         # to explicitly check if the item is a Kindle book and ignore it

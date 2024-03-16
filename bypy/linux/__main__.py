@@ -13,13 +13,14 @@ import time
 from functools import partial
 
 from bypy.constants import (
-    OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version
+    LIBDIR, OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version,
 )
 from bypy.freeze import (
-    extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
+    extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
+    path_to_freeze_dir,
 )
 from bypy.utils import (
-    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
+    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk,
 )
 
 j = os.path.join
@@ -38,15 +39,15 @@ qt_get_dll_path = partial(get_dll_path, loc=os.path.join(QT_PREFIX, 'lib'))
 
 def binary_includes():
     return [
-        j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'optipng', 'JxrDecApp')] + [
+        j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'optipng', 'cwebp', 'JxrDecApp')] + [
 
         j(PREFIX, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
         ] + list(map(
             get_dll_path,
             ('usb-1.0 mtp expat sqlite3 ffi z lzma openjp2 poppler dbus-1 iconv xml2 xslt jpeg png16'
-             ' webp webpmux webpdemux exslt ncursesw readline chm hunspell-1.7 hyphen'
+             ' webp webpmux webpdemux sharpyuv exslt ncursesw readline chm hunspell-1.7 hyphen'
              ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error uchardet graphite2'
-             ' brotlicommon brotlidec brotlienc'
+             ' brotlicommon brotlidec brotlienc zstd podofo ssl crypto tiff'
              ' gobject-2.0 glib-2.0 gthread-2.0 gmodule-2.0 gio-2.0 dbus-glib-1').split()
         )) + [
             # debian/ubuntu for for some typical stupid reason use libpcre.so.3
@@ -56,8 +57,8 @@ def binary_includes():
             # than libc and libpthread we bundle the Ubuntu one here
             glob.glob('/usr/lib/*/libpcre.so.3')[0],
 
-            get_dll_path('podofo', 3), get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
-            get_dll_path('ssl', 2), get_dll_path('crypto', 2), get_dll_path('python' + py_ver, 2),
+            get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
+            get_dll_path('python' + py_ver, 2), get_dll_path('jbig', 2),
 
             # We dont include libstdc++.so as the OpenGL dlls on the target
             # computer fail to load in the QPA xcb plugin if they were compiled
@@ -90,9 +91,8 @@ def ignore_in_lib(base, items, ignored_dirs=None):
     for name in items:
         path = j(base, name)
         if os.path.isdir(path):
-            if name in ignored_dirs or not os.path.exists(j(path, '__init__.py')):
-                if name != 'plugins':
-                    ans.append(name)
+            if name != 'plugins' and (name in ignored_dirs or not is_package_dir(path)):
+                ans.append(name)
         else:
             if name.rpartition('.')[-1] not in ('so', 'py'):
                 ans.append(name)
@@ -112,7 +112,7 @@ def import_site_packages(srcdir, dest):
                 src = os.path.abspath(j(srcdir, line))
                 if os.path.exists(src) and os.path.isdir(src):
                     import_site_packages(src, dest)
-        elif os.path.exists(j(f, '__init__.py')):
+        elif is_package_dir(f):
             shutil.copytree(f, j(dest, x), ignore=ignore_in_lib)
 
 
@@ -125,6 +125,8 @@ def copy_libs(env):
         os.chmod(j(
             dest, os.path.basename(x)),
             stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+    for x in ('ossl-modules',):
+        shutil.copytree(os.path.join(LIBDIR, x), os.path.join(env.lib_dir, x))
 
     base = j(QT_PREFIX, 'plugins')
     dest = j(env.lib_dir, '..', 'plugins')
@@ -161,7 +163,7 @@ def copy_python(env, ext_dir):
         elif os.path.isfile(c):
             shutil.copy2(c, j(dest, x))
     shutil.copytree(j(env.src_root, 'resources'), j(env.base, 'resources'))
-    for pak in glob.glob(j(QT_PREFIX, 'resources', '*.pak')):
+    for pak in glob.glob(j(QT_PREFIX, 'resources', '*')):
         shutil.copy2(pak, j(env.base, 'resources'))
     os.mkdir(j(env.base, 'translations'))
     shutil.copytree(j(QT_PREFIX, 'translations', 'qtwebengine_locales'), j(env.base, 'translations', 'qtwebengine_locales'))

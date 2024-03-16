@@ -233,7 +233,7 @@ class TestAuth(BaseTest):
             if curl:
                 def docurl(data, *args):
                     cmd = [curl] + list(args) + ['http://localhost:%d/closed' % server.address[1]]
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=open(os.devnull, 'wb'))
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
                     x = p.stdout.read()
                     p.wait()
                     self.ae(x, data)

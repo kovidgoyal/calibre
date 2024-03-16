@@ -11,7 +11,7 @@ class UkrInform(BasicNewsRecipe):
     publisher = 'Ministerium f\u00FCr Kultur und Informationspolitik der Ukraine'
     category = 'newspaper'
     cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
-    language = 'de_UK'
+    language = 'de'
     no_stylesheets = True
     remove_javascript = False
     auto_cleanup = False

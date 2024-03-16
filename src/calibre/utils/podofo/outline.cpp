@@ -6,6 +6,7 @@
  */
 
 #include "global.h"
+#include <memory>
 
 using namespace pdf;
 
@@ -45,43 +46,36 @@ erase(PDFOutlineItem *self, PyObject *args) {
 static PyObject *
 create(PDFOutlineItem *self, PyObject *args) {
     PyObject *as_child;
-    PDFOutlineItem *ans;
+    PDFOutlineItem *ans = NULL;
     unsigned int num;
     double left = 0, top = 0, zoom = 0;
-    PdfPage *page;
     PyObject *title_buf;
 
     if (!PyArg_ParseTuple(args, "UIO|ddd", &title_buf, &num, &as_child, &left, &top, &zoom)) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
-    if (ans == NULL) goto error;
+    if (ans == NULL) return NULL;
     ans->doc = self->doc;
+    pyunique_ptr decref_ans_on_exit((PyObject*)ans);
 
     try {
         PdfString title = podofo_convert_pystring(title_buf);
-        try {
-            page = self->doc->GetPage(num - 1);
-        } catch(const PdfError &err) { (void)err; page = NULL; }
-        if (page == NULL) { PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num); goto error; }
-        PdfDestination dest(page, left, top, zoom);
+        const PdfPage *page = get_page(self->doc, num - 1);
+        if (!page) { PyErr_Format(PyExc_ValueError, "Invalid page number: %u", num); return NULL; }
+        auto dest = std::make_shared<PdfDestination>(*page, left, top, zoom);
         if (PyObject_IsTrue(as_child)) {
             ans->item = self->item->CreateChild(title, dest);
         } else
             ans->item = self->item->CreateNext(title, dest);
     } catch (const PdfError &err) {
-        podofo_set_exception(err); goto error;
+        podofo_set_exception(err); return NULL;
     } catch(const std::exception & err) {
-        PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what());
-        goto error;
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what()); return NULL;
     } catch (...) {
-        PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to create the outline item");
-        goto error;
+        PyErr_SetString(PyExc_Exception, "An unknown error occurred while trying to create the outline item"); return NULL;
     }
 
-    return (PyObject*) ans;
-error:
-    Py_XDECREF(ans);
-    return NULL;
+    return (PyObject*) decref_ans_on_exit.release();
 }
 
 static PyMethodDef methods[] = {

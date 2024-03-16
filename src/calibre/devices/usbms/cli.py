@@ -34,14 +34,14 @@ class CLI:
 
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
-        with lopen(path, 'rb') as src:
+        with open(path, 'rb') as src:
             shutil.copyfileobj(src, outfile)
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
         close = False
         if not hasattr(infile, 'read'):
-            infile, close = lopen(infile, 'rb'), True
+            infile, close = open(infile, 'rb'), True
         infile.seek(0)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
@@ -99,6 +99,6 @@ class CLI:
     def touch(self, path, end_session=True):
         path = self.munge_path(path)
         if not os.path.exists(path):
-            lopen(path, 'wb').close()
+            open(path, 'wb').close()
         if not os.path.isdir(path):
             os.utime(path, None)

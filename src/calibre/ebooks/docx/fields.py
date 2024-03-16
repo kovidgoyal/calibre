@@ -247,7 +247,8 @@ def test_parse_fields(return_tests=False):
     class TestParseFields(unittest.TestCase):
 
         def test_hyperlink(self):
-            ae = lambda x, y: self.assertEqual(parse_hyperlink(x, None), y)
+            def ae(x, y):
+                return self.assertEqual(parse_hyperlink(x, None), y)
             ae(r'\l anchor1', {'anchor':'anchor1'})
             ae(r'www.calibre-ebook.com', {'url':'www.calibre-ebook.com'})
             ae(r'www.calibre-ebook.com \t target \o tt', {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
@@ -255,13 +256,15 @@ def test_parse_fields(return_tests=False):
             ae(r'xxxx \y yyyy', {'url': 'xxxx'})
 
         def test_xe(self):
-            ae = lambda x, y: self.assertEqual(parse_xe(x, None), y)
+            def ae(x, y):
+                return self.assertEqual(parse_xe(x, None), y)
             ae(r'"some name"', {'text':'some name'})
             ae(r'name \b \i', {'text':'name', 'bold':None, 'italic':None})
             ae(r'xxx \y a', {'text':'xxx', 'yomi':'a'})
 
         def test_index(self):
-            ae = lambda x, y: self.assertEqual(parse_index(x, None), y)
+            def ae(x, y):
+                return self.assertEqual(parse_index(x, None), y)
             ae(r'', {})
             ae(r'\b \c 1', {'bookmark':None, 'columns-per-page': '1'})
 

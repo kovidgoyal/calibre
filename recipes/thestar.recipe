@@ -4,13 +4,15 @@ __copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 www.thestar.com
 '''
 
+from collections import defaultdict
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-from calibre.web.feeds.news import BasicNewsRecipe
+def absolutize(url):
+    if url.startswith('/'):
+        url = 'https://www.thestar.com' + url
+    return url
 
 
 class TheTorontoStar(BasicNewsRecipe):
@@ -25,28 +27,38 @@ class TheTorontoStar(BasicNewsRecipe):
     delay = 2
     publisher = 'The Toronto Star'
     encoding = 'utf-8'
-    masthead_url = 'http://www.thestar.com/etc/designs/thestar/images/general/logoLrg.png'
 
     keep_only_tags = [
-        classes('o-main-content')
+        classes('headline asset-summary metaPrimary tsArticleContainer')
     ]
     remove_tags = [
-        classes(
-            'article-continue-basic-container label-modal-bottom print-header'
-            ' cta-container share-toolbar-container c-related-articles c-partner-articles c-more-articles c-top-articles'),
+        classes('share-container shareIcons articleFeedbackCTA asset-comments'),
         dict(name='button')
     ]
-    remove_tags_after = [
-        classes('article-content-container')
-    ]
 
-    feeds = [
-        (u'News', u'http://www.thestar.com/feeds.articles.news.rss'),
-        (u'Opinion', u'http://www.thestar.com/feeds.articles.opinion.rss'),
-        (u'Business', u'http://www.thestar.com/feeds.articles.business.rss'),
-        (u'Sports', u'http://www.thestar.com/feeds.articles.sports.rss'),
-        (u'Entertainment', u'http://www.thestar.com/feeds.articles.entertainment.rss'),
-        (u'Living', u'http://www.thestar.com/feeds.articles.life.rss'),
-        (u'Travel', u'http://www.thestar.com/feeds.articles.life.travel.rss'),
-        (u'Technology', u'http://www.thestar.com/feeds.articles.life.technology.rss')
-    ]
+    def parse_section(self, section):
+        for article in section.findAll('article'):
+            a = article.find('a', attrs={'class': 'tnt-asset-link', 'href':True, 'aria-label': True})
+            if a is not None:
+                title = a['aria-label']
+                url = absolutize(a['href'])
+                desc = ''
+                summ = article.find(attrs={'class':'tnt-summary'})
+                if summ is not None:
+                    desc = self.tag_to_string(summ)
+                section = ''
+                sec = article.find(attrs={'class':'label-flag-section'})
+                if sec is not None:
+                    section = self.tag_to_string(sec).strip().lower().capitalize()
+                    if section == 'Gta':
+                        section = 'GTA'
+                    self.log(section + ':', title)
+                    yield section, {'title': title, 'url': url, 'description': desc}
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.thestar.com/')
+        ans = defaultdict(list)
+        for section in soup.findAll('section', attrs={'class': 'block'}):
+            for sec, article in self.parse_section(section):
+                ans[sec].append(article)
+        return list(ans.items())

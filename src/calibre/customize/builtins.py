@@ -855,6 +855,12 @@ class ActionBrowseAnnotations(InterfaceActionBase):
     description = _('Browse highlights and bookmarks from all books in the library')
 
 
+class ActionBrowseNotes(InterfaceActionBase):
+    name = 'Browse Notes'
+    actual_plugin = 'calibre.gui2.actions.browse_notes:BrowseNotesAction'
+    description = _('Browse notes for authors, tags, etc. in the library')
+
+
 class ActionFullTextSearch(InterfaceActionBase):
     name = 'Full Text Search'
     actual_plugin = 'calibre.gui2.actions.fts:FullTextSearchAction'
@@ -1077,12 +1083,25 @@ class ActionSavedSearches(InterfaceActionBase):
     description = _('Show a menu of saved searches')
 
 
+class ActionLayoutActions(InterfaceActionBase):
+    name = 'Layout Actions'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.layout_actions:LayoutActions'
+    description = _("Show a menu of actions to change calibre's layout")
+
+
 class ActionBooklistContextMenu(InterfaceActionBase):
     name = 'Booklist context menu'
     author = 'Charles Haley'
     actual_plugin = 'calibre.gui2.actions.booklist_context_menu:BooklistContextMenuAction'
     description = _('Open the context menu for the column')
 
+
+class ActionAllActions(InterfaceActionBase):
+    name = 'All GUI actions'
+    author = 'Charles Haley'
+    actual_plugin = 'calibre.gui2.actions.all_actions:AllGUIActions'
+    description = _('Open a menu showing all installed GUI actions')
 
 class ActionVirtualLibrary(InterfaceActionBase):
     name = 'Virtual Library'
@@ -1115,7 +1134,7 @@ class ActionPluginUpdater(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 
-plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
+plugins += [ActionAdd, ActionAllActions, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
@@ -1125,7 +1144,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
         ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches]
+        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches,
+        ActionLayoutActions, ActionBrowseNotes,]
 
 # }}}
 
@@ -1956,12 +1976,12 @@ if __name__ == '__main__':
         ):
             if x in sys.modules:
                 ret = 1
-                print (x, 'has been loaded by a plugin')
+                print(x, 'has been loaded by a plugin')
         if ret:
-            print ('\\nA good way to track down what is loading something is to run'
+            print('\\nA good way to track down what is loading something is to run'
             ' python -c "import init_calibre; import calibre.customize.builtins"')
             print()
-        print ('Time taken to import all plugins: %.2f'%t)
+        print('Time taken to import all plugins: %.2f'%t)
         sys.exit(ret)
 
         ''')])

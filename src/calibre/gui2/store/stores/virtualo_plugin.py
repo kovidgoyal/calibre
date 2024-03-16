@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 10  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -41,7 +41,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/12/58/'
 
-        url = 'http://virtualo.pl/ebook/c2/'
+        url = 'http://virtualo.pl/ebooki/'
 
         aff_url = aff_root + as_base64(url)
 
@@ -58,7 +58,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=12, timeout=60):
-        url = 'http://virtualo.pl/?q=' + quote(query)
+        url = 'http://virtualo.pl/?cat=1&q=' + quote(query)
 
         br = browser()
         no_drm_pattern = re.compile(r'Watermark|brak')
@@ -66,7 +66,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="products-list-wrapper"]//li[@class="product "]'):
+            for data in doc.xpath('//div[@class="products-list-wrapper"]//li[@class="product"]'):
                 if counter <= 0:
                     break
 
@@ -74,10 +74,11 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//div[@class="information"]//div[@class="price"]/text()'))
+                price = ''.join(data.xpath(
+                    './/div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()'))
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                 title = ''.join(data.xpath('.//h3[@class="title"]/a//text()'))
-                author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a//text()'))
+                author = ', '.join(data.xpath('.//div[@class="info"]//div[@class="authors"]/a//text()'))
                 formats = [form.strip() for form in data.xpath('.//div[@class="text-wrapper"]//div[@class="format"]/span[@class="prompt_preview"]/text()')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@class="protection"]/text()')))
 

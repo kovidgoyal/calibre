@@ -762,7 +762,7 @@ class PRST1(USBMS):
         if not os.path.exists(thumbnail_dir_path):
             os.makedirs(thumbnail_dir_path)
 
-        with lopen(thumbnail_file_path, 'wb') as f:
+        with open(thumbnail_file_path, 'wb') as f:
             f.write(book.thumbnail[-1])
             fsync(f)
 

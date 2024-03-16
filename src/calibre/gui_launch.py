@@ -85,6 +85,7 @@ def is_possible_media_pack_error(e):
 def show_media_pack_error():
     import traceback
     from calibre.gui2 import error_dialog, Application
+    from calibre.utils.localization import _
     app = Application([])
     error_dialog(None, _('Required component missing'), '<p>' + _(
         'This computer is missing the Windows MediaPack, which is needed for calibre. Instructions'

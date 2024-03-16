@@ -1,0 +1,70 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import datetime, timezone, timedelta
+from calibre.utils.date import parse_date
+
+class mains(BasicNewsRecipe):
+    title = 'The India Forum'
+    __author__ = 'unkn0wn'
+    description = (
+        'The India Forum is an independent online journal-magazine that seeks to widen and '
+        'deepen our conversations on the issues that concern us.'
+    )
+    language = 'en_IN'
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['height', 'width', 'style']
+    no_stylesheets = True
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    oldest_article = 30  # days
+    masthead_url = 'https://www.theindiaforum.in/themes/the_india_forum/images/tif_logo.png'
+
+    keep_only_tags = [
+        classes('article-lead-container block-views-blockarticle-block-1'),
+        dict(name='section', attrs={'id':'article-author-top-container'}),
+        classes('block-field-blocknodearticlebody block-field-blocknodearticlefield-references')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.theindiaforum.in/')
+        ul = soup.find('ul', attrs={'class':'float-left'})
+
+        section_list = []
+
+        for x in ul.findAll('a', href=True):
+            if '/podcast' in x['href']:
+                continue
+            section_list.append(
+                (self.tag_to_string(x).strip().replace('■','■ '), 'https://www.theindiaforum.in' + x['href'])
+            )
+
+        feeds = []
+
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+    def articles_from_soup(self, soup):
+        ans = []
+        for art in soup.findAll('div', attrs={'class':lambda x: x and 'views-col' in x.split()}):
+            h2 = art.find(['h2', 'h3'])
+            url = 'https://www.theindiaforum.in' + h2.a['href']
+            title = self.tag_to_string(h2).strip()
+            desc = ''
+            if summ := art.find(**classes('summary')):
+                desc = self.tag_to_string(summ)
+                if inline := summ.find(**classes('inline-date')):
+                    date = parse_date(self.tag_to_string(inline))
+                    today = (datetime.now(timezone.utc)).replace(microsecond=0)
+                    if (today - date) > timedelta(self.oldest_article):
+                        continue
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return ans

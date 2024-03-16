@@ -9,25 +9,24 @@ from functools import partial
 from qt.core import (
     QAction, QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize,
     QSizePolicy, QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
-    pyqtSignal
+    pyqtSignal,
 )
 from qt.webengine import (
-    QWebEngineContextMenuRequest, QWebEnginePage, QWebEngineProfile,
-    QWebEngineScript, QWebEngineSettings, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler, QWebEngineView
+    QWebEngineContextMenuRequest, QWebEnginePage, QWebEngineProfile, QWebEngineScript,
+    QWebEngineSettings, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler,
+    QWebEngineView,
 )
 from threading import Thread
 
 from calibre import prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, ismacos,
-    iswindows
+    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, ismacos, iswindows,
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import (
     NO_URL_FORMATTING, QT_HIDDEN_CLEAR_ACTION, error_dialog, is_dark_theme,
-    safe_open_url
+    safe_open_url,
 )
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
@@ -36,9 +35,10 @@ from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
+from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import (
     Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile,
-    to_js
+    to_js,
 )
 from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Queue
@@ -348,7 +348,7 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             safe_open_url(url)
         prints('Blocking navigation request to:', url.toString())
         return False
@@ -459,7 +459,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
 
     def inspect(self):
         self.inspector.parent().show()
-        self.inspector.parent().raise_()
+        self.inspector.parent().raise_and_focus()
         self.pageAction(QWebEnginePage.WebAction.InspectElement).trigger()
 
     def contextMenuEvent(self, ev):

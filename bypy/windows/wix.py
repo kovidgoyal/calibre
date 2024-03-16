@@ -9,19 +9,22 @@ import shutil
 from bypy.constants import is64bit
 from bypy.utils import run
 
-WIXP = r'C:\Program Files (x86)\WiX Toolset v3.14'
+WIX = os.path.expanduser('~/.dotnet/tools/wix.exe')
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
 else:
     UPGRADE_CODE = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1'
 calibre_constants = globals()['calibre_constants']
 
-CANDLE = WIXP + r'\bin\candle.exe'
-LIGHT = WIXP + r'\bin\light.exe'
 j, d, a, b = os.path.join, os.path.dirname, os.path.abspath, os.path.basename
 
 
-def create_installer(env):
+def create_installer(env, compression_level='9'):
+    cl = int(compression_level)
+    if cl > 4:
+        dcl = 'high'
+    else:
+        dcl = {1: 'none', 2: 'low', 3: 'medium', 4: 'mszip'}[cl]
     if os.path.exists(env.installer_dir):
         shutil.rmtree(env.installer_dir)
     os.makedirs(env.installer_dir)
@@ -32,12 +35,9 @@ def create_installer(env):
     components, smap = get_components_from_files(env)
     wxs = template.format(
         app=calibre_constants['appname'],
-        appfolder='Calibre2' if is64bit else 'Calibre',
         version=calibre_constants['version'],
         upgrade_code=UPGRADE_CODE,
-        ProgramFilesFolder='ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
         x64=' 64bit' if is64bit else '',
-        fix_wix='<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
         compression='high',
         app_components=components,
         exe_map=smap,
@@ -45,6 +45,9 @@ def create_installer(env):
         viewer_icon=j(env.src_root, 'icons', 'viewer.ico'),
         editor_icon=j(env.src_root, 'icons', 'ebook-edit.ico'),
         web_icon=j(env.src_root, 'icons', 'web.ico'),
+        license=j(env.src_root, 'LICENSE.rtf'),
+        banner=j(env.src_root, 'icons', 'wix-banner.bmp'),
+        dialog=j(env.src_root, 'icons', 'wix-dialog.bmp'),
     )
     with open(j(d(__file__), 'en-us.xml'), 'rb') as f:
         template = f.read().decode('utf-8')
@@ -56,30 +59,16 @@ def create_installer(env):
         f.write(wxs.encode('utf-8'))
     with open(enusf, 'wb') as f:
         f.write(enus.encode('utf-8'))
-    wixobj = j(env.installer_dir, calibre_constants['appname'] + '.wixobj')
     arch = 'x64' if is64bit else 'x86'
-    cmd = [CANDLE, '-nologo', '-arch', arch, '-ext', 'WiXUtilExtension', '-o', wixobj, wxsf]
-    run(*cmd)
     installer = j(env.dist, '%s%s-%s.msi' % (
         calibre_constants['appname'], ('-64bit' if is64bit else ''), calibre_constants['version']))
-    license = j(env.src_root, 'LICENSE.rtf')
-    banner = j(env.src_root, 'icons', 'wix-banner.bmp')
-    dialog = j(env.src_root, 'icons', 'wix-dialog.bmp')
-    cmd = [LIGHT, '-nologo', '-ext', 'WixUIExtension',
-           '-cultures:en-us', '-loc', enusf, wixobj,
-           '-ext', 'WixUtilExtension',
-           '-o', installer,
-           '-dWixUILicenseRtf=' + license,
-           '-dWixUIBannerBmp=' + banner,
-           '-dWixUIDialogBmp=' + dialog]
-    cmd.extend([
-        '-sice:ICE60',  # No language in dlls warning
-        '-sice:ICE61',  # Allow upgrading with same version number
-        '-sice:ICE40',  # Re-install mode overridden
-        '-sice:ICE69',  # Shortcut components are part of a different feature than the files they point to
-    ])
-    cmd.append('-sval')  # Disable all checks since they fail when running under ssh
+    run(WIX, 'extension', 'add', '-g', 'WixToolset.Util.wixext')
+    run(WIX, 'extension', 'add', '-g', 'WixToolset.UI.wixext')
+    cmd = [WIX, 'build', '-arch', arch, '-culture', 'en-us', '-loc', enusf, '-dcl', dcl,
+           '-ext', 'WixToolset.Util.wixext', '-ext',  'WixToolset.UI.wixext', '-o', installer, wxsf]
     run(*cmd)
+    pdb = installer.rpartition('.')[0] + '.wixpdb'
+    os.remove(pdb)
 
 
 def get_components_from_files(env):

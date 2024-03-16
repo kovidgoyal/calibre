@@ -20,7 +20,7 @@ class DBRestore(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.l1 = QLabel('<b>'+_('Restoring database from backups, do not'
-            ' interrupt, this will happen in three stages')+'...')
+            ' interrupt, this will happen in multiple stages')+'...')
         self.setWindowTitle(_('Restoring database'))
         self.l.addWidget(self.l1)
         self.pb = QProgressBar(self)

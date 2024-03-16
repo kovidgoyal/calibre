@@ -10,9 +10,9 @@ from collections import defaultdict
 from contextlib import closing
 from functools import partial
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox,
-    QFormLayout, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QScrollArea, QSize, Qt, QToolButton, QVBoxLayout, QWidget
+    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QFormLayout,
+    QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QScrollArea, QSize, Qt, QToolButton, QVBoxLayout, QWidget,
 )
 from threading import Thread
 
@@ -20,14 +20,16 @@ from calibre import as_unicode
 from calibre.constants import ismacos
 from calibre.db.copy_to_library import copy_one_book
 from calibre.gui2 import (
-    Dispatcher, choose_dir, error_dialog, gprefs, info_dialog, warning_dialog
+    Dispatcher, choose_dir, error_dialog, gprefs, info_dialog, warning_dialog,
 )
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.actions.choose_library import library_qicon
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets2 import Dialog
+from calibre.startup import connect_lambda
 from calibre.utils.config import prefs
 from calibre.utils.icu import numeric_sort_key, sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -458,7 +460,9 @@ class CopyToLibraryAction(InterfaceAction):
         aname = _('Moving to') if delete_after else _('Copying to')
         dtitle = '%s %s'%(aname, os.path.basename(loc))
         self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
-                parent=self.gui, cancelable=True, icon='lt.png')
+                parent=self.gui, cancelable=True, icon='lt.png', cancel_confirm_msg=_(
+                    'Aborting this operation means that only some books will be copied'
+                    ' and resuming a partial copy is not supported. Are you sure you want to abort?'))
 
         def progress(idx, title):
             self.pd.set_msg(title)

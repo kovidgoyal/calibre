@@ -1,0 +1,171 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from gettext import gettext as _
+from read_book.gestures import (
+    allowed_actions_for_flow_mode_drag, allowed_actions_for_flow_mode_flick,
+    allowed_actions_for_paged_mode_swipe, allowed_actions_for_tap,
+    allowed_actions_for_two_fingers, current_action_for_gesture_type,
+    get_action_descriptions
+)
+from read_book.prefs.utils import create_button_box
+from read_book.touch import GESTURE, GESTURE_NAMES
+
+CONTAINER = unique_id('touch-settings')
+
+def restore_defaults():
+    apply_settings_to_ui({})
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def apply_settings_to_ui(overrides):
+    overrides = overrides or {}
+    for group in get_container().querySelectorAll('[data-group]'):
+        group_name = group.dataset.group
+        in_flow_mode = group_name.indexOf('flow') >= 0
+        for select in group.querySelectorAll('select'):
+            allowed_actions = v'[]'
+            for option in select.querySelectorAll('option'):
+                allowed_actions.push(option.value)
+            gesture_type = select.name
+            current_action = current_action_for_gesture_type(overrides, gesture_type, in_flow_mode)
+            if allowed_actions.indexOf(current_action) < 0:
+                current_action = current_action_for_gesture_type({}, gesture_type, in_flow_mode)
+            if not current_action or allowed_actions.indexOf(current_action) < 0:
+                current_action = 'none'
+            select.value = current_action
+            select.dispatchEvent(new Event('change', {'view': window,'bubbles': True}))
+
+def get_overrides_from_ui():
+    ans = {}
+    for group in get_container().querySelectorAll('[data-group]'):
+        group_name = group.dataset.group
+        in_flow_mode = group_name.indexOf('flow') >= 0
+        if group_name is 'paged_swipe':
+            attr = 'paged_mode'
+        elif group_name is 'flow_swipe':
+            attr = 'flow_mode'
+        else:
+            attr = 'common'
+        if not ans[attr]:
+            ans[attr] = {}
+        for select in group.querySelectorAll('select'):
+            val = select.value
+            defval = current_action_for_gesture_type({}, select.name, in_flow_mode)
+            if val is not defval:
+                ans[attr][select.name] = val
+    for which in Object.keys(ans):
+        if Object.keys(ans[which]).length is 0:
+            v'delete ans[which]'
+    return ans
+
+
+def create_touch_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+    overrides = sd.get('gesture_overrides')
+    action_descriptions = get_action_descriptions()
+    in_flow_mode = False
+
+    def on_select_change(ev):
+        select = ev.target
+        ad = action_descriptions[select.value]
+        span = select.parentNode.querySelector('span')
+        span.textContent = ad.long
+
+    def make_setting(gesture_type, allowed_actions):
+        ans = E.div(style='margin-top: 1ex')
+        title = GESTURE_NAMES()[gesture_type]
+        sid = unique_id(gesture_type)
+        ans.appendChild(E.h4(E.label(title, 'for'=sid)))
+        select = E.select(name=gesture_type, id=sid)
+        for action in allowed_actions:
+            ad = action_descriptions[action]
+            select.appendChild(E.option(ad.short, value=action))
+        select.addEventListener('change', on_select_change)
+        ans.appendChild(E.div(select, '\xa0', E.span(style='font-size: smaller; font-style: italic')))
+        on_select_change({'target': select})
+        return ans
+
+    container.appendChild(E.h2(_('Tapping')))
+    container.appendChild(E.div(_(
+        'There are three tap zones, depending on where on the screen you tap. When the tap is'
+        ' on a link, the link is followed, otherwise a configurable action based on the zone is performed.')))
+    c = E.div('data-group'='tap')
+    container.appendChild(c)
+    aat = allowed_actions_for_tap()
+    c.appendChild(make_setting(GESTURE.control_zone_tap, aat))
+    c.appendChild(make_setting(GESTURE.forward_zone_tap, aat))
+    c.appendChild(make_setting(GESTURE.back_zone_tap, aat))
+    c.appendChild(make_setting(GESTURE.long_tap, aat))
+    container.appendChild(E.hr())
+
+    container.appendChild(E.h2(_('Two finger gestures')))
+    c = E.div('data-group'='two_finger')
+    container.appendChild(c)
+    aat = allowed_actions_for_two_fingers()
+    c.appendChild(make_setting(GESTURE.two_finger_tap, aat))
+    c.appendChild(make_setting(GESTURE.pinch_in, aat))
+    c.appendChild(make_setting(GESTURE.pinch_out, aat))
+    container.appendChild(E.hr())
+
+
+    container.appendChild(E.h2(_('Swiping')))
+    container.appendChild(E.div(_(
+        'Swiping works differently in paged and flow mode, with different actions. For an English like language, swiping in'
+        ' the writing direction means swiping horizontally. For languages written vertically, it means swiping vertically.'
+        ' For languages written left-to-right "going forward" means swiping right-to-left, like turning a page with your finger.'
+    )))
+    container.appendChild(E.h3(_('Swiping in paged mode'), style='padding-top: 1ex'))
+    c = E.div('data-group'='paged_swipe')
+    container.appendChild(c)
+    aap = allowed_actions_for_paged_mode_swipe()
+    c.appendChild(make_setting(GESTURE.flick_block_forward, aap))
+    c.appendChild(make_setting(GESTURE.flick_block_backward, aap))
+    c.appendChild(make_setting(GESTURE.flick_inline_forward, aap))
+    c.appendChild(make_setting(GESTURE.flick_inline_backward, aap))
+    c.appendChild(make_setting(GESTURE.swipe_inline_forward_hold, aap))
+    c.appendChild(make_setting(GESTURE.swipe_inline_backward_hold, aap))
+    c.appendChild(make_setting(GESTURE.swipe_block_forward_hold, aap))
+    c.appendChild(make_setting(GESTURE.swipe_block_backward_hold, aap))
+    container.appendChild(E.hr())
+    container.appendChild(E.h3(_('Swiping in flow mode'), style='padding-top: 1ex'))
+    c = E.div('data-group'='flow_swipe')
+    container.appendChild(c)
+    in_flow_mode = True
+    in_flow_mode
+    aaf = allowed_actions_for_flow_mode_flick()
+    c.appendChild(make_setting(GESTURE.flick_block_forward, aaf))
+    c.appendChild(make_setting(GESTURE.flick_block_backward, aaf))
+    c.appendChild(make_setting(GESTURE.flick_inline_forward, aaf))
+    c.appendChild(make_setting(GESTURE.flick_inline_backward, aaf))
+    aaf = allowed_actions_for_flow_mode_drag()
+    c.appendChild(make_setting(GESTURE.swipe_inline_backward_in_progress, aaf))
+    c.appendChild(make_setting(GESTURE.swipe_inline_forward_in_progress, aaf))
+    c.appendChild(make_setting(GESTURE.swipe_block_backward_in_progress, aaf))
+    c.appendChild(make_setting(GESTURE.swipe_block_forward_in_progress, aaf))
+
+    container.appendChild(E.hr())
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+    apply_settings_to_ui(overrides)
+
+
+develop = create_touch_panel
+
+
+def commit_touch(onchange):
+    sd = get_session_data()
+    current_overrides = sd.get('gesture_overrides')
+    overrides = get_overrides_from_ui()
+    changed = overrides != current_overrides
+    if changed:
+        sd.set('gesture_overrides', overrides)
+        onchange()

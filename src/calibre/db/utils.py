@@ -4,16 +4,23 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, sys, re
-from locale import localeconv
+import errno
+import os
+import re
+import shutil
+import sys
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from contextlib import suppress
+from locale import localeconv
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
-
+from calibre.constants import (
+    cache_dir, get_windows_number_formats, iswindows, preferred_encoding,
+)
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def force_to_bool(val):
@@ -111,7 +118,10 @@ class ThumbnailCache:
                  thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
                  location=None,   # The location for this cache, if None cache_dir() is used
                  test_mode=False,  # Used for testing
-                 min_disk_cache=0):  # If the size is set less than or equal to this value, the cache is disabled.
+                 min_disk_cache=0, # If the size is set less than or equal to this value, the cache is disabled.
+                 version=0 # Increase this if the cache content format might have changed.
+                 ):
+        self.version = version
         self.location = os.path.join(location or cache_dir(), name)
         if max_size <= min_disk_cache:
             max_size = 0
@@ -139,9 +149,27 @@ class ThumbnailCache:
             self.log('Failed to delete cached thumbnail file:', as_unicode(err))
 
     def _load_index(self):
-        'Load the index, automatically removing incorrectly sized thumbnails and pruning to fit max_size'
+        '''
+        Load the index, automatically removing incorrectly sized thumbnails and
+        pruning to fit max_size
+        '''
+
+        # Remove the cache if it isn't the current version
+        version_path = os.path.join(self.location, 'version')
+        current_version = 0
+        with suppress(Exception), open(version_path) as f:
+            current_version = int(f.read())
+        if current_version != self.version:
+            # The version number changed. Delete the cover cache. Can't delete
+            # it if it isn't there (first time). Note that this will not work
+            # well if the same cover cache name is used with different versions.
+            if os.path.exists(self.location):
+                shutil.rmtree(self.location)
+
         try:
             os.makedirs(self.location)
+            with open(version_path, 'w') as f:
+                f.write(str(self.version))
         except OSError as err:
             if err.errno != errno.EEXIST:
                 self.log('Failed to make thumbnail cache dir:', as_unicode(err))
@@ -227,7 +255,7 @@ class ThumbnailCache:
         if hasattr(self, 'items'):
             try:
                 data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in self.items)
-                with lopen(os.path.join(self.location, 'order'), 'wb') as f:
+                with open(os.path.join(self.location, 'order'), 'wb') as f:
                     f.write(data.encode('utf-8'))
             except OSError as err:
                 self.log('Failed to save thumbnail cache order:', as_unicode(err))
@@ -235,7 +263,7 @@ class ThumbnailCache:
     def _read_order(self):
         order = {}
         try:
-            with lopen(os.path.join(self.location, 'order'), 'rb') as f:
+            with open(os.path.join(self.location, 'order'), 'rb') as f:
                 for line in f.read().decode('utf-8').splitlines():
                     parts = line.split(' ', 1)
                     if len(parts) == 2:
@@ -408,7 +436,8 @@ def atof(string):
 
 def type_safe_sort_key_function(keyfunc=None):
     if keyfunc is None:
-        keyfunc = lambda x: x
+        def keyfunc(x):
+            return x
     sentinel = object()
     first_value = sentinel
 

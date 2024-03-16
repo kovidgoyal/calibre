@@ -142,7 +142,8 @@ class Declaration(QWidget):
 
     def do_layout(self):
         fm = self.fontMetrics()
-        bounding_rect = lambda text: fm.boundingRect(0, 0, 10000, 10000, Cell.FLAGS, text)
+        def bounding_rect(text):
+            return fm.boundingRect(0, 0, 10000, 10000, Cell.FLAGS, text)
         line_spacing = 2
         side_margin = Cell.SIDE_MARGIN
         self.rows = []
@@ -192,6 +193,12 @@ class Declaration(QWidget):
         p.setPen(palette.color(QPalette.ColorRole.WindowText))
         if not self.is_first:
             p.drawLine(0, 0, self.width(), 0)
+        parent = self
+        while parent is not None:
+            parent = parent.parent()
+            if isinstance(parent, LiveCSS):
+                palette = parent.palette()
+                break
         try:
             for row in self.rows:
                 for cell in row:

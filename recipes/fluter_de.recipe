@@ -1,4 +1,9 @@
-__license__ = 'GPL v3'
+##
+## Written:      2013-02-05
+## Version:      v4.1
+## Last update:  2013-02-05 V3, 2020-07-05 v4, 2023-06-16 v4.1
+##
+__license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -7,24 +12,31 @@ Fetch fluter.de
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 class AdvancedUserRecipe1313693926(BasicNewsRecipe):
 
-    title = u'Fluter'
+    title = u' fluter. '
     description = 'fluter.de Magazin der Bundeszentrale für politische Bildung/bpb'
     language = 'de'
     encoding = 'UTF-8'
 
-    __author__ = 'Armin Geller'  # 2013-02-05 V3
+    __author__ = 'Armin Geller' # 2013-02-05 V3
 
-    oldest_article = 7
+    oldest_article = 14
     max_articles_per_feed = 50
+    auto_cleanup = False
 
-    feeds = [
-        (u'Inhalt:', u'http://www.fluter.de/de/?tpl=907'),
-    ]
+    feeds =  [
+              (u'Inhalt:', u'https://www.fluter.de/rss.xml')
+             ]
 
-    extra_css = '.cs_img {margin-right: 10pt;}'
+    keep_only_tags = [
+                        dict(name='article', attrs={'class':'node node-article block fullWidth stage'})
+                     ]
 
-    def print_version(self, url):
-        return url + '?tpl=1260'
+    remove_tags = [
+                    dict(name='h2', attrs={'class':'element-invisible'})
+                  ]
+
+    extra_css =  '''
+                 .field-group-format, .group_additional_info, .additional-info {display: inline-block; min-width: 8rem; text-align: center}
+                 '''

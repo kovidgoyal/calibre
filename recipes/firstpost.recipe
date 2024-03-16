@@ -1,0 +1,83 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+
+# Firstpost feeds mix sections into other feeds, like explainers end up in opinion feed and opinions end up in India feed.
+# change google_feeds to True to fetch right sections.
+google_feeds = False
+
+class firstpost(BasicNewsRecipe):
+    title = 'Firstpost'
+    __author__ = 'unkn0wn'
+    description = (
+        'Firstpost.com will serve as a trusted guide to the crush of news and ideas around you.'
+        ' With thoughtful analysis and fearless views our team of editors and writers will track'
+        ' news in India and the world and provide a perspective that is reflective of a changing dynamic.'
+    )
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en_IN'
+    remove_attributes = ['height', 'width', 'style']
+    masthead_url = 'https://images.firstpost.com/wp-content/uploads/2016/03/FP-Logo.png?impolicy=website&width=600&height=60'
+    max_articles_per_feed = 25
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    extra_css = '''
+        .category-name, .author-info { font-size:small; color:#202020; }
+        .wp-caption-text { font-size:small; text-align:center; }
+    '''
+
+    keep_only_tags = [
+        classes('article-sect')
+    ]
+
+    remove_tags = [
+        classes('art-rel-articles tags-wrap'),
+        dict(name='svg'),
+    ]
+
+    feeds = []
+
+    sections = [
+        'india', 'politics', 'opinion', 'explainers', 'business',
+        'world', 'web-stories', 'tech', 'artandculture', 'health', 'health-supplement',
+        # 'photos', 'entertainment', 'living', 'education', 'sports', 'firstcricket',
+    ]
+    if not google_feeds:
+        oldest_article = 1.2 # days
+        for sec in sections:
+            a = 'https://www.firstpost.com/rss/{}.xml'
+            feeds.append((sec.capitalize(), a.format(sec)))
+    else:
+        articles_are_obfuscated = True
+
+        def get_obfuscated_article(self, url):
+            br = self.get_browser()
+            soup = self.index_to_soup(url)
+            link = soup.find('a', href=True)
+            skip_sections =[ # add sections you want to skip
+                '/video/', '/videos/', '/media/', '/vantage/'
+            ]
+            if any(x in link['href'] for x in skip_sections):
+                self.log('Aborting Article ', link['href'])
+                self.abort_article('skipping video links')
+            self.log('Downloading ', link['href'])
+            html = br.open(link['href']).read()
+            pt = PersistentTemporaryFile('.html')
+            pt.write(html)
+            pt.close()
+            return pt.name
+
+        for sec in sections:
+            a = 'https://news.google.com/rss/search?q=when:27h+allinurl:firstpost.com{}&hl=en-IN&gl=IN&ceid=IN:en'
+            feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+        # feeds.append(('Others', a.format('')))
+
+    def preprocess_html(self, soup):
+        if h2 := soup.find('h2', attrs={'class':'category-name'}):
+            h2.name = 'p'
+        if h := soup.find('h2', attrs={'class':'inner-copy'}):
+            h.name = 'p'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup

@@ -10,28 +10,29 @@ Job management.
 '''
 
 import time
+from qt.core import (
+    QAbstractItemDelegate, QAbstractTableModel, QAction, QApplication, QByteArray,
+    QCoreApplication, QDialog, QDialogButtonBox, QEvent, QHBoxLayout, QIcon,
+    QItemSelectionModel, QLabel, QModelIndex, QPlainTextEdit, QSize, QSizePolicy,
+    QSortFilterProxyModel, QStyle, QStyleOption, QStyleOptionProgressBar, QStylePainter,
+    Qt, QTextBrowser, QTimer, QToolTip, QVBoxLayout, QWidget, pyqtSignal,
+)
 
-from qt.core import (QAbstractTableModel, QModelIndex, Qt, QStylePainter,
-    QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication, QEvent,
-    QSize, QStyleOptionProgressBar, QStyle, QToolTip, QWidget, QStyleOption,
-    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction, QItemSelectionModel,
-    QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit, QDialogButtonBox)
-
-from calibre import strftime
-from calibre.constants import islinux, isbsd
-from calibre.utils.ipc.server import Server
-from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import (Dispatcher, error_dialog, question_dialog,
-        config, gprefs)
+from calibre import __appname__, as_unicode, strftime
+from calibre.constants import isbsd, islinux
+from calibre.db.utils import human_readable_interval
+from calibre.gui2 import Dispatcher, config, error_dialog, gprefs, question_dialog
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
-from calibre import __appname__, as_unicode
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
+from calibre.gui2.threaded_jobs import ThreadedJob, ThreadedJobServer
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.search_query_parser import SearchQueryParser, ParseException
-from calibre.db.utils import human_readable_interval
+from calibre.startup import connect_lambda
 from calibre.utils.icu import lower
+from calibre.utils.ipc.job import ParallelJob
+from calibre.utils.ipc.server import Server
+from calibre.utils.localization import ngettext
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from polyglot.queue import Empty, Queue
 
 

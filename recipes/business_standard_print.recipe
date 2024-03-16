@@ -1,0 +1,124 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from html5_parser import parse
+from datetime import datetime
+import json
+
+today = datetime.today().strftime('%d-%m-%Y')
+
+# today = '20-09-2023'
+
+day, month, year = (int(x) for x in today.split('-'))
+dt = datetime(year, month, day)
+
+class BusinessStandardPrint(BasicNewsRecipe):
+    title = 'Business Standard Print Edition'
+    __author__ = 'unkn0wn'
+    description = "India's most respected business daily, Articles from Today's Paper"
+    language = 'en_IN'
+    masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
+    encoding = 'utf-8'
+    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+    resolve_internal_links = True
+    remove_empty_feeds = True
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['width', 'height', 'float', 'style']
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'Business Standard ' + dt.strftime('%b %d, %Y')
+
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    resolve_internal_links = True
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .auth, .cat { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+    '''
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
+        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+            return citem['content']
+
+    def parse_index(self):
+        if dt.weekday() == 6:
+            self.log.warn(
+                'Business Standard Does Not Have A Print Publication On Sunday. The Reports'
+                ' And Columns On This Page Today Appeared In The Newspaper\'s Saturday Edition.'
+            )
+        url = 'https://apibs.business-standard.com/category/today-paper?sortBy=' + today
+        raw = self.index_to_soup(url, raw=True)
+        data = json.loads(raw)
+        data = data['data']
+
+        feeds = []
+
+        for section in data:
+            if section == 'EpaperImage':
+                continue
+            self.log(section)
+            articles = []
+            for article in data[section]:
+                title = article['heading1']
+                desc = article['sub_heading']
+                url = 'https://www.business-standard.com' + article['article_url']
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'description':desc, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
+
+    def preprocess_raw_html(self, raw, *a):
+        root = parse(raw)
+        m = root.xpath('//script[@id="__NEXT_DATA__"]')
+
+        data = json.loads(m[0].text)
+
+        img_url = None
+        if 'articleImageUrl' in data['props']['pageProps']['articleSchema']:
+            img_url = data['props']['pageProps']['articleSchema']['articleImageUrl']
+
+        art_url = 'https://www.business-standard.com' + data['props']['pageProps']['url']
+
+        data = data['props']['pageProps']['data']
+
+        title = '<h1 title="{}">'.format(art_url) + data['pageTitle'] + '</h1>'
+
+        cat = subhead = lede = auth = caption = ''
+
+        if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
+            if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
+                cat = '<div><p class="cat">' + data['defaultArticleCat']['h1_tag'] + '</p></div>'
+
+        if 'metaDescription' in data and data['metaDescription'] is not None:
+            subhead = '<h3>' + data['metaDescription'] + '</h3>'
+            self.art_desc = data['metaDescription']
+
+        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
+
+        authors = []
+        if 'articleMappedMultipleAuthors' in data:	
+            for aut in data['articleMappedMultipleAuthors']:
+                authors.append(data['articleMappedMultipleAuthors'][str(aut)]) 
+        auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
+
+        if 'featuredImageObj' in data:
+            if 'url' in data['featuredImageObj']:
+                if img_url is not None:
+                    lede = '<p class="cap"><img src="{}">'.format(img_url)
+                else:
+                    lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
+            if 'alt_text' in data['featuredImageObj']:
+                caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
+
+        body = data['htmlContent']
+
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><p></p>' + body + '</div></body></html>'

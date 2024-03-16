@@ -1,40 +1,44 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import shutil
 import sys
 from itertools import count
 from qt.core import (
-    QT_VERSION, QApplication, QByteArray, QEvent, QFontDatabase, QFontInfo,
-    QHBoxLayout, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl, QWidget,
-    pyqtSignal, sip
+    QT_VERSION, QApplication, QByteArray, QEvent, QFontDatabase, QFontInfo, QHBoxLayout,
+    QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, sip,
 )
 from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
-    QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler, QWebEngineView
+    QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler, QWebEngineView,
 )
 
 from calibre import as_unicode, prints
 from calibre.constants import (
     FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop,
-    ismacos, iswindows
+    ismacos, iswindows,
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
-from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor
-from calibre.gui2.viewer.config import viewer_config_dir, vprefs
+from calibre.gui2.viewer import (
+    link_prefix_for_location_links, performance_monitor, url_for_book_in_library,
+)
+from calibre.gui2.viewer.config import (
+    load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs,
+)
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.localization import _, localize_user_manual_link
+from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import (
     Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply,
-    to_js, setup_profile
+    setup_profile, to_js,
 )
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.functools import lru_cache
@@ -78,18 +82,37 @@ def get_data(name):
     return None, None
 
 
-def background_image():
-    ans = getattr(background_image, 'ans', None)
-    if ans is None:
+@lru_cache(maxsize=4)
+def background_image(encoded_fname=''):
+    if not encoded_fname:
         img_path = os.path.join(viewer_config_dir, 'bg-image.data')
-        if os.path.exists(img_path):
+        try:
             with open(img_path, 'rb') as f:
                 data = f.read()
-                mt, data = data.split(b'|', 1)
-        else:
-            ans = b'image/jpeg', b''
-        ans = background_image.ans = mt.decode('utf-8'), data
-    return ans
+            mt, data = data.split(b'|', 1)
+            mt = mt.decode()
+            return mt, data
+        except FileNotFoundError:
+            return 'image/jpeg', b''
+    fname = bytes.fromhex(encoded_fname).decode()
+    img_path = os.path.join(viewer_config_dir, 'background-images', fname)
+    mt = guess_type(fname)[0] or 'image/jpeg'
+    try:
+        with open(make_long_path_useable(img_path), 'rb') as f:
+            return mt, f.read()
+    except FileNotFoundError:
+        if fname.startswith('https://') or fname.startswith('http://'):
+            from calibre import browser
+            br = browser()
+            try:
+                with br.open(fname) as src:
+                    data = src.read()
+            except Exception:
+                return mt, b''
+            with open(make_long_path_useable(img_path), 'wb') as dest:
+                dest.write(data)
+            return mt, data
+        return mt, b''
 
 
 @lru_cache(maxsize=2)
@@ -103,7 +126,7 @@ def handle_mathjax_request(rq, name):
     if path.startswith(mathjax_dir):
         mt = guess_type(name)
         try:
-            with lopen(path, 'rb') as f:
+            with open(path, 'rb') as f:
                 raw = f.read()
         except OSError as err:
             prints(f"Failed to get mathjax file: {name} with error: {err}", file=sys.stderr)
@@ -150,6 +173,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
+                if mime_type == 'text/css':
+                    mime_type += '; charset=utf-8'
                 send_reply(rq, mime_type, data)
             except Exception:
                 import traceback
@@ -160,10 +185,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             send_reply(rq, set_book_path.manifest_mime, data)
         elif name == 'reader-background':
             mt, data = background_image()
-            if data:
-                send_reply(rq, mt, data)
-            else:
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+        elif name.startswith('reader-background-'):
+            encoded_fname = name[len('reader-background-'):]
+            mt, data = background_image(encoded_fname)
+            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
             handle_mathjax_request(rq, name)
         elif not name:
@@ -258,6 +284,7 @@ class ViewerBridge(Bridge):
     show_book_folder = from_js()
     show_help = from_js(object)
     update_reading_rates = from_js(object)
+    profile_op = from_js(object, object, object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -277,6 +304,7 @@ class ViewerBridge(Bridge):
     repair_after_fullscreen_switch = to_js()
     viewer_font_size_changed = to_js()
     tts_event = to_js()
+    profile_response = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -294,7 +322,7 @@ def apply_font_settings(page_or_view):
     if fs.get('mono_family'):
         s.setFontFamily(QWebEngineSettings.FontFamily.FixedFont, fs.get('mono_family'))
     else:
-        s.resetFontFamily(QWebEngineSettings.FontFamily.SansSerifFont)
+        s.resetFontFamily(QWebEngineSettings.FontFamily.FixedFont)
     sf = fs.get('standard_font') or 'serif'
     sf = getattr(QWebEngineSettings.FontFamily, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
     s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(sf))
@@ -357,7 +385,7 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             safe_open_url(url)
         prints('Blocking navigation request to:', url.toString())
         return False
@@ -464,6 +492,7 @@ class WebView(RestartingWebEngineView):
     standalone_misc_settings_changed = pyqtSignal(object)
     view_created = pyqtSignal(object)
     content_file_changed = pyqtSignal(str)
+    change_toolbar_actions = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self._host_widget = None
@@ -522,6 +551,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.update_reading_rates.connect(self.update_reading_rates)
+        self.bridge.profile_op.connect(self.profile_op)
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
         self.bridge.show_help.connect(self.show_help)
@@ -540,6 +570,23 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    def profile_op(self, which, profile_name, settings):
+        if which == 'all-profiles':
+            vp = load_viewer_profiles('viewer:')
+            self.execute_when_ready('profile_response', 'all-profiles', vp)
+        elif which == 'save-profile':
+            save_viewer_profile(profile_name, settings, 'viewer:')
+            self.execute_when_ready('profile_response', 'save-profile', profile_name)
+        elif which == 'apply-profile':
+            self.execute_when_ready('profile_response', 'apply-profile', settings)
+        elif which == 'request-save':
+            self.execute_when_ready('profile_response', 'request-save', profile_name)
+        elif which == 'apply-profile-to-viewer-ui':
+            toolbar_actions = None
+            s = settings.get('__standalone_extra_settings__', {})
+            toolbar_actions = s.get('toolbar-actions', None)
+            self.change_toolbar_actions.emit(toolbar_actions)
 
     def link_hovered(self, url):
         if url == 'javascript:void(0)':
@@ -630,7 +677,10 @@ class WebView(RestartingWebEngineView):
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
         key = (set_book_path.path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
-        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url, reading_rates)
+        book_in_library_url = url_for_book_in_library()
+        self.execute_when_ready(
+            'start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url,
+            reading_rates, book_in_library_url)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:
@@ -648,21 +698,41 @@ class WebView(RestartingWebEngineView):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
 
     def set_session_data(self, key, val):
-        if key == '*' and val is None:
+        fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = False
+        sd = vprefs['session_data']
+
+        def change(key, val):
+            nonlocal fonts_changed, paged_mode_changed, standalone_misc_settings_changed, update_vprefs
+            changed = sd.get(key) != val
+            if changed:
+                update_vprefs = True
+                if val is None:
+                    sd.pop(key, None)
+                else:
+                    sd[key] = val
+                if key in ('standalone_font_settings', 'base_font_size'):
+                    fonts_changed = True
+                elif key == 'read_mode':
+                    paged_mode_changed = True
+                elif key == 'standalone_misc_settings':
+                    standalone_misc_settings_changed = True
+
+        if isinstance(key, dict):
+            for k, val in key.items():
+                change(k, val)
+        elif key == '*' and val is None:
             vprefs['session_data'] = {}
-            apply_font_settings(self)
-            self.paged_mode_changed.emit()
-            self.standalone_misc_settings_changed.emit()
+            fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = True
         elif key != '*':
-            sd = vprefs['session_data']
-            sd[key] = val
+            change(key, val)
+        if update_vprefs:
             vprefs['session_data'] = sd
-            if key in ('standalone_font_settings', 'base_font_size'):
-                apply_font_settings(self)
-            elif key == 'read_mode':
-                self.paged_mode_changed.emit()
-            elif key == 'standalone_misc_settings':
-                self.standalone_misc_settings_changed.emit(val)
+        if fonts_changed:
+            apply_font_settings(self)
+        if paged_mode_changed:
+            self.paged_mode_changed.emit()
+        if standalone_misc_settings_changed:
+            self.standalone_misc_settings_changed.emit(val)
 
     def set_local_storage(self, key, val):
         if key == '*' and val is None:
@@ -689,14 +759,16 @@ class WebView(RestartingWebEngineView):
         self.execute_when_ready('show_home_page')
 
     def change_background_image(self, img_id):
-        files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg'])
+        files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg', 'webp'])
         if files:
             img = files[0]
-            with open(img, 'rb') as src, open(os.path.join(viewer_config_dir, 'bg-image.data'), 'wb') as dest:
-                dest.write(as_bytes(guess_type(img)[0] or 'image/jpeg') + b'|')
-                shutil.copyfileobj(src, dest)
+            d = os.path.join(viewer_config_dir, 'background-images')
+            os.makedirs(d, exist_ok=True)
+            fname = os.path.basename(img)
+            shutil.copyfile(img, os.path.join(d, fname))
             background_image.ans = None
-            self.execute_when_ready('background_image_changed', img_id)
+            encoded = fname.encode().hex()
+            self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
     def goto_frac(self, frac):
         self.execute_when_ready('goto_frac', frac)
@@ -708,7 +780,8 @@ class WebView(RestartingWebEngineView):
         self._page.profile().clearHttpCache()
 
     def trigger_shortcut(self, which):
-        self.execute_when_ready('trigger_shortcut', which)
+        if which:
+            self.execute_when_ready('trigger_shortcut', which)
 
     def show_search_result(self, sr):
         self.execute_when_ready('show_search_result', sr)
@@ -743,5 +816,5 @@ class WebView(RestartingWebEngineView):
     def repair_after_fullscreen_switch(self):
         self.execute_when_ready('repair_after_fullscreen_switch')
 
-    def remove_recently_opened(self, path):
+    def remove_recently_opened(self, path=''):
         self.generic_action('remove-recently-opened', {'path': path})

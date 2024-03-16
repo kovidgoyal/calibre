@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 10  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
@@ -57,7 +57,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'https://www.legimi.pl/ebooki/?sort=score&searchphrase=' + quote_plus(query)
+        url = 'https://www.legimi.pl/ebooki/?sort=score&filters=ebooks&searchphrase=' + quote_plus(query)
 
         br = browser()
 
@@ -91,6 +91,6 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(search_result.detail_item, timeout=timeout/2)) as nf:
             idata = html.fromstring(nf.read())
 
-            price = ''.join(idata.xpath('.//section[@class="book-sale-options"]//p[@class="light-text"]/text()'))
+            price = ''.join(idata.xpath('.//section[@class="book-sale-options"]//li[@data-test="ebook-retail-option"]//p[@class="light-text"]/text()'))
             search_result.price = price.split('bez abonamentu ')[-1]
         return True

@@ -2,23 +2,22 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import apsw
 import os
 import re
 import sys
 import time
 import traceback
-
-import apsw
 from qt.core import QCoreApplication, QIcon, QObject, QTimer
 
 from calibre import force_unicode, prints
 from calibre.constants import (
-    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
-    islinux, ismacos, iswindows
+    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base, islinux,
+    ismacos, iswindows,
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, setup_gui_option_parser
+    question_dialog, setup_gui_option_parser, timed_print,
 )
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import option_parser as _option_parser
@@ -26,6 +25,7 @@ from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
+from calibre.utils.resources import get_image_path as I
 from polyglot.builtins import as_bytes, environ_item
 
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
@@ -197,6 +197,7 @@ def repair_library(library_path):
 
 def windows_repair(library_path=None):
     import subprocess
+
     from calibre.utils.serialize import json_dumps, json_loads
     from polyglot.binary import as_hex_unicode, from_hex_bytes
     if library_path:
@@ -234,7 +235,7 @@ class GuiRunner(QObject):
 
     def __init__(self, opts, args, actions, app, gui_debug=None):
         self.startup_time = monotonic()
-        self.timed_print('Starting up...')
+        timed_print('Starting up...')
         self.opts, self.args, self.app = opts, args, app
         self.gui_debug = gui_debug
         self.actions = actions
@@ -243,27 +244,23 @@ class GuiRunner(QObject):
         self.splash_screen = None
         self.timer = QTimer.singleShot(1, self.initialize)
 
-    def timed_print(self, *a, **kw):
-        if DEBUG:
-            prints(f'[{monotonic() - self.startup_time:.2f}]', *a, **kw)
-
     def start_gui(self, db):
         from calibre.gui2.ui import Main
-        self.timed_print('Constructing main UI...')
-        main = self.main = Main(self.opts, gui_debug=self.gui_debug)
+        timed_print('Constructing main UI...')
         if self.splash_screen is not None:
             self.splash_screen.show_message(_('Initializing user interface...'))
+        main = self.main = Main(self.opts, gui_debug=self.gui_debug)
         try:
             with gprefs:  # Only write gui.json after initialization is complete
                 main.initialize(self.library_path, db, self.actions)
         finally:
-            self.timed_print('main UI initialized...')
+            timed_print('main UI initialized...')
             if self.splash_screen is not None:
-                self.timed_print('Hiding splash screen')
+                timed_print('Hiding splash screen')
                 self.splash_screen.finish(main)
-                self.timed_print('splash screen hidden')
+                timed_print('splash screen hidden')
             self.splash_screen = None
-        self.timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
+        timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
         main.set_exception_handler()
         if len(self.args) > 1:
             main.handle_cli_args(self.args[1:])
@@ -310,7 +307,7 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc())
                 self.initialization_failed()
 
-        self.timed_print('db initialized')
+        timed_print('db initialized')
         try:
             self.start_gui(db)
         except Exception:
@@ -325,7 +322,7 @@ class GuiRunner(QObject):
     def initialize_db(self):
         from calibre.db.legacy import LibraryDatabase
         db = None
-        self.timed_print('Initializing db...')
+        timed_print('Initializing db...')
         try:
             db = LibraryDatabase(self.library_path)
         except apsw.Error:
@@ -358,11 +355,11 @@ class GuiRunner(QObject):
         self.initialize_db_stage2(db, None)
 
     def show_splash_screen(self):
-        self.timed_print('Showing splash screen...')
+        timed_print('Showing splash screen...')
         self.splash_screen = SplashScreen()
         self.splash_screen.show()
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
-        self.timed_print('splash screen shown')
+        timed_print('splash screen shown')
 
     def hide_splash_screen(self):
         if self.splash_screen is not None:
@@ -380,13 +377,15 @@ class GuiRunner(QObject):
 
 
 def run_in_debug_mode():
+    import subprocess
+    import tempfile
+
     from calibre.debug import run_calibre_debug
-    import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
     run_calibre_debug(
-        '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
-        stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
+        '--gui-debug', logpath, stdout=open(logpath, 'wb'),
+        stderr=subprocess.STDOUT, stdin=open(os.devnull, 'rb'))
 
 
 def run_gui(opts, args, app, gui_debug=None):

@@ -2,15 +2,73 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from read_book.globals import get_boss, ui_operations, ltr_page_progression
-from read_book.viewport import scroll_viewport
+from gettext import gettext as _
+from read_book.globals import get_boss, ltr_page_progression, ui_operations
 from read_book.settings import opts
+from read_book.viewport import get_unit_size_in_pixels, scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 8  # pixels
 SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 20  # pixels
+GESTURE = {k:k for k in v"""[
+    'back_zone_tap',
+    'forward_zone_tap',
+    'control_zone_tap',
+    'long_tap',
+    'two_finger_tap',
+    'pinch_in',
+    'pinch_out',
+
+    'flick_inline_backward',
+    'flick_inline_forward',
+    'flick_block_backward',
+    'flick_block_forward',
+
+    'swipe_inline_backward_in_progress',
+    'swipe_inline_forward_in_progress',
+    'swipe_block_backward_in_progress',
+    'swipe_block_forward_in_progress',
+
+    'swipe_inline_backward_hold',
+    'swipe_inline_forward_hold',
+    'swipe_block_backward_hold',
+    'swipe_block_forward_hold',
+
+    'tap',
+    'swipe',
+    'pinch',
+]"""}
+
+def GESTURE_NAMES():
+    ans = GESTURE_NAMES.ans
+    if not ans:
+        GESTURE_NAMES.ans = ans = {
+    'back_zone_tap': _('Tap on back zone'),
+    'forward_zone_tap': _('Tap on forward zone'),
+    'control_zone_tap': _('Tap in the controls zone'),
+    'long_tap': _('Long tap'),
+    'two_finger_tap': _('Two finger tap'),
+    'pinch_in': _('Pinch in'),
+    'pinch_out': _('Pinch out'),
+
+    'flick_inline_backward': _('Flick in writing direction, to go back'),
+    'flick_inline_forward': _('Flick in writing direction, to go forward'),
+    'flick_block_backward': _('Flick perpendicular to writing direction, to go forward'),
+    'flick_block_forward': _('Flick perpendicular to writing direction, to go back'),
+
+    'swipe_inline_backward_in_progress': _('Drag finger in writing direction, to go back'),
+    'swipe_inline_forward_in_progress': _('Drag finger in writing direction, to go forward'),
+    'swipe_block_backward_in_progress': _('Drag finger perpendicular to writing direction, to go back'),
+    'swipe_block_forward_in_progress': _('Drag finger perpendicular to writing direction, to go forward'),
+
+    'swipe_inline_backward_hold': _('Drag and hold finger in writing direction, to go back'),
+    'swipe_inline_forward_hold': _('Drag and hold finger in writing direction, to go forward'),
+    'swipe_block_backward_hold': _('Drag and hold finger perpendicular to writing direction, to go back'),
+    'swipe_block_forward_hold': _('Drag and hold finger perpendicular to writing direction, to go forward'),
+    }
+    return ans
 
 gesture_id = 0
 
@@ -50,7 +108,7 @@ def interpret_single_gesture(touch, gesture_id):
     max_y_displacement = max_displacement(touch.viewport_y)
     ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id, 'start_time': touch.ctime}
     if max(max_x_displacement, max_y_displacement) < TAP_THRESHOLD:
-        ans.type = 'tap'
+        ans.type = GESTURE.tap
         ans.viewport_x = touch.viewport_x[0]
         ans.viewport_y = touch.viewport_y[0]
         return ans
@@ -60,7 +118,7 @@ def interpret_single_gesture(touch, gesture_id):
     delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
     max_disp = max(delta_y, delta_x)
     if max_disp > SWIPE_THRESHOLD and min(delta_x, delta_y)/max_disp < 0.35:
-        ans.type = 'swipe'
+        ans.type = GESTURE.swipe
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
         ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
         ans.times = touch.mtimes
@@ -82,7 +140,7 @@ def interpret_double_gesture(touch1, touch2, gesture_id):
     max_y_displacement1 = max_displacement(touch1.viewport_y)
     max_y_displacement2 = max_displacement(touch2.viewport_y)
     if max(max_x_displacement1, max_y_displacement1) < TAP_THRESHOLD and max(max_x_displacement2, max_y_displacement2) < TAP_THRESHOLD:
-        ans.type = 'double-tap'
+        ans.type = GESTURE.two_finger_tap
         ans.viewport_x1 = touch1.viewport_x[0]
         ans.viewport_y1 = touch1.viewport_y[0]
         ans.viewport_x2 = touch2.viewport_x[0]
@@ -92,7 +150,7 @@ def interpret_double_gesture(touch1, touch2, gesture_id):
     final_distance = Math.sqrt((touch1.viewport_x[-1] - touch2.viewport_x[-1])**2 + (touch1.viewport_y[-1] - touch2.viewport_y[-1])**2)
     distance = abs(final_distance - initial_distance)
     if distance > PINCH_THRESHOLD:
-        ans.type = 'pinch'
+        ans.type = GESTURE.pinch
         ans.direction = 'in' if final_distance < initial_distance else 'out'
         ans.distance = distance
         return ans
@@ -180,7 +238,9 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchstart(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         self.prune_expired_touches()
         for touch in ev.changedTouches:
             self.ongoing_touches[touch_id(touch)] = copy_touch(touch)
@@ -193,7 +253,9 @@ class TouchHandler:
             self.start_hold_timer()
 
     def handle_touchmove(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
@@ -201,7 +263,9 @@ class TouchHandler:
                 self.dispatch_gesture()
 
     def handle_touchend(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
@@ -213,7 +277,9 @@ class TouchHandler:
             self.reset_handlers()
 
     def handle_touchcancel(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
+        if jstype(ev.cancelable) is not 'boolean' or ev.cancelable:
+            ev.preventDefault()
+        ev.stopPropagation()
         for touch in ev.changedTouches:
             tid = touch_id(touch)  # noqa: unused-local
             v'delete self.ongoing_touches[tid]'
@@ -233,6 +299,13 @@ class TouchHandler:
             return
         self.handle_gesture(gesture)
 
+def inch_in_pixels():
+    ans = inch_in_pixels.ans
+    if not ans:
+        ans = inch_in_pixels.ans = max(2, get_unit_size_in_pixels('in'))
+    return ans
+
+
 class BookTouchHandler(TouchHandler):
 
     def __init__(self, for_side_margin=None):
@@ -240,41 +313,51 @@ class BookTouchHandler(TouchHandler):
         TouchHandler.__init__(self)
 
     def handle_gesture(self, gesture):
-        gesture.from_side_margin = self.for_side_margin
-        if gesture.type is 'tap':
+        if gesture.type is GESTURE.tap:
             if gesture.is_held:
                 if not self.for_side_margin and not self.handled_tap_hold and window.performance.now() - gesture.start_time >= HOLD_THRESHOLD:
                     self.handled_tap_hold = True
-                    gesture.type = 'long-tap'
+                    gesture.type = GESTURE.long_tap
                     get_boss().handle_gesture(gesture)
                 return
             if not gesture.active:
                 if self.for_side_margin or not tap_on_link(gesture):
+                    inch = inch_in_pixels()
                     if gesture.viewport_y < min(100, scroll_viewport.height() / 4):
-                        gesture.type = 'show-chrome'
+                        gesture.type = GESTURE.control_zone_tap
                     else:
+                        limit = inch
                         # default, books that go left to right.
                         if ltr_page_progression() and not opts.reverse_page_turn_zones:
-                            if gesture.viewport_x < min(100, scroll_viewport.width() / 4):
-                                gesture.type = 'prev-page'
+                            if gesture.viewport_x < min(limit, scroll_viewport.width() / 4):
+                                gesture.type = GESTURE.back_zone_tap
                             else:
-                                gesture.type = 'next-page'
+                                gesture.type = GESTURE.forward_zone_tap
                         # We swap the sizes in RTL mode, so that going to the next page is always the bigger touch region.
                         else:
-                            # The "going back" area should not be more than 100 units big,
-                            # even if 1/4 of the scroll viewport is more than 100 units.
-                            # Checking against the larger of the width minus the 100 units and 3/4 of the width will accomplish that.
-                            if gesture.viewport_x > max(scroll_viewport.width() - 100, scroll_viewport.width() * (3/4)):
-                                gesture.type = 'prev-page'
+                            # The "going back" area should not be more than limit units big,
+                            # even if 1/4 of the scroll viewport is more than limit units.
+                            # Checking against the larger of the width minus the limit units and 3/4 of the width will accomplish that.
+                            if gesture.viewport_x > max(scroll_viewport.width() - limit, scroll_viewport.width() * (3/4)):
+                                gesture.type = GESTURE.back_zone_tap
                             else:
-                                gesture.type = 'next-page'
-        if gesture.type is 'pinch':
+                                gesture.type = GESTURE.forward_zone_tap
+        elif gesture.type is GESTURE.pinch:
             if gesture.active:
                 return
-        if gesture.type is 'double-tap':
+            gesture.type = GESTURE.pinch_in if gesture.direction is 'in' else GESTURE.pinch_out
+        elif gesture.type is GESTURE.two_finger_tap:
             if gesture.active:
                 return
-            gesture.type = 'show-chrome'
+        elif gesture.type is 'swipe':
+            backward_dir = 'down' if gesture.axis is 'vertical' else ('right' if ltr_page_progression() else 'left')
+            direction = 'backward' if gesture.direction is backward_dir else 'forward'
+            inline_dir = 'vertical' if scroll_viewport.vertical_writing_mode else 'horizontal'
+            axis = 'inline' if gesture.axis is inline_dir else 'block'
+            if gesture.active:
+                gesture.type = GESTURE[f'swipe_{axis}_{direction}' + ('_hold' if gesture.is_held else '_in_progress')]
+            elif not gesture.is_held:
+                gesture.type = GESTURE[f'flick_{axis}_{direction}']
         if self.for_side_margin:
             ui_operations.forward_gesture(gesture)
         else:

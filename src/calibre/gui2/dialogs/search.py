@@ -1,22 +1,23 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, copy
+import copy
+import re
 from datetime import date
-
 from qt.core import (
-    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
-    QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
-    QSpinBox, QRadioButton, QPushButton, QToolButton
+    QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame, QGroupBox, QHBoxLayout,
+    QIcon, QLabel, QLineEdit, QPushButton, QRadioButton, QSize, QSpinBox, Qt,
+    QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
 from calibre import strftime
-from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.icu import sort_key
+from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
 
 box_values = {}
@@ -272,9 +273,10 @@ def create_template_tab(self):
                     "in the calibre documentation. For example, with Number "
                     "comparisons you can use the relational operators like '>=' etc. "
                     "With Text comparisons you can use contains (T), exact (=T), "
-                    "or regular expression matches (~T). With Date you can use "
-                    "today, yesterday, etc. Set/not set takes 'true' for set "
-                    "and 'false' for not set.") + '</p>')
+                    "or regular expression matches (~T), where T is your text. "
+                    "With Date you can use 'today', 'yesterday', etc. When checking for "
+                    "Set use 'true' or 'yes'. When checking for Not set use 'false' "
+                    "or 'no'") + '</p>')
     l.addRow(_('Template &value:'), le)
 
     self.template_test_type_box = le = QComboBox(w)
@@ -292,7 +294,15 @@ def create_template_tab(self):
     self.template_program_box = le = TemplateLineEditor(self.tab_widget)
     le.setObjectName('template_program_box')
     le.setPlaceholderText(_('The template that generates the value'))
-    le.setToolTip(_('Right click to open a template editor'))
+    le.setToolTip('<p>' +
+                  _('Right click to open a template editor. <br>'
+                    'Technical note: the set of book ids already matched by '
+                    'previous search terms in the search expression is passed '
+                    'to the template in the global variables dictionary with the '
+                    'key "{0}". You can use the set to limit any work the '
+                    'template does to the set of books already matched, possibly '
+                    'improving performance.'
+                    ).format('_candidates')  + '</p>')
     lo = QHBoxLayout()
     lo.addWidget(le)
     self.edit_template_button = tb = QToolButton()
@@ -441,13 +451,11 @@ class SearchDialog(QDialog):
     def template_search_string(self):
         template = str(self.template_program_box.text())
         value = str(self.template_value_box.text())
-        if template and value:
-            cb = self.template_test_type_box
-            op =  str(cb.itemData(cb.currentIndex()))
-            l = f'{template}#@#:{op}:{value}'
-            # Use docstring quoting (super-quoting) to avoid problems with escaping
-            return 'template:"""' + l + '"""'
-        return ''
+        cb = self.template_test_type_box
+        op =  str(cb.itemData(cb.currentIndex()))
+        l = f'{template}#@#:{op}:{value}'
+        # Use docstring quoting (super-quoting) to avoid problems with escaping
+        return 'template:"""' + l + '"""'
 
     def date_search_string(self):
         field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')

@@ -1,56 +1,60 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import json
+
+def json_to_html(raw, link):
+    data = json.loads(raw)
+    data = data['data']['content']
+    title = '<h1 title="{}">'.format(link) + data['subject'] + '</h1>'
+    auth = '<p><b>' + data['author'] + '</b></p>'
+    sub = '<p class="intro"><i>' + data['introtext'] + '</i></p>'
+    body = data['fulltext']
+    return '<html><body><div>' + title + auth + sub + body + '</div></body></html>'
 
 
-class AdvancedUserRecipe1277305250(BasicNewsRecipe):
-    title = u'infzm - China Southern Weekly'
-    oldest_article = 14
-    max_articles_per_feed = 100
-
-    feeds = [(u'\u5357\u65b9\u5468\u672b-\u70ed\u70b9\u65b0\u95fb', u'http://www.infzm.com/rss/home/rss2.0.xml'),
-             (u'\u5357\u65b9\u5468\u672b-\u7ecf\u6d4e\u65b0\u95fb',
-              u'http://www.infzm.com/rss/economic.xml'),
-             (u'\u5357\u65b9\u5468\u672b-\u6587\u5316\u65b0\u95fb',
-              u'http://www.infzm.com/rss/culture.xml'),
-             (u'\u5357\u65b9\u5468\u672b-\u751f\u6d3b\u65f6\u5c1a',
-              u'http://www.infzm.com/rss/lifestyle.xml'),
-             (u'\u5357\u65b9\u5468\u672b-\u89c2\u70b9',
-              u'http://www.infzm.com/rss/opinion.xml')
-             ]
-    __author__ = 'rty'
-    __version__ = '1.0'
+class infzm(BasicNewsRecipe):
+    title = '南方周末'
+    __author__ = 'unkn0wn'
+    description = 'Southern Weekly (infzm.com), founded in 1984, is a Chinese weekly newspaper based in Guangzhou. Download Weekly.'
     language = 'zh'
-    publisher = 'http://www.infzm.com'
-    description = 'Chinese Weekly Tabloid'
-    category = 'News, China'
-    remove_javascript = True
-    use_embedded_content = False
+    encoding = 'utf-8'
     no_stylesheets = True
-    encoding = 'UTF-8'
-    conversion_options = {'linearize_tables': True}
-    masthead_url = 'http://i50.tinypic.com/2qmfb7l.jpg'
+    remove_javascript = True
+    ignore_duplicate_articles = {'title'}
+    remove_empty_feeds = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'http://ssimg.kkod.cn/web/02/14227.gif'
+
+    articles_are_obfuscated = True
+
+    remove_tags = [dict(name=['video', 'svg', 'button'])]
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)['href'].split('?')[0]
+        res_link = link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') \
+            + '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type='
+        # if article is paywalled, add code to figure out machine_id
+        raw = br.open(res_link).read()
+        html = json_to_html(raw, link)
+        return ({ 'data': html, 'url': link })
 
     extra_css = '''
-             @font-face { font-family: "DroidFont", serif, sans-serif;  src: url(res:///system/fonts/DroidSansFallback.ttf); }\n
-             body {
-                  margin-right: 8pt;
-                  font-family: 'DroidFont', serif;}
-             .detailContent {font-family: 'DroidFont', serif, sans-serif}
-            '''
+        img {display:block; margin:0 auto;}
+        .cm_pic_caption, .cm_pic_author { font-size:small; text-align:center; }
+    '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'detailContent'}),
-    ]
-    remove_tags = [
-        dict(name='div', attrs={
-             'id': ['detailTools', 'detailSideL', 'pageNum']}),
-    ]
-    remove_tags_after = [
-        dict(name='div', attrs={'id': 'pageNum'}),
+    feeds = [
+        ('南方周末', 'https://news.google.com/rss/search?q=when:170h+allinurl:https%3A%2F%2Fwww.infzm.com&hl=zh-HK&gl=HK&ceid=HK:zh')
     ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(color=True):
-            del item['font']
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+    def populate_article_metadata(self, article, soup, first):
+        article.title = article.title.replace(' - 南方周末', '')
+        article.url = soup.find('h1')['title']
+        article.summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))
+        article.text_summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))

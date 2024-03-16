@@ -76,7 +76,7 @@ def generate_template_language_help(language):
         func_sig = getattr(func, 'doc')
         m = pat.search(func_sig)
         if m is None:
-            print ('No signature for template function ', class_name)
+            print('No signature for template function ', class_name)
             continue
         func_sig = func_sig[:m.start()+1].strip('`')
         func_cat = getattr(func, 'category')

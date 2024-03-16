@@ -7,39 +7,43 @@ __docformat__ = 'restructuredtext en'
 
 import json
 from collections import defaultdict
-from threading import Thread
 from functools import partial
-
 from qt.core import (
-    QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QHeaderView, QListWidgetItem,
-    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
-    QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
+    QAbstractListModel, QApplication, QBrush, QColor, QColorDialog, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QFontDialog, QFontInfo, QFormLayout, QHeaderView, QIcon,
+    QItemSelectionModel, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QPainter,
+    QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTableWidget, QTableWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
+from threading import Thread
 
 from calibre import human_readable
 from calibre.constants import ismacos, iswindows
 from calibre.db.categories import is_standard_category
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
-from calibre.gui2 import default_author_link, icon_resource_manager, choose_save_file, choose_files
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog, error_dialog
-from calibre.utils.localization import (available_translations,
-    get_language, get_lang)
-from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key
+from calibre.gui2 import (
+    choose_files, choose_save_file, config, default_author_link, error_dialog, gprefs,
+    icon_resource_manager, open_local_file, qt_app, question_dialog,
+)
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2.dialogs.quickview import get_qv_field_list
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
+from calibre.gui2.preferences import (
+    ConfigWidgetBase, Setting, set_help_tips, test_widget,
+)
 from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
+from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
-from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-from calibre.utils.resources import set_data
+from calibre.startup import connect_lambda
+from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import available_translations, get_lang, get_language
+from calibre.utils.resources import get_path as P, set_data
 from polyglot.builtins import iteritems
 
 
@@ -253,6 +257,8 @@ class DisplayedFields(QAbstractListModel):  # {{{
                 name = self.db.field_metadata[field]['name']
             except:
                 pass
+            if field == 'path':
+                name = _('Folders/path')
             if not name:
                 return field
             return f'{name} ({field})'
@@ -479,7 +485,9 @@ class BDVerticalCats(DisplayedFields):  # {{{
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         fm = self.db.field_metadata
-        cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple']]
+        cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and not k.startswith('#')]
+        cats.append('path')
+        cats.extend([k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and k.startswith('#')])
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]
@@ -536,6 +544,16 @@ class Background(QWidget):  # {{{
 # }}}
 
 
+class LanguageSetting(Setting):
+
+    def commit(self):
+        val = self.get_gui_val()
+        oldval = self.get_config_val()
+        if val != oldval:
+            gprefs.set('last_used_language', oldval)
+        return super().commit()
+
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     size_calculated = pyqtSignal(object)
@@ -561,13 +579,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.icon_theme_button.clicked.connect(self.choose_icon_theme)
         self.default_author_link = DefaultAuthorLink(self.default_author_link_container)
         self.default_author_link.changed_signal.connect(self.changed_signal)
-        r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
-        r('color_palette', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Light'), 'light'), (_('Dark'), 'dark')])
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
-        r('show_layout_buttons', gprefs, restart_required=True)
+        r('show_layout_buttons', gprefs)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
@@ -593,6 +609,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
+        r('cover_browser_narrow_view_position', gprefs,
+                            choices=[(_('Automatic'), 'automatic'), # Automatic must be first
+                                     (_('On top'), 'on_top'),
+                                     (_('On right'), 'on_right')])
         r('cover_browser_title_template', db.prefs)
         fm = db.field_metadata
         r('cover_browser_subtitle_field', db.prefs, choices=[(_('No subtitle'), 'none')] + sorted(
@@ -624,9 +644,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one
         choices = [(get_language(lang), lang)] + choices
-        r('language', prefs, choices=choices, restart_required=True)
+        lul = gprefs.get('last_used_language')
+        if lul and (lul in available_translations() or lul in ('en', 'eng')):
+            choices.insert(1, ((get_language(lul), lul)))
+        r('language', prefs, choices=choices, restart_required=True, setting=LanguageSetting)
 
         r('show_avg_rating', config)
+        r('show_links_in_tag_browser', gprefs)
+        r('show_notes_in_tag_browser', gprefs)
+        r('icons_on_right_in_tag_browser', gprefs)
         r('disable_animations', config)
         r('systray_icon', config, restart_required=True)
         r('show_splash_screen', gprefs)
@@ -809,6 +835,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
         self.opt_ui_style.currentIndexChanged.connect(self.update_color_palette_state)
+        self.opt_gui_layout.addItem(_('Wide'), 'wide')
+        self.opt_gui_layout.addItem(_('Narrow'), 'narrow')
+        self.opt_gui_layout.currentIndexChanged.connect(self.changed_signal)
+        set_help_tips(self.opt_gui_layout, config.help('gui_layout'))
+        self.button_adjust_colors.clicked.connect(self.adjust_colors)
+
+    def adjust_colors(self):
+        from calibre.gui2.dialogs.palette import PaletteConfig
+        d = PaletteConfig(self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            d.apply_settings()
+            self.changed_signal.emit()
 
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
@@ -876,8 +914,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def update_color_palette_state(self):
         if self.ui_style_available:
             enabled = self.opt_ui_style.currentData() == 'calibre'
-            self.opt_color_palette.setEnabled(enabled)
-            self.opt_color_palette_label.setEnabled(enabled)
+            self.button_adjust_colors.setEnabled(enabled)
 
     def export_layout(self, model=None):
         filename = choose_save_file(self, 'em_import_export_field_list',
@@ -1016,6 +1053,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_book_details_css.blockSignals(False)
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
         self.update_color_palette_state()
+        self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
+        set_help_tips(self.opt_cover_browser_narrow_view_position, _(
+            'This option controls the position of the cover browser when using the Narrow user '
+            'interface layout.  "Automatic" will place the cover browser on top or on the right '
+            'of the book list depending on the aspect ratio of the calibre window. "On top" '
+            'places it over the book list, and "On right" places it to the right of the book '
+            'list. This option has no effect when using the Wide user interface layout.'))
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)
@@ -1068,6 +1112,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
         self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', allow_user_override=False, data=True).decode('utf-8'))
+        self.opt_gui_layout.setCurrentIndex(0)
 
     def change_cover_grid_color(self):
         col = QColorDialog.getColor(self.cg_bg_widget.bcol,
@@ -1150,11 +1195,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if defcss == bcss:
                 bcss = None
             set_data('templates/book_details.css', bcss)
+            self.gui.layout_container.change_layout(self.gui, self.opt_gui_layout.currentIndex() == 0)
 
         return rr
 
     def refresh_gui(self, gui):
         gui.book_details.book_info.refresh_css()
+        gui.place_layout_buttons()
         m = gui.library_view.model()
         m.update_db_prefs_cache()
         m.beginResetModel(), m.endResetModel()

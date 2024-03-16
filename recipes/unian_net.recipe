@@ -11,7 +11,7 @@ class Unian(BasicNewsRecipe):
     publication_type = 'newspaper'
     oldest_article = 7
     max_articles_per_feed = 100
-    language = 'ru'
+    language = 'ru_UK'
     cover_url = 'https://www.unian.net/images/unian-512x512.png'
     auto_cleanup = False
     no_stylesheets = True
@@ -21,9 +21,15 @@ class Unian(BasicNewsRecipe):
     remove_tags = [
         dict(name='span', attrs={'class': 'article__info-item comments'}),
         dict(name='span', attrs={'class': 'article__info-item views'}),
-        dict(name='div', attrs={'class': 'read-also-slider'})
+        dict(name='div', attrs={'class': 'read-also-slider'}),
+        dict(name='div', attrs={'class': 'nts-video-wrapper'})
     ]
 
     feeds = [
     (u'\u0423\u041D\u0418\u0410\u041D', u'https://rss.unian.net/site/news_rus.rss')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup

@@ -5,17 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, traceback, shutil
-from threading import Thread
+import os
+import re
+import shutil
+import traceback
 from operator import itemgetter
+from threading import Thread
 
-from calibre.ptempfile import TemporaryDirectory
+from calibre import isbytestring
+from calibre.constants import filesystem_encoding
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.prefs import DBPrefs
-from calibre.constants import filesystem_encoding
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp
-from calibre import isbytestring
+from calibre.utils.localization import _
 from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset([

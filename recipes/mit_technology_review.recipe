@@ -10,7 +10,7 @@ technologyreview.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 from collections import OrderedDict
-
+import json
 
 def absurl(x):
     if x.startswith('//'):
@@ -50,6 +50,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         #cre-d{font-size:xx-small; text-align:center; color:gray;}
         #cap-d{font-size:small; text-align:center;}
         blockquote{text-align:center; color:#404040;}
+        em { color:#202020;}
     '''
     keep_only_tags = [
         prefixed_classes('contentHeader contentArticleHeader contentBody')
@@ -64,15 +65,17 @@ class MitTechnologyReview(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.technologyreview.com/')
-        div = soup.find('div', attrs={'class':lambda s: s and s.startswith('magazineSidebar__imageWrap')})
-        img = div.find('img', src=True)
-        return img['src']
+        if script := soup.find('script', id='preload'):
+            JSON = script.contents[0].split('magazineCover\":')[1].strip()
+            data = json.JSONDecoder().raw_decode(JSON)[0]
+            return data['config']['src']
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
-        issue = soup.find('h1', attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
+        issue = soup.find(attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
         time = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__date')})
-        self.timefmt = ' (' + self.tag_to_string(issue) + ') [' + self.tag_to_string(time) + ']'
+        self.title = 'MIT Tech Review ' + self.tag_to_string(issue)
+        self.timefmt = ' [' + self.tag_to_string(time) + ']'
         self.log('Downloading issue: ', self.timefmt)
 
         # parse articles

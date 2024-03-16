@@ -21,6 +21,7 @@ from read_book.view import View
 from session import get_interface_data
 from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
+from image_popup import show_image
 
 RENDER_VERSION = __RENDER_VERSION__
 MATHJAX_VERSION = "__MATHJAX_VERSION__"
@@ -135,6 +136,28 @@ class ReadUI:
                 error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
             )
 
+        ui_operations.get_all_profiles = def(proceed):
+            ajax('reader-profiles/get-all', def(end_type, xhr, ev):
+                if end_type is not 'load':
+                    if end_type is 'abort': return
+                    return self.show_error(_('Failed to load profiles'), _(
+                        'Could not load profiles: with error: {}').format(xhr.error_html))
+                try:
+                    result = JSON.parse(xhr.responseText)
+                except Exception:
+                    return self.show_error(_('Failed to parse profiles'), _('Unparseable data received for profiles'))
+                proceed(result)
+            ).send()
+
+        ui_operations.save_profile = def(profile_name, profile, proceed):
+            ajax_send('reader-profiles/save', {'name': profile_name, 'profile': profile}, def(end_type, xhr, ev):
+                if end_type is not 'load':
+                    if end_type is 'abort': return
+                    return self.show_error(_('Failed to load profiles'), _(
+                        'Could not load profiles: with error: {}').format(xhr.error_html))
+                proceed()
+            )
+
     def on_resize(self):
         self.view.on_resize()
 
@@ -162,7 +185,7 @@ class ReadUI:
         div.appendChild(E.div(style='padding: 2ex 2rem; display:table; margin: auto'))
         div = div.lastChild
         dp = E.div()
-        create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', dp)
+        create_simple_dialog_markup(title, _('Could not open {}. {}').format(book, msg), details, 'bug', '', 'red', dp)
         div.appendChild(dp)
         div.appendChild(E.div(
             style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px currentColor',
@@ -219,7 +242,7 @@ class ReadUI:
         ui_operations.get_file(
             self.view.book, image_file_name, def(blob, name, mimetype):
                 url = window.URL.createObjectURL(blob)
-                window.open(url)
+                show_image(url)
         )
 
     def load_book(self, library_id, book_id, fmt, metadata, force_reload):
@@ -310,6 +333,7 @@ class ReadUI:
 
     def start_load(self, book_id, fmt, metadata, force_reload):
         self.current_book_id = book_id
+        self.current_book_fmt = fmt
         metadata = metadata or library_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
         update_window_title('', self.current_metadata.title)
@@ -343,6 +367,12 @@ class ReadUI:
         if end_type is 'abort':
             return
         if end_type is not 'load':
+            if xhr.status is 404:
+                fmt = (self.current_book_fmt or 'UNKNOWN').toUpperCase()
+                if 'cannot be viewed' in xhr.error_html:
+                    return self.show_error(
+                        _('Failed to view book'), _('Viewing of the {} format is not supported.').format(fmt), xhr.error_html)
+                return self.show_error(_('Failed to view book'), _('The {} format is not available.').format(fmt), xhr.error_html)
             return self.show_error(_('Failed to load book manifest'),
                 _('The book manifest failed to load, click "Show details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)

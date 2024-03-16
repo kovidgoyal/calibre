@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class En_Globes_Recipe(BasicNewsRecipe):
+    description = 'This is en.globes.co.il.'
+    cover_url = 'https://www.globes.co.il/images/GlobesEN-144x40.gif'
+    title = u'Globes in English'
+    language = 'en'
+    __author__ = 'barakplasma'
+    extra_css = 'img {max-width:100%;}'
+    simultaneous_downloads = 5
+    remove_javascript = True
+    keep_only_tags = [
+        dict(name='h1', attrs={'id': 'F_Title'}),
+        dict(name='h2', attrs={'id': 'coteret_SubCoteret'}),
+        dict(name='p', attrs={'id': None}),
+    ]
+    max_articles_per_feed = 100
+
+    feeds = [
+        (u"Main Headlines", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederNode?iID=942"),
+        (u"Israeli stocks on Wall Street", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1392"),
+        (u"All news", u"https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1725"),
+        (u"Macro economics", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1389"),
+        (u"Aerospace and defense", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1380"),
+        (u"Real estate", u"https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederKeyword?iID=1385"),
+        (u"Energy and water", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1382"),
+        (u"Start-ups and venture capital", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1397"),
+        (u"Financial services", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1383"),
+        (u"Tel Aviv markets", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1404"),
+        (u"Healthcare", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1377"),
+        (u"Telecommunications", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1386"),
+        (u"Information technology", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1376"),
+        (u"Transport and infrastructure", u"https://www.globes.co.il/WebService/Rss/RssFeeder.asmx/FeederKeyword?iID=1388"),
+    ]

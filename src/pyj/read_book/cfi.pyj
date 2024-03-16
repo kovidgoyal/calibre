@@ -52,6 +52,16 @@ def get_current_time(target): # {{{
     return fstr(target.currentTime or 0)
 # }}}
 
+def id_is_unique(idval): # {{{
+    try:
+        multiples = document.querySelectorAll('[id=' + window.CSS.escape(idval) + ']')
+    except:
+        return False
+    if multiples and multiples.length < 2:
+        return True
+    return False
+# }}}
+
 # Convert point to character offset {{{
 def range_has_point(range_, x, y):
     rects = range_.getClientRects()
@@ -238,7 +248,9 @@ def encode(doc, node, offset, tail):
                 index -= 1
         # Add id assertions for robustness where possible
         id = node.id
-        idspec = ('[' + escape_for_cfi(id) + ']') if id else ''
+        idspec = ''
+        if id and id_is_unique(id):
+            idspec = ('[' + escape_for_cfi(id) + ']')
         cfi = '/' + index + idspec + cfi
         node = p
 
@@ -267,7 +279,7 @@ def node_at_index(nodes, target, index, iter_text_nodes):
 def node_for_path_step(parent, target, assertion):
     if assertion:
         q = document.getElementById(assertion)
-        if q:
+        if q and id_is_unique(assertion):
             return q
     is_element = target % 2 == 0
     target //= 2
@@ -322,6 +334,7 @@ def decode(cfi, doc):
     error = None
     node = doc
 
+    orig_cfi = cfi
     while cfi.length > 0 and not error:
         r = cfi.match(simple_node_regex)
         if r: # Path step
@@ -335,7 +348,7 @@ def decode(cfi, doc):
                 cfi = cfi.substr(r[0].length)
             else:
                 if target:
-                    error = "No matching child found for CFI: " + cfi
+                    error = f"No matching child found for CFI: {orig_cfi} leftover: {cfi}"
                     break
                 else:
                     cfi = cfi.substr(r[0].length)

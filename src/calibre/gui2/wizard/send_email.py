@@ -7,17 +7,17 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 from functools import partial
+from qt.core import (
+    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout, QWidget, pyqtSignal,
+)
 from threading import Thread
 
-from qt.core import (
-    QWidget, pyqtSignal, QDialog, Qt, QLabel, QLineEdit, QDialogButtonBox,
-    QGridLayout, QCheckBox, QIcon, QVBoxLayout, QPushButton, QPlainTextEdit,
-    QHBoxLayout)
-
 from calibre import prints
-from calibre.gui2.wizard.send_email_ui import Ui_Form
-from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2.wizard.send_email_ui import Ui_Form
+from calibre.utils.localization import _
+from calibre.utils.smtp import config as smtp_prefs
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.io import PolyglotStringIO
 
@@ -211,7 +211,7 @@ class SendEmail(QWidget, Ui_Form):
 
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
-        from calibre.utils.smtp import sendmail, create_mail
+        from calibre.utils.smtp import create_mail, sendmail
         buf = PolyglotStringIO()
         debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr

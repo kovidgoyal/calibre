@@ -11,10 +11,14 @@ from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
 from calibre.ebooks.hyphenate import hyphenate_word
 from polyglot.builtins import string_or_bytes
 
-WEIGHT_MAP = lambda wt : int((wt/10)-1)
-NULL       = lambda a, b: a
-COLOR      = lambda a, b: QColor(*a)
-WEIGHT     = lambda a, b: WEIGHT_MAP(a)
+def WEIGHT_MAP(wt):
+    return int(wt / 10 - 1)
+def NULL(a, b):
+    return a
+def COLOR(a, b):
+    return QColor(*a)
+def WEIGHT(a, b):
+    return WEIGHT_MAP(a)
 
 
 class PixmapItem(QGraphicsPixmapItem):
@@ -397,7 +401,7 @@ class Line(QGraphicsItem):
         matches = self.__class__.whitespace.finditer(phrase)
         font = QFont(ts.font)
         if self.valign is not None:
-            font.setPixelSize(font.pixelSize()/1.5)
+            font.setPixelSize(int(font.pixelSize()/1.5))
         fm = QFontMetrics(font)
         single_space_width = fm.horizontalAdvance(' ')
         height, descent = fm.height(), fm.descent()

@@ -3,10 +3,11 @@
 
 import os
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
+from functools import lru_cache
 from qt.core import (
-    QAbstractNativeEventFilter, QApplication, QColor, QIcon, QPalette, QSettings, QProxyStyle,
-    QStyle, Qt, QTimer, pyqtSlot, QObject, QDataStream, QByteArray, QIODeviceBase
+    QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject,
+    QPalette, QProxyStyle, QStyle, Qt,
 )
 
 from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
@@ -14,7 +15,7 @@ from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
 dark_link_color = QColor(dark_link_color)
 dark_color = QColor(45,45,45)
 dark_text_color = QColor('#ddd')
-light_color = QColor(0xef, 0xef, 0xef)
+light_color = QColor(0xf0, 0xf0, 0xf0)
 light_text_color = QColor(0,0,0)
 light_link_color = QColor(0, 0, 255)
 
@@ -26,49 +27,6 @@ class UseCalibreIcons(QProxyStyle):
         if ic.isNull():
             return super().standardIcon(standard_pixmap, option, widget)
         return ic
-
-
-if iswindows:
-    import ctypes
-
-    class WinEventFilter(QAbstractNativeEventFilter):
-
-        def nativeEventFilter(self, eventType, message):
-            if eventType == b"windows_generic_MSG":
-                msg = ctypes.wintypes.MSG.from_address(message.__int__())
-                # https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-settingchange
-                if msg.message == 0x001A and msg.lParam:  # WM_SETTINGCHANGE
-                    try:
-                        s = ctypes.wstring_at(msg.lParam)
-                    except OSError:
-                        pass
-                    else:
-                        if s == 'ImmersiveColorSet':
-                            QApplication.instance().palette_manager.check_for_windows_palette_change()
-                            # prevent Qt from handling this event
-                            return True, 0
-            return False, 0
-if not iswindows and not ismacos:
-    from qt.dbus import QDBusConnection, QDBusMessage, QDBusVariant
-
-
-def windows_is_system_dark_mode_enabled():
-    s = QSettings(r"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", QSettings.Format.NativeFormat)
-    if s.status() == QSettings.Status.NoError:
-        return s.value("AppsUseLightTheme") == 0
-    return False
-
-
-def linux_is_system_dark_mode_enabled():
-    bus = QDBusConnection.sessionBus()
-    m = QDBusMessage.createMethodCall(
-        'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-        'org.freedesktop.portal.Settings', 'Read'
-    )
-    m.setArguments(['org.freedesktop.appearance', 'color-scheme'])
-    reply = bus.call(m, timeout=1000)
-    a = reply.arguments()
-    return len(a) and isinstance(a[0], int) and a[0] == 1
 
 
 def palette_is_dark(self):
@@ -107,18 +65,7 @@ QPalette.serialize_as_python = serialize_palette_as_python
 QPalette.unserialize_from_bytes = unserialize_palette
 
 
-def fix_palette_colors(p):
-    if iswindows:
-        # On Windows the highlighted colors for inactive widgets are the
-        # same as non highlighted colors. This is a regression from Qt 4.
-        # https://bugreports.qt-project.org/browse/QTBUG-41060
-        for role in (QPalette.ColorRole.Highlight, QPalette.ColorRole.HighlightedText, QPalette.ColorRole.Base, QPalette.ColorRole.AlternateBase):
-            p.setColor(QPalette.ColorGroup.Inactive, role, p.color(QPalette.ColorGroup.Active, role))
-        return True
-    return False
-
-
-def dark_palette():
+def default_dark_palette():
     p = QPalette()
     disabled_color = QColor(127,127,127)
     p.setColor(QPalette.ColorRole.Window, dark_color)
@@ -129,109 +76,111 @@ def dark_palette():
     p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
     p.setColor(QPalette.ColorRole.ToolTipText, dark_text_color)
     p.setColor(QPalette.ColorRole.Text, dark_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
     p.setColor(QPalette.ColorRole.Button, dark_color)
     p.setColor(QPalette.ColorRole.ButtonText, dark_text_color)
-    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, dark_link_color)
-
+    p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.darkMagenta)
     p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
     p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
+
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
+
+    return p
+
+
+def default_light_palette():
+    p = QPalette()
+    disabled_color = QColor(120,120,120)
+    p.setColor(QPalette.ColorRole.Window, light_color)
+    p.setColor(QPalette.ColorRole.WindowText, light_text_color)
+    p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
+    p.setColor(QPalette.ColorRole.Base, Qt.GlobalColor.white)
+    p.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
+    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0xff, 0xff, 0xdc))
+    p.setColor(QPalette.ColorRole.ToolTipText, light_text_color)
+    p.setColor(QPalette.ColorRole.Text, light_text_color)
+    p.setColor(QPalette.ColorRole.Button, light_color)
+    p.setColor(QPalette.ColorRole.ButtonText, light_text_color)
+    p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+    p.setColor(QPalette.ColorRole.Link, light_link_color)
+    p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.magenta)
+    p.setColor(QPalette.ColorRole.Highlight, QColor(48, 140, 198))
+    p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
+    p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
 
     return p
 
 
-def light_palette():  # {{{
-    # generated by serializing the light palette on my Linux system
-    self = QPalette()
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Button, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Light, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Midlight, QColor(202, 202, 202, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Dark, QColor(159, 159, 159, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Mid, QColor(184, 184, 184, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Text, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.BrightText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.ButtonText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Base, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Window, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Shadow, QColor(118, 118, 118, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Highlight, QColor(48, 140, 198, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.HighlightedText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.Link, QColor(0, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.LinkVisited, QColor(255, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.AlternateBase, QColor(247, 247, 247, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.ToolTipText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.PlaceholderText, QColor(0, 0, 0, 128))
-    self.setColor(QPalette.ColorGroup.Active, QPalette.ColorRole.NoRole, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(190, 190, 190, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Light, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Midlight, QColor(202, 202, 202, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Dark, QColor(190, 190, 190, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Mid, QColor(184, 184, 184, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(190, 190, 190, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.BrightText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(190, 190, 190, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Shadow, QColor(177, 177, 177, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(145, 145, 145, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Link, QColor(0, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.LinkVisited, QColor(255, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.AlternateBase, QColor(247, 247, 247, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ToolTipText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.PlaceholderText, QColor(0, 0, 0, 128))
-    self.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.NoRole, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Light, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Midlight, QColor(202, 202, 202, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Dark, QColor(159, 159, 159, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Mid, QColor(184, 184, 184, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Text, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.BrightText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Base, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Shadow, QColor(118, 118, 118, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Highlight, QColor(48, 140, 198, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.HighlightedText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Link, QColor(0, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.LinkVisited, QColor(255, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.AlternateBase, QColor(247, 247, 247, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ToolTipText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.PlaceholderText, QColor(0, 0, 0, 128))
-    self.setColor(QPalette.ColorGroup.Inactive, QPalette.ColorRole.NoRole, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.WindowText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Button, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Light, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Midlight, QColor(202, 202, 202, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Dark, QColor(159, 159, 159, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Mid, QColor(184, 184, 184, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Text, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.BrightText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.ButtonText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Base, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Window, QColor(239, 239, 239, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Shadow, QColor(118, 118, 118, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Highlight, QColor(48, 140, 198, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.HighlightedText, QColor(255, 255, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.Link, QColor(0, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.LinkVisited, QColor(255, 0, 255, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.AlternateBase, QColor(247, 247, 247, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.ToolTipText, QColor(0, 0, 0, 255))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.PlaceholderText, QColor(0, 0, 0, 128))
-    self.setColor(QPalette.ColorGroup.Current, QPalette.ColorRole.NoRole, QColor(0, 0, 0, 255))
-    return self
-# }}}
+@lru_cache
+def palette_colors():
+    return {
+        'WindowText': _('A general foreground color'),
+        'Text': _('The foreground color for text input widgets'),
+        'ButtonText': _('The foreground color for buttons'),
+        'PlaceholderText': _('Placeholder text in text input widgets'),
+        'ToolTipText': _('The foreground color for tool tips'),
+        'BrightText': _('A "bright" text color'),
+        'HighlightedText': _('The foreground color for highlighted items'),
+
+        'Window': _('A general background color'),
+        'Base': _('The background color for text input widgets'),
+        'Button': _('The background color for buttons'),
+        'AlternateBase': _('The background color for alternate rows in tables and lists'),
+        'ToolTipBase': _('The background color for tool tips'),
+        'Highlight': _('The background color for highlighted items'),
+
+        'Link': _('The color for links'),
+        'LinkVisited': _('The color for visited links'),
+    }
+
+
+def is_foreground_color(key: str) -> bool:
+    return 'Text' in key
+
+
+def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalette:
+
+    def s(key, group=QPalette.ColorGroup.All):
+        role = getattr(QPalette.ColorRole, key)
+        grp = ''
+        if group == QPalette.ColorGroup.Disabled:
+            grp = '-disabled'
+        c = QColor.fromString(data.get(key + grp, ''))
+        if c.isValid():
+            p.setColor(group, role, c)
+
+    p = QPalette()
+    for key in palette_colors():
+        s(key)
+        if is_foreground_color(key):
+            s(key, QPalette.ColorGroup.Disabled)
+    return p.resolve(default_palette)
+
+
+def dark_palette():
+    from calibre.gui2 import gprefs
+    ans = default_dark_palette()
+    if gprefs['dark_palette_name']:
+        pdata = gprefs['dark_palettes'].get(gprefs['dark_palette_name'])
+        with suppress(Exception):
+            return palette_from_dict(pdata, ans)
+    return ans
+
+
+def light_palette():
+    from calibre.gui2 import gprefs
+    ans = default_light_palette()
+    if gprefs['light_palette_name']:
+        pdata = gprefs['light_palettes'].get(gprefs['light_palette_name'])
+        with suppress(Exception):
+            return palette_from_dict(pdata, ans)
+    return ans
 
 
 standard_pixmaps = {  # {{{
@@ -270,14 +219,14 @@ standard_pixmaps = {  # {{{
 class PaletteManager(QObject):
 
     color_palette: str
-    has_fixed_palette: bool
     using_calibre_style: bool
-    original_palette_modified: bool
     is_dark_theme: bool
 
-    def __init__(self, color_palette, ui_style, force_calibre_style, headless):
+    def __init__(self, force_calibre_style, headless):
+        from calibre.gui2 import gprefs
         super().__init__()
-        self.color_palette = color_palette
+        self.color_palette = gprefs['color_palette']
+        ui_style = gprefs['ui_style']
         self.is_dark_theme = False
         self.ignore_palette_changes = False
 
@@ -288,20 +237,12 @@ class PaletteManager(QObject):
                 self.using_calibre_style = ui_style != 'system'
             else:
                 self.using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
-        self.has_fixed_palette = self.color_palette != 'system' and self.using_calibre_style
 
         args = []
-        if iswindows:
-            # passing darkmode=1 turns on dark window frames when windows
-            # is dark and darkmode=2 makes everything dark, but we have our
-            # own dark mode implementation when using calibre style so
-            # prefer that and use darkmode=1
-            args.append('-platform')
-            args.append('windows:darkmode=' + ('1' if self.using_calibre_style else '2'))
         self.args_to_qt = tuple(args)
-        if ismacos and not headless and self.has_fixed_palette:
+        if ismacos and not headless:
             from calibre_extensions.cocoa import set_appearance
-            set_appearance(color_palette)
+            set_appearance(self.color_palette)
 
     def initialize(self):
         app = QApplication.instance()
@@ -309,33 +250,19 @@ class PaletteManager(QObject):
         if not self.using_calibre_style and app.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.using_calibre_style = True
-        self.original_palette = QPalette(app.palette())
-        self.original_palette_modified = fix_palette_colors(self.original_palette)
-        if iswindows:
-            self.win_event_filter = WinEventFilter()
-            app.installNativeEventFilter(self.win_event_filter)
+
+    @property
+    def use_dark_palette(self):
+        app = QApplication.instance()
+        system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
+        return self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
 
     def setup_styles(self):
         if self.using_calibre_style:
-            if iswindows:
-                use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and windows_is_system_dark_mode_enabled())
-            elif ismacos:
-                use_dark_palette = self.color_palette == 'dark'
-            else:
-                use_dark_palette = self.color_palette == 'dark' or (self.color_palette == 'system' and linux_is_system_dark_mode_enabled())
-                bus = QDBusConnection.sessionBus()
-                bus.connect(
-                    'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-                    'org.freedesktop.portal.Settings', 'SettingChanged', 'ssv', self.linux_desktop_setting_changed)
-            if use_dark_palette:
-                self.set_dark_mode_palette()
-            elif self.original_palette_modified:
-                self.set_palette(self.original_palette)
-            if self.has_fixed_palette and (self.color_palette == 'dark') != QApplication.instance().palette().is_dark_theme():
-                if self.color_palette == 'dark':
-                    self.set_dark_mode_palette()
-                else:
-                    self.set_light_mode_palette()
+            app = QApplication.instance()
+            app.styleHints().colorSchemeChanged.connect(self.color_scheme_changed)
+            self.set_dark_mode_palette() if self.use_dark_palette else self.set_light_mode_palette()
+            QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
 
         if DEBUG:
             print('Using calibre Qt style:', self.using_calibre_style, file=sys.stderr)
@@ -376,6 +303,39 @@ class PaletteManager(QObject):
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
             if self.is_dark_theme:
                 ss += 'QMenu { border: 1px solid palette(shadow); }'
+                ss += '''
+QTabBar::tab:selected {
+    background-color: palette(base);
+    border: 1px solid gray;
+    padding: 2px 8px;
+    margin-left: -4px;
+    margin-right: -4px;
+}
+
+QTabBar::tab:top:selected {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-width: 0;
+}
+
+QTabBar::tab:bottom:selected {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-width: 0;
+}
+
+QTabBar::tab:first:selected {
+    margin-left: 0; /* the first selected tab has nothing to overlap with on the left */
+}
+
+QTabBar::tab:last:selected {
+    margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
+}
+
+QTabBar::tab:only-one {
+    margin: 0; /* if there is only one tab, we don't want overlapping margins */
+}
+'''
             app.setStyleSheet(ss)
         app.palette_changed.emit()
 
@@ -385,30 +345,18 @@ class PaletteManager(QObject):
     def set_light_mode_palette(self):
         self.set_palette(light_palette())
 
-    if not iswindows and not ismacos:
-        @pyqtSlot(str, str, QDBusVariant)
-        def linux_desktop_setting_changed(self, namespace, key, val):
-            if (namespace, key) == ('org.freedesktop.appearance', 'color-scheme'):
-                if self.has_fixed_palette:
-                    return
-                use_dark_palette = val.variant() == 1
-                if use_dark_palette != bool(self.is_dark_theme):
-                    if use_dark_palette:
-                        self.set_dark_mode_palette()
-                    else:
-                        self.set_palette(self.original_palette)
-                self.on_palette_change()
-
-    def check_for_windows_palette_change(self):
-        if self.has_fixed_palette:
+    def color_scheme_changed(self, new_color_scheme):
+        if DEBUG:
+            print('System Color Scheme changed to:', new_color_scheme, file=sys.stderr)
+        if self.color_palette != 'system' or not self.using_calibre_style:
             return
-        use_dark_palette = bool(windows_is_system_dark_mode_enabled())
-        if bool(self.is_dark_theme) != use_dark_palette:
-            if use_dark_palette:
-                self.set_dark_mode_palette()
-            else:
-                self.set_palette(self.original_palette)
-            self.on_palette_change()
+        if new_color_scheme == Qt.ColorScheme.Dark:
+            self.set_dark_mode_palette()
+        elif new_color_scheme == Qt.ColorScheme.Light:
+            self.set_light_mode_palette()
+        elif new_color_scheme == Qt.ColorScheme.Unknown:
+            self.set_light_mode_palette()
+        self.on_palette_change()
 
     @contextmanager
     def changing_palette(self):
@@ -422,14 +370,6 @@ class PaletteManager(QObject):
     def set_palette(self, pal):
         with self.changing_palette():
             QApplication.instance().setPalette(pal)
-            # Needed otherwise Qt does not emit the paletteChanged signal when
-            # appearance is changed. And it has to be after current event
-            # processing finishes as of Qt 5.14 otherwise the palette change is
-            # ignored.
-            QTimer.singleShot(1000, self.mark_palette_as_unchanged_for_qt)
-
-    def mark_palette_as_unchanged_for_qt(self):
-        QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, False)
 
     def on_qt_palette_change(self):
         if self.ignore_palette_changes:
@@ -438,10 +378,38 @@ class PaletteManager(QObject):
         else:
             if DEBUG:
                 print('ApplicationPaletteChange event received', file=sys.stderr)
-            if self.has_fixed_palette:
-                pal = dark_palette() if self.color_palette == 'dark' else self.original_palette
+            if self.using_calibre_style:
+                pal = dark_palette() if self.use_dark_palette else light_palette()
                 if QApplication.instance().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
                     if DEBUG:
                         print('Detected a spontaneous palette change by Qt, reverting it', file=sys.stderr)
                     self.set_palette(pal)
             self.on_palette_change()
+
+    def refresh_palette(self):
+        from calibre.gui2 import gprefs
+        self.color_palette = gprefs['color_palette']
+        if ismacos:
+            from calibre_extensions.cocoa import set_appearance
+            set_appearance(self.color_palette)
+        system_is_dark = QApplication.instance().styleHints().colorScheme() == Qt.ColorScheme.Dark
+        is_dark = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
+        pal = dark_palette() if is_dark else light_palette()
+        self.set_palette(pal)
+        self.on_palette_change()
+
+    def tree_view_hover_style(self):
+        g1, g2 = '#e7effd', '#cbdaf1'
+        border_size = '1px'
+        if self.is_dark_theme:
+            c = QApplication.instance().palette().color(QPalette.ColorRole.Highlight)
+            c = c.lighter(180)
+            g1 = g2 = c.name()
+            border_size = '0px'
+        return f'''
+            QTreeView::item:hover {{
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 {g1}, stop: 1 {g2});
+                border: {border_size} solid #bfcde4;
+                border-radius: 6px;
+            }}
+        '''

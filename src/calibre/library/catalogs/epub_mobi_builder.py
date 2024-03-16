@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Greg Riker
 
-
 import datetime
 import os
 import platform
@@ -11,16 +10,14 @@ import time
 import unicodedata
 import zlib
 from copy import deepcopy
+from lxml import etree
 from xml.sax.saxutils import escape
 
-from lxml import etree
-
 from calibre import (
-    as_unicode, force_unicode, isbytestring, prepare_string_for_xml,
-    replace_entities, strftime, xml_replace_entities
+    as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities,
+    strftime, xml_replace_entities,
 )
 from calibre.constants import cache_dir, ismacos
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
@@ -29,17 +26,21 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import (
     AuthorSortMismatchException, EmptyCatalogException,
-    InvalidGenresSourceFieldException
+    InvalidGenresSourceFieldException,
 )
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import (
-    as_local_time, format_date, is_date_undefined, now as nowf
+    as_local_time, format_date, is_date_undefined, now as nowf, utcfromtimestamp,
 )
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.icu import capitalize, collation_order, sort_key
-from calibre.utils.localization import get_lang, lang_as_iso639_1
+from calibre.utils.icu import (
+    capitalize, collation_order, sort_key, title_case as icu_title, upper as icu_upper,
+)
+from calibre.utils.localization import _, get_lang, lang_as_iso639_1, ngettext
+from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems
 
@@ -1014,7 +1015,7 @@ class CatalogBuilder:
                                     index_is_id=True)
 
                 if record_genres:
-                    if type(record_genres) is not list:
+                    if not isinstance(record_genres, list):
                         record_genres = [record_genres]
 
                     this_title['genres'] = self.filter_excluded_genres(record_genres,
@@ -1096,8 +1097,8 @@ class CatalogBuilder:
          bookmarked_books (dict): dict of Bookmarks
         """
 
-        from calibre.devices.usbms.device import Device
         from calibre.devices.kindle.bookmark import Bookmark
+        from calibre.devices.usbms.device import Device
         from calibre.ebooks.metadata import MetaInformation
 
         MBP_FORMATS = ['azw', 'mobi', 'prc', 'txt']
@@ -1261,7 +1262,7 @@ class CatalogBuilder:
         else:
             # Validate custom field is usable as a genre source
             field_md = self.db.metadata_for_field(self.opts.genre_source_field)
-            if field_md is None or not field_md['datatype'] in ['enumeration', 'text']:
+            if field_md is None or field_md['datatype'] not in ['enumeration', 'text']:
                 all_custom_fields = self.db.custom_field_keys()
                 eligible_custom_fields = []
                 for cf in all_custom_fields:
@@ -2052,13 +2053,13 @@ class CatalogBuilder:
         current_date = datetime.date.fromordinal(1)
         todays_list = []
         for book in self.bookmarked_books_by_date_read:
-            bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+            bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
             if bookmark_time.day != current_date.day or \
                 bookmark_time.month != current_date.month or \
                 bookmark_time.year != current_date.year:
                 dtc = _add_books_to_html_by_day(todays_list, dtc)
                 todays_list = []
-                current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                current_date = utcfromtimestamp(book['bookmark_timestamp']).date()
             todays_list.append(book)
 
         # Add the last day's list
@@ -3508,7 +3509,7 @@ class CatalogBuilder:
                 date_range = 'Last %d days' % (self.DATE_RANGE[i])
             date_range_limit = self.DATE_RANGE[i]
             for book in self.bookmarked_books_by_date_read:
-                bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+                bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
                 if (today_time - bookmark_time).days <= date_range_limit:
                     # print "generate_ncx_by_date_added: %s added %d days ago" % (book['title'], (today_time-book_time).days)
                     current_titles_list.append(book['title'])
@@ -3524,10 +3525,10 @@ class CatalogBuilder:
         # master_month_list(list,date,count)
         current_titles_list = []
         master_day_list = []
-        current_date = datetime.datetime.utcfromtimestamp(self.bookmarked_books_by_date_read[0]['bookmark_timestamp'])
+        current_date = utcfromtimestamp(self.bookmarked_books_by_date_read[0]['bookmark_timestamp'])
 
         for book in self.bookmarked_books_by_date_read:
-            bookmark_time = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp'])
+            bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
             if bookmark_time.day != current_date.day or \
                 bookmark_time.month != current_date.month or \
                 bookmark_time.year != current_date.year:
@@ -3535,7 +3536,7 @@ class CatalogBuilder:
                 _add_to_master_day_list(current_titles_list)
 
                 # Start the new list
-                current_date = datetime.datetime.utcfromtimestamp(book['bookmark_timestamp']).date()
+                current_date = utcfromtimestamp(book['bookmark_timestamp']).date()
                 current_titles_list = [book['title']]
             else:
                 current_titles_list.append(book['title'])
@@ -3709,7 +3710,7 @@ class CatalogBuilder:
         # Write the OPF file
         pretty_opf(root), pretty_xml_tree(root)
         output = etree.tostring(root, encoding='utf-8')
-        with lopen(f"{self.catalog_path}/{self.opts.basename}.opf", 'wb') as outfile:
+        with open(f"{self.catalog_path}/{self.opts.basename}.opf", 'wb') as outfile:
             outfile.write(output.strip())
 
     def generate_rating_string(self, book):
@@ -3885,7 +3886,7 @@ class CatalogBuilder:
                 pass
 
         # Generate crc for current cover
-        with lopen(title['cover'], 'rb') as f:
+        with open(title['cover'], 'rb') as f:
             data = f.read()
         cover_crc = hex(zlib.crc32(data))
 
@@ -3909,7 +3910,7 @@ class CatalogBuilder:
             # Save thumb for catalog. If invalid data, error returns to generate_thumbnails()
             thumb_data = scale_image(data,
                     width=self.thumb_width, height=self.thumb_height)[-1]
-            with lopen(os.path.join(image_dir, thumb_file), 'wb') as f:
+            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
                 f.write(thumb_data)
 
             # Save thumb to archive
@@ -4171,7 +4172,7 @@ class CatalogBuilder:
                                         index_is_id=True)
             if addendum is None:
                 addendum = ''
-            elif type(addendum) is list:
+            elif isinstance(addendum, list):
                 addendum = (', '.join(addendum))
             include_hr = eval(self.merge_comments_rule['hr'])
             if self.merge_comments_rule['position'] == 'before':
@@ -4193,7 +4194,7 @@ class CatalogBuilder:
             merged = self.db.get_field(record['id'],
                                         self.merge_comments_rule['field'],
                                         index_is_id=True)
-            if type(merged) is list:
+            if isinstance(merged, list):
                 merged = (', '.join(merged))
 
         return merged
@@ -4378,5 +4379,5 @@ class CatalogBuilder:
         self.update_progress_full_step(_("Saving NCX"))
         pretty_xml_tree(self.ncx_root)
         ncx = etree.tostring(self.ncx_root, encoding='utf-8')
-        with lopen(f"{self.catalog_path}/{self.opts.basename}.ncx", 'wb') as outfile:
+        with open(f"{self.catalog_path}/{self.opts.basename}.ncx", 'wb') as outfile:
             outfile.write(ncx)

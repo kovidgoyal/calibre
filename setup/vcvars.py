@@ -9,22 +9,11 @@ import sys
 from functools import lru_cache
 from glob import glob
 
-# See the table at https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
-python_msc_version = int(re.search(r'\[MSC v\.(\d+) ', sys.version).group(1))
-if python_msc_version < 1920:
-    raise SystemExit(f'Python MSC version {python_msc_version} too old, needs Visual studio 2019')
-if python_msc_version > 1929:
-    raise SystemExit(f'Python MSC version {python_msc_version} too new, needs Visual studio 2019')
-
-# The values are for VisualStudio 2019 (python_msc_version 192_)
-VS_VERSION = '16.0'
-COMN_TOOLS_VERSION = '160'
-
 CSIDL_PROGRAM_FILES = 38
 CSIDL_PROGRAM_FILESX86 = 42
 
 
-@lru_cache()
+@lru_cache
 def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
     SHGFP_TYPE_CURRENT = 0
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
@@ -33,7 +22,7 @@ def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
     return buf.value
 
 
-@lru_cache()
+@lru_cache
 def find_vswhere():
     for which in (CSIDL_PROGRAM_FILESX86, CSIDL_PROGRAM_FILES):
         root = get_program_files_location(which)
@@ -48,11 +37,11 @@ def get_output(*cmd):
     return subprocess.check_output(cmd, encoding='mbcs', errors='strict')
 
 
-@lru_cache()
-def find_visual_studio(version=VS_VERSION):
+@lru_cache
+def find_visual_studio():
     path = get_output(
         find_vswhere(),
-        "-version", version,
+        "-latest",
         "-requires",
         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
         "-property",
@@ -63,11 +52,11 @@ def find_visual_studio(version=VS_VERSION):
     return os.path.join(path, "VC", "Auxiliary", "Build")
 
 
-@lru_cache()
-def find_msbuild(version=VS_VERSION):
+@lru_cache
+def find_msbuild():
     base_path = get_output(
         find_vswhere(),
-        "-version", version,
+        "-latest",
         "-requires", "Microsoft.Component.MSBuild",
         "-property", 'installationPath'
     ).strip()
@@ -124,11 +113,21 @@ def query_process(cmd, is64bit):
     return result
 
 
-@lru_cache()
+@lru_cache
 def query_vcvarsall(is64bit=True):
     plat = 'amd64' if is64bit else 'amd64_x86'
     vcvarsall = find_vcvarsall()
     env = query_process(f'"{vcvarsall}" {plat} & set', is64bit)
+    pat = re.compile(r'vs(\d+)comntools', re.I)
+
+    comn_tools = {}
+
+    for k in env:
+        m = pat.match(k)
+        if m is not None:
+            comn_tools[k] = int(m.group(1))
+    comntools = sorted(comn_tools, key=comn_tools.__getitem__)[-1]
+
 
     def g(k):
         try:
@@ -145,7 +144,7 @@ def query_vcvarsall(is64bit=True):
         k: g(k)
         for k in (
             'PATH LIB INCLUDE LIBPATH WINDOWSSDKDIR'
-            f' VS{COMN_TOOLS_VERSION}COMNTOOLS PLATFORM'
+            f' {comntools} PLATFORM'
             ' UCRTVERSION UNIVERSALCRTSDKDIR VCTOOLSVERSION WINDOWSSDKDIR'
             ' WINDOWSSDKVERSION WINDOWSSDKVERBINPATH WINDOWSSDKBINPATH'
             ' VISUALSTUDIOVERSION VSCMD_ARG_HOST_ARCH VSCMD_ARG_TGT_ARCH'

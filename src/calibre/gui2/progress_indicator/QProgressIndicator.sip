@@ -90,3 +90,4 @@ QMenu* menu_for_action(const QAction *ac);
 void set_image_allocation_limit(int megabytes);
 int get_image_allocation_limit();
 QImage image_from_hicon(void*);
+QImage image_from_hbitmap(void*);

@@ -1,8 +1,10 @@
 import json
 import re
+from calibre import browser
 from urllib.parse import quote
+from html5_parser import parse
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class ft(BasicNewsRecipe):
@@ -16,9 +18,36 @@ class ft(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
-    extra_css = '#fig-cap{font-style:italic; text-align:left; font-size:small;}'
+    simultaneous_downloads = 1
+
+    extra_css = '''
+        .article-info__time-byline {font-size:small; font-weight:bold; }
+        .o-topper__visual, #fig, .main-image, .n-content-image { text-align:center; font-size:small; }
+        blockquote, i { color:#5c5c5c; }
+        .o-topper__standfirst { font-style:italic; color:#202020; }
+        .o-topper__topic { font-size:small; color:#5c5c5c; }
+    '''
+
+    keep_only_tags = [
+        classes(
+            'body_json o-topper__topic o-topper__headline o-topper__standfirst o-topper__visual article-info__time-byline main-image'
+        ),
+        dict(name='article', attrs={'id':'article-body'})
+    ]
+
+    remove_tags = [
+        dict(name=['source', 'svg', 'button', 'aside']),
+        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
+        dict(attrs={'data-layout-name':'card'}),
+        classes('in-article-advert flourish-disclaimer')
+    ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/financial-times/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
 
     # needs_subscription = 'optional'
     #
@@ -35,45 +64,44 @@ class ft(BasicNewsRecipe):
     #         br.submit()
     #     return br
 
-    def get_browser(self, *args, **kw):
-        br = super().get_browser(*args, **kw)
-        br.set_current_header('Referer',  'https://www.google.com/')
-        return br
+    def get_browser(self, *args, **kwargs):
+        return self
 
-    def get_cover_url(self):
-        from datetime import date
-        cover = 'http://img.kiosko.net/' + str(
-            date.today().year
-        ) + '/' + date.today().strftime('%m') + '/' + date.today(
-        ).strftime('%d') + '/uk/ft_uk.750.jpg'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/uk/np/ft_uk.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser(user_agent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
 
     feeds = [
+        ('FirstFT', 'https://www.ft.com/firstft?format=rss'),
+        ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('World', 'https://www.ft.com/world?format=rss'),
         ('US', 'https://www.ft.com/us?format=rss'),
         ('Companies', 'https://www.ft.com/companies?format=rss'),
         ('Tech', 'https://www.ft.com/technology?format=rss'),
         ('Markets', 'https://www.ft.com/markets?format=rss'),
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
-        ('Opinion', 'https://www.ft.com/opinion?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
         ('How to spend it', 'https://www.ft.com/htsi?format=rss'),
+        ('Others', 'https://www.ft.com/rss/home/uk')
     ]
 
     def preprocess_raw_html(self, raw, *a):
         # with open('/t/raw.html', 'w') as f:
         #     f.write(raw)
+        root = parse(raw)
+        if root.xpath('//article[@id="article-body"]'):
+            self.log('**has article content')
+            return raw
+        self.log('**no article content')
         m = re.search(r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw)
         raw = raw[m.start():]
         raw = raw.split('>', 1)[1]
@@ -114,12 +142,11 @@ class ft(BasicNewsRecipe):
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
-        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        html = '<html><body><div class="body_json"><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
         return html
 
     def preprocess_html(self, soup):
-        for span in soup.findAll('span'):
-            p = span.findParent('p')
-            if p:
-                p['id'] = 'fig-cap'
+        for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
+            if con.find('figure'):
+                con['id'] = 'fig'
         return soup

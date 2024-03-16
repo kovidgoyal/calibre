@@ -13,12 +13,16 @@ from threading import Lock, RLock
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.filenames import rmtree
+from calibre.utils.localization import _
+from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_dumps
 from polyglot.builtins import as_unicode, itervalues
 
@@ -146,7 +150,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                 safe_remove(mpath, True)
             try:
                 os.utime(mpath, None)
-                with lopen(mpath, 'rb') as f:
+                with open(mpath, 'rb') as f:
                     ans = jsonlib.load(f)
                 ans['metadata'] = book_as_json(db, book_id)
                 user = rd.username or None
@@ -177,7 +181,7 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     if not mpath.startswith(base):
         raise HTTPNotFound(f'No book file with hash: {bhash} and name: {name}')
     try:
-        return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), bhash, name)
+        return rd.filesystem_file_with_custom_etag(open(mpath, 'rb'), bhash, name)
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
@@ -220,8 +224,14 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
         device, cfi, pos_frac = data['device'], data['cfi'], data['pos_frac']
     except Exception:
         raise HTTPNotFound('Invalid data')
+    cfi = cfi or None
     db.set_last_read_position(
-        book_id, fmt, user=user, device=device, cfi=cfi or None, pos_frac=pos_frac)
+        book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
+    if user:
+        with db.safe_read_lock:
+            tt = db._field_for('title', book_id)
+            tt += ' ' + _('by') + ' ' + authors_to_string(db._field_for('authors', book_id))
+        last_read_cache().add_last_read_position(library_id, book_id, fmt, user, cfi, pos_frac, tt)
     rd.outheaders['Content-type'] = 'text/plain'
     return b''
 
@@ -296,4 +306,4 @@ def mathjax(ctx, rd, which):
     path = os.path.abspath(P('mathjax/' + which, allow_user_override=False))
     if not path.startswith(P('mathjax', allow_user_override=False)):
         raise HTTPNotFound('No MathJax file named: %s' % which)
-    return rd.filesystem_file_with_constant_etag(lopen(path, 'rb'), manifest['etag'])
+    return rd.filesystem_file_with_constant_etag(open(path, 'rb'), manifest['etag'])

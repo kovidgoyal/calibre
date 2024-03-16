@@ -2,23 +2,29 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, string
+import re
+import string
 from operator import attrgetter
-from gettext import pgettext
-
-from qt.core import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
-                      pyqtSignal, QIcon, QApplication)
+from qt.core import (
+    QAbstractItemModel, QApplication, QIcon, QModelIndex, QPixmap, QSize, Qt,
+    pyqtSignal,
+)
 
 from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher
+from calibre.gui2.store.search.download_thread import CoverThreadPool, DetailsThreadPool
 from calibre.gui2.store.search_result import SearchResult
-from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
-    CoverThreadPool
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import SearchQueryParser
 
 
 def comparable_price(text):
+    if isinstance(text, (int, float)):
+        text = str(text)
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', 'ignore')
+    text = text or ''
     # this keep thousand and fraction separators
     match = re.search(r'(?:\d|[,.](?=\d))(?:\d*(?:[,.\' ](?=\d))?)+', text)
     if match:

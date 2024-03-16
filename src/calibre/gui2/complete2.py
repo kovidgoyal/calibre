@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
-    QApplication, QListView, QPoint, QModelIndex, QEvent,
+    QApplication, QListView, QPoint, QModelIndex, QEvent, pyqtProperty,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer, sip)
 
 from calibre.constants import ismacos
@@ -514,6 +514,15 @@ class EditWithComplete(EnComboBox):
 
     def text(self):
         return self.lineEdit().text()
+
+    def set_current_text(self, text):
+        self.setText(text)
+        self.selectAll()
+
+    # Create a Qt user property for the current text so that when this widget
+    # is used as an edit widget in a table view it selects all text, as
+    # matching the behavior of all other Qt widgets.
+    current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
         self.lineEdit().selectAll()

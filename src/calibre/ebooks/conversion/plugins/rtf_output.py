@@ -25,7 +25,7 @@ class RTFOutput(OutputFormatPlugin):
             close = True
             if not os.path.exists(os.path.dirname(output_path)) and os.path.dirname(output_path) != '':
                 os.makedirs(os.path.dirname(output_path))
-            out_stream = lopen(output_path, 'wb')
+            out_stream = open(output_path, 'wb')
         else:
             out_stream = output_path
 

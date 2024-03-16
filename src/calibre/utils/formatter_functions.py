@@ -11,21 +11,28 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, numbers
+import inspect
+import numbers
+import posixpath
+import re
+import traceback
 from contextlib import suppress
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
-from math import trunc, floor, ceil, modf
+from lxml import html
+from math import ceil, floor, modf, trunc
 
-from calibre import human_readable, prints, prepare_string_for_xml
+from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
+from calibre.db.notes.exim import parse_html, expand_note_resources
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
+from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
+from calibre.utils.icu import capitalize, lower as icu_lower, sort_key, strcmp
+from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import capitalize, strcmp, sort_key
-from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
-from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -667,6 +674,30 @@ class BuiltinSwitch(BuiltinFormatterFunction):
             i += 2
 
 
+class BuiltinSwitchIf(BuiltinFormatterFunction):
+    name = 'switch_if'
+    arg_count = -1
+    category = 'Iterating over values'
+    __doc__ = doc = _('switch_if([test_expression, value_expression,]+ else_expression) -- '
+        'for each "test_expression, value_expression" pair, checks if test_expression '
+        'is True (non-empty) and if so returns the result of value_expression. '
+        'If no test_expression is True then the result of else_expression is returned. '
+        'You can have as many "test_expression, value_expression" pairs as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if (len(args) % 2) != 1:
+            raise ValueError(_('switch_if requires an odd number of arguments'))
+        # We shouldn't get here because the function is inlined. However, someone
+        # might call it directly.
+        i = 0
+        while i < len(args):
+            if i + 1 >= len(args):
+                return args[i]
+            if args[i]:
+                return args[i+1]
+            i += 2
+
+
 class BuiltinStrcatMax(BuiltinFormatterFunction):
     name = 'strcat_max'
     arg_count = -1
@@ -767,28 +798,40 @@ class BuiltinStrInList(BuiltinFormatterFunction):
 
 class BuiltinIdentifierInList(BuiltinFormatterFunction):
     name = 'identifier_in_list'
-    arg_count = 4
+    arg_count = -1
     category = 'List lookup'
-    __doc__ = doc = _('identifier_in_list(val, id, found_val, not_found_val) -- '
-            'treat val as a list of identifiers separated by commas, '
-            'comparing the string against each value in the list. An identifier '
-            'has the format "identifier:value". The id parameter should be '
-            'either "id" or "id:regexp". The first case matches if there is any '
-            'identifier with that id. The second case matches if the regexp '
-            'matches the identifier\'s value. If there is a match, '
-            'return found_val, otherwise return not_found_val.')
+    __doc__ = doc = _('identifier_in_list(val, id_name [, found_val, not_found_val]) -- '
+            'treat val as a list of identifiers separated by commas. An identifier '
+            'has the format "id_name:value". The id_name parameter is the id_name '
+            'text to search for, either "id_name" or "id_name:regexp". The first case '
+            'matches if there is any identifier matching that id_name. The second '
+            'case matches if id_name matches an identifier and the regexp '
+            'matches the identifier\'s value. If found_val and not_found_val '
+            'are provided then if there is a match then return found_val, otherwise '
+            'return not_found_val. If found_val and not_found_val are not '
+            'provided then if there is a match then return the identifier:value '
+            'pair, otherwise the empty string.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, ident, fv, nfv):
+    def evaluate(self, formatter, kwargs, mi, locals, val, ident, *args):
+        if len(args) == 0:
+            fv_is_id = True
+            nfv = ''
+        elif len(args) == 2:
+            fv_is_id = False
+            fv = args[0]
+            nfv = args[1]
+        else:
+            raise ValueError(_("{} requires 2 or 4 arguments").format(self.name))
+
         l = [v.strip() for v in val.split(',') if v.strip()]
-        (id, _, regexp) = ident.partition(':')
-        if not id:
+        (id_, __, regexp) = ident.partition(':')
+        if not id_:
             return nfv
-        id += ':'
-        if l:
-            for v in l:
-                if v.startswith(id):
-                    if not regexp or re.search(regexp, v[len(id):], flags=re.I):
-                        return fv
+        for candidate in l:
+            i, __, v =  candidate.partition(':')
+            if v and i == id_:
+                if not regexp or re.search(regexp, v, flags=re.I):
+                    return candidate if fv_is_id else fv
         return nfv
 
 
@@ -1244,6 +1287,40 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
         return s
 
 
+class BuiltinFormatDateField(BuiltinFormatterFunction):
+    name = 'format_date_field'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _("format_date_field(field_name, format_string) -- format "
+            "the value in the field 'field_name', which must be the lookup name "
+            "of date field, either standard or custom. See 'format_date' for "
+            "the formatting codes. This function is much faster than format_date "
+            "and should be used when you are formatting the value in a field "
+            "(column). It can't be used for computed dates or dates in string "
+            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd')")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
+        try:
+            if field not in mi.all_field_keys():
+                return _('Unknown field %s passed to function %s')%(field, 'format_date_field')
+            val = mi.get(field, None)
+            if val is None:
+                s = ''
+            elif format_string == 'to_number':
+                s = val.timestamp()
+            elif format_string.startswith('from_number'):
+                val = datetime.fromtimestamp(float(val))
+                f = format_string[12:]
+                s = format_date(val, f if f else 'iso')
+            else:
+                s = format_date(val, format_string)
+            return s
+        except:
+            traceback.print_exc()
+            s = 'BAD DATE'
+        return s
+
+
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
@@ -1362,7 +1439,9 @@ class BuiltinSeriesSort(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.series:
-            return title_sort(mi.series)
+            langs = mi.languages
+            lang = langs[0] if langs else None
+            return title_sort(mi.series, lang=lang)
         return ''
 
 
@@ -1969,6 +2048,29 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
         return ascii_text(source)
 
 
+class BuiltinGetLink(BuiltinFormatterFunction):
+    name = 'get_link'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _("get_link(field_name, field_value) -- fetch the link for "
+                      "field 'field_name' with value 'field_value'. If there is "
+                      "no attached link, return ''. Example: "
+                      "get_link('tags', 'Fiction') returns the link attached to "
+                      "the tag 'Fiction'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+        db = self.get_database(mi).new_api
+        try:
+            link = None
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                link = db.link_for(field_name, item_id)
+            return link if link is not None else ''
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
 class BuiltinAuthorLinks(BuiltinFormatterFunction):
     name = 'author_links'
     arg_count = 2
@@ -1987,7 +2089,10 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val_sep, pair_sep):
         if hasattr(mi, '_proxy_metadata'):
-            link_data = mi._proxy_metadata.author_link_map
+            link_data = mi._proxy_metadata.link_maps
+            if not link_data:
+                return ''
+            link_data = link_data.get('authors')
             if not link_data:
                 return ''
             names = sorted(link_data.keys(), key=sort_key)
@@ -2112,14 +2217,14 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
         res = getattr(mi, field, None)
         if res is None:
             if is_undefined == '1':
-                return 'yes'
+                return 'Yes'
             return ""
         if not isinstance(res, bool):
             raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))
         if is_false == '1' and not res:
-            return 'yes'
+            return 'Yes'
         if is_true == '1' and res:
-            return 'yes'
+            return 'Yes'
         return ""
 
 
@@ -2348,11 +2453,190 @@ class BuiltinBookValues(BuiltinFormatterFunction):
                 f = db.new_api.get_proxy_metadata(id_).get(column, None)
                 if isinstance(f, (tuple, list)):
                     s.update(f)
-                elif f:
+                elif f is not None:
                     s.add(str(f))
             return sep.join(s)
         except Exception as e:
             raise ValueError(e)
+
+
+class BuiltinHasExtraFiles(BuiltinFormatterFunction):
+    name = 'has_extra_files'
+    arg_count = -1
+    category = 'Template database functions'
+    __doc__ = doc = _("has_extra_files([pattern]) -- returns the count of extra "
+                      "files, otherwise '' (the empty string). "
+                      "If the optional parameter 'pattern' (a regular expression) "
+                      "is supplied then the list is filtered to files that match "
+                      "pattern before the files are counted. The pattern match is "
+                      "case insensitive. "
+                      'This function can be used only in the GUI.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if len(args) > 1:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
+        pattern = args[0] if len(args) == 1 else None
+        db = self.get_database(mi).new_api
+        try:
+            files = tuple(f.relpath.partition('/')[-1] for f in
+                          db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
+            if pattern:
+                r = re.compile(pattern, re.IGNORECASE)
+                files = tuple(filter(r.search, files))
+            return len(files) if len(files) > 0 else ''
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinExtraFileNames(BuiltinFormatterFunction):
+    name = 'extra_file_names'
+    arg_count = -1
+    category = 'Template database functions'
+    __doc__ = doc = _("extra_file_names(sep [, pattern]) -- returns a sep-separated "
+                      "list of extra files in the book's '{}/' folder. If the "
+                      "optional parameter 'pattern', a regular expression, is "
+                      "supplied then the list is filtered to files that match pattern. "
+                      "The pattern match is case insensitive. "
+                      'This function can be used only in the GUI.').format(DATA_DIR_NAME)
+
+    def evaluate(self, formatter, kwargs, mi, locals, sep, *args):
+        if len(args) > 1:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
+        pattern = args[0] if len(args) == 1 else None
+        db = self.get_database(mi).new_api
+        try:
+            files = tuple(f.relpath.partition('/')[-1] for f in
+                          db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
+            if pattern:
+                r = re.compile(pattern, re.IGNORECASE)
+                files = tuple(filter(r.search, files))
+            return sep.join(files)
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinExtraFileSize(BuiltinFormatterFunction):
+    name = 'extra_file_size'
+    arg_count = 1
+    category = 'Template database functions'
+    __doc__ = doc = _("extra_file_size(file_name) -- returns the size in bytes of "
+                      "the extra file 'file_name' in the book's '{}/' folder if "
+                      "it exists, otherwise -1."
+                      'This function can be used only in the GUI.').format(DATA_DIR_NAME)
+
+    def evaluate(self, formatter, kwargs, mi, locals, file_name):
+        db = self.get_database(mi).new_api
+        try:
+            q = posixpath.join(DATA_DIR_NAME, file_name)
+            for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
+                if f.relpath == q:
+                    return str(f.stat_result.st_size)
+            return str(-1)
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinExtraFileModtime(BuiltinFormatterFunction):
+    name = 'extra_file_modtime'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _("extra_file_modtime(file_name, format_string) -- returns the "
+                      "modification time of the extra file 'file_name' in the "
+                      "book's '{}/' folder if it exists, otherwise -1.0. The "
+                      "modtime is formatted according to 'format_string' "
+                      "(see format_date()). If 'format_string' is empty, returns "
+                      "the modtime as the floating point number of seconds since "
+                      "the epoch. The epoch is OS dependent. "
+                      "This function can be used only in the GUI.").format(DATA_DIR_NAME)
+
+    def evaluate(self, formatter, kwargs, mi, locals, file_name, format_string):
+        db = self.get_database(mi).new_api
+        try:
+            q = posixpath.join(DATA_DIR_NAME, file_name)
+            for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
+                if f.relpath == q:
+                    val = f.stat_result.st_mtime
+                    if format_string:
+                        return format_date(datetime.fromtimestamp(val), format_string)
+                    return str(val)
+            return str(1.0)
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinGetNote(BuiltinFormatterFunction):
+    name = 'get_note'
+    arg_count = 3
+    category = 'Template database functions'
+    __doc__ = doc = _("get_note(field_name, field_value, plain_text) -- fetch the "
+                      "note for field 'field_name' with value 'field_value'. If "
+                      "'plain_text' is empty, return the note's HTML. If 'plain_text' "
+                      "is non-empty, return the note's plain text. If the note "
+                      "doesn't exist, return '' in both cases. Example: "
+                      "get_note('tags', 'Fiction', '') returns the HTML of the "
+                      "note attached to the tag 'Fiction'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
+        db = self.get_database(mi).new_api
+        try:
+            note = ''
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                note_data = db.notes_data_for(field_name, item_id)
+                if note_data is not None:
+                    if plain_text == '1':
+                        return note['searchable_text'].partition('\n')[2]
+                    # Return the full HTML of the note, including all images as
+                    # data: URLs. Reason: non-exported note html contains
+                    # "calres://" URLs for images. These images won't render
+                    # outside the context of the library where the note "lives".
+                    # For example, they don't work in book jackets and book
+                    # details from a different library. They also don't work in
+                    # tooltips.
+
+                    # This code depends on the note being wrapped in <body> tags
+                    # by parse_html. The body is changed to a <div>. That means
+                    # we often end up with <div><div> or some such, but that is
+                    # OK
+                    root = parse_html(note_data['doc'])
+                    # There should be only one <body>
+                    root = root.xpath('//body')[0]
+                    # Change the body to a div
+                    root.tag = 'div'
+                    # Expand all the resources in the note
+                    root = expand_note_resources(root, db.get_notes_resource)
+                    note = html.tostring(root, encoding='unicode')
+            return note
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+
+
+class BuiltinHasNote(BuiltinFormatterFunction):
+    name = 'has_note'
+    arg_count = 2
+    category = 'Template database functions'
+    __doc__ = doc = _("has_note(field_name, field_value) -- return '1' "
+                      "if the value 'field_value' in the field 'field_name' "
+                      "has an attached note, '' otherwise. Example: "
+                      "has_note('tags', 'Fiction') returns '1' if the tag "
+                      "'fiction' has an attached note, '' otherwise.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+        db = self.get_database(mi).new_api
+        note = None
+        try:
+            item_id = db.get_item_id(field_name, field_value)
+            if item_id is not None:
+                note = db.notes_data_for(field_name, item_id)
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(e)
+        return '1' if note is not None else ''
 
 
 _formatter_builtins = [
@@ -2364,13 +2648,15 @@ _formatter_builtins = [
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinCurrentVirtualLibraryName(), BuiltinDateArithmetic(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
-    BuiltinField(), BuiltinFieldExists(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
+    BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
+    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
-    BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
+    BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
-    BuiltinGlobals(),
-    BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
+    BuiltinGetLink(),
+    BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
+    BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
     BuiltinListDifference(), BuiltinListEquals(), BuiltinListIntersection(),
@@ -2384,7 +2670,7 @@ _formatter_builtins = [
     BuiltinSetGlobals(), BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
-    BuiltinSwapAroundComma(), BuiltinSwitch(),
+    BuiltinSwapAroundComma(), BuiltinSwitch(), BuiltinSwitchIf(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(), BuiltinToday(),
     BuiltinToHex(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
     BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()

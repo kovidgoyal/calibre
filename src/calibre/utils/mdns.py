@@ -76,21 +76,25 @@ def _get_external_ip():
     return ipaddr
 
 
-def verify_ipV4_address(ip_address):
-    result = None
-    if ip_address != '0.0.0.0' and ip_address != '::':
-        # do some more sanity checks on the address
-        try:
-            socket.inet_aton(ip_address)
-            if len(ip_address.split('.')) == 4:
-                result = ip_address
-        except OSError:
-            # Not legal ip address
-            pass
-    return result
-
-
 _ext_ip = None
+
+
+def verify_ip_address(addr: str) -> str:
+    result = ''
+    if addr not in ('0.0.0.0', '::'):
+        try:
+            socket.inet_pton(socket.AF_INET6, addr)
+        except Exception:
+            try:
+                socket.inet_pton(socket.AF_INET, addr)
+            except Exception:
+                pass
+            else:
+                if len(addr.split('.')) == 4:
+                    result = addr
+        else:
+            result = addr
+    return result
 
 
 def get_external_ip():
@@ -117,6 +121,13 @@ def start_server():
         atexit.register(stop_server)
 
     return _server
+
+
+def inet_aton(addr):
+    try:
+        return socket.inet_pton(socket.AF_INET6, addr)
+    except:
+        return socket.inet_pton(socket.AF_INET, addr)
 
 
 def create_service(desc, service_type, port, properties, add_hostname, use_ip_address=None):
@@ -148,13 +159,13 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
 
     return ServiceInfo(
         service_type, service_name,
-        addresses=[socket.inet_aton(local_ip),],
+        addresses=[inet_aton(local_ip),],
         port=port,
         properties=properties,
         server=server_name)
 
 
-def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None):
+def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None, strict=True):
     '''
     Publish a service.
 
@@ -167,7 +178,7 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname,
                              use_ip_address)
-    server.register_service(service)
+    server.register_service(service, strict=strict)
     return service
 
 

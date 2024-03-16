@@ -38,7 +38,7 @@ class IndiaToday(BasicNewsRecipe):
     '''
 
     remove_tags = [
-            classes('checkout__section sharing align-center-button amp-izooto-sub ads__container inline-story-add amp-ad'),
+            classes('checkout__section sharing align-center-button amp-izooto-sub ads__container inline-story-add amp-ad readmore__box'),
             dict(name=(('amp-web-push-widget', 'amp-ad'))),
             dict(attrs={'id':'tab-link-wrapper-plugin'}),
             dict(name='div', attrs={'amp-access':'NOT granted'})
@@ -63,11 +63,10 @@ class IndiaToday(BasicNewsRecipe):
         sections = {}
 
         date = soup.find(attrs={'class':lambda x: x and x.startswith('MagazineEdition_edition__date')})
-        edition = soup.find(attrs={'class':lambda x: x and x.startswith('MagazineEdition_magazineprime')})
-        self.timefmt =' (' + self.tag_to_string(edition) + ') [' + self.tag_to_string(date).strip() + ']'
-        p = edition.findNext('p')
-        if p:
-            self.description = self.tag_to_string(p).strip()
+        edition = soup.find(attrs={'class':'prime__magazine'})
+        self.timefmt = '(' + self.tag_to_string(edition).strip() +') [' + self.tag_to_string(date).strip() + ']'
+        if p := edition.findNext('p'):
+            self.description = self.tag_to_string(p)
         self.log('Downloading Issue: ', self.timefmt)
 
         for tag in soup.findAll('div', attrs={'class': lambda x: x and 'NoCard_story__grid__' in x}):
@@ -124,12 +123,6 @@ class IndiaToday(BasicNewsRecipe):
         for quo in soup.findAll(attrs={'class':'quotes'}):
             quo.name = 'blockquote'
         return soup
-
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            image = soup.find('img', src=True, attrs={'class':'i-amphtml-fill-content'})
-            if image is not None:
-                self.add_toc_thumbnail(article, image['src'])
 
     def print_version(self, url):
         return url.replace('.in/','.in/amp/')

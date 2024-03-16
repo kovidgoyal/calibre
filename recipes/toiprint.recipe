@@ -1,0 +1,166 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import json
+from datetime import date
+from collections import defaultdict
+
+
+# default edition is Delhi i.e., 'cap'
+# Hyderabad - 'toih'; Delhi - 'cap'; Mumbai - 'toim'; Banglore - 'toibgc';
+# Chennai - 'toich'; Chandigarh - 'toicgct'; Jaipur - 'toijc'; Kolkata - 'toikc';
+# There are others too, try to figure it out, visit toi epaper link.
+
+le = 'cap' # local edition;
+
+date0 = date.today().strftime('%Y/%m/%d')
+
+# for older edition change date0 below.
+# date0 = '2023/09/15'
+
+year, month, day = (int(x) for x in date0.split('/'))
+dt = date(year, month, day)
+date_ = dt.strftime('%d_%m_%Y')
+
+index = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' + date0
+img_index = 'https://cmsimages.timesgroup.com/image-resizer?epaper_s3_path=PublicationData/TOI/' + le + '/' + date0
+
+def handle_images(x, soup):
+    img = soup.find('img')
+    if img:
+        img_div = img.findParent('div')
+        cap = img_div.next_sibling
+        if cap and cap.has_attr('class') and 'cap' in cap['class']:
+            x.insert_after(img_div)
+            img_div.insert_after(cap)
+        else:
+            x.insert_after(img_div)
+    for lead in reversed(soup.findAll('div', attrs={'class':'lead'})):
+        x.insert_after(lead)
+
+class toiprint(BasicNewsRecipe):
+    title = 'TOI Print Edition'
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    masthead_url = 'https://static.toiimg.com/photo/98333929.cms'
+    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+    description = 'Articles from the Times of India epaper, digital edition'
+    encoding = 'utf-8'
+    remove_empty_feeds = True
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'TOI Print Edition ' + dt.strftime('%b %d, %Y')
+
+    extra_css = '''
+        .sub { color:#202020; }
+        .auth { font-size:small; font-weight:bold; color:#202020; }
+        .cap { text-align:center; font-size:small; }
+        img { display:block; margin:0 auto; }
+        .info { font-size:small; color:#404040; }
+        .lead { color:#404040; }
+    '''
+
+    def get_cover_url(self):
+        cover = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' \
+            + date0 + '/Page/' + date_ + '_001_' + le + '.jpg'
+        self.log('cover_url ', cover)
+        return cover
+
+    def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
+        url = index + '/DayIndex/' + date_ + '_' + le + '.json'
+        raw = self.index_to_soup(url, raw=True)
+        data = json.loads(raw)
+        if 'DayIndex' not in data:
+            raise ValueError(
+                    'The Times of India Newspaper is not published today.'
+                )
+        data = data['DayIndex']
+        feeds_dict = defaultdict(list)
+        for link in data:
+            sec_name = link['PageTitle']
+            if sec_name == 'Advertisement':
+                continue
+            self.log(sec_name)
+            if 'Articles' in link:
+                for art in link['Articles']:
+                    section = sec_name
+                    if 'ArticleName' not in art:
+                        continue
+                    url = art['ArticleName']
+                    title = art.get('ArticleTitle', 'unknown').replace('<br>', '').replace('<br/>', '')
+                    if art.get('ColumnTitle', '') == '':
+                        desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ArticleBody', '')
+                    else:
+                        desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ColumnTitle', '')
+                    self.log('\t', title, '\n\t', desc.replace('\n', ''))
+                    feeds_dict[section].append({"title": title, "url": url, "description": desc})
+        def sort_key(x):
+            section = x[0]
+            try:
+                return (
+                    'Front Page', 'Times Nation', 'Times Region', 'Times City'
+                ).index(section)
+            except Exception:
+                return 99999999
+        return (sorted(feeds_dict.items(), key=sort_key))
+
+    def preprocess_raw_html(self, raw, *a):
+        data = json.loads(raw)
+
+        tags = []
+        for x in data:
+            tags.append(x['TagName'])
+        if not any(x in {'ArticleBody', 'Photographs'} for x in tags):
+            self.abort_article('not an article')
+
+        body = ''
+        for x in data:
+            if x['TagName'] == 'ArticleTitle':
+                body += '<h1>' + x['ZoneText'] + '</h1>'
+            elif x['TagName'] == 'ColumnTitle':
+                body += '<p class="sub"><b>' + x['ZoneText'] + '</b></p>'
+            elif x['TagName'] == 'Author':
+                body += '<p class="auth">' + x['ZoneText'].replace('<br>', '') + '</p>'
+            elif x['TagName'] in 'ArticleBody':
+                body += '<span>' + x['ZoneText'] + '</span>'
+            elif x['TagName'] in 'Information':
+                body += '<p class="info">' + x['ZoneText'] + '</p>'
+            elif x['TagName'] in {'LinkTo', 'LinkFrom'}:
+                body += '<p class="auth"><i>' + x['ZoneText'] + '</i></p>'
+            elif x['TagName'] == 'Photographs':
+                pag = x['ZoneID'].split('_')[-4]
+                body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
+                     + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
+            elif x['TagName'] == 'ImageCaption':
+                body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
+            elif x['TagName'] == 'Lead':
+                body += '<div class="lead"><p><i>' + x['ZoneText'] + '</i></p></div><p>'
+            elif 'ZoneText' in x:
+                body += '<p><i>' + x['ZoneText'] + '</i></p>'
+        return '<html><body><div>' \
+                    + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<br>') \
+                        + '</div></body></html>'
+
+    def preprocess_html(self, soup):
+        h1 = soup.find('h1')
+        if h1:
+            h2 = h1.next_sibling
+            if h2 and h2.has_attr('class') and 'sub' in h2['class']:
+                h3 = h2.next_sibling
+                if h3 and h3.has_attr('class') and 'sub' in h3['class']:
+                    handle_images(h3, soup)
+                else:
+                    handle_images(h2, soup)
+            else:
+                handle_images(h1, soup)
+        return soup
+
+    def print_version(self, url):
+        return index + '/ArticleZoneJson/' + url.split('_')[-3] + '/' + url + '.json'
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = '***'

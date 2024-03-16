@@ -1,16 +1,12 @@
-#!/usr/bin/env  python
-
 import json
 import re
 from datetime import date
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 is_saturday = date.today().weekday() == 5
 
-
 class LiveMint(BasicNewsRecipe):
-    title = u'Live Mint'
+    title = 'Live Mint'
     description = 'Financial News from India.'
     language = 'en_IN'
     __author__ = 'Krittika Goyal, revised by unkn0wn'
@@ -23,55 +19,92 @@ class LiveMint(BasicNewsRecipe):
     masthead_url = 'https://images.livemint.com/static/livemint-logo-v1.svg'
 
     remove_empty_feeds =  True
+    resolve_internal_links = True
+    
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'Mint | ' + date.today().strftime('%b %d, %Y')
+            if is_saturday:
+                self.title = 'Mint Lounge | ' + date.today().strftime('%b %d, %Y')
 
     if is_saturday:
+        
+        def get_cover_url(self):
+            soup = self.index_to_soup('https://lifestyle.livemint.com/')
+            if citem := soup.find('div', attrs={'class':'headLatestIss_cover'}):
+                return citem.img['src'].replace('_tn.jpg', '_mr.jpg')
+        
+        masthead_url = 'https://lifestyle.livemint.com/mintlounge/static-images/lounge-logo.svg'
 
-        cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/16/Delhi/Delhi/5_01/bf867ea1_01_mr.jpg'
+        oldest_article = 6.5 # days
+
+        extra_css = '''
+            #story-summary-0 {font-style:italic; color:#202020;}
+            .innerBanner, .storyImgSec {text-align:center; font-size:small;}
+            .author {font-size:small;}
+        '''
 
         keep_only_tags = [
-            dict(name='h1'),
-            dict(name='h2', attrs={'id':'story-summary-0'}),
-            dict(name='picture'),
-            dict(name='div', attrs={'class':'innerBanCaption'}),
-            dict(name='div', attrs={'id':'date-display-before-content'}),
-            dict(name='div', attrs={'class':'storyContent'}),
+            classes('storyPageHeading storyContent innerBanner author')
         ]
         remove_tags = [
-            classes(
-                'sidebarAdv similarStoriesClass moreFromSecClass'
-            )
+            dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
+            classes('hidden-article-url sidebarAdv similarStoriesClass moreFromSecClass linkStories publishDetail'),
+            dict(attrs={'id':['hidden-article-id-0', 'hidden-article-type-0']})
         ]
+
         feeds = [
-            ('News', 'https://lifestyle.livemint.com/rss/news'),
-            ('Food','https://lifestyle.livemint.com/rss/food'),
-            ('Fashion','https://lifestyle.livemint.com/rss/fashion'),
-            ('How to Lounge','https://lifestyle.livemint.com/rss/how-to-lounge'),
-            ('Smart Living','https://lifestyle.livemint.com/rss/smart-living'),
+            ('Lounge News', 'https://lifestyle.livemint.com/rss/news'),
+            ('Food', 'https://lifestyle.livemint.com/rss/food'),
+            ('Fashion', 'https://lifestyle.livemint.com/rss/fashion'),
+            ('How to Lounge', 'https://lifestyle.livemint.com/rss/how-to-lounge'),
+            ('Smart Living', 'https://lifestyle.livemint.com/rss/smart-living'),
+            ('Health', 'https://lifestyle.livemint.com/rss/health'),
+            ('Relationships', 'https://lifestyle.livemint.com//rss/relationships')
         ]
 
         def preprocess_html(self, soup):
+            if h2 := soup.find('h2'):
+                h2.name = 'p'
+            for also in soup.findAll('h2'):
+                if self.tag_to_string(also).strip().startswith('Also'):
+                    also.extract()
             for img in soup.findAll('img', attrs={'data-img': True}):
                 img['src'] = img['data-img']
             return soup
     else:
-        # some wsj articles wont load
+        
+        def get_cover_url(self):
+            soup = self.index_to_soup(
+                'https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Mint-Mumbai/Newspaper/'
+            )
+            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+                return citem['content']
+
         extra_css = '''
+            img {margin:0 auto;}
+            .psTopLogoItem img, .ecologoStory { width:100; }
             #img-cap {font-size:small; text-align:center;}
-            #auth-info {font-size:small; text-align:center;}
-            .highlights {font-style:italic;}
-            .summary{font-style:italic; color:#404040;}
+            .summary, .highlights, .synopsis {
+                font-weight:normal !important; font-style:italic; color:#202020;
+            }
+            h2 {font-size:normal !important;}
+            .author-widget {font-size:small; font-style:italic; color:#404040;}
+            em, blockquote {color:#202020;}
+            .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag {font-size:small;}
         '''
-        cover_url = 'https://epsfs.hindustantimes.com/MINT/2022/04/05/Delhi/Delhi/5_01/1ec7ad14_01_mr.jpg'
 
         keep_only_tags = [
-            dict(name='h1'),
-            dict(name='figure', attrs={'data-vars-mediatype':'image'}),
-            classes('articleInfo FirstEle summary highlights paywall'),
+            dict(name='article', attrs={'id':lambda x: x and x.startswith(('article_', 'box_'))}),
+            classes('contentSec')
         ]
         remove_tags = [
+            dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
             classes(
-                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight'
-                ' socialHolder imgbig disclamerText disqus-comment-count'
+                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider'
+                ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo'
+                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText'
             )
         ]
 
@@ -96,6 +129,12 @@ class LiveMint(BasicNewsRecipe):
         ]
 
         def preprocess_raw_html(self, raw, *a):
+            # remove empty p tags
+            raw = re.sub(
+                r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', '\g<2>', re.sub(
+                    r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
+                )
+            )
             if '<script>var wsjFlag=true;</script>' in raw:
                 m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
                 raw1 = raw[m.start():]
@@ -105,19 +144,29 @@ class LiveMint(BasicNewsRecipe):
                 body = data['articleBody'] + '</p> <p>'\
                         + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
                 body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
-                raw = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
-                return raw
-            else:
-                return raw
+                raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
+                return raw2
+            return raw
 
         def preprocess_html(self, soup):
+            for strong in soup.findAll('strong'):
+                if strong.find('p'):
+                    strong.name = 'div'
+            for embed in soup.findAll('div', attrs={'class':'embed'}):
+                if nos := embed.find('noscript'):
+                    nos.name = 'span'
             for span in soup.findAll('figcaption'):
                 span['id'] = 'img-cap'
-            for auth in soup.findAll('span', attrs={'class':['articleInfo pubtime','articleInfo author']}):
-                auth['id'] = 'auth-info'
+            for auth in soup.findAll('span', attrs={'class':lambda x: x and 'articleInfo' in x.split()}):
                 auth.name = 'div'
             for span in soup.findAll('span', attrs={'class':'exclusive'}):
                 span.extract()
             for img in soup.findAll('img', attrs={'data-src': True}):
                 img['src'] = img['data-src']
+            if wa := soup.find(**classes('autobacklink-topic')):
+                if p := wa.findParent('p'):
+                    p.extract()
             return soup
+
+        def populate_article_metadata(self, article, soup, first):
+            article.title = article.title.replace('<span class="webrupee">₹</span>','₹')

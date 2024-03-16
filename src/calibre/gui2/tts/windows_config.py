@@ -13,17 +13,13 @@ from calibre.gui2.widgets import BusyCursor
 
 class VoicesModel(QAbstractTableModel):
 
-    system_default_voice = ''
+    system_default_voice = '__default__'
 
     def __init__(self, voice_data, parent=None):
         super().__init__(parent)
         self.voice_data = voice_data
-
-        def language(x):
-            return x.get('language_display_name') or x['language'] or ''
-
-        self.current_voices = tuple((x['name'], language(x), x.get('age', ''), x.get('gender', ''), x['id']) for x in voice_data)
-        self.column_headers = _('Name'), _('Language'), _('Age'), _('Gender')
+        self.current_voices = tuple((x.display_name, x.language,  x.gender, x.id) for x in voice_data)
+        self.column_headers = _('Name'), _('Language'), _('Gender')
 
     def rowCount(self, parent=None):
         return len(self.current_voices) + 1
@@ -51,13 +47,13 @@ class VoicesModel(QAbstractTableModel):
             with suppress(IndexError):
                 if row == 0:
                     return self.system_default_voice
-                return self.current_voices[row - 1][4]
+                return self.current_voices[row - 1][3]
 
     def index_for_voice(self, v):
         r = 0
         if v != self.system_default_voice:
             for i, x in enumerate(self.current_voices):
-                if x[4] == v:
+                if x[3] == v:
                     r = i + 1
                     break
             else:
@@ -73,16 +69,17 @@ class Widget(QWidget):
         self.tts_client = tts_client
 
         with BusyCursor():
-            self.voice_data = self.tts_client.get_voice_data()
+            self.voice_data = self.tts_client.get_all_voices()
             self.default_system_rate = self.tts_client.default_system_rate
-            self.all_sound_outputs = self.tts_client.get_sound_outputs()
+            self.all_sound_outputs = self.tts_client.get_all_audio_devices()
+            self.default_system_audio_device = self.tts_client.default_system_audio_device
 
         self.speed = s = QSlider(Qt.Orientation.Horizontal, self)
         s.setMinimumWidth(200)
-        l.addRow(_('&Speed of speech (words per minute):'), s)
-        s.setRange(self.tts_client.min_rate, self.tts_client.max_rate)
-        s.setSingleStep(1)
-        s.setPageStep(2)
+        l.addRow(_('&Speed of speech:'), s)
+        s.setRange(int(self.tts_client.min_rate * 100), int(100 * self.tts_client.max_rate))
+        s.setSingleStep(10)
+        s.setPageStep(40)
 
         self.voices = v = QTableView(self)
         self.voices_model = VoicesModel(self.voice_data, parent=v)
@@ -101,9 +98,9 @@ class Widget(QWidget):
         l.addRow(v)
 
         self.sound_outputs = so = QComboBox(self)
-        so.addItem(_('System default'), '')
+        so.addItem(_('System default'), ())
         for x in self.all_sound_outputs:
-            so.addItem(x.get('description') or x['id'], x['id'])
+            so.addItem(x.name, x.spec())
         l.addRow(_('Sound output:'), so)
 
         self.backend_settings = initial_backend_settings or {}
@@ -142,11 +139,11 @@ class Widget(QWidget):
 
     @property
     def rate(self):
-        return self.speed.value()
+        return self.speed.value() / 100
 
     @rate.setter
     def rate(self, val):
-        val = int(val or self.default_system_rate)
+        val = int((val or self.default_system_rate) * 100)
         self.speed.setValue(val)
 
     @property
@@ -155,12 +152,14 @@ class Widget(QWidget):
 
     @sound_output.setter
     def sound_output(self, val):
-        val = val or ''
         idx = 0
         if val:
-            q = self.sound_outputs.findData(val)
-            if q > -1:
-                idx = q
+            val = tuple(val)
+            for q in range(self.sound_outputs.count()):
+                x = self.sound_outputs.itemData(q)
+                if x == val:
+                    idx = q
+                    break
         self.sound_outputs.setCurrentIndex(idx)
 
     @property
@@ -181,18 +180,23 @@ class Widget(QWidget):
     def backend_settings(self, val):
         voice = val.get('voice') or VoicesModel.system_default_voice
         self.selected_voice = voice
-        self.rate = val.get('rate') or self.default_system_rate
-        self.sound_output = val.get('sound_output') or ''
+        self.rate = val.get('rate', self.default_system_rate)
+        self.sound_output = val.get('sound_output') or ()
 
 
 def develop():
     from calibre.gui2 import Application
     from calibre.gui2.tts.implementation import Client
+    from calibre.gui2.viewer.config import vprefs
+    s = vprefs.get('tts_winspeech') or {}
+    print(s)
+    print(flush=True)
     app = Application([])
     c = Client()
-    w = Widget(c, {})
+    w = Widget(c, s)
     w.show()
     app.exec()
+    print(flush=True)
     print(w.backend_settings)
 
 

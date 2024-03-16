@@ -9,7 +9,8 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest, windows-2019]
+                # windows is disabled because webenging is crashing when compiling rapydscript in CI, try re-enabling after next Qt update
+                os: [ubuntu-latest, macos-latest]
         steps:
             - name: Checkout source code
               uses: actions/checkout@v3
@@ -67,4 +68,5 @@ jobs:
               run: |
                   set -xe
                   runuser -u ci -- python setup.py test --under-sanitize
+                  echo "Running test_rs"
                   runuser -u ci -- python setup.py test_rs

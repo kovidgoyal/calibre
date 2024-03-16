@@ -134,7 +134,10 @@ def markdown(val):
     except AttributeError:
         from calibre.ebooks.markdown import Markdown
         md = markdown.Markdown = Markdown()
-    return md.convert(val)
+    val = md.convert(val)
+    # The Qt Rich text widgets display <p><br></p> as two blank lines instead
+    # of one so fix that here.
+    return re.sub(r'<p(|\s+[^>]*?)>\s*<br\s*/?>\s*</p>','<p\\1>\xa0</p>', val)
 
 
 def merge_comments(one, two):

@@ -5,12 +5,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs, os
+import codecs
+import os
+import re
 from collections import namedtuple
 
 from calibre.customize import CatalogPlugin
-from calibre.library.catalogs import FIELDS
 from calibre.customize.conversion import DummyReporter
+from calibre.library.catalogs import FIELDS
+from calibre.utils.localization import _
 
 
 class CSV_XML(CatalogPlugin):
@@ -50,12 +53,13 @@ class CSV_XML(CatalogPlugin):
                 "Applies to: CSV, XML output formats"))]
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
+        from lxml import etree
+
+        from calibre.ebooks.metadata import authors_to_string
         from calibre.library import current_library_name
         from calibre.utils.date import isoformat
         from calibre.utils.html2text import html2text
         from calibre.utils.logging import default_log as log
-        from lxml import etree
-        from calibre.ebooks.metadata import authors_to_string
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification
@@ -173,72 +177,75 @@ class CSV_XML(CatalogPlugin):
             else:
                 root = E.calibredb()
             for r in data:
-                record = E.record()
-                root.append(record)
+                try:
+                    record = E.record()
+                    root.append(record)
 
-                for field in fields:
-                    if field.startswith('#'):
-                        val = db.get_field(r['id'], field, index_is_id=True)
-                        if not isinstance(val, str):
-                            val = str(val)
-                        item = getattr(E, field.replace('#', '_'))(val)
-                        record.append(item)
+                    for field in fields:
+                        if field.startswith('#'):
+                            val = db.get_field(r['id'], field, index_is_id=True)
+                            if not isinstance(val, str):
+                                val = str(val)
+                            item = getattr(E, field.replace('#', '_'))(val)
+                            record.append(item)
 
-                for field in ('id', 'uuid', 'publisher', 'rating', 'size',
-                              'isbn', 'ondevice', 'identifiers'):
-                    if field in fields:
-                        val = r[field]
-                        if not val:
-                            continue
-                        if not isinstance(val, (bytes, str)):
-                            if (fm.get(field, {}).get('datatype', None) ==
-                                    'rating' and val):
-                                val = '%.2g' % (val / 2)
-                            val = str(val)
-                        item = getattr(E, field)(val)
-                        record.append(item)
+                    for field in ('id', 'uuid', 'publisher', 'rating', 'size',
+                                'isbn', 'ondevice', 'identifiers'):
+                        if field in fields:
+                            val = r[field]
+                            if not val:
+                                continue
+                            if not isinstance(val, (bytes, str)):
+                                if (fm.get(field, {}).get('datatype', None) ==
+                                        'rating' and val):
+                                    val = '%.2g' % (val / 2)
+                                val = str(val)
+                            item = getattr(E, field)(val)
+                            record.append(item)
 
-                if 'title' in fields:
-                    title = E.title(r['title'], sort=r['sort'])
-                    record.append(title)
+                    if 'title' in fields:
+                        title = E.title(r['title'], sort=r['sort'])
+                        record.append(title)
 
-                if 'authors' in fields:
-                    aus = E.authors(sort=r['author_sort'])
-                    for au in r['authors']:
-                        aus.append(E.author(au))
-                    record.append(aus)
+                    if 'authors' in fields:
+                        aus = E.authors(sort=r['author_sort'])
+                        for au in r['authors']:
+                            aus.append(E.author(au))
+                        record.append(aus)
 
-                for field in ('timestamp', 'pubdate'):
-                    if field in fields:
-                        record.append(getattr(E, field)(isoformat(r[field], as_utc=False)))
+                    for field in ('timestamp', 'pubdate'):
+                        if field in fields:
+                            record.append(getattr(E, field)(isoformat(r[field], as_utc=False)))
 
-                if 'tags' in fields and r['tags']:
-                    tags = E.tags()
-                    for tag in r['tags']:
-                        tags.append(E.tag(tag))
-                    record.append(tags)
+                    if 'tags' in fields and r['tags']:
+                        tags = E.tags()
+                        for tag in r['tags']:
+                            tags.append(E.tag(tag))
+                        record.append(tags)
 
-                if 'comments' in fields and r['comments']:
-                    record.append(E.comments(r['comments']))
+                    if 'comments' in fields and r['comments']:
+                        record.append(E.comments(r['comments']))
 
-                if 'series' in fields and r['series']:
-                    record.append(E.series(r['series'],
-                        index=str(r['series_index'])))
+                    if 'series' in fields and r['series']:
+                        record.append(E.series(r['series'],
+                            index=str(r['series_index'])))
 
-                if 'languages' in fields and r['languages']:
-                    record.append(E.languages(r['languages']))
+                    if 'languages' in fields and r['languages']:
+                        record.append(E.languages(r['languages']))
 
-                if 'cover' in fields and r['cover']:
-                    record.append(E.cover(r['cover'].replace(os.sep, '/')))
+                    if 'cover' in fields and r['cover']:
+                        record.append(E.cover(r['cover'].replace(os.sep, '/')))
 
-                if 'formats' in fields and r['formats']:
-                    fmt = E.formats()
-                    for f in r['formats']:
-                        fmt.append(E.format(f.replace(os.sep, '/')))
-                    record.append(fmt)
+                    if 'formats' in fields and r['formats']:
+                        fmt = E.formats()
+                        for f in r['formats']:
+                            fmt.append(E.format(f.replace(os.sep, '/')))
+                        record.append(fmt)
 
-                if 'library_name' in fields:
-                    record.append(E.library_name(current_library))
+                    if 'library_name' in fields:
+                        record.append(E.library_name(current_library))
+                except Exception as e:
+                    raise Exception('Failed to convert {} to XML with error: {}'.format(r['title'], e)) from e
 
             with open(path_to_output, 'wb') as f:
                 f.write(etree.tostring(root, encoding='utf-8',

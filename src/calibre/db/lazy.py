@@ -147,6 +147,15 @@ def adata_getter(field):
     return func
 
 
+def link_maps_getter(dbref, book_id, cache):
+    try:
+        ans = cache['link_maps']
+    except KeyError:
+        db = dbref()
+        ans = cache['link_maps'] = db.get_all_link_maps_for_book(book_id)
+    return ans
+
+
 def dt_getter(field):
     def func(dbref, book_id, cache):
         try:
@@ -223,7 +232,8 @@ def has_cover_getter(dbref, book_id, cache):
         return ret
 
 
-fmt_custom = lambda x:list(x) if isinstance(x, tuple) else x
+def fmt_custom(x):
+    return (list(x) if isinstance(x, tuple) else x)
 
 
 def custom_getter(field, dbref, book_id, cache):
@@ -299,12 +309,13 @@ getters = {
     'application_id':lambda x, book_id, y: book_id,
     'id':lambda x, book_id, y: book_id,
     'virtual_libraries':virtual_libraries_getter,
+    'link_maps': link_maps_getter,
 }
 
 for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
     getters[field] = simple_getter(field)
 
-for field in ('author_sort_map', 'author_link_map'):
+for field in ('author_sort_map',):
     getters[field] = adata_getter(field)
 
 for field in ('timestamp', 'pubdate', 'last_modified'):
@@ -361,16 +372,30 @@ class ProxyMetadata(Metadata):
         if extra is not None:
             cache[field + '_index'] = val
 
-    def get_user_metadata(self, field, make_copy=False):
-        um = ga(self, '_user_metadata')
-        try:
-            ans = um[field]
-        except KeyError:
-            pass
-        else:
-            if make_copy:
-                ans = deepcopy(ans)
-            return ans
+    # Replacements (overrides) for methods in the Metadata base class.
+    # ProxyMetadata cannot set attributes.
+
+    def _unimplemented_exception(self, method, add_txt):
+        raise NotImplementedError(f"{method}() cannot be used in this context. "
+                                   f"{'ProxyMetadata is read only' if add_txt else ''}")
+
+    # Metadata returns a seemingly arbitrary set of items. Rather than attempt
+    # compatibility, flag __iter__ as unimplemented. This won't break anything
+    # because the Metadata version raises AttributeError
+    def __iter__(self):
+        raise NotImplementedError("__iter__() cannot be used in this context. "
+                                   "Use the explicit methods such as all_field_keys()")
+
+    def has_key(self, key):
+        return key in self.all_field_keys()
+
+    def deepcopy(self, **kwargs):
+        self._unimplemented_exception('deepcopy', add_txt=False)
+
+    def deepcopy_metadata(self):
+        return deepcopy(ga('_user_metadata'))
+
+    # def get(self, field, default=None)
 
     def get_extra(self, field, default=None):
         um = ga(self, '_user_metadata')
@@ -382,10 +407,37 @@ class ProxyMetadata(Metadata):
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
+    def set(self, *args, **kwargs):
+        self._unimplemented_exception('set', add_txt=True)
+
+    def get_identifiers(self):
+        res = self.get('identifiers')
+        return {} if res is None else res
+
+    def set_identifiers(self, *args):
+        self._unimplemented_exception('set_identifiers', add_txt=True)
+
+    def set_identifier(self, *args):
+        self._unimplemented_exception('set_identifier', add_txt=True)
+
+    def has_identifier(self, typ):
+        return typ in self.get('identifiers', {})
+
+    # def standard_field_keys(self)
+
     def custom_field_keys(self):
         um = ga(self, '_user_metadata')
         return iter(um.custom_field_keys())
 
+    def all_field_keys(self):
+        um = ga(self, '_user_metadata')
+        return ALL_METADATA_FIELDS.union(frozenset(um.all_field_keys()))
+
+    def all_non_none_fields(self):
+        self._unimplemented_exception('all_non_none_fields', add_txt=False)
+
+    # This version can return custom column metadata while the Metadata version
+    # won't.
     def get_standard_metadata(self, field, make_copy=False):
         field_metadata = ga(self, '_user_metadata')
         if field in field_metadata and field_metadata[field]['kind'] == 'field':
@@ -394,9 +446,47 @@ class ProxyMetadata(Metadata):
             return field_metadata[field]
         return None
 
-    def all_field_keys(self):
+    # def get_all_standard_metadata(self, make_copy)
+
+    def get_all_user_metadata(self, make_copy):
         um = ga(self, '_user_metadata')
-        return frozenset(ALL_METADATA_FIELDS.union(frozenset(um)))
+        if make_copy:
+            res = {k: deepcopy(um[k]) for k in um.custom_field_keys()}
+        else:
+            res = {k: um[k] for k in um.custom_field_keys()}
+        return res
+
+    # The Metadata version of this method works only with custom field keys. It
+    # isn't clear how this method differs from get_standard_metadata other than
+    # it will return non-'field' metadata. Leave it in case someone depends on
+    # that.
+    def get_user_metadata(self, field, make_copy=False):
+        um = ga(self, '_user_metadata')
+        try:
+            ans = um[field]
+        except KeyError:
+            pass
+        else:
+            if make_copy:
+                ans = deepcopy(ans)
+            return ans
+
+    def set_all_user_metadata(self, *args):
+        self._unimplemented_exception('set_all_user_metadata', add_txt=True)
+
+    def set_user_metadata(self, *args):
+        self._unimplemented_exception('set_user_metadata', add_txt=True)
+
+    def remove_stale_user_metadata(self, *args):
+        self._unimplemented_exception('remove_stale_user_metadata', add_txt=True)
+
+    def template_to_attribute(self, *args):
+        self._unimplemented_exception('template_to_attribute', add_txt=True)
+
+    def smart_update(self, *args, **kwargs):
+        self._unimplemented_exception('smart_update', add_txt=True)
+
+    # The rest of the methods in Metadata can be used as is.
 
     @property
     def _proxy_metadata(self):

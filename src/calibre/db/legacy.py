@@ -4,24 +4,30 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, traceback, weakref
-from polyglot.builtins import iteritems
+import os
+import traceback
+import weakref
 from collections.abc import MutableMapping
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding
-from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
+from calibre.db import (
+    _get_next_series_num_for_list, _get_series_values, get_data_as_dict,
+)
 from calibre.db.adding import (
-    find_books_in_directory, import_book_directory_multiple,
-    import_book_directory, recursive_import, add_catalog, add_news)
+    add_catalog, add_news, find_books_in_directory, import_book_directory,
+    import_book_directory_multiple, recursive_import,
+)
 from calibre.db.backend import DB, set_global_state as backend_set_global_state
 from calibre.db.cache import Cache
-from calibre.db.errors import NoSuchFormat
 from calibre.db.categories import CATEGORY_SORTS
+from calibre.db.errors import NoSuchFormat
 from calibre.db.view import View
 from calibre.db.write import clean_identifier, get_series_values
 from calibre.utils.date import utcnow
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.search_query_parser import set_saved_searches
+from polyglot.builtins import iteritems
 
 
 def cleanup_tags(tags):
@@ -156,6 +162,7 @@ class ThreadSafePrefs(MutableMapping):
         if isinstance(raw, bytes):
             raw = raw.decode(preferred_encoding)
         import json
+
         from calibre.utils.config import from_json
         return json.loads(raw, object_hook=from_json)
 
@@ -181,7 +188,8 @@ class LibraryDatabase:
 
         self.is_second_db = is_second_db
         if progress_callback is None:
-            progress_callback = lambda x, y:True
+            def progress_callback(x, y):
+                return True
         self.listeners = set()
 
         backend = self.backend = create_backend(library_path, default_prefs=default_prefs,

@@ -47,7 +47,8 @@ def numeric_sort_key(defval, x):
     return x if type(x) in (int, float) else defval
 
 
-IDENTITY = lambda x: x
+def IDENTITY(x):
+    return x
 
 
 class InvalidLinkTable(Exception):
@@ -641,7 +642,7 @@ class AuthorsField(ManyToManyField):
         return {
             'name': self.table.id_map[author_id],
             'sort': self.table.asort_map[author_id],
-            'link': self.table.alink_map[author_id],
+            'link': self.table.link_map[author_id],
         }
 
     def category_sort_value(self, item_id, book_ids, lang_map):

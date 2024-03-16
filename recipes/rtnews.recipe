@@ -1,62 +1,76 @@
-__license__ = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 rt.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class RT_eng(BasicNewsRecipe):
-    title = 'RT in English'
-    __author__ = 'Darko Miletic'
-    description = 'RT is the first Russian 24/7 English-language news channel which brings the Russian view on global news.'
+    title = 'Russia Today'
+    __author__ = 'unkn0wn'
+    description = '''
+        RT creates news with an edge for viewers who want to Question More. RT covers stories overlooked by the mainstream
+        media, provides alternative perspectives on current affairs, and acquaints international audiences with a Russian
+        viewpoint on major global events.
+    '''
     publisher = 'Autonomous Nonprofit Organization "TV-Novosti"'
     category = 'news, politics, economy, finances, Russia, world'
-    oldest_article = 2
+    oldest_article = 1.2
     no_stylesheets = True
-    encoding = 'utf8'
-    masthead_url = 'http://rt.com/s/css/img/printlogo.gif'
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url', 'title'}
     use_embedded_content = False
     remove_empty_feeds = True
-    language = 'en_RU'
+    remove_javascript = True
+    language = 'en'
+    remove_attributes = ['height', 'width', 'style']
     publication_type = 'newsportal'
-    extra_css             = """
-                                body{font-family: Arial,Helvetica,sans-serif}
-                                h1{font-family: Georgia,"Times New Roman",Times,serif}
-                                .grey{color: gray}
-                                .fs12{font-size: small}
-                            """
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        em { color:#202020; }
+        .date { font-size:small; color:#404040; }
+        .article__summary { font-style:italic; color:#202020; }
+        .media__footer { font-size:small; text-align:center; }
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(name='div', attrs={'class': 'all'})]
-    remove_tags = [
-        dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link']), dict(
-            attrs={'class': 'crumbs oh'})
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'article'})
     ]
-    remove_attributes = ['clear']
+
+    remove_tags = [
+        dict(name=['meta', 'link', 'svg', 'button', 'style', 'iframe', 'noscript']),
+        classes(
+            'update_date_visible breadcrumbs read-more Read-more-text-only article__share '
+            'article__social-wrapper article__share_bottom'
+        )
+    ]
 
     feeds = [
-
-    (u'Politics', u'http://rt.com/politics/rss/'),
-    (u'USA', u'http://rt.com/usa/news/rss/'),
-    (u'Business', u'http://rt.com/business/news/rss/'),
-    (u'Sport', u'http://rt.com/sport/rss/'),
-    (u'Art&Culture', u'http://rt.com/art-and-culture/news/rss/')
+        ('Russia', 'https://www.rt.com/rss/russia/'),
+        ('India', 'https://www.rt.com/rss/india/'),
+        ('Africa', 'https://www.rt.com/rss/africa/'),
+        ('World News', 'https://www.rt.com/rss/news/'),
+        ('Business', 'https://www.rt.com/rss/business/'),
+        ('Opinion', 'https://www.rt.com/rss/op-ed/'),
+        ('Culture', 'https://www.rt.com/rss/pop-culture/'),
+        ('Others', 'https://www.rt.com/rss/')
     ]
 
-    def print_version(self, url):
-        return url + 'print/'
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        return url.split('?')[0]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            str = item.string
-            if str is None:
-                str = self.tag_to_string(item)
-            item.replaceWith(str)
+        for img in soup.findAll('img'):
+            srcset = img.find_previous_sibling('source', attrs={'data-srcset':True})
+            if srcset:
+                for x in srcset['data-srcset'].split(','):
+                    if '/l/' in x.split()[0].strip():
+                        img['src'] = x.split()[0].strip()
+        for src in soup.findAll('source'):
+            src.decompose()
         return soup

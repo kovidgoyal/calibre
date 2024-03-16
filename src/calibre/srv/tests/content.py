@@ -4,13 +4,17 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, time, os
+import json
+import os
+import time
+import zlib
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
+from calibre.utils.resources import get_image_path as I, get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot import http_client
 from polyglot.binary import from_hex_unicode
@@ -226,8 +230,8 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_char_count(self):  # {{{
-        from calibre.srv.render_book import get_length
         from calibre.ebooks.oeb.parse_utils import html5_parse
+        from calibre.srv.render_book import get_length
 
         root = html5_parse('<p>a b\nc\td\re')
         self.ae(get_length(root), 5)
@@ -238,8 +242,8 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_html_as_json(self):  # {{{
-        from calibre.srv.render_book import html_as_json
         from calibre.ebooks.oeb.parse_utils import html5_parse
+        from calibre.srv.render_book import html_as_json
 
         def t(html, body_children, nsmap=('http://www.w3.org/1999/xhtml',)):
             root = html5_parse(html)
@@ -261,4 +265,19 @@ class ContentTest(LibraryBaseTest):
         t(f"<p id='{text}'>Peña", [{"n":"p","x":"Peña","a":[['id',text]]}])
         text = 'a' * (127 * 1024)
         t('<p>{0}<p>{0}'.format(text), [{"n":"p","x":text}, {'n':'p','x':text}])
+    # }}}
+
+    def test_last_read_cache(self):  # {{{
+        from calibre.srv.last_read import last_read_cache, path_cache
+        path_cache.clear()
+        lrc = last_read_cache(':memory:')
+        epoch = lrc.add_last_read_position('lib', 1, 'FMT', 'user', 'epubcfi(/)', 0.1, 'tt')
+        expected = {'library_id': 'lib', 'book_id': 1, 'format': 'FMT', 'cfi': 'epubcfi(/)', 'epoch': epoch, 'pos_frac': 0.1, 'tooltip': 'tt'}
+        self.ae(lrc.get_recently_read('user'), [expected])
+        epoch = lrc.add_last_read_position('lib', 1, 'FMT', 'user', 'epubcfi(/)', 0.2, 'tt')
+        expected['epoch'], expected['pos_frac'] = epoch, 0.2
+        self.ae(lrc.get_recently_read('user'), [expected])
+        for book_id in range(2, 7):
+            lrc.add_last_read_position('lib', book_id, 'FMT', 'user', 'epubcfi(/)', 0.1, 'tt')
+        self.ae(len(lrc.get_recently_read('user')), lrc.limit)
     # }}}

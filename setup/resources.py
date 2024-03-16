@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, shutil, zipfile, glob, json, errno
 from zlib import compress
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 from setup import Command, basenames, __appname__, download_securely, dump_json
 from polyglot.builtins import codepoint_to_chr, itervalues, iteritems, only_unicode_recursive
@@ -167,8 +166,8 @@ class RecentUAs(Command):  # {{{
     def run(self, opts):
         from setup.browser_data import get_data
         data = get_data()
-        with open(self.UA_PATH, 'wb') as f:
-            f.write(json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True).encode('utf-8'))
+        with open(self.UA_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
 # }}}
 
 

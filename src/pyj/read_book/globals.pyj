@@ -117,8 +117,8 @@ annot_id_uuid_map = {}
 
 
 def clear_annot_id_uuid_map():
-    nonlocal annot_id_uuid_map
-    annot_id_uuid_map = {}
+    for key in Object.keys(annot_id_uuid_map):
+        v'delete annot_id_uuid_map[key]'
 
 
 def is_dark_theme(set_val):

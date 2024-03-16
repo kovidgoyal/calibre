@@ -15,43 +15,36 @@ create_outline(PDFDoc *self, PyObject *args) {
     PyObject *title_buf;
     unsigned int pagenum;
     double left = 0, top = 0, zoom = 0;
-    PdfPage *page;
 
     if (!PyArg_ParseTuple(args, "UI|ddd", &title_buf, &pagenum, &left, &top, &zoom)) return NULL;
 
     ans = PyObject_New(PDFOutlineItem, &PDFOutlineItemType);
-    if (ans == NULL) goto error;
+    if (ans == NULL) return NULL;
+    pyunique_ptr decref_ans_on_exit((PyObject*)ans);
 
     try {
         PdfString title = podofo_convert_pystring(title_buf);
-        PdfOutlines *outlines = self->doc->GetOutlines();
-        if (outlines == NULL) {PyErr_NoMemory(); goto error;}
-        ans->item = outlines->CreateRoot(title);
-        if (ans->item == NULL) {PyErr_NoMemory(); goto error;}
+        PdfOutlines &outlines = self->doc->GetOrCreateOutlines();
+        ans->item = outlines.CreateRoot(title);
+        if (ans->item == NULL) {PyErr_NoMemory(); return NULL;}
         ans->doc = self->doc;
-        try {
-            page = self->doc->GetPage(pagenum - 1);
-        } catch (const PdfError &err) {
-            (void)err;
-            PyErr_Format(PyExc_ValueError, "Invalid page number: %u", pagenum - 1); goto error;
+        auto page = get_page(self->doc, pagenum -1);
+        if (!page) {
+            PyErr_Format(PyExc_ValueError, "Invalid page number: %u", pagenum - 1); return NULL;
         }
-        PdfDestination dest(page, left, top, zoom);
+        auto dest = std::make_shared<PdfDestination>(*page, left, top, zoom);
         ans->item->SetDestination(dest);
     } catch(const PdfError & err) {
-        podofo_set_exception(err); goto error;
+        podofo_set_exception(err); return NULL;
     } catch(const std::exception & err) {
         PyErr_Format(PyExc_ValueError, "An error occurred while trying to create the outline: %s", err.what());
-        goto error;
+        return NULL;
     } catch (...) {
         PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to create the outline");
-        goto error;
+        return NULL;
     }
 
-    return (PyObject*)ans;
-error:
-    Py_XDECREF(ans);
-    return NULL;
-
+    return decref_ans_on_exit.release();
 }
 
 static PyObject*
@@ -71,9 +64,9 @@ convert_outline(PDFDoc *self, PyObject *parent, PdfOutlineItem *item) {
 	pyunique_ptr node(create_outline_node());
 	if (!node) return;
 	if (PyDict_SetItemString(node.get(), "title", title.get()) != 0) return;
-	PdfDestination* dest = item->GetDestination(self->doc);
+	auto dest = item->GetDestination();
 	if (dest) {
-		PdfPage *page = dest->GetPage(self->doc);
+		PdfPage *page = dest->GetPage();
 		long pnum = page ? page->GetPageNumber() : -1;
 		pyunique_ptr d(Py_BuildValue("{sl sd sd sd}", "page", pnum, "top", dest->GetTop(), "left", dest->GetLeft(), "zoom", dest->GetZoom()));
 		if (!d) return;
@@ -95,7 +88,7 @@ convert_outline(PDFDoc *self, PyObject *parent, PdfOutlineItem *item) {
 
 static PyObject *
 get_outline(PDFDoc *self, PyObject *args) {
-	PdfOutlines *root = self->doc->GetOutlines(PoDoFo::ePdfDontCreateObject);
+	PdfOutlines *root = self->doc->GetOutlines();
 	if (!root || !root->First()) Py_RETURN_NONE;
 	PyObject *ans = create_outline_node();
 	if (!ans) return NULL;

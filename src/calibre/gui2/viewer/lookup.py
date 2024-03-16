@@ -6,21 +6,24 @@ import sys
 import textwrap
 from functools import lru_cache
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
-    QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QPalette, QPushButton, QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime, QDialog,
+    QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget,
+    QListWidgetItem, QNetworkCookie, QPalette, QPushButton, QSize, Qt, QTimer, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal,
 )
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView,
 )
 
 from calibre import prints, random_user_agent
+from calibre.ebooks.metadata.sources.search_engines import google_consent_cookies
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import (
-    create_script, insert_scripts, secure_webengine, setup_profile
+    create_script, insert_scripts, secure_webengine, setup_profile,
 )
 
 
@@ -225,6 +228,17 @@ def create_profile():
         insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation))
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
+        cs = ans.cookieStore()
+        for c in google_consent_cookies():
+            cookie = QNetworkCookie()
+            cookie.setName(c['name'].encode())
+            cookie.setValue(c['value'].encode())
+            cookie.setDomain(c['domain'])
+            cookie.setPath(c['path'])
+            cookie.setSecure(False)
+            cookie.setHttpOnly(False)
+            cookie.setExpirationDate(QDateTime())
+            cs.setCookie(cookie)
         create_profile.ans = ans
     return ans
 

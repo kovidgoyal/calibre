@@ -45,4 +45,4 @@ calibre binaries and installers for all the platforms calibre supports.
 
 ## calibre package versions in various repositories
 
-[![Packaging Status](https://repology.org/badge/vertical-allrepos/calibre.svg)](https://repology.org/project/calibre/versions)
+[![Packaging Status](https://repology.org/badge/vertical-allrepos/calibre.svg?columns=3&header=calibre)](https://repology.org/project/calibre/versions)

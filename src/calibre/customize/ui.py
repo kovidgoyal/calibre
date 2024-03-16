@@ -122,15 +122,19 @@ def is_disabled(plugin):
 
 _on_import           = {}
 _on_postimport       = {}
+_on_postconvert      = {}
+_on_postdelete       = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 _on_postadd          = []
 
 
 def reread_filetype_plugins():
-    global _on_import, _on_postimport, _on_preprocess, _on_postprocess, _on_postadd
+    global _on_import, _on_postimport, _on_postconvert, _on_postdelete, _on_preprocess, _on_postprocess, _on_postadd
     _on_import           = defaultdict(list)
     _on_postimport       = defaultdict(list)
+    _on_postconvert      = defaultdict(list)
+    _on_postdelete       = defaultdict(list)
     _on_preprocess       = defaultdict(list)
     _on_postprocess      = defaultdict(list)
     _on_postadd          = []
@@ -146,6 +150,10 @@ def reread_filetype_plugins():
                 if plugin.on_postimport:
                     _on_postimport[ft].append(plugin)
                     _on_postadd.append(plugin)
+                if plugin.on_postconvert:
+                    _on_postconvert[ft].append(plugin)
+                if plugin.on_postdelete:
+                    _on_postdelete[ft].append(plugin)
                 if plugin.on_preprocess:
                     _on_preprocess[ft].append(plugin)
                 if plugin.on_postprocess:
@@ -155,6 +163,7 @@ def reread_filetype_plugins():
 def plugins_for_ft(ft, occasion):
     op = {
         'import':_on_import, 'preprocess':_on_preprocess, 'postprocess':_on_postprocess, 'postimport':_on_postimport,
+        'postconvert':_on_postconvert, 'postdelete':_on_postdelete,
     }[occasion]
     for p in chain(op.get(ft, ()), op.get('*', ())):
         if not is_disabled(p):
@@ -180,7 +189,8 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
                 print('Running file type plugin %s failed with traceback:'%plugin.name, file=oe)
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
-    x = lambda j: os.path.normpath(os.path.normcase(j))
+    def x(j):
+        return os.path.normpath(os.path.normcase(j))
     if occasion == 'postprocess' and x(nfp) != x(path_to_file):
         shutil.copyfile(nfp, path_to_file)
         nfp = path_to_file
@@ -200,9 +210,34 @@ def run_plugins_on_postimport(db, book_id, fmt):
         with plugin:
             try:
                 plugin.postimport(book_id, fmt, db)
-            except:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
+                traceback.print_exc()
+
+
+def run_plugins_on_postconvert(db, book_id, fmt):
+    customization = config['plugin_customization']
+    fmt = fmt.lower()
+    for plugin in plugins_for_ft(fmt, 'postconvert'):
+        plugin.site_customization = customization.get(plugin.name, '')
+        with plugin:
+            try:
+                plugin.postconvert(book_id, fmt, db)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
+                traceback.print_exc()
+
+
+def run_plugins_on_postdelete(db, book_id, fmt):
+    customization = config['plugin_customization']
+    fmt = fmt.lower()
+    for plugin in plugins_for_ft(fmt, 'postdelete'):
+        plugin.site_customization = customization.get(plugin.name, '')
+        with plugin:
+            try:
+                plugin.postdelete(book_id, fmt, db)
+            except Exception:
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 
@@ -216,8 +251,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
             try:
                 plugin.postadd(book_id, fmt_map, db)
             except Exception:
-                print('Running file type plugin %s failed with traceback:'%
-                       plugin.name)
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=sys.stderr)
                 traceback.print_exc()
 
 # }}}
@@ -725,7 +759,7 @@ def initialize_plugins(perf=False):
     if perf:
         from collections import defaultdict
         import time
-        times = defaultdict(lambda:0)
+        times = defaultdict(int)
 
     for zfp, installation_type in chain(
             zip_value(external_plugins.items(), PluginInstallationType.EXTERNAL),

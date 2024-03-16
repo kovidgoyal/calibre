@@ -1,27 +1,95 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010, JOlo'
 '''
 www.theweek.com
 '''
-
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from urllib.parse import quote
 
 
 class TheWeek(BasicNewsRecipe):
-    title = 'TheWeek.com'
-    __author__ = 'Jim Olo'
-    description = "The best of the US and international media.  Daily coverage of commentary and analysis of the day's events, as well as arts, entertainment, people and gossip, and political cartoons."  # noqa
-    publisher = 'The Week Publications, Inc.'
-    masthead_url = 'http://test.theweek.com/images/logo_theweek.gif'
-    cover_url = masthead_url
-    category = 'news, politics, USA'
-    oldest_article = 7
-    max_articles_per_feed = 100
-    no_stylesheets = True
+    title = 'The Week'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Week is for readers who want to know what\'s going on in the world, without having to read '
+        'several daily newspapers or get wrapped up in the endless news cycle. For every important story, '
+        'our editors carefully select commentary from all sides of the debate and artfully stitch them together '
+        'into one concise read. By showing you every perspective, we enable you to form your own opinion.'
+    )
+    language = 'en_US'
     encoding = 'utf-8'
-    use_embedded_content = False
-    language = 'en'
-    auto_cleanup = True
-    feeds = [
-        (u'Latest articles', u'http://theweek.com/rss.xml'),
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['width', 'height', 'style']
+
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    simultaneous_downloads = 1
+    oldest_article = 7 # days
+    web_url = ''
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .caption__text--hero, .credit { font-size:small; text-align:center; }
+        .header__strapline, em, i { color:#202020; }
+        .article-type__breadcrumb { color:grey; }
+        .author-byline__author-text {font-size:small; }
+    '''
+
+    def get_cover_url(self):
+        import json
+        url = 'https://usmagazine.theweek.com/timelines.json'
+        data = json.loads(self.index_to_soup(url, raw=True))
+        for x in data['timelines'][:5]:
+            if '-cover-' in x['image']:
+                return 'https://usmagazine.theweek.com' + x['image'][1:]
+
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        soup = self.index_to_soup(url)
+        link = soup.a['href']
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/multimedia/',
+        ]
+        if any(x in link for x in skip_sections):
+            self.abort_article('skipping video links ', link)
+        self.web_url = link
+        html = br.open(link).read()
+        return ({ 'data': html, 'url': link })
+
+    keep_only_tags = [
+        classes('article-type__breadcrumb header__title header__strapline image image--hero author-byline__author-text article__body')
     ]
+
+    remove_tags = [
+        dict(name='aside'),
+        classes(
+            'blueconic-article__wrapper ad-unit van_vid_carousel tag-links'
+        )
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-pin-media':True}):
+            img['src'] = img['data-pin-media'].replace('.jpg', '-768-80.jpg')
+        return soup
+
+    feeds = []
+    when = oldest_article*24
+    index = 'https://theweek.com/'   
+    sections = [
+        'politics', 'news', 'cartoons', 'tech', 'science', 'health', 
+        'culture-life', 'business', 'travel', 'arts-life', 'history'
+    ]
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=US&ceid=US:en'
+        feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
+    feeds.append(('Others', a.format(when, quote(index, safe=''), '')))
+
+    def populate_article_metadata(self, article, soup, first):
+        article.title = article.title.replace(' - The Week', '')
+        desc = soup.find(**classes('header__strapline'))
+        if desc:
+            article.summary = self.tag_to_string(desc)
+            article.text_summary = article.summary
+        article.url = self.web_url

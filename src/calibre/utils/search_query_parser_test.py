@@ -334,9 +334,11 @@ class Tester(SearchQueryParser):
         if location in self.fields.keys():
             getter = operator.itemgetter(self.fields[location])
         elif location == 'all':
-            getter = lambda y: ''.join(x if x else '' for x in y)
+            def getter(y):
+                return ''.join(x if x else '' for x in y)
         else:
-            getter = lambda x: ''
+            def getter(x):
+                return ''
 
         if not query:
             return set()

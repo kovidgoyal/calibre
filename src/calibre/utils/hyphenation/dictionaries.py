@@ -10,6 +10,7 @@ from io import BytesIO
 
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.resources import get_path as P
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from polyglot.builtins import iteritems
@@ -65,7 +66,7 @@ def extract_dicts(cache_path):
             tf = tarfile.open(dict_tarball)
         else:
             buf = BytesIO()
-            with lopen(dict_tarball, 'rb') as f:
+            with open(dict_tarball, 'rb') as f:
                 data = f.read()
             decompress(data, outfile=buf)
             buf.seek(0)

@@ -4,23 +4,29 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, errno, os, time, shutil
-from collections import namedtuple, defaultdict
-
+import errno
+import os
+import shutil
+import time
+import traceback
+from collections import defaultdict, namedtuple
 from qt.core import QObject, Qt, pyqtSignal
 
-from calibre import prints, force_unicode
+from calibre import force_unicode, prints
 from calibre.constants import DEBUG
 from calibre.customize.ui import can_set_metadata
 from calibre.db.errors import NoSuchFormat
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
-from calibre.gui2 import error_dialog, warning_dialog, gprefs, open_local_file
+from calibre.gui2 import error_dialog, gprefs, open_local_file, warning_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.utils.ipc.pool import Pool, Failure
-from calibre.library.save_to_disk import sanitize_args, get_path_components, find_plugboard, plugboard_save_to_disk_value
+from calibre.library.save_to_disk import (
+    find_plugboard, get_path_components, plugboard_save_to_disk_value, sanitize_args,
+)
+from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.ipc.pool import Failure, Pool
 from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Empty
 
@@ -73,7 +79,13 @@ class Saver(QObject):
         self.db = db.new_api
         self.plugboards = self.db.pref('plugboards', {})
         self.template_functions = self.db.pref('user_template_functions', [])
-        load_user_template_functions('', self.template_functions)
+        self.library_id = self.db.library_id
+        # This call to load_user_template_functions isn't needed because
+        # __init__ is running on the GUI thread. It must be done in the separate
+        # process by the worker
+        # from calibre.gui2 import is_gui_thread
+        # print(f'Saver __init__ is_gui_thread: {is_gui_thread()}')
+        # load_user_template_functions('', self.template_functions)
         self.collected_data = {}
         self.errors = defaultdict(list)
         self._book_id_data = {}
@@ -104,7 +116,8 @@ class Saver(QObject):
         if self.pool is not None:
             self.pool.shutdown()
         self.setParent(None)
-        self.jobs = self.pool = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
+        self.jobs = self.pool = self.plugboards = self.template_functions = self.library_id =\
+                self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
         self.deleteLater()
 
     def book_id_data(self, book_id):
@@ -148,7 +161,9 @@ class Saver(QObject):
             plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
             try:
-                self.pool.set_common_data(plugboards_cache)
+                self.pool.set_common_data({'plugboard_cache': plugboards_cache,
+                                           'template_functions': self.template_functions,
+                                           'library_id': self.library_id})
             except Failure as err:
                 error_dialog(self.pd, _('Critical failure'), _(
                     'Could not save books to disk, click "Show details" for more information'),
@@ -205,7 +220,12 @@ class Saver(QObject):
                 self.errors[book_id].append(('critical', _('Requested formats not available')))
                 return
 
-        if not fmts and not self.opts.write_opf and not self.opts.save_cover:
+        extra_files = {}
+        if self.opts.save_extra_files:
+            extra_files = {}
+            for efx in self.db.new_api.list_extra_files(int(book_id), pattern=DATA_FILE_PATTERN):
+                extra_files[efx.relpath] = efx.file_path
+        if not fmts and not self.opts.write_opf and not self.opts.save_cover and not extra_files:
             return
 
         # On windows python incorrectly raises an access denied exception
@@ -233,7 +253,7 @@ class Saver(QObject):
                 fname = os.path.join(self.tdir, '%d.jpg' % book_id)
 
             if fname:
-                with lopen(fname, 'wb') as f:
+                with open(fname, 'wb') as f:
                     f.write(cdata)
                 if self.opts.update_metadata:
                     d['cover'] = fname
@@ -245,13 +265,23 @@ class Saver(QObject):
             fname = os.path.join(self.tdir, '%d.opf' % book_id)
         if fname:
             opf = metadata_to_opf(mi)
-            with lopen(fname, 'wb') as f:
+            with open(fname, 'wb') as f:
                 f.write(opf)
             if self.opts.update_metadata:
                 d['opf'] = fname
         mi.cover, mi.cover_data = None, (None, None)
         if self.opts.update_metadata:
             d['fmts'] = []
+        if extra_files:
+            for relpath, src_path in extra_files.items():
+                src_path = make_long_path_useable(src_path)
+                if os.access(src_path, os.R_OK):
+                    dest = make_long_path_useable(os.path.abspath(os.path.join(base_dir, relpath)))
+                    try:
+                        shutil.copy2(src_path, dest)
+                    except FileNotFoundError:
+                        os.makedirs(os.path.dirname(dest), exist_ok=True)
+                        shutil.copy2(src_path, dest)
         for fmt in fmts:
             try:
                 fmtpath = self.write_fmt(book_id, fmt, base_path)
@@ -275,7 +305,7 @@ class Saver(QObject):
     def write_fmt(self, book_id, fmt, base_path):
         fmtpath = base_path + os.extsep + fmt
         written = False
-        with lopen(fmtpath, 'w+b') as f:
+        with open(fmtpath, 'w+b') as f:
             try:
                 self.db.copy_format_to(book_id, fmt, f)
                 written = True

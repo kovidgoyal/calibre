@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import re
 from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -51,11 +51,11 @@ class Nature(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(BASE + '/nature/current-issue')
-        self.cover_url = 'https:' + soup.find(
+        self.cover_url = soup.find(
             'img', attrs={'data-test': check_words('issue-cover-image')}
         )['src']
         try:
-            self.cover_url = self.cover_url.replace("w200", "w500")  # enlarge cover size resolution
+            self.cover_url = re.sub(r"\bw\d+\b", "w1000", self.cover_url)  # enlarge cover size resolution
         except:
             """
             failed, img src might have changed, use default width 200

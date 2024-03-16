@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from datetime import datetime
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -22,10 +20,6 @@ class germanyBSI(BasicNewsRecipe):
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
     description = u'News from BSI'
-    # add date to description so for dayly downloads you can find them easier
-    # ---- can be edit by user
-    description = description + ' fetched: ' + \
-        datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
     # Who published the content?
     publisher = u'Newsfeeds des BSI'
     # What is the content of?

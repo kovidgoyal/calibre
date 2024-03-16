@@ -60,9 +60,7 @@ static unsigned char pc2[48] = {
 	40, 51, 30, 36, 46, 54,	29, 39, 50, 44, 32, 47,
 	43, 48, 38, 55, 33, 52,	45, 41, 49, 35, 28, 31 };
 
-void deskey(key, edf)	/* Thanks to James Gillogly & Phil Karn! */
-unsigned char *key;
-short edf;
+void deskey(unsigned char *key, short edf)	/* Thanks to James Gillogly & Phil Karn! */
 {
 	int i, j, l, m, n;
 	unsigned char pc1m[56], pcr[56];
@@ -97,8 +95,7 @@ short edf;
 	return;
 	}
 
-static void cookey(raw1)
-unsigned long *raw1;
+static void cookey(unsigned long *raw1)
 {
 	unsigned long *cook, *raw0;
 	unsigned long dough[32];
@@ -120,8 +117,7 @@ unsigned long *raw1;
 	return;
 	}
 
-void cpkey(into)
-unsigned long *into;
+void cpkey(unsigned long *into)
 {
 	unsigned long *from, *endp;
 
@@ -130,8 +126,7 @@ unsigned long *into;
 	return;
 	}
 
-void usekey(from)
-unsigned long *from;
+void usekey(unsigned long *from)
 {
 	unsigned long *to, *endp;
 
@@ -140,8 +135,7 @@ unsigned long *from;
 	return;
 	}
 
-void des(inblock, outblock)
-unsigned char *inblock, *outblock;
+void des(unsigned char *inblock, unsigned char *outblock)
 {
 	unsigned long work[2];
 
@@ -152,9 +146,7 @@ unsigned char *inblock, *outblock;
 	}
 
 
-static void scrunch(outof, into)
-unsigned char *outof;
-unsigned long *into;
+static void scrunch(unsigned char *outof, unsigned long *into)
 {
 	*into 	 = (*outof++ & 0xffL) << 24;
 	*into 	|= (*outof++ & 0xffL) << 16;
@@ -168,9 +160,7 @@ unsigned long *into;
 	}
 
 
-static void unscrun(outof, into)
-unsigned long *outof;
-unsigned char *into;
+static void unscrun(unsigned long *outof, unsigned char *into)
 {
 	*into++ = (*outof >> 24) & 0xffL;
 	*into++ = (*outof >> 16) & 0xffL;
@@ -331,8 +321,7 @@ static unsigned long SP8[64] = {
 */
 
 
-static void desfunc(block, keys)
-unsigned long *block, *keys;
+static void desfunc(unsigned long *block, unsigned long *keys)
 {
 	unsigned long fval, work, right, leftt;
 	int round;
@@ -408,9 +397,7 @@ unsigned long *block, *keys;
 
 #ifdef D2_DES
 
-void des2key(hexkey, mode)		/* stomps on Kn3 too */
-unsigned char *hexkey;			/* unsigned char[16] */
-short mode;
+static void des2key(unsigned char *hexkey, short mode)		/* stomps on Kn3 too */
 {
 	short revmod;
 
@@ -690,4 +677,3 @@ unsigned char *kptr;		/* unsigned char[24] */
  *
  * d3des V5.09 rwo 9208.04 20:31 Graven Imagery
  **********************************************************************/
-

@@ -4,8 +4,7 @@
 import os
 from contextlib import suppress
 from qt.core import (
-    QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor,
-    QTextEdit, pyqtSignal
+    QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor, QTextEdit, pyqtSignal,
 )
 
 from calibre.constants import iswindows
@@ -14,6 +13,7 @@ from calibre.gui2 import choose_files, error_dialog, gprefs
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.gui2.widgets2 import to_plain_text
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
@@ -84,7 +84,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             qt: int = 0
 
         if self.regex_valid():
-            text = str(self.preview.toPlainText())
+            text = to_plain_text(self.preview)
             regex = str(self.regex.text())
             cursor = QTextCursor(self.preview.document())
             extsel = QTextEdit.ExtraSelection()
@@ -205,7 +205,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.open_book(files[0])
 
     def doc(self):
-        return str(self.preview.toPlainText())
+        return to_plain_text(self.preview)
 
 
 class RegexEdit(XPathEdit):

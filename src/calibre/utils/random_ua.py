@@ -4,6 +4,7 @@
 
 import json
 import random
+from calibre.utils.resources import get_path as P
 
 
 def user_agent_data():
@@ -47,16 +48,8 @@ def user_agents_popularity_map():
     return user_agent_data().get('user_agents_popularity', {})
 
 
-def all_firefox_versions(limit=10):
-    return user_agent_data()['firefox_versions'][:limit]
-
-
 def random_desktop_platform():
     return random.choice(user_agent_data()['desktop_platforms'])
-
-
-def all_chrome_versions(limit=10):
-    return user_agent_data()['chrome_versions'][:limit]
 
 
 def accept_header_for_ua(ua):

@@ -7,16 +7,17 @@ from operator import itemgetter
 from qt.core import (
     QAbstractItemView, QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon,
     QInputDialog, QItemSelectionModel, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, Qt, QWidget, pyqtSignal
+    QPushButton, Qt, QWidget, pyqtSignal,
 )
 
-from calibre.gui2 import choose_files, choose_save_file
+from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 class BookmarksList(QListWidget):
@@ -172,7 +173,8 @@ class BookmarkManager(QWidget):
     def set_bookmarks(self, bookmarks=()):
         csb = self.current_sort_by
         if csb in ('name', 'title'):
-            sk = lambda x: primary_sort_key(x['title'])
+            def sk(x):
+                return primary_sort_key(x['title'])
         elif csb == 'timestamp':
             sk = itemgetter('timestamp')
         else:
@@ -299,7 +301,7 @@ class BookmarkManager(QWidget):
             data = json.dumps({'type': 'bookmarks', 'entries': bm}, indent=True)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
-            with lopen(filename, 'wb') as fileobj:
+            with open(filename, 'wb') as fileobj:
                 fileobj.write(data)
 
     def import_bookmarks(self):
@@ -310,7 +312,7 @@ class BookmarkManager(QWidget):
         filename = files[0]
 
         imported = None
-        with lopen(filename, 'rb') as fileobj:
+        with open(filename, 'rb') as fileobj:
             imported = json.load(fileobj)
 
         def import_old_bookmarks(imported):
@@ -365,6 +367,9 @@ class BookmarkManager(QWidget):
             return
         title = self.uniqify_bookmark_title(title)
         cfi = (pos_data.get('selection_bounds') or {}).get('start') or pos_data['cfi']
+        if not cfi:
+            error_dialog(self, _('Failed to bookmark'), _('Could not calculate position in book'), show=True)
+            return
         bm = {
             'title': title,
             'pos_type': 'epubcfi',

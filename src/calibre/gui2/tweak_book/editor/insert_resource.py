@@ -8,10 +8,11 @@ import os
 import sys
 from functools import partial
 from qt.core import (
-    QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout, QClipboard,
-    QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
-    QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,
-    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal, QDialog, QDialogButtonBox
+    QAbstractListModel, QApplication, QCheckBox, QClipboard, QDialog, QDialogButtonBox,
+    QFormLayout, QGridLayout, QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit,
+    QListView, QMenu, QPainter, QPixmap, QRect, QSize, QSizePolicy,
+    QSortFilterProxyModel, QStyledItemDelegate, Qt, QToolButton, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, pyqtSignal,
 )
 
 from calibre import fit_image
@@ -23,6 +24,7 @@ from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.file_list import name_is_ok
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre_extensions.progress_indicator import set_no_activate_on_click

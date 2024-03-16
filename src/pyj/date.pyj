@@ -41,6 +41,8 @@ def fd_format_hour(dt, ampm, hr, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     if ampm:
         h %= 12
+        if h is 0:
+            h = 12
     return h.toString() if hr.length is 1 else str.format('{:02d}', h)
 
 

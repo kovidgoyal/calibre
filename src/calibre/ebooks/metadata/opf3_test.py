@@ -2,29 +2,29 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import unittest
 from collections import defaultdict
 from io import BytesIO
-import unittest
 
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.opf3 import (
-    parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
-    read_metadata, set_identifiers, XPath, set_application_id, read_title,
-    read_refines, set_title, read_title_sort, read_languages, set_languages,
-    read_authors, Author, set_authors, ensure_prefix, read_prefixes,
-    read_book_producers, set_book_producers, read_timestamp, set_timestamp,
-    read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
-    set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
-    set_rating, read_series, set_series, read_user_metadata, set_user_metadata,
-    read_author_link_map, read_user_categories, set_author_link_map, set_user_categories,
-    apply_metadata, read_raster_cover, ensure_is_only_raster_cover
+    CALIBRE_PREFIX, Author, XPath, apply_metadata, ensure_is_only_raster_cover,
+    ensure_prefix, expand_prefix, parse_prefixes, read_authors, read_book_producers,
+    read_comments, read_identifiers, read_languages, read_last_modified, read_link_maps,
+    read_metadata, read_prefixes, read_pubdate, read_publisher, read_raster_cover,
+    read_rating, read_refines, read_series, read_tags, read_timestamp, read_title,
+    read_title_sort, read_user_categories, read_user_metadata, reserved_prefixes,
+    set_application_id, set_authors, set_book_producers, set_comments, set_identifiers,
+    set_languages, set_link_maps, set_pubdate, set_publisher, set_rating, set_series,
+    set_tags, set_timestamp, set_title, set_user_categories, set_user_metadata,
 )
+
 # This import is needed to prevent a test from running slowly
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa
+from calibre.utils.xml_parse import safe_xml_fromstring
 
-read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
+read_user_categories, set_user_categories, read_link_maps, set_link_maps
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa
 default_refines = defaultdict(list)
@@ -288,7 +288,7 @@ class TestOPF3(unittest.TestCase):
             f = globals()['set_' + name]
             f(root, read_prefixes(root), read_refines(root), val)
             return rt(root, name)
-        for name in 'author_link_map user_categories'.split():
+        for name in 'link_maps user_categories'.split():
             root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/>''' % name)
             self.ae({'1':1}, rt(root, name))
             root = self.get_opf(f'''<meta name="calibre:{name}" content='{{"1":1}}'/><meta property="calibre:{name}">{{"2":2}}</meta>''')
@@ -328,7 +328,7 @@ class TestOPF3(unittest.TestCase):
         <dc:subject>conversion</dc:subject>
         <dc:subject>docs</dc:subject>
         <dc:subject>ebook</dc:subject>
-        <meta content="{&quot;Kovid Goyal&quot;: &quot;&quot;}" name="calibre:author_link_map"/>
+        <meta content="{&quot;Kovid Goyal&quot;: &quot;https://kovidgoyal.net&quot;}" name="calibre:author_link_map"/>
         <meta content="Demos" name="calibre:series"/>
         <meta content="1" name="calibre:series_index"/>
         <meta content="10" name="calibre:rating"/>

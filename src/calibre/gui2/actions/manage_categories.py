@@ -4,7 +4,7 @@
 
 from qt.core import QMenu, QToolButton
 
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 
 
 class ManageCategoriesAction(InterfaceAction):
@@ -39,12 +39,11 @@ class ManageCategoriesAction(InterfaceAction):
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
     def show_menu(self):
-        from calibre.gui2.actions.saved_searches import show_menu_under_widget
         show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
     def about_to_show_menu(self):
         db = self.gui.current_db
-        self.gui.populate_manage_categories_menu(db, self.menu)
+        self.gui.populate_manage_categories_menu(db, self.menu, add_column_items=True)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

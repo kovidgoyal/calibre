@@ -1,4 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import datetime, timedelta
+from calibre.utils.date import parse_date
 
 
 class IndianExpress(BasicNewsRecipe):
@@ -15,12 +17,10 @@ class IndianExpress(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     extra_css = '''
-        #storycenterbyline {font-size:small;}
-        #img-cap {font-size:small;}
-        blockquote{color:#404040;}
-        em{font-style:italic; color:#202020;}
-        #sub-d{color:#202020; font-style:italic;}
-        .ie-authorbox{font-size:small;}
+        #img-cap, .ie-authorbox, .author-block, #storycenterbyline { font-size:small; }
+        blockquote { color:#404040; }
+        em, #sub-d { color:#202020; font-style:italic; }
+        img { display:block; margin:0 auto; }
     '''
 
     resolve_internal_links = True
@@ -33,15 +33,17 @@ class IndianExpress(BasicNewsRecipe):
         dict(name='img', attrs={'src':lambda x: x and x.endswith('-button-300-ie.jpeg')}),
         dict(name='a', attrs={'href':lambda x: x and x.endswith('/?utm_source=newbanner')}),
         classes(
-            'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright'
-            ' storytags pdsc-related-modify news-guard premium-story append_social_share'
-            ' digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg'
-            'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare'
-            ' custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec'
+            'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright '
+            'storytags pdsc-related-modify news-guard premium-story append_social_share ie-int-campign-ad '
+            'digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg '
+            'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare osv-ad-class '
+            'custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list subscriber_hide '
+            'author-social author-follow author-img premium_widget_below_article'
         )
     ]
 
     def parse_index(self):
+
         section_list = [
             ('Front Page', 'https://indianexpress.com/print/front-page/'),
             ('India', 'https://indianexpress.com/section/india/'),
@@ -49,12 +51,17 @@ class IndianExpress(BasicNewsRecipe):
             ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/'),
             ('Opinion', 'http://indianexpress.com/section/opinion/'),
             ('UPSC-CSE Key', 'https://indianexpress.com/section/upsc-current-affairs/'),
+            ('Explained', 'https://indianexpress.com/section/explained/'),
             ('Business', 'https://indianexpress.com/section/business/'),
-            ('Political Pulse', 'https://indianexpress.com/section/political-pulse/'),
+            # ('Political Pulse', 'https://indianexpress.com/section/political-pulse/'),
             ('Sunday Eye', 'https://indianexpress.com/section/express-sunday-eye/'),
+            ('World', 'https://indianexpress.com/section/world/'),
             # ('Education', 'https://indianexpress.com/section/education/'),
             # ('Gadgets', 'https://indianexpress.com/section/technology/gadgets/'),
-            # ('Tech Review', 'https://indianexpress.com/section/technology/tech-reviews/'),
+            ('Tech Review', 'https://indianexpress.com/section/technology/tech-reviews/'),
+            # ('Techhook', 'https://indianexpress.com/section/technology/techook/'),
+            # ('Laptops', 'https://indianexpress.com/section/technology/laptops/'),
+            # ('Mobiles & Tabs', 'https://indianexpress.com/section/technology/mobile-tabs/'),
             ('Science', 'https://indianexpress.com/section/technology/science/'),
             ('Movie Review', 'https://indianexpress.com/section/entertainment/movie-review/'),
         ]
@@ -67,30 +74,40 @@ class IndianExpress(BasicNewsRecipe):
             section_url = section[1]
             self.log(section_title, section_url)
             soup = self.index_to_soup(section_url)
-            articles = self.articles_from_soup(soup)
+            if '/world/' in section_url or '/explained/' in section_url:
+                articles = self.articles_from_page(soup)
+            else:
+                articles = self.articles_from_soup(soup)
             if articles:
                 feeds.append((section_title, articles))
         return feeds
+
+    def articles_from_page(self, soup):
+        ans = []
+        for div in soup.findAll(attrs={'class':['northeast-topbox', 'explained-section-grid']}):
+            for a in div.findAll('a', href=True):
+                if not a.find('img') and '/section/' not in a['href']:
+                    url = a['href']
+                    title = self.tag_to_string(a)
+                    self.log('\t', title, '\n\t\t', url)
+                    ans.append({'title': title, 'url': url, 'description': ''})
+        return ans
 
     def articles_from_soup(self, soup):
         ans = []
         div = soup.find('div', attrs={'class':['nation', 'o-opin']})
         for art in div.findAll(attrs={'class':['articles', 'o-opin-article']}):
             for a in art.findAll('a', href=True):
-                if not a.find('img'):
+                if not a.find('img') and not ('/profile/' in a['href'] or '/agency/' in a['href']):
                     url = a['href']
                     title = self.tag_to_string(a)
                     desc = ''
                     if p:= art.find('p'):
                         desc = self.tag_to_string(p)
                     if da := art.find('div', attrs={'class':['date', 'o-opin-date']}):
-                        from datetime import datetime, timedelta
-                        from calibre.utils.date import parse_date
-                        d = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
+                        date = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
                         today = datetime.now()
-                        if (today - d) > timedelta(self.oldest_article):
-                            url = ''
-                        if not url or not title:
+                        if (today - date) > timedelta(self.oldest_article):
                             continue
                     self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                     ans.append({'title': title, 'url': url, 'description': desc})
@@ -104,8 +121,7 @@ class IndianExpress(BasicNewsRecipe):
             return citem['content']
 
     def preprocess_html(self, soup):
-        h2 = soup.find('h2')
-        if h2:
+        if h2 := soup.find('h2'):
             h2.name = 'p'
             h2['id'] = 'sub-d'
         for span in soup.findAll(
@@ -119,4 +135,9 @@ class IndianExpress(BasicNewsRecipe):
                 if lazy is not None:
                     lazy.extract()
                 noscript.name = 'div'
+        if span := soup.find('span', content=True, attrs={'itemprop':'dateModified'}):
+            date = parse_date(span['content']).replace(tzinfo=None)
+            today = datetime.now()
+            if (today - date) > timedelta(self.oldest_article):
+                self.abort_article('Skipping old article')
         return soup

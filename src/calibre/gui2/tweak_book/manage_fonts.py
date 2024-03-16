@@ -4,23 +4,25 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, textwrap
+import sys
+import textwrap
 from io import BytesIO
-
 from qt.core import (
-    QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
-    Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView, QDialog, QDialogButtonBox)
+    QAbstractItemView, QAbstractTableModel, QApplication, QDialog, QDialogButtonBox,
+    QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QPushButton, QSize,
+    QSplitter, Qt, QTableView, QTextEdit, QTimer, QVBoxLayout, QWidget, pyqtSignal,
+)
 
 from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
+from calibre.ebooks.oeb.polish.fonts import change_font, font_family_data
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
-from calibre.utils.icu import primary_sort_key as sort_key
-from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
+from calibre.utils.fonts.scanner import NoFonts, font_scanner
+from calibre.utils.icu import lower as icu_lower, primary_sort_key as sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
@@ -241,7 +243,7 @@ class ManageFonts(Dialog):
         h.setContentsMargins(0, 0, 0, 0)
         self.install_fonts_button = b = QPushButton(_('&Install fonts'), self)
         h.addWidget(b), b.setIcon(QIcon.ic('plus.png'))
-        b.setToolTip(textwrap.fill(_('Install fonts from .ttf/.otf files to make them available for embedding')))
+        b.setToolTip(textwrap.fill(_('Install fonts from font files to make them available for embedding')))
         b.clicked.connect(self.install_fonts)
         l.addWidget(s), l.addLayout(h), h.addStretch(10), h.addWidget(self.bb)
 
@@ -318,7 +320,7 @@ class ManageFonts(Dialog):
     def display(self):
         if not self.isVisible():
             self.show()
-        self.raise_()
+        self.raise_and_focus()
         QTimer.singleShot(0, self.model.build)
 
     def get_selected_data(self):

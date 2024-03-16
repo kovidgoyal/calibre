@@ -1,0 +1,127 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.touch import GESTURE
+from read_book.settings import opts
+from gettext import gettext as _
+
+
+def get_action_descriptions():
+    if not get_action_descriptions.ans:
+        get_action_descriptions.ans = {
+            'prev_page': {
+                'short': _('Previous page'),
+                'long': _('Scroll to the previous page, if more than one page is displayed on the screen only a single page is scrolled')
+            },
+            'next_page': {
+                'short': _('Next page'),
+                'long': _('Scroll to the next page, if more than one page is displayed on the screen only a single page is scrolled')
+            },
+            'prev_screen': {
+                'short': _('Previous screen'),
+                'long': _('Scroll to the previous screen, if more than one page is displayed on the screen all pages are scrolled')
+            },
+            'next_screen': {
+                'short': _('Next screen'),
+                'long': _('Scroll to the next screen, if more than one page is displayed on the screen all pages are scrolled')
+            },
+            'show_chrome': {
+                'short': _('Show controls'),
+                'long': _('Show the controls for the viewer including Preferences, Go to, etc.')
+            },
+            'highlight_or_inspect': {
+                'short': _('Highlight or inspect'),
+                'long': _('Highlight the word under the tap point or view the image under the tap or select the highlight under the tap')
+            },
+            'decrease_font_size': {
+                'short': _('Make text smaller'),
+                'long': _('Decrease the font size')
+            },
+            'increase_font_size': {
+                'short': _('Make text bigger'),
+                'long': _('Increase the font size')
+            },
+            'next_section': {
+                'short': _('Next chapter'),
+                'long': _('Scroll to the start of the next section or chapter in the book')
+            },
+            'prev_section': {
+                'short': _('Previous chapter'),
+                'long': _('Scroll to the start of the previous section or chapter in the book')
+            },
+            'pan': {
+                'short': _('Pan the contents'),
+                'long': _('Scroll the screen contents in tandem with finger movement')
+            },
+            'animated_scroll': {
+                'short': _('Flick scroll'),
+                'long': _('Scroll the screen contents with momentum based on how fast you flick your finger')
+            },
+            'none': {
+                'short': _('No action'),
+                'long': _('Ignore this gesture performing no action in response to it')
+            },
+        }
+    return get_action_descriptions.ans
+
+only_flow_swipe_mode_actions = {'pan': True, 'animated_scroll': True}
+only_tap_actions = {'highlight_or_inspect': True}
+default_actions_for_gesture = {
+    'common': {
+        GESTURE.back_zone_tap: 'prev_page',
+        GESTURE.forward_zone_tap: 'next_page',
+        GESTURE.control_zone_tap: 'show_chrome',
+        GESTURE.long_tap: 'highlight_or_inspect',
+
+        GESTURE.two_finger_tap: 'show_chrome',
+        GESTURE.pinch_in: 'decrease_font_size',
+        GESTURE.pinch_out: 'increase_font_size',
+    },
+    'flow_mode': {
+        GESTURE.swipe_inline_backward_in_progress: 'pan',
+        GESTURE.swipe_inline_forward_in_progress: 'pan',
+        GESTURE.swipe_block_backward_in_progress: 'pan',
+        GESTURE.swipe_block_forward_in_progress: 'pan',
+        GESTURE.flick_block_forward: 'animated_scroll',
+        GESTURE.flick_block_backward: 'animated_scroll',
+        GESTURE.flick_inline_forward: 'animated_scroll',
+        GESTURE.flick_inline_backward: 'animated_scroll',
+    },
+    'paged_mode': {
+        GESTURE.flick_block_forward: 'next_section',
+        GESTURE.flick_block_backward: 'prev_section',
+        GESTURE.flick_inline_forward: 'next_screen',
+        GESTURE.flick_inline_backward: 'prev_screen',
+        GESTURE.swipe_inline_forward_hold: 'next_screen',
+        GESTURE.swipe_inline_backward_hold: 'prev_screen',
+    },
+}
+
+def current_action_for_gesture_type(overrides, gesture_type, in_flow_mode):
+    mode = 'flow_mode' if in_flow_mode else 'paged_mode'
+    mode_overrides = overrides[mode] or {}
+    if mode_overrides[gesture_type]:
+        return mode_overrides[gesture_type]
+    common_overrides = overrides.common or {}
+    if common_overrides[gesture_type]:
+        return common_overrides[gesture_type]
+    if default_actions_for_gesture[mode][gesture_type]:
+        return default_actions_for_gesture[mode][gesture_type]
+    return default_actions_for_gesture.common[gesture_type] or 'none'
+
+def action_for_gesture(gesture, in_flow_mode):
+    return current_action_for_gesture_type(opts.gesture_overrides, gesture.type, in_flow_mode)
+
+def allowed_actions_for_tap():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac]]
+
+def allowed_actions_for_paged_mode_swipe():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac] and not only_tap_actions[ac]]
+allowed_actions_for_two_fingers = allowed_actions_for_paged_mode_swipe
+
+def allowed_actions_for_flow_mode_flick():
+    return [ac for ac in Object.keys(get_action_descriptions()) if not only_tap_actions[ac]]
+
+def allowed_actions_for_flow_mode_drag():
+    return ['pan', 'none']

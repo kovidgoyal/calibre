@@ -13,12 +13,13 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
 from calibre.utils.fonts.sfnt.gsub import GSUBTable
 from calibre.utils.fonts.sfnt.head import (
-    HeadTable, HorizontalHeader, OS2Table, PostTable, VerticalHeader
+    HeadTable, HorizontalHeader, OS2Table, PostTable, VerticalHeader,
 )
 from calibre.utils.fonts.sfnt.kern import KernTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.utils import checksum_of_block, get_tables, verify_checksums
+from calibre.utils.resources import get_path as P
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 
@@ -105,7 +106,7 @@ class Sfnt:
         return ans
 
     def get_all_font_names(self):
-        from calibre.utils.fonts.metadata import get_font_names2, FontNames
+        from calibre.utils.fonts.metadata import FontNames, get_font_names2
         name_table = self.get(b'name')
         if name_table is not None:
             return FontNames(*get_font_names2(name_table.raw, raw_is_table=True))

@@ -5,14 +5,15 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 
+import datetime
+import re
 import sqlite3 as sqlite
-import datetime, re, sre_constants
 from zlib import compress, decompress
 
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata import string_to_authors
-from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.utils.localization import _
+from calibre.utils.serialize import pickle_dumps, pickle_loads
 
 
 class Concatenate:
@@ -980,7 +981,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         data = self.conn.get('SELECT data FROM covers WHERE book=?', (id,), all=False)
         if not data:
             return None
-        return(decompress(data))
+        return decompress(data)
 
     def tags(self, index, index_is_id=False):
         '''tags as a comma separated list or None'''
@@ -1355,7 +1356,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             id = obj.lastrowid
             self.conn.commit()
             self.set_metadata(id, mi)
-            stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+            stream = path if hasattr(path, 'read') else open(path, 'rb')
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
@@ -1513,7 +1514,7 @@ def text_to_tokens(text):
     for i in tokens:
         try:
             ans.append(SearchToken(i))
-        except sre_constants.error:
+        except re.error:
             continue
     return ans, OR
 

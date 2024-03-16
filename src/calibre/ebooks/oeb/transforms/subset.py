@@ -5,11 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from collections import defaultdict
+from io import BytesIO
 
-from calibre.ebooks.oeb.base import urlnormalize, css_text
-from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
-from polyglot.builtins import iteritems, itervalues
+from calibre.ebooks.oeb.base import css_text, urlnormalize
+from calibre.utils.fonts.subset import subset
+from polyglot.builtins import iteritems
 from tinycss.fonts3 import parse_font_family
 
 
@@ -150,27 +152,25 @@ class SubsetFonts:
             else:
                 fonts[item.href] = font
 
-        for font in itervalues(fonts):
+        for font in fonts.values():
             if not font['chars']:
                 self.log('The font %s is unused. Removing it.'%font['src'])
                 remove(font)
                 continue
+            old_raw = font['item'].data
+            output = BytesIO()
+            font_type = os.path.splitext(font['item'].href)[1][1:].lower()
             try:
-                raw, old_stats, new_stats = subset(font['item'].data, font['chars'])
-            except NoGlyphs:
-                self.log('The font %s has no used glyphs. Removing it.'%font['src'])
-                remove(font)
-                continue
-            except UnsupportedFont as e:
-                self.log.warn('The font %s is unsupported for subsetting. %s'%(
-                    font['src'], e))
+                subset(BytesIO(old_raw), output, font_type, font['chars'])
+            except Exception as e:
+                self.log.warn('The font %s is unsupported for subsetting. %s'%(font['src'], e))
                 sz = len(font['item'].data)
                 totals[0] += sz
                 totals[1] += sz
             else:
-                font['item'].data = raw
-                nlen = sum(itervalues(new_stats))
-                olen = sum(itervalues(old_stats))
+                font['item'].data = output.getvalue()
+                nlen = len(font['item'].data)
+                olen = len(old_raw)
                 self.log('Decreased the font %s to %.1f%% of its original size'%
                         (font['src'], nlen/olen *100))
                 totals[0] += nlen
@@ -188,7 +188,10 @@ class SubsetFonts:
         '''
         self.embedded_fonts = []
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'):
+            try:
+                if not hasattr(item.data, 'cssRules'):
+                    continue
+            except FileNotFoundError:
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 

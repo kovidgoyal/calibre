@@ -160,6 +160,16 @@
          </property>
         </widget>
        </item>
+       <item row="7" column="0">
+        <widget class="QCheckBox" name="opt_allow_keyboard_search_in_library_views">
+         <property name="text">
+          <string>Use keyboard searching in the book list</string>
+         </property>
+         <property name="toolTip">
+          <string>&lt;p&gt;When enabled, pressing a key in the library view will search for the next cell in the current column where the value starts with the letter pressed. If there is no such cell then nothing happens. If the letter is a shortcut then the shortcut takes precedence.&lt;/p&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">

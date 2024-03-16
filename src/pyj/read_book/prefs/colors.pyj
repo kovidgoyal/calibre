@@ -14,7 +14,7 @@ from dom import (
 from modals import error_dialog
 from read_book.globals import default_color_schemes, ui_operations
 from read_book.prefs.utils import create_button_box
-from session import defaults
+from session import session_defaults
 from widgets import create_button
 
 CONTAINER = unique_id('reader-color-scheme')
@@ -45,7 +45,7 @@ def get_container():
 
 def resolve_color_scheme(current_color_scheme):
     sd = get_session_data()
-    cs = current_color_scheme or sd.get('current_color_scheme') or defaults.current_color_scheme
+    cs = current_color_scheme or sd.get('current_color_scheme') or session_defaults().current_color_scheme
     ucs = sd.get('user_color_schemes')
     if default_color_schemes[cs]:
         ans = default_color_schemes[cs]
@@ -116,7 +116,7 @@ def current_color_scheme():
     try:
         return get_container().querySelector('li.current-color').getAttribute('data-name')
     except Exception:
-        return defaults.current_color_scheme
+        return session_defaults().current_color_scheme
 
 
 def set_current_color_scheme(value):
@@ -194,7 +194,7 @@ def create_color_buttons():
     all_schemes = all_color_schemes()
     ccs = sd.get('current_color_scheme')
     if not all_schemes[ccs]:
-        ccs = defaults.current_color_scheme
+        ccs = session_defaults().current_color_scheme
     for name in sorted(all_schemes, key=def(k):return all_schemes[k].name.toLowerCase();):
         scheme = all_schemes[name]
         is_current = name is ccs

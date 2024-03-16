@@ -188,7 +188,7 @@ private:
 
 public:
 	GetBulkPropertiesCallback() : items(NULL), subfolders(NULL), level(0), complete(INVALID_HANDLE_VALUE), self_ref(0), callback(NULL) {}
-    ~GetBulkPropertiesCallback() { if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete); complete = INVALID_HANDLE_VALUE; }
+    virtual ~GetBulkPropertiesCallback() { if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete); complete = INVALID_HANDLE_VALUE; }
 
 	bool start_processing(PyObject *items, PyObject *subfolders, unsigned int level, PyObject *callback) {
 		complete = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -226,7 +226,7 @@ public:
         }
         return hr;
     }
-	HRESULT __stdcall GetBulkPropertiesCallback::OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) {
+	HRESULT __stdcall OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) {
 		handle_values(values);
 		return S_OK;
 	}
@@ -320,6 +320,7 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
      */
     CComPtr<IEnumPortableDeviceObjectIDs> children;
     HRESULT hr = S_OK, hr2 = S_OK;
+    *enum_failed = false;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->EnumObjects(0, parent_id, NULL, &children);
@@ -338,7 +339,6 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
             return false;
         }
     }
-    *enum_failed = false;
 
     hr = S_OK;
 
@@ -420,7 +420,6 @@ static IPortableDeviceValues*
 create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type, unsigned PY_LONG_LONG size) { // {{{
     CComPtr<IPortableDeviceValues> values;
     HRESULT hr;
-    bool ok = false;
 	prop_variant timestamp(VT_DATE);
 	SYSTEMTIME  systemtime;
 	GetLocalTime(&systemtime);
@@ -464,7 +463,11 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
 
     bool enum_failed = false;
     if (!find_objects_in(content, object_ids, parent_id, &enum_failed)) {
-        return false;
+        // There are quite a few devices where EnumObjects fails for some folders, so unless it is the root folder ignore the failure.
+        if (!enum_failed || !level) return false;
+        PyErr_Print();
+        fwprintf(stderr, L"Ignoring failure of EnumObjects() at level %u\n", level); fflush(stderr);
+        return true;
     }
 
     if (bulk_properties != NULL) {
@@ -482,7 +485,7 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
 } // }}}
 
 PyObject*
-wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback) { // {{{
+get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback) { // {{{
     CComPtr<IPortableDeviceContent> content;
     HRESULT hr;
 
@@ -499,7 +502,7 @@ wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortabl
 } // }}}
 
 PyObject*
-wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
+get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
     CComPtr<IPortableDeviceContent> content;
     CComPtr<IPortableDeviceResources> resources;
     CComPtr<IPortableDeviceProperties> devprops;
@@ -551,7 +554,7 @@ wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest,
 		return NULL;
     }
 
-	generic_raii<char*, PyMem_Free> buf(reinterpret_cast<char*>(PyMem_Malloc(bufsize)));
+	generic_raii<char*, pymem_free> buf(reinterpret_cast<char*>(PyMem_Malloc(bufsize)));
 	if (!buf) return PyErr_NoMemory();
 
     while (total_read < filesize) {
@@ -588,7 +591,7 @@ wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest,
 } // }}}
 
 PyObject*
-wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
+create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
     CComPtr<IPortableDeviceContent> content;
     CComPtr<IPortableDeviceValues> values;
     CComPtr<IPortableDeviceProperties> devprops;
@@ -619,7 +622,7 @@ wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wcha
 } // }}}
 
 PyObject*
-wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
+delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
     CComPtr<IPortableDeviceContent> content;
     CComPtr<IPortableDevicePropVariantCollection> object_ids;
     HRESULT hr;
@@ -652,7 +655,7 @@ wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
 } // }}}
 
 PyObject*
-wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
+put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
     CComPtr<IPortableDeviceContent> content;
     CComPtr<IPortableDeviceValues> values;
     CComPtr<IPortableDeviceProperties> devprops;

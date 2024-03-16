@@ -4,15 +4,19 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from typing import NamedTuple
+
 from qt.core import (
-    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog, QDialogButtonBox
+    QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser,
+    QVBoxLayout, QWidget,
 )
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.gui2 import dynamic, gprefs
-from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.dialogs.confirm_delete import confirm_config_name
+from calibre.gui2.widgets2 import Dialog, FlowLayout
+from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import format_date
 
@@ -33,10 +37,12 @@ class Target(QTextBrowser):
 <tr><td>{fm[pubdate][name]}:</td><td>{published}</td></tr>
 <tr><td>{fm[formats][name]}:</td><td>{formats}</td></tr>
 <tr><td>{fm[series][name]}:</td><td>{series}</td></tr>
+<tr><td>{has_cover_title}:</td><td>{has_cover}</td></tr>
 </table>
         '''.format(
             mb=_('Target book'),
             title=mi.title,
+            has_cover_title=_('Has cover'), has_cover=_('Yes') if mi.has_cover else _('No'),
             authors=authors_to_string(mi.authors),
             date=format_date(mi.timestamp, tweaks['gui_timestamp_display_format']), fm=fm,
             published=(format_date(mi.pubdate, tweaks['gui_pubdate_display_format']) if mi.pubdate else ''),
@@ -110,10 +116,12 @@ class ChooseMerge(Dialog):
         s.addWidget(w)
         w.l = l = QVBoxLayout(w)
         l.setContentsMargins(0, 0, 0, 0)
+        w.fl = fl = FlowLayout()
+        l.addLayout(fl)
 
         def cb(name, text, tt=''):
             ans = QCheckBox(text)
-            l.addWidget(ans)
+            fl.addWidget(ans)
             prefs_key = ans.prefs_key = 'choose-merge-cb-' + name
             ans.setChecked(gprefs.get(prefs_key, True))
             connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(getattr(self, name), state), type=Qt.ConnectionType.QueuedConnection)
@@ -128,6 +136,8 @@ class ChooseMerge(Dialog):
             'Merge the book files of the selected books into the target book'))
         cb('delete_books', _('Delete merged books'), _(
             'Delete the selected books after merging'))
+        cb('replace_cover', _('Replace existing cover'), _(
+            'Replace the cover in the target book with the dragged cover'))
         l.addStretch(10)
         self.msg = la = QLabel(self)
         la.setWordWrap(True)
@@ -149,21 +159,26 @@ class ChooseMerge(Dialog):
         mm = self.merge_metadata.isChecked()
         mf = self.merge_formats.isChecked()
         rm = self.delete_books.isChecked()
+        rc = self.replace_cover.isChecked()
         msg = '<p>'
         if mm and mf:
             msg += _(
                 'Book formats and metadata from the selected books'
                 ' will be merged into the target book ({title}).')
+            if rc or not self.mi.has_cover:
+                msg += ' ' + _('The dragged cover will be used.')
         elif mf:
             msg += _('Book formats from the selected books '
             'will be merged into to the target book ({title}).'
-            ' Metadata in the target book will not be changed.')
+            ' Metadata and cover in the target book will not be changed.')
         elif mm:
             msg += _('Metadata from the selected books '
             'will be merged into to the target book ({title}).'
             ' Formats will not be merged.')
+            if rc or not self.mi.has_cover:
+                msg += ' ' + _('The dragged cover will be used.')
         msg += '<br>'
-        msg += _('All book formats of the first selected book will be kept.') + '<br><br>'
+        msg += _('All book formats of the target book will be kept.') + '<br><br>'
         if rm:
             msg += _('After being merged, the selected books will be <b>deleted</b>.')
             if mf:
@@ -183,11 +198,21 @@ class ChooseMerge(Dialog):
 
     @property
     def merge_type(self):
-        return self.merge_metadata.isChecked(), self.merge_formats.isChecked(), self.delete_books.isChecked()
+        return MergeData(
+            self.merge_metadata.isChecked(), self.merge_formats.isChecked(), self.delete_books.isChecked(),
+            self.replace_cover.isChecked(),
+        )
+
+
+class MergeData(NamedTuple):
+    merge_metadata: bool = False
+    merge_formats: bool = False
+    delete_books: bool = False
+    replace_cover: bool = False
 
 
 def merge_drop(dest_id, src_ids, gui):
     d = ChooseMerge(dest_id, src_ids, gui)
     if d.exec() != QDialog.DialogCode.Accepted:
-        return None, None, None
+        return None
     return d.merge_type

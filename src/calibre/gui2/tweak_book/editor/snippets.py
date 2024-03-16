@@ -26,7 +26,8 @@ from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
 
-string_length = lambda x: strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+def string_length(x):
+    return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key.Key_J
 MODIFIER = Qt.KeyboardModifier.MetaModifier if ismacos else Qt.KeyboardModifier.ControlModifier
 
@@ -97,10 +98,12 @@ def escape_funcs():
     if escape is None:
         escapem = {('\\' + x):codepoint_to_chr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
-        escape = lambda x: escape_pat.sub(lambda m: escapem[m.group()], x.replace(r'\\', '\x01'))
+        def escape(x):
+            return escape_pat.sub(lambda m: escapem[m.group()], x.replace('\\\\', '\x01'))
         unescapem = {v:k[1] for k, v in iteritems(escapem)}
         unescape_pat = re.compile('|'.join(unescapem))
-        unescape = lambda x:unescape_pat.sub(lambda m:unescapem[m.group()], x)
+        def unescape(x):
+            return unescape_pat.sub(lambda m: unescapem[m.group()], x)
     return escape, unescape
 
 

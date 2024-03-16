@@ -1,102 +1,147 @@
 # -*- mode: python; coding: utf-8; -*-
 # vim: set syntax=python fileencoding=utf-8
 
-__license__   = 'GPL v3'
-__copyright__ = '2021, Darko Miletic <darko.miletic at gmail.com>'
+__license__ = "GPL v3"
+__copyright__ = "2023, Tomás Di Domenico <tdido at tdido.eu>"
 
-'''
+"""
 www.eldiplo.org
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
 
 
-class ElDiplo2020(BasicNewsRecipe):
-    title                = 'Le Monde Diplomatique - cono sur'
-    __author__           = 'Darko Miletic'
-    description          = 'Publicación de Le Monde Diplomatique para el cono sur.'
-    publisher            = 'Le Monde Diplomatique'
-    category             = 'news, politics, Argentina, Uruguay, Paraguay, South America, World'
-    oldest_article       = 31
-    no_stylesheets       = True
-    encoding             = 'utf8'
+class ElDiplo2023(BasicNewsRecipe):
+    title = "Le Monde Diplomatique - cono sur"
+    __author__ = "Tomás Di Domenico"
+    description = "Publicación de Le Monde Diplomatique para el cono sur."
+    publisher = "Capital Intelectual"
+    category = "News, Politics, Argentina, Uruguay, Paraguay, South America, World"
+    oldest_article = 31
+    no_stylesheets = True
+    encoding = "utf8"
     use_embedded_content = False
-    language             = 'es_AR'
-    remove_empty_feeds   = True
-    publication_type     = 'magazine'
-    auto_cleanup         = True
-    auto_cleanup_keep    = '//div[contains(@class, "autor")] | //div[@class="edicion"]'
-    delay                  = 1
+    language = "es_AR"
+    remove_empty_feeds = True
+    publication_type = "magazine"
+    delay = 1
     simultaneous_downloads = 1
-    timeout                = 8
-    needs_subscription     = 'optional'
-    ignore_duplicate_articles = {'url'}
-    articles_are_obfuscated = True
-    temp_files              = []
-    fetch_retries           = 10
+    timeout = 8
+    needs_subscription = True
+    ignore_duplicate_articles = {"url"}
+    temp_files = []
+    fetch_retries = 10
     handle_gzip = True
     compress_news_images = True
     scale_news_images_to_device = True
-    masthead_url = 'https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png'
-    INDEX = 'https://www.eldiplo.org/'
+    masthead_url = (
+        "https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png"
+    )
+    INDEX = "https://www.eldiplo.org/"
 
-    extra_css            = """
-        body{font-family: "GT Super", serif}
-        .autor{font-family: Inter, serif}
+    conversion_options = {"series": "El Dipló", "publisher": publisher, "base_font_size": 8, "tags": category}
+
+    keep_only_tags = [dict(name=["article"])]
+
+    remove_tags = [dict(name=["button"])]
+
+    extra_css = """
+        .entry-title {
+            text-align: center;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .bajada {
+            display: block;
+            font-family: sans-serif;
+            text-align: center;
+            font-size: 110%;
+            padding: 2%;
+        }
+        .Destacado{
+            display: block;
+            font-size: 120%;
+            font-weight: bold;
+            font-style: italic;
+            padding-left: 10%;
+            padding-right: 10%;
+        }
     """
-
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            br.select_form(id='loginform')
-            br['log'] = self.username
-            br['pwd'] = self.password
+            br.select_form(id="loginform")
+            br["log"] = self.username
+            br["pwd"] = self.password
             br.submit()
         return br
 
-    def parse_index(self):
-        articles = []
-        soup = self.index_to_soup(self.INDEX)
-        mylink = soup.find('span', text='Sumario')
-        if mylink is None:
-            return None
-        indexurl = "https://www.eldiplo.org" + mylink.parent['href']
-        self.log(indexurl)
-        parts = indexurl.split('www.eldiplo.org/', 1)
-        series = parts[1].split('-', 1)[0]
-        self.conversion_options.update({'series' : self.title})
-        self.conversion_options.update({'series_index' : series})
-        soupindex = self.index_to_soup(indexurl)
-        totalfeeds = []
-        articles = []
-        for article in soupindex.findAll('a', href=True, attrs={'class':'title'}):
-            url = article['href']
-            title = self.tag_to_string(article)
-            articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
-            self.log('title: ', title, ' url: ', url)
-        totalfeeds.append(('Articles',articles))
-        return totalfeeds
+    def get_cover_url(self):
+        soup_index = self.index_to_soup(self.INDEX)
+        tag_sumario = soup_index.find("span", text="Sumario")
+        url_sumario = "https://www.eldiplo.org" + tag_sumario.parent["href"]
 
-    def get_obfuscated_article(self, url):
-        result = None
-        count = 0
-        while (count < self.fetch_retries):
-            try:
-                response = self.browser.open(url, timeout=self.timeout)
-                html = response.read()
-                count = self.fetch_retries
-                tfile = PersistentTemporaryFile('_fa.html')
-                tfile.write(html)
-                tfile.close()
-                self.temp_files.append(tfile)
-                result = tfile.name
-            except:
-                self.info("Retrying download...")
-            count += 1
-        return result
+        soup = self.index_to_soup(url_sumario)
+
+        container = soup.find("div", class_="px-16")
+        url = container.find("img")["src"]
+
+        return getattr(self, "cover_url", url)
+
+    def _process_article(self, article):
+        url = article.find("a", href=True, attrs={"class": "title"})["href"]
+        title = self.tag_to_string(article).replace("Editorial", "Editorial: ")
+        try:
+            title, authors = title.split(", por")
+            authors = f"por {authors}"
+        except ValueError:
+            authors = ""
+        self.log("title: ", title, " url: ", url)
+        return {"title": title, "url": url, "description": authors, "date": ""}
+
+    def preprocess_html(self, soup):
+        font_size = "90%"
+
+        # make the footnotes smaller
+        for p in soup.find("div", id="nota_pie").findChildren("p", recursive=False):
+            p["style"] = f"font-size: {font_size};"
+
+        return soup
+
+    def parse_index(self):
+        soup_index = self.index_to_soup(self.INDEX)
+
+        tag_sumario = soup_index.find("span", text="Sumario")
+
+        if tag_sumario is None:
+            return None
+
+        url_sumario = "https://www.eldiplo.org" + tag_sumario.parent["href"]
+        self.log(url_sumario)
+
+        soup_sumario = self.index_to_soup(url_sumario)
+
+        feeds = []
+        articles = []
+        dossiers = []
+
+        sumario = soup_sumario.find("div", class_="sumario")
+
+        for section in sumario.find_all("div", recursive=False):
+            classes = section.attrs["class"]
+
+            if "dossier" in classes:
+                dtitle = self.tag_to_string(section.find("h3"))
+                darticles = []
+                for article in section.find_all("div", recursive=False):
+                    darticles.append(self._process_article(article))
+                dossiers.append((dtitle, darticles))
+            else:
+                articles.append(self._process_article(section))
+        feeds.append(("Artículos", articles))
+        feeds += dossiers
+
+        return feeds

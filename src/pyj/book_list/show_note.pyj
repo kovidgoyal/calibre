@@ -1,0 +1,257 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from ajax import ajax
+from book_list.comments_editor import (
+    create_comments_editor, destroy_editor, focus_comments_editor, get_comments_html,
+    set_comments_html
+)
+from book_list.details_list import sandbox_css
+from book_list.globals import book_whose_metadata_is_being_edited
+from book_list.library_data import book_metadata
+from book_list.router import back, home, show_note
+from book_list.top_bar import add_button, create_top_bar
+from book_list.ui import set_panel_handler
+from gettext import gettext as _
+from modals import ajax_send_progress_dialog, error_dialog
+from utils import parse_url_params, safe_set_inner_html, sandboxed_html
+
+
+def message_from_iframe(ev):
+    c = document.getElementById(current_container_id)
+    if c and c.lastChild:
+        iframe = c.querySelector('iframe')
+        if iframe and ev.source is iframe.contentWindow:
+            if ev.data.key:
+                ev.data.from_iframe = True
+                close_action = get_close_action()[0]
+                onkeydown(current_container_id, close_action, ev.data)
+
+
+def make_iframe(html):
+    html += '''
+<script>
+function onkeydown(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    msg = {
+    key: ev.key, altKey: ev.altKey, ctrlKey: ev.ctrlKey, code: ev.code, isComposing: ev.isComposing,
+    repeat: ev.repeat, shiftKey: ev.shiftKey, metaKey: ev.metaKey,
+    }
+    window.parent.postMessage(msg, '*')
+}
+document.onkeydown = onkeydown
+''' + '<' + '/script>'
+    iframe = sandboxed_html(html, sandbox_css() + '\n\nhtml { overflow: visible; margin: 0.5rem; }', 'allow-scripts')
+    iframe.tabIndex = -1  # prevent tab from focusing this iframe
+    iframe.style.width = '100%'
+    iframe.style.flexGrow = '10'
+    if not message_from_iframe.added:
+        message_from_iframe.added = True
+        window.addEventListener('message', message_from_iframe, False)
+    return iframe
+
+
+current_note_markup = None
+current_container_id = ''
+
+
+def on_item_val_based_notes_fetched(load_type, xhr, ev):
+    nonlocal current_note_markup
+    container = document.getElementById(this)
+    if not container:
+        return
+    q = parse_url_params()
+    current_note_markup = None
+    if load_type is 'load':
+        data = JSON.parse(xhr.responseText)
+        q.html = data.html
+        q.item_id = str(data.item_id)
+        current_note_markup = q
+        show_note(q.field, q.item_id, q.item, replace=True, library_id=q.library_id or None, close_action=q.close_action, panel=q.panel)
+        return
+    old = container.querySelector('div.loading')
+    p = old.parentNode
+    p.removeChild(old)
+    container.appendChild(E.div())
+    safe_set_inner_html(container.lastChild, xhr.error_html)
+
+
+def on_notes_fetched(load_type, xhr, ev):
+    nonlocal current_note_markup
+    q = parse_url_params()
+    if load_type is 'load':
+        html = xhr.responseText
+        q.html = xhr.responseText
+        current_note_markup = q
+    else:
+        current_note_markup = None
+        html = xhr.error_html
+    container = document.getElementById(this)
+    if not container:
+        return
+    old = container.querySelector('div.loading')
+    p = old.parentNode
+    p.removeChild(old)
+    if q.panel is 'show_note':
+        create_note_display(container)
+    elif q.panel is 'edit_note':
+        if current_note_markup:
+            create_editor(container.lastChild, current_note_markup.html)
+        else:
+            container.appendChild(E.div())
+            safe_set_inner_html(container.lastChild, html)
+
+
+def edit_note():
+    q = parse_url_params()
+    show_note(q.field, q.item_id, q.item, library_id=q.library_id, panel='edit_note')
+
+
+def onkeydown(container_id, close_action, ev):
+    if ev.key is 'Escape':
+        if not ev.from_iframe:
+            ev.preventDefault(), ev.stopPropagation()
+        close_action()
+    elif ev.key is 'e' or ev.key is 'E':
+        q = parse_url_params()
+        if q.panel is 'show_note':
+            if not ev.from_iframe:
+                ev.preventDefault(), ev.stopPropagation()
+            edit_note()
+
+
+def setup_container(container, close_action):
+    container.style.height = '100vh'
+    container.style.display = 'flex'
+    container.style.flexDirection = 'column'
+    container.appendChild(E.div(tabindex='0', style='flex-grow: 10; display: flex; align-items: stretch'))
+    container.lastChild.addEventListener('keydown', onkeydown.bind(None, container.id, close_action), {'passive': False, 'capture': True})
+    container.lastChild.focus()
+
+
+def get_close_action():
+    q = parse_url_params()
+    if q.panel is 'show_note':
+        close_action, close_icon = back, 'close'
+        q = parse_url_params()
+        ca = q.close_action
+        if ca is 'home':
+            close_action, close_icon = def(): home();, 'home'
+    else:
+        close_action, close_icon = back, 'close'
+    return close_action, close_icon
+
+
+def create_note_display(container):
+    add_button(container, 'edit', action=edit_note, tooltip=_('Edit this note [E]'))
+    html = current_note_markup.html
+    container.lastChild.appendChild(make_iframe(html))
+
+
+def reroute_with_item_id(container, q):
+    container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+    url = 'get-note-from-item-val/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item)
+    if q.library_id:
+        url += '/' + encodeURIComponent(q.library_id)
+    ajax(url, on_item_val_based_notes_fetched.bind(container.id), bypass_cache=False).send()
+    return
+
+
+def init_display_note(container_id):
+    nonlocal current_container_id
+    current_container_id = container_id
+    container = document.getElementById(container_id)
+    close_action, close_icon = get_close_action()
+    q = parse_url_params()
+    create_top_bar(container, title=q.item, action=close_action, icon=close_icon)
+    setup_container(container, close_action)
+    if q.item_id is '0' or q.item_id is 0 or not q.item_id:
+        return reroute_with_item_id(container, q)
+    if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
+        create_note_display(container)
+    else:
+        container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+        url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
+        if q.library_id:
+            url += '/' + encodeURIComponent(q.library_id)
+        ajax(url, on_notes_fetched.bind(container_id), bypass_cache=False).send()
+
+
+def save(container_id, book_id):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    q = parse_url_params()
+    url = 'set-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
+    if q.library_id:
+        url += '/' + encodeURIComponent(q.library_id)
+    close_action = get_close_action()[0]
+
+    def on_complete(end_type, xhr, evt):
+        nonlocal current_note_markup
+        if end_type is 'abort':
+            close_action()
+            return
+        if end_type is not 'load':
+            error_dialog(_('Failed to send notes to server'), _(
+                'Updating the notes for: {} failed.').format(q.item), xhr.error_html)
+            return
+        q.html = xhr.responseText
+        current_note_markup = q
+        destroy_editor(c)
+        if book_id:
+            mi = book_metadata(book_id)
+            if mi:
+                mi.items_with_notes = mi.items_with_notes or {}
+                mi.items_with_notes[q.field] = mi.items_with_notes[q.field] or {}
+                if q.html:
+                    mi.items_with_notes[q.field][q.item] = int(q.item_id)
+                else:
+                    v'delete mi.items_with_notes[q.field][q.item]'
+        close_action()
+
+    def on_got_html(html, extra_data):
+        ajax_send_progress_dialog(url, {'html': html, 'searchable_text': extra_data.text, 'images': extra_data.images}, on_complete, _('Sending note data to calibre server...'))
+
+    get_comments_html(c, on_got_html)
+
+
+def init_edit(container_id):
+    nonlocal current_container_id
+    current_container_id = container_id
+    container = document.getElementById(container_id)
+    q = parse_url_params()
+    close_action, close_icon = get_close_action()
+    create_top_bar(container, title=_('Edit {}').format(q.item), action=close_action, icon=close_icon, tooltip=_('Discard any changes'))
+    setup_container(container, close_action)
+    if q.item_id is '0' or q.item_id is 0 or not q.item_id:
+        return reroute_with_item_id(container, q)
+    if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
+        create_editor(container.lastChild, current_note_markup.html)
+    else:
+        container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+        url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
+        if q.library_id:
+            url += '/' + encodeURIComponent(q.library_id)
+        ajax(url, on_notes_fetched.bind(container_id), bypass_cache=False).send()
+
+
+def create_editor(container, html):
+    book_id = book_whose_metadata_is_being_edited()
+    book_whose_metadata_is_being_edited(None)
+    bar_container = document.getElementById(current_container_id)
+    if bar_container:
+        add_button(bar_container, 'check', action=save.bind(None, bar_container.id, book_id), tooltip=_('Save the changes'))
+    c = container.appendChild(E.div(style='flex-grow:10'))
+    editor = create_comments_editor(c, {'insert_image_files': True})
+    set_comments_html(c, html)
+    focus_comments_editor(c)
+    editor.init()
+
+
+set_panel_handler('show_note', init_display_note)
+set_panel_handler('edit_note', init_edit)

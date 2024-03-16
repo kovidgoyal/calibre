@@ -745,7 +745,8 @@ by William Shakespeare
     def test_select_shakespeare(self):
         document = html.document_fromstring(self.HTML_SHAKESPEARE)
         select = Select(document)
-        count = lambda s: sum(1 for r in select(s))
+        def count(s):
+            return sum(1 for r in select(s))
 
         # Data borrowed from http://mootools.net/slickspeed/
 

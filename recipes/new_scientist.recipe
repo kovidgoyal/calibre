@@ -25,7 +25,6 @@ __author__ = 'Darko Miletic'
 newscientist.com
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -37,7 +36,7 @@ def classes(classes):
 
 class NewScientist(BasicNewsRecipe):
     title = 'New Scientist - Online News w. subscription'
-    description = 'Science news and science articles from New Scientist.'
+    description = 'Science news and science articles from New Scientist, based on feeds.'
     language = 'en'
     publisher = 'Reed Business Information Ltd.'
     category = 'science news, science articles, science jobs, drugs, cancer, depression, computer software'
@@ -49,39 +48,54 @@ class NewScientist(BasicNewsRecipe):
     needs_subscription = 'optional'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
-    compress_news_images = False
-    scale_news_images = True
     resolve_internal_links = True
-    extra_css                 = """
-                                 body{font-family: "PT Serif", serif}
-                                 img{margin-bottom: 0.8em; display: block}
-                                 .quotebx{font-size: x-large; font-weight: bold; margin-right: 2em; margin-left: 2em}
-                                 .article-title,h2,h3{font-family: "Lato Black", sans-serif}
-                                 .strap{font-family: "Lato Light", sans-serif}
-                                 .quote{font-family: "Lato Black", sans-serif}
-                                 .box-out{font-family: "Lato Regular", sans-serif}
-                                 .wp-caption-text{font-family: "Lato Bold", sans-serif; font-size:x-small;}
-                                """
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://cdn.shopify.com/s/files/1/0266/6843/3505/files/logo.svg?v=1629189295'
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .ArticleHeader__Category { font-size:small; color:#404040; }
+        .ArticleHeader__Author, .ArticleHeader__DateTimeWrapper { font-size:small; }
+        .ArticleHeader__Copy { font-style:italic; color:#202020; }
+        .ArticleImage { font-size:small; text-align:center; }
+        .ArticleImageCaption__Credit { font-size:smaller; }
+    '''
 
     keep_only_tags = [
-        classes('article-header article__content')
+        classes('ArticleHeader ArticleContent')
     ]
 
     remove_tags = [
-        classes('social__button-container')
+        dict(name=['svg', 'button']),
+        classes('ArticleHeader__SocialWrapper AdvertWrapper ReadMoreWithImage ArticleTopics')
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        for img in soup.findAll('img', attrs={'data-srcset': True}):
-            img['src'] = img['data-srcset'].split(',')[-1].strip().split()[0]
-            img['width'] = img['height'] = ''
+        time = soup.find(**classes('ArticleHeader__DateTimeWrapper'))
+        if time:
+            time.name = 'div'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src'].split('?')[0] + '?width=700'
+        for figc in soup.findAll('figcaption'):
+            for p in figc.findAll('p'):
+                p.name = 'div'
         return soup
 
     def get_article_url(self, article):
         ans = BasicNewsRecipe.get_article_url(self, article)
         return ans.partition('?')[0]
+
+    def print_version(self, url):
+        if '/video/' in url:
+            return None
+        return url
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -94,7 +108,7 @@ class NewScientist(BasicNewsRecipe):
             br['email'] = self.username
             br['password'] = self.password
             res = br.submit().read()
-            if b'>Log out<' not in res:
+            if b'>Your account<' not in res:
                 raise ValueError('Failed to log in to New Scientist, check your username and password')
         return br
 
@@ -111,19 +125,6 @@ class NewScientist(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(
-            'https://www.newscientist.com/issue/current/')
-        cover_item = soup.find(
-            'img', attrs={'class': 'issue-new-magazine-cover'})
-        if cover_item:
-            cover_url = self.image_url_processor(None, cover_item['src'])
-        # Configure series and issue number
-        issue_nr = soup.find('div', attrs={'class': 'magnavissue'})
-        if issue_nr:
-            if issue_nr.string is not None:
-                non_decimal = re.compile(r'[^\d.]+')
-                nr = non_decimal.sub('', issue_nr.string)
-                self.conversion_options.update({'series': 'New Scientist'})
-                self.conversion_options.update({'series_index': nr})
-        return cover_url
+        soup = self.index_to_soup('https://www.newscientist.com/issues/current/')
+        div = soup.find('div', attrs={'class':'ThisWeeksMagazineHero__CoverInfo'})
+        return div.find(**classes('ThisWeeksMagazineHero__ImageLink')).img['src']

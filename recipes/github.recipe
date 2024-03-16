@@ -1,0 +1,42 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GithubBlog(BasicNewsRecipe):
+    title = u'Github Blog'
+    language = 'en'
+    description = 'Updates, ideas, and inspiration from GitHub to help developers build and design software.'
+    cover_url = 'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png'
+    masthead_url = 'https://github.githubassets.com/assets/GitHub-Logo-ee398b662d42.png'
+
+    oldest_article = 14
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'col-12 offset-lg-1 col-lg-10 col-xl-7 mt-5 mt-lg-10 mb-6 mb-lg-8' }),
+        dict(name='section', attrs={'class': lambda x: x and 'post__content' in x.split(' ') })
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class': lambda x: x and 'post-tags' in x.split(' ') }),
+        dict(name='ul', attrs={'class': lambda x: x and 'post-hero__categories' in x.split(' ') })
+    ]
+
+    preprocess_regexps = [
+        # Styles the article description
+        (re.compile(r'(<p class="[^"]*f4-mktg[^>]*>)([^<]*)(</p>)'),
+         lambda m: '<h3>%s</h3>' % (m.group(2)))
+    ]
+
+    use_embedded_content = False
+    no_stylesheets = True
+
+    feeds = [
+        (u'Engineering', u'https://github.blog/category/engineering/feed/'),
+        (u'Product', u'https://github.blog/category/product/feed/'),
+        (u'Security', u'https://github.blog/category/security/feed/'),
+        (u'Open Source', u'https://github.blog/category/open-source/feed/'),
+        (u'Enterprise', u'https://github.blog/category/enterprise/feed/'),
+        (u'Community', u'https://github.blog/category/community/feed/'),
+        (u'Education', u'https://github.blog/category/education/feed/'),
+        (u'Company', u'https://github.blog/category/company/feed/'),
+        (u'Policy', u'https://github.blog/category/policy/feed/')
+    ]

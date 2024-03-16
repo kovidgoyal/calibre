@@ -6,12 +6,12 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
+from datetime import MAXYEAR, MINYEAR, datetime, time as dtime, timedelta
 from functools import partial
 
 from calibre import strftime
-from calibre.constants import iswindows, ismacos, preferred_encoding
-from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
+from calibre.constants import ismacos, iswindows, preferred_encoding
+from calibre.utils.iso8601 import UNDEFINED_DATE, local_tz, utc_tz
 from calibre.utils.localization import lcdata
 from polyglot.builtins import native_string_type
 
@@ -104,7 +104,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     if isinstance(date_string, bytes):
         date_string = date_string.decode(preferred_encoding, 'replace')
     if default is None:
-        func = datetime.utcnow if assume_utc else datetime.now
+        func = utcnow if assume_utc else now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
     if iso_pat().match(date_string) is not None:
@@ -151,24 +151,34 @@ def dt_factory(time_t, assume_utc=False, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 
-safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
+def safeyear(x):
+    return min(max(MINYEAR, x), MAXYEAR)
 
 
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):
+    from qt.core import Qt, QDateTime
     o = qdate_or_qdatetime
-    if o is None:
+    if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE
-    if hasattr(o, 'toUTC'):
-        # QDateTime
-        o = o.toUTC()
-        d, t = o.date(), o.time()
-        try:
-            ans = datetime(safeyear(d.year()), d.month(), d.day(), t.hour(), t.minute(), t.second(), t.msec()*1000, utc_tz)
-        except ValueError:
-            ans = datetime(safeyear(d.year()), d.month(), 1, t.hour(), t.minute(), t.second(), t.msec()*1000, utc_tz)
-        if not as_utc:
-            ans = ans.astimezone(local_tz)
-        return ans
+    if hasattr(o, 'toUTC'): # QDateTime
+        def c(o: QDateTime, tz=utc_tz):
+            d, t = o.date(), o.time()
+            try:
+                return datetime(safeyear(d.year()), d.month(), d.day(), t.hour(), t.minute(), t.second(), t.msec()*1000, tz)
+            except ValueError:
+                return datetime(safeyear(d.year()), d.month(), 1, t.hour(), t.minute(), t.second(), t.msec()*1000, tz)
+
+        # DST causes differences in how python and Qt convert automatically from local to UTC, so convert explicitly ourselves
+        # QDateTime::toUTC() and datetime.astimezone(utc_tz) give
+        # different results for datetimes in the local_tz when DST is involved. Sigh.
+        spec = o.timeSpec()
+        if spec == Qt.TimeSpec.LocalTime:
+            ans = c(o, local_tz)
+        elif spec == Qt.TimeSpec.UTC:
+            ans = c(o, utc_tz)
+        else:
+            ans = c(o.toUTC(), utc_tz)
+        return ans.astimezone(utc_tz if as_utc else local_tz)
 
     try:
         dt = datetime(safeyear(o.year()), o.month(), o.day()).replace(tzinfo=_local_tz)
@@ -177,11 +187,22 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 
+def qt_from_dt(d: datetime, assume_utc=False):
+    from qt.core import QDate, QDateTime, QTime
+    if is_date_undefined(d):
+        from calibre.gui2 import UNDEFINED_QDATETIME
+        return UNDEFINED_QDATETIME
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=utc_tz if assume_utc else local_tz)
+    d = d.astimezone(local_tz)
+    # not setting a time zone means this QDateTime has timeSpec() ==
+    # LocalTime which is what we want for display/editing.
+    ans = QDateTime(QDate(d.year, d.month, d.day), QTime(d.hour, d.minute, d.second, int(d.microsecond / 1000)))
+    return ans
+
+
 def fromtimestamp(ctime, as_utc=True):
-    dt = datetime.utcfromtimestamp(ctime).replace(tzinfo=_utc_tz)
-    if not as_utc:
-        dt = dt.astimezone(_local_tz)
-    return dt
+    return datetime.fromtimestamp(ctime, _utc_tz if as_utc else _local_tz)
 
 
 def fromordinal(day, as_utc=True):
@@ -238,16 +259,16 @@ def as_utc(date_time, assume_utc=True):
 
 
 def now():
-    return datetime.now().replace(tzinfo=_local_tz)
+    return datetime.now(_local_tz)
 
 
 def utcnow():
-    return datetime.utcnow().replace(tzinfo=_utc_tz)
+    return datetime.now(_utc_tz)
 
 
 def utcfromtimestamp(stamp):
     try:
-        return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+        return datetime.fromtimestamp(stamp, _utc_tz)
     except Exception:
         # Raised if stamp is out of range for the platforms gmtime function
         # For example, this happens with negative values on windows

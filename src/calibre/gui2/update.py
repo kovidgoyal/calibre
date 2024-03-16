@@ -4,20 +4,20 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 import ssl
 from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt,
-    QUrl, pyqtSignal
+    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl,
+    pyqtSignal,
 )
 from threading import Event, Thread
 
 from calibre import as_unicode, prints
 from calibre.constants import (
-    __appname__, __version__, ismacos, isportable, iswindows, numeric_version
+    __appname__, __version__, ismacos, isportable, iswindows, numeric_version,
 )
 from calibre.gui2 import config, dynamic, icon_resource_manager, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.config import prefs
 from calibre.utils.https import get_https_resource_securely
-from calibre.utils.localization import localize_website_link
+from calibre.utils.localization import localize_website_link, ngettext
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
@@ -168,7 +168,7 @@ class UpdateNotification(QDialog):
 
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import (
-            FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+            FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog,
         )
         d = PluginUpdaterDialog(self.parent(),
                 initial_filter=FILTER_UPDATE_AVAILABLE)
@@ -238,7 +238,7 @@ class UpdateMixin:
         elif has_plugin_updates:
             if force:
                 from calibre.gui2.dialogs.plugin_updater import (
-                    FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+                    FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog,
                 )
                 d = PluginUpdaterDialog(self,
                         initial_filter=FILTER_UPDATE_AVAILABLE)

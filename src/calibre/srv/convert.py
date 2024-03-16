@@ -7,12 +7,13 @@ import shutil
 import tempfile
 from threading import Lock
 
-from calibre.customize.ui import input_profiles, output_profiles
+from calibre.customize.ui import input_profiles, output_profiles, run_plugins_on_postconvert
 from calibre.db.errors import NoSuchBook
 from calibre.srv.changes import formats_added
 from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
+from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
 from polyglot.builtins import iteritems
@@ -120,9 +121,9 @@ def convert_book(path_to_ebook, opf_path, cover_path, output_fmt, recs):
 
 
 def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
-    from calibre.ebooks.metadata.opf2 import metadata_to_opf
-    from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
     from calibre.customize.conversion import OptionRecommendation
+    from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics
+    from calibre.ebooks.metadata.opf2 import metadata_to_opf
     tdir = tempfile.mkdtemp(dir=rd.tdir)
     with tempfile.NamedTemporaryFile(prefix='', suffix=('.' + fmt.lower()), dir=tdir, delete=False) as src_file:
         db.copy_format_to(book_id, fmt, src_file)
@@ -193,6 +194,7 @@ def conversion_status(ctx, rd, job_id):
             except NoSuchBook:
                 raise HTTPNotFound(
                     f'book_id {job_status.book_id} not found in library')
+            run_plugins_on_postconvert(db, job_status.book_id, fmt)
             formats_added({job_status.book_id: (fmt,)})
             ans['size'] = os.path.getsize(job_status.output_path)
             ans['fmt'] = fmt
@@ -202,10 +204,12 @@ def conversion_status(ctx, rd, job_id):
 
 
 def get_conversion_options(input_fmt, output_fmt, book_id, db):
-    from calibre.ebooks.conversion.plumber import create_dummy_plumber
-    from calibre.ebooks.conversion.config import (
-        load_specifics, load_defaults, OPTIONS, options_for_input_fmt, options_for_output_fmt)
     from calibre.customize.conversion import OptionRecommendation
+    from calibre.ebooks.conversion.config import (
+        OPTIONS, load_defaults, load_specifics, options_for_input_fmt,
+        options_for_output_fmt,
+    )
+    from calibre.ebooks.conversion.plumber import create_dummy_plumber
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
     ans = {'options': {}, 'disabled': set(), 'defaults': {}, 'help': {}}
@@ -265,7 +269,8 @@ def profiles():
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})
 def conversion_data(ctx, rd, book_id):
     from calibre.ebooks.conversion.config import (
-        NoSupportedInputFormats, get_input_format_for_book, get_sorted_output_formats)
+        NoSupportedInputFormats, get_input_format_for_book, get_sorted_output_formats,
+    )
     db = get_library_data(ctx, rd)[0]
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)

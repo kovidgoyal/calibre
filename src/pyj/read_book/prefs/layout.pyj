@@ -9,7 +9,7 @@ from book_list.globals import get_session_data
 from dom import add_extra_css, build_rule, element, unique_id
 from read_book.prefs.utils import create_button_box
 from read_book.globals import runtime
-from session import defaults
+from session import session_defaults
 
 CONTAINER = unique_id('reader-page-layout')
 MARGINS = unique_id('reader-page-margins')
@@ -26,6 +26,7 @@ add_extra_css(def():
 )
 
 def restore_defaults():
+    defaults = session_defaults()
     container = document.getElementById(CONTAINER)
     for which in 'top bottom left right'.split(' '):
         container.querySelector('input[name={}]'.format(which)).value = str(defaults['margin_' + which])
@@ -100,7 +101,7 @@ def create_layout_panel(container, apply_func, cancel_func):
         name = 'fullscreen_when_opening'
         val = sd.get(name)
         if 'auto always never'.split(' ').indexOf(val or '') < 0:
-            val = defaults.fullscreen_when_opening
+            val = session_defaults().fullscreen_when_opening
         container.appendChild(E.div(
             E.div(style='margin: 1ex 2rem', id=FS_MODE,
                 _('When opening a book enter fullscreen:'), ' ',

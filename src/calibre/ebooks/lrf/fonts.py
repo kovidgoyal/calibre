@@ -25,6 +25,7 @@ def get_font(name, size, encoding='unic'):
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'
     @param manager: A dict that will store the PersistentTemporary
     '''
+    from calibre.utils.resources import get_path as P
     if name in LIBERATION_FONT_MAP:
         return ImageFont.truetype(P('fonts/liberation/%s.ttf' % LIBERATION_FONT_MAP[name]), size, encoding=encoding)
     elif name in FONT_FILE_MAP:

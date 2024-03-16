@@ -5,12 +5,12 @@ from __python__ import hash_literals
 from elementmaker import E
 
 from read_book.globals import dark_link_color, runtime
-from session import defaults
+from session import session_defaults
 
 opts = {}
 
 def update_settings(settings):
-    settings = Object.assign({}, defaults, settings)
+    settings = Object.assign({}, session_defaults(), settings)
     opts.base_font_size = max(8, min(settings.base_font_size, 64))
     opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.color_scheme = settings.color_scheme
@@ -26,12 +26,13 @@ def update_settings(settings):
     opts.margin_bottom = max(0, settings.margin_bottom)
     opts.override_book_colors = settings.override_book_colors
     opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
+    opts.paged_wheel_section_jumps = v'!!settings.paged_wheel_section_jumps'
     opts.paged_pixel_scroll_threshold = settings.paged_pixel_scroll_threshold
-    opts.paged_taps_scroll_by_screen = v'!!settings.paged_taps_scroll_by_screen'
     opts.scroll_auto_boundary_delay = settings.scroll_auto_boundary_delay
     opts.scroll_stop_boundaries = v'!!settings.scroll_stop_boundaries'
     opts.reverse_page_turn_zones = v'!!settings.reverse_page_turn_zones'
     opts.user_stylesheet = settings.user_stylesheet
+    opts.gesture_overrides = settings.gesture_overrides
 
 update_settings()
 

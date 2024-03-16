@@ -14,7 +14,7 @@ from book_list.library_data import (
     current_virtual_library, download_url, library_data, load_status,
     set_book_metadata
 )
-from book_list.router import back, home, open_book, report_a_load_failure
+from book_list.router import back, home, open_book, report_a_load_failure, show_note
 from book_list.theme import (
     color_scheme, get_color, get_color_as_rgba, get_font_size
 )
@@ -124,7 +124,7 @@ def adjust_iframe_height(iframe):
 def setup_iframe(iframe):
     de = adjust_iframe_height(iframe)
     for a in de.querySelectorAll('a[href]'):
-        a.setAttribute('target', '_blank')
+        a.setAttribute('target', '_parent')
 
     def forward_touch_events(ev):
         container = window.top.document.getElementById(render_book.container_id)
@@ -158,9 +158,9 @@ def adjusting_sandboxed_html(html, extra_css):
     css =  f'\n\n:root {{ color-scheme: {color_scheme()} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
     if extra_css:
         css += '\n\n' + extra_css
-    # allow-same-origin is needed for resizing and allow-popups is needed for
-    # target="_blank"
-    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups allow-popups-to-escape-sandbox')
+    # allow-same-origin is needed for resizing and allow-top-navigation is
+    # needed for links with target="_parent"
+    ans = sandboxed_html(html, css, 'allow-same-origin allow-top-navigation-by-user-activation')
     ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
@@ -190,6 +190,17 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     else:
         fields = filter(allowed_fields, fields)
     comments = v'[]'
+    link_maps = mi.link_maps or v'{}'
+
+    def show_note_action(field, item_id, item_val):
+        show_note(field, item_id, item_val)
+
+    def add_note_link(field, name, val, parent):
+        if mi.items_with_notes and mi.items_with_notes[field] and mi.items_with_notes[field][val]:
+            parent.appendChild(document.createTextNode(' '))
+            parent.appendChild(E.a(
+                svgicon('pencil'), title=_('Show notes for: {}').format(val), href='javascript:void(0)', onclick=show_note_action.bind(
+                    None, field, mi.items_with_notes[field][val], val), class_='blue-link'))
 
     def add_row(field, name, val, is_searchable=False, is_html=False, join=None, search_text=None, use_quotes=True):
         if val is undefined or val is None:
@@ -199,20 +210,29 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         def add_val(v):
             if not v.appendChild:
                 v += ''
+            parent = table.lastChild.lastChild
             if is_searchable:
                 text_rep = search_text or v
-                table.lastChild.lastChild.appendChild(E.a(
+                parent.appendChild(E.a(
                     v,
                     title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
                     href=href_for_search(is_searchable, text_rep, use_quotes=use_quotes)
                 ))
+                if link_maps[field] and link_maps[field][text_rep]:
+                    url = link_maps[field][text_rep]
+                    if url.startswith('https://') or url.startswith('http://'):
+                        parent.appendChild(document.createTextNode(' '))
+                        parent.appendChild(E.a(
+                            svgicon('external-link'), title=_('Click to open') + ': ' + url, href=url, target='_new', class_='blue-link'))
             else:
                 if v.appendChild:
-                    table.lastChild.lastChild.appendChild(v)
+                    parent.appendChild(v)
                 else:
-                    table.lastChild.lastChild.appendChild(document.createTextNode(v))
+                    parent.appendChild(document.createTextNode(v))
+            if jstype(v) is 'string' and not is_html:
+                add_note_link(field, name, v, parent)
 
-        table.appendChild(E.tr(E.td(name + ':'), E.td()))
+        table.appendChild(E.tr(E.td(name), E.td()))
         if is_html and /[<>]/.test(val + ''):
             table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + '', iframe_css))
         else:
@@ -246,7 +266,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_formats(field, fm, name, val):
         if val.length and book_id?:
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             td = table.lastChild.lastChild
             for fmt in val:
                 fmt = fmt.toUpperCase()
@@ -267,26 +287,17 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_identifiers(field, fm, name, val):
 
-        def ids_sorter(url_map, k):
-            x = url_map[k]
-            if not x:
-                return ''
+        def ids_sorter(x):
             return (x[0] or '').toLowerCase()
 
-        if val:
-            keys = Object.keys(val)
-            if keys.length:
-                td = E.td()
-                url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-                for k in sorted(keys, key=ids_sorter.bind(None, url_map)):
-                    idval = val[k]
-                    x = url_map[k]
-                    if x:
-                        if td.childNodes.length:
-                            td.appendChild(document.createTextNode(', '))
-                        td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+        if val and mi.urls_from_identifiers and mi.urls_from_identifiers.length > 0:
+            td = E.td()
+            for text, k, idval, url in sorted(mi.urls_from_identifiers or v'[]', key=ids_sorter):
                 if td.childNodes.length:
-                    table.appendChild(E.tr(E.td(name + ':'), td))
+                    td.appendChild(document.createTextNode(', '))
+                td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=url, text))
+            if td.childNodes.length:
+                table.appendChild(E.tr(E.td(name), td))
 
     def process_size(field, fm, name, val):
         if val:
@@ -297,7 +308,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
     def process_languages(field, fm, name, val):
         if val and val.length:
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             td = table.lastChild.lastChild
             for k in val:
                 if mi.lang_names:
@@ -327,7 +338,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             except Exception:
                 ival = 1.0
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.appendChild(E.tr(E.td(name), E.td()))
             s = safe_set_inner_html(E.span(), _('{0} of <a>{1}</a>').format(ival, val))
             a = s.getElementsByTagName('a')
             if a and a.length:
@@ -338,12 +349,13 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             else:
                 print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
             table.lastChild.lastChild.appendChild(s)
+            add_note_link(field, name, val, table.lastChild.lastChild)
 
     def process_field(field, fm):
         name = fm.name or field
         datatype = fm.datatype
         val = mi[field]
-        if field is 'comments' or datatype is 'comments':
+        if field is 'comments' or datatype is 'comments' or fm.display?.composite_show_in_comments:
             if not val:
                 return
             ias = fm.display?.interpret_as or 'html'
@@ -440,7 +452,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
-    style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
+    style += build_rule(sel + 'table.metadata td:first-of-type', font_style='italic', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
     return style
 

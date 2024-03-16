@@ -9,25 +9,27 @@ import posixpath
 import sys
 import weakref
 from contextlib import suppress
-from functools import partial, lru_cache
+from functools import lru_cache, partial
 from qt.core import (
     QAction, QCoreApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon,
-    QInputDialog, QLabel, QLineEdit, QMenu, QSize, Qt, QTimer, QToolButton,
-    QVBoxLayout, pyqtSignal
+    QInputDialog, QLabel, QLineEdit, QMenu, QSize, Qt, QTimer, QToolButton, QVBoxLayout,
+    pyqtSignal,
 )
 
 from calibre import isbytestring, sanitize_file_name
 from calibre.constants import (
-    config_dir, filesystem_encoding, get_portable_base, isportable, iswindows
+    config_dir, filesystem_encoding, get_portable_base, isportable, iswindows,
 )
 from calibre.gui2 import (
     Dispatcher, choose_dir, choose_images, error_dialog, gprefs, info_dialog,
-    open_local_file, pixmap_to_data, question_dialog, warning_dialog
+    open_local_file, pixmap_to_data, question_dialog, warning_dialog,
 )
 from calibre.gui2.actions import InterfaceAction
 from calibre.library import current_library_name
+from calibre.startup import connect_lambda
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import ngettext
 
 
 def db_class():
@@ -558,7 +560,8 @@ class ChooseLibraryAction(InterfaceAction):
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
                 '<p>'+_(
                     'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
-                    'Note that the actual library folder will be renamed.'),
+                        'Note that the actual library folder will be renamed.') + '<p>' + _(
+                            'WARNING: This means that any calibre:// URLs that point to things in this library will stop working.'),
                 text=old_name)
         newname = sanitize_file_name(str(newname))
         if not ok or not newname or newname == old_name:

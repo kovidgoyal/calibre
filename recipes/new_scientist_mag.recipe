@@ -1,0 +1,110 @@
+'''
+newscientist.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+class NewScientist(BasicNewsRecipe):
+    title = 'New Scientist Magazine'
+    __author__ = 'unkn0wn'
+    description = (
+        'New Scientist is the world’s most popular weekly science and technology publication. '
+        'We cover international news from a scientific standpoint, and ask the big-picture questions '
+        'about life, the universe and what it means to be human. If someone in the world has a good idea, '
+        'you will read about it in New Scientist.'
+    )
+    language = 'en'
+    publisher = 'Reed Business Information Ltd.'
+    category = 'science news, science articles, science jobs, drugs, cancer, depression, computer software'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    needs_subscription = 'optional'
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://cdn.shopify.com/s/files/1/0266/6843/3505/files/logo.svg?v=1629189295'
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            def is_login_form(form):
+                return "action" in form.attrs and form.attrs['action'] == "/login/"
+
+            br.open('https://www.newscientist.com/login/')
+            br.select_form(predicate=is_login_form)
+            br['email'] = self.username
+            br['password'] = self.password
+            res = br.submit().read()
+            if b'>Your account<' not in res:
+                raise ValueError('Failed to log in to New Scientist, check your username and password')
+        return br
+
+    # def print_version(self, url):
+    #     return 'https://webcache.googleusercontent.com/search?q=cache:' + url.split('?')[0]
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .ArticleHeader__Category { font-size:small; color:#404040; }
+        .ArticleHeader__Author, .ArticleHeader__DateTimeWrapper { font-size:small; }
+        .ArticleHeader__Copy { font-style:italic; color:#202020; }
+        .ArticleImage { font-size:small; text-align:center; }
+        .ArticleImageCaption__Credit { font-size:smaller; }
+    '''
+
+    keep_only_tags = [
+        classes('ArticleHeader ArticleContent')
+    ]
+
+    remove_tags = [
+        dict(name=['svg', 'button']),
+        classes('ArticleHeader__SocialWrapper AdvertWrapper ReadMoreWithImage ArticleTopics')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.newscientist.com/issues/current/')
+        div = soup.find('div', attrs={'class':'ThisWeeksMagazineHero__CoverInfo'})
+        tme = div.find(**classes('ThisWeeksMagazineHero__MagInfoHeading'))
+        self.log('Downloading issue:', self.tag_to_string(tme))
+        self.timefmt = ' [' + self.tag_to_string(tme) + ']'
+        self.cover_url = div.find(**classes('ThisWeeksMagazineHero__ImageLink')).img['src']
+
+        feeds = []
+        for cont in soup.findAll(attrs={'class':'TableOfContents__Section'}):
+            sec = self.tag_to_string(cont.find('h3'))
+            self.log(sec)
+            articles = []
+            for a in cont.findAll('a', attrs={'class':'CardLink'}):
+                url = a['href']
+                if url.startswith('http') is False:
+                    url = 'https://www.newscientist.com' + a['href']
+                title = self.tag_to_string(a.find(**classes('Card__Title')))
+                desc = ''
+                desc += self.tag_to_string(a.find(**classes('Card__Category')))
+                teaser = a.find(**classes('Card__TeaserCopy'))
+                if teaser:
+                    desc += ' | ' + self.tag_to_string(teaser)
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'description': desc, 'url': url})
+            if articles:
+                feeds.append((sec, articles))
+        return feeds
+
+    def preprocess_html(self, soup):
+        time = soup.find(**classes('ArticleHeader__DateTimeWrapper'))
+        if time:
+            time.name = 'div'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src'].split('?')[0] + '?width=700'
+        for figc in soup.findAll('figcaption'):
+            for p in figc.findAll('p'):
+                p.name = 'div'
+        return soup

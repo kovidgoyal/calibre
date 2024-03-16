@@ -23,7 +23,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r = self.register
 
         for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
-                'replace_whitespace', 'to_lowercase', 'formats', 'timefmt'):
+                'replace_whitespace', 'to_lowercase', 'formats', 'timefmt', 'save_extra_files'):
             r(x, self.proxy)
         r('show_files_after_save', gprefs)
 

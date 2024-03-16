@@ -8,6 +8,7 @@ import re, os
 from bisect import bisect
 
 from calibre import guess_type as _guess_type, replace_entities
+from calibre.utils.icu import upper as icu_upper
 
 
 BLOCK_TAG_NAMES = frozenset((
@@ -248,7 +249,9 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
     found_groups = False
     i = 0
     parts, pos = [], match.start()
-    f = lambda text:handle_entities(text, func)
+
+    def f(text):
+        return handle_entities(text, func)
     while True:
         i += 1
         try:
@@ -268,7 +271,8 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
 
 def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
     ''' Apply the specified function only to text between HTML tag definitions. '''
-    f = lambda text:handle_entities(text, func)
+    def f(text):
+        return handle_entities(text, func)
     parts = re.split(r'(<[^>]+>)', match.group())
     parts = (x if x.startswith('<') else f(x) for x in parts)
     return ''.join(parts)

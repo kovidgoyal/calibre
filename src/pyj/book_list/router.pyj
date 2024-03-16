@@ -56,7 +56,7 @@ def apply_url(ignore_handler):
         handler(data)
 
 
-def open_book(book_id, fmt, library_id=None, replace=False):
+def request_full_screen_if_wanted():
     opt = get_session_data().get('fullscreen_when_opening')
     has_touch = v'"ontouchstart" in window'
     at_left = window.screenLeft is 0
@@ -65,8 +65,15 @@ def open_book(book_id, fmt, library_id=None, replace=False):
         # Note that full screen requests only succeed if they are in response to a
         # user action like clicking/tapping a button
         request_full_screen()
+
+
+def open_book(book_id, fmt, library_id=None, replace=False, extra_query=None):
+    request_full_screen_if_wanted()
     library_id = library_id or current_library_id()
-    push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
+    q = {'book_id':book_id, 'fmt':fmt, 'library_id':library_id}
+    if extra_query and jstype(extra_query) is 'object':
+        Object.assign(q, extra_query)
+    push_state(q, replace=replace, mode=read_book_mode)
 
 
 def open_book_url(book_id, fmt, extra_query):
@@ -78,6 +85,16 @@ def open_book_url(book_id, fmt, extra_query):
     if extra_query:
         Object.assign(q, extra_query)
     return ans + encode_query(q, '#')
+
+
+def show_note(field, item_id, item_value, replace=False, library_id=None, close_action='back', panel='show_note'):
+    lid = library_id or current_library_id()
+    q = {'field': field, 'item':item_value + '', 'item_id': (item_id or '')+ '', 'panel': panel}
+    if panel is 'show_note':
+        q.close_action = close_action
+    if lid:
+        q.library_id = lid
+    push_state(q, replace=replace)
 
 
 def push_state(query, replace=False, mode='book_list', call_handler=True):

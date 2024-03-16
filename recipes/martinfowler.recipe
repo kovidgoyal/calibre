@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MartinFowler(BasicNewsRecipe):
+    title = 'Martin Fowler Blog'
+    description = 'Software development is a young profession, and we are still learning the techniques and building the tools to do it effectively.'
+    language = 'en'
+    oldest_article = 14
+
+    keep_only_tags = [
+        dict(name='main')
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class': 'bio'}),
+        dict(name='div', attrs={'class': 'article-card'}),
+        dict(name='hr', attrs={'class': 'bodySep'})
+    ]
+
+    remove_tags_after = [
+        dict(name='div', attrs={'class': lambda x: x and 'paperBody' in x.split()})
+    ]
+
+    use_embedded_content = False
+    no_stylesheets = True
+
+    feeds = [
+        (u'Martin Fowler Blog', u'https://martinfowler.com/feed.atom')
+    ]

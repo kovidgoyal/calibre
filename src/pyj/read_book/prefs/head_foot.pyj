@@ -8,7 +8,7 @@ from gettext import gettext as _, ngettext
 from book_list.globals import get_session_data
 from dom import unique_id
 from read_book.prefs.utils import create_button_box
-from session import defaults, get_interface_data
+from session import session_defaults, get_interface_data
 from utils import fmt_sidx
 
 CONTAINER = unique_id('reader-hf-prefs')
@@ -106,7 +106,7 @@ def restore_defaults():
     container = document.getElementById(CONTAINER)
     for which in Object.keys(groups()):
         table = container.querySelector(f'table[data-which={which}]')
-        apply_setting(table, defaults[which] or {})
+        apply_setting(table, session_defaults()[which] or {})
 
 
 def create_head_foot_panel(container, apply_func, cancel_func):

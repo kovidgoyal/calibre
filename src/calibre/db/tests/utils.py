@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 import shutil
 
 from calibre import walk
@@ -71,12 +72,12 @@ class UtilsTest(BaseTest):
         c.empty()
         self.assertEqual(c.total_size, 0)
         self.assertEqual(len(c), 0)
-        self.assertEqual(tuple(walk(c.location)), ())
+        self.assertEqual(tuple(walk(c.location)), (os.path.join(c.location, 'version'),))
         c = self.init_tc()
         self.basic_fill(c)
         self.assertEqual(len(c), 5)
         c.set_thumbnail_size(200, 201)
         self.assertIsNone(c[1][0])
         self.assertEqual(len(c), 0)
-        self.assertEqual(tuple(walk(c.location)), ())
+        self.assertEqual(tuple(walk(c.location)), (os.path.join(c.location, 'version'),))
     # }}}

@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, errno
+import os, re
 
 from qt.core import QPixmap, QApplication
 
@@ -243,13 +243,8 @@ class MetadataWidget(Widget, Ui_Form):
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
         except OSError as err:
-            if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                import traceback
-                fname = getattr(err, 'filename', None) or 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(), show=True)
-                return False
+            err.locking_violation_msg = _('Failed to change on disk location of this book\'s files.')
+            raise
         publisher = self.publisher.text().strip()
         if publisher != db.field_for('publisher', self.book_id):
             db.set_field('publisher', {self.book_id:publisher})

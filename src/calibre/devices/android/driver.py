@@ -7,6 +7,7 @@ import os
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.resources import get_image_path as I
 from polyglot.builtins import string_or_bytes
 
 HTC_BCDS = [0x100, 0x0222, 0x0224, 0x0226, 0x227, 0x228, 0x229, 0x0231, 0x9999]
@@ -48,7 +49,6 @@ class ANDROID(USBMS):
                        0x0cf5 : HTC_BCDS,
                        0x2910 : HTC_BCDS,
                        0xe77  : HTC_BCDS,
-                       0xff9  : HTC_BCDS,
                        0x0001 : [0x255],
             },
 
@@ -386,11 +386,11 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
         else:
-            coverdata = lopen(I('library.png'), 'rb').read()
+            coverdata = open(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (120,160), 'black')
             im = Image.open(io.BytesIO(coverdata))
-            im.thumbnail((120, 160), Image.ANTIALIAS)
+            im.thumbnail((120, 160), Image.Resampling.LANCZOS)
 
             x, y = im.size
             cover.paste(im, ((120-x)/2, (160-y)/2))
@@ -403,7 +403,7 @@ class WEBOS(USBMS):
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with lopen(os.path.join(path, 'coverCache', filename + '-medium.jpg'), 'wb') as coverfile:
+        with open(os.path.join(path, 'coverCache', filename + '-medium.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)
 
@@ -411,21 +411,21 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(io.BytesIO(coverdata[2]))
         else:
-            coverdata = lopen(I('library.png'), 'rb').read()
+            coverdata = open(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (52,69), 'black')
             im = Image.open(io.BytesIO(coverdata))
-            im.thumbnail((52, 69), Image.ANTIALIAS)
+            im.thumbnail((52, 69), Image.Resampling.LANCZOS)
 
             x, y = im.size
             cover.paste(im, ((52-x)//2, (69-y)//2))
 
-        cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
+        cover2 = cover.resize((52, 69), Image.Resampling.LANCZOS).convert('RGB')
 
         data = io.BytesIO()
         cover2.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with lopen(os.path.join(path, 'coverCache', filename + '-small.jpg'), 'wb') as coverfile:
+        with open(os.path.join(path, 'coverCache', filename + '-small.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)

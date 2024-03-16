@@ -1,7 +1,7 @@
 CREATE TABLE authors ( id   INTEGER PRIMARY KEY,
                               name TEXT NOT NULL COLLATE NOCASE,
                               sort TEXT COLLATE NOCASE,
-                              link TEXT NOT NULL DEFAULT "",
+                              link TEXT NOT NULL DEFAULT '',
                               UNIQUE(name)
                              );
 CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -11,13 +11,13 @@ CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
                              pubdate   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                              series_index REAL NOT NULL DEFAULT 1.0,
                              author_sort TEXT COLLATE NOCASE,
-                             isbn TEXT DEFAULT "" COLLATE NOCASE,
-                             lccn TEXT DEFAULT "" COLLATE NOCASE,
-                             path TEXT NOT NULL DEFAULT "",
+                             isbn TEXT DEFAULT '' COLLATE NOCASE,
+                             lccn TEXT DEFAULT '' COLLATE NOCASE,
+                             path TEXT NOT NULL DEFAULT '',
                              flags INTEGER NOT NULL DEFAULT 1,
                              uuid TEXT,
                              has_cover BOOL DEFAULT 0,
-                             last_modified TIMESTAMP NOT NULL DEFAULT "2000-01-01 00:00:00+00:00");
+                             last_modified TIMESTAMP NOT NULL DEFAULT '2000-01-01 00:00:00+00:00');
 CREATE TABLE books_authors_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
                                           author INTEGER NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE custom_columns (
                     datatype TEXT NOT NULL,
                     mark_for_delete   BOOL DEFAULT 0 NOT NULL,
                     editable BOOL DEFAULT 1 NOT NULL,
-                    display  TEXT DEFAULT "{}" NOT NULL,
+                    display  TEXT DEFAULT '{}' NOT NULL,
                     is_multiple BOOL DEFAULT 0 NOT NULL,
                     normalized BOOL NOT NULL,
                     UNIQUE(label)
@@ -91,12 +91,13 @@ CREATE TABLE feeds ( id   INTEGER PRIMARY KEY,
                              );
 CREATE TABLE identifiers  ( id     INTEGER PRIMARY KEY,
                                     book   INTEGER NOT NULL,
-                                    type   TEXT NOT NULL DEFAULT "isbn" COLLATE NOCASE,
+                                    type   TEXT NOT NULL DEFAULT 'isbn' COLLATE NOCASE,
                                     val    TEXT NOT NULL COLLATE NOCASE,
                                     UNIQUE(book, type)
         );
 CREATE TABLE languages    ( id        INTEGER PRIMARY KEY,
                                     lang_code TEXT NOT NULL COLLATE NOCASE,
+							        link TEXT NOT NULL DEFAULT '',
                                     UNIQUE(lang_code)
         );
 CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
@@ -116,19 +117,23 @@ CREATE TABLE preferences(id INTEGER PRIMARY KEY,
 CREATE TABLE publishers ( id   INTEGER PRIMARY KEY,
                                   name TEXT NOT NULL COLLATE NOCASE,
                                   sort TEXT COLLATE NOCASE,
+								  link TEXT NOT NULL DEFAULT '',
                                   UNIQUE(name)
                              );
 CREATE TABLE ratings ( id   INTEGER PRIMARY KEY,
                                rating INTEGER CHECK(rating > -1 AND rating < 11),
+							   link TEXT NOT NULL DEFAULT '',
                                UNIQUE (rating)
                              );
 CREATE TABLE series ( id   INTEGER PRIMARY KEY,
                               name TEXT NOT NULL COLLATE NOCASE,
                               sort TEXT COLLATE NOCASE,
+							  link TEXT NOT NULL DEFAULT '',
                               UNIQUE (name)
                              );
 CREATE TABLE tags ( id   INTEGER PRIMARY KEY,
                             name TEXT NOT NULL COLLATE NOCASE,
+							link TEXT NOT NULL DEFAULT '',
                             UNIQUE (name)
                              );
 CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
@@ -151,7 +156,7 @@ CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
 	annot_id TEXT NOT NULL,
 	annot_type TEXT NOT NULL,
 	annot_data TEXT NOT NULL,
-    searchable_text TEXT NOT NULL DEFAULT "",
+    searchable_text TEXT NOT NULL DEFAULT '',
     UNIQUE(book, user_type, user, format, annot_type, annot_id)
 );
 
@@ -633,4 +638,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=25;
+pragma user_version=26;

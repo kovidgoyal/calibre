@@ -1,10 +1,14 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, re, textwrap
+import glob
+import os
+import re
+import textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from polyglot.builtins import iteritems, as_bytes
+from calibre.utils.resources import get_path as P
+from polyglot.builtins import as_bytes, iteritems
 
 border_style_map = {
         'single' : 'solid',
@@ -116,8 +120,9 @@ class RTFInput(InputFormatPlugin):
             return f.read()
 
     def extract_images(self, picts):
-        from calibre.utils.imghdr import what
         from binascii import unhexlify
+
+        from calibre.utils.imghdr import what
         self.log('Extracting images...')
 
         with open(picts, 'rb') as f:
@@ -172,7 +177,7 @@ class RTFInput(InputFormatPlugin):
             ' Use Microsoft Word or LibreOffice to save this RTF file'
             ' as HTML and convert that in calibre.')
         name = name.replace('.wmf', '.jpg')
-        with lopen(name, 'wb') as f:
+        with open(name, 'wb') as f:
             f.write(self.default_img)
         return name
 
@@ -246,6 +251,7 @@ class RTFInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from lxml import etree
+
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException

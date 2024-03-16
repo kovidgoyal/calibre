@@ -13,8 +13,8 @@
 #define USING_SHARED_PODOFO
 #include <podofo.h>
 #include <unordered_set>
-#include <unordered_map>
 using namespace PoDoFo;
+using namespace std::literals;
 
 namespace pdf {
 
@@ -25,6 +25,7 @@ typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
     PdfMemDocument *doc;
+    PyObject *load_buffer_ref;
 
 } PDFDoc;
 
@@ -52,7 +53,7 @@ struct PyObjectDeleter {
 // unique_ptr that uses Py_XDECREF as the destructor function.
 typedef std::unique_ptr<PyObject, PyObjectDeleter> pyunique_ptr;
 
-class PyBytesOutputStream : public PdfOutputStream {
+class PyBytesOutputStream : public OutputStream {
     private:
         pyunique_ptr bytes;
 		PyBytesOutputStream( const PyBytesOutputStream & ) ;
@@ -62,18 +63,18 @@ class PyBytesOutputStream : public PdfOutputStream {
         void Close() {}
         operator bool() const { return bool(bytes); }
         PyObject* get() const { return bytes.get(); }
-        pdf_long Write(const char *buf, const pdf_long sz){
+    protected:
+        void writeBuffer(const char *buf, size_t sz){
             if (!bytes) {
                 bytes.reset(PyBytes_FromStringAndSize(buf, sz));
-                if (!bytes) throw PdfError(ePdfError_OutOfMemory, __FILE__, __LINE__, NULL);
+                if (!bytes) throw PdfError(PdfErrorCode::OutOfMemory, __FILE__, __LINE__, NULL);
             } else {
                 size_t old_sz = PyBytes_GET_SIZE(bytes.get());
                 PyObject *old = bytes.release();
-                if (_PyBytes_Resize(&old, old_sz + sz) != 0) throw PdfError(ePdfError_OutOfMemory, __FILE__, __LINE__, NULL);
+                if (_PyBytes_Resize(&old, old_sz + sz) != 0) throw PdfError(PdfErrorCode::OutOfMemory, __FILE__, __LINE__, NULL);
                 memcpy(PyBytes_AS_STRING(old) + old_sz, buf, sz);
                 bytes.reset(old);
             }
-            return sz;
         }
 };
 
@@ -82,9 +83,54 @@ template<typename T>
 static inline bool
 dictionary_has_key_name(const PdfDictionary &d, T key, const char *name) {
 	const PdfObject *val = d.GetKey(key);
-	if (val && val->IsName() && val->GetName().GetName() == name) return true;
+	if (val && val->IsName() && val->GetName().GetString() == name) return true;
 	return false;
 }
+
+static inline const PdfPage*
+get_page(const PdfPageCollection &pages, const PdfReference &ref) {
+    try {
+        return &pages.GetPage(ref);
+    } catch(PdfError &) { }
+    return nullptr;
+}
+
+static inline const PdfPage*
+get_page(const PdfDocument *doc, const PdfReference &ref) {
+    try {
+        return &doc->GetPages().GetPage(ref);
+    } catch(PdfError &) { }
+    return nullptr;
+}
+
+static inline const PdfPage*
+get_page(const PdfDocument *doc, const unsigned num) {
+    try {
+        return &doc->GetPages().GetPageAt(num);
+    } catch(PdfError &) { }
+    return nullptr;
+}
+
+static inline PdfPage*
+get_page(PdfDocument *doc, const unsigned num) {
+    try {
+        return &doc->GetPages().GetPageAt(num);
+    } catch(PdfError &) { }
+    return nullptr;
+}
+
+static inline PdfReference
+object_as_reference(const PdfObject &o) {
+    return o.IsReference() ? o.GetReference() : o.GetIndirectReference();
+}
+
+static inline PdfReference
+object_as_reference(const PdfObject *o) {
+    return o->IsReference() ? o->GetReference() : o->GetIndirectReference();
+}
+
+// NoMetadataUpdate needed to avoid PoDoFo clobbering the /Info and XMP metadata with its own nonsense
+static const PdfSaveOptions save_options = PdfSaveOptions::NoMetadataUpdate;
 
 class PdfReferenceHasher {
     public:

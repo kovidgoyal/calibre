@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import defaultdict
+from qt.core import (
+    QCheckBox, QDialogButtonBox, QHBoxLayout, QIcon, QInputDialog, QLabel, QProgressBar,
+    QSizePolicy, QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal,
+)
 from threading import Thread
 
-from qt.core import (
-    QCheckBox, QHBoxLayout, QIcon, QInputDialog, QLabel, QProgressBar, QSizePolicy,
-    QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
-)
-
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import current_container, editors, set_current_container, tprefs
+from calibre.gui2.tweak_book import (
+    current_container, editors, set_current_container, tprefs,
+)
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
@@ -168,6 +169,7 @@ class CheckExternalLinks(Dialog):
 
 if __name__ == '__main__':
     import sys
+
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
     app = Application([])

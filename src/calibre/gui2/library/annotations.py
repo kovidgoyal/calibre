@@ -7,28 +7,30 @@ import os
 import re
 from functools import lru_cache, partial
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime,
-    QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QLocale, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter,
-    Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime, QDialog,
+    QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon, QKeySequence,
+    QLabel, QLocale, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
+    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal,
 )
 from urllib.parse import quote
 
 from calibre import prepare_string_for_xml
 from calibre.constants import (
-    builtin_colors_dark, builtin_colors_light, builtin_decorations
+    builtin_colors_dark, builtin_colors_light, builtin_decorations,
 )
 from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import (
     Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme,
-    safe_open_url
+    safe_open_url,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
+from calibre.startup import connect_lambda
+from calibre.utils.localization import ngettext, pgettext
 
 
 def render_timestamp(ts):
@@ -72,6 +74,42 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     else:
         lines.append('───')
     lines.append('')
+
+
+class ChapterGroup:
+
+    def __init__(self, title='', level=0):
+        self.title = title
+        self.subgroups = {}
+        self.annotations = []
+        self.level = level
+
+    def add_annot(self, a):
+        titles = a.get('toc_family_titles', (_('Unknown chapter'),))
+        node = self
+        for title in titles:
+            node = node.group_for_title(title)
+        node.annotations.append(a)
+
+    def group_for_title(self, title):
+        ans = self.subgroups.get(title)
+        if ans is None:
+            ans = ChapterGroup(title, self.level+1)
+            self.subgroups[title] = ans
+        return ans
+
+    def render_as_text(self, lines, as_markdown, link_prefix):
+        if self.title:
+            lines.append('#' * self.level + ' ' + self.title)
+            lines.append('')
+        for hl in self.annotations:
+            atype = hl.get('type', 'highlight')
+            if atype == 'bookmark':
+                render_bookmark_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+            else:
+                render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+        for sg in self.subgroups.values():
+            sg.render_as_text(lines, as_markdown, link_prefix)
 
 
 url_prefixes = 'http', 'https'
@@ -144,7 +182,7 @@ def friendly_username(user_type, user):
 
 def annotation_title(atype, singular=False):
     if singular:
-        return {'bookmark': _('Bookmark'), 'highlight': _('Highlight')}.get(atype, atype)
+        return {'bookmark': _('Bookmark'), 'highlight': pgettext('type of annotation', 'Highlight')}.get(atype, atype)
     return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
 
 
@@ -296,29 +334,17 @@ class Export(Dialog):  # {{{
         for a in self.annotations:
             bid_groups.setdefault(a['book_id'], []).append(a)
         for book_id, group in bid_groups.items():
-            chapter_groups = {}
-            def_chap = (_('Unknown chapter'),)
+            root = ChapterGroup(level=1)
             for a in group:
-                toc_titles = a.get('toc_family_titles', def_chap)
-                chapter_groups.setdefault(toc_titles[0], []).append(a)
+                root.add_annot(a)
+            if library_id:
+                link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
+            else:
+                link_prefix = None
 
-            lines.append('## ' + db.field_for('title', book_id))
+            lines.append('# ' + db.field_for('title', book_id))
             lines.append('')
-
-            for chapter, group in chapter_groups.items():
-                if len(chapter_groups) > 1:
-                    lines.append('### ' + chapter)
-                    lines.append('')
-                for a in group:
-                    atype = a['type']
-                    if library_id:
-                        link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
-                    else:
-                        link_prefix = None
-                    if atype == 'highlight':
-                        render_highlight_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
-                    elif atype == 'bookmark':
-                        render_bookmark_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+            root.render_as_text(lines, as_markdown, link_prefix)
             lines.append('')
         return '\n'.join(lines).strip()
 # }}}
@@ -880,7 +906,7 @@ class DetailsPanel(QWidget):
             atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
             user=a(friendly_username(r['user_type'], r['user'])), highlight_css=highlight_css,
             ov=a(_('Open in viewer')), sic=a(_('Show in calibre')),
-            ovtt=a(_('Open the book at this annotation in the calibre E-book viewer')),
+            ovtt=a(_('View the book at this annotation in the calibre E-book viewer')),
             sictt=(_('Show this book in the main calibre book list')),
         )
         self.text_browser.setHtml(text)
@@ -1035,7 +1061,7 @@ class AnnotationsBrowser(Dialog):
         else:
             self.reinitialize(restrict_to_book_ids)
             self.show()
-            self.raise_()
+            self.raise_and_focus()
             QTimer.singleShot(80, self.browse_panel.effective_query_changed)
 
     def selection_changed(self):

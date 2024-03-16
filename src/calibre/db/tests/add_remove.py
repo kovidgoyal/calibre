@@ -5,14 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, glob
+import glob
+import os
+from contextlib import suppress
+from datetime import timedelta
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from datetime import timedelta
 
-from calibre.db.tests.base import BaseTest, IMG
+from calibre.db.constants import METADATA_FILE_NAME
+from calibre.db.tests.base import IMG, BaseTest
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.date import now, UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, now, utcnow
+from calibre.utils.img import image_from_path
+from calibre.utils.resources import get_image_path
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -148,7 +153,10 @@ class AddRemoveTest(BaseTest):
         'Test the creation of new book entries'
         from calibre.ebooks.metadata.book.base import Metadata
         cache = self.init_cache()
+        cache.set_field('authors', {1: 'Creator Two'})
+        cache.set_link_map('authors', {'Creator Two': 'original'})
         mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
+        mi.link_maps = {'authors': {'Creator One': 'link1', 'Creator Two': 'changed'}}
 
         book_id = cache.create_book_entry(mi)
         self.assertIsNot(book_id, None)
@@ -163,6 +171,7 @@ class AddRemoveTest(BaseTest):
             self.assertEqual(('Created One', ('Creator One', 'Creator Two')), (cache.field_for('title', book_id), cache.field_for('authors', book_id)))
             self.assertEqual(cache.field_for('series_index', book_id), 1.0)
             self.assertEqual(cache.field_for('pubdate', book_id), UNDEFINED_DATE)
+            self.assertEqual(cache.get_all_link_maps_for_book(book_id), {'authors': {'Creator One': 'link1', 'Creator Two': 'original'}})
 
         do_test(cache, book_id)
         # Test that the db contains correct data
@@ -211,6 +220,8 @@ class AddRemoveTest(BaseTest):
     def test_remove_books(self):  # {{{
         'Test removal of books'
         cl = self.cloned_library
+        cl2 = self.cloned_library
+        cl3 = self.cloned_library
         cache = self.init_cache()
         af, ae = self.assertFalse, self.assertEqual
         authors = cache.fields['authors'].table
@@ -225,7 +236,7 @@ class AddRemoveTest(BaseTest):
             self.assertNotIn(3, c.all_book_ids())
             self.assertNotIn('Unknown', set(itervalues(table.id_map)))
             self.assertNotIn(item_id, table.asort_map)
-            self.assertNotIn(item_id, table.alink_map)
+            self.assertNotIn(item_id, table.link_map)
             ae(len(table.id_map), olen-1)
 
         # Check that files are removed
@@ -257,18 +268,65 @@ class AddRemoveTest(BaseTest):
             self.assertFalse(table.col_book_map)
 
         # Test the delete service
-        from calibre.db.delete_service import delete_service
+        # test basic delete book and cache expiry
         cache = self.init_cache(cl)
-        # Check that files are removed
         fmtpath = cache.format_abspath(1, 'FMT1')
         bookpath = os.path.dirname(fmtpath)
+        title = cache.field_for('title', 1)
+        os.mkdir(os.path.join(bookpath, 'xyz'))
+        open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
         item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
-        delete_service().wait()
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), 'The file %s exists, when it should not' % x)
+        b, f = cache.list_trash_entries()
+        self.assertEqual(len(b), 1)
+        self.assertEqual(len(f), 0)
+        self.assertEqual(b[0].title, title)
+        self.assertTrue(os.path.exists(b[0].cover_path))
+        cache.backend.expire_old_trash(1000)
+        self.assertTrue(os.path.exists(b[0].cover_path))
+        cache.backend.expire_old_trash(0)
+        self.assertFalse(os.path.exists(b[0].cover_path))
 
+        # test restoring of books
+        cache = self.init_cache(cl2)
+        cache.set_cover({1: image_from_path(get_image_path('lt.png', allow_user_override=False))})
+        fmtpath = cache.format_abspath(1, 'FMT1')
+        bookpath = os.path.dirname(fmtpath)
+        cache.set_annotations_for_book(1, 'FMT1', [({'title': 'else', 'type': 'bookmark', 'timestamp': utcnow().isoformat()}, 1)])
+        annots_before = cache.all_annotations_for_book(1)
+        fm_before = cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)
+        os.mkdir(os.path.join(bookpath, 'xyz'))
+        open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
+        with suppress(FileNotFoundError):
+            os.remove(os.path.join(bookpath, METADATA_FILE_NAME))
+        cache.remove_books((1,))
+        cache.move_book_from_trash(1)
+        b, f = cache.list_trash_entries()
+        self.assertEqual(len(b), 0)
+        self.assertEqual(len(f), 0)
+        self.assertEqual(fmtpath, cache.format_abspath(1, 'FMT1'))
+        self.assertEqual(fm_before, (cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)))
+        self.assertEqual(annots_before, cache.all_annotations_for_book(1))
+        self.assertTrue(cache.cover(1))
+        self.assertTrue(os.path.exists(os.path.join(bookpath, 'xyz', 'abc')))
+
+        # test restoring of formats
+        cache = self.init_cache(cl3)
+        all_formats = cache.formats(1)
+        cache.remove_formats({1: all_formats})
+        self.assertFalse(cache.formats(1))
+        b, f = cache.list_trash_entries()
+        self.assertEqual(len(b), 0)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].title, title)
+        self.assertTrue(f[0].cover_path)
+        for fmt in all_formats:
+            cache.move_format_from_trash(1, fmt)
+        self.assertEqual(all_formats, cache.formats(1))
+        self.assertFalse(os.listdir(os.path.join(cache.backend.trash_dir, 'f')))
     # }}}
 
     def test_original_fmt(self):  # {{{
@@ -308,9 +366,13 @@ class AddRemoveTest(BaseTest):
     def test_copy_to_library(self):  # {{{
         from calibre.db.copy_to_library import copy_one_book
         from calibre.ebooks.metadata import authors_to_string
-        from calibre.utils.date import utcnow, EPOCH
+        from calibre.utils.date import EPOCH, utcnow
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
+
+        def read(x, mode='r'):
+            with open(x, mode) as f:
+                return f.read()
 
         def a(**kw):
             ts = utcnow()
@@ -323,6 +385,12 @@ class AddRemoveTest(BaseTest):
             a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed again'),
         ]
         src_db.set_annotations_for_book(1, 'FMT1', annot_list)
+        bookdir = os.path.dirname(src_db.format_abspath(1, '__COVER_INTERNAL__'))
+        with open(os.path.join(bookdir, 'exf'), 'w') as f:
+            f.write('exf')
+        os.mkdir(os.path.join(bookdir, 'sub'))
+        with open(os.path.join(bookdir, 'sub', 'recurse'), 'w') as f:
+            f.write('recurse')
 
         def make_rdata(book_id=1, new_book_id=None, action='add'):
             return {
@@ -335,32 +403,91 @@ class AddRemoveTest(BaseTest):
         def compare_field(field, func=self.assertEqual):
             func(src_db.field_for(field, rdata['book_id']), dest_db.field_for(field, rdata['new_book_id']))
 
+        def assert_has_extra_files(book_id):
+            bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
+            self.assertEqual('exf', read(os.path.join(bookdir, 'exf')))
+            self.assertEqual('recurse', read(os.path.join(bookdir, 'sub', 'recurse')))
+
+        def assert_does_not_have_extra_files(book_id):
+            bookdir = os.path.dirname(dest_db.format_abspath(book_id, '__COVER_INTERNAL__'))
+            self.assertFalse(os.path.exists(os.path.join(bookdir, 'exf')))
+            self.assertFalse(os.path.exists(os.path.join(bookdir, 'sub', 'recurse')))
+
+        def clear_extra_files(book_id):
+            for ef in dest_db.list_extra_files(book_id):
+                os.remove(ef.file_path)
+
+        assert_does_not_have_extra_files(1)
+
         rdata = copy_one_book(1, src_db, dest_db)
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp')
         compare_field('uuid', self.assertNotEqual)
         self.assertEqual(src_db.all_annotations_for_book(1), dest_db.all_annotations_for_book(max(dest_db.all_book_ids())))
+        assert_has_extra_files(rdata['new_book_id'])
+        clear_extra_files(rdata['new_book_id'])
+
         rdata = copy_one_book(1, src_db, dest_db, preserve_date=False, preserve_uuid=True)
         self.assertEqual(rdata, make_rdata(new_book_id=max(dest_db.all_book_ids())))
         compare_field('timestamp', self.assertNotEqual)
         compare_field('uuid')
+        assert_has_extra_files(rdata['new_book_id'])
+        clear_extra_files(rdata['new_book_id'])
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='ignore')
         self.assertIsNone(rdata['new_book_id'])
         self.assertEqual(rdata['action'], 'duplicate')
         src_db.add_format(1, 'FMT1', BytesIO(b'replaced'), run_hooks=False)
+        assert_does_not_have_extra_files(1)
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_has_extra_files(new_book_id)
+            clear_extra_files(new_book_id)
+
         src_db.add_format(1, 'FMT1', BytesIO(b'second-round'), run_hooks=False)
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='ignore')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_does_not_have_extra_files(new_book_id)
+
         rdata = copy_one_book(1, src_db, dest_db, duplicate_action='add_formats_to_existing', automerge_action='new record')
         self.assertEqual(rdata['action'], 'automerge')
         for new_book_id in (1, 4, 5):
             self.assertEqual(dest_db.format(new_book_id, 'FMT1'), b'replaced')
+            assert_does_not_have_extra_files(new_book_id)
         self.assertEqual(dest_db.format(rdata['new_book_id'], 'FMT1'), b'second-round')
+        assert_has_extra_files(rdata['new_book_id'])
 
+    # }}}
+
+    def test_merging_extra_files(self):  # {{{
+        db = self.init_cache()
+
+        def add_extra(book_id, relpath):
+            db.add_extra_files(book_id, {relpath: BytesIO(f'{book_id}:{relpath}'.encode())})
+
+        def extra_files_for(book_id):
+            ans = {}
+            for ef in db.list_extra_files(book_id):
+                with open(ef.file_path) as f:
+                    ans[ef.relpath] = f.read()
+            return ans
+
+        add_extra(1, 'one'), add_extra(1, 'sub/one')
+        add_extra(2, 'one'), add_extra(2, 'sub/one'), add_extra(2, 'two/two')
+        add_extra(3, 'one'), add_extra(3, 'sub/one'), add_extra(3, 'three')
+
+        self.assertEqual(extra_files_for(1), {
+            'one': '1:one', 'sub/one': '1:sub/one',
+        })
+        db.merge_extra_files(1, (2, 3))
+        self.assertEqual(extra_files_for(1), {
+            'one': '1:one', 'sub/one': '1:sub/one',
+            'merge conflict/one': '2:one', 'sub/merge conflict/one': '2:sub/one', 'two/two': '2:two/two',
+            'three': '3:three', 'merge conflict 1/one': '3:one', 'sub/merge conflict 1/one': '3:sub/one',
+        })
     # }}}

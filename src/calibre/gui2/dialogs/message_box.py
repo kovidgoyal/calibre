@@ -9,11 +9,12 @@ import sys
 from qt.core import (
     QAction, QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
     QKeySequence, QLabel, QPainter, QPlainTextEdit, QSize, QSizePolicy, Qt,
-    QTextBrowser, QTextDocument, QVBoxLayout, QWidget, pyqtSignal
+    QTextBrowser, QTextDocument, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
+from calibre.utils.localization import ngettext
 
 
 class Icon(QWidget):
@@ -491,8 +492,8 @@ class JobError(QDialog):  # {{{
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application, question_dialog
     from calibre import prepare_string_for_xml
+    from calibre.gui2 import Application, question_dialog
     app = Application([])
     merged = {'Kovid Goyal': ['Waterloo', 'Doomed'], 'Someone Else': ['Some other book ' * 1000]}
     lines = []

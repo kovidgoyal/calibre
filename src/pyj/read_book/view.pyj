@@ -7,8 +7,9 @@ from elementmaker import E
 import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.globals import get_session_data
+from book_list.home import update_book_in_recently_read_by_user_on_home_page
 from book_list.theme import cached_color_to_rgba, get_color, set_ui_colors
-from book_list.ui import query_as_href
+from book_list.ui import show_panel
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from gettext import gettext as _
 from iframe_comm import create_wrapped_iframe
@@ -32,12 +33,15 @@ from read_book.prefs.head_foot import render_head_foot
 from read_book.prefs.scrolling import (
     MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
 )
+from read_book.prefs.user_stylesheet import modify_background_image_url_for_fetch
 from read_book.read_aloud import ReadAloud
+from read_book.read_audio_ebook import ReadAudioEbook
 from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay
 from read_book.selection_bar import SelectionBar
 from read_book.shortcuts import create_shortcut_map
+from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
@@ -46,7 +50,6 @@ from utils import (
     default_context_menu_should_be_allowed, html_escape, is_ios, parse_url_params,
     safe_set_inner_html, username_key
 )
-from viewer.constants import READER_BACKGROUND_URL
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -116,12 +119,15 @@ def show_controls_help():
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
 
     left_msg = msg(_('Tap to turn back'))
-    left_width = '25vw'
+    left_width = 'min(25vw, 1in)'
     right_msg = msg(_('Tap to turn page'))
-    right_width = '75vw'
+    right_width = 'auto'
+    left_grow = 0
+    right_grow = 1
     if rtl_page_progression():
         left_msg, right_msg = right_msg, left_msg
         left_width, right_width = right_width, left_width
+        left_grow, right_grow = right_grow, left_grow
 
     # Clear it out if this is not the first time it's created.
     # Needed to correctly show it again in a different page progression direction.
@@ -139,11 +145,11 @@ def show_controls_help():
             style="display: flex; align-items: stretch; flex-grow: 10",
             E.div(
                 left_msg,
-                style=f'width: {left_width}; display:flex; align-items: center; border-right: solid 2px currentColor',
+                style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',
             ),
             E.div(
                 right_msg,
-                style=f'width: {right_width}; display:flex; align-items: center',
+                style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',
             )
         )
     ))
@@ -262,6 +268,7 @@ class View:
             'search_result_discovered': self.search_result_discovered,
             'annotations': self.on_annotations_message,
             'tts': self.on_tts_message,
+            'audio_ebook_message': self.on_audio_ebook_message,
             'hints': self.on_hints_message,
             'copy_text_to_clipboard': def(data):
                 ui_operations.copy_selection(data.text, data.html)
@@ -307,6 +314,7 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
+                        E.div(style='position: absolute; bottom:0em; width: 100%; height: 100%; display:none', id='audio-ebooks-overlay'),  # read audio ebook overlay
                     )
                 ),
             ),
@@ -321,11 +329,12 @@ class View:
         self.overlay = Overlay(self)
         self.selection_bar = SelectionBar(self)
         self.read_aloud = ReadAloud(self)
+        self.read_audio_ebook = ReadAudioEbook(self)
         self.hints = Hints(self)
-        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints]'
+        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints, self.read_audio_ebook]'
         self.processing_spine_item_display = False
         self.pending_load = None
-        self.currently_showing = {'selection': {'empty': True}}
+        self.currently_showing = {'selection': {'empty': True}, 'on_load':v'[]'}
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
 
@@ -366,6 +375,9 @@ class View:
 
     def on_tts_message(self, data):
         self.read_aloud.handle_message(data)
+
+    def on_audio_ebook_message(self, data):
+        self.read_audio_ebook.handle_message(data)
 
     def on_hints_message(self, data):
         self.hints.handle_message(data)
@@ -464,6 +476,8 @@ class View:
             self.selection_bar.update_position()
 
     def on_handle_shortcut(self, data):
+        if not data.name:
+            return
         if data.name is 'back':
             window.history.back()
         elif data.name is 'forward':
@@ -479,6 +493,8 @@ class View:
                 ui_operations.toggle_bookmarks()
             else:
                 self.overlay.show_bookmarks()
+        elif data.name is 'show_profiles':
+            self.overlay.show_profiles()
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
         elif data.name is 'new_bookmark':
@@ -524,7 +540,7 @@ class View:
         elif data.name is 'toggle_read_aloud':
             self.toggle_read_aloud()
         elif data.name is 'reload_book':
-            ui_operations.reload_book()
+            self.reload_book()
         elif data.name is 'sync_book':
             self.overlay.sync_book()
         elif data.name is 'next_section':
@@ -659,6 +675,13 @@ class View:
         self.content_popup_overlay.hide()
         self.focus_iframe()
 
+    @property
+    def overlay_prevents_navigation(self):
+        for x in self.modal_overlays:
+            if x.is_visible and x.prevent_navigation:
+                return True
+        return False
+
     def focus_iframe(self):
         for x in self.modal_overlays:
             if x.is_visible:
@@ -667,15 +690,23 @@ class View:
         self.iframe.contentWindow.focus()
 
     def start_read_aloud(self, dont_start_talking):
-        for x in self.modal_overlays:
-            if x is not self.read_aloud:
-                x.hide()
-        self.read_aloud.show()
-        if not dont_start_talking:
-            self.read_aloud.play()
+        if self.book.manifest.has_smil:
+            for x in self.modal_overlays:
+                if x is not self.read_audio_ebook:
+                    x.hide()
+            self.read_audio_ebook.show()
+        else:
+            for x in self.modal_overlays:
+                if x is not self.read_aloud:
+                    x.hide()
+            self.read_aloud.show()
+            if not dont_start_talking:
+                self.read_aloud.play()
 
     def toggle_read_aloud(self):
-        if self.read_aloud.is_visible:
+        if self.read_audio_ebook.is_visible:
+            self.read_audio_ebook.hide()
+        elif self.read_aloud.is_visible:
             self.read_aloud.hide()
         else:
             self.start_read_aloud()
@@ -690,6 +721,10 @@ class View:
             self.hints.show()
 
     def show_chrome(self, data):
+        if self.content_popup_overlay.is_visible:
+            self.content_popup_overlay.hide()
+            return
+        self.content_popup_overlay
         elements = {}
         if data and data.elements:
             elements = data.elements
@@ -818,7 +853,7 @@ class View:
         iframe.style.backgroundColor = ans.background or 'white'
         bg_image = sd.get('background_image')
         if bg_image:
-            iframe.style.backgroundImage = f'url({READER_BACKGROUND_URL}?{Date().getTime()})' if runtime.is_standalone_viewer else f'url({bg_image})'
+            iframe.style.backgroundImage = f'url({modify_background_image_url_for_fetch(bg_image)})'
         else:
             iframe.style.backgroundImage = 'none'
         if sd.get('background_image_style') is 'scaled':
@@ -886,27 +921,38 @@ class View:
     def open_book_page(self):
         # Open the page for the current book in a new tab
         if self.book and self.book.key:
-            window.open(query_as_href({
-                'library_id': self.book.key[0], 'book_id': self.book.key[1] + '', 'close_action': 'book_list',
-            }, 'book_details'))
+            show_panel('book_details', {'library_id': self.book.key[0], 'book_id': self.book.key[1] + ''}, replace=False)
+
+    def clear_book_resource_caches(self):
+        self.loaded_resources = {}
+        self.content_popup_overlay.loaded_resources = {}
+
+    def reload_book(self):
+        self.clear_book_resource_caches()
+        ui_operations.reload_book()
 
     def display_book(self, book, initial_position, is_redisplay):
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
         self.book_load_started = True
-        if not is_current_book:
+        if is_current_book:
+            if not is_redisplay:
+                self.search_overlay.clear_caches(book)  # could be a reload
+        else:
             if self.book:
                 self.iframe_wrapper.reset()
                 self.content_popup_overlay.reset()
-            self.loaded_resources = {}
-            self.content_popup_overlay.loaded_resources = {}
+            self.clear_book_resource_caches()
             self.timers.start_book(book)
             self.search_overlay.clear_caches(book)
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
         hl = None
         if not is_redisplay:
+            if self.read_audio_ebook:
+                self.read_audio_ebook.hide()
+                clear(self.read_audio_ebook.container)
             if runtime.is_standalone_viewer:
                 hl = book.highlights
                 v'delete book.highlights'
@@ -1002,13 +1048,14 @@ class View:
             'hide_tooltips': sd.get('hide_tooltips'),
             'cover_preserve_aspect_ratio': sd.get('cover_preserve_aspect_ratio'),
             'paged_wheel_scrolls_by_screen': sd.get('paged_wheel_scrolls_by_screen'),
+            'paged_wheel_section_jumps': sd.get('paged_wheel_section_jumps'),
             'paged_pixel_scroll_threshold': sd.get('paged_pixel_scroll_threshold'),
-            'paged_taps_scroll_by_screen': sd.get('paged_taps_scroll_by_screen'),
             'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
             'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
             'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
             'reverse_page_turn_zones': sd.get('reverse_page_turn_zones'),
+            'gesture_overrides': sd.get('gesture_overrides'),
         }
 
     def show_name(self, name, initial_position=None):
@@ -1020,7 +1067,7 @@ class View:
         idx = spine.indexOf(name)
         self.currently_showing = {
             'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
-            'loading':True, 'spine_index': idx, 'selection': {'empty': True},
+            'loading':True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
         }
         self.show_loading()
         set_current_spine_item(name)
@@ -1123,6 +1170,8 @@ class View:
         return True
 
     def goto_toc_node(self, node_id):
+        if self.overlay_prevents_navigation:
+            return
         toc = self.book.manifest.toc
         found = False
 
@@ -1232,6 +1281,7 @@ class View:
                     if end_type is not 'load':
                         print('Failed to update last read position, AJAX call did not succeed')
             )
+            update_book_in_recently_read_by_user_on_home_page(key[0], key[1], key[2], data.cfi)
 
     @property
     def current_position_data(self):
@@ -1338,9 +1388,14 @@ class View:
         self.processing_spine_item_display = True
         self.current_status_message = ''
         self.iframe.style.visibility = 'hidden'
+        fdata = self.book.manifest.files[self.currently_showing.name]
+        smil_map = None
+        if self.book.manifest.has_smil and fdata:
+            smil_map = fdata.smil_map
+            self.currently_showing.smil_audio_map = get_smil_audio_map(smil_map)
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,
-            initial_position=self.currently_showing.initial_position,
+            initial_position=self.currently_showing.initial_position, smil_map=smil_map or None,
             settings=self.currently_showing.settings, reference_mode_enabled=self.reference_mode_enabled,
             is_titlepage=self.currently_showing.name is self.book.manifest.title_page_name,
             highlights=self.annotations_manager.highlights_for_currently_showing(),
@@ -1364,6 +1419,9 @@ class View:
             ui_operations.content_file_changed(self.currently_showing.name)
         if self.read_aloud.is_visible:
             self.read_aloud.play()
+        for x in self.currently_showing.on_load:
+            x()
+        self.currently_showing.on_load = v'[]'
 
     def set_progress_frac(self, progress_frac, file_progress_frac, page_counts):
         self.current_progress_frac = progress_frac or 0
@@ -1391,8 +1449,20 @@ class View:
             ui_operations.reference_mode_changed(self.reference_mode_enabled)
 
     def discover_search_result(self, sr):
+        if sr.search_finished:
+            if self.search_result_discovery:
+                self.search_result_discovery.finished = True
+                if not self.search_result_discovery.discovered and self.search_result_discovery.first_search_result and self.search_result_discovery.queue.length is 0:
+                    sr = self.search_result_discovery.first_search_result
+                    sr.force_jump_to = True
+                    self.search_result_discovery.jump_forced = True
+                    self.show_search_result(sr)
+            return
         if sr.result_num is 1:
-            self.search_result_discovery = {'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False}
+            self.search_result_discovery = {
+                'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False,
+                'first_search_result': sr, 'finished': False, 'jump_forced': False,
+            }
         if not self.search_result_discovery or self.search_result_discovery.discovered or self.search_result_discovery.on_discovery is not sr.on_discovery:
             return
         self.search_result_discovery.queue.push(sr)
@@ -1408,6 +1478,11 @@ class View:
                     ui_operations.search_result_discovered(sr)
             elif not self.search_result_discovery.discovered and self.search_result_discovery.queue.length:
                 self.show_search_result(self.search_result_discovery.queue.shift())
+            elif not self.search_result_discovery.discovered and self.search_result_discovery.finished and not self.search_result_discovery.jump_forced:
+                sr = self.search_result_discovery.first_search_result
+                sr.force_jump_to = True
+                self.search_result_discovery.jump_forced = True
+                self.show_search_result(sr)
 
     def search_result_discovered(self, data):
         self.handle_search_result_discovery(data.search_result, data.discovered)
@@ -1419,7 +1494,10 @@ class View:
 
     def show_search_result(self, sr):
         if self.currently_showing.name is sr.file_name:
-            self.iframe_wrapper.send_message('show_search_result', search_result=sr)
+            if self.currently_showing.loading:
+                self.currently_showing.on_load.push(self.show_search_result.bind(None, sr))
+            else:
+                self.iframe_wrapper.send_message('show_search_result', search_result=sr)
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
         if self.search_result_discovery?.on_discovery is sr.on_discovery:

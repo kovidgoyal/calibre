@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 __license__ = 'GPL v3'
-__author__ = 'Jordi Balcells, based on an earlier version by Lorenzo Vigentini & Kovid Goyal'
+__author__ = 'Alvaro Beiro, improving Jordi Balcells work based on an earlier version by Lorenzo Vigentini & Kovid Goyal'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-description = 'Main daily newspaper from Spain - v1.04 (19, October 2010)'
+description = 'Main daily newspaper from Spain - v1.05 (13, March 2023)'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -13,12 +13,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElPais(BasicNewsRecipe):
-    __author__ = 'Kovid Goyal & Lorenzo Vigentini & Jordi Balcells'
+    __author__ = 'Kovid Goyal & Lorenzo Vigentini & Jordi Balcells & Alvaro Beiro'
     description = 'Main daily newspaper from Spain'
 
-    title = u'El Pais'
+    title = u'El Pa\xeds'
     publisher = u'Ediciones El Pa\xeds SL'
     category = 'News, politics, culture, economy, general interest'
+    publication_type = 'newspaper'
 
     language = 'es'
     timefmt = '[%a, %d %b, %Y]'
@@ -32,6 +33,13 @@ class ElPais(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
+    extra_css = '''
+span._db {max-width: 100%; height: auto;}
+.a_m_p {font-size: .75rem;}
+.a_m_m {text-transform: uppercase; padding-top: 0.5rem;}
+div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}
+'''
+
     keep_only_tags = [
         dict(attrs={'class': [
                               'article_header',
@@ -41,6 +49,8 @@ class ElPais(BasicNewsRecipe):
                               'articulo-titulares',
                               'articulo-apertura',
                               'articulo__contenedor'
+                              'a_e_m',
+                              'a_md_a',
                              ]}),
         dict(name='div', attrs={'class': 'a_c',}),
 
@@ -57,6 +67,9 @@ class ElPais(BasicNewsRecipe):
                               'more_info',
                               'articulo-apoyos',
                               'top10',
+                              'a_ei',
+                              'w-cta',
+                              'ph-v_b',
                              ]
                     },
             ),
@@ -64,13 +77,16 @@ class ElPais(BasicNewsRecipe):
         dict(name='svg'),
     ]
 
+    remove_attributes = ['width', 'height']
+
     feeds = [
         (u'Espa\xf1a', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada'),
         (u'Internacional',
          u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada'),
-        (u'Opini\xf3n', u'https://elpais.com/rss/elpais/opinion.xml'),
+        (u'Economía', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada'),
+        (u'Opinión', u'http://ep00.epimg.net/rss/elpais/opinion.xml'),
         (u'Ciencia', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada'),
-        (u'Tecnolog\xeda',
+        (u'Tecnología',
          u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada'),
         (u'Cultura', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/cultura/portada'),
         (u'Estilo', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/estilo/portada'),
@@ -79,3 +95,21 @@ class ElPais(BasicNewsRecipe):
         (u'Sociedad', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/sociedad/portada'),
         (u'Blogs', u'http://ep01.epimg.net/rss/elpais/blogs.xml'),
     ]
+
+    def get_cover_url(self):
+        from datetime import date
+        cover = ('https://srv00.epimg.net/pdf/elpais/snapshot/' +
+                 str(date.today().year) + '/' + date.today().strftime('%m') + '/elpais/' +
+                 str(date.today().year) +  date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg')
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def image_url_processor(cls, baseurl, url):
+        splitUrl = url.split("cloudfront-")
+        parsedUrl = 'https://cloudfront-' + splitUrl[1]
+        return parsedUrl

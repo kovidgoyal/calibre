@@ -47,6 +47,27 @@ def set_css(elem, **kw):
                         s.setProperty('-' + prefix + '-' + name, val)
     return elem
 
+def set_important_css(elem, **kw):
+    if jstype(elem) is 'string':
+        elem = document.querySelector(elem)
+    s = elem.style
+    if s:
+        for prop in kw:
+            name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
+            if val is None or val is undefined:
+                s.removeProperty(name)
+            else:
+                s.setProperty(name, val, 'important')
+            prefixes = simple_vendor_prefixes[name]
+            if prefixes:
+                for prefix in prefixes:
+                    if val is None or val is undefined:
+                        s.removeProperty('-' + prefix + '-' + name)
+                    else:
+                        s.setProperty('-' + prefix + '-' + name, val, 'important')
+    return elem
+
+
 def build_rule(selector, **kw):
     ans = v'[selector + " { "]'
     for prop in kw:
@@ -83,11 +104,18 @@ def create_keyframes(animation_name, *frames):
         ans.push('}')
     return ans.join('\n') + '\n'
 
-def change_icon_image(icon_element, new_name):
+def change_icon_image(icon_element, new_name, tooltip):
     if new_name:
         icon_element.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + new_name)
     else:
         icon_element.firstChild.removeAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href')
+    if tooltip?:
+        x = icon_element.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'title')
+        if not x.length:
+            tt = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+            icon_element.appendChild(tt)
+            x = v'[tt]'
+        x[0].textContent = tooltip
 
 def svgicon(name, height, width, tooltip):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')

@@ -5,8 +5,7 @@ __license__ = 'GPL v3'
 sciencenews.org
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
-import datetime
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 import re
 
 
@@ -16,13 +15,13 @@ class ScienceNewsIssue(BasicNewsRecipe):
                    " in all fields of science. This recipe downloads all the articles from the latest issue.")
     category = u'Science, Technology, News'
     publisher = u'Society for Science & the Public'
-    oldest_article = 14
     language = 'en'
-    max_articles_per_feed = 50
     no_stylesheets = True
     use_embedded_content = False
-    timefmt = ' [%A, %d %B, %Y]'
     auto_cleanup = False
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
 
     keep_only_tags = [
         dict(
@@ -37,6 +36,7 @@ class ScienceNewsIssue(BasicNewsRecipe):
         )
     ]
     remove_tags = [
+        dict(name=['svg', 'button']),
         dict(
             attrs={'class': lambda x: x and ('newsletter-signup__wrapper___' in x)}
         )
@@ -44,13 +44,15 @@ class ScienceNewsIssue(BasicNewsRecipe):
 
     def parse_index(self):
 
-        # Get URL of latest mag page
-        ld = self._get_mag_date()
-        url = f"https://www.sciencenews.org/sn-magazine/{ld:%B}-{ld.day}-{ld.year}"
-        url = url.lower()
+        index = self.index_to_soup('https://www.sciencenews.org/sn-magazine')
+        a = index.find(**prefixed_classes('magazine-archive__issue-thumbnail___'))
+        url = a['href']
+        self.timefmt = ' [' + url.split('/')[-1] + ']'
+        self.cover_url = a.img['src']
 
         # Get articles
         soup = self.index_to_soup(url)
+        soup = soup.find('main', attrs={'id':'content'})
         re_article = re.compile("https://www.sciencenews.org/article/")
         stories = []
         past_urls = set()
@@ -68,6 +70,7 @@ class ScienceNewsIssue(BasicNewsRecipe):
                 continue
 
             past_urls.add(article_url)
+            self.log('\t', article_title, ' ', article_url)
             article_info = {
                 "url": article_url,
                 "title": article_title,
@@ -78,22 +81,3 @@ class ScienceNewsIssue(BasicNewsRecipe):
             ("Articles", stories),
         ]
         return index
-
-    def _get_mag_date(self):
-        """Return date of latest magazine issue.
-        It is published every 2 weeks."""
-
-        d = datetime.date(2022, 6, 18)
-        t = datetime.date.today()
-        ld = None
-        while d <= t:
-            ld = d
-            d += datetime.timedelta(days=14)
-        return ld
-
-    def get_cover_url(self):
-        ld = self._get_mag_date()
-        url = ld.strftime(
-            "https://www.sciencenews.org/wp-content/uploads/%Y/%m/%m%d%y_cover.jpg"
-        )
-        return url

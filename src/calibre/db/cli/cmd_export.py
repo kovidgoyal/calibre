@@ -6,6 +6,7 @@ import os
 
 from calibre.db.cli import integers_from_string
 from calibre.db.errors import NoSuchFormat
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.library.save_to_disk import (
     config, do_save_book_to_disk, get_formats, sanitize_args
 )
@@ -21,9 +22,13 @@ def implementation(db, notify_changes, action, *args):
         return db.all_book_ids()
     if action == 'setup':
         book_id, formats = args
+        if not db.has_id(book_id):
+            raise KeyError(f'No book with id {book_id} present')
         mi = db.get_metadata(book_id)
         plugboards = db.pref('plugboards', {})
         formats = get_formats(db.formats(book_id), formats)
+        extra_files_for_export = tuple(ef.relpath for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
+        plugboards['extra_files_for_export'] = extra_files_for_export
         return mi, plugboards, formats, db.library_id, db.pref(
             'user_template_functions', []
         )
@@ -34,6 +39,14 @@ def implementation(db, notify_changes, action, *args):
         if is_remote:
             return db.format(book_id, fmt)
         db.copy_format_to(book_id, fmt, dest)
+    if action == 'extra_file':
+        book_id, relpath, dest = args
+        if is_remote:
+            from io import BytesIO
+            output = BytesIO()
+            db.copy_extra_file_to(book_id, relpath, output)
+            return output.getvalue()
+        db.copy_extra_file_to(book_id, relpath, dest)
 
 
 def option_parser(get_parser, args):
@@ -44,7 +57,8 @@ def option_parser(get_parser, args):
 
 Export the books specified by ids (a comma separated list) to the filesystem.
 The export operation saves all formats of the book, its cover and metadata (in
-an opf file). You can get id numbers from the search command.
+an OPF file). Any extra data files associated with the book are also saved.
+You can get id numbers from the search command.
 '''
         )
     )
@@ -74,7 +88,7 @@ an opf file). You can get id numbers from the search command.
         help=_('Report progress')
     )
     c = config()
-    for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover']:
+    for pref in ['asciiize', 'update_metadata', 'write_opf', 'save_cover', 'save_extra_files']:
         opt = c.get_option(pref)
         switch = '--dont-' + pref.replace('_', '-')
         parser.add_option(
@@ -115,7 +129,15 @@ class DBProxy:
         if self.dbctx.is_remote:
             if fdata is None:
                 raise NoSuchFormat(fmt)
-            with lopen(path, 'wb') as f:
+            with open(path, 'wb') as f:
+                f.write(fdata)
+
+    def copy_extra_file_to(self, book_id, relpath, path):
+        fdata = self.dbctx.run('export', 'extra_file', book_id, relpath, path)
+        if self.dbctx.is_remote:
+            if fdata is None:
+                raise FileNotFoundError(relpath)
+            with open(path, 'wb') as f:
                 f.write(fdata)
 
 
@@ -123,10 +145,11 @@ def export(opts, dbctx, book_id, dest, dbproxy, length, first):
     mi, plugboards, formats, library_id, template_funcs = dbctx.run(
         'export', 'setup', book_id, opts.formats
     )
+    extra_files = plugboards.pop('extra_files_for_export', ())
     if dbctx.is_remote and first:
         load_user_template_functions(library_id, template_funcs)
     return do_save_book_to_disk(
-        dbproxy, book_id, mi, plugboards, formats, dest, opts, length
+        dbproxy, book_id, mi, plugboards, formats, dest, opts, length, extra_files
     )
 
 

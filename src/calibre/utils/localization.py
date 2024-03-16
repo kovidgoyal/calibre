@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import os, locale, re, io
+import io
+import locale
+import os
+import re
 from gettext import GNUTranslations, NullTranslations
 
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 _available_translations = None
@@ -27,8 +28,24 @@ def available_translations():
     return _available_translations
 
 
+default_envvars_for_langcode = ('LANGUAGE', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'LANG')
+
+
+def getlangcode_from_envvars(envvars=default_envvars_for_langcode):
+    lookup = os.environ.get
+    for k in envvars:
+        localename = lookup(k)
+        if localename:
+            if k == 'LANGUAGE':
+                localename = localename.split(':')[0]
+            break
+    else:
+        localename = 'C'
+    return locale._parse_localename(localename)[0]
+
+
 def get_system_locale():
-    from calibre.constants import iswindows, ismacos
+    from calibre.constants import ismacos, iswindows
     lang = None
     if iswindows:
         try:
@@ -49,13 +66,12 @@ def get_system_locale():
             traceback.print_exc()
     if lang is None:
         try:
-            envvars = ['LANGUAGE', 'LC_ALL', 'LC_CTYPE', 'LC_MESSAGES', 'LANG']
-            lang = locale.getdefaultlocale(envvars)[0]
+            lang = getlangcode_from_envvars()
 
             # lang is None in two cases: either the environment variable is not
             # set or it's "C". Stop looking for a language in the latter case.
             if lang is None:
-                for var in envvars:
+                for var in default_envvars_for_langcode:
                     if os.environ.get(var) == 'C':
                         lang = 'en_US'
                         break
@@ -121,7 +137,7 @@ def zf_exists():
                 allow_user_override=False))
 
 
-_lang_trans = None
+_lang_trans = _country_trans = None
 
 
 def get_all_translators():
@@ -210,7 +226,7 @@ def load_po(path):
 
 
 def translator_for_lang(lang):
-    t = buf = iso639 = lcdata = None
+    t = buf = iso639 = iso3166 = lcdata = None
     if 'CALIBRE_TEST_TRANSLATION' in os.environ:
         buf = load_po(os.path.expanduser(os.environ['CALIBRE_TEST_TRANSLATION']))
 
@@ -231,6 +247,11 @@ def translator_for_lang(lang):
                 iso639 = io.BytesIO(zf.read(isof))
             except:
                 pass  # No iso639 translations for this lang
+            isof = mpath + '/iso3166.mo'
+            try:
+                iso3166 = io.BytesIO(zf.read(isof))
+            except:
+                pass  # No iso3166 translations for this lang
             if buf is not None:
                 from calibre.utils.serialize import msgpack_loads
                 try:
@@ -253,32 +274,60 @@ def translator_for_lang(lang):
             else:
                 if t is not None:
                     t.add_fallback(iso639)
+        if iso3166 is not None:
+            try:
+                iso3166 = GNUTranslations(iso3166)
+            except Exception:
+                iso3166 = None
+            else:
+                if t is not None:
+                    t.add_fallback(iso3166)
 
     if t is None:
         t = NullTranslations()
 
-    return {'translator': t, 'iso639_translator': iso639, 'lcdata': lcdata}
+    return {'translator': t, 'iso639_translator': iso639, 'iso3166_translator': iso3166, 'lcdata': lcdata}
+
+
+default_translator = NullTranslations()
+
+
+def _(x: str) -> str:
+    return default_translator.gettext(x)
+
+
+def __(x: str) -> str:
+    return x
+
+
+def ngettext(singular: str, plural: str, n: int) -> str:
+    return default_translator.ngettext(singular, plural, n)
+
+
+def pgettext(context: str, msg: str) -> str:
+    return default_translator.pgettext(context, msg)
 
 
 def set_translators():
-    global _lang_trans, lcdata
+    global _lang_trans, _country_trans, lcdata, default_translator
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
 
     if lang:
         q = translator_for_lang(lang)
-        t = q['translator']
+        default_translator = q['translator']
         _lang_trans = q['iso639_translator']
+        _country_trans = q['iso3166_translator']
         if q['lcdata']:
             lcdata = q['lcdata']
     else:
-        t = NullTranslations()
+        default_translator = NullTranslations()
     try:
-        set_translators.lang = t.info().get('language')
+        set_translators.lang = default_translator.info().get('language')
     except Exception:
         pass
-    t.install(names=('ngettext',))
+    default_translator.install(names=('ngettext',))
     # Now that we have installed a translator, we have to retranslate the help
     # for the global prefs object as it was instantiated in get_lang(), before
     # the translator was installed.
@@ -292,58 +341,11 @@ set_translators.lang = None
 _iso639 = None
 _extra_lang_codes = {
         'pt_BR' : _('Brazilian Portuguese'),
-        'en_GB' : _('English (United Kingdom)'),
         'zh_CN' : _('Simplified Chinese'),
         'zh_TW' : _('Traditional Chinese'),
+        'bn_IN' : _('Indian Bengali'),
+        'bn_BD' : _('Bangladeshi Bengali'),
         'en'    : _('English'),
-        'en_US' : _('English (United States)'),
-        'en_AR' : _('English (Argentina)'),
-        'en_AU' : _('English (Australia)'),
-        'en_JP' : _('English (Japan)'),
-        'en_DE' : _('English (Germany)'),
-        'en_BG' : _('English (Bulgaria)'),
-        'en_EG' : _('English (Egypt)'),
-        'en_NZ' : _('English (New Zealand)'),
-        'en_CA' : _('English (Canada)'),
-        'en_GR' : _('English (Greece)'),
-        'en_IN' : _('English (India)'),
-        'en_NP' : _('English (Nepal)'),
-        'en_TH' : _('English (Thailand)'),
-        'en_TR' : _('English (Turkey)'),
-        'en_CY' : _('English (Cyprus)'),
-        'en_CZ' : _('English (Czech Republic)'),
-        'en_PH' : _('English (Philippines)'),
-        'en_PK' : _('English (Pakistan)'),
-        'en_PL' : _('English (Poland)'),
-        'en_HR' : _('English (Croatia)'),
-        'en_HU' : _('English (Hungary)'),
-        'en_ID' : _('English (Indonesia)'),
-        'en_IL' : _('English (Israel)'),
-        'en_RU' : _('English (Russia)'),
-        'en_SG' : _('English (Singapore)'),
-        'en_YE' : _('English (Yemen)'),
-        'en_IE' : _('English (Ireland)'),
-        'en_CN' : _('English (China)'),
-        'en_TW' : _('English (Taiwan)'),
-        'en_ZA' : _('English (South Africa)'),
-        'es_PY' : _('Spanish (Paraguay)'),
-        'es_UY' : _('Spanish (Uruguay)'),
-        'es_AR' : _('Spanish (Argentina)'),
-        'es_CR' : _('Spanish (Costa Rica)'),
-        'es_MX' : _('Spanish (Mexico)'),
-        'es_CU' : _('Spanish (Cuba)'),
-        'es_CL' : _('Spanish (Chile)'),
-        'es_EC' : _('Spanish (Ecuador)'),
-        'es_HN' : _('Spanish (Honduras)'),
-        'es_VE' : _('Spanish (Venezuela)'),
-        'es_BO' : _('Spanish (Bolivia)'),
-        'es_NI' : _('Spanish (Nicaragua)'),
-        'es_CO' : _('Spanish (Colombia)'),
-        'de_AT' : _('German (Austria)'),
-        'fr_BE' : _('French (Belgium)'),
-        'fr_CA' : _('French (Canadian)'),
-        'nl'    : _('Dutch (Netherlands)'),
-        'nl_BE' : _('Dutch (Belgium)'),
         'und'   : _('Unknown')
         }
 
@@ -376,6 +378,7 @@ if False:
     _('Step &down')
     _('Close without Saving')
     _('Close Tab')
+    _('Ukraine')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
@@ -391,6 +394,14 @@ def _load_iso639():
         if 'by_3' not in _iso639:
             _iso639['by_3'] = _iso639['by_3t']
     return _iso639
+
+
+def load_iso3166():
+    ans = getattr(load_iso3166, 'ans', None)
+    if ans is None:
+        from calibre.utils.serialize import msgpack_loads
+        ans = load_iso3166.ans = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
+    return ans
 
 
 def get_iso_language(lang_trans, lang):
@@ -425,6 +436,25 @@ def calibre_langcode_to_name(lc, localize=True):
     except:
         pass
     return lc
+
+
+def countrycode_to_name(cc, localize=True):
+    iso3166 = load_iso3166()
+    q = cc.upper()
+    if len(q) == 3:
+        q = iso3166['three_map'].get(q, q)
+    try:
+        name = iso3166['names'][q]
+    except Exception:
+        if q == 'UK':
+            name = 'Ukraine'
+        else:
+            return cc
+    translate = _ if localize else lambda x: x
+    try:
+        return translate(name)
+    except Exception:
+        return name
 
 
 def canonicalize_lang(raw):

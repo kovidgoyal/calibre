@@ -4,22 +4,26 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, textwrap
+import os
+import re
+import sys
+import textwrap
 from functools import partial
-
 from qt.core import (
-    QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
-    QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer, QHBoxLayout, QDialogButtonBox)
+    QApplication, QCursor, QDialogButtonBox, QEventLoop, QGridLayout, QHBoxLayout,
+    QIcon, QKeySequence, QLabel, QMenu, QPainter, QRadioButton, QRect, QSize,
+    QStackedLayout, Qt, QTimer, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+)
 
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.diff.view import DiffView
+from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import HistoryLineEdit2
+from calibre.startup import connect_lambda
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
 from polyglot.builtins import iteritems
@@ -97,7 +101,7 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
 
 
 def get_decoded_raw(name):
-    from calibre.ebooks.chardet import xml_to_unicode, force_encoding
+    from calibre.ebooks.chardet import force_encoding, xml_to_unicode
     with open(name, 'rb') as f:
         raw = f.read()
     syntax = syntax_from_mime(name, guess_type(name))
@@ -214,10 +218,8 @@ class Diff(Dialog):
         self.apply_diff_calls = []
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
+        self.show_as_window = show_as_window
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
-        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMinMaxButtonsHint)
-        if show_as_window:
-            self.setWindowFlags(Qt.WindowType.Window)
         self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
@@ -226,6 +228,10 @@ class Diff(Dialog):
 
     def setup_ui(self):
         self.setWindowIcon(QIcon.ic('diff.png'))
+        if self.show_as_window:
+            self.setWindowFlags(Qt.WindowType.Window)
+        else:
+            self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMinMaxButtonsHint)
         self.stacks = st = QStackedLayout(self)
         self.busy = BusyWidget(self)
         self.w = QWidget(self)
@@ -423,7 +429,8 @@ class Diff(Dialog):
             self.busy.setVisible(True)
             return True
 
-        kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
+        def kwargs(name):
+            return {'context': self.context, 'beautify': self.beautify, 'syntax': syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
             for name, other_name in sorted(iteritems(changed_names), key=lambda x:numeric_sort_key(x[0])):

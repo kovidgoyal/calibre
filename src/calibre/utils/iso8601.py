@@ -2,38 +2,12 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
-from dateutil.tz import tzlocal, tzutc, tzoffset
 from calibre_extensions import speedup
 
-
-class SafeLocalTimeZone(tzlocal):
-
-    def _isdst(self, dt):
-        # This method in tzlocal raises ValueError if dt is out of range (in
-        # older versions of dateutil)
-        # In such cases, just assume that dt is not DST.
-        try:
-            return super()._isdst(dt)
-        except Exception:
-            pass
-        return False
-
-    def _naive_is_dst(self, dt):
-        # This method in tzlocal raises ValueError if dt is out of range (in
-        # newer versions of dateutil)
-        # In such cases, just assume that dt is not DST.
-        try:
-            return super()._naive_is_dst(dt)
-        except Exception:
-            pass
-        return False
-
-
-utc_tz = tzutc()
-local_tz = SafeLocalTimeZone()
-del tzutc, tzlocal
+utc_tz = timezone.utc
+local_tz = datetime.now().astimezone().tzinfo
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 
@@ -48,7 +22,7 @@ def parse_iso8601(date_string, assume_utc=False, as_utc=True, require_aware=Fals
         else:
             sign = '-' if tzseconds < 0 else '+'
             description = "%s%02d:%02d" % (sign, abs(tzseconds) // 3600, (abs(tzseconds) % 3600) // 60)
-            tz = tzoffset(description, tzseconds)
+            tz = timezone(timedelta(seconds=tzseconds), description)
     elif require_aware:
         raise ValueError(f'{date_string} does not specify a time zone')
     dt = dt.replace(tzinfo=tz)

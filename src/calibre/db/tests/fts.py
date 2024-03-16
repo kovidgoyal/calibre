@@ -46,7 +46,7 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
     def search(self, query, highlight_start='>', highlight_end='<', snippet_size=4):
         snippet_size=max(1, min(snippet_size, 64))
         stmt = (
-            f'SELECT snippet(fts_table, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'
+            f"SELECT snippet(fts_table, 0, '{highlight_start}', '{highlight_end}', '…', {snippet_size})"
             ' FROM fts_table WHERE fts_table MATCH ? ORDER BY RANK'
         )
         return list(self.execute(stmt, (unicode_normalize(query),)))
@@ -71,13 +71,14 @@ class FTSTest(BaseTest):
         set_ui_language('en')
 
     def test_fts_tokenize(self):  # {{{
-        from calibre_extensions.sqlite_extension import set_ui_language
+        from calibre_extensions.sqlite_extension import set_ui_language, FTS5_TOKENIZE_QUERY, FTS5_TOKENIZE_DOCUMENT
 
         def t(x, s, e, f=0):
             return {'text': x, 'start': s, 'end': e, 'flags': f}
 
-        def tt(text, *expected_tokens):
-            q = tuple(x['text'] for x in tokenize(text))
+        def tt(text, *expected_tokens, for_query=False):
+            flags = FTS5_TOKENIZE_QUERY if for_query else FTS5_TOKENIZE_DOCUMENT
+            q = tuple(x['text'] for x in tokenize(text, flags=flags))
             self.ae(q, expected_tokens)
 
         self.ae(
@@ -105,6 +106,8 @@ class FTSTest(BaseTest):
             [t("a", 0, 1), t('😀', 1, 5), t('smile', 5, 10)]
         )
 
+        tt("你don't叫mess", '你', "don't", '叫', 'mess')
+        tt("你don't叫mess", '你', "don't", '叫', 'mess', for_query=True)
         tt('你叫什么名字', '你', '叫', '什么', '名字')
         tt('你叫abc', '你', '叫', 'abc')
         tt('a你b叫什么名字', 'a', '你', 'b', '叫', '什么', '名字')
@@ -135,10 +138,14 @@ class FTSTest(BaseTest):
 
         conn = TestConn()
         conn.insert_text("你don't叫mess")
+        self.ae(conn.term_row_counts(), {"don't": 1, 'mess': 1, '你': 1, '叫': 1})
         self.ae(conn.search("mess"), [("你don't叫>mess<",)])
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
-        self.ae(conn.search("叫"), [("你don't>叫<mess",)])
+        import apsw
+        if apsw.sqlitelibversion() not in ('3.44.0', '3.44.1', '3.44.2'):
+            # see https://www.sqlite.org/forum/forumpost/d16aeb397d
+            self.ae(conn.search("叫"), [("你don't>叫<mess",)])
     # }}}
 
     def test_fts_stemming(self):  # {{{

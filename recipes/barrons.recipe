@@ -1,122 +1,111 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
-import json
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
+from collections import defaultdict
+from datetime import date
+import re
 
-from mechanize import Request
-from calibre import random_user_agent
-from calibre.web.feeds.news import BasicNewsRecipe
-from base64 import standard_b64encode
-
-try:
-    import urllib.parse as urlparse
-except ImportError:
-    import urlparse
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-MAGAZINE_INDEX = 'https://www.barrons.com/magazine'
-
-
-class BarronsMagazine(BasicNewsRecipe):
+class barrons(BasicNewsRecipe):
     title = 'Barron\'s Magazine'
-    __author__ = 'Kovid Goyal'
-    description = 'Financial news from the publisher of the WSJ'
-    language = 'en'
-    needs_subscription = True
+    __author__ = 'unkn0wn'
+    description = (
+        'Barron\'s is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister '
+        'publication to The Wall Street Journal, Barron\'s covers U.S. financial information, market developments, and '
+        'relevant statistics.'
+    )
+    language = 'en_US'
+    use_embedded_content = False
     no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['height', 'width', 'style']
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.barrons.com/asset/barrons/images/barrons-logo.png'
+    delay = 1
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .figc { font-size:small; text-align:center; }
+        .imageCredit { color:#404040; font-size:x-small; }
+        .headline__category, .article-prebody { font-size:small; color:#404040; }
+        .sub-head { color:#202020; }
+    '''
 
     keep_only_tags = [
-        classes('article__headline article__body'),
+        classes('headline articleLead article-prebody'),
+        dict(name='section', attrs={'subscriptions-section':'content'})
+    ]
+    remove_tags = [
+        dict(name=['meta', 'link', 'svg', 'button', 'i-amphtml-sizer']),
+        classes('wsj-ad dynamic-inset-overflow newsletter-inset')
     ]
 
-    def get_browser(self, *a, **kw):
-        # To understand the login logic read app-min.js from
-        # https://sso.accounts.dowjones.com/login
-        kw['user_agent'] = random_user_agent(allow_ie=False)
-        br = super().get_browser(*a, **kw)
-        if not self.username or not self.password:
-            self.barrons_itp_page = br.open(MAGAZINE_INDEX).read()
-            return br
-        itp = quote(MAGAZINE_INDEX, safe='')
-        start_url = 'https://accounts.barrons.com/login?target=' + itp
-        self.log('Starting login process...')
-        res = br.open(start_url)
-        sso_url = res.geturl()
-        query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
-        query = {k:v[0] for k, v in query.items()}
-        request_query = {
-            'username': self.username,
-            'password': self.password,
-            'client_id': query['client'],
-            'sso': 'true',
-            'tenant': 'sso',
-            '_intstate': 'deprecated',
-            'connection': 'DJldap',
-        }
-        for cookie in br.cookiejar:
-            if cookie.name in ('_csrf', 'csrf'):
-                request_query['_csrf'] = cookie.value
-        for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
-            if k in query:
-                request_query[k] = query[k]
-        login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
-        # you can get the version below from lib-min.js
-        # search for: str: "x.x.x"
-        # This might need to be updated in the future
-        auth0_client = json.dumps({"name": "auth0.js", "version": "7.0.3"})
-        if not isinstance(auth0_client, bytes):
-            auth0_client = auth0_client.encode('utf-8')
-        auth0_client = standard_b64encode(auth0_client)
-        if isinstance(auth0_client, bytes):
-            auth0_client = auth0_client.decode('ascii')
-        rq = Request(login_url, headers={
-            'Accept': 'text/html',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Auth0-Client': auth0_client.rstrip('='),
-            'X-HTTP-Method-Override': 'POST',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Remote-User': self.username
-        }, data=request_query)
-        self.log('Sending login request...')
-        try:
-            res = br.open(rq)
-        except Exception as err:
-            if hasattr(err, 'read'):
-                raise Exception('Login request failed with error: {} and body: {}'.format(err, err.read().decode('utf-8', 'replace')))
-            raise
-        if res.code != 200:
-            raise ValueError('Failed to login, check your username and password')
-        br.select_form(nr=0)
-        self.log('Performing login callback...')
-        res = br.submit()
-        self.barrons_itp_page = raw = res.read()
-        if b'/logout' not in raw:
-            raise ValueError(
-                'Failed to login (callback URL failed), check username and password')
+    def preprocess_html(self, soup):
+        for figc in soup.findAll('figcaption'):
+            figc['class'] = 'figc'
+            for p in figc.findAll('p'):
+                p.name = 'div'
+        for by in soup.findAll(**classes('byline')):
+            for p in by.findAll('p'):
+                p.name = 'span'
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
+        for iframe in soup.findAll('amp-iframe'):
+            wsj = iframe.find('amp-img')
+            if wsj:
+                wsj.decompose()
+            data = re.search(r'datawrapper-chart-(.{5})', iframe['src'])
+            if data:
+                iframe.name = 'img'
+                iframe['src'] = 'https://datawrapper.dwcdn.net/' + data.group(1) + '/full.png'
+        for amp in soup.findAll('amp-img'):
+            if not amp.find('img', attrs={'src':True}):
+                if amp.has_attr('src'):
+                    amp['src'] = amp['src'] + '&pixel_ratio=1.5'
+                    amp.name = 'img'
+            else:
+                amp.img['src'] = amp.img['src'] + '&pixel_ratio=1.5'
+        return soup
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
         return br
 
     def parse_index(self):
-        soup = self.index_to_soup(self.barrons_itp_page)
-        articles = []
-        for art in soup.findAll('article'):
-            h = art.find(['h2', 'h3'])
-            a = h.find('a')
-            title = self.tag_to_string(a)
-            url = a['href']
+        archive = self.index_to_soup('https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y'))
+        issue = archive.find(**prefixed_classes('BarronsTheme--archive-box--'))
+        self.timefmt = ' [' + self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--date--'))) + ']'
+        self.log(self.timefmt)
+        self.cover_url = issue.img['src'].split('?')[0]
+
+        ans = defaultdict(list)
+
+        for articles in archive.findAll(**prefixed_classes('BarronsTheme--story--')):
+            section = 'Magazine'
+            strap = articles.find_previous_sibling(**prefixed_classes('BarronsTheme--strap--'))
+            if strap:
+                label = strap.find(**prefixed_classes('BarronsTheme--label--'))
+                if label:
+                    section = self.tag_to_string(label).strip()
+            a = articles.find(**prefixed_classes('BarronsTheme--heading'))
+            title = self.tag_to_string(a).strip()
+            url = a.a['href']
             desc = ''
-            p = art.find('p', attrs={'class': lambda x: x and ('_summary_' in x or '_byline_' in x)})
-            if p:
-                desc += self.tag_to_string(p)
-            articles.append({'title': title, 'url': url, 'description': desc})
-        return [('Articles', articles)]
+            byl = articles.find(**prefixed_classes('BarronsTheme--byline--'))
+            if byl:
+                desc += self.tag_to_string(byl)
+            ttr =  articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
+            if ttr:
+                desc += self.tag_to_string(ttr)
+            summ = articles.find(**prefixed_classes('BarronsTheme--summary--'))
+            if summ:
+                desc += ' | ' + self.tag_to_string(summ)
+            self.log('\t', title, ' ', url, '\n\t', desc)
+            ans[section].append({'title': title, 'url': url, 'description': desc})
+        return [(section, articles) for section, articles in ans.items()]
+
+    def print_version(self, url):
+        return url.split('?')[0].replace('/articles/', '/amp/articles/')

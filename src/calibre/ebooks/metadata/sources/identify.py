@@ -501,7 +501,8 @@ def identify(log, abort,  # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
     tm_rules = msprefs['tag_map_rules']
-    if tm_rules:
+    pm_rules = msprefs['publisher_map_rules']
+    if tm_rules or pm_rules:
         from calibre.ebooks.metadata.tag_mapper import map_tags
     am_rules = msprefs['author_map_rules']
     if am_rules:
@@ -509,7 +510,8 @@ def identify(log, abort,  # {{{
         am_rules = compile_rules(am_rules)
 
     # normalize unicode strings
-    n = lambda x: unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
+    def n(x):
+        return unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
     for r in results:
         if r.tags:
             r.tags = list(map(n, r.tags))
@@ -530,6 +532,9 @@ def identify(log, abort,  # {{{
         r.tags = r.tags[:max_tags]
         if getattr(r.pubdate, 'year', 2000) <= UNDEFINED_DATE.year:
             r.pubdate = None
+        if pm_rules and r.publisher:
+            pubs = map_tags([r.publisher], pm_rules)
+            r.publisher = pubs[0] if pubs else ''
 
     if msprefs['swap_author_names']:
         for r in results:
@@ -633,9 +638,8 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
 # }}}
 
 
-if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug -e
-    # src/calibre/ebooks/metadata/sources/identify.py
+def tests(start=0, limit=256):  # tests {{{
+    # To run these test use: calibre-debug -c "from calibre.ebooks.metadata.sources.identify import tests; tests()"
     from calibre.ebooks.metadata.sources.test import (
         authors_test, test_identify, title_test
     )
@@ -678,5 +682,5 @@ if __name__ == '__main__':  # tests {{{
 
         ]
     # test_identify(tests[1:2])
-    test_identify(tests)
+    test_identify(tests[start:limit])
 # }}}

@@ -5,17 +5,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, shutil
+import os
+import shutil
+import time
+from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, Qt
 from threading import Thread
 
-from qt.core import (QIcon, QDialog,
-        QDialogButtonBox, QLabel, QGridLayout, Qt)
-
-from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-from calibre.ptempfile import (PersistentTemporaryDirectory,
-        PersistentTemporaryFile)
+from calibre.gui2.threaded_jobs import ThreadedJob
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.startup import connect_lambda
+from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 # Start download {{{

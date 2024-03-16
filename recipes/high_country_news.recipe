@@ -11,9 +11,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class HighCountryNews(BasicNewsRecipe):
     ##
     # Written:      2012-01-28
-    # Last Edited:  2022-08-17
+    # Last Edited:  2023-06-30
     #
-    # Remark:       Version 2.2
+    # Remark:       Version 2.3
+    #               Update language to fix how it appears in UI tree
+    #               Version 2.2
     #               Update RSS feeds to hcn.org and keep the old feedburner feeds still in place
     #               as there are some old articles available only at feedburner adress
     #               2019-07-04
@@ -39,7 +41,7 @@ class HighCountryNews(BasicNewsRecipe):
     publisher = 'High Country News'
     category = 'News, Politics, Social, Nature, Environmental, Western United States, Native American'
     timefmt = ' [%a, %d %b %Y]'
-    language = 'en-Us'
+    language = 'en'
     encoding = 'UTF-8'
     publication_type = 'newspaper'
     oldest_article = 30
@@ -48,6 +50,7 @@ class HighCountryNews(BasicNewsRecipe):
     auto_cleanup = False
     remove_javascript = True
     remove_empty_feeds = True
+    remove_attributes = ['width', 'height']
     use_embedded_content = False
 
     masthead_url = 'http://www.hcn.org/logo.jpg'

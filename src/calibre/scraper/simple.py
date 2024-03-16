@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -13,6 +12,7 @@ from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import retry_on_fail
 from calibre.utils.ipc.simple_worker import start_pipe_worker
+from calibre.utils.resources import get_path as P
 
 
 def worker_main(source):
@@ -96,6 +96,8 @@ class Overseer:
             for w in self.workers.values():
                 w.stdin.write(b'EXIT:0\n')
                 w.stdin.flush()
+                w.stdin.close()
+                w.stdout.close()
             for w in self.workers.values():
                 if self.safe_wait(w, 0.2) is None:
                     w.terminate()
@@ -169,3 +171,7 @@ def find_tests():
             self.assertFalse(w)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
+
+
+if __name__ == '__main__':
+    print(read_url([], sys.argv[-1]))

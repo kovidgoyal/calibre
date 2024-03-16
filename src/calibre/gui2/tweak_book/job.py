@@ -63,7 +63,7 @@ class BlockingJob(QWidget):
         self.setVisible(True)
         # Prevent any actions from being triggered by key presses
         self.parent().setEnabled(False)
-        self.raise_()
+        self.raise_and_focus()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.startAnimation()
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))

@@ -13,14 +13,16 @@ import os
 import sys
 import time
 from qt.core import (
-    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel,
-    QKeySequence, QLabel, QSize, QSizePolicy, QStackedLayout, Qt, QTimer, pyqtSignal
+    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel, QKeySequence,
+    QLabel, QSize, QSizePolicy, QStackedLayout, Qt, QTimer, pyqtSignal,
 )
 
 from calibre.constants import islinux
-from calibre.ebooks.metadata import rating_to_stars, authors_to_string
+from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, rating_font
 from calibre_extensions import pictureflow
+
+MIN_SIZE = QSize(300, 150)
 
 
 class EmptyImageList(pictureflow.FlowImages):
@@ -190,7 +192,8 @@ class CoverFlow(pictureflow.PictureFlow):
     def __init__(self, parent=None):
         pictureflow.PictureFlow.__init__(self, parent,
                             config['cover_flow_queue_length']+1)
-        self.setMinimumSize(QSize(300, 150))
+        self.created_at = time.monotonic()
+        self.setMinimumSize(MIN_SIZE)
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding))
@@ -231,7 +234,10 @@ class CoverFlow(pictureflow.PictureFlow):
         return self.minimumSize()
 
     def wheelEvent(self, ev):
-        d = ev.angleDelta().y()
+        if abs(ev.angleDelta().x()) > abs(ev.angleDelta().y()):
+            d = ev.angleDelta().x()
+        else:
+            d = ev.angleDelta().y()
         if abs(d) > 0:
             ev.accept()
             (self.showNext if d < 0 else self.showPrevious)()
@@ -319,11 +325,12 @@ class CoverFlowMixin:
 
     disable_cover_browser_refresh = False
 
-    def __init__(self, *args, **kwargs):
-        pass
+    @property
+    def cb_button(self):
+        return self.layout_container.cover_browser_button
 
     def one_auto_scroll(self):
-        cb_visible = self.cover_flow is not None and self.cb_splitter.button.isChecked()
+        cb_visible = self.cover_flow is not None and self.cb_button.isChecked()
         if cb_visible:
             self.cover_flow.one_auto_scroll()
         else:
@@ -344,11 +351,11 @@ class CoverFlowMixin:
             self.auto_scroll_timer.stop()
             self.toggle_auto_scroll()
 
-    def init_cover_flow_mixin(self):
-        self.cover_flow = None
+    def __init__(self, *a, **kw):
         self.cf_last_updated_at = None
         self.cover_flow_syncing_enabled = False
         self.cover_flow_sync_flag = True
+        self.separate_cover_browser = config['separate_cover_flow']
         self.cover_flow = CoverFlow(parent=self)
         self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
         self.cover_flow.context_menu_requested.connect(self.cf_context_menu_requested)
@@ -357,20 +364,16 @@ class CoverFlowMixin:
         self.cover_flow.setImages(self.db_images)
         self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
         self.update_cover_flow_subtitle_font()
-        if config['separate_cover_flow']:
-            self.separate_cover_browser = True
-            self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
-            self.cb_splitter.button.set_state_to_show()
-            self.cb_splitter.action_toggle.triggered.connect(self.toggle_cover_browser)
-            if CoverFlow is not None:
-                self.cover_flow.stop.connect(self.hide_cover_browser)
+        button = self.cb_button
+        if self.separate_cover_browser:
+            button.toggled.connect(self.toggle_cover_browser)
+            button.set_state_to_show()
+            self.cover_flow.stop.connect(self.hide_cover_browser)
             self.cover_flow.setVisible(False)
         else:
-            self.separate_cover_browser = False
-            self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
-            if CoverFlow is not None:
-                self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
-        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled, type=Qt.ConnectionType.QueuedConnection)
+            self.cover_flow.stop.connect(button.set_state_to_hide)
+            self.layout_container.set_widget('cover_browser', self.cover_flow)
+        button.toggled.connect(self.cover_browser_toggled, type=Qt.ConnectionType.QueuedConnection)
 
     def update_cover_flow_subtitle_font(self):
         db = self.current_db.new_api
@@ -390,55 +393,52 @@ class CoverFlowMixin:
             self.show_cover_browser()
 
     def cover_browser_toggled(self, *args):
-        if self.cb_splitter.button.isChecked():
+        if self.cb_button.isChecked():
             self.cover_browser_shown()
         else:
             self.cover_browser_hidden()
 
     def cover_browser_shown(self):
         self.cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
-        if CoverFlow is not None:
-            if self.db_images.ignore_image_requests:
-                self.db_images.ignore_image_requests = False
-                self.db_images.dataChanged.emit()
-            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
-            self.cover_flow_syncing_enabled = True
-            QTimer.singleShot(500, self.cover_flow_do_sync)
+        if self.db_images.ignore_image_requests:
+            self.db_images.ignore_image_requests = False
+            self.db_images.dataChanged.emit()
+        self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
+        self.cover_flow_syncing_enabled = True
+        QTimer.singleShot(500, self.cover_flow_do_sync)
         self.library_view.setCurrentIndex(
                 self.library_view.currentIndex())
         self.library_view.scroll_to_row(self.library_view.currentIndex().row())
 
     def cover_browser_hidden(self):
-        if CoverFlow is not None:
-            self.cover_flow_syncing_enabled = False
-            idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
-            if idx.isValid():
-                sm = self.library_view.selectionModel()
-                sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
-                self.library_view.setCurrentIndex(idx)
-                self.library_view.scroll_to_row(idx.row())
+        self.cover_flow_syncing_enabled = False
+        idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
+        if idx.isValid():
+            sm = self.library_view.selectionModel()
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
+            self.library_view.setCurrentIndex(idx)
+            self.library_view.scroll_to_row(idx.row())
 
     def show_cover_browser(self):
         d = CBDialog(self, self.cover_flow)
-        d.addAction(self.cb_splitter.action_toggle)
+        d.addAction(self.cb_button.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
-        self.cb_splitter.button.set_state_to_hide()
+        self.cb_button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d
-        self.cb_splitter.button.set_state_to_hide()
+        self.cb_button.set_state_to_hide()
 
     def cover_browser_closed(self, *args):
-        self.cb_dialog = None
-        self.cb_splitter.button.set_state_to_show()
+        self.cb_button.set_state_to_show()
 
     def hide_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             cbd.accept()
             self.cb_dialog = None
-        self.cb_splitter.button.set_state_to_show()
+        self.cb_button.set_state_to_show()
 
     def is_cover_browser_visible(self):
         try:
@@ -446,7 +446,7 @@ class CoverFlowMixin:
                 return self.cover_flow.isVisible()
         except AttributeError:
             return False  # called before init_cover_flow_mixin
-        return not self.cb_splitter.is_side_index_hidden
+        return self.cb_button.isChecked()
 
     def refresh_cover_browser(self):
         if self.disable_cover_browser_refresh:

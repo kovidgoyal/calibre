@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import OrderedDict
+from collections import defaultdict
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -23,25 +23,38 @@ class ForeignPolicy(BasicNewsRecipe):
     description = 'International News'
     no_stylesheets = True
     remove_javascript = True
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    encoding = 'utf-8'
+    remove_attributes = ['style', 'height', 'width']
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .department-meta { font-size:small; color:#404040; }
+        .dek-heading, .author-bio, .date-time { font-size:small; color:#202020; }
+        .figure-image, .caption, .wp-caption { font-size:small; text-align:center; }
+    '''
 
     keep_only_tags = [
-        dict(name='h1'),
-        classes('dek-heading meta-data figure-image post-content-main bio-no-photo'),
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'wide_header_bg', 'wide_header_text'})}),
+        dict(name='article', attrs={'class':'article'})
     ]
     remove_tags = [
-        dict(name=['meta', 'link']),
-        classes('share-links content-ungated -excerpt related-articles fp-lightbox--overlay more-text'),
+        dict(name=['meta', 'link', 'svg', 'button', 'iframe', 'aside']),
+        classes(
+            'share-links content-ungated related-articles fp-lightbox--overlay more-text myfp-article '
+            'editors-note-in-post--v2 author-photo related-articles-carousel sidebar-box_right '
+        ),
     ]
     remove_tags_after = [classes('post-content-main')]
 
     def parse_index(self):
         soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
-        img = soup.find('img', attrs={'data-lazy-src': lambda x: x and '-cover' in x})
-        self.cover_url = img['data-lazy-src']
+        img = soup.find('img', attrs={'src': lambda x: x and '-cover' in x})
+        if img:
+            self.cover_url = img['src'].split('?')[0] + '?w=800?quality=90'
         current_section = None
-        amap = OrderedDict()
+        feeds_dict = defaultdict(list)
+        soup = soup.find('main')
         for x in soup.findAll(name=('h2', 'h3')):
             if x.name == 'h2':
                 current_section = self.tag_to_string(x)
@@ -52,31 +65,18 @@ class ForeignPolicy(BasicNewsRecipe):
                 title = self.tag_to_string(x)
                 a = x.parent
                 url = a['href']
-                self.log('\t', title, 'url')
-                amap.setdefault(current_section, []).append({'title': title, 'url': url})
-        ans = []
-        for sec_name in sorted(amap, key=lambda x: x.lower()):
-            articles = amap[sec_name]
-            if articles:
-                ans.append((sec_name, articles))
-        return ans
+                desc = ''
+                meta = a.findNext(attrs={'class':'meta-data -excerpt'})
+                if meta:
+                    desc += self.tag_to_string(meta)
+                dek = a.findNext(attrs={'class':'dek-heading -excerpt'})
+                if dek:
+                    desc += ' | ' + self.tag_to_string(dek)
+                self.log('\t', title, url, '\n\t', desc)
+                feeds_dict[current_section].append({"title": title, "url": url, "description": desc})
+        return [(section, articles) for section, articles in feeds_dict.items()]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-srcset': True}):
-            img['src'] = img['data-srcset'].split()[0]
-        for img in soup.findAll('img', src=False, attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        body = soup.find('body')
-        div = soup.find(
-            attrs={'class': lambda x: x and 'wide_header_bg' in x.split()})
-        if div is not None:
-            div.extract()
-            body.insert(0, div)
-        div = soup.find(
-            attrs={'class': lambda x: x and 'wide_header_text' in x.split()})
-        if div is not None:
-            div.extract()
-            body.insert(0, div)
-        for div in soup.findAll(id='footer-logo'):
-            div.parent.extract()
+        for img in soup.findAll('img', attrs={'src':True}):
+            img['src'] = img['src'].split('?')[0] + '?w=600?quality=90'
         return soup

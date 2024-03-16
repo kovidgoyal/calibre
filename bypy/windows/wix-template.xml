@@ -1,13 +1,8 @@
-<?xml version='1.0' encoding='utf-8'?>
-<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi' xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
->		
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">		
 
-<Product Name='{app}{x64}' Id='*' UpgradeCode='{upgrade_code}' Language='1033' Codepage='1252' Version='{version}' Manufacturer='Kovid Goyal'>
-				
-    <Package Id='*' Keywords='Installer' Description="{app} Installer"
-        Comments='{app} is a registered trademark of Kovid Goyal' Manufacturer='Kovid Goyal'
-        InstallerVersion='300' Languages='1033' Compressed='yes'
-        SummaryCodepage='1252' />
+    <Package Name="{app}{x64}" UpgradeCode="{upgrade_code}" Language="1033" Codepage="1252" Version="{version}" Manufacturer="Kovid Goyal" InstallerVersion="300" Scope="perMachine">
+
+    <SummaryInformation Keywords="Installer" Description="{app} Installer" Manufacturer="Kovid Goyal" />
 
     <!-- Disable creation of system restore points on calibre installs. Speeds
          up the install. We dont need system restore since we dont install any
@@ -24,7 +19,7 @@
         should always result in a consistent set of files being present in the
         installation folder, though of course, with Microsoft there are no
         guarantees of anything. -->
-    <Property Id='REINSTALLMODE' Value='amus'/>
+    <Property Id="REINSTALLMODE" Value="amus" />
 
     <!-- get the windows build number -->
     <Property Id="WINDOWSBUILDNUMBER" Secure="yes">
@@ -32,64 +27,45 @@
     </Property>
 
     <Upgrade Id="{upgrade_code}">
-        <UpgradeVersion Maximum="{version}"
-            IncludeMaximum="yes"
-            OnlyDetect="no"
-            Language="1033"
-            MigrateFeatures="yes"
-            Property="OLDPRODUCTFOUND"/>
-        <UpgradeVersion Minimum="{version}"
-            IncludeMinimum="no"
-            OnlyDetect="yes"
-            Language="1033"
-            Property="NEWPRODUCTFOUND"/>
+        <UpgradeVersion Maximum="{version}" IncludeMaximum="yes" OnlyDetect="no" Language="1033" MigrateFeatures="yes" Property="OLDPRODUCTFOUND" />
+        <UpgradeVersion Minimum="{version}" IncludeMinimum="no" OnlyDetect="yes" Language="1033" Property="NEWPRODUCTFOUND" />
     </Upgrade>
     <Upgrade Id="BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1">
-        <UpgradeVersion Maximum="{version}"
-            IncludeMaximum="yes"
-            OnlyDetect="no"
-            Language="1033"
-            MigrateFeatures="yes"
-            Property="THIRTYTWOBITINSTALLFOUND"/>
+        <UpgradeVersion Maximum="{version}" IncludeMaximum="yes" OnlyDetect="no" Language="1033" MigrateFeatures="yes" Property="THIRTYTWOBITINSTALLFOUND" />
     </Upgrade>
-    <CustomAction Id="PreventDowngrading" Error="Newer version of {app} already installed. If you want to downgrade you must uninstall {app} first."/>
+    <CustomAction Id="PreventDowngrading" Error="Newer version of {app} already installed. If you want to downgrade you must uninstall {app} first." />
 
     <Property Id="APPLICATIONFOLDER">
-        <RegistrySearch Id='calibreInstDir' Type='raw'
-            Root='HKLM' Key="Software\{app}{x64}\Installer" Name="InstallPath" />
+        <RegistrySearch Id="calibreInstDir" Type="raw" Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" />
     </Property>
 
-    <Directory Id='TARGETDIR' Name='SourceDir'>
-        <Directory Id='{ProgramFilesFolder}' Name='PFiles'>
-            <!-- The name must be calibre on 32 bit to ensure
-                that the component guids dont change compared to previous msis.
-                However, on 64 bit it must be Calibre2 otherwise by default it
-                will install to C:\Program Files\calibre -->
-            <Directory Id='APPLICATIONFOLDER' Name="{appfolder}" />
-        </Directory>
-        <Directory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationProgramsFolder" Name="{app}{x64} - E-book Management"/>
-        </Directory>
-        <Directory Id="DesktopFolder" Name="Desktop"/>
-    </Directory>
+    
 
-    <Icon Id="main_icon" SourceFile="{main_icon}"/>
+    <Icon Id="main_icon" SourceFile="{main_icon}" />
     <!-- <Icon Id="viewer_icon" SourceFile="{viewer_icon}"/> -->
     <!-- <Icon Id="editor_icon" SourceFile="{editor_icon}"/> -->
 
+    <StandardDirectory Id="ProgramFiles64Folder">
+        <Directory Id="APPLICATIONFOLDER" Name="Calibre2" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="{app}{x64} - E-book Management" />
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+
     <DirectoryRef Id="APPLICATIONFOLDER">
-        {app_components}
-        <Component Id="AddToPath" Guid="*">
-            <Environment Id='UpdatePath' Name='PATH' Action='set' System='yes' Part='last' Value='[APPLICATIONFOLDER]' />
-            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
+            {app_components}
+        <Component Id="AddToPath">
+            <Environment Id="UpdatePath" Name="PATH" Action="set" System="yes" Part="last" Value="[APPLICATIONFOLDER]" />
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes" />
         </Component>
-        <Component Id="RememberInstallDir" Guid="*">
-            <RegistryValue Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes"/>
+        <Component Id="RememberInstallDir">
+            <RegistryValue Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
         </Component>
-		<Component Id="calibreProtocol" Guid="*">
+		<Component Id="calibreProtocol">
 			<RegistryKey Root="HKCR" Key="calibre" ForceDeleteOnUninstall="yes"> 
-				<RegistryValue Type="string" Value="URL:calibre Protocol" KeyPath="yes"/>
-				<RegistryValue Type="string" Name="URL Protocol" Value=""/>
+				<RegistryValue Type="string" Value="URL:calibre Protocol" KeyPath="yes" />
+				<RegistryValue Type="string" Name="URL Protocol" Value="" />
 				<RegistryKey Key="DefaultIcon">
 					<RegistryValue Type="string" Value="[APPLICATIONFOLDER]calibre.exe" />
 				</RegistryKey>
@@ -101,136 +77,103 @@
     </DirectoryRef>
 
     <DirectoryRef Id="ApplicationProgramsFolder">
-        <Component Id="StartMenuShortcuts" Guid="*">
-            <Shortcut Id="s1" Name="{app}{x64} - E-book management"
-                Description="Manage your e-book collection, read or edit your e-books and download news"
-                Target="[#{exe_map[calibre]}]"
-                WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-            <Shortcut Id="s2" Name="E-book viewer{x64}"
-                Description="Viewer for all the major e-book formats"
-                Target="[#{exe_map[ebook-viewer]}]"
-                WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-            <Shortcut Id="s4" Name="Edit E-book{x64}"
-                Description="Edit e-books"
-                Target="[#{exe_map[ebook-edit]}]"
-                WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-            <Shortcut Id="s3" Name="LRF viewer{x64}"
-                Description="Viewer for LRF format e-books"
-                Target="[#{exe_map[lrfviewer]}]"
-                WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-            <util:InternetShortcut Id="OnlineDocumentationShortcut"
-                Name="User Manual" Type="url"
-                Target="https://manual.calibre-ebook.com"/>
-            <util:InternetShortcut Id="GetInvolvedS"
-                Name="Get Involved" Type="url"
-                Target="https://calibre-ebook.com/get-involved"/>
+        <Component Id="StartMenuShortcuts">
+            <Shortcut Id="s1" Name="{app}{x64} - E-book management" Description="Manage your e-book collection, read or edit your e-books and download news" Target="[#{exe_map[calibre]}]" WorkingDirectory="APPLICATIONFOLDER" />
+            <Shortcut Id="s2" Name="E-book viewer{x64}" Description="Viewer for all the major e-book formats" Target="[#{exe_map[ebook-viewer]}]" WorkingDirectory="APPLICATIONFOLDER" />
+            <Shortcut Id="s4" Name="Edit E-book{x64}" Description="Edit e-books" Target="[#{exe_map[ebook-edit]}]" WorkingDirectory="APPLICATIONFOLDER" />
+            <Shortcut Id="s3" Name="LRF viewer{x64}" Description="Viewer for LRF format e-books" Target="[#{exe_map[lrfviewer]}]" WorkingDirectory="APPLICATIONFOLDER" />
+            <util:InternetShortcut Id="OnlineDocumentationShortcut" Name="User Manual" Type="url" Target="https://manual.calibre-ebook.com" />
+            <util:InternetShortcut Id="GetInvolvedS" Name="Get Involved" Type="url" Target="https://calibre-ebook.com/get-involved" />
 
-            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
-            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="start_menu_shortcuts_installed" Type="integer" Value="1" KeyPath="yes"/>
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="start_menu_shortcuts_installed" Type="integer" Value="1" KeyPath="yes" />
         </Component>
     </DirectoryRef>
 
-    <DirectoryRef Id="DesktopFolder">
-        <Component Id="DesktopShortcut" Guid="*">
-            <Shortcut Id="ds1" Name="{app}{x64} - E-book management"
-                Description="Manage your e-book collection, read or edit your e-books and download news"
-                Target="[#{exe_map[calibre]}]"
-                WorkingDirectory="APPLICATIONROOTDIRECTORY" />
-            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="desktop_shortcut_installed" Type="integer" Value="1" KeyPath="yes"/>
+    <StandardDirectory Id="DesktopFolder">
+        <Component Id="DesktopShortcut">
+            <Shortcut Id="ds1" Name="{app}{x64} - E-book management" Description="Manage your e-book collection, read or edit your e-books and download news" Target="[#{exe_map[calibre]}]" WorkingDirectory="APPLICATIONFOLDER" />
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="desktop_shortcut_installed" Type="integer" Value="1" KeyPath="yes" />
         </Component> 
-    </DirectoryRef>
+    </StandardDirectory>
 
 
-    <Feature Id="Complete" Title="{app}" Display="expand" Level="1"
-        ConfigurableDirectory="APPLICATIONFOLDER">
+    <Feature Id="Complete" Title="{app}" Display="expand" Level="1" ConfigurableDirectory="APPLICATIONFOLDER">
 
-        <Feature Id="MainApplication" Title="Program Files" Level="1"
-            Description="All the files needed to run {app}" Absent="disallow">
-            <ComponentRef Id="RememberInstallDir"/>
+        <Feature Id="MainApplication" Title="Program Files" Level="1" Description="All the files needed to run {app}" AllowAbsent="no">
+            <ComponentRef Id="RememberInstallDir" />
         </Feature>
 
-        <Feature Id="FSMS" Title="Start menu shortcuts" Level="1"
-            Description="Program shortcuts installed in the Start Menu">
-            <ComponentRef Id="StartMenuShortcuts"/>
+        <Feature Id="FSMS" Title="Start menu shortcuts" Level="1" Description="Program shortcuts installed in the Start Menu">
+            <ComponentRef Id="StartMenuShortcuts" />
         </Feature>
 
-        <Feature Id="DS" Title="Shortcut on desktop" Level="1"
-            Description="Shortcut to {app} on your desktop">
-            <ComponentRef Id="DesktopShortcut"/>
+        <Feature Id="DS" Title="Shortcut on desktop" Level="1" Description="Shortcut to {app} on your desktop">
+            <ComponentRef Id="DesktopShortcut" />
         </Feature>
 
-        <Feature Id="FAddToPath" Title="Add install directory to path" Level="1"
-            Description="Add installation directory to PATH. Makes using command line tools easier">
-            <ComponentRef Id="AddToPath"/>
+        <Feature Id="FAddToPath" Title="Add install directory to path" Level="1" Description="Add installation directory to PATH. Makes using command line tools easier">
+            <ComponentRef Id="AddToPath" />
         </Feature>
 
-		<Feature Id="FcalibreProtocol" Title="Register calibre:// URLs" Level="1"
-			Description="Register to handle URLs starting with calibre://">
-			<ComponentRef Id="calibreProtocol"/>
+		<Feature Id="FcalibreProtocol" Title="Register calibre:// URLs" Level="1" Description="Register to handle URLs starting with calibre://">
+			<ComponentRef Id="calibreProtocol" />
 		</Feature>
     </Feature>
 
     <!-- Add icon to entry in Add/Remove programs -->
     <Property Id="ARPPRODUCTICON" Value="main_icon" />
     <Property Id="ARPURLINFOABOUT" Value="https://calibre-ebook.com" />
-    <Property Id='ARPHELPLINK' Value="https://calibre-ebook.com/help" />
-    <Property Id='ARPURLUPDATEINFO' Value="https://calibre-ebook.com/download_windows" />
+    <Property Id="ARPHELPLINK" Value="https://calibre-ebook.com/help" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://calibre-ebook.com/download_windows" />
     <SetProperty Id="ARPINSTALLLOCATION" Value="[APPLICATIONFOLDER]" After="CostFinalize" />
 
-    <Condition Message="calibre requires Windows 10 or newer.">
-        <!-- See https://en.wikipedia.org/wiki/Windows_10_version_history for build numbers -->
-        <![CDATA[Installed OR (WINDOWSBUILDNUMBER >= 10240)]]>
-    </Condition>
+    <!-- See https://en.wikipedia.org/wiki/Windows_10_version_history for build numbers -->
+
+    <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &gt;= 10240)" Message="calibre requires Windows 10 or newer." />
     <!-- On 64 bit installers there is a bug in WiX that causes the
         WixSetDefaultPerMachineFolder action to incorrectly set
         APPLICATIONFOLDER to the x86 value, so we override it. See
         http://stackoverflow.com/questions/5479790/wix-how-to-override-c-program-files-x86-on-x64-machine-in-wixui-advanced-s
     -->
-    <CustomAction
-        Id="OverwriteWixSetDefaultPerMachineFolder"
-        Property="WixPerMachineFolder"
-        Value="[APPLICATIONFOLDER]"
-        Execute="immediate"
-    />
+    <CustomAction Id="OverwriteWixSetDefaultPerMachineFolder" Property="WixPerMachineFolder" Value="[APPLICATIONFOLDER]" Execute="immediate" />
 
     <InstallExecuteSequence>
-        <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-        {fix_wix}
+        <Custom Action="PreventDowngrading" After="FindRelatedProducts" Condition="NEWPRODUCTFOUND" />
+        <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" /> 
         <RemoveExistingProducts After="InstallFinalize" />
     </InstallExecuteSequence>
     <InstallUISequence>
-        <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWPRODUCTFOUND</Custom>
-        {fix_wix}
+        <Custom Action="PreventDowngrading" After="FindRelatedProducts" Condition="NEWPRODUCTFOUND" />
+        <Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" /> 
     </InstallUISequence>
 
     <UI>
-        <UIRef Id="WixUI_Advanced" />
+        <ui:WixUI Id="WixUI_Advanced" />
         <UIRef Id="WixUI_ErrorProgressText" />
-        <Publish Dialog="ExitDialog"
-            Control="Finish" 
-            Event="DoAction" 
-            Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+        <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
 
     </UI>
 
     <!-- 
-    Set default folder name and allow only per machine installs.
-    For a per-machine installation, the default installation location
-    will be [ProgramFilesFolder][ApplicationFolderName] and the user
-    will be able to change it in the setup UI. This is no longer necessary
-    (i.e. per user installs should work) but left this way as I
-    dont want to deal with the complications 
+        Set default folder name. For a per-machine installation, the default
+        installation location will be [ProgramFilesFolder][ApplicationFolderName]
+        and the user will be able to change it in the setup UI.
     -->
     <Property Id="ApplicationFolderName" Value="Calibre2" />
     <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
-    <Property Id="ALLUSERS" Value="1" />
     <WixVariable Id="WixUISupportPerUser" Value="0" />
 
     <!-- Add option to launch calibre after install -->
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch {app}" />
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
     <Property Id="WixShellExecTarget" Value="[#{exe_map[calibre]}]" />
-    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes"/>
+    <CustomAction Id="LaunchApplication" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X86" />
 
-</Product>
+    <!-- UI -->
+    <WixVariable Id="WixUILicenseRtf" Value="{license}" />
+    <WixVariable Id="WixUIBannerBmp" Value="{banner}" />
+    <WixVariable Id="WixUIDialogBmp" Value="{dialog}" />
+
+    </Package>
 </Wix>

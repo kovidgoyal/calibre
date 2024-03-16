@@ -66,7 +66,7 @@ def pretty_opf(root):
             cat = 2
         elif mt.startswith('image/'):
             cat = 3
-        elif ext in {'otf', 'ttf', 'woff'}:
+        elif ext in {'otf', 'ttf', 'woff', 'woff2'}:
             cat = 4
         elif mt.startswith('audio/'):
             cat = 5

@@ -10,6 +10,7 @@
 #import <AppKit/NSWindow.h>
 #import <Availability.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
+#include <UserNotifications/UserNotifications.h>
 
 #include <string.h>
 #include <Python.h>
@@ -68,85 +69,139 @@ send2trash(PyObject *self, PyObject *args) {
 // Notifications {{{
 static PyObject *notification_activated_callback = NULL;
 
-static void
-macos_notification_callback(const char* user_id) {
-	if (notification_activated_callback) {
-		PyObject *ret = PyObject_CallFunction(notification_activated_callback, "z", user_id);
-		if (ret == NULL) PyErr_Print();
-		else Py_DECREF(ret);
-	}
-}
-
-
-@interface NotificationDelegate : NSObject <NSUserNotificationCenterDelegate>
+@interface NotificationDelegate : NSObject <UNUserNotificationCenterDelegate>
 @end
-
-
-static void
-cocoa_send_notification(const char *identifier, const char *title, const char *subtitle, const char *informativeText, const char* path_to_image) {
-	@autoreleasepool {
-    NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
-    if (!center) {return;}
-    if (!center.delegate) center.delegate = [[NotificationDelegate alloc] init];
-    NSUserNotification *n = [NSUserNotification new];
-    NSImage *img = nil;
-    if (path_to_image) {
-		img = [[NSImage alloc] initWithContentsOfURL:[NSURL fileURLWithPath:@(path_to_image)]];
-        if (img) {
-            [n setValue:img forKey:@"_identityImage"];
-            [n setValue:@(false) forKey:@"_identityImageHasBorder"];
-        }
-		[img release];
-    }
-#define SET(x) { \
-    if (x) { \
-        n.x = @(x); \
-    }}
-    SET(title); SET(subtitle); SET(informativeText);
-#undef SET
-    if (identifier) {
-        n.userInfo = @{@"user_id": @(identifier)};
-    }
-    [center deliverNotification:n];
-	}
-}
 
 @implementation NotificationDelegate
-    - (void)userNotificationCenter:(NSUserNotificationCenter *)center
-            didDeliverNotification:(NSUserNotification *)notification {
-        (void)(center); (void)(notification);
+    - (void)userNotificationCenter:(UNUserNotificationCenter *)center
+            willPresentNotification:(UNNotification *)notification
+            withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+        (void)(center); (void)notification;
+        UNNotificationPresentationOptions options = UNNotificationPresentationOptionSound;
+        options |= UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner;
+        completionHandler(options);
     }
 
-    - (BOOL) userNotificationCenter:(NSUserNotificationCenter *)center
-            shouldPresentNotification:(NSUserNotification *)notification {
-        (void)(center); (void)(notification);
-        return YES;
-    }
-
-    - (void) userNotificationCenter:(NSUserNotificationCenter *)center
-            didActivateNotification:(NSUserNotification *)notification {
+    - (void)userNotificationCenter:(UNUserNotificationCenter *)center
+            didReceiveNotificationResponse:(UNNotificationResponse *)response
+            withCompletionHandler:(void (^)(void))completionHandler {
         (void)(center);
-			macos_notification_callback(notification.userInfo[@"user_id"] ? [notification.userInfo[@"user_id"] UTF8String] : NULL);
+        if (notification_activated_callback) {
+            NSString *identifier = [[[response notification] request] identifier];
+            PyObject *ret = PyObject_CallFunction(notification_activated_callback, "z",
+                    identifier ? [identifier UTF8String] : NULL);
+            if (ret == NULL) PyErr_Print();
+            else Py_DECREF(ret);
+        }
+        completionHandler();
     }
 @end
+
 
 static PyObject*
 set_notification_activated_callback(PyObject *self, PyObject *callback) {
     (void)self;
-    if (notification_activated_callback) Py_DECREF(notification_activated_callback);
+    Py_XDECREF(notification_activated_callback);
     notification_activated_callback = callback;
     Py_INCREF(callback);
     Py_RETURN_NONE;
 
 }
 
+static void
+schedule_notification(const char *identifier, const char *title, const char *body, const char *subtitle, bool use_sound) {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    if (!center) return;
+    // Configure the notification's payload.
+    UNMutableNotificationContent* content = [[UNMutableNotificationContent alloc] init];
+    if (title) content.title = @(title);
+    if (body) content.body = @(body);
+    if (subtitle) content.subtitle = @(subtitle);
+    if (use_sound) content.sound = [UNNotificationSound defaultSound];
+    // Deliver the notification
+    static unsigned long counter = 1;
+    UNNotificationRequest* request = [
+        UNNotificationRequest requestWithIdentifier:(identifier ? @(identifier) : [NSString stringWithFormat:@"Id_%lu", counter++])
+        content:content trigger:nil];
+    [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        if (error != nil) {
+            fprintf(stderr, "Failed to show notification: %s\n", [[error localizedDescription] UTF8String]);
+        }
+    }];
+    [content release];
+}
+
+typedef struct {
+    char *identifier, *title, *body, *subtitle;
+    bool use_sound;
+} QueuedNotification;
+
+typedef struct {
+    QueuedNotification *notifications;
+    size_t count, capacity;
+} NotificationQueue;
+static NotificationQueue notification_queue = {0};
+
+#define ensure_space_for(base, array, type, num, capacity, initial_cap, zero_mem) \
+    if ((base)->capacity < num) { \
+        size_t _newcap = MAX((size_t)initial_cap, MAX(2 * (base)->capacity, (size_t)num)); \
+        (base)->array = realloc((base)->array, sizeof(type) * _newcap); \
+        if (zero_mem) memset((base)->array + (base)->capacity, 0, sizeof(type) * (_newcap - (base)->capacity)); \
+        (base)->capacity = _newcap; \
+    }
+
+
+static void
+queue_notification(const char *identifier, const char *title, const char* body, const char* subtitle, bool use_sound) {
+    ensure_space_for((&notification_queue), notifications, QueuedNotification, notification_queue.count + 16, capacity, 16, true);
+    QueuedNotification *n = notification_queue.notifications + notification_queue.count++;
+    n->identifier = identifier ? strdup(identifier) : NULL;
+    n->title = title ? strdup(title) : NULL;
+    n->body = body ? strdup(body) : NULL;
+    n->subtitle = subtitle ? strdup(subtitle) : NULL;
+    n->use_sound = use_sound;
+}
+
+static void
+drain_pending_notifications(BOOL granted) {
+    if (granted) {
+        for (size_t i = 0; i < notification_queue.count; i++) {
+            QueuedNotification *n = notification_queue.notifications + i;
+            schedule_notification(n->identifier, n->title, n->body, n->subtitle, n->use_sound);
+        }
+    }
+    while(notification_queue.count) {
+        QueuedNotification *n = notification_queue.notifications + --notification_queue.count;
+        free(n->identifier); free(n->title); free(n->body); free(n->subtitle);
+        n->identifier = NULL; n->title = NULL; n->body = NULL; n->subtitle = NULL;
+    }
+}
+
+
 static PyObject*
 send_notification(PyObject *self, PyObject *args) {
 	(void)self;
-    char *identifier = NULL, *title = NULL, *subtitle = NULL, *informativeText = NULL, *path_to_image = NULL;
-    if (!PyArg_ParseTuple(args, "zsz|zz", &identifier, &title, &informativeText, &path_to_image, &subtitle)) return NULL;
-	cocoa_send_notification(identifier, title, subtitle, informativeText, path_to_image);
+    char *identifier = NULL, *title = NULL, *subtitle = NULL, *informativeText = NULL;
+    int use_sound = 0;
+    if (!PyArg_ParseTuple(args, "zsz|pz", &identifier, &title, &informativeText, &use_sound, &subtitle)) return NULL;
 
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    if (!center) Py_RETURN_NONE;
+    if (!center.delegate) center.delegate = [[NotificationDelegate alloc] init];
+    queue_notification(identifier, title, informativeText, subtitle, use_sound ? YES : NO);
+
+    // The badge permission needs to be requested as well, even though it is not used,
+    // otherwise macOS refuses to show the preference checkbox for enable/disable notification sound.
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge)
+        completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (error != nil) {
+                fprintf(stderr, "Failed to request permission for showing notification: %s\n", [[error localizedDescription] UTF8String]);
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                drain_pending_notifications(granted);
+            });
+        }
+    ];
     Py_RETURN_NONE;
 }
 // }}}
@@ -202,11 +257,16 @@ locale_names(PyObject *self, PyObject *args) {
 
 static PyObject*
 create_io_pm_assertion(PyObject *self, PyObject *args) {
-	char *type, *reason;
+	const char *type, *reason;
 	int on = 1;
 	if (!PyArg_ParseTuple(args, "ss|p", &type, &reason, &on)) return NULL;
 	IOPMAssertionID assertionID;
-	IOReturn rc = IOPMAssertionCreateWithName(@(type), on ? kIOPMAssertionLevelOn : kIOPMAssertionLevelOff, @(reason), &assertionID);
+    CFStringRef s = CFStringCreateWithCString(NULL, type, kCFStringEncodingUTF8);
+    if (s == nil) { PyErr_SetString(PyExc_TypeError, "type argument must be a valid UTF-8 string"); return NULL; }
+    CFStringRef r = CFStringCreateWithCString(NULL, reason, kCFStringEncodingUTF8);
+    if (r == nil) { CFRelease(s); PyErr_SetString(PyExc_TypeError, "reason argument must be a valid UTF-8 string"); return NULL; }
+	IOReturn rc = IOPMAssertionCreateWithName(s, on ? kIOPMAssertionLevelOn : kIOPMAssertionLevelOff, r, &assertionID);
+    CFRelease(s); CFRelease(r);
 	if (rc == kIOReturnSuccess) {
 		unsigned long long aid = assertionID;
 		return PyLong_FromUnsignedLongLong(aid);

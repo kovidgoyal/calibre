@@ -1,0 +1,82 @@
+# -*- coding: utf-8 -*-
+#from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+
+__license__   = 'GPL v3'
+__copyright__ = '2014, 2023 Armin Geller'
+
+'''
+Fetch Deutschlandfunk & Deutschlandfunk Kultur
+'''
+##
+## Written:      2014-08-29
+## Last Edited:  2023-04-26
+## Version:1.6
+## New RSS source: https://www.deutschlandfunk.de/rss-angebot-102.html
+
+class AdvancedUserRecipe1432200863(BasicNewsRecipe):
+
+    title            = 'Deutschlandfunk & Deutschlandfunk Kultur'
+    __author__       = 'Armin Geller'
+    publisher        = 'Deutschlandfunk'
+    category         = 'Radio, News, Politics, Social, Culture, Nature, Environmental'
+    timefmt          = ' [%a, %d %b %Y]'
+    language         = 'de'
+    encoding         = 'UTF-8'
+    publication_type = 'News feed'
+    oldest_article   = 2
+    max_articles_per_feed = 100
+    auto_cleanup     = False
+
+    extra_css      =  '''
+                      h1, h2 {font-size: 1.6em; text-align: left}
+                      .article-header-description {font-size: 1em; font-style: italic; font-weight: normal;margin-bottom: 1em}
+                      .b-image-figure, .caption-figure.is-left, .b-image-credits {font-size: .75em; font-weight: normal;margin-bottom: .75em}
+                      '''
+
+
+
+    feeds = [
+              ('DLF Nachrichten', 'https://www.deutschlandfunk.de/nachrichten-100.rss'),
+              ('DLF Politikportal', 'https://www.deutschlandfunk.de/politikportal-100.rss'),
+              ('DLF Wirtschaft', 'https://www.deutschlandfunk.de/wirtschaft-106.rss'),
+              ('DLF Wissen', 'https://www.deutschlandfunk.de/wissen-106.rss'),
+              ('DLF Kulturportal', 'https://www.deutschlandfunk.de/kulturportal-100.rss'),
+              ('DLF Europa', 'https://www.deutschlandfunk.de/europa-112.rss'),
+              ('DLF Gesellschaft', 'https://www.deutschlandfunk.de/gesellschaft-106.rss'),
+              ('DLF Sportportal', 'https://www.deutschlandfunk.de/sportportal-100.rss'),
+              ('DLF-Kultur Politik', 'https://www.deutschlandfunkkultur.de/politik-114.rss'),
+              ('DLF-Kultur Bücher', 'https://www.deutschlandfunkkultur.de/buecher-108.rss'),
+              ('DLF-Kultur Musikportal', 'https://www.deutschlandfunkkultur.de/musikportal-100.rss'),
+              ('DLF-Kultur Wissenschaft', 'https://www.deutschlandfunkkultur.de/wissenschaft-108.rss'),
+              ('DLF-Kultur Meinung / Debatte', 'https://www.deutschlandfunkkultur.de/meinung-debatte-100.rss'),
+              ('DLF-Kultur Umwelt', 'https://www.deutschlandfunkkultur.de/umwelt-104.rss'),
+              ('DLF-Kultur Philosophie', 'https://www.deutschlandfunkkultur.de/philosophie-104.rss'),
+              ('DLF-Kultur Psychologie', 'https://www.deutschlandfunkkultur.de/psychologie-100.rss'),
+              ('DLF-Kultur Geschichte', 'https://www.deutschlandfunkkultur.de/geschichte-136.rss'),
+              ('DLF-Kultur Leben', 'https://www.deutschlandfunkkultur.de/leben-108.rss'),
+              ('DLF-Kultur Bühne', 'https://www.deutschlandfunkkultur.de/buehne-100.rss'),
+              ('DLF-Kultur Film / Serie', 'https://www.deutschlandfunkkultur.de/film-serie-100.rss'),
+            ]
+    keep_only_tags = [
+                        dict(name='nav', attrs={'class':'b-breadcrumbs'}), # DLF articles
+                        dict(name='article', attrs={'class':'b-article'}), # DLF articles
+                        dict(name='div', attrs={'class':[
+                                                         'b-section-article-head-area',
+                                                         'b-section-editor-content',
+                                                        ]}),    # DLF Kultur articles
+                     ]
+
+    remove_tags = [
+                    dict(name='div', attrs={'class':[
+                                                  #   'article-header-actions',
+                                                     'b-article-extended-emphasis is-teaser-list u-space-bottom-xl',
+                                                     'article-extended-emphasis-teaser-group',
+                                                     'b-embed-opt-in js-embed-opt-in',
+                                                    ]}),                   # DLF articles
+                    dict(name='ul', attrs={'class':['b-social-icons']}),   # DLF articles
+
+                    dict(name='ul', attrs={'class':['b-social-icons']}),      # DLF Kultur articles
+                    dict(name='div', attrs={'class':'b-footer-area-series'}), # DLF Kultur articles
+                    dict(name='div', attrs={'id':'weekender'})
+                  ]

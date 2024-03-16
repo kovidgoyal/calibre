@@ -101,7 +101,10 @@ def parse_section(raw_html):
                 continue
             title = text(elem['headlines'])
             description = text(elem.get('description'))
-            url = absolutize_url(elem['canonical_url'])
+            try:
+                url = absolutize_url(elem['canonical_url'])
+            except KeyError:
+                continue
             yield {'title': title, 'url': url, 'description': description, 'date': ' '  + str(date.date())}
 
 

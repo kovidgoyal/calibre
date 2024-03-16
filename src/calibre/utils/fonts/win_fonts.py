@@ -9,6 +9,7 @@ import os, sys, atexit
 from itertools import product
 
 from calibre import prints, isbytestring
+from calibre.utils.resources import get_path as P
 from calibre.constants import filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)

@@ -7,14 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QApplication, QTimer
 
-from calibre.db.categories import find_categories
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-        CommaSeparatedList, AbortCommit
-from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog, gprefs
-from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key
+from calibre.gui2.preferences import (
+    AbortCommit, CommaSeparatedList, ConfigWidgetBase, test_widget,
+)
+from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.library.caches import set_use_primary_find_in_search
+from calibre.utils.config import prefs
+from calibre.utils.icu import lower as icu_lower, sort_key
 from polyglot.builtins import iteritems
 
 
@@ -33,6 +33,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('limit_search_columns', prefs)
         r('use_primary_find_in_search', prefs)
         r('search_tool_bar_shows_text', gprefs)
+        r('allow_keyboard_search_in_library_views', gprefs)
         ossm = self.opt_saved_search_menu_is_hierarchical
         ossm.setChecked('search' in db.new_api.pref('categories_using_hierarchy', []))
         ossm.stateChanged.connect(self.changed_signal)
@@ -54,26 +55,28 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "grouped search term in the drop-down box, enter the list of columns "
     "to search in the value box, then push the Save button. "
     "<p>Note: Search terms are forced to lower case; <code>MySearch</code> "
-    "and <code>mysearch</code> are the same term."
-    "<p>You can have your grouped search term show up as User categories in "
-    " the Tag browser. Just add the grouped search term names to the Make User "
-    "categories from box. You can add multiple terms separated by commas. "
-    "The new User category will be automatically "
-    "populated with all the items in the categories included in the grouped "
-    "search term. <p>Automatic User categories permit you to see easily "
-    "all the category items that "
+    "and <code>mysearch</code> are the same term. Search terms cannot be "
+    "hierarchical. Periods are not allowed in the term name."
+    "<p>Grouped search terms can show as User categories in the Tag browser "
+    "by adding the grouped search term names to the 'Make User "
+    "categories from' box. Multiple terms are separated by commas. "
+    "These 'automatic user categories' will be populated with items "
+    "from the categories included in the grouped search term. "
+    "<p>Automatic user categories permit you to see all the category items that "
     "are in the columns contained in the grouped search term. Using the above "
-    "<code>allseries</code> example, the automatically-generated User category "
-    "will contain all the series mentioned in <code>series</code>, "
+    "<code>allseries</code> example, the automatic user category "
+    "will contain all the series names in <code>series</code>, "
     "<code>#myseries</code>, and <code>#myseries2</code>. This "
     "can be useful to check for duplicates, to find which column contains "
     "a particular item, or to have hierarchical categories (categories "
-    "that contain categories)."))
+    "that contain categories). "
+    "<p>Note: values from non-category columns such as comments won't appear "
+    "in automatic user categories. "))
         self.gst = db.prefs.get('grouped_search_terms', {}).copy()
         self.orig_gst_keys = list(self.gst.keys())
 
         fm = db.new_api.field_metadata
-        categories = [x[0] for x in find_categories(fm) if fm[x[0]]['search_terms']]
+        categories = [x for x in fm.keys() if not x.startswith('@') and fm[x]['search_terms']]
         self.gst_value.update_items_cache(categories)
         QTimer.singleShot(0, self.fill_gst_box)
 
@@ -157,9 +160,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return error_dialog(self.gui, _('Grouped search terms'),
                                 _('The search term name cannot be blank'),
                                 show=True)
-        if ' ' in name:
+        if ' ' in name or '.' in name:
             return error_dialog(self.gui, _('Invalid grouped search name'),
-                _('The grouped search term name cannot contain spaces'), show=True)
+                _('The grouped search term name cannot contain spaces or periods'), show=True)
         if idx != 0:
             orig_name = str(self.gst_names.itemData(idx) or '')
         else:

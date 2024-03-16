@@ -1,15 +1,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import (Qt, QApplication, QDialog, QIcon, QListWidgetItem)
-
-from collections import namedtuple
+from collections import namedtuple, defaultdict
+from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
 from calibre.constants import islinux
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
-from calibre.utils.icu import primary_sort_key, strcmp, primary_contains
+from calibre.utils.icu import (
+    lower as icu_lower, primary_contains, primary_sort_key, strcmp,
+)
 
 
 class TagCategories(QDialog, Ui_TagCategories):
@@ -125,6 +126,11 @@ class TagCategories(QDialog, Ui_TagCategories):
     def category_name_tuple(self, key, name):
         return self.CategoryNameTuple(name, key)
 
+    def item_sort_key(self, v):
+        # Add the key so the order of identical items is predictable.
+        # The tab ensures that the values sort together regardless of key
+        return primary_sort_key(v.v + '\t ' + (v.k[1:] if v.k.startswith('#') else v.k))
+
     def initialize_category_lists(self):
         cfb = self.category_filter_box
         current_cat_filter = (self.category_labels[cfb.currentIndex()]
@@ -153,11 +159,9 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.available_items[key] = av
             sorted_categories.append(self.category_name_tuple(key, self.all_items[key]['name']))
 
-        # Sort the items
-        self.sorted_items.sort(key=lambda v: primary_sort_key(v.v + v.k))
+        self.sorted_items.sort(key=self.item_sort_key)
+        sorted_categories.sort(key=lambda v: primary_sort_key(v.n))
 
-        # Fill in the category names with visible (not hidden) lookup keys
-        sorted_categories.sort(key=lambda v: primary_sort_key(v.n + v.k))
         cfb.blockSignals(True)
         cfb.clear()
         cfb.addItem('', '')
@@ -212,8 +216,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         idx = self.category_filter_box.currentIndex()
         filter_key = self.category_filter_box.itemData(idx)
         self.available_items_box.clear()
+        applied = defaultdict(set)
+        for it in self.applied_items:
+            applied[it.k].add(it.v)
         for it in self.sorted_items:
             if idx != 0 and it.k != filter_key:
+                continue
+            if it.v in applied[it.k]:
                 continue
             self.available_items_box.addItem(self.make_available_list_item(it.k, it.v))
 
@@ -221,12 +230,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         ccn = self.current_cat_name
         if ccn:
             self.applied_items = [v for v in self.user_categories[ccn]]
-            self.applied_items.sort(key=lambda x:primary_sort_key(x.v + x.k))
+            self.applied_items.sort(key=self.item_sort_key)
         else:
             self.applied_items = []
         self.applied_items_box.clear()
         for tup in self.applied_items:
             self.applied_items_box.addItem(self.make_applied_list_item(tup))
+        self.display_filtered_categories()
 
     def apply_button_clicked(self):
         self.apply_tags(node=None)
@@ -274,11 +284,19 @@ class TagCategories(QDialog, Ui_TagCategories):
                       'or after periods.')).exec()
             return False
         for c in sorted(self.user_categories.keys(), key=primary_sort_key):
-            if strcmp(c, cat_name) == 0 or \
-                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and
-                     not cat_name.startswith(c + '.')):
+            if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec()
+                        _('The user category name is already used, perhaps with different case.'),
+                        det_msg=_('Existing category: {existing}\nNew category name: {new}').format(existing=c, new=cat_name),
+                        show=True)
+                return False
+            if icu_lower(cat_name).startswith(icu_lower(c) + '.') and not cat_name.startswith(c + '.'):
+                error_dialog(self, _('Name already used'),
+                        _('The hierarchical prefix of the new category is already used, '
+                          'perhaps with different case.'),
+                        det_msg=_('Existing prefix: {prefix}\n'
+                                  'New category name: {new}').format(prefix=c, new=cat_name),
+                        show=True)
                 return False
         if cat_name not in self.user_categories:
             self.user_categories[cat_name] = set()
@@ -306,7 +324,10 @@ class TagCategories(QDialog, Ui_TagCategories):
         for c in self.user_categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
-                        _('That name is already used, perhaps with different case.')).exec()
+                        _('The user category name is already used, perhaps with different case.'),
+                        det_msg=_('Existing category: {existing}\n'
+                                  'New category: {new}').format(existing=c, new=cat_name),
+                        show=True)
                 return
         # The order below is important because of signals
         self.user_categories[cat_name] = self.user_categories[self.current_cat_name]

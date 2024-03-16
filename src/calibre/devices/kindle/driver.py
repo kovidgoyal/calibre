@@ -8,9 +8,10 @@ from calibre.devices.kindle.apnx import APNXBuilder
 Device driver for Amazon's Kindle
 '''
 
-import datetime, os, re, json, hashlib, errno
+import os, re, json, hashlib, errno
 
 from calibre.constants import DEBUG, filesystem_encoding
+from calibre.utils.date import utcfromtimestamp
 from calibre.devices.interface import OpenPopupMessage
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
@@ -121,13 +122,13 @@ class KINDLE(USBMS):
             from calibre.ebooks.metadata.kfx import read_metadata_kfx
             try:
                 kfx_path = path
-                with lopen(kfx_path, 'rb') as f:
+                with open(kfx_path, 'rb') as f:
                     if f.read(8) != b'\xeaDRMION\xee':
                         f.seek(0)
                         mi = read_metadata_kfx(f)
                     else:
                         kfx_path = os.path.join(path.rpartition('.')[0] + '.sdr', 'assets', 'metadata.kfx')
-                        with lopen(kfx_path, 'rb') as mf:
+                        with open(kfx_path, 'rb') as mf:
                             mi = read_metadata_kfx(mf)
             except Exception:
                 import traceback
@@ -218,9 +219,9 @@ class KINDLE(USBMS):
 
         mc_path = get_my_clippings(storage, bookmarked_books)
         if mc_path:
-            timestamp = datetime.datetime.utcfromtimestamp(os.path.getmtime(mc_path))
+            timestamp = utcfromtimestamp(os.path.getmtime(mc_path))
             bookmarked_books['clippings'] = self.UserAnnotation(type='kindle_clippings',
-                                              value=dict(path=mc_path,timestamp=timestamp))
+                                              value=dict(path=mc_path, timestamp=timestamp))
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -229,7 +230,7 @@ class KINDLE(USBMS):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
         # Returns <div class="user_annotations"> ... </div>
         last_read_location = bookmark.last_read_location
-        timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
+        timestamp = utcfromtimestamp(bookmark.timestamp)
         percent_read = bookmark.percent_read
 
         ka_soup = BeautifulSoup()
@@ -443,7 +444,7 @@ class KINDLE2(KINDLE):
         return bl
 
     def kindle_update_booklist(self, bl, collections):
-        with lopen(collections, 'rb') as f:
+        with open(collections, 'rb') as f:
             collections = f.read()
         collections = json.loads(collections)
         path_map = {}
@@ -503,7 +504,7 @@ class KINDLE2(KINDLE):
         thumb_dir = self.amazon_system_thumbnails_dir()
         if not os.path.exists(thumb_dir):
             return
-        with lopen(filepath, 'rb') as f:
+        with open(filepath, 'rb') as f:
             is_kfx = f.read(4) == CONTAINER_MAGIC
             f.seek(0)
             uuid = cdetype = None
@@ -531,7 +532,7 @@ class KINDLE2(KINDLE):
 
         tp = self.thumbpath_from_filepath(filepath)
         if tp:
-            with lopen(tp, 'wb') as f:
+            with open(tp, 'wb') as f:
                 f.write(coverdata[2])
                 fsync(f)
             cache_dir = self.amazon_cover_bug_cache_dir()
@@ -539,7 +540,7 @@ class KINDLE2(KINDLE):
                 os.mkdir(cache_dir)
             except OSError:
                 pass
-            with lopen(os.path.join(cache_dir, os.path.basename(tp)), 'wb') as f:
+            with open(os.path.join(cache_dir, os.path.basename(tp)), 'wb') as f:
                 f.write(coverdata[2])
                 fsync(f)
 
@@ -566,7 +567,7 @@ class KINDLE2(KINDLE):
                 count += 1
                 if DEBUG:
                     prints('Restoring cover thumbnail:', name)
-                with lopen(os.path.join(src_dir, name), 'rb') as src, lopen(dest_path, 'wb') as dest:
+                with open(os.path.join(src_dir, name), 'rb') as src, open(dest_path, 'wb') as dest:
                     shutil.copyfileobj(src, dest)
                     fsync(dest)
         if DEBUG:

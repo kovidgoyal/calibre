@@ -39,7 +39,7 @@ class PMLOutput(OutputFormatPlugin):
         with TemporaryDirectory('_pmlz_output') as tdir:
             pmlmlizer = PMLMLizer(log)
             pml = str(pmlmlizer.extract_content(oeb_book, opts))
-            with lopen(os.path.join(tdir, 'index.pml'), 'wb') as out:
+            with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
                 out.write(pml.encode(opts.pml_output_encoding, 'replace'))
 
             img_path = os.path.join(tdir, 'index_img')
@@ -61,7 +61,7 @@ class PMLOutput(OutputFormatPlugin):
                     im = Image.open(io.BytesIO(item.data))
                 else:
                     im = Image.open(io.BytesIO(item.data)).convert('P')
-                    im.thumbnail((300,300), Image.ANTIALIAS)
+                    im.thumbnail((300,300), Image.Resampling.LANCZOS)
 
                 data = io.BytesIO()
                 im.save(data, 'PNG')
@@ -69,5 +69,5 @@ class PMLOutput(OutputFormatPlugin):
 
                 path = os.path.join(out_dir, image_hrefs[item.href])
 
-                with lopen(path, 'wb') as out:
+                with open(path, 'wb') as out:
                     out.write(data)

@@ -5,12 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QAbstractListModel, Qt, QIcon, QItemSelectionModel
+from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre import force_unicode
+from calibre.gui2 import error_dialog, gprefs, warning_dialog
+from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
-from calibre.gui2 import gprefs, warning_dialog, error_dialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
+from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 
 
@@ -245,7 +246,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             ('toolbar', _('The main toolbar')),
             ('toolbar-device', _('The main toolbar when a device is connected')),
             ('toolbar-child', _('The optional second toolbar')),
-            ('searchbar', ('The buttons on the search bar')),
+            ('searchbar', _('The buttons on the search bar')),
             ('menubar', _('The menubar')),
             ('menubar-device', _('The menubar when a device is connected')),
             ('context-menu', _('The context menu for the books in the '

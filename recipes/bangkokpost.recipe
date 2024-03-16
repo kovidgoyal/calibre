@@ -47,7 +47,7 @@ class BangkokPostRecipe(BasicNewsRecipe):
     feeds.append((u'Tech', u'http://www.bangkokpost.com/rss/data/tect.xml'))
 
     keep_only_tags = [
-        classes('article-headline articl-content'),
+        classes('article-headline article-content'),
     ]
 
     def print_version(self, url):

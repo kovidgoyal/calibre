@@ -5,14 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, re, numbers
+import json
+import numbers
+import re
 from functools import partial
 
-from calibre import prints, force_unicode
+from calibre import force_unicode, prints
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import parse_date
 from calibre.utils.config import tweaks
+from calibre.utils.date import parse_date
+from calibre.utils.localization import _
 from polyglot.builtins import string_or_bytes
 
 
@@ -217,7 +220,7 @@ class CustomColumns:
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x:x.lower())
         if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
-            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            from calibre.db.tables import UNDEFINED_DATE, c_parse
             ans = c_parse(ans)
             if ans is UNDEFINED_DATE:
                 ans = None
@@ -249,7 +252,7 @@ class CustomColumns:
             if data['display'].get('sort_alpha', False):
                 ans.sort(key=lambda x: x.lower())
         if data['datatype'] == 'datetime' and isinstance(ans, string_or_bytes):
-            from calibre.db.tables import c_parse, UNDEFINED_DATE
+            from calibre.db.tables import UNDEFINED_DATE, c_parse
             ans = c_parse(ans)
             if ans is UNDEFINED_DATE:
                 ans = None

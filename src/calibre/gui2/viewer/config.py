@@ -7,6 +7,7 @@ import tempfile
 
 from calibre.constants import cache_dir, config_dir
 from calibre.utils.config import JSONConfig
+from calibre.utils.date import isoformat, utcnow
 from calibre.utils.filenames import atomic_rename
 
 vprefs = JSONConfig('viewer-webengine')
@@ -73,3 +74,60 @@ def save_reading_rates(key, rates):
 def load_reading_rates(key):
     existing = get_existing_reading_rates()
     return existing.get(key)
+
+
+def expand_profile_user_names(user_names):
+    user_names = set(user_names)
+    sau = get_session_pref('sync_annots_user', default='')
+    if sau:
+        if sau == '*':
+            sau = 'user:'
+        if 'viewer:' in user_names:
+            user_names.add(sau)
+        elif sau in user_names:
+            user_names.add('viewer:')
+    return user_names
+
+
+def load_viewer_profiles(*user_names: str):
+    user_names = expand_profile_user_names(user_names)
+    ans = {}
+    try:
+        with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
+            raw = json.loads(f.read())
+    except FileNotFoundError:
+        return ans
+    for uname, profiles in raw.items():
+        if uname in user_names:
+            for profile_name, profile in profiles.items():
+                if profile_name not in ans or ans[profile_name]['__timestamp__'] <= profile['__timestamp__']:
+                    ans[profile_name] = profile
+    return ans
+
+
+def save_viewer_profile(profile_name, profile, *user_names: str):
+    user_names = expand_profile_user_names(user_names)
+    if isinstance(profile, (str, bytes)):
+        profile = json.loads(profile)
+    if isinstance(profile, dict):
+        profile['__timestamp__'] = isoformat(utcnow())
+        from calibre.gui2.viewer.toolbars import current_actions, DEFAULT_ACTIONS
+        ca = current_actions()
+        s = {}
+        if ca != DEFAULT_ACTIONS:
+            s['toolbar-actions'] = ca
+        if s:
+            profile['__standalone_extra_settings__'] = s
+    try:
+        with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
+            raw = json.loads(f.read())
+    except FileNotFoundError:
+        raw = {}
+    for name in user_names:
+        if isinstance(profile, dict):
+            raw.setdefault(name, {})[profile_name] = profile
+        else:
+            if name in raw:
+                raw[name].pop(profile_name, None)
+    with open(os.path.join(viewer_config_dir, 'profiles.json'), 'wb') as f:
+        f.write(json.dumps(raw, indent=2, sort_keys=True).encode())

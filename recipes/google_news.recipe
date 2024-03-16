@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime
+from calibre.ptempfile import PersistentTemporaryFile
 import json
 
 # a serarch topic, filled into the string below. You can change that to anything google news should be searched for...
@@ -17,9 +17,9 @@ class google_news_de(BasicNewsRecipe):
     title = 'Google News'
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Google_News_icon.svg/500px-Google_News_icon.svg.png'
     # Author
-    __author__ = 'Volker Heggemann, VoHe'
+    __author__ = 'Volker Heggemann, VoHe, unkn0wn'
     # oldest article to download (in days) 									---- can be edit by user
-    oldest_article = 2
+    oldest_article = 1.25
     # describes itself, 						 							---- can be edit by user
     max_articles_per_feed = 200
     # speed up the download on fast computers be careful (I test max.20)
@@ -27,10 +27,6 @@ class google_news_de(BasicNewsRecipe):
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
     description = u'Google News filter by your own recipe. Please read it in calibre software!'
-    # add date to description so for dayly downloads you can find them easier
-    # ---- can be edit by user
-    description = description + ' fetched: ' + \
-        datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
     # What is the content of?
     category = u'NEWS'
     # describes itself, 						 							---- can be edit by user
@@ -41,6 +37,30 @@ class google_news_de(BasicNewsRecipe):
 
     # remove the rubbish (in ebook)
     auto_cleanup = True
+    
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', 'podcast-'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Found link: ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
 
     # now the content description and URL follows
     # feel free to add, wipe out what you need	 							---- can be edit by user

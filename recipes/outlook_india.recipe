@@ -18,23 +18,30 @@ class outlook(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
-    masthead_url = 'https://www.outlookindia.com/images/home_new_v4/logo_outlook.svg'
+    extra_css = '''
+        .story-summary{font-style:italic; color:#202020;}
+        .author_wrapper, .relatedCategory{font-size:small; color:#404040;}
+        #figcap{font-size:small; text-align:center;}
+    '''
 
     keep_only_tags = [classes('__story_detail')]
     remove_tags = [
         classes(
-            'social_sharing_article left_trending left-sticky __tag_links'
-            ' next_prev_stories	downarrow uparrow more_from_author_links next prev __related_stories_thumbs'
+            'social_sharing_article left_trending left-sticky __tag_links next_prev_stories '
+            'downarrow uparrow more_from_author_links next prev __related_stories_thumbs home_ad_title'
         )
     ]
+
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based', verify_ssl_certificates=False)
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.outlookindia.com/magazine')
         div = soup.find('div', attrs={'class':'wrapper'})
         a = div.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
         url = a['href']
-        self.log('Downloading issue:', url)
-        self.timefmt = ' [' + self.tag_to_string(a) + ']'
+        self.timefmt = ' [' + self.tag_to_string(a.find('p')).strip() + ']'
+        self.log('Downloading issue:', url, self.timefmt)
         soup = self.index_to_soup('https://www.outlookindia.com' + url)
         cover = soup.find(**classes('listingPage_lead_story'))
         self.cover_url = cover.find('img', attrs={'src': True})['src']
@@ -42,7 +49,7 @@ class outlook(BasicNewsRecipe):
 
         for h3 in soup.findAll(['h3', 'h4'],
                                attrs={'class': 'tk-kepler-std-condensed-subhead'}):
-            a = h3.find('a', href=lambda x: x)
+            a = h3.find('a', href=True)
             url = a['href']
             title = self.tag_to_string(a)
             desc = ''
@@ -54,6 +61,11 @@ class outlook(BasicNewsRecipe):
             self.log('\t\t', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
+
+    def preprocess_html(self,soup):
+        for fig in soup.findAll('figure'):
+            fig['id'] = 'figcap'
+        return soup
 
     def preprocess_raw_html(self, raw, *a):
         return raw

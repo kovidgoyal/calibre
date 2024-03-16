@@ -5,18 +5,16 @@
 import os
 import subprocess
 import sys
-from threading import Thread
-
 from qt.core import (
-    QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QDialog,
-    QLineEdit, QPageSize, QProgressDialog, QTimer, QToolButton, QVBoxLayout
+    QCheckBox, QDialog, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QPageSize, QProgressDialog, QTimer, QToolButton, QVBoxLayout,
 )
+from threading import Thread
 
 from calibre import sanitize_file_name
 from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
 from calibre.gui2 import (
-    Application, choose_save_file, dynamic, elided_text, error_dialog,
-    open_local_file
+    Application, choose_save_file, dynamic, elided_text, error_dialog, open_local_file,
 )
 from calibre.gui2.widgets import PaperSizes
 from calibre.gui2.widgets2 import Dialog
@@ -24,8 +22,8 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import expanduser
 from calibre.utils.ipc.simple_worker import start_pipe_worker
+from calibre.utils.localization import _
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-
 
 vprefs = JSONConfig('viewer')
 

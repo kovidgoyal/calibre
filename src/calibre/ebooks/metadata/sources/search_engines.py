@@ -4,31 +4,34 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
+import sys
 import os
 import re
 import time
 from collections import namedtuple
 from contextlib import contextmanager
 from threading import Lock
+from functools import partial
 
 try:
-    from urllib.parse import parse_qs, quote_plus, unquote, urlencode, quote, urlparse
+    from urllib.parse import parse_qs, quote_plus, urlencode, quote, urlparse
 except ImportError:
     from urlparse import parse_qs, urlparse
-    from urllib import quote_plus, urlencode, unquote, quote
+    from urllib import quote_plus, urlencode, quote
 
 from lxml import etree
 
-from calibre import browser as _browser, prints, random_user_agent
+from calibre import browser as _browser, prints as safe_print, random_user_agent
 from calibre.constants import cache_dir
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 2)
+current_version = (1, 2, 5)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
+prints = partial(safe_print, file=sys.stderr)
 
 
 Result = namedtuple('Result', 'url title cached_url')
@@ -162,6 +165,9 @@ def wayback_url_processor(url):
     return url
 
 
+ddg_scraper_storage = []
+
+
 def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
     terms = [quote_term(ddg_term(t)) for t in terms]
@@ -171,8 +177,9 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     url = 'https://duckduckgo.com/html/?q={q}&kp={kp}'.format(
         q=q, kp=1 if safe_search else -1)
     log('Making ddg query: ' + url)
+    from calibre.scraper.simple import read_url
     br = br or browser()
-    root = query(br, url, 'ddg', dump_raw, timeout=timeout)
+    root = query(br, url, 'ddg', dump_raw, timeout=timeout, simple_scraper=partial(read_url, ddg_scraper_storage))
     ans = []
     for a in root.xpath('//*[@class="results"]//*[@class="result__title"]/a[@href and @class="result__a"]'):
         try:
@@ -268,19 +275,22 @@ def google_url_processor(url):
     return url
 
 
-def google_get_cached_url(url, br=None, log=prints, timeout=60):
-    ourl = url
+def google_cache_url_for_url(url):
     if not isinstance(url, bytes):
         url = url.encode('utf-8')
     cu = quote(url, safe='')
     if isinstance(cu, bytes):
         cu = cu.decode('utf-8')
-    cached_url = 'https://webcache.googleusercontent.com/search?q=cache:' + cu
+    return 'https://webcache.googleusercontent.com/search?q=cache:' + cu
+
+
+def google_get_cached_url(url, br=None, log=prints, timeout=60):
+    cached_url = google_cache_url_for_url(url)
     br = google_specialize_browser(br or browser())
     try:
         raw = query(br, cached_url, 'google-cache', parser=lambda x: x.encode('utf-8'), timeout=timeout)
     except Exception as err:
-        log('Failed to get cached URL from google for URL: {} with error: {}'.format(ourl, err))
+        log('Failed to get cached URL from google for URL: {} with error: {}'.format(url, err))
     else:
         with webcache_lock:
             webcache[cached_url] = raw
@@ -297,43 +307,9 @@ def canonicalize_url_for_cache_map(url):
     return url
 
 
-def google_extract_cache_urls(raw):
-    if isinstance(raw, bytes):
-        raw = raw.decode('utf-8', 'replace')
-    pat = re.compile(r'\\x22(https://webcache\.googleusercontent\.com/.+?)\\x22')
-    upat = re.compile(r'\\\\u([0-9a-fA-F]{4})')
-    xpat = re.compile(r'\\x([0-9a-fA-F]{2})')
-    cache_pat = re.compile('cache:([^:]+):(.+)')
-
-    def urepl(m):
-        return chr(int(m.group(1), 16))
-
-    seen = set()
-    ans = {}
-    for m in pat.finditer(raw):
-        cache_url = upat.sub(urepl, m.group(1))
-        # print(1111111, cache_url)
-        # the following two are necessary for results from Portugal
-        cache_url = xpat.sub(urepl, cache_url)
-        cache_url = cache_url.replace('&amp;', '&')
-
-        m = cache_pat.search(cache_url)
-        cache_id, src_url = m.group(1), m.group(2)
-        if cache_id in seen:
-            continue
-        seen.add(cache_id)
-        src_url = src_url.split('+')[0]
-        src_url = unquote(src_url)
-        curl = canonicalize_url_for_cache_map(src_url)
-        # print(22222, cache_id, src_url, curl)
-        ans[curl] = cache_url
-    return ans
-
-
 def google_parse_results(root, raw, log=prints, ignore_uncached=True):
-    cache_url_map = google_extract_cache_urls(raw)
-    # print('\n'.join(cache_url_map))
     ans = []
+    seen = set()
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
         try:
             a = div.xpath('descendant::a[@href]')[0]
@@ -344,17 +320,10 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
         src_url = a.get('href')
         # print(f'{src_url=}')
         curl = canonicalize_url_for_cache_map(src_url)
-        if curl in cache_url_map:
-            cached_url = cache_url_map[curl]
-        else:
-            try:
-                c = div.xpath('descendant::*[@role="menuitem"]//a[@class="fl"]')[0]
-            except IndexError:
-                if ignore_uncached:
-                    log('Ignoring {!r} as it has no cached page'.format(title))
-                    continue
-                c = {'href': ''}
-            cached_url = c.get('href')
+        if curl in seen:
+            continue
+        seen.add(curl)
+        cached_url = google_cache_url_for_url(curl)
         ans.append(Result(a.get('href'), title, cached_url))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
@@ -362,15 +331,45 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
     return ans
 
 
+def google_consent_cookies():
+    # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
+    from datetime import date
+    from base64 import standard_b64encode
+    base = {'domain': '.google.com', 'path': '/'}
+    b = base.copy()
+    b['name'], b['value'] = 'CONSENT', 'PENDING+987'
+    yield b
+    template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
+    template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))
+    b = base.copy()
+    b['name'], b['value'] = 'SOCS', standard_b64encode(template).decode('ascii').rstrip('=')
+    yield b
+
+
 def google_specialize_browser(br):
     with webcache_lock:
         if not hasattr(br, 'google_consent_cookie_added'):
-            br.set_simple_cookie('CONSENT', 'YES+', '.google.com', path='/')
+            for c in google_consent_cookies():
+                br.set_simple_cookie(c['name'], c['value'], c['domain'], path=c['path'])
             br.google_consent_cookie_added = True
     return br
 
 
+def is_probably_book_asin(t):
+    return t and len(t) == 10 and t.startswith('B') and t.upper() == t
+
+
+def is_asin_or_isbn(t):
+    from calibre.ebooks.metadata import check_isbn
+    return bool(check_isbn(t) or is_probably_book_asin(t))
+
+
 def google_format_query(terms, site=None, tbm=None):
+    prevent_spelling_correction = False
+    for t in terms:
+        if is_asin_or_isbn(t):
+            prevent_spelling_correction = True
+            break
     terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
@@ -378,6 +377,8 @@ def google_format_query(terms, site=None, tbm=None):
     url = 'https://www.google.com/search?q={q}'.format(q=q)
     if tbm:
         url += '&tbm=' + tbm
+    if prevent_spelling_correction:
+        url += '&nfpr=1'
     return url
 
 

@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from collections import defaultdict
+from datetime import date
+
+def class_as_string(x):
+    if isinstance(x, (list, tuple)):
+        x = ' '.join(x)
+    return x
+
+def class_startswith(*prefixes):
+
+    def q(x):
+        if x:
+            x = class_as_string(x)
+            for prefix in prefixes:
+                if x.startswith(prefix):
+                    return True
+        return False
+
+    return dict(attrs={'class': q})
+
+def absolutize_url(url):
+    if url.startswith("//"):
+        return "https:" + url
+    if url.startswith('/'):
+        url = "https://www.bostonglobe.com" + url
+    return url
+
+
+class BostonGlobePrint(BasicNewsRecipe):
+    title = "Boston Globe | Print Edition"
+    __author__ = 'Kovid Goyal, unkn0wn'
+    description = 'The Boston Globe - Today\'s Paper'
+    language = 'en'
+
+    keep_only_tags = [
+        class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |', 'comic-debug'),
+    ]
+    remove_tags = [
+        classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'),
+        dict(id='continue_button'),
+        dict(name=['meta', 'link'])
+    ]
+    remove_tags_after = dict(attrs={'class': lambda x:x and x.startswith('body |')})
+    remove_attributes = ['style', 'height', 'width']
+    no_stylesheets = True
+    scale_news_images = 1600, 1200
+    ignore_duplicate_articles = {'url'}
+    # simultaneous_downloads = 1
+
+    def image_url_processor(self, baseurl, url):
+        return absolutize_url(url)
+
+    def get_cover_url(self):
+        cover = 'https://img.kiosko.net/' + str(
+            date.today().year
+        ) + '/' + date.today().strftime('%m') + '/' + date.today(
+        ).strftime('%d') + '/us/boston_globe.750.jpg'
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+        try:
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/us/np/boston_globe.html'
+            soup = self.index_to_soup(index)
+            for image in soup.findAll('img', src=True):
+                if image['src'].endswith('750.jpg'):
+                    return 'https:' + image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def parse_index(self):
+
+        soup = self.index_to_soup('https://www.bostonglobe.com/todays-paper/')
+        if timefmt := soup.find(**classes('todays-date')):
+            self.timefmt = ' [' + self.tag_to_string(timefmt) + ']'
+
+        feeds_dict = defaultdict(list)
+
+        for div in soup.findAll('section', attrs={'id':['sp-top-main', 'sp-middle-main']}):
+            for a in div.findAll('a', href=lambda x: x and x.startswith('/' + str(date.today().year) + '/')):
+                section = 'Front Page'
+                if bar := a.findParent(**classes('container')).find_previous_sibling(**classes('title_bar')):
+                    section = self.tag_to_string(bar)
+                url = absolutize_url(a['href'])
+                title = self.tag_to_string(a.find('h2'))
+                desc = ''
+                if d := a.find(**classes('deck')):
+                    desc = self.tag_to_string(d)
+
+                self.log(section, '\n\t', title, '\n\t', desc, '\n\t\t', url)
+                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+        return [(section, articles) for section, articles in feeds_dict.items()]
+
+    def preprocess_raw_html(self, raw_html, url):
+        soup = self.index_to_soup(raw_html)
+        meta = soup.find(attrs={'name': 'description'}, content=True)
+        if meta is not None and meta['content'].startswith('Comics: '):
+            meta = soup.find(property='og:image', content=True)
+            img_url = 'https://cloudfront-us-east-1.images.arcpublishing.com/bostonglobe/' + meta['content'].split('/')[-1]
+            title = self.tag_to_string(soup.find('title'))
+            raw_html = '<html><body><h1 class="headline |">{}</h1><div class="image |"><img src="{}"></div></body></html>'.format(title, img_url)
+        return raw_html
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            fs = img.get('data-src')
+            if fs:
+                img['src'] = fs
+        return soup

@@ -108,7 +108,6 @@ class WMF:
                 247: 'CreatePalette',
                 248: 'CreateBrush',
                 322: 'DibCreatePatternBrush',
-                496: 'DeleteObject',
                 505: 'CreatePatternBrush',
                 762: 'CreatePenIndirect',
                 763: 'CreateFontIndirect',

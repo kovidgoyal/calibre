@@ -23,7 +23,7 @@ def ensure_unicode(obj, enc=preferred_encoding):
 
 
 def serialize_cover(path):
-    with lopen(path, 'rb') as f:
+    with open(path, 'rb') as f:
         cd = f.read()
     return what(None, cd), cd
 

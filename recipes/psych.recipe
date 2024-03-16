@@ -42,9 +42,9 @@ class PsychologyToday(BasicNewsRecipe):
         self.cover_url = absurl(a.img['src'])
         soup = self.index_to_soup(absurl(a['href']))
         articles = []
-        for article in soup.find('div', role='article').findAll('article'):
-            title = self.tag_to_string(article.find(['h2','h3'])).strip()
-            url = absurl(article.find(['h2','h3']).a['href'])
+        for article in soup.findAll('div', attrs={'class':'article-text'}):
+            title = self.tag_to_string(article.find(attrs={'class':['h2','h3']})).strip()
+            url = absurl(article.find(attrs={'class':['h2','h3']}).a['href'])
             self.log('\n', title, 'at', url)
             desc = self.tag_to_string(article.find('p',**classes('description'))).strip()
             author = self.tag_to_string(article.find('p',**classes('byline')).a).strip()

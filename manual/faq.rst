@@ -252,7 +252,7 @@ In such apps you can go to the online catalog screen and add the IP address of
 the calibre server to browse and download books from your calibre library
 within the app.
 
-How do I use calibre with my Android phone/tablet or Kindle Fire HD?
+How do I use calibre with my Android phone/tablet or Kindle Fire?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable -- or wirelessly, over the air.
@@ -792,6 +792,10 @@ calibre is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There can be several causes for this:
 
+    * If you get no errors but the calibre window does not appear, it has
+      probably just appeared off screen. You can gather all windows onto the
+      current screen using one of the techniques described `here <https://www.wikihow.com/Bring-an-Off-Screen-Window-Back-on-Windows>`__.
+
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
 
        * Uninstall calibre
@@ -880,7 +884,7 @@ incompatibility with your system's GPU (graphics) drivers. Try updating these
 first, and reboot. If that does not fix it, you can set the
 ``QTWEBENGINE_CHROMIUM_FLAGS`` environment variable to the value
 ``--disable-gpu`` to turn off hardware acceleration. See
-`this page <https://doc.qt.io/qt-5/qtwebengine-debugging.html>`_ for details.
+`this page <https://doc.qt.io/qt-6/qtwebengine-debugging.html>`_ for details.
 
 
 Using the viewer or doing any conversions results in a permission denied error on Windows
@@ -1085,7 +1089,7 @@ a modern Linux distribution, you should have no problems installing calibre onto
     because of Qt, which is used for various image processing tasks, and links
     against these libraries. If you get an ImportError about some Qt modules,
     you are likely missing some X libraries. Typical candidates are:
-    ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
+    ``libxcb-cursor0``, ``libxcb-xinerama0``, ``libegl1``, ``libopengl0``.
 
 You can run the calibre server via the command::
 

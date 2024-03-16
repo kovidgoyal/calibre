@@ -17,13 +17,8 @@ def create_cert_request(
     country='IN', state='Maharashtra', locality='Mumbai', organization=None,
     organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None
 ):
-    def enc(x):
-        if isinstance(x, str):
-            x = x.encode('ascii')
-        return x or None
-
     return certgen.create_rsa_cert_req(
-        key_pair, tuple(enc(x) for x in alt_names if x), common_name,
+        key_pair, tuple(alt_names), common_name,
         country, state, locality, organization, organizational_unit, email_address, basic_constraints
     )
 
@@ -45,7 +40,7 @@ def serialize_key(key_pair, password=None):
 
 
 def cert_info(cert):
-    return certgen.cert_info(cert).decode('utf-8')
+    return certgen.cert_info(cert)
 
 
 def create_server_cert(
@@ -96,9 +91,9 @@ def create_server_cert(
 
 
 if __name__ == '__main__':
-    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['1.test.me', '*.all.test.me'])
+    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['DNS:moose.cat', 'DNS:huge.bat'])
     print("CA Certificate")
-    print(cert_info(cacert).encode('utf-8'))
+    print(cert_info(cacert))
     print(), print(), print()
     print('Server Certificate')
-    print(cert_info(cert).encode('utf-8'))
+    print(cert_info(cert))

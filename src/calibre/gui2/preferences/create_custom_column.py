@@ -6,19 +6,20 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to create a new custom column'''
 
-import copy, re
+import copy
+import re
 from enum import Enum
 from functools import partial
-
 from qt.core import (
-    QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
-    QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
-    QCheckBox, QSpinBox, QRadioButton, QGroupBox
+    QCheckBox, QColor, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QGroupBox,
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QRadioButton, QSpinBox, Qt, QVBoxLayout,
+    QWidget,
 )
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.utils.date import parse_date, UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, parse_date
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
@@ -116,6 +117,7 @@ class CreateCustomColumn(QDialog):
         for t in self.column_types:
             self.column_type_box.addItem(self.column_types[t]['text'])
         self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
+        self.composite_in_comments_box.stateChanged.connect(self.composite_show_in_comments_clicked)
 
         if not self.editing_col:
             self.datatype_changed()
@@ -145,22 +147,31 @@ class CreateCustomColumn(QDialog):
                                   self.column_types))
         self.column_type_box.setCurrentIndex(column_numbers[ct])
         self.column_type_box.setEnabled(False)
+
+        self.datatype_changed()
+
         if ct == 'datetime':
             if c['display'].get('date_format', None):
                 self.format_box.setText(c['display'].get('date_format', ''))
         elif ct in ['composite', '*composite']:
             self.composite_box.setText(c['display'].get('composite_template', ''))
-            sb = c['display'].get('composite_sort', 'text')
-            vals = ['text', 'number', 'date', 'bool']
-            if sb in vals:
-                sb = vals.index(sb)
+            if c['display'].get('composite_show_in_comments', ''):
+                self.composite_in_comments_box.setChecked(True)
+                idx = max(0, self.composite_heading_position.findData(c['display'].get('heading_position', 'hide')))
+                self.composite_heading_position.setCurrentIndex(idx)
             else:
-                sb = 0
-            self.composite_sort_by.setCurrentIndex(sb)
-            self.composite_make_category.setChecked(
-                                c['display'].get('make_category', False))
-            self.composite_contains_html.setChecked(
-                                c['display'].get('contains_html', False))
+                self.composite_in_comments_box.setChecked(False)
+                sb = c['display'].get('composite_sort', 'text')
+                vals = ['text', 'number', 'date', 'bool']
+                if sb in vals:
+                    sb = vals.index(sb)
+                else:
+                    sb = 0
+                self.composite_sort_by.setCurrentIndex(sb)
+                self.composite_make_category.setChecked(
+                                    c['display'].get('make_category', False))
+                self.composite_contains_html.setChecked(
+                                    c['display'].get('contains_html', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
@@ -201,7 +212,6 @@ class CreateCustomColumn(QDialog):
             elif ct not in ('composite', '*composite'):
                 self.default_value.setText(dv)
 
-        self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         elif ct == '*text':
@@ -313,10 +323,16 @@ class CreateCustomColumn(QDialog):
         self.use_decorations = ud = QCheckBox(_("Show &checkmarks"), self)
         ud.setToolTip(_("Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
             "will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.\n"
-            "Everything else will show nothing."))
+            "Everything else will show nothing. Note that the values of 'true' and 'false' don't\n"
+            "follow calibre's language settings and are always in English."))
         h.addWidget(ud)
         self.is_names = ins = QCheckBox(_("Contains names"), self)
-        ins.setToolTip(_("Check this box if this column contains names, like the authors column."))
+        ins.setToolTip('<p>' + _('Check this box if this column contains names, '
+             'like the authors column. If checked, the item separator will be an ampersand '
+             '(&) instead of a comma (,), sorting will be done using a computed value '
+             'that respects the author sort tweaks (for example converting "Firstname '
+             'Lastname" into "Lastname, Firstname"), and item order will be '
+             'preserved.')+'</p>')
         h.addWidget(ins)
         add_row(_("&Column type:"), h)
 
@@ -386,16 +402,20 @@ class CreateCustomColumn(QDialog):
                 ('side', _('Show heading to the side of the text'))
         ):
             ct.addItem(text, k)
-        ct.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
-                        'details panel and, if shown, where'))
-        self.comments_heading_position_label = add_row(_('Column heading:'), ct)
+        ct.setToolTip('<p>' +
+                      _('Choose whether or not the column heading is shown in the Book '
+                      'details panel and, if shown, where. Setting this to '
+                      "'Show heading to the side of the text' moves the information "
+                      "from dislayed with other comments to displayed with the "
+                      "non-comments columns.") + '</p>')
+        self.comments_heading_position_label = add_row(_('Heading position:'), ct)
 
         self.comments_type = ct = QComboBox(self)
         for k, text in (
                 ('html', 'HTML'),
                 ('short-text', _('Short text, like a title')),
                 ('long-text', _('Plain text')),
-                ('markdown', _('Plain text formatted using markdown'))
+                ('markdown', _('Plain text formatted using Markdown'))
         ):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose how the data in this column is interpreted.\n'
@@ -444,6 +464,31 @@ class CreateCustomColumn(QDialog):
             ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
             'will generate a link to the book on the Beam e-books site.') + '</p>')
         l.addWidget(cch)
+        l.addStretch()
+        add_row(None, l)
+        l = QHBoxLayout()
+        self.composite_in_comments_box = cmc = QCheckBox(_("Show with comments in Book details"))
+        cmc.setToolTip('<p>' + _('If you check this box then the column contents '
+                                 'will show in the Comments section in the Book details. '
+                                 'You can indicate whether not to have a header or '
+                                 'to put a header above the column. If you want a '
+                                 "header beside the data, don't check this box. "
+                                 'If this box is checked then the output of the '
+                                 'column template must be plain text or html.') + '</p>')
+        l.addWidget(cmc)
+        self.composite_heading_position = chp = QComboBox(self)
+        for k, text in (
+                ('hide', _('No heading')),
+                ('above', _('Show heading above the text'))
+                # we don't offer 'side' because that is what you get if you don't
+                # check the box.
+        ):
+            chp.addItem(text, k)
+        chp.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
+                        'details panel and, if shown, where'))
+        self.composite_heading_position_label = la = QLabel(_('Column heading:'))
+        l.addWidget(la), l.addWidget(chp)
+        l.addStretch()
         add_row(None, l)
 
         # Default value
@@ -461,6 +506,24 @@ class CreateCustomColumn(QDialog):
     def bool_radio_button_clicked(self, button, clicked):
         if clicked:
             self.bool_button_group.setFocusProxy(button)
+
+    def composite_show_in_comments_clicked(self, state):
+        if state == Qt.CheckState.Checked.value: # state is passed as an int
+            self.composite_sort_by.setEnabled(False)
+            self.composite_sort_by_label.setEnabled(False)
+            self.composite_make_category.setEnabled(False)
+            self.composite_contains_html.setEnabled(False)
+            self.composite_heading_position.setEnabled(True)
+            self.composite_heading_position_label.setEnabled(True)
+            self.composite_heading_position.setCurrentIndex(0)
+        else:
+            self.composite_sort_by.setEnabled(True)
+            self.composite_sort_by_label.setEnabled(True)
+            self.composite_make_category.setEnabled(True)
+            self.composite_contains_html.setEnabled(True)
+            self.composite_heading_position.setEnabled(False)
+            self.composite_heading_position_label.setEnabled(False)
+            self.composite_heading_position.setCurrentIndex(0)
 
     def datatype_changed(self, *args):
         try:
@@ -521,9 +584,13 @@ class CreateCustomColumn(QDialog):
                         'after the decimal point and thousands separated by commas.') + '</p>'
                     )
             self.format_label.setText(l), self.format_default_label.setText(dl)
+        for x in ('in_comments_box', 'heading_position', 'heading_position_label'):
+            getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category', 'contains_html'):
-            getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
+            getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
+        self.composite_heading_position.setEnabled(False)
+
         for x in ('box', 'default_label',  'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         for x in ('value_label', 'value'):
@@ -608,12 +675,20 @@ class CreateCustomColumn(QDialog):
             if not str(self.composite_box.text()).strip():
                 return self.simple_error('', _('You must enter a template for '
                            'composite columns'))
-            display_dict = {'composite_template':str(self.composite_box.text()).strip(),
-                            'composite_sort': ['text', 'number', 'date', 'bool']
-                                        [self.composite_sort_by.currentIndex()],
-                            'make_category': self.composite_make_category.isChecked(),
-                            'contains_html': self.composite_contains_html.isChecked(),
-                        }
+            if self.composite_in_comments_box.isChecked():
+                display_dict = {'composite_template':str(self.composite_box.text()).strip(),
+                                'heading_position': self.composite_heading_position.currentData(),
+                                'composite_show_in_comments': True,
+                            }
+            else:
+                display_dict = {'composite_template':str(self.composite_box.text()).strip(),
+                                'composite_sort': ['text', 'number', 'date', 'bool']
+                                            [self.composite_sort_by.currentIndex()],
+                                'make_category': self.composite_make_category.isChecked(),
+                                'contains_html': self.composite_contains_html.isChecked(),
+                                'composite_show_in_comments': False,
+                            }
+
         elif col_type == 'enumeration':
             if not str(self.enum_box.text()).strip():
                 return self.simple_error('', _('You must enter at least one '
@@ -891,7 +966,7 @@ class CreateNewCustomColumn:
                    _("You cannot specify is_multiple for the datatype %s") % datatype)
         if not isinstance(display, dict):
             return (self.Result.INVALID_DISPLAY,
-                   _("The display parameter must be a Python dict"))
+                   _("The display parameter must be a Python dictionary"))
         self.created_count += 1
         self.custcols[lookup_name] = {
                 'label': lookup_name,

@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, shutil, errno
+import re, os, shutil
 
 from qt.core import QModelIndex
 
@@ -99,11 +99,5 @@ class GenerateCatalogAction(InterfaceAction):
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
                 except OSError as err:
-                    if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                        import traceback
-                        error_dialog(self.gui, _('Permission denied'),
-                                _('Could not open %s. Is it being used by another'
-                                ' program?')%destination, det_msg=traceback.format_exc(),
-                                show=True)
-                        return
+                    err.locking_violation_msg = _('Could not open the catalog output file.')
                     raise

@@ -34,6 +34,7 @@ class NewYorker(BasicNewsRecipe):
     timefmt = ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
+        img { display:block; margin:0 auto; }
         .byline { font-size:smaller; font-weight: bold;}
         h3 { margin-bottom: 6px; }
         .caption { font-size: smaller; font-style: italic; font-weight: normal; }
@@ -58,18 +59,53 @@ class NewYorker(BasicNewsRecipe):
         ),
         prefixed_classes('ConsentBannerWrapper- ResponsiveCartoonCTA-'),
         dict(childtypes='iframe'),
+        dict(name='svg'),
     ]
     remove_attributes = ['style']
 
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            # Reduce image sizes to get file size below amazon's email
+            # sending threshold
+            self.web2disk_options.compress_news_images = True
+            self.web2disk_options.compress_news_images_auto_size = 5
+            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+
     def preprocess_html(self, soup):
+        w = '/w_320' # use '/w_640' for highres
+        for img in soup.findAll('img'):
+            if img.has_attr('srcset'):
+                for x in img['srcset'].split():
+                    if w in x:
+                        img['src'] = x
+            elif img.find_previous_sibling('source', attrs={'srcset':True}):
+                srcset = img.find_previous_sibling('source', attrs={'srcset':True})
+                for x in srcset['srcset'].split():
+                    if w in x:
+                        img['src'] = x
+                    elif '/w_560' in x:
+                        img['src'] = x
+        for src in soup.findAll('source'):
+            src.decompose()
         for noscript in soup.findAll('noscript'):
             noscript.name = 'div'
         return soup
 
+    # def preprocess_image(self, img_data, image_url):
+        # from PIL import Image
+        # from calibre import fit_image
+        # from io import BytesIO
+        # img = Image.open(BytesIO(img_data)).convert('RGB')
+        # scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
+        # if scaled:
+            # img = img.resize((nwidth, nheight))
+        # buf = BytesIO()
+        # img.save(buf, format='JPEG')
+        # return buf.getvalue()
+
     def parse_index(self):
-
         # Get cover
-
         cover_soup = self.index_to_soup('https://www.newyorker.com/archive')
         cover_img = cover_soup.find(
             attrs={'class': lambda x: x and 'MagazineSection__cover___' in x})
@@ -126,7 +162,7 @@ class NewYorker(BasicNewsRecipe):
                     # Get description
                     body = story.find(attrs={'class': 'River__dek___CayIg'})
                     if body is not None:
-                        desc = body.contents[0]
+                        desc = str(body.contents[0])
 
                 self.log('Found article:', title)
                 self.log('\t' + url)

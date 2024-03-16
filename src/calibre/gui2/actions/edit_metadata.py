@@ -8,12 +8,11 @@ __docformat__ = 'restructuredtext en'
 import copy
 import os
 import shutil
-from functools import partial
 from contextlib import contextmanager
+from functools import partial
 from io import BytesIO
 from qt.core import (
-    QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer,
-    QUrl
+    QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl,
 )
 
 from calibre.db.errors import NoSuchFormat
@@ -22,44 +21,26 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import Dispatcher, error_dialog, gprefs, question_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
-from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
+DATA_FILES_ICON_NAME = 'unpack-book.png'
 
-class EditMetadataAction(InterfaceAction):
+
+class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of books'), _('E'))
     action_type = 'current'
     action_add_menu = True
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids
@@ -105,6 +86,8 @@ class EditMetadataAction(InterfaceAction):
         self.action_merge = cm('merge', _('Merge book records'), icon='merge_books.png',
             shortcut=_('M'), triggered=self.merge_books)
         self.action_merge.setMenu(mb)
+        self.action_manage_data_files = cm(
+            'manage_data_files', _('Manage data files'), icon=DATA_FILES_ICON_NAME, triggered=self.manage_data_files)
 
         self.qaction.triggered.connect(self.edit_metadata)
         ac = QAction(_('Copy URL to show book in calibre'), self.gui)
@@ -123,6 +106,16 @@ class EditMetadataAction(InterfaceAction):
             self.unique_name + ' - ' + 'copy_view_book',
             ac.text(), description=ac.toolTip(),
             action=ac, group=self.action_spec[0])
+
+    def manage_data_files(self):
+        from calibre.gui2.dialogs.data_files_manager import DataFilesManager
+        db = self.gui.current_db
+        ids = self.gui.library_view.get_selected_ids()
+        for book_id in ids:
+            d = DataFilesManager(db, book_id, self.gui)
+            d.exec()
+        cr = self.gui.library_view.currentIndex().row()
+        self.gui.library_view.model().refresh_ids(ids, cr)
 
     def _copy_links(self, lines):
         urls = QUrl.fromStringList(lines)
@@ -576,22 +569,27 @@ class EditMetadataAction(InterfaceAction):
             'merge_too_many_books', self.gui)
 
     def books_dropped(self, merge_map):
+        covers_replaced = False
         for dest_id, src_ids in iteritems(merge_map):
             if not self.confirm_large_merge(len(src_ids) + 1):
                 continue
             from calibre.gui2.dialogs.confirm_merge import merge_drop
-            merge_metadata, merge_formats, delete_books = merge_drop(dest_id, src_ids, self.gui)
-            if merge_metadata is None:
+            d = merge_drop(dest_id, src_ids, self.gui)
+            if d is None:
                 return
-            if merge_formats:
+            if d.merge_formats:
                 self.add_formats(dest_id, self.formats_for_ids(list(src_ids)))
-            if merge_metadata:
-                self.merge_metadata(dest_id, src_ids)
-            if delete_books:
+            if d.merge_metadata:
+                self.merge_metadata(dest_id, src_ids, replace_cover=d.replace_cover)
+                if d.replace_cover:
+                    covers_replaced = True
+            if d.delete_books:
                 self.delete_books_after_merge(src_ids)
             # leave the selection highlight on the target book
             row = self.gui.library_view.ids_to_rows([dest_id])[dest_id]
             self.gui.library_view.set_current_row(row)
+            if covers_replaced:
+                self.gui.refresh_cover_browser()
 
     def merge_books(self, safe_merge=False, merge_only_formats=False):
         '''
@@ -656,6 +654,7 @@ class EditMetadataAction(InterfaceAction):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
+            self.merge_data_files(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
             dest_row = rows[0].row()
@@ -667,11 +666,14 @@ class EditMetadataAction(InterfaceAction):
         self.gui.library_view.model().refresh_ids((dest_id,), cr)
         self.gui.library_view.horizontalScrollBar().setValue(hpos)
 
+    def merge_data_files(self, dest_id, src_ids):
+        self.gui.current_db.new_api.merge_extra_files(dest_id, src_ids)
+
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
-                with lopen(src_book, 'rb') as f:
+                with open(src_book, 'rb') as f:
                     self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
@@ -708,93 +710,8 @@ class EditMetadataAction(InterfaceAction):
     def delete_books_after_merge(self, ids_to_delete):
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
-    def merge_metadata(self, dest_id, src_ids):
-        db = self.gui.library_view.model().db
-        dest_mi = db.get_metadata(dest_id, index_is_id=True)
-        merged_identifiers = db.get_identifiers(dest_id, index_is_id=True)
-        orig_dest_comments = dest_mi.comments
-        dest_cover = db.cover(dest_id, index_is_id=True)
-        had_orig_cover = bool(dest_cover)
-
-        def is_null_date(x):
-            return x is None or is_date_undefined(x)
-
-        for src_id in src_ids:
-            src_mi = db.get_metadata(src_id, index_is_id=True)
-
-            if src_mi.comments and orig_dest_comments != src_mi.comments:
-                if not dest_mi.comments:
-                    dest_mi.comments = src_mi.comments
-                else:
-                    dest_mi.comments = str(dest_mi.comments) + '\n\n' + str(src_mi.comments)
-            if src_mi.title and dest_mi.is_null('title'):
-                dest_mi.title = src_mi.title
-                dest_mi.title_sort = src_mi.title_sort
-            if (src_mi.authors and src_mi.authors[0] != _('Unknown')) and (not dest_mi.authors or dest_mi.authors[0] == _('Unknown')):
-                dest_mi.authors = src_mi.authors
-                dest_mi.author_sort = src_mi.author_sort
-            if src_mi.tags:
-                if not dest_mi.tags:
-                    dest_mi.tags = src_mi.tags
-                else:
-                    dest_mi.tags.extend(src_mi.tags)
-            if not dest_cover:
-                src_cover = db.cover(src_id, index_is_id=True)
-                if src_cover:
-                    dest_cover = src_cover
-            if not dest_mi.publisher:
-                dest_mi.publisher = src_mi.publisher
-            if not dest_mi.rating:
-                dest_mi.rating = src_mi.rating
-            if not dest_mi.series:
-                dest_mi.series = src_mi.series
-                dest_mi.series_index = src_mi.series_index
-            if is_null_date(dest_mi.pubdate) and not is_null_date(src_mi.pubdate):
-                dest_mi.pubdate = src_mi.pubdate
-
-            src_identifiers = db.get_identifiers(src_id, index_is_id=True)
-            src_identifiers.update(merged_identifiers)
-            merged_identifiers = src_identifiers.copy()
-
-        if merged_identifiers:
-            dest_mi.set_identifiers(merged_identifiers)
-        db.set_metadata(dest_id, dest_mi, ignore_errors=False)
-
-        if not had_orig_cover and dest_cover:
-            db.set_cover(dest_id, dest_cover)
-
-        for key in db.field_metadata:  # loop thru all defined fields
-            fm = db.field_metadata[key]
-            if not fm['is_custom']:
-                continue
-            dt = fm['datatype']
-            colnum = fm['colnum']
-            # Get orig_dest_comments before it gets changed
-            if dt == 'comments':
-                orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
-
-            for src_id in src_ids:
-                dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
-                src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
-                if (dt == 'comments' and src_value and src_value != orig_dest_value):
-                    if not dest_value:
-                        db.set_custom(dest_id, src_value, num=colnum)
-                    else:
-                        dest_value = str(dest_value) + '\n\n' + str(src_value)
-                        db.set_custom(dest_id, dest_value, num=colnum)
-                if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
-                    db.set_custom(dest_id, src_value, num=colnum)
-                if (dt == 'series' and not dest_value and src_value):
-                    src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
-                    db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
-                if ((dt == 'enumeration' or (dt == 'text' and not fm['is_multiple'])) and not dest_value):
-                    db.set_custom(dest_id, src_value, num=colnum)
-                if (dt == 'text' and fm['is_multiple'] and src_value):
-                    if not dest_value:
-                        dest_value = src_value
-                    else:
-                        dest_value.extend(src_value)
-                    db.set_custom(dest_id, dest_value, num=colnum)
+    def merge_metadata(self, dest_id, src_ids, replace_cover=False):
+        self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover)
     # }}}
 
     def edit_device_collections(self, view, oncard=None):
@@ -983,13 +900,13 @@ class EditMetadataAction(InterfaceAction):
         fmt = fmt.lower()
         cdata = None
         db = self.gui.current_db.new_api
-        if fmt == 'pdf':
-            pdfpath = db.format_abspath(book_id, fmt)
-            if pdfpath is None:
+        if fmt in ('pdf', 'cbz', 'cbr'):
+            path = db.format_abspath(book_id, fmt)
+            if path is None:
                 return error_dialog(self.gui, _('Format file missing'), _(
-                    'Cannot read cover as the %s file is missing from this book') % 'PDF', show=True)
+                    'Cannot read cover as the %s file is missing from this book') % fmt.upper(), show=True)
             from calibre.gui2.metadata.pdf_covers import PDFCovers
-            d = PDFCovers(pdfpath, parent=self.gui)
+            d = PDFCovers(path, parent=self.gui)
             ret = d.exec()
             if ret == QDialog.DialogCode.Accepted:
                 cpath = d.cover_path

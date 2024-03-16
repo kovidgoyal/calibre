@@ -112,7 +112,7 @@ def identify(path):
     (width, height, format)
     or raises an Exception.
     '''
-    with lopen(path, 'rb') as f:
+    with open(path, 'rb') as f:
         fmt, width, height = _identify(f)
     return width, height, fmt
 

@@ -1,58 +1,131 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
+# License: GPLv3 Copyright: 2023, Joel Davies <joeld.dev at gmail.com>
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-__license__ = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-DR.dk
-'''
-
-
 class DRNyheder(BasicNewsRecipe):
-    title                 = 'DR Nyheder'
-    __author__            = 'Darko Miletic'
-    publisher             = 'DR Nyheder'
-    description           = 'Her finder du nyheder fra DR og alle vores TV og Radio kanaler live og on demand - når du har lyst.'
-    category              = 'news, politics, money, culture, sport, science, Denmark'
-    oldest_article        = 2
-    max_articles_per_feed = 50
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    use_embedded_content  = False
-    language              = 'da'
-    auto_cleanup          = False
+
+    # Feeds are found here: https://www.dr.dk/nyheder/dr-nyheder-som-rss-feed
+    feeds          = [
+        ('Seneste nyt', 'https://www.dr.dk/nyheder/service/feeds/senestenyt'),
+        ('Indland', 'https://www.dr.dk/nyheder/service/feeds/indland'),
+        ('Udland', 'https://www.dr.dk/nyheder/service/feeds/udland'),
+        ('Penge', 'https://www.dr.dk/nyheder/service/feeds/penge'),
+        ('Politik', 'https://www.dr.dk/nyheder/service/feeds/politik'),
+        #('Sporten', 'https://www.dr.dk/nyheder/service/feeds/sporten'),
+        #('Seneste sport', 'https://www.dr.dk/nyheder/service/feeds/senestesport'),
+        ('Viden', 'https://www.dr.dk/nyheder/service/feeds/viden'),
+        ('Kultur', 'https://www.dr.dk/nyheder/service/feeds/kultur'),
+        ('Musik', 'https://www.dr.dk/nyheder/service/feeds/musik'),
+        ('Mit Liv', 'https://www.dr.dk/nyheder/service/feeds/mitliv'),
+        ('Mad', 'https://www.dr.dk/nyheder/service/feeds/mad'),
+        ('Vejret', 'https://www.dr.dk/nyheder/service/feeds/vejret'),
+        ('Regionale', 'https://www.dr.dk/nyheder/service/feeds/regionale'),
+        ('DR Hovedstadsområdet', 'https://www.dr.dk/nyheder/service/feeds/regionale/kbh'),
+        ('DR Bornholm', 'https://www.dr.dk/nyheder/service/feeds/regionale/bornholm'),
+        ('DR Syd og Sønderjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/syd'),
+        ('DR Fyn', 'https://www.dr.dk/nyheder/service/feeds/regionale/fyn'),
+        ('DR Midt- og Vestjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/vest'),
+        ('DR Nordjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/nord'),
+        ('DR Trekantområdet', 'https://www.dr.dk/nyheder/service/feeds/regionale/trekanten'),
+        ('DR Sjælland', 'https://www.dr.dk/nyheder/service/feeds/regionale/sjaelland'),
+        ('DR Østjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/oestjylland')
+    ]
+
+    title                       = 'DR Nyheder'
+    __author__                  = 'Joel Davies'
+    publisher                   = 'DR Nyheder'
+    description                 = 'Her finder du nyheder fra DR.'
+    category                    = 'news, politics, money, culture, sport, science, Denmark'
+    publication_type 	        = 'newspaper'
+    encoding                    = 'utf8'
+    language                    = 'da'
+    oldest_article              = 4 # 2 might be best
+    max_articles_per_feed       = 50 # 100 better, this is just for testing
+    no_stylesheets              = True
+    use_embedded_content        = False
+    auto_cleanup                = False
+    remove_empty_feeds 	        = True
+    ignore_duplicate_articles   = {'title', 'url'}
+    simultaneous_downloads      = 20
+    compress_news_images        = True
+    masthead_url                = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/DR_logo.svg/1024px-DR_logo.svg.png'
+
+    extra_css = '''
+        .dre-byline__contributions {
+            margin-bottom: 10px;
+        }
+
+        .dre-byline__contributions div {
+            display: inline;
+        }
+
+        .dre-byline__contribution + .dre-byline__contribution:before {
+            display: inline;
+            content: ", ";
+        }
+
+        .dre-standard-article__figure {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .dre-picture {
+            margin-bottom: 10px;
+        }
+
+        .dre-picture__image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .dre-standard-article__figure-caption {
+            font-size: .85em;
+            color: #575757;
+        }
+        '''
+
+    # Skip articles with /stories/ URL as these are Instagram story-style interactive pieces that play videos
+    # Also DRTV as these are just links to the live TV channel
+    def preprocess_raw_html(self, raw_html, url):
+        if '/stories/' in url or '/drtv/' in url:
+            self.abort_article('Skipping unsupported article type')
+        return raw_html
+
+    # Generate cover from the first image on the dr.dk homepage
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('https://www.dr.dk/')
+        main_content = soup.find('ul', attrs={'class': 'dre-grid-layout'})
+        cover_item = main_content.find('img')
+        if cover_item:
+            cover_url = cover_item['src']
+        return cover_url
+
 
     keep_only_tags = [
-        dict(name="h1", attrs={'id': 'access-content'}),
-        dict(name="p", attrs={'class': 'summary'}),
-        dict(name="span", attrs={'itemprop': 'datePublished'}),
-        dict(name="div", attrs={'class': 'wcms-article-content'}),
+
+        dict(name="h1", attrs={'class': 'dre-article-title__heading'}), # Title
+        dict(name="div", attrs={'class': 'dre-article-byline'}), # Author
+        dict(name="figure", attrs={'class': 'dre-standard-article__figure'}), # Comment out to remove images
+        dict(name="p", attrs={'class': 'dre-article-body-paragraph'}), # All body text of the article
+        dict(name="article", attrs={'itemtype': 'http://schema.org/NewsArticle'}),
+        #dict(name="h1", attrs={'class': 'hydra-latest-news-page-short-news__title'}),
+        #dict(name="p", attrs={'class': 'hydra-latest-news-page-short-news__paragraph'}),
+        #dict(name="div", attrs={'class': 'dre-speech'}),
+        #dict(name="div", attrs={'itemprop': 'author'})
     ]
 
     remove_tags = [
-        dict(name='menu', attrs={'class': 'share'}),
-        dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
+        dict(name='ol', attrs={'class': 'hydra-latest-news-page__list'}),
+        dict(name='div', attrs={'class': [
+            'hydra-latest-news-page-short-news__share', 'hydra-latest-news-page-short-news__a11y-container',
+            'hydra-latest-news-page-short-news__meta', 'hydra-latest-news-page-short-news__image-slider', 'dre-byline__dates']}),
+        dict(name="source"),
+        #dict(name='menu', attrs={'class': 'share'}),
+        #dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
     ]
 
-    # Feed are found here: http://www.dr.dk/nyheder/dr-nyheder-som-rss-feed
-    feeds          = [
-        ('Indland', 'http://www.dr.dk/nyheder/service/feeds/indland'),
-        ('Udland', 'http://www.dr.dk/nyheder/service/feeds/udland'),
-        ('Penge', 'http://www.dr.dk/nyheder/service/feeds/penge'),
-        ('Politik', 'http://www.dr.dk/nyheder/service/feeds/politik'),
-        ('Kultur', 'http://www.dr.dk/nyheder/service/feeds/kultur'),
-        ('Sporten', 'http://www.dr.dk/nyheder/service/feeds/sporten'),
-        ('Viden', 'http://www.dr.dk/nyheder/service/feeds/viden'),
-        ('Lev Nu', 'http://www.dr.dk/nyheder/service/feeds/levnu'),
-        ('DR Hovedstadsområdet', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/kbh/'),
-        ('DR Bornholm', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/bornholm/'),
-        ('DR Syd og Sønderjylland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/syd/'),
-        ('DR Fyn', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/fyn/'),
-        ('DR Nordjylland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/nord/'),
-        ('DR Trekantområdet', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/trekanten/'),
-        ('DR Sjælland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/sjaelland/'),
-        ('DR Østjylland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/oestjylland/'),
-    ]
-
+    # Fixes images having the wrong aspect ratio
+    remove_attributes = ['width', 'height']

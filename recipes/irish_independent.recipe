@@ -12,34 +12,32 @@ class IrishIndependent(BasicNewsRecipe):
     description = 'Irish and World news from Irelands Bestselling Daily Broadsheet'
     __author__ = 'Neil Grogan'
     language = 'en_IE'
-    oldest_article = 7
+    oldest_article = 2
     max_articles_per_feed = 100
-    remove_tags_before = dict(id='article')
-    remove_tags_after = [dict(name='div', attrs={'class': 'toolsBottom'})]
     no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class':lambda x: x and '_contentwrapper' in x})
+    ]
+
     remove_tags = [
-        dict(name='div', attrs={'class': 'toolsBottom'}),
-        dict(name='div', attrs={'class': 'toolsTop'}),
-        dict(name='div', attrs={'class': 'boxRelated'}),
-        dict(name='div', attrs={'class': 'section first'}),
-        dict(name='div', attrs={'class': 'tabIt'}),
-        dict(name='div', attrs={'class': 'inner'})
+        dict(name=['svg', 'button']),
+        dict(name='div', attrs={'data-testid':['article-share', 'embed-video', 'inline-related-wrapper']})
     ]
 
     feeds = [
-        (u'Frontpage News', u'http://www.independent.ie/rss'),
-        (u'World News', u'http://www.independent.ie/world-news/rss'),
-        (u'Technology', u'http://www.independent.ie/business/technology/rss'),
-        (u'Sport', u'http://www.independent.ie/sport/rss'),
-        (u'Entertainment', u'http://www.independent.ie/entertainment/rss'),
-        (u'Independent Woman', u'http://www.independent.ie/lifestyle/independent-woman/rss'),
-        (u'Education', u'http://www.independent.ie/education/rss'),
-        (u'Lifestyle', u'http://www.independent.ie/lifestyle/rss'),
-        (u'Travel', u'http://www.independent.ie/travel/rss'),
-        (u'Letters', u'http://www.independent.ie/opinion/letters/rss'),
-        (u'Weather', u'http://www.independent.ie/weather/rss')
+        ('Frontpage News', 'http://www.independent.ie/rss'),
+        ('World News', 'http://www.independent.ie/world-news/rss'),
+        ('Opinion', 'http://www.independent.ie/opinion/rss'),
+        ('Business', 'http://www.independent.ie/business/rss'),
+        ('Sport', 'http://www.independent.ie/sport/rss'),
+        ('Life', 'http://www.independent.ie/life/rss'),
+        ('Style', 'http://www.independent.ie/style/rss'),
+        ('Entertainment', 'http://www.independent.ie/business/rss'),
     ]
 
-# If text only articles are desired
-# def print_version(self, url):
-#    return '%s?service=Print' % url
+    def preprocess_html(self, soup):
+        for img in soup.findAll(attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup

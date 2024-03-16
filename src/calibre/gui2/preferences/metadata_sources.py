@@ -7,18 +7,19 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 from qt.core import (
-    QAbstractListModel, QAbstractTableModel, QDialogButtonBox, QFrame, QIcon, QLabel,
-    QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal, QDialog, QMenu, QCursor
+    QAbstractListModel, QAbstractTableModel, QCursor, QDialog, QDialogButtonBox, QFrame,
+    QIcon, QLabel, QMenu, QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal,
 )
 
 from calibre.customize.ui import (
     all_metadata_plugins, default_disabled_plugins, disable_plugin, enable_plugin,
-    is_disabled
+    is_disabled,
 )
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
+from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
 
@@ -331,9 +332,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
         self.select_default_button.clicked.connect(self.changed_signal)
         self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
-        self.tag_map_rules = self.author_map_rules = None
-        self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
-        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
+        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
+        m = QMenu(self)
+        m.addAction(_('Tags')).triggered.connect(self.change_tag_map_rules)
+        m.addAction(_('Authors')).triggered.connect(self.change_author_map_rules)
+        m.addAction(_('Publisher')).triggered.connect(self.change_publisher_map_rules)
+        self.map_rules_button.setMenu(m)
         l = self.page.layout()
         l.setStretch(0, 1)
         l.setStretch(1, 1)
@@ -373,16 +377,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         from calibre.gui2.tag_mapper import RulesDialog
         d = RulesDialog(self)
         if msprefs.get('tag_map_rules'):
-            d.rules = msprefs['tag_map_rules']
+            d.rules = list(msprefs['tag_map_rules'])
         if d.exec() == QDialog.DialogCode.Accepted:
             self.tag_map_rules = d.rules
+            self.changed_signal.emit()
+
+    def change_publisher_map_rules(self):
+        from calibre.gui2.publisher_mapper import RulesDialog
+        d = RulesDialog(self)
+        if msprefs.get('publisher_map_rules'):
+            d.rules = list(msprefs['publisher_map_rules'])
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.publisher_map_rules = d.rules
             self.changed_signal.emit()
 
     def change_author_map_rules(self):
         from calibre.gui2.author_mapper import RulesDialog
         d = RulesDialog(self)
         if msprefs.get('author_map_rules'):
-            d.rules = msprefs['author_map_rules']
+            d.rules = list(msprefs['author_map_rules'])
         if d.exec() == QDialog.DialogCode.Accepted:
             self.author_map_rules = d.rules
             self.changed_signal.emit()
@@ -392,7 +405,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sources_model.initialize()
         self.sources_view.resizeColumnsToContents()
         self.fields_model.initialize()
-        self.tag_map_rules = self.author_map_rules = None
+        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -407,6 +420,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             msprefs['tag_map_rules'] = self.tag_map_rules or []
         if self.author_map_rules is not None:
             msprefs['author_map_rules'] = self.author_map_rules or []
+        if self.publisher_map_rules is not None:
+            msprefs['publisher_map_rules'] = self.publisher_map_rules or []
         return ConfigWidgetBase.commit(self)
 
 

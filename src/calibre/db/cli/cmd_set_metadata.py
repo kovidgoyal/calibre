@@ -143,7 +143,7 @@ def main(opts, args, dbctx):
         opf = os.path.abspath(args[1])
         if not os.path.exists(opf):
             raise SystemExit(_('The OPF file %s does not exist') % opf)
-        with lopen(opf, 'rb') as stream:
+        with open(opf, 'rb') as stream:
             mi = get_metadata(stream)[0]
         if mi.cover:
             mi.cover = os.path.join(os.path.dirname(opf), os.path.relpath(mi.cover, os.getcwd()))

@@ -171,7 +171,7 @@ class OCFDirReader(OCFReader):
         super().__init__()
 
     def open(self, path):
-        return lopen(os.path.join(self.root, path), 'rb')
+        return open(os.path.join(self.root, path), 'rb')
 
     def read_bytes(self, path):
         with self.open(path) as f:
@@ -252,7 +252,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             raise Exception('no cover')
     except Exception:
         try:
-            with lopen(mi.cover, 'rb') as f:
+            with open(mi.cover, 'rb') as f:
                 new_cdata = f.read()
         except Exception:
             pass

@@ -4,17 +4,22 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import atexit, os, sys
-from math import ceil
-from unicodedata import normalize
-from threading import Thread, Lock
-from operator import itemgetter
+import atexit
+import os
+import sys
 from collections import OrderedDict
 from itertools import islice
+from math import ceil
+from operator import itemgetter
+from threading import Lock, Thread
+from unicodedata import normalize
 
-from calibre import detect_ncpus as cpu_count, as_unicode
+from calibre import as_unicode, detect_ncpus as cpu_count
 from calibre.constants import filesystem_encoding
-from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
+from calibre.utils.icu import (
+    lower as icu_lower, primary_collator, primary_find, primary_sort_key,
+    upper as icu_upper,
+)
 from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Queue
 
@@ -275,6 +280,7 @@ def test(return_tests=False):
         @unittest.skipIf(is_sanitized, 'Sanitizer enabled can\'t check for leaks')
         def test_mem_leaks(self):
             import gc
+
             from calibre.utils.mem import get_memory as memory
             m = Matcher(['a'], scorer=CScorer)
             m('a')

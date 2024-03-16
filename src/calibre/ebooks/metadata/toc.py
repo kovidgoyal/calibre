@@ -227,7 +227,7 @@ class TOC(list):
 
     def read_html_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        with lopen(toc, 'rb') as f:
+        with open(toc, 'rb') as f:
             parsed_toc = parse_html_toc(f.read())
         for href, fragment, txt in parsed_toc:
             add = True

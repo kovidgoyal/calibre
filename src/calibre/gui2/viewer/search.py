@@ -6,8 +6,8 @@ import regex
 from collections import Counter, OrderedDict
 from html import escape
 from qt.core import (
-    QAbstractItemView, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, Qt,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemView, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QMenu,
+    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Thread
 
@@ -15,10 +15,12 @@ from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
 from calibre.gui2 import warning_dialog
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.viewer import get_boss
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.utils.icu import primary_collator_without_punctuation
+from calibre.utils.localization import _, ngettext
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
@@ -143,6 +145,14 @@ class Search:
             word_pats = tuple(regex.compile(rf'\b{x}\b', flags) for x in words)
             self._nsd = word_pats, full_pat
         return self._nsd
+
+    @property
+    def is_empty(self):
+        if not self.text:
+            return True
+        if self.mode in ('normal', 'word') and not regex.sub(r'[\s\p{P}]+', '', self.text):
+            return True
+        return False
 
     def __str__(self):
         from collections import namedtuple
@@ -363,9 +373,12 @@ def search_in_name(name, search_query, ctx_size=75):
 
     else:
         spans = []
-        miter = lambda: spans
+
+        def miter():
+            return spans
         if raw:
-            a = lambda s, l: spans.append((s, s + l))
+            def a(s, l):
+                return spans.append((s, s + l))
             primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
     for (start, end) in miter():
@@ -493,6 +506,9 @@ class SearchInput(QWidget):  # {{{
             )
 
     def emit_search(self, backwards=False):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('the location of this search result')):
+            return
         vprefs[f'viewer-{self.panel_name}-case-sensitive'] = self.case_sensitive.isChecked()
         vprefs[f'viewer-{self.panel_name}-mode'] = self.query_type.currentData()
         sq = self.search_query(backwards)
@@ -530,6 +546,8 @@ class Results(QTreeWidget):  # {{{
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.setHeaderHidden(True)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delegate = ResultsDelegate(self)
@@ -545,6 +563,14 @@ class Results(QTreeWidget):  # {{{
         self.item_map = {}
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+
+    def show_context_menu(self, point):
+        self.context_menu = m = QMenu(self)
+        m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
+        m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
+        self.context_menu.popup(self.mapToGlobal(point))
+        return True
+
 
     def viewportEvent(self, ev):
         if hasattr(self, 'gesture_manager'):
@@ -610,6 +636,9 @@ class Results(QTreeWidget):  # {{{
         self.count_changed.emit(n)
 
     def item_activated(self):
+        boss = get_boss()
+        if boss.check_for_read_aloud(_('the location of this search result')):
+            return
         i = self.currentItem()
         if i:
             sr = i.data(0, SEARCH_RESULT_ROLE)
@@ -795,6 +824,7 @@ class SearchPanel(QWidget):  # {{{
                 self.results.ensure_current_result_visible()
             else:
                 self.show_no_results_found()
+            self.show_search_result.emit({'on_discovery': True, 'search_finished': True, 'result_num': -1})
             return
         self.results.add_result(result)
         obj = result.for_js

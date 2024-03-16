@@ -10,7 +10,7 @@ from calibre.gui2 import Application, elided_text
 from calibre.gui2.tag_mapper import (
     RuleEdit as RuleEditBase, RuleEditDialog as RuleEditDialogBase,
     RuleItem as RuleItemBase, Rules as RulesBase, RulesDialog as RulesDialogBase,
-    Tester as TesterBase
+    Tester as TesterBase,
 )
 from calibre.utils.config import JSONConfig
 
@@ -34,7 +34,7 @@ class RuleEdit(RuleEditBase):
         ('not_matches', _('does not match regex pattern')),
     ))
 
-    MSG = _('Create the rule below, the rule can be used to add or ignore files')
+    MSG = _('Create the rule below, the rule can be used to add or ignore authors')
     SUBJECT = _('the author, if the author name')
     VALUE_ERROR = _('You must provide a value for the author name to match')
     REPLACE_TEXT = _('with the name:')

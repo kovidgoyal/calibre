@@ -811,12 +811,13 @@ class HTMLConverter:
             for x, y in [('\xad', ''), ('\xa0', ' '), ('\ufb00', 'ff'), ('\ufb01', 'fi'), ('\ufb02', 'fl'), ('\ufb03', 'ffi'), ('\ufb04', 'ffl')]:
                 src = src.replace(x, y)
 
-            valigner = lambda x: x
+            def valigner(x):
+                return x
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
                     fp['fontsize'] = int(fp['fontsize']) * 5 // 3
-                    valigner = Sub if valign == 'sub' else Sup
+                    valigner = Sub if valign == 'sub' else Sup  # noqa
             normal_font_size = int(fp['fontsize'])
 
             if variant == 'small-caps':
@@ -938,7 +939,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt)  # Necessary, trust me ;-)
             try:
-                im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, encoding)
+                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt, encoding)
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
@@ -1808,7 +1809,7 @@ def process_file(path, options, logger):
                 cim.convert('RGB').save(cf.name)
                 options.cover = cf.name
 
-                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
+                tim = im.resize((int(0.75*th), th), PILImage.Resampling.LANCZOS).convert('RGB')
                 tf = PersistentTemporaryFile(prefix=__appname__+'_', suffix=".jpg")
                 tf.close()
                 tim.save(tf.name)

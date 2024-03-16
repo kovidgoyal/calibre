@@ -8,11 +8,11 @@
 #pragma once
 #define UNICODE
 #define PY_SSIZE_T_CLEAN
-#include <Windows.h>
+#include <windows.h>
 #include <atlbase.h>
 #include <Python.h>
 
-#include <Objbase.h>
+#include <objbase.h>
 #include <PortableDeviceApi.h>
 #include <PortableDevice.h>
 #include "../../../utils/windows/common.h"

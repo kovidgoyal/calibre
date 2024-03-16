@@ -6,18 +6,19 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 from collections import defaultdict
+from css_parser.css import CSSRule, CSSStyleDeclaration
 from functools import partial
 from operator import itemgetter
 
-from css_parser.css import CSSRule, CSSStyleDeclaration
-from css_selectors import parse, SelectorSyntaxError
-
 from calibre import force_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XHTML, css_text
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
-from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
-from calibre.utils.icu import numeric_sort_key
-from css_selectors import Select, SelectorError
+from calibre.ebooks.oeb.polish.pretty import (
+    pretty_script_or_style, pretty_xml_tree, serialize,
+)
+from calibre.utils.icu import lower as icu_lower, numeric_sort_key
+from calibre.utils.localization import ngettext
+from css_selectors import Select, SelectorError, SelectorSyntaxError, parse
 from polyglot.builtins import iteritems, itervalues
 from polyglot.functools import lru_cache
 

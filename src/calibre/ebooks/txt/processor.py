@@ -227,7 +227,7 @@ def opf_writer(path, opf_name, manifest, spine, mi):
     opf = OPFCreator(path, mi)
     opf.create_manifest(manifest)
     opf.create_spine(spine)
-    with lopen(os.path.join(path, opf_name), 'wb') as opffile:
+    with open(os.path.join(path, opf_name), 'wb') as opffile:
         opf.render(opffile)
 
 

@@ -2,19 +2,29 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
+import errno
+import hashlib
+import json
+import os
+import shutil
+import struct
+import sys
+import tempfile
+import time
+import uuid
 from collections import Counter
 
 from calibre import prints
-from calibre.constants import config_dir, iswindows, filesystem_encoding
-from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
+from calibre.constants import config_dir, filesystem_encoding, iswindows
 from calibre.utils.config import JSONConfig
+from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, error_message
+from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode
-
+from polyglot.builtins import error_message, iteritems
 
 # Export {{{
+
 
 def send_file(from_obj, to_obj, chunksize=1<<20):
     m = hashlib.sha1()
@@ -139,13 +149,13 @@ class Exporter:
                 rpath = os.path.relpath(fpath, path).replace(os.sep, '/')
                 key = f'{pkey}:{rpath}'
                 try:
-                    with lopen(fpath, 'rb') as f:
+                    with open(fpath, 'rb') as f:
                         self.add_file(f, key)
                 except OSError:
                     if not iswindows:
                         raise
                     time.sleep(1)
-                    with lopen(fpath, 'rb') as f:
+                    with open(fpath, 'rb') as f:
                         self.add_file(f, key)
                 files.append((key, rpath))
 
@@ -169,8 +179,8 @@ def all_known_libraries():
 
 
 def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
-    from calibre.db.cache import Cache
     from calibre.db.backend import DB
+    from calibre.db.cache import Cache
     if library_paths is None:
         library_paths = all_known_libraries()
     dbmap = dbmap or {}
@@ -212,10 +222,24 @@ class FileSource:
 
     def __init__(self, f, size, digest, description, mtime, importer):
         self.f, self.size, self.digest, self.description = f, size, digest, description
+        self.seekable = self.f.seekable
         self.mtime = mtime
-        self.end = f.tell() + size
+        self.start = f.tell()
+        self.end = self.start + size
         self.hasher = hashlib.sha1()
         self.importer = importer
+        self.check_hash = True
+
+    def seek(self, amt, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            return self.f.seek(self.start + amt, os.SEEK_SET)
+        if whence == os.SEEK_END:
+            return self.f.seek(self.end + amt, os.SEEK_SET)
+        if whence == os.SEEK_CUR:
+            return self.f.seek(amt, whence)
+
+    def tell(self):
+        return self.f.tell() - self.start
 
     def read(self, size=None):
         if size is not None and size < 1:
@@ -225,12 +249,14 @@ class FileSource:
         if amt < 1:
             return b''
         ans = self.f.read(amt)
-        self.hasher.update(ans)
+        if self.check_hash:
+            self.hasher.update(ans)
         return ans
 
     def close(self):
-        if self.hasher.hexdigest() != self.digest:
+        if self.check_hash and self.hasher.hexdigest() != self.digest:
             self.importer.corrupted_files.append(self.description)
+        self.f.close()
         self.hasher = self.f = None
 
 
@@ -274,7 +300,7 @@ class Importer:
             self.file_metadata = self.metadata['file_metadata']
 
     def part(self, num):
-        return lopen(self.part_map[num], 'rb')
+        return open(self.part_map[num], 'rb')
 
     def start_file(self, key, description):
         partnum, pos, size, digest, mtime = self.file_metadata[key]
@@ -287,16 +313,16 @@ class Importer:
             f = self.start_file(key, relpath)
             path = os.path.join(base_dir, relpath.replace('/', os.sep))
             try:
-                with lopen(path, 'wb') as dest:
+                with open(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
             except OSError:
                 os.makedirs(os.path.dirname(path))
-                with lopen(path, 'wb') as dest:
+                with open(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
             f.close()
         gpath = os.path.join(base_dir, 'global.py')
         try:
-            with lopen(gpath, 'rb') as f:
+            with open(gpath, 'rb') as f:
                 raw = f.read()
         except OSError:
             raw = b''
@@ -310,7 +336,7 @@ class Importer:
         raw = c.src
         if not isinstance(raw, bytes):
             raw = raw.encode('utf-8')
-        with lopen(gpath, 'wb') as f:
+        with open(gpath, 'wb') as f:
             f.write(raw)
         gprefs = JSONConfig('gui', base_path=base_dir)
         gprefs['library_usage_stats'] = dict(library_usage_stats)

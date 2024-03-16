@@ -8,6 +8,7 @@ import ssl, socket, re
 from contextlib import closing
 
 from calibre import get_proxies
+from calibre.utils.resources import get_path as P
 from polyglot import http_client
 from polyglot.urllib import urlsplit
 has_ssl_verify = hasattr(ssl, 'create_default_context') and hasattr(ssl, '_create_unverified_context')

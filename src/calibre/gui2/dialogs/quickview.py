@@ -15,7 +15,7 @@ from qt.core import (
     QShortcut, QTimer, QStyle)
 
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key
@@ -152,13 +152,12 @@ class Quickview(QDialog, Ui_Quickview):
     tab_pressed_signal       = pyqtSignal(object, object)
     quickview_closed         = pyqtSignal()
 
-    def __init__(self, gui, row, toggle_shortcut):
+    def __init__(self, gui, row, toggle_shortcut, focus_booklist_shortcut=None):
         self.is_pane = gprefs.get('quickview_is_pane', False)
-
         if not self.is_pane:
-            QDialog.__init__(self, gui, flags=Qt.WindowType.Widget)
+            QDialog.__init__(self, None, flags=Qt.WindowType.Window)
         else:
-            QDialog.__init__(self, gui)
+            QDialog.__init__(self, None, flags=Qt.WindowType.Dialog)
         Ui_Quickview.__init__(self)
         self.setupUi(self)
         self.isClosed = False
@@ -270,7 +269,7 @@ class Quickview(QDialog, Ui_Quickview):
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.refresh_button.setText(_('Refresh'))
-            self.gui.quickview_splitter.add_quickview_dialog(self)
+            self.gui.layout_container.set_widget('quick_view', self)
             self.close_button.setVisible(False)
         else:
             self.dock_button.setToolTip(_('Embed the Quickview panel into the main calibre window'))
@@ -287,6 +286,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.view_icon = QIcon.ic('view.png')
         self.view_plugin = self.gui.iactions['View']
+        self.show_details_plugin = self.gui.iactions['Show Book Details']
         self.edit_metadata_icon = QIcon.ic('edit_input.png')
         self.quickview_icon = QIcon.ic('quickview.png')
         self.select_book_icon = QIcon.ic('library.png')
@@ -296,14 +296,24 @@ class Quickview(QDialog, Ui_Quickview):
 
         # Add the quickview toggle as a shortcut for the close button
         # Don't add it if it identical to the current &X shortcut because that
-        # breaks &X
-        if (not self.is_pane and toggle_shortcut and
-                             self.close_button.shortcut() != toggle_shortcut):
-            toggle_sc = QShortcut(toggle_shortcut, self.close_button)
-            toggle_sc.activated.connect(lambda: self.close_button_clicked())
-            toggle_sc.setEnabled(True)
-            self.close_button.setToolTip(_('Alternate shortcut: ') +
-                                         toggle_shortcut.toString())
+        # breaks &X. Also add the focus booklist shortcut
+        if not self.is_pane:
+            if toggle_shortcut and self.close_button.shortcut() != toggle_shortcut:
+                toggle_sc = QShortcut(toggle_shortcut, self.close_button)
+                toggle_sc.activated.connect(lambda: self.close_button_clicked())
+                toggle_sc.setEnabled(True)
+                self.close_button.setToolTip(_('Alternate shortcut: ') +
+                                             toggle_shortcut.toString())
+            if focus_booklist_shortcut is not None:
+                toggle_sc = QShortcut(focus_booklist_shortcut, self)
+                toggle_sc.activated.connect(self.focus_booklist)
+                toggle_sc.setEnabled(True)
+
+    def focus_booklist(self):
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        gui.activateWindow()
+        gui.focus_current_view()
 
     def delayed_slave(self, current, func=None, dex=None):
         self.slave_timers[dex].stop()
@@ -314,7 +324,7 @@ class Quickview(QDialog, Ui_Quickview):
         t.start()
 
     def item_doubleclicked(self, item):
-        tb = self.gui.stack.tb_widget
+        tb = self.gui.tb_widget
         tb.set_focus_to_find_box()
         tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
         tb.do_find()
@@ -342,6 +352,8 @@ class Quickview(QDialog, Ui_Quickview):
         a = m.addAction(self.select_book_icon, _('Select this book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
+        m.addAction(_('Open a locked Book details window for this book'),
+                    partial(self.show_book_details, book_id))
         m.addAction(self.search_icon, _('Find item in the library'),
                         partial(self.do_search, follow_library_view=False))
         a = m.addAction(self.edit_metadata_icon, _('Edit metadata'),
@@ -349,8 +361,10 @@ class Quickview(QDialog, Ui_Quickview):
         a.setEnabled(book_displayed)
         a = m.addAction(self.quickview_icon, _('Quickview this cell'),
                         partial(self.quickview_item, row, column))
-        a.setEnabled(self.is_category(self.column_order[column]) and
-                     book_displayed and not self.lock_qv.isChecked())
+        key = self.column_order[column]
+        a.setEnabled(self.is_category(key) and book_displayed and
+                     key in self.view.visible_columns and
+                     not self.lock_qv.isChecked())
         m.addSeparator()
         m.addAction(self.view_icon, _('Open book in the E-book viewer'),
                         partial(self.view_plugin._view_calibre_books, [book_id]))
@@ -442,7 +456,7 @@ class Quickview(QDialog, Ui_Quickview):
     def show(self):
         QDialog.show(self)
         if self.is_pane:
-            self.gui.quickview_splitter.show_quickview_widget()
+            self.gui.show_panel('quick_view')
 
     def show_as_pane_changed(self):
         gprefs['quickview_is_pane'] = not gprefs.get('quickview_is_pane', False)
@@ -518,9 +532,11 @@ class Quickview(QDialog, Ui_Quickview):
             self.indicate_no_items()
 
     def is_category(self, key):
-        return key is not None and (self.fm[key]['is_category'] or
+        return key is not None and (
+                     self.fm[key]['table'] is not None and
+                     (self.fm[key]['is_category'] or
                                     (self.fm[key]['datatype'] == 'composite' and
-                                     self.fm[key]['display'].get('make_category', False)))
+                                     self.fm[key]['display'].get('make_category', False))))
 
     def _refresh(self, book_id, key):
         '''
@@ -542,10 +558,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setRowCount(0)
 
         mi = self.db.new_api.get_proxy_metadata(book_id)
-        vals = mi.get(key, None)
-        if self.fm[key]['datatype'] == 'composite' and self.fm[key]['is_multiple']:
-            sep = self.fm[key]['is_multiple'].get('cache_to_list', ',')
-            vals = [v.strip() for v in vals.split(sep) if v.strip()]
+        vals = self.db.new_api.split_if_is_multiple_composite(key, mi.get(key, None))
         try:
             # Check if we are in the GridView and there are no values for the
             # selected column. In this case switch the column to 'authors'
@@ -694,10 +707,6 @@ class Quickview(QDialog, Ui_Quickview):
     def resizeEvent(self, *args):
         QDialog.resizeEvent(self, *args)
 
-        # Do this if we are resizing for the first time to reset state.
-        if self.is_pane and self.height() == 0:
-            self.gui.quickview_splitter.set_sizes()
-
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):
                 self.books_table.setColumnWidth(c, w)
@@ -722,7 +731,6 @@ class Quickview(QDialog, Ui_Quickview):
             self.select_book_and_qv(row, self.key_to_table_widget_column(self.current_key))
 
     def book_not_in_view_error(self):
-        from calibre.gui2 import error_dialog
         error_dialog(self, _('Quickview: Book not in library view'),
                      _('The book you selected is not currently displayed in '
                        'the library view, perhaps because of a search or a '
@@ -749,6 +757,7 @@ class Quickview(QDialog, Ui_Quickview):
             else:
                 self.quickview_item(row, self.key_to_table_widget_column(self.current_key))
         except:
+            traceback.print_exc()
             self.book_not_in_view_error()
 
     def edit_metadata(self, book_id, follow_library_view=True):
@@ -760,6 +769,12 @@ class Quickview(QDialog, Ui_Quickview):
                 em.actual_plugin_.edit_metadata(None)
         finally:
             self.follow_library_view = True
+
+    def show_book_details(self, book_id):
+        try:
+            self.show_details_plugin.show_book_info(book_id=book_id, locked=True)
+        finally:
+            pass
 
     def select_book(self, book_id):
         '''
@@ -788,6 +803,13 @@ class Quickview(QDialog, Ui_Quickview):
         if QApplication.keyboardModifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier):
             self.edit_metadata(book_id)
         else:
+            if key not in self.view.visible_columns:
+                error_dialog(self, _("Quickview: Column cannot be selected"),
+                     _("The column you double-clicked, '{}', is not shown in the "
+                       "library view. The book/column cannot be selected by Quickview.").format(key),
+                     show=True,
+                     show_copy_button=False)
+                return
             self.view.select_cell(self.db.data.id_to_index(book_id),
                                   self.view.column_map.index(key))
 
@@ -841,9 +863,10 @@ class Quickview(QDialog, Ui_Quickview):
             self._reject()
 
     def _reject(self):
+        gui = self.gui
         if self.is_pane:
-            self.gui.quickview_splitter.hide_quickview_widget()
-        self.gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
+            gui.hide_panel('quick_view')
+        gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)
 

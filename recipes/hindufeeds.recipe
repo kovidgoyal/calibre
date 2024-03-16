@@ -1,0 +1,86 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import date
+
+class TheHindufeeds(BasicNewsRecipe):
+    title = 'The Hindu (Feeds)'
+    __author__ = 'unkn0wn'
+    description = 'The Hindu, based on RSS feeds.'
+    language = 'en_IN'
+    no_stylesheets = True
+    masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
+    remove_attributes = ['style', 'height', 'width']
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    max_articles_per_feed = 25
+    oldest_article = 1.15  # days
+
+    extra_css = '''
+        .caption {font-size:small; text-align:center;}
+        .author, .dateLine, .publish-time {font-size:small; font-weight:bold;}
+        .subhead, .subhead_lead, .bold {font-weight:bold;}
+        img {display:block; margin:0 auto;}
+        .italic {font-style:italic; color:#202020;}
+    '''
+
+    ignore_duplicate_articles = {'url'}
+
+    keep_only_tags = [
+        classes('article-section')
+    ]
+
+    remove_tags = [
+        dict(name='button'),
+        dict(attrs={'target':'_self'}),
+        classes(
+            'hide-mobile comments-shares share-page editiondetails breadcrumb'
+            ' related-topics related-stories also-read premium-label'
+        )
+    ]
+
+    def preprocess_html(self, soup):
+        for cap in soup.findAll('p', attrs={'class':'caption'}):
+            cap.name = 'figcaption'
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            if img['data-original'].endswith('1x1_spacer.png'):
+                source = img.findPrevious('source', srcset=True)
+                img.extract()
+                if source:
+                    source['src'] = source['srcset'].replace('_320','_1200')
+                    source.name = 'img'
+            else:
+                img['src'] = img['data-original']
+        for img in soup.findAll('img', attrs={'data-src-template':True}):
+            img['src'] = img['data-src-template']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for src in soup.findAll('source'):
+            src.extract()
+        return soup
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'The Hindu (Feeds) ' + date.today().strftime('%b %d, %Y')
+           
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')  
+        if cover := soup.find(attrs={'class':'hindu-ad'}):
+            return cover.img['src']
+
+    # https://www.thehindu.com/rssfeeds/
+    feeds = [
+        ('India', 'https://www.thehindu.com/news/national/feeder/default.rss'),
+        ('States', 'https://www.thehindu.com/news/states/feeder/default.rss'),
+        # ('Cities', 'https://www.thehindu.com/news/cities/feeder/default.rss'),
+        ('Opinion', 'https://www.thehindu.com/opinion/feeder/default.rss'),
+        ('Business', 'https://www.thehindu.com/business/feeder/default.rss'),
+        ('World', 'https://www.thehindu.com/news/international/feeder/default.rss'),
+        # ('Sport', 'https://www.thehindu.com/sport/feeder/default.rss'),
+        ('Entertainment', 'https://www.thehindu.com/entertainment/feeder/default.rss'),
+        # ('Crossword', 'https://crossword.thehindu.com/?utm_source=thehindu&utm_medium=mainmenufeeder/default.rss'),
+        ('Science', 'https://www.thehindu.com/sci-tech/science/feeder/default.rss'),
+        ('Life and Style', 'https://www.thehindu.com/life-and-style/feeder/default.rss'),
+        ('thRead', 'https://www.thehindu.com/thread/feeder/default.rss')
+    ]

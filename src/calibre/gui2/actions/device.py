@@ -5,24 +5,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QIcon, QMenu, QTimer, QToolButton, pyqtSignal, QUrl
+from qt.core import QIcon, QMenu, QTimer, QToolButton, QUrl, pyqtSignal
 
-from calibre.gui2 import info_dialog, question_dialog, open_url
+from calibre.gui2 import info_dialog, open_url, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
+from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.smtp import config as email_config
 
 
 def local_url_for_content_server():
     from calibre.srv.opts import server_config
+    from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
+
     opts = server_config()
-    interface = opts.listen_on or '0.0.0.0'
-    interface = {'0.0.0.0': '127.0.0.1', '::':'::1'}.get(interface)
+    addr = opts.listen_on or get_fallback_server_addr()
+    addr = {'0.0.0.0': '127.0.0.1', '::': '::1'}.get(addr, addr)
     protocol = 'https' if opts.ssl_certfile and opts.ssl_keyfile else 'http'
     prefix = opts.url_prefix or ''
     port = opts.port
-    return f'{protocol}://{interface}:{port}{prefix}'
+    return f'{protocol}://{format_addr_for_url(addr)}:{port}{prefix}'
 
 
 def open_in_browser():
@@ -80,12 +83,12 @@ class ShareConnMenu(QMenu):  # {{{
             r(prefix + ' open server in browser', self.open_server_in_browser_action.text(), action=self.open_server_in_browser_action, group=gr)
 
     def server_state_changed(self, running):
-        from calibre.utils.mdns import get_external_ip, verify_ipV4_address
+        from calibre.utils.mdns import get_external_ip, verify_ip_address
         text = _('Start Content server')
         if running:
             from calibre.srv.opts import server_config
             opts = server_config()
-            listen_on = verify_ipV4_address(opts.listen_on) or get_external_ip()
+            listen_on = verify_ip_address(opts.listen_on) or get_external_ip()
             protocol = 'HTTPS' if opts.ssl_certfile and opts.ssl_keyfile else 'HTTP'
             try:
                 ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(

@@ -9,6 +9,7 @@ from functools import partial
 
 from qt.core import QIcon, Qt
 
+from calibre.customize.ui import preferences_plugins
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
 from calibre.gui2 import error_dialog, show_restart_warning
@@ -41,6 +42,29 @@ class PreferencesAction(InterfaceAction):
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
             x.triggered.connect(self.do_config)
+
+    def initialization_complete(self):
+        # Add the individual preferences to the menu.
+        # First, sort them into the same order as shown in the preferences dialog
+        plugins = sorted([p for p in preferences_plugins()],
+                         key=lambda p: p.category_order * 100 + p.name_order)
+
+        pm = self.preferences_menu
+        # The space pushes the separator a bit away from the text
+        pm.addSection(_('Sections') + ' ')
+
+        config_icon = QIcon.ic('config.png')
+        current_cat = 0
+        for p in plugins:
+            if p.category_order != current_cat:
+                current_cat = p.category_order
+                cm = pm.addMenu(p.gui_category.replace('&', '&&'))
+                cm.setIcon(config_icon)
+            self.create_menu_action(cm, p.name, p.gui_name.replace('&', '&&'),
+                                    icon=QIcon.ic(p.icon), shortcut=None, shortcut_name=p.gui_name,
+                                    triggered=partial(self.do_config, initial_plugin=(p.category, p.name),
+                                                      close_after_initial=True))
+
 
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,

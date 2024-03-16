@@ -1,0 +1,89 @@
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.ptempfile import PersistentTemporaryFile
+
+class IrishTimes(BasicNewsRecipe):
+    title          = 'The Irish Times (free)'
+    __author__    = 'unkn0wn'
+    description = 'Daily news from The Irish Times'
+    language = 'en_IE'
+
+    masthead_url = 'http://www.irishtimes.com/assets/images/generic/website/logo_theirishtimes.png'
+
+    encoding = 'utf-8'
+    max_articles_per_feed = 50
+    remove_empty_feeds = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+        classes('custom-headline custom-subheadline lead-art-wrapper article-body-wrapper byline-text'),
+    ]
+    remove_tags = [
+        dict(name=['button', 'svg']),
+        classes('sm-promo-headline top-table-list-container single-divider interstitial-link'),
+    ]
+
+    remove_attributes = ['width', 'height']
+    ignore_duplicate_articles = {'title'}
+    resolve_internal_links  = True
+    articles_are_obfuscated = True
+
+    def get_cover_url(self):
+        from datetime import date
+        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/ie/irish_times.750.jpg'
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
+        try:
+            br.open(cover)
+        except:
+            index = 'https://en.kiosko.net/ie/np/irish_times.html'
+            soup = self.index_to_soup(index)
+            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
+                if image['src'].startswith('/'):
+                    return 'https:' + image['src']
+                return image['src']
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/', '/podcast'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Found', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        if self.output_profile.short_name.startswith('kindle'):
+            # Reduce image sizes to get file size below amazon's email
+            # sending threshold
+            self.web2disk_options.compress_news_images = True
+            self.web2disk_options.compress_news_images_auto_size = 5
+            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+
+    feeds = []
+
+    sections = [
+        'ireland', 'world', 'opinion', 'politics', 'crime-law', 'culture', 'business', 
+        'life-style', 'health', 'sport', 'property', 'food', 'abroad', 'environment', 
+        'obituaries'
+    ]
+
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:irishtimes.com{}&hl=en-IE&gl=IE&ceid=IE:en'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    feeds.append(('Others', a.format('')))

@@ -1,11 +1,6 @@
 #!/usr/bin/env  python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-try:
-    from http.cookiejar import Cookie
-except ImportError:
-    from cookielib import Cookie
-
 import json
 from html5_parser import parse
 from lxml import etree
@@ -126,6 +121,7 @@ class Economist(BasicNewsRecipe):
     title = 'The Economist'
     language = 'en'
     encoding = 'utf-8'
+    masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
     __author__ = "Kovid Goyal"
     description = (
@@ -156,6 +152,7 @@ class Economist(BasicNewsRecipe):
             font-size: smaller;
             color: red;
         }
+        img {display:block; margin:0 auto;}
         '''
     oldest_article = 7.0
     resolve_internal_links = True
@@ -198,36 +195,20 @@ class Economist(BasicNewsRecipe):
             self.web2disk_options.compress_news_images_auto_size = 5
             self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        # Add a cookie indicating we have accepted Economist's cookie
-        # policy (needed when running from some European countries)
-        ck = Cookie(
-            version=0,
-            name='notice_preferences',
-            value='2:',
-            port=None,
-            port_specified=False,
-            domain='.economist.com',
-            domain_specified=False,
-            domain_initial_dot=True,
-            path='/',
-            path_specified=False,
-            secure=False,
-            expires=None,
-            discard=False,
-            comment=None,
-            comment_url=None,
-            rest={'HttpOnly': None},
-            rfc2109=False
-        )
-        br.cookiejar.set_cookie(ck)
-        br.set_handle_gzip(True)
+    def get_browser(self, *args, **kwargs):
+        # Needed to bypass cloudflare
+        kwargs['user_agent'] = 'common_words/based'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
         return br
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root = parse(raw)
+        if '/interactive/' in url:
+            return '<html><body><article><h1 class="headline">' + root.xpath('//h1')[0].text + '</h1><em>' \
+                        + 'This article is supposed to be read in a browser' \
+                            + '</em></article></body></html>'
         script = root.xpath('//script[@id="__NEXT_DATA__"]')
         if script:
             try:
@@ -251,6 +232,11 @@ class Economist(BasicNewsRecipe):
                 x.text = x.text.upper()
                 x.tag = 'span'
                 x.set('style', 'font-variant: small-caps')
+        for x in root.xpath('//figcaption'):
+            x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
@@ -269,6 +255,7 @@ class Economist(BasicNewsRecipe):
             self.timefmt = ' [' + edition_date + ']'
         else:
             url = 'https://www.economist.com/printedition'
+        # raw = open('/t/raw.html').read()
         raw = self.index_to_soup(url, raw=True)
         # with open('/t/raw.html', 'wb') as f:
         #     f.write(raw)
@@ -293,18 +280,21 @@ class Economist(BasicNewsRecipe):
         script_tag = soup.find("script", id="__NEXT_DATA__")
         if script_tag is not None:
             data = json.loads(script_tag.string)
+            # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+            # self.title = 'The Economist | ' + safe_dict(data, "props", "pageProps", "content", "image", "main", "headline")
+            self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "datePublishedString") + ']'
             self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical")
             self.log('Got cover:', self.cover_url)
 
             feeds_dict = defaultdict(list)
             for part in safe_dict(data, "props", "pageProps", "content", "hasPart", "parts"):
                 section = safe_dict(part, "print", "section", "headline") or ''
-                title = safe_dict(part, "print", "headline") or ''
+                title = safe_dict(part, "headline") or ''
                 url = safe_dict(part, "url", "canonical") or ''
                 if not section or not title or not url:
                     continue
-                desc = safe_dict(part, "print", "description") or ''
-                sub = safe_dict(part, "print", "subheadline") or ''
+                desc = safe_dict(part, "description") or ''
+                sub = safe_dict(part, "subheadline") or ''
                 if sub and section != sub:
                     desc = sub + ' :: ' + desc
                 feeds_dict[section].append({"title": title, "url": url, "description": desc})

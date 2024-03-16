@@ -119,7 +119,7 @@ def read_credentials(opts):
             from getpass import getpass
             pw = getpass(_('Enter the password: '))
         elif pw.startswith('<f:') and pw.endswith('>'):
-            with lopen(pw[3:-1], 'rb') as f:
+            with open(pw[3:-1], 'rb') as f:
                 pw = f.read().decode('utf-8').rstrip()
     return username, pw
 
@@ -173,7 +173,7 @@ class DBCtx:
 
     def path(self, path):
         if self.is_remote:
-            with lopen(path, 'rb') as f:
+            with open(path, 'rb') as f:
                 return path, f.read()
         return path
 

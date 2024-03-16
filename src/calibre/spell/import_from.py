@@ -8,9 +8,11 @@ import sys, glob, os, tempfile, re, codecs
 
 from lxml import etree
 
+from calibre import browser
 from calibre.constants import config_dir
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 NS_MAP = {
@@ -19,8 +21,13 @@ NS_MAP = {
     'manifest': 'http://openoffice.org/2001/manifest',
 }
 
-XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
+
+def XPath(x):
+    return etree.XPath(x, namespaces=NS_MAP)
+
+
 BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
+ONLINE_DICTIONARY_BASE_URL = 'https://raw.githubusercontent.com/LibreOffice/dictionaries/master/'
 
 
 def parse_xcu(raw, origin='%origin%'):
@@ -38,6 +45,8 @@ def parse_xcu(raw, origin='%origin%'):
             paths = [c.text.replace('%origin%', origin) for v in value for c in v.iterchildren('*') if c.text]
         aff, dic = paths if paths[0].endswith('.aff') else reversed(paths)
         locales = ''.join(XPath('descendant::prop[@oor:name="Locales"]/value/text()')(node)).split()
+        if not locales:
+            locales = [str(item) for item in XPath('descendant::prop[@oor:name="Locales"]/value/it/text()')(node)]
         ans[(dic, aff)] = locales
     return ans
 
@@ -103,14 +112,36 @@ def uniq(vals, kmap=lambda x:x):
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
 
-def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
+def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='dic-'):
     from calibre.spell.dictionary import parse_lang_code
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
     num = 0
-    with ZipFile(source_path) as zf:
 
+    root = safe_xml_fromstring(read_file_func('META-INF/manifest.xml'))
+    xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
+        '{%s}full-path' % NS_MAP['manifest'])
+    for (dic, aff), locales in iteritems(parse_xcu(read_file_func(xcu), origin='')):
+        dic, aff = dic.lstrip('/'), aff.lstrip('/')
+        d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
+        locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])
+        if not locales:
+            continue
+        metadata = [name] + list(locales)
+        with open(os.path.join(d, 'locales'), 'wb') as f:
+            f.write(('\n'.join(metadata)).encode('utf-8'))
+        dd, ad = convert_to_utf8(read_file_func(dic), read_file_func(aff))
+        with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
+            f.write(dd)
+        with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
+            f.write(ad)
+        num += 1
+    return num
+
+
+def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
+    with ZipFile(source_path) as zf:
         def read_file(key):
             try:
                 return zf.open(key).read()
@@ -123,25 +154,26 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
                     key = key[3:]
                 return zf.open(key.lstrip('/')).read()
 
-        root = safe_xml_fromstring(zf.open('META-INF/manifest.xml').read())
-        xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
-            '{%s}full-path' % NS_MAP['manifest'])
-        for (dic, aff), locales in iteritems(parse_xcu(zf.open(xcu).read(), origin='')):
-            dic, aff = dic.lstrip('/'), aff.lstrip('/')
-            d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
-            locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])
-            if not locales:
-                continue
-            metadata = [name] + list(locales)
-            with open(os.path.join(d, 'locales'), 'wb') as f:
-                f.write(('\n'.join(metadata)).encode('utf-8'))
-            dd, ad = convert_to_utf8(read_file(dic), read_file(aff))
-            with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
-                f.write(dd)
-            with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
-                f.write(ad)
-            num += 1
-    return num
+        return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
+
+
+def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
+    br = browser(timeout=30)
+    def read_file(key):
+        try:
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))
+            return rp.read()
+        except Exception as err:
+            if getattr(err, 'code', -1) != 404:
+                raise
+            # Some dictionaries apparently put the dic and aff file in a
+            # sub-directory dictionaries and incorrectly make paths relative
+            # to that directory instead of the root, for example:
+            # https://github.com/LibreOffice/dictionaries/tree/master/ca
+            rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, 'dictionaries', key)))
+            return rp.read()
+
+    return _import_from_virtual_directory(read_file, name, dest_dir=dest_dir, prefix=prefix)
 
 
 if __name__ == '__main__':

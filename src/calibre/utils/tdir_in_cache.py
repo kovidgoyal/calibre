@@ -40,7 +40,7 @@ else:
 
     def lock_tdir(path):
         lf = os.path.join(path, TDIR_LOCK)
-        f = lopen(lf, 'w')
+        f = open(lf, 'w')
         eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         return f
 
@@ -55,7 +55,7 @@ else:
 
     def is_tdir_locked(path):
         lf = os.path.join(path, TDIR_LOCK)
-        f = lopen(lf, 'w')
+        f = open(lf, 'w')
         try:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_UN)

@@ -6,6 +6,7 @@ import json
 import re
 from textwrap import dedent
 
+from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
 color_row_key = '*row'
@@ -262,8 +263,7 @@ def conditionable_columns(fm):
 def displayable_columns(fm):
     yield color_row_key
     for key in fm.displayable_field_keys():
-        if key not in ('sort', 'author_sort', 'comments', 'formats',
-                'identifiers', 'path'):
+        if key not in ('sort', 'author_sort', 'comments', 'identifiers',):
             yield key
 
 

@@ -1,0 +1,76 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.scraper.simple import read_url
+from calibre.ptempfile import PersistentTemporaryFile
+
+class projectsynd(BasicNewsRecipe):
+    title = 'Project Syndicate'
+    __author__ = 'unkn0wn'
+    description = (
+        'Project Syndicate produces and delivers original, high-quality commentaries to a global audience. '
+        'Featuring exclusive contributions by prominent political leaders, policymakers, scholars, business '
+        'leaders, and civic activists from around the world, we provide news media and their readers with cutting-edge '
+        'analysis and insight, regardless of ability to pay. Our membership includes over 500 media outlets – more '
+        'than half of which receive our commentaries for free or at subsidized rates – in 156 countries. '
+        'Download Weekly.'
+    )
+    language = 'en'
+    no_stylesheets = True
+    remove_javascript = True
+    masthead_url = 'https://www.project-syndicate.org/images/PS_Logotype.svg'
+    ignore_duplicate_articles = {'title', 'url'}
+    resolve_internal_links  = True
+    remove_empty_feeds = True
+    remove_attributes = ['style', 'height', 'width']
+    oldest_article = 7 # days
+    storage = []
+
+    articles_are_obfuscated = True
+    def get_obfuscated_article(self, url):
+        raw = read_url(self.storage, 'https://archive.is/latest/' + url)
+        pt = PersistentTemporaryFile('.html')
+        pt.write(raw.encode('utf-8'))
+        pt.close()
+        return pt.name
+
+    extra_css = '''
+        [itemprop^="associatedMedia"]{ font-size:small; text-align:center; }
+        [itemprop="author"], time { font-size:small; }
+        .sub, em { font-style:italic; color:#202020; }
+        [data-page-area="article-bottom"] { font-size:small; color:#202020; }
+    '''
+
+    keep_only_tags = [
+        dict(attrs={'itemprop':lambda x: x and 'associatedMedia' in x.split()}),
+        dict(attrs={'itemprop':['headline', 'datePublished', 'author', 'abstract', 'articleBody']}),
+        dict(name = 'aside', attrs={'data-page-area':'article-bottom'})
+    ]
+
+    remove_tags = [
+        dict(name=['button', 'svg']),
+        dict(attrs={'data-message-area':True}),
+        dict(attrs={'id':['editorspicks', 'movie_player']}),
+        dict(name='aside', attrs={'id':lambda x: x and x.startswith('comments-')})
+    ]
+
+    feeds = [
+        ('Economics & Finance', 'https://www.project-syndicate.org/rss/section/economics'),
+        ('Politics & World Affairs', 'https://www.project-syndicate.org/rss/section/politics-world-affairs'),
+        ('On-Point', 'https://www.project-syndicate.org/rss/onpoint'),
+        ('Sustainability Now', 'https://www.project-syndicate.org/rss/section/environment-sustainability'),
+        ('Smart Development', 'https://www.project-syndicate.org/rss/section/global-health-development'),
+        ('Culture & Society', 'https://www.project-syndicate.org/rss/section/culture-society'),
+        ('Innovation & Technology', 'https://www.project-syndicate.org/rss/section/innovation-technology'),
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'old-src':True}):
+            img['src'] = img['old-src'].replace('medium', 'xlarge')
+        if abst := soup.find(attrs={'itemprop':'abstract'}):
+            if div := abst.find('div'):
+                div.name = 'p'
+                div['class'] = 'sub'
+        for div in soup.findAll('div', attrs={'data-line-id':True}):
+            div.name = 'p'
+        for a in soup.findAll('a', href=True):
+            a['href'] = 'http' + a['href'].split('http')[-1]
+        return soup

@@ -22,9 +22,8 @@ class BonJour:  # {{{
         self.services = []
 
     def start(self, loop):
-        from calibre.utils.mdns import publish, unpublish, get_external_ip, verify_ipV4_address
+        from calibre.utils.mdns import publish, unpublish, verify_ip_address
         ip_address, port = loop.bound_address[:2]
-        self.zeroconf_ip_address = zipa = verify_ipV4_address(ip_address) or get_external_ip()
         prefix = loop.opts.url_prefix or ''
         mdns_services = (
             (self.service_name, self.service_type, port, {'path':prefix + self.path}),
@@ -34,8 +33,9 @@ class BonJour:  # {{{
         self.services = []
 
         for s in mdns_services:
-            self.services.append(publish(*s, use_ip_address=zipa, add_hostname=self.add_hostname))
-        loop.log(f'OPDS feeds advertised via BonJour at: {zipa} port: {port}')
+            si = publish(*s, add_hostname=self.add_hostname, use_ip_address=verify_ip_address(ip_address) or None)
+            self.services.append(si)
+            loop.log(f'OPDS feeds advertised via BonJour at: {", ".join(si.parsed_addresses())} port: {port}')
         self.advertised_port = port
         self.started.set()
 

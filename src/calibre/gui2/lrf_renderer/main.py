@@ -314,8 +314,7 @@ def main(args=sys.argv, logger=None):
         main.set_exception_handler()
         main.show()
         main.render()
-        main.activateWindow()
-        main.raise_()
+        main.raise_and_focus()
         return app.exec()
     return 0
 

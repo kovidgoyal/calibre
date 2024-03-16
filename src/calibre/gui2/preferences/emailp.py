@@ -4,12 +4,12 @@
 
 import re
 import textwrap
-
-from qt.core import QAbstractTableModel, QFont, Qt, QAbstractItemView
+from qt.core import QAbstractItemView, QAbstractTableModel, QFont, Qt
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.email_ui import Ui_Form
+from calibre.startup import connect_lambda
 from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.smtp import config as smtp_prefs
@@ -147,7 +147,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         elif col == 1:
             self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', as_unicode(value or '').upper()))
         elif col == 0:
-            na = as_unicode(value or '')
+            na = as_unicode(value or '').strip()
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
             if not addr or '@' not in na:

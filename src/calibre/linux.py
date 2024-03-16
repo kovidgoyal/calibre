@@ -3,17 +3,21 @@
 
 ''' Post installation script for linux '''
 
-import sys, os, textwrap, stat, errno
-from subprocess import check_call, check_output
+import errno
+import os
+import stat
+import sys
+import textwrap
 from functools import partial
+from subprocess import check_call, check_output
 
-from calibre import __appname__, prints, guess_type
-from calibre.constants import islinux, isbsd
+from calibre import CurrentDir, __appname__, guess_type, prints
+from calibre.constants import isbsd, islinux
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir
+from calibre.utils.localization import _
+from calibre.utils.resources import get_image_path as I, get_path as P
 from polyglot.builtins import iteritems
-
 
 entry_points = {
         'console_scripts': [
@@ -162,7 +166,7 @@ except NameError:
 sys.stdin = open('/dev/tty')
 
 if os.geteuid() != euid:
-    print ('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
+    print('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
     if raw_input('Proceed anyway? [y/n]:').lower() != 'y':
         raise SystemExit(1)
 
@@ -177,23 +181,23 @@ for f in {mime_resources!r}:
     file = os.path.join(dummy_mime_path, f)
     open(file, 'w').close()
     cmd = ['xdg-mime', 'uninstall', file]
-    print ('Removing mime resource:', f)
+    print('Removing mime resource:', f)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove mime resource', f)
+        print('WARNING: Failed to remove mime resource', f)
 
 for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (sys.argv[-1], frozen_path, dummy_mime_path):
     if not x or not os.path.exists(x):
         continue
-    print ('Removing', x)
+    print('Removing', x)
     try:
         if os.path.isdir(x):
             shutil.rmtree(x)
         else:
             os.unlink(x)
     except Exception as e:
-        print ('Failed to delete', x)
-        print ('\t', e)
+        print('Failed to delete', x)
+        print('\t', e)
 
 icr = {icon_resources!r}
 mimetype_icons = []
@@ -202,10 +206,10 @@ def remove_icon(context, name, size, update=False):
     cmd = ['xdg-icon-resource', 'uninstall', '--context', context, '--size', size, name]
     if not update:
         cmd.insert(2, '--noupdate')
-    print ('Removing icon:', name, 'from context:', context, 'at size:', size)
+    print('Removing icon:', name, 'from context:', context, 'at size:', size)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove icon', name)
+        print('WARNING: Failed to remove icon', name)
 
 for i, (context, name, size) in enumerate(icr):
     if context == 'mimetypes':
@@ -216,12 +220,12 @@ for i, (context, name, size) in enumerate(icr):
 mr = {menu_resources!r}
 for f in mr:
     cmd = ['xdg-desktop-menu', 'uninstall', f]
-    print ('Removing desktop file:', f)
+    print('Removing desktop file:', f)
     ret = subprocess.call(cmd, shell=False)
     if ret != 0:
-        print ('WARNING: Failed to remove menu item', f)
+        print('WARNING: Failed to remove menu item', f)
 
-print ()
+print()
 
 if mimetype_icons and raw_input('Remove the e-book format icons? [y/n]:').lower() in ['', 'y']:
     for i, (name, size) in enumerate(mimetype_icons):
@@ -322,11 +326,11 @@ class ZshCompleter:  # {{{
         self.commands[name] = txt
 
     def do_ebook_convert(self, f):
-        from calibre.ebooks.conversion.plumber import supported_input_formats
-        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
         from calibre.customize.ui import available_output_formats
         from calibre.ebooks.conversion.cli import create_option_parser, group_titles
+        from calibre.ebooks.conversion.plumber import supported_input_formats
         from calibre.utils.logging import DevNull
+        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
         input_fmts = set(supported_input_formats())
         output_fmts = set(available_output_formats())
         iexts = {x.upper() for x in input_fmts}.union(input_fmts)
@@ -417,8 +421,8 @@ class ZshCompleter:  # {{{
         w('\n}\n')
 
     def do_ebook_edit(self, f):
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.gui2.tweak_book.main import option_parser
         tweakable_fmts = SUPPORTED | IMPORTABLE
         parser = option_parser()
@@ -468,8 +472,8 @@ _ebook_edit() {{
 '''.format(opt_lines, '|'.join(tweakable_fmts)) + '\n\n')
 
     def do_calibredb(self, f):
-        from calibre.db.cli.main import COMMANDS, option_parser_for
         from calibre.customize.ui import available_catalog_formats
+        from calibre.db.cli.main import COMMANDS, option_parser_for
         parsers, descs = {}, {}
         for command in COMMANDS:
             p = option_parser_for(command)()
@@ -568,20 +572,22 @@ def get_bash_completion_path(root, share, info):
 
 
 def write_completion(self, bash_comp_dest, zsh):
-    from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
-    from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
-    from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-    from calibre.gui2.viewer.main import option_parser as viewer_op
-    from calibre.gui2.tweak_book.main import option_parser as tweak_op
-    from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
-    from calibre.gui2.main import option_parser as guiop
-    from calibre.utils.smtp import option_parser as smtp_op
-    from calibre.srv.standalone import create_option_parser as serv_op
-    from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
-    from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+    from calibre.customize.ui import available_input_formats
     from calibre.debug import option_parser as debug_op
     from calibre.ebooks import BOOK_EXTENSIONS
-    from calibre.customize.ui import available_input_formats
+    from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
+    from calibre.ebooks.metadata.cli import (
+        filetypes as meta_filetypes, option_parser as metaop,
+    )
+    from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
+    from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+    from calibre.ebooks.oeb.polish.main import SUPPORTED, option_parser as polish_op
+    from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
+    from calibre.gui2.main import option_parser as guiop
+    from calibre.gui2.tweak_book.main import option_parser as tweak_op
+    from calibre.gui2.viewer.main import option_parser as viewer_op
+    from calibre.srv.standalone import create_option_parser as serv_op
+    from calibre.utils.smtp import option_parser as smtp_op
     input_formats = sorted(all_input_formats())
     tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
 
@@ -917,8 +923,8 @@ class PostInstall:
                 line += extra + ';'
             f.write(line.encode('utf-8') + b'\n')
 
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
         with open('calibre-lrfviewer.desktop', 'wb') as f:
             f.write(VIEWER.encode('utf-8'))
         with open('calibre-ebook-viewer.desktop', 'wb') as f:
@@ -1136,7 +1142,8 @@ X-GNOME-UsesNotifications=true
 
 
 def get_appdata():
-    _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
+    def _(x):
+        return x  # Make sure the text below is not translated, but is marked for translation
     return {
         'calibre-gui': {
             'name':'calibre',
@@ -1207,8 +1214,8 @@ def changelog_bullet_to_text(bullet):
 
 
 def make_appdata_releases():
-    from lxml.builder import E
     import json
+    from lxml.builder import E
     changelog = json.loads(P('changelog.json', data=True))
 
     releases = E.releases()
@@ -1216,7 +1223,7 @@ def make_appdata_releases():
         # Formatting of release description tries to resemble that of
         # https://calibre-ebook.com/whats-new while taking into account the limits imposed by
         # https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-description
-        description = E.description(**{'{http://www.w3.org/XML/1998/namespace}lang': 'en'})
+        description = E.description()
         if 'new features' in revision:
             description.append(E.p('New features:'))
             description.append(E.ol(
@@ -1246,8 +1253,8 @@ def make_appdata_releases():
 
 
 def write_appdata(key, entry, base, translators):
-    from lxml.etree import tostring
     from lxml.builder import E
+    from lxml.etree import tostring
     fpath = os.path.join(base, '%s.metainfo.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
@@ -1267,6 +1274,7 @@ def write_appdata(key, entry, base, translators):
         E.name(entry['name']),
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
+        E.developer(E.name('Kovid Goyal'), id='kovidgoyal.net'),
         E.summary(entry['summary']),
         E.content_rating(
             # Information Sharing: Using any online API, e.g. a user-counter
@@ -1314,7 +1322,8 @@ def cli_index_strings():
     return _('Command Line Interface'), _(
         'On macOS, the command line tools are inside the calibre bundle, for example,'
     ' if you installed calibre in :file:`/Applications` the command line tools'
-    ' are in :file:`/Applications/calibre.app/Contents/MacOS/`.'), _(
+        ' are in :file:`/Applications/calibre.app/Contents/MacOS/`. So, for example, to run :file:`ebook-convert`'
+        ' you would use: :file:`/Applications/calibre.app/Contents/MacOS/ebook-convert`.'), _(
         'Documented commands'), _('Undocumented commands'), _(
         'You can see usage for undocumented commands by executing them without arguments in a terminal.'), _(
             'Change language'), _('Search')

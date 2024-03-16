@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
@@ -45,8 +44,8 @@ def process_paragraph(lines, block, content_key='content'):
     else:
         tag = 'p'
     ta = block.get('textAlign') or 'LEFT'
-    style = 'text-align: {}'.format(ta.lower())
-    lines.append('<{} style="{}">'.format(tag, style))
+    style = f'text-align: {ta.lower()}'
+    lines.append(f'<{tag} style="{style}">')
     for item in block[content_key]:
         tn = item['__typename']
         if tn in ('TextInline', 'Byline'):
@@ -93,7 +92,7 @@ def process_image_block(lines, block):
     if 'web.archive.org' in img:
         img = img.partition('/')[-1]
         img = img[img.find('https://'):]
-    lines.append('<div style="text-align: center"><div style="text-align: center"><img src={}/></div><div style="font-size: smaller">'.format(quoteattr(img)))
+    lines.append(f'<div style="text-align: center"><div style="text-align: center"><img src={quoteattr(img)}/></div><div style="font-size: smaller">')
     lines.extend(caption_lines)
     lines.append('</div></div>')
 
@@ -181,7 +180,7 @@ def live_json_to_html(data):
 
 def extract_html(soup):
     script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
-    script = type(u'')(script)
+    script = str(script)
     raw = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
     return json_to_html(raw)
 

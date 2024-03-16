@@ -116,6 +116,32 @@ Composite columns can use any template option, including formatting.
 
 Note: You cannot edit the data displayed in a composite column. Instead you edit the source columns. If you edit a composite column, for example by double-clicking it, calibre will open the template for editing, not the underlying data.
 
+
+Templates and plugboards
+---------------------------
+
+Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
+
+When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, ``save_to_disk``, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can of course use composite columns in these templates.
+
+Plugboards are quite flexible and can be written in Single Function Mode, Template Program Mode, General Program Mode, or Python Template mode.
+
+When a plugboard might apply (Content server, save to disk, or send to device), calibre searches the
+defined plugboards to choose the correct one for the given format and device. For example, to find the appropriate plugboard for an EPUB book being sent to an ANDROID device, calibre searches
+the plugboards using the following search order:
+
+* a plugboard with an exact match on format and device, e.g., ``EPUB`` and ``ANDROID``
+* a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
+* a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
+* a plugboard with ``any format`` and ``any device``
+
+The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever calibre finds a comma. For example, if the template produces
+the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
+
+The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
+
+Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
+
 .. _single_mode:
 
 Using functions in templates - Single Function Mode
@@ -216,7 +242,7 @@ General Program Mode
     top_expression  ::= or_expression
     or_expression   ::= and_expression [ '||' and_expression ]*
     and_expression  ::= not_expression [ '&&' not_expression ]*
-    not_expression  ::= [ '!' not_expression ]* | compare_exp
+    not_expression  ::= [ '!' not_expression ]* | concatenate_expr
     concatenate_expr::= compare_expr [ '&' compare_expr ]*
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | 'inlist' |
@@ -389,7 +415,7 @@ Examples:
 
   * ``program: field('series') == 'foo'`` returns ``'1'`` if the book's series is 'foo', otherwise ``''``.
   * ``program: 'f.o' in field('series')`` returns ``'1'`` if the book's series matches the regular expression ``f.o`` (e.g., `foo`, `Off Onyx`, etc.), otherwise ``''``.
-  * ``program: 'science' inlist field('#genre')`` returns ``'1'`` if any of the book's genres match the regular expression ``science``, e.g., `Science`, `History of Science`, `Science Fiction` etc.), otherwise ``''``.
+  * ``program: 'science' inlist field('#genre')`` returns ``'1'`` if any of the book's genres match the regular expression ``science``, e.g., `Science`, `History of Science`, `Science Fiction` etc., otherwise ``''``.
   * ``program: '^science$' inlist field('#genre')`` returns ``'1'`` if any of the book's genres exactly match the regular expression ``^science$``, e.g., `Science`. The genres `History of Science` and `Science Fiction` don't match. If there isn't a match then returns ``''``.
   * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not ``foo``. Otherwise it returns ``'mumble'``.
   * ``program: if field('series') == 'foo' || field('series') == '1632' then 'yes' else 'no' fi`` returns ``'yes'`` if series is either ``'foo'`` or ``'1632'``, otherwise ``'no'``.
@@ -443,7 +469,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``booksize()`` -- returns the value of the calibre 'size' field. Returns '' if there are no formats.
 * ``check_yes_no(field_name, is_undefined, is_false, is_true)`` -- checks if the value of the yes/no field named by the lookup name ``field_name`` is one of the values specified by the parameters, returning ``'yes'`` if a match is found otherwise returning the empty string. Set the parameter ``is_undefined``, ``is_false``, or ``is_true`` to 1 (the number) to check that condition, otherwise set it to 0. Example:
 
-  ``check_yes_no("#bool", 1, 0, 1)`` returns ``'yes'`` if the yes/no field ``#bool`` is either True or undefined (neither True nor False).
+  ``check_yes_no("#bool", 1, 0, 1)`` returns ``'Yes'`` if the yes/no field ``#bool`` is either True or undefined (neither True nor False).
 
   More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
 * ``ceiling(x)`` -- returns the smallest integer greater than or equal to ``x``. Throws an exception if ``x`` is not a number.
@@ -467,6 +493,9 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
 * ``divide(x, y)`` -- returns ``x / y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``/`` operator.
 * ``eval(string)`` -- evaluates the string as a program, passing the local variables. This permits using the template processor to construct complex results from local variables. In :ref:`Template Program Mode <template_mode>`, because the `{` and `}` characters are interpreted before the template is evaluated you must use `[[` for the `{` character and `]]` for the ``}`` character. They are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using :ref:`Template Program Mode <template_mode>`.
+* ``extra_file_size(file_name)`` -- returns the size in bytes of the extra file ``file_name`` in the book's ``data/`` folder if it exists, otherwise ``-1``. See also the functions ``has_extra_files()``, ``extra_file_names()`` and ``extra_file_modtime()``. This function can be used only in the GUI.
+* ``extra_file_modtime(file_name, format_string)`` -- returns the modification time of the extra file ``file_name`` in the book's ``data/`` folder if it exists, otherwise ``-1``. The modtime is formatted according to ``format_string`` (see ``format_date()`` for details). If ``format_string`` is the empty string, returns the modtime as the floating point number of seconds since the epoch.  See also the functions ``has_extra_files()``, ``extra_file_names()`` and ``extra_file_size()``. The epoch is OS dependent. This function can be used only in the GUI.
+* ``extra_file_names(sep [, pattern])`` returns a ``sep``-separated list of extra files in the book's ``data/`` folder. If the optional parameter ``pattern``, a regular expression, is supplied then the list is filtered to files that match ``pattern``. The pattern match is case insensitive. See also the functions ``has_extra_files()``, ``extra_file_modtime()`` and ``extra_file_size()``. This function can be used only in the GUI.
 * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
 * ``field_exists(field_name)`` -- checks if a field (column) with the lookup name ``field_name`` exists, returning ``'1'`` if so and the empty string if not.
 * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
@@ -523,11 +552,36 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
    format_date(raw_field('pubdate'), 'yyyy')
 
+* ``format_date_field(field_name, format_string)`` -- format the value in the field ``field_name``, which must be the lookup name of date field, either standard or custom. See ``format_date()`` for the formatting codes. This function is much faster than format_date and should be used when you are formatting the value in a field (column). It can't be used for computed dates or dates in string variables. Examples::
+
+   format_date_field('pubdate', 'yyyy.MM.dd')
+   format_date_field('#date_read', 'MMM dd, yyyy')
+
 * ``formats_modtimes(date_format_string)`` -- return a comma-separated list of colon-separated items ``FMT:DATE`` representing modification times for the formats of a book. The ``date_format_string`` parameter specifies how the date is to be formatted. See the ``format_date()`` function for details. You can use the ``select`` function to get the modification time for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_paths()`` -- return a comma-separated list of colon-separated items ``FMT:PATH`` giving the full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_sizes()`` -- return a comma-separated list of colon-separated ``FMT:SIZE`` items giving the sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``fractional_part(x)`` -- returns the value after the decimal point. For example, ``fractional_part(3.14)`` returns ``0.14``. Throws an exception if ``x`` is not a number.
+* ``get_link(field_name, field_value)`` -- fetch the link for field ``field_name`` with value ``field_value``. If there is no attached link, return the empty string. Examples:
+
+ * The following returns the link attached to the tag ``Fiction``::
+
+    get_link('tags', 'Fiction')
+
+ * This template makes a list of the links for all the tags associated with a book in the form ``value:link, ...``::
+
+    program:
+     ans = '';
+     for t in $tags:
+         l = get_link('tags', t);
+         if l then
+             ans = list_join(', ', ans, ',', t & ':' & get_link('tags', t), ',')
+         fi
+     rof;
+     ans
+
 * ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
+* ``has_extra_files([pattern])`` -- returns the count of extra files, otherwise '' (the empty string). If the optional parameter ``pattern`` (a regular expression) is supplied then the list is filtered to files that match ``pattern`` before the files are counted. The pattern match is case insensitive. See also the functions ``extra_file_names()``, ``extra_file_size()`` and ``extra_file_modtime()``. This function can be used only in the GUI.
+* ``identifier_in_list(val, id_name [, found_val, not_found_val])`` -- treat ``val`` as a list of identifiers separated by commas. An identifier has the format ``id_name:value``. The ``id_name`` parameter is the id_name text to search for, either ``id_name`` or ``id_name:regexp``. The first case matches if there is any identifier matching that id_name. The second case matches if id_name matches an identifier and the regexp matches the identifier's value. If ``found_val`` and ``not_found_val`` are provided then if there is a match then return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and ``not_found_val`` are not provided then if there is a match then return the ``identifier:value`` pair, otherwise the empty string (``''``).
 * ``is_marked()`` -- check whether the book is `marked` in calibre. If it is then return the value of the mark, either ``'true'`` (lower case) or a comma-separated list of named marks. Returns ``''`` (the empty string) if the book is not marked. This function works only in the GUI.
 * ``language_codes(lang_strings)`` -- return the `language codes <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ for the language names passed in `lang_strings`. The strings must be in the language of the current locale. ``Lang_strings`` is a comma-separated list.
 * ``list_contains(value, separator, [ pattern, found_val, ]* not_found_val)`` -- (Alias of ``in_list``) Interpreting the value as a list of items separated by ``separator``, evaluate the ``pattern`` against each value in the list. If the ``pattern`` matches any value then return ``found_val``, otherwise return ``not_found_val``. The ``pattern`` and ``found_value`` can be repeated as many times as desired, permitting returning different values depending on the search. The patterns are checked in order. The first match is returned. Aliases: ``in_list()``, ``list_contains()``
@@ -610,6 +664,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``strlen(value)`` -- Returns the length of the string ``value``.
 * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If ``end`` is negative, then it indicates that many characters counting from the right. If ``end`` is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
 * ``subtract(x, y)`` -- returns ``x - y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``-`` operator.
+* ``switch_if([test_expression, value_expression,]+ else_expression)`` -- for each ``test_expression, value_expression`` pair, checks if ``test_expression`` is True (non-empty) and if so returns the result of ``value_expression``. If no ``test_expression`` is True then the result of ``else_expression` is returned. You can have as many ``test_expression, value_expression`` pairs as you want.
 * ``today()`` -- return a date+time string for today (now). This value is designed for use in `format_date` or `days_between`, but can be manipulated like any other string. The date is in `ISO <https://en.wikipedia.org/wiki/ISO_8601>`_ date/time format.
 * ``template(x)`` -- evaluates ``x`` as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation.
 * ``to_hex(val)`` -- returns the string ``val`` encoded in hex. This is useful when constructing calibre URLs.
@@ -736,9 +791,9 @@ A developer can choose to pass additional information to the template processor,
 
 **Developer: how to pass additional information**
 
-The additional information is a Python dictionary containing pairs ``variable_name: variable_value`` where the values must be strings. The template can access the dict, creating template local variables named ``variable_name`` containing the value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other template local variables, for example by prefixing the name with an underscore.
+The additional information is a Python dictionary containing pairs ``variable_name: variable_value`` where the values must be strings. The template can access the dictionary, creating template local variables named ``variable_name`` containing the value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other template local variables, for example by prefixing the name with an underscore.
 
-This dict is passed to the template processor (the ``formatter``) using the named parameter ``global_vars=your_dict``. The full method signature is::
+This dictionary is passed to the template processor (the ``formatter``) using the named parameter ``global_vars=your_dict``. The full method signature is::
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
@@ -748,17 +803,17 @@ This dict is passed to the template processor (the ``formatter``) using the name
 
 **Template writer: how to access the additional information**
 
-You access the additional information (the ``globals`` dict) in a template using the template function::
+You access the additional information (the ``globals`` dictionary) in a template using the template function::
 
   globals(id[=expression] [, id[=expression]]*)
 
 where ``id`` is any legal variable name. This function checks whether the additional information provided by the developer contains the name. If it does then the function assigns the provided value to a template local variable with that name. If the name is not in the additional information and if an ``expression`` is provided, the ``expression`` is evaluated and the result is assigned to the local variable. If neither a value nor an expression is provided, the function assigns the empty string (``''``) to the local variable.
 
-A template can set a value in the ``globals`` dict using the template function::
+A template can set a value in the ``globals`` dictionary using the template function::
 
   set_globals(id[=expression] [, id[=expression]]*)
 
-This function sets the ``globals`` dict key:value pair ``id:value`` where ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is set to the result of evaluating ``expression``.
+This function sets the ``globals`` dictionary key:value pair ``id:value`` where ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is set to the result of evaluating ``expression``.
 
 Notes on the difference between modes
 -----------------------------------------
@@ -820,30 +875,7 @@ To accomplish this, we:
 
 1. Create a composite field (give it lookup name #aa) containing ``{series}/{series_index} - {title}``. If the series is not empty, then this template will produce `series/series_index - title`.
 2. Create a composite field (give it lookup name #bb) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``. This template produces `genre/author_sort/title`, where an empty genre is replaced with `Unknown`.
-3. Set the save template to ``{series:lookup(.,#aa,#bb}``. This template chooses composite field ``#aa`` if series is not empty and composite field ``#bb`` if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
-
-Templates and plugboards
----------------------------
-
-Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
-
-When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, ``save_to_disk``, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can of course use composite columns in these templates.
-
-When a plugboard might apply (Content server, save to disk, or send to device), calibre searches the
-defined plugboards to choose the correct one for the given format and device. For example, to find the appropriate plugboard for an EPUB book being sent to an ANDROID device, calibre searches
-the plugboards using the following search order:
-
-* a plugboard with an exact match on format and device, e.g., ``EPUB`` and ``ANDROID``
-* a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
-* a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
-* a plugboard with ``any format`` and ``any device``
-
-The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever calibre finds a comma. For example, if the template produces
-the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
-
-The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
-
-Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
+3. Set the save template to ``{series:lookup(.,#aa,#bb)}``. This template chooses composite field ``#aa`` if series is not empty and composite field ``#bb`` if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
 
 Tips
 -----

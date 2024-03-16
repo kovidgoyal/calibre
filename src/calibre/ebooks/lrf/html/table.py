@@ -145,7 +145,8 @@ class Cell:
                 continue
             word = token.split()
             word = word[0] if word else ""
-            width = font.getsize(word)[0]
+            fl, ft, fr, fb = font.getbbox(word)
+            width = fr - fl
             if width > mwidth:
                 mwidth = width
         return parindent + mwidth + 2
@@ -191,7 +192,8 @@ class Cell:
             if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
                 font = get_font(ff, self.pts_to_pixels(fs))
             for word in token.split():
-                width, height = font.getsize(word)
+                fl, ft, fr, fb = font.getbbox(word)
+                width, height = fr - fl, abs(fb - ft)
                 left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
         return right+3+max(parindent, 10), bottom
 

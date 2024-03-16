@@ -8,15 +8,15 @@ import os
 import posixpath
 from collections import namedtuple
 from functools import partial
-from polyglot.builtins import iteritems, itervalues
-
 from lxml import etree
 
 from calibre import fit_image
-from calibre.ebooks.oeb.base import urlunquote, urlquote
 from calibre.ebooks.docx.images import pt_to_emu
+from calibre.ebooks.docx.names import USE_LOCAL_DPI_URI, SVG_BLIP_URI
+from calibre.ebooks.oeb.base import urlquote, urlunquote
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import identify
+from calibre.utils.resources import get_image_path as I
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
@@ -39,13 +39,26 @@ def get_image_margins(style):
 
 class ImagesManager:
 
-    def __init__(self, oeb, document_relationships, opts):
+    def __init__(self, oeb, document_relationships, opts, svg_rasterizer):
         self.oeb, self.log = oeb, oeb.log
+        self.svg_rasterizer = svg_rasterizer
         self.page_width, self.page_height = opts.output_profile.width_pts, opts.output_profile.height_pts
         self.images = {}
         self.seen_filenames = set()
         self.document_relationships = document_relationships
         self.count = 0
+        self.svg_images = {}
+
+    def read_svg(self, href):
+        if href not in self.svg_images:
+            item = self.oeb.manifest.hrefs.get(href) or self.oeb.manifest.hrefs.get(urlquote(href))
+            if item is None:
+                self.log.warning('Failed to find image:', href)
+                return
+            image_fname = 'media/' + self.create_filename(href, 'svg')
+            image_rid = self.document_relationships.add_image(image_fname)
+            self.svg_images[href] = Image(image_rid, image_fname, -1, -1, 'svg', item)
+        return self.svg_images[href]
 
     def read_image(self, href):
         if href not in self.images:
@@ -84,6 +97,12 @@ class ImagesManager:
 
     def create_image_markup(self, html_img, stylizer, href, as_block=False):
         # TODO: img inside a link (clickable image)
+        svg_rid = ''
+        svghref = self.svg_rasterizer.svg_originals.get(href)
+        if svghref:
+            si = self.read_svg(svghref)
+            if si:
+                svg_rid = si.rid
         style = stylizer.style(html_img)
         floating = style['float']
         if floating not in {'left', 'right'}:
@@ -134,7 +153,7 @@ class ImagesManager:
         if fake_margins:
             # DOCX does not support setting margins for inline images, so we
             # fake it by using effect extents to simulate margins
-            makeelement(parent, 'wp:effectExtent', **{k[-1].lower():v for k, v in iteritems(get_image_margins(style))})
+            makeelement(parent, 'wp:effectExtent', **{k[-1].lower():v for k, v in get_image_margins(style).items()})
         else:
             makeelement(parent, 'wp:effectExtent', l='0', r='0', t='0', b='0')
         if floating is not None:
@@ -143,10 +162,10 @@ class ImagesManager:
                 makeelement(parent, 'wp:wrapTopAndBottom')
             else:
                 makeelement(parent, 'wp:wrapSquare', wrapText='bothSides')
-        self.create_docx_image_markup(parent, name, html_img.get('alt') or name, img.rid, width, height)
+        self.create_docx_image_markup(parent, name, html_img.get('alt') or name, img.rid, width, height, svg_rid=svg_rid)
         return ans
 
-    def create_docx_image_markup(self, parent, name, alt, img_rid, width, height):
+    def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid=''):
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
         makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=alt)
         makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
@@ -157,7 +176,11 @@ class ImagesManager:
         makeelement(nvPicPr, 'pic:cNvPr', id='0', name=name, descr=alt)
         makeelement(nvPicPr, 'pic:cNvPicPr')
         bf = makeelement(pic, 'pic:blipFill')
-        makeelement(bf, 'a:blip', r_embed=img_rid)
+        blip = makeelement(bf, 'a:blip', r_embed=img_rid)
+        if svg_rid:
+            ext_list = makeelement(blip, 'a:extLst')
+            makeelement(makeelement(ext_list, 'a:ext', uri=USE_LOCAL_DPI_URI), 'a14:useLocalDpi', val='0')
+            makeelement(makeelement(ext_list, 'a:ext', uri=SVG_BLIP_URI), 'asvg:svgBlip', r_embed=svg_rid)
         makeelement(makeelement(bf, 'a:stretch'), 'a:fillRect')
         spPr = makeelement(pic, 'pic:spPr')
         xfrm = makeelement(spPr, 'a:xfrm')
@@ -178,8 +201,14 @@ class ImagesManager:
         return fname
 
     def serialize(self, images_map):
-        for img in itervalues(self.images):
+        for img in self.images.values():
             images_map['word/' + img.fname] = partial(self.get_data, img.item)
+
+        def get_svg_data(img):
+            return img.item.data_as_bytes_or_none
+
+        for img in self.svg_images.values():
+            images_map['word/' + img.fname] = partial(get_svg_data, img)
 
     def get_data(self, item):
         try:

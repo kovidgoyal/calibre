@@ -4,15 +4,18 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import inspect, time, numbers
-from io import BytesIO
+import inspect
+import numbers
+import time
 from functools import partial
+from io import BytesIO
 from operator import itemgetter
 
-from calibre.library.field_metadata import fm_as_dict
+from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems
+from calibre.library.field_metadata import fm_as_dict
 from polyglot import reprlib
+from polyglot.builtins import iteritems
 
 # Utils {{{
 
@@ -57,7 +60,6 @@ def run_funcs(self, db, ndb, funcs):
         if callable(meth):
             meth(*args)
         else:
-            fmt = lambda x:x
             if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
@@ -67,6 +69,9 @@ def run_funcs(self, db, ndb, funcs):
                     fmt = args[-1]
                     args = args[:-1]
                 meth = meth[1:]
+            else:
+                def fmt(x):
+                    return x
             res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
             self.assertEqual(res1, res2, f'The method: {meth}() returned different results for argument {args}')
 # }}}
@@ -182,8 +187,9 @@ class LegacyTest(BaseTest):
 
     def test_legacy_direct(self):  # {{{
         'Test read-only methods that are directly equivalent in the old and new interface'
-        from calibre.ebooks.metadata.book.base import Metadata
         from datetime import timedelta
+
+        from calibre.ebooks.metadata.book.base import Metadata
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
         newstag = ndb.new_api.get_item_id('tags', 'news')
@@ -256,12 +262,15 @@ class LegacyTest(BaseTest):
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
         }):
-            fmt = lambda x: x
             if meth[0] in {'!', '@'}:
                 fmt = {'!':dict, '@':frozenset}[meth[0]]
                 meth = meth[1:]
             elif meth == 'get_authors_with_ids':
-                fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
+                def fmt(val):
+                    return {x[0]: tuple(x[1:]) for x in val}
+            else:
+                def fmt(x):
+                    return x
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  f'The method: {meth}() returned different results for argument {a}')
@@ -269,6 +278,8 @@ class LegacyTest(BaseTest):
         def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
             x.discard('metadata_db_prefs_backup.json')
             y.pop('full-text-search.db', None)
+            x.discard(NOTES_DIR_NAME)
+            y.pop(NOTES_DIR_NAME, None)
             return x, y
         self.assertEqual(f(*db.get_top_level_move_items()), f(*ndb.get_top_level_move_items()))
         d1, d2 = BytesIO(), BytesIO()
@@ -570,7 +581,6 @@ class LegacyTest(BaseTest):
         omi = [db.get_metadata(x) for x in (0, 1, 2)]
         nmi = [ndb.get_metadata(x) for x in (0, 1, 2)]
         self.assertEqual([x.author_sort_map for x in omi], [x.author_sort_map for x in nmi])
-        self.assertEqual([x.author_link_map for x in omi], [x.author_link_map for x in nmi])
         db.close()
 
         ndb = self.init_legacy(self.cloned_library)

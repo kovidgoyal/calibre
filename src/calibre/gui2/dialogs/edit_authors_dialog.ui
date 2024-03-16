@@ -65,17 +65,48 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="4">
-      <widget class="QCheckBox" name="apply_vl_checkbox">
-       <property name="toolTip">
-        <string>&lt;p&gt;Only show authors in the
-          current Virtual library. Edits already done may be hidden but will
-          not be forgotten.&lt;/p&gt;</string>
-       </property>
-       <property name="text">
-        <string>Only show authors in the current &amp;Virtual library</string>
-       </property>
-      </widget>
+     <item row="0" column="4" rowspan="2">
+      <layout class="QVBoxLayout" name="show_button_layout">
+       <item>
+        <widget class="QRadioButton" name="apply_all_checkbox">
+         <property name="text">
+          <string>Show &amp;all authors</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="apply_vl_checkbox">
+         <property name="toolTip">
+          <string>&lt;p&gt;Show authors only if they appear in the
+                    current Virtual library. Edits already done may be hidden but will
+                    not be forgotten.
+                    &lt;/p&gt;&lt;p&gt;
+                    Note that this box affects only what is displayed. Changes
+                    will affect all books in your library even if this box
+                    is checked.&lt;/p&gt;&lt;</string>
+         </property>
+         <property name="text">
+          <string>Only show authors in the current &amp;Virtual library</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="apply_selection_checkbox">
+         <property name="toolTip">
+          <string>&lt;p&gt;Show items only if they appear in the
+                    currently selected books. Edits already done may be hidden but will
+                    not be forgotten.
+                    &lt;/p&gt;&lt;p&gt;
+                    Note that this box affects only what is displayed. Changes
+                    will affect all books in your library even if this box
+                    is checked.&lt;/p&gt;&lt;</string>
+         </property>
+         <property name="text">
+          <string>O&amp;nly show authors in the currently selected books</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="1" column="0">
       <widget class="QLabel">
@@ -151,7 +182,19 @@ after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorith
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="edit_current_cell">
+       <property name="toolTip">
+        <string>&lt;p&gt;Edit the currently selected cell. If an author is edited then it is renamed
+                in every book where it is used. Double-clicking and pressing the edit
+                key also work.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Edi&amp;t current cell</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

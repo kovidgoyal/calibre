@@ -1,0 +1,131 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.anchor_visibility import is_anchor_on_screen
+from read_book.globals import get_boss
+
+
+def flatten_seq(seq, par_list):
+    if seq.par:
+        for par in seq.par:
+            if par.anchor:
+                par_list.push(par)
+    if seq.seq:
+        for child in seq.seq:
+            flatten_seq(child, par_list)
+
+
+def flatten_smil_map(smil_map):
+    anchor_map = {}
+    par_list = v'[]'
+    if smil_map:
+        flatten_seq(smil_map, par_list)
+    par_list.sort(def (a, b): return a.num - b.num;)
+    for i in range(par_list.length):
+        anchor_map[par_list[i].anchor] = i
+    return anchor_map, par_list
+
+
+def get_smil_audio_map(smil_map):
+    audio_map = {}
+
+    def flatten(seq):
+        if seq.par:
+            for par in seq.par:
+                if par.audio:
+                    a = audio_map[par.audio]
+                    if not a:
+                        a = audio_map[par.audio] = v'[]'
+                    a.push(par)
+        if seq.seq:
+            for child in seq.seq:
+                flatten(child)
+    if smil_map:
+        flatten(smil_map)
+        for v in Object.values(audio_map):
+            v.sort(def(a, b): return a.start - b.start;)
+    return {'audio_files': audio_map}
+
+
+def get_smil_id_for_timestamp(audio_file_name, timestamp, smil_audio_map, prev_idx):
+    pars = smil_audio_map.audio_files[audio_file_name]
+    if not pars:
+        return None, None
+    prev_idx = prev_idx or 0
+    if prev_idx >= pars.length or prev_idx < 0:
+        prev_idx = 0
+    for i in range(prev_idx, pars.length):
+        if pars[i].start <= timestamp <= pars[i].end:
+            return pars[i].anchor, i
+    for i in range(0, prev_idx):
+        if pars[i].start <= timestamp <= pars[i].end:
+            return pars[i].anchor, i
+    return None, None
+
+
+def next_audio_file_for_spine_item(audio_file_name, smil_audio_map):
+    if audio_file_name:
+        keys = Object.keys(smil_audio_map)
+        idx = keys.indexOf(audio_file_name)
+        if 0 <= idx < keys.length - 1:
+            return keys[idx+1], smil_audio_map[keys[idx+1]]
+    return None, None
+
+
+def first_par(smil_map):
+    par_list = flatten_smil_map(smil_map)[1]
+    for par in par_list:
+        if par.anchor:
+            return par
+    return None
+
+
+def find_next_audio_in_spine(spine_idx, book_manifest):
+    spine = book_manifest.spine
+    file_map = book_manifest.files
+
+    for i in range(spine_idx + 1, spine.length):
+        q = spine[i]
+        f = file_map[q]
+        if f and f.smil_map:
+            par = first_par(f.smil_map)
+            if par:
+                return q, par
+    return None, None
+
+
+def smil_element_at(pos, anchor_map, par_list):
+    if pos:
+        # first see if we get lucky
+        elem = document.elementFromPoint(pos.x, pos.y)
+        if elem and elem.id and anchor_map[elem.id]?:
+            return par_list[anchor_map[elem.id]]
+        # now try to find a par that intersects pos
+        af = get_boss().anchor_funcs
+        for par in par_list:
+            if par.anchor and par.audio:
+                elem = document.getElementById(par.anchor)
+                if elem:
+                    br = af.get_bounding_client_rect(elem)
+                    if br.x <= pos.x <= (br.x + br.width) and br.y <= pos.y <= (br.y + br.height):
+                        return par
+        return None
+    else: # use first visible anchor
+        for par in par_list:
+            if par.anchor and par.audio and is_anchor_on_screen(par.anchor):
+                return par
+        # just use first par
+        for par in par_list:
+            if par.audio:
+                return par
+        return None
+
+
+def mark_smil_element(anchor):
+    elem = document.getElementById(anchor)
+    if elem:
+        sel = window.getSelection()
+        sel.selectAllChildren(elem)
+        return bool(sel.rangeCount and sel.toString())
+    return False

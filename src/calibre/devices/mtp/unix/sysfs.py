@@ -28,7 +28,7 @@ class MTPDetect:
 
         def read(x):
             try:
-                with lopen(x, 'rb') as f:
+                with open(x, 'rb') as f:
                     return f.read()
             except OSError:
                 pass
@@ -50,5 +50,3 @@ class MTPDetect:
                 continue
 
         return False
-
-

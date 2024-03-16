@@ -289,9 +289,9 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
         search = usearch_openFromCollator(a, asz, b, bsz, self->collator, whole_words ? self->word_iterator : NULL, &status);
         if (search && U_SUCCESS(status)) {
             pos = usearch_first(search, &status);
-            int32_t codepoint_count = 0, pos_for_codepoint_count = 0;
+            int32_t pos_for_codepoint_count = 0;
             while (pos != USEARCH_DONE) {
-                codepoint_count += u_countChar32(b + pos_for_codepoint_count, pos - pos_for_codepoint_count);
+                u_countChar32(b + pos_for_codepoint_count, pos - pos_for_codepoint_count);
                 pos_for_codepoint_count = pos;
                 length = usearch_getMatchedLength(search);
                 length = u_countChar32(b + pos, length);

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -11,10 +10,10 @@ from contextlib import suppress
 from functools import partial
 from itertools import count
 from qt.core import (
-    QAbstractItemModel, QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox,
-    QFont, QHBoxLayout, QIcon, QLabel, QMenu, QModelIndex, QPixmap, QPushButton,
-    QRect, QSize, QSplitter, QStackedWidget, Qt, QTreeView, QVBoxLayout, QWidget,
-    pyqtSignal
+    QAbstractItemModel, QAbstractItemView, QAction, QCheckBox, QDialog,
+    QDialogButtonBox, QFont, QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu,
+    QModelIndex, QPixmap, QPushButton, QRect, QSize, QSplitter, QStackedWidget, Qt,
+    QTreeView, QVBoxLayout, QWidget, pyqtSignal,
 )
 from threading import Event, Thread
 
@@ -22,7 +21,7 @@ from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import (
-    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
+    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url,
 )
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.models import render_pin
@@ -31,6 +30,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HTMLDisplay
+from calibre.utils.localization import ngettext
 
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
@@ -47,7 +47,9 @@ def jump_to_book(book_id, parent=None):
     gui = get_gui()
     if gui is not None:
         parent = parent or gui
-        if not gui.library_view.select_rows((book_id,)):
+        if gui.library_view.select_rows((book_id,)):
+            gui.raise_and_focus()
+        else:
             if gprefs['fts_library_restrict_books']:
                 error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
             else:
@@ -56,6 +58,31 @@ def jump_to_book(book_id, parent=None):
                     ' If you have a search or Virtual library active, try clearing that.'
                     ' Or click the "Restrict searched books" checkbox in this window to'
                     ' only search currently visible books.'), show=True)
+
+
+def show_in_viewer(book_id, text, fmt):
+    text = text.strip('…').replace('\x1d', '').replace('\xa0', ' ')
+    text = sanitize_text_pat.sub(' ', text)
+    gui = get_gui()
+    if gui is not None:
+        if fmt in config['internally_viewed_formats']:
+            gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
+        else:
+            gui.iactions['View'].view_format_by_id(book_id, fmt)
+
+
+def open_book(results, match_index=None):
+    gui = get_gui()
+    if gui is None:
+        return
+    book_id = results.book_id
+    if match_index is None:
+        gui.iactions['View'].view_historical(book_id)
+        return
+    result_dict = results.result_dicts[match_index]
+    formats = results.formats[match_index]
+    from calibre.gui2.actions.view import preferred_format
+    show_in_viewer(book_id, result_dict['text'], preferred_format(formats))
 
 
 class SearchDelegate(ResultsDelegate):
@@ -430,10 +457,26 @@ class ResultsView(QTreeView):
         if results:
             m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
+            if match is not None:
+                match = index.row()
+                m.addAction(QIcon.ic('view.png'), _('View this book at this search result'), partial(open_book, results, match_index=match))
+            else:
+                m.addAction(QIcon.ic('view.png'), _('View this book'), partial(open_book, results))
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
+
+    def view_current_result(self):
+        idx = self.currentIndex()
+        if idx.isValid():
+            results, match = self.m.data_for_index(idx)
+            if results:
+                if match is not None:
+                    match = idx.row()
+                open_book(results, match)
+                return True
+        return False
 
 
 class Spinner(ProgressIndicator):
@@ -520,6 +563,9 @@ class SearchInputPanel(QWidget):
     def clear_history(self):
         self.search_box.clear_history()
 
+    def set_search_text(self, text):
+        self.search_box.setText(text)
+
     def start(self):
         self.pi.start()
 
@@ -544,6 +590,9 @@ class ResultDetails(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.jump_action = ac = QAction(self)
+        ac.triggered.connect(self.jump_to_current_book)
+        ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
         self.key = None
         self.pixmap_label = pl = QLabel(self)
         pl.setScaledContents(True)
@@ -580,6 +629,10 @@ class ResultDetails(QWidget):
                     ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
                     ' to see updated results.'), show=True)
                 self.remove_book_from_results.emit(self.current_book_id)
+
+    def jump_to_current_book(self):
+        if self.current_book_id > -1:
+            jump_to_book(self.current_book_id)
 
     def results_anchor_clicked(self, url):
         if self.current_book_id > 0 and url.scheme() == 'book':
@@ -641,7 +694,8 @@ class ResultDetails(QWidget):
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
         ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
         text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
-            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it.'), ict.format('lt.png'))
+            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it [{}]').format(
+                self.jump_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)), ict.format('lt.png'))
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
@@ -811,22 +865,25 @@ class ResultsPanel(QWidget):
         if st is not None:
             s.restoreState(st)
 
+    @property
+    def jump_to_current_book_action(self):
+        return self.details.result_details.jump_action
+
+    def view_current_result(self):
+        return self.results_view.view_current_result()
+
     def clear_history(self):
         self.sip.clear_history()
+
+    def set_search_text(self, text):
+        self.sip.set_search_text(text)
 
     def remove_book_from_results(self, book_id):
         self.results_view.m.remove_book(book_id)
 
     def show_in_viewer(self, book_id, result_num, fmt):
         r = self.results_view.m.get_result(book_id, result_num)
-        text = r['text'].strip('…').replace('\x1d', '').replace('\xa0', ' ')
-        text = sanitize_text_pat.sub(' ', text)
-        gui = get_gui()
-        if gui is not None:
-            if fmt in config['internally_viewed_formats']:
-                gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=f'search:{text}')
-            else:
-                gui.iactions['View'].view_format_by_id(book_id, fmt)
+        show_in_viewer(book_id, r['text'], fmt)
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):

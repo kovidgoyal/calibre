@@ -5,21 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
-import os
 from collections import Counter
 from functools import partial
 from qt.core import QDialog, QModelIndex, QObject, QTimer
 
-from calibre.constants import ismacos, trash_name
-from calibre.gui2 import Aborted, error_dialog, question_dialog
-from calibre.gui2.actions import InterfaceAction
+from calibre.constants import ismacos
+from calibre.gui2 import Aborted, error_dialog
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.dialogs.delete_matching_from_device import (
-    DeleteMatchingFromDeviceDialog
+    DeleteMatchingFromDeviceDialog,
 )
-from calibre.utils.recycle_bin import can_recycle
+from calibre.gui2.widgets import BusyCursor
+from calibre.gui2.widgets2 import MessagePopup
+from calibre.utils.localization import ngettext
 
 single_shot = partial(QTimer.singleShot, 10)
 
@@ -32,16 +32,6 @@ class MultiDeleter(QObject):  # {{{
         self.model = gui.library_view.model()
         self.ids = ids
         self.permanent = False
-        if can_recycle and len(ids) > 100:
-            if question_dialog(gui, _('Are you sure?'), '<p>'+
-                _('You are trying to delete {0} books. '
-                    'Sending so many files to the {1}'
-                    ' <b>can be slow</b>. Should calibre skip the'
-                    ' {1}? If you click Yes the files'
-                    ' will be <b>permanently deleted</b>.').format(len(ids), trash_name()),
-                add_abort_button=True
-            ):
-                self.permanent = True
         self.gui = gui
         self.failures = []
         self.deleted_ids = []
@@ -63,7 +53,7 @@ class MultiDeleter(QObject):  # {{{
             if title_:
                 title = title_
             self.model.db.delete_book(id_, notify=False, commit=False,
-                    permanent=self.permanent)
+                    permanent=False)
             self.deleted_ids.append(id_)
         except:
             import traceback
@@ -87,33 +77,13 @@ class MultiDeleter(QObject):  # {{{
 # }}}
 
 
-class DeleteAction(InterfaceAction):
+class DeleteAction(InterfaceActionWithLibraryDrop):
 
     name = 'Remove Books'
     action_spec = (_('Remove books'), 'remove_books.png', _('Delete books'), 'Backspace' if ismacos else 'Del')
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Remove selected books')
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids
@@ -142,6 +112,8 @@ class DeleteAction(InterfaceAction):
         m('delete-matching',
                 _('Remove matching books from device'),
                 triggered=self.remove_matching_books_from_device)
+        self.delete_menu.addSeparator()
+        m('delete-undelete', _('Restore recently deleted'), triggered=self.undelete_recent, icon='edit-undo.png')
         self.qaction.setMenu(self.delete_menu)
         self.delete_memory = {}
 
@@ -174,7 +146,7 @@ class DeleteAction(InterfaceAction):
         return set(map(self.gui.library_view.model().id, rows))
 
     def _remove_formats_from_ids(self, fmts, ids):
-        self.gui.library_view.model().db.new_api.remove_formats({bid: fmts for bid in ids})
+        self.show_undo_for_deleted_formats(self.gui.library_view.model().db.new_api.remove_formats({bid: fmts for bid in ids}))
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
@@ -182,7 +154,7 @@ class DeleteAction(InterfaceAction):
     def remove_format_by_id(self, book_id, fmt):
         title = self.gui.current_db.title(book_id, index_is_id=True)
         if not confirm('<p>'+(_(
-            'The %(fmt)s format will be <b>permanently deleted</b> from '
+            'The %(fmt)s format will be <b>deleted</b> from '
             '%(title)s. Are you sure?')%dict(fmt=fmt, title=title)) +
                        '</p>', 'library_delete_specific_format', self.gui):
             return
@@ -201,8 +173,8 @@ class DeleteAction(InterfaceAction):
             return error_dialog(self.gui, _('Format not found'), _('The {} format is not present in the selected books.').format(fmt), show=True)
         if not confirm(
             '<p>'+ ngettext(
-                _('The {fmt} format will be <b>permanently deleted</b> from {title}.'),
-                _('The {fmt} format will be <b>permanently deleted</b> from all {num} selected books.'),
+                _('The {fmt} format will be <b>deleted</b> from {title}.'),
+                _('The {fmt} format will be <b>deleted</b> from all {num} selected books.'),
                 len(ids)).format(fmt=fmt.upper(), num=len(ids), title=self.gui.current_db.title(next(iter(ids)), index_is_id=True)
                                  ) + ' ' + _('Are you sure?'), 'library_delete_specific_format_from_selected', self.gui
         ):
@@ -225,7 +197,7 @@ class DeleteAction(InterfaceAction):
         if not fmts:
             return
         m = self.gui.library_view.model()
-        m.db.new_api.remove_formats({book_id:fmts for book_id in ids})
+        self.show_undo_for_deleted_formats(m.db.new_api.remove_formats({book_id:fmts for book_id in ids}))
         m.refresh_ids(ids)
         m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
@@ -255,7 +227,7 @@ class DeleteAction(InterfaceAction):
                 # formats
                 removals[id] = rfmts
         if removals:
-            m.db.new_api.remove_formats(removals)
+            self.show_undo_for_deleted_formats(m.db.new_api.remove_formats(removals))
             m.refresh_ids(ids)
             m.current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
@@ -278,7 +250,7 @@ class DeleteAction(InterfaceAction):
             if fmts:
                 removals[id] = fmts.split(',')
         if removals:
-            db.new_api.remove_formats(removals)
+            self.show_undo_for_deleted_formats(db.new_api.remove_formats(removals))
             self.gui.library_view.model().refresh_ids(ids)
             self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
@@ -364,13 +336,68 @@ class DeleteAction(InterfaceAction):
         if view.model().rowCount(QModelIndex()) < 1:
             self.gui.book_details.reset_info()
 
-    def library_ids_deleted2(self, ids_deleted, next_id=None):
+    @property
+    def show_message_popup(self):
+        if not hasattr(self, 'message_popup'):
+            self.message_popup = MessagePopup(self.gui)
+            self.message_popup.OFFSET_FROM_TOP = 12
+            self.message_popup.undo_requested.connect(self.undelete)
+        return self.message_popup
+
+    def library_ids_deleted2(self, ids_deleted, next_id=None, can_undo=False):
         view = self.gui.library_view
         current_row = None
         if next_id is not None:
             rmap = view.ids_to_rows([next_id])
             current_row = rmap.get(next_id, None)
         self.library_ids_deleted(ids_deleted, current_row=current_row)
+        if can_undo:
+            self.show_message_popup(ngettext('One book deleted from library.', '{} books deleted from library.', len(ids_deleted)).format(len(ids_deleted)),
+                               show_undo=(self.gui.current_db.new_api.library_id, ids_deleted))
+
+    def show_undo_for_deleted_formats(self, removed_map):
+        num = sum(map(len, removed_map.values()))
+        self.show_message_popup(ngettext('One book format deleted.', '{} book formats deleted.', num).format(num),
+                        show_undo=(self.gui.current_db.new_api.library_id, removed_map))
+
+    def library_changed(self, db):
+        if hasattr(self, 'message_popup'):
+            self.message_popup.hide()
+
+    def undelete(self, what):
+        library_id, book_ids = what
+        db = self.gui.current_db.new_api
+        if library_id != db.library_id:
+            return
+        current_idx = self.gui.library_view.currentIndex()
+        if isinstance(book_ids, dict):
+            with BusyCursor():
+                for book_id, fmts in book_ids.items():
+                    for fmt in fmts:
+                        db.move_format_from_trash(book_id, fmt)
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx, current_idx)
+        else:
+            with BusyCursor():
+                for book_id in book_ids:
+                    db.move_book_from_trash(book_id)
+            self.refresh_after_undelete(book_ids)
+
+    def refresh_after_undelete(self, book_ids):
+        self.gui.current_db.data.books_added(book_ids)
+        self.gui.iactions['Add Books'].refresh_gui(len(book_ids))
+        self.gui.library_view.resort()
+        self.gui.library_view.select_rows(set(book_ids), using_ids=True)
+
+    def undelete_recent(self):
+        from calibre.gui2.trash import TrashView
+        current_idx = self.gui.library_view.currentIndex()
+        d = TrashView(self.gui.current_db, self.gui)
+        d.books_restored.connect(self.refresh_after_undelete)
+        d.exec()
+        if d.formats_restored:
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx, current_idx)
 
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()
@@ -399,9 +426,9 @@ class DeleteAction(InterfaceAction):
         # The following will run if the selected books are not on a connected device.
         # The user has selected to delete from the library or the device and library.
         if not confirm('<p>'+ngettext(
-                'The selected book will be <b>permanently deleted</b> and the files '
+                'The selected book will be <b>deleted</b> and the files '
                 'removed from your calibre library. Are you sure?',
-                'The {} selected books will be <b>permanently deleted</b> and the files '
+                'The {} selected books will be <b>deleted</b> and the files '
                 'removed from your calibre library. Are you sure?', len(to_delete_ids)).format(len(to_delete_ids)),
                 'library_delete_books', self.gui):
             return
@@ -409,19 +436,13 @@ class DeleteAction(InterfaceAction):
             try:
                 view.model().delete_books_by_id(to_delete_ids)
             except OSError as err:
-                if err.errno == errno.EACCES:
-                    import traceback
-                    fname = os.path.basename(getattr(err, 'filename', 'file') or 'file')
-                    return error_dialog(self.gui, _('Permission denied'),
-                            _('Could not access %s. Is it being used by another'
-                            ' program? Click "Show details" for more information.')%fname, det_msg=traceback.format_exc(),
-                            show=True)
+                err.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
                 raise
-            self.library_ids_deleted2(to_delete_ids, next_id=next_id)
+            self.library_ids_deleted2(to_delete_ids, next_id=next_id, can_undo=True)
         else:
             try:
                 self.__md = MultiDeleter(self.gui, to_delete_ids,
-                        partial(self.library_ids_deleted2, next_id=next_id))
+                        partial(self.library_ids_deleted2, next_id=next_id, can_undo=True))
             except Aborted:
                 pass
 

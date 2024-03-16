@@ -2,12 +2,15 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, shutil
-from os.path import dirname, abspath, relpath as _relpath, exists, basename
+import os
+import re
+import shutil
+from os.path import abspath, basename, dirname, exists, relpath as _relpath
 
-from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.resources import get_path as P
 
 
 def relpath(*args):
@@ -45,10 +48,10 @@ class HTMLOutput(OutputFormatPlugin):
         Generate table of contents
         '''
         from lxml import etree
-        from polyglot.urllib import unquote
 
         from calibre.ebooks.oeb.base import element
         from calibre.utils.cleantext import clean_xml_chars
+        from polyglot.urllib import unquote
         with CurrentDir(output_dir):
             def build_node(current_node, parent=None):
                 if parent is None:
@@ -82,10 +85,11 @@ class HTMLOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree
-        from calibre.utils import zipfile
-        from templite import Templite
-        from polyglot.urllib import unquote
+
         from calibre.ebooks.html.meta import EasyMeta
+        from calibre.utils import zipfile
+        from polyglot.urllib import unquote
+        from templite import Templite
 
         # read template files
         if opts.template_html_index is not None:
@@ -193,7 +197,9 @@ class HTMLOutput(OutputFormatPlugin):
 
                 # render template
                 templite = Templite(template_html_data)
-                toc = lambda: self.generate_html_toc(oeb_book, path, output_dir)
+
+                def toc():
+                    return self.generate_html_toc(oeb_book, path, output_dir)
                 t = templite.render(ebookContent=ebook_content,
                         prevLink=prevLink, nextLink=nextLink,
                         has_toc=bool(oeb_book.toc.count()), toc=toc,

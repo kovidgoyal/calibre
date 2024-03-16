@@ -11,10 +11,10 @@ CREATE TABLE fts_db.books_text ( id INTEGER PRIMARY KEY,
 	format TEXT NOT NULL COLLATE NOCASE,
     format_hash TEXT NOT NULL COLLATE NOCASE,
     format_size INTEGER NOT NULL DEFAULT 0,
-    searchable_text TEXT NOT NULL DEFAULT "",
+    searchable_text TEXT NOT NULL DEFAULT '',
     text_size INTEGER NOT NULL DEFAULT 0,
-    text_hash TEXT NOT NULL COLLATE NOCASE DEFAULT "",
-    err_msg TEXT DEFAULT "",
+    text_hash TEXT NOT NULL COLLATE NOCASE DEFAULT '',
+    err_msg TEXT DEFAULT '',
     UNIQUE(book, format)
 );
 

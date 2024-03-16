@@ -92,6 +92,13 @@ class Context:
                 return False
         return db.has_id(book_id)
 
+    def newest_book_ids(self, request_data, db, count=5):
+        restriction = self.restriction_for(request_data, db)
+        allowed_book_ids = None
+        if restriction:
+            allowed_book_ids = db.search('', restriction=restriction)
+        return db.newly_added_book_ids(count=count, book_ids=allowed_book_ids)
+
     def get_allowed_book_ids_from_restriction(self, request_data, db):
         restriction = self.restriction_for(request_data, db)
         return frozenset(db.search('', restriction=restriction)) if restriction else None

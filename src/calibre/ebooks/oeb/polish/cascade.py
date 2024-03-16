@@ -2,22 +2,22 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import re
 from collections import defaultdict, namedtuple
+from css_parser.css import CSSRule, CSSStyleSheet, Property
 from functools import partial
 from itertools import count
 from operator import itemgetter
-import re
 
-from css_parser.css import CSSStyleSheet, CSSRule, Property
-
-from css_selectors import Select, INAPPROPRIATE_PSEUDO_CLASSES, SelectorError
 from calibre import as_unicode
 from calibre.ebooks.css_transform_rules import all_properties
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, css_text
-from calibre.ebooks.oeb.normalize_css import normalizers, DEFAULTS
-from calibre.ebooks.oeb.stylizer import media_ok, INHERITED
-from tinycss.fonts3 import serialize_font_family, parse_font_family
+from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
+from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
+from calibre.utils.resources import get_path as P
+from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
 from polyglot.builtins import iteritems, itervalues
+from tinycss.fonts3 import parse_font_family, serialize_font_family
 
 _html_css_stylesheet = None
 

@@ -17,22 +17,67 @@ class Harpers(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    masthead_url = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    extra_css = '''
-                h1{ font-family:georgia ; color:#111111; font-size:large;}
-                .box-of-helpful{ font-family:arial ; font-size:x-small;}
-                p{font-family:georgia ;}
-                .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}
-                '''
-
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['postdetailFull', 'articlePost']})]
-    remove_tags = [dict(name=['link', 'object', 'embed', 'meta', 'base'])]
-    remove_attributes = ['width', 'height']
+        dict(
+            class_=[
+                "article-content",
+                "template-index-archive",  # harper's index
+            ]
+        )
+    ]
+    remove_tags = [
+        dict(
+            class_=[
+                "component-newsletter-signup",
+                "sidebar",
+                "header-meta",
+                "component-from-author",
+                "from-issue",
+                "d-none",
+                "COA_roles_fix_space",
+                "section-tags",
+                "aria-font-adjusts",
+                "component-share-buttons",
+                "index-footer",
+                "index-prev-link",
+                "comma",
+            ]
+        ),
+        # for harper's index
+        dict(
+            class_=[
+                "aria-font-adjusts",
+                "component-share-buttons",
+                "index-footer",
+                "index-prev-link",
+            ]
+        ),
+    ]
+    remove_attributes = ["style", "width", "height"]
+
+    extra_css = """
+    h1.article-title { font-size: x-large; margin-bottom: 0.4rem; }
+    .subheading, .post-subtitle { font-size: large; font-style: italic; margin-bottom: 1rem; }
+    .byline { margin-bottom: 1rem }
+    .article-hero-img img, .flex-section-image img, .wp-caption img {
+        display: block; margin-bottom: 0.3rem; max-width: 100%; height: auto;
+        box-sizing: border-box;
+    }
+    .wp-caption-text { font-size: small; margin-top: 0.3rem; }
+
+    .author-bio { margin-top: 2.5rem; font-style: italic; }
+    .author-bio em { font-weight: bold; }
+
+    .index-item { font-size: large; margin: 1rem 0; }
+    .index-statement > p { display: inline-block; margin: 0.5rem 0; }
+    .index-statement > span { display: inline-block; }
+    .index-statement .index-tooltip { font-size: small; }
+    """
+
 
     feeds = [(u"Harper's Magazine", u'https://harpers.org/feed/')]

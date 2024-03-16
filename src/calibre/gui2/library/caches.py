@@ -15,8 +15,9 @@ from polyglot.builtins import itervalues
 
 class ThumbnailCache(TC):
 
-    def __init__(self, max_size=1024, thumbnail_size=(100, 100)):
-        TC.__init__(self, name='gui-thumbnail-cache', min_disk_cache=100, max_size=max_size, thumbnail_size=thumbnail_size)
+    def __init__(self, max_size=1024, thumbnail_size=(100, 100), version=0):
+        TC.__init__(self, name='gui-thumbnail-cache', min_disk_cache=100, max_size=max_size,
+                    thumbnail_size=thumbnail_size, version=version)
 
     def set_database(self, db):
         TC.set_group_id(self, db.library_id)
@@ -24,7 +25,12 @@ class ThumbnailCache(TC):
 
 class CoverCache(dict):
 
-    ' This is a RAM cache to speed up rendering of covers by storing them as QPixmaps '
+    '''
+    This is a RAM cache to speed up rendering of covers by storing them as
+    QPixmaps. It is possible that it is called from multiple threads, thus the
+    locking and staging. For example, it can be called by the db layer when a
+    book is removed either by the GUI or the content server.
+    '''
 
     def __init__(self, limit=100):
         self.items = OrderedDict()
@@ -58,7 +64,6 @@ class CoverCache(dict):
                     # faster
                     ans = QPixmap.fromImage(ans)
                 self.items[key] = ans
-
         return ans
 
     def set(self, key, val):

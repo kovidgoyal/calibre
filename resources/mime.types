@@ -172,8 +172,8 @@ application/simple-filter+xml
 application/simple-message-summary
 application/simplesymbolcontainer
 application/slate
-application/smil				smi smil
-application/smil+xml				smi smil
+# application/smil				obsoleted by smil+xml
+application/smil+xml				smil smi sml
 application/soap+fastinfoset
 application/soap+xml
 application/sparql-query				rq

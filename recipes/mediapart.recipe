@@ -9,6 +9,8 @@
 # ( cover image format is changed to .jpeg)
 # 14 Jan 2021 - Add Mediapart Logo url as masthead_url and change cover
 #   by overlaying the date on top of the Mediapart cover
+# 22 Mar 2023 - Switch to Google feeds
+
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
@@ -17,235 +19,74 @@ __copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 
 Mediapart
 '''
 
-import re
-from datetime import date, datetime, timezone, timedelta
-from calibre.web.feeds import feeds_from_index
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
-
+from datetime import datetime, timezone, timedelta
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class Mediapart(BasicNewsRecipe):
     title = 'Mediapart'
-    __author__ = 'Loïc Houpert'
+    __author__ = 'Loïc Houpert, unkn0wn'
     description = 'Global news in French from news site Mediapart'
     publication_type = 'newspaper'
     language = 'fr'
     needs_subscription = True
-    oldest_article = 2
 
     use_embedded_content = False
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(name='div', **classes('author')),
-        classes('news__heading__top__intro news__body__center__article')
+        classes(
+            'news__heading__top news__heading__center news__body__center__article'
+        )
     ]
+
     remove_tags = [
-        classes('login-subscribe print-source_url'),
+        classes('action-links media--rich read-also login-subscribe print-source_url'),
         dict(name='svg'),
     ]
+
     conversion_options = {'smarten_punctuation': True}
 
     masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
-    # cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
 
-    # --
+    ignore_duplicate_articles = {'title'}
+    resolve_internal_links  = True
+    remove_empty_feeds = True
 
-    # Get date in french time zone format
-    today = datetime.now(timezone.utc) + timedelta(hours=1)
-    oldest_article_date = today - timedelta(days=oldest_article)
+    articles_are_obfuscated = True
 
-    feeds = [
-        ('La Une', 'http://www.mediapart.fr/articles/feed'),
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        try:
+            br.open(url)
+        except Exception as e:
+            url = e.hdrs.get('location')
+        soup = self.index_to_soup(url)
+        link = soup.find('a', href=True)
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/media/'
+        ]
+        if any(x in link['href'] for x in skip_sections):
+            self.log('Aborting Article ', link['href'])
+            self.abort_article('skipping video links')
+
+        self.log('Downloading ', link['href'])
+        html = br.open(link['href']).read()
+        pt = PersistentTemporaryFile('.html')
+        pt.write(html)
+        pt.close()
+        return pt.name
+
+    feeds = []
+
+    sections = [
+        'france', 'international', 'economie', 'culture-idees', 'politique', 'ecologie', 'fil-dactualites'
     ]
 
-    # The feed at 'http://www.mediapart.fr/articles/feed' only displayed the 10
-    # last elements so the articles are indexed on specific pages
-    # in the function my_parse_index. In this function the article are parsed
-    # using the function get_articles and the dict values dict_article_sources
-
-    def parse_feeds(self):
-        feeds = super(Mediapart, self).parse_feeds()
-        feeds += feeds_from_index(self.my_parse_index(feeds))
-        return feeds
-
-    def my_parse_index(self, la_une):
-
-        dict_article_sources = [
-            {
-                'type': 'Brèves',
-                'webpage': 'https://www.mediapart.fr/journal/fil-dactualites',
-                'separador': {
-                    'page': 'ul',
-                    'thread': 'li'
-                }
-            },
-            {
-                'type': 'International',
-                'webpage': 'https://www.mediapart.fr/journal/international',
-                'separador': {
-                    'page': 'div',
-                    'thread': 'div'
-                }
-            },
-            {
-                'type': 'France',
-                'webpage': 'https://www.mediapart.fr/journal/france',
-                'separador': {
-                    'page': 'div',
-                    'thread': 'div'
-                }
-            },
-            {
-                'type': 'Économie',
-                'webpage': 'https://www.mediapart.fr/journal/economie',
-                'separador': {
-                    'page': 'div',
-                    'thread': 'div'
-                }
-            },
-            {
-                'type': 'Culture',
-                'webpage': 'https://www.mediapart.fr/journal/culture-idees',
-                'separador': {
-                    'page': 'div',
-                    'thread': 'div'
-                }
-            },
-        ]
-
-        def get_articles(
-            type_of_article, webpage, separador_page='ul', separador_thread='li'
-        ):
-
-            specific_articles = []
-
-            webpage_article = []
-            soup = self.index_to_soup(webpage)
-            page = soup.find('main', {'class': 'global-wrapper'})
-            if page is None:
-                page = soup.find('section', {'class': 'news__body-wrapper mb-800'})
-            fils = page.find(separador_page, {'class': 'post-list universe-journal'})
-            if fils is None:
-                fils = page.find(separador_page, {'class': 'news__list__content _hasNewsletter'})
-
-            all_articles = fils.findAll(separador_thread)
-            for article in all_articles:
-                try:
-                    # title = article.find('h3', recursive=False)
-                    title = article.find('h3', recursive=True)
-                    if title is None or ''.join(title['class']) == 'title-specific':
-                        # print(f"[BAD title entry] Print value of title:\n {title}")
-                        continue
-                    # print(f"\n[OK title entry] Print value of title:\n {title}\n")
-
-                    try:
-                        article_mot_cle = article.find(
-                            'a', {
-                                'href': re.compile(r'.*\/mot-cle\/.*')
-                            }
-                        ).renderContents().decode('utf-8')
-                    except Exception:
-                        article_mot_cle = ''
-
-                    try:
-                        article_type = article.find(
-                            'a', {
-                                'href': re.compile(r'.*\/type-darticles\/.*')
-                            }
-                        ).renderContents().decode('utf-8')
-                    except Exception:
-                        article_type = ''
-
-                    for s in title('span'):
-                        s.replaceWith(s.renderContents().decode('utf-8') + "\n")
-                    url = title.find('a', href=True)['href']
-
-                    date = article.find('time', datetime=True)['datetime']
-                    article_date = datetime.strptime(date, '%Y-%m-%d')
-                    # Add French timezone to date of the article for date check
-                    article_date = article_date.replace(tzinfo=timezone.utc) + timedelta(hours=1)
-                    if article_date < self.oldest_article_date:
-                        print("article_date < self.oldest_article_date\n")
-                        continue
-
-                    # print("-------- Recent article added to the list ------- \n")
-                    all_authors = article.findAll(
-                        # 'a', {'class': re.compile(r'\bjournalist\b')}
-                        'div', {'class': 'teaser__signature'}
-                    )
-                    if not all_authors:
-                        all_authors = article.findAll(
-                            'a', {'class': re.compile(r'\bjournalist\b')}
-                        )
-                    authors = [self.tag_to_string(a) for a in all_authors]
-                    # print(f"Authors in tag <a>: {authors}")
-
-                    # If not link to the author profile is available the
-                    # html separador is a span tag
-                    if not all_authors:
-                        try:
-                            all_authors = article.findAll(
-                                'span', {'class': re.compile(r'\bjournalist\b')}
-                            )
-                            authors = [self.tag_to_string(a) for a in all_authors]
-                            # print(f"Authors in tag <span>: {authors}")
-                        except:
-                            authors = 'unknown'
-
-                    description = article.find('p').renderContents().decode('utf-8')
-                    # print(f" <p> in article : {self.tag_to_string(description).strip()} ")
-
-                    summary = {
-                        'title': self.tag_to_string(title).strip(),
-                        'description': description,
-                        'date': article_date.strftime("%a, %d %b, %Y %H:%M"),
-                        'author': ', '.join(authors),
-                        'article_type': article_type,
-                        'mot_cle': article_mot_cle.capitalize(),
-                        'url': 'https://www.mediapart.fr' + url,
-                    }
-                    if webpage_article:
-                        if summary['url'] != webpage_article[-1]['url']:
-                            webpage_article.append(summary)
-                    else:
-                        webpage_article.append(summary)
-                except Exception:
-                    pass
-
-            specific_articles += [(type_of_article,
-                                   webpage_article)] if webpage_article else []
-            return specific_articles
-
-        articles = []
-
-        for category in dict_article_sources:
-            articles += get_articles(
-                category['type'], category['webpage'], category['separador']['page'],
-                category['separador']['thread']
-            )
-
-        return articles
-
-    # non-locale specific date parse (strptime("%d %b %Y",s) would work with
-    # french locale)
-    def parse_french_date(self, date_str):
-        date_arr = date_str.lower().split()
-        return date(
-            day=int(date_arr[0]),
-            year=int(date_arr[2]),
-            month=[
-                None, 'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-                'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
-            ].index(date_arr[1])
-        )
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:mediapart.fr%2Fjournal{}&hl=fr-FR&gl=FR&ceid=FR:fr'
+        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
+    feeds.append(('Autres', a.format('')))
 
     def get_browser(self):
         # -- Handle login
@@ -298,7 +139,7 @@ class Mediapart(BasicNewsRecipe):
             p.setPen(pen)
             font = QFont()
             font.setFamily('Times')
-            font.setPointSize(78)
+            font.setPointSize(72)
             p.setFont(font)
             r = QRect(0, 600, 744,100)
             p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, date)

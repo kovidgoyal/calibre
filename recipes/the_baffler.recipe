@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class TheBaffler(BasicNewsRecipe):
     title = 'The Baffler'
-    __author__ = 'unkn0wn'
+    __author__ = 'flobotnik and unkn0wn'
     description = ('This magazine contains left-wing criticism, cultural analysis, shorts'
                    ' stories, poems and art.  They publish six print issues annually.')
     language = 'en'
@@ -26,8 +26,9 @@ class TheBaffler(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('entry-date issue-number-segment single-article-vertical donation-footer'),
-        dict(name='footer')
+        classes('entry-date issue-number-segment single-article-vertical donation-footer story-footer ml-4 mt-14'),
+        dict(name='footer'),
+        dict(name='a', class_='ml-4 pr-px font-sans text-sm lg:text-xs whitespace-nowrap')
     ]
 
     def get_cover_url(self):
@@ -40,7 +41,7 @@ class TheBaffler(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('https://thebaffler.com/issues')
         issue = soup.find('article')
-        edition = self.tag_to_string(issue.find('h3')).strip().split('—')[1]
+        edition = self.tag_to_string(issue.find('h2')).strip().split('—')[1]
         if edition:
             self.log('Downloading Issue: ', edition)
             self.title = 'The Baffler : ' + edition
@@ -56,14 +57,14 @@ class TheBaffler(BasicNewsRecipe):
         ans = []
         main = soup.find('main', attrs={'id':'main'})
         for section in main.findAll('section'):
-            current_section = self.tag_to_string(section.h1).strip()
+            current_section = self.tag_to_string(section.h3).strip()
             self.log(current_section)
             articles = []
-            for h3 in section.findAll('h3'):
-                title = self.tag_to_string(h3)
-                url = h3.a['href']
+            for h4 in section.findAll('h4'):
+                title = self.tag_to_string(h4)
+                url = h4.a['href']
                 desc = ''
-                span = h3.findNext('span')
+                span = h4.findNext('span')
                 if span:
                     desc = self.tag_to_string(span).strip()
                 span2 = span.findNext('span')

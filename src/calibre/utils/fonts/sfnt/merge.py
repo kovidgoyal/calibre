@@ -50,12 +50,18 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
                         log(f'Size mismatch for glyph id: {glyph_id} prev_sz: {len(prev_glyph_data)} sz: {sz}')
                 if hhea is not None:
                     m = hhea.metrics_for(glyph_id)
-                    if m != hmetrics_map[glyph_id]:
+                    old_val = hmetrics_map.get(glyph_id)
+                    if old_val is None:
+                        hmetrics_map[glyph_id] = m
+                    elif m != old_val:
                         log(f'Metrics mismatch for glyph id: {glyph_id} prev: {hmetrics_map[glyph_id]} cur: {m}')
                 if vhea is not None:
                     m = vhea.metrics_for(glyph_id)
-                    if m != vmetrics_map[glyph_id]:
-                        log(f'Metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
+                    old_val = vmetrics_map.get(glyph_id)
+                    if old_val is None:
+                        vmetrics_map[glyph_id] = m
+                    elif m != vmetrics_map[glyph_id]:
+                        log(f'Vertical metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
 
     glyf = ans[b'glyf']
     head = ans[b'head']
@@ -71,9 +77,9 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
     head.update()
     maxp.num_glyphs = len(loca.offset_map) - 1
     maxp.update()
-    if hmetrics_map:
+    if hmetrics_map and b'hhea' in ans:
         ans[b'hhea'].update(hmetrics_map, ans[b'hmtx'])
-    if vmetrics_map:
+    if vmetrics_map and b'vhea' in ans:
         ans[b'vhea'].update(vmetrics_map, ans[b'vmtx'])
 
     for name in 'hdmx GPOS GSUB'.split():

@@ -1,7 +1,7 @@
 # Tell git what files are txt
 *.py  text diff=python
 *.pyj  text diff=python
-*.recipe  text diff=python
+*.recipe  text diff=python linguist-language=python
 *.coffee  text
 *.js      text
 *.pot     text
@@ -46,6 +46,7 @@ resources/coffee-script.js linguist-vendored=true
 resources/csscolorparser.js linguist-vendored=true
 resources/viewer/hyphen* linguist-vendored=true
 resources/viewer/jquery* linguist-vendored=true
+resources/stylelint-bundle.min.js linguist-vendored=true
 src/hunspell linguist-vendored=true
 
 # Mark generated files

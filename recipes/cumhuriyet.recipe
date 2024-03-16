@@ -1,68 +1,42 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-from __future__ import unicode_literals
-# based on a recipe by Darko Miletic
-#
-# Cumhuriyet Gazetesi'nin köşe yazıları okuyuculara cumhuriyet.com.tr
-# adresi üzerinden ücretsiz olarak sunulmaktadır.
-# Calibre yazılımıyla kullanılabilen bu reçete Cumhuriyet Gazetesi'nin
-# günlük köşe yazılarını hızlıca derleyip e-okuyucunuzda kolayca okunabilir
-# hale getirir. Yazıların yayınlanma saati sabah olduğu için reçeteyi
-# 7:00-24:00 arasında çizelgelemeniz gerekmektedir.
-#
-# 2014-02-10: Yenilenmiş Cumhuriyet Gazetesi web sitesine göre değiştirildi.
-# 2013-08-28: İlk sürüm
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Sethi Eksi <sethi.eksi at gmail.com>'
-'''
-cumhuriyet.com.tr
-'''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Cumhuriyet_tr(BasicNewsRecipe):
-    title = 'Cumhuriyet - Yazarlar'
-    __author__ = 'Cumhuriyet Gazetesi Yazarları'
-    description = 'Günlük Cumhuriyet Gazetesi Köşe Yazıları'
+class Cumhuriyet(BasicNewsRecipe):
+    title = 'Cumhuriyet'
+    __author__ = 'ims'
+    description = 'News from Turkey'
+    language = 'tr'
     publisher = 'Cumhuriyet'
-    category = 'news, politics, Turkey'
     oldest_article = 1
-    max_articles_per_feed = 150
+    max_articles_per_feed = 10
     no_stylesheets = True
     encoding = 'utf-8'
     use_embedded_content = False
-    masthead_url = 'http://www.cumhuriyet.com.tr/image/template/Cumhuriyet_logo_300x60px.png'
-    cover_url = 'http://www.cumhuriyet.com.tr/image/template/Cumhuriyet_logo_300x60px.png'
-    language = 'tr'
-    extra_css             = """ .name {display: block;width:100%;font-size:120%;}
-                                #article-title {display: block;margin-top: 15px;width:100%;font-size:140%;}
-                                #publish-date {display: block;width:100%;font-size:80%;}
-                            """
-#    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-#                                .article_description,body{font-family: Arial,Verdana,Helvetica,sans1,sans-serif}
-#                            """
+    timefmt = ' [%d %b %Y]'
+    ignore_duplicate_articles = {'title', 'url'}
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    remove_tags = [dict(attrs={'class': 'links'}), dict(
-        attrs={'id': 'share-bar'}), dict(attrs={'id': 'font-adjust'})]
-    remove_tags_before = dict(attrs={'id': 'content'})
-    remove_tags_after = dict(attrs={'id': 'content'})
-
-    feeds = [
-        (u'Yazarlar', u'http://www.cumhuriyet.com.tr/rss/2')
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'baslik'}),
+        dict(name='h2', attrs={'class': 'spot'}),
+        dict(name='div', attrs={'class': 'haberKaynagi'}),
+        dict(name='div', attrs={'class': 'yayin-tarihi'}),
+        dict(name='div', attrs={'class': 'haberMetni'}),
     ]
 
-#    def print_version(self, url):
-#        articleid = url.rpartition('hn=')[2]
-#        return 'http://www.cumhuriyet.com.tr/?hn=' + articleid
+    remove_tags = [
+        dict(name=['button', 'svg']),
+        dict(name='ul', attrs={'class': 'breadcrumbs'}),
+        dict(name='div', attrs={'class': 'google-news'}),
+        dict(name='div', attrs={'class': 'iliskiliHaberler'}),
+    ]
 
-    def get_masthead_title(self):
-        return self.title + "(" + self.end_date + ")"
-
-    def preprocess_html(self, soup):
-        return self.adeify_images(soup)
+    feeds = [
+        ('Gundem',  'https://www.cumhuriyet.com.tr/rss/9999'),
+        ('Dünya',   'https://www.cumhuriyet.com.tr/rss/4'),
+        ('Türkiye', 'https://www.cumhuriyet.com.tr/rss/3'),
+        ('Ekonomi', 'https://www.cumhuriyet.com.tr/rss/5'),
+        ('Kultur Sanat', 'https://www.cumhuriyet.com.tr/rss/6'),
+        ('Siyaset', 'https://www.cumhuriyet.com.tr/rss/2'),
+        ('Bilim ve Teknoloji', 'https://www.cumhuriyet.com.tr/rss/10'),
+        ('Tarım', 'https://www.cumhuriyet.com.tr/rss/19'),
+    ]

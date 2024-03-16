@@ -116,20 +116,27 @@ def find_tests():
                     f.write(b'a' * 20 * 1024)
                     eq(fname, f.name)
                 f = share_open(fname, 'rb')
-                eq(f.read(1), b'a')
-                if iswindows:
-                    os.rename(fname, fname+'.moved')
-                    os.remove(fname+'.moved')
-                else:
-                    os.remove(fname)
-                eq(f.read(1), b'a')
-                f2 = share_open(fname, 'w+b')
-                f2.write(b'b' * 10 * 1024)
-                f2.seek(0)
-                eq(f.read(10000), b'a'*10000)
-                eq(f2.read(100), b'b' * 100)
-                f3 = share_open(fname, 'rb')
-                eq(f3.read(100), b'b' * 100)
+                close = [f]
+                try:
+                    eq(f.read(1), b'a')
+                    if iswindows:
+                        os.rename(fname, fname+'.moved')
+                        os.remove(fname+'.moved')
+                    else:
+                        os.remove(fname)
+                    eq(f.read(1), b'a')
+                    f2 = share_open(fname, 'w+b')
+                    close.append(f2)
+                    f2.write(b'b' * 10 * 1024)
+                    f2.seek(0)
+                    eq(f.read(10000), b'a'*10000)
+                    eq(f2.read(100), b'b' * 100)
+                    f3 = share_open(fname, 'rb')
+                    close.append(f3)
+                    eq(f3.read(100), b'b' * 100)
+                finally:
+                    for f in close:
+                        f.close()
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(SharedFileTest)
 

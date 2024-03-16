@@ -573,7 +573,7 @@ class GoComics(BasicNewsRecipe):
         fname = ascii_filename('%03d_%s' % (num, title)).replace(' ', '_')
         path = os.path.join(self.gocomics_dir, fname)
         html = '<html><body>{h1}<h2>{date}</h2><div>{img}</div></body></html>'.format(**data)
-        with lopen(path, 'wb') as f:
+        with open(path, 'wb') as f:
             f.write(html.encode('utf-8'))
         return {'title':'Page %d of %s' % ((num + 1), title), 'url': ('file:' if iswindows else 'file://') + path.replace(os.sep, '/')}
 

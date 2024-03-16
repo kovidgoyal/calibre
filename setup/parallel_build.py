@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess, os, itertools, json, sys
+import subprocess, os, itertools, json, sys, shlex
 from multiprocessing.pool import ThreadPool as Pool
 from collections import namedtuple
 from threading import Thread
@@ -19,7 +19,7 @@ cpu_count = min(16, max(1, os.cpu_count()))
 
 def run_worker(job, decorate=True):
     cmd, human_text = job.cmd, job.human_text
-    human_text = human_text or ' '.join(cmd)
+    human_text = human_text or shlex.join(cmd)
     cwd = job.cwd
     if cmd[0].lower().endswith('cl.exe'):
         cwd = os.environ.get('COMPILER_CWD')

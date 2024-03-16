@@ -5,4 +5,3 @@ from __python__ import bound_methods, hash_literals
 
 FAKE_PROTOCOL = '__FAKE_PROTOCOL__'
 FAKE_HOST = '__FAKE_HOST__'
-READER_BACKGROUND_URL = f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background'

@@ -44,6 +44,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_columns, 'item'+signal)
             signal.connect(self.columns_changed)
+        self.show_all_button.clicked.connect(self.show_all)
+        self.hide_all_button.clicked.connect(self.hide_all)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -137,7 +139,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 return
         self.opt_columns.resizeColumnsToContents()
 
-    def setup_row(self, row, key, order):
+    def hide_all(self):
+        for row in range(self.opt_columns.rowCount()):
+            item = self.opt_columns.item(row, 0)
+            if item.checkState() != Qt.CheckState.PartiallyChecked:
+                item.setCheckState(Qt.CheckState.Unchecked)
+        self.changed_signal.emit()
+
+    def show_all(self):
+        for row in range(self.opt_columns.rowCount()):
+            item = self.opt_columns.item(row, 0)
+            if item.checkState() != Qt.CheckState.PartiallyChecked:
+                item.setCheckState(Qt.CheckState.Checked)
+        self.changed_signal.emit()
+
+    def setup_row(self, row, key, order, force_checked_to=None):
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
         if self.is_custom_key(key):
@@ -161,8 +177,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             item.setCheckState(Qt.CheckState.PartiallyChecked)
         else:
             item.setFlags(flags)
-            item.setCheckState(Qt.CheckState.Unchecked if key in self.hidden_cols else
-                    Qt.CheckState.Checked)
+            if force_checked_to is None:
+                item.setCheckState(Qt.CheckState.Unchecked if key in self.hidden_cols else Qt.CheckState.Checked)
+            else:
+                item.setCheckState(force_checked_to)
 
         item = QTableWidgetItem(cc['name'])
         item.setToolTip(cc['name'])
@@ -216,6 +234,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.setItem(row, 5, item)
         self.opt_columns.setSortingEnabled(True)
 
+    def recreate_row(self, row):
+        checked = self.opt_columns.item(row, 0).checkState()
+        title = self.opt_columns.item(row, 2).text()
+        self.setup_row(row, title, row, force_checked_to=checked)
+
     def up_column(self):
         self.opt_columns.setSortingEnabled(False)
         row = self.opt_columns.currentRow()
@@ -225,8 +248,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 upper = self.opt_columns.takeItem(row, i)
                 self.opt_columns.setItem(row, i, lower)
                 self.opt_columns.setItem(row-1, i, upper)
-            self.setup_row(row-1, self.opt_columns.item(row-1, 2).text(), row-1)
-            self.setup_row(row, self.opt_columns.item(row, 2).text(), row)
+            self.recreate_row(row-1)
+            self.recreate_row(row)
             self.opt_columns.setCurrentCell(row-1, 1)
             self.changed_signal.emit()
         self.opt_columns.setSortingEnabled(True)
@@ -240,8 +263,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 upper = self.opt_columns.takeItem(row+1, i)
                 self.opt_columns.setItem(row+1, i, lower)
                 self.opt_columns.setItem(row, i, upper)
-            self.setup_row(row+1, self.opt_columns.item(row+1, 2).text(), row+1)
-            self.setup_row(row, self.opt_columns.item(row, 2).text(), row)
+            self.recreate_row(row+1)
+            self.recreate_row(row)
             self.opt_columns.setCurrentCell(row+1, 1)
             self.changed_signal.emit()
         self.opt_columns.setSortingEnabled(True)

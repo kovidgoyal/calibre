@@ -193,7 +193,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 
 
 def choose_files(window, name, title,
-                filters=[], all_files=True, select_only_single_file=False, default_dir='~'):
+                filters=[], all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
     '''
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
@@ -207,7 +207,7 @@ def choose_files(window, name, title,
     '''
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     fd = FileDialog(title=title, name=name, filters=filters, default_dir=default_dir,
-                    parent=window, add_all_files_filter=all_files, mode=mode,
+                    parent=window, add_all_files_filter=all_files, mode=mode, no_save_dir=no_save_dir,
                     )
     fd.setParent(None)
     if fd.accepted:

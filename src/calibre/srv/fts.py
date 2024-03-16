@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
@@ -17,7 +16,7 @@ def fts_search(ctx, rd):
     '''
     Perform the specified full text query.
 
-    Optional: ?query=<search query>&library_id=<default library>&use_stemming=<y or n>&query_id=arbitrary
+    Optional: ?query=<search query>&library_id=<default library>&use_stemming=<y or n>&query_id=arbitrary&restriction=arbitrary
     '''
 
     db = get_library_data(ctx, rd)[0]
@@ -34,6 +33,9 @@ def fts_search(ctx, rd):
     qid = rd.query.get('query_id')
     if qid:
         ans['query_id'] = qid
+    book_ids = None
+    if rd.query.get('restriction'):
+        book_ids = db.search('', restriction=rd.query.get('restriction'))
 
     def add_metadata(result):
         result.pop('id', None)
@@ -47,11 +49,19 @@ def fts_search(ctx, rd):
     from calibre.db import FTSQueryError
     try:
         ans['results'] = tuple(db.fts_search(
-            query, use_stemming=use_stemming, return_text=False, process_each_result=add_metadata,
+            query, use_stemming=use_stemming, return_text=False, process_each_result=add_metadata, restrict_to_book_ids=book_ids,
         ))
     except FTSQueryError as e:
         raise HTTPUnprocessableEntity(str(e))
     return ans
+
+
+@endpoint('/fts/disable', needs_db_write=True)
+def fts_disable(ctx, rd):
+    db = get_library_data(ctx, rd)[0]
+    if db.is_fts_enabled():
+        db.enable_fts(enabled=False)
+    return ''
 
 
 @endpoint('/fts/reindex', needs_db_write=True, methods=('POST',))

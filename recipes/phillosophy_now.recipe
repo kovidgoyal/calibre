@@ -21,16 +21,25 @@ class PhilosophyNow(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://philosophynow.org/media/images/regulars/logoStructuredData.png'
 
     keep_only_tags = [classes('article_page')]
     remove_tags = [dict(name='div', attrs={'id':'welcome_box'})]
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .articleImageCaption { font-size:small; text-align:center; }
+        em, blockquote { color:#202020; }
+    '''
 
     def parse_index(self):
         soup = self.index_to_soup('https://philosophynow.org/')
         div = soup.find('div', attrs={'id': 'aside_issue_cover'})
         url = div.find('a', href=True)['href']
-        for issue in div.findAll('div', attrs={'id':'aside_issue_text'}):
+        issue = div.find('div', attrs={'id':'aside_issue_text'})
+        if issue:
             self.log('Downloading issue:', self.tag_to_string(issue).strip())
+            self.timefmt = ' [' + self.tag_to_string(issue.find(attrs={'id':'aside_issue_date'})) + ']'
+            self.title = 'Philosophy Now ' + self.tag_to_string(issue.find(attrs={'id':'aside_issue_number'}))
         cov_url = div.find('img', src=True)['src']
         self.cover_url = 'https://philosophynow.org' + cov_url
         soup = self.index_to_soup('https://philosophynow.org' + url)

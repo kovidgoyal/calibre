@@ -279,6 +279,13 @@ class Convert:
             if fallbacks:
                 for choice in choices:
                     ac.remove(choice)
+                if len(fallbacks) == 1 and ac.getparent().tag.endswith('}r') and len(fallbacks[0]) == 1:
+                    q = fallbacks[0][0]
+                    if q.tag and (q.tag.endswith('}drawing') or q.tag.endswith('}pict')):
+                        p = ac.getparent()
+                        idx = p.index(ac)
+                        p.insert(idx, q)
+                        p.remove(ac)
 
     def read_styles(self, relationships_by_type):
 
@@ -376,11 +383,11 @@ class Convert:
     def write(self, doc):
         toc = create_toc(doc, self.body, self.resolved_link_map, self.styles, self.object_map, self.log, self.namespace)
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
-        with lopen(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
+        with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)
         css = self.styles.generate_css(self.dest_dir, self.docx, self.notes_nopb, self.nosupsub)
         if css:
-            with lopen(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
+            with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
                 f.write(css.encode('utf-8'))
 
         opf = OPFCreator(self.dest_dir, self.mi)
@@ -398,7 +405,7 @@ class Convert:
                 guide.append(E.reference(
                     href='index.html#' + self.toc_anchor, title=_('Table of Contents'), type='toc'))
         toc_file = os.path.join(self.dest_dir, 'toc.ncx')
-        with lopen(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(toc_file, 'wb') as ncx:
+        with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(toc_file, 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx', process_guide=process_guide)
         if os.path.getsize(toc_file) == 0:
             os.remove(toc_file)

@@ -5,17 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, weakref, shutil
-
-from qt.core import (QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QFrame,
-        QPushButton, QLabel, QGroupBox, QGridLayout, QIcon, QSize, QTimer)
+import os
+import shutil
+import weakref
+from qt.core import (
+    QDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QPushButton,
+    QRadioButton, QSize, QTimer, QVBoxLayout,
+)
 
 from calibre import as_unicode
 from calibre.constants import ismacos
-from calibre.gui2 import error_dialog, question_dialog, open_local_file, gprefs
-from calibre.gui2.actions import InterfaceAction
-from calibre.ptempfile import (PersistentTemporaryDirectory,
-        PersistentTemporaryFile)
+from calibre.gui2 import error_dialog, gprefs, open_local_file, question_dialog
+from calibre.gui2.actions import InterfaceActionWithLibraryDrop
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
 
 
@@ -163,7 +165,7 @@ class UnpackBook(QDialog):
         return question_dialog(self, _('Are you sure?'), msg)
 
     def do_explode(self):
-        from calibre.ebooks.tweak import get_tools, Error, WorkerError
+        from calibre.ebooks.tweak import Error, WorkerError, get_tools
         tdir = PersistentTemporaryDirectory('_tweak_explode')
         self._cleanup_dirs.append(tdir)
         det_msg = None
@@ -201,7 +203,7 @@ class UnpackBook(QDialog):
         open_local_file(tdir)
 
     def rebuild_it(self):
-        from calibre.ebooks.tweak import get_tools, WorkerError
+        from calibre.ebooks.tweak import WorkerError, get_tools
         src_dir = self._exploded
         det_msg = None
         of = PersistentTemporaryFile('_tweak_rebuild.'+self.current_format.lower())
@@ -284,33 +286,13 @@ class UnpackBook(QDialog):
                 return str(b.text())
 
 
-class UnpackBookAction(InterfaceAction):
+class UnpackBookAction(InterfaceActionWithLibraryDrop):
 
     name = 'Unpack Book'
     action_spec = (_('Unpack book'), 'unpack-book.png',
             _('Unpack books in the EPUB, AZW3, HTMLZ formats into their individual components'), 'U')
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
-
-    accepts_drops = True
-
-    def accept_enter_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def accept_drag_move_event(self, event, mime_data):
-        if mime_data.hasFormat("application/calibre+from_library"):
-            return True
-        return False
-
-    def drop_event(self, event, mime_data):
-        mime = 'application/calibre+from_library'
-        if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
-            QTimer.singleShot(1, self.do_drop)
-            return True
-        return False
 
     def do_drop(self):
         book_ids = self.dropped_ids

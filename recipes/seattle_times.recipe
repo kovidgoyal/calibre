@@ -55,9 +55,5 @@ class SeattleTimes(BasicNewsRecipe):
          u'https://www.seattletimes.com/photo-video/feed/'),
     ]
 
-    def get_browser(self, *a, **kw):
-        # MyClatchy servers dont like the user-agent header, they hang forever
-        # when it is present
-        br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
-        return br
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')

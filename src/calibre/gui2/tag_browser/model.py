@@ -10,21 +10,22 @@ import os
 import traceback
 from collections import OrderedDict, namedtuple
 from qt.core import (
-    QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt,
-    pyqtSignal
+    QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt, pyqtSignal,
 )
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs, question_dialog
+from calibre.gui2 import (
+    config, error_dialog, file_icon_provider, gprefs, question_dialog,
+)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import (
-    contains, lower, primary_contains, primary_strcmp, sort_key,
-    strcmp, collation_order_for_partitioning
+    collation_order_for_partitioning, contains, lower, lower as icu_lower,
+    primary_contains, primary_strcmp, sort_key, strcmp, upper as icu_upper,
 )
 from calibre.utils.serialize import json_dumps, json_loads
 from polyglot.builtins import iteritems, itervalues
@@ -234,10 +235,17 @@ class TagTreeItem:  # {{{
                 ar = self.average_rating
                 if ar:
                     tt.append(_('Average rating for books in this category: %.1f') % ar)
-                elif self.type == self.TAG and ar is not None:
-                    tt.append(_('Books in this category are unrated'))
-                if self.type == self.TAG and tag.category != 'search':
-                    tt.append(_('Number of books: %s') % self.item_count)
+                elif self.type == self.TAG:
+                    if ar is not None:
+                        tt.append(_('Books in this category are unrated'))
+                    if tag.category != 'search':
+                        tt.append(_('Number of books: %s') % self.item_count)
+                    from calibre.gui2.ui import get_gui
+                    db = get_gui().current_db.new_api
+                    link = (None if not db.has_link_map(tag.category)
+                                 else db.get_link_map(tag.category).get(tag.original_name))
+                    if link:
+                        tt.append(_('Link: %s') % link)
                 return '\n'.join(tt)
             return None
         if role == DRAG_IMAGE_ROLE:
@@ -364,10 +372,27 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
         self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.ConnectionType.QueuedConnection)
+        self.reset_notes_and_link_maps()
 
     @property
     def gui_parent(self):
         return QObject.parent(self)
+
+    def rename_user_category_icon(self, old_key, new_key):
+        '''
+        This is required for user categories because the key (lookup name) changes
+        on rename. We must rename the old icon to use the new key then update
+        the preferences and internal tables.
+        '''
+        old_icon = self.prefs['tags_browser_category_icons'].get(old_key, None)
+        if old_icon is not None:
+            old_path = os.path.join(config_dir, 'tb_icons', old_icon)
+            _, ext = os.path.splitext(old_path)
+            new_icon = new_key + ext
+            new_path = os.path.join(config_dir, 'tb_icons', new_icon)
+            os.replace(old_path, new_path)
+            self.set_custom_category_icon(new_key, new_path)
+            self.set_custom_category_icon(old_key, None)
 
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
@@ -424,6 +449,45 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._run_rebuild()
         self.endResetModel()
 
+    def _cached_notes_map(self, category):
+        if self.notes_map is None:
+            self.notes_map = {}
+        ans = self.notes_map.get(category)
+        if ans is None:
+            try:
+                self.notes_map[category] = ans = (self.db.new_api.get_all_items_that_have_notes(category),
+                                            self.db.new_api.get_item_name_map(category))
+            except Exception:
+                self.notes_map[category] = ans = (frozenset(), {})
+        return ans
+
+    def _cached_link_map(self, category):
+        if self.link_map is None:
+            self.link_map = {}
+        ans = self.link_map.get(category)
+        if ans is None:
+            try:
+                self.link_map[category] = ans = self.db.new_api.get_link_map(category)
+            except Exception:
+                self.link_map[category] = ans = {}
+        return ans
+
+    def category_has_notes(self, category):
+        return bool(self._cached_notes_map(category)[0])
+
+    def item_has_note(self, category, item_name):
+        notes_map, item_id_map = self._cached_notes_map(category)
+        return item_id_map.get(item_name) in notes_map
+
+    def category_has_links(self, category):
+        return bool(self._cached_link_map(category))
+
+    def item_has_link(self, category, item_name):
+        return item_name in self._cached_link_map(category)
+
+    def reset_notes_and_link_maps(self):
+        self.link_map = self.notes_map = None
+
     def rebuild_node_tree(self, state_map={}):
         if self._build_in_progress:
             print('Tag browser build already in progress')
@@ -438,6 +502,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
+        self.reset_notes_and_link_maps()
         for node in itervalues(self.node_map):
             node.break_cycles()
         del node  # Clear reference to node in the current frame
@@ -799,13 +864,38 @@ class TagsModel(QAbstractItemModel):  # {{{
                 process_one_node(category, collapse_model, self.db.new_api.fields['rating'].book_value_map,
                                 state_map.get(category.category_key, {}))
 
-        # Fix up the node tree, reordering as needed and deleting undisplayed nodes
+        # Fix up the node tree, reordering as needed and deleting undisplayed
+        # nodes. First, remove empty user category subnodes if needed. This is a
+        # recursive process because the hierarchical categories were combined
+        # together in process_one_node (above), which also computes the child
+        # count.
+        if self.prefs['tag_browser_hide_empty_categories']:
+            def process_uc_children(parent, depth):
+                new_children = []
+                for node in parent.children:
+                    if node.type == TagTreeItem.CATEGORY:
+                        # I could De Morgan's this but I think it is more
+                        # understandable this way
+                        if node.category_key.startswith('@') and len(node.children) == 0:
+                            pass
+                        else:
+                            new_children.append(node)
+                            process_uc_children(node, depth+1)
+                    else:
+                        new_children.append(node)
+                parent.children = new_children
+            for node in self.root_item.children:
+                if node.category_key.startswith('@'):
+                    process_uc_children(node, 1)
+
+        # Now check the standard categories and root-level user categories,
+        # removing any hidden categories and if needed, empty categories
         new_children = []
         for node in self.root_item.children:
+            if self.prefs['tag_browser_hide_empty_categories'] and len(node.child_tags()) == 0:
+                continue
             key = node.category_key
             if key in self.row_map:
-                if self.prefs['tag_browser_hide_empty_categories'] and len(node.child_tags()) == 0:
-                    continue
                 if self.hidden_categories:
                     if key in self.hidden_categories:
                         continue
@@ -1207,13 +1297,25 @@ class TagsModel(QAbstractItemModel):  # {{{
             else:
                 use_exact_match = False
                 filter_by = self.filter_categories_by
+
+            if prefs['use_primary_find_in_search']:
+                def final_equals(x, y):
+                    return primary_strcmp(x, y) == 0
+                def final_contains(x, y):
+                    return primary_contains(x, y)
+            else:
+                def final_equals(x, y):
+                    return strcmp(x, y) == 0
+                def final_contains(filt, txt):
+                    return contains(filt, icu_lower(txt))
+
             for category in data.keys():
                 if use_exact_match:
                     data[category] = [t for t in data[category]
-                        if lower(t.name) == filter_by]
+                        if final_equals(t.name, filter_by)]
                 else:
                     data[category] = [t for t in data[category]
-                        if lower(t.name).find(filter_by) >= 0]
+                        if final_contains(filter_by, t.name)]
 
         # Build a dict of the keys that have data.
         # Always add user categories so that the constructed hierarchy works.
@@ -1350,14 +1452,16 @@ class TagsModel(QAbstractItemModel):  # {{{
                             return self.show_error_after_event_loop_tick(_('Rename User category'),
                                 _('The name %s is already used')%nkey)
                         user_cats[nkey] = user_cats[ckey]
+                        self.rename_user_category_icon('@' + c, '@' + nkey)
                         del user_cats[ckey]
                     elif c[len(ckey)] == '.':
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
                             return self.show_error_after_event_loop_tick(_('Rename User category'),
-                                _('The name %s is already used')%(nkey+rest))
+                                _('The name %s is already used')%(nkey + rest))
                         user_cats[nkey + rest] = user_cats[ckey + rest]
+                        self.rename_user_category_icon('@' + ckey + rest, '@' + nkey + rest)
                         del user_cats[ckey + rest]
             self.user_categories_edited.emit(user_cats, nkey)  # Does a refresh
             self.use_position_based_index_on_next_recount = True
@@ -1437,13 +1541,21 @@ class TagsModel(QAbstractItemModel):  # {{{
         '''
         user_cats = self.db.new_api.pref('user_categories', {})
         for k in user_cats.keys():
-            new_contents = []
-            for tup in user_cats[k]:
-                if tup[0] == item_name and tup[1] == item_category:
-                    new_contents.append([new_name, item_category, 0])
-                else:
-                    new_contents.append(tup)
-            user_cats[k] = new_contents
+            ucat = {n:c for n,c,_ in user_cats[k]}
+            # Check if the new name with the same category already exists. If
+            # so, remove the old name because it would be a duplicate. This can
+            # happen if two items in the item_category were renamed to the same
+            # name.
+            if ucat.get(new_name, None) == item_category:
+                if ucat.pop(item_name, None) is not None:
+                    # Only update the user_cats when something changes
+                    user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
+            elif ucat.get(item_name, None) == item_category:
+                # If the old name/item_category exists, rename it to the new
+                # name using del/add
+                del ucat[item_name]
+                ucat[new_name] = item_category
+                user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
         self.db.new_api.set_pref('user_categories', user_cats)
 
     def delete_item_from_all_user_categories(self, item_name, item_category):
@@ -1716,15 +1828,18 @@ class TagsModel(QAbstractItemModel):  # {{{
                         letters_seen = {}
                         for subnode in tag_item.children:
                             if subnode.tag.sort:
-                                letters_seen[subnode.tag.sort[0]] = True
+                                c = subnode.tag.sort[0]
+                                if c in r'\.^$[]|()':
+                                    c = f'\\{c}'
+                                letters_seen[c] = True
                         if letters_seen:
                             charclass = ''.join(letters_seen)
                             if k == 'author_sort':
-                                expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
+                                expr = r'%s:"""~(^[%s])|(&\s*[%s])"""'%(k, charclass, charclass)
                             elif k == 'series':
-                                expr = r'series_sort:"~^[%s]"'%(charclass)
+                                expr = r'series_sort:"""~^[%s]"""'%(charclass)
                             else:
-                                expr = r'%s:"~^[%s]"'%(k, charclass)
+                                expr = r'%s:"""~^[%s]"""'%(k, charclass)
                         else:
                             expr = r'%s:false'%(k)
                         if node_searches[tag_item.tag.state] == 'true':
@@ -1788,12 +1903,17 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.path_found = None
         if start_path is None:
             start_path = []
+
         if prefs['use_primary_find_in_search']:
-            final_strcmp = primary_strcmp
-            final_contains = primary_contains
+            def final_equals(x, y):
+                return primary_strcmp(x, y) == 0
+            def final_contains(x, y):
+                return primary_contains(x, y)
         else:
-            final_strcmp = strcmp
-            final_contains = contains
+            def final_equals(x, y):
+                return strcmp(x, y) == 0
+            def final_contains(filt, txt):
+                return contains(filt, icu_lower(txt))
 
         def process_tag(depth, tag_index, tag_item, start_path):
             path = self.path_for_index(tag_index)
@@ -1803,8 +1923,8 @@ class TagsModel(QAbstractItemModel):  # {{{
             if tag is None:
                 return False
             name = tag.original_name
-            if (equals_match and final_strcmp(name, txt) == 0) or \
-                    (not equals_match and final_contains(txt, name)):
+            if ((equals_match and final_equals(name, txt)) or
+                    (not equals_match and final_contains(txt, name))):
                 self.path_found = path
                 return True
             for i,c in enumerate(tag_item.children):

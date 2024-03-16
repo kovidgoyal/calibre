@@ -1,0 +1,72 @@
+'''
+https://www.cirsd.org/en/horizons
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+class horizons(BasicNewsRecipe):
+    title = 'Horizons'
+    __author__ = 'unkn0wn'
+    description = (' Horizons – Journal of International Relations and Sustainable Development.'
+    ' Horizons serves as a high-level platform for influential voices from around the world to'
+    ' provide informed analysis and conduct reasoned exchanges on the full spectrum of issues'
+    ' that shape international developments.')
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en'
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://www.cirsd.org/bundles/olpublic/images/horizons-logo.jpg'
+    ignore_duplicate_articles = {'url'}
+    extra_css = 'em{color:#404040;}'
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'article'})
+    ]
+    remove_tags = [
+        classes('back-link'),
+        dict(name='div', attrs={'class':'single-post-footer'})
+    ]
+    
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
+        a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0] #use 1 for previous edition
+        url = a['href']
+        if url.startswith('/'):
+            url = 'https://www.cirsd.org' + url
+        self.cover_url = a.find('img')['src']
+        self.log(self.cover_url)
+        issue = a.find('div', attrs={'class':'horizon-gallery-title'})
+        if issue:
+            self.title = self.tag_to_string(issue).strip()
+            self.timefmt = ' [' + self.tag_to_string(issue).strip().replace('Horizons ', '')  + ']'
+            self.log('Downloading Issue: ', self.timefmt, self.title)
+        soup = self.index_to_soup(url)
+
+        feeds = []
+        for section in soup.findAll('h2', attrs={'class':'mt-3'}):
+            secname = self.tag_to_string(section).strip()
+            self.log(secname)
+            articles = []
+            div = section.findNext('div', attrs={'class':'mb-3'})
+            for li in div.findAll('li', attrs={'class':'mb-2'}):
+                a = li.find('a', href=True)
+                url = a['href']
+                if url.startswith('/'):
+                    url = 'https://www.cirsd.org' + url
+                title = self.tag_to_string(a)
+                span = li.find('span', attrs={'class':'section-author'})
+                desc = ''
+                if span:
+                    desc = self.tag_to_string(span).strip()
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({
+                    'title': title,
+                    'url': url,
+                    'description': desc})
+            if articles:
+                feeds.append((secname, articles))
+        return feeds

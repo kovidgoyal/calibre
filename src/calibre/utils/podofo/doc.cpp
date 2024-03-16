@@ -6,7 +6,8 @@
  */
 
 #include "global.h"
-#include <iostream>
+#include <algorithm>
+#include <new>
 
 using namespace pdf;
 
@@ -15,6 +16,7 @@ static void
 PDFDoc_dealloc(PDFDoc* self)
 {
     if (self->doc != NULL) delete self->doc;
+    Py_CLEAR(self->load_buffer_ref);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -41,11 +43,10 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "y#", &buffer, &size)) return NULL;
 
 	try {
-#if PODOFO_VERSION <= 0x000905
-		self->doc->Load(buffer, (long)size);
-#else
-		self->doc->LoadFromBuffer(buffer, (long)size);
-#endif
+		self->doc->LoadFromBuffer(bufferview(buffer, size));
+        Py_CLEAR(self->load_buffer_ref);
+        self->load_buffer_ref = args;
+        Py_INCREF(args);
 	} catch(const PdfError & err) {
 		podofo_set_exception(err);
 		return NULL;
@@ -84,7 +85,7 @@ PDFDoc_save(PDFDoc *self, PyObject *args) {
 
     if (PyArg_ParseTuple(args, "s", &buffer)) {
         try {
-            self->doc->Write(buffer);
+            self->doc->Save(buffer, save_options);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
@@ -94,16 +95,54 @@ PDFDoc_save(PDFDoc *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+class BytesOutputDevice : public OutputStreamDevice {
+    private:
+        pyunique_ptr bytes;
+        size_t written;
+    public:
+        BytesOutputDevice() : bytes(), written(0) { SetAccess(DeviceAccess::Write); }
+        size_t GetLength() const { return written; }
+        size_t GetPosition() const { return written; }
+        size_t capacity() const { return bytes ? PyBytes_GET_SIZE(bytes.get()) : 0; }
+        bool Eof() const { return false; }
+
+        void writeBuffer(const char* src, size_t src_sz) {
+            if (written + src_sz > capacity()) {
+                PyObject* old = bytes.release();
+                static const size_t initial_capacity = 1024 * 1024;
+                if (old) {
+                    if (_PyBytes_Resize(&old, std::max(written + src_sz, 2 * std::max(capacity(), initial_capacity))) != 0) {
+                        throw std::bad_alloc();
+                    }
+                } else {
+                    old = PyBytes_FromStringAndSize(NULL, std::max(written + src_sz, initial_capacity));
+                    if (!old) throw std::bad_alloc();
+                }
+                bytes.reset(old);
+            }
+            if (bytes) {
+                memcpy(PyBytes_AS_STRING(bytes.get()) + written, src, src_sz);
+                written += src_sz;
+            }
+        }
+
+        void Flush() { }
+        PyObject* Release() {
+            auto ans = bytes.release();
+            _PyBytes_Resize(&ans, written);
+            written = 0;
+            return ans;
+        }
+};
+
 static PyObject *
 PDFDoc_write(PDFDoc *self, PyObject *args) {
     PyObject *ans;
+    BytesOutputDevice d;
 
     try {
-        PdfRefCountedBuffer buffer(1*1024*1024);
-        PdfOutputDevice out(&buffer);
-        self->doc->Write(&out);
-        ans = PyBytes_FromStringAndSize(buffer.GetBuffer(), out.Tell());
-        if (ans == NULL) PyErr_NoMemory();
+        self->doc->Save(d, save_options);
+        return d.Release();
     } catch(const PdfError &err) {
         podofo_set_exception(err);
         return NULL;
@@ -124,11 +163,25 @@ PDFDoc_save_to_fileobj(PDFDoc *self, PyObject *args) {
 
 static PyObject *
 PDFDoc_uncompress_pdf(PDFDoc *self, PyObject *args) {
-    for (auto &it : self->doc->GetObjects()) {
-        if(it->HasStream()) {
-            PdfMemStream* stream = dynamic_cast<PdfMemStream*>(it->GetStream());
-            stream->Uncompress();
+    try {
+        auto& objects = self->doc->GetObjects();
+        for (auto obj : objects) {
+            auto stream = obj->GetStream();
+            if (stream == nullptr) continue;
+            try {
+                try {
+                    stream->Unwrap();
+                } catch (PdfError& e) {
+                    if (e.GetCode() != PdfErrorCode::Flate) throw e;
+                }
+            }
+            catch (PdfError& e) {
+                if (e.GetCode() != PdfErrorCode::UnsupportedFilter) throw e;
+            }
         }
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
     }
     Py_RETURN_NONE;
 }
@@ -140,7 +193,8 @@ PDFDoc_uncompress_pdf(PDFDoc *self, PyObject *args) {
 static PyObject *
 PDFDoc_extract_first_page(PDFDoc *self, PyObject *args) {
     try {
-        while (self->doc->GetPageCount() > 1) self->doc->GetPagesTree()->DeletePage(1);
+        auto pages = &self->doc->GetPages();
+        while (pages->GetCount() > 1) pages->RemovePageAt(1);
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
@@ -154,7 +208,7 @@ static PyObject *
 PDFDoc_page_count(PDFDoc *self, PyObject *args) {
     int count;
     try {
-        count = self->doc->GetPageCount();
+        count = self->doc->GetPages().GetCount();
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
@@ -173,8 +227,8 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
              if( it->IsDictionary() ) {
                  obj_type = it->GetDictionary().GetKey( PdfName::KeyType );
                  obj_sub_type = it->GetDictionary().GetKey( PdfName::KeySubtype );
-                 if( ( obj_type && obj_type->IsName() && ( obj_type->GetName().GetName() == "XObject" ) ) ||
-                        ( obj_sub_type && obj_sub_type->IsName() && ( obj_sub_type->GetName().GetName() == "Image" ) ) ) count++;
+                 if( ( obj_type && obj_type->IsName() && ( obj_type->GetName().GetString() == "XObject" ) ) ||
+                        ( obj_sub_type && obj_sub_type->IsName() && ( obj_sub_type->GetName().GetString() == "Image" ) ) ) count++;
              }
          }
     } catch(const PdfError & err) {
@@ -187,10 +241,11 @@ PDFDoc_image_count(PDFDoc *self, PyObject *args) {
 // delete_page() {{{
 static PyObject *
 PDFDoc_delete_pages(PDFDoc *self, PyObject *args) {
-    int page = 0, count = 1;
-    if (PyArg_ParseTuple(args, "i|i", &page, &count)) {
+    unsigned int page, count = 1;
+    if (PyArg_ParseTuple(args, "I|I", &page, &count)) {
         try {
-            self->doc->DeletePages(page - 1, count);
+            auto &pages = self->doc->GetPages();
+            while (count-- > 0) pages.RemovePageAt(page - 1);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
@@ -207,10 +262,9 @@ PDFDoc_get_page_box(PDFDoc *self, PyObject *args) {
 	const char *which;
     if (PyArg_ParseTuple(args, "si", &which, &pagenum)) {
         try {
-			PdfPagesTree* tree = self->doc->GetPagesTree();
-			PdfPage* page = tree->GetPage(pagenum - 1);
-			if (!page) { PyErr_Format(PyExc_ValueError, "page number %d not found in PDF file", pagenum); return NULL; }
-			PdfRect rect;
+			auto page = get_page(self->doc, pagenum-1);
+            if (!page) { PyErr_Format(PyExc_ValueError, "page number %d not found in PDF file", pagenum); return NULL; }
+			Rect rect;
 			if (strcmp(which, "MediaBox") == 0) {
 				rect = page->GetMediaBox();
 			} else if (strcmp(which, "CropBox") == 0) {
@@ -225,7 +279,7 @@ PDFDoc_get_page_box(PDFDoc *self, PyObject *args) {
 				PyErr_Format(PyExc_KeyError, "%s is not a known box", which);
 				return NULL;
 			}
-			return Py_BuildValue("dddd", rect.GetLeft(), rect.GetBottom(), rect.GetWidth(), rect.GetHeight());
+			return Py_BuildValue("dddd", rect.GetLeft(), rect.GetBottom(), rect.Width, rect.Height);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;
@@ -243,13 +297,12 @@ PDFDoc_set_page_box(PDFDoc *self, PyObject *args) {
 	const char *which;
     if (PyArg_ParseTuple(args, "sidddd", &which, &pagenum, &left, &bottom, &width, &height)) {
         try {
-			PdfPagesTree* tree = self->doc->GetPagesTree();
-			PdfPage* page = tree->GetPage(pagenum - 1);
-			if (!page) { PyErr_Format(PyExc_ValueError, "page number %d not found in PDF file", pagenum); return NULL; }
-			PdfRect rect(left, bottom, width, height);
-			PdfObject box;
-			rect.ToVariant(box);
-			page->GetObject()->GetDictionary().AddKey(PdfName(which), box);
+			PdfPage* page = get_page(self->doc, pagenum-1);
+            if (!page) { PyErr_Format(PyExc_ValueError, "page number %d not found in PDF file", pagenum); return NULL; }
+			Rect rect(left, bottom, width, height);
+			PdfArray box;
+			rect.ToArray(box);
+			page->GetObject().GetDictionary().AddKey(PdfName(which), box);
 			Py_RETURN_NONE;
         } catch(const PdfError & err) {
             podofo_set_exception(err);
@@ -266,9 +319,7 @@ PDFDoc_copy_page(PDFDoc *self, PyObject *args) {
     int from = 0, to = 0;
     if (!PyArg_ParseTuple(args, "ii", &from, &to)) return NULL;
     try {
-        PdfPagesTree* tree = self->doc->GetPagesTree();
-        PdfPage* page = tree->GetPage(from - 1);
-        tree->InsertPage(to - 1, page);
+        self->doc->GetPages().InsertDocumentPageAt(to - 1, *self->doc, from - 1);
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
@@ -277,24 +328,132 @@ PDFDoc_copy_page(PDFDoc *self, PyObject *args) {
 } // }}}
 
 // append() {{{
+
 static PyObject *
 PDFDoc_append(PDFDoc *self, PyObject *args) {
-    PyObject *doc;
-    int typ;
+    class AppendPagesData {
+        public:
+            const PdfPage *src_page;
+            PdfPage *dest_page;
+            PdfReference dest_page_parent;
+            AppendPagesData(const PdfPage &src, PdfPage &dest) {
+                src_page = &src;
+                dest_page = &dest;
+                dest_page_parent = dest.GetDictionary().GetKeyAs<PdfReference>("Parent");
+            }
+    };
+    class MapReferences : public std::unordered_map<PdfReference, PdfObject*> {
+        public:
+            void apply(PdfObject &parent) {
+                switch(parent.GetDataType()) {
+                    case PdfDataType::Dictionary:
+                        for (auto& pair : parent.GetDictionary()) {
+                            apply(pair.second );
+                        }
+                        break;
+                    case PdfDataType::Array:
+                        for (auto& child : parent.GetArray())  apply(child);
+                        break;
+                    case PdfDataType::Reference:
+                        if (auto search = find(parent.GetReference()); search != end()) {
+                            parent.SetReference(search->second->GetIndirectReference());
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+    };
 
-    if (!PyArg_ParseTuple(args, "O", &doc)) return NULL;
-
-    typ = PyObject_IsInstance(doc, (PyObject*)&PDFDocType);
-    if (typ == -1) return NULL;
-    if (typ == 0) { PyErr_SetString(PyExc_TypeError, "You must pass a PDFDoc instance to this method"); return NULL; }
-
-    try {
-        self->doc->Append(*((PDFDoc*)doc)->doc, true);
-    } catch (const PdfError & err) {
-        podofo_set_exception(err);
-        return NULL;
+    static const PdfName inheritableAttributes[] = {
+        PdfName("Resources"),
+        PdfName("MediaBox"),
+        PdfName("CropBox"),
+        PdfName("Rotate"),
+        PdfName::KeyNull
+    };
+    PdfMemDocument *dest = self->doc;
+    std::vector<const PdfMemDocument*> docs(PyTuple_GET_SIZE(args));
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(args); i++) {
+        PyObject *doc = PyTuple_GET_ITEM(args, i);
+        int typ = PyObject_IsInstance(doc, (PyObject*)&PDFDocType);
+        if (typ == -1) return NULL;
+        if (typ == 0) { PyErr_SetString(PyExc_TypeError, "You must pass a PDFDoc instance to this method"); return NULL; }
+        docs[i] = ((PDFDoc*)doc)->doc;
     }
 
+    PyThreadState *_save; _save = PyEval_SaveThread();
+    try {
+        unsigned total_pages_to_append = 0;
+        for (auto src : docs)  total_pages_to_append += src->GetPages().GetCount();
+        unsigned base_page_index = dest->GetPages().GetCount();
+        dest->GetPages().CreatePagesAt(base_page_index, total_pages_to_append, Rect());
+        for (auto src : docs) {
+            MapReferences ref_map;
+            std::vector<AppendPagesData> pages;
+            // append pages first
+            for (unsigned i = 0; i < src->GetPages().GetCount(); i++) {
+                const auto& src_page = src->GetPages().GetPageAt(i);
+                auto& dest_page = dest->GetPages().GetPageAt(base_page_index++);
+                pages.emplace_back(src_page, dest_page);
+                dest_page.GetObject() = src_page.GetObject();
+                dest_page.GetDictionary().RemoveKey("Resource");
+                dest_page.GetDictionary().RemoveKey("Parent");
+                ref_map[src_page.GetObject().GetIndirectReference()] = &dest_page.GetObject();
+            }
+            // append all remaining objects
+            for (const auto& obj : src->GetObjects()) {
+                if (obj->IsIndirect() && ref_map.find(obj->GetIndirectReference()) == ref_map.end()) {
+                    auto copied_obj = &dest->GetObjects().CreateObject(*obj);
+                    ref_map[obj->GetIndirectReference()] = copied_obj;
+                }
+            }
+            // fix references in appended objects
+            for (auto& elem : ref_map) ref_map.apply(*elem.second);
+            // fixup all pages
+            for (auto& x : pages) {
+                auto& src_page = *x.src_page;
+                auto& dest_page = *x.dest_page;
+                dest_page.GetDictionary().AddKey("Parent", x.dest_page_parent);
+                // Set the page contents
+                if (auto key = src_page.GetDictionary().GetKeyAs<PdfReference>(PdfName::KeyContents); key.IsIndirect()) {
+                    if (auto search = ref_map.find(key); search != ref_map.end()) {
+                        dest_page.GetOrCreateContents().Reset(search->second);
+                    }
+                }
+                // ensure the contents is not NULL to prevent segfaults in other code that assumes it
+                dest_page.GetOrCreateContents();
+
+                // Set the page resources
+                if (src_page.GetResources() != nullptr) {
+                    const auto &src_resources = src_page.GetResources()->GetDictionary();
+                    dest_page.GetOrCreateResources().GetDictionary() = src_resources;
+                    ref_map.apply(dest_page.GetResources()->GetObject());
+                } else dest_page.GetOrCreateResources();
+
+                // Copy inherited properties
+                auto inherited = inheritableAttributes;
+                while (!inherited->IsNull()) {
+                    auto attribute = src_page.GetDictionary().FindKeyParent(*inherited);
+                    if (attribute != nullptr) {
+                        PdfObject attributeCopy(*attribute);
+                        ref_map.apply(attributeCopy);
+                        dest_page.GetDictionary().AddKey(*inherited, attributeCopy);
+                    }
+                    inherited++;
+                }
+            }
+        }
+    } catch (const PdfError & err) {
+        PyEval_RestoreThread(_save);
+        podofo_set_exception(err);
+        return NULL;
+    } catch (std::exception & err) {
+        PyEval_RestoreThread(_save);
+        PyErr_Format(PyExc_ValueError, "An error occurred while trying to append pages: %s", err.what());
+        return NULL;
+    }
+    PyEval_RestoreThread(_save);
     Py_RETURN_NONE;
 } // }}}
 
@@ -307,7 +466,7 @@ PDFDoc_insert_existing_page(PDFDoc *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O!|ii", &PDFDocType, &src_doc, &src_page, &at)) return NULL;
 
     try {
-        self->doc->InsertExistingPageAt(*src_doc->doc, src_page, at);
+        self->doc->GetPages().InsertDocumentPageAt(at, *src_doc->doc, src_page);
     } catch (const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
@@ -323,12 +482,11 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
     double left, bottom, width, height;
     char *box;
     if (!PyArg_ParseTuple(args, "isdddd", &num, &box, &left, &bottom, &width, &height)) return NULL;
-
     try {
-        PdfRect r(left, bottom, width, height);
-        PdfObject o;
-        r.ToVariant(o);
-        self->doc->GetPage(num)->GetObject()->GetDictionary().AddKey(PdfName(box), o);
+        Rect r(left, bottom, width, height);
+        PdfArray o;
+        r.ToArray(o);
+        self->doc->GetPages().GetPageAt(num).GetObject().GetDictionary().AddKey(PdfName(box), o);
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
@@ -336,127 +494,119 @@ PDFDoc_set_box(PDFDoc *self, PyObject *args) {
         PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the box");
         return NULL;
     }
-
     Py_RETURN_NONE;
 } // }}}
 
 // get_xmp_metadata() {{{
 static PyObject *
 PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
-    PoDoFo::PdfObject *metadata = NULL;
-    PoDoFo::PdfStream *str = NULL;
-    PoDoFo::pdf_long len = 0;
-	char *buf = NULL;
-    PyObject *ans = NULL;
-
     try {
-        if ((metadata = self->doc->GetMetadata()) != NULL) {
-            if ((str = metadata->GetStream()) != NULL) {
-                str->GetFilteredCopy(&buf, &len);
-                if (buf != NULL) {
-                    Py_ssize_t psz = len;
-                    ans = Py_BuildValue("y#", buf, psz);
-                    free(buf); buf = NULL;
-                    if (ans == NULL) goto error;
-                }
-            }
-        }
+        auto obj = self->doc->GetCatalog().GetDictionary().FindKey("Metadata");
+        if (obj == nullptr) Py_RETURN_NONE;
+        auto stream = obj->GetStream();
+        if (stream == nullptr) Py_RETURN_NONE;
+        std::string s;
+        StringStreamDevice ouput(s);
+        stream->CopyTo(ouput);
+        return PyBytes_FromStringAndSize(s.data(), s.size());
     } catch(const PdfError & err) {
-        podofo_set_exception(err); goto error;
+        podofo_set_exception(err); return NULL;
     } catch (...) {
-        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to read the XML metadata"); goto error;
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to read the XML metadata"); return NULL;
     }
-
-    if (ans != NULL) return ans;
     Py_RETURN_NONE;
-error:
-    return NULL;
 } // }}}
+
+// add_image_page() {{{
+static PyObject *
+PDFDoc_add_image_page(PDFDoc *self, PyObject *args) {
+    const char *image_data; Py_ssize_t image_data_sz;
+    double page_x, page_y, page_width, page_height;
+    double image_x, image_y, image_canvas_width, image_canvas_height;
+    unsigned int page_num = 1; int preserve_aspect_ratio = 1;
+    if (!PyArg_ParseTuple(args, "y#dddddddd|Ip", &image_data, &image_data_sz, &page_x, &page_y, &page_width, &page_height, &image_x, &image_y, &image_canvas_width, &image_canvas_height, &page_num, &preserve_aspect_ratio)) return NULL;
+    auto img = self->doc->CreateImage();
+    img->LoadFromBuffer(bufferview(image_data, image_data_sz));
+    auto &page = self->doc->GetPages().CreatePageAt(page_num-1, Rect(page_x, page_y, page_width, page_height));
+    PdfPainter painter;
+    painter.SetCanvas(page);
+    auto scaling_x = image_canvas_width, scaling_y = image_canvas_height;
+    if (preserve_aspect_ratio) {
+        auto page_ar = page_width / page_height, img_ar = img->GetRect().Width / img->GetRect().Height;
+        if (page_ar > img_ar) {
+            scaling_x = img_ar * image_canvas_height;
+            image_x = (image_canvas_width - scaling_x) / 2.;
+        } else if (page_ar < img_ar) {
+            scaling_y = image_canvas_width / img_ar;
+            image_y = (image_canvas_height - scaling_y) / 2.;
+        }
+    }
+    painter.DrawImage(*img, image_x, image_y, scaling_x / img->GetRect().Width, scaling_y / img->GetRect().Height);
+    painter.FinishDrawing();
+    return Py_BuildValue("dd", img->GetRect().Width, img->GetRect().Height);
+}
+// }}}
 
 // set_xmp_metadata() {{{
 static PyObject *
 PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     const char *raw = NULL;
     Py_ssize_t len = 0;
-    PoDoFo::PdfObject *metadata = NULL, *catalog = NULL;
-    PoDoFo::PdfStream *str = NULL;
-    TVecFilters compressed(1);
-    compressed[0] = ePdfFilter_FlateDecode;
-
     if (!PyArg_ParseTuple(args, "y#", &raw, &len)) return NULL;
     try {
-        if ((metadata = self->doc->GetMetadata()) != NULL) {
-            if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
-            str->Set(raw, len, compressed);
-        } else {
-            if ((catalog = self->doc->GetCatalog()) == NULL) { PyErr_SetString(PyExc_ValueError, "Cannot set XML metadata as this document has no catalog"); goto error; }
-            if ((metadata = self->doc->GetObjects().CreateObject("Metadata")) == NULL) { PyErr_NoMemory(); goto error; }
-            if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
-            metadata->GetDictionary().AddKey(PoDoFo::PdfName("Subtype"), PoDoFo::PdfName("XML"));
-            str->Set(raw, len, compressed);
-            catalog->GetDictionary().AddKey(PoDoFo::PdfName("Metadata"), metadata->Reference());
-        }
+        auto& metadata = self->doc->GetCatalog().GetOrCreateMetadataObject();
+        auto& stream = metadata.GetOrCreateStream();
+        stream.SetData(std::string_view(raw, len), true);
+        metadata.GetDictionary().RemoveKey(PdfName::KeyFilter);
     } catch(const PdfError & err) {
-        podofo_set_exception(err); goto error;
+        podofo_set_exception(err); return NULL;
     } catch (...) {
-        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the XML metadata");
-        goto error;
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the XML metadata"); return NULL;
     }
 
     Py_RETURN_NONE;
-error:
-    return NULL;
-
 } // }}}
 
 // extract_anchors() {{{
 static PyObject *
 PDFDoc_extract_anchors(PDFDoc *self, PyObject *args) {
-    const PdfObject* catalog = NULL;
     PyObject *ans = PyDict_New();
 	if (ans == NULL) return NULL;
     try {
-		if ((catalog = self->doc->GetCatalog()) != NULL) {
-			const PdfObject *dests_ref = catalog->GetDictionary().GetKey("Dests");
-			PdfPagesTree *tree = self->doc->GetPagesTree();
-			if (dests_ref && dests_ref->IsReference()) {
-				const PdfObject *dests_obj = self->doc->GetObjects().GetObject(dests_ref->GetReference());
-				if (dests_obj && dests_obj->IsDictionary()) {
-					const PdfDictionary &dests = dests_obj->GetDictionary();
-					const TKeyMap &keys = dests.GetKeys();
-					for (TCIKeyMap itres = keys.begin(); itres != keys.end(); ++itres) {
-						if (itres->second->IsArray()) {
-							const PdfArray &dest = itres->second->GetArray();
-							// see section 8.2 of PDF spec for different types of destination arrays
-							// but chromium apparently generates only [page /XYZ left top zoom] type arrays
-							if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetName() == "XYZ") {
-								const PdfPage *page = tree->GetPage(dest[0].GetReference());
-								if (page) {
-									unsigned int pagenum = page->GetPageNumber();
-									double left = dest[2].GetReal(), top = dest[3].GetReal();
-									long long zoom = dest[4].GetNumber();
-									const std::string &anchor = itres->first.GetName();
-									PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
-									PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
-									if (!tuple || !key) { break; }
-									int ret = PyDict_SetItem(ans, key, tuple);
-									Py_DECREF(key); Py_DECREF(tuple);
-									if (ret != 0) break;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+        const PdfObject *dests_ref = self->doc->GetCatalog().GetDictionary().GetKey("Dests");
+        auto& pages = self->doc->GetPages();
+        if (dests_ref && dests_ref->IsReference()) {
+            const PdfObject *dests_obj = self->doc->GetObjects().GetObject(object_as_reference(dests_ref));
+            if (dests_obj && dests_obj->IsDictionary()) {
+                const PdfDictionary &dests = dests_obj->GetDictionary();
+                for (auto itres: dests) {
+                    if (itres.second.IsArray()) {
+                        const PdfArray &dest = itres.second.GetArray();
+                        // see section 8.2 of PDF spec for different types of destination arrays
+                        // but chromium apparently generates only [page /XYZ left top zoom] type arrays
+                        if (dest.GetSize() > 4 && dest[1].IsName() && dest[1].GetName().GetString() == "XYZ") {
+                            const PdfPage *page = get_page(pages, object_as_reference(dest[0]));
+                            if (page) {
+                                unsigned int pagenum = page->GetPageNumber();
+                                double left = dest[2].GetReal(), top = dest[3].GetReal();
+                                long long zoom = dest[4].GetNumber();
+                                const std::string &anchor = itres.first.GetString();
+                                PyObject *key = PyUnicode_DecodeUTF8(anchor.c_str(), anchor.length(), "replace");
+                                PyObject *tuple = Py_BuildValue("IddL", pagenum, left, top, zoom);
+                                if (!tuple || !key) { break; }
+                                int ret = PyDict_SetItem(ans, key, tuple);
+                                Py_DECREF(key); Py_DECREF(tuple);
+                                if (ret != 0) break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     } catch(const PdfError & err) {
         podofo_set_exception(err);
-        Py_CLEAR(ans);
-        return NULL;
     } catch (...) {
         PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the box");
-        Py_CLEAR(ans);
-        return NULL;
     }
     if (PyErr_Occurred()) { Py_CLEAR(ans); return NULL; }
     return ans;
@@ -472,28 +622,22 @@ alter_link(PDFDoc *self, PdfDictionary &link, PyObject *alter_callback, bool mar
     }
     PdfDictionary &A = link.GetKey("A")->GetDictionary();
     PdfObject *uo = A.GetKey("URI");
-    const std::string &uri = uo->GetString().GetStringUtf8();
+    const std::string &uri = uo->GetString().GetString();
     pyunique_ptr ret(PyObject_CallObject(alter_callback, Py_BuildValue("(N)", PyUnicode_DecodeUTF8(uri.c_str(), uri.length(), "replace"))));
     if (!ret) { return; }
     if (PyTuple_Check(ret.get()) && PyTuple_GET_SIZE(ret.get()) == 4) {
         int pagenum; double left, top, zoom;
         if (PyArg_ParseTuple(ret.get(), "iddd", &pagenum, &left, &top, &zoom)) {
-            PdfPage *page = NULL;
-            try {
-                page = self->doc->GetPage(pagenum - 1);
-            } catch(const PdfError &err) {
-                (void)err;
-                PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file of %d pages", pagenum, self->doc->GetPageCount());
-                return ;
+            const PdfPage *page = get_page(self->doc, pagenum - 1);
+            if (page == NULL) {
+                PyErr_Format(PyExc_ValueError, "No page number %d in the PDF file of %d pages", pagenum, self->doc->GetPages().GetCount());
+                return;
             }
-            if (page) {
-                PdfDestination dest(page, left, top, zoom);
                 link.RemoveKey("A");
+                PdfDestination dest(*page, left, top, zoom);
                 dest.AddToDictionary(link);
-            }
         }
     }
-
 }
 
 static PyObject *
@@ -504,19 +648,19 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 	bool mark_links = PyObject_IsTrue(py_mark_links);
     try {
 		PdfArray border, link_color;
-		border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)16); border.push_back((PoDoFo::pdf_int64)1);
-		link_color.push_back(1.); link_color.push_back(0.); link_color.push_back(0.);
+        border.Add(int64_t(16)); border.Add(int64_t(16)); border.Add(int64_t(1));
+		link_color.Add(1.); link_color.Add(0.); link_color.Add(0.);
         std::vector<PdfReference> links;
         for (auto &it : self->doc->GetObjects()) {
-			if(it->IsDictionary()) {
-				PdfDictionary &link = it->GetDictionary();
-				if (dictionary_has_key_name(link, PdfName::KeyType, "Annot") && dictionary_has_key_name(link, PdfName::KeySubtype, "Link")) {
-					if (link.HasKey("A") && link.GetKey("A")->IsDictionary()) {
-						PdfDictionary &A = link.GetKey("A")->GetDictionary();
-						if (dictionary_has_key_name(A, PdfName::KeyType, "Action") && dictionary_has_key_name(A, "S", "URI")) {
-							PdfObject *uo = A.GetKey("URI");
+            PdfDictionary *link;
+			if(it->TryGetDictionary(link)) {
+				if (dictionary_has_key_name(*link, PdfName::KeyType, "Annot") && dictionary_has_key_name(*link, PdfName::KeySubtype, "Link")) {
+                    PdfObject *akey; PdfDictionary *A;
+					if ((akey = link->GetKey("A")) && akey->TryGetDictionary(A)) {
+						if (dictionary_has_key_name(*A, PdfName::KeyType, "Action") && dictionary_has_key_name(*A, "S", "URI")) {
+							PdfObject *uo = A->GetKey("URI");
 							if (uo && uo->IsString()) {
-                                links.push_back(it->Reference());
+                                links.push_back(object_as_reference(it));
 							}
 						}
 					}
@@ -547,153 +691,164 @@ PDFDoc_alter_links(PDFDoc *self, PyObject *args) {
 
 static PyObject *
 PDFDoc_pages_getter(PDFDoc *self, void *closure) {
-    int pages = self->doc->GetPageCount();
-    PyObject *ans = PyLong_FromLong(static_cast<long>(pages));
+    unsigned long pages = self->doc->GetPages().GetCount();
+    PyObject *ans = PyLong_FromUnsignedLong(pages);
     if (ans != NULL) Py_INCREF(ans);
     return ans;
 }
 
 static PyObject *
 PDFDoc_version_getter(PDFDoc *self, void *closure) {
-    int version;
+    PdfVersion version;
     try {
-        version = self->doc->GetPdfVersion();
+        version = self->doc->GetMetadata().GetPdfVersion();
     } catch(const PdfError & err) {
         podofo_set_exception(err);
         return NULL;
     }
     switch(version) {
-        case ePdfVersion_1_0:
-            return Py_BuildValue("s", "1.0");
-        case ePdfVersion_1_1:
-            return Py_BuildValue("s", "1.1");
-        case ePdfVersion_1_2:
-            return Py_BuildValue("s", "1.2");
-        case ePdfVersion_1_3:
-            return Py_BuildValue("s", "1.3");
-        case ePdfVersion_1_4:
-            return Py_BuildValue("s", "1.4");
-        case ePdfVersion_1_5:
-            return Py_BuildValue("s", "1.5");
-        case ePdfVersion_1_6:
-            return Py_BuildValue("s", "1.6");
-        case ePdfVersion_1_7:
-            return Py_BuildValue("s", "1.7");
-        default:
-            return Py_BuildValue("");
+        case PdfVersion::V1_0:
+            return PyUnicode_FromString("1.0");
+        case PdfVersion::V1_1:
+            return PyUnicode_FromString("1.1");
+        case PdfVersion::V1_2:
+            return PyUnicode_FromString("1.2");
+        case PdfVersion::V1_3:
+            return PyUnicode_FromString("1.3");
+        case PdfVersion::V1_4:
+            return PyUnicode_FromString("1.4");
+        case PdfVersion::V1_5:
+            return PyUnicode_FromString("1.5");
+        case PdfVersion::V1_6:
+            return PyUnicode_FromString("1.6");
+        case PdfVersion::V1_7:
+            return PyUnicode_FromString("1.7");
+        case PdfVersion::V2_0:
+            return PyUnicode_FromString("2.0");
+        case PdfVersion::Unknown:
+            return PyUnicode_FromString("");
     }
-    return Py_BuildValue("");
+    return PyUnicode_FromString("");
 }
 
-
-static PyObject *
-PDFDoc_getter(PDFDoc *self, int field)
-{
-    PdfString s;
-    PdfInfo *info = self->doc->GetInfo();
-    if (info == NULL) {
-        PyErr_SetString(PyExc_Exception, "You must first load a PDF Document");
-        return NULL;
-    }
-    switch (field) {
-        case 0:
-            s = info->GetTitle(); break;
-        case 1:
-            s = info->GetAuthor(); break;
-        case 2:
-            s = info->GetSubject(); break;
-        case 3:
-            s = info->GetKeywords(); break;
-        case 4:
-            s = info->GetCreator(); break;
-        case 5:
-            s = info->GetProducer(); break;
-        default:
-            PyErr_SetString(PyExc_Exception, "Bad field");
-            return NULL;
-    }
-
-    return podofo_convert_pdfstring(s);
+static PdfDictionary&
+get_or_create_info(PDFDoc *self) {
+    PdfObject *info = self->doc->GetTrailer().GetDictionary().FindKey("Info");
+    if (info && info->IsDictionary()) return info->GetDictionary();
+    info = &self->doc->GetObjects().CreateDictionaryObject();
+    self->doc->GetTrailer().GetDictionary().AddKeyIndirect("Info", *info);
+    return info->GetDictionary();
 }
 
-static int
-PDFDoc_setter(PDFDoc *self, PyObject *val, int field) {
-    if (val == NULL || !PyUnicode_Check(val)) {
-        PyErr_SetString(PyExc_ValueError, "Must use unicode objects to set metadata");
-        return -1;
-    }
-    PdfInfo *info = self->doc->GetInfo();
-    if (!info) { PyErr_SetString(Error, "You must first load a PDF Document"); return -1; }
-    const PdfString s = podofo_convert_pystring(val);
-
-    switch (field) {
-        case 0:
-            info->SetTitle(s); break;
-        case 1:
-            info->SetAuthor(s); break;
-        case 2:
-            info->SetSubject(s); break;
-        case 3:
-            info->SetKeywords(s); break;
-        case 4:
-            info->SetCreator(s); break;
-        case 5:
-            info->SetProducer(s); break;
-        default:
-            PyErr_SetString(Error, "Bad field");
-            return -1;
-    }
-
-    return 0;
+static inline PyObject*
+string_metadata_getter(PDFDoc *self, const std::string_view name) {
+    auto info = get_or_create_info(self);
+    auto obj = info.FindKey(name);
+    const PdfString* str;
+    return (obj == nullptr || !obj->TryGetString(str)) ?  PyUnicode_FromString("") : podofo_convert_pdfstring(*str);
 }
+
 
 static PyObject *
 PDFDoc_title_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 0);
+    return string_metadata_getter(self, "Title");
 }
+
 static PyObject *
 PDFDoc_author_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 1);
+    return string_metadata_getter(self, "Author");
 }
+
 static PyObject *
 PDFDoc_subject_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 2);
+    return string_metadata_getter(self, "Subject");
 }
+
 static PyObject *
 PDFDoc_keywords_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 3);
+    return string_metadata_getter(self, "Keywords");
 }
+
 static PyObject *
 PDFDoc_creator_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 4);
+    return string_metadata_getter(self, "Creator");
 }
+
 static PyObject *
 PDFDoc_producer_getter(PDFDoc *self, void *closure) {
-    return  PDFDoc_getter(self, 5);
+    return string_metadata_getter(self, "Producer");
 }
+
+static inline int
+string_metadata_setter(PDFDoc *self, const std::string_view name, PyObject *val) {
+    if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
+    auto& info = get_or_create_info(self);
+    const char *raw; Py_ssize_t sz;
+    raw = PyUnicode_AsUTF8AndSize(val, &sz);
+    if (sz == 0) info.RemoveKey(name);
+    else info.AddKey(name, PdfString(std::string_view(raw, sz)));
+    return 0;
+}
+
+
 static int
 PDFDoc_title_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 0);
+    try {
+        return string_metadata_setter(self, "Title", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
+
 static int
 PDFDoc_author_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 1);
+    try {
+        return string_metadata_setter(self, "Author", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
+
 static int
 PDFDoc_subject_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 2);
+    try {
+        return string_metadata_setter(self, "Subject", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
+
 static int
 PDFDoc_keywords_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 3);
+    try {
+        return string_metadata_setter(self, "Keywords", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
+
 static int
 PDFDoc_creator_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 4);
+    try {
+        return string_metadata_setter(self, "Creator", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
+
 static int
 PDFDoc_producer_setter(PDFDoc *self, PyObject *val, void *closure) {
-    return  PDFDoc_setter(self, val, 5);
+    try {
+        return string_metadata_setter(self, "Producer", val);
+	} catch(const PdfError & err) {
+		podofo_set_exception(err);
+		return -1;
+    }
 }
 
 static PyGetSetDef PDFDoc_getsetters[] = {
@@ -824,6 +979,10 @@ static PyMethodDef PDFDoc_methods[] = {
     {"set_xmp_metadata", (PyCFunction)PDFDoc_set_xmp_metadata, METH_VARARGS,
      "set_xmp_metadata(raw) -> Set the XMP metadata to the raw bytes (which must be a valid XML packet)"
     },
+    {"add_image_page", (PyCFunction)PDFDoc_add_image_page, METH_VARARGS,
+     "add_image_page(image_data, page_idx=0) -> Add the specified image as a full page image, will use the size of the first existing page as page size."
+    },
+
 
     {NULL}  /* Sentinel */
 };

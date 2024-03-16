@@ -4,13 +4,15 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, unittest, shutil
+import os
+import shutil
+import unittest
 
-from calibre import CurrentDir
-from calibre.ptempfile import TemporaryDirectory
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
+from calibre import CurrentDir
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
+from calibre.utils.logging import DevNull
+from calibre.utils.resources import get_image_path as I, get_path as P
 from polyglot.builtins import iteritems
 
 
@@ -22,7 +24,14 @@ def get_cache():
     return cache
 
 
+once_per_run = set()
+
+
 def needs_recompile(obj, srcs):
+    is_ci = os.environ.get('CI', '').lower() == 'true'
+    if is_ci and obj not in once_per_run:
+        once_per_run.add(obj)
+        return True
     if isinstance(srcs, str):
         srcs = [srcs]
     try:
@@ -37,7 +46,7 @@ def needs_recompile(obj, srcs):
 
 def build_book(src, dest, args=()):
     from calibre.ebooks.conversion.cli import main
-    main(['ebook-convert', src, dest] + list(args))
+    main(['ebook-convert', src, dest, '-vv'] + list(args))
 
 
 def add_resources(raw, rmap):
@@ -53,22 +62,21 @@ def get_simple_book(fmt='epub'):
     ans = os.path.join(cache, 'simple.'+fmt)
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
     if needs_recompile(ans, src):
-        with TemporaryDirectory('bpt') as tdir:
-            with CurrentDir(tdir):
-                with lopen(src, 'rb') as sf:
-                    raw = sf.read().decode('utf-8')
-                raw = add_resources(raw, {
-                    'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
-                    'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
-                    'IMAGE1': I('marked.png'),
-                    'IMAGE2': I('textures/light_wood.png'),
-                })
-                shutil.copy2(I('lt.png'), '.')
-                x = 'index.html'
-                with lopen(x, 'wb') as f:
-                    f.write(raw.encode('utf-8'))
-                build_book(x, ans, args=[
-                    '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
+        with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
+            with open(src, 'rb') as sf:
+                raw = sf.read().decode('utf-8')
+            raw = add_resources(raw, {
+                'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
+                'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
+                'IMAGE1': I('marked.png'),
+                'IMAGE2': I('textures/light_wood.png'),
+            })
+            shutil.copy2(I('lt.png'), '.')
+            x = 'index.html'
+            with open(x, 'wb') as f:
+                f.write(raw.encode('utf-8'))
+            build_book(x, ans, args=[
+                '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
 
 
@@ -78,9 +86,10 @@ def get_split_book(fmt='epub'):
     src = os.path.join(os.path.dirname(__file__), 'split.html')
     if needs_recompile(ans, src):
         x = src.replace('split.html', 'index.html')
-        raw = lopen(src, 'rb').read().decode('utf-8')
+        with open(src, 'rb') as sf:
+            raw = sf.read().decode('utf-8')
         try:
-            with lopen(x, 'wb') as f:
+            with open(x, 'wb') as f:
                 f.write(raw.encode('utf-8'))
             build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
                                         '--cover=' + I('lt.png')])

@@ -30,7 +30,7 @@ class ClimateProgress(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'en'
 
-    lang = 'en-US'
+    lang = 'en'
     direction = 'ltr'
 
     html2lrf_options = [

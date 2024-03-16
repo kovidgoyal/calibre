@@ -161,7 +161,8 @@ def update_metadata(ebook, new_opf):
 
 
 def polish_one(ebook, opts, report, customization=None):
-    rt = lambda x: report('\n### ' + x)
+    def rt(x):
+        return report('\n### ' + x)
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()

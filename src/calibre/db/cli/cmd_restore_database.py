@@ -76,7 +76,7 @@ def main(opts, args, dbctx):
         prints('old database saved as', r.olddb)
         if r.errors_occurred:
             name = 'calibre_db_restore_report.txt'
-            lopen('calibre_db_restore_report.txt',
+            open('calibre_db_restore_report.txt',
                   'wb').write(r.report.encode('utf-8'))
             prints('Some errors occurred. A detailed report was ' 'saved to', name)
 

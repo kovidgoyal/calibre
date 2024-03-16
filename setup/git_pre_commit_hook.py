@@ -2,15 +2,15 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import importlib
 import json
+import os
 import re
 import socket
+import subprocess
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-
 from lxml import html
 
 '''
@@ -21,7 +21,7 @@ message with the summary of the closed bug.
 '''
 
 
-SENDMAIL = ('/home/kovid/work/env', 'pgp_mail')
+LAUNCHPAD = os.path.expanduser('~/work/env/launchpad.py')
 LAUNCHPAD_BUG = 'https://bugs.launchpad.net/calibre/+bug/%s'
 GITHUB_BUG = 'https://api.github.com/repos/kovidgoyal/calibre/issues/%s'
 BUG_PAT = r'(Fix|Implement|Fixes|Fixed|Implemented|See)\s+#(\d+)'
@@ -67,14 +67,9 @@ class Bug:
         action += 'ed'
         msg = '{} in branch {}. {}'.format(action, 'master', suffix)
         msg = msg.replace('Fixesed', 'Fixed')
-        msg += '\n\n status fixreleased'
-
-        sys.path.insert(0, SENDMAIL[0])
-
-        sendmail = importlib.import_module(SENDMAIL[1])
-
-        to = bug + '@bugs.launchpad.net'
-        sendmail.sendmail(msg, to, 'Fixed in master')
+        env = dict(os.environ)
+        env['LAUNCHPAD_FIX_BUG'] = msg
+        subprocess.run([sys.executable, LAUNCHPAD], env=env, input=f'Subject: [Bug {bug}]', text=True, check=True)
 
 
 def main():
