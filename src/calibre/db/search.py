@@ -958,7 +958,7 @@ class Search:
     def query_is_cacheable(self, sqp, dbcache, query):
         if query:
             for name, value in sqp.get_queried_fields(query):
-                if name == 'template' and '#@#:d:' in value:
+                if name == 'template':
                     return False
                 elif name in dbcache.field_metadata.all_field_keys():
                     fm = dbcache.field_metadata[name]
