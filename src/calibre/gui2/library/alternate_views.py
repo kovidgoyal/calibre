@@ -983,6 +983,7 @@ class GridView(QListView):
                 else:
                     # The cached cover is stale
                     cache_valid = False
+                    cdata = tcdata
             else:
                 # We found a cached cover for a book without a cover. This can
                 # happen in older version of calibre that can reuse book_ids
