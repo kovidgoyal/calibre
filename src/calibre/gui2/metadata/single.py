@@ -19,7 +19,8 @@ from calibre.constants import ismacos
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
-from calibre.gui2.custom_column_widgets import Comments, populate_metadata_page
+from calibre.gui2.custom_column_widgets import (
+    Comments, populate_metadata_page, get_custom_columns_to_display_in_editor)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.metadata.basic_widgets import (
     AuthorsEdit, AuthorSortEdit, BuddyLabel, CommentsEdit, Cover, DateEdit,
@@ -121,7 +122,7 @@ class MetadataSingleDialogBase(QDialog):
 
         self.create_basic_metadata_widgets()
 
-        if len(self.db.custom_column_label_map):
+        if len(get_custom_columns_to_display_in_editor(self.db)):
             self.create_custom_metadata_widgets()
         self.comments_edit_state_at_apply = {self.comments:None}
 
