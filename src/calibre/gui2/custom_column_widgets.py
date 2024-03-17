@@ -874,6 +874,11 @@ def get_field_list(db, use_defaults=False, pref_data_override=None):
         return [(k,v) for k,v in result.items()]
 
 
+def get_custom_columns_to_display_in_editor(db):
+    return list([k[0] for k in
+        get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]])
+
+
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(typ, key):
         if bulk:
@@ -886,7 +891,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     fm = db.field_metadata
 
     # Get list of all non-composite custom fields. We must make widgets for these
-    cols = [k[0] for k in get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]]
+    cols = get_custom_columns_to_display_in_editor(db)
     # This deals with the historical behavior where comments fields go to the
     # bottom, starting on the left hand side. If a comment field is moved to
     # somewhere else then it isn't moved to either side.
