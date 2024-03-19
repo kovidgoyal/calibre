@@ -303,7 +303,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return True
         if self.argument_count.value() == 0:
             if not question_dialog(self.gui, _('Template functions'),
-                         _('Setting argument count to to zero means that this '
+                         _('Setting argument count to zero means that this '
                            'function cannot be used in single function mode. '
                            'Is this OK?'),
                          det_msg='',
