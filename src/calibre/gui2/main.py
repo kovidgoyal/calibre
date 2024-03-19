@@ -235,7 +235,7 @@ class GuiRunner(QObject):
 
     def __init__(self, opts, args, actions, app, gui_debug=None):
         self.startup_time = monotonic()
-        timed_print('Starting up...')
+        timed_print('\n********** Starting Up **********')
         self.opts, self.args, self.app = opts, args, app
         self.gui_debug = gui_debug
         self.actions = actions
@@ -261,6 +261,7 @@ class GuiRunner(QObject):
                 timed_print('splash screen hidden')
             self.splash_screen = None
         timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
+        timed_print("\n******** Startup Complete *******\n")
         main.set_exception_handler()
         if len(self.args) > 1:
             main.handle_cli_args(self.args[1:])
@@ -275,13 +276,13 @@ class GuiRunner(QObject):
                 default_dir=initial_dir)
 
     def show_error(self, title, msg, det_msg=''):
-        print(det_msg, file=sys.stderr)
+        timed_print(det_msg, file=sys.stderr)
         self.hide_splash_screen()
         with self.app:
             error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
 
     def initialization_failed(self):
-        print('Catastrophic failure initializing GUI, bailing out...')
+        timed_print('Catastrophic failure initializing GUI, bailing out...')
         QCoreApplication.exit(1)
         raise SystemExit(1)
 
@@ -341,10 +342,13 @@ class GuiRunner(QObject):
                     # On some windows systems the existing db file gets locked
                     # by something when running restore from the main process.
                     # So run the restore in a separate process.
+
+                    timed_print('Restoring db in separate process on Windows...')
                     windows_repair(self.library_path)
                     self.app.quit()
                     return
                 if repair_library(self.library_path):
+                    timed_print('Initializing new db...')
                     db = LibraryDatabase(self.library_path)
         except:
             self.show_error(_('Bad database location'),
@@ -363,6 +367,7 @@ class GuiRunner(QObject):
 
     def hide_splash_screen(self):
         if self.splash_screen is not None:
+            timed_print('Hiding splash screen...')
             self.splash_screen.hide()
         self.splash_screen = None
 
@@ -386,6 +391,8 @@ def run_in_debug_mode():
     run_calibre_debug(
         '--gui-debug', logpath, stdout=open(logpath, 'wb'),
         stderr=subprocess.STDOUT, stdin=open(os.devnull, 'rb'))
+
+    timed_print('Running in Debug Mode..')
 
 
 def run_gui(opts, args, app, gui_debug=None):
