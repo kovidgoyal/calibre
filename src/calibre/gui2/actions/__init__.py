@@ -20,7 +20,7 @@ from polyglot.builtins import string_or_bytes
 
 
 def toolbar_widgets_for_action(gui, action):
-    # Search the the toolbars for the widget associated with an action, passing
+    # Search the toolbars for the widget associated with an action, passing
     # them to the caller for further processing
     for x in gui.bars_manager.bars:
         try:

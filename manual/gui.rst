@@ -383,7 +383,7 @@ You can set only one of the search options `Case sensitive searching` and `Unacc
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match `science`, but not `science fiction` or `hard science`. Character variants are significant: `é` doesn't match `e`.
 
-Two variants of equality searches are used for hierarchical items (e.g., A.B.C): hierarchical prefix searches and hierarchical component searches. The first, indicated by a single period after the equals (``=.``) matches the initial parts of a hierarchical item. The second, indicated by two periods after the the equals (``=..``) matches an internal name in the hierarchical item. Examples, using the tag ``History.Military.WWII`` as the value:
+Two variants of equality searches are used for hierarchical items (e.g., A.B.C): hierarchical prefix searches and hierarchical component searches. The first, indicated by a single period after the equals (``=.``) matches the initial parts of a hierarchical item. The second, indicated by two periods after the equals (``=..``) matches an internal name in the hierarchical item. Examples, using the tag ``History.Military.WWII`` as the value:
 
   * ``tags:"=.History"`` : True. ``History`` is a prefix of the tag.
   * ``tags:"=.History.Military"`` : True. ``History.Military`` is a prefix of the tag.

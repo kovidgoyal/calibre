@@ -3,7 +3,7 @@ from (https://wiki.mobileread.com/wiki/MOBI)
 About
 -----
 
-MOBI is the format used by the the MobiPocket Reader. It may have a .mobi
+MOBI is the format used by the MobiPocket Reader. It may have a .mobi
 extension or it may have a .prc extension. The extension can be changed by the
 user to either of the accepted forms. In either case it may be DRM protected or
 non-DRM. The .prc extension is used because the PalmOS doesn't support any file

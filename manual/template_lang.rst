@@ -646,7 +646,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
 * ``raw_field(lookup_name [, optional_default])`` -- returns the metadata field named by ``lookup_name`` without applying any formatting. It evaluates and returns the optional second argument ``optional_default`` if the field's value is undefined (``None``).
 * ``raw_list(lookup_name, separator)`` -- returns the metadata list named by ``lookup_name`` without applying any formatting or sorting, with the items separated by separator.
-* ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by applying the regular expression pattern to ``value`` and replacing each matched instance with the the value returned by the corresponding template. In :ref:`Template Program Mode <template_mode>`, like for the ``template`` and the ``eval`` functions, you use ``[[`` for ``{`` and ``]]`` for ``}``.
+* ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by applying the regular expression pattern to ``value`` and replacing each matched instance with the value returned by the corresponding template. In :ref:`Template Program Mode <template_mode>`, like for the ``template`` and the ``eval`` functions, you use ``[[`` for ``{`` and ``]]`` for ``}``.
 
   The following example looks for a series with more than one word and uppercases the first word::
 
