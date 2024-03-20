@@ -8,7 +8,7 @@ permissions:
 jobs:
     Push-To-Transifex:
         name: Update translations on Transifex
-        if: github.repository == 'kovidgoyal/calibre'
+        # if: github.repository == 'kovidgoyal/calibre'
         runs-on: ubuntu-latest
         container:
             image: 'archlinux/archlinux:latest'
