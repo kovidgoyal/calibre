@@ -224,7 +224,8 @@ class EPUBInput(InputFormatPlugin):
                         f.write(renderer)
 
         # Set the titlepage guide entry
-        self.set_guide_type(opf, 'titlepage', guide_cover, 'Title page')
+        from calibre.utils.localization import __
+        self.set_guide_type(opf, 'titlepage', guide_cover, __('Cover page'))
         return removed
 
     def find_opf(self):
