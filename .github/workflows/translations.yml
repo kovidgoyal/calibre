@@ -102,7 +102,7 @@ jobs:
           runuser -u ci -- python setup.py test_rs
 
       - name: Update translations
-        if: github.repository == 'kovidgoyal/calibre'
+        # if: github.repository == 'kovidgoyal/calibre'
         env:
           tx: ${{ secrets.tx }}
         run: |
