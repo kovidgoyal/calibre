@@ -99,6 +99,7 @@ class EPUBInput(InputFormatPlugin):
         ''' If there is a reference to the cover/titlepage via manifest properties, convert to
         entries in the <guide> so that the rest of the pipeline picks it up. '''
         from calibre.ebooks.metadata.opf3 import items_with_property
+        from calibre.utils.localization import __
         removed = guide_titlepage_href = guide_titlepage_id = None
 
         # Look for titlepages incorrectly marked in the <guide> as covers
@@ -119,7 +120,7 @@ class EPUBInput(InputFormatPlugin):
 
         raster_cover_href = opf.epub3_raster_cover or opf.raster_cover
         if raster_cover_href:
-            self.set_guide_type(opf, 'cover', raster_cover_href, 'Cover Image')
+            self.set_guide_type(opf, 'cover', raster_cover_href, __('Cover image'))
         titlepage_id = titlepage_href = None
         for item in items_with_property(opf.root, 'calibre:title-page'):
             tid, href = item.get('id'), item.get('href')
@@ -129,7 +130,7 @@ class EPUBInput(InputFormatPlugin):
         if titlepage_href is None:
             titlepage_href, titlepage_id = guide_titlepage_href, guide_titlepage_id
         if titlepage_href is not None:
-            self.set_guide_type(opf, 'titlepage', titlepage_href, 'Title page')
+            self.set_guide_type(opf, 'titlepage', titlepage_href, __('Cover page'))
             spine = list(opf.iterspine())
             if len(spine) > 1:
                 for item in spine:
@@ -147,6 +148,7 @@ class EPUBInput(InputFormatPlugin):
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
         HTML titlepage. '''
+        from calibre.utils.localization import __
         from calibre.ebooks.oeb.base import OPF
         removed = None
         from lxml import etree
@@ -224,7 +226,6 @@ class EPUBInput(InputFormatPlugin):
                         f.write(renderer)
 
         # Set the titlepage guide entry
-        from calibre.utils.localization import __
         self.set_guide_type(opf, 'titlepage', guide_cover, __('Cover page'))
         return removed
 
