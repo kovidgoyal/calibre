@@ -1,79 +1,76 @@
 name: CI
-on: [push, pull_request]
+# on: [push, pull_request]
 on:
   push:
     branches-ignore:
-      - "master"
+      - 'master'
   pull_request:
     branches-ignore:
-      - "master"
+      - 'master'
 permissions:
-    contents: read # to fetch code (actions/checkout)
+  contents: read # to fetch code (actions/checkout)
 
 jobs:
-    test:
-        name: Test on ${{ matrix.os }}
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                # windows is disabled because webenging is crashing when compiling rapydscript in CI, try re-enabling after next Qt update
-                os: [ubuntu-latest, macos-latest]
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v3
-              with:
-                fetch-depth: 10
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # windows is disabled because webenging is crashing when compiling rapydscript in CI, try re-enabling after next Qt update
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 10
 
-            - name: Set up Python
-              uses: actions/setup-python@v3
-              with:
-                python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
 
-            - name: Install calibre dependencies
-              run:
-                  python setup/unix-ci.py install
+      - name: Install calibre dependencies
+        run: python setup/unix-ci.py install
 
-            - name: Bootstrap calibre
-              run:
-                  python setup/unix-ci.py bootstrap
+      - name: Bootstrap calibre
+        run: python setup/unix-ci.py bootstrap
 
-            - name: Test calibre
-              env:
-                PYTHONWARNINGS: error
-                CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
-              run:
-                  python setup/unix-ci.py test
+      - name: Test calibre
+        env:
+          PYTHONWARNINGS: error
+          CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
+        run: python setup/unix-ci.py test
 
-    archtest:
-        name: Test on Arch
-        runs-on: ubuntu-latest
-        container:
-            image: 'archlinux/archlinux:latest'
-            env:
-                CI: 'true'
-        steps:
-            - name: Setup container
-              run: |
-                pacman -Syu --noconfirm
-                pacman -S --noconfirm tar
+  archtest:
+    name: Test on Arch
+    runs-on: ubuntu-latest
+    container:
+      image: 'archlinux/archlinux:latest'
+      env:
+        CI: 'true'
+    steps:
+      - name: Setup container
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm tar
 
-            - name: Checkout source code
-              uses: actions/checkout@master
-              with:
-                fetch-depth: 10
+      - name: Checkout source code
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 10
 
-            - name: Install calibre dependencies
-              run: setup/arch-ci.sh
+      - name: Install calibre dependencies
+        run: setup/arch-ci.sh
 
-            - name: Bootstrap calibre
-              run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
+      - name: Bootstrap calibre
+        run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
 
-            - name: Test calibre
-              env:
-                PYTHONWARNINGS: error
-                CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
-              run: |
-                  set -xe
-                  runuser -u ci -- python setup.py test --under-sanitize
-                  echo "Running test_rs"
-                  runuser -u ci -- python setup.py test_rs
+      - name: Test calibre
+        env:
+          PYTHONWARNINGS: error
+          CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
+        run: |
+          set -xe
+          runuser -u ci -- python setup.py test --under-sanitize
+          echo "Running test_rs"
+          runuser -u ci -- python setup.py test_rs
