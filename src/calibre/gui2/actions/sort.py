@@ -68,8 +68,10 @@ class SortByAction(InterfaceAction):
             self.gui.addAction(ac)
             return ac
 
-        c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
-        c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
+        self.reverse_action = c('reverse_sort_action', _('Reverse current sort'),
+                                _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
+        self.reapply_action = c('reapply_sort_action', _('Re-apply current sort'),
+                                _('Re-apply the current sort'), self.reapply_sort, 'f5')
 
     def about_to_show_menu(self):
         self.update_menu()
@@ -106,6 +108,11 @@ class SortByAction(InterfaceAction):
         m = self.gui.library_view.model()
         db = self.gui.current_db
 
+        # Use these actions so we get the shortcut(s) displayed
+        menu.addAction(self.reapply_action)
+        menu.addAction(self.reverse_action)
+        menu.addSeparator()
+
         # Add saved sorts to the menu
         saved_sorts = db.new_api.pref('saved_multisort_specs', {})
         if saved_sorts:
@@ -115,9 +122,9 @@ class SortByAction(InterfaceAction):
 
         # Note the current sort column so it can be specially handled below
         try:
-            sort_col, order = m.sorted_on
+            sort_col = m.sorted_on[0]
         except TypeError:
-            sort_col, order = 'date', True
+            sort_col = 'date'
 
         # The operations to choose which columns to display and to create saved sorts
         menu.addAction(_('Select sortable columns')).triggered.connect(self.select_sortable_columns)
@@ -136,20 +143,11 @@ class SortByAction(InterfaceAction):
                 continue
             if key in hidden:
                 continue
-            ascending = None
-            if key == sort_col:
-                name = _('%s [reverse current sort]') % name
-                ascending = not order
-            sac = SortAction(name, key, ascending, menu)
+            sac = SortAction(name, key, None, menu)
             if key == sort_col:
                 sac.setIcon(self.sorted_icon)
             sac.sort_requested.connect(self.sort_requested)
-            if key == sort_col:
-                before = menu.actions()[0] if menu.actions() else None
-                menu.insertAction(before, sac)
-                menu.insertSeparator(before)
-            else:
-                menu.addAction(sac)
+            menu.addAction(sac)
 
     def select_sortable_columns(self):
         db = self.gui.current_db
