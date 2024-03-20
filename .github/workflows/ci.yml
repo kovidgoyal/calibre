@@ -1,5 +1,12 @@
 name: CI
 on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - "master"
+  pull_request:
+    branches-ignore:
+      - "master"
 permissions:
     contents: read # to fetch code (actions/checkout)
 
