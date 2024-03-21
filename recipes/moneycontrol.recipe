@@ -79,7 +79,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
     for sec in business_sections:
         allinurl_a = index + 'news/business'
         feeds.append((sec.capitalize(), a.format(when, quote(allinurl_a + sec, safe=''))))
-    feeds.append(('Business' , a.format(when, quote(allinurl_a + sec, safe=''))))
+    feeds.append(('Business' , a.format(when, quote(allinurl_a, safe=''))))
 
     news_sections = [
         'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
@@ -88,7 +88,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
     for sec in news_sections:
         allinurl_b = index + 'news'
         feeds.append((sec.capitalize(), a.format(when, quote(allinurl_b + sec, safe=''))))
-    feeds.append(('News', a.format(when, quote(allinurl_b + sec, safe=''), '')))
+    feeds.append(('News', a.format(when, quote(allinurl_b, safe=''), '')))
     feeds.append(
         ('Others', 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'.format(when, quote(index, safe='')))
     )

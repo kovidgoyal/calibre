@@ -18,6 +18,8 @@ class livelaw(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
+    simultaneous_downloads = 1
+    art_url = ''
 
     extra_css = '''
         .news_detail_person_detail {font-size:small; color:#202020;}
@@ -36,6 +38,7 @@ class livelaw(BasicNewsRecipe):
         if any(x in link for x in skip_sections):
             self.abort_article('skipping video links ', link)
         self.log('Found ', link)
+        self.art_url = link
         html = br.open(link).read()
         return ({ 'data': html, 'url': link })
 
@@ -75,4 +78,8 @@ class livelaw(BasicNewsRecipe):
 
     for sec in sections:
         feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
-    feeds.append(('Others' , a.format(when, quote(index + sec, safe=''))))
+    feeds.append(('Others' , a.format(when, quote(index, safe=''))))
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = self.art_url
+        article.title = article.title.replace(' - Live Law - Indian Legal News', '')
