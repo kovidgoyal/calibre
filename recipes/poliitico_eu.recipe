@@ -14,7 +14,7 @@ class Politico(BasicNewsRecipe):
     title = 'Politico.eu'
     __author__ = 'unkn0wn, Darko Miletic and Sujata Raman'
     description = ('We connect and empower professionals through nonpartisan journalism and actionable'
-     'intelligence about European politics and policy. Download Weekly.')
+     ' intelligence about European politics and policy. Download Weekly.')
     publisher = 'Axel Springer SE.'
     category = 'news, politics, Europe'
     oldest_article = 7 # days
