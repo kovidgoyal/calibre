@@ -20,7 +20,7 @@ class LiveMint(BasicNewsRecipe):
 
     remove_empty_feeds =  True
     resolve_internal_links = True
-    
+
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         if self.output_profile.short_name.startswith('kindle'):
@@ -28,13 +28,18 @@ class LiveMint(BasicNewsRecipe):
             if is_saturday:
                 self.title = 'Mint Lounge | ' + date.today().strftime('%b %d, %Y')
 
+    def get_cover_url(self):
+        today = date.today().strftime('%d/%m/%Y')
+        today = today.replace('/', '%2F')
+        raw = self.index_to_soup(
+            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate=' + today, raw=True
+        )
+        for cov in json.loads(raw):
+            if cov['NewsProPageTitle'].lower().startswith(('front', 'cover')):
+                return cov['HighResolution']
+
     if is_saturday:
-        
-        def get_cover_url(self):
-            soup = self.index_to_soup('https://lifestyle.livemint.com/')
-            if citem := soup.find('div', attrs={'class':'headLatestIss_cover'}):
-                return citem.img['src'].replace('_tn.jpg', '_mr.jpg')
-        
+
         masthead_url = 'https://lifestyle.livemint.com/mintlounge/static-images/lounge-logo.svg'
 
         oldest_article = 6.5 # days
@@ -74,13 +79,6 @@ class LiveMint(BasicNewsRecipe):
                 img['src'] = img['data-img']
             return soup
     else:
-        
-        def get_cover_url(self):
-            soup = self.index_to_soup(
-                'https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Mint-Mumbai/Newspaper/'
-            )
-            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-                return citem['content']
 
         extra_css = '''
             img {margin:0 auto;}
@@ -103,7 +101,7 @@ class LiveMint(BasicNewsRecipe):
             dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider'
-                ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo manualbacklink'
+                ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo'
                 ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText'
             )
         ]
