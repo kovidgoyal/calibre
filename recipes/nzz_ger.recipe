@@ -1,66 +1,61 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>, 2012 Bernd Leinfelder <skoll1975@gmail.com>'
-
-'''
-www.nzz.ch
-'''
-
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-
 class Nzz(BasicNewsRecipe):
-    title = 'NZZ Online'
-    __author__ = 'Darko Miletic, Bernd Leinfelder'
-    description = 'Laufend aktualisierte Nachrichten, Analysen und Hintergruende zu Politik, Wirtschaft, Kultur und Sport'
-    publisher = 'NZZ AG'
-    category = 'news, politics, nachrichten, Switzerland'
-    oldest_article = 2
-    max_articles_per_feed = 100
-    no_stylesheets = True
-    encoding = 'utf-8'
-    use_embedded_content = False
+    title = 'NZZ'
+    __author__ = 'Claude Henchoz'
+    description = 'Neue Zürcher Zeitung'
+    publisher = 'Neue Zürcher Zeitung'
+    category = 'news, politics'
     language = 'de'
-    extra_css             = """
-                               body{font-family: Georgia,"Times New Roman",Times,serif }
-                               .artikel h3,.artikel h4,.bildLegende,.question,.autor{font-family: Arial,Verdana,Helvetica,sans-serif}
-                               .bildLegende{font-size: small}
-                               .autor{font-size: 0.9375em; color: #666666}
-                               .quote{font-size: large !important;
-                                      font-style: italic;
-                                      font-weight: normal !important;
-                                      border-bottom: 1px dotted #BFBFBF;
-                                      border-top: 1px dotted #BFBFBF;
-                                      line-height: 1.25em}
-                                .quelle{color: #666666; font-style: italic; white-space: nowrap}
-                            """
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    timefmt = ' [%a, %d %b %Y %H:%M:%S %z]'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    scale_news_images = (600, 400)
+    scale_news_images_to_device = True
 
-    remove_attributes = ['width', 'height', 'lang']
-    remove_tags_before = dict(id='main')
-    remove_tags_after = dict(id='articleBodyText')
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Neue_Z%C3%BCrcher_Zeitung.svg/800px-Neue_Z%C3%BCrcher_Zeitung.svg.png'
+
+    keep_only_tags = [dict(name='section', attrs={'class': 'container--article'})]
+
     remove_tags = [
-        dict(name=['object', 'link', 'base', 'meta', 'iframe']), dict(
-            id='social-media-floater'), dict(name='div', attrs={'class': ['box']})
-
+        dict(name='div', attrs={'class': 'progressbar__wrapper'}),
+        dict(name='div', attrs={'class': 'headline__meta'}),
+        dict(name='figcaption', attrs={'class': 'articlecomponent__description'}),
+        dict(name='div', attrs={'class': 'nzzinteraction'}),
+        dict(name='section', attrs={'class': 'nzzinteraction'}),
     ]
+
+    remove_attributes = ['style', 'font', 'class']
 
     feeds = [
-
-    (u'International', u'http://www.nzz.ch/aktuell/international.rss'),
-    (u'Schweiz', u'http://www.nzz.ch/aktuell/schweiz.rss'),
-    (u'Wirtschaft', u'http://www.nzz.ch/aktuell/wirtschaft/uebersicht.rss'),
-    (u'Finanzmaerkte', u'http://www.nzz.ch/finanzen/uebersicht/finanznachrichten.rss'),
-    (u'Zuerich', u'http://www.nzz.ch/aktuell/zuerich/uebersicht.rss'),
-    (u'Sport', u'http://www.nzz.ch/aktuell/sport/uebersicht.rss'),
-    (u'Panorama', u'http://www.nzz.ch/aktuell/panorama.rss'),
-    (u'Kultur', u'http://www.nzz.ch/aktuell/feuilleton/uebersicht.rss'),
-    (u'Wissenschaft', u'http://www.nzz.ch/wissen/uebersicht.rss'),
-    (u'Reisen', u'http://www.nzz.ch/lebensart/reisen-freizeit.rss'),
-    (u'Auto Mobil', u'http://www.nzz.ch/lebensart/auto-mobil.rss'),
-    (u'Digital', u'http://www.nzz.ch/lebensart/digital.rss'),
-    (u'Stil', u'http://www.nzz.ch/lebensart/stil.rss'),
-    (u'Wein-Keller', u'http://www.nzz.ch/lebensart/wein-keller.rss')
+        ('Neueste Artikel', 'https://www.nzz.ch/recent.rss'),
+        ('Topthemen der Startseite', 'https://www.nzz.ch/startseite.rss'),
+        ('International', 'https://www.nzz.ch/international.rss'),
+        ('Schweiz', 'https://www.nzz.ch/schweiz.rss'),
+        ('Wirtschaft', 'https://www.nzz.ch/wirtschaft.rss'),
+        ('Finanznachrichten', 'https://www.nzz.ch/finanzen.rss'),
+        ('Kultur', 'https://www.nzz.ch/feuilleton.rss'),
+        ('Sport', 'https://www.nzz.ch/sport.rss'),
+        ('Zürich', 'https://www.nzz.ch/zuerich.rss'),
+        ('Panorama', 'https://www.nzz.ch/panorama.rss'),
+        ('Wissenschaft', 'https://www.nzz.ch/wissenschaft.rss'),
+        ('Auto', 'https://www.nzz.ch/mobilitaet/auto-mobil.rss'),
+        ('Technologie', 'https://www.nzz.ch/technologie.rss'),
     ]
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
+
+    def preprocess_html(self, soup):
+        # Fix lazy-loading images
+        for img in soup.findAll('img', attrs={'srcset': True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup
