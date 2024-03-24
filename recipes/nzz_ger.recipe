@@ -1,7 +1,8 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
-import mechanize
 import json
+from mechanize import Request
 from datetime import datetime
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Nzz(BasicNewsRecipe):
@@ -80,19 +81,19 @@ class Nzz(BasicNewsRecipe):
         encoded_data = json.dumps(json_data).encode('utf-8')
 
         # Create a mechanize Request object with the target URL, encoded data, and headers
-        req = mechanize.Request(url='https://epaper.nzz.ch/epaper/1.0/findEditionsFromDate',
+        req = Request(url='https://epaper.nzz.ch/epaper/1.0/findEditionsFromDate',
                                 data=encoded_data,
                                 headers=headers,
                                 method='POST')
 
         # Use mechanize to open the request and read the response
-        browser = mechanize.Browser()
+        browser = self.get_browser()
         response = browser.open(req)
         response_data = json.loads(response.read())
 
         # Extract the desired information
         url = response_data['data'][0]['pages'][0]['pageDocUrl']['PREVIEW']['url']
-        
+
         return url
 
 
