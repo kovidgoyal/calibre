@@ -40,6 +40,7 @@ class DeviceDefaults:
                 ({'vendor': 0x2207, 'product': 0x0031}, supernote_settings),
                 ({'vendor': 0x2207, 'product': 0x0011}, supernote_settings),
                 ({'vendor': 0x2207, 'product': 0x0007}, supernote_settings),  # A6X2
+                ({'vendor': 0x2207, 'product': 0x0017}, supernote_settings),  # A6X2
         )
 
     def __call__(self, device, driver):
