@@ -70,11 +70,3 @@ jobs:
                   runuser -u ci -- python setup.py test --under-sanitize
                   echo "Running test_rs"
                   runuser -u ci -- python setup.py test_rs
-
-            - name: Update translations
-              # if: ${{ github.repository == 'kovidgoyal/calibre' && github.event_name == 'push' && github.ref =='refs/heads/master'}}
-              if: ${{ github.event_name == 'push' && github.ref =='refs/heads/master'}}
-              env:
-                tx: ${{ secrets.tx }}
-              run: |
-                runuser -u ci -- python setup/unix-ci.py pot
