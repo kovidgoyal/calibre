@@ -4,7 +4,7 @@ from datetime import date
 from collections import defaultdict
 
 # figure out your local edition id from the log of this recipe
-edi_id = 225 # TELANGANA MAIN II - 225
+edi_id = 34 # HYDERABAD MAIN I - 34
 
 today = date.today().strftime('%d/%m/%Y')
 
