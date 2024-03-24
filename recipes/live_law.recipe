@@ -53,7 +53,7 @@ class livelaw(BasicNewsRecipe):
         ),
         dict(attrs={'class':lambda x: x and 'inside-post-ad' in x}),
         dict(attrs={'id':[
-        	'news_buzz_updates', 'after_tags', 'comments_before', 'comments', 'comments_after'
+            'news_buzz_updates', 'after_tags', 'comments_before', 'comments', 'comments_after'
         ]})
     ]
 
@@ -70,8 +70,8 @@ class livelaw(BasicNewsRecipe):
     index = 'https://www.livelaw.in/'
 
     sections = [
-        'top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles', 
-        'lawschool', 'law-firms', 'round-ups'  
+        'top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles',
+        'lawschool', 'law-firms', 'round-ups'
     ]
 
     a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'
