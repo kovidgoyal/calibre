@@ -82,7 +82,7 @@ class TheWeek(BasicNewsRecipe):
         'culture-life', 'business', 'travel', 'arts-life', 'history'
     ]
     for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=US&ceid=US:en'
+        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-US&gl=US&ceid=US:en'
         feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
     feeds.append(('Others', a.format(when, quote(index, safe=''), '')))
 
