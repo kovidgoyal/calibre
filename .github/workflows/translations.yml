@@ -1,8 +1,3 @@
-# name: Transifex
-# on:
-#   push:
-#     branches: [master]
-# permissions:
 #   contents: read # to fetch code (actions/checkout)
 
 # jobs:
@@ -107,3 +102,4 @@
 #           tx: ${{ secrets.tx }}
 #         run: |
 #           runuser -u ci -- python setup/unix-ci.py pot
+
