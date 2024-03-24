@@ -1,4 +1,8 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
+import mechanize
+import json
+from datetime import datetime
+
 
 class Nzz(BasicNewsRecipe):
     title = 'NZZ'
@@ -6,11 +10,12 @@ class Nzz(BasicNewsRecipe):
     description = 'Neue Zürcher Zeitung'
     publisher = 'Neue Zürcher Zeitung'
     category = 'news, politics'
+    oldest_article = 30
+    max_articles_per_feed = 15
     language = 'de'
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
-    timefmt = ' [%a, %d %b %Y %H:%M:%S %z]'
 
     scale_news_images = (600, 400)
     scale_news_images_to_device = True
@@ -44,6 +49,52 @@ class Nzz(BasicNewsRecipe):
         ('Auto', 'https://www.nzz.ch/mobilitaet/auto-mobil.rss'),
         ('Technologie', 'https://www.nzz.ch/technologie.rss'),
     ]
+
+    def get_cover_url(self):
+        # Prepare the date and data
+        today_date = datetime.now().strftime('%Y-%m-%d')
+        json_data = {
+            'editions': [
+                {
+                    'publicationDate': today_date,
+                    'defId': 6,
+                },
+            ],
+            'startDate': today_date,
+            'maxHits': 1,
+            'direction': 'BACKWARD',
+        }
+
+        # Prepare headers
+        headers = {
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9,de;q=0.8',
+            'Content-Type': 'application/json',
+            'Origin': 'https://epaper.nzz.ch',
+            'Referer': 'https://epaper.nzz.ch/',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0',
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+
+        # Encode your JSON data
+        encoded_data = json.dumps(json_data).encode('utf-8')
+
+        # Create a mechanize Request object with the target URL, encoded data, and headers
+        req = mechanize.Request(url='https://epaper.nzz.ch/epaper/1.0/findEditionsFromDate',
+                                data=encoded_data,
+                                headers=headers,
+                                method='POST')
+
+        # Use mechanize to open the request and read the response
+        browser = mechanize.Browser()
+        response = browser.open(req)
+        response_data = json.loads(response.read())
+
+        # Extract the desired information
+        url = response_data['data'][0]['pages'][0]['pageDocUrl']['PREVIEW']['url']
+        
+        return url
+
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
