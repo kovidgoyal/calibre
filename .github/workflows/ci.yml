@@ -1,12 +1,5 @@
 name: CI
 on: [push, pull_request]
-# on:
-#   push:
-#     branches-ignore:
-#       - "master"
-#   pull_request:
-#     branches-ignore:
-#       - "master"
 permissions:
     contents: read # to fetch code (actions/checkout)
 
@@ -77,11 +70,3 @@ jobs:
                   runuser -u ci -- python setup.py test --under-sanitize
                   echo "Running test_rs"
                   runuser -u ci -- python setup.py test_rs
-
-            - name: Update translations
-              # if: ${{ github.repository == 'kovidgoyal/calibre' && github.event_name == 'push' && github.ref =='refs/heads/master'}}
-              if: ${{ github.event_name == 'push' && github.ref =='refs/heads/master'}}
-              env:
-                tx: ${{ secrets.tx }}
-              run: |
-                runuser -u ci -- python setup/unix-ci.py pot
