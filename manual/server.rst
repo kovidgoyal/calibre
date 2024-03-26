@@ -23,9 +23,9 @@ address:
 
 This will open a page in the browser showing you your calibre libraries, click
 on any one and browse the books in it. Click on a book, and it will show you
-all the metadata about the book, along with buttons to :guilabel:`Read book`
-and :guilabel:`Download book`. Click the :guilabel:`Read book` button to
-start reading the book.
+all the metadata about the book, along with buttons to :guilabel:`Read` and
+:guilabel:`Download`. Click the :guilabel:`Read book` button to start
+reading the book.
 
 .. note:: The address used above ``http://127.0.0.1:8080`` will only work on
     the computer that is running calibre. To access the server from other
