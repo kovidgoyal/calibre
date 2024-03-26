@@ -8,11 +8,8 @@ def get_story(story):
         yield '\n' + story['text']
     elif str_type == 'image':
         yield ''.join(img(story))
-    elif str_type == 'composite':
-        for x in story.get('story-elements', {}):
-            yield from get_story(x)
     elif 'story-elements' in story:
-        for x in story.get('story-elements', {}):
+        for x in story['story-elements']:
             yield from get_story(x)
 
 def img(img):
