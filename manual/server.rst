@@ -178,7 +178,7 @@ The book reader
 ^^^^^^^^^^^^^^^^
 
 You can read any book in your calibre library by simply tapping on
-it and then tapping the :guilabel:`Read` button. The books reader
+it and then tapping the :guilabel:`Read` button. The book reader
 is very simple to operate. You can both tap and swipe to turn pages. Swiping
 up/down skips between chapters. Tapping the top quarter of the screen gets you
 the detailed controls and viewer preferences.
