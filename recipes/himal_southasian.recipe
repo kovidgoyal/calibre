@@ -1,7 +1,27 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
-from datetime import datetime, timezone, timedelta
-from calibre.utils.date import parse_date
+from calibre.web.feeds.news import BasicNewsRecipe
+from html5_parser import parse
+import json
 
+def get_story(story):
+    str_type = story.get('type', '')
+    if str_type == 'text':
+        yield '\n' + story['text']
+    elif str_type == 'image':
+        yield ''.join(img(story))
+    elif str_type == 'composite':
+        for x in story.get('story-elements', {}):
+            yield from get_story(x)
+    elif 'story-elements' in story:
+        for x in story.get('story-elements', {}):
+            yield from get_story(x)
+
+def img(img):
+    yield '<p>'
+    if 'image-s3-key' in img:
+        yield '<img src="{}">'.format('https://media.assettype.com/' + img['image-s3-key'])
+    if 'title' in img:
+        yield '<div class="cap">' + img['title'] + '</div>'
+    yield '</p>'
 
 class himal(BasicNewsRecipe):
     title = 'Himal Southasian'
@@ -13,66 +33,45 @@ class himal(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
-    masthead_url = 'https://www.himalmag.com/wp-content/themes/himaltheme-child/images/logo.svg'
+    masthead_url = 'https://gumlet.assettype.com/himalmag/2024-01/4ecc5615-eceb-4497-87c7-4e013083ba17/logo_.png'
     encoding = 'utf-8'
-    remove_empty_feeds = True
     resolve_internal_links = True
     oldest_article = 30  # days
 
     extra_css = '''
-        .sub-row, .img-caption, .wp-caption-text, .comments-info-box {font-size:small;}
+        .cap, .auth {font-size:small;}
         em, blockquote {color:#404040;}
+        .subhead { font-style:italic; color:#202020; }
     '''
 
-    remove_tags = [
-        dict(name='header'),
-        dict(name='footer'),
-        classes('skip-link single-btm share-info title-info post-categories comment-btn comment-line'),
+    feeds = [
+        ('Articles', 'https://www.himalmag.com/feed')
     ]
 
-    def parse_index(self):
-        sel = self.index_to_soup('https://www.himalmag.com/category/regions/')
-        nav_div = sel.find('div', attrs={'class':'category-sublist'})
-        section_list = []
+    def preprocess_raw_html(self, raw, *a):
+        root = parse(raw)
+        m = root.xpath('//script[@id="static-page"]')
+        data = json.loads(m[0].text)['qt']['data']['story']
 
-        for a in nav_div.findAll('a', href=True):
-            section_list.append(
-                (self.tag_to_string(a).strip(), a['href'])
-            )
-        feeds = []
+        title = '<h1>' + data['headline'] + '</h1>'
 
-        # For each section title, fetch the article urls
-        for section in section_list:
-            section_title = section[0]
-            section_url = section[1]
-            self.log(section_title, section_url)
-            soup = self.index_to_soup(section_url)
-            articles = self.articles_from_soup(soup)
-            if articles:
-                feeds.append((section_title, articles))
-        return feeds
+        subhead = auth = caption = lede = ''
 
-    def articles_from_soup(self, soup):
-        ans = []
-        div = soup.find('div', attrs={'id':'loadmore-wrap'})
-        for h3 in div.findAll('h3'):
-            a = h3.find('a', href=True)
-            url = a['href']
-            title = self.tag_to_string(a)
-            desc = ''
-            exp = h3.findNext('div', attrs={'class':'content-except'})
-            if exp:
-                desc = self.tag_to_string(exp)
-            h4 = h3.findNext('h4')
-            if h4:
-                date = parse_date(self.tag_to_string(h4).split('|')[1].strip())
-                today = (datetime.now(timezone.utc)).replace(microsecond=0)
-                if (today - date) > timedelta(self.oldest_article):
-                    url = ''
+        if 'subheadline' in data:
+            subhead = '\n<p class="subhead">' + data['subheadline'] + '</p>'
 
-            if not url or not title:
-                continue
+        if 'author-name' in data:
+            auth = '\n<div class="auth">' + data['author-name'] + '</div>'
 
-            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-            ans.append({'title': title, 'description':desc, 'url': url})
-        return ans
+        if 'hero-image-s3-key' in data:
+            lede = '\n<p><img src="{}">'.format('https://media.assettype.com/' + data['hero-image-s3-key'])
+
+        if 'hero-image-caption' in data:
+            caption = '<div class="cap">' + data['hero-image-caption'] + '</div>'
+
+        body = ''
+        for ele in data['cards']:
+            for story in ele.get('story-elements', {}):
+                body += '\n'.join(get_story(story))
+
+        return '<html><body>\n' + title + subhead + auth + lede + caption + '<div>' + body + '\n</div></body></html>'
