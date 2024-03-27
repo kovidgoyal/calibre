@@ -12,7 +12,7 @@ For more information, see the [calibre About page](https://calibre-ebook.com/abo
 
 [![Build Status](https://github.com/kovidgoyal/calibre/workflows/CI/badge.svg)](https://github.com/kovidgoyal/calibre/actions?query=workflow%3ACI)
 
-## Screenshots test
+## Screenshots
 
 [Screenshots page](https://calibre-ebook.com/demo)
 
