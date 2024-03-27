@@ -8,7 +8,7 @@ sapteseri.ro
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-
+#test
 
 class SapteSeri(BasicNewsRecipe):
     title = u'Sapte Seri'
