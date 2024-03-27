@@ -794,15 +794,22 @@ class TagBrowserWidget(QFrame):  # {{{
                 action=ac, group=_('Tag browser'))
         # Show/hide notes icon
         l.m.show_notes_icon_action = ac = l.m.addAction(QIcon.ic('notes.png'), 'notes icon')
-        ac.triggered.connect(self.toggle_notes_icon)
+        ac.triggered.connect(self.toggle_notes)
         parent.keyboard.register_shortcut('tag browser toggle notes',
                 _('Toggle notes icons'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         # Show/hide links icon
         l.m.show_links_icon_action = ac = l.m.addAction(QIcon.ic('external-link.png'), 'links icon')
-        ac.triggered.connect(self.toggle_links_icon)
+        ac.triggered.connect(self.toggle_links)
         parent.keyboard.register_shortcut('tag browser toggle links',
                 _('Toggle links icons'), default_keys=(),
+                action=ac, group=_('Tag browser'))
+
+        # Show/hide empty categories
+        l.m.show_empty_categories_action = ac = l.m.addAction(QIcon.ic('external-link.png'), 'links icon')
+        ac.triggered.connect(self.toggle_show_empty_categories)
+        parent.keyboard.register_shortcut('tag browser show empty categories',
+                _('Show empty categories (columns)'), default_keys=(),
                 action=ac, group=_('Tag browser'))
 
         sb = l.m.addAction(QIcon.ic('sort.png'), _('Sort by'))
@@ -877,17 +884,29 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def about_to_show_configure_menu(self):
         ac = self.alter_tb.m.show_counts_action
-        ac.setText(_('Hide counts') if gprefs['tag_browser_show_counts'] else _('Show counts'))
-        ac.setIcon(QIcon.ic('minus.png') if gprefs['tag_browser_show_counts'] else QIcon.ic('plus.png'))
+        p = gprefs['tag_browser_show_counts']
+        ac.setText(_('Hide counts') if p else _('Show counts'))
+        ac.setIcon(QIcon.ic('minus.png') if p else QIcon.ic('plus.png'))
+
         ac = self.alter_tb.m.show_avg_rating_action
-        ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
-        ac.setIcon(QIcon.ic('minus.png' if config['show_avg_rating'] else 'plus.png'))
+        p = config['show_avg_rating']
+        ac.setText(_('Hide average rating') if p else _('Show average rating'))
+        ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
+
         ac = self.alter_tb.m.show_notes_icon_action
-        ac.setText(_('Hide notes icon') if gprefs['show_notes_in_tag_browser'] else _('Show notes icon'))
-        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_notes_in_tag_browser'] else 'plus.png'))
+        p = gprefs['show_notes_in_tag_browser']
+        ac.setText(_('Hide notes icon') if p else _('Show notes icon'))
+        ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
+
         ac = self.alter_tb.m.show_links_icon_action
-        ac.setText(_('Hide links icon') if gprefs['show_links_in_tag_browser'] else _('Show links icon'))
-        ac.setIcon(QIcon.ic('minus.png' if gprefs['show_links_in_tag_browser'] else 'plus.png'))
+        p = gprefs['show_links_in_tag_browser']
+        ac.setText(_('Hide links icon') if p else _('Show links icon'))
+        ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
+
+        ac = self.alter_tb.m.show_empty_categories_action
+        p = self.tags_view.model().prefs['tag_browser_hide_empty_categories']
+        ac.setText(_('Show empty categories (columns)') if p else _('Hide empty categories (columns)'))
+        ac.setIcon(QIcon.ic('plus.png' if p else 'minus.png'))
 
     def filter_book_list(self):
         self.tags_view.model().set_in_tag_browser()
@@ -901,12 +920,16 @@ class TagBrowserWidget(QFrame):  # {{{
         config['show_avg_rating'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_notes_icon(self):
+    def toggle_notes(self):
         gprefs['show_notes_in_tag_browser'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_links_icon(self):
+    def toggle_links(self):
         gprefs['show_links_in_tag_browser'] ^= True
+        self.tags_view.recount_with_position_based_index()
+
+    def toggle_show_empty_categories(self):
+        self.tags_view.model().prefs['tag_browser_hide_empty_categories'] ^= True
         self.tags_view.recount_with_position_based_index()
 
     def save_state(self):
