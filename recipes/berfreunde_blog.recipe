@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class bergfreunde_blog(BasicNewsRecipe):
+    # under permission an knowledge from Bergfreunde.de
+    # thanks guys for that!
+    # Title
+    title          = 'Bergfreunde Blog'
+    # age in days
+    oldest_article = 30
+    # limit the download
+    max_articles_per_feed = 100
+    # clean up the mess
+    auto_cleanup   = True
+    # what's this? 
+    description = 'Blog der Bergfreunde Seite (Online Händler für Bergsport)'
+    publisher = 'https://www.bergfreunde.de/ueber-die-bergfreunde/'
+    language = 'de'
+    version = 2
+    # may here could be a png graphic file link!
+    cover_url = 'https://www.bergfreunde.de/out/pictures/img/bergfreunde-logo.svg'
+    # author of the recipe for calibre - epub (feed) reader
+    __author__ = 'VoHe'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    feeds          = [
+        ('Bergfreunde', 'https://www.bergfreunde.de/blog/feed'),
+    ]
