@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 11  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -42,10 +42,10 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
             f.write(raw)
     doc = html.fromstring(raw)
     select = Select(doc)
-    for i, item in enumerate(select('.result-items .item-wrapper.book')):
+    for i, item in enumerate(select('[data-testid=search-results-items] [role=listitem]')):
         if i == max_results:
             break
-        for img in select('.item-image img[src]', item):
+        for img in select('img[data-testid=cover]', item):
             cover_url = img.get('src')
             if cover_url.startswith('//'):
                 cover_url = 'https:' + cover_url
@@ -53,13 +53,9 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
         else:
             cover_url = None
 
-        for p in select('h2.title', item):
-            title = etree.tostring(p, method='text', encoding='unicode').strip()
-            for a in select('a[href]', p):
-                url = a.get('href')
-                break
-            else:
-                url = None
+        for a in select('h2 a[data-testid=title]', item):
+            title = etree.tostring(a, method='text', encoding='unicode').strip()
+            url = a.get('href')
             break
         else:
             title = None
@@ -68,11 +64,11 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 title += ' - ' + etree.tostring(p, method='text', encoding='unicode').strip()
 
         authors = []
-        for a in select('.contributors a.contributor-name', item):
+        for a in select('[data-testid=authors]', item):
             authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
         authors = authors_to_string(authors)
 
-        for p in select('p.price', item):
+        for p in select('[data-testid=price-value]', item):
             price = etree.tostring(p, method='text', encoding='unicode').strip()
             break
         else:
@@ -81,6 +77,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
         if title and authors and url:
             s = SearchResult()
             s.cover_url = cover_url
+            s.store_name = 'Kobo'
             s.title = title
             s.author = authors
             s.price = price
@@ -130,6 +127,5 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
-
     for result in search_kobo(' '.join(sys.argv[1:]), write_html_to='/t/kobo.html'):
         print(result)
