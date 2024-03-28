@@ -22,3 +22,6 @@ known_future_library = "__python__"
 known_third_party = "qt"
 known_standard_library = "aes,elementmaker,encodings"
 known_first_party = "calibre_extensions"
+
+[tool.pylsp-mypy]
+enabled = false
