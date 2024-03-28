@@ -224,6 +224,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         t.setInterval(1000), t.timeout.connect(self.handle_changes_from_server_debounced), t.setSingleShot(True)
         self._spare_pool = None
         self.must_restart_before_config = False
+        timed_print("Initializing UI components...")
 
         for ac in self.iactions.values():
             try:
@@ -368,6 +369,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         # ######################## Search Restriction ##########################
         if db.new_api.pref('virtual_lib_on_startup'):
+            timed_print("Applying search restriction...")
             self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
         self.rebuild_vl_tabs()
 
@@ -441,6 +443,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.layout_container.is_visible.quick_view:
             self.iactions['Quickview'].show_on_startup()
         self.listener.start_listening()
+        timed_print("Starting UI listener...")
         self.start_smartdevice()
         # Collect cycles now
         gc.collect()
@@ -558,9 +561,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if callable(func):
             func(payload)
 
-    def no_op(self, *args):
-        pass
-
     def system_tray_icon_activated(self, r=False):
         if r in (QSystemTrayIcon.ActivationReason.Trigger, QSystemTrayIcon.ActivationReason.MiddleClick, False):
             if self.isVisible():
@@ -593,6 +593,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('Hide main window') if self.isVisible() else _('Show main window'))
 
     def hide_windows(self):
+        timed_print("Window hidden")
         for window in QApplication.topLevelWidgets():
             if isinstance(window, (MainWindow, QDialog)) and \
                     window.isVisible():
@@ -601,6 +602,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.update_toggle_to_tray_action()
 
     def show_windows(self, *args):
+        timed_print("Window shown")
         for window in QApplication.topLevelWidgets():
             if getattr(window, '__systray_minimized', False):
                 window.show()
@@ -1169,6 +1171,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
         open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
+        timed_print("Donation created")
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():
@@ -1187,9 +1190,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if not question_dialog(self, _('Library updates waiting'), msg):
                 return False
 
+        timed_print('\n********* Shutting Down *********')
         return True
 
     def shutdown(self, write_settings=True):
+        timed_print("UI shutting down...")
         self.shutting_down = True
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
             self.library_view.connect_to_book_display_timer.stop()
@@ -1227,7 +1232,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.write_settings()
         if getattr(self, 'update_checker', None):
             self.update_checker.shutdown()
+        
+        timed_print('Closing UI listener...')
         self.listener.close()
+        timed_print('Closing UI servers...')
         self.job_manager.server.close()
         self.job_manager.threaded_server.close()
         self.device_manager.keep_going = False
@@ -1277,6 +1285,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup()
         wait_for_stop()
         self.shutdown_completed.emit()
+        timed_print('\n******* Shutdown Complete *******\n')
         return True
 
     def run_wizard(self, *args):

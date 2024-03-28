@@ -24,7 +24,7 @@ from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, gprefs, warning_dialog
+from calibre.gui2 import error_dialog, gprefs, warning_dialog, timed_print
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
