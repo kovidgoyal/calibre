@@ -60,9 +60,9 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         # ipython({'soup': soup})
 
         # Find cover
-        cover = soup.find('img', attrs={'class':'border-light-gray'})
+        cover = soup.find('img', attrs={'class':'border-light-gray', 'src': True})
         if cover is not None:
-            self.cover_url = absurl(cover['data-lazy-src'])
+            self.cover_url = absurl(cover['src'])
             self.log('Found cover at:', self.cover_url)
 
         # Find date
