@@ -6,14 +6,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, tomllib, re
-base = os.path.dirname(os.path.abspath(__file__))
+import sys, os, re
+src_base = os.path.dirname(os.path.abspath(__file__))
 
 
 def check_version_info():
-    with open(os.path.join(base, 'pyproject.toml'), 'rb') as f:
-        m = tomllib.load(f)
-    minver = m['project']['requires-python']
+    with open(os.path.join(src_base, 'pyproject.toml')) as f:
+        raw = f.read()
+    m = re.search(r'''^requires-python\s*=\s*['"](.+?)['"]''', raw, flags=re.MULTILINE)
+    assert m is not None
+    minver = m.group(1)
     m = re.match(r'(>=?)(\d+)\.(\d+)', minver)
     q = int(m.group(2)), int(m.group(3))
     if m.group(1) == '>=':
@@ -27,7 +29,7 @@ def check_version_info():
 
 check_version_info()
 
-sys.path.insert(0, base)
+sys.path.insert(0, src_base)
 
 import setup.commands as commands
 from setup import prints, get_warnings
