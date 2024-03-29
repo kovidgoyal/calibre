@@ -5,14 +5,14 @@ builtins = ['_']
 
 [tool.ruff.lint]
 ignore = ['E741', 'E402', 'E722', 'E401']
-select = ['E', 'F']
+select = ['E', 'F', 'I']
 
 [tool.ruff.lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/unicodepoints.py" = ["E501"]
 "src/qt/__init__.py" = ["E501"]
 
-[tool.black]
-target-version = ['py38']
+[tool.ruff.format]
+quote-style = 'single'
 
 [tool.isort]
 profile = "black"
