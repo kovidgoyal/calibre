@@ -415,7 +415,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
             if on_device:
                 loc = confirm_location('<p>' + _('Some of the selected books are on the attached device. '
                                             '<b>Where</b> do you want the selected files deleted from?'),
-                            self.gui)
+                            name='device-and-or-lib', parent=self.gui)
                 if not loc:
                     return
                 elif loc == 'dev':
