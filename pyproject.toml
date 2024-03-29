@@ -1,3 +1,6 @@
+[project]
+requires-python = ">=3.8"
+
 [tool.ruff]
 line-length = 160
 target-version = 'py38'

@@ -6,20 +6,28 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, tomllib, re
+base = os.path.dirname(os.path.abspath(__file__))
 
 
-def check_version_info(minver=(3, 8, 0)):
-    vi = sys.version_info
-    if vi < minver:
-        def fmt(v):
-            return '.'.join(map(str, v[:3]))
-        exit('calibre requires Python >= {}. Current Python version: {}'.format(fmt(minver), fmt(vi)))
+def check_version_info():
+    with open(os.path.join(base, 'pyproject.toml'), 'rb') as f:
+        m = tomllib.load(f)
+    minver = m['project']['requires-python']
+    m = re.match(r'(>=?)(\d+)\.(\d+)', minver)
+    q = int(m.group(2)), int(m.group(3))
+    if m.group(1) == '>=':
+        is_ok = sys.version_info >= q
+    else:
+        is_ok = sys.version_info > q
+    if is_ok:
+        exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
+
 
 
 check_version_info()
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, base)
 
 import setup.commands as commands
 from setup import prints, get_warnings
