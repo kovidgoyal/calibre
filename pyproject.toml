@@ -5,7 +5,7 @@ builtins = ['_']
 
 [tool.ruff.lint]
 ignore = ['E741', 'E402', 'E722', 'E401']
-select = ['E', 'F', 'I']
+select = ['E', 'F']
 
 [tool.ruff.lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/unicodepoints.py" = ["E501"]
