@@ -8,7 +8,7 @@ builtins = ['_']
 
 [tool.ruff.lint]
 ignore = ['E741', 'E402', 'E722', 'E401']
-select = ['E', 'F']
+select = ['E', 'F', 'I']
 
 [tool.ruff.lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/unicodepoints.py" = ["E501"]
@@ -17,14 +17,13 @@ select = ['E', 'F']
 [tool.ruff.format]
 quote-style = 'single'
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-multi_line_output = 5
-known_future_library = "__python__"
-known_third_party = "qt"
-known_standard_library = "aes,elementmaker,encodings"
-known_first_party = "calibre_extensions"
+[tool.ruff.lint.isort]
+detect-same-package = true
+extra-standard-library = ['aes', 'elementmaker', 'encodings']
+known-first-party = ["calibre_extensions", 'polyglot']
+known-third-party = ["qt"]
+relative-imports-order = "closest-to-furthest"
+split-on-trailing-comma = false
 
 [tool.pylsp-mypy]
 enabled = false
