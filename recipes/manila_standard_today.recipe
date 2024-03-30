@@ -1,5 +1,6 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
 import time
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class ManilaStandardToday(BasicNewsRecipe):

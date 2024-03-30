@@ -1,5 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Politics(BasicNewsRecipe):

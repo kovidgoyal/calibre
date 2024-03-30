@@ -1,5 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from collections import OrderedDict
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def absurl(x):

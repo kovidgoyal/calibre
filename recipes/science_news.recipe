@@ -5,8 +5,9 @@ __license__ = 'GPL v3'
 sciencenews.org
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class ScienceNewsIssue(BasicNewsRecipe):

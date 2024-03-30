@@ -1,5 +1,5 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 # Firstpost feeds mix sections into other feeds, like explainers end up in opinion feed and opinions end up in India feed.
 # change google_feeds to True to fetch right sections.

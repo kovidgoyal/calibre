@@ -1,17 +1,16 @@
 from __future__ import print_function
-import time
-import traceback
-# above for debugging via stack
-from calibre.web.feeds.recipes import BasicNewsRecipe
-# Allows the Python soup converter, which makes parsing easier.
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 import os
+import time
+import traceback
 
-
+# Allows the Python soup converter, which makes parsing easier.
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.utils.threadpool import NoResultsPending, ThreadPool, WorkRequest
 from calibre.web.feeds import feeds_from_index
-from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 
+# above for debugging via stack
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 # To Do: strip ads and graphics, Current Column lacks a title.
 # The News letter archive https://www.billoreilly.com/newsletterarchive is covered by other entries.

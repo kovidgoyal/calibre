@@ -14,6 +14,7 @@ https://ici.radio-canada.ca/rss/
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={

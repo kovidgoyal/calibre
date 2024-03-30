@@ -10,10 +10,10 @@ www.nrc.nl
 '''
 import os
 import zipfile
+from datetime import date, timedelta
 from io import BytesIO
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import date, timedelta
 
 
 class NRCHandelsblad(BasicNewsRecipe):

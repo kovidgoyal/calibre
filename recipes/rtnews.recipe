@@ -4,6 +4,7 @@ rt.com
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class RT_eng(BasicNewsRecipe):
     title = 'Russia Today'
     __author__ = 'unkn0wn'

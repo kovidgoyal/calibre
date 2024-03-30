@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class DeutscheWelle_hr(BasicNewsRecipe):
     title = 'Deutsche Welle'
     __author__ = 'unkn0wn'

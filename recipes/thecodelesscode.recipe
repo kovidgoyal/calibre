@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import date
+
 from lxml import etree
 
 __copyright__ = '2015, April King <april@twoevils.org>'
@@ -11,8 +12,8 @@ __version__ = '1.2'
 http://www.thecodelesscode.com/
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class CodelessCode(BasicNewsRecipe):

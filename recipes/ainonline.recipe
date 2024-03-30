@@ -2,9 +2,11 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2019, Jose Ortiz <jlortiz84 at gmail.com>
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from pprint import pformat
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 INDEX = 'https://www.ainonline.com/'
 

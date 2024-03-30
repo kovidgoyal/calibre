@@ -6,6 +6,7 @@ cultofghoul.blogspot.com
 '''
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

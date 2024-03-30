@@ -3,8 +3,10 @@ Fetch Private Eye (Online Edition)
 '''
 
 import re
-from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime, timedelta
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##

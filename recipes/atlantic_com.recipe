@@ -4,7 +4,8 @@
 import json
 from xml.sax.saxutils import escape, quoteattr
 
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes as prefix_classes, classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import prefixed_classes as prefix_classes
 
 web_version = True
 test_article = None

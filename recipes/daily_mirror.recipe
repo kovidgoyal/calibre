@@ -1,6 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre import browser
 import re
+
+from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):

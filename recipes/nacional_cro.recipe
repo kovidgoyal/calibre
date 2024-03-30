@@ -8,8 +8,9 @@ nacional.hr
 '''
 
 import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
+
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 def new_tag(soup, name, attrs=()):

@@ -2,13 +2,14 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Aimylios <aimylios at gmx.de>
 
-from __future__ import unicode_literals, division, absolute_import, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 '''
 handelsblatt.com
 '''
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

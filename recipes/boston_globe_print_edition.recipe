@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from collections import defaultdict
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 def class_as_string(x):
     if isinstance(x, (list, tuple)):

@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class DeutscheWelle(BasicNewsRecipe):
     title = 'Deutsche Welle'
     description = 'Nachrichten der Deutschen Welle (DW)'

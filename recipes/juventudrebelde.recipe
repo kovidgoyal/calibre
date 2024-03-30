@@ -4,6 +4,7 @@ __copyright__ = '2011, Oscar Megia Lopez'
 juventudrebelde.cu
 '''
 import re
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 

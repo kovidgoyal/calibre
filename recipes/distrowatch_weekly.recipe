@@ -4,8 +4,9 @@ __license__ = "GPL v3"
 
 """DistroWatch Weekly"""
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DistroWatchWeekly(BasicNewsRecipe):

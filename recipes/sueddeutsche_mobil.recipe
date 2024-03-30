@@ -12,11 +12,12 @@ szmobil.sueddeutsche.de/
 #            other small changes
 # 2012.08.04 Initial release
 
-from calibre import strftime
 import datetime
+import re
+
+from calibre import strftime
 from calibre.utils.date import utcnow
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import re
 
 
 class SZmobil(BasicNewsRecipe):

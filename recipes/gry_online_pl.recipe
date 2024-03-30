@@ -1,7 +1,9 @@
 from __future__ import print_function
+
 import time
-from calibre.web.feeds.recipes import BasicNewsRecipe
+
 from calibre.ebooks.BeautifulSoup import Comment
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class GryOnlinePl(BasicNewsRecipe):

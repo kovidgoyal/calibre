@@ -8,8 +8,9 @@ __copyright__ = '2022'
 lemonde.fr/en
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def classes(classes):

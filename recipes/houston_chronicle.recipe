@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2018, Dale Furrow dkfurrow@gmail.com'
 '''
 chron.com
 '''
 import re
-import time
-from datetime import datetime
-import traceback
 import sys
+import time
+import traceback
 from collections import OrderedDict
+from datetime import datetime
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.BeautifulSoup import NavigableString
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.date import dt_factory, local_tz, utcfromtimestamp
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 regex_date_only = re.compile(r"""(?:January|February|March|April|
  {8}May|June|July|August|September|October|November|

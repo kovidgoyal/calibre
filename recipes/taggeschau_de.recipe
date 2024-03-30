@@ -1,5 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 # History:
 # 1: Base Version
 # 2: Added rules for wdr.de, ndr.de, br-online.de

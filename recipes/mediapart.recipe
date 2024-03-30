@@ -19,9 +19,11 @@ __copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 
 Mediapart
 '''
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 class Mediapart(BasicNewsRecipe):
     title = 'Mediapart'
@@ -107,8 +109,8 @@ class Mediapart(BasicNewsRecipe):
         '''
         Create a generic cover for recipes that don't have a cover
         '''
-        from qt.core import QImage, QPainter, QPen, Qt, QFont, QRect
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+        from qt.core import QFont, QImage, QPainter, QPen, QRect, Qt
 
         def init_environment():
             ensure_app()

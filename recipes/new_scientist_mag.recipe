@@ -4,6 +4,7 @@ newscientist.com
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class NewScientist(BasicNewsRecipe):
     title = 'New Scientist Magazine'
     __author__ = 'unkn0wn'

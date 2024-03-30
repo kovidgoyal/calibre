@@ -5,8 +5,8 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 msdn.microsoft.com/en-us/magazine
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class MSDNMagazine_en(BasicNewsRecipe):

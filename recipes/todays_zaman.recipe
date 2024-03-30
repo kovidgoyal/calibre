@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 www.todayszaman.com
 '''
 import re
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 try:

@@ -4,8 +4,9 @@ __license__ = 'GPL v3'
 '''
 Hacker News
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+
 try:
     from urllib.parse import urlparse
 except ImportError:

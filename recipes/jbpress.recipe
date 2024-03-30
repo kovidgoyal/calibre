@@ -3,6 +3,7 @@ try:
 except ImportError:
     from urllib2 import urlopen
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

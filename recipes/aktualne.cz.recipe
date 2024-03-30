@@ -1,7 +1,9 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import unicode_literals
-from calibre.web.feeds.recipes import BasicNewsRecipe
+
 import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class aktualneRecipe(BasicNewsRecipe):

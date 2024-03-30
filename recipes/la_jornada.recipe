@@ -5,14 +5,15 @@ www.jornada.com.mx
 '''
 
 import re
+
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 try:
-    from urllib.parse import urlparse, urlunparse, parse_qs
+    from urllib.parse import parse_qs, urlparse, urlunparse
 except ImportError:
-    from urlparse import urlparse, urlunparse, parse_qs
+    from urlparse import parse_qs, urlparse, urlunparse
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 

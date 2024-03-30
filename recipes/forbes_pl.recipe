@@ -2,9 +2,10 @@
 
 __license__ = 'GPL v3'
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class forbes_pl(BasicNewsRecipe):

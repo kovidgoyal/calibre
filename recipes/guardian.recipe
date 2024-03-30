@@ -6,9 +6,10 @@ __docformat__ = 'restructuredtext en'
 '''
 www.guardian.co.uk
 '''
+from datetime import date
+
 from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import date
 
 
 def classes(classes):

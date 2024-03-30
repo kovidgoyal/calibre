@@ -4,6 +4,7 @@ focus.de
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class AdvancedUserRecipe1305567197(BasicNewsRecipe):
     title = 'Focus (DE)'
     __author__ = 'unkn0wn'

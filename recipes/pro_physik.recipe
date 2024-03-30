@@ -5,6 +5,8 @@
 ##
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     title          = u'Pro Physik'

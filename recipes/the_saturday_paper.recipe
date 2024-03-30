@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2021, Alistair Francis <alistair@alistair23.me>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 

@@ -3,11 +3,13 @@ __copyright__ = 'Copyright 2010 Starson17'
 '''
 www.gocomics.com
 '''
-import shutil, os
+import os
+import shutil
+
 from calibre.constants import iswindows
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def absolutize(url):

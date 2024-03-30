@@ -2,6 +2,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Alexander Schremmer <alex@alexanderweb.de>, Robert Riemann <robert@riemann.cc>'
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

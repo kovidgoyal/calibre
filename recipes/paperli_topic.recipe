@@ -4,8 +4,8 @@ __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 paperli
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class paperli_topics(BasicNewsRecipe):

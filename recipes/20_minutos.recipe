@@ -8,6 +8,7 @@ __date__ = '31 January 2011'
 www.20minutos.es
 '''
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

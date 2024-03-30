@@ -4,9 +4,10 @@ __copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 www.washingtonpost.com
 '''
 
+import json
+
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
-import json
 
 
 class TheWashingtonPost(BasicNewsRecipe):

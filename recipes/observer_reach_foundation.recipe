@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class ORF(BasicNewsRecipe):
     title = u'Observer Research Foundation'
     description = (

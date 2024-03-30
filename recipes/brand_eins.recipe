@@ -8,8 +8,9 @@ __version__ = '0.2'
 '''
 brand eins.de
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 from collections import OrderedDict
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BrandEins(BasicNewsRecipe):

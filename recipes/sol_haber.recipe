@@ -10,7 +10,6 @@ www.sol.org.tr
 '''
 
 import datetime
-
 import re
 
 from calibre.web.feeds.recipes import BasicNewsRecipe

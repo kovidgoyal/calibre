@@ -2,9 +2,11 @@
 washingtonpost.com
 '''
 
+import json
+
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
-import json
+
 
 class wapoprint(BasicNewsRecipe):
     title = 'The Washington Post | Print Edition'

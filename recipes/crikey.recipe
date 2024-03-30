@@ -4,6 +4,7 @@ __copyright__ = '2021, Alistair Francis alistair@alistair23.me'
 __docformat__ = 'restructuredtext en'
 
 from urllib.parse import urlencode
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

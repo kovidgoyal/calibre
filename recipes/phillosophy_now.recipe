@@ -1,6 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
-from calibre import browser
 from collections import OrderedDict
+
+from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class PhilosophyNow(BasicNewsRecipe):

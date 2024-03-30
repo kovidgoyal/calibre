@@ -1,6 +1,7 @@
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class herald(BasicNewsRecipe):
     title = 'Deccan Herald'
     __author__ = 'unkn0wn'

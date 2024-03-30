@@ -1,5 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import json
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 
 def json_to_html(raw, link):
     data = json.loads(raw)

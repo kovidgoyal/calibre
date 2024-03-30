@@ -1,6 +1,6 @@
 # vim:fileencoding=UTF-8
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
+
 __license__ = 'GPL v3'
 __copyright__ = '2013, Eddie Lau'
 __Date__ = ''

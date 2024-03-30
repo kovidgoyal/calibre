@@ -5,13 +5,13 @@ __copyright__ = '2012, watou'
 '''
 southernstar.ie
 '''
+import codecs
+import os
 import re
 import tempfile
-import os
-import codecs
 
+from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 
 def new_tag(soup, name, attrs=()):

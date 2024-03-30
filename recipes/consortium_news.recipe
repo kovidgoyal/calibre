@@ -11,6 +11,7 @@ __license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.h
 consortiumnews.com
 '''
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

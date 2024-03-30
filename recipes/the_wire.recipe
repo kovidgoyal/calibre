@@ -1,5 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 class TheWire(BasicNewsRecipe):
     title = 'The Wire'

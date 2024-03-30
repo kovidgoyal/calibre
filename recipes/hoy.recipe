@@ -7,8 +7,8 @@ __copyright__ = '2010, Francisco Javier Nieto <frjanibo at gmail.com>'
 www.hoy.es
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def new_tag(soup, name, attrs=()):

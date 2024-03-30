@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com; 2012-2013, admroz, a.rozewicki@gmail.com'
 
-import re
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
-from string import capwords
 import datetime
+import re
+from string import capwords
+
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Newsweek(BasicNewsRecipe):

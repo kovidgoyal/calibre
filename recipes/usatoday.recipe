@@ -6,8 +6,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 usatoday.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def classes(classes):

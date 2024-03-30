@@ -4,10 +4,9 @@ __copyright__ = '2010-2019'
 www.thetimes.co.uk/magazine/the-sunday-times-magazine/
 '''
 
-from mechanize import Request
-
 from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
+from mechanize import Request
 
 
 def classes(classes):
@@ -75,8 +74,7 @@ class TimesOnline(BasicNewsRecipe):
     # }}}
 
     def get_cover_url(self):
-        from datetime import date
-        from datetime import timedelta
+        from datetime import date, timedelta
         today = date.today()
         today_index = today.weekday()
         if (today_index == 5):  # new edition drops on Saturday AM

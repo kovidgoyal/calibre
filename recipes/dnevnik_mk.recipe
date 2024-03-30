@@ -8,11 +8,12 @@ __copyright__ = '2011, Darko Spasovski <darko.spasovski at gmail.com>'
 dnevnik.com.mk
 '''
 
-import re
 import datetime
-from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Dnevnik(BasicNewsRecipe):

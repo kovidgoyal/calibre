@@ -1,7 +1,9 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
+import re
 from collections import defaultdict
 from datetime import date
-import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
+
 
 class barrons(BasicNewsRecipe):
     title = 'Barron\'s Magazine'

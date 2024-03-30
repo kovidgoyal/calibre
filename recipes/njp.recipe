@@ -20,6 +20,7 @@ njp.org
 '''
 
 import re  # Import the regular expressions module.
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

@@ -3,6 +3,7 @@
 # Copyright: '2019, vohe Based on the recipe by Darko Miletic <darko.miletic at gmail.com>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
 '''
 spiegel germany free newsfeed
 its free, read here: http://www.spiegel.de/dienste/besser-surfen-auf-spiegel-online-so-funktioniert-rss-a-1040321.html

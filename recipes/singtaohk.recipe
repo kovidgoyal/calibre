@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class STHKRecipe(BasicNewsRecipe):
     title = '星島日報 (香港)'
     __author__ = 'unkn0wn'

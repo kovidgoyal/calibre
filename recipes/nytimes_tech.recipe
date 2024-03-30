@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from __future__ import with_statement
+
 __license__ = 'GPL 3'
 __copyright__ = 'zotzo'
 __docformat__ = 'restructuredtext en'

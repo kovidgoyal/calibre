@@ -1,6 +1,6 @@
+from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 
 def new_tag(soup, name, attrs=()):

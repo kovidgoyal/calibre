@@ -11,18 +11,21 @@ __version__ = '1.5'
 Die Zeit EPUB
 """
 
-import os
-import zipfile
-import re
 import io
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
+import os
+import re
+import zipfile
+
 from calibre import walk
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+
 try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
 from contextlib import closing
+
 from calibre.utils.magick.draw import save_cover_data_to
 
 

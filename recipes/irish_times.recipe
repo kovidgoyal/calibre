@@ -5,7 +5,9 @@ irishtimes.com
 '''
 import json
 from uuid import uuid4
+
 from mechanize import Request
+
 try:
     from urllib.parse import urlencode
 except ImportError:

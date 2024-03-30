@@ -1,5 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+
 
 class bar(BasicNewsRecipe):
     title = 'Bar and Bench'

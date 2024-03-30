@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

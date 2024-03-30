@@ -1,8 +1,10 @@
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.constants import config_dir, CONFIG_DIR_MODE
 import os
 import os.path
+import re
+
+from calibre.constants import CONFIG_DIR_MODE, config_dir
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
 try:
     from urllib.parse import quote
 except ImportError:

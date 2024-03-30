@@ -1,7 +1,8 @@
+import json
+from datetime import datetime
+
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
-from datetime import datetime
-import json
 
 today = datetime.today().strftime('%d-%m-%Y')
 

@@ -2,12 +2,12 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
-from html5_parser import parse
-from lxml import etree
 
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
+from html5_parser import parse
+from lxml import etree
 
 
 def E(parent, name, text='', **attrs):

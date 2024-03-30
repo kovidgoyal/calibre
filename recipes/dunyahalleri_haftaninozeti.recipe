@@ -4,13 +4,12 @@
 import locale
 import os
 import re
-
+from contextlib import closing
 from shutil import copyfile
 
-from contextlib import closing
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.utils.resources import get_path
+from calibre.web.feeds.recipes import BasicNewsRecipe
 from PIL import Image, ImageDraw, ImageFont
 
 __license__ = 'GPL v3'

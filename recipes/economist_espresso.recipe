@@ -2,8 +2,8 @@
 https://www.economist.com/the-world-in-brief
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def new_tag(soup, name, attrs=()):

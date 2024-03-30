@@ -1,5 +1,5 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Gram_pl(BasicNewsRecipe):

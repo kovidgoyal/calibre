@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

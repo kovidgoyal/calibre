@@ -1,5 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 class TheHindufeeds(BasicNewsRecipe):
     title = 'The Hindu (Feeds)'

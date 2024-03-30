@@ -4,8 +4,8 @@
 
 import json
 
+from calibre.utils.date import parse_date, utcnow
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from calibre.utils.date import utcnow, parse_date
 
 
 class AssociatedPress(BasicNewsRecipe):

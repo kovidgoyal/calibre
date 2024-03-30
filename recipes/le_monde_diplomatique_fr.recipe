@@ -8,8 +8,9 @@ monde-diplomatique.fr
 '''
 
 import re
-from calibre.web.feeds.news import BasicNewsRecipe
+
 from calibre.web.feeds import feeds_from_index
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def absurl(url):

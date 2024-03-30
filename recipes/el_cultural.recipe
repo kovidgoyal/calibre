@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 

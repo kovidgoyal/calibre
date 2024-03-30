@@ -13,8 +13,9 @@ Changed cover (drMerry)
 Fetch xkcd.
 '''
 
-import time
 import re
+import time
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

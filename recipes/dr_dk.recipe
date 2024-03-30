@@ -4,6 +4,7 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DRNyheder(BasicNewsRecipe):
 
     # Feeds are found here: https://www.dr.dk/nyheder/dr-nyheder-som-rss-feed

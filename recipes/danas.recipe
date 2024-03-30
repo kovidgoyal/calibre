@@ -7,8 +7,9 @@ __copyright__ = '2008-2018, Darko Miletic <darko.miletic at gmail.com>'
 danas.rs
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Danas(BasicNewsRecipe):

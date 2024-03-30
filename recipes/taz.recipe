@@ -10,13 +10,15 @@ www.taz.de/digiabo
 '''
 import os
 import zipfile
-from calibre.web.feeds.news import BasicNewsRecipe
+
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+
 try:
-    from urllib.request import HTTPBasicAuthHandler, build_opener, install_opener, urlopen
     from urllib.error import HTTPError
+    from urllib.request import HTTPBasicAuthHandler, build_opener, install_opener, urlopen
 except ImportError:
-    from urllib2 import HTTPBasicAuthHandler, build_opener, install_opener, urlopen, HTTPError
+    from urllib2 import HTTPBasicAuthHandler, HTTPError, build_opener, install_opener, urlopen
 
 
 class TazDigiabo(BasicNewsRecipe):

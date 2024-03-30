@@ -2,9 +2,10 @@
 
 __license__ = 'GPL v3'
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
 import re
+
+from calibre.ebooks.BeautifulSoup import Comment
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class gw_bydgoszcz(BasicNewsRecipe):

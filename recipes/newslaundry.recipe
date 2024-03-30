@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class newslaundry(BasicNewsRecipe):
     title = 'Newslaundry'
     __author__ = 'unkn0wn'

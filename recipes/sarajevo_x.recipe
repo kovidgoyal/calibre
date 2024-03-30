@@ -6,8 +6,9 @@ sarajevo-x.com
 '''
 
 import re
+
+from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 
 def new_tag(soup, name, attrs=()):

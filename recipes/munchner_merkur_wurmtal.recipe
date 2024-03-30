@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
+
 ##
 # Written:      November 2014 (new coding)
 # Version:      1.0

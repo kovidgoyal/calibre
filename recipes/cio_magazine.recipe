@@ -1,15 +1,20 @@
 from __future__ import print_function
+
+import re
+
+# Para convertir el tiempo del articulo
+import string
+
+# sys no hace falta... lo intente usar para escribir en stderr
+from calibre import strftime
+
 # Los primeros comentarios son las dificultades que he tenido con el Piton
 # Cuando da error UTF8 revisa los comentarios (acentos). En notepad++ Search, Goto, posicion y lo ves.
 # Editar con Notepad++ Si pone - donde no debe es que ha indentado mal... Edit - Blank operations - tab to space
 # He entendido lo que significa el from... son paths dentro de pylib.zip...
 # Con from importa solo un simbolo...con import,la libreria completa
 from calibre.web.feeds.news import BasicNewsRecipe
-# sys no hace falta... lo intente usar para escribir en stderr
-from calibre import strftime
-# Para convertir el tiempo del articulo
-import string
-import re
+
 # Para usar expresiones regulares
 # Visto en pylib.zip... la primera letra es mayuscula
 # Estas dos ultimas han sido un vago intento de establecer una cookie (no

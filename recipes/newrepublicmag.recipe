@@ -3,13 +3,12 @@ newrepublic.com
 """
 import json
 from functools import cmp_to_key
-from urllib.parse import urljoin, urlencode, urlsplit, urlparse
+from urllib.parse import urlencode, urljoin, urlparse, urlsplit
 
 from calibre import iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.date import parse_date
 from calibre.web.feeds.news import BasicNewsRecipe
-
 
 _issue_url = ""  # example: https://newrepublic.com/magazine/may-2023
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import unicode_literals
+
 __license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 # Written April 2015
@@ -7,8 +8,9 @@ __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 '''
 discovermagazine.com
 '''
-import re
 import json
+import re
+
 try:
     from http.cookiejar import Cookie
 except ImportError:

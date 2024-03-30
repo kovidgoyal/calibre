@@ -1,6 +1,6 @@
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.ipc.simple_worker import fork_job
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.ipc.simple_worker import fork_job
+from calibre.web.feeds.news import BasicNewsRecipe
 
 js_fetcher = '''
 

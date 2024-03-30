@@ -5,8 +5,8 @@ __copyright__ = '2009, Pu Bo <pubo at pubolab.com>'
 '''
 zaobao.com
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.feeds import feeds_from_index
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ZAOBAO(BasicNewsRecipe):

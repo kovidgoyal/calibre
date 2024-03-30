@@ -5,6 +5,7 @@ __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 
 ''' http://www.derstandard.at - Austrian Newspaper '''
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

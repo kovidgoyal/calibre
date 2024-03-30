@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+
 __license__   = 'GPL v3'
 __copyright__ = u'2014-01-09, Silviu Cotoar\u0103, Marius Popescu'
 '''

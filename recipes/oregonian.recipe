@@ -1,10 +1,12 @@
 from __future__ import with_statement
+
 __license__ = 'GPL 3'
 __copyright__ = 'zotzot'
 __docformat__ = 'restructuredtext en'
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Oregonian(BasicNewsRecipe):

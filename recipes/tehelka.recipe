@@ -10,6 +10,7 @@ http://tehelka.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Tehelka(BasicNewsRecipe):
     title          = 'Tehelka'
     oldest_article = 7

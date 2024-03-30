@@ -5,6 +5,7 @@ novine.novilist.hr
 '''
 
 import re
+
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 

@@ -8,6 +8,7 @@ www.haaretz.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
 try:
     from urllib.parse import urlencode
 except ImportError:

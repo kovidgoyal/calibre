@@ -1,8 +1,10 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import print_function
-from calibre.web.feeds.news import BasicNewsRecipe
+
 import re
+
 from calibre.utils.magick import Image
+from calibre.web.feeds.news import BasicNewsRecipe
 
 ''' Version 1.2, updated cover image to match the changed website.
  added info date on title

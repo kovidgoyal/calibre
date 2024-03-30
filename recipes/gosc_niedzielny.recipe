@@ -5,8 +5,9 @@ __license__ = 'GPL v3'
 __copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
                  2013-2018, Tomasz Długosz, tomek3d@gmail.com'
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
 from lxml import html
 
 

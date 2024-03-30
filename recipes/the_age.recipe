@@ -6,10 +6,11 @@ __docformat__ = 'restructuredtext en'
 '''
 theage.com.au
 '''
-from calibre import strftime
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
+
+from calibre import strftime
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheAge(BasicNewsRecipe):

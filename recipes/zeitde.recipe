@@ -5,18 +5,20 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch Zeit-Online.de
 '''
 import re
-from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 try:
     from http.cookiejar import Cookie
 except ImportError:
     from cookielib import Cookie
 
 try:
-    from urllib.request import Request, urlopen
     from urllib.error import HTTPError
+    from urllib.request import Request, urlopen
 except ImportError:
-    from urllib2 import Request, urlopen, HTTPError
+    from urllib2 import HTTPError, Request, urlopen
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 

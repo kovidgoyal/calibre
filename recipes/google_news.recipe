@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import unicode_literals, division, absolute_import, print_function
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
+
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 
 # a serarch topic, filled into the string below. You can change that to anything google news should be searched for...
 terms_to_search_for = (

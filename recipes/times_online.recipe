@@ -3,12 +3,11 @@ __copyright__ = '2010-2019, Bobby Steel <bob at xdca.com>, Darko Miletic'
 '''
 www.thetimes.co.uk
 '''
-from mechanize import Request
+import html5lib
 from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
-
-import html5lib
 from lxml import html
+from mechanize import Request
 
 
 def classes(classes):

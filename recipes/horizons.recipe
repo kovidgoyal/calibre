@@ -4,6 +4,7 @@ https://www.cirsd.org/en/horizons
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class horizons(BasicNewsRecipe):
     title = 'Horizons'
     __author__ = 'unkn0wn'

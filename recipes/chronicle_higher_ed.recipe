@@ -1,6 +1,7 @@
 import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from collections import OrderedDict
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Chronicle(BasicNewsRecipe):

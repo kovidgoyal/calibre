@@ -6,9 +6,9 @@ import json
 from datetime import date
 from pprint import pformat
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
+from calibre.web.feeds.news import BasicNewsRecipe
 
 edition = date.today().strftime('%B-%Y')
 

@@ -1,5 +1,7 @@
 from collections import defaultdict
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 class Frontline(BasicNewsRecipe):
     title = u'Frontline'

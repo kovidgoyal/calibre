@@ -3,6 +3,7 @@ __copyright__ = '2011 Attis <attis@attis.one.pl>, 2012 Tomasz Długosz <tomek3d@
 __version__ = 'v. 0.1'
 
 import re
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 

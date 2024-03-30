@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
 __license__ = 'GPL v3'
 
 '''
 www.canada.com
 '''
 import re
-from calibre.web.feeds.news import BasicNewsRecipe
 
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def new_tag(soup, name, attrs=()):
@@ -106,7 +107,7 @@ class TimesColonist(BasicNewsRecipe):
         BasicNewsRecipe.__init__(self, options, log, progress_reporter)
 
     def get_cover_url(self):
-        from datetime import timedelta, date
+        from datetime import date, timedelta
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
             str(date.today().day) + '/lg/' + self.fp_tag + '.jpg'
         br = BasicNewsRecipe.get_browser(self)

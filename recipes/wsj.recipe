@@ -3,16 +3,17 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
 import random
 import time
 from base64 import standard_b64encode
 from datetime import date, timedelta
-from mechanize import Request
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
+from mechanize import Request
 
 try:
     import urllib.parse as urlparse

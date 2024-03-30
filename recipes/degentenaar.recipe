@@ -5,8 +5,8 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.nieuwsblad.be
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def new_tag(soup, name, attrs=()):

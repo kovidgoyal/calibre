@@ -8,6 +8,7 @@ www.canada.com
 '''
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -100,7 +101,7 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='li', attrs={'class': 'print'}), dict(name='li', attrs={'class': 'share'}), dict(name='ul', attrs={'class': 'bullet'})]
 
     def get_cover_url(self):
-        from datetime import timedelta, date
+        from datetime import date, timedelta
         if self.fp_tag == '':
             return None
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \

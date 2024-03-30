@@ -1,8 +1,9 @@
 '''
 www.theweek.com
 '''
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from urllib.parse import quote
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class TheWeek(BasicNewsRecipe):

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 __license__ = 'GPL v3'
 __copyright__ = '2013, Malah <malah at neuf dot fr>'
 '''

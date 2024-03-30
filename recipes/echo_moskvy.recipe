@@ -1,5 +1,7 @@
-﻿from __future__ import unicode_literals, division, absolute_import, print_function
+﻿from __future__ import absolute_import, division, print_function, unicode_literals
+
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class EchoMsk(BasicNewsRecipe):
     title          	  = '\u042D\u0425\u041E'

@@ -1,6 +1,8 @@
-from collections import defaultdict
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 import re
+from collections import defaultdict
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
 
 class StrangeHorizons(BasicNewsRecipe):
     title = 'Strange Horizons'

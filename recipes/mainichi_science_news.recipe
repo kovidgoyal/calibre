@@ -5,6 +5,7 @@ www.mainichi.jp
 '''
 
 import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

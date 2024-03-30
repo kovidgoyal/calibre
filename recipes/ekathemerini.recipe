@@ -1,5 +1,5 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.recipes import BasicNewsRecipe
 from lxml import etree
 
 
