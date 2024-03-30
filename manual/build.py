@@ -17,11 +17,10 @@ BASE = d(a(__file__))
 SPHINX_BUILD = ['sphinx-build']
 
 sys.path.insert(0, d(BASE))
-from calibre.ebooks.oeb.polish.container import epub_to_azw3
-
 from setup import __appname__, __version__
 
 sys.path.remove(d(BASE))
+from calibre.ebooks.oeb.polish.container import epub_to_azw3
 
 
 def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True, very_quiet=False):
