@@ -43,14 +43,14 @@ Example:
 #
 # This was modified from the Python 1.5 library HTTP lib.
 
-import socket
-import re
-import email.utils
 import base64
+import email.utils
 import hmac
+import re
+import socket
 from email.base64mime import body_encode as encode_base64
-from sys import stderr
 from functools import partial
+from sys import stderr
 
 from polyglot.builtins import string_or_bytes
 

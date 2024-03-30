@@ -10,8 +10,9 @@ import os
 import tempfile
 
 from tinycss.css21 import CSS21Parser
-from tinycss.tests.tokenizing import jsonify
 from tinycss.tests import BaseTest
+from tinycss.tests.tokenizing import jsonify
+
 
 class CoreParser(CSS21Parser):
     """A parser that always accepts unparsed at-rules."""

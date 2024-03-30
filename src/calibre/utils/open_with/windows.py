@@ -7,6 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import re
 import sys
+
 from qt.core import QBuffer, QByteArray, QIODevice, QPixmap, Qt
 
 from calibre.gui2 import must_use_qt

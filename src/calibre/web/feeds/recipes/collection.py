@@ -9,19 +9,19 @@ import calendar
 import os
 import zipfile
 from datetime import timedelta
+from threading import RLock
+
 from lxml import etree
 from lxml.builder import ElementMaker
-from threading import RLock
 
 from calibre import force_unicode
 from calibre.constants import numeric_version
-from calibre.utils.date import (
-    EPOCH, UNDEFINED_DATE, isoformat, local_tz, now as nowf, utcnow,
-)
+from calibre.utils.date import EPOCH, UNDEFINED_DATE, isoformat, local_tz, utcnow
+from calibre.utils.date import now as nowf
 from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.resources import get_path as P
 from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
+from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
 

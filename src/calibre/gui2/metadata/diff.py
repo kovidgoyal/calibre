@@ -8,11 +8,33 @@ import os
 import weakref
 from collections import OrderedDict, namedtuple
 from functools import partial
+
 from qt.core import (
-    QAction, QApplication, QCheckBox, QColor, QDialog, QDialogButtonBox, QFont,
-    QGridLayout, QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPainter, QPen,
-    QPixmap, QScrollArea, QSize, QSizePolicy, QStackedLayout, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QAction,
+    QApplication,
+    QCheckBox,
+    QColor,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QPainter,
+    QPen,
+    QPixmap,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QStackedLayout,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import fit_image

@@ -4,7 +4,7 @@
 from functools import partial
 from math import ceil
 
-from qt.core import QIcon, QMenu, QToolButton, Qt
+from qt.core import QIcon, QMenu, Qt, QToolButton
 
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.gui2.preferences.toolbar import AllModel, CurrentModel

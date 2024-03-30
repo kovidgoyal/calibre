@@ -5,10 +5,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from qt.core import (
-    QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPlainTextEdit, QSize, Qt,
-    QVBoxLayout, pyqtSignal,
-)
+from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.comments_editor import Editor

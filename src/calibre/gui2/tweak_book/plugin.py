@@ -6,6 +6,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import importlib
 import sys
+
 from qt.core import QToolButton
 
 from calibre import prints

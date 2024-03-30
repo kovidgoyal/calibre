@@ -4,9 +4,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
-from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.ptempfile import TemporaryDirectory
 
 
 class SNBOutput(OutputFormatPlugin):
@@ -47,8 +47,9 @@ class SNBOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from lxml import etree
+
         from calibre.ebooks.snb.snbfile import SNBFile
-        from calibre.ebooks.snb.snbml import SNBMLizer, ProcessFileName
+        from calibre.ebooks.snb.snbml import ProcessFileName, SNBMLizer
 
         self.opts = opts
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
@@ -221,7 +222,7 @@ class SNBOutput(OutputFormatPlugin):
             snbFile.Output(output_path)
 
     def HandleImage(self, imageData, imagePath):
-        from calibre.utils.img import image_from_data, resize_image, image_to_data
+        from calibre.utils.img import image_from_data, image_to_data, resize_image
         img = image_from_data(imageData)
         x, y = img.width(), img.height()
         if self.opts:
@@ -246,10 +247,10 @@ class SNBOutput(OutputFormatPlugin):
 
 
 if __name__ == '__main__':
-    from calibre.ebooks.oeb.reader import OEBReader
-    from calibre.ebooks.oeb.base import OEBBook
-    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
     from calibre.customize.profiles import HanlinV3Output
+    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+    from calibre.ebooks.oeb.base import OEBBook
+    from calibre.ebooks.oeb.reader import OEBReader
 
     class OptionValues:
         pass

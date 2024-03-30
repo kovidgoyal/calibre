@@ -9,20 +9,21 @@ import signal
 import sys
 from collections import namedtuple
 from functools import lru_cache
-from html5_parser import parse
 from itertools import count, repeat
-from qt.core import (
-    QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl,
-    pyqtSignal, sip,
-)
+
+from html5_parser import parse
+from qt.core import QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineSettings,
-    QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineSettings,
+    QWebEngineUrlRequestInterceptor,
+    QWebEngineUrlRequestJob,
     QWebEngineUrlSchemeHandler,
 )
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
-from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, ismacos, iswindows, __appname__
+from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__, ismacos, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
@@ -37,10 +38,7 @@ from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
-from calibre.utils.podofo import (
-    add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts,
-    set_metadata_implementation,
-)
+from calibre.utils.podofo import add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile

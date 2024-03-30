@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 SPOOL_SIZE = 30*1024*1024
 
 import numbers
+
 from polyglot.builtins import iteritems
 
 
@@ -20,8 +21,9 @@ class FTSQueryError(ValueError):
 
 
 def _get_next_series_num_for_list(series_indices, unwrap=True):
-    from calibre.utils.config_base import tweaks
     from math import ceil, floor
+
+    from calibre.utils.config_base import tweaks
     if not series_indices:
         if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
             return float(tweaks['series_index_auto_increment'])
@@ -77,6 +79,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
     all entries in database.
     '''
     import os
+
     from calibre.ebooks.metadata import authors_to_string
     from calibre.utils.date import as_local_time
     backend = getattr(self, 'backend', self)  # Works with both old and legacy interfaces

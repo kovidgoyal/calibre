@@ -6,6 +6,7 @@ import builtins
 import os
 import sys
 import tempfile
+
 from apsw import Connection
 
 from calibre.constants import plugins
@@ -71,7 +72,7 @@ class FTSTest(BaseTest):
         set_ui_language('en')
 
     def test_fts_tokenize(self):  # {{{
-        from calibre_extensions.sqlite_extension import set_ui_language, FTS5_TOKENIZE_QUERY, FTS5_TOKENIZE_DOCUMENT
+        from calibre_extensions.sqlite_extension import FTS5_TOKENIZE_DOCUMENT, FTS5_TOKENIZE_QUERY, set_ui_language
 
         def t(x, s, e, f=0):
             return {'text': x, 'start': s, 'end': e, 'flags': f}

@@ -13,8 +13,9 @@
 import os
 
 from calibre.ebooks.rtf2xml import copy
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ptempfile import better_mktemp
+from calibre.utils.cleantext import clean_ascii_chars
+
 from . import open_for_read, open_for_write
 
 

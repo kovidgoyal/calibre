@@ -5,11 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, re
+import re
+import traceback
 
 from calibre.constants import iswindows
 from polyglot.builtins import iteritems
-
 
 supernote_settings = {
     'calibre_file_paths': {'metadata':'Document/metadata.calibre', 'driveinfo':'Document/driveinfo.calibre'},

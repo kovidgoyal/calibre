@@ -6,11 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.metadata.sources.base import Source, Option
+from calibre.ebooks.metadata.sources.base import Option, Source
 
 
 def get_urls(br, tokens):
     from urllib.parse import quote_plus
+
     from html5_parser import parse
     escaped = (quote_plus(x) for x in tokens if x and x.strip())
     q = '+'.join(escaped)
@@ -45,8 +46,9 @@ class BigBookSearch(Source):
 
 
 def test():
-    from calibre import browser
     import pprint
+
+    from calibre import browser
     br = browser()
     urls = get_urls(br, ['consider', 'phlebas', 'banks'])
     pprint.pprint(urls)

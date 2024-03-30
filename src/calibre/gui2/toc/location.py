@@ -7,15 +7,33 @@ import os
 import sys
 import weakref
 from functools import lru_cache
+
 from qt.core import (
-    QApplication, QByteArray, QFrame, QGridLayout, QIcon, QLabel, QLineEdit,
-    QListWidget, QPushButton, QSize, QSplitter, Qt, QUrl, QVBoxLayout, QWidget,
+    QApplication,
+    QByteArray,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QPushButton,
+    QSize,
+    QSplitter,
+    Qt,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript,
-    QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler, QWebEngineView,
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineScript,
+    QWebEngineUrlRequestInterceptor,
+    QWebEngineUrlRequestJob,
+    QWebEngineUrlSchemeHandler,
+    QWebEngineView,
 )
 
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL

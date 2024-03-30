@@ -2,10 +2,10 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QTableView, QSplitter
+from qt.core import QSplitter, QTableView
 
-from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2 import gprefs
+from calibre.gui2.library import DEFAULT_SORT
 
 
 class PinTableView(QTableView):

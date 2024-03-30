@@ -6,7 +6,9 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Support server pre-activation, such as with systemd's socket activation
 
-import socket, errno
+import errno
+import socket
+
 from calibre.constants import islinux
 
 

@@ -1,9 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import (
-    QAbstractItemView, QDialog, QSortFilterProxyModel, QStringListModel, Qt,
-)
+from qt.core import QAbstractItemView, QDialog, QSortFilterProxyModel, QStringListModel, Qt
 
 from calibre.constants import islinux
 from calibre.gui2 import error_dialog, gprefs, question_dialog

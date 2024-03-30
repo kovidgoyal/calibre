@@ -5,12 +5,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from contextlib import suppress
 import sys
+from contextlib import suppress
+
 from qt.core import (
-    QAction, QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
-    QKeySequence, QLabel, QPainter, QPlainTextEdit, QSize, QSizePolicy, Qt,
-    QTextBrowser, QTextDocument, QVBoxLayout, QWidget, pyqtSignal,
+    QAction,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QPainter,
+    QPlainTextEdit,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTextBrowser,
+    QTextDocument,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.constants import __version__, isfrozen
@@ -489,9 +506,10 @@ class JobError(QDialog):  # {{{
 
 
 if __name__ == '__main__':
+    from qt.core import QMainWindow, QTimer
+
     from calibre import prepare_string_for_xml
     from calibre.gui2 import Application, question_dialog
-    from qt.core import QMainWindow, QTimer
     app = Application([])
     merged = {'Kovid Goyal': ['Waterloo', 'Doomed'], 'Someone Else': ['Some other book ' * 1000]}
     lines = []

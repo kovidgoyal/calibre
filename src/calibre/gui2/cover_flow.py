@@ -12,9 +12,22 @@ Module to implement the Cover Flow feature
 import os
 import sys
 import time
+
 from qt.core import (
-    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel, QKeySequence,
-    QLabel, QSize, QSizePolicy, QStackedLayout, Qt, QTimer, pyqtSignal,
+    QAction,
+    QApplication,
+    QDialog,
+    QFont,
+    QImage,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QSize,
+    QSizePolicy,
+    QStackedLayout,
+    Qt,
+    QTimer,
+    pyqtSignal,
 )
 
 from calibre.constants import islinux

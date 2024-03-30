@@ -5,10 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack_from, calcsize, pack, error as struct_error
+from struct import calcsize, pack, unpack_from
+from struct import error as struct_error
 
-from calibre.utils.fonts.sfnt import (UnknownTable, FixedProperty,
-        max_power_of_two)
+from calibre.utils.fonts.sfnt import FixedProperty, UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 

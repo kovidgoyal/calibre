@@ -5,15 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, string, zlib, os
+import os
+import string
+import struct
+import zlib
 from collections import OrderedDict
 from io import BytesIO
 
-from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image, png_data_to_gif_data
-from calibre.utils.imghdr import what
-from calibre.ebooks import normalize
-from polyglot.builtins import as_bytes
 from tinycss.color3 import parse_color_string
+
+from calibre.ebooks import normalize
+from calibre.utils.img import image_from_data, image_to_data, png_data_to_gif_data, resize_image, save_cover_data_to, scale_image
+from calibre.utils.imghdr import what
+from polyglot.builtins import as_bytes
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))

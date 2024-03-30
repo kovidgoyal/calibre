@@ -8,10 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QAction, QTimer
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
-from calibre.gui2 import error_dialog
-
 
 current_qv_action_pi = None
 

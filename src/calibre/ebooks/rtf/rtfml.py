@@ -6,9 +6,9 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into RTF markup
 '''
 
+import io
 import os
 import re
-import io
 from binascii import hexlify
 
 from lxml import etree
@@ -212,8 +212,7 @@ class RTFMLizer:
         return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
-        from calibre.ebooks.oeb.base import (XHTML_NS, namespace, barename,
-                urlnormalize)
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace, urlnormalize
 
         if not isinstance(elem.tag, string_or_bytes) \
            or namespace(elem.tag) != XHTML_NS:

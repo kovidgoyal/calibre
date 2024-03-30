@@ -5,13 +5,11 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from qt.core import Qt, QDialog, QTableWidgetItem, QAbstractItemView
+from qt.core import QAbstractItemView, QDialog, Qt, QTableWidgetItem
 
 from calibre import strftime
-from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string, \
-                                    title_sort
-from calibre.gui2.dialogs.delete_matching_from_device_ui import \
-                                            Ui_DeleteMatchingFromDeviceDialog
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, title_sort
+from calibre.gui2.dialogs.delete_matching_from_device_ui import Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
 
 

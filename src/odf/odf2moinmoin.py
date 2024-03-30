@@ -20,10 +20,13 @@
 #
 
 
-import zipfile, xml.dom.minidom
-from .namespaces import nsdict
-from .elementtypes import empty_elements, inline_elements
+import xml.dom.minidom
+import zipfile
+
 from polyglot.builtins import unicode_type
+
+from .elementtypes import empty_elements, inline_elements
+from .namespaces import nsdict
 
 IGNORED_TAGS = [
     'draw:a'

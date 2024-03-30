@@ -5,11 +5,10 @@ This package contains logic to read and write LRF files.
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}.
 """
 
-from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
-from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Header, \
-                                             TextStyle, BlockStyle
-from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
 from calibre.ebooks import ConversionError
+from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
+from calibre.ebooks.lrf.pylrs.pylrs import BlockStyle, Header, TextBlock, TextStyle
+from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
 
 __docformat__ = "epytext"
 

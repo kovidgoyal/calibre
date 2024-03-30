@@ -3,7 +3,7 @@ __copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
 import itertools
-from typing import Optional, List
+from typing import List, Optional
 
 from calibre.devices.kindle.apnx_page_generator.page_group import PageGroup
 from calibre.devices.kindle.apnx_page_generator.page_number_type import PageNumberTypes

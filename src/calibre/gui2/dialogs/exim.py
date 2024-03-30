@@ -5,12 +5,29 @@
 import os
 import stat
 from functools import partial
-from qt.core import (
-    QAbstractItemView, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QProgressBar, QPushButton, QScrollArea,
-    QSize, QStackedLayout, Qt, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Event, Thread
+
+from qt.core import (
+    QAbstractItemView,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QStackedLayout,
+    Qt,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import as_unicode, human_readable
 from calibre.constants import iswindows

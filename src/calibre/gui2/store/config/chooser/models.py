@@ -3,9 +3,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import (
-    QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
-)
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
 
 from calibre import fit_image
 from calibre.customize.ui import disable_plugin, enable_plugin, is_disabled

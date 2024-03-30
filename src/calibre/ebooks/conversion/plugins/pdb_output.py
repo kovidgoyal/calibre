@@ -4,9 +4,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin, \
-    OptionRecommendation
-from calibre.ebooks.pdb import PDBError, get_writer, ALL_FORMAT_WRITERS
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.ebooks.pdb import ALL_FORMAT_WRITERS, PDBError, get_writer
 
 
 class PDBOutput(OutputFormatPlugin):

@@ -20,17 +20,19 @@ from contextlib import suppress
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from functools import partial
-from lxml import html
 from math import ceil, floor, modf, trunc
+
+from lxml import html
 
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.db.notes.exim import parse_html, expand_note_resources
+from calibre.db.notes.exim import expand_note_resources, parse_html
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
-from calibre.utils.icu import capitalize, lower as icu_lower, sort_key, strcmp
+from calibre.utils.icu import capitalize, sort_key, strcmp
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import iteritems, itervalues

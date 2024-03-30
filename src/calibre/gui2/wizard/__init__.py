@@ -9,10 +9,8 @@ import os
 import re
 import traceback
 from contextlib import closing, suppress
-from qt.core import (
-    QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard,
-    QWizardPage, pyqtSignal,
-)
+
+from qt.core import QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard, QWizardPage, pyqtSignal
 
 from calibre import __appname__
 from calibre.constants import filesystem_encoding, isportable, iswindows
@@ -716,9 +714,7 @@ class LibraryPage(QWizardPage, LibraryUI):
     def init_languages(self):
         self.language.blockSignals(True)
         self.language.clear()
-        from calibre.utils.localization import (
-            available_translations, get_lang, get_language, get_lc_messages_path,
-        )
+        from calibre.utils.localization import available_translations, get_lang, get_language, get_lc_messages_path
         lang = get_lang()
         lang = get_lc_messages_path(lang) if lang else lang
         if lang is None or lang not in available_translations():

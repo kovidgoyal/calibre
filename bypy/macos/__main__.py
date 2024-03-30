@@ -19,16 +19,10 @@ import zipfile
 from functools import partial, reduce
 from itertools import repeat
 
-from bypy.constants import (
-    OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version,
-)
-from bypy.freeze import (
-    extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
-    path_to_freeze_dir,
-)
-from bypy.utils import (
-    current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk,
-)
+from bypy.constants import OUTPUT_DIR, PREFIX, PYTHON, python_major_minor_version
+from bypy.constants import SRC as CALIBRE_DIR
+from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
+from bypy.utils import current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
 iv = globals()['init_env']

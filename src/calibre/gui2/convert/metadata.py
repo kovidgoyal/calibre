@@ -5,21 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os
+import re
 
-from qt.core import QPixmap, QApplication
+from qt.core import QApplication, QPixmap
 
-from calibre.gui2 import choose_images, error_dialog
-from calibre.gui2.convert.metadata_ui import Ui_Form
-from calibre.ebooks.metadata import (string_to_authors, MetaInformation,
-        title_sort)
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.gui2.convert import Widget
-from calibre.utils.icu import sort_key
-from calibre.library.comments import comments_to_html
-from calibre.utils.config import tweaks
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, title_sort
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.gui2 import choose_images, error_dialog
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.metadata_ui import Ui_Form
+from calibre.library.comments import comments_to_html
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
 
 
 def create_opf_file(db, book_id, opf_file=None):

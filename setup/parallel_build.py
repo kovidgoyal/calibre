@@ -4,14 +4,20 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess, os, itertools, json, sys, shlex
-from multiprocessing.pool import ThreadPool as Pool
+import itertools
+import json
+import os
+import shlex
+import subprocess
+import sys
 from collections import namedtuple
-from threading import Thread
-from functools import partial
 from contextlib import closing
+from functools import partial
+from multiprocessing.pool import ThreadPool as Pool
+from threading import Thread
 
-from polyglot.builtins import unicode_type, as_bytes
+from polyglot.builtins import as_bytes, unicode_type
+
 Job = namedtuple('Job', 'cmd human_text cwd')
 
 cpu_count = min(16, max(1, os.cpu_count()))

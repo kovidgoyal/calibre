@@ -11,8 +11,10 @@
 #                                                                       #
 #########################################################################
 import os
+
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+
 from . import open_for_read, open_for_write
 
 # note to self. This is the first module in which I use tempfile. A good idea?

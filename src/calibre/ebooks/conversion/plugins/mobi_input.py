@@ -20,8 +20,9 @@ class MOBIInput(InputFormatPlugin):
         self.is_kf8 = False
         self.mobi_is_joint = False
 
-        from calibre.ebooks.mobi.reader.mobi6 import MobiReader
         from lxml import html
+
+        from calibre.ebooks.mobi.reader.mobi6 import MobiReader
         parse_cache = {}
         try:
             mr = MobiReader(stream, log, options.input_encoding,

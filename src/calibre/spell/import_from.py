@@ -4,15 +4,20 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, glob, os, tempfile, re, codecs
+import codecs
+import glob
+import os
+import re
+import sys
+import tempfile
 
 from lxml import etree
 
 from calibre import browser
 from calibre.constants import config_dir
+from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
-from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 NS_MAP = {

@@ -5,7 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os
+import os
+import re
 
 from calibre.ebooks.chardet import strip_encoding_declarations
 

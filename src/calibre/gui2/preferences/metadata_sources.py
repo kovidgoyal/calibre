@@ -6,15 +6,25 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
+
 from qt.core import (
-    QAbstractListModel, QAbstractTableModel, QCursor, QDialog, QDialogButtonBox, QFrame,
-    QIcon, QLabel, QMenu, QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractListModel,
+    QAbstractTableModel,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QIcon,
+    QLabel,
+    QMenu,
+    QScrollArea,
+    Qt,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
-from calibre.customize.ui import (
-    all_metadata_plugins, default_disabled_plugins, disable_plugin, enable_plugin,
-    is_disabled,
-)
+from calibre.customize.ui import all_metadata_plugins, default_disabled_plugins, disable_plugin, enable_plugin, is_disabled
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget

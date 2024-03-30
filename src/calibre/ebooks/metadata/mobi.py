@@ -16,7 +16,6 @@ from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from polyglot.builtins import codepoint_to_chr
 
-
 '''
 Retrieve and modify in-place Mobipocket book metadata.
 '''
@@ -478,12 +477,12 @@ def set_metadata(stream, mi):
 
 
 def get_metadata(stream):
+    from calibre import CurrentDir
     from calibre.ebooks.metadata import MetaInformation
-    from calibre.ptempfile import TemporaryDirectory
     from calibre.ebooks.mobi.reader.headers import MetadataHeader
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
+    from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.img import save_cover_data_to
-    from calibre import CurrentDir
 
     stream.seek(0)
     try:

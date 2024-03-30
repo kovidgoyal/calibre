@@ -5,19 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib, numbers
-from polyglot.builtins import iteritems
+import hashlib
+import numbers
 
-from qt.core import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
+from qt.core import QBuffer, QByteArray, QColor, QImage, QPainter, Qt, qRgba
 
-from calibre.constants import (__appname__, __version__)
-from calibre.ebooks.pdf.render.common import (
-    Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
-    fmtnum)
+from calibre.constants import __appname__, __version__
+from calibre.ebooks.pdf.render.common import EOL, Array, Dictionary, Name, Reference, Stream, String, fmtnum, serialize
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
-from polyglot.builtins import as_unicode
+from polyglot.builtins import as_unicode, iteritems
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 

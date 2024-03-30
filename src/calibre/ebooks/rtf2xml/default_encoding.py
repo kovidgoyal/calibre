@@ -56,6 +56,7 @@ Codepages as to RTF 1.9.1:
     57011	Punjabi
 '''
 import re
+
 from . import open_for_read
 
 

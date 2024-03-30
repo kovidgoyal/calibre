@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 
 import numbers
-from qt.core import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
-    QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
+
+from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QMessageBox, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
 
 def step_dialog(parent, title, msg, det_msg=''):

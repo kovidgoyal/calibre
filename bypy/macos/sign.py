@@ -6,10 +6,7 @@ import os
 import plistlib
 from glob import glob
 
-from bypy.macos_sign import (
-    codesign, create_entitlements_file, make_certificate_useable, notarize_app,
-    verify_signature
-)
+from bypy.macos_sign import codesign, create_entitlements_file, make_certificate_useable, notarize_app, verify_signature
 from bypy.utils import current_dir
 
 entitlements = {

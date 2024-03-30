@@ -5,8 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, json, subprocess, errno, hashlib
-from setup import Command, build_cache_dir, edit_file, dump_json
+import errno
+import hashlib
+import json
+import os
+import subprocess
+
+from setup import Command, build_cache_dir, dump_json, edit_file
 
 
 class Message:

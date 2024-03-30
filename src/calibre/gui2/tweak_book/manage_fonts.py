@@ -7,10 +7,29 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 import textwrap
 from io import BytesIO
+
 from qt.core import (
-    QAbstractItemView, QAbstractTableModel, QApplication, QDialog, QDialogButtonBox,
-    QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QPushButton, QSize,
-    QSplitter, Qt, QTableView, QTextEdit, QTimer, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QAbstractTableModel,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QSize,
+    QSplitter,
+    Qt,
+    QTableView,
+    QTextEdit,
+    QTimer,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.ebooks.oeb.polish.container import get_container
@@ -21,7 +40,8 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.fonts.scanner import NoFonts, font_scanner
-from calibre.utils.icu import lower as icu_lower, primary_sort_key as sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 

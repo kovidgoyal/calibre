@@ -9,29 +9,62 @@ import itertools
 import operator
 from collections import OrderedDict
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QDialog, QDialogButtonBox, QDrag, QEvent, QFont, QFontMetrics,
-    QGridLayout, QHeaderView, QIcon, QItemSelection, QItemSelectionModel, QLabel, QMenu,
-    QMimeData, QModelIndex, QPoint, QPushButton, QSize, QSpinBox, QStyle,
-    QStyleOptionHeader, Qt, QTableView, QTimer, QUrl, pyqtSignal,
+    QAbstractItemView,
+    QDialog,
+    QDialogButtonBox,
+    QDrag,
+    QEvent,
+    QFont,
+    QFontMetrics,
+    QGridLayout,
+    QHeaderView,
+    QIcon,
+    QItemSelection,
+    QItemSelectionModel,
+    QLabel,
+    QMenu,
+    QMimeData,
+    QModelIndex,
+    QPoint,
+    QPushButton,
+    QSize,
+    QSpinBox,
+    QStyle,
+    QStyleOptionHeader,
+    Qt,
+    QTableView,
+    QTimer,
+    QUrl,
+    pyqtSignal,
 )
 
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, islinux
-from calibre.gui2 import (
-    BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, FunctionDispatcher, error_dialog, gprefs,
-)
+from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, FunctionDispatcher, error_dialog, gprefs
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library import DEFAULT_SORT
-from calibre.gui2.library.alternate_views import (
-    AlternateViews, handle_enter_press, setup_dnd_interface,
-)
+from calibre.gui2.library.alternate_views import AlternateViews, handle_enter_press, setup_dnd_interface
 from calibre.gui2.library.delegates import (
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcEnumDelegate,
-    CcLongTextDelegate, CcMarkdownDelegate, CcNumberDelegate, CcSeriesDelegate,
-    CcTemplateDelegate, CcTextDelegate, CompleteDelegate, DateDelegate,
-    LanguagesDelegate, PubDateDelegate, RatingDelegate, SeriesDelegate, TextDelegate,
+    CcBoolDelegate,
+    CcCommentsDelegate,
+    CcDateDelegate,
+    CcEnumDelegate,
+    CcLongTextDelegate,
+    CcMarkdownDelegate,
+    CcNumberDelegate,
+    CcSeriesDelegate,
+    CcTemplateDelegate,
+    CcTextDelegate,
+    CompleteDelegate,
+    DateDelegate,
+    LanguagesDelegate,
+    PubDateDelegate,
+    RatingDelegate,
+    SeriesDelegate,
+    TextDelegate,
 )
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.pin_columns import PinTableView

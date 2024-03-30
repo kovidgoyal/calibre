@@ -5,12 +5,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Builtin recipes.
 '''
-import re, time, io
-from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
-    AutomaticNewsRecipe, CalibrePeriodical)
+import io
+import re
+import time
+
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import itervalues, codepoint_to_chr
+from calibre.web.feeds.news import AutomaticNewsRecipe, BasicNewsRecipe, CalibrePeriodical, CustomIndexRecipe
+from polyglot.builtins import codepoint_to_chr, itervalues
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)

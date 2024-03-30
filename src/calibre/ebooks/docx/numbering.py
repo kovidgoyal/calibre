@@ -4,11 +4,12 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, string
+import re
+import string
 from collections import Counter, defaultdict
 from functools import partial
 
-from lxml.html.builder import OL, UL, SPAN
+from lxml.html.builder import OL, SPAN, UL
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle, inherit

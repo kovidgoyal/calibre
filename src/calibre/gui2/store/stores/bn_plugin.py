@@ -5,13 +5,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 4  # Needed for dynamic plugin loading
 
 from contextlib import closing
+
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -20,7 +20,6 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-
 
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):

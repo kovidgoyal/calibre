@@ -3,25 +3,29 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
-import sys
 import os
 import re
+import sys
 import time
 from collections import namedtuple
 from contextlib import contextmanager
-from threading import Lock
 from functools import partial
+from threading import Lock
 
 try:
-    from urllib.parse import parse_qs, quote_plus, urlencode, quote, urlparse
+    from urllib.parse import parse_qs, quote, quote_plus, urlencode, urlparse
 except ImportError:
+    from urllib import quote, quote_plus, urlencode
+
     from urlparse import parse_qs, urlparse
-    from urllib import quote_plus, urlencode, quote
 
 from lxml import etree
 
-from calibre import browser as _browser, prints as safe_print, random_user_agent
+from calibre import browser as _browser
+from calibre import prints as safe_print
+from calibre import random_user_agent
 from calibre.constants import cache_dir
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
@@ -333,8 +337,8 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
 
 def google_consent_cookies():
     # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
-    from datetime import date
     from base64 import standard_b64encode
+    from datetime import date
     base = {'domain': '.google.com', 'path': '/'}
     b = base.copy()
     b['name'], b['value'] = 'CONSENT', 'PENDING+987'

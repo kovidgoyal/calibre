@@ -5,16 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, shutil, os, posixpath
-from polyglot.builtins import iteritems, itervalues
-from functools import partial
+import codecs
+import os
+import posixpath
+import shutil
 from collections import Counter, defaultdict
+from functools import partial
 
 from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
+from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import urlparse, urlunparse
 
 
@@ -229,8 +232,8 @@ def replace_file(container, name, path, basename, force_mt=None):
 
 
 def mt_to_category(container, mt):
-    from calibre.ebooks.oeb.polish.utils import guess_type, OEB_FONTS
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+    from calibre.ebooks.oeb.polish.utils import OEB_FONTS, guess_type
     if mt in OEB_DOCS:
         category = 'text'
     elif mt in OEB_STYLES:
@@ -345,7 +348,7 @@ def remove_links_in_declaration(href_to_name, style, predicate):
 def remove_links_to(container, predicate):
     ''' predicate must be a function that takes the arguments (name, href,
     fragment=None) and returns True iff the link should be removed '''
-    from calibre.ebooks.oeb.base import iterlinks, OEB_DOCS, OEB_STYLES, XPath, XHTML
+    from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, iterlinks
     stylepath = XPath('//h:style')
     styleattrpath = XPath('//*[@style]')
     changed = set()

@@ -23,12 +23,13 @@
 #
 
 import xml.dom
-from xml.dom.minicompat import defproperty, EmptyNodeList
-from .namespaces import nsdict
-from . import grammar
-from .attrconverters import AttrConverters
+from xml.dom.minicompat import EmptyNodeList, defproperty
 
 from polyglot.builtins import unicode_type
+
+from . import grammar
+from .attrconverters import AttrConverters
+from .namespaces import nsdict
 
 # The following code is pasted form xml.sax.saxutils
 # Tt makes it possible to run the code without the xml sax package installed

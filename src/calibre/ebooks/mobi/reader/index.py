@@ -8,8 +8,7 @@ __docformat__ = 'restructuredtext en'
 import struct
 from collections import OrderedDict, namedtuple
 
-from calibre.ebooks.mobi.utils import (decint, count_set_bits,
-        decode_string)
+from calibre.ebooks.mobi.utils import count_set_bits, decint, decode_string
 from polyglot.builtins import iteritems
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')

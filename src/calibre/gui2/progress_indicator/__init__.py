@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import (
-    QDialog, QLabel, QObject, QSizePolicy, QStackedLayout, QStackedWidget, Qt,
-    QVBoxLayout, QWidget, pyqtSignal
-)
+from qt.core import QDialog, QLabel, QObject, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QVBoxLayout, QWidget, pyqtSignal
 
-from calibre_extensions.progress_indicator import (
-    QProgressIndicator as ProgressIndicator, draw_snake_spinner
-)
+from calibre_extensions.progress_indicator import QProgressIndicator as ProgressIndicator
+from calibre_extensions.progress_indicator import draw_snake_spinner
 
 draw_snake_spinner
 

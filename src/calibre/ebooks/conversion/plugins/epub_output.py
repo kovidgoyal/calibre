@@ -5,12 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, re
+import os
+import re
+import shutil
 
-from calibre.customize.conversion import (OutputFormatPlugin,
-        OptionRecommendation)
-from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import as_bytes
 
 block_level_tags = (
@@ -157,7 +158,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     def upshift_markup(self):  # {{{
         'Upgrade markup to comply with XHTML 1.1 where possible'
-        from calibre.ebooks.oeb.base import XPath, XML
+        from calibre.ebooks.oeb.base import XML, XPath
         for x in self.oeb.spine:
             root = x.data
             if (not root.get(XML('lang'))) and (root.get('lang')):
@@ -394,7 +395,7 @@ class EPUBOutput(OutputFormatPlugin):
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         '''
-        from calibre.ebooks.oeb.base import XPath, XHTML, barename, urlunquote
+        from calibre.ebooks.oeb.base import XHTML, XPath, barename, urlunquote
 
         stylesheet = self.oeb.manifest.main_stylesheet
         # ADE cries big wet tears when it encounters an invalid fragment
@@ -534,7 +535,7 @@ class EPUBOutput(OutputFormatPlugin):
         '''
         Perform toc link transforms to alleviate slow loading.
         '''
-        from calibre.ebooks.oeb.base import urldefrag, XPath
+        from calibre.ebooks.oeb.base import XPath, urldefrag
         from calibre.ebooks.oeb.polish.toc import item_at_top
 
         def frag_is_at_top(root, frag):

@@ -6,11 +6,11 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import weakref
-from functools import wraps
 from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
+from functools import wraps
 
-from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
+from calibre.ebooks.metadata.book.base import ALL_METADATA_FIELDS, NULL_VALUES, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
 from polyglot.builtins import native_string_type

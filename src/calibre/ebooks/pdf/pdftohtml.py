@@ -122,6 +122,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
 def parse_outline(raw, output_dir):
     from lxml import etree
+
     from calibre.utils.xml_parse import safe_xml_fromstring
     raw = clean_xml_chars(xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0])
     outline = safe_xml_fromstring(raw).xpath('(//outline)[1]')

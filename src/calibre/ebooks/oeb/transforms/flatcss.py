@@ -6,18 +6,20 @@ CSS flattening transform.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import re, operator, math, numbers
+import math
+import numbers
+import operator
+import re
 from collections import defaultdict
 from xml.dom import SyntaxErr
 
-from lxml import etree
 import css_parser
 from css_parser.css import Property
+from lxml import etree
 
 from calibre import guess_type
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, SVG_NS,
-        namespace, barename, XPath, css_text)
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG_NS, XHTML, XHTML_NS, XPath, barename, css_text, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
@@ -223,7 +225,7 @@ class CSSFlattener:
         body_font_family = None
         if not family:
             return body_font_family, efi
-        from calibre.utils.fonts.scanner import font_scanner, NoFonts
+        from calibre.utils.fonts.scanner import NoFonts, font_scanner
         from calibre.utils.fonts.utils import panose_to_css_generic_family
         try:
             faces = font_scanner.fonts_for_family(family)

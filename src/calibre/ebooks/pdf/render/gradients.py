@@ -5,12 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, copy
+import copy
+import sys
 from collections import namedtuple
 
 from qt.core import QLinearGradient, QPointF, sip
 
-from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
+from calibre.ebooks.pdf.render.common import Array, Dictionary, Name
 
 Stop = namedtuple('Stop', 't color')
 

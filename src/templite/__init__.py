@@ -25,9 +25,11 @@
 #       MA 02110-1301, USA.
 #
 
-import sys, re
+import re
+import sys
 
 from polyglot.builtins import unicode_type
+
 
 class Templite:
     auto_emit = re.compile('(^[\'\"])|(^[a-zA-Z0-9_\[\]\'\"]+$)')

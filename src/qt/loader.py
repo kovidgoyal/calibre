@@ -2,8 +2,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-from importlib import import_module
 import sys
+from importlib import import_module
 
 
 def dynamic_load(name, name_map, already_imported, qt_modules, module_names=()):

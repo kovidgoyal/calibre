@@ -20,10 +20,10 @@
 
 # This script lists the content of the manifest.xml file
 
-import zipfile
-from xml.sax import make_parser,handler
-from xml.sax.xmlreader import InputSource
 import io
+import zipfile
+from xml.sax import handler, make_parser
+from xml.sax.xmlreader import InputSource
 
 MANIFESTNS="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 

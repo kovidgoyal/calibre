@@ -5,10 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import (
-    QAbstractAnimation, QBrush, QColor, QEasingCurve, QPainter, QPainterPath,
-    QPalette, QPoint, QPointF, QPropertyAnimation, QRect, Qt, QWidget
-)
+from qt.core import QAbstractAnimation, QBrush, QColor, QEasingCurve, QPainter, QPainterPath, QPalette, QPoint, QPointF, QPropertyAnimation, QRect, Qt, QWidget
 
 from calibre.gui2 import config
 

@@ -2,7 +2,8 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, runpy
+import os
+import runpy
 import shutil
 
 from setup import Command

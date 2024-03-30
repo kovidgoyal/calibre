@@ -11,9 +11,7 @@ from contextlib import closing, suppress
 from math import ceil
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
-from calibre.constants import (
-    filesystem_encoding, ismacos, iswindows, preferred_encoding,
-)
+from calibre.constants import filesystem_encoding, ismacos, iswindows, preferred_encoding
 from calibre.utils.localization import _, get_udc
 from polyglot.builtins import iteritems, itervalues
 

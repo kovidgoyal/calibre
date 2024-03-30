@@ -13,7 +13,6 @@ from threading import Lock
 from calibre.prints import prints
 from polyglot.builtins import as_unicode
 
-
 DEBUG = 0
 INFO  = 1
 WARN  = 2

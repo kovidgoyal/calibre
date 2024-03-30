@@ -14,7 +14,8 @@ from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot import http_client
 from polyglot.binary import from_hex_unicode

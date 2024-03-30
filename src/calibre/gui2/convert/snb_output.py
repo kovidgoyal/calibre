@@ -2,9 +2,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.gui2.convert.snb_output_ui import Ui_Form
-from calibre.gui2.convert import Widget
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.snb_output_ui import Ui_Form
 
 newline_model = None
 

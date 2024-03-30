@@ -3,7 +3,8 @@
 
 import fnmatch
 import os
-import shutil, time
+import shutil
+import time
 import zipfile
 from io import BytesIO
 

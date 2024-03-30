@@ -7,12 +7,22 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from qt.core import (
-     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
-     QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate,
-     QAbstractItemView)
+    QAbstractItemView,
+    QApplication,
+    QIcon,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QPalette,
+    QSplitter,
+    QStyledItemDelegate,
+    Qt,
+    QTextBrowser,
+    pyqtSignal,
+)
 
-from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
-from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
+from calibre.ebooks.oeb.polish.check.base import CRITICAL, DEBUG, ERROR, INFO, WARN
+from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.widgets import BusyCursor

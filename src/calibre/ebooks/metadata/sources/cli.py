@@ -11,14 +11,14 @@ from threading import Event
 
 from calibre import prints
 from calibre.customize.ui import all_metadata_plugins
-from calibre.utils.config import OptionParser
-from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.sources.base import create_log
-from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
+from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.update import patch_plugins
+from calibre.utils.config import OptionParser
+from calibre.utils.img import save_cover_data_to
 
 
 def option_parser():

@@ -7,14 +7,27 @@ from contextlib import contextmanager
 from functools import partial
 
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QColor, QDialog,
-    QDialogButtonBox, QFrame, QIcon, QLabel, QMenu, QSize, QStyledItemDelegate,
-    Qt, QTableWidgetItem, QTimer, pyqtSignal, sip,
+    QAbstractItemView,
+    QAction,
+    QApplication,
+    QColor,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QIcon,
+    QLabel,
+    QMenu,
+    QSize,
+    QStyledItemDelegate,
+    Qt,
+    QTableWidgetItem,
+    QTimer,
+    pyqtSignal,
+    sip,
 )
 
 from calibre import sanitize_file_name
-from calibre.gui2 import (error_dialog, gprefs, question_dialog, choose_files,
-                          choose_save_file)
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, question_dialog
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -22,10 +35,9 @@ from calibre.gui2.dialogs.tag_list_editor_table_widget import TleTableWidget
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.config import prefs
-from calibre.utils.icu import (
-    capitalize, contains, lower as icu_lower, primary_contains, primary_startswith,
-    upper as icu_upper,
-)
+from calibre.utils.icu import capitalize, contains, primary_contains, primary_startswith
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'

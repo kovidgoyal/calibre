@@ -36,6 +36,7 @@ if iswindows:
         return False
 else:
     import fcntl
+
     from calibre.utils.ipc import eintr_retry_call
 
     def lock_tdir(path):

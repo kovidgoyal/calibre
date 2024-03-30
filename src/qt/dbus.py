@@ -3,8 +3,8 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from .dbus_name_map import module_names, name_map
 from .loader import dynamic_load
-from .dbus_name_map import name_map, module_names
 
 already_imported = {}
 qt_modules = {}

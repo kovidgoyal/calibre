@@ -4,8 +4,8 @@
 
 import bz2
 import os
-import sys
 import ssl
+import sys
 from datetime import datetime, timezone
 from urllib.request import urlopen
 

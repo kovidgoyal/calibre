@@ -21,16 +21,11 @@ from calibre.constants import __version__
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.loop import WRITE
-from calibre.srv.utils import (
-    HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang,
-    http_date, socket_errors_socket_closed, sort_q_values
-)
+from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang, http_date, socket_errors_socket_closed, sort_q_values
 from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client, reprlib
-from polyglot.builtins import (
-    error_message, iteritems, itervalues, reraise, string_or_bytes
-)
+from polyglot.builtins import error_message, iteritems, itervalues, reraise, string_or_bytes
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex

@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 from contextlib import closing
 
 from calibre import browser
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.opensearch.url import URL
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 class Description:

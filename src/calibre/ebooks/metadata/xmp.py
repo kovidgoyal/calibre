@@ -4,20 +4,23 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, sys, copy, json
-from itertools import repeat
+import copy
+import json
+import re
+import sys
 from collections import defaultdict
+from itertools import repeat
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import prints
-from calibre.ebooks.metadata import string_to_authors, check_isbn, check_doi
-from calibre.utils.xml_parse import safe_xml_fromstring
+from calibre.ebooks.metadata import check_doi, check_isbn, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
-from calibre.utils.date import parse_date, isoformat, now
+from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems, string_or_bytes
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
@@ -172,8 +175,8 @@ def read_series(root):
 
 
 def read_user_metadata(mi, root):
-    from calibre.utils.config import from_json
     from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
+    from calibre.utils.config import from_json
     fields = set()
     for item in XPath('//calibre:custom_metadata')(root):
         for li in XPath('./rdf:Bag/rdf:li')(item):
@@ -442,8 +445,8 @@ def create_series(calibre, series, series_index):
 
 
 def create_user_metadata(calibre, all_user_metadata):
+    from calibre.ebooks.metadata.book.json_codec import encode_is_multiple, object_to_unicode
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import object_to_unicode, encode_is_multiple
 
     s = calibre.makeelement(expand('calibre:custom_metadata'))
     calibre.append(s)

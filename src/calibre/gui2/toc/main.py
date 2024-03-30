@@ -7,20 +7,42 @@ import sys
 import tempfile
 import textwrap
 from functools import partial
-from qt.core import (
-    QAbstractItemView, QCheckBox, QCursor, QDialog, QDialogButtonBox, QEvent, QFrame,
-    QGridLayout, QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
-    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QTimer,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Thread
 from time import monotonic
 
+from qt.core import (
+    QAbstractItemView,
+    QCheckBox,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QInputDialog,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QStackedWidget,
+    Qt,
+    QTimer,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
+
 from calibre.constants import TOC_DIALOG_APP_UID, islinux, ismacos, iswindows
 from calibre.ebooks.oeb.polish.container import AZW3Container, get_container
-from calibre.ebooks.oeb.polish.toc import (
-    TOC, add_id, commit_toc, from_files, from_links, from_xpaths, get_toc,
-)
+from calibre.ebooks.oeb.polish.toc import TOC, add_id, commit_toc, from_files, from_links, from_xpaths, get_toc
 from calibre.gui2 import Application, error_dialog, info_dialog, set_app_uid
 from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -29,7 +51,8 @@ from calibre.ptempfile import reset_base_dir
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import atomic_rename
-from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.logging import GUILog
 
 ICON_SIZE = 24

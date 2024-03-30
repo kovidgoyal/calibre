@@ -1,10 +1,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import Qt, QDialog, QListWidgetItem
+from qt.core import QDialog, QListWidgetItem, Qt
 
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
-from calibre.gui2 import question_dialog, error_dialog
 
 
 class ListWidgetItem(QListWidgetItem):

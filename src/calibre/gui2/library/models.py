@@ -14,17 +14,11 @@ import time
 import traceback
 from collections import defaultdict, namedtuple
 from itertools import groupby
-from qt.core import (
-    QAbstractTableModel, QApplication, QColor, QFont, QFontMetrics, QIcon, QImage,
-    QModelIndex, QPainter, QPixmap, Qt, pyqtSignal,
-)
 
-from calibre import (
-    fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime,
-)
-from calibre.constants import (
-    DEBUG, config_dir, dark_link_color, filesystem_encoding
-)
+from qt.core import QAbstractTableModel, QApplication, QColor, QFont, QFontMetrics, QIcon, QImage, QModelIndex, QPainter, QPixmap, Qt, pyqtSignal
+
+from calibre import fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime
+from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
@@ -35,9 +29,7 @@ from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
-from calibre.utils.date import (
-    UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt,
-)
+from calibre.utils.date import UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P

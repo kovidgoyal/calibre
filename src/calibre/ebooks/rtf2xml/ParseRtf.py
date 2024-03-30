@@ -12,18 +12,47 @@
 #########################################################################
 # $Revision: 1.41 $
 # $Date: 2006/03/24 23:50:07 $
-import sys, os
+import os
+import sys
 
-from calibre.ebooks.rtf2xml import headings_to_sections, \
-    line_endings, footnote, fields_small, default_encoding, \
-    make_lists, preamble_div, header, colors, group_borders, \
-    check_encoding, add_brackets, table, combine_borders, \
-    fields_large, process_tokens, hex_2_utf8, tokenize, \
-    delete_info, sections, check_brackets, styles, \
-    paragraph_def, convert_to_tags, output, copy, \
-    list_numbers, info, pict, table_info, fonts, paragraphs, \
-    body_styles, preamble_rest, group_styles, \
-    inline
+from calibre.ebooks.rtf2xml import (
+    add_brackets,
+    body_styles,
+    check_brackets,
+    check_encoding,
+    colors,
+    combine_borders,
+    convert_to_tags,
+    copy,
+    default_encoding,
+    delete_info,
+    fields_large,
+    fields_small,
+    fonts,
+    footnote,
+    group_borders,
+    group_styles,
+    header,
+    headings_to_sections,
+    hex_2_utf8,
+    info,
+    inline,
+    line_endings,
+    list_numbers,
+    make_lists,
+    output,
+    paragraph_def,
+    paragraphs,
+    pict,
+    preamble_div,
+    preamble_rest,
+    process_tokens,
+    sections,
+    styles,
+    table,
+    table_info,
+    tokenize,
+)
 from calibre.ebooks.rtf2xml.old_rtf import OldRtf
 
 from . import open_for_read, open_for_write

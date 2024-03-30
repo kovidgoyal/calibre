@@ -4,10 +4,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, re
+import os
+import re
+import sys
 
-from calibre.prints import is_binary
 from calibre.constants import iswindows
+from calibre.prints import is_binary
 from polyglot.builtins import iteritems
 
 if iswindows:
@@ -233,7 +235,9 @@ def windows_terminfo():
 
 
 def get_term_geometry():
-    import fcntl, termios, struct
+    import fcntl
+    import struct
+    import termios
 
     def ioctl_GWINSZ(fd):
         try:

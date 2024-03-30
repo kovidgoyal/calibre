@@ -7,13 +7,32 @@ __license__   = 'GPL v3'
 
 import os
 import weakref
-from qt.core import (
-    QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QGridLayout,
-    QHBoxLayout, QIcon, QLabel, QLineEdit, QProgressBar, QPushButton,
-    QStackedLayout, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal, QSplitter, QToolButton
-)
 from threading import Thread
+
+from qt.core import (
+    QApplication,
+    QCheckBox,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QProgressBar,
+    QPushButton,
+    QSplitter,
+    QStackedLayout,
+    Qt,
+    QTextEdit,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import as_unicode, prints
 from calibre.gui2 import open_local_file

@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import array, sys
-from operator import itemgetter
+import array
+import sys
 from itertools import repeat
+from operator import itemgetter
 
 from calibre.utils.fonts.sfnt import UnknownTable
 from polyglot.builtins import iteritems

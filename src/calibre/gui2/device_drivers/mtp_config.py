@@ -7,17 +7,37 @@ __docformat__ = 'restructuredtext en'
 
 import weakref
 
-from qt.core import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
-        QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
-        QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
-        pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox, QPlainTextEdit,
-        QApplication, QSize)
+from qt.core import (
+    QApplication,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPlainTextEdit,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTabWidget,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
+from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
-from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from polyglot.builtins import iteritems
 
 
@@ -527,9 +547,9 @@ class SendError(QDialog):
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application
     from calibre.devices.mtp.driver import MTP_DEVICE
     from calibre.devices.scanner import DeviceScanner
+    from calibre.gui2 import Application
     s = DeviceScanner()
     s.scan()
     app = Application([])

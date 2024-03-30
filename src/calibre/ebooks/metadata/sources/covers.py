@@ -7,15 +7,15 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from threading import Thread, Event
 from io import StringIO
+from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.utils.img import save_cover_data_to, remove_borders_from_image, image_to_data, image_from_data
+from calibre.utils.img import image_from_data, image_to_data, remove_borders_from_image, save_cover_data_to
 from calibre.utils.imghdr import identify
-from polyglot.queue import Queue, Empty
+from polyglot.queue import Empty, Queue
 
 
 class Worker(Thread):

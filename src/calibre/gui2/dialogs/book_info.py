@@ -6,19 +6,37 @@ import textwrap
 from enum import IntEnum
 
 from qt.core import (
-    QAction, QApplication, QBrush, QCheckBox, QDialog, QDialogButtonBox, QGridLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap,
-    QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout,
-    QWidget, pyqtSignal,
+    QAction,
+    QApplication,
+    QBrush,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QListView,
+    QModelIndex,
+    QPalette,
+    QPixmap,
+    QPushButton,
+    QShortcut,
+    QSize,
+    QSplitter,
+    Qt,
+    QTimer,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import fit_image
 from calibre.db.constants import RESOURCE_URL_SCHEME
-from calibre.gui2 import NO_URL_FORMATTING, gprefs
-from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY
-from calibre.gui2.book_details import (
-    create_open_cover_with_menu, resolved_css, details_context_menu_event, render_html, set_html,
-)
+from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, NO_URL_FORMATTING, gprefs
+from calibre.gui2.book_details import create_open_cover_with_menu, details_context_menu_event, render_html, resolved_css, set_html
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -67,9 +85,7 @@ class Configure(Dialog):
         Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
     def setup_ui(self):
-        from calibre.gui2.preferences.look_feel import (
-            DisplayedFields, move_field_down, move_field_up,
-        )
+        from calibre.gui2.preferences.look_feel import DisplayedFields, move_field_down, move_field_up
         self.l = QVBoxLayout(self)
         self.field_display_order = fdo = QListView(self)
         self.model = DisplayedFields(self.db, fdo, pref_name='popup_book_display_fields')

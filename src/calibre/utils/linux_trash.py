@@ -17,10 +17,11 @@
 # For external volumes this implementation will raise an exception if it can't
 # find or create the user's trash directory.
 
-import os, stat
+import os
 import os.path as op
-from datetime import datetime
 import shutil
+import stat
+from datetime import datetime
 
 from polyglot.urllib import quote
 

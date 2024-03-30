@@ -10,24 +10,46 @@ from copy import copy, deepcopy
 from functools import partial
 from itertools import product
 from operator import attrgetter, methodcaller
+
 from qt.core import (
-    QAbstractItemView, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
-    QFont, QFontComboBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
-    QLabel, QListView, QListWidget, QListWidgetItem, QPushButton, QRadioButton, QSize,
-    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget, Qt, QTimer, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFont,
+    QFontComboBox,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QRadioButton,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QStackedWidget,
+    Qt,
+    QTimer,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import info_dialog
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.keyboard import ShortcutConfig
-from calibre.gui2.tweak_book import (
-    actions, editor_toolbar_actions, toolbar_actions, tprefs,
-)
-from calibre.gui2.tweak_book.editor.themes import (
-    ThemeEditor, all_theme_names, default_theme,
-)
+from calibre.gui2.tweak_book import actions, editor_toolbar_actions, toolbar_actions, tprefs
+from calibre.gui2.tweak_book.editor.themes import ThemeEditor, all_theme_names, default_theme
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import ColorButton

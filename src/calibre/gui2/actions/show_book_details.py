@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import Qt, sip
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo, DialogNumbers
-from calibre.gui2 import error_dialog
 
 
 class ShowBookDetailsAction(InterfaceAction):

@@ -5,10 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import (
-    QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
-    Qt, QVBoxLayout, QWidget,
-)
+from qt.core import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout, QWidget
 
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs

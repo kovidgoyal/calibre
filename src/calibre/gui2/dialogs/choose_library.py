@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import errno
 import os
-from qt.core import QDialog, Qt, QTimer, pyqtSignal
 from threading import Event, Thread
+
+from qt.core import QDialog, Qt, QTimer, pyqtSignal
 
 from calibre import force_unicode, isbytestring, patheq
 from calibre.constants import filesystem_encoding, get_portable_base, iswindows

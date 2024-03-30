@@ -25,17 +25,16 @@ import os
 import re
 
 from lxml.etree import fromstring, tostring
+from odf.draw import Frame as odFrame
+from odf.draw import Image as odImage
+from odf.namespaces import DCNS, METANS, OFFICENS
+from odf.opendocument import load as odLoad
 
-from calibre.ebooks.metadata import (
-    MetaInformation, authors_to_string, check_isbn, string_to_authors
-)
+from calibre.ebooks.metadata import MetaInformation, authors_to_string, check_isbn, string_to_authors
 from calibre.utils.date import isoformat, parse_date
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile, safe_replace
-from odf.draw import Frame as odFrame, Image as odImage
-from odf.namespaces import DCNS, METANS, OFFICENS
-from odf.opendocument import load as odLoad
 from polyglot.builtins import as_unicode
 
 fields = {

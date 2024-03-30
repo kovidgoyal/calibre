@@ -6,8 +6,9 @@ from calibre.utils.localization import _
 
 
 def html2text(html, single_line_break=True, default_image_alt=''):
-    from html2text import HTML2Text
     import re
+
+    from html2text import HTML2Text
     if isinstance(html, bytes):
         from calibre.ebooks.chardet import xml_to_unicode
         html = xml_to_unicode(html, strip_encoding_pats=True, resolve_entities=True)[0]

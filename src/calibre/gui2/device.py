@@ -10,23 +10,22 @@ import sys
 import time
 import traceback
 import weakref
-from qt.core import (
-    QAction, QActionGroup, QCoreApplication, QDialog, QDialogButtonBox, QEventLoop,
-    QIcon, QMenu, QObject, QTimer, QVBoxLayout, pyqtSignal,
-)
 from threading import Event, Thread
 
-from calibre import (
-    as_unicode, force_unicode, preferred_encoding, prints, sanitize_file_name,
-)
+from qt.core import QAction, QActionGroup, QCoreApplication, QDialog, QDialogButtonBox, QEventLoop, QIcon, QMenu, QObject, QTimer, QVBoxLayout, pyqtSignal
+
+from calibre import as_unicode, force_unicode, preferred_encoding, prints, sanitize_file_name
 from calibre.constants import DEBUG
-from calibre.customize.ui import (
-    available_input_formats, available_output_formats, device_plugins,
-    disabled_device_plugins,
-)
+from calibre.customize.ui import available_input_formats, available_output_formats, device_plugins, disabled_device_plugins
 from calibre.devices.errors import (
-    BlacklistedDevice, FreeSpaceError, InitialConnectionError, OpenActionNeeded,
-    OpenFailed, OpenFeedback, UserFeedback, WrongDestinationError,
+    BlacklistedDevice,
+    FreeSpaceError,
+    InitialConnectionError,
+    OpenActionNeeded,
+    OpenFailed,
+    OpenFeedback,
+    UserFeedback,
+    WrongDestinationError,
 )
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.interface import DevicePlugin, currently_connected_device
@@ -34,15 +33,23 @@ from calibre.devices.scanner import DeviceScanner
 from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import (
-    Dispatcher, FunctionDispatcher, choose_dir, config, dynamic, error_dialog, gprefs,
-    info_dialog, question_dialog, show_restart_warning, warning_dialog,
+    Dispatcher,
+    FunctionDispatcher,
+    choose_dir,
+    config,
+    dynamic,
+    error_dialog,
+    gprefs,
+    info_dialog,
+    question_dialog,
+    show_restart_warning,
+    warning_dialog,
 )
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.library.save_to_disk import find_plugboard
-from calibre.ptempfile import (
-    PersistentTemporaryFile, force_unicode as filename_to_unicode,
-)
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import force_unicode as filename_to_unicode
 from calibre.startup import connect_lambda
 from calibre.utils.config import device_prefs, tweaks
 from calibre.utils.filenames import ascii_filename

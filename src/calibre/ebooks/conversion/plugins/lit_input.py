@@ -18,13 +18,13 @@ class LITInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.lit.reader import LitReader
         from calibre.ebooks.conversion.plumber import create_oebbook
+        from calibre.ebooks.lit.reader import LitReader
         self.log = log
         return create_oebbook(log, stream, options, reader=LitReader)
 
     def postprocess_book(self, oeb, opts, log):
-        from calibre.ebooks.oeb.base import XHTML_NS, XPath, XHTML
+        from calibre.ebooks.oeb.base import XHTML, XHTML_NS, XPath
         for item in oeb.spine:
             root = item.data
             if not hasattr(root, 'xpath'):
@@ -39,11 +39,11 @@ class LITInput(InputFormatPlugin):
                 body = body[0]
                 if len(body) == 1 and body[0].tag == XHTML('pre'):
                     pre = body[0]
-                    from calibre.ebooks.txt.processor import convert_basic, \
-                        separate_paragraphs_single_line
-                    from calibre.ebooks.chardet import xml_to_unicode
-                    from calibre.utils.xml_parse import safe_xml_fromstring
                     import copy
+
+                    from calibre.ebooks.chardet import xml_to_unicode
+                    from calibre.ebooks.txt.processor import convert_basic, separate_paragraphs_single_line
+                    from calibre.utils.xml_parse import safe_xml_fromstring
                     self.log('LIT file with all text in single <pre> tag detected')
                     html = separate_paragraphs_single_line(pre.text)
                     html = convert_basic(html).replace('<html>',

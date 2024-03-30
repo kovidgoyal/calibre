@@ -9,10 +9,11 @@ import os
 from collections import defaultdict
 from io import BytesIO
 
+from tinycss.fonts3 import parse_font_family
+
 from calibre.ebooks.oeb.base import css_text, urlnormalize
 from calibre.utils.fonts.subset import subset
 from polyglot.builtins import iteritems
-from tinycss.fonts3 import parse_font_family
 
 
 def get_font_properties(rule, default=None):

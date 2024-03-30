@@ -8,25 +8,58 @@ __docformat__ = 'restructuredtext en'
 import os
 from datetime import datetime
 from functools import partial
+
 from qt.core import (
-    QDialog, QDialogButtonBox, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
-    QInputDialog, QKeySequence, QMenu, QPushButton, QScrollArea, QShortcut, QSize,
-    QSizePolicy, QSpacerItem, QSplitter, Qt, QTabWidget, QToolButton, QVBoxLayout,
-    QWidget, pyqtSignal,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QKeySequence,
+    QMenu,
+    QPushButton,
+    QScrollArea,
+    QShortcut,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    QSplitter,
+    Qt,
+    QTabWidget,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.constants import ismacos
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
-from calibre.gui2.custom_column_widgets import (
-    Comments, populate_metadata_page, get_custom_columns_to_display_in_editor)
+from calibre.gui2.custom_column_widgets import Comments, get_custom_columns_to_display_in_editor, populate_metadata_page
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.metadata.basic_widgets import (
-    AuthorsEdit, AuthorSortEdit, BuddyLabel, CommentsEdit, Cover, DateEdit,
-    FormatsManager, IdentifiersEdit, LanguagesEdit, PubdateEdit, PublisherEdit,
-    RatingEdit, RightClickButton, SeriesEdit, SeriesIndexEdit, TagsEdit, TitleEdit,
-    TitleSortEdit
+    AuthorsEdit,
+    AuthorSortEdit,
+    BuddyLabel,
+    CommentsEdit,
+    Cover,
+    DateEdit,
+    FormatsManager,
+    IdentifiersEdit,
+    LanguagesEdit,
+    PubdateEdit,
+    PublisherEdit,
+    RatingEdit,
+    RightClickButton,
+    SeriesEdit,
+    SeriesIndexEdit,
+    TagsEdit,
+    TitleEdit,
+    TitleSortEdit,
 )
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.widgets2 import CenteredToolButton

@@ -1,14 +1,17 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, regex, collections
+import collections
+import os
 
-from calibre.utils.config import prefs
-from calibre.constants import filesystem_encoding
-from calibre.ebooks.metadata.opf2 import OPF
+import regex
+
 from calibre import isbytestring
+from calibre.constants import filesystem_encoding
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.ebooks.metadata.opf2 import OPF
+from calibre.utils.config import prefs
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values

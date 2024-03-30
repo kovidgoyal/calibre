@@ -5,15 +5,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, shlex, json, errno, hashlib, sys
+import errno
+import glob
+import hashlib
+import json
+import os
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+import textwrap
+import time
 from collections import defaultdict
-from locale import normalize as normalize_locale
 from functools import partial
+from locale import normalize as normalize_locale
 
-from setup import Command, __appname__, __version__, require_git_master, build_cache_dir, edit_file, dump_json, is_ci
-from setup.parallel_build import batched_parallel_jobs
-from setup.iso_codes import iso_data
 from polyglot.builtins import codepoint_to_chr, iteritems
+from setup import Command, __appname__, __version__, build_cache_dir, dump_json, edit_file, is_ci, require_git_master
+from setup.iso_codes import iso_data
+from setup.parallel_build import batched_parallel_jobs
 
 
 def qt_sources():
@@ -439,7 +451,7 @@ class Translations(POT):  # {{{
     def compile_content_server_translations(self):
         self.info('Compiling content-server translations')
         from calibre.utils.rapydscript import msgfmt
-        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo, ZIP_STORED
+        from calibre.utils.zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile, ZipInfo
         with ZipFile(self.j(self.RESOURCES, 'content-server', 'locales.zip'), 'w', ZIP_DEFLATED) as zf:
             for src in glob.glob(os.path.join(self.TRANSLATIONS, 'content-server', '*.po')):
                 if not self.is_po_file_ok(src):
@@ -472,7 +484,7 @@ class Translations(POT):  # {{{
     def freeze_locales(self):
         zf = self.DEST + '.zip'
         from calibre import CurrentDir
-        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
+        from calibre.utils.zipfile import ZIP_DEFLATED, ZipFile
         with ZipFile(zf, 'w', ZIP_DEFLATED) as zf:
             with CurrentDir(self.DEST):
                 zf.add_dir('.')
@@ -483,9 +495,9 @@ class Translations(POT):  # {{{
         return self.j(self.d(self.DEST), 'stats.calibre_msgpack')
 
     def _compile_website_translations(self, name='website', threshold=50):
-        from calibre.utils.zipfile import ZipFile, ZipInfo, ZIP_STORED
         from calibre.ptempfile import TemporaryDirectory
         from calibre.utils.localization import get_language, translator_for_lang
+        from calibre.utils.zipfile import ZIP_STORED, ZipFile, ZipInfo
         self.info('Compiling', name, 'translations...')
         srcbase = self.j(self.d(self.SRC), 'translations', name)
         if not os.path.exists(srcbase):

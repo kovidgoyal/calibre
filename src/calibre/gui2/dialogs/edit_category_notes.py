@@ -3,21 +3,38 @@
 
 import os
 import sys
-from qt.core import (
-    QButtonGroup, QByteArray, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout,
-    QIcon, QLabel, QLineEdit, QPixmap, QPushButton, QRadioButton, QSize, QSpinBox, Qt,
-    QTextDocument, QTextFrameFormat, QTextImageFormat, QUrl, QVBoxLayout, QWidget,
-    pyqtSlot,
-)
 from typing import NamedTuple
 
-from calibre import sanitize_file_name, fit_image
+from qt.core import (
+    QButtonGroup,
+    QByteArray,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPixmap,
+    QPushButton,
+    QRadioButton,
+    QSize,
+    QSpinBox,
+    Qt,
+    QTextDocument,
+    QTextFrameFormat,
+    QTextImageFormat,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSlot,
+)
+
+from calibre import fit_image, sanitize_file_name
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.db.notes.connect import hash_data
 from calibre.db.notes.exim import export_note, import_note
-from calibre.gui2 import (
-    Application, choose_files, choose_images, choose_save_file, error_dialog,
-)
+from calibre.gui2 import Application, choose_files, choose_images, choose_save_file, error_dialog
 from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog

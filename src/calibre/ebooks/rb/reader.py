@@ -7,10 +7,9 @@ import struct
 import zlib
 
 from calibre import CurrentDir
-from calibre.ebooks.rb import HEADER
-from calibre.ebooks.rb import RocketBookError
-from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.rb import get_metadata
+from calibre.ebooks.rb import HEADER, RocketBookError
 from polyglot.builtins import as_unicode
 from polyglot.urllib import unquote
 

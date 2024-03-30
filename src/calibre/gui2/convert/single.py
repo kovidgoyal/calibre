@@ -5,16 +5,36 @@
 import shutil
 
 from qt.core import (
-    QAbstractListModel, QCheckBox, QComboBox, QDialog,
-    QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
-    QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,
-    Qt, QTextEdit, QWidget
+    QAbstractListModel,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QListView,
+    QModelIndex,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    Qt,
+    QTextEdit,
+    QWidget,
 )
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import (
-    GuiRecommendations, delete_specifics, get_input_format_for_book,
-    get_output_formats, save_specifics, sort_formats_by_preference
+    GuiRecommendations,
+    delete_specifics,
+    get_input_format_for_book,
+    get_output_formats,
+    save_specifics,
+    sort_formats_by_preference,
 )
 from calibre.ebooks.conversion.plumber import create_dummy_plumber
 from calibre.gui2 import gprefs

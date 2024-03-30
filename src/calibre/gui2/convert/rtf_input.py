@@ -4,9 +4,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from calibre.gui2.convert.rtf_input_ui import Ui_Form
-from calibre.gui2.convert import Widget
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.rtf_input_ui import Ui_Form
 
 
 class PluginWidget(Widget, Ui_Form):

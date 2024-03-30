@@ -6,10 +6,26 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools
+
 from qt.core import (
-    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPixmap,
-    QStackedWidget, QStatusBar, QStyle, QStyleOption, QStylePainter, Qt, QTabBar,
-    QTimer, QToolButton, QUrl,
+    QAction,
+    QApplication,
+    QDialog,
+    QEvent,
+    QIcon,
+    QLabel,
+    QMenu,
+    QPixmap,
+    QStackedWidget,
+    QStatusBar,
+    QStyle,
+    QStyleOption,
+    QStylePainter,
+    Qt,
+    QTabBar,
+    QTimer,
+    QToolButton,
+    QUrl,
 )
 
 from calibre.constants import get_appname_for_display, get_version, ismacos

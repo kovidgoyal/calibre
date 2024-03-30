@@ -9,25 +9,71 @@ import weakref
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
+from threading import Thread
+
 from html5_parser import parse
 from lxml import html
 from qt.core import (
-    QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog, QDialog,
-    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QLineEdit, QMenu, QPalette, QPlainTextEdit, QPointF,
-    QPushButton, QSize, QSpinBox, QSyntaxHighlighter, Qt, QTabWidget, QTextBlockFormat,
-    QTextCharFormat, QTextCursor, QTextDocument, QTextEdit, QTextFormat,
-    QTextFrameFormat, QTextImageFormat, QTextListFormat, QTimer, QToolButton, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot,
+    QAction,
+    QApplication,
+    QBrush,
+    QByteArray,
+    QCheckBox,
+    QColor,
+    QColorDialog,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFontInfo,
+    QFontMetrics,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QPalette,
+    QPlainTextEdit,
+    QPointF,
+    QPushButton,
+    QSize,
+    QSpinBox,
+    QSyntaxHighlighter,
+    Qt,
+    QTabWidget,
+    QTextBlockFormat,
+    QTextCharFormat,
+    QTextCursor,
+    QTextDocument,
+    QTextEdit,
+    QTextFormat,
+    QTextFrameFormat,
+    QTextImageFormat,
+    QTextListFormat,
+    QTimer,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+    pyqtSlot,
 )
-from threading import Thread
 
 from calibre import browser, fit_image, xml_replace_entities
 from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import (
-    NO_URL_FORMATTING, FunctionDispatcher, choose_dir, choose_files, error_dialog,
-    gprefs, is_dark_theme, local_path_for_resource, question_dialog, safe_open_url,
+    NO_URL_FORMATTING,
+    FunctionDispatcher,
+    choose_dir,
+    choose_files,
+    error_dialog,
+    gprefs,
+    is_dark_theme,
+    local_path_for_resource,
+    question_dialog,
+    safe_open_url,
 )
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.progress import ProgressDialog

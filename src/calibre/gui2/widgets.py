@@ -5,22 +5,46 @@ Miscellaneous widgets used in the GUI
 '''
 import os
 import re
+
 from qt.core import (
-    QApplication, QClipboard, QColor, QComboBox, QCompleter, QCursor, QEvent, QFont,
-    QGraphicsScene, QGraphicsView, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMenu, QPageSize, QPainter, QPalette, QPen, QPixmap, QPrinter,
-    QRect, QSize, QSplitterHandle, QStringListModel, QSyntaxHighlighter, Qt,
-    QTextCharFormat, QWidget, pyqtSignal,
+    QApplication,
+    QClipboard,
+    QColor,
+    QComboBox,
+    QCompleter,
+    QCursor,
+    QEvent,
+    QFont,
+    QGraphicsScene,
+    QGraphicsView,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QPageSize,
+    QPainter,
+    QPalette,
+    QPen,
+    QPixmap,
+    QPrinter,
+    QRect,
+    QSize,
+    QSplitterHandle,
+    QStringListModel,
+    QSyntaxHighlighter,
+    Qt,
+    QTextCharFormat,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import fit_image, force_unicode, strftime
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data, warning_dialog
-from calibre.gui2.dnd import (
-    DownloadDialog, dnd_get_files, dnd_get_image, dnd_get_local_image_and_pixmap,
-    dnd_has_extension, dnd_has_image, image_extensions,
-)
+from calibre.gui2.dnd import DownloadDialog, dnd_get_files, dnd_get_image, dnd_get_local_image_and_pixmap, dnd_has_extension, dnd_has_image, image_extensions
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.startup import connect_lambda

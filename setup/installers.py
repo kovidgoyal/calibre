@@ -2,10 +2,13 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, sys, subprocess, binascii, json
+import binascii
+import json
+import os
+import subprocess
+import sys
 
 from setup import Command
-
 
 d = os.path.dirname
 

@@ -24,9 +24,9 @@
 import sys
 import zipfile
 
-from odf.text import UserFieldDecl
 from odf.namespaces import OFFICENS
 from odf.opendocument import load
+from odf.text import UserFieldDecl
 
 OUTENCODING = "utf-8"
 

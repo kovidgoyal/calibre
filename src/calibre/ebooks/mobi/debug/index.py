@@ -9,10 +9,7 @@ import struct
 from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
-from calibre.ebooks.mobi.reader.index import (
-    CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record,
-    parse_indx_header, parse_tagx_section
-)
+from calibre.ebooks.mobi.reader.index import CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record, parse_indx_header, parse_tagx_section
 from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
 from polyglot.builtins import iteritems
 

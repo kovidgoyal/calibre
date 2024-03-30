@@ -12,7 +12,8 @@ import calibre.ebooks.oeb.polish.container as pc
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.utils.logging import DevNull
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 

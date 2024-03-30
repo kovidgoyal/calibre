@@ -2,7 +2,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
-import sys, struct, zlib, bz2, os
+import bz2
+import os
+import struct
+import sys
+import zlib
 
 from calibre import guess_type
 

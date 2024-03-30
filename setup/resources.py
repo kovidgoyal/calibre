@@ -5,11 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, shutil, zipfile, glob, json, errno
+import errno
+import glob
+import json
+import os
+import re
+import shutil
+import zipfile
 from zlib import compress
 
-from setup import Command, basenames, __appname__, download_securely, dump_json
-from polyglot.builtins import codepoint_to_chr, itervalues, iteritems, only_unicode_recursive
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, only_unicode_recursive
+from setup import Command, __appname__, basenames, download_securely, dump_json
 
 
 def get_opts_from_parser(parser):
@@ -180,7 +186,7 @@ class RapydScript(Command):  # {{{
                 help='Only compile the specified module')
 
     def run(self, opts):
-        from calibre.utils.rapydscript import compile_srv, compile_editor, compile_viewer
+        from calibre.utils.rapydscript import compile_editor, compile_srv, compile_viewer
         if opts.only_module:
             locals()['compile_' + opts.only_module]()
         else:
@@ -210,8 +216,7 @@ class Resources(Command):  # {{{
             with open(dest, 'wb') as f:
                 f.write(msgpack_dumps(scripts))
 
-        from calibre.web.feeds.recipes.collection import \
-                serialize_builtin_recipes, iterate_over_builtin_recipe_files
+        from calibre.web.feeds.recipes.collection import iterate_over_builtin_recipe_files, serialize_builtin_recipes
 
         files = [x[1] for x in iterate_over_builtin_recipe_files()]
 
@@ -270,6 +275,7 @@ class Resources(Command):  # {{{
         dest = self.j(self.RESOURCES, 'template-functions.json')
         function_dict = {}
         import inspect
+
         from calibre.utils.formatter_functions import formatter_functions
         for obj in formatter_functions().get_builtins().values():
             eval_func = inspect.getmembers(obj,

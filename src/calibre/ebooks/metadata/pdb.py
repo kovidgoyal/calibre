@@ -9,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.metadata.ereader import get_metadata as get_eReader
-from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 from calibre.ebooks.metadata.haodoo import get_metadata as get_Haodoo
+from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
+from calibre.ebooks.pdb.header import PdbHeaderReader
 
 MREADER = {
     'PNPdPPrs' : get_eReader,

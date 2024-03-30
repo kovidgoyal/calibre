@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into Textile formatted plain text
 '''
 import re
-
 from functools import partial
 
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML

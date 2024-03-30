@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import numbers
 from collections import Counter
 
-from calibre.ebooks.oeb.base import barename, XPath
+from calibre.ebooks.oeb.base import XPath, barename
 from polyglot.builtins import iteritems
 
 

@@ -5,18 +5,34 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, codecs, importlib
+import codecs
+import importlib
+import textwrap
 from functools import partial
 
-from qt.core import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
-    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QFontComboBox, QFont,
-    QFontInfo, QPlainTextEdit)
+from qt.core import (
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFont,
+    QFontComboBox,
+    QFontInfo,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QSpinBox,
+    Qt,
+    QTextEdit,
+    QWidget,
+    pyqtSignal,
+)
 
-from calibre.customize.conversion import OptionRecommendation
-from calibre.ebooks.conversion.config import (
-    load_defaults, save_defaults as save_defaults_, load_specifics, GuiRecommendations)
 from calibre import prepare_string_for_xml
+from calibre.customize.conversion import OptionRecommendation
 from calibre.customize.ui import plugin_for_input_format
+from calibre.ebooks.conversion.config import GuiRecommendations, load_defaults, load_specifics
+from calibre.ebooks.conversion.config import save_defaults as save_defaults_
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 
 
@@ -138,8 +154,8 @@ class Widget(QWidget):
                 gui_opt.setDisabled(True)
 
     def get_value(self, g):
-        from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
@@ -190,8 +206,8 @@ class Widget(QWidget):
             return
         except NotImplementedError:
             pass
-        from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.valueChanged.connect(f)
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
@@ -213,8 +229,8 @@ class Widget(QWidget):
         raise NotImplementedError()
 
     def set_value(self, g, val):
-        from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.convert.regex_builder import RegexEdit
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
         if self.set_value_handler(g, val):
             return

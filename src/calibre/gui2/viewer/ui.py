@@ -8,36 +8,43 @@ import sys
 import time
 from collections import defaultdict, namedtuple
 from hashlib import sha256
+from threading import Thread
+
 from qt.core import (
-    QApplication, QCursor, QDockWidget, QEvent, QMainWindow, QMenu, QMimeData,
-    QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    QApplication,
+    QCursor,
+    QDockWidget,
+    QEvent,
+    QMainWindow,
+    QMenu,
+    QMimeData,
+    QModelIndex,
+    QPixmap,
+    Qt,
+    QTimer,
+    QToolBar,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
     sip,
 )
-from threading import Thread
 
 from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import (
-    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars,
-)
+from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
-from calibre.gui2.viewer.annotations import (
-    AnnotationsSaveWorker, annotations_dir, parse_annotations,
-)
+from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import (
-    get_session_pref, load_reading_rates, save_reading_rates, vprefs,
-)
+from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
-from calibre.gui2.viewer.integration import (
-    get_book_library_details, load_annotations_map_from_library,
-)
+from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
 from calibre.gui2.viewer.lookup import Lookup
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel

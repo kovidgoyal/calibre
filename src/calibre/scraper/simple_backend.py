@@ -6,6 +6,7 @@ import secrets
 import sys
 import time
 from functools import lru_cache
+
 from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 

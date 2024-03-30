@@ -2,19 +2,39 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, string, re, errno
-from collections import namedtuple, defaultdict
-from operator import itemgetter
+import errno
+import os
+import re
+import string
+from collections import defaultdict, namedtuple
 from ctypes import (
-    Structure, POINTER, c_ubyte, windll, byref, c_void_p, WINFUNCTYPE, c_uint,
-    WinError, get_last_error, sizeof, c_wchar, create_string_buffer, cast,
-    memset, wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD
+    POINTER,
+    WINFUNCTYPE,
+    Structure,
+    WinError,
+    addressof,
+    byref,
+    c_ubyte,
+    c_uint,
+    c_void_p,
+    c_wchar,
+    cast,
+    create_string_buffer,
+    create_unicode_buffer,
+    get_last_error,
+    memset,
+    sizeof,
+    string_at,
+    windll,
+    wstring_at,
 )
-from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
-from pprint import pprint, pformat
-from polyglot.builtins import iteritems, itervalues
+from ctypes import c_uint64 as QWORD
+from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, HWND, LPCWSTR, LPWSTR, UINT, ULONG, USHORT, WORD
+from operator import itemgetter
+from pprint import pformat, pprint
 
-from calibre import prints, as_unicode
+from calibre import as_unicode, prints
+from polyglot.builtins import iteritems, itervalues
 
 try:
     import winreg

@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.utils.fonts.utils import get_all_font_names
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
+from calibre.utils.fonts.utils import get_all_font_names
 
 
 class FontMetrics:
@@ -113,6 +113,7 @@ class FontMetrics:
 
 if __name__ == '__main__':
     import sys
+
     from calibre.utils.fonts.sfnt.container import Sfnt
     with open(sys.argv[-1], 'rb') as f:
         raw = f.read()

@@ -5,9 +5,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 
-
-from calibre.customize.conversion import OutputFormatPlugin, \
-    OptionRecommendation
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 
 NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
@@ -81,9 +79,9 @@ class TXTOutput(OutputFormatPlugin):
      }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
         from calibre.ebooks.txt.txtml import TXTMLizer
         from calibre.utils.cleantext import clean_ascii_chars
-        from calibre.ebooks.txt.newlines import specified_newlines, TxtNewlines
 
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer

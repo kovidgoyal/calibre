@@ -9,20 +9,39 @@ import traceback
 from contextlib import suppress
 from functools import partial
 from itertools import count
-from qt.core import (
-    QAbstractItemModel, QAbstractItemView, QAction, QCheckBox, QDialog,
-    QDialogButtonBox, QFont, QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu,
-    QModelIndex, QPixmap, QPushButton, QRect, QSize, QSplitter, QStackedWidget, Qt,
-    QTreeView, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Event, Thread
+
+from qt.core import (
+    QAbstractItemModel,
+    QAbstractItemView,
+    QAction,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QModelIndex,
+    QPixmap,
+    QPushButton,
+    QRect,
+    QSize,
+    QSplitter,
+    QStackedWidget,
+    Qt,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import (
-    config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url,
-)
+from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.progress_indicator import ProgressIndicator

@@ -5,10 +5,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.fonts3 import CSSFonts3Parser, parse_font_family, parse_font, serialize_font
-from tinycss.tests import BaseTest
-
 from polyglot.builtins import iteritems
+from tinycss.fonts3 import CSSFonts3Parser, parse_font, parse_font_family, serialize_font
+from tinycss.tests import BaseTest
 
 
 class TestFonts3(BaseTest):

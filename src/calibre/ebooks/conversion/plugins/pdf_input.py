@@ -29,8 +29,8 @@ class PDFInput(InputFormatPlugin):
 
     def convert_new(self, stream, accelerators):
         from calibre.ebooks.pdf.pdftohtml import pdftohtml
-        from calibre.utils.cleantext import clean_ascii_chars
         from calibre.ebooks.pdf.reflow import PDFDocument
+        from calibre.utils.cleantext import clean_ascii_chars
 
         pdftohtml(os.getcwd(), stream.name, self.opts.no_images, as_xml=True)
         with open('index.xml', 'rb') as f:

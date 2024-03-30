@@ -16,7 +16,8 @@ from calibre.constants import isbsd, islinux
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 entry_points = {
@@ -576,12 +577,12 @@ def write_completion(self, bash_comp_dest, zsh):
     from calibre.debug import option_parser as debug_op
     from calibre.ebooks import BOOK_EXTENSIONS
     from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
-    from calibre.ebooks.metadata.cli import (
-        filetypes as meta_filetypes, option_parser as metaop,
-    )
+    from calibre.ebooks.metadata.cli import filetypes as meta_filetypes
+    from calibre.ebooks.metadata.cli import option_parser as metaop
     from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
     from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-    from calibre.ebooks.oeb.polish.main import SUPPORTED, option_parser as polish_op
+    from calibre.ebooks.oeb.polish.main import SUPPORTED
+    from calibre.ebooks.oeb.polish.main import option_parser as polish_op
     from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
     from calibre.gui2.main import option_parser as guiop
     from calibre.gui2.tweak_book.main import option_parser as tweak_op
@@ -1215,6 +1216,7 @@ def changelog_bullet_to_text(bullet):
 
 def make_appdata_releases():
     import json
+
     from lxml.builder import E
     changelog = json.loads(P('changelog.json', data=True))
 

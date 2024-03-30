@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import operator
 import textwrap
 from copy import copy, deepcopy
+
 from lxml import etree
 
 from calibre import guess_type

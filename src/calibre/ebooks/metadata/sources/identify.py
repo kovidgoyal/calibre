@@ -6,8 +6,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import unicodedata
 import time
+import unicodedata
 from datetime import datetime
 from io import StringIO
 from operator import attrgetter
@@ -23,7 +23,7 @@ from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower, primary_sort_key
-from polyglot.builtins import iteritems, itervalues, as_unicode
+from polyglot.builtins import as_unicode, iteritems, itervalues
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import quote, urlparse
 
@@ -640,9 +640,7 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
 
 def tests(start=0, limit=256):  # tests {{{
     # To run these test use: calibre-debug -c "from calibre.ebooks.metadata.sources.identify import tests; tests()"
-    from calibre.ebooks.metadata.sources.test import (
-        authors_test, test_identify, title_test
-    )
+    from calibre.ebooks.metadata.sources.test import authors_test, test_identify, title_test
     tests = [
             (
                 {'title':'Magykal Papers',

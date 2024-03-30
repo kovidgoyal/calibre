@@ -25,9 +25,9 @@ def create_encoder(for_json=False):
         if isinstance(obj, (set, frozenset)):
             return encoded(1, tuple(obj), ExtType)
         if getattr(obj, '__calibre_serializable__', False):
+            from calibre.db.categories import Tag
             from calibre.ebooks.metadata.book.base import Metadata
             from calibre.library.field_metadata import FieldMetadata, fm_as_dict
-            from calibre.db.categories import Tag
             if isinstance(obj, Metadata):
                 from calibre.ebooks.metadata.book.serialize import metadata_as_dict
                 return encoded(
@@ -60,8 +60,8 @@ def json_dumps(data, **kw):
 
 
 def decode_metadata(x, for_json):
-    from polyglot.binary import from_base64_bytes
     from calibre.ebooks.metadata.book.serialize import metadata_from_dict
+    from polyglot.binary import from_base64_bytes
     obj = metadata_from_dict(x)
     if for_json and obj.cover_data and obj.cover_data[1]:
         obj.cover_data = obj.cover_data[0], from_base64_bytes(obj.cover_data[1])

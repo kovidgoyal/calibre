@@ -5,7 +5,9 @@
 # Based on work of John Howell reversing the KFX format
 # https://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
 
-import struct, sys, re
+import re
+import struct
+import sys
 from collections import defaultdict
 
 from calibre.ebooks.metadata.book.base import Metadata
@@ -13,8 +15,8 @@ from calibre.ebooks.mobi.utils import decint
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
-from calibre.utils.localization import canonicalize_lang
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import canonicalize_lang
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 
 

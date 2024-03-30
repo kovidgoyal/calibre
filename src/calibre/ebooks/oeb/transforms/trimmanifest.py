@@ -6,8 +6,7 @@ OPF manifest trimming transform.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
-from calibre.ebooks.oeb.base import urlnormalize, iterlinks
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, iterlinks, urlnormalize
 from polyglot.urllib import urldefrag
 
 

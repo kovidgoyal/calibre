@@ -5,15 +5,34 @@
 import sys
 import textwrap
 from functools import lru_cache
+
 from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime, QDialog,
-    QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QNetworkCookie, QPalette, QPushButton, QSize, Qt, QTimer, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDateTime,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QNetworkCookie,
+    QPalette,
+    QPushButton,
+    QSize,
+    Qt,
+    QTimer,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
-from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView,
-)
+from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 
 from calibre import prints, random_user_agent
 from calibre.ebooks.metadata.sources.search_engines import google_consent_cookies
@@ -22,9 +41,7 @@ from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
-from calibre.utils.webengine import (
-    create_script, insert_scripts, secure_webengine, setup_profile,
-)
+from calibre.utils.webengine import create_script, insert_scripts, secure_webengine, setup_profile
 
 
 @lru_cache

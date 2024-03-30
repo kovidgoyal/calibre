@@ -5,10 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import (
-    QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, Qt,
-    QToolButton, QVBoxLayout, QWidget
-)
+from qt.core import QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, Qt, QToolButton, QVBoxLayout, QWidget
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.widgets import HistoryLineEdit

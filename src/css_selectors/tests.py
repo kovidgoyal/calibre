@@ -5,12 +5,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, sys, argparse
+import argparse
+import sys
+import unittest
 
 from lxml import etree, html
 
-from css_selectors.errors import SelectorSyntaxError, ExpressionError
-from css_selectors.parser import tokenize, parse
+from css_selectors.errors import ExpressionError, SelectorSyntaxError
+from css_selectors.parser import parse, tokenize
 from css_selectors.select import Select
 
 

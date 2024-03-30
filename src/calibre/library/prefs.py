@@ -5,11 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, os
+import json
+import os
 
-from calibre.constants import preferred_encoding
-from calibre.utils.config import to_json, from_json
 from calibre import prints
+from calibre.constants import preferred_encoding
+from calibre.utils.config import from_json, to_json
 from polyglot.builtins import iteritems
 
 

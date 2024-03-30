@@ -3,8 +3,8 @@
 
 from enum import Enum
 from functools import partial
-from qt.core import (QComboBox, QDialog, QDialogButtonBox, QFormLayout, QIcon,
-                     QLabel, QMenu, QToolButton, QVBoxLayout)
+
+from qt.core import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QMenu, QToolButton, QVBoxLayout
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget

@@ -5,10 +5,27 @@ from contextlib import suppress
 from copy import copy
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
+
 from qt.core import (
-    QAction, QDialog, QHBoxLayout, QIcon, QKeySequence, QLabel, QMainWindow, QPalette,
-    QPointF, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal,
+    QAction,
+    QDialog,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QMainWindow,
+    QPalette,
+    QPointF,
+    QSize,
+    QSizePolicy,
+    QStyle,
+    QStyleOption,
+    QStylePainter,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.gui2 import Application, config, gprefs

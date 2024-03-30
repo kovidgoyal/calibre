@@ -9,16 +9,18 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
+
 try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
 
 from contextlib import closing
+
 from lxml import etree
 from qt.core import QUrl
 
-from calibre import browser, url_slash_cleaner, prints
+from calibre import browser, prints, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin

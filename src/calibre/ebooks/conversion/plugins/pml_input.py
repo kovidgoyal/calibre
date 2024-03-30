@@ -85,8 +85,8 @@ class PMLInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.metadata.toc import TOC
         from calibre.ebooks.metadata.opf2 import OPFCreator
+        from calibre.ebooks.metadata.toc import TOC
         from calibre.utils.zipfile import ZipFile
 
         self.options = options

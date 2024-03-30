@@ -13,13 +13,12 @@ import posixpath
 from contextlib import closing
 
 from calibre import CurrentDir
-from calibre.ebooks.metadata.opf import (
-    get_metadata as get_metadata_from_opf, set_metadata as set_metadata_opf
-)
+from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
+from calibre.ebooks.metadata.opf import set_metadata as set_metadata_opf
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localunzip import LocalZipFile
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
 
 

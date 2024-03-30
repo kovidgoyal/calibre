@@ -5,7 +5,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, itertools
+import itertools
+import re
 from collections import OrderedDict, defaultdict
 from functools import wraps
 from itertools import chain
@@ -13,9 +14,8 @@ from itertools import chain
 from lxml import etree
 
 from css_selectors.errors import ExpressionError
-from css_selectors.parser import parse, ascii_lower, Element, FunctionalPseudoElement
 from css_selectors.ordered_set import OrderedSet
-
+from css_selectors.parser import Element, FunctionalPseudoElement, ascii_lower, parse
 from polyglot.builtins import iteritems, itervalues
 
 PARSE_CACHE_SIZE = 200

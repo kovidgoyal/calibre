@@ -9,9 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from itertools import count
-from calibre.ebooks.oeb.base import XHTML_NS
-from calibre.ebooks.oeb.base import OEBBook
+
 from lxml.etree import XPath
+
+from calibre.ebooks.oeb.base import XHTML_NS, OEBBook
 
 NSMAP = {'h': XHTML_NS, 'html': XHTML_NS, 'xhtml': XHTML_NS}
 PAGE_RE = re.compile(r'page', re.IGNORECASE)

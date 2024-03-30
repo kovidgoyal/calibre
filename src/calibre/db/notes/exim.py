@@ -3,9 +3,10 @@
 
 import base64
 import os
+from urllib.parse import unquote, urlparse
+
 from html5_parser import parse
 from lxml import html
-from urllib.parse import unquote, urlparse
 
 from calibre import guess_extension, guess_type
 from calibre.db.constants import RESOURCE_URL_SCHEME

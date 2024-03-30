@@ -3,12 +3,12 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import QHBoxLayout, QFormLayout, QDoubleSpinBox, QCheckBox, QVBoxLayout
+from qt.core import QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QVBoxLayout
 
-from calibre.gui2.convert.pdf_output_ui import Ui_Form
-from calibre.gui2.convert import Widget
-from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.pdf_output_ui import Ui_Form
+from calibre.utils.localization import localize_user_manual_link
 
 paper_size_model = None
 orientation_model = None

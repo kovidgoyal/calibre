@@ -13,8 +13,9 @@ import traceback
 import weakref
 from collections import OrderedDict
 from io import BytesIO
-from qt.core import QObject, Qt, pyqtSignal
 from threading import Thread
+
+from qt.core import QObject, Qt, pyqtSignal
 
 from calibre import as_unicode, prints
 from calibre.constants import DEBUG, filesystem_encoding, ismacos, iswindows

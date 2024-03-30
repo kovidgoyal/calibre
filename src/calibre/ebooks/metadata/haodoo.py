@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kan-Ru Chen <kanru@kanru.info>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.haodoo.reader import Reader
+from calibre.ebooks.pdb.header import PdbHeaderReader
 
 
 def get_metadata(stream, extract_cover=True):

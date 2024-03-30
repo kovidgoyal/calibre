@@ -4,10 +4,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS
-
-from calibre.utils.formatter import TemplateFormatter
 from numbers import Number
+
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS
+from calibre.utils.formatter import TemplateFormatter
 
 
 class SafeFormat(TemplateFormatter):

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-import apsw
 import ast
 import gzip
 import os
@@ -15,6 +14,8 @@ from http import HTTPStatus
 from importlib import import_module
 from queue import Queue
 from threading import Lock, Thread
+
+import apsw
 
 from calibre.constants import cache_dir, numeric_version
 from calibre.utils.date import utcnow
@@ -254,9 +255,9 @@ def load_module(full_name, strategy=Strategy.download_now, timeout=default_timeo
 
 
 def find_tests():
+    import hashlib
     import tempfile
     import unittest
-    import hashlib
 
     class LiveTest(unittest.TestCase):
         ae = unittest.TestCase.assertEqual

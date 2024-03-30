@@ -6,9 +6,7 @@ __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import (
-    QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTableWidgetItem, QTimer,
-)
+from qt.core import QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTableWidgetItem, QTimer
 
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks

@@ -8,12 +8,26 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 import sys
-from qt.core import (
-    QAbstractItemView, QApplication, QDialog, QDialogButtonBox, QLabel, QListView,
-    QListWidget, QListWidgetItem, QPixmap, QSize, QStyledItemDelegate, Qt, QTimer,
-    QVBoxLayout, pyqtSignal, sip,
-)
 from threading import Thread
+
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QLabel,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QPixmap,
+    QSize,
+    QStyledItemDelegate,
+    Qt,
+    QTimer,
+    QVBoxLayout,
+    pyqtSignal,
+    sip,
+)
 
 from calibre import as_unicode
 from calibre.ebooks.metadata.archive import get_comic_images

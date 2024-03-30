@@ -1,10 +1,10 @@
 import re
 
-from lxml.html import tostring
 import lxml.html
+from lxml.html import tostring
 
-from calibre.ebooks.readability.cleaners import normalize_spaces, clean_attributes
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.readability.cleaners import clean_attributes, normalize_spaces
 from polyglot.builtins import iteritems
 
 

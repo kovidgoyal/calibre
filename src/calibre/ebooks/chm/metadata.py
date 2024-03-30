@@ -5,14 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs
+import codecs
+import re
 
+from calibre import force_unicode
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import string_to_authors, MetaInformation
-from calibre.utils.logging import default_log
+from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ptempfile import TemporaryFile
-from calibre import force_unicode
+from calibre.utils.logging import default_log
 from polyglot.builtins import iterkeys
 
 
@@ -124,8 +125,9 @@ def _get_cover(soup, rdr):
             except:
                 ans = None
         if ans is not None:
-            from PIL import Image
             import io
+
+            from PIL import Image
             buf = io.BytesIO()
             try:
                 Image.open(io.BytesIO(ans)).convert('RGB').save(buf, 'JPEG')

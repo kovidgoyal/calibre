@@ -2,10 +2,7 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QAbstractItemView, QDialogButtonBox, QInputDialog, QLabel, QListWidget,
-    QListWidgetItem, QMenu, QSize, Qt, QVBoxLayout
-)
+from qt.core import QAbstractItemView, QDialogButtonBox, QInputDialog, QLabel, QListWidget, QListWidgetItem, QMenu, QSize, Qt, QVBoxLayout
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog

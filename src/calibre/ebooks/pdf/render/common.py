@@ -5,14 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, zlib, numbers
-from io import BytesIO
+import codecs
+import numbers
+import zlib
 from datetime import datetime
+from io import BytesIO
 
 from calibre.utils.logging import default_log
-from polyglot.builtins import iteritems, codepoint_to_chr
-from polyglot.binary import as_hex_bytes
 from calibre_extensions.speedup import pdf_float
+from polyglot.binary import as_hex_bytes
+from polyglot.builtins import codepoint_to_chr, iteritems
 
 EOL = b'\n'
 

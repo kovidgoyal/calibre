@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 
 
 class PolyglotStringIO(StringIO):

@@ -15,9 +15,7 @@ from locale import localeconv
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import (
-    cache_dir, get_windows_number_formats, iswindows, preferred_encoding,
-)
+from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import iteritems, itervalues, string_or_bytes

@@ -8,15 +8,17 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, time, json, shutil
+import json
+import os
+import shutil
+import time
 from itertools import cycle
 
-from calibre.constants import numeric_version, ismacos
-from calibre import prints, isbytestring, fsync
-from calibre.constants import filesystem_encoding, is_debugging
+from calibre import fsync, isbytestring, prints
+from calibre.constants import filesystem_encoding, is_debugging, ismacos, numeric_version
+from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
-from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from polyglot.builtins import itervalues, string_or_bytes
 
@@ -98,8 +100,9 @@ class USBMS(CLI, Device):
     SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
-        from calibre.utils.date import now, isoformat
         import uuid
+
+        from calibre.utils.date import isoformat, now
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
@@ -537,8 +540,8 @@ class USBMS(CLI, Device):
 
     @classmethod
     def metadata_from_formats(cls, fmts):
-        from calibre.ebooks.metadata.meta import metadata_from_formats
         from calibre.customize.ui import quick_metadata
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         with quick_metadata:
             return metadata_from_formats(fmts, force_read_metadata=True,
                                          pattern=cls.build_template_regexp())

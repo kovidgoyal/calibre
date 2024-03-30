@@ -3,10 +3,8 @@
 
 
 import re
-from qt.core import (
-    QApplication, QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat,
-    QTextCursor, QTextLayout,
-)
+
+from qt.core import QApplication, QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
 
 from calibre.gui2.palette import dark_link_color, light_link_color
 

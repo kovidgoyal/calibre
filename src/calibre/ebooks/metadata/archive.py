@@ -193,8 +193,9 @@ def get_comic_book_info(d, mi, series_index='volume'):
         mi.comments = comments.strip()
     pubm, puby = d.get('publicationMonth', None), d.get('publicationYear', None)
     if puby is not None:
-        from calibre.utils.date import parse_only_date
         from datetime import date
+
+        from calibre.utils.date import parse_only_date
         try:
             dt = date(puby, 6 if pubm is None else pubm, 15)
             dt = parse_only_date(str(dt))
@@ -205,8 +206,9 @@ def get_comic_book_info(d, mi, series_index='volume'):
 
 def parse_comic_comment(comment, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
-    from calibre.ebooks.metadata import MetaInformation
     import json
+
+    from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None, None)
     m = json.loads(comment)
     if isinstance(m, dict):

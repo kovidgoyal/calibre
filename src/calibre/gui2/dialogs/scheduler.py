@@ -6,26 +6,55 @@ __docformat__ = 'restructuredtext en'
 Scheduler for automated recipe downloads
 '''
 
-from datetime import timedelta
-import calendar, textwrap
+import calendar
+import textwrap
 from collections import OrderedDict
 from contextlib import suppress
+from datetime import timedelta
 
 from qt.core import (
-    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QRecursiveMutex,
-    QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
-    QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
-    QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
-    QRadioButton, QStackedWidget, QSpinBox, QPushButton, QDialogButtonBox
+    QAction,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QObject,
+    QPushButton,
+    QRadioButton,
+    QRecursiveMutex,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QStackedWidget,
+    Qt,
+    QTabWidget,
+    QTime,
+    QTimeEdit,
+    QTimer,
+    QToolButton,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
-from calibre.gui2 import config as gconf, error_dialog, gprefs
-from calibre.gui2.search_box import SearchBox2
-from calibre.web.feeds.recipes.model import RecipeModel
-from calibre.utils.date import utcnow
-from calibre.utils.network import internet_connected
 from calibre import force_unicode
-from calibre.utils.localization import get_lang, canonicalize_lang
+from calibre.gui2 import config as gconf
+from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2.search_box import SearchBox2
+from calibre.utils.date import utcnow
+from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.network import internet_connected
+from calibre.web.feeds.recipes.model import RecipeModel
 from polyglot.builtins import iteritems
 
 

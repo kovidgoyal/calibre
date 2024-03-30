@@ -4,15 +4,16 @@ Created on 4 Jun 2010
 @author: charles
 '''
 
-import json, traceback
+import json
+import traceback
 from datetime import datetime, time
 
-from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
-from calibre.constants import filesystem_encoding, preferred_encoding
-from calibre.library.field_metadata import FieldMetadata
 from calibre import isbytestring
-from polyglot.builtins import iteritems, itervalues, as_bytes
+from calibre.constants import filesystem_encoding, preferred_encoding
+from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
+from calibre.library.field_metadata import FieldMetadata
 from polyglot.binary import as_base64_unicode, from_base64_bytes
+from polyglot.builtins import as_bytes, iteritems, itervalues
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
@@ -29,7 +30,7 @@ def string_to_datetime(src):
 
 
 def datetime_to_string(dateval):
-    from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
+    from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
     if dateval is None:
         return "None"
     if not isinstance(dateval, datetime):

@@ -7,9 +7,10 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.ebooks.oeb.base import XPath, OPF
+from calibre.ebooks.oeb.base import OPF, XPath
 from calibre.ebooks.oeb.polish.cover import find_cover_page
-from calibre.ebooks.oeb.transforms.jacket import render_jacket as render, referenced_images
+from calibre.ebooks.oeb.transforms.jacket import referenced_images
+from calibre.ebooks.oeb.transforms.jacket import render_jacket as render
 
 
 def render_jacket(container, jacket):

@@ -18,7 +18,8 @@ import time
 import unittest
 
 from calibre.constants import islinux, ismacos, iswindows, plugins_loc
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -313,10 +314,7 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
-        from qt.core import (
-            QApplication, QFontDatabase, QImageReader, QLoggingCategory,
-            QNetworkAccessManager, QSslSocket, QTimer,
-        )
+        from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QNetworkAccessManager, QSslSocket, QTimer
         QLoggingCategory.setFilterRules('''qt.webenginecontext.debug=true''')
         from qt.webengine import QWebEnginePage
 
@@ -407,6 +405,7 @@ class BuildTest(unittest.TestCase):
             from PIL import _imaging, _imagingft, _imagingmath
         _imaging, _imagingmath, _imagingft
         from io import StringIO
+
         from PIL import features
         out = StringIO()
         features.pilinfo(out=out, supported_formats=False)

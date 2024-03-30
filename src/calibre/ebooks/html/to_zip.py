@@ -5,10 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, glob
+import glob
+import os
+import textwrap
 
-from calibre.customize import FileTypePlugin
 from calibre.constants import numeric_version
+from calibre.customize import FileTypePlugin
 
 
 class HTML2ZIP(FileTypePlugin):
@@ -40,11 +42,12 @@ every time you add an HTML file to the library.\
 
     def run(self, htmlfile):
         import codecs
+
         from calibre import prints
-        from calibre.ptempfile import TemporaryDirectory
-        from calibre.gui2.convert.gui_conversion import gui_convert
         from calibre.customize.conversion import OptionRecommendation
         from calibre.ebooks.epub import initialize_container
+        from calibre.gui2.convert.gui_conversion import gui_convert
+        from calibre.ptempfile import TemporaryDirectory
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
             recs =[('debug_pipeline', tdir, OptionRecommendation.HIGH)]
@@ -87,8 +90,8 @@ every time you add an HTML file to the library.\
         automatically applied.
         '''
         import json
-        from qt.core import (QDialog, QDialogButtonBox, QVBoxLayout,
-                QLabel, Qt, QLineEdit, QCheckBox)
+
+        from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QLineEdit, Qt, QVBoxLayout
 
         config_dialog = QDialog(parent)
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -100,8 +103,7 @@ every time you add an HTML file to the library.\
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)
         config_dialog.setWindowTitle(_('Customize') + ' ' + self.name)
-        from calibre.customize.ui import (plugin_customization,
-                customize_plugin)
+        from calibre.customize.ui import customize_plugin, plugin_customization
         help_text = self.customization_help(gui=True)
         help_text = QLabel(help_text, config_dialog)
         help_text.setWordWrap(True)

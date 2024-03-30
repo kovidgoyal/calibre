@@ -13,6 +13,7 @@ from calibre.constants import iswindows
 
 from .copy_files import copy_tree, rename_files
 from .filenames import nlinks_file
+
 if iswindows:
     from calibre_extensions import winutil
 

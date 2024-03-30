@@ -10,9 +10,23 @@ import copy
 import re
 from enum import Enum
 from functools import partial
+
 from qt.core import (
-    QCheckBox, QColor, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QIcon, QLabel, QLineEdit, QRadioButton, QSpinBox, Qt, QVBoxLayout,
+    QCheckBox,
+    QColor,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QRadioButton,
+    QSpinBox,
+    Qt,
+    QVBoxLayout,
     QWidget,
 )
 

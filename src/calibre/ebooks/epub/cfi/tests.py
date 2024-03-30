@@ -4,9 +4,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, numbers
+import numbers
+import unittest
 
-from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
+from calibre.ebooks.epub.cfi.parse import cfi_sort_key, decode_cfi, parser
 from polyglot.builtins import iteritems
 
 

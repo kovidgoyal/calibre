@@ -6,10 +6,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os.path
-from qt.core import (
-    QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout, QIcon, QLabel, Qt,
-    QTreeWidget, QTreeWidgetItem,
-)
+
+from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout, QIcon, QLabel, Qt, QTreeWidget, QTreeWidgetItem
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import gprefs

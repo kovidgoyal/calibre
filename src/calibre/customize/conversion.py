@@ -1,7 +1,10 @@
 '''
 Defines the plugin system for conversions.
 '''
-import re, os, shutil, numbers
+import numbers
+import os
+import re
+import shutil
 
 from calibre import CurrentDir
 from calibre.customize import Plugin

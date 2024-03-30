@@ -10,13 +10,11 @@ import time
 import unicodedata
 import zlib
 from copy import deepcopy
-from lxml import etree
 from xml.sax.saxutils import escape
 
-from calibre import (
-    as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities,
-    strftime, xml_replace_entities,
-)
+from lxml import etree
+
+from calibre import as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities, strftime, xml_replace_entities
 from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -24,22 +22,19 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettif
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
-from calibre.library.catalogs import (
-    AuthorSortMismatchException, EmptyCatalogException,
-    InvalidGenresSourceFieldException,
-)
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, InvalidGenresSourceFieldException
 from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.date import (
-    as_local_time, format_date, is_date_undefined, now as nowf, utcfromtimestamp,
-)
+from calibre.utils.date import as_local_time, format_date, is_date_undefined, utcfromtimestamp
+from calibre.utils.date import now as nowf
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.icu import (
-    capitalize, collation_order, sort_key, title_case as icu_title, upper as icu_upper,
-)
+from calibre.utils.icu import capitalize, collation_order, sort_key
+from calibre.utils.icu import title_case as icu_title
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, get_lang, lang_as_iso639_1, ngettext
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems

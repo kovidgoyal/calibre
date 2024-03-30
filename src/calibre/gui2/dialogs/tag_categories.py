@@ -1,16 +1,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
+
 from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
 from calibre.constants import islinux
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
-from calibre.utils.icu import (
-    lower as icu_lower, primary_contains, primary_sort_key, strcmp,
-)
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import primary_contains, primary_sort_key, strcmp
 
 
 class TagCategories(QDialog, Ui_TagCategories):

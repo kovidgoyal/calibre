@@ -102,8 +102,7 @@ class Reader132(FormatReader):
         return self.decompress_text(number)
 
     def extract_content(self, output_dir):
-        from calibre.ebooks.pml.pmlconverter import footnote_to_html, sidebar_to_html
-        from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
+        from calibre.ebooks.pml.pmlconverter import PML_HTMLizer, footnote_to_html, sidebar_to_html
 
         output_dir = os.path.abspath(output_dir)
 

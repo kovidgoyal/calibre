@@ -318,8 +318,9 @@ def remove_accents_icu(txt: str) -> str:
 def remove_accents_regex(txt: str) -> str:
     pat = getattr(remove_accents_regex, 'pat', None)
     if pat is None:
-        import regex
         import unicodedata
+
+        import regex
         pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
         setattr(remove_accents_regex, 'pat', pat)
         setattr(remove_accents_regex, 'normalize', unicodedata.normalize)

@@ -139,6 +139,7 @@ def read_url(storage, url, timeout=60):
 def find_tests():
     import re
     import unittest
+
     from lxml.html import fromstring, tostring
     skip = ''
     is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')

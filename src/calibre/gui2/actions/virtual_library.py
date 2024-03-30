@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QToolButton, QAction
+from qt.core import QAction, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 

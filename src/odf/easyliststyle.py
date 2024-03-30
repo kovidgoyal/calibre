@@ -20,9 +20,11 @@
 
 
 import re
-from .style import ListLevelProperties
-from .text import ListStyle,ListLevelStyleNumber,ListLevelStyleBullet
+
 from polyglot.builtins import unicode_type
+
+from .style import ListLevelProperties
+from .text import ListLevelStyleBullet, ListLevelStyleNumber, ListStyle
 
 """
 Create a <text:list-style> element from a string or array.

@@ -5,14 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, atexit
+import atexit
+import os
+import sys
 from itertools import product
 
-from calibre import prints, isbytestring
-from calibre.utils.resources import get_path as P
+from calibre import isbytestring, prints
 from calibre.constants import filesystem_encoding
-from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
-        get_font_characteristics)
+from calibre.utils.fonts.utils import get_font_characteristics, get_font_names, is_truetype_font
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 
 

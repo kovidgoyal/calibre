@@ -6,22 +6,21 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 '''Read meta information from fb2 files'''
 
-import os, random
+import os
+import random
 from functools import partial
 from string import ascii_letters, digits
 
 from lxml import etree
 
-from calibre import strftime
+from calibre import force_unicode, guess_all_extensions, guess_type, prints, strftime
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.utils.date import parse_only_date
 from calibre.utils.img import save_cover_data_to
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.imghdr import identify
-from calibre import guess_type, guess_all_extensions, prints, force_unicode
-from calibre.ebooks.metadata import MetaInformation, check_isbn
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
-
 
 NAMESPACES = {
     'fb2'   :   'http://www.gribuser.ru/xml/fictionbook/2.0',
@@ -89,7 +88,7 @@ class Context:
 
 
 def get_fb2_data(stream):
-    from calibre.utils.zipfile import ZipFile, BadZipfile
+    from calibre.utils.zipfile import BadZipfile, ZipFile
     pos = stream.tell()
     try:
         zf = ZipFile(stream)

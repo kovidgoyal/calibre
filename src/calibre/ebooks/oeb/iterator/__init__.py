@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re
+import os
+import re
+import sys
 
 from calibre.customize.ui import available_input_formats
 
@@ -29,9 +31,9 @@ def EbookIterator(*args, **kwargs):
 
 
 def get_preprocess_html(path_to_ebook, output=None):
-    from calibre.ebooks.conversion.plumber import set_regex_wizard_callback, Plumber
-    from calibre.utils.logging import DevNull
+    from calibre.ebooks.conversion.plumber import Plumber, set_regex_wizard_callback
     from calibre.ptempfile import TemporaryDirectory
+    from calibre.utils.logging import DevNull
     raw = {}
     set_regex_wizard_callback(raw.__setitem__)
     with TemporaryDirectory('_regex_wiz') as tdir:

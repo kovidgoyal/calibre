@@ -2,13 +2,14 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
-from css_parser.css import CSSRule
 from typing import List, NamedTuple, Optional, Tuple
+
+from css_parser.css import CSSRule
+from css_selectors import Select, SelectorError
 
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.parsing import parse
-from css_selectors import Select, SelectorError
 
 
 class NoMatchingTagFound(KeyError):

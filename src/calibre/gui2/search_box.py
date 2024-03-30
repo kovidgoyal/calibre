@@ -8,10 +8,8 @@ __docformat__ = 'restructuredtext en'
 import re
 import time
 from functools import partial
-from qt.core import (
-    QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent,
-    QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot,
-)
+
+from qt.core import QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent, QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot
 
 from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION, config, gprefs, question_dialog
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor

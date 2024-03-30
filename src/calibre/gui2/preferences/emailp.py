@@ -4,6 +4,7 @@
 
 import re
 import textwrap
+
 from qt.core import QAbstractItemView, QAbstractTableModel, QFont, Qt
 
 from calibre.gui2 import gprefs

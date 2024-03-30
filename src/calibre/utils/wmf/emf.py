@@ -5,8 +5,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from struct import unpack_from
 from collections import namedtuple
+from struct import unpack_from
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
 from polyglot.builtins import iteritems

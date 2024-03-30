@@ -5,16 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, sys
+import copy
+import sys
 from contextlib import suppress
 
-from qt.core import Qt, QTableWidgetItem, QIcon, QAbstractItemView
+from qt.core import QAbstractItemView, QIcon, Qt, QTableWidgetItem
 
-from calibre.gui2 import gprefs, Application
+from calibre.gui2 import Application, error_dialog, gprefs, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
-from calibre.gui2 import error_dialog, question_dialog
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

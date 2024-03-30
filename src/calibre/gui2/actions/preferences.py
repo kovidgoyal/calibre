@@ -9,11 +9,11 @@ from functools import partial
 
 from qt.core import QIcon, Qt
 
+from calibre.constants import DEBUG, ismacos
 from calibre.customize.ui import preferences_plugins
+from calibre.gui2 import error_dialog, show_restart_warning
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
-from calibre.gui2 import error_dialog, show_restart_warning
-from calibre.constants import DEBUG, ismacos
 
 
 class PreferencesAction(InterfaceAction):
@@ -67,8 +67,7 @@ class PreferencesAction(InterfaceAction):
 
 
     def get_plugins(self):
-        from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
-                FILTER_NOT_INSTALLED)
+        from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, PluginUpdaterDialog
         d = PluginUpdaterDialog(self.gui,
                 initial_filter=FILTER_NOT_INSTALLED)
         d.exec()

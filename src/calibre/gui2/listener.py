@@ -7,9 +7,8 @@ import socket
 from contextlib import closing
 from functools import partial
 from itertools import count
-from qt.core import (
-    QAbstractSocket, QByteArray, QLocalServer, QLocalSocket, pyqtSignal
-)
+
+from qt.core import QAbstractSocket, QByteArray, QLocalServer, QLocalSocket, pyqtSignal
 
 from calibre.utils.ipc import gui_socket_address
 

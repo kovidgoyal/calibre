@@ -8,10 +8,8 @@ import re
 import subprocess
 import sys
 
-from bypy.constants import (
-    LIBDIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, build_dir, islinux, ismacos,
-    worker_env
-)
+from bypy.constants import LIBDIR, PREFIX, PYTHON, build_dir, islinux, ismacos, worker_env
+from bypy.constants import SRC as CALIBRE_DIR
 from bypy.utils import run_shell
 
 dlls = [

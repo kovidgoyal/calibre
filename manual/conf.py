@@ -11,17 +11,21 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os, errno
+import errno
+import os
+import sys
 from datetime import date
 
 # If your extensions are in another directory, add it here.
 base = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base)
 sys.path.insert(0, os.path.dirname(base))
-from setup import __appname__, __version__
-from calibre.utils.localization import localize_website_link
 import calibre.utils.img as cimg
 import custom
+from calibre.utils.localization import localize_website_link
+
+from setup import __appname__, __version__
+
 del sys.path[0]
 custom, cimg
 # General configuration
@@ -158,6 +162,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_short_title = _('Start')
 
 from calibre.utils.localization import get_language
+
 html_context = {}
 html_context['other_languages'] = [
     (lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]

@@ -12,9 +12,7 @@ from calibre.utils.fonts.sfnt.cmap import CmapTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
 from calibre.utils.fonts.sfnt.gsub import GSUBTable
-from calibre.utils.fonts.sfnt.head import (
-    HeadTable, HorizontalHeader, OS2Table, PostTable, VerticalHeader,
-)
+from calibre.utils.fonts.sfnt.head import HeadTable, HorizontalHeader, OS2Table, PostTable, VerticalHeader
 from calibre.utils.fonts.sfnt.kern import KernTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.maxp import MaxpTable

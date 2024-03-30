@@ -6,16 +6,35 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+
 from qt.core import (
-    Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QKeySequence, QMenuBar,
-    QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget, QPalette, sip,
-    QHBoxLayout, QFrame)
+    QAction,
+    QEasingCurve,
+    QFrame,
+    QHBoxLayout,
+    QKeySequence,
+    QMenu,
+    QMenuBar,
+    QObject,
+    QPainter,
+    QPalette,
+    QPropertyAnimation,
+    QSize,
+    Qt,
+    QTimer,
+    QToolBar,
+    QToolButton,
+    QWidget,
+    pyqtProperty,
+    pyqtSignal,
+    sip,
+)
 
 from calibre.constants import ismacos
-from calibre.gui2 import gprefs, native_menubar_defaults, config
+from calibre.gui2 import config, gprefs, native_menubar_defaults
 from calibre.gui2.throbber import ThrobbingButton
-from polyglot.builtins import itervalues
 from calibre.gui2.widgets2 import RightClickButton
+from polyglot.builtins import itervalues
 
 
 class RevealBar(QWidget):  # {{{

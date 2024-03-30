@@ -18,8 +18,8 @@
 #
 
 
-from .namespaces import NUMBERNS
 from .element import Element
+from .namespaces import NUMBERNS
 from .style import StyleElement
 
 

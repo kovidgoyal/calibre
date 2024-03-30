@@ -2,15 +2,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
-import os, subprocess, shutil, re
+import os
+import re
+import shutil
+import subprocess
 from functools import partial
 
 from calibre import prints
 from calibre.constants import iswindows
+from calibre.ebooks.metadata import MetaInformation, check_doi, check_isbn, string_to_authors
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata import (
-    MetaInformation, string_to_authors, check_isbn, check_doi)
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from polyglot.builtins import iteritems
 
 

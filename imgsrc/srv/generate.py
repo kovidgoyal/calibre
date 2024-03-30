@@ -3,7 +3,9 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import os, re, sys
+import os
+import re
+import sys
 
 from lxml import etree
 

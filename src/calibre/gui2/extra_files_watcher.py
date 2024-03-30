@@ -2,9 +2,10 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QObject, QTimer
 from time import monotonic
 from typing import NamedTuple, Tuple
+
+from qt.core import QObject, QTimer
 
 from calibre.db.constants import DATA_FILE_PATTERN
 

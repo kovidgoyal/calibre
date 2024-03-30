@@ -254,8 +254,8 @@ class RTFInput(InputFormatPlugin):
 
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
-        from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         from calibre.ebooks.rtf.input import InlineClass
+        from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         from calibre.utils.xml_parse import safe_xml_fromstring
         self.opts = options
         self.log = log

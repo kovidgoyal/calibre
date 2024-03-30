@@ -6,9 +6,21 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from contextlib import suppress
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAction, QDialog, QDialogButtonBox, QIcon, QListWidget,
-    QListWidgetItem, QMenu, QSize, Qt, QToolButton, QVBoxLayout, pyqtSignal,
+    QAbstractItemView,
+    QAction,
+    QDialog,
+    QDialogButtonBox,
+    QIcon,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QSize,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    pyqtSignal,
 )
 
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget

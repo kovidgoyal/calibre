@@ -10,6 +10,7 @@ Miscelleaneous utilities.
 '''
 
 from time import time
+
 from polyglot.builtins import as_bytes
 
 

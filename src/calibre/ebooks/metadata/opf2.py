@@ -18,6 +18,7 @@ import re
 import sys
 import uuid
 from contextlib import suppress
+
 from lxml import etree
 
 from calibre import guess_type, prints
@@ -26,11 +27,13 @@ from calibre.ebooks import escape_xpath_attr
 from calibre.ebooks.metadata import MetaInformation, check_isbn, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
+from calibre.ebooks.metadata.utils import parse_opf
+from calibre.ebooks.metadata.utils import pretty_print_opf as _pretty_print
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.date import isoformat, parse_date
-from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
@@ -520,9 +523,7 @@ class TitleSortField(MetadataField):
 
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
-    from calibre.ebooks.metadata.book.json_codec import (
-        encode_is_multiple, object_to_unicode,
-    )
+    from calibre.ebooks.metadata.book.json_codec import encode_is_multiple, object_to_unicode
     from calibre.utils.config import to_json
 
     for name, fm in all_user_metadata.items():
@@ -1619,6 +1620,7 @@ class OPFCreator(Metadata):
 
 def metadata_to_opf(mi, as_string=True, default_lang=None):
     import textwrap
+
     from lxml import etree
 
     from calibre.ebooks.oeb.base import DC, OPF

@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from polyglot.builtins import environ_item, hasenv
+import codecs
+import collections
+import collections.abc
+import locale
+import os
+import sys
 from functools import lru_cache
-import sys, locale, codecs, os, collections, collections.abc
+
+from polyglot.builtins import environ_item, hasenv
 
 __appname__   = 'calibre'
 numeric_version = (7, 7, 101)
@@ -173,9 +179,9 @@ def cache_dir():
 plugins_loc = sys.extensions_location
 system_plugins_loc = getattr(sys, 'system_plugins_location', None)
 
-from importlib.machinery import ModuleSpec, EXTENSION_SUFFIXES, ExtensionFileLoader
-from importlib.util import find_spec
 from importlib import import_module
+from importlib.machinery import EXTENSION_SUFFIXES, ExtensionFileLoader, ModuleSpec
+from importlib.util import find_spec
 
 
 class DeVendorLoader:
@@ -389,7 +395,8 @@ else:
             not os.access(config_dir, os.W_OK) or not \
             os.access(config_dir, os.X_OK):
         print('No write access to', config_dir, 'using a temporary dir instead')
-        import tempfile, atexit
+        import atexit
+        import tempfile
         config_dir = tempfile.mkdtemp(prefix='calibre-config-')
 
         def cleanup_cdir():

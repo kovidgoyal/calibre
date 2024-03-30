@@ -4,11 +4,32 @@
 
 import textwrap
 from collections import OrderedDict
+
 from qt.core import (
-    QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon,
-    QInputDialog, QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QMenu, QPalette, QPushButton, QSize, QStaticText, QStyle, QStyledItemDelegate, Qt,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QPalette,
+    QPushButton,
+    QSize,
+    QStaticText,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.ebooks.metadata.tag_mapper import compile_pat, map_tags

@@ -5,9 +5,9 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
 
 import os
 
+from calibre.constants import filesystem_encoding
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
-from calibre.constants import filesystem_encoding
 from polyglot.builtins import as_bytes
 
 
@@ -29,8 +29,8 @@ class CHMInput(InputFormatPlugin):
         return rdr.hhc_path
 
     def convert(self, stream, options, file_ext, log, accelerators):
-        from calibre.ebooks.chm.metadata import get_metadata_from_reader
         from calibre.customize.ui import plugin_for_input_format
+        from calibre.ebooks.chm.metadata import get_metadata_from_reader
         self.opts = options
 
         log.debug('Processing CHM...')
@@ -112,9 +112,10 @@ class CHMInput(InputFormatPlugin):
 
     def _create_html_root(self, hhcpath, log, encoding):
         from lxml import html
-        from polyglot.urllib import unquote as _unquote
-        from calibre.ebooks.oeb.base import urlquote
+
         from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.ebooks.oeb.base import urlquote
+        from polyglot.urllib import unquote as _unquote
         try:
             hhcdata = self._read_file(hhcpath)
         except FileNotFoundError:
@@ -170,7 +171,7 @@ class CHMInput(InputFormatPlugin):
 
         with open(htmlpath, 'wb') as f:
             if toc.count() > 1:
-                from lxml.html.builder import HTML, BODY, DIV, A
+                from lxml.html.builder import BODY, DIV, HTML, A
                 path0 = toc[0].href
                 path0 = unquote_path(path0)[0]
                 subpath = os.path.dirname(path0)

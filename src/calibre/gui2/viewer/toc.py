@@ -4,10 +4,25 @@
 
 import re
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QApplication, QEvent, QFont, QHBoxLayout, QIcon, QMenu,
-    QModelIndex, QStandardItem, QStandardItemModel, QStyledItemDelegate, Qt,
-    QToolButton, QToolTip, QTreeView, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QApplication,
+    QEvent,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QMenu,
+    QModelIndex,
+    QStandardItem,
+    QStandardItemModel,
+    QStyledItemDelegate,
+    Qt,
+    QToolButton,
+    QToolTip,
+    QTreeView,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.gui2 import error_dialog

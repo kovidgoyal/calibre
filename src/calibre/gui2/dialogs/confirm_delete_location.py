@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net' \
                 '2010, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QDialog, QIcon, Qt, QVBoxLayout, QHBoxLayout, QSizePolicy, QLabel, QPushButton
+from qt.core import QDialog, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout
 
 from calibre.startup import connect_lambda
 

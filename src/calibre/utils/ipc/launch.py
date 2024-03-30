@@ -4,14 +4,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, os, sys, time
+import os
+import subprocess
+import sys
+import time
 
-from calibre.constants import iswindows, ismacos, isfrozen
-from calibre.utils.config import prefs
+from calibre.constants import isfrozen, ismacos, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from calibre.utils.config import prefs
 from calibre.utils.serialize import msgpack_dumps
-from polyglot.builtins import string_or_bytes, environ_item, native_string_type
 from polyglot.binary import as_hex_unicode
+from polyglot.builtins import environ_item, native_string_type, string_or_bytes
 
 if iswindows:
     try:

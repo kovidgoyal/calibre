@@ -9,10 +9,10 @@ import re
 
 from lxml import etree, html
 
-from calibre import xml_replace_entities, force_unicode
-from calibre.utils.xml_parse import safe_xml_fromstring
+from calibre import force_unicode, xml_replace_entities
 from calibre.constants import filesystem_encoding
-from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
+from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
@@ -94,6 +94,7 @@ def node_depth(node):
 
 def html5_parse(data, max_nesting_depth=100):
     from html5_parser import parse
+
     from calibre.utils.cleantext import clean_xml_chars
     data = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)
     # Check that the asinine HTML 5 algorithm did not result in a tree with

@@ -8,7 +8,7 @@ import sys
 from threading import Thread
 
 from calibre.utils.monotonic import monotonic
-from polyglot.queue import Queue, Full
+from polyglot.queue import Full, Queue
 
 
 class Worker(Thread):

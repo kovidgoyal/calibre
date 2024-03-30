@@ -8,9 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os
 from collections import OrderedDict
 from itertools import count
-from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer,
-)
+
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop

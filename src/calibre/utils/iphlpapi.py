@@ -3,10 +3,9 @@
 
 
 import ctypes
-from ctypes import windll
-from ctypes import wintypes
 from collections import namedtuple
 from contextlib import contextmanager
+from ctypes import windll, wintypes
 
 # Wraps (part of) the IPHelper API, useful to enumerate the network routes and
 # adapters on the local machine

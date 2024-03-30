@@ -7,15 +7,16 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from collections import Counter
 
-from calibre.ebooks.docx.writer.container import create_skeleton, page_size, page_effective_area
-from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
-from calibre.ebooks.docx.writer.links import LinksManager
-from calibre.ebooks.docx.writer.images import ImagesManager
+from calibre.ebooks.docx.writer.container import create_skeleton, page_effective_area, page_size
 from calibre.ebooks.docx.writer.fonts import FontsManager
-from calibre.ebooks.docx.writer.tables import Table
+from calibre.ebooks.docx.writer.images import ImagesManager
+from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.ebooks.docx.writer.lists import ListsManager
-from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
+from calibre.ebooks.docx.writer.styles import FloatSpec, StylesManager
+from calibre.ebooks.docx.writer.tables import Table
 from calibre.ebooks.oeb.base import XPath, barename
+from calibre.ebooks.oeb.stylizer import Style as St
+from calibre.ebooks.oeb.stylizer import Stylizer as Sz
 from calibre.utils.localization import lang_as_iso639_1
 from polyglot.builtins import string_or_bytes
 

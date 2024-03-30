@@ -6,8 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, re
+import re
+import time
 from threading import Thread
+
 try:
     from queue import Empty, Queue
 except ImportError:
@@ -106,6 +108,7 @@ class Worker(Thread):  # {{{
 
     def render_comments(self, desc):
         from lxml import etree
+
         from calibre.library.comments import sanitize_comments_html
         for c in desc.xpath('descendant::noscript'):
             c.getparent().remove(c)
@@ -126,8 +129,9 @@ class Worker(Thread):  # {{{
 
 
 def get_basic_data(browser, log, *skus):
-    from calibre.utils.date import parse_only_date
     from mechanize import Request
+
+    from calibre.utils.date import parse_only_date
     zeroes = ','.join('0' for sku in skus)
     data = {
             'skus': ','.join(skus),
@@ -377,8 +381,7 @@ class Edelweiss(Source):
 
 
 if __name__ == '__main__':
-    from calibre.ebooks.metadata.sources.test import (
-        test_identify_plugin, title_test, authors_test, comments_test, pubdate_test)
+    from calibre.ebooks.metadata.sources.test import authors_test, comments_test, pubdate_test, test_identify_plugin, title_test
     tests = [
         (  # A title and author search
          {'title': 'The Husband\'s Secret', 'authors':['Liane Moriarty']},

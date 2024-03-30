@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+
 from qt.core import QProgressDialog, Qt, QTimer
 
 from calibre import force_unicode

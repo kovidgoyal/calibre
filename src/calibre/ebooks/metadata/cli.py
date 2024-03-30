@@ -5,15 +5,16 @@ __docformat__ = 'restructuredtext en'
 '''
 ebook-meta
 '''
-import sys, os, unicodedata
+import os
+import sys
+import unicodedata
 
-from calibre.utils.config import StringConfig
-from calibre.customize.ui import metadata_readers, metadata_writers, force_identifiers
-from calibre.ebooks.metadata.meta import get_metadata, set_metadata
-from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
-                    title_sort, MetaInformation
-from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
+from calibre.customize.ui import force_identifiers, metadata_readers, metadata_writers
+from calibre.ebooks.lrf.meta import LRFMetaFile
+from calibre.ebooks.metadata import MetaInformation, authors_to_sort_string, string_to_authors, title_sort
+from calibre.ebooks.metadata.meta import get_metadata, set_metadata
+from calibre.utils.config import StringConfig
 from calibre.utils.date import parse_date
 from polyglot.builtins import iteritems
 

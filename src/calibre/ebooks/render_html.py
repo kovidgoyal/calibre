@@ -4,13 +4,15 @@
 
 import os
 import sys
-from qt.core import (
-    QApplication, QByteArray, QMarginsF, QPageLayout, QPageSize, Qt, QTimer, QUrl
-)
+
+from qt.core import QApplication, QByteArray, QMarginsF, QPageLayout, QPageSize, Qt, QTimer, QUrl
 from qt.webengine import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript,
-    QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestJob,
-    QWebEngineUrlSchemeHandler
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineScript,
+    QWebEngineUrlRequestInterceptor,
+    QWebEngineUrlRequestJob,
+    QWebEngineUrlSchemeHandler,
 )
 
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
@@ -21,9 +23,7 @@ from calibre.gui_launch import setup_qt_logging
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
-from calibre.utils.webengine import (
-    secure_webengine, send_reply, setup_fake_protocol, setup_profile
-)
+from calibre.utils.webengine import secure_webengine, send_reply, setup_fake_protocol, setup_profile
 
 LOAD_TIMEOUT = 20
 PRINT_TIMEOUT = 10
@@ -148,9 +148,7 @@ class Render(QWebEnginePage):
                     if type(getattr(QPageSize, sz, None)) is type(QPageSize.PageSizeId.A4):  # noqa
                         page_size = QPageSize(getattr(QPageSize, sz))
                     else:
-                        from calibre.ebooks.pdf.image_writer import (
-                            parse_pdf_page_size
-                        )
+                        from calibre.ebooks.pdf.image_writer import parse_pdf_page_size
                         ps = parse_pdf_page_size(sz, data.get('unit', 'inch'))
                         if ps is not None:
                             page_size = ps

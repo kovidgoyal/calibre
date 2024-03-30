@@ -5,6 +5,7 @@ __copyright__ = '2010, sengian <sengian1 @ gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
+
 try:
     from collections import UserDict
 except ImportError:

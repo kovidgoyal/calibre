@@ -9,14 +9,13 @@ import tempfile
 import time
 from functools import partial
 
-from calibre.constants import (
-    __appname__, filesystem_encoding, islinux, ismacos, iswindows
-)
-from calibre_extensions import speedup
+from calibre.constants import __appname__, filesystem_encoding, islinux, ismacos, iswindows
 from calibre.utils.monotonic import monotonic
+from calibre_extensions import speedup
 
 if iswindows:
     import msvcrt
+
     from calibre.constants import get_windows_username
     from calibre_extensions import winutil
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
@@ -141,6 +140,7 @@ elif islinux:
 
     def create_single_instance_mutex(name, per_user=True):
         import socket
+
         from calibre.utils.ipc import eintr_retry_call
         name = '{}-singleinstance-{}-{}'.format(
             __appname__, (os.geteuid() if per_user else ''), name

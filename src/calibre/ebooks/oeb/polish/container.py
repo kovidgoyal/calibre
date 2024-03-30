@@ -12,37 +12,41 @@ import sys
 import unicodedata
 import uuid
 from collections import defaultdict
-from css_parser import getUrls, replaceUrls
 from io import BytesIO
 from itertools import count
+
+from css_parser import getUrls, replaceUrls
 
 from calibre import CurrentDir, walk
 from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format, plugin_for_output_format
 from calibre.ebooks import escape_xpath_attr
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.conversion.plugins.epub_input import (
-    ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data
-)
-from calibre.ebooks.conversion.preprocess import (
-    CSSPreProcessor as cssp, HTMLPreProcessor
-)
-from calibre.ebooks.metadata.opf3 import (
-    CALIBRE_PREFIX, ensure_prefix, items_with_property, read_prefixes
-)
+from calibre.ebooks.conversion.plugins.epub_input import ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data
+from calibre.ebooks.conversion.preprocess import CSSPreProcessor as cssp
+from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
+from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX, ensure_prefix, items_with_property, read_prefixes
 from calibre.ebooks.metadata.utils import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.oeb.base import (
-    DC11_NS, OEB_DOCS, OEB_STYLES, OPF, OPF2_NS, Manifest, itercsslinks, iterlinks,
-    rewrite_links, serialize, urlquote, urlunquote
+    DC11_NS,
+    OEB_DOCS,
+    OEB_STYLES,
+    OPF,
+    OPF2_NS,
+    Manifest,
+    itercsslinks,
+    iterlinks,
+    rewrite_links,
+    serialize,
+    urlquote,
+    urlunquote,
 )
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html
 from calibre.ebooks.oeb.polish.errors import DRMError, InvalidBook
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
-from calibre.ebooks.oeb.polish.utils import (
-    CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, parse_css, OEB_FONTS
-)
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, parse_css
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import hardlink_file, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job

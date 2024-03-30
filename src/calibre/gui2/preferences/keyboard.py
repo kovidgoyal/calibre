@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QVBoxLayout
 
-from calibre.gui2.preferences import (ConfigWidgetBase, test_widget)
 from calibre.gui2.keyboard import ShortcutConfig
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
 
 class ConfigWidget(ConfigWidgetBase):

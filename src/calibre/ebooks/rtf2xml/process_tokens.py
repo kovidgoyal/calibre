@@ -10,9 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, re
+import os
+import re
 
-from calibre.ebooks.rtf2xml import copy, check_brackets
+from calibre.ebooks.rtf2xml import check_brackets, copy
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
@@ -719,7 +720,7 @@ class ProcessTokens:
         try:
             # calibre why ignore negative number? Wrong in case of \fi
             numerator = float(re.search('[0-9.\\-]+', numerator).group())
-        except TypeError as msg:
+        except TypeError:
             if self.__run_level > 3:
                 msg = ('No number to process?\nthis indicates that the token \\(\\li\\) \
                 should have a number and does not\nnumerator is \

@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import numbers
 from collections import OrderedDict
+
 from polyglot.builtins import iteritems
 
 

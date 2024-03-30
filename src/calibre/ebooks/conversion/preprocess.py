@@ -5,10 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, json
+import functools
+import json
+import re
 from math import ceil
 
-from calibre import entity_to_unicode, as_unicode
+from calibre import as_unicode, entity_to_unicode
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
@@ -68,9 +70,9 @@ def wrap_lines(match):
 
 
 def smarten_punctuation(html, log=None):
-    from calibre.utils.smartypants import smartyPants
     from calibre.ebooks.chardet import substitute_entites
     from calibre.ebooks.conversion.utils import HeuristicProcessor
+    from calibre.utils.smartypants import smartyPants
     preprocessor = HeuristicProcessor(log=log)
     from uuid import uuid4
     start = 'calibre-smartypants-'+str(uuid4())

@@ -2,11 +2,12 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from functools import partial
+import numbers
+import operator
 from collections import OrderedDict
-import operator, numbers
+from functools import partial
 
-from css_parser.css import Property, CSSRule
+from css_parser.css import CSSRule, Property
 
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length

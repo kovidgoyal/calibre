@@ -10,7 +10,9 @@ License: http://www.opensource.org/licenses/mit-license.php
 
 import re
 
-from calibre.utils.icu import capitalize, lower as icu_lower, upper as icu_upper
+from calibre.utils.icu import capitalize
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 
 __all__ = ['titlecase']
 __version__ = '0.5'

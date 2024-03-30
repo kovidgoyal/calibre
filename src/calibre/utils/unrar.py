@@ -6,8 +6,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-import shutil
 import re
+import shutil
 from io import BytesIO
 
 from calibre.constants import filesystem_encoding, iswindows
@@ -112,7 +112,7 @@ def extract_first_alphabetically(stream):
 
 
 def extract_cover_image(stream):
-    from calibre.libunzip import sort_key, name_ok
+    from calibre.libunzip import name_ok, sort_key
     for name in sorted(names(stream), key=sort_key):
         if name_ok(name):
             return extract_member(stream, name=name, match=None)

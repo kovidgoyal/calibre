@@ -6,13 +6,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from lxml import etree
 from html5lib.constants import cdataElements, rcdataElements
+from lxml import etree
 
-from calibre.ebooks.oeb.polish.tests.base import BaseTest
-from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
-from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
+from calibre.ebooks.oeb.base import SVG_NS, XHTML_NS, XLINK_NS, XPath
 from calibre.ebooks.oeb.parse_utils import html5_parse
+from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
+from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from polyglot.builtins import iteritems
 
 
@@ -210,9 +210,11 @@ class ParsingTests(BaseTest):
 
 def timing():
     import sys
+
+    from html5lib import parse as vanilla
+
     from calibre.ebooks.chardet import xml_to_unicode
     from calibre.utils.monotonic import monotonic
-    from html5lib import parse as vanilla
     filename = sys.argv[-1]
     with open(filename, 'rb') as f:
         raw = f.read()

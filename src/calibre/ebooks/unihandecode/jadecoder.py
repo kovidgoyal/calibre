@@ -17,10 +17,11 @@ Copyright (c) 2010 Hiroshi Miura
 '''
 
 import re
-from calibre.ebooks.unihandecode.unidecoder import Unidecoder
-from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+
 from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
 from calibre.ebooks.unihandecode.pykakasi.kakasi import kakasi
+from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 
 
 class Jadecoder(Unidecoder):

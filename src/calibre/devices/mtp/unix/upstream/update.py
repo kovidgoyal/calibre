@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess
+import os
+import shutil
+import subprocess
 
 base = os.path.dirname(os.path.abspath(__file__))
 

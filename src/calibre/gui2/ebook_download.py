@@ -6,6 +6,7 @@ import os
 import shutil
 import time
 from contextlib import closing
+
 from mechanize import MozillaCookieJar
 
 from calibre import browser

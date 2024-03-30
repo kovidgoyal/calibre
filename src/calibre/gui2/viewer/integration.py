@@ -29,7 +29,8 @@ def database_has_annotations_support(cursor):
 
 def load_annotations_map_from_library(book_library_details, user_type='local', user='viewer'):
     import apsw
-    from calibre.db.backend import annotations_for_book, Connection
+
+    from calibre.db.backend import Connection, annotations_for_book
     ans = {}
     dbpath = book_library_details['dbpath']
     try:
@@ -53,9 +54,10 @@ def load_annotations_map_from_library(book_library_details, user_type='local', u
 
 def save_annotations_list_to_library(book_library_details, alist, sync_annots_user=''):
     import apsw
-    from calibre.db.backend import save_annotations_for_book, Connection, annotations_for_book
-    from calibre.gui2.viewer.annotations import annotations_as_copied_list
+
     from calibre.db.annotations import merge_annotations
+    from calibre.db.backend import Connection, annotations_for_book, save_annotations_for_book
+    from calibre.gui2.viewer.annotations import annotations_as_copied_list
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)

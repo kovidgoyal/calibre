@@ -8,11 +8,13 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from collections import OrderedDict, namedtuple
 from functools import partial
+
 from html5_parser import parse
 from lxml import etree
 from lxml.builder import ElementMaker
 
-from calibre import force_unicode, guess_type, prepare_string_for_xml as xml
+from calibre import force_unicode, guess_type
+from calibre import prepare_string_for_xml as xml
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars

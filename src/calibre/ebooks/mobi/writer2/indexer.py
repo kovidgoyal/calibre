@@ -5,13 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import numbers
-from struct import pack
 import io
+import numbers
 from collections import OrderedDict, defaultdict
+from struct import pack
 
-from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
+from calibre.ebooks.mobi.utils import CNCX as CNCX_
+from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
 from polyglot.builtins import iteritems, itervalues
 
 

@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.oeb.base import OEB_DOCS, XPath, XHTML
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
 
 
 class LinearizeTables:

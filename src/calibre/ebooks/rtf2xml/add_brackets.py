@@ -11,11 +11,13 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os
+import os
+import sys
 
-from calibre.ebooks.rtf2xml import copy, check_brackets
+from calibre.ebooks.rtf2xml import check_brackets, copy
 from calibre.ptempfile import better_mktemp
 from polyglot.builtins import iteritems
+
 from . import open_for_read, open_for_write
 
 

@@ -14,12 +14,12 @@ from operator import itemgetter
 from threading import Lock, Thread
 from unicodedata import normalize
 
-from calibre import as_unicode, detect_ncpus as cpu_count
+from calibre import as_unicode
+from calibre import detect_ncpus as cpu_count
 from calibre.constants import filesystem_encoding
-from calibre.utils.icu import (
-    lower as icu_lower, primary_collator, primary_find, primary_sort_key,
-    upper as icu_upper,
-)
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import primary_collator, primary_find, primary_sort_key
+from calibre.utils.icu import upper as icu_upper
 from polyglot.builtins import iteritems, itervalues
 from polyglot.queue import Queue
 

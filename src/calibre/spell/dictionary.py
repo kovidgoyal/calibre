@@ -3,11 +3,11 @@
 
 
 import glob
+import json
 import os
 import re
 import shutil
 import sys
-import json
 from collections import defaultdict, namedtuple
 from functools import partial
 from itertools import chain

@@ -6,23 +6,44 @@ import math
 from collections import defaultdict
 from functools import lru_cache
 from itertools import chain
+
 from qt.core import (
-    QAbstractItemView, QColor, QDialog, QFont, QHBoxLayout, QIcon, QImage,
-    QItemSelectionModel, QKeySequence, QLabel, QMenu, QPainter, QPainterPath, QPalette,
-    QPixmap, QPushButton, QRect, QSizePolicy, QStyle, Qt, QTextCursor, QTextEdit,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QColor,
+    QDialog,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QPainter,
+    QPainterPath,
+    QPalette,
+    QPixmap,
+    QPushButton,
+    QRect,
+    QSizePolicy,
+    QStyle,
+    Qt,
+    QTextCursor,
+    QTextEdit,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
-from calibre.constants import (
-    builtin_colors_dark, builtin_colors_light, builtin_decorations,
-)
+from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.gui2 import error_dialog, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.gestures import GestureManager
-from calibre.gui2.library.annotations import (
-    ChapterGroup, Details, Export as ExportBase, render_notes,
-)
+from calibre.gui2.library.annotations import ChapterGroup, Details, render_notes
+from calibre.gui2.library.annotations import Export as ExportBase
 from calibre.gui2.viewer import get_boss, link_prefix_for_location_links
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput

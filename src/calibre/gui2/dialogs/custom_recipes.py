@@ -4,24 +4,48 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, re, textwrap, time
+import os
+import re
+import textwrap
+import time
 
 from qt.core import (
-    QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView, QItemSelectionModel,
-    QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal, QSortFilterProxyModel,
-    QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
-    QToolButton, QTreeView, QDialog, QDialogButtonBox)
+    QAbstractListModel,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QSize,
+    QSizePolicy,
+    QSortFilterProxyModel,
+    QSpinBox,
+    QStackedWidget,
+    Qt,
+    QToolButton,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
-from calibre.gui2 import error_dialog, open_local_file, choose_files, choose_save_file
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, open_local_file
 from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
-from calibre.gui2.widgets2 import Dialog
-from calibre.web.feeds.recipes import custom_recipes, compile_recipe
-from calibre.gui2.tweak_book.editor.text import TextEdit
-from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
-from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, as_unicode
 from calibre.gui2.search_box import SearchBox2
-from polyglot.builtins import as_bytes
+from calibre.gui2.tweak_book.editor.text import TextEdit
+from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import localize_user_manual_link
+from calibre.web.feeds.recipes import compile_recipe, custom_recipes
+from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
+from polyglot.builtins import as_bytes, as_unicode, iteritems
 
 
 def is_basic_recipe(src):

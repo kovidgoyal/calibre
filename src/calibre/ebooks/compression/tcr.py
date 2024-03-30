@@ -3,6 +3,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
+
 from polyglot.builtins import int_to_byte
 
 

@@ -1,26 +1,38 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, traceback, functools, sys
+import functools
+import os
+import shutil
+import sys
+import traceback
 from collections import defaultdict
 from itertools import chain, repeat
 
-from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
-                              MetadataReaderPlugin, MetadataWriterPlugin,
-                              InterfaceActionBase as InterfaceAction,
-                              PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store, EditBookToolPlugin,
-                              LibraryClosedPlugin, PluginInstallationType)
-from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
-from calibre.customize.zipplugin import loader
-from calibre.customize.profiles import InputProfile, OutputProfile
+from calibre.constants import DEBUG, ismacos, numeric_version, system_plugins_loc
+from calibre.customize import (
+    CatalogPlugin,
+    EditBookToolPlugin,
+    FileTypePlugin,
+    InvalidPlugin,
+    LibraryClosedPlugin,
+    MetadataReaderPlugin,
+    MetadataWriterPlugin,
+    PluginInstallationType,
+    PluginNotFound,
+    PreferencesPlugin,
+    platform,
+)
+from calibre.customize import InterfaceActionBase as InterfaceAction
+from calibre.customize import StoreBase as Store
 from calibre.customize.builtins import plugins as builtin_plugins
+from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+from calibre.customize.profiles import InputProfile, OutputProfile
+from calibre.customize.zipplugin import loader
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
-                                 plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
-from calibre.constants import DEBUG, numeric_version, system_plugins_loc, ismacos
+from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_dir, plugin_dir
 from polyglot.builtins import iteritems, itervalues
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
@@ -757,8 +769,8 @@ def initialize_plugins(perf=False):
         system_plugins.pop(name, None)
     ostdout, ostderr = sys.stdout, sys.stderr
     if perf:
-        from collections import defaultdict
         import time
+        from collections import defaultdict
         times = defaultdict(int)
 
     for zfp, installation_type in chain(
@@ -815,7 +827,7 @@ def initialized_plugins():
 def build_plugin(path):
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
-    from calibre.utils.zipfile import ZipFile, ZIP_STORED
+    from calibre.utils.zipfile import ZIP_STORED, ZipFile
     path = str(path)
     names = frozenset(os.listdir(path))
     if '__init__.py' not in names:

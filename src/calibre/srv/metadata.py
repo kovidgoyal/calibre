@@ -18,7 +18,8 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.icu import collation_order_for_partitioning, upper as icu_upper
+from calibre.utils.icu import collation_order_for_partitioning
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, calibre_langcode_to_name
 from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import quote

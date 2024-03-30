@@ -4,10 +4,26 @@
 
 import os
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAction, QDialog, QDialogButtonBox, QGroupBox, QHBoxLayout,
-    QIcon, QInputDialog, QKeySequence, QLabel, QListWidget, QListWidgetItem, QMenu, Qt,
-    QToolBar, QToolButton, QVBoxLayout, pyqtSignal,
+    QAbstractItemView,
+    QAction,
+    QDialog,
+    QDialogButtonBox,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QKeySequence,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    Qt,
+    QToolBar,
+    QToolButton,
+    QVBoxLayout,
+    pyqtSignal,
 )
 from qt.webengine import QWebEnginePage
 

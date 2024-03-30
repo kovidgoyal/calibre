@@ -4,10 +4,27 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import copy
 import re
 from datetime import date
+
 from qt.core import (
-    QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame, QGroupBox, QHBoxLayout,
-    QIcon, QLabel, QLineEdit, QPushButton, QRadioButton, QSize, QSpinBox, Qt,
-    QTabWidget, QToolButton, QVBoxLayout, QWidget,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QFrame,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QRadioButton,
+    QSize,
+    QSpinBox,
+    Qt,
+    QTabWidget,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
 )
 
 from calibre import strftime

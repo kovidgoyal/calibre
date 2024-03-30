@@ -2,15 +2,25 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QDialogButtonBox, QGridLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
-    QProgressBar, QScrollArea, QSize, Qt, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Thread
 
-from calibre.ebooks.oeb.polish.download import (
-    download_external_resources, get_external_resources, replace_resources,
+from qt.core import (
+    QDialogButtonBox,
+    QGridLayout,
+    QIcon,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QProgressBar,
+    QScrollArea,
+    QSize,
+    Qt,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
+
+from calibre.ebooks.oeb.polish.download import download_external_resources, get_external_resources, replace_resources
 from calibre.gui2 import error_dialog, info_dialog, warning_dialog
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.tweak_book import current_container

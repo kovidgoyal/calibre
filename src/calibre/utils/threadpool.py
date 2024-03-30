@@ -47,6 +47,7 @@ __license__ = 'Python license'
 
 # standard library modules
 import threading
+
 from polyglot import queue
 
 # exceptions

@@ -2,15 +2,31 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import socket, os, struct, errno, numbers
+import errno
+import numbers
+import os
+import socket
+import struct
 from collections import deque, namedtuple
 from functools import partial
 from hashlib import sha1
 
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.web_socket import (
-    GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE,
-    PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA, CONTROL_CODES)
+    BINARY,
+    CLOSE,
+    CONTINUATION,
+    CONTROL_CODES,
+    GUID_STR,
+    INCONSISTENT_DATA,
+    NORMAL_CLOSE,
+    PING,
+    PONG,
+    PROTOCOL_ERROR,
+    TEXT,
+    MessageWriter,
+    create_frame,
+)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.binary import as_base64_unicode

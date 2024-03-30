@@ -5,9 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, json
+import json
+import os
 from hashlib import sha1
-
 
 from setup.revendor import ReVendor
 

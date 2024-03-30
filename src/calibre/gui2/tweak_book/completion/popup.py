@@ -7,10 +7,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 from math import ceil
 
-from qt.core import (
-    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette, QEvent, QTextCursor)
+from qt.core import QEvent, QPainter, QPalette, QSize, QStaticText, Qt, QTextCursor, QTextOption, QTimer, QWidget
 
-from calibre import prints, prepare_string_for_xml
+from calibre import prepare_string_for_xml, prints
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length

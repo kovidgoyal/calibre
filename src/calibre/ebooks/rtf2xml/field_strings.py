@@ -10,7 +10,8 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, re
+import re
+import sys
 
 
 class FieldStrings:

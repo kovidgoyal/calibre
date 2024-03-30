@@ -4,7 +4,6 @@
 
 from qt.core import QKeySequence, QMainWindow, Qt
 
-
 key_name_to_qt_name = {
     'ArrowRight': 'Right',
     'ArrowLeft': 'Left',

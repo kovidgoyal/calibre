@@ -9,8 +9,8 @@ __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
 # DjVu v3
 # November 2005
 
-import sys
 import struct
+import sys
 
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 

@@ -26,12 +26,12 @@ Options:
         Display version information and exit.
 """
 
-import os
-import sys
+import array
 import ast
 import getopt
+import os
 import struct
-import array
+import sys
 from email.parser import HeaderParser
 
 __version__ = "1.2"

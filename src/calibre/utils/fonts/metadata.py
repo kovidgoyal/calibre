@@ -5,10 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from io import BytesIO
 from collections import namedtuple
+from io import BytesIO
 
-from calibre.utils.fonts.utils import get_font_names_from_ttlib_names_table, get_font_characteristics
+from calibre.utils.fonts.utils import get_font_characteristics, get_font_names_from_ttlib_names_table
 
 
 class UnsupportedFont(ValueError):
@@ -24,7 +24,7 @@ FontNames = namedtuple('FontNames',
 class FontMetadata:
 
     def __init__(self, bytes_or_stream):
-        from fontTools.subset import load_font, Subsetter
+        from fontTools.subset import Subsetter, load_font
         if not hasattr(bytes_or_stream, 'read'):
             bytes_or_stream = BytesIO(bytes_or_stream)
         f = bytes_or_stream

@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Conversion to EPUB.
 '''
-from calibre.utils.zipfile import ZipFile, ZIP_STORED
+from calibre.utils.zipfile import ZIP_STORED, ZipFile
 
 
 def rules(stylesheets):

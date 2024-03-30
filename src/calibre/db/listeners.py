@@ -3,9 +3,9 @@
 
 import weakref
 from contextlib import suppress
+from enum import Enum, auto
 from queue import Queue
 from threading import Thread
-from enum import Enum, auto
 
 
 class EventType(Enum):

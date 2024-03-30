@@ -10,13 +10,17 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import WARN, run_checkers
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
-from calibre.ebooks.oeb.polish.check.links import (
-    check_link_destinations, check_links, check_mimetypes,
-)
+from calibre.ebooks.oeb.polish.check.links import check_link_destinations, check_links, check_mimetypes
 from calibre.ebooks.oeb.polish.check.opf import check_opf
 from calibre.ebooks.oeb.polish.check.parsing import (
-    EmptyFile, check_encoding_declarations, check_filenames, check_html_size, check_ids,
-    check_markup, check_xml_parsing, fix_style_tag,
+    EmptyFile,
+    check_encoding_declarations,
+    check_filenames,
+    check_html_size,
+    check_ids,
+    check_markup,
+    check_xml_parsing,
+    fix_style_tag,
 )
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.utils import guess_type

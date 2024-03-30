@@ -18,9 +18,7 @@ from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.db.errors import NoSuchFormat
-from calibre.ebooks.covers import (
-    cprefs, generate_cover, override_prefs, scale_cover, set_use_roman,
-)
+from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover, set_use_roman
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -30,12 +28,11 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
-from calibre.utils.filenames import (
-    ascii_filename, atomic_rename, make_long_path_useable,
-)
+from calibre.utils.filenames import ascii_filename, atomic_rename, make_long_path_useable
 from calibre.utils.img import image_from_data, scale_image
 from calibre.utils.localization import _
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 from polyglot.binary import as_hex_unicode
 from polyglot.urllib import quote

@@ -11,9 +11,8 @@ import shutil
 from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
-from qt.core import (
-    QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl,
-)
+
+from qt.core import QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl
 
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string

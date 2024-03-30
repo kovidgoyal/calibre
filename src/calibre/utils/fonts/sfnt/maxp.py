@@ -5,9 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack_from, pack
+from struct import pack, unpack_from
 
-from calibre.utils.fonts.sfnt import UnknownTable, FixedProperty
+from calibre.utils.fonts.sfnt import FixedProperty, UnknownTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 

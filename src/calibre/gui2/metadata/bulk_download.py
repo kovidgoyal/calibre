@@ -8,8 +8,9 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 import time
-from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, Qt
 from threading import Thread
+
+from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, Qt
 
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.gui2.threaded_jobs import ThreadedJob

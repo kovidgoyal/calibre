@@ -1,4 +1,4 @@
-from .functions import textile, textile_restricted, Textile
+from .functions import Textile, textile, textile_restricted
 
 if False:
     textile, textile_restricted, Textile

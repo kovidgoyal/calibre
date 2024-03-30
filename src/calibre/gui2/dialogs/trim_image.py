@@ -6,10 +6,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 import sys
-from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QKeySequence,
-    QLabel, QSize, QSpinBox, Qt, QToolBar, QVBoxLayout,
-)
+
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QKeySequence, QLabel, QSize, QSpinBox, Qt, QToolBar, QVBoxLayout
 
 from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas

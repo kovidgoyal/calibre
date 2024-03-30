@@ -4,7 +4,6 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-
 HEADER = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 

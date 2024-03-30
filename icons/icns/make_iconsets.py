@@ -5,7 +5,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, subprocess, sys
+import os
+import shutil
+import subprocess
+import sys
 
 d, j, a = (getattr(os.path, x) for x in ('dirname', 'join', 'abspath'))
 base = d(a(__file__))

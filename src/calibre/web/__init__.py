@@ -39,8 +39,9 @@ def get_download_filename(url, cookie_file=None):
     Get a local filename for a URL using the content disposition header
     Returns empty string if an error occurs.
     '''
-    from calibre import browser
     from contextlib import closing
+
+    from calibre import browser
 
     filename = ''
 

@@ -9,9 +9,9 @@ from lxml import etree
 
 from calibre.ebooks.oeb.base import CSS_MIME, XHTML, XHTML_NS, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.utils.icu import (
-    lower as icu_lower, title_case as icu_title, upper as icu_upper,
-)
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import title_case as icu_title
+from calibre.utils.icu import upper as icu_upper
 from polyglot.builtins import string_or_bytes
 
 CASE_MANGLER_CSS = """

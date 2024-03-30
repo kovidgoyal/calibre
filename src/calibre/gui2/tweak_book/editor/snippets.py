@@ -10,10 +10,28 @@ import weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter, itemgetter
+
 from qt.core import (
-    QDialog, QDialogButtonBox, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QListView, QListWidget, QListWidgetItem, QObject, QPushButton, QSize,
-    QStackedLayout, Qt, QTextCursor, QToolButton, QVBoxLayout, QWidget
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QObject,
+    QPushButton,
+    QSize,
+    QStackedLayout,
+    Qt,
+    QTextCursor,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
 )
 
 from calibre.constants import ismacos
@@ -25,6 +43,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
+
 
 def string_length(x):
     return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work

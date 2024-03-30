@@ -5,7 +5,8 @@ __docformat__ = 'restructuredtext en'
 '''
 Device driver for Hanvon devices
 '''
-import re, os
+import os
+import re
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS

@@ -7,6 +7,7 @@ import codecs
 import os
 import re
 import struct
+
 from chm.chm import CHMFile, chmlib
 
 from calibre import guess_type as guess_mimetype

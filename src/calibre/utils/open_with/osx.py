@@ -4,7 +4,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, re, mimetypes, subprocess
+import mimetypes
+import os
+import re
+import subprocess
 from collections import defaultdict
 from plistlib import loads
 
@@ -18,9 +21,10 @@ application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
 
 def generate_public_uti_map():
-    from lxml import etree
-    from polyglot.urllib import urlopen
     from html5_parser import parse
+    from lxml import etree
+
+    from polyglot.urllib import urlopen
     raw = urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = parse(raw)

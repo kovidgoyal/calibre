@@ -3,8 +3,8 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 import os
 from collections import Counter
-from io import BytesIO
 from functools import wraps
+from io import BytesIO
 from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins

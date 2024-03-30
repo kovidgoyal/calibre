@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.color3 import parse_color_string, hsl_to_rgb
+from tinycss.color3 import hsl_to_rgb, parse_color_string
 from tinycss.tests import BaseTest
 
 

@@ -2,23 +2,18 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import apsw
 import os
 import re
 import sys
 import time
 import traceback
+
+import apsw
 from qt.core import QCoreApplication, QIcon, QObject, QTimer
 
 from calibre import force_unicode, prints
-from calibre.constants import (
-    DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base, islinux,
-    ismacos, iswindows,
-)
-from calibre.gui2 import (
-    Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
-    question_dialog, setup_gui_option_parser, timed_print,
-)
+from calibre.constants import DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base, islinux, ismacos, iswindows
+from calibre.gui2 import Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider, question_dialog, setup_gui_option_parser, timed_print
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen

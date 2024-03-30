@@ -2,7 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from RB files'''
 
-import sys, struct
+import struct
+import sys
 
 from calibre import prints
 from calibre.ebooks.metadata import MetaInformation, string_to_authors

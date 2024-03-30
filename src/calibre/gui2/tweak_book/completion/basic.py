@@ -4,22 +4,22 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from collections import OrderedDict, namedtuple
 from threading import Event
-from collections import namedtuple, OrderedDict
 
-from qt.core import QObject, pyqtSignal, Qt
+from qt.core import QObject, Qt, pyqtSignal
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, name_to_href
-from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.report import description_for_anchor
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.gui2 import is_gui_thread
 from calibre.gui2.tweak_book import current_container, editors
-from calibre.gui2.tweak_book.completion.utils import control, data, DataError
+from calibre.gui2.tweak_book.completion.utils import DataError, control, data
+from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
-from calibre.utils.icu import numeric_sort_key
 from polyglot.builtins import iteritems, itervalues
 
 Request = namedtuple('Request', 'id type data query')

@@ -7,13 +7,13 @@ __copyright__ = '2012, Kan-Ru Chen <kanru@kanru.info>'
 __docformat__ = 'restructuredtext en'
 
 
-import struct
 import os
+import struct
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.txt.processor import opf_writer, HTML_TEMPLATE
+from calibre.ebooks.pdb.formatreader import FormatReader
+from calibre.ebooks.txt.processor import HTML_TEMPLATE, opf_writer
 
 BPDB_IDENT = 'BOOKMTIT'
 UPDB_IDENT = 'BOOKMTIU'

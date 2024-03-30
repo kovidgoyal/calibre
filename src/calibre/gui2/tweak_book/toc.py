@@ -4,12 +4,27 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import (
-    QAction, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon, QMenu, QSize,
-    QStackedWidget, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal,
-)
 from time import monotonic
+
+from qt.core import (
+    QAction,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QIcon,
+    QMenu,
+    QSize,
+    QStackedWidget,
+    QStyledItemDelegate,
+    Qt,
+    QTimer,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.constants import ismacos
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc

@@ -7,11 +7,35 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import shutil
+
 from qt.core import (
-    QAbstractItemView, QDialog, QDialogButtonBox, QFont, QFontComboBox, QFontDatabase,
-    QFontInfo, QFontMetrics, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QListView, QPen, QPushButton, QRawFont, QSize, QSizePolicy, QStringListModel,
-    QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFontComboBox,
+    QFontDatabase,
+    QFontInfo,
+    QFontMetrics,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QPen,
+    QPushButton,
+    QRawFont,
+    QSize,
+    QSizePolicy,
+    QStringListModel,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.constants import config_dir

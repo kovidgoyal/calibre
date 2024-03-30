@@ -4,7 +4,10 @@
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, errno, select
+import errno
+import os
+import select
+import sys
 
 
 class INotifyError(Exception):
@@ -115,7 +118,8 @@ class INotify:
     NONBLOCK = 0x800
 
     def __init__(self, cloexec=True, nonblock=True):
-        import ctypes, struct
+        import ctypes
+        import struct
         self._init1, self._add_watch, self._rm_watch, self._read = load_inotify()
         flags = 0
         if cloexec:

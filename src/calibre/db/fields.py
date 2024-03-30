@@ -6,20 +6,19 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
-from threading import Lock
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
 from functools import partial
+from threading import Lock
 
-from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
+from calibre.db.tables import MANY_MANY, MANY_ONE, ONE_ONE, null
+from calibre.db.utils import atof, force_to_bool
 from calibre.db.write import Writer
-from calibre.db.utils import force_to_bool, atof
-from calibre.ebooks.metadata import title_sort, author_to_author_sort, rating_to_stars
+from calibre.ebooks.metadata import author_to_author_sort, rating_to_stars, title_sort
 from calibre.utils.config_base import tweaks
-from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
 from polyglot.builtins import iteritems
-
 
 rendering_composite_name = '__rendering_composite__'
 

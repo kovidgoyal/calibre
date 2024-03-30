@@ -5,10 +5,24 @@
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    DC, OPF, XPath, create_rating, create_series, create_timestamp,
-    encode_is_multiple, ensure_id, normalize_whitespace, parse_date, read_prefixes,
-    read_refines, read_user_metadata2, refdef, remove_element, set_last_modified,
-    set_refines, set_user_metadata3
+    DC,
+    OPF,
+    XPath,
+    create_rating,
+    create_series,
+    create_timestamp,
+    encode_is_multiple,
+    ensure_id,
+    normalize_whitespace,
+    parse_date,
+    read_prefixes,
+    read_refines,
+    read_user_metadata2,
+    refdef,
+    remove_element,
+    set_last_modified,
+    set_refines,
+    set_user_metadata3,
 )
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 from polyglot.builtins import itervalues

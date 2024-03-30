@@ -4,14 +4,15 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import copy, os, re
-from polyglot.builtins import string_or_bytes
+import copy
+import os
+import re
 
-from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
-from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
-from polyglot.builtins import iteritems
+from calibre.ebooks.oeb.polish.toc import node_from_loc
+from polyglot.builtins import iteritems, string_or_bytes
 from polyglot.urllib import urlparse
 
 

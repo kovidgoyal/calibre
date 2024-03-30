@@ -7,8 +7,19 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil
 
 from qt.core import (
-    QAbstractListModel, Qt, QModelIndex, QApplication, QWidget,
-    QGridLayout, QListView, QStyledItemDelegate, pyqtSignal, QPushButton, QIcon, QItemSelectionModel)
+    QAbstractListModel,
+    QApplication,
+    QGridLayout,
+    QIcon,
+    QItemSelectionModel,
+    QListView,
+    QModelIndex,
+    QPushButton,
+    QStyledItemDelegate,
+    Qt,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.gui2 import error_dialog
 

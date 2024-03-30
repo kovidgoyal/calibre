@@ -24,9 +24,28 @@ To be used for validation check in the API
 """
 
 from .namespaces import (
-    ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FORMNS, MANIFESTNS, MATHNS,
-    METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, STYLENS, SVGNS, TABLENS,
-    TEXTNS, XFORMSNS, XLINKNS, SMILNS, FONS
+    ANIMNS,
+    CHARTNS,
+    CONFIGNS,
+    DCNS,
+    DR3DNS,
+    DRAWNS,
+    FONS,
+    FORMNS,
+    MANIFESTNS,
+    MATHNS,
+    METANS,
+    NUMBERNS,
+    OFFICENS,
+    PRESENTATIONNS,
+    SCRIPTNS,
+    SMILNS,
+    STYLENS,
+    SVGNS,
+    TABLENS,
+    TEXTNS,
+    XFORMSNS,
+    XLINKNS,
 )
 
 # The following code is generated from the RelaxNG schema with this notice:

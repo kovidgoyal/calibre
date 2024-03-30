@@ -4,9 +4,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from lxml.html.builder import TABLE, TR, TD
+from lxml.html.builder import TABLE, TD, TR
 
-from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle, border_to_css
+from calibre.ebooks.docx.block_styles import ParagraphStyle, binary_property, border_props, border_to_css, inherit, read_border
+from calibre.ebooks.docx.block_styles import read_shd as rs
 from calibre.ebooks.docx.char_styles import RunStyle
 from polyglot.builtins import iteritems, itervalues
 

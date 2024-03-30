@@ -4,13 +4,13 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
+import os
+import sys
 
-from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.conversion.plumber import Plumber
-from calibre.ebooks.oeb.polish.container import Container, OEB_DOCS, OEB_STYLES
 from calibre.ebooks.epub import initialize_container
-
+from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, Container
+from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.logging import default_log
 from polyglot.builtins import iteritems
 

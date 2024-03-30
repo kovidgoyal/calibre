@@ -14,12 +14,9 @@
 from itertools import chain, islice
 
 from tinycss.decoding import decode
+from tinycss.parsing import ParseError, remove_whitespace, split_on_comma, strip_whitespace, validate_any, validate_value
 from tinycss.token_data import TokenList
 from tinycss.tokenizer import tokenize_grouped
-from tinycss.parsing import (
-    strip_whitespace, remove_whitespace, split_on_comma, validate_value,
-    validate_any, ParseError)
-
 
 #  stylesheet  : [ CDO | CDC | S | statement ]*;
 #  statement   : ruleset | at-rule;

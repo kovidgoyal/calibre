@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-import apsw
 import os
 from contextlib import suppress
 from threading import Lock
 from time import time_ns
+
+import apsw
 
 from calibre.constants import cache_dir
 

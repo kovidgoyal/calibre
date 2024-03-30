@@ -4,16 +4,34 @@
 import time
 import traceback
 from operator import attrgetter
-from qt.core import (
-    QAbstractItemView, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget,
-    QListWidgetItem, QMenu, QPainter, QPalette, QPixmap, QRectF, QSize, QSpinBox,
-    QStyle, QStyledItemDelegate, Qt, QTabWidget, QVBoxLayout, pyqtSignal,
-)
 from typing import Iterator, List
+
+from qt.core import (
+    QAbstractItemView,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QRectF,
+    QSize,
+    QSpinBox,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTabWidget,
+    QVBoxLayout,
+    pyqtSignal,
+)
 
 from calibre import fit_image
 from calibre.db.constants import DEFAULT_TRASH_EXPIRY_TIME_SECONDS, TrashEntry
-from calibre.gui2 import error_dialog, choose_dir, choose_save_file
+from calibre.gui2 import choose_dir, choose_save_file, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog

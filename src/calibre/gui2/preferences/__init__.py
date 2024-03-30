@@ -7,14 +7,29 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, QApplication,
-    QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout,
-    QDialogButtonBox, QListView, QEvent, QListWidget, QTableWidget)
+from qt.core import (
+    QAbstractSpinBox,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QIcon,
+    QLineEdit,
+    QListView,
+    QListWidget,
+    Qt,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.customize.ui import preferences_plugins
-from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.widgets import HistoryLineEdit
+from calibre.utils.config import ConfigProxy
 from polyglot.builtins import string_or_bytes
 
 
@@ -337,8 +352,8 @@ class ConfigDialog(QDialog):
 
 
 def init_gui():
-    from calibre.gui2.ui import Main
     from calibre.gui2.main import option_parser
+    from calibre.gui2.ui import Main
     from calibre.library import db
     parser = option_parser()
     opts, args = parser.parse_args([])

@@ -5,10 +5,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import string
-from polyglot.builtins import iteritems
 
-from calibre.utils.config import JSONConfig
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
+from calibre.utils.config import JSONConfig
+from polyglot.builtins import iteritems
 
 CONTAINER_DND_MIMETYPE = 'application/x-calibre-container-name-list'
 tprefs = JSONConfig('tweak_book_gui')

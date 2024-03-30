@@ -6,9 +6,23 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+
 from qt.core import (
-    QActionGroup, QCoreApplication, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
-    QMenu, QObject, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QActionGroup,
+    QCoreApplication,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QObject,
+    QSizePolicy,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import human_readable

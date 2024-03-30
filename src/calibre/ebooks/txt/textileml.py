@@ -6,13 +6,12 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into Textile formatted plain text
 '''
 import re
-
 from functools import partial
 
+from calibre.ebooks import unit_convert
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks import unit_convert
 from calibre.ebooks.textile.unsmarten import unsmarten
 from polyglot.builtins import string_or_bytes
 

@@ -9,19 +9,20 @@ __docformat__ = 'restructuredtext en'
 Device driver for the SONY T1 devices
 '''
 
-import os, time, re
+import os
+import re
+import time
 from contextlib import closing
 from datetime import date
 
 from calibre import fsync
-from calibre.devices.mime import mime_type_ext
-from calibre.devices.errors import DeviceError
-from calibre.devices.usbms.driver import USBMS, debug_print
-from calibre.devices.usbms.device import USBDevice
-from calibre.devices.usbms.books import CollectionsBookList
-from calibre.devices.usbms.books import BookList
-from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.constants import islinux
+from calibre.devices.errors import DeviceError
+from calibre.devices.mime import mime_type_ext
+from calibre.devices.usbms.books import BookList, CollectionsBookList
+from calibre.devices.usbms.device import USBDevice
+from calibre.devices.usbms.driver import USBMS, debug_print
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from polyglot.builtins import long_type
 
 DBPATH = 'Sony_Reader/database/books.db'

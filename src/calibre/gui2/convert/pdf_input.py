@@ -2,9 +2,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.gui2.convert.pdf_input_ui import Ui_Form
-from calibre.gui2.convert import Widget, QDoubleSpinBox
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import QDoubleSpinBox, Widget
+from calibre.gui2.convert.pdf_input_ui import Ui_Form
 
 
 class PluginWidget(Widget, Ui_Form):

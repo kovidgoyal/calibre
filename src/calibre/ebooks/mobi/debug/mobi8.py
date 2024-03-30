@@ -5,16 +5,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, struct, textwrap
+import os
+import struct
+import sys
+import textwrap
 
 from calibre import CurrentDir
+from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.containers import ContainerHeader
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
-        GuideIndex)
-from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
-from calibre.ebooks.mobi.debug import format_bytes
+from calibre.ebooks.mobi.debug.index import GuideIndex, NCXIndex, SECTIndex, SKELIndex
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+from calibre.ebooks.mobi.utils import RECORD_SIZE, decode_tbs, read_font_record
 from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, itervalues, print_to_binary_file
 
@@ -223,9 +225,15 @@ class MOBIFile:
                 payload))
 
     def read_tbs(self):
-        from calibre.ebooks.mobi.writer8.tbs import (Entry, DOC,
-                collect_indexing_data, encode_strands_as_sequences,
-                sequences_to_bytes, calculate_all_tbs, NegativeStrandIndex)
+        from calibre.ebooks.mobi.writer8.tbs import (
+            DOC,
+            Entry,
+            NegativeStrandIndex,
+            calculate_all_tbs,
+            collect_indexing_data,
+            encode_strands_as_sequences,
+            sequences_to_bytes,
+        )
         entry_map = []
         for index in self.ncx_index:
             vals = list(index)[:-1] + [None, None, None, None]

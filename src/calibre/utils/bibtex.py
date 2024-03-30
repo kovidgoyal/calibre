@@ -63,7 +63,8 @@
 __author__  = 'sengian <sengian1 at gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, string
+import re
+import string
 
 from calibre.utils.mreplace import MReplace
 

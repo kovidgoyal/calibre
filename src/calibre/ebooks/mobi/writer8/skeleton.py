@@ -13,9 +13,9 @@ from xml.sax.saxutils import escape
 from lxml import etree
 
 from calibre import my_unichr
+from calibre.ebooks.mobi.utils import PolyglotDict, to_base
 from calibre.ebooks.oeb.base import XHTML_NS, extract
-from calibre.ebooks.mobi.utils import to_base, PolyglotDict
-from polyglot.builtins import iteritems, as_bytes
+from polyglot.builtins import as_bytes, iteritems
 
 CHUNK_SIZE = 8192
 
@@ -413,7 +413,9 @@ class Chunker:
                 text)
 
     def dump(self, orig_dumps):
-        import tempfile, shutil, os
+        import os
+        import shutil
+        import tempfile
         tdir = os.path.join(tempfile.gettempdir(), 'skeleton')
         self.log('Skeletons dumped to:', tdir)
         if os.path.exists(tdir):

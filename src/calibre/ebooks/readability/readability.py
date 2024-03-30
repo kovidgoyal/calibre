@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 
-import re, sys
+import re
+import sys
 from collections import defaultdict
 
-from polyglot.builtins import reraise
+from lxml.html import document_fromstring, fragment_fromstring
+from lxml.html import tostring as htostring
 
-from lxml.html import (fragment_fromstring, document_fromstring,
-        tostring as htostring)
-
+from calibre.ebooks.readability.cleaners import clean_attributes, html_cleaner
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
-from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
+from polyglot.builtins import reraise
 
 
 def tounicode(tree_or_node, **kwargs):

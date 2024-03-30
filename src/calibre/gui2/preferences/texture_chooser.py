@@ -8,9 +8,21 @@ import glob
 import os
 import shutil
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QApplication, QDialog, QDialogButtonBox, QIcon, QLabel,
-    QListView, QListWidget, QListWidgetItem, QSize, Qt, QTimer, QVBoxLayout,
+    QAbstractItemView,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QIcon,
+    QLabel,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QSize,
+    Qt,
+    QTimer,
+    QVBoxLayout,
 )
 
 from calibre.constants import config_dir

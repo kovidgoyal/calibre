@@ -7,21 +7,32 @@ __license__   = 'GPL v3'
 
 from contextlib import contextmanager
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QDialog, QDialogButtonBox, QFrame,
-    QIcon, QLabel, QMenu, QStyledItemDelegate, Qt, QTableWidgetItem, QTimer,
+    QAbstractItemView,
+    QAction,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QIcon,
+    QLabel,
+    QMenu,
+    QStyledItemDelegate,
+    Qt,
+    QTableWidgetItem,
+    QTimer,
 )
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.gui2.dialogs.tag_list_editor import NotesUtilities, NotesTableWidgetItem
+from calibre.gui2.dialogs.tag_list_editor import NotesTableWidgetItem, NotesUtilities
 from calibre.utils.config import prefs
 from calibre.utils.config_base import tweaks
-from calibre.utils.icu import (
-    contains, lower as icu_lower, primary_contains, primary_startswith, sort_key,
-    upper as icu_upper,
-)
+from calibre.utils.icu import contains, primary_contains, primary_startswith, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 

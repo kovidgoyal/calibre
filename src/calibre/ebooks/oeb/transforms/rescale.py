@@ -20,8 +20,9 @@ class RescaleImages:
         self.rescale(max_size)
 
     def rescale(self, max_size: str = 'profile'):
-        from PIL import Image
         from io import BytesIO
+
+        from PIL import Image
 
         is_image_collection = getattr(self.opts, 'is_image_collection', False)
 

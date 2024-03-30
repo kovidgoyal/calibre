@@ -5,23 +5,25 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, re, os
+import os
+import re
+import struct
 from collections import namedtuple
 from itertools import repeat
 from uuid import uuid4
 
 from lxml import etree
 
-from calibre.ebooks.mobi.reader.headers import NULL_INDEX
-from calibre.ebooks.mobi.reader.index import read_index
-from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
-from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
-from calibre.ebooks.mobi.reader.containers import Container, find_imgtype
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.mobi.reader.containers import Container, find_imgtype
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+from calibre.ebooks.mobi.reader.index import read_index
+from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
+from calibre.ebooks.mobi.reader.ncx import build_toc, read_ncx
 from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.oeb.base import XHTML, XPath, xml2text
 from calibre.ebooks.oeb.parse_utils import parse_html
-from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 from polyglot.builtins import as_unicode
 from polyglot.urllib import urldefrag
 

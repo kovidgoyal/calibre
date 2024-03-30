@@ -4,19 +4,21 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess, os, time, shutil
+import os
+import shutil
+import subprocess
+import time
 from collections import namedtuple
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
+from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
-from calibre.srv.routes import endpoint, Router
-from polyglot.builtins import iteritems, itervalues
 from polyglot import http_client
-from polyglot.http_cookie import CookieJar
-from polyglot.urllib import (build_opener, HTTPBasicAuthHandler,
-        HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError)
 from polyglot.binary import as_base64_bytes
+from polyglot.builtins import iteritems, itervalues
+from polyglot.http_cookie import CookieJar
+from polyglot.urllib import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError, build_opener
 
 REALM = 'calibre-test'
 
@@ -121,9 +123,9 @@ class TestAuth(BaseTest):
     # }}}
 
     def test_library_restrictions(self):  # {{{
-        from calibre.srv.opts import Options
-        from calibre.srv.handler import Handler
         from calibre.db.legacy import create_backend
+        from calibre.srv.handler import Handler
+        from calibre.srv.opts import Options
         opts = Options(userdb=':memory:')
         Data = namedtuple('Data', 'username')
         with TemporaryDirectory() as base:

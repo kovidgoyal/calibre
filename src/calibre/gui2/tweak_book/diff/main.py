@@ -9,10 +9,29 @@ import re
 import sys
 import textwrap
 from functools import partial
+
 from qt.core import (
-    QApplication, QCursor, QDialogButtonBox, QEventLoop, QGridLayout, QHBoxLayout,
-    QIcon, QKeySequence, QLabel, QMenu, QPainter, QRadioButton, QRect, QSize,
-    QStackedLayout, Qt, QTimer, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QApplication,
+    QCursor,
+    QDialogButtonBox,
+    QEventLoop,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QPainter,
+    QRadioButton,
+    QRect,
+    QSize,
+    QStackedLayout,
+    Qt,
+    QTimer,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.ebooks.oeb.polish.container import Container

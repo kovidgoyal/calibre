@@ -17,23 +17,50 @@ from functools import lru_cache
 from io import BytesIO
 from itertools import count
 from multiprocessing.pool import ThreadPool
-from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
-    QFormLayout, QGroupBox, QHBoxLayout, QIcon, QImage, QImageReader,
-    QItemSelectionModel, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPen, QPixmap,
-    QProgressDialog, QSize, QSpinBox, QSplitter, QStackedLayout, QStaticText, QStyle,
-    QStyledItemDelegate, Qt, QTabWidget, QTextEdit, QVBoxLayout, QWidget, pyqtSignal,
-    sip,
-)
 from threading import Event, Thread
 
-from calibre import detect_ncpus as cpu_count, fit_image, human_readable, walk
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QImageReader,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPen,
+    QPixmap,
+    QProgressDialog,
+    QSize,
+    QSpinBox,
+    QSplitter,
+    QStackedLayout,
+    QStaticText,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+    sip,
+)
+
+from calibre import detect_ncpus as cpu_count
+from calibre import fit_image, human_readable, walk
 from calibre.constants import cache_dir
 from calibre.customize.ui import interface_actions
-from calibre.gui2 import (
-    choose_dir, choose_save_file, empty_index, error_dialog, gprefs,
-    icon_resource_manager, must_use_qt, safe_open_url,
-)
+from calibre.gui2 import choose_dir, choose_save_file, empty_index, error_dialog, gprefs, icon_resource_manager, must_use_qt, safe_open_url
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
@@ -42,7 +69,8 @@ from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_png
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
 from polyglot.builtins import as_bytes, iteritems, reraise

@@ -4,7 +4,7 @@
 
 import sys
 
-from qt.core import QApplication, QUrl, QPageLayout, QPageSize, QMarginsF
+from qt.core import QApplication, QMarginsF, QPageLayout, QPageSize, QUrl
 from qt.webengine import QWebEnginePage
 
 from calibre.gui2 import load_builtin_fonts, must_use_qt

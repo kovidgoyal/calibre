@@ -5,12 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import Qt, QAbstractListModel, QModelIndex, QItemSelectionModel
+from qt.core import QAbstractListModel, QItemSelectionModel, QModelIndex, Qt
 
-from calibre.gui2.convert.page_setup_ui import Ui_Form
-from calibre.gui2.convert import Widget
 from calibre.customize.ui import input_profiles, output_profiles
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.page_setup_ui import Ui_Form
 
 
 class ProfileModel(QAbstractListModel):

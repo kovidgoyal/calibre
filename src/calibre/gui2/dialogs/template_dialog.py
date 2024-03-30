@@ -11,28 +11,46 @@ import re
 import sys
 import traceback
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QApplication, QColor, QComboBox, QCursor, QDialog,
-    QDialogButtonBox, QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLineEdit,
-    QPalette, QSize, QSyntaxHighlighter, Qt, QTableWidget, QTableWidgetItem,
-    QTextCharFormat, QTextOption, QVBoxLayout, pyqtSignal,
+    QAbstractItemView,
+    QApplication,
+    QColor,
+    QComboBox,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFontDatabase,
+    QFontInfo,
+    QFontMetrics,
+    QIcon,
+    QLineEdit,
+    QPalette,
+    QSize,
+    QSyntaxHighlighter,
+    Qt,
+    QTableWidget,
+    QTableWidgetItem,
+    QTextCharFormat,
+    QTextOption,
+    QVBoxLayout,
+    pyqtSignal,
 )
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import (
-    choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data,
-    question_dialog,
-)
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data, question_dialog
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link, ngettext
 from calibre.utils.resources import get_path as P
 

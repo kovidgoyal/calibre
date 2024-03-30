@@ -7,11 +7,24 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 from functools import partial
-from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Thread
+
+from qt.core import (
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
+    Qt,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import prints
 from calibre.gui2 import error_dialog, question_dialog

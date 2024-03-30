@@ -4,10 +4,8 @@
 
 import re
 from itertools import count
-from qt.core import (
-    QDialogButtonBox, QLabel, QMainWindow, Qt, QTimer, QVBoxLayout, QWidget,
-    pyqtSignal
-)
+
+from qt.core import QDialogButtonBox, QLabel, QMainWindow, Qt, QTimer, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.gui2 import Application
 

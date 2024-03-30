@@ -5,7 +5,8 @@
 import copy
 import ssl
 
-from mechanize import Browser as B, HTTPSHandler
+from mechanize import Browser as B
+from mechanize import HTTPSHandler
 
 from polyglot import http_client
 from polyglot.http_cookie import CookieJar
@@ -153,8 +154,9 @@ class Browser(B):
 
 
 if __name__ == '__main__':
-    from calibre import browser
     from pprint import pprint
+
+    from calibre import browser
     orig = browser()
     clone = orig.clone_browser()
     pprint(orig._ua_handlers)

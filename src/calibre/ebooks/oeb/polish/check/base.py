@@ -4,9 +4,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from multiprocessing.pool import ThreadPool
-from functools import partial
 from contextlib import closing
+from functools import partial
+from multiprocessing.pool import ThreadPool
 
 from calibre import detect_ncpus as cpu_count
 

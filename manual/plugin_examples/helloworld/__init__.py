@@ -7,7 +7,9 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+
 from calibre.customize import FileTypePlugin
+
 
 class HelloWorld(FileTypePlugin):
 

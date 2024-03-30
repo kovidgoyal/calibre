@@ -5,10 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import os
+import sys
 
-from calibre.customize.conversion import OutputFormatPlugin
-from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 
 
 class LRFOptions:
@@ -138,9 +138,10 @@ class LRFOutput(OutputFormatPlugin):
         ('change_justification', 'original', OptionRecommendation.HIGH)}
 
     def convert_images(self, pages, opts, wide):
-        from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
         from uuid import uuid4
+
         from calibre.constants import __appname__, __version__
+        from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageBlock, ImageStream
 
         width, height = (784, 1012) if wide else (584, 754)
 

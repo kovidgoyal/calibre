@@ -5,13 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, uuid
+import re
+import uuid
+from collections import Counter, OrderedDict
 
 from lxml import etree
-from collections import OrderedDict, Counter
 
-from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
+from calibre.ebooks.oeb.base import TOC, XHTML, XPNSMAP, barename, xml2text
 from polyglot.builtins import itervalues
 from polyglot.urllib import urlparse
 

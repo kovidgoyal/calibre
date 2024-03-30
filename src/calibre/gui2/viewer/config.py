@@ -111,7 +111,7 @@ def save_viewer_profile(profile_name, profile, *user_names: str):
         profile = json.loads(profile)
     if isinstance(profile, dict):
         profile['__timestamp__'] = isoformat(utcnow())
-        from calibre.gui2.viewer.toolbars import current_actions, DEFAULT_ACTIONS
+        from calibre.gui2.viewer.toolbars import DEFAULT_ACTIONS, current_actions
         ca = current_actions()
         s = {}
         if ca != DEFAULT_ACTIONS:

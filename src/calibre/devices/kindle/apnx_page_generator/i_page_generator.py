@@ -3,13 +3,13 @@ __copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from typing import Optional
 
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
+from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_bytes
-from calibre.ebooks.pdb.header import PdbHeaderReader
 
 
 class IPageGenerator(metaclass=ABCMeta):

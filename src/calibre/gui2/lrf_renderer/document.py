@@ -4,12 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections
 import glob
 import itertools
-from qt.core import (
-    QBrush, QByteArray, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem,
-    QGraphicsRectItem, QGraphicsScene, QPen, Qt, pyqtSignal,
-)
 
-from calibre.ebooks.lrf.objects import Canvas as __Canvas, RuledLine as _RuledLine
+from qt.core import QBrush, QByteArray, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem, QGraphicsRectItem, QGraphicsScene, QPen, Qt, pyqtSignal
+
+from calibre.ebooks.lrf.objects import Canvas as __Canvas
+from calibre.ebooks.lrf.objects import RuledLine as _RuledLine
 from calibre.gui2.lrf_renderer.text import COLOR, FontLoader, PixmapItem, TextBlock
 from calibre.utils.resources import get_path as P
 

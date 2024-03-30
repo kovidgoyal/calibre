@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
-import os
 import io
+import os
 from struct import unpack
 
 

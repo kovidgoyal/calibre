@@ -9,7 +9,7 @@ class EasyMeta:
         self.meta = meta
 
     def __iter__(self):
-        from calibre.ebooks.oeb.base import namespace, barename, DC11_NS
+        from calibre.ebooks.oeb.base import DC11_NS, barename, namespace
         meta = self.meta
         for item_name in meta.items:
             for item in meta[item_name]:

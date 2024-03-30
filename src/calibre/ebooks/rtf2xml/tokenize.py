@@ -10,12 +10,14 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, re
+import os
+import re
 
 from calibre.ebooks.rtf2xml import copy
-from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
+from calibre.utils.mreplace import MReplace
 from polyglot.builtins import codepoint_to_chr
+
 from . import open_for_read, open_for_write
 
 

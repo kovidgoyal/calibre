@@ -5,14 +5,13 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 import zlib
-
 from collections import OrderedDict
 
 from calibre import CurrentDir
-from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
+from calibre.ebooks.pdb.formatreader import FormatReader
+from calibre.utils.img import Canvas, image_from_data, save_cover_data_to
 from calibre.utils.imghdr import identify
-from calibre.utils.img import save_cover_data_to, Canvas, image_from_data
 from polyglot.builtins import codepoint_to_chr
 
 DATATYPE_PHTML = 0

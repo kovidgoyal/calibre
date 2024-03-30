@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack_from
 from collections import OrderedDict
+from struct import unpack_from
 
 from calibre.utils.fonts.sfnt import UnknownTable
 from polyglot.builtins import iteritems

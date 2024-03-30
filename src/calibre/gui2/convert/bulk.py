@@ -3,11 +3,10 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import shutil
+
 from qt.core import QDialog, QDialogButtonBox, QModelIndex
 
-from calibre.ebooks.conversion.config import (
-    get_output_formats, sort_formats_by_preference,
-)
+from calibre.ebooks.conversion.config import get_output_formats, sort_formats_by_preference
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.gui2.convert import GuiRecommendations
 from calibre.gui2.convert.heuristics import HeuristicsWidget

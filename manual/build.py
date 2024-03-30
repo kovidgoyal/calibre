@@ -5,7 +5,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, subprocess, shutil
+import os
+import shutil
+import subprocess
+import sys
 import tempfile
 from functools import partial
 
@@ -14,8 +17,10 @@ BASE = d(a(__file__))
 SPHINX_BUILD = ['sphinx-build']
 
 sys.path.insert(0, d(BASE))
-from setup import __appname__, __version__
 from calibre.ebooks.oeb.polish.container import epub_to_azw3
+
+from setup import __appname__, __version__
+
 sys.path.remove(d(BASE))
 
 

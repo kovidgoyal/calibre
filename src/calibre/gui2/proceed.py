@@ -6,11 +6,34 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
+
 from qt.core import (
-    QApplication, QCheckBox, QDialogButtonBox, QEasingCurve, QEvent, QFontMetrics,
-    QHBoxLayout, QIcon, QImage, QLabel, QPainter, QPainterPath, QPalette, QPixmap,
-    QPlainTextEdit, QPropertyAnimation, QRectF, QSize, QSizePolicy, Qt, QTimer,
-    QVBoxLayout, QWidget, pyqtProperty, pyqtSignal, sip,
+    QApplication,
+    QCheckBox,
+    QDialogButtonBox,
+    QEasingCurve,
+    QEvent,
+    QFontMetrics,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QLabel,
+    QPainter,
+    QPainterPath,
+    QPalette,
+    QPixmap,
+    QPlainTextEdit,
+    QPropertyAnimation,
+    QRectF,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTimer,
+    QVBoxLayout,
+    QWidget,
+    pyqtProperty,
+    pyqtSignal,
+    sip,
 )
 
 from calibre.constants import __version__

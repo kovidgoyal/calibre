@@ -12,10 +12,7 @@ import tempfile
 import textwrap
 import time
 
-from setup import (
-    Command, __appname__, __version__, basenames, functions,
-    isbsd, ishaiku, islinux, modules
-)
+from setup import Command, __appname__, __version__, basenames, functions, isbsd, ishaiku, islinux, modules
 
 HEADER = '''\
 #!/usr/bin/env python{py_major_version}

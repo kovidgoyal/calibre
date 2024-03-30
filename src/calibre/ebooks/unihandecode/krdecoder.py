@@ -8,9 +8,9 @@ Based on unidecoder.
 
 '''
 
-from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 from calibre.ebooks.unihandecode.krcodepoints import CODEPOINTS as HANCODES
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 
 
 class Krdecoder(Unidecoder):

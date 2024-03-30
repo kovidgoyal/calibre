@@ -7,10 +7,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from lxml import etree
 
 from calibre import prepare_string_for_xml as xml
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.base import DC, DC11_NS, OPF, OPF2_NS, XHTML_MIME
+from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
 from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc, parse_nav
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS, XHTML_MIME
 from polyglot.builtins import iteritems
 
 

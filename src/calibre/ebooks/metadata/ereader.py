@@ -9,11 +9,9 @@ __docformat__ = 'restructuredtext en'
 import re
 import struct
 
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.pdb.ereader.reader132 import HeaderRecord
-from calibre.ebooks.pdb.header import PdbHeaderBuilder
-from calibre.ebooks.pdb.header import PdbHeaderReader
+from calibre.ebooks.pdb.header import PdbHeaderBuilder, PdbHeaderReader
 
 
 def get_cover(pheader, eheader):

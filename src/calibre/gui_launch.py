@@ -4,7 +4,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
+import os
+import sys
 
 # For some reason Qt 5 crashes on some linux systems if the fork() is done
 # after the Qt modules are loaded in calibre.gui2. We also cannot do a fork()
@@ -39,7 +40,7 @@ qt.webenginecontext.info=false
 
 
 def detach_gui():
-    from calibre.constants import islinux, isbsd, DEBUG
+    from calibre.constants import DEBUG, isbsd, islinux
     if (islinux or isbsd) and not DEBUG and '--detach' in sys.argv:
         do_detach()
 
@@ -47,8 +48,8 @@ def detach_gui():
 def register_with_default_programs():
     from calibre.constants import iswindows
     if iswindows:
-        from calibre.utils.winreg.default_programs import Register
         from calibre.gui2 import gprefs
+        from calibre.utils.winreg.default_programs import Register
         return Register(gprefs)
     else:
         class Dummy:
@@ -74,8 +75,9 @@ def calibre(args=sys.argv):
 
 
 def is_possible_media_pack_error(e):
-    from calibre.constants import iswindows
     from ctypes.util import find_library
+
+    from calibre.constants import iswindows
     if iswindows and 'QtWebEngine' in str(e):
         if not find_library('MFTranscode.dll'):
             return True
@@ -84,7 +86,8 @@ def is_possible_media_pack_error(e):
 
 def show_media_pack_error():
     import traceback
-    from calibre.gui2 import error_dialog, Application
+
+    from calibre.gui2 import Application, error_dialog
     from calibre.utils.localization import _
     app = Application([])
     error_dialog(None, _('Required component missing'), '<p>' + _(

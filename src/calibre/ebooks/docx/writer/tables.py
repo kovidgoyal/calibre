@@ -6,8 +6,9 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
+from calibre.ebooks.docx.writer.styles import border_edges
+from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb
 from calibre.ebooks.docx.writer.utils import convert_color
-from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
 from polyglot.builtins import iteritems
 
 

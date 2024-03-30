@@ -13,15 +13,40 @@ import re
 import sys
 import uuid
 from collections import defaultdict
+
 from lxml import etree
 
 from calibre import guess_type, xml_replace_entities
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.oeb.base import (
-    BINARY_MIME, COLLAPSE_RE, DC11_NS, DC_NSES, JPEG_MIME, MS_COVER_TYPE, NCX_MIME,
-    OEB_DOCS, OEB_IMAGES, OEB_STYLES, OPF, OPF1_NS, OPF2_NS, OPF2_NSMAP, PAGE_MAP_MIME,
-    SVG_MIME, XHTML_MIME, XMLDECL_RE, DirContainer, OEBBook, OEBError, XPath, barename,
-    iterlinks, namespace, urlnormalize, xml2text, xpath,
+    BINARY_MIME,
+    COLLAPSE_RE,
+    DC11_NS,
+    DC_NSES,
+    JPEG_MIME,
+    MS_COVER_TYPE,
+    NCX_MIME,
+    OEB_DOCS,
+    OEB_IMAGES,
+    OEB_STYLES,
+    OPF,
+    OPF1_NS,
+    OPF2_NS,
+    OPF2_NSMAP,
+    PAGE_MAP_MIME,
+    SVG_MIME,
+    XHTML_MIME,
+    XMLDECL_RE,
+    DirContainer,
+    OEBBook,
+    OEBError,
+    XPath,
+    barename,
+    iterlinks,
+    namespace,
+    urlnormalize,
+    xml2text,
+    xpath,
 )
 from calibre.ebooks.oeb.writer import OEBWriter
 from calibre.ptempfile import TemporaryDirectory

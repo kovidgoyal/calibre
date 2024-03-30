@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import struct, io
-
+import io
+import struct
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 

@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.tests import BaseTest, jsonify
-from tinycss.tokenizer import python_tokenize_flat, c_tokenize_flat, regroup
+from tinycss.tokenizer import c_tokenize_flat, python_tokenize_flat, regroup
 
 if c_tokenize_flat is None:
     tokenizers = (python_tokenize_flat,)

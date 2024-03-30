@@ -2,10 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from qt.core import (
-    QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
-    QMenu, QModelIndex, QPushButton, QSize, QVBoxLayout,
-)
+
+from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem, QMenu, QModelIndex, QPushButton, QSize, QVBoxLayout
 
 from calibre.gui2 import file_icon_provider
 from calibre.startup import connect_lambda

@@ -5,14 +5,15 @@
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.
 """
+import codecs
+import io
+import os
 import struct
 import zlib
-import io
-import codecs
-import os
+
+from polyglot.builtins import iteritems, string_or_bytes
 
 from .pylrfopt import tagListOptimizer
-from polyglot.builtins import iteritems, string_or_bytes
 
 PYLRF_VERSION = "1.0"
 

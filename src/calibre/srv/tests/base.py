@@ -17,7 +17,8 @@ from io import BytesIO
 from threading import Thread
 
 from calibre.srv.utils import ServerLog
-from calibre.utils.resources import get_image_path as I, get_path as P
+from calibre.utils.resources import get_image_path as I
+from calibre.utils.resources import get_path as P
 from polyglot import http_client
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)

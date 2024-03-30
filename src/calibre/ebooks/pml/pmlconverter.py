@@ -6,9 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import io
 import os
 import re
-import io
 from copy import deepcopy
 
 from calibre import my_unichr, prepare_string_for_xml

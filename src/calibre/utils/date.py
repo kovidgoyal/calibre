@@ -6,7 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import MAXYEAR, MINYEAR, datetime, time as dtime, timedelta
+from datetime import MAXYEAR, MINYEAR, datetime, timedelta
+from datetime import time as dtime
 from functools import partial
 
 from calibre import strftime
@@ -156,7 +157,7 @@ def safeyear(x):
 
 
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):
-    from qt.core import Qt, QDateTime
+    from qt.core import QDateTime, Qt
     o = qdate_or_qdatetime
     if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE

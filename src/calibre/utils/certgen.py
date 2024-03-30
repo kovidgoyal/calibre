@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import socket
+
 from calibre_extensions import certgen
 
 

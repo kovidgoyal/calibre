@@ -12,16 +12,10 @@ import tarfile
 import time
 from functools import partial
 
-from bypy.constants import (
-    LIBDIR, OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, python_major_minor_version,
-)
-from bypy.freeze import (
-    extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir,
-    path_to_freeze_dir,
-)
-from bypy.utils import (
-    create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk,
-)
+from bypy.constants import LIBDIR, OUTPUT_DIR, PREFIX, python_major_minor_version
+from bypy.constants import SRC as CALIBRE_DIR
+from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
+from bypy.utils import create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 
 j = os.path.join
 self_dir = os.path.dirname(os.path.abspath(__file__))

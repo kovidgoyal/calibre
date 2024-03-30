@@ -4,10 +4,12 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, random
+import random
+import time
 from threading import Thread
+
+from calibre.db.locking import LockingError, RWLockWrapper, SHLock
 from calibre.db.tests.base import BaseTest
-from calibre.db.locking import SHLock, RWLockWrapper, LockingError
 
 
 def wait_for(period):

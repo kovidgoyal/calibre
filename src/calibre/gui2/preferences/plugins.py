@@ -5,24 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os
+import os
+import textwrap
 from collections import OrderedDict
 
-from qt.core import (Qt, QMenu, QModelIndex, QAbstractItemModel, QIcon,
-        QBrush, QDialog, QItemSelectionModel, QAbstractItemView)
+from qt.core import QAbstractItemModel, QAbstractItemView, QBrush, QDialog, QIcon, QItemSelectionModel, QMenu, QModelIndex, Qt
 
+from calibre.constants import iswindows
+from calibre.customize import PluginInstallationType
+from calibre.customize.ui import NameConflict, add_plugin, disable_plugin, enable_plugin, initialized_plugins, is_disabled, plugin_customization, remove_plugin
+from calibre.gui2 import choose_files, error_dialog, gprefs, info_dialog, question_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
-from calibre.customize import PluginInstallationType
-from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugin,
-                                 disable_plugin, plugin_customization, add_plugin,
-                                 remove_plugin, NameConflict)
-from calibre.gui2 import (error_dialog, info_dialog, choose_files,
-        question_dialog, gprefs)
-from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
-from calibre.constants import iswindows
+from calibre.utils.search_query_parser import SearchQueryParser
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -402,8 +399,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_plugins(not_installed=True)
 
     def update_plugins(self, not_installed=False):
-        from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
-                                FILTER_UPDATE_AVAILABLE, FILTER_NOT_INSTALLED)
+        from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
         mode = FILTER_NOT_INSTALLED if not_installed else FILTER_UPDATE_AVAILABLE
         d = PluginUpdaterDialog(self.gui, initial_filter=mode)
         d.exec()
@@ -420,8 +416,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gui.iactions['Store'].load_menu()
 
     def check_for_add_to_toolbars(self, plugin, previously_installed=True):
+        from calibre.customize import EditBookToolPlugin, InterfaceActionBase
         from calibre.gui2.preferences.toolbar import ConfigWidget
-        from calibre.customize import InterfaceActionBase, EditBookToolPlugin
 
         if isinstance(plugin, EditBookToolPlugin):
             return self.check_for_add_to_editor_toolbar(plugin, previously_installed)

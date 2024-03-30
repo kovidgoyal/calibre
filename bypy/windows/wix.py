@@ -2,9 +2,9 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from itertools import count
 import os
 import shutil
+from itertools import count
 
 from bypy.constants import is64bit
 from bypy.utils import run

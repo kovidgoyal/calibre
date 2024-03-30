@@ -6,14 +6,14 @@ from contextlib import closing
 
 from qt.core import QUrl
 
-from calibre import (browser, guess_extension)
+from calibre import browser, guess_extension
 from calibre.gui2 import open_url
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def open_search(url, query, max_results=10, timeout=60):

@@ -6,7 +6,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re
+import os
+import re
+import sys
+
 src_base = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -32,7 +35,7 @@ check_version_info()
 sys.path.insert(0, src_base)
 
 import setup.commands as commands
-from setup import prints, get_warnings
+from setup import get_warnings, prints
 
 
 def option_parser():

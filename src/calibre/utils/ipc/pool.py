@@ -4,13 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
-from threading import Thread
+import os
+import sys
 from collections import namedtuple
 from multiprocessing.connection import Pipe
+from threading import Thread
 
-from calibre import detect_ncpus, as_unicode, prints
-from calibre.constants import iswindows, DEBUG
+from calibre import as_unicode, detect_ncpus, prints
+from calibre.constants import DEBUG, iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call

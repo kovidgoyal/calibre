@@ -5,7 +5,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, argparse
+import argparse
+import unittest
 
 
 def find_tests():

@@ -5,14 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, random
+import random
+import time
 from struct import pack
 
-from calibre.ebooks.mobi.utils import RECORD_SIZE, utf8_text
-from calibre.ebooks.mobi.writer8.header import Header
-from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.langcodes import iana2mobi
+from calibre.ebooks.mobi.utils import RECORD_SIZE, utf8_text
+from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
 from calibre.ebooks.mobi.writer8.exth import build_exth
+from calibre.ebooks.mobi.writer8.header import Header
 from calibre.utils.filenames import ascii_filename
 
 NULL_INDEX = 0xffffffff

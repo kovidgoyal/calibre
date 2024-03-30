@@ -11,6 +11,7 @@ import re
 import shutil
 import struct
 import textwrap
+
 from lxml import etree, html
 
 from calibre import entity_to_unicode, guess_type, xml_entity_to_unicode

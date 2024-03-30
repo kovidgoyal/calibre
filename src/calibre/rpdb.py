@@ -4,7 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import pdb, socket, inspect, sys, select, os, atexit, time
+import atexit
+import inspect
+import os
+import pdb
+import select
+import socket
+import sys
+import time
 from contextlib import suppress
 
 from calibre.constants import cache_dir

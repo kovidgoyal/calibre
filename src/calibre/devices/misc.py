@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.devices.usbms.driver import USBMS
 from calibre import fsync
+from calibre.devices.usbms.driver import USBMS
 
 
 class PALMPRE(USBMS):

@@ -3,22 +3,62 @@
 
 
 import weakref
+
 from qt.core import (
-    QApplication, QBrush, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
-    QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
-    QFontInfo, QFontMetrics, QFrame, QIcon, QKeySequence, QLabel, QLayout, QMenu,
-    QMimeData, QPainter, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
-    QSize, QSizePolicy, QStyle, QStyledItemDelegate, QStyleOptionToolButton,
-    QStylePainter, Qt, QTabWidget, QTextBrowser, QTextCursor, QTextDocument, QTimer,
-    QToolButton, QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal,
+    QApplication,
+    QBrush,
+    QByteArray,
+    QCalendarWidget,
+    QCheckBox,
+    QColor,
+    QColorDialog,
+    QComboBox,
+    QDate,
+    QDateTime,
+    QDateTimeEdit,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFontInfo,
+    QFontMetrics,
+    QFrame,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QLayout,
+    QMenu,
+    QMimeData,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QPoint,
+    QPushButton,
+    QRect,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionToolButton,
+    QStylePainter,
+    Qt,
+    QTabWidget,
+    QTextBrowser,
+    QTextCursor,
+    QTextDocument,
+    QTimer,
+    QToolButton,
+    QUndoCommand,
+    QUndoStack,
+    QUrl,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import (
-    UNDEFINED_QDATETIME, gprefs, local_path_for_resource, rating_font,
-)
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, local_path_for_resource, rating_font
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks

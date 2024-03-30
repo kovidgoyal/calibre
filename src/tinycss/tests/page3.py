@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from tinycss.page3 import CSSPage3Parser
 from tinycss.tests import BaseTest
 
+
 class TestPage3(BaseTest):
 
     def test_selectors(self):

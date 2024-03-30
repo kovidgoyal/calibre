@@ -2,7 +2,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, posixpath
+import os
+import posixpath
+import re
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -38,8 +40,10 @@ class EPUBInput(InputFormatPlugin):
     recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}
 
     def process_encryption(self, encfile, opf, log):
+        import hashlib
+        import uuid
+
         from lxml import etree
-        import uuid, hashlib
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
             idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
@@ -148,8 +152,8 @@ class EPUBInput(InputFormatPlugin):
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
         HTML titlepage. '''
-        from calibre.utils.localization import __
         from calibre.ebooks.oeb.base import OPF
+        from calibre.utils.localization import __
         removed = None
         from lxml import etree
         guide_cover, guide_elem = None, None
@@ -253,10 +257,10 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
 
     def convert(self, stream, options, file_ext, log, accelerators):
-        from calibre.utils.zipfile import ZipFile
         from calibre import walk
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
+        from calibre.utils.zipfile import ZipFile
         try:
             zf = ZipFile(stream)
             zf.extractall(os.getcwd())
@@ -350,13 +354,15 @@ class EPUBInput(InputFormatPlugin):
         return os.path.abspath('content.opf')
 
     def convert_epub3_nav(self, nav_path, opf, log, opts):
+        from tempfile import NamedTemporaryFile
+
         from lxml import etree
+
         from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.ebooks.oeb.base import EPUB_NS, NCX, NCX_MIME, XHTML, serialize, urlnormalize, urlunquote
         from calibre.ebooks.oeb.polish.parsing import parse
-        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX, urlnormalize, urlunquote, serialize
         from calibre.ebooks.oeb.polish.toc import first_child
         from calibre.utils.xml_parse import safe_xml_fromstring
-        from tempfile import NamedTemporaryFile
         with open(nav_path, 'rb') as f:
             raw = f.read()
         raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]

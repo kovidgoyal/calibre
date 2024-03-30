@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, logging
-from functools import partial
+import copy
+import logging
 from collections import defaultdict, namedtuple
+from functools import partial
 from io import BytesIO
 from struct import pack
 
@@ -15,20 +16,17 @@ import css_parser
 from css_parser.css import CSSRule
 from lxml import etree
 
-from calibre import isbytestring, force_unicode
-from calibre.ebooks.mobi.utils import (create_text_record, to_base,
-        is_guide_ref_start)
+from calibre import force_unicode, isbytestring
 from calibre.ebooks.compression.palmdoc import compress_doc
-from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
-        extract, XHTML, urlnormalize)
-from calibre.ebooks.oeb.normalize_css import condense_sheet
-from calibre.ebooks.oeb.parse_utils import barename
-from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
-from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
-        ChunkIndex, GuideIndex, NonLinearNCXIndex)
+from calibre.ebooks.mobi.utils import create_text_record, is_guide_ref_start, to_base
+from calibre.ebooks.mobi.writer8.index import ChunkIndex, GuideIndex, NCXIndex, NonLinearNCXIndex, SkelIndex
 from calibre.ebooks.mobi.writer8.mobi import KF8Book
+from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.tbs import apply_trailing_byte_sequences
 from calibre.ebooks.mobi.writer8.toc import TOCAdder
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG_MIME, XHTML, XPath, extract, urlnormalize
+from calibre.ebooks.oeb.normalize_css import condense_sheet
+from calibre.ebooks.oeb.parse_utils import barename
 from polyglot.builtins import iteritems
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}

@@ -2,10 +2,8 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from qt.core import (
-    QApplication, QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData,
-    QSize, Qt, QTextDocument, QUrl, QVBoxLayout,
-)
+
+from qt.core import QApplication, QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
 
 from calibre import prepare_string_for_xml
 from calibre.db.constants import RESOURCE_URL_SCHEME

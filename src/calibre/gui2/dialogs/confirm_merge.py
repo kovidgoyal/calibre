@@ -6,10 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from typing import NamedTuple
 
-from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser,
-    QVBoxLayout, QWidget,
-)
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser, QVBoxLayout, QWidget
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import field_metadata

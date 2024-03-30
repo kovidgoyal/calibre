@@ -5,13 +5,33 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout,
-    QIcon, QLabel, QListWidget, QListWidgetItem, QPalette, QPen, QPixmap, QProgressBar,
-    QSize, QSpinBox, QStyle, QStyledItemDelegate, Qt, QTextBrowser, QVBoxLayout,
-    QWidget, pyqtSignal,
-)
 from threading import Thread
+
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPalette,
+    QPen,
+    QPixmap,
+    QProgressBar,
+    QSize,
+    QSpinBox,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import fit_image, force_unicode, human_readable
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
@@ -326,8 +346,9 @@ class CompressImagesProgress(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    import sip
     import sys
+
+    import sip
 
     from calibre.ebooks.oeb.polish.container import get_container
     c = get_container(sys.argv[-1], tweak_mode=True)

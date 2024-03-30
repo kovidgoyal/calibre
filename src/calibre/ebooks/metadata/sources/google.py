@@ -2,20 +2,22 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import hashlib
 import os
 import re
-import regex
 import sys
 import tempfile
 import time
+
+import regex
 
 try:
     from queue import Empty, Queue
 except ImportError:
     from Queue import Empty, Queue
 
-from calibre import as_unicode, replace_entities, prepare_string_for_xml
+from calibre import as_unicode, prepare_string_for_xml, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -543,9 +545,7 @@ class GoogleBooks(Source):
 if __name__ == '__main__':  # tests {{{
     # To run these test use:
     # calibre-debug src/calibre/ebooks/metadata/sources/google.py
-    from calibre.ebooks.metadata.sources.test import (
-        authors_test, test_identify_plugin, title_test
-    )
+    from calibre.ebooks.metadata.sources.test import authors_test, test_identify_plugin, title_test
     tests = [
     ({
         'identifiers': {'google': 's7NIrgEACAAJ'},

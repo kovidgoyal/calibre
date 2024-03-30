@@ -46,7 +46,7 @@ class Client:
     shutdown = __del__
 
     def handle_message(self, message_type, data):
-        from calibre_extensions.cocoa import MARK, END
+        from calibre_extensions.cocoa import END, MARK
         event = None
         if message_type == MARK:
             self.last_mark = data

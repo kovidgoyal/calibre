@@ -10,9 +10,9 @@ from io import BytesIO
 
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.resources import get_path as P
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
+from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
 from polyglot.functools import lru_cache
 

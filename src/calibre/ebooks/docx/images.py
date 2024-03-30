@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 import re
+
 from lxml.html.builder import HR, IMG
 
 from calibre import sanitize_file_name

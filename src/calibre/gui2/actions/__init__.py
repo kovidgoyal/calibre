@@ -8,9 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from qt.core import (
-    QAction, QIcon, QKeySequence, QMenu, QObject, QPoint, QTimer, QToolButton,
-)
+from qt.core import QAction, QIcon, QKeySequence, QMenu, QObject, QPoint, QTimer, QToolButton
 
 from calibre import prints
 from calibre.constants import ismacos

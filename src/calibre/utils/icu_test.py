@@ -4,11 +4,12 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, sys
+import sys
+import unittest
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
-from polyglot.builtins import iteritems, cmp
+from polyglot.builtins import cmp, iteritems
 
 
 @contextmanager
@@ -201,7 +202,8 @@ class TestICU(unittest.TestCase):
 
     def test_break_iterator(self):
         ' Test the break iterator '
-        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions, count_words
+        from calibre.spell.break_iterator import count_words, index_of, split_into_words_and_positions
+        from calibre.spell.break_iterator import split_into_words as split
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
             self.ae(split(str(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split('I I\'m'), ['I', "I'm"])

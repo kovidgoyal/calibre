@@ -26,20 +26,13 @@ from collections import defaultdict, namedtuple
 from calibre import force_unicode, isbytestring, prints
 from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
-from calibre.db import (
-    _get_next_series_num_for_list, _get_series_values, get_data_as_dict,
-)
-from calibre.db.adding import (
-    find_books_in_directory, import_book_directory, import_book_directory_multiple,
-    recursive_import,
-)
+from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
+from calibre.db.adding import find_books_in_directory, import_book_directory, import_book_directory_multiple, recursive_import
 from calibre.db.categories import CATEGORY_SORTS, Tag
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import (
-    author_to_author_sort, get_title_sort_pat, string_to_authors, title_sort,
-)
+from calibre.ebooks.metadata import author_to_author_sort, get_title_sort_pat, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.caches import ResultCache
@@ -51,14 +44,12 @@ from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.sqlite import IntegrityError, connect
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
 from calibre.utils.config import from_json, prefs, to_json, tweaks
-from calibre.utils.date import (
-    UNDEFINED_DATE, now as nowf, parse_date, parse_only_date, utcfromtimestamp, utcnow,
-)
-from calibre.utils.filenames import (
-    WindowsAtomicFolderMove, ascii_filename, hardlink_file, samefile,
-)
+from calibre.utils.date import UNDEFINED_DATE, parse_date, parse_only_date, utcfromtimestamp, utcnow
+from calibre.utils.date import now as nowf
+from calibre.utils.filenames import WindowsAtomicFolderMove, ascii_filename, hardlink_file, samefile
 from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.utils.icu import lower, lower as icu_lower, sort_key, strcmp
+from calibre.utils.icu import lower, sort_key, strcmp
+from calibre.utils.icu import lower as icu_lower
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.recycle_bin import delete_file, delete_tree

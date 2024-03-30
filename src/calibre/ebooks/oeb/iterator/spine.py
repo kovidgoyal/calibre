@@ -5,10 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os
+import os
+import re
+from collections import namedtuple
 from functools import partial
 from operator import attrgetter
-from collections import namedtuple
 
 from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode

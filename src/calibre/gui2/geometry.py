@@ -6,7 +6,8 @@
 # our own restore geometry
 
 
-from qt.core import QRect, QScreen, QSize, QWidget, QApplication, Qt
+from qt.core import QApplication, QRect, QScreen, QSize, Qt, QWidget
+
 from calibre.constants import is_debugging as _is_debugging
 from calibre.utils.config_base import tweaks
 

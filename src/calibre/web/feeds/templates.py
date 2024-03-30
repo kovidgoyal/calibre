@@ -7,12 +7,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy
 
-from lxml import html, etree
-from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
-        STRONG, BR, SPAN, A, HR, UL, LI, H2, H3, IMG, P as PT, \
-        TABLE, TD, TR
+from lxml import etree, html
+from lxml.html.builder import BODY, BR, DIV, H2, H3, HEAD, HR, HTML, IMG, LI, SPAN, STRONG, STYLE, TABLE, TD, TITLE, TR, UL, A
+from lxml.html.builder import P as PT
 
-from calibre import strftime, isbytestring
+from calibre import isbytestring, strftime
 from calibre.utils.localization import _
 
 

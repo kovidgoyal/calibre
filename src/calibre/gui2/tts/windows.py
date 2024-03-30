@@ -3,9 +3,10 @@
 
 from functools import partial
 
-from calibre.utils.windows.winspeech import WinSpeech, Error, MarkReached, MediaStateChanged, MediaState
+from calibre.utils.windows.winspeech import Error, MarkReached, MediaState, MediaStateChanged, WinSpeech
 
 from .common import Event, EventType
+
 
 def split_into_chunks(marked_text, chunk_size):
     chunk = []

@@ -2,7 +2,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, time
+import os
+import shutil
+import time
 
 from calibre import fsync
 from calibre.devices.errors import PathError

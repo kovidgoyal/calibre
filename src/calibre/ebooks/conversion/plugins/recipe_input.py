@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.constants import numeric_version
 from calibre import walk
+from calibre.constants import numeric_version
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 
 class RecipeDisabled(Exception):
@@ -71,7 +71,7 @@ class RecipeInput(InputFormatPlugin):
             self.recipe_object = recipe(opts, log, self.report_progress)
         else:
             if os.environ.get('CALIBRE_RECIPE_URN'):
-                from calibre.web.feeds.recipes.collection import get_custom_recipe, get_builtin_recipe_by_id
+                from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id, get_custom_recipe
                 urn = os.environ['CALIBRE_RECIPE_URN']
                 log('Downloading recipe urn: ' + urn)
                 rtype, recipe_id = urn.partition(':')[::2]
@@ -92,8 +92,7 @@ class RecipeInput(InputFormatPlugin):
                 recipe = compile_recipe(self.recipe_source)
                 log('Using custom recipe')
             else:
-                from calibre.web.feeds.recipes.collection import (
-                        get_builtin_recipe_by_title, get_builtin_recipe_titles)
+                from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_title, get_builtin_recipe_titles
                 title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
                 title = os.path.basename(title).rpartition('.')[0]
                 titles = frozenset(get_builtin_recipe_titles())

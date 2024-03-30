@@ -2,7 +2,12 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-import os, glob, subprocess, argparse, json, hashlib
+import argparse
+import glob
+import hashlib
+import json
+import os
+import subprocess
 
 duplicates = {
     'character-set': ['languages'],

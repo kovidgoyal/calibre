@@ -58,6 +58,7 @@ it under the same terms as Perl itself.
 '''
 
 import re
+
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 

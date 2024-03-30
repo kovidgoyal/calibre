@@ -4,10 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit
+import atexit
+import os
+import tempfile
 
-from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        iswindows, get_windows_temp_path, ismacos)
+from calibre.constants import __appname__, __version__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 
 
 def cleanup(path):

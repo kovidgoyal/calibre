@@ -6,11 +6,10 @@ import os
 import re
 from functools import partial
 
-from sphinx.util.console import bold
-from sphinx.util.logging import getLogger
-
 from calibre.linux import cli_index_strings, entry_points
 from epub import EPUBHelpBuilder
+from sphinx.util.console import bold
+from sphinx.util.logging import getLogger
 
 
 def info(*a):
@@ -86,7 +85,7 @@ def titlecase(language, x):
 
 
 def generate_calibredb_help(preamble, language):
-    from calibre.db.cli.main import COMMANDS, option_parser_for, get_parser
+    from calibre.db.cli.main import COMMANDS, get_parser, option_parser_for
     preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
     preamble += '\n\n'
     preamble += _('''\
@@ -156,8 +155,8 @@ details and examples.
 
 
 def generate_ebook_convert_help(preamble, app):
-    from calibre.ebooks.conversion.cli import create_option_parser, manual_index_strings
     from calibre.customize.ui import input_format_plugins, output_format_plugins
+    from calibre.ebooks.conversion.cli import create_option_parser, manual_index_strings
     from calibre.utils.logging import default_log
     preamble = re.sub(r'http.*\.html', ':ref:`conversion`', preamble)
 

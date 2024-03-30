@@ -4,7 +4,7 @@
 
 
 from .loader import dynamic_load
-from .webengine_name_map import name_map, module_names
+from .webengine_name_map import module_names, name_map
 
 already_imported = {}
 qt_modules = {}

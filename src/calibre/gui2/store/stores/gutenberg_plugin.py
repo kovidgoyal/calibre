@@ -11,6 +11,7 @@ try:
 except ImportError:
     from urllib import quote_plus
 
+from css_selectors import Select
 from html5_parser import parse
 from lxml import etree
 
@@ -19,7 +20,6 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-from css_selectors import Select
 
 
 def absurl(href):

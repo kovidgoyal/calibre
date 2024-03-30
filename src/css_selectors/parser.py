@@ -9,14 +9,13 @@
 
 """
 
-import sys
-import re
 import operator
+import re
 import string
+import sys
 
-from css_selectors.errors import SelectorSyntaxError, ExpressionError
-from polyglot.builtins import unicode_type, codepoint_to_chr
-
+from css_selectors.errors import ExpressionError, SelectorSyntaxError
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 utab = {c:c+32 for c in range(ord(u'A'), ord(u'Z')+1)}
 

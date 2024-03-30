@@ -8,10 +8,9 @@ import zlib
 
 from PIL import Image
 
-from calibre.ebooks.rb.rbml import RBMLizer
-from calibre.ebooks.rb import HEADER
-from calibre.ebooks.rb import unique_name
 from calibre.constants import __appname__, __version__
+from calibre.ebooks.rb import HEADER, unique_name
+from calibre.ebooks.rb.rbml import RBMLizer
 
 TEXT_RECORD_SIZE = 4096
 

@@ -13,26 +13,25 @@ Extended to support Touch firmware 2.0.0 and later and newer devices by David Fo
 Additional maintenance performed by Peter Thomas <peterjt@gmail.com>
 '''
 
-import os, time, shutil, re
-
+import os
+import re
+import shutil
+import time
 from contextlib import closing
 from datetime import datetime
-from calibre import strftime
-from calibre.utils.date import parse_date
-from calibre.devices.usbms.books import BookList
-from calibre.devices.usbms.books import CollectionsBookList
-from calibre.devices.kobo.books import KTCollectionsBookList
+
+from calibre import fsync, prints, strftime
+from calibre.constants import DEBUG
+from calibre.devices.kobo.books import Book, ImageWrapper, KTCollectionsBookList
+from calibre.devices.mime import mime_type_ext
+from calibre.devices.usbms.books import BookList, CollectionsBookList
+from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import normalize_languages
-from calibre.devices.kobo.books import Book
-from calibre.devices.kobo.books import ImageWrapper
-from calibre.devices.mime import mime_type_ext
-from calibre.devices.usbms.driver import USBMS, debug_print
-from calibre import prints, fsync
 from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
-from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
+from calibre.utils.date import parse_date
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 EPUB_EXT  = '.epub'
@@ -1231,6 +1230,7 @@ class KOBO(USBMS):
 
     def generate_annotation_html(self, bookmark):
         import calendar
+
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
         # Returns <div class="user_annotations"> ... </div>
         # last_read_location = bookmark.last_read_location
@@ -2795,8 +2795,8 @@ class KOBOTOUCH(KOBO):
             dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False,
             letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
             ):
-        from calibre.utils.imghdr import identify
         from calibre.utils.img import optimize_png
+        from calibre.utils.imghdr import identify
         debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
 
         if not metadata.cover:

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QUrl
 from threading import Lock
 from time import monotonic
 
-from calibre.gui2 import open_url
+from qt.core import QUrl
 
+from calibre.gui2 import open_url
 
 lock = Lock()
 cached_mod = None
@@ -20,7 +20,7 @@ def live_module():
         if now - cached_time > 3600:
             cached_mod = None
         if cached_mod is None:
-            from calibre.live import load_module, Strategy
+            from calibre.live import Strategy, load_module
             cached_mod = load_module('calibre.gui2.store.amazon_live', strategy=Strategy.fast)
         return cached_mod
 

@@ -7,10 +7,33 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import namedtuple
 
 from qt.core import (
-    QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
-    QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
-    QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog, QDialog,
-    QToolButton, QCheckBox, QSize, QLabel, QSplitter, QTextCharFormat, QDialogButtonBox)
+    QApplication,
+    QBrush,
+    QCheckBox,
+    QColor,
+    QColorDialog,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPalette,
+    QPixmap,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSplitter,
+    Qt,
+    QTextCharFormat,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs

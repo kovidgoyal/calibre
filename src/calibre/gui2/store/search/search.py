@@ -5,18 +5,16 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from qt.core import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QSize, QStyle)
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QSize, QStyle, Qt, QTabWidget, QTimer, QVBoxLayout, QWidget
 
-from calibre.gui2 import JSONConfig, info_dialog, error_dialog
+from calibre.gui2 import JSONConfig, error_dialog, info_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.ebook_download import show_download_info
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
-from calibre.gui2.store.search.download_thread import SearchThreadPool, \
-    CacheUpdateThreadPool
+from calibre.gui2.store.search.download_thread import CacheUpdateThreadPool, SearchThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
 
@@ -451,9 +449,10 @@ class SearchDialog(QDialog, Ui_Dialog):
 
 
 if __name__ == '__main__':
+    import sys
+
     from calibre.gui2 import Application
     from calibre.gui2.preferences.main import init_gui
-    import sys
     app = Application([])
     app
     gui = init_gui()

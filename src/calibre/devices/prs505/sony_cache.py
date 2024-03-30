@@ -5,16 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os
+import time
 from datetime import date
 
-from calibre import prints, guess_type, isbytestring, fsync
+from calibre import fsync, guess_type, isbytestring, prints
+from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
-from calibre.constants import DEBUG, preferred_encoding
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import authors_to_string, title_sort, \
-                                    authors_to_sort_string
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, title_sort
 from polyglot.binary import from_base64_bytes
 
 '''

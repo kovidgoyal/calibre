@@ -12,9 +12,7 @@ from calibre import force_unicode, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
 from calibre.db.constants import DATA_DIR_NAME
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.search_internet import (
-    DEFAULT_AUTHOR_SOURCE, name_for, qquote, url_for_author_search, url_for_book_search,
-)
+from calibre.ebooks.metadata.search_internet import DEFAULT_AUTHOR_SOURCE, name_for, qquote, url_for_author_search, url_for_book_search
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.date import format_date, is_date_undefined

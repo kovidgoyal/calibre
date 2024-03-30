@@ -4,16 +4,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, traceback, pprint, sys, time
-from threading import RLock
+import operator
+import pprint
+import sys
+import time
+import traceback
 from collections import namedtuple
 from functools import partial
+from threading import RLock
 
-from calibre import prints, as_unicode, force_unicode
+from calibre import as_unicode, force_unicode, prints
 from calibre.constants import islinux, ismacos
+from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenActionNeeded, OpenFailed
+from calibre.devices.mtp.base import MTPDeviceBase, debug, synchronous
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
-from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')

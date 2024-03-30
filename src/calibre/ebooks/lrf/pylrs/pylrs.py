@@ -36,23 +36,37 @@
 #                           Plot, Image (outside of ImageBlock),
 #                           EmpLine, EmpDots
 
-import os, re, codecs, operator, io
-from xml.sax.saxutils import escape
+import codecs
+import io
+import operator
+import os
+import re
 from datetime import date
-from xml.etree.ElementTree import Element, SubElement, ElementTree
+from xml.etree.ElementTree import Element, ElementTree, SubElement
+from xml.sax.saxutils import escape
 
-from .pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
-        STREAM_COMPRESSED, LrfTagStream, LrfStreamBase, IMAGE_TYPE_ENCODING,
-        BINDING_DIRECTION_ENCODING, LINE_TYPE_ENCODING, LrfFileStream,
-        STREAM_FORCE_COMPRESSED)
 from calibre.utils.date import isoformat
+
+from .pylrf import (
+    BINDING_DIRECTION_ENCODING,
+    IMAGE_TYPE_ENCODING,
+    LINE_TYPE_ENCODING,
+    STREAM_COMPRESSED,
+    STREAM_FORCE_COMPRESSED,
+    LrfFileStream,
+    LrfObject,
+    LrfStreamBase,
+    LrfTag,
+    LrfTagStream,
+    LrfToc,
+    LrfWriter,
+)
 
 DEFAULT_SOURCE_ENCODING = "cp1252"      # default is us-windows character set
 DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
-from calibre import __appname__, __version__
-from calibre import entity_to_unicode
-from polyglot.builtins import string_or_bytes, iteritems, native_string_type
+from calibre import __appname__, __version__, entity_to_unicode
+from polyglot.builtins import iteritems, native_string_type, string_or_bytes
 
 
 class LrsError(Exception):

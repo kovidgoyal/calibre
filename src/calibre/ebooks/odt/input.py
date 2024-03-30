@@ -5,21 +5,22 @@ __docformat__ = 'restructuredtext en'
 '''
 Convert an ODT file into a Open Ebook
 '''
-import os, logging
+import logging
+import os
 
-from lxml import etree
 from css_parser import CSSParser
 from css_parser.css import CSSRule
-
+from lxml import etree
+from odf.draw import Frame as odFrame
+from odf.draw import Image as odImage
+from odf.namespaces import TEXTNS as odTEXTNS
 from odf.odf2xhtml import ODF2XHTML
 from odf.opendocument import load as odLoad
-from odf.draw import Frame as odFrame, Image as odImage
-from odf.namespaces import TEXTNS as odTEXTNS
 
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import string_or_bytes, as_bytes
+from polyglot.builtins import as_bytes, string_or_bytes
 
 
 class Extract(ODF2XHTML):
@@ -87,7 +88,7 @@ class Extract(ODF2XHTML):
                     return rule
 
     def epubify_markup(self, root, log):
-        from calibre.ebooks.oeb.base import XPath, XHTML
+        from calibre.ebooks.oeb.base import XHTML, XPath
         # Fix empty title tags
         for t in XPath('//h:title')(root):
             if not t.text:
@@ -264,9 +265,9 @@ class Extract(ODF2XHTML):
         self._walknode(self.document.topnode)
 
     def __call__(self, stream, odir, log):
-        from calibre.utils.zipfile import ZipFile
         from calibre.ebooks.metadata.odt import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
+        from calibre.utils.zipfile import ZipFile
 
         if not os.path.exists(odir):
             os.makedirs(odir)

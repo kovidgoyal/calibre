@@ -6,6 +6,7 @@ import json
 import os
 import sys
 from contextlib import closing
+
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
 
 from calibre.constants import VIEWER_APP_UID, islinux

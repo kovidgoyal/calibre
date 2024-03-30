@@ -5,16 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from io import BytesIO, DEFAULT_BUFFER_SIZE
+from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
-from calibre.srv.loop import Connection, READ, WRITE
-from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
+from calibre.srv.loop import READ, WRITE, Connection
+from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict
 from polyglot import http_client, reprlib
-from polyglot.urllib import unquote
 from polyglot.builtins import error_message
+from polyglot.urllib import unquote
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')

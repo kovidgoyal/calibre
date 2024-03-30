@@ -2135,6 +2135,7 @@ html5_entities = {
 
 if __name__ == '__main__':
     import re
+
     from html5lib.constants import entities
     entities = {k.replace(';', ''): entities[k] for k in entities}
     lines = []

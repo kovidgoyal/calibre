@@ -1,12 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob
-from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
+import glob
+import os
+
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
+from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
+from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
 
 plugins = []
 
@@ -588,47 +589,45 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and
 # }}}
 
 # Conversion plugins {{{
+from calibre.ebooks.conversion.plugins.azw4_input import AZW4Input
+from calibre.ebooks.conversion.plugins.chm_input import CHMInput
 from calibre.ebooks.conversion.plugins.comic_input import ComicInput
 from calibre.ebooks.conversion.plugins.djvu_input import DJVUInput
+from calibre.ebooks.conversion.plugins.docx_input import DOCXInput
+from calibre.ebooks.conversion.plugins.docx_output import DOCXOutput
 from calibre.ebooks.conversion.plugins.epub_input import EPUBInput
+from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
 from calibre.ebooks.conversion.plugins.fb2_input import FB2Input
+from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
 from calibre.ebooks.conversion.plugins.html_input import HTMLInput
+from calibre.ebooks.conversion.plugins.html_output import HTMLOutput
 from calibre.ebooks.conversion.plugins.htmlz_input import HTMLZInput
+from calibre.ebooks.conversion.plugins.htmlz_output import HTMLZOutput
 from calibre.ebooks.conversion.plugins.lit_input import LITInput
+from calibre.ebooks.conversion.plugins.lit_output import LITOutput
+from calibre.ebooks.conversion.plugins.lrf_input import LRFInput
+from calibre.ebooks.conversion.plugins.lrf_output import LRFOutput
 from calibre.ebooks.conversion.plugins.mobi_input import MOBIInput
+from calibre.ebooks.conversion.plugins.mobi_output import AZW3Output, MOBIOutput
 from calibre.ebooks.conversion.plugins.odt_input import ODTInput
+from calibre.ebooks.conversion.plugins.oeb_output import OEBOutput
 from calibre.ebooks.conversion.plugins.pdb_input import PDBInput
-from calibre.ebooks.conversion.plugins.azw4_input import AZW4Input
+from calibre.ebooks.conversion.plugins.pdb_output import PDBOutput
 from calibre.ebooks.conversion.plugins.pdf_input import PDFInput
+from calibre.ebooks.conversion.plugins.pdf_output import PDFOutput
 from calibre.ebooks.conversion.plugins.pml_input import PMLInput
+from calibre.ebooks.conversion.plugins.pml_output import PMLOutput
 from calibre.ebooks.conversion.plugins.rb_input import RBInput
+from calibre.ebooks.conversion.plugins.rb_output import RBOutput
 from calibre.ebooks.conversion.plugins.recipe_input import RecipeInput
 from calibre.ebooks.conversion.plugins.rtf_input import RTFInput
-from calibre.ebooks.conversion.plugins.tcr_input import TCRInput
-from calibre.ebooks.conversion.plugins.txt_input import TXTInput
-from calibre.ebooks.conversion.plugins.lrf_input import LRFInput
-from calibre.ebooks.conversion.plugins.chm_input import CHMInput
-from calibre.ebooks.conversion.plugins.snb_input import SNBInput
-from calibre.ebooks.conversion.plugins.docx_input import DOCXInput
-
-from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
-from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
-from calibre.ebooks.conversion.plugins.lit_output import LITOutput
-from calibre.ebooks.conversion.plugins.lrf_output import LRFOutput
-from calibre.ebooks.conversion.plugins.mobi_output import (MOBIOutput,
-        AZW3Output)
-from calibre.ebooks.conversion.plugins.oeb_output import OEBOutput
-from calibre.ebooks.conversion.plugins.pdb_output import PDBOutput
-from calibre.ebooks.conversion.plugins.pdf_output import PDFOutput
-from calibre.ebooks.conversion.plugins.pml_output import PMLOutput
-from calibre.ebooks.conversion.plugins.rb_output import RBOutput
 from calibre.ebooks.conversion.plugins.rtf_output import RTFOutput
-from calibre.ebooks.conversion.plugins.tcr_output import TCROutput
-from calibre.ebooks.conversion.plugins.txt_output import TXTOutput, TXTZOutput
-from calibre.ebooks.conversion.plugins.html_output import HTMLOutput
-from calibre.ebooks.conversion.plugins.htmlz_output import HTMLZOutput
+from calibre.ebooks.conversion.plugins.snb_input import SNBInput
 from calibre.ebooks.conversion.plugins.snb_output import SNBOutput
-from calibre.ebooks.conversion.plugins.docx_output import DOCXOutput
+from calibre.ebooks.conversion.plugins.tcr_input import TCRInput
+from calibre.ebooks.conversion.plugins.tcr_output import TCROutput
+from calibre.ebooks.conversion.plugins.txt_input import TXTInput
+from calibre.ebooks.conversion.plugins.txt_output import TXTOutput, TXTZOutput
 
 plugins += [
     ComicInput,
@@ -677,57 +676,92 @@ plugins += [
 # }}}
 
 # Catalog plugins {{{
-from calibre.library.catalogs.csv_xml import CSV_XML
 from calibre.library.catalogs.bibtex import BIBTEX
+from calibre.library.catalogs.csv_xml import CSV_XML
 from calibre.library.catalogs.epub_mobi import EPUB_MOBI
+
 plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
 # }}}
 
 # Profiles {{{
 from calibre.customize.profiles import input_profiles, output_profiles
+
 plugins += input_profiles + output_profiles
 # }}}
 
 # Device driver plugins {{{
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
+from calibre.devices.android.driver import ANDROID, S60, WEBOS
+from calibre.devices.binatone.driver import README
 from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
-from calibre.devices.cybook.driver import CYBOOK, ORIZON, MUSE, DIVA
-from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK, TOLINO,
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK740, POCKETBOOK360P, PI2, POCKETBOOK622,
-                POCKETBOOKHD)
+from calibre.devices.boeye.driver import BOEYE_BDX, BOEYE_BEX
+from calibre.devices.cybook.driver import CYBOOK, DIVA, MUSE, ORIZON
+from calibre.devices.eb600.driver import (
+    BOOQ,
+    COOL_ER,
+    DBOOK,
+    EB600,
+    ECLICTO,
+    ELONEX,
+    GER2,
+    INVESBOOK,
+    ITALICA,
+    MENTOR,
+    PI2,
+    POCKETBOOK301,
+    POCKETBOOK360,
+    POCKETBOOK360P,
+    POCKETBOOK602,
+    POCKETBOOK622,
+    POCKETBOOK701,
+    POCKETBOOK740,
+    POCKETBOOKHD,
+    SHINEBOOK,
+    TOLINO,
+)
+from calibre.devices.edge.driver import EDGE
+from calibre.devices.eslick.driver import EBK52, ESLICK
+from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
+from calibre.devices.hanlin.driver import BOOX, HANLINV3, HANLINV5, SPECTRA
+from calibre.devices.hanvon.driver import ALEX, AZBOOKA, EB511, KIBANO, LIBREAIR, N516, ODYSSEY, THEBOOK
 from calibre.devices.iliad.driver import ILIAD
-from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
-        JETBOOK_COLOR)
-from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
-        KINDLE_FIRE)
+from calibre.devices.irexdr.driver import IREXDR800, IREXDR1000
+from calibre.devices.iriver.driver import IRIVER_STORY
+from calibre.devices.jetbook.driver import JETBOOK, JETBOOK_COLOR, JETBOOK_MINI, MIBUK
+from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE
+from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
+from calibre.devices.misc import (
+    ADAM,
+    ALURATEK_COLOR,
+    AVANT,
+    CERVANTES,
+    COBY,
+    EEEREADER,
+    EX124G,
+    GEMEI,
+    LUMIREAD,
+    MOOVYBOOK,
+    NEXTBOOK,
+    PALMPRE,
+    PDNOVEL,
+    PDNOVEL_KOBO,
+    POCKETBOOK626,
+    SONYDPTS1,
+    SWEEX,
+    TREKSTOR,
+    VELOCITYMICRO,
+    WAYTEQ,
+    WOXTER,
+)
+from calibre.devices.mtp.driver import MTP_DEVICE
+from calibre.devices.nokia.driver import E52, E71X, N770, N810
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
+from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prst1.driver import PRST1
-from calibre.devices.user_defined.driver import USER_DEFINED
-from calibre.devices.android.driver import ANDROID, S60, WEBOS
-from calibre.devices.nokia.driver import N770, N810, E71X, E52
-from calibre.devices.eslick.driver import ESLICK, EBK52
-from calibre.devices.nuut2.driver import NUUT2
-from calibre.devices.iriver.driver import IRIVER_STORY
-from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR, ODYSSEY, KIBANO)
-from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
-from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import (
-    PALMPRE, AVANT, SWEEX, PDNOVEL, GEMEI, VELOCITYMICRO, PDNOVEL_KOBO,
-    LUMIREAD, ALURATEK_COLOR, TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK,
-    COBY, EX124G, WAYTEQ, WOXTER, POCKETBOOK626, SONYDPTS1, CERVANTES)
-from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
-from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
-from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
-from calibre.devices.mtp.driver import MTP_DEVICE
+from calibre.devices.sne.driver import SNE
+from calibre.devices.teclast.driver import ARCHOS7O, IPAPYRUS, NEWSMY, PICO, SOVOS, STASH, SUNSTECH_EB700, TECLAST_K3, WEXLER
+from calibre.devices.user_defined.driver import USER_DEFINED
 
 # Order here matters. The first matched device is the one used.
 plugins += [
@@ -805,12 +839,12 @@ plugins += [
 # }}}
 
 # New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.amazon import Amazon
-from calibre.ebooks.metadata.sources.edelweiss import Edelweiss
-from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
-from calibre.ebooks.metadata.sources.google_images import GoogleImages
 from calibre.ebooks.metadata.sources.big_book_search import BigBookSearch
+from calibre.ebooks.metadata.sources.edelweiss import Edelweiss
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.google_images import GoogleImages
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 
 plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary, BigBookSearch]
 
@@ -1936,7 +1970,8 @@ plugins += [
 
 if __name__ == '__main__':
     # Test load speed
-    import subprocess, textwrap
+    import subprocess
+    import textwrap
     try:
         subprocess.check_call(['python', '-c', textwrap.dedent(
         '''

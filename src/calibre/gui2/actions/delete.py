@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import Counter
 from functools import partial
+
 from qt.core import QDialog, QModelIndex, QObject, QTimer
 
 from calibre.constants import ismacos
@@ -14,9 +15,7 @@ from calibre.gui2 import Aborted, error_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
-from calibre.gui2.dialogs.delete_matching_from_device import (
-    DeleteMatchingFromDeviceDialog,
-)
+from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.localization import ngettext

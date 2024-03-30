@@ -2,18 +2,18 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, json
+import codecs
+import json
 
 from qt.core import Qt, QTableWidgetItem
 
-from calibre.gui2.convert.search_and_replace_ui import Ui_Form
-from calibre.gui2.convert import Widget
-from calibre.gui2 import (error_dialog, question_dialog, choose_files,
-        choose_save_file)
 from calibre import as_unicode
-from calibre.utils.localization import localize_user_manual_link
-from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.ebooks.conversion.search_replace import compile_regular_expression
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, question_dialog
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.search_and_replace_ui import Ui_Form
+from calibre.utils.localization import localize_user_manual_link
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):

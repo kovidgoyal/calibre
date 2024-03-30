@@ -5,17 +5,27 @@
 import os
 import subprocess
 import sys
-from qt.core import (
-    QCheckBox, QDialog, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPageSize, QProgressDialog, QTimer, QToolButton, QVBoxLayout,
-)
 from threading import Thread
+
+from qt.core import (
+    QCheckBox,
+    QDialog,
+    QDoubleSpinBox,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QPageSize,
+    QProgressDialog,
+    QTimer,
+    QToolButton,
+    QVBoxLayout,
+)
 
 from calibre import sanitize_file_name
 from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
-from calibre.gui2 import (
-    Application, choose_save_file, dynamic, elided_text, error_dialog, open_local_file,
-)
+from calibre.gui2 import Application, choose_save_file, dynamic, elided_text, error_dialog, open_local_file
 from calibre.gui2.widgets import PaperSizes
 from calibre.gui2.widgets2 import Dialog
 from calibre.ptempfile import PersistentTemporaryFile

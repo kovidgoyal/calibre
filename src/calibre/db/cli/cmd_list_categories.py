@@ -71,7 +71,7 @@ information is the equivalent of what is shown in the Tag browser.
 
 
 def do_list(fields, data, opts):
-    from calibre.utils.terminal import geometry, ColoredStream
+    from calibre.utils.terminal import ColoredStream, geometry
 
     separator = ' '
     widths = list(map(lambda x: 0, fields))

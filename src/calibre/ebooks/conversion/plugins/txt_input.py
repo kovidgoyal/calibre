@@ -129,10 +129,17 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.chardet import detect
         from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis
         from calibre.ebooks.txt.processor import (
-            block_to_single_line, convert_basic, convert_markdown_with_metadata,
-            convert_textile, detect_formatting_type, detect_paragraph_type,
-            normalize_line_endings, preserve_spaces, remove_indents,
-            separate_hard_scene_breaks, separate_paragraphs_print_formatted,
+            block_to_single_line,
+            convert_basic,
+            convert_markdown_with_metadata,
+            convert_textile,
+            detect_formatting_type,
+            detect_paragraph_type,
+            normalize_line_endings,
+            preserve_spaces,
+            remove_indents,
+            separate_hard_scene_breaks,
+            separate_paragraphs_print_formatted,
             separate_paragraphs_single_line,
         )
         from calibre.utils.zipfile import ZipFile

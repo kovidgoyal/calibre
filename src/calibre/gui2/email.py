@@ -12,11 +12,9 @@ import time
 from collections import defaultdict
 from functools import partial
 from itertools import repeat
-from qt.core import (
-    QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QPushButton, Qt,
-)
 from threading import Thread
+
+from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, Qt
 
 from calibre.constants import preferred_encoding
 from calibre.customize.ui import available_input_formats, available_output_formats
@@ -27,9 +25,8 @@ from calibre.library.save_to_disk import get_components
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.resources import get_image_path as I
-from calibre.utils.smtp import (
-    compose_mail, config as email_config, extract_email_address, sendmail,
-)
+from calibre.utils.smtp import compose_mail, extract_email_address, sendmail
+from calibre.utils.smtp import config as email_config
 from polyglot.binary import from_hex_unicode
 from polyglot.builtins import iteritems, itervalues
 

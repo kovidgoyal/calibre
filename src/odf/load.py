@@ -25,6 +25,7 @@
 
 
 from xml.sax import handler
+
 from .element import Element
 from .namespaces import OFFICENS
 

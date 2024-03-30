@@ -3,17 +3,12 @@
 
 
 from lxml.etree import tostring
-from qt.core import (
-    QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy,
-    QVBoxLayout, QWidget, pyqtSignal,
-)
+from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, editors, tprefs
-from calibre.gui2.tweak_book.search import (
-    InvalidRegex, get_search_regex, initialize_search_request,
-)
+from calibre.gui2.tweak_book.search import InvalidRegex, get_search_regex, initialize_search_request
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.startup import connect_lambda

@@ -17,8 +17,8 @@ class AZW4Input(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.pdb.header import PdbHeaderReader
         from calibre.ebooks.azw4.reader import Reader
+        from calibre.ebooks.pdb.header import PdbHeaderReader
 
         header = PdbHeaderReader(stream)
         reader = Reader(header, stream, log, options)

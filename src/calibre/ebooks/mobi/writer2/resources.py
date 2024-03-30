@@ -6,13 +6,13 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from PIL import Image, ImageOps
 from io import BytesIO
 
-from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
-from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
-        write_font_record)
+from PIL import Image, ImageOps
+
 from calibre.ebooks import generate_masthead
+from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
+from calibre.ebooks.mobi.utils import mobify_image, rescale_image, write_font_record
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what

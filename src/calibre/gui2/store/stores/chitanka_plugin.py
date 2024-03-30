@@ -8,14 +8,14 @@ __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
+
 try:
-    from urllib.parse import quote
     from urllib.error import HTTPError
+    from urllib.parse import quote
 except ImportError:
-    from urllib2 import quote, HTTPError
+    from urllib2 import HTTPError, quote
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

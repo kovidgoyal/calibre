@@ -213,6 +213,7 @@ def test_roundtrip(src, dest):
 
 def test_podofo():
     import tempfile
+
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
     # {{{

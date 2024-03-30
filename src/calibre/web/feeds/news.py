@@ -16,10 +16,7 @@ from collections import defaultdict
 from contextlib import closing
 from urllib.parse import urlparse, urlsplit
 
-from calibre import (
-    __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding,
-    random_user_agent, strftime,
-)
+from calibre import __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding, random_user_agent, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, NavigableString, Tag
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -33,9 +30,8 @@ from calibre.utils.logging import ThreadSafeWrapper
 from calibre.utils.threadpool import NoResultsPending, ThreadPool, WorkRequest
 from calibre.web import Recipe
 from calibre.web.feeds import Feed, feed_from_xml, feeds_from_index, templates
-from calibre.web.fetch.simple import (
-    AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser,
-)
+from calibre.web.fetch.simple import AbortArticle, RecursiveFetcher
+from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.utils import prepare_masthead_image
 from polyglot.builtins import string_or_bytes
 

@@ -6,7 +6,8 @@ import os
 import subprocess
 import sys
 
-from setup import Command, ismacos, is_ci
+from setup import Command, is_ci, ismacos
+
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
 
@@ -59,9 +60,7 @@ class Test(BaseTest):
             sys.libxslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxslt.dylib'))
             sys.libexslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libexslt.dylib'))
             print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
-        from calibre.utils.run_tests import (
-            filter_tests_by_name, remove_tests_by_name, run_cli, find_tests
-        )
+        from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         if opts.test_name:
             tests = filter_tests_by_name(tests, *opts.test_name)

@@ -42,7 +42,10 @@ def unsafe_xml_fromstring(string_or_bytes):
 
 
 def find_tests():
-    import unittest, tempfile, os
+    import os
+    import tempfile
+    import unittest
+
     from calibre.constants import iswindows
 
     class TestXMLParse(unittest.TestCase):

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-import apsw
 import json
 import os
 import shutil
 import time
-import xxhash
+from collections import defaultdict
 from contextlib import suppress
 from itertools import count, repeat
-from collections import defaultdict
 from typing import Optional
+
+import apsw
+import xxhash
 
 from calibre import sanitize_file_name
 from calibre.constants import iswindows
@@ -20,8 +21,8 @@ from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 
-from ..constants import NOTES_DB_NAME, NOTES_DIR_NAME
 from .schema_upgrade import SchemaUpgrade
+from ..constants import NOTES_DB_NAME, NOTES_DIR_NAME
 
 if iswindows:
     from calibre_extensions import winutil

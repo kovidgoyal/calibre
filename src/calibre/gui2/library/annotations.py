@@ -6,25 +6,45 @@ import json
 import os
 import re
 from functools import lru_cache, partial
-from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDateTime, QDialog,
-    QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon, QKeySequence,
-    QLabel, QLocale, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
-    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal,
-)
 from urllib.parse import quote
 
-from calibre import prepare_string_for_xml
-from calibre.constants import (
-    builtin_colors_dark, builtin_colors_light, builtin_decorations,
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDateTime,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QFormLayout,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QLocale,
+    QMenu,
+    QPalette,
+    QPlainTextEdit,
+    QSize,
+    QSplitter,
+    Qt,
+    QTextBrowser,
+    QTimer,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
+
+from calibre import prepare_string_for_xml
+from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import (
-    Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme,
-    safe_open_url,
-)
+from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor

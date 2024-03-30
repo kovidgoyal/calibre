@@ -17,15 +17,16 @@ methods :method:`SearchQueryParser.universal_set` and
 If this module is run, it will perform a series of unit tests.
 '''
 
-import weakref, re
+import re
+import weakref
 
-from calibre.constants import preferred_encoding
-from calibre.utils.icu import sort_key, lower as icu_lower
-from calibre.utils.localization import _
 from calibre import prints
+from calibre.constants import preferred_encoding
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.builtins import codepoint_to_chr
-
 
 '''
 This class manages access to the preference holding the saved search queries.

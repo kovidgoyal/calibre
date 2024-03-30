@@ -8,24 +8,40 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
 from math import ceil
+
 from qt.core import (
-    QAbstractItemView, QAbstractListModel, QComboBox, QCursor, QDialogButtonBox,
-    QHBoxLayout, QIcon, QItemSelection, QItemSelectionModel, QLabel, QListView, QMenu,
-    QPushButton, QRect, QSize, QStyle, QStyledItemDelegate, Qt, QTextDocument, QTimer,
-    QVBoxLayout, pyqtSignal, sip, QDropEvent
+    QAbstractItemView,
+    QAbstractListModel,
+    QComboBox,
+    QCursor,
+    QDialogButtonBox,
+    QDropEvent,
+    QHBoxLayout,
+    QIcon,
+    QItemSelection,
+    QItemSelectionModel,
+    QLabel,
+    QListView,
+    QMenu,
+    QPushButton,
+    QRect,
+    QSize,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTextDocument,
+    QTimer,
+    QVBoxLayout,
+    pyqtSignal,
+    sip,
 )
 
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import ismacos
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.gui2 import (
-    choose_files, error_dialog, file_icon_provider, gprefs, open_local_file,
-    question_dialog,
-)
+from calibre.gui2 import choose_files, error_dialog, file_icon_provider, gprefs, open_local_file, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.open_with import (
-    choose_program, edit_programs, populate_menu, run_program,
-)
+from calibre.gui2.open_with import choose_program, edit_programs, populate_menu, run_program
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.recycle_bin import delete_file

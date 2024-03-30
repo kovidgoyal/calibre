@@ -2,10 +2,10 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 import time
-from jeepney import (
-    DBusAddress, DBusErrorResponse, MessageType, Properties, new_method_call
-)
+
+from jeepney import DBusAddress, DBusErrorResponse, MessageType, Properties, new_method_call
 from jeepney.io.blocking import open_dbus_connection
+
 from calibre.constants import DEBUG
 
 

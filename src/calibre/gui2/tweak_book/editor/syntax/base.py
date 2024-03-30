@@ -4,9 +4,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict, deque
-from qt.core import (
-    QTextBlock, QTextBlockUserData, QTextCursor, QTextFormat, QTextLayout, QTimer,
-)
+
+from qt.core import QTextBlock, QTextBlockUserData, QTextCursor, QTextFormat, QTextLayout, QTimer
 
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.icu import utf16_length

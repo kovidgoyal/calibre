@@ -5,9 +5,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.css21 import CSS21Parser
-from tinycss.parsing import remove_whitespace, split_on_comma, ParseError
 from polyglot.builtins import error_message
+from tinycss.css21 import CSS21Parser
+from tinycss.parsing import ParseError, remove_whitespace, split_on_comma
 
 
 class MediaQuery:

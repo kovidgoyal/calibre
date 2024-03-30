@@ -9,9 +9,9 @@ import re
 from qt.core import Qt
 
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
-from calibre.gui2.tweak_book.editor.smarts.utils import (
-    get_text_before_cursor, get_leading_whitespace_on_block as lw,
-    smart_home, smart_backspace, smart_tab)
+from calibre.gui2.tweak_book.editor.smarts.utils import get_leading_whitespace_on_block as lw
+from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor, smart_backspace, smart_home, smart_tab
+
 
 def get_leading_whitespace_on_block(editor, previous=False):
     return expand_tabs(lw(editor, previous=previous))
@@ -74,5 +74,6 @@ class Smarts(NullSmarts):
 
 if __name__ == '__main__':
     import os
+
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     launch_editor(os.path.abspath(__file__), syntax='python')

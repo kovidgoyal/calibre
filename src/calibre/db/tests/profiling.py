@@ -4,7 +4,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, cProfile
+import cProfile
+import os
 from tempfile import gettempdir
 
 from calibre.db.legacy import LibraryDatabase

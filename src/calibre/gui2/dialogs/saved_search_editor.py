@@ -2,16 +2,14 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QPlainTextEdit, Qt, QVBoxLayout,
-)
+from qt.core import QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, Qt, QVBoxLayout
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 
 
 def commit_searches(searches):

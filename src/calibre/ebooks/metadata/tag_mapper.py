@@ -4,7 +4,8 @@
 
 from collections import deque
 
-from calibre.utils.icu import lower as icu_lower, upper as icu_upper
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from polyglot.builtins import as_unicode
 
 

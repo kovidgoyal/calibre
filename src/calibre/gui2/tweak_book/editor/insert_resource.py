@@ -7,12 +7,36 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import sys
 from functools import partial
+
 from qt.core import (
-    QAbstractListModel, QApplication, QCheckBox, QClipboard, QDialog, QDialogButtonBox,
-    QFormLayout, QGridLayout, QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit,
-    QListView, QMenu, QPainter, QPixmap, QRect, QSize, QSizePolicy,
-    QSortFilterProxyModel, QStyledItemDelegate, Qt, QToolButton, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, pyqtSignal,
+    QAbstractListModel,
+    QApplication,
+    QCheckBox,
+    QClipboard,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QMenu,
+    QPainter,
+    QPixmap,
+    QRect,
+    QSize,
+    QSizePolicy,
+    QSortFilterProxyModel,
+    QStyledItemDelegate,
+    Qt,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    pyqtSignal,
 )
 
 from calibre import fit_image

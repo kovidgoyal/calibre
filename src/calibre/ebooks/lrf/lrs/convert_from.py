@@ -9,15 +9,37 @@ import os
 import sys
 
 from calibre import setup_cli_handlers
-from calibre.ebooks.BeautifulSoup import (
-    BeautifulStoneSoup, CData, NavigableString, Tag
-)
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, CData, NavigableString, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.lrf.pylrs.pylrs import (
-    CR, BlockStyle, Bold, Book, BookSetting, Canvas, CharButton, DropCaps, EmpLine,
-    Font, Footer, Header, Image, ImageBlock, ImageStream, Italic, JumpButton, Page,
-    PageStyle, Paragraph, Plot, RuledLine, Span, StyleDefault, Sub, Sup, TextBlock,
-    TextStyle
+    CR,
+    BlockStyle,
+    Bold,
+    Book,
+    BookSetting,
+    Canvas,
+    CharButton,
+    DropCaps,
+    EmpLine,
+    Font,
+    Footer,
+    Header,
+    Image,
+    ImageBlock,
+    ImageStream,
+    Italic,
+    JumpButton,
+    Page,
+    PageStyle,
+    Paragraph,
+    Plot,
+    RuledLine,
+    Span,
+    StyleDefault,
+    Sub,
+    Sup,
+    TextBlock,
+    TextStyle,
 )
 from calibre.utils.config import OptionParser
 from polyglot.builtins import string_or_bytes

@@ -13,17 +13,22 @@ import os
 
 from qt.core import QDialog, QProgressDialog, QTimer
 
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.gui2 import warning_dialog, question_dialog
-from calibre.gui2.convert.single import Config as SingleConfig
-from calibre.gui2.convert.bulk import BulkConfig
-from calibre.gui2.convert.metadata import create_opf_file, create_cover_file
 from calibre.customize.conversion import OptionRecommendation
-from calibre.utils.config import prefs
 from calibre.ebooks.conversion.config import (
-        GuiRecommendations, load_defaults, load_specifics, save_specifics,
-        get_input_format_for_book, NoSupportedInputFormats)
+    GuiRecommendations,
+    NoSupportedInputFormats,
+    get_input_format_for_book,
+    load_defaults,
+    load_specifics,
+    save_specifics,
+)
+from calibre.gui2 import question_dialog, warning_dialog
 from calibre.gui2.convert import bulk_defaults_for_input_format
+from calibre.gui2.convert.bulk import BulkConfig
+from calibre.gui2.convert.metadata import create_cover_file, create_opf_file
+from calibre.gui2.convert.single import Config as SingleConfig
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import prefs
 from polyglot.builtins import as_bytes
 
 

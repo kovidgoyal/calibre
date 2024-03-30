@@ -5,7 +5,7 @@
 import operator
 import unittest
 
-from calibre.utils.search_query_parser import SearchQueryParser, Parser
+from calibre.utils.search_query_parser import Parser, SearchQueryParser
 
 
 class Tester(SearchQueryParser):

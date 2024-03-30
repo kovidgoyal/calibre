@@ -9,9 +9,8 @@ import importlib
 import os
 import sys
 import weakref
-from qt.core import (
-    QDialog, QDialogButtonBox, QScrollArea, QSize
-)
+
+from qt.core import QDialog, QDialogButtonBox, QScrollArea, QSize
 
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import catalog_plugins, config
@@ -25,6 +24,7 @@ class Catalog(QDialog, Ui_Dialog):
 
     def __init__(self, parent, dbspec, ids, db):
         import re
+
         from PyQt6.uic import compileUi
 
         from calibre import prints as info

@@ -3,14 +3,28 @@
 
 
 import numbers
-import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
-from qt.core import (
-    QComboBox, QCompleter, QDateTime, QDialog, QDialogButtonBox, QFont, QGridLayout,
-    QInputDialog, QLabel, QLineEdit, QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal,
-)
 from threading import Thread
+
+import regex
+from qt.core import (
+    QComboBox,
+    QCompleter,
+    QDateTime,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QGridLayout,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QProgressBar,
+    QSize,
+    Qt,
+    QVBoxLayout,
+    pyqtSignal,
+)
 
 from calibre import human_readable, prints
 from calibre.constants import DEBUG
@@ -18,23 +32,18 @@ from calibre.db import _get_next_series_num_for_list
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import (
-    UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, info_dialog,
-    question_dialog,
-)
+from calibre.gui2 import UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.gui2.widgets import (
-    LineEditECM, setup_status_actions, update_status_actions,
-)
+from calibre.gui2.widgets import LineEditECM, setup_status_actions, update_status_actions
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import internal_iso_format_string, qt_to_dt
-from calibre.utils.icu import (
-    capitalize, lower as icu_lower, sort_key, upper as icu_upper,
-)
+from calibre.utils.icu import capitalize, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
@@ -321,9 +330,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
         elif args.cover_action == 'trim':
             self.progress_next_step_range.emit(len(self.ids))
-            from calibre.utils.img import (
-                image_from_data, image_to_data, remove_borders_from_image,
-            )
+            from calibre.utils.img import image_from_data, image_to_data, remove_borders_from_image
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:

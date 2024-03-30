@@ -8,17 +8,17 @@ __copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
+
 try:
-    from urllib.parse import urlencode, quote_plus
+    from urllib.parse import quote_plus, urlencode
 except ImportError:
-    from urllib import urlencode, quote_plus
+    from urllib import quote_plus, urlencode
 
 from lxml import html
 from mechanize import Request
-
 from qt.core import QUrl
 
-from calibre import url_slash_cleaner, browser
+from calibre import browser, url_slash_cleaner
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig

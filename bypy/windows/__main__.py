@@ -15,14 +15,9 @@ import subprocess
 import sys
 import zipfile
 
-from bypy.constants import (
-    CL, LINK, MT, PREFIX, RC, SIGNTOOL, SRC as CALIBRE_DIR, SW, build_dir,
-    python_major_minor_version, worker_env
-)
-from bypy.freeze import (
-    cleanup_site_packages, extract_extension_modules, freeze_python,
-    path_to_freeze_dir
-)
+from bypy.constants import CL, LINK, MT, PREFIX, RC, SIGNTOOL, SW, build_dir, python_major_minor_version, worker_env
+from bypy.constants import SRC as CALIBRE_DIR
+from bypy.freeze import cleanup_site_packages, extract_extension_modules, freeze_python, path_to_freeze_dir
 from bypy.utils import mkdtemp, py_compile, run, walk
 
 iv = globals()['init_env']

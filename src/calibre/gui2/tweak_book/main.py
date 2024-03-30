@@ -10,9 +10,7 @@ from qt.core import QIcon
 
 from calibre.constants import EDITOR_APP_UID, islinux
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
-from calibre.gui2 import (
-    Application, decouple, set_gui_prefs, setup_gui_option_parser
-)
+from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 

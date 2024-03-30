@@ -16,9 +16,7 @@ from calibre.db.lazy import FormatsList
 from calibre.ebooks.metadata import fmt_sidx, title_sort
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.date import as_local_time, is_date_undefined
-from calibre.utils.filenames import (
-    ascii_filename, make_long_path_useable, shorten_components_to,
-)
+from calibre.utils.filenames import ascii_filename, make_long_path_useable, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.utils.localization import _

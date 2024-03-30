@@ -153,7 +153,9 @@ def initialize_calibre():
             pass
 
     builtins.__dict__['lopen'] = open  # legacy compatibility
-    from calibre.utils.icu import lower as icu_lower, title_case, upper as icu_upper
+    from calibre.utils.icu import lower as icu_lower
+    from calibre.utils.icu import title_case
+    from calibre.utils.icu import upper as icu_upper
     builtins.__dict__['icu_lower'] = icu_lower
     builtins.__dict__['icu_upper'] = icu_upper
     builtins.__dict__['icu_title'] = title_case

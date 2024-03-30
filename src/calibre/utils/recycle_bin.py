@@ -5,17 +5,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, time, sys
+import os
+import shutil
+import sys
+import time
 
 from calibre import isbytestring
-from calibre.constants import (iswindows, ismacos, filesystem_encoding,
-        islinux)
+from calibre.constants import filesystem_encoding, islinux, ismacos, iswindows
 
 recycle = None
 
 if iswindows:
-    from calibre.utils.ipc import eintr_retry_call
     from threading import Lock
+
+    from calibre.utils.ipc import eintr_retry_call
     from calibre_extensions import winutil
     recycler = None
     rlock = Lock()

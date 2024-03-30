@@ -7,8 +7,20 @@ __docformat__ = 'restructuredtext en'
 
 
 from qt.core import (
-    QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty, QSizePolicy,
-    QWidget, QIcon, QPainter, QStyleOptionToolButton, QStyle, QAbstractAnimation)
+    QAbstractAnimation,
+    QIcon,
+    QMetaObject,
+    QPainter,
+    QPropertyAnimation,
+    QSize,
+    QSizePolicy,
+    QStyle,
+    QStyleOptionToolButton,
+    Qt,
+    QToolButton,
+    QWidget,
+    pyqtProperty,
+)
 
 from calibre.gui2 import config
 

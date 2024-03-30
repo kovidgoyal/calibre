@@ -4,7 +4,11 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, struct, datetime, numbers
+import ctypes
+import ctypes.wintypes as types
+import datetime
+import numbers
+import struct
 
 from calibre_extensions import winutil
 

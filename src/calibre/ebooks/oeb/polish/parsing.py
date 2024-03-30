@@ -6,13 +6,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from lxml.etree import Element as LxmlElement
 import html5_parser
+from lxml.etree import Element as LxmlElement
 
 from calibre import xml_replace_entities
-from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
+from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 

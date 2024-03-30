@@ -5,31 +5,30 @@ Basic support for writing LIT files.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from struct import pack
-from itertools import count, chain
-from operator import attrgetter
+import copy
+import functools
 import io
-import time
+import numbers
 import os
 import re
-import copy
+import time
 import uuid
-import functools
-import numbers
+from itertools import chain, count
+from operator import attrgetter
+from struct import pack
+
 from lxml import etree
-from calibre.ebooks.lit.reader import DirectoryEntry
-import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, OEB_STYLES, \
-    CSS_MIME, OPF_MIME, XML_NS, XML
-from calibre.ebooks.oeb.base import prefixname, \
-    urlnormalize
-from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.lit.lzx import Compressor
+
 import calibre
-from calibre_extensions import msdes
+import calibre.ebooks.lit.maps as maps
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, string_or_bytes, native_string_type
-from polyglot.urllib import urldefrag, unquote
+from calibre.ebooks.lit.lzx import Compressor
+from calibre.ebooks.lit.reader import DirectoryEntry
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
+from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre_extensions import msdes
+from polyglot.builtins import codepoint_to_chr, native_string_type, string_or_bytes
+from polyglot.urllib import unquote, urldefrag
 
 __all__ = ['LitWriter']
 

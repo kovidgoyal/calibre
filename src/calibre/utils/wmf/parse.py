@@ -5,7 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, struct
+import struct
+import sys
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
 

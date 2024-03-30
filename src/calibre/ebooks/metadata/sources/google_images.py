@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 
 from calibre import random_user_agent
-from calibre.ebooks.metadata.sources.base import Source, Option
+from calibre.ebooks.metadata.sources.base import Option, Source
 
 
 def parse_html(raw):
@@ -108,8 +108,8 @@ class GoogleImages(Source):
         # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
         br.set_simple_cookie('CONSENT', 'PENDING+987', '.google.com', path='/')
         template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
-        from datetime import date
         from base64 import standard_b64encode
+        from datetime import date
         template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))
         br.set_simple_cookie('SOCS', standard_b64encode(template).decode('ascii').rstrip('='), '.google.com', path='/')
         # br.set_debug_http(True)
@@ -136,6 +136,7 @@ def test():
     except ImportError:
         from Queue import Queue
     from threading import Event
+
     from calibre.utils.logging import default_log
     p = GoogleImages(None)
     p.log = default_log

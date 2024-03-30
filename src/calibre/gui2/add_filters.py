@@ -4,13 +4,14 @@
 
 from collections import OrderedDict
 
-from calibre.db.adding import compile_glob, filter_filename, compile_rule
-from calibre.gui2 import elided_text, Application, error_dialog
-from calibre.gui2.tag_mapper import (
-    RuleEdit as RuleEditBase, RuleEditDialog as
-    RuleEditDialogBase, RuleItem as RuleItemBase, Rules as RulesBase,
-    Tester as TesterBase, RulesDialog as RulesDialogBase
-)
+from calibre.db.adding import compile_glob, compile_rule, filter_filename
+from calibre.gui2 import Application, elided_text, error_dialog
+from calibre.gui2.tag_mapper import RuleEdit as RuleEditBase
+from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase
+from calibre.gui2.tag_mapper import RuleItem as RuleItemBase
+from calibre.gui2.tag_mapper import Rules as RulesBase
+from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
+from calibre.gui2.tag_mapper import Tester as TesterBase
 from calibre.utils.config import JSONConfig
 
 add_filters = JSONConfig('add-filter-rules')

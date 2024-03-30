@@ -11,10 +11,25 @@ import textwrap
 import weakref
 from collections import OrderedDict
 from functools import partial
+
 from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon,
-    QInputDialog, QLabel, QMenu, QModelIndex, QSize, QSizePolicy, QSpacerItem, Qt,
-    QTextEdit, QTimer,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QMenu,
+    QModelIndex,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    Qt,
+    QTextEdit,
+    QTimer,
 )
 
 from calibre.gui2 import Dispatcher, error_dialog, gprefs, question_dialog

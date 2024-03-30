@@ -10,12 +10,37 @@ Job management.
 '''
 
 import time
+
 from qt.core import (
-    QAbstractItemDelegate, QAbstractTableModel, QAction, QApplication, QByteArray,
-    QCoreApplication, QDialog, QDialogButtonBox, QEvent, QHBoxLayout, QIcon,
-    QItemSelectionModel, QLabel, QModelIndex, QPlainTextEdit, QSize, QSizePolicy,
-    QSortFilterProxyModel, QStyle, QStyleOption, QStyleOptionProgressBar, QStylePainter,
-    Qt, QTextBrowser, QTimer, QToolTip, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemDelegate,
+    QAbstractTableModel,
+    QAction,
+    QApplication,
+    QByteArray,
+    QCoreApplication,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLabel,
+    QModelIndex,
+    QPlainTextEdit,
+    QSize,
+    QSizePolicy,
+    QSortFilterProxyModel,
+    QStyle,
+    QStyleOption,
+    QStyleOptionProgressBar,
+    QStylePainter,
+    Qt,
+    QTextBrowser,
+    QTimer,
+    QToolTip,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import __appname__, as_unicode, strftime

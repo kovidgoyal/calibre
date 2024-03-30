@@ -6,7 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from calibre.ebooks.docx.index import process_index, polish_index_markup
+from calibre.ebooks.docx.index import polish_index_markup, process_index
 from polyglot.builtins import iteritems, native_string_type
 
 

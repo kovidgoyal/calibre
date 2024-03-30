@@ -2,14 +2,28 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
-import regex
 from collections import Counter, OrderedDict
 from html import escape
-from qt.core import (
-    QAbstractItemView, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QMenu,
-    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Thread
+
+import regex
+from qt.core import (
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QMenu,
+    Qt,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
 from calibre.gui2 import warning_dialog

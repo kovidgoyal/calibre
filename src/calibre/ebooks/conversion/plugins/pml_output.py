@@ -2,10 +2,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, io
+import io
+import os
 
-from calibre.customize.conversion import (OutputFormatPlugin,
-        OptionRecommendation)
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 
 

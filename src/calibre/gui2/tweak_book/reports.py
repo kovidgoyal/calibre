@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-import regex
 import textwrap
 import time
 from collections import defaultdict
@@ -14,22 +13,52 @@ from csv import writer as csv_writer
 from functools import lru_cache, partial
 from io import StringIO
 from operator import itemgetter
-from qt.core import (
-    QAbstractItemModel, QAbstractItemView, QAbstractTableModel, QApplication,
-    QByteArray, QComboBox, QDialogButtonBox, QFont, QFontDatabase, QHBoxLayout,
-    QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMenu, QModelIndex,
-    QPalette, QPixmap, QRadioButton, QRect, QSize, QSortFilterProxyModel, QSplitter,
-    QStackedLayout, QStackedWidget, QStyle, QStyledItemDelegate, Qt, QTableView,
-    QTextCursor, QTimer, QTreeView, QUrl, QVBoxLayout, QWidget, pyqtSignal
-)
 from threading import Thread
+
+import regex
+from qt.core import (
+    QAbstractItemModel,
+    QAbstractItemView,
+    QAbstractTableModel,
+    QApplication,
+    QByteArray,
+    QComboBox,
+    QDialogButtonBox,
+    QFont,
+    QFontDatabase,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QModelIndex,
+    QPalette,
+    QPixmap,
+    QRadioButton,
+    QRect,
+    QSize,
+    QSortFilterProxyModel,
+    QSplitter,
+    QStackedLayout,
+    QStackedWidget,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTableView,
+    QTextCursor,
+    QTimer,
+    QTreeView,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import fit_image, human_readable
 from calibre.constants import DEBUG
-from calibre.ebooks.oeb.polish.report import (
-    ClassElement, ClassEntry, ClassFileMatch, CSSEntry, CSSFileMatch, CSSRule,
-    LinkLocation, MatchLocation, gather_data
-)
+from calibre.ebooks.oeb.polish.report import ClassElement, ClassEntry, ClassFileMatch, CSSEntry, CSSFileMatch, CSSRule, LinkLocation, MatchLocation, gather_data
 from calibre.gui2 import choose_save_file, error_dialog, open_url, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, tprefs

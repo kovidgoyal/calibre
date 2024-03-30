@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log
+from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, String, UTF16String, current_log
 from polyglot.builtins import iteritems
 from polyglot.urllib import unquote, urlparse
 

@@ -9,16 +9,16 @@ Try to read metadata from an HTML file.
 
 import re
 import unittest
-
 from collections import defaultdict
+
 from html5_parser import parse
 from lxml.etree import Comment
 
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
-from calibre.ebooks.metadata.book.base import Metadata
+from calibre import isbytestring, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre import replace_entities, isbytestring
-from calibre.utils.date import parse_date, is_date_undefined
+from calibre.ebooks.metadata import authors_to_string, string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.date import is_date_undefined, parse_date
 from polyglot.builtins import iteritems
 
 

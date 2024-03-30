@@ -28,7 +28,7 @@ elements.  This module takes care of that problem.
 
 
 from .element import Node
-from .text import S,LineBreak,Tab
+from .text import LineBreak, S, Tab
 
 
 class WhitespaceText:

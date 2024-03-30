@@ -11,8 +11,8 @@ from functools import partial
 from qt.core import Qt
 
 from calibre.gui2 import Dispatcher
-from calibre.gui2.tools import fetch_scheduled_recipe
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.tools import fetch_scheduled_recipe
 
 
 class FetchNewsAction(InterfaceAction):

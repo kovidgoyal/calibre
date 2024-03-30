@@ -3,6 +3,7 @@
 
 
 from functools import partial
+
 from lxml.html import tostring
 from lxml.html.builder import E as E_
 

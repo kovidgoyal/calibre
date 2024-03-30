@@ -3,6 +3,7 @@
 
 
 import sys
+
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
 

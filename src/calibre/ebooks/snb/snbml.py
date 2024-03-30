@@ -10,6 +10,7 @@ import os
 import re
 
 from lxml import etree
+
 from polyglot.builtins import string_or_bytes
 
 

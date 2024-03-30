@@ -6,8 +6,8 @@ import builtins
 import os
 import sys
 from importlib import import_module
-from importlib.util import spec_from_file_location
 from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.util import spec_from_file_location
 
 import _sitebuiltins
 
@@ -96,6 +96,7 @@ if __name__ == '__main__':
     except Exception:
         if sys.gui_app and sys.excepthook == sys.__excepthook__:
             import traceback
+
             import calibre_os_module
             calibre_os_module.gui_error_message(
                 f"Unhandled exception running {sys.calibre_basename}",

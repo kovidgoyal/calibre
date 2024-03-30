@@ -9,13 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from contextlib import closing
+
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

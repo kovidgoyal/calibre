@@ -6,15 +6,31 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
-    QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
-    Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal, QAction, QKeySequence
+    QAction,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QLabel,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTransform,
+    QUrl,
+    QVBoxLayout,
+    pyqtSignal,
 )
 
 from calibre import fit_image
-from calibre.gui2 import (
-    NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
-)
+from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
 
 
 def render_svg(widget, path):

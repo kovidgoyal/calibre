@@ -731,6 +731,7 @@ class BZZDecoder():
 # for testing
 def main():
     import sys
+
     from calibre_extensions import bzzdec as d
     with open(sys.argv[1], "rb") as f:
         raw = f.read()

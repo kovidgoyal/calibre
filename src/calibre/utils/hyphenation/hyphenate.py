@@ -6,9 +6,7 @@ import os
 
 import regex
 
-from calibre.utils.hyphenation.dictionaries import (
-    dictionary_name_for_locale, path_to_dictionary
-)
+from calibre.utils.hyphenation.dictionaries import dictionary_name_for_locale, path_to_dictionary
 from polyglot.functools import lru_cache
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE

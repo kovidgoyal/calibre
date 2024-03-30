@@ -5,14 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from struct import unpack_from, unpack, calcsize
 from functools import partial
+from struct import calcsize, unpack, unpack_from
 
 from calibre.utils.fonts.sfnt import UnknownTable
-from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
-from calibre.utils.fonts.sfnt.cff.dict_data import TopDict, PrivateDict
-from calibre.utils.fonts.sfnt.cff.constants import (cff_standard_strings,
-        STANDARD_CHARSETS)
+from calibre.utils.fonts.sfnt.cff.constants import STANDARD_CHARSETS, cff_standard_strings
+from calibre.utils.fonts.sfnt.cff.dict_data import PrivateDict, TopDict
+from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 from polyglot.builtins import iteritems, itervalues
 
 # Useful links

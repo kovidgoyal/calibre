@@ -4,14 +4,20 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, inspect, re, time, numbers, json as jsonlib, textwrap
+import inspect
+import json as jsonlib
+import numbers
+import re
+import sys
+import textwrap
+import time
 from operator import attrgetter
 
-from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
+from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
-from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import iteritems, itervalues
+from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
 from polyglot import http_client
+from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))

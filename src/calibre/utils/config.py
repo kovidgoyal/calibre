@@ -10,13 +10,25 @@ import optparse
 import os
 from copy import deepcopy
 
-from calibre.constants import (
-    CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows,
-)
+from calibre.constants import CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
 from calibre.utils.config_base import (
-    Config, ConfigInterface, ConfigProxy, Option, OptionSet, OptionValues, StringConfig,
-    commit_data, from_json, json_dumps, json_loads, make_config_dir, plugin_dir, prefs,
-    read_data, to_json, tweaks,
+    Config,
+    ConfigInterface,
+    ConfigProxy,
+    Option,
+    OptionSet,
+    OptionValues,
+    StringConfig,
+    commit_data,
+    from_json,
+    json_dumps,
+    json_loads,
+    make_config_dir,
+    plugin_dir,
+    prefs,
+    read_data,
+    to_json,
+    tweaks,
 )
 from calibre.utils.localization import _
 from polyglot.builtins import native_string_type, string_or_bytes

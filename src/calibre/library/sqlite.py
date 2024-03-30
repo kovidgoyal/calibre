@@ -7,24 +7,25 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 
-import sqlite3 as sqlite, traceback, time, uuid, os
-from sqlite3 import IntegrityError, OperationalError
-from threading import Thread
-from threading import RLock
+import os
+import sqlite3 as sqlite
+import time
+import traceback
+import uuid
 from datetime import datetime, timezone
 from functools import partial
+from sqlite3 import IntegrityError, OperationalError
+from threading import RLock, Thread
 
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
-from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG, plugins_loc, plugins
+from calibre import force_unicode, isbytestring, prints
+from calibre.constants import DEBUG, iswindows, plugins, plugins_loc
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
+from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz, parse_date
 from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
-from calibre import prints
-from polyglot.builtins import cmp, native_string_type
 from polyglot import reprlib
+from polyglot.builtins import cmp, native_string_type
 from polyglot.queue import Queue
-
 
 global_lock = RLock()
 

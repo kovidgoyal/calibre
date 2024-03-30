@@ -7,9 +7,9 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.ereader import EreaderError
-from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader.reader132 import Reader132
 from calibre.ebooks.pdb.ereader.reader202 import Reader202
+from calibre.ebooks.pdb.formatreader import FormatReader
 
 
 class Reader(FormatReader):

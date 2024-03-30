@@ -4,13 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, os
+import os
+import textwrap
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import guess_type
-from calibre.constants import numeric_version, __appname__
+from calibre.constants import __appname__, numeric_version
 from calibre.ebooks.docx.names import DOCXNamespace
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.pdf.render.common import PAPER_SIZES

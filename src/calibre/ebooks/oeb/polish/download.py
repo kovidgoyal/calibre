@@ -14,7 +14,8 @@ from io import BytesIO
 from multiprocessing.dummy import Pool
 from tempfile import NamedTemporaryFile
 
-from calibre import as_unicode, browser, sanitize_file_name as sanitize_file_name_base
+from calibre import as_unicode, browser
+from calibre import sanitize_file_name as sanitize_file_name_base
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type

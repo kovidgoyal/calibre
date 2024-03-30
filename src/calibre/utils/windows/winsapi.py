@@ -10,8 +10,8 @@ def develop():
 
 
 def find_tests():
-    import unittest
     import os
+    import unittest
     is_ci = os.environ.get('CI', '').lower() == 'true'
 
     class TestSAPI(unittest.TestCase):

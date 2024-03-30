@@ -7,7 +7,8 @@ import random
 import shutil
 import sys
 import zipfile
-from json import load as load_json_file, loads as json_loads
+from json import load as load_json_file
+from json import loads as json_loads
 from threading import Lock
 
 from calibre import as_unicode
@@ -15,20 +16,14 @@ from calibre.constants import in_develop_mode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
-from calibre.srv.errors import (
-    BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect,
-)
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect
 from calibre.srv.last_read import last_read_cache
-from calibre.srv.metadata import (
-    book_as_json, categories_as_json, categories_settings, icon_map,
-)
+from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, icon_map
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import numeric_sort_key, sort_key
-from calibre.utils.localization import (
-    _, get_lang, lang_code_for_user_manual, lang_map_for_ui, localize_website_link,
-)
+from calibre.utils.localization import _, get_lang, lang_code_for_user_manual, lang_map_for_ui, localize_website_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps

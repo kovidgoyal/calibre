@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.constants import iswindows, ismacos
+from calibre.constants import ismacos, iswindows
 
 if iswindows:
     from calibre.utils.config_base import tweaks

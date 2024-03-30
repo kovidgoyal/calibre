@@ -6,7 +6,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import apsw
 import errno
 import hashlib
 import json
@@ -17,48 +16,64 @@ import sys
 import time
 import uuid
 from contextlib import closing, suppress
-from typing import Optional
 from functools import partial
+from typing import Optional
+
+import apsw
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
-from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding,
-)
+from calibre.constants import filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.constants import (
-    BOOK_ID_PATH_TEMPLATE, COVER_FILE_NAME, DEFAULT_TRASH_EXPIRY_TIME_SECONDS,
-    METADATA_FILE_NAME, NOTES_DIR_NAME, TRASH_DIR_NAME, TrashEntry,
+    BOOK_ID_PATH_TEMPLATE,
+    COVER_FILE_NAME,
+    DEFAULT_TRASH_EXPIRY_TIME_SECONDS,
+    METADATA_FILE_NAME,
+    NOTES_DIR_NAME,
+    TRASH_DIR_NAME,
+    TrashEntry,
 )
 from calibre.db.errors import NoSuchFormat
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.tables import (
-    AuthorsTable, CompositeTable, FormatsTable, IdentifiersTable, ManyToManyTable,
-    ManyToOneTable, OneToOneTable, PathTable, RatingTable, SizeTable, UUIDTable,
+    AuthorsTable,
+    CompositeTable,
+    FormatsTable,
+    IdentifiersTable,
+    ManyToManyTable,
+    ManyToOneTable,
+    OneToOneTable,
+    PathTable,
+    RatingTable,
+    SizeTable,
+    UUIDTable,
 )
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.config import from_json, prefs, to_json, tweaks
-from calibre.utils.copy_files import (
-    copy_files, copy_tree, rename_files, windows_check_if_files_in_use,
-)
+from calibre.utils.copy_files import copy_files, copy_tree, rename_files, windows_check_if_files_in_use
 from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
-    ascii_filename, atomic_rename, copyfile_using_links, copytree_using_links,
-    get_long_path_name, hardlink_file, is_case_sensitive, is_fat_filesystem,
-    make_long_path_useable, remove_dir_if_empty, samefile,
+    ascii_filename,
+    atomic_rename,
+    copyfile_using_links,
+    copytree_using_links,
+    get_long_path_name,
+    hardlink_file,
+    is_case_sensitive,
+    is_fat_filesystem,
+    make_long_path_useable,
+    remove_dir_if_empty,
+    samefile,
 )
-from calibre.utils.formatter_functions import (
-    compile_user_template_functions, formatter_functions, load_user_template_functions,
-    unload_user_template_functions,
-)
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.formatter_functions import compile_user_template_functions, formatter_functions, load_user_template_functions, unload_user_template_functions
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import (
-    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,
-)
+from polyglot.builtins import cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
 
 # }}}
 
@@ -1375,6 +1390,7 @@ class DB:
 
     def dump_and_restore(self, callback=None, sql=None):
         import codecs
+
         from apsw import Shell
         if callback is None:
             def callback(x):

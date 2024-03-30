@@ -9,12 +9,12 @@ from collections import Counter, defaultdict
 from operator import attrgetter
 
 from lxml import etree
+from tinycss.css21 import CSS21Parser
 
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.localization import lang_as_iso639_1
 from polyglot.builtins import iteritems
-from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
 

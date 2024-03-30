@@ -5,10 +5,17 @@ __license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess, tempfile, json, time, filecmp, sys
+import filecmp
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 
-from setup import Command, __version__, require_clean_git, require_git_master, installer_names
-from setup.parallel_build import parallel_build, create_job
+from setup import Command, __version__, installer_names, require_clean_git, require_git_master
+from setup.parallel_build import create_job, parallel_build
 
 
 class Stage1(Command):

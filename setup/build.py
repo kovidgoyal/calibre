@@ -15,7 +15,7 @@ import sys
 import sysconfig
 import textwrap
 from functools import partial
-from typing import NamedTuple, List
+from typing import List, NamedTuple
 
 from setup import SRC, Command, isbsd, isfreebsd, ishaiku, islinux, ismacos, iswindows
 

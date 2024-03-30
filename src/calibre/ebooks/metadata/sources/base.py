@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, threading
+import re
+import threading
 from functools import total_ordering
 
 from calibre import browser, random_user_agent
@@ -14,11 +15,11 @@ from calibre.customize import Plugin
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.author_mapper import cap_author_token
 from calibre.utils.localization import canonicalize_lang, get_lang
-from polyglot.builtins import iteritems, cmp
+from polyglot.builtins import cmp, iteritems
 
 
 def create_log(ostream=None):
-    from calibre.utils.logging import ThreadSafeLog, FileStream
+    from calibre.utils.logging import FileStream, ThreadSafeLog
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
     log.outputs = [FileStream(ostream)]
     return log
@@ -441,8 +442,8 @@ class Source(Plugin):
         if not urls:
             log('No images found for, title: %r and authors: %r'%(title, authors))
             return
-        from threading import Thread
         import time
+        from threading import Thread
         if prefs_name:
             urls = urls[:self.prefs[prefs_name]]
         if get_best_cover:

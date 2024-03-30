@@ -19,12 +19,30 @@
 
 import re
 
-from .namespaces import (
-    ANIMNS, CHARTNS, CONFIGNS, DR3DNS, DRAWNS, FONS, FORMNS, MANIFESTNS, METANS,
-    NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, SMILNS, STYLENS, SVGNS, TABLENS,
-    TEXTNS, XFORMSNS, XLINKNS
-)
 from polyglot.builtins import string_or_bytes, unicode_type
+
+from .namespaces import (
+    ANIMNS,
+    CHARTNS,
+    CONFIGNS,
+    DR3DNS,
+    DRAWNS,
+    FONS,
+    FORMNS,
+    MANIFESTNS,
+    METANS,
+    NUMBERNS,
+    OFFICENS,
+    PRESENTATIONNS,
+    SCRIPTNS,
+    SMILNS,
+    STYLENS,
+    SVGNS,
+    TABLENS,
+    TEXTNS,
+    XFORMSNS,
+    XLINKNS,
+)
 
 pattern_color =  re.compile(r'#[0-9a-fA-F]{6}')
 pattern_vector3D = re.compile(r'\([ ]*-?([0-9]+(\.[0-9]*)?|\.[0-9]+)([ ]+-?([0-9]+(\.[0-9]*)?|\.[0-9]+)){2}[ ]*\)')

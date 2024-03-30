@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 def base64_decode(raw):
     from io import BytesIO
+
     from polyglot.binary import from_base64_bytes
 
     # First try the python implementation as it is faster

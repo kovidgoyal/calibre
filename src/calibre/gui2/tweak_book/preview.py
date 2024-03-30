@@ -6,28 +6,43 @@ import json
 import time
 from collections import defaultdict
 from functools import partial
+from threading import Thread
+
 from qt.core import (
-    QAction, QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize,
-    QSizePolicy, QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
+    QAction,
+    QApplication,
+    QByteArray,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QMenu,
+    QSize,
+    QSizePolicy,
+    QStackedLayout,
+    Qt,
+    QTimer,
+    QToolBar,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 from qt.webengine import (
-    QWebEngineContextMenuRequest, QWebEnginePage, QWebEngineProfile, QWebEngineScript,
-    QWebEngineSettings, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler,
+    QWebEngineContextMenuRequest,
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineScript,
+    QWebEngineSettings,
+    QWebEngineUrlRequestJob,
+    QWebEngineUrlSchemeHandler,
     QWebEngineView,
 )
-from threading import Thread
 
 from calibre import prints
-from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, ismacos, iswindows,
-)
+from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop, ismacos, iswindows
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.gui2 import (
-    NO_URL_FORMATTING, QT_HIDDEN_CLEAR_ACTION, error_dialog, is_dark_theme,
-    safe_open_url,
-)
+from calibre.gui2 import NO_URL_FORMATTING, QT_HIDDEN_CLEAR_ACTION, error_dialog, is_dark_theme, safe_open_url
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
@@ -36,10 +51,7 @@ from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from calibre.utils.resources import get_path as P
-from calibre.utils.webengine import (
-    Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile,
-    to_js,
-)
+from calibre.utils.webengine import Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile, to_js
 from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse

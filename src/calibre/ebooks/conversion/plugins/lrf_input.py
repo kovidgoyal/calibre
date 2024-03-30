@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import os
+import sys
+
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.utils.resources import get_path as P
 
@@ -20,13 +22,13 @@ class LRFInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
-        from calibre.ebooks.lrf.input import (MediaType, Styles, TextBlock,
-                Canvas, ImageBlock, RuledLine)
+        from calibre.ebooks.lrf.input import Canvas, ImageBlock, MediaType, RuledLine, Styles, TextBlock
         self.log = log
         self.log('Generating XML')
+        from lxml import etree
+
         from calibre.ebooks.lrf.lrfparser import LRFDocument
         from calibre.utils.xml_parse import safe_xml_fromstring
-        from lxml import etree
         d = LRFDocument(stream)
         d.parse()
         xml = d.to_xml(write_files=True)

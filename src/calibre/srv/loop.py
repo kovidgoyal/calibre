@@ -23,8 +23,14 @@ from calibre.srv.jobs import JobsManager
 from calibre.srv.opts import Options
 from calibre.srv.pool import PluginPool, ThreadPool
 from calibre.srv.utils import (
-    DESIRED_SEND_BUFFER_SIZE, HandleInterrupt, create_sock_pair, socket_errors_eintr,
-    socket_errors_nonblocking, socket_errors_socket_closed, start_cork, stop_cork,
+    DESIRED_SEND_BUFFER_SIZE,
+    HandleInterrupt,
+    create_sock_pair,
+    socket_errors_eintr,
+    socket_errors_nonblocking,
+    socket_errors_socket_closed,
+    start_cork,
+    stop_cork,
 )
 from calibre.utils.localization import _
 from calibre.utils.logging import ThreadSafeLog

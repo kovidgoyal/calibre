@@ -11,14 +11,10 @@ from collections.abc import MutableMapping
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding
-from calibre.db import (
-    _get_next_series_num_for_list, _get_series_values, get_data_as_dict,
-)
-from calibre.db.adding import (
-    add_catalog, add_news, find_books_in_directory, import_book_directory,
-    import_book_directory_multiple, recursive_import,
-)
-from calibre.db.backend import DB, set_global_state as backend_set_global_state
+from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
+from calibre.db.adding import add_catalog, add_news, find_books_in_directory, import_book_directory, import_book_directory_multiple, recursive_import
+from calibre.db.backend import DB
+from calibre.db.backend import set_global_state as backend_set_global_state
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.errors import NoSuchFormat

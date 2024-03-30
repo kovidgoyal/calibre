@@ -8,13 +8,13 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
+
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

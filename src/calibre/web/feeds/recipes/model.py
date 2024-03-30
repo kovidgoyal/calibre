@@ -4,20 +4,25 @@
 import copy
 import zipfile
 from functools import total_ordering
-from qt.core import (
-    QAbstractItemModel, QApplication, QFont, QIcon, QModelIndex, QPalette, QPixmap, Qt,
-    pyqtSignal,
-)
+
+from qt.core import QAbstractItemModel, QApplication, QFont, QIcon, QModelIndex, QPalette, QPixmap, Qt, pyqtSignal
 
 from calibre import force_unicode
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import _, get_language, countrycode_to_name
+from calibre.utils.localization import _, countrycode_to_name, get_language
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from calibre.web.feeds.recipes.collection import (
-    SchedulerConfig, add_custom_recipe, add_custom_recipes, download_builtin_recipe,
-    get_builtin_recipe, get_builtin_recipe_collection, get_custom_recipe,
-    get_custom_recipe_collection, remove_custom_recipe, update_custom_recipe,
+    SchedulerConfig,
+    add_custom_recipe,
+    add_custom_recipes,
+    download_builtin_recipe,
+    get_builtin_recipe,
+    get_builtin_recipe_collection,
+    get_custom_recipe,
+    get_custom_recipe_collection,
+    remove_custom_recipe,
+    update_custom_recipe,
     update_custom_recipes,
 )
 from polyglot.builtins import iteritems

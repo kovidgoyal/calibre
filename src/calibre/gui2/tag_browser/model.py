@@ -9,24 +9,20 @@ import copy
 import os
 import traceback
 from collections import OrderedDict, namedtuple
-from qt.core import (
-    QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt, pyqtSignal,
-)
+
+from qt.core import QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt, pyqtSignal
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import (
-    config, error_dialog, file_icon_provider, gprefs, question_dialog,
-)
+from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.icu import (
-    collation_order_for_partitioning, contains, lower, lower as icu_lower,
-    primary_contains, primary_strcmp, sort_key, strcmp, upper as icu_upper,
-)
+from calibre.utils.icu import collation_order_for_partitioning, contains, lower, primary_contains, primary_strcmp, sort_key, strcmp
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from calibre.utils.serialize import json_dumps, json_loads
 from polyglot.builtins import iteritems, itervalues
 

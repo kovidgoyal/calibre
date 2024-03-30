@@ -18,8 +18,8 @@
 #
 
 
-from .namespaces import SCRIPTNS
 from .element import Element
+from .namespaces import SCRIPTNS
 
 # ODF 1.0 section 12.4.1
 # The <script:event-listener> element binds an event to a macro.

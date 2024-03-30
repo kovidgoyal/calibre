@@ -6,11 +6,25 @@ import os
 from io import BytesIO
 
 from calibre.utils.img import (
-    image_and_format_from_data, clone_image, null_image, resize_image,
-    overlay_image, rotate_image, quantize_image, remove_borders_from_image,
-    add_borders_to_image, gaussian_blur_image, create_canvas, despeckle_image,
-    image_to_data, flip_image, image_has_transparent_pixels, set_image_opacity,
-    gaussian_sharpen_image, texture_image, grayscale_image
+    add_borders_to_image,
+    clone_image,
+    create_canvas,
+    despeckle_image,
+    flip_image,
+    gaussian_blur_image,
+    gaussian_sharpen_image,
+    grayscale_image,
+    image_and_format_from_data,
+    image_has_transparent_pixels,
+    image_to_data,
+    null_image,
+    overlay_image,
+    quantize_image,
+    remove_borders_from_image,
+    resize_image,
+    rotate_image,
+    set_image_opacity,
+    texture_image,
 )
 from calibre.utils.imghdr import identify
 

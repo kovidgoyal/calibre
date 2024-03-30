@@ -4,9 +4,7 @@
 
 import textwrap
 
-from qt.core import (
-    QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout
-)
+from qt.core import QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout
 
 from calibre.customize.ui import enable_plugin
 from calibre.gui2 import gprefs

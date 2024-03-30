@@ -5,13 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import random, numbers
-from io import BytesIO
+import numbers
+import random
 from collections import OrderedDict
+from io import BytesIO
 from struct import pack
 
 from calibre.ebooks.mobi.utils import align_block
-from polyglot.builtins import iteritems, as_bytes
+from polyglot.builtins import as_bytes, iteritems
 
 NULL = 0xffffffff
 def zeroes(x):

@@ -2,14 +2,15 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import apsw
 import builtins
 import hashlib
 import os
 import sys
 from contextlib import suppress
-from threading import Lock
 from itertools import count
+from threading import Lock
+
+import apsw
 
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize

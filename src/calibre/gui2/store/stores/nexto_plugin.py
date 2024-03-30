@@ -8,15 +8,15 @@ __copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from contextlib import closing
 from base64 import standard_b64encode
+from contextlib import closing
+
 try:
     from urllib.parse import quote_plus
 except ImportError:
     from urllib import quote_plus
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

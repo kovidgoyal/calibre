@@ -6,19 +6,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
     'and Marshall T. Vandegrift <llasram@gmail.com>'
 
-import io, struct, os, functools, re
+import functools
+import io
+import os
+import re
+import struct
 
 from lxml import etree
 
-from calibre.ebooks.lit import LitError
-from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
+from calibre.ebooks import DRMError
+from calibre.ebooks.lit import LitError
+from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
-from calibre.ebooks import DRMError
-from polyglot.builtins import codepoint_to_chr, string_or_bytes, itervalues
-from polyglot.urllib import unquote as urlunquote, urldefrag
 from calibre_extensions import lzx, msdes
+from polyglot.builtins import codepoint_to_chr, itervalues, string_or_bytes
+from polyglot.urllib import unquote as urlunquote
+from polyglot.urllib import urldefrag
 
 __all__ = ["LitReader"]
 

@@ -5,20 +5,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, sys, os
+import os
+import struct
+import sys
 from collections import OrderedDict, defaultdict
 
 from lxml import html
 
-from calibre.ebooks.mobi.reader.headers import NULL_INDEX
-from calibre.ebooks.mobi.reader.index import (parse_index_record,
-        parse_tagx_section)
-from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        decode_tbs, read_font_record)
-from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import iteritems, as_bytes, print_to_binary_file
+from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+from calibre.ebooks.mobi.reader.index import parse_index_record, parse_tagx_section
+from calibre.ebooks.mobi.utils import decint, decode_hex_number, decode_tbs, read_font_record
+from calibre.utils.imghdr import what
+from polyglot.builtins import as_bytes, iteritems, print_to_binary_file
 
 
 class TagX:  # {{{

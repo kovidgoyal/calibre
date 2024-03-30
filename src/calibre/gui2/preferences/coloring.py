@@ -9,28 +9,50 @@ import json
 import os
 import textwrap
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAbstractListModel, QApplication, QCheckBox, QComboBox, QDialog,
-    QDialogButtonBox, QDoubleValidator, QFrame, QGridLayout, QIcon, QIntValidator,
-    QItemSelection, QItemSelectionModel, QLabel, QLineEdit, QListView, QListWidget,
-    QListWidgetItem, QPalette, QPushButton, QScrollArea, QSize, QSizePolicy,
-    QSpacerItem, QStandardItem, QStandardItemModel, Qt, QToolButton, QVBoxLayout,
-    QWidget, pyqtSignal,
+    QAbstractItemView,
+    QAbstractListModel,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleValidator,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QIntValidator,
+    QItemSelection,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
+    QPalette,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QSpacerItem,
+    QStandardItem,
+    QStandardItemModel,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import as_unicode, prepare_string_for_xml, sanitize_file_name
 from calibre.constants import config_dir
-from calibre.gui2 import (
-    choose_files, choose_save_file, error_dialog, gprefs, open_local_file,
-    pixmap_to_data, question_dialog,
-)
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, open_local_file, pixmap_to_data, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.preferences import ListViewWithMoveByKeyPress
 from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
-from calibre.library.coloring import (
-    Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template,
-)
+from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map, ngettext
 from polyglot.builtins import iteritems

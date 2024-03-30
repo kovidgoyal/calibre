@@ -7,11 +7,33 @@ import re
 from collections import namedtuple
 from contextlib import suppress
 from functools import lru_cache, partial
+
 from qt.core import (
-    QAction, QApplication, QClipboard, QColor, QDialog, QEasingCurve, QIcon,
-    QKeySequence, QMenu, QMimeData, QPainter, QPalette, QPen, QPixmap,
-    QPropertyAnimation, QRect, QSize, QSizePolicy, QSplitter, Qt, QTimer, QUrl, QWidget,
-    pyqtProperty, pyqtSignal,
+    QAction,
+    QApplication,
+    QClipboard,
+    QColor,
+    QDialog,
+    QEasingCurve,
+    QIcon,
+    QKeySequence,
+    QMenu,
+    QMimeData,
+    QPainter,
+    QPalette,
+    QPen,
+    QPixmap,
+    QPropertyAnimation,
+    QRect,
+    QSize,
+    QSizePolicy,
+    QSplitter,
+    Qt,
+    QTimer,
+    QUrl,
+    QWidget,
+    pyqtProperty,
+    pyqtSignal,
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -20,18 +42,11 @@ from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, RESOURCE_URL_
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.ebooks.metadata.search_internet import (
-    all_author_searches, all_book_searches, name_for, url_for_author_search,
-    url_for_book_search,
-)
-from calibre.gui2 import (
-    NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
-    pixmap_to_data, question_dialog, rating_font, safe_open_url,
-)
-from calibre.gui2.dialogs.confirm_delete import confirm, confirm as confirm_delete
-from calibre.gui2.dnd import (
-    dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions,
-)
+from calibre.ebooks.metadata.search_internet import all_author_searches, all_book_searches, name_for, url_for_author_search, url_for_book_search
+from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
+from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
+from calibre.gui2.dnd import dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks

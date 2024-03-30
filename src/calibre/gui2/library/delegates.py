@@ -8,12 +8,35 @@ __docformat__ = 'restructuredtext en'
 import os
 import sys
 from datetime import datetime
+
 from qt.core import (
-    QAbstractTextDocumentLayout, QApplication, QComboBox, QDate, QDateTime,
-    QDateTimeEdit, QDialog, QDoubleSpinBox, QEvent, QFont, QFontInfo, QIcon,
-    QKeySequence, QLineEdit, QLocale, QMenu, QPalette, QSize, QSpinBox, QStyle,
-    QStyledItemDelegate, QStyleOptionComboBox, QStyleOptionSpinBox,
-    QStyleOptionViewItem, Qt, QTextDocument, QUrl,
+    QAbstractTextDocumentLayout,
+    QApplication,
+    QComboBox,
+    QDate,
+    QDateTime,
+    QDateTimeEdit,
+    QDialog,
+    QDoubleSpinBox,
+    QEvent,
+    QFont,
+    QFontInfo,
+    QIcon,
+    QKeySequence,
+    QLineEdit,
+    QLocale,
+    QMenu,
+    QPalette,
+    QSize,
+    QSpinBox,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionComboBox,
+    QStyleOptionSpinBox,
+    QStyleOptionViewItem,
+    Qt,
+    QTextDocument,
+    QUrl,
 )
 
 from calibre.constants import iswindows
@@ -25,16 +48,11 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.markdown_editor import MarkdownEditDialog
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.widgets2 import (
-    DateTimeEdit as DateTimeEditBase, RatingEditor,
-    populate_standard_spinbox_context_menu,
-)
+from calibre.gui2.widgets2 import DateTimeEdit as DateTimeEditBase
+from calibre.gui2.widgets2 import RatingEditor, populate_standard_spinbox_context_menu
 from calibre.library.comments import markdown
 from calibre.utils.config import tweaks
-from calibre.utils.date import (
-    format_date, internal_iso_format_string, is_date_undefined, now, qt_from_dt,
-    qt_to_dt,
-)
+from calibre.utils.date import format_date, internal_iso_format_string, is_date_undefined, now, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
 
 

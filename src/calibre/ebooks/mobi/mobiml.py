@@ -9,12 +9,11 @@ import copy
 import numbers
 import re
 from contextlib import suppress
+
 from lxml import etree
 
 from calibre.ebooks.mobi.utils import convert_color_for_font_tag
-from calibre.ebooks.oeb.base import (
-    XHTML, XHTML_NS, barename, namespace, urlnormalize
-)
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.utils.imghdr import identify

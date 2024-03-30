@@ -10,20 +10,19 @@ import shutil
 import time
 import traceback
 from collections import defaultdict, namedtuple
+
 from qt.core import QObject, Qt, pyqtSignal
 
 from calibre import force_unicode, prints
 from calibre.constants import DEBUG
 from calibre.customize.ui import can_set_metadata
-from calibre.db.errors import NoSuchFormat
 from calibre.db.constants import DATA_FILE_PATTERN
+from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.gui2 import error_dialog, gprefs, open_local_file, warning_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.library.save_to_disk import (
-    find_plugboard, get_path_components, plugboard_save_to_disk_value, sanitize_args,
-)
+from calibre.library.save_to_disk import find_plugboard, get_path_components, plugboard_save_to_disk_value, sanitize_args
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool

@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil
+import os
+import shutil
+import sys
 
 from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6

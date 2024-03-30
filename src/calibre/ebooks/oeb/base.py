@@ -13,27 +13,26 @@ import re
 import sys
 from collections import defaultdict
 from itertools import count
-from lxml import etree, html
 from operator import attrgetter
 from typing import Optional
+
+from lxml import etree, html
 
 from calibre import as_unicode, force_unicode, get_types_map, isbytestring
 from calibre.constants import __version__, filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre.ebooks.oeb.parse_utils import (
-    XHTML, XHTML_NS, NotHTML, barename, namespace, parse_html,
-)
+from calibre.ebooks.oeb.parse_utils import XHTML, XHTML_NS, NotHTML, barename, namespace, parse_html
 from calibre.translations.dynamic import translate
 from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.icu import numeric_sort_key, title_case as icu_title
+from calibre.utils.icu import numeric_sort_key
+from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes
-from polyglot.urllib import (
-    unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse,
-)
+from polyglot.urllib import unquote as urlunquote
+from polyglot.urllib import urldefrag, urljoin, urlparse, urlunparse
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'

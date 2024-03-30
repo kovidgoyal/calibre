@@ -3,11 +3,13 @@ __copyright__ = '2010, Greg Riker <griker@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 ''' Read/write metadata from Amazon's topaz format '''
-import io, sys, numbers
+import io
+import numbers
+import sys
 from struct import pack
 
-from calibre.ebooks.metadata import MetaInformation
 from calibre import force_unicode
+from calibre.ebooks.metadata import MetaInformation
 from polyglot.builtins import codepoint_to_chr, int_to_byte
 
 

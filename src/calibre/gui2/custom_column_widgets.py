@@ -8,10 +8,29 @@ __docformat__ = 'restructuredtext en'
 import os
 from collections import OrderedDict
 from functools import partial
+
 from qt.core import (
-    QApplication, QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QMessageBox, QPlainTextEdit,
-    QSizePolicy, QSpacerItem, QSpinBox, QStyle, Qt, QToolButton, QUrl, QVBoxLayout,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDoubleSpinBox,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPlainTextEdit,
+    QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
+    QStyle,
+    Qt,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -22,14 +41,13 @@ from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
 from calibre.gui2.markdown_editor import Editor as MarkdownEditor
-from calibre.gui2.widgets2 import DateTimeEdit as DateTimeEditBase, RatingEditor
+from calibre.gui2.widgets2 import DateTimeEdit as DateTimeEditBase
+from calibre.gui2.widgets2 import RatingEditor
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
-from calibre.utils.date import (
-    as_local_time, as_utc, internal_iso_format_string, is_date_undefined, now,
-    qt_from_dt, qt_to_dt,
-)
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.date import as_local_time, as_utc, internal_iso_format_string, is_date_undefined, now, qt_from_dt, qt_to_dt
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 
 
 class EditWithComplete(EWC):

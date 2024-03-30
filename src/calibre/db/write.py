@@ -11,10 +11,9 @@ from functools import partial
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
-from calibre.utils.date import (
-    UNDEFINED_DATE, is_date_undefined, isoformat, parse_date, parse_only_date,
-)
-from calibre.utils.icu import lower as icu_lower, strcmp
+from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, isoformat, parse_date, parse_only_date
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import strcmp
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import iteritems, itervalues
 

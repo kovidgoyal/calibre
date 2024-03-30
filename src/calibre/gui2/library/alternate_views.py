@@ -5,24 +5,58 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools
-from io import BytesIO
 import math
 import operator
 import os
 import weakref
 from collections import namedtuple
 from functools import wraps
-from PIL import Image
-from qt.core import (
-    QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag, QEasingCurve,
-    QEvent, QFont, QHelpEvent, QIcon, QImage, QIODevice, QItemSelection,
-    QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPalette, QPixmap,
-    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate, QStyleOptionViewItem,
-    Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl, pyqtProperty, pyqtSignal,
-    pyqtSlot, qBlue, qGreen, qRed,
-)
+from io import BytesIO
 from textwrap import wrap
 from threading import Event, Thread
+
+from PIL import Image
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QBuffer,
+    QByteArray,
+    QColor,
+    QDrag,
+    QEasingCurve,
+    QEvent,
+    QFont,
+    QHelpEvent,
+    QIcon,
+    QImage,
+    QIODevice,
+    QItemSelection,
+    QItemSelectionModel,
+    QListView,
+    QMimeData,
+    QModelIndex,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QPoint,
+    QPropertyAnimation,
+    QRect,
+    QSize,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    Qt,
+    QTableView,
+    QTimer,
+    QToolTip,
+    QTreeView,
+    QUrl,
+    pyqtProperty,
+    pyqtSignal,
+    pyqtSlot,
+    qBlue,
+    qGreen,
+    qRed,
+)
 
 from calibre import fit_image, human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux

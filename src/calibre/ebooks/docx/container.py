@@ -4,20 +4,22 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, shutil
+import os
+import shutil
+import sys
 
 from lxml import etree
 
-from calibre import walk, guess_type
-from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
-from calibre.ebooks.metadata.book.base import Metadata
+from calibre import guess_type, walk
 from calibre.ebooks.docx import InvalidDOCX
 from calibre.ebooks.docx.names import DOCXNamespace
+from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import default_log
-from calibre.utils.zipfile import ZipFile
 from calibre.utils.xml_parse import safe_xml_fromstring
+from calibre.utils.zipfile import ZipFile
 
 
 def fromstring(raw, parser=None):

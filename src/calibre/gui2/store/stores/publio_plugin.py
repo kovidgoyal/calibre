@@ -15,7 +15,6 @@ from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

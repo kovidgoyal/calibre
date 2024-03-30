@@ -12,12 +12,11 @@ from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library.field_metadata import category_icon_map
-from calibre.srv.content import get as get_content, icon as get_icon
+from calibre.srv.content import get as get_content
+from calibre.srv.content import icon as get_icon
 from calibre.srv.errors import BookNotFound, HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import (
-    custom_fields_to_display, decode_name, encode_name, get_db, http_date,
-)
+from calibre.srv.utils import custom_fields_to_display, decode_name, encode_name, get_db, http_date
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key

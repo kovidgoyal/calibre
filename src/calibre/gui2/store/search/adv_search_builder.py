@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from qt.core import (QDialog, QDialogButtonBox)
+from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2.store.search.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH

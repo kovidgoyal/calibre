@@ -4,7 +4,7 @@
 
 import os
 
-from qt.core import QFileDialog, QObject, QDialog
+from qt.core import QDialog, QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
 from polyglot.builtins import string_or_bytes

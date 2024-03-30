@@ -8,10 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 import weakref
-from qt.core import (
-    QDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QPushButton,
-    QRadioButton, QSize, QTimer, QVBoxLayout,
-)
+
+from qt.core import QDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QPushButton, QRadioButton, QSize, QTimer, QVBoxLayout
 
 from calibre import as_unicode
 from calibre.constants import ismacos

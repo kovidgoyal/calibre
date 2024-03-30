@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 
 
 class FB2Output(OutputFormatPlugin):
@@ -168,9 +168,9 @@ class FB2Output(OutputFormatPlugin):
     }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.fb2.fb2ml import FB2MLizer
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
-        from calibre.ebooks.fb2.fb2ml import FB2MLizer
 
         try:
             rasterizer = SVGRasterizer()

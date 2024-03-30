@@ -12,10 +12,26 @@ from collections import namedtuple
 from contextlib import contextmanager
 from itertools import chain
 from math import atan2, ceil, cos, sin, sqrt
+
 from qt.core import (
-    QBrush, QColor, QFont, QFontMetrics, QImage, QLinearGradient, QPainter,
-    QPainterPath, QPen, QPointF, QRadialGradient, QRect, QRectF, Qt, QTextCharFormat,
-    QTextLayout, QTextOption, QTransform,
+    QBrush,
+    QColor,
+    QFont,
+    QFontMetrics,
+    QImage,
+    QLinearGradient,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPointF,
+    QRadialGradient,
+    QRect,
+    QRectF,
+    Qt,
+    QTextCharFormat,
+    QTextLayout,
+    QTextOption,
+    QTransform,
 )
 
 from calibre import fit_image, force_unicode

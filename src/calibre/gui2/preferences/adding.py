@@ -7,15 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from qt.core import Qt, QVBoxLayout, QFormLayout, QDialog
+from qt.core import QDialog, QFormLayout, Qt, QVBoxLayout
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-    CommaSeparatedList, AbortCommit
-from calibre.gui2.preferences.adding_ui import Ui_Form
-from calibre.utils.config import prefs
-from calibre.gui2.widgets import FilenamePattern
+from calibre.gui2 import choose_dir, error_dialog, gprefs, question_dialog
 from calibre.gui2.auto_add import AUTO_ADDED
-from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
+from calibre.gui2.preferences import AbortCommit, CommaSeparatedList, ConfigWidgetBase, test_widget
+from calibre.gui2.preferences.adding_ui import Ui_Form
+from calibre.gui2.widgets import FilenamePattern
+from calibre.utils.config import prefs
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

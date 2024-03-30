@@ -8,20 +8,39 @@ import sys
 import weakref
 from functools import wraps
 from io import BytesIO
+
 from qt.core import (
-    QApplication, QColor, QIcon, QImage, QImageWriter, QPainter, QPen, QPixmap, QPointF,
-    QRect, QRectF, Qt, QTransform, QUndoCommand, QUndoStack, QWidget, pyqtSignal,
+    QApplication,
+    QColor,
+    QIcon,
+    QImage,
+    QImageWriter,
+    QPainter,
+    QPen,
+    QPixmap,
+    QPointF,
+    QRect,
+    QRectF,
+    Qt,
+    QTransform,
+    QUndoCommand,
+    QUndoStack,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
-from calibre.gui2.dnd import (
-    DownloadDialog, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions,
-)
+from calibre.gui2.dnd import DownloadDialog, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.img import (
-    despeckle_image, gaussian_blur_image, gaussian_sharpen_image, image_to_data,
-    normalize_image, oil_paint_image, remove_borders_from_image,
+    despeckle_image,
+    gaussian_blur_image,
+    gaussian_sharpen_image,
+    image_to_data,
+    normalize_image,
+    oil_paint_image,
+    remove_borders_from_image,
 )
 from calibre.utils.imghdr import identify
 

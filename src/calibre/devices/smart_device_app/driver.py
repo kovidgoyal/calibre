@@ -23,10 +23,7 @@ from threading import Thread
 
 from calibre import prints
 from calibre.constants import DEBUG, cache_dir, numeric_version
-from calibre.devices.errors import (
-    ControlError, InitialConnectionError, OpenFailed, OpenFeedback, PacketError,
-    TimeoutError, UserFeedback
-)
+from calibre.devices.errors import ControlError, InitialConnectionError, OpenFailed, OpenFeedback, PacketError, TimeoutError, UserFeedback
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -39,11 +36,12 @@ from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config_base import tweaks
-from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
+from calibre.utils.filenames import ascii_filename as sanitize
+from calibre.utils.filenames import shorten_components_to
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.mdns import (
-    get_all_ips, publish as publish_zeroconf, unpublish as unpublish_zeroconf
-)
+from calibre.utils.mdns import get_all_ips
+from calibre.utils.mdns import publish as publish_zeroconf
+from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot import queue
 from polyglot.builtins import as_bytes, iteritems, itervalues

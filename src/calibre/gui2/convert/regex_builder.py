@@ -3,9 +3,8 @@
 
 import os
 from contextlib import suppress
-from qt.core import (
-    QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor, QTextEdit, pyqtSignal,
-)
+
+from qt.core import QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor, QTextEdit, pyqtSignal
 
 from calibre.constants import iswindows
 from calibre.ebooks.conversion.search_replace import compile_regular_expression

@@ -5,11 +5,9 @@
 import os
 
 from calibre.db.cli import integers_from_string
-from calibre.db.errors import NoSuchFormat
 from calibre.db.constants import DATA_FILE_PATTERN
-from calibre.library.save_to_disk import (
-    config, do_save_book_to_disk, get_formats, sanitize_args
-)
+from calibre.db.errors import NoSuchFormat
+from calibre.library.save_to_disk import config, do_save_book_to_disk, get_formats, sanitize_args
 from calibre.utils.formatter_functions import load_user_template_functions
 
 readonly = True

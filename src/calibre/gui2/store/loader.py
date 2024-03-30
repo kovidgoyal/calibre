@@ -5,17 +5,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, time, io, re
-from zlib import decompressobj
+import io
+import re
+import sys
+import time
 from collections import OrderedDict
 from threading import Thread
+from zlib import decompressobj
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG
+from calibre.constants import DEBUG, numeric_version
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
-from polyglot.urllib import urlencode
 from polyglot.builtins import iteritems, itervalues
+from polyglot.urllib import urlencode
 
 
 class VersionMismatch(ValueError):

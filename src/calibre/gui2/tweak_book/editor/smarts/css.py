@@ -11,8 +11,14 @@ from qt.core import Qt, QTextCursor
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
-    no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
-    smart_home, smart_backspace, smart_tab, expand_tabs)
+    expand_tabs,
+    get_leading_whitespace_on_block,
+    get_text_before_cursor,
+    no_modifiers,
+    smart_backspace,
+    smart_home,
+    smart_tab,
+)
 
 
 def find_rule(raw, rule_address):

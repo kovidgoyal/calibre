@@ -18,9 +18,7 @@ from importlib.machinery import ModuleSpec
 from importlib.util import decode_source
 
 from calibre import as_unicode
-from calibre.customize import (
-    InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
-)
+from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
 from polyglot.builtins import itervalues, reload, string_or_bytes
 
 

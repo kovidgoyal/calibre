@@ -9,14 +9,11 @@ import subprocess
 from zipfile import ZipFile
 
 from calibre import CurrentDir
-from calibre.ebooks.oeb.polish.container import (
-    OCF_NS, clone_container, get_container as _gc,
-)
+from calibre.ebooks.oeb.polish.container import OCF_NS, clone_container
+from calibre.ebooks.oeb.polish.container import get_container as _gc
 from calibre.ebooks.oeb.polish.replace import rationalize_folders, rename_files
 from calibre.ebooks.oeb.polish.split import merge, split
-from calibre.ebooks.oeb.polish.tests.base import (
-    BaseTest, get_simple_book, get_split_book,
-)
+from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.utils.filenames import nlinks_file
 from calibre.utils.resources import get_path as P
@@ -202,9 +199,7 @@ class ContainerTests(BaseTest):
 
     def test_actual_case(self):
         ' Test getting the actual case for files from names on case insensitive filesystems '
-        from calibre.ebooks.oeb.polish.utils import (
-            actual_case_for_name, corrected_case_for_name,
-        )
+        from calibre.ebooks.oeb.polish.utils import actual_case_for_name, corrected_case_for_name
         book = get_simple_book()
         c = get_container(book)
         name = 'f1/f2/added file.html'

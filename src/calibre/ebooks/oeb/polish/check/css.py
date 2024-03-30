@@ -7,10 +7,12 @@ import numbers
 import sys
 from collections import namedtuple
 from itertools import repeat
+
 from qt.core import QApplication, QEventLoop, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript
 
-from calibre import detect_ncpus as cpu_count, prints
+from calibre import detect_ncpus as cpu_count
+from calibre import prints
 from calibre.ebooks.oeb.polish.check.base import ERROR, WARN, BaseError
 from calibre.gui2 import must_use_qt
 from calibre.utils.resources import get_path as P

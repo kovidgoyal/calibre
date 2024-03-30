@@ -7,12 +7,12 @@ __docformat__ = 'restructuredtext en'
 Read content from txt file.
 '''
 
-import os, re
+import os
+import re
 
-from calibre import prepare_string_for_xml, isbytestring
-from calibre.ebooks.metadata.opf2 import OPFCreator
-
+from calibre import isbytestring, prepare_string_for_xml
 from calibre.ebooks.conversion.preprocess import DocAnalysis
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.cleantext import clean_ascii_chars
 from polyglot.builtins import iteritems
 
@@ -106,8 +106,10 @@ DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
 def create_markdown_object(extensions):
     # Need to load markdown extensions without relying on pkg_resources
     import importlib
-    from calibre.ebooks.markdown import Markdown
+
     from markdown import Extension
+
+    from calibre.ebooks.markdown import Markdown
 
     class NotBrainDeadMarkdown(Markdown):
         def build_extension(self, ext_name, configs):
@@ -135,9 +137,9 @@ def convert_markdown(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
 
 
 def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
+    from calibre.db.write import get_series_values
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.date import parse_only_date
-    from calibre.db.write import get_series_values
     if 'meta' not in extensions:
         extensions.append('meta')
     md = create_markdown_object(extensions)
@@ -355,8 +357,8 @@ def detect_formatting_type(txt):
 
 
 def get_images_from_polyglot_text(txt: str, base_dir: str = '', file_ext: str = 'txt') -> set:
-    from calibre.ebooks.oeb.base import OEB_IMAGES
     from calibre import guess_type
+    from calibre.ebooks.oeb.base import OEB_IMAGES
     if not base_dir:
         base_dir = os.getcwd()
     images = set()

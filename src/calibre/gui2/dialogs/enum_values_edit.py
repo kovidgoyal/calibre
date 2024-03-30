@@ -1,9 +1,21 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2020, Charles Haley
 
-from qt.core import (Qt, QDialog, QColor, QDialogButtonBox, QHeaderView,
-                     QGridLayout, QTableWidget, QTableWidgetItem, QVBoxLayout,
-                     QToolButton, QIcon, QAbstractItemView, QComboBox)
+from qt.core import (
+    QAbstractItemView,
+    QColor,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHeaderView,
+    QIcon,
+    Qt,
+    QTableWidget,
+    QTableWidgetItem,
+    QToolButton,
+    QVBoxLayout,
+)
 
 from calibre.gui2 import error_dialog, gprefs
 

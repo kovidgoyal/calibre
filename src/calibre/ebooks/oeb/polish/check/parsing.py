@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+
 from lxml.etree import XMLSyntaxError
 
 from calibre import human_readable, prepare_string_for_xml

@@ -8,10 +8,7 @@ from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
 
 from calibre import prints
-from calibre.db.adding import (
-    cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map,
-    run_import_plugins, run_import_plugins_before_metadata
-)
+from calibre.db.adding import cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map, run_import_plugins, run_import_plugins_before_metadata
 from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.book.serialize import read_cover, serialize_cover

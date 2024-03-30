@@ -7,15 +7,12 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict, namedtuple
 from operator import itemgetter
 
-from qt.core import (
-    QDialog, QFormLayout, QHBoxLayout, QLineEdit, QToolButton, QIcon,
-    QDialogButtonBox, Qt, QSpinBox, QCheckBox)
-
 from lxml import etree
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLineEdit, QSpinBox, Qt, QToolButton
 
 from calibre.gui2 import choose_files, error_dialog
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.icu import sort_key
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 Group = namedtuple('Group', 'title feeds')
 

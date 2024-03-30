@@ -102,8 +102,8 @@ Do a full text search on the entire library or a subset of it.
 
 
 def output_results_as_text(results, metadata_cache, include_snippets):
-    from calibre.utils.terminal import geometry
     from calibre.ebooks.metadata import authors_to_string
+    from calibre.utils.terminal import geometry
     width = max(5, geometry()[0])
     separator = '─' * width
     if not include_snippets:

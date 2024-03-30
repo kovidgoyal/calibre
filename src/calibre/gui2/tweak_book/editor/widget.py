@@ -7,27 +7,35 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import math
 import unicodedata
 from functools import partial
+
 from qt.core import (
-    QAction, QApplication, QColor, QIcon, QImage, QInputDialog, QMainWindow, QMenu,
-    QPainter, QPixmap, QSize, Qt, QTextCursor, QToolButton, pyqtSignal,
-    qDrawShadeRect
+    QAction,
+    QApplication,
+    QColor,
+    QIcon,
+    QImage,
+    QInputDialog,
+    QMainWindow,
+    QMenu,
+    QPainter,
+    QPixmap,
+    QSize,
+    Qt,
+    QTextCursor,
+    QToolButton,
+    pyqtSignal,
+    qDrawShadeRect,
 )
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
 from calibre.gui2 import error_dialog, open_url
-from calibre.gui2.tweak_book import (
-    actions, current_container, dictionaries, editor_name, editor_toolbar_actions,
-    editors, tprefs, update_mark_text_action
-)
-from calibre.gui2.tweak_book.editor import (
-    CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY,
-    TAG_NAME_PROPERTY
-)
+from calibre.gui2.tweak_book import actions, current_container, dictionaries, editor_name, editor_toolbar_actions, editors, tprefs, update_mark_text_action
+from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY, TAG_NAME_PROPERTY
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
-from calibre.utils.icu import utf16_length, primary_sort_key
+from calibre.utils.icu import primary_sort_key, utf16_length
 from polyglot.builtins import itervalues, string_or_bytes
 
 
@@ -513,9 +521,7 @@ class Editor(QMainWindow):
         return False
 
     def pretty_print(self, name):
-        from calibre.ebooks.oeb.polish.pretty import (
-            pretty_css, pretty_html, pretty_xml
-        )
+        from calibre.ebooks.oeb.polish.pretty import pretty_css, pretty_html, pretty_xml
         if self.syntax in {'css', 'html', 'xml'}:
             func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
             original_text = str(self.editor.toPlainText())

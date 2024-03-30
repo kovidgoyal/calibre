@@ -4,12 +4,13 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, os
+import os
+import re
 from bisect import bisect
 
-from calibre import guess_type as _guess_type, replace_entities
+from calibre import guess_type as _guess_type
+from calibre import replace_entities
 from calibre.utils.icu import upper as icu_upper
-
 
 BLOCK_TAG_NAMES = frozenset((
     'address', 'article', 'aside', 'blockquote', 'center', 'dir', 'fieldset',
@@ -160,7 +161,7 @@ class CommentFinder:
 
 
 def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
-    from calibre.ebooks.oeb.base import XPath, XHTML
+    from calibre.ebooks.oeb.base import XHTML, XPath
     changed_names = set()
     snames = set(sheets)
     lp = XPath('//h:link[@href]')
@@ -221,6 +222,7 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
         import logging
         log_level = logging.WARNING
     from css_parser import CSSParser, log
+
     from calibre.ebooks.oeb.base import _css_logger
     log.setLevel(log_level)
     log.raiseExceptions = False

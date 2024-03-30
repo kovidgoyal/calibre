@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.customize.conversion import (OutputFormatPlugin,
-        OptionRecommendation)
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 
 
 def remove_html_cover(oeb, log):
@@ -217,11 +216,11 @@ class MOBIOutput(OutputFormatPlugin):
                 for_joint=for_joint)
 
     def write_mobi(self, input_plugin, output_path, kf8, resources):
+        from calibre.customize.ui import plugin_for_input_format
         from calibre.ebooks.mobi.mobiml import MobiMLizer
+        from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
-        from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
-        from calibre.customize.ui import plugin_for_input_format
 
         opts, oeb = self.opts, self.oeb
         if not opts.no_inline_toc:
@@ -308,8 +307,8 @@ class AZW3Output(OutputFormatPlugin):
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         from calibre.ebooks.mobi.writer2.resources import Resources
-        from calibre.ebooks.mobi.writer8.main import create_kf8_book
         from calibre.ebooks.mobi.writer8.cleanup import remove_duplicate_anchors
+        from calibre.ebooks.mobi.writer8.main import create_kf8_book
 
         self.oeb, self.opts, self.log = oeb, opts, log
         opts.mobi_periodical = self.is_periodical

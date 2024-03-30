@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 # Note that the code for creating a BMP table (cmap format 4) is taken with
 # thanks from the fonttools project (BSD licensed).
 
-from struct import unpack_from, calcsize, pack
 from collections import OrderedDict
+from struct import calcsize, pack, unpack_from
 
-from calibre.utils.fonts.utils import read_bmp_prefix
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from calibre.utils.fonts.utils import read_bmp_prefix
 
 
 def split_range(start_code, end_code, cmap):  # {{{

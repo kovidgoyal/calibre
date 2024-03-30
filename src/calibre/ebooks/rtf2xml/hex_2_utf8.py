@@ -10,9 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, io
+import io
+import os
+import sys
 
-from calibre.ebooks.rtf2xml import get_char_map, copy
+from calibre.ebooks.rtf2xml import copy, get_char_map
 from calibre.ebooks.rtf2xml.char_set import char_set
 from calibre.ptempfile import better_mktemp
 

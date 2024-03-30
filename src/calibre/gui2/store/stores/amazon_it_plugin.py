@@ -6,13 +6,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 15  # Needed for dynamic plugin loading
 
 from contextlib import closing
+
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
 
 from lxml import html
-
 from qt.core import QUrl
 
 from calibre import browser

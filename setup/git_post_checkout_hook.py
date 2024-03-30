@@ -3,7 +3,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, subprocess, sys
+import os
+import subprocess
+import sys
 
 prev_rev, current_rev, flags = sys.argv[1:]
 

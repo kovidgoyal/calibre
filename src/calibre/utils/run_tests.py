@@ -2,9 +2,13 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import unittest, functools, importlib, importlib.resources, os
-from calibre.utils.monotonic import monotonic
+import functools
+import importlib
+import importlib.resources
+import os
+import unittest
 
+from calibre.utils.monotonic import monotonic
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -85,9 +89,9 @@ def itertests(suite):
 
 
 def init_env():
-    from calibre.utils.config_base import reset_tweaks_to_default
     from calibre.ebooks.metadata.book.base import reset_field_metadata
     from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
+    from calibre.utils.config_base import reset_tweaks_to_default
     reset_tweaks_to_default()
     reset_field_metadata()
     setup_css_parser_serialization()
@@ -172,7 +176,7 @@ class TestImports(unittest.TestCase):
         return count
 
     def test_import_of_all_python_modules(self):
-        from calibre.constants import iswindows, ismacos, islinux, isbsd
+        from calibre.constants import isbsd, islinux, ismacos, iswindows
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
         exclude_modules = set()
         if not iswindows:

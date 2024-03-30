@@ -9,38 +9,63 @@ import textwrap
 import unicodedata
 from collections import OrderedDict
 from math import ceil
+
 from qt.core import (
-    QAbstractListModel, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
-    QEvent, QFormLayout, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon,
-    QItemSelectionModel, QLabel, QLineEdit, QListView, QMimeData, QModelIndex, QPainter,
-    QPalette, QPixmap, QPlainTextEdit, QPoint, QRect, QSize, QSizePolicy, QSplitter,
-    QStaticText, QStyle, QStyledItemDelegate, Qt, QTextCursor, QTextDocument,
-    QTextOption, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractListModel,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QMimeData,
+    QModelIndex,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QPlainTextEdit,
+    QPoint,
+    QRect,
+    QSize,
+    QSizePolicy,
+    QSplitter,
+    QStaticText,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTextCursor,
+    QTextDocument,
+    QTextOption,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
-from calibre.ebooks.oeb.polish.toc import (
-    ensure_container_has_nav, get_guide_landmarks, get_nav_landmarks, set_landmarks,
-)
+from calibre.ebooks.oeb.polish.toc import ensure_container_has_nav, get_guide_landmarks, get_nav_landmarks, set_landmarks
 from calibre.ebooks.oeb.polish.upgrade import guide_epubtype_map
 from calibre.ebooks.oeb.polish.utils import guess_type, lead_text
-from calibre.gui2 import (
-    choose_files, choose_images, choose_save_file, error_dialog, info_dialog,
-)
+from calibre.gui2 import choose_files, choose_images, choose_save_file, error_dialog, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import current_container, tprefs
-from calibre.gui2.widgets2 import (
-    PARAGRAPH_SEPARATOR, Dialog as BaseDialog, HistoryComboBox, to_plain_text,
-)
+from calibre.gui2.widgets2 import PARAGRAPH_SEPARATOR, HistoryComboBox, to_plain_text
+from calibre.gui2.widgets2 import Dialog as BaseDialog
 from calibre.startup import connect_lambda
-from calibre.utils.icu import (
-    numeric_sort_key, primary_contains, primary_sort_key, sort_key,
-)
-from calibre.utils.matcher import (
-    DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char,
-)
+from calibre.utils.icu import numeric_sort_key, primary_contains, primary_sort_key, sort_key
+from calibre.utils.matcher import DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char
 from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()

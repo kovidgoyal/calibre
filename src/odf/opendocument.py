@@ -27,20 +27,33 @@ import zipfile
 from io import BytesIO
 from xml.sax.xmlreader import InputSource
 
-from polyglot.io import PolyglotBytesIO, PolyglotStringIO
 from polyglot.builtins import unicode_type
+from polyglot.io import PolyglotBytesIO, PolyglotStringIO
 
 from . import element, manifest, meta
 from .attrconverters import make_NCName
-from .namespaces import (
-    CHARTNS, DRAWNS, METANS, OFFICENS, PRESENTATIONNS, STYLENS, TABLENS, TEXTNS,
-    TOOLSVERSION
-)
+from .namespaces import CHARTNS, DRAWNS, METANS, OFFICENS, PRESENTATIONNS, STYLENS, TABLENS, TEXTNS, TOOLSVERSION
 from .odfmanifest import manifestlist
 from .office import (
-    AutomaticStyles, Body, Chart, Document, DocumentContent, DocumentMeta,
-    DocumentSettings, DocumentStyles, Drawing, FontFaceDecls, Image, MasterStyles,
-    Meta, Presentation, Scripts, Settings, Spreadsheet, Styles, Text
+    AutomaticStyles,
+    Body,
+    Chart,
+    Document,
+    DocumentContent,
+    DocumentMeta,
+    DocumentSettings,
+    DocumentStyles,
+    Drawing,
+    FontFaceDecls,
+    Image,
+    MasterStyles,
+    Meta,
+    Presentation,
+    Scripts,
+    Settings,
+    Spreadsheet,
+    Styles,
+    Text,
 )
 
 __version__= TOOLSVERSION
@@ -607,8 +620,9 @@ def OpenDocumentTextMaster():
 
 
 def __loadxmlparts(z, manifest, doc, objectpath):
+    from xml.sax import handler, make_parser
+
     from .load import LoadParser
-    from xml.sax import make_parser, handler
 
     for xmlfile in (objectpath+'settings.xml', objectpath+'meta.xml', objectpath+'content.xml', objectpath+'styles.xml'):
         if xmlfile not in manifest:

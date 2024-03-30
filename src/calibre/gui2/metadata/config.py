@@ -7,10 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 import textwrap
-from qt.core import (
-    QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QLabel, QLineEdit,
-    QListView, QSpinBox, Qt, QVBoxLayout, QWidget
-)
+
+from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QLabel, QLineEdit, QListView, QSpinBox, Qt, QVBoxLayout, QWidget
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key

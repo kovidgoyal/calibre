@@ -5,9 +5,9 @@
 import re
 from collections import deque
 
-from calibre.utils.icu import (
-    capitalize, lower, lower as icu_lower, upper, upper as icu_upper,
-)
+from calibre.utils.icu import capitalize, lower, upper
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 
 
 def cap_author_token(token):

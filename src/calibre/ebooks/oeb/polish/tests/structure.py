@@ -2,22 +2,22 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import os
+from functools import partial
 from io import BytesIO
 from itertools import count
-from functools import partial
-from zipfile import ZipFile, ZIP_STORED
-import os
-from calibre.ebooks.oeb.polish.tests.base import BaseTest
-from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.create import create_book
-from calibre.ebooks.oeb.polish.cover import (
-    find_cover_image, mark_as_cover, find_cover_page, mark_as_titlepage, clean_opf
-)
-from calibre.ebooks.oeb.polish.toc import get_toc, from_xpaths as toc_from_xpaths, get_landmarks
-from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.oeb.base import OEB_DOCS
+from zipfile import ZIP_STORED, ZipFile
+
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
+from calibre.ebooks.oeb.base import OEB_DOCS
+from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.cover import clean_opf, find_cover_image, find_cover_page, mark_as_cover, mark_as_titlepage
+from calibre.ebooks.oeb.polish.create import create_book
+from calibre.ebooks.oeb.polish.tests.base import BaseTest
+from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
+from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
+from calibre.ebooks.oeb.polish.utils import guess_type
 
 OPF_TEMPLATE = '''
 <package xmlns="http://www.idpf.org/2007/opf" version="{ver}" prefix="calibre: %s" unique-identifier="uid">

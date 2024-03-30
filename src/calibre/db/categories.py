@@ -11,9 +11,9 @@ from functools import partial
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.config_base import prefs, tweaks
-from calibre.utils.icu import (
-    collation_order, lower as icu_lower, sort_key, upper as icu_upper,
-)
+from calibre.utils.icu import collation_order, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import upper as icu_upper
 from polyglot.builtins import iteritems, native_string_type
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set

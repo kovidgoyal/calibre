@@ -4,11 +4,11 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
-
-from polyglot.builtins import reraise
+import os
+import sys
 
 from calibre.constants import iswindows
+from polyglot.builtins import reraise
 
 '''
 This module defines a share_open() function which is a replacement for
@@ -28,8 +28,9 @@ file before deleting it.
 '''
 
 if iswindows:
-    from numbers import Integral
     import msvcrt
+    from numbers import Integral
+
     from calibre_extensions import winutil
 
     _ACCESS_MASK = os.O_RDONLY | os.O_WRONLY | os.O_RDWR
@@ -103,6 +104,7 @@ else:
 
 def find_tests():
     import unittest
+
     from calibre.ptempfile import TemporaryDirectory
 
     class SharedFileTest(unittest.TestCase):

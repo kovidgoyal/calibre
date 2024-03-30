@@ -1755,10 +1755,7 @@ class Amazon(Source):
 def manual_tests(domain, **kw):  # {{{
     # To run these test use:
     # calibre-debug -c "from calibre.ebooks.metadata.sources.amazon import *; manual_tests('com')"
-    from calibre.ebooks.metadata.sources.test import (
-        authors_test, comments_test, isbn_test, series_test, test_identify_plugin,
-        title_test,
-    )
+    from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
     all_tests = {}
     all_tests['com'] = [  # {{{
         (   # Paperback with series

@@ -2,18 +2,43 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-import regex
 import unicodedata
 from collections import OrderedDict, namedtuple
 from difflib import SequenceMatcher
 from functools import partial
 from itertools import chain
 from math import ceil
+
+import regex
 from qt.core import (
-    QApplication, QBrush, QColor, QEvent, QEventLoop, QFont, QHBoxLayout, QIcon, QImage,
-    QKeySequence, QMenu, QPainter, QPainterPath, QPalette, QPen, QPixmap,
-    QPlainTextEdit, QRect, QScrollBar, QSplitter, QSplitterHandle, Qt, QTextCharFormat,
-    QTextCursor, QTextLayout, QTimer, QWidget, pyqtSignal,
+    QApplication,
+    QBrush,
+    QColor,
+    QEvent,
+    QEventLoop,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QImage,
+    QKeySequence,
+    QMenu,
+    QPainter,
+    QPainterPath,
+    QPalette,
+    QPen,
+    QPixmap,
+    QPlainTextEdit,
+    QRect,
+    QScrollBar,
+    QSplitter,
+    QSplitterHandle,
+    Qt,
+    QTextCharFormat,
+    QTextCursor,
+    QTextLayout,
+    QTimer,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import fit_image, human_readable
@@ -21,9 +46,7 @@ from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
 from calibre.gui2.tweak_book.diff.highlight import get_highlighter
-from calibre.gui2.tweak_book.editor.text import (
-    LineNumbers, PlainTextEdit, default_font_family,
-)
+from calibre.gui2.tweak_book.editor.text import LineNumbers, PlainTextEdit, default_font_family
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.widgets import BusyCursor
 from calibre.startup import connect_lambda
@@ -48,6 +71,7 @@ def beautify_text(raw, syntax):
         pretty_xml_tree(root)
     elif syntax == 'css':
         import logging
+
         from css_parser import CSSParser, log
 
         from calibre.ebooks.oeb.base import _css_logger, serialize

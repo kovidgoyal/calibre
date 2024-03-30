@@ -5,10 +5,8 @@ import os
 import sys
 from contextlib import contextmanager, suppress
 from functools import lru_cache
-from qt.core import (
-    QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject,
-    QPalette, QProxyStyle, QStyle, Qt,
-)
+
+from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt
 
 from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
 

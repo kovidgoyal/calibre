@@ -4,7 +4,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, re, functools
+import functools
+import glob
+import os
+import re
 from collections import Counter
 
 from lxml import etree
@@ -12,8 +15,8 @@ from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote, urlparse
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
@@ -25,8 +28,9 @@ C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 def parse_html_toc(data):
     from html5_parser import parse
-    from calibre.utils.cleantext import clean_xml_chars
     from lxml import etree
+
+    from calibre.utils.cleantext import clean_xml_chars
     if isinstance(data, bytes):
         data = xml_to_unicode(data, strip_encoding_pats=True, resolve_entities=True)[0]
     root = parse(clean_xml_chars(data), maybe_xhtml=True, keep_doctype=False, sanitize_names=True)

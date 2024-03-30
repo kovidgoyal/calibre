@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -11,8 +10,7 @@ from contextlib import closing
 from threading import Thread
 
 from lxml import html
-
-from qt.core import (pyqtSignal, QObject)
+from qt.core import QObject, pyqtSignal
 
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult

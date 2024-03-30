@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre import prints
-from calibre.utils.date import isoformat, DEFAULT_DATE
+from calibre.utils.date import DEFAULT_DATE, isoformat
 from polyglot.builtins import itervalues
 
 
@@ -590,8 +590,7 @@ class SchemaUpgrade:
     def upgrade_version_19(self):
         recipes = self.db.get('SELECT id,title,script FROM feeds')
         if recipes:
-            from calibre.web.feeds.recipes import (custom_recipes,
-                    custom_recipe_filename)
+            from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
                 existing = frozenset(map(int, custom_recipes))

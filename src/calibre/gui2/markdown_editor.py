@@ -2,12 +2,10 @@
 # License: GPLv3 Copyright: 2023, un_pogaz <un.pogaz@gmail.com>
 
 import os
-from qt.core import (
-    QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QTabWidget, QUrl,
-    QVBoxLayout, QWidget, pyqtSignal,
-)
 
-from calibre.gui2 import safe_open_url, gprefs
+from qt.core import QDialog, QDialogButtonBox, QPlainTextEdit, QSize, Qt, QTabWidget, QUrl, QVBoxLayout, QWidget, pyqtSignal
+
+from calibre.gui2 import gprefs, safe_open_url
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown

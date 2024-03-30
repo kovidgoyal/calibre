@@ -78,8 +78,8 @@ class RBMLizer:
         return output
 
     def get_cover_page(self):
-        from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
         output = ''
         if 'cover' in self.oeb_book.guide:
             if self.name_map.get(self.oeb_book.guide['cover'].href, None):
@@ -108,8 +108,8 @@ class RBMLizer:
         return ''.join(toc)
 
     def get_text(self):
-        from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
 
         output = ['']
         for item in self.oeb_book.spine:

@@ -3,7 +3,9 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import subprocess, os, sys
+import os
+import subprocess
+import sys
 
 base = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 os.chdir(base)

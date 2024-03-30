@@ -6,6 +6,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import errno
+import hashlib
 import os
 import re
 import shutil
@@ -13,7 +14,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import hashlib
 from contextlib import contextmanager
 from functools import lru_cache
 
@@ -167,7 +167,7 @@ def get_warnings():
 
 def edit_file(path):
     return subprocess.Popen([
-        'vim', '-c', 'ALELint', '-c', 'ALEFirst', '-S', os.path.join(SRC, '../session.vim'), '-f', path
+        os.environ.get('EDITOR', 'vim'), '-S', os.path.join(SRC, '../session.vim'), '-f', path
     ]).wait() == 0
 
 

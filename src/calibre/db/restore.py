@@ -18,8 +18,8 @@ from threading import Thread
 from calibre import force_unicode, isbytestring
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.db.backend import DB, DBPrefs
-from calibre.db.constants import METADATA_FILE_NAME, TRASH_DIR_NAME, NOTES_DIR_NAME, NOTES_DB_NAME
 from calibre.db.cache import Cache
+from calibre.db.constants import METADATA_FILE_NAME, NOTES_DB_NAME, NOTES_DIR_NAME, TRASH_DIR_NAME
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp

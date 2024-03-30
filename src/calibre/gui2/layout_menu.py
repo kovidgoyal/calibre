@@ -2,10 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QFontMetrics, QHBoxLayout, QIcon, QMenu, QStylePainter, QPushButton, QSize,
-    QSizePolicy, Qt, QWidget, QStyleOption, QStyle)
-
+from qt.core import QFontMetrics, QHBoxLayout, QIcon, QMenu, QPushButton, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QWidget
 
 ICON_SZ = 64
 

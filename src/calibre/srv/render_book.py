@@ -11,21 +11,18 @@ from collections import defaultdict
 from datetime import datetime
 from functools import partial
 from itertools import count
-from lxml.etree import Comment
 from math import ceil
+
+from lxml.etree import Comment
 
 from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format
-from calibre.ebooks.oeb.base import (
-    EPUB, OEB_DOCS, OEB_STYLES, OPF, SMIL, XHTML, XHTML_NS, XLINK, XPath as _XPath,
-    rewrite_links, urlunquote,
-)
+from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, OEB_STYLES, OPF, SMIL, XHTML, XHTML_NS, XLINK, rewrite_links, urlunquote
+from calibre.ebooks.oeb.base import XPath as _XPath
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
-from calibre.ebooks.oeb.polish.cover import (
-    find_cover_image, find_cover_image_in_page, find_cover_page,
-)
+from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image_in_page, find_cover_page
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -39,10 +36,9 @@ from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpa
 from calibre.utils.short_uuid import uuid4
 from calibre_extensions import speedup
 from calibre_extensions.fast_css_transform import transform_properties
-from polyglot.binary import (
-    as_base64_unicode as encode_component, from_base64_bytes,
-    from_base64_unicode as decode_component,
-)
+from polyglot.binary import as_base64_unicode as encode_component
+from polyglot.binary import from_base64_bytes
+from polyglot.binary import from_base64_unicode as decode_component
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import quote, urlparse
 

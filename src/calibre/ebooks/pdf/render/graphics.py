@@ -5,16 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from math import sqrt
 from collections import namedtuple
+from math import sqrt
 
-from qt.core import (
-    QBrush, QPen, Qt, QPointF, QTransform, QPaintEngine, QImage)
+from qt.core import QBrush, QImage, QPaintEngine, QPen, QPointF, Qt, QTransform
 
-from calibre.ebooks.pdf.render.common import (
-    Name, Array, fmtnum, Stream, Dictionary)
-from calibre.ebooks.pdf.render.serialize import Path
+from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, Stream, fmtnum
 from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
+from calibre.ebooks.pdf.render.serialize import Path
 
 
 def convert_path(path):  # {{{

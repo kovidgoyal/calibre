@@ -7,27 +7,19 @@ import re
 from collections import defaultdict, namedtuple
 from contextlib import suppress
 from functools import wraps
-from lxml import etree
 from operator import attrgetter
 
+from lxml import etree
+
 from calibre import prints
-from calibre.ebooks.metadata import (
-    authors_to_string, check_isbn, fmt_sidx, string_to_authors
-)
+from calibre.ebooks.metadata import authors_to_string, check_isbn, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.book.json_codec import (
-    decode_is_multiple, encode_is_multiple, object_to_unicode
-)
-from calibre.ebooks.metadata.utils import (
-    create_manifest_item, ensure_unique, normalize_languages, parse_opf,
-    pretty_print_opf
-)
+from calibre.ebooks.metadata.book.json_codec import decode_is_multiple, encode_is_multiple, object_to_unicode
+from calibre.ebooks.metadata.utils import create_manifest_item, ensure_unique, normalize_languages, parse_opf, pretty_print_opf
 from calibre.ebooks.oeb.base import DC, OPF, OPF2_NSMAP
 from calibre.utils.config import from_json, to_json
-from calibre.utils.date import (
-    fix_only_date, is_date_undefined, isoformat, parse_date as parse_date_, utcnow,
-    w3cdtf
-)
+from calibre.utils.date import fix_only_date, is_date_undefined, isoformat, utcnow, w3cdtf
+from calibre.utils.date import parse_date as parse_date_
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import iteritems

@@ -6,19 +6,21 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into FB2 markup
 '''
 
-import re, textwrap, uuid
+import re
+import textwrap
+import uuid
 from datetime import datetime
 
 from lxml import etree
 
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
+from calibre.ebooks.oeb.base import urlnormalize
+from calibre.utils.img import save_cover_data_to
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.utils.img import save_cover_data_to
-from calibre.ebooks.oeb.base import urlnormalize
-from polyglot.builtins import string_or_bytes
 from polyglot.binary import as_base64_unicode
+from polyglot.builtins import string_or_bytes
 from polyglot.urllib import urlparse
 
 

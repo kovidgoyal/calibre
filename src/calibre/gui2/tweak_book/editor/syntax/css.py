@@ -9,7 +9,7 @@ import re
 from qt.core import QTextBlockUserData
 
 from calibre.gui2.tweak_book import verify_link
-from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY, CSS_PROPERTY
+from calibre.gui2.tweak_book.editor import CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from polyglot.builtins import iteritems
 

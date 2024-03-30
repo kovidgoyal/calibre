@@ -2,15 +2,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
-import sys, array, os, re, codecs, logging
+import array
+import codecs
+import logging
+import os
+import re
+import sys
 from itertools import chain
 
 from calibre import setup_cli_handlers
+from calibre.ebooks.lrf.meta import LRFMetaFile
+from calibre.ebooks.lrf.objects import BookAttr, Font, PageTree, StyleObject, Text, TOCObject, get_object, ruby_tags
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.lrf.meta import LRFMetaFile
-from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
-                                         Font, Text, TOCObject, BookAttr, ruby_tags
 from polyglot.builtins import itervalues
 
 

@@ -49,7 +49,7 @@ def load_as_html(html):
 def load_html(path, view, codec='utf-8', mime_type=None,
               pre_load_callback=lambda x:None, path_is_html=False,
               force_as_html=False, loading_url=None):
-    from qt.core import QUrl, QByteArray
+    from qt.core import QByteArray, QUrl
     if mime_type is None:
         mime_type = guess_type(path)[0]
         if not mime_type:

@@ -2,13 +2,11 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
-        QProgressBar, QSize, QTimer, pyqtSignal, Qt)
+from qt.core import QDialog, QDialogButtonBox, QLabel, QProgressBar, QSize, Qt, QTimer, QVBoxLayout, pyqtSignal
 
-from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,
-    info_dialog)
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding
+from calibre.gui2 import error_dialog, info_dialog, question_dialog, warning_dialog
 
 
 class DBRestore(QDialog):

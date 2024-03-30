@@ -5,10 +5,9 @@ import os
 import shutil
 import tempfile
 import time
-from qt.core import (
-    QApplication, QCursor, QFileSystemWatcher, QObject, Qt, QTimer, pyqtSignal,
-)
 from threading import Event, Thread
+
+from qt.core import QApplication, QCursor, QFileSystemWatcher, QObject, Qt, QTimer, pyqtSignal
 
 from calibre import prints
 from calibre.db.adding import compile_rule, filter_filename
@@ -262,9 +261,7 @@ class AutoAdder(QObject):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
                 mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
             if gprefs.get('author_map_on_add_rules'):
-                from calibre.ebooks.metadata.author_mapper import (
-                    compile_rules, map_authors,
-                )
+                from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
                 new_authors = map_authors(mi.authors, compile_rules(gprefs['author_map_on_add_rules']))
                 if new_authors != mi.authors:
                     mi.authors = new_authors

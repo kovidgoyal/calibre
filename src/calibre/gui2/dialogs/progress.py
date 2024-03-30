@@ -5,9 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import (
-    QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar, QSize,
-    QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
+from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QFontMetrics, QHBoxLayout, QIcon, QLabel, QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import elided_text, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator

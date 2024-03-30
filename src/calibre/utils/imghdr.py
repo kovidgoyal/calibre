@@ -2,8 +2,9 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from struct import unpack, error
 import os
+from struct import error, unpack
+
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.builtins import string_or_bytes
 

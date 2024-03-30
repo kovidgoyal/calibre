@@ -5,8 +5,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.media3 import CSSMedia3Parser, MediaQuery as MQ
+from tinycss.media3 import CSSMedia3Parser
+from tinycss.media3 import MediaQuery as MQ
 from tinycss.tests import BaseTest, jsonify
+
 
 def jsonify_expr(e):
     if e is None:

@@ -21,16 +21,35 @@
 # pdb.set_trace()
 
 from collections import defaultdict
+from xml.dom import Node
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
-from xml.dom import Node
 
-from .opendocument import load
-
-from .namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
-  FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
-  SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
 from polyglot.builtins import unicode_type
+
+from .namespaces import (
+    ANIMNS,
+    CHARTNS,
+    CONFIGNS,
+    DCNS,
+    DR3DNS,
+    DRAWNS,
+    FONS,
+    FORMNS,
+    MATHNS,
+    METANS,
+    NUMBERNS,
+    OFFICENS,
+    PRESENTATIONNS,
+    SCRIPTNS,
+    SMILNS,
+    STYLENS,
+    SVGNS,
+    TABLENS,
+    TEXTNS,
+    XLINKNS,
+)
+from .opendocument import load
 
 if False:  # Added by Kovid
     DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS

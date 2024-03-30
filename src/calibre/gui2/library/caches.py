@@ -4,8 +4,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from threading import Lock, current_thread
 from collections import OrderedDict
+from threading import Lock, current_thread
 
 from qt.core import QImage, QPixmap
 

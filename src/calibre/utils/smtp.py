@@ -8,7 +8,12 @@ This module implements a simple commandline SMTP client that supports:
   * Background delivery with failures being saved in a maildir mailbox
 '''
 
-import sys, traceback, os, socket, encodings.idna as idna
+import encodings.idna as idna
+import os
+import socket
+import sys
+import traceback
+
 from calibre import isbytestring
 from calibre.constants import iswindows
 from calibre.utils.localization import _
@@ -75,9 +80,9 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
     assert text or attachment_data
 
+    import uuid
     from email.message import EmailMessage
     from email.utils import formatdate
-    import uuid
 
     outer = EmailMessage()
     outer['From'] = from_
@@ -117,6 +122,7 @@ def get_mx(host, verbose=0):
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
     from email.message import Message
+
     import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work

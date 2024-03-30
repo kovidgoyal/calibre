@@ -10,12 +10,11 @@
 """
 
 
-import re
-import sys
-import operator
 import functools
+import operator
+import re
 import string
-
+import sys
 
 # * Raw strings with the r'' notation are used so that \ do not need
 #   to be escaped.

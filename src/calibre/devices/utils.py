@@ -5,10 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, re
+import os
+import re
+import time
 from functools import partial
 
-from calibre.devices.errors import DeviceError, WrongDestinationError, FreeSpaceError
+from calibre.devices.errors import DeviceError, FreeSpaceError, WrongDestinationError
 
 
 def sanity_check(on_card, files, card_prefixes, free_space):
@@ -72,7 +74,7 @@ def create_upload_path(mdata, fname, template, sanitize,
         filename_callback=lambda x, y:x,
         sanitize_path_components=lambda x: x
         ):
-    from calibre.library.save_to_disk import get_components, config
+    from calibre.library.save_to_disk import config, get_components
     from calibre.utils.filenames import shorten_components_to
 
     special_tag = None

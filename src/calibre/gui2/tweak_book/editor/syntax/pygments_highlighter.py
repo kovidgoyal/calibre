@@ -7,11 +7,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import numbers
 from functools import partial
 
+from pygments.lexer import Error, _TokenType
 from qt.core import QTextBlockUserData
-from pygments.lexer import _TokenType, Error
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
+from calibre.gui2.tweak_book.editor.syntax.utils import NULL_FMT, format_for_pygments_token
 
 NORMAL = 0
 

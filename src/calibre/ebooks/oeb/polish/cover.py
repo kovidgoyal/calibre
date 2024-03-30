@@ -2,10 +2,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, re, os
+import os
+import re
+import shutil
 
-from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
-from calibre.ebooks.oeb.polish.replace import replace_links, get_recommended_folders
+from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XLINK, XPath, xml2text
+from calibre.ebooks.oeb.polish.replace import get_recommended_folders, replace_links
 from calibre.utils.imghdr import identify
 from polyglot.builtins import iteritems
 

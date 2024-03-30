@@ -4,10 +4,10 @@
 
 from lxml import etree
 
+from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF, pretty_print
 from calibre.ebooks.metadata.opf3 import apply_metadata, read_metadata
-from calibre.ebooks.metadata.utils import parse_opf, normalize_languages, create_manifest_item, parse_opf_version
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.utils import create_manifest_item, normalize_languages, parse_opf, parse_opf_version
 from polyglot.builtins import iteritems
 
 

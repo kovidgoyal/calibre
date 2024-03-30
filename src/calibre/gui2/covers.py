@@ -5,17 +5,40 @@ import os
 from collections import OrderedDict
 from contextlib import suppress
 from copy import deepcopy
+
 from qt.core import (
-    QCheckBox, QColor, QColorDialog, QDialog, QDialogButtonBox, QFormLayout, QFrame,
-    QGridLayout, QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMenu, QPixmap, QPushButton, QSize, QSizePolicy, QSpinBox, Qt,
-    QTabWidget, QTimer, QToolButton, QVBoxLayout, QWidget, pyqtSignal,
+    QCheckBox,
+    QColor,
+    QColorDialog,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QPixmap,
+    QPushButton,
+    QSize,
+    QSizePolicy,
+    QSpinBox,
+    Qt,
+    QTabWidget,
+    QTimer,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.constants import config_dir
-from calibre.ebooks.covers import (
-    all_styles, cprefs, default_color_themes, generate_cover, override_prefs,
-)
+from calibre.ebooks.covers import all_styles, cprefs, default_color_themes, generate_cover, override_prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.startup import connect_lambda

@@ -6,11 +6,11 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import pyqtSignal, QModelIndex, QThread, Qt
+from qt.core import QModelIndex, Qt, QThread, pyqtSignal
 
+from calibre.devices.usbms.device import Device
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
-from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
 from polyglot.builtins import iteritems
 

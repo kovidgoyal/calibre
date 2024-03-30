@@ -1,23 +1,22 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, logging, os, traceback, time
+import logging
+import os
+import sys
+import time
+import traceback
 
-from qt.core import (
-    QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon, Qt, QCoreApplication, QThread, QScrollBar)
+from qt.core import QCoreApplication, QDialog, QIcon, QKeySequence, QPainter, QScrollBar, QSlider, QSpinBox, Qt, QThread
 
-from calibre import __appname__, setup_cli_handlers, islinux, isbsd, as_unicode
-from calibre.gui2 import gprefs
+from calibre import __appname__, as_unicode, isbsd, islinux, setup_cli_handlers
 from calibre.ebooks.lrf.lrfparser import LRFDocument
-
-from calibre.gui2 import (
-        error_dialog, choose_files, Application
-        )
+from calibre.gui2 import Application, choose_files, error_dialog, gprefs
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
-from calibre.gui2.main_window import MainWindow
 from calibre.gui2.lrf_renderer.document import Document
+from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
+from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 
 

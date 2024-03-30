@@ -6,13 +6,13 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from struct import pack
 from io import BytesIO
+from struct import pack
 
-from calibre.constants import iswindows, ismacos
-from calibre.ebooks.mobi.utils import (utf8_text, to_base)
-from calibre.utils.localization import lang_as_iso639_1
+from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata import authors_to_sort_string
+from calibre.ebooks.mobi.utils import to_base, utf8_text
+from calibre.utils.localization import lang_as_iso639_1
 from polyglot.builtins import iteritems
 
 EXTH_CODES = {

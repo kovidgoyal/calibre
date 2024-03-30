@@ -114,8 +114,8 @@ class PageProcessor(list):  # {{{
     def render(self):
         from qt.core import QImage
 
-        from calibre.utils.img import crop_image, image_from_data, scale_image
         from calibre.utils.filenames import make_long_path_useable
+        from calibre.utils.img import crop_image, image_from_data, scale_image
         with open(make_long_path_useable(self.path_to_page), 'rb') as f:
             img = image_from_data(f.read())
         width, height = img.width(), img.height()
@@ -140,9 +140,15 @@ class PageProcessor(list):  # {{{
         from qt.core import QImage
 
         from calibre.utils.img import (
-            add_borders_to_image, despeckle_image, gaussian_sharpen_image,
-            image_to_data, normalize_image, quantize_image, remove_borders_from_image,
-            resize_image, rotate_image,
+            add_borders_to_image,
+            despeckle_image,
+            gaussian_sharpen_image,
+            image_to_data,
+            normalize_image,
+            quantize_image,
+            remove_borders_from_image,
+            resize_image,
+            rotate_image,
         )
         for i, img in enumerate(self.pages):
             if self.rotate:

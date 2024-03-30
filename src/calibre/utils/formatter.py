@@ -20,9 +20,7 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
-from calibre.utils.formatter_functions import (
-    StoredObjectType, formatter_functions, function_object_type, get_database,
-)
+from calibre.utils.formatter_functions import StoredObjectType, formatter_functions, function_object_type, get_database
 from calibre.utils.icu import strcmp
 from calibre.utils.localization import _
 from polyglot.builtins import error_message

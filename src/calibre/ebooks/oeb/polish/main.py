@@ -5,22 +5,23 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, sys, time
+import re
+import sys
+import time
 from collections import namedtuple
 from functools import partial
 
 from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.stats import StatsCollector
-from calibre.ebooks.oeb.polish.subset import subset_all_fonts, iter_subsettable_fonts
-from calibre.ebooks.oeb.polish.images import compress_images
-from calibre.ebooks.oeb.polish.upgrade import upgrade_book
-from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
-from calibre.ebooks.oeb.polish.replace import smarten_punctuation
-from calibre.ebooks.oeb.polish.jacket import (
-    replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.ebooks.oeb.polish.css import remove_unused_css
-from calibre.ebooks.oeb.polish.hyphenation import remove_soft_hyphens, add_soft_hyphens
+from calibre.ebooks.oeb.polish.embed import embed_all_fonts
+from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens, remove_soft_hyphens
+from calibre.ebooks.oeb.polish.images import compress_images
+from calibre.ebooks.oeb.polish.jacket import add_or_replace_jacket, find_existing_jacket, remove_jacket, replace_jacket
+from calibre.ebooks.oeb.polish.replace import smarten_punctuation
+from calibre.ebooks.oeb.polish.stats import StatsCollector
+from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_fonts
+from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.utils.logging import Log
 from polyglot.builtins import iteritems
 

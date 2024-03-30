@@ -8,15 +8,13 @@ Transform OEB content into a single (more or less) HTML file.
 
 import os
 import re
-from css_parser import replaceUrls
 from functools import partial
+
+from css_parser import replaceUrls
 from lxml import html
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import (
-    OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, barename, namespace, rewrite_links,
-    urlnormalize,
-)
+from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, barename, namespace, rewrite_links, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_unicode, string_or_bytes

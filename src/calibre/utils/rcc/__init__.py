@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-import os, io
+import io
+import os
 import sys
 import tempfile
 from posixpath import normpath
+
 from qt.core import QFile, QIODevice
 
 from calibre_extensions import rcc_backend

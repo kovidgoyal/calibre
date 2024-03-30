@@ -7,9 +7,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import numbers
 from functools import wraps
 
+from css_parser import CSSParser
+from css_parser import profile as cssprofiles
 from css_parser.css import PropertyValue
-from css_parser import profile as cssprofiles, CSSParser
 from tinycss.fonts3 import parse_font, serialize_font_family
+
 from calibre.ebooks.oeb.base import css_text
 from polyglot.builtins import iteritems, string_or_bytes
 
@@ -266,8 +268,9 @@ def condense_sheet(sheet):
 
 def test_normalization(return_tests=False):  # {{{
     import unittest
-    from css_parser import parseStyle
     from itertools import product
+
+    from css_parser import parseStyle
 
     class TestNormalization(unittest.TestCase):
         longMessage = True

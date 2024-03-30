@@ -23,7 +23,8 @@ __all__ = [
     'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint', 'xwin',
 ]
 
-from setup.installers import Linux, Win, OSX, Linux64, LinuxArm64, Win64, ExtDev, BuildDep, ExportPackages
+from setup.installers import OSX, BuildDep, ExportPackages, ExtDev, Linux, Linux64, LinuxArm64, Win, Win64
+
 linux, linux64, linuxarm64 = Linux(), Linux64(), LinuxArm64()
 win, win64 = Win(), Win64()
 osx = OSX()
@@ -31,7 +32,8 @@ extdev = ExtDev()
 build_dep = BuildDep()
 export_packages = ExportPackages()
 
-from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
+from setup.translations import ISO639, ISO3166, POT, GetTranslations, Translations
+
 pot = POT()
 translations = Translations()
 get_translations = GetTranslations()
@@ -39,49 +41,60 @@ iso639 = ISO639()
 iso3166 = ISO3166()
 
 from setup.csslint import CSSLint
+
 stylelint = CSSLint()
 
 from setup.build import Build
+
 build = Build()
 
 from setup.mathjax import MathJax
+
 mathjax = MathJax()
 
 from setup.hyphenation import Hyphenation
+
 hyphenation = Hyphenation()
 
 from setup.liberation import LiberationFonts
+
 liberation_fonts = LiberationFonts()
 
 from setup.git_version import GitVersion
+
 git_version = GitVersion()
 
-from setup.install import Develop, Install, Sdist, Bootstrap
+from setup.install import Bootstrap, Develop, Install, Sdist
+
 develop = Develop()
 install = Install()
 sdist = Sdist()
 bootstrap = Bootstrap()
 
 from setup.gui import GUI
+
 gui = GUI()
 
 from setup.check import Check, UpgradeSourceCode
+
 check = Check()
 upgrade_source_code = UpgradeSourceCode()
 
 from setup.test import Test, TestRS
+
 test = Test()
 test_rs = TestRS()
 
-from setup.resources import Resources, Kakasi, CACerts, RapydScript, RecentUAs
+from setup.resources import CACerts, Kakasi, RapydScript, RecentUAs, Resources
+
 resources = Resources()
 kakasi = Kakasi()
 cacerts = CACerts()
 recent_uas = RecentUAs()
 rapydscript = RapydScript()
 
-from setup.publish import Manual, TagRelease, Stage1, Stage2, \
-        Stage3, Stage4, Stage5, Publish, PublishBetas, PublishPreview, ManPages
+from setup.publish import ManPages, Manual, Publish, PublishBetas, PublishPreview, Stage1, Stage2, Stage3, Stage4, Stage5, TagRelease
+
 manual = Manual()
 tag_release = TagRelease()
 stage1 = Stage1()
@@ -94,8 +107,8 @@ publish_betas = PublishBetas()
 publish_preview = PublishPreview()
 man_pages = ManPages()
 
-from setup.upload import (UploadUserManual, UploadDemo, UploadInstallers,
-        UploadToServer, ReUpload)
+from setup.upload import ReUpload, UploadDemo, UploadInstallers, UploadToServer, UploadUserManual
+
 upload_user_manual = UploadUserManual()
 upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
@@ -104,6 +117,7 @@ reupload = ReUpload()
 
 
 from setup.xwin import XWin
+
 xwin = XWin()
 
 commands = {}

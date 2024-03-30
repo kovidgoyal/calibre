@@ -6,9 +6,9 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import array
-from struct import unpack_from, pack, calcsize
+from struct import calcsize, pack, unpack_from
 
-from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
+from calibre.utils.fonts.sfnt import DateTimeProperty, FixedProperty, UnknownTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.sfnt.loca import read_array
 

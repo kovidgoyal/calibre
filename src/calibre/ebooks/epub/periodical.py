@@ -5,11 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from uuid import uuid4
 import time
+from uuid import uuid4
 
+from calibre import prepare_string_for_xml as xml
+from calibre import strftime
 from calibre.constants import __appname__, __version__
-from calibre import strftime, prepare_string_for_xml as xml
 from calibre.utils.date import parse_date
 
 SONY_METADATA = '''\

@@ -5,10 +5,27 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QAction, QComboBox, QDialog, QDialogButtonBox, QFrame,
-    QGridLayout, QIcon, QLabel, QLineEdit, QListView, QMenu, QRadioButton, QSize,
-    QSortFilterProxyModel, QStringListModel, Qt, QTextBrowser, QVBoxLayout,
+    QAbstractItemView,
+    QAction,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFrame,
+    QGridLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QMenu,
+    QRadioButton,
+    QSize,
+    QSortFilterProxyModel,
+    QStringListModel,
+    Qt,
+    QTextBrowser,
+    QVBoxLayout,
 )
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog

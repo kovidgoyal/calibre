@@ -3,14 +3,11 @@
 
 
 import bs4
-from bs4 import (  # noqa
-    CData, Comment, Declaration, NavigableString, ProcessingInstruction,
-    SoupStrainer, Tag, __version__
-)
+from bs4 import CData, Comment, Declaration, NavigableString, ProcessingInstruction, SoupStrainer, Tag, __version__  # noqa
 
 
 def parse_html(markup):
-    from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode, substitute_entites
+    from calibre.ebooks.chardet import strip_encoding_declarations, substitute_entites, xml_to_unicode
     from calibre.utils.cleantext import clean_xml_chars
     if isinstance(markup, str):
         markup = strip_encoding_declarations(markup)

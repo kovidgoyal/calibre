@@ -9,7 +9,8 @@ import secrets
 import stat
 import struct
 from typing import Optional, Union
-from calibre.constants import iswindows, ismacos
+
+from calibre.constants import ismacos, iswindows
 
 SHM_NAME_MAX = 30 if ismacos else 254
 if iswindows:

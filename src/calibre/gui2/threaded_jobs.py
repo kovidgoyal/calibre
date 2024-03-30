@@ -5,12 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, tempfile, json
-from threading import Thread, RLock, Event
+import json
+import os
+import tempfile
+import time
+from threading import Event, RLock, Thread
 
+from calibre.ptempfile import base_dir
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog
-from calibre.ptempfile import base_dir
 from polyglot.queue import Queue
 
 
@@ -164,6 +167,7 @@ class ThreadedJobWorker(Thread):
             self.job.start_work()
         except:
             import traceback
+
             from calibre import prints
             prints('Job had unhandled exception:', self.job.description)
             traceback.print_exc()

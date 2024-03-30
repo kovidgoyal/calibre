@@ -5,8 +5,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-from calibre.ebooks.docx.block_styles import (  # noqa
-    inherit, simple_color, LINE_STYLES, simple_float, binary_property, read_shd)
+
+from calibre.ebooks.docx.block_styles import LINE_STYLES, binary_property, inherit, read_shd, simple_color, simple_float  # noqa
 
 # Read from XML {{{
 

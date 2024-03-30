@@ -4,9 +4,7 @@
 import re
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.srv.errors import (
-    HTTPBadRequest, HTTPPreconditionRequired, HTTPUnprocessableEntity,
-)
+from calibre.srv.errors import HTTPBadRequest, HTTPPreconditionRequired, HTTPUnprocessableEntity
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
 

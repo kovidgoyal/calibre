@@ -6,13 +6,12 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from qt.core import (
-    QDialog, QGridLayout, QLabel, QDialogButtonBox,  QApplication, QSpinBox,
-    QToolButton, QIcon, QLineEdit, QComboBox, QCheckBox)
+from qt.core import QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QSpinBox, QToolButton
+
 from calibre.ebooks.metadata import string_to_authors
+from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
-from calibre.gui2 import gprefs
 
 
 class AddEmptyBookDialog(QDialog):

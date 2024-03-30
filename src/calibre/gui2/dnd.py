@@ -8,12 +8,10 @@ __docformat__ = 'restructuredtext en'
 import os
 import posixpath
 import re
-from qt.core import (
-    QDialog, QDialogButtonBox, QImageReader, QLabel, QPixmap, QProgressBar, Qt,
-    QTimer, QUrl, QVBoxLayout
-)
-from threading import Thread
 from contextlib import suppress
+from threading import Thread
+
+from qt.core import QDialog, QDialogButtonBox, QImageReader, QLabel, QPixmap, QProgressBar, Qt, QTimer, QUrl, QVBoxLayout
 
 from calibre import as_unicode, browser, prints
 from calibre.constants import DEBUG, iswindows

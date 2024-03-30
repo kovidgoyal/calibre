@@ -4,16 +4,28 @@ __license__   = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, textwrap
+import textwrap
+import weakref
 
 from qt.core import (
-    QWidget, QLabel, QTabWidget, QGridLayout, QLineEdit, QVBoxLayout,
-    QGroupBox, QComboBox, QSizePolicy, QDialog, QDialogButtonBox, QCheckBox,
-    QSpacerItem)
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QLineEdit,
+    QSizePolicy,
+    QSpacerItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
-from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
+from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.gui2.device_drivers.mtp_config import FormatsConfig, TemplateConfig
 
 
 def wrap_msg(msg):
@@ -372,9 +384,9 @@ class DeviceOptionsGroupBox(QGroupBox):
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application
     from calibre.devices.kobo.driver import KOBO
     from calibre.devices.scanner import DeviceScanner
+    from calibre.gui2 import Application
     s = DeviceScanner()
     s.scan()
     app = Application([])

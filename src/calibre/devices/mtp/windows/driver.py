@@ -5,16 +5,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, threading, traceback
-from functools import wraps, partial
-from polyglot.builtins import iteritems, itervalues
+import threading
+import time
+import traceback
+from functools import partial, wraps
 from itertools import chain
 
-from calibre import as_unicode, prints, force_unicode
-from calibre.constants import __appname__, numeric_version, isxp
-from calibre.ptempfile import SpooledTemporaryFile
-from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
+from calibre import as_unicode, force_unicode, prints
+from calibre.constants import __appname__, isxp, numeric_version
+from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug
+from calibre.ptempfile import SpooledTemporaryFile
+from polyglot.builtins import iteritems, itervalues
 
 null = object()
 

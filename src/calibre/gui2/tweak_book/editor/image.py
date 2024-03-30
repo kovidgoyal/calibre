@@ -5,9 +5,22 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
+
 from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QIcon,
-    QInputDialog, QLabel, QMainWindow, QMenu, QSize, QSpinBox, Qt, QToolButton,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QSize,
+    QSpinBox,
+    Qt,
+    QToolButton,
     pyqtSignal,
 )
 

@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from qt.core import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
-            QListWidget, QAbstractItemView, QSizePolicy)
+from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QSizePolicy, QVBoxLayout
 
 
 class ChoosePluginToolbarsDialog(QDialog):

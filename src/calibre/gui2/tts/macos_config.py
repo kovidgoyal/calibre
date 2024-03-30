@@ -2,9 +2,19 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
+
 from qt.core import (
-    QAbstractItemView, QAbstractTableModel, QByteArray, QFontMetrics, QFormLayout,
-    QItemSelectionModel, QSlider, QSortFilterProxyModel, Qt, QTableView, QWidget
+    QAbstractItemView,
+    QAbstractTableModel,
+    QByteArray,
+    QFontMetrics,
+    QFormLayout,
+    QItemSelectionModel,
+    QSlider,
+    QSortFilterProxyModel,
+    Qt,
+    QTableView,
+    QWidget,
 )
 
 from calibre.gui2.widgets import BusyCursor

@@ -12,14 +12,16 @@ try:
 except ImportError:
     from urllib import quote_plus
 
+from contextlib import closing
+
+from lxml import html
+
 from calibre import browser
 from calibre.gui2 import open_url
-from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store import StorePlugin
+from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-from contextlib import closing
-from lxml import html
 
 
 class BiblioStore(BasicStoreConfig, StorePlugin):

@@ -16,7 +16,6 @@ import re
 
 from polyglot.binary import from_hex_bytes
 
-
 __all__ = ['decode']  # Everything else is implementation detail
 
 

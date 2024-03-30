@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, time
+import os
+import time
+import unittest
 from io import BytesIO
 
 from calibre.constants import iswindows
@@ -174,7 +176,7 @@ class FilesystemTest(BaseTest):
 
         # Test on folder with hardlinks
         from calibre.ptempfile import TemporaryDirectory
-        from calibre.utils.filenames import hardlink_file, WindowsAtomicFolderMove
+        from calibre.utils.filenames import WindowsAtomicFolderMove, hardlink_file
         raw = b'xxx'
         with TemporaryDirectory() as tdir1, TemporaryDirectory() as tdir2:
             a, b = os.path.join(tdir1, 'a'), os.path.join(tdir1, 'b')
@@ -296,7 +298,7 @@ class FilesystemTest(BaseTest):
             self.assertLess(abs(at-bt), 2)
 
     def test_find_books_in_directory(self):
-        from calibre.db.adding import find_books_in_directory, compile_rule
+        from calibre.db.adding import compile_rule, find_books_in_directory
         def strip(files):
             return frozenset({os.path.basename(x) for x in files})
 

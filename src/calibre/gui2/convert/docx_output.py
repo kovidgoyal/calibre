@@ -2,10 +2,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QFormLayout, QComboBox, QCheckBox, QLineEdit, QDoubleSpinBox, QSizePolicy
+from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QLineEdit, QSizePolicy
 
-from calibre.gui2.convert import Widget
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.gui2.convert import Widget
 
 paper_size_model = None
 orientation_model = None

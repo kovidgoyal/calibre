@@ -3,10 +3,29 @@
 
 import os
 from functools import partial
+
 from qt.core import (
-    QAbstractItemView, QCheckBox, QDialog, QDialogButtonBox, QFont, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QMenu, QPushButton, QSize, QSplitter, Qt, QTimer, QToolButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFont,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QLabel,
+    QMenu,
+    QPushButton,
+    QSize,
+    QSplitter,
+    Qt,
+    QTimer,
+    QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import sanitize_file_name

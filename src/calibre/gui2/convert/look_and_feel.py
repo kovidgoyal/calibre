@@ -6,6 +6,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json
+
 from qt.core import QDialog, Qt
 
 from calibre.ebooks.conversion.config import OPTIONS

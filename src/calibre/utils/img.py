@@ -10,11 +10,9 @@ import sys
 import tempfile
 from contextlib import suppress
 from io import BytesIO
-from qt.core import (
-    QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap,
-    Qt, QTransform, qRgba
-)
 from threading import Thread
+
+from qt.core import QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap, Qt, QTransform, qRgba
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows
@@ -110,9 +108,7 @@ def gif_data_to_png_data(data, discard_animation=False):
 
 def set_image_allocation_limit(size_in_mb=1024):
     with suppress(ImportError):  # for people running form source
-        from calibre_extensions.progress_indicator import (
-            set_image_allocation_limit as impl,
-        )
+        from calibre_extensions.progress_indicator import set_image_allocation_limit as impl
         impl(size_in_mb)
 
 

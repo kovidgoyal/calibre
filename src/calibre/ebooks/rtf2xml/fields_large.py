@@ -10,9 +10,12 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os
-from calibre.ebooks.rtf2xml import field_strings, copy
+import os
+import sys
+
+from calibre.ebooks.rtf2xml import copy, field_strings
 from calibre.ptempfile import better_mktemp
+
 from . import open_for_read, open_for_write
 
 

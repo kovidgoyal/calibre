@@ -9,9 +9,7 @@ import errno
 import os
 
 from calibre import force_unicode
-from calibre.constants import (
-    filesystem_encoding, get_windows_username, islinux, iswindows
-)
+from calibre.constants import filesystem_encoding, get_windows_username, islinux, iswindows
 from calibre.utils.filenames import ascii_filename
 from polyglot.functools import lru_cache
 

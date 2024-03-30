@@ -10,12 +10,25 @@ import traceback
 from functools import partial
 
 from qt.core import (
-    Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
-    QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QMenu,
-    QShortcut, QTimer, QStyle)
+    QAbstractItemView,
+    QApplication,
+    QCoreApplication,
+    QDialog,
+    QEvent,
+    QIcon,
+    QListWidgetItem,
+    QMenu,
+    QObject,
+    QShortcut,
+    QStyle,
+    Qt,
+    QTableWidgetItem,
+    QTimer,
+    pyqtSignal,
+)
 
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import gprefs, error_dialog
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.date import timestampfromdt
 from calibre.utils.icu import sort_key

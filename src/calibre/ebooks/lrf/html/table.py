@@ -1,12 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import math, sys, re, numbers
+import math
+import numbers
+import re
+import sys
 
 from calibre.ebooks.lrf.fonts import get_font
-from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
-                                             CharButton, Plot, Paragraph, \
-                                             LrsTextTag
-from polyglot.builtins import string_or_bytes, native_string_type
+from calibre.ebooks.lrf.pylrs.pylrs import CR, CharButton, LrsTextTag, Paragraph, Plot, Span, Text, TextBlock
+from polyglot.builtins import native_string_type, string_or_bytes
 
 
 def ceil(num):

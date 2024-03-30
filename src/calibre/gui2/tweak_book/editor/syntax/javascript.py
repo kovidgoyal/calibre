@@ -4,16 +4,13 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import pygments.unistring as uni
 import re
-from pygments.lexer import RegexLexer, default, include
-from pygments.token import (
-    Comment, Keyword, Name, Number, Operator, Punctuation, String, Text,
-)
 
-from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import (
-    create_highlighter,
-)
+import pygments.unistring as uni
+from pygments.lexer import RegexLexer, default, include
+from pygments.token import Comment, Keyword, Name, Number, Operator, Punctuation, String, Text
+
+from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import create_highlighter
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import native_string_type
 

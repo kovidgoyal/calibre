@@ -5,9 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, sys, os
-from threading import Lock, Condition, current_thread
+import os
+import sys
+import traceback
 from contextlib import contextmanager
+from threading import Condition, Lock, current_thread
 
 
 @contextmanager

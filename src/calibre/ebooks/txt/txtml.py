@@ -9,8 +9,8 @@ Transform OEB content into plain text
 import re
 
 from lxml import etree
-from polyglot.builtins import string_or_bytes
 
+from polyglot.builtins import string_or_bytes
 
 BLOCK_TAGS = [
     'div',

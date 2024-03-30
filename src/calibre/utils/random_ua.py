@@ -4,6 +4,7 @@
 
 import json
 import random
+
 from calibre.utils.resources import get_path as P
 
 

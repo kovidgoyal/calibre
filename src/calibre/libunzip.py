@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 import re
+
 from calibre.utils import zipfile
 from calibre.utils.icu import numeric_sort_key
 

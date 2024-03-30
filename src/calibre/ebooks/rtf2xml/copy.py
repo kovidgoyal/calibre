@@ -10,7 +10,8 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, shutil
+import os
+import shutil
 
 
 class Copy:

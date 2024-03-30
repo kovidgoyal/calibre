@@ -5,16 +5,15 @@ __docformat__ = 'restructuredtext en'
 import re
 import string
 from operator import attrgetter
-from qt.core import (
-    QAbstractItemModel, QApplication, QIcon, QModelIndex, QPixmap, QSize, Qt,
-    pyqtSignal,
-)
+
+from qt.core import QAbstractItemModel, QApplication, QIcon, QModelIndex, QPixmap, QSize, Qt, pyqtSignal
 
 from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher
 from calibre.gui2.store.search.download_thread import CoverThreadPool, DetailsThreadPool
 from calibre.gui2.store.search_result import SearchResult
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import SearchQueryParser
 

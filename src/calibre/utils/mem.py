@@ -13,7 +13,8 @@ You can pass a number to memory and it will be subtracted from the returned
 value.
 '''
 
-import gc, os
+import gc
+import os
 
 
 def get_memory():

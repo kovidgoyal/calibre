@@ -8,19 +8,42 @@ import os
 import sys
 import textwrap
 import time
+
 from qt.core import (
-    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
-    QFormLayout, QFrame, QHBoxLayout, QIcon, QLabel, QLayout, QLineEdit, QListWidget,
-    QPlainTextEdit, QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt,
-    QTabWidget, QTimer, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal, sip,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLayout,
+    QLineEdit,
+    QListWidget,
+    QPlainTextEdit,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QSpinBox,
+    Qt,
+    QTabWidget,
+    QTimer,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+    sip,
 )
 
 from calibre import as_unicode
 from calibre.constants import isportable, iswindows
-from calibre.gui2 import (
-    choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog, open_url,
-    warning_dialog,
-)
+from calibre.gui2 import choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog, open_url, warning_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.srv.code import custom_list_template as default_custom_list_template
@@ -28,9 +51,7 @@ from calibre.srv.embedded import custom_list_template, search_the_net_urls
 from calibre.srv.library_broker import load_gui_libraries
 from calibre.srv.loop import parse_trusted_ips
 from calibre.srv.opts import change_settings, options, server_config
-from calibre.srv.users import (
-    UserManager, create_user_data, validate_password, validate_username,
-)
+from calibre.srv.users import UserManager, create_user_data, validate_password, validate_username
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext
 from calibre.utils.shared_file import share_open

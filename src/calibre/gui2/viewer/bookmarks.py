@@ -4,10 +4,23 @@
 
 import json
 from operator import itemgetter
+
 from qt.core import (
-    QAbstractItemView, QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon,
-    QInputDialog, QItemSelectionModel, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, Qt, QWidget, pyqtSignal,
+    QAbstractItemView,
+    QAction,
+    QComboBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QItemSelectionModel,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    Qt,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.gui2 import choose_files, choose_save_file, error_dialog

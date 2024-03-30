@@ -5,12 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, numbers
+import numbers
+import os
 from functools import partial
 
-from calibre.utils.config import prefs
-from calibre.gui2 import error_dialog, Dispatcher, choose_dir
+from calibre.gui2 import Dispatcher, choose_dir, error_dialog
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.config import prefs
 from polyglot.builtins import itervalues
 
 

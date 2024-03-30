@@ -14,9 +14,7 @@ from urllib.parse import quote
 
 from calibre.constants import filesystem_encoding, isbsd, islinux
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.filenames import (
-    ascii_filename, case_ignoring_open_file, get_long_path_name,
-)
+from calibre.utils.filenames import ascii_filename, case_ignoring_open_file, get_long_path_name
 from calibre.utils.imghdr import what
 from calibre.utils.localization import __, get_lang
 from polyglot.builtins import as_unicode
@@ -124,18 +122,16 @@ class HTMLInput(InputFormatPlugin):
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):
-        import css_parser
         import logging
         import uuid
+
+        import css_parser
 
         from calibre import guess_type
         from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.html.input import get_filelist
         from calibre.ebooks.metadata import string_to_authors
-        from calibre.ebooks.oeb.base import (
-            BINARY_MIME, OEB_STYLES, DirContainer, rewrite_links, urldefrag,
-            urlnormalize, urlquote, xpath,
-        )
+        from calibre.ebooks.oeb.base import BINARY_MIME, OEB_STYLES, DirContainer, rewrite_links, urldefrag, urlnormalize, urlquote, xpath
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         from calibre.utils.localization import canonicalize_lang
         self.opts = opts

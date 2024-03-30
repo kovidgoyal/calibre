@@ -6,9 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QWidget, QHBoxLayout, QLabel, QLineEdit
-
 from calibre.utils.config import JSONConfig
+from qt.core import QHBoxLayout, QLabel, QLineEdit, QWidget
 
 # This is where all preferences for this plugin will be stored
 # Remember that this name (i.e. plugins/interface_demo) is also

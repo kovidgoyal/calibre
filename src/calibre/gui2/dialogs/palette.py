@@ -5,16 +5,27 @@
 import json
 import textwrap
 from contextlib import suppress
+
 from qt.core import (
-    QCheckBox, QComboBox, QDialog, QHBoxLayout, QIcon, QLabel, QPalette, QPushButton,
-    QScrollArea, QSize, QSizePolicy, QTabWidget, QVBoxLayout, QWidget, pyqtSignal,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QPalette,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.gui2 import Application, choose_files, choose_save_file, gprefs
-from calibre.gui2.palette import (
-    default_dark_palette, default_light_palette, is_foreground_color, palette_colors,
-    palette_from_dict,
-)
+from calibre.gui2.palette import default_dark_palette, default_light_palette, is_foreground_color, palette_colors, palette_from_dict
 from calibre.gui2.widgets2 import ColorButton, Dialog
 
 

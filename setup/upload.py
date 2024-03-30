@@ -5,18 +5,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, json
+import glob
+import hashlib
+import json
+import os
+import shutil
+import stat
+import subprocess
+import sys
+import time
 from subprocess import check_call
-from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
+from tempfile import NamedTemporaryFile, gettempdir, mkdtemp
 from zipfile import ZipFile
+
 from polyglot.builtins import iteritems
-from polyglot.urllib import urlopen, Request
+from polyglot.urllib import Request, urlopen
 
 if __name__ == '__main__':
     d = os.path.dirname
     sys.path.insert(0, d(d(os.path.abspath(__file__))))
 
-from setup import Command, __version__, __appname__, installer_names
+from setup import Command, __appname__, __version__, installer_names
 
 DOWNLOADS = '/srv/main/downloads'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"

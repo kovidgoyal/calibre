@@ -4,13 +4,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, re
+import os
+import re
 from collections import namedtuple
 
 from calibre.ebooks.docx.block_styles import binary_property, inherit
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.fonts.scanner import font_scanner, NoFonts
-from calibre.utils.fonts.utils import panose_to_css_generic_family, is_truetype_font
+from calibre.utils.fonts.scanner import NoFonts, font_scanner
+from calibre.utils.fonts.utils import is_truetype_font, panose_to_css_generic_family
 from calibre.utils.icu import ord_string
 from polyglot.builtins import codepoint_to_chr, iteritems
 

@@ -4,18 +4,20 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, random, struct
+import os
+import random
+import struct
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
 from threading import Lock
 
-from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, HTTPForbidden
+from calibre.srv.errors import HTTPAuthRequired, HTTPForbidden, HTTPSimpleResponse
 from calibre.srv.http_request import parse_uri
-from calibre.srv.utils import parse_http_dict, encode_path
+from calibre.srv.utils import encode_path, parse_http_dict
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client
-from polyglot.binary import from_base64_unicode, from_hex_bytes, as_hex_unicode
+from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes
 
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()

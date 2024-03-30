@@ -18,8 +18,8 @@
 #
 
 
-from .namespaces import DRAWNS, STYLENS, PRESENTATIONNS
 from .element import Element
+from .namespaces import DRAWNS, PRESENTATIONNS, STYLENS
 
 
 def StyleRefElement(stylename=None, classnames=None, **args):

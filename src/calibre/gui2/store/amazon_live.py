@@ -2,12 +2,12 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from lxml import etree, html
 from urllib.parse import urlencode
 
-from calibre.scraper.simple import read_url
-from calibre.gui2.store.search_result import SearchResult
+from lxml import etree, html
 
+from calibre.gui2.store.search_result import SearchResult
+from calibre.scraper.simple import read_url
 
 module_version = 1  # needed for live updates
 

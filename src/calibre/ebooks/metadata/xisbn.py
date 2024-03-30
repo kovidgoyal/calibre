@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import threading, re, json
+import json
+import re
+import threading
 
 from calibre import browser
 
@@ -101,7 +103,8 @@ class xISBN:
 xisbn = xISBN()
 
 if __name__ == '__main__':
-    import sys, pprint
+    import pprint
+    import sys
     isbn = sys.argv[-1]
     print(pprint.pprint(xisbn.get_data(isbn)))
     print()

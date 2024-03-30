@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
+
 from qt.core import QModelIndex
 
 from calibre.customize.ui import plugin_for_input_format, run_plugins_on_postconvert

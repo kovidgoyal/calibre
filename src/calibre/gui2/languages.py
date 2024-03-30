@@ -6,10 +6,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from qt.core import QComboBox
+
 from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
-from calibre.utils.icu import sort_key, lower
 from polyglot.builtins import iteritems, itervalues
 
 

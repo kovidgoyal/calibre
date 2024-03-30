@@ -6,10 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout
-)
+
+from qt.core import QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout
 
 from calibre.constants import iswindows
 from calibre.ebooks.metadata import check_isbn

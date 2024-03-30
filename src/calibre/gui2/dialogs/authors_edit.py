@@ -5,9 +5,21 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
+
 from qt.core import (
-    QAbstractItemView, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon,
-    QLabel, QListWidget, QPushButton, QSize, QStyledItemDelegate, Qt, pyqtSignal,
+    QAbstractItemView,
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QIcon,
+    QLabel,
+    QListWidget,
+    QPushButton,
+    QSize,
+    QStyledItemDelegate,
+    Qt,
+    pyqtSignal,
 )
 
 from calibre.ebooks.metadata import string_to_authors

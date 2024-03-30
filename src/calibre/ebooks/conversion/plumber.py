@@ -2,21 +2,31 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys, shutil, pprint, json
+import json
+import os
+import pprint
+import re
+import shutil
+import sys
 from functools import partial
 
-from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre.customize.ui import input_profiles, output_profiles, \
-        plugin_for_input_format, plugin_for_output_format, \
-        available_input_formats, available_output_formats, \
-        run_plugins_on_preprocess, run_plugins_on_postprocess
+from calibre import extract, filesystem_encoding, get_types_map, isbytestring, walk
+from calibre.constants import __version__
+from calibre.customize.conversion import DummyReporter, OptionRecommendation
+from calibre.customize.ui import (
+    available_input_formats,
+    available_output_formats,
+    input_profiles,
+    output_profiles,
+    plugin_for_input_format,
+    plugin_for_output_format,
+    run_plugins_on_postprocess,
+    run_plugins_on_preprocess,
+)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import (extract, walk, isbytestring, filesystem_encoding,
-        get_types_map)
-from calibre.constants import __version__
 from polyglot.builtins import string_or_bytes
 
 DEBUG_README=b'''
@@ -923,9 +933,11 @@ OptionRecommendation(name='search_replace',
                 setattr(mi, x, val)
 
     def download_cover(self, url):
-        from calibre import browser
-        from PIL import Image
         import io
+
+        from PIL import Image
+
+        from calibre import browser
         from calibre.ptempfile import PersistentTemporaryFile
         self.log('Downloading cover from %r'%url)
         br = browser()
@@ -1055,7 +1067,9 @@ OptionRecommendation(name='search_replace',
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
             from calibre.utils.fonts.scanner import font_scanner  # noqa
-        import css_parser, logging
+        import logging
+
+        import css_parser
         css_parser.log.setLevel(logging.WARN)
         get_types_map()  # Ensure the mimetypes module is initialized
 
@@ -1242,8 +1256,7 @@ OptionRecommendation(name='search_replace',
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps
 
-        from calibre.ebooks.oeb.transforms.page_margin import \
-            RemoveFakeMargins, RemoveAdobeMargins
+        from calibre.ebooks.oeb.transforms.page_margin import RemoveAdobeMargins, RemoveFakeMargins
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
         RemoveAdobeMargins()(self.oeb, self.log, self.opts)
 

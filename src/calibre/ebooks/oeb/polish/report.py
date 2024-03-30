@@ -4,18 +4,22 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import posixpath, os, time, types
-from collections import namedtuple, defaultdict
+import os
+import posixpath
+import time
+import types
+from collections import defaultdict, namedtuple
 from itertools import chain
 
-from calibre import prepare_string_for_xml, force_unicode
+from css_selectors import Select, SelectorError
+
+from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
-from calibre.ebooks.oeb.polish.spell import get_all_words, count_all_chars
 from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
-from css_selectors import Select, SelectorError
 from polyglot.builtins import iteritems
 
 File = namedtuple('File', 'name dir basename size category word_count')
@@ -234,7 +238,7 @@ ClassElement = namedtuple('ClassElement', 'name line_number text_on_line tag mat
 
 def css_data(container, book_locale, result_data, *args):
     import tinycss
-    from tinycss.css21 import RuleSet, ImportRule
+    from tinycss.css21 import ImportRule, RuleSet
 
     def css_rules(file_name, rules, sourceline=0):
         ans = []

@@ -9,12 +9,14 @@ Provides a command-line interface to ebook devices.
 For usage information run the script.
 """
 
-import sys, time, os
+import os
+import sys
+import time
 from optparse import OptionParser
 
-from calibre import __version__, __appname__, human_readable, fsync, prints
-from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
+from calibre import __appname__, __version__, fsync, human_readable, prints
 from calibre.customize.ui import device_plugins
+from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.devices.scanner import DeviceScanner
 from calibre.utils.config import device_prefs
 from polyglot.io import PolyglotStringIO

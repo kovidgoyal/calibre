@@ -5,21 +5,39 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, sys
-
+import re
+import sys
 from functools import partial
 
+from qt.core import (
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QIcon,
+    QInputDialog,
+    QLineEdit,
+    QRadioButton,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTableWidget,
+    QTableWidgetItem,
+    QTextEdit,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    sip,
+)
+
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
+from calibre.gui2 import error_dialog, gprefs, open_url, question_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link
 
 from .catalog_epub_mobi_ui import Ui_Form
-from qt.core import (Qt, QAbstractItemView, QCheckBox, QComboBox,
-        QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
-        QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
-        QUrl, QVBoxLayout, QWidget, sip)
 
 
 class PluginWidget(QWidget,Ui_Form):
@@ -1096,7 +1114,7 @@ class GenericRulesTable(QTableWidget):
         # Format of rules list is different if default values vs retrieved JSON
         # Hack to normalize list style
         rules = self.rules
-        if rules and type(rules[0]) is list:
+        if rules and isinstance(rules[0], list):
             rules = rules[0]
         self.setFocus()
         rules = sorted(rules, key=lambda k: k['ordinal'])

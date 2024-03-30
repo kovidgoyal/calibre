@@ -12,15 +12,45 @@ import os
 import time
 from io import BytesIO
 from operator import attrgetter
-from qt.core import (
-    QAbstractItemView, QAbstractListModel, QAbstractTableModel, QApplication, QCursor,
-    QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QIcon, QItemSelectionModel,
-    QLabel, QListView, QMenu, QModelIndex, QPalette, QPixmap, QPushButton, QRect,
-    QRectF, QSize, QSizePolicy, QSplitter, QStackedWidget, QStringListModel, QStyle,
-    QStyledItemDelegate, Qt, QTableView, QTextBrowser, QTextDocument, QTimer,
-    QVBoxLayout, QWidget, pyqtSignal,
-)
 from threading import Event, Thread
+
+from qt.core import (
+    QAbstractItemView,
+    QAbstractListModel,
+    QAbstractTableModel,
+    QApplication,
+    QCursor,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLabel,
+    QListView,
+    QMenu,
+    QModelIndex,
+    QPalette,
+    QPixmap,
+    QPushButton,
+    QRect,
+    QRectF,
+    QSize,
+    QSizePolicy,
+    QSplitter,
+    QStackedWidget,
+    QStringListModel,
+    QStyle,
+    QStyledItemDelegate,
+    Qt,
+    QTableView,
+    QTextBrowser,
+    QTextDocument,
+    QTimer,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import force_unicode
 from calibre.customize.ui import metadata_plugins
@@ -29,9 +59,7 @@ from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-from calibre.gui2 import (
-    choose_save_file, error_dialog, gprefs, rating_font,
-)
+from calibre.gui2 import choose_save_file, error_dialog, gprefs, rating_font
 from calibre.gui2.progress_indicator import SpinAnimator
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import comments_to_html

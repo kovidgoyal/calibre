@@ -2,10 +2,7 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import (
-    QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt,
-    QToolBar, QToolButton, QWidget, pyqtSignal
-)
+from qt.core import QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolBar, QToolButton, QWidget, pyqtSignal
 
 
 class Separator(QWidget):

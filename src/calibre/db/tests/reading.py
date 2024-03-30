@@ -5,13 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import datetime, os
+import datetime
+import os
 from io import BytesIO
 from time import time
 
+from calibre.db.tests.base import BaseTest
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
-from calibre.db.tests.base import BaseTest
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -244,8 +245,8 @@ class ReadingTest(BaseTest):
     # }}}
 
     def test_serialize_metadata(self):  # {{{
-        from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpack_loads
         from calibre.library.field_metadata import fm_as_dict
+        from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpack_loads
         cache = self.init_cache(self.library_path)
         fm = cache.field_metadata
         for d, l in ((json_dumps, json_loads), (msgpack_dumps, msgpack_loads)):
@@ -427,8 +428,8 @@ class ReadingTest(BaseTest):
 
     def test_get_formats(self):  # {{{
         'Test reading ebook formats using the format() method'
-        from calibre.library.database2 import LibraryDatabase2
         from calibre.db.cache import NoSuchFormat
+        from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
         ids = old.all_ids()
         lf = {i:set(old.formats(i, index_is_id=True).split(',')) if old.formats(
@@ -515,8 +516,8 @@ class ReadingTest(BaseTest):
 
     def test_datetime(self):  # {{{
         ' Test the reading of datetimes stored in the db '
+        from calibre.db.tables import UNDEFINED_DATE, _c_speedup, c_parse
         from calibre.utils.date import parse_date
-        from calibre.db.tables import c_parse, UNDEFINED_DATE, _c_speedup
 
         # First test parsing of string to UTC time
         for raw in ('2013-07-22 15:18:29+05:30', '  2013-07-22 15:18:29+00:00', '2013-07-22 15:18:29', '2003-09-21 23:30:00-06:00'):
@@ -775,8 +776,8 @@ class ReadingTest(BaseTest):
 
     def test_find_identical_books(self):  # {{{
         ' Test find_identical_books '
-        from calibre.ebooks.metadata.book.base import Metadata
         from calibre.db.utils import find_identical_books
+        from calibre.ebooks.metadata.book.base import Metadata
         # 'find_identical_books': [(,), (Metadata('unknown'),), (Metadata('xxxx'),)],
         cache = self.init_cache(self.library_path)
         cache.set_field('languages', {1: ('fra', 'deu')})
@@ -941,8 +942,7 @@ def evaluate(book, ctx):
         self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two'})
 
         # test calling a python stored template from a GPM template
-        from calibre.utils.formatter_functions import (
-                load_user_template_functions, unload_user_template_functions)
+        from calibre.utils.formatter_functions import load_user_template_functions, unload_user_template_functions
         load_user_template_functions('aaaaa',
                                      [['python_stored_template',
                                       "",

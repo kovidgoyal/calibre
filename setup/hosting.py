@@ -4,11 +4,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, sys, shutil, json, mimetypes
-from pprint import pprint
+import json
+import mimetypes
+import os
+import shutil
+import sys
+import time
 from argparse import ArgumentParser, FileType
-from subprocess import check_call
 from collections import OrderedDict
+from pprint import pprint
+from subprocess import check_call
 
 
 class ReadFileWithProgressReporting:  # {{{

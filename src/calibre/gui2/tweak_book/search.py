@@ -3,35 +3,60 @@
 
 import copy
 import json
-import regex
 import time
 from collections import Counter, OrderedDict
 from functools import partial
+
+import regex
 from qt.core import (
-    QAbstractItemView, QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox,
-    QDialog, QDialogButtonBox, QEvent, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon,
-    QItemSelection, QItemSelectionModel, QKeySequence, QLabel, QLineEdit, QListView,
-    QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QSizePolicy,
-    QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton, QVBoxLayout,
-    QWidget, pyqtSignal,
+    QAbstractItemView,
+    QAbstractListModel,
+    QAction,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QFont,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QItemSelection,
+    QItemSelectionModel,
+    QKeySequence,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QMenu,
+    QMimeData,
+    QModelIndex,
+    QPushButton,
+    QScrollArea,
+    QSize,
+    QSizePolicy,
+    QStackedLayout,
+    QStyledItemDelegate,
+    Qt,
+    QTimer,
+    QToolBar,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import prepare_string_for_xml
 from calibre.constants import iswindows
-from calibre.ebooks.conversion.search_replace import (
-    REGEX_FLAGS, compile_regular_expression,
-)
+from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.tweak_book import current_container, editors, tprefs
-from calibre.gui2.tweak_book.editor.snippets import (
-    KEY, MODIFIER, SnippetTextEdit, find_matching_snip, parse_template, string_length,
-)
-from calibre.gui2.tweak_book.function_replace import (
-    Function, FunctionBox, FunctionEditor, functions as replace_functions,
-    remove_function,
-)
+from calibre.gui2.tweak_book.editor.snippets import KEY, MODIFIER, SnippetTextEdit, find_matching_snip, parse_template, string_length
+from calibre.gui2.tweak_book.function_replace import Function, FunctionBox, FunctionEditor, remove_function
+from calibre.gui2.tweak_book.function_replace import functions as replace_functions
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.startup import connect_lambda

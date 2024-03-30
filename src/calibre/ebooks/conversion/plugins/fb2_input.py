@@ -71,8 +71,9 @@ class FB2Input(InputFormatPlugin):
             css += etree.tostring(s, encoding='unicode', method='text',
                     with_tail=False) + '\n\n'
         if css:
-            import css_parser
             import logging
+
+            import css_parser
             parser = css_parser.CSSParser(fetcher=None,
                     log=logging.getLogger('calibre.css'))
 

@@ -2,8 +2,8 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from time import monotonic
 from threading import Thread
+from time import monotonic
 from typing import NamedTuple
 
 from calibre import prepare_string_for_xml
@@ -146,9 +146,7 @@ class Client:
             self.dispatch_on_main_thread(self.handle_events)
 
     def handle_events(self):
-        from calibre_extensions.winsapi import (
-            SPEI_END_INPUT_STREAM, SPEI_START_INPUT_STREAM, SPEI_TTS_BOOKMARK
-        )
+        from calibre_extensions.winsapi import SPEI_END_INPUT_STREAM, SPEI_START_INPUT_STREAM, SPEI_TTS_BOOKMARK
         c = self.current_callback
 
         for (stream_number, event_type, event_data) in self.sp_voice.get_events():
@@ -193,9 +191,7 @@ class Client:
             raise
 
     def speak(self, text, is_xml=False, want_events=True, purge=True):
-        from calibre_extensions.winsapi import (
-            SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK, SPF_IS_XML
-        )
+        from calibre_extensions.winsapi import SPF_ASYNC, SPF_IS_NOT_XML, SPF_IS_XML, SPF_PURGEBEFORESPEAK
         flags = SPF_IS_XML if is_xml else SPF_IS_NOT_XML
         if purge:
             flags |= SPF_PURGEBEFORESPEAK

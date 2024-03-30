@@ -2,7 +2,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QWidget, QIcon, QDialog, QComboBox, QLineEdit
+from qt.core import QComboBox, QDialog, QIcon, QLineEdit, QWidget
 
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form

@@ -2,17 +2,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os
+import time
 
-from calibre.constants import preferred_encoding, DEBUG
 from calibre import isbytestring
-
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.devices.usbms.books import Book as Book_, CollectionsBookList
-from calibre.utils.config_base import prefs
+from calibre.constants import DEBUG, preferred_encoding
+from calibre.devices.usbms.books import Book as Book_
+from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.book.formatter import SafeFormat
+from calibre.utils.config_base import prefs
 
 
 class Book(Book_):

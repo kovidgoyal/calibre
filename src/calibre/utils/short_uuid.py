@@ -6,7 +6,9 @@
 Generate UUID encoded using a user specified alphabet.
 '''
 
-import string, math, uuid as _uuid
+import math
+import string
+import uuid as _uuid
 
 
 def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):

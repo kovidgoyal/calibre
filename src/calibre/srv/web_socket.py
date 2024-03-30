@@ -5,19 +5,19 @@
 import os
 import socket
 import weakref
-from calibre_extensions.speedup import utf8_decode, websocket_mask as fast_mask
 from collections import deque
 from hashlib import sha1
-from struct import error as struct_error, pack, unpack_from
+from struct import error as struct_error
+from struct import pack, unpack_from
 from threading import Lock
 
 from calibre import as_unicode
 from calibre.srv.http_response import HTTPConnection, create_http_handler
-from calibre.srv.loop import (
-    RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
-)
+from calibre.srv.loop import RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from calibre_extensions.speedup import utf8_decode
+from calibre_extensions.speedup import websocket_mask as fast_mask
 from polyglot import http_client
 from polyglot.binary import as_base64_unicode
 from polyglot.queue import Empty, Queue

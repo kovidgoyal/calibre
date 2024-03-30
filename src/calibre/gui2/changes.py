@@ -2,10 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from calibre.srv.changes import (
-    BooksAdded, BooksDeleted, FormatsAdded, FormatsRemoved, MetadataChanged,
-    SavedSearchesChanged
-)
+from calibre.srv.changes import BooksAdded, BooksDeleted, FormatsAdded, FormatsRemoved, MetadataChanged, SavedSearchesChanged
 
 
 def handle_changes(changes, gui=None):

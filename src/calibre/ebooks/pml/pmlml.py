@@ -11,8 +11,8 @@ import re
 from lxml import etree
 
 from calibre.ebooks.pdb.ereader import image_name
-from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.pml import unipmlcode
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import string_or_bytes
 
 TAG_MAP = {
@@ -110,8 +110,8 @@ class PMLMLizer:
         return output
 
     def get_cover_page(self):
-        from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
 
         output = ''
         if 'cover' in self.oeb_book.guide:
@@ -128,8 +128,8 @@ class PMLMLizer:
         return output
 
     def get_text(self):
-        from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
 
         text = ['']
         for item in self.oeb_book.spine:

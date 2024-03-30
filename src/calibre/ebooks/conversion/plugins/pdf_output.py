@@ -6,10 +6,10 @@ __docformat__ = 'restructuredtext en'
 Convert OEB ebook format to PDF.
 '''
 
-import glob, os
+import glob
+import os
 
-from calibre.customize.conversion import (OutputFormatPlugin,
-    OptionRecommendation)
+from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import iteritems
 
@@ -169,9 +169,11 @@ class PDFOutput(OutputFormatPlugin):
         self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
-        from calibre.ebooks.oeb.base import OPF, OPF2_NS
-        from lxml import etree
         from io import BytesIO
+
+        from lxml import etree
+
+        from calibre.ebooks.oeb.base import OPF, OPF2_NS
         package = etree.Element(OPF('package'),
             attrib={'version': '2.0', 'unique-identifier': 'dummy'},
             nsmap={None: OPF2_NS})
@@ -233,6 +235,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_text(self, oeb_book):
         import json
+
         from calibre.ebooks.pdf.html_writer import convert
         if not self.opts.pdf_no_cover:
             self.get_cover_data()

@@ -8,10 +8,10 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
 from calibre.utils.formatter import validation_formatter
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 
 class SaveTemplate(QWidget, Ui_Form):

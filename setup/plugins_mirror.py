@@ -45,9 +45,9 @@ except ImportError:
 
 try:
     from urllib.error import URLError
-    from urllib.request import urlopen, Request, build_opener
+    from urllib.request import Request, build_opener, urlopen
 except Exception:
-    from urllib2 import urlopen, Request, build_opener, URLError
+    from urllib2 import Request, URLError, build_opener, urlopen
 # }}}
 
 USER_AGENT = 'calibre mirror'

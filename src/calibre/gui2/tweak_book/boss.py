@@ -8,57 +8,76 @@ import subprocess
 import sys
 import tempfile
 from functools import partial, wraps
+
 from qt.core import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
-    QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QTimer, QUrl, QVBoxLayout,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QMimeData,
+    QObject,
+    QSize,
+    Qt,
+    QTimer,
+    QUrl,
+    QVBoxLayout,
     pyqtSignal,
 )
 
 from calibre import isbytestring, prints
 from calibre.constants import cache_dir, islinux, ismacos, iswindows
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.polish.container import (
-    OEB_DOCS, OEB_STYLES, clone_container, get_container as _gc, guess_type,
-)
+from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, clone_container, guess_type
+from calibre.ebooks.oeb.polish.container import get_container as _gc
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage, set_cover
 from calibre.ebooks.oeb.polish.css import filter_css, rename_class
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
-from calibre.ebooks.oeb.polish.replace import (
-    get_recommended_folders, rationalize_folders, rename_files, replace_file,
-)
+from calibre.ebooks.oeb.polish.replace import get_recommended_folders, rationalize_folders, rename_files, replace_file
 from calibre.ebooks.oeb.polish.split import AbortError, merge, multisplit, split
-from calibre.ebooks.oeb.polish.toc import (
-    create_inline_toc, mark_as_nav, remove_names_from_toc,
-)
-from calibre.ebooks.oeb.polish.utils import (
-    link_stylesheets, setup_css_parser_serialization as scs,
-)
+from calibre.ebooks.oeb.polish.toc import create_inline_toc, mark_as_nav, remove_names_from_toc
+from calibre.ebooks.oeb.polish.utils import link_stylesheets
+from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization as scs
 from calibre.gui2 import (
-    add_to_recent_docs, choose_dir, choose_files, choose_save_file, error_dialog,
-    info_dialog, open_url, question_dialog, sanitize_env_vars, warning_dialog,
+    add_to_recent_docs,
+    choose_dir,
+    choose_files,
+    choose_save_file,
+    error_dialog,
+    info_dialog,
+    open_url,
+    question_dialog,
+    sanitize_env_vars,
+    warning_dialog,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.tweak_book import (
-    actions, current_container, dictionaries, editor_name, editors, set_book_locale,
-    set_current_container, tprefs,
-)
+from calibre.gui2.tweak_book import actions, current_container, dictionaries, editor_name, editors, set_book_locale, set_current_container, tprefs
 from calibre.gui2.tweak_book.completion.worker import completion_worker
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import NewBook, get_resource_data
 from calibre.gui2.tweak_book.file_list import FILE_COPY_MIME, NewFileDialog
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.preview import parse_worker
-from calibre.gui2.tweak_book.save import (
-    SaveManager, find_first_existing_ancestor, save_container,
-)
+from calibre.gui2.tweak_book.save import SaveManager, find_first_existing_ancestor, save_container
 from calibre.gui2.tweak_book.search import run_search, validate_search_request
-from calibre.gui2.tweak_book.spell import find_next as find_next_word, find_next_error
+from calibre.gui2.tweak_book.spell import find_next as find_next_word
+from calibre.gui2.tweak_book.spell import find_next_error
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.widgets import (
-    AddCover, FilterCSS, ImportForeign, InsertLink, InsertSemantics, InsertTag,
-    MultiSplit, QuickOpen, RationalizeFolders,
+    AddCover,
+    FilterCSS,
+    ImportForeign,
+    InsertLink,
+    InsertSemantics,
+    InsertTag,
+    MultiSplit,
+    QuickOpen,
+    RationalizeFolders,
 )
 from calibre.gui2.widgets import BusyCursor
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -214,9 +233,7 @@ class Boss(QObject):
             for ed in itervalues(editors):
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
         if orig_spell != tprefs['inline_spell_check']:
-            from calibre.gui2.tweak_book.editor.syntax.html import (
-                refresh_spell_check_status,
-            )
+            from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
             refresh_spell_check_status()
             for ed in itervalues(editors):
                 try:
@@ -502,9 +519,7 @@ class Boss(QObject):
             return
         added_name = self.do_add_file(d.file_name, d.file_data, using_template=d.using_template, edit_file=True)
         if d.file_name.rpartition('.')[2].lower() in ('ttf', 'otf', 'woff'):
-            from calibre.gui2.tweak_book.manage_fonts import (
-                show_font_face_rule_for_font_file,
-            )
+            from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_file
             show_font_face_rule_for_font_file(d.file_data, added_name, self.gui)
 
     def do_add_file(self, file_name, data, using_template=False, edit_file=False):
@@ -567,9 +582,7 @@ class Boss(QObject):
             self.set_modified()
             completion_worker().clear_caches('names')
             if added_fonts:
-                from calibre.gui2.tweak_book.manage_fonts import (
-                    show_font_face_rule_for_font_files,
-                )
+                from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_files
                 show_font_face_rule_for_font_files(c, added_fonts, self.gui)
 
     def add_cover(self):
@@ -1219,9 +1232,7 @@ class Boss(QObject):
                     'No file with the name %s was found in the book') % target, show=True)
 
     def editor_class_clicked(self, class_data):
-        from calibre.gui2.tweak_book.jump_to_class import (
-            NoMatchingRuleFound, NoMatchingTagFound, find_first_matching_rule,
-        )
+        from calibre.gui2.tweak_book.jump_to_class import NoMatchingRuleFound, NoMatchingTagFound, find_first_matching_rule
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         try:
@@ -1638,9 +1649,7 @@ class Boss(QObject):
     def compress_images(self):
         if not self.ensure_book(_('You must first open a book in order to compress images.')):
             return
-        from calibre.gui2.tweak_book.polish import (
-            CompressImages, CompressImagesProgress, show_report,
-        )
+        from calibre.gui2.tweak_book.polish import CompressImages, CompressImagesProgress, show_report
         d = CompressImages(self.gui)
         if d.exec() == QDialog.DialogCode.Accepted:
             with BusyCursor():

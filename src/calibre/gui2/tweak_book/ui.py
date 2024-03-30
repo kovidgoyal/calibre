@@ -7,9 +7,25 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from functools import partial
 from itertools import product
+
 from qt.core import (
-    QAction, QDockWidget, QEvent, QHBoxLayout, QIcon, QLabel, QMenu, QMenuBar, QSize,
-    QStackedWidget, Qt, QTabWidget, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    QAction,
+    QDockWidget,
+    QEvent,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QMenu,
+    QMenuBar,
+    QSize,
+    QStackedWidget,
+    Qt,
+    QTabWidget,
+    QTimer,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre import prints
@@ -19,10 +35,7 @@ from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton
-from calibre.gui2.tweak_book import (
-    actions, capitalize, current_container, editors, toolbar_actions, tprefs,
-    update_mark_text_action,
-)
+from calibre.gui2.tweak_book import actions, capitalize, current_container, editors, toolbar_actions, tprefs, update_mark_text_action
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.check import Check
@@ -44,9 +57,7 @@ from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.icu import ord_string, sort_key
-from calibre.utils.localization import (
-    localize_user_manual_link, localize_website_link, pgettext,
-)
+from calibre.utils.localization import localize_user_manual_link, localize_website_link, pgettext
 from calibre.utils.unicode_names import character_name_from_code
 from polyglot.builtins import iteritems, itervalues
 

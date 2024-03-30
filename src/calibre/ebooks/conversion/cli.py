@@ -6,16 +6,18 @@ __docformat__ = 'restructuredtext en'
 Command line interface to conversion sub-system
 '''
 
-import sys, os, numbers
-from optparse import OptionGroup, Option
+import numbers
+import os
+import sys
 from collections import OrderedDict
+from optparse import Option, OptionGroup
 
-from calibre.utils.config import OptionParser
-from calibre.utils.logging import Log
-from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
+from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion import ConversionUserFeedBack
+from calibre.utils.config import OptionParser
 from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.logging import Log
 from polyglot.builtins import iteritems
 
 USAGE = '%prog ' + _('''\
@@ -297,7 +299,7 @@ class ProgressBar:
 
 def create_option_parser(args, log):
     if '--version' in args:
-        from calibre.constants import __appname__, __version__, __author__
+        from calibre.constants import __appname__, __author__, __version__
         log(os.path.basename(args[0]), '('+__appname__, __version__+')')
         log('Created by:', __author__)
         raise SystemExit(0)
@@ -347,7 +349,8 @@ def escape_sr_pattern(exp):
 
 
 def read_sr_patterns(path, log=None):
-    import json, re
+    import json
+    import re
     pats = []
     with open(path, 'rb') as f:
         lines = f.read().decode('utf-8').splitlines()

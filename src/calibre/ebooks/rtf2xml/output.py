@@ -10,8 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os
+import os
+import sys
+
 from . import open_for_read, open_for_write
+
 # , codecs
 
 

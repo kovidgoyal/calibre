@@ -145,10 +145,7 @@ class Plugin:  # {{{
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from qt.core import (
-            QApplication, QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, Qt,
-            QVBoxLayout, QSize
-        )
+        from qt.core import QApplication, QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, QSize, Qt, QVBoxLayout
 
         from calibre.gui2 import gprefs
 

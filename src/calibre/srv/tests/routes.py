@@ -5,15 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from tempfile import TemporaryDirectory
+
 from calibre.srv.tests.base import BaseTest
 from polyglot.builtins import itervalues
-from tempfile import TemporaryDirectory
 
 
 class TestRouter(BaseTest):
 
     def test_library_id_construction(self):
-        from calibre.srv.library_broker import library_id_from_path, correct_case_of_last_path_component, db_matches
+        from calibre.srv.library_broker import correct_case_of_last_path_component, db_matches, library_id_from_path
         self.ae(library_id_from_path('as'), 'as')
         self.ae(library_id_from_path('as/'), 'as')
         self.ae(library_id_from_path('as////'), 'as')
@@ -40,7 +41,7 @@ class TestRouter(BaseTest):
 
     def test_route_construction(self):
         ' Test route construction '
-        from calibre.srv.routes import Route, endpoint, RouteError
+        from calibre.srv.routes import Route, RouteError, endpoint
 
         def makeroute(route, func=lambda c,d:None, **kwargs):
             return Route(endpoint(route, **kwargs)(func))
@@ -64,7 +65,7 @@ class TestRouter(BaseTest):
 
     def test_route_finding(self):
         'Test route finding'
-        from calibre.srv.routes import Router, endpoint, HTTPNotFound
+        from calibre.srv.routes import HTTPNotFound, Router, endpoint
         router = Router()
 
         def find(path):

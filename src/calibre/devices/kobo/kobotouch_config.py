@@ -6,15 +6,14 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout, QDialog,
-                     QDialogButtonBox, QCheckBox, QPushButton)
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
-from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
 from calibre.gui2 import error_dialog
-from calibre.gui2.widgets2 import ColorButton
+from calibre.gui2.device_drivers.tabbed_device_config import DeviceConfigTab, DeviceOptionsGroupBox, TabbedDeviceConfig
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+from calibre.gui2.widgets2 import ColorButton
 
 
 def wrap_msg(msg):
@@ -808,9 +807,9 @@ class TemplateConfig(QWidget):  # {{{
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application
     from calibre.devices.kobo.driver import KOBOTOUCH
     from calibre.devices.scanner import DeviceScanner
+    from calibre.gui2 import Application
     s = DeviceScanner()
     s.scan()
     app = Application([])

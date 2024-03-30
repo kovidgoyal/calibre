@@ -2,12 +2,13 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import apsw
 import json
 import os
 import re
 from functools import lru_cache
 from threading import RLock
+
+import apsw
 
 from calibre import as_unicode
 from calibre.constants import config_dir

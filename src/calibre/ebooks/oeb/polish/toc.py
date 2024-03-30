@@ -8,15 +8,13 @@ __docformat__ = 'restructuredtext en'
 import re
 from collections import Counter, OrderedDict
 from functools import partial
-from lxml import etree
-from lxml.builder import ElementMaker
 from operator import itemgetter
 
+from lxml import etree
+from lxml.builder import ElementMaker
+
 from calibre import __version__
-from calibre.ebooks.oeb.base import (
-    EPUB_NS, NCX, NCX_NS, OEB_DOCS, XHTML, XHTML_NS, XML, XML_NS, XPath, serialize,
-    uuid_id, xml2text,
-)
+from calibre.ebooks.oeb.base import EPUB_NS, NCX, NCX_NS, OEB_DOCS, XHTML, XHTML_NS, XML, XML_NS, XPath, serialize, uuid_id, xml2text
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree

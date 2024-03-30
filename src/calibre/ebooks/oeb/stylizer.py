@@ -11,25 +11,23 @@ import numbers
 import os
 import re
 import unicodedata
-from css_parser import (
-    CSSParser, log as css_parser_log, parseString, parseStyle, profile as cssprofiles,
-    profiles, replaceUrls,
-)
-from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, cssproperties
 from operator import itemgetter
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 
+from css_parser import CSSParser, parseString, parseStyle, profiles, replaceUrls
+from css_parser import log as css_parser_log
+from css_parser import profile as cssprofiles
+from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, cssproperties
+from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
+from tinycss.media3 import CSSMedia3Parser
+
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import (
-    CSS_MIME, OEB_STYLES, XHTML, XHTML_NS, urlnormalize, xpath,
-)
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, XHTML, XHTML_NS, urlnormalize, xpath
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
-from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
 from polyglot.builtins import iteritems
-from tinycss.media3 import CSSMedia3Parser
 
 css_parser_log.setLevel(logging.WARN)
 

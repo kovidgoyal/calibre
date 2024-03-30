@@ -10,12 +10,10 @@ import traceback
 
 from calibre import prints
 from calibre.constants import DEBUG
-from calibre.ebooks.metadata.book import (
-    ALL_METADATA_FIELDS, SC_COPYABLE_FIELDS, SC_FIELDS_COPY_NOT_NULL,
-    STANDARD_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS,
-)
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, SC_COPYABLE_FIELDS, SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.icu import lower as icu_lower, sort_key
+from calibre.utils.icu import lower as icu_lower
+from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems, string_or_bytes
 

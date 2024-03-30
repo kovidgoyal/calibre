@@ -4,18 +4,22 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, os, socket, time
+import os
+import socket
+import ssl
+import time
 from collections import namedtuple
-from unittest import skipIf
 from glob import glob
 from threading import Event
+from unittest import skipIf
 
+from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
-from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.certgen import create_server_cert
 from calibre.utils.monotonic import monotonic
 from polyglot import http_client
+
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -23,8 +27,8 @@ class LoopTest(BaseTest):
 
     def test_log_rotation(self):
         'Test log rotation'
-        from calibre.srv.utils import RotatingLog
         from calibre.ptempfile import TemporaryDirectory
+        from calibre.srv.utils import RotatingLog
         with TemporaryDirectory() as tdir:
             fname = os.path.join(tdir, 'log')
             l = RotatingLog(fname, max_size=100)
@@ -106,8 +110,9 @@ class LoopTest(BaseTest):
     @skipIf(True, 'Disabled as it is failing on the build server, need to investigate')
     def test_bonjour(self):
         'Test advertising via BonJour'
-        from calibre.srv.bonjour import BonJour
         from zeroconf import Zeroconf
+
+        from calibre.srv.bonjour import BonJour
         b = BonJour(wait_for_stop=False)
         with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:
             self.assertTrue(b.started.wait(5), 'BonJour not started')
@@ -143,7 +148,7 @@ class LoopTest(BaseTest):
                 sz = min(len(mv), len(self.data))
                 mv[:sz] = self.data[:sz]
                 return sz
-        from calibre.srv.loop import ReadBuffer, READ, WRITE
+        from calibre.srv.loop import READ, WRITE, ReadBuffer
         buf = ReadBuffer(100)
 
         def write(data):

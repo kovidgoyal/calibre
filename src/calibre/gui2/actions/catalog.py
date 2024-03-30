@@ -5,15 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, shutil
+import os
+import re
+import shutil
 
 from qt.core import QModelIndex
 
+from calibre import sanitize_file_name
 from calibre.gui2 import choose_dir, error_dialog, warning_dialog
+from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
-from calibre.gui2.actions import InterfaceAction
-from calibre import sanitize_file_name
 
 
 class GenerateCatalogAction(InterfaceAction):

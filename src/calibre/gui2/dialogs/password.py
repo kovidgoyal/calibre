@@ -2,10 +2,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+
 from qt.core import QDialog, QLineEdit, Qt
 
-from calibre.gui2.dialogs.password_ui import Ui_Dialog
 from calibre.gui2 import dynamic
+from calibre.gui2.dialogs.password_ui import Ui_Dialog
 
 
 class PasswordDialog(QDialog, Ui_Dialog):

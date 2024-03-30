@@ -3,10 +3,8 @@
 
 
 import os
-from qt.core import (
-    QAction, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, Qt,
-    QVBoxLayout,
-)
+
+from qt.core import QAction, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, Qt, QVBoxLayout
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.fts.scan import ScanStatus

@@ -4,10 +4,10 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QListWidgetItem, Qt
 
-from calibre.gui2.convert.txt_input_ui import Ui_Form
-from calibre.gui2.convert import Widget
-from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
 from calibre.ebooks.conversion.config import OPTIONS
+from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+from calibre.gui2.convert import Widget
+from calibre.gui2.convert.txt_input_ui import Ui_Form
 from polyglot.builtins import iteritems, itervalues
 
 

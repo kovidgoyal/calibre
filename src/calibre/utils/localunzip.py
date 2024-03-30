@@ -12,11 +12,14 @@ These are apparently produced in large numbers by the fruitcakes over at B&N.
 Tries to only use the local headers to extract data from the damaged zip file.
 '''
 
-import os, sys, zlib, shutil
-from struct import calcsize, unpack, pack
-from collections import namedtuple, OrderedDict
-from calibre.ptempfile import SpooledTemporaryFile
+import os
+import shutil
+import sys
+import zlib
+from collections import OrderedDict, namedtuple
+from struct import calcsize, pack, unpack
 
+from calibre.ptempfile import SpooledTemporaryFile
 from polyglot.builtins import itervalues
 
 HEADER_SIG = 0x04034b50

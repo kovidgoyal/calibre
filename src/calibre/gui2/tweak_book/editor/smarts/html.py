@@ -7,9 +7,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 import sys
 from contextlib import contextmanager
-from css_parser import parseStyle
 from itertools import chain
 from operator import itemgetter
+
+from css_parser import parseStyle
 from qt.core import Qt, QTextCursor, QTextEdit
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
@@ -20,12 +21,16 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
-    expand_tabs, get_leading_whitespace_on_block, get_text_after_cursor,
-    get_text_before_cursor, no_modifiers, smart_backspace, smart_home, smart_tab
+    expand_tabs,
+    get_leading_whitespace_on_block,
+    get_text_after_cursor,
+    get_text_before_cursor,
+    no_modifiers,
+    smart_backspace,
+    smart_home,
+    smart_tab,
 )
-from calibre.gui2.tweak_book.editor.syntax.html import (
-    ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
-)
+from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
 
 get_offset = itemgetter(0)

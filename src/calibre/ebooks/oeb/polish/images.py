@@ -44,9 +44,7 @@ class Worker(Thread):
                 self.queue.task_done()
 
     def compress(self, name, path, mime_type):
-        from calibre.utils.img import (
-            encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp,
-        )
+        from calibre.utils.img import encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp
         if 'png' in mime_type:
             func = optimize_png
         elif 'webp' in mime_type:

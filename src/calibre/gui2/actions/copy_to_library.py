@@ -9,19 +9,34 @@ import os
 from collections import defaultdict
 from contextlib import closing
 from functools import partial
-from qt.core import (
-    QAbstractItemView, QApplication, QCheckBox, QDialog, QDialogButtonBox, QFormLayout,
-    QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QScrollArea, QSize, Qt, QToolButton, QVBoxLayout, QWidget,
-)
 from threading import Thread
+
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QScrollArea,
+    QSize,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from calibre import as_unicode
 from calibre.constants import ismacos
 from calibre.db.copy_to_library import copy_one_book
-from calibre.gui2 import (
-    Dispatcher, choose_dir, error_dialog, gprefs, info_dialog, warning_dialog,
-)
+from calibre.gui2 import Dispatcher, choose_dir, error_dialog, gprefs, info_dialog, warning_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.actions.choose_library import library_qicon
 from calibre.gui2.dialogs.progress import ProgressDialog

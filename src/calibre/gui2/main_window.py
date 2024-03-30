@@ -2,13 +2,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import gc, os
+import gc
+import os
 import sys
 import weakref
-from qt.core import (
-    QAction, QIcon, QKeySequence, QMainWindow, QMenu, QMenuBar, QObject, Qt, QTimer,
-    pyqtSignal
-)
+
+from qt.core import QAction, QIcon, QKeySequence, QMainWindow, QMenu, QMenuBar, QObject, Qt, QTimer, pyqtSignal
 
 from calibre import as_unicode, prepare_string_for_xml, prints
 from calibre.constants import iswindows
@@ -137,8 +136,9 @@ class MainWindow(QMainWindow):
     def show_possible_sharing_violation(self, e: Exception, det_msg: str = '') -> bool:
         if not iswindows or not isinstance(e, OSError):
             return False
-        from calibre_extensions import winutil
         import errno
+
+        from calibre_extensions import winutil
         if not (e.winerror == winutil.ERROR_SHARING_VIOLATION or e.errno == errno.EACCES or isinstance(e, PermissionError)):
             return False
         msg = getattr(e, 'locking_violation_msg', '')

@@ -10,14 +10,8 @@ from lxml import etree
 
 from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.hyphenation.dictionaries import (
-    dictionary_name_for_locale, get_cache_path, is_cache_up_to_date,
-    path_to_dictionary
-)
-from calibre.utils.hyphenation.hyphenate import (
-    add_soft_hyphens, add_soft_hyphens_to_html, add_soft_hyphens_to_words,
-    dictionary_for_locale
-)
+from calibre.utils.hyphenation.dictionaries import dictionary_name_for_locale, get_cache_path, is_cache_up_to_date, path_to_dictionary
+from calibre.utils.hyphenation.hyphenate import add_soft_hyphens, add_soft_hyphens_to_html, add_soft_hyphens_to_words, dictionary_for_locale
 
 
 class TestHyphenation(unittest.TestCase):

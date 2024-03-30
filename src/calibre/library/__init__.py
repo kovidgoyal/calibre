@@ -24,7 +24,12 @@ def generate_test_db(library_path,  # {{{
         max_authors=10,
         max_tags=10
         ):
-    import random, string, os, sys, time
+    import os
+    import random
+    import string
+    import sys
+    import time
+
     from calibre.constants import preferred_encoding
 
     if not os.path.exists(library_path):

@@ -5,13 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref, operator, numbers, sys
+import numbers
+import operator
+import sys
+import weakref
 from functools import partial
-from polyglot.builtins import iteritems, itervalues
 
-from calibre.ebooks.metadata import title_sort
-from calibre.utils.config_base import tweaks, prefs
 from calibre.db.write import uniq
+from calibre.ebooks.metadata import title_sort
+from calibre.utils.config_base import prefs, tweaks
+from polyglot.builtins import iteritems, itervalues
 
 
 def sanitize_sort_field_name(field_metadata, field):

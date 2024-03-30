@@ -5,18 +5,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import io, random, time
+import io
+import random
+import time
 from struct import pack
 
 from calibre.ebooks import normalize
-from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
-from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
-        align_block, detect_periodical, RECORD_SIZE, create_text_record)
+from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, create_text_record, detect_periodical, encint, encode_trailing_data
+from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
 from calibre.ebooks.mobi.writer2.indexer import Indexer
+from calibre.ebooks.mobi.writer2.serializer import Serializer
+from calibre.utils.filenames import ascii_filename
 from polyglot.builtins import iteritems
 
 # Disabled as I dont care about uncrossable breaks
@@ -373,9 +374,8 @@ class MobiWriter:
     # }}}
 
     def generate_joint_record0(self):  # {{{
-        from calibre.ebooks.mobi.writer8.mobi import (MOBIHeader,
-                HEADER_FIELDS)
         from calibre.ebooks.mobi.writer8.exth import build_exth
+        from calibre.ebooks.mobi.writer8.mobi import HEADER_FIELDS, MOBIHeader
 
         # Insert resource records
         first_image_record = None

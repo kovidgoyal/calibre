@@ -8,14 +8,10 @@ import io
 import re
 import sys
 import weakref
-from qt.core import (
-    QApplication, QDialogButtonBox, QFontMetrics, QHBoxLayout, QIcon, QLabel,
-    QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal,
-)
 
-from calibre.ebooks.oeb.polish.utils import (
-    apply_func_to_html_text, apply_func_to_match_groups,
-)
+from qt.core import QApplication, QDialogButtonBox, QFontMetrics, QHBoxLayout, QIcon, QLabel, QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+
+from calibre.ebooks.oeb.polish.utils import apply_func_to_html_text, apply_func_to_match_groups
 from calibre.gui2 import error_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import dictionaries

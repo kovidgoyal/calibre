@@ -6,9 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time
-from qt.core import (
-    QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QVBoxLayout,
-)
+
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QVBoxLayout
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop

@@ -5,10 +5,11 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from io import BytesIO
+
 from PIL import Image
 
 from calibre import as_unicode
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
 from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
 from polyglot.builtins import error_message
 
@@ -32,6 +33,7 @@ class CMYKImage(BaseError):
 
     def __call__(self, container):
         from qt.core import QImage
+
         from calibre.gui2 import pixmap_to_data
         ext = container.mime_map[self.name].split('/')[-1].upper()
         if ext == 'JPG':
