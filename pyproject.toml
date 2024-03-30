@@ -24,6 +24,10 @@ known-first-party = ["calibre_extensions", 'polyglot']
 known-third-party = ["qt"]
 relative-imports-order = "closest-to-furthest"
 split-on-trailing-comma = false
+section-order = ['__python__', "future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+'__python__' = ['__python__']
 
 [tool.pylsp-mypy]
 enabled = false
