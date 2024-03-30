@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-from polyglot.builtins import iteritems
 
 
 class Note:
@@ -55,7 +54,7 @@ class Footnotes:
         return None, None
 
     def __iter__(self):
-        for anchor, (counter, note) in iteritems(self.notes):
+        for anchor, (counter, note) in self.notes.items():
             yield anchor, counter, note
 
     @property

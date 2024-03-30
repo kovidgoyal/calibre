@@ -4,31 +4,35 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, math, errno, uuid, numbers
+import errno
+import math
+import numbers
+import os
+import re
+import sys
+import uuid
 from collections import OrderedDict, defaultdict
 
 from lxml import html
-from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, A, DT, DL, DD, H1)
+from lxml.html.builder import BODY, BR, DD, DIV, DL, DT, H1, HEAD, HTML, LINK, META, SPAN, TITLE, A, P
 
 from calibre import guess_type
-from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XML, generate_anchor
-from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
-from calibre.ebooks.docx.numbering import Numbering
-from calibre.ebooks.docx.fonts import Fonts, is_symbol_font, map_symbol_text
-from calibre.ebooks.docx.images import Images
-from calibre.ebooks.docx.tables import Tables
-from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
+from calibre.ebooks.docx.container import DOCX, fromstring
+from calibre.ebooks.docx.fields import Fields
+from calibre.ebooks.docx.fonts import Fonts, is_symbol_font, map_symbol_text
+from calibre.ebooks.docx.footnotes import Footnotes
+from calibre.ebooks.docx.images import Images
+from calibre.ebooks.docx.names import XML, generate_anchor
+from calibre.ebooks.docx.numbering import Numbering
+from calibre.ebooks.docx.settings import Settings
+from calibre.ebooks.docx.styles import PageProperties, Styles, inherit
+from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
-from calibre.ebooks.docx.fields import Fields
-from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from polyglot.builtins import iteritems, itervalues
-
 
 NBSP = '\xa0'
 
@@ -703,6 +707,7 @@ class Convert:
                 if anchor and name:
                     l = A(name, id='back_%s' % anchor, href='#' + anchor, title=name)
                     l.set('class', 'noteref')
+                    l.set('role', 'doc-noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
             elif self.namespace.is_tag(child, 'w:tab'):
@@ -847,6 +852,7 @@ class Convert:
 
 if __name__ == '__main__':
     import shutil
+
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
     dest_dir = os.path.join(os.getcwd(), 'docx_input')
