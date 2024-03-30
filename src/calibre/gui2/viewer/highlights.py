@@ -11,6 +11,7 @@ from qt.core import (
     QAbstractItemView,
     QColor,
     QDialog,
+    QDialogButtonBox,
     QFont,
     QHBoxLayout,
     QIcon,
@@ -18,6 +19,9 @@ from qt.core import (
     QItemSelectionModel,
     QKeySequence,
     QLabel,
+    QListView,
+    QListWidget,
+    QListWidgetItem,
     QMenu,
     QPainter,
     QPainterPath,
@@ -25,11 +29,13 @@ from qt.core import (
     QPixmap,
     QPushButton,
     QRect,
+    QSize,
     QSizePolicy,
     QStyle,
     Qt,
     QTextCursor,
     QTextEdit,
+    QToolButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -76,8 +82,12 @@ def wavy_path(width, height, y_origin):
     return path
 
 
+def compute_style_key(style):
+    return tuple((k, style[k]) for k in sorted(style))
+
+
 def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark):
-    style_key = (is_dark, icon_size, device_pixel_ratio, tuple((k, style[k]) for k in sorted(style)))
+    style_key = (is_dark, icon_size, device_pixel_ratio, compute_style_key(style))
     sentinel = object()
     ans = decoration_cache.get(style_key, sentinel)
     if ans is not sentinel:
@@ -143,6 +153,75 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark)
     return ans
 
 
+class SwatchList(QListWidget):
+
+    def __init__(self, all_styles, selected_styles, parent=None):
+        super().__init__(parent)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.setViewMode(QListView.ViewMode.IconMode)
+        icon_size = parent.style().pixelMetric(QStyle.PixelMetric.PM_IconViewIconSize, None, self)
+        self.setIconSize(QSize(icon_size, icon_size))
+        self.setSpacing(20)
+        dpr = self.devicePixelRatioF()
+        is_dark = is_dark_theme()
+        flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren
+        self.itemClicked.connect(self.toggle_item)
+        for s in all_styles:
+            key = compute_style_key(s)
+            dec = decoration_for_style(self.palette(), s, icon_size, dpr, is_dark)
+            i = QListWidgetItem(self)
+            i.setFlags(flags)
+            i.setData(Qt.ItemDataRole.UserRole, s)
+            i.setData(Qt.ItemDataRole.UserRole + 1, key)
+            if dec:
+                i.setData(Qt.ItemDataRole.DecorationRole, dec)
+            i.setCheckState(Qt.CheckState.Checked if selected_styles and key in selected_styles else Qt.CheckState.Unchecked)
+
+    def toggle_item(self, item):
+        item.setCheckState(Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
+
+    @property
+    def selected_styles(self):
+        for i in range(self.count()):
+            item = self.item(i)
+            if item.checkState() == Qt.CheckState.Checked:
+                yield item.data(Qt.ItemDataRole.UserRole + 1)
+
+    def select_all(self):
+        for i in range(self.count()):
+            self.item(i).setCheckState(Qt.CheckState.Checked)
+
+    def select_none(self):
+        for i in range(self.count()):
+            self.item(i).setCheckState(Qt.CheckState.Unchecked)
+
+
+class FilterDialog(Dialog):
+
+    def __init__(self, all_styles, show_only_styles, parent=None):
+        self.all_styles, self.show_only_styles = all_styles, show_only_styles
+        super().__init__(_('Filter shown highlights'), 'filter-highlights', parent=parent)
+
+    def sizeHint(self):
+        return QSize(500, 400)
+
+    def setup_ui(self):
+        self.setWindowIcon(QIcon.ic('filter.png'))
+        self.l = l = QVBoxLayout(self)
+        la = QLabel(_('Choose what kinds of highlights will be displayed below. If none are selected, no filtering is performed.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.swatches = s = SwatchList(self.all_styles, self.show_only_styles, self)
+        l.addWidget(s)
+        l.addWidget(self.bb)
+        self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(s.select_all)
+        self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(s.select_none)
+
+    @property
+    def selected_styles(self):
+        return frozenset(self.swatches.selected_styles)
+
+
 class Export(ExportBase):
     prefs = vprefs
     pref_name = 'highlight_export_format'
@@ -184,6 +263,7 @@ class Highlights(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+        self.styles_to_show = frozenset()
         self.default_decoration = QIcon.ic('blank.png')
         self.setHeaderHidden(True)
         self.num_of_items = 0
@@ -310,6 +390,7 @@ class Highlights(QTreeWidget):
                 item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
                 self.uuid_map[h['uuid']] = secnum, itemnum
                 self.num_of_items += 1
+        self.apply_filters()
 
     def sorted_highlights(self, highlights):
         def_idx = 999999999999999
@@ -405,6 +486,37 @@ class Highlights(QTreeWidget):
         for item in self.selectedItems():
             yield item.data(0, highlight_role)
 
+    @property
+    def all_highlight_styles(self):
+        seen = set()
+        for h in self.all_highlights:
+            s = h.get('style')
+            if h.get('removed') or h.get('type') != 'highlight' or not s:
+                continue
+            k = compute_style_key(s)
+            if k not in seen:
+                yield s
+                seen.add(k)
+
+    def apply_filters(self):
+        q = self.styles_to_show
+        for item in self.iteritems():
+            h = item.data(0, highlight_role)
+            hidden = False
+            if q:
+                skey = compute_style_key(h.get('style', {}))
+                hidden = skey not in q
+            item.setHidden(hidden)
+        root = self.invisibleRootItem()
+        for i in range(root.childCount()):
+            sec = root.child(i)
+            for k in range(sec.childCount()):
+                if not sec.child(k).isHidden():
+                    sec.setHidden(False)
+                    break
+            else:
+                sec.setHidden(True)
+
     def keyPressEvent(self, ev):
         if ev.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
@@ -488,9 +600,13 @@ class HighlightsPanel(QWidget):
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
 
+        h = QHBoxLayout()
         la = QLabel(_('Double click to jump to an entry'))
-        la.setWordWrap(True)
-        l.addWidget(la)
+        self.filter_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('filter.png')), b.setToolTip(_('Show only highlights of a specific types'))
+        b.clicked.connect(self.change_active_filter)
+        h.addWidget(la), h.addStretch(10), h.addWidget(b)
+        l.addLayout(h)
 
         self.highlights = h = Highlights(self)
         l.addWidget(h)
@@ -522,6 +638,12 @@ class HighlightsPanel(QWidget):
         l.addWidget(nd)
         nd.setVisible(False)
         l.addLayout(h)
+
+    def change_active_filter(self):
+        d = FilterDialog(self.highlights.all_highlight_styles, self.highlights.styles_to_show, self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.highlights.styles_to_show = d.selected_styles
+            self.highlights.apply_filters()
 
     def notes_edited(self, text):
         h = self.highlights.current_highlight
