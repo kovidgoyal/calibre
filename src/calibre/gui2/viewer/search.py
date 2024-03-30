@@ -407,7 +407,7 @@ class SearchInput(QWidget):  # {{{
     cleared = pyqtSignal()
     go_back = pyqtSignal()
 
-    def __init__(self, parent=None, panel_name='search'):
+    def __init__(self, parent=None, panel_name='search', show_return_button=True):
         QWidget.__init__(self, parent)
         self.ignore_search_type_changes = False
         self.l = l = QVBoxLayout(self)
@@ -477,6 +477,7 @@ class SearchInput(QWidget):  # {{{
         rb.setToolTip(_('Go back to where you were before searching'))
         rb.clicked.connect(self.go_back)
         h.addWidget(rb)
+        rb.setVisible(show_return_button)
 
     def history_saved(self, new_text, history):
         if new_text:

@@ -484,7 +484,7 @@ class HighlightsPanel(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        self.search_input = si = SearchInput(self, 'highlights-search')
+        self.search_input = si = SearchInput(self, 'highlights-search', show_return_button=False)
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
 
