@@ -603,7 +603,7 @@ class HighlightsPanel(QWidget):
         h = QHBoxLayout()
         la = QLabel(_('Double click to jump to an entry'))
         self.filter_button = b = QToolButton(self)
-        b.setIcon(QIcon.ic('filter.png')), b.setToolTip(_('Show only highlights of a specific types'))
+        b.setIcon(QIcon.ic('filter.png')), b.setToolTip(_('Show only highlights of specific types'))
         b.clicked.connect(self.change_active_filter)
         h.addWidget(la), h.addStretch(10), h.addWidget(b)
         l.addLayout(h)
