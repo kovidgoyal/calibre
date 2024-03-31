@@ -1,6 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from datetime import datetime, timedelta, timezone
+
 from calibre.utils.date import parse_date
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 index = 'https://www.globaltimes.cn/'
 
@@ -41,7 +42,7 @@ class GlobalTimes(BasicNewsRecipe):
     def preprocess_html(self, soup):
         h1 = soup.find(attrs={'class':'article_title'})
         if h1:
-            h1.name = 'h1' 
+            h1.name = 'h1'
         for div in soup.findAll(attrs={'class':'picture'}):
             div.name = 'div'
         p = soup.find(attrs={'class':'author_share_left'})
@@ -92,4 +93,3 @@ class GlobalTimes(BasicNewsRecipe):
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return ans
- 
