@@ -93,14 +93,15 @@ class MessageBox(QDialog):  # {{{
         tc.setObjectName("toggle_checkbox")
         l.addWidget(tc, 2, 0, 1, 2)
 
-    def __init__(self, type_, title, msg,
-                 det_msg='',
-                 q_icon=None,
-                 show_copy_button=True,
-                 parent=None, default_yes=True,
-                 yes_text=None, no_text=None, yes_icon=None, no_icon=None,
-                 add_abort_button=False,
-                 only_copy_details=False
+    def __init__(
+        self, type_, title, msg,
+        det_msg='',
+        q_icon=None,
+        show_copy_button=True,
+        parent=None, default_yes=True,
+        yes_text=None, no_text=None, yes_icon=None, no_icon=None,
+        add_abort_button=False,
+        only_copy_details=False
     ):
         super().__init__(parent)
         self.only_copy_details = only_copy_details
