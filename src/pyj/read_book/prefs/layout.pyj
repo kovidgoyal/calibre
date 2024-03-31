@@ -7,9 +7,10 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from dom import add_extra_css, build_rule, element, unique_id
-from read_book.prefs.utils import create_button_box
 from read_book.globals import runtime
+from read_book.prefs.utils import create_button_box
 from session import session_defaults
+from utils import safe_set_inner_html
 
 CONTAINER = unique_id('reader-page-layout')
 MARGINS = unique_id('reader-page-margins')
@@ -45,6 +46,8 @@ def create_layout_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
     sd = get_session_data()
+    container.appendChild(E.p(style='margin:1ex 1rem; padding: 1ex 0'))
+    safe_set_inner_html(container.lastChild, _('Current window size is: <b>{0}x{1}</b> pixels').format(window.innerWidth, window.innerHeight))
     container.appendChild(E.p(_('Change the page margins (in pixels) below'), style='margin:1ex 1rem; padding: 1ex 0'))
     container.appendChild(E.table(id=MARGINS))
     labels = {'top':_('Top:'), 'bottom':_('Bottom:'), 'left':_('Left:'), 'right':_('Right:')}
@@ -85,9 +88,7 @@ def create_layout_panel(container, apply_func, cancel_func):
     )))
 
     sec(_('Change the maximum screen area (in pixels) used to display text.'
-          ' A value of zero means that all available screen area is used.'
-          ' Current window width is {0} and height is {1} pixels.'
-    ).format(window.innerWidth, window.innerHeight))
+          ' A value of zero means that all available screen area is used.'))
     container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
         E.tr(
             E.td(_('Width:')), E.td(E.input(type='number', name='width',   min='0', step='10', max='99999', value=str(sd.get('max_text_width')))),
