@@ -208,7 +208,7 @@ class FilterDialog(Dialog):
     def setup_ui(self):
         self.setWindowIcon(QIcon.ic('filter.png'))
         self.l = l = QVBoxLayout(self)
-        la = QLabel(_('Choose what kinds of highlights will be displayed below. If none are selected, no filtering is performed.'))
+        la = QLabel(_('Choose what kinds of highlights will be displayed, below. If none are selected, no filtering is performed.'))
         la.setWordWrap(True)
         l.addWidget(la)
         self.swatches = s = SwatchList(self.all_styles, self.show_only_styles, self)
