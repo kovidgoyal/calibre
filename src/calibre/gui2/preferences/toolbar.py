@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
+from qt.core import QAbstractItemView, QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre import force_unicode
 from calibre.gui2 import error_dialog, gprefs, warning_dialog
@@ -163,25 +163,29 @@ class CurrentModel(BaseModel):
         self.key = key
         self.gui = gui
 
-    def move(self, idx, delta):
+    def move_single(self, idx, delta):
         row = idx.row()
         nrow = (row + delta + len(self._data)) % len(self._data)
-        if nrow < 0 or nrow >= len(self._data):
-            return
-        t = self._data[row]
-        self._data[row] = self._data[nrow]
-        self._data[nrow] = t
-        ni = self.index(nrow)
-        self.dataChanged.emit(idx, idx)
-        self.dataChanged.emit(ni, ni)
-        return ni
+        if row + delta < 0:
+            x = self._data.pop(row)
+            self._data.append(x)
+        elif row + delta >= len(self._data):
+            x = self._data.pop(row)
+            self._data.insert(0, x)
+        else:
+            self._data[row], self._data[nrow] = self._data[nrow], self._data[row]
 
     def move_many(self, indices, delta):
+        rows = [i.row() for i in indices]
+        items = [self._data[x.row()] for x in indices]
+        self.beginResetModel()
         indices = sorted(indices, key=lambda i: i.row(), reverse=delta > 0)
+        for item in items:
+            self.move_single(self.index(self._data.index(item)), delta)
+        self.endResetModel()
         ans = {}
-        for idx in indices:
-            ni = self.move(idx, delta)
-            ans[idx.row()] = ni
+        for item, row in zip(items, rows):
+            ans[row] = self.index(self._data.index(item))
         return ans
 
     def add(self, names):
@@ -354,11 +358,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             m = self.current_actions.model()
             idx_map = m.move_many(x, delta)
             newci = idx_map.get(i)
-            if newci is not None:
-                sm.setCurrentIndex(newci, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             sm.clear()
             for idx in idx_map.values():
                 sm.select(idx, QItemSelectionModel.SelectionFlag.Select)
+            if newci is not None:
+                sm.setCurrentIndex(newci, QItemSelectionModel.SelectionFlag.SelectCurrent)
+            if newci is not None:
+                self.current_actions.scrollTo(newci, QAbstractItemView.ScrollHint.EnsureVisible)
             self.changed_signal.emit()
 
     def commit(self):
