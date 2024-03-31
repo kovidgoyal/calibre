@@ -85,7 +85,7 @@ class TheWeek(BasicNewsRecipe):
     for sec in sections:
         a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-GB&gl=GB&ceid=GB:en'
         feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
-    feeds.append(('Others', a.format(when, quote(index, safe=''), '')))
+    feeds.append(('Others', a.format(when, quote(index, safe=''))))
 
     def populate_article_metadata(self, article, soup, first):
         article.title = article.title.replace(' - The Week', '')

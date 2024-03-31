@@ -1,88 +1,95 @@
-import re
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from datetime import datetime, timedelta, timezone
+from calibre.utils.date import parse_date
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
-
+index = 'https://www.globaltimes.cn/'
 
 class GlobalTimes(BasicNewsRecipe):
-    title = u'Global Times'
-    __author__ = 'Jose Ortiz'  # lui1 at mobileread.com
+    title = 'Global Times'
+    __author__ = 'unkn0wn'
+    description = 'DISCOVER CHINA, DISCOVER THE WORLD'
     language = 'en_CN'
-    oldest_article = 7
-    max_articles_per_feed = 100
     no_stylesheets = True
-    keep_only_tags = [classes('article-title article-source row-content')]
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.globaltimes.cn/img/logo1@3x.png'
+    encoding = 'utf-8'
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    oldest_article = 1 # days
 
-    preprocess_regexps = [(
-        re.compile(
-            r'(?:<(?:br(?:\s*/)?|/br\s*)>(?:\s|'
-            '\xA0'
-            r'|&nbsp;)*){2,9}', re.U | re.I
-        ), lambda match: '<p>'
-    )]
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://en.kiosko.net/cn/np/cn_global_times.html')
+        return 'https:' + soup.find('img', attrs={'id':'portada'})['src']
 
     extra_css = '''
-        :root {
-            font-family: Arial, Helvetica, sans-serif;
-        }
+        .article_column {font-size:small; color:#404040;}
+        .author_share_left, .picture, .with_name_card, .pub_time {font-size:small; color:#202020;}
+        blockquote, em {color:#202020;}
+    '''
 
-        .article-title {
-            font-weight: bold;
-            font-size: large;
-        }
+    keep_only_tags = [
+        classes(
+            'article_column article_title author_share_left article_content'
+        )
+    ]
+    remove_tags = [classes('author_card')]
 
-        .article-source, .row-content {
-            font-size:small;
-        }
-        '''
+    def preprocess_raw_html(self, raw, *a):
+        return raw.replace('<br /><br />', '</p><p>').replace('<br><br>', '</p><p>')
+
+    def preprocess_html(self, soup):
+        h1 = soup.find(attrs={'class':'article_title'})
+        if h1:
+            h1.name = 'h1' 
+        for div in soup.findAll(attrs={'class':'picture'}):
+            div.name = 'div'
+        p = soup.find(attrs={'class':'author_share_left'})
+        if p:
+            p.name = 'p'
+        return soup
 
     def parse_index(self):
-        catnames = {}
-        catnames["https://www.globaltimes.cn/china/politics/"] = "China Politics"
-        catnames["https://www.globaltimes.cn/china/diplomacy/"] = "China Diplomacy"
-        catnames["https://www.globaltimes.cn/china/military/"] = "China Military"
-        catnames["https://www.globaltimes.cn/world/asia-pacific/"] = "Asia Pacific"
-        catnames["https://www.globaltimes.cn/sci-tech"] = "Sci-Tech"
+        sec_url = index + '{}/index.html'
+
+        section_list = [
+            'china', 'source', 'opinion', 'In-depth', 'world', 'life', 'sport', 'cartoon'
+        ]
+
         feeds = []
 
-        for cat in catnames:
-            articles = []
-            self.log(cat)
-            soup = self.index_to_soup(cat)
-            for a in soup.findAll(
-                'a',
-                attrs={
-                    'href':
-                    re.compile(
-                        r'https?://www.globaltimes.cn/content/[0-9]{4,10}[.]shtml'
-                    )
-                }
-            ):
-                # Typical url http://www.globaltimes.cn/content/5555555.shtml
-                url = a['href'].strip()
-                title = self.tag_to_string(a).strip()
-                if not title:
-                    continue
-                myarticle = ({
-                    'title': title,
-                    'url': url,
-                    'description': '',
-                    'date': ''
-                })
-                self.log("found '%s'" % title)
-                articles.append(myarticle)
-                self.log("Adding URL %s\n" % url)
+        for section in section_list:
+            section_title = section.capitalize()
+            section_url = sec_url.format(section)
+            self.log(section_title, section_url)
+            soup = self.index_to_soup(section_url)
+            articles = self.articles_from_soup(soup)
             if articles:
-                feeds.append((catnames[cat], articles))
+                feeds.append((section_title, articles))
         return feeds
 
-    def postprocess_html(self, soup, first_fetch):
-        for p in [p for p in soup('p') if len(p) == 0]:
-            p.extract()
-        return soup
+    def articles_from_soup(self, soup):
+        ans = []
+        dt = datetime.today().strftime('%Y%m')
+        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + 'page/' + dt + '/')}):
+            if a.find('img'):
+                continue
+            url = a['href']
+            title = self.tag_to_string(a).strip()
+            desc = ''
+            p = a.find_next_sibling('p')
+            if p:
+                desc = self.tag_to_string(p).strip()
+            src_time = a.find_next_sibling(attrs={'class':'source_time'})
+            if src_time:
+                time = self.tag_to_string(src_time).strip()
+                if '|' in time:
+                    time = time.split('|')[1].strip()
+                date = parse_date(time)
+                today = (datetime.now(timezone.utc)).replace(microsecond=0)
+                if (today - date) > timedelta(self.oldest_article):
+                    continue
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return ans
+ 
