@@ -23,13 +23,6 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QCheckBox" name="opt_upload_news_to_device">
-       <property name="text">
-        <string>Automatically send downloaded &amp;news to e-book reader</string>
-       </property>
-      </widget>
-     </item>
      <item row="7" column="1">
       <widget class="QComboBox" name="opt_output_format">
        <property name="sizeAdjustPolicy">
@@ -171,28 +164,6 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QFormLayout" name="formLayout_2">
-     <item row="0" column="0" colspan="2">
-      <widget class="QCheckBox" name="opt_bools_are_tristate">
-       <property name="toolTip">
-        <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
-If not checked, the values can be Yes or No.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Yes/No columns have three values (needs restart)</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="opt_numeric_collation">
        <property name="toolTip">
@@ -207,14 +178,29 @@ per library.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_bools_are_tristate">
+       <property name="toolTip">
+        <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
+If not checked, the values can be Yes or No.</string>
+       </property>
        <property name="text">
-        <string>&amp;Delete news from library when it is automatically sent to reader</string>
+        <string>&amp;Yes/No columns have three values (needs restart)</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="7" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Default network &amp;timeout:</string>
@@ -224,7 +210,7 @@ per library.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="7" column="1">
       <widget class="QSpinBox" name="opt_network_timeout">
        <property name="toolTip">
         <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -243,7 +229,7 @@ per library.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="9" column="1">
       <widget class="QComboBox" name="opt_virtual_lib_on_startup">
        <property name="maximumSize">
         <size>
@@ -262,7 +248,7 @@ per library.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="0" colspan="2">
+     <item row="10" column="0" colspan="2">
       <widget class="QPushButton" name="reset_confirmation_button">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -275,7 +261,7 @@ per library.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="0" colspan="2">
+     <item row="11" column="0" colspan="2">
       <widget class="QGroupBox" name="groupBox_3">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -303,13 +289,27 @@ per library.&lt;/p&gt;</string>
        </layout>
       </widget>
      </item>
-     <item row="4" column="0" colspan="2">
+     <item row="8" column="0" colspan="2">
       <widget class="QLabel" name="label_170">
        <property name="text">
         <string>Virtual library to apply when the current &amp;library is opened:</string>
        </property>
        <property name="buddy">
         <cstring>opt_virtual_lib_on_startup</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_upload_news_to_device">
+       <property name="text">
+        <string>Automatically send downloaded &amp;news to e-book reader</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
+       <property name="text">
+        <string>&amp;Delete news from library when it is automatically sent to reader</string>
        </property>
       </widget>
      </item>
