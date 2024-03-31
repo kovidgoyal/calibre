@@ -101,6 +101,8 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         self.menu = m = self.qaction.menu()
         m.aboutToShow.connect(self.about_to_show_menu)
         ma = partial(self.create_menu_action, m)
+        self.show_marked_action = a = ma('mark_selected', _('Mark all selected books'), icon='marked.png')
+        a.triggered.connect(self.mark_all_selected)
         self.show_marked_action = a = ma('mark_with_text', _('Mark books with text label'), icon='marked.png')
         a.triggered.connect(partial(self.mark_with_text, book_ids=None))
         global mark_books_with_text
@@ -219,6 +221,12 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             else:
                 mids.pop(book_id, None)
         db.data.set_marked_ids(mids)
+
+    def mark_all_selected(self):
+        book_ids = self._get_selected_ids()
+        if not book_ids:
+            return
+        self.gui.current_db.data.add_marked_ids(book_ids)
 
     def mark_with_text(self, book_ids=None):
         if book_ids is None:
