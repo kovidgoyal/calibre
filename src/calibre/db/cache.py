@@ -1406,6 +1406,10 @@ class Cache:
         return ids_to_sort[:count]
 
     @read_api
+    def size_stats(self) -> dict[str, int]:
+        return self.backend.size_stats()
+
+    @read_api
     def multisort(self, fields, ids_to_sort=None, virtual_fields=None):
         '''
         Return a list of sorted book ids. If ids_to_sort is None, all book ids

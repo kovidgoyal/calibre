@@ -2655,4 +2655,16 @@ class DB:
 
     def backup_notes_database(self, path):
         self._backup_database(path, 'notes_db')
+
+    def size_stats(self):
+        main_size = notes_size = fts_size = 0
+        with suppress(OSError):
+            main_size = os.path.getsize(self.dbpath)
+        if self.conn.notes_dbpath:
+            with suppress(OSError):
+                notes_size = os.path.getsize(self.conn.notes_dbpath)
+        if self.conn.fts_dbpath:
+            with suppress(OSError):
+                fts_size = os.path.getsize(self.conn.fts_dbpath)
+        return {'main': main_size, 'fts': fts_size, 'notes': notes_size}
     # }}}

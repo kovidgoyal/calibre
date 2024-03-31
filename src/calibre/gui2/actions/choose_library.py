@@ -678,6 +678,7 @@ class ChooseLibraryAction(InterfaceAction):
         db = m.db
         db.prefs.disable_setting = True
         library_path = db.library_path
+        before = db.new_api.size_stats()
 
         d = DBCheck(self.gui, db)
         try:
@@ -692,10 +693,22 @@ class ChooseLibraryAction(InterfaceAction):
         if d.rejected:
             return
         if d.error is None:
+            after = self.gui.current_db.new_api.size_stats()
+            det_msg = ''
+            from calibre import human_readable
+            for which, title in {'main': _('books'), 'fts': _('full text search'), 'notes': _('notes')}.items():
+                if which != 'main' and not getattr(d, which).isChecked():
+                    continue
+                det_msg += '\n'
+                if before[which] == after[which]:
+                    det_msg += _('Size of the {} database was unchanged.').format(title)
+                else:
+                    det_msg += _('Size of the {0} database reduced from {1} to {2}.').format(
+                            title, human_readable(before[which]), human_readable(after[which]))
             if not question_dialog(self.gui, _('Success'),
                     _('Found no errors in your calibre library database.'
                         ' Do you want calibre to check if the files in your'
-                        ' library match the information in the database?')):
+                        ' library match the information in the database?'), det_msg=det_msg.strip()):
                 return
         else:
             return error_dialog(self.gui, _('Failed'),
