@@ -1476,6 +1476,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         m = gui.library_view.model()
         current = gui.library_view.currentIndex()
         m.current_changed(current, current)
+        gui.tags_view.recount()
 
     def show_notes(self, field, item_id, parent=None):
         from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
