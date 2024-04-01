@@ -303,7 +303,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         except UnicodeDecodeError:
             continue
 
-        if tag == XHTML('style') and el.text and \
+        if tag in (XHTML('style'), SVG('style')) and el.text and \
                 (_css_url_re.search(el.text) is not None or '@import' in
                         el.text):
             stylesheet = parser.parseString(el.text, validate=False)

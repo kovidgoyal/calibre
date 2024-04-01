@@ -14,7 +14,7 @@ from tinycss.fonts3 import parse_font_family, serialize_font_family
 
 from calibre import as_unicode
 from calibre.ebooks.css_transform_rules import all_properties
-from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, css_text
+from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
@@ -187,7 +187,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
 
     process_sheet(html_css_stylesheet(container), 'user-agent.css')
 
-    for elem in root.iterdescendants(XHTML('style'), XHTML('link')):
+    for elem in root.iterdescendants(XHTML('style'), SVG('style'), XHTML('link')):
         if elem.tag.lower().endswith('style'):
             if not elem.text:
                 continue

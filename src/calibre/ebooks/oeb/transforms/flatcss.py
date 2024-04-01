@@ -19,7 +19,7 @@ from lxml import etree
 
 from calibre import guess_type
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG_NS, XHTML, XHTML_NS, XPath, barename, css_text, namespace
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, SVG_NS, XHTML, XHTML_NS, XPath, barename, css_text, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
@@ -590,7 +590,7 @@ class CSSFlattener:
                and safe_lower(node.get('rel', 'stylesheet')) == 'stylesheet' \
                and safe_lower(node.get('type', CSS_MIME)) in OEB_STYLES:
                 node.getparent().remove(node)
-            elif node.tag == XHTML('style') \
+            elif node.tag in (XHTML('style'), SVG('style')) \
                  and node.get('type', CSS_MIME) in OEB_STYLES:
                 node.getparent().remove(node)
         href = item.relhref(href)

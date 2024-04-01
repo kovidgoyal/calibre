@@ -24,7 +24,7 @@ from tinycss.media3 import CSSMedia3Parser
 
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, XHTML, XHTML_NS, urlnormalize, xpath
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, urlnormalize, xpath
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
@@ -247,7 +247,7 @@ class Stylizer:
         parser = CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         for elem in style_tags:
-            if (elem.tag == XHTML('style') and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
+            if (elem.tag in (XHTML('style'), SVG('style')) and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
                 text = elem.text if elem.text else ''
                 for x in elem:
                     t = getattr(x, 'text', None)
