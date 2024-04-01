@@ -215,10 +215,11 @@ Enabling offline support
 
 Browser makers have been trying to force people to use SSL by disabling
 advanced features in their browsers for plain HTTP connections. One such
-casualty is offline support. So you may need to enable HTTPS on the server to
-get offline support working. In addition, in Firefox on Android, you will need
-to type ``about:config`` and search for ``browser.tabs.useCache`` and toggle it
-to ``true``.
+casualty is ApplicationCache, which was what was used in calibre for offline
+support. As a result now-a-days sadly, offline mode works only as long as you
+keep the browser tab open. In addition, in Firefox on Android, you will need to
+type ``about:config`` and create a preference called ``browser.tabs.useCache``
+and set it to ``true``.
 
 Managing user accounts from the command-line only
 -----------------------------------------------------
