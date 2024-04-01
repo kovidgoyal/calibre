@@ -445,6 +445,15 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
                 QIcon.ic('fts.png'))
 
 
+def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
+    if field and item_name:
+        m = menu.addMenu(QIcon.ic('external-link'), _('Associated link'))
+        m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda : book_info.link_clicked.emit(link))
+        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda : book_info.link_removal_requested.emit(field, item_name))
+    else:
+        menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda : book_info.link_clicked.emit(link))
+
+
 def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     from calibre.gui2.ui import get_gui
     search_internet_added = False
@@ -486,8 +495,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
         link = link_map.get("authors", {}).get(author)
         if link:
-            menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
-                           lambda : book_info.link_clicked.emit(link))
+            add_link_submenu(menu, link, book_info, 'authors', author)
     elif dt in ('path', 'devpath'):
         path = data['loc']
         ac = book_info.copy_link_action
@@ -547,8 +555,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
             link = link_map.get(field, {}).get(value)
             if link:
-                menu.addAction(QIcon.ic('external-link'), _('Open associated link'),
-                               lambda : book_info.link_clicked.emit(link))
+                add_link_submenu(menu, link, book_info, field, value)
         else:
             v = data.get('original_value') or data.get('value')
             if v:
@@ -666,7 +673,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
             ac.current_url = url
             ac.setText(_('Copy link location'))
             menu.addAction(ac)
-            menu.addAction(QIcon.ic('external-link'), _('Open associated link'), lambda : book_info.link_clicked.emit(url))
+            add_link_submenu(menu, url, book_info)
     if not copy_links_added:
         create_copy_links(copy_menu)
 
@@ -996,6 +1003,7 @@ class CoverView(QWidget):  # {{{
 class BookInfo(HTMLDisplay):
 
     link_clicked = pyqtSignal(object)
+    link_removal_requested = pyqtSignal(object, object)
     remove_format = pyqtSignal(int, object)
     remove_item = pyqtSignal(int, object, object)
     save_format = pyqtSignal(int, object)
@@ -1355,6 +1363,7 @@ class BookDetails(DetailsLayout):  # {{{
         self.book_info.search_requested = self.search_requested.emit
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
+        self.book_info.link_removal_requested.connect(self.remove_link)
         self.book_info.remove_format.connect(self.remove_specific_format)
         self.book_info.remove_item.connect(self.remove_metadata_item)
         self.book_info.open_fmt_with.connect(self.open_fmt_with)
@@ -1453,6 +1462,15 @@ class BookDetails(DetailsLayout):  # {{{
 
     def handle_click(self, link):
         self.handle_click_from_popup(link)
+
+    def remove_link(self, field, item_value):
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        db = gui.current_db.new_api
+        db.set_link_map(field, {item_value: ''})
+        m = gui.library_view.model()
+        current = gui.library_view.currentIndex()
+        m.current_changed(current, current)
 
     def show_notes(self, field, item_id, parent=None):
         from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
