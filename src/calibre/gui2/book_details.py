@@ -1271,34 +1271,14 @@ class DetailsLayout(QSplitter):  # {{{
         cover.do_layout()
 # }}}
 
+# Drag 'n drop {{{
 
-class BookDetails(DetailsLayout):  # {{{
-
-    show_book_info = pyqtSignal()
-    open_containing_folder = pyqtSignal(int)
-    open_data_folder = pyqtSignal(int)
-    view_specific_format = pyqtSignal(int, object)
-    search_requested = pyqtSignal(object, object)
-    remove_specific_format = pyqtSignal(int, object)
-    remove_metadata_item = pyqtSignal(int, object, object)
-    save_specific_format = pyqtSignal(int, object)
-    restore_specific_format = pyqtSignal(int, object)
-    set_cover_from_format = pyqtSignal(int, object)
-    compare_specific_format = pyqtSignal(int, object)
-    copy_link = pyqtSignal(object)
-    remote_file_dropped = pyqtSignal(object, object)
+class DropMixin:
     files_dropped = pyqtSignal(object, object)
-    cover_changed = pyqtSignal(object, object)
-    open_cover_with = pyqtSignal(object, object)
-    cover_removed = pyqtSignal(object)
-    view_device_book = pyqtSignal(object)
-    manage_category = pyqtSignal(object, object)
-    edit_identifiers = pyqtSignal()
-    open_fmt_with = pyqtSignal(int, object, object)
-    edit_book = pyqtSignal(int, object)
-    find_in_tag_browser = pyqtSignal(object, object)
+    remote_file_dropped = pyqtSignal(object, object)
 
-    # Drag 'n drop {{{
+    def __init__(self):
+        self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
@@ -1344,10 +1324,35 @@ class BookDetails(DetailsLayout):  # {{{
 
     # }}}
 
+
+class BookDetails(DetailsLayout, DropMixin):  # {{{
+
+    show_book_info = pyqtSignal()
+    open_containing_folder = pyqtSignal(int)
+    open_data_folder = pyqtSignal(int)
+    view_specific_format = pyqtSignal(int, object)
+    search_requested = pyqtSignal(object, object)
+    remove_specific_format = pyqtSignal(int, object)
+    remove_metadata_item = pyqtSignal(int, object, object)
+    save_specific_format = pyqtSignal(int, object)
+    restore_specific_format = pyqtSignal(int, object)
+    set_cover_from_format = pyqtSignal(int, object)
+    compare_specific_format = pyqtSignal(int, object)
+    copy_link = pyqtSignal(object)
+    cover_changed = pyqtSignal(object, object)
+    open_cover_with = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
+    view_device_book = pyqtSignal(object)
+    manage_category = pyqtSignal(object, object)
+    edit_identifiers = pyqtSignal()
+    open_fmt_with = pyqtSignal(int, object, object)
+    edit_book = pyqtSignal(int, object)
+    find_in_tag_browser = pyqtSignal(object, object)
+
     def __init__(self, vertical, parent=None):
         super().__init__(vertical, parent)
+        DropMixin.__init__(self)
         self.last_data = {}
-        self.setAcceptDrops(True)
         self._layout = self
         self.current_path = ''
 

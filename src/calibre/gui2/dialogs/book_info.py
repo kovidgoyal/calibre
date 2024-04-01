@@ -36,7 +36,7 @@ from qt.core import (
 from calibre import fit_image
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, NO_URL_FORMATTING, gprefs
-from calibre.gui2.book_details import create_open_cover_with_menu, details_context_menu_event, render_html, resolved_css, set_html
+from calibre.gui2.book_details import DropMixin, create_open_cover_with_menu, details_context_menu_event, render_html, resolved_css, set_html
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -169,7 +169,7 @@ class DialogNumbers(IntEnum):
     DetailsLink = 2
 
 
-class BookInfo(QDialog):
+class BookInfo(QDialog, DropMixin):
 
     closed = pyqtSignal(object)
     open_cover_with = pyqtSignal(object, object)
@@ -177,6 +177,9 @@ class BookInfo(QDialog):
     def __init__(self, parent, view, row, link_delegate, dialog_number=None,
                  library_id=None, library_path=None, book_id=None):
         QDialog.__init__(self, parent)
+        DropMixin.__init__(self)
+        self.files_dropped.connect(self.on_files_dropped)
+        self.remote_file_dropped.connect(self.on_remote_file_dropped)
         self.dialog_number = dialog_number
         self.library_id = library_id
         self.marked = None
@@ -185,6 +188,7 @@ class BookInfo(QDialog):
         self._l = l = QVBoxLayout(self)
         self.setLayout(l)
         l.addWidget(self.splitter)
+        self.setAcceptDrops(True)
 
         self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.copy_to_clipboard_requested.connect(self.copy_cover_to_clipboard)
@@ -296,6 +300,14 @@ class BookInfo(QDialog):
             self.splitter.restoreState(gprefs.get(self.geometry_string('book_info_dialog_splitter_state')))
         except Exception:
             pass
+
+    def on_files_dropped(self, event, paths):
+        gui = get_gui()
+        gui.iactions['Add Books'].files_dropped_on_book(event, paths)
+
+    def on_remote_file_dropped(self, event, url):
+        gui = get_gui()
+        gui.iactions['Add Books'].remote_file_dropped_on_book(event, url)
 
     def geometry_string(self, txt):
         if self.dialog_number is None or self.dialog_number == DialogNumbers.Slaved:
