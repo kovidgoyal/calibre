@@ -15,6 +15,8 @@ from calibre.ebooks.oeb.base import css_text, urlnormalize
 from calibre.utils.fonts.subset import subset
 from polyglot.builtins import iteritems
 
+font_properties = ('font-family', 'src', 'font-weight', 'font-stretch', 'font-style', 'text-transform')
+
 
 def get_font_properties(rule, default=None):
     '''
@@ -24,8 +26,7 @@ def get_font_properties(rule, default=None):
     '''
     props = {}
     s = rule.style
-    for q in ('font-family', 'src', 'font-weight', 'font-stretch',
-            'font-style'):
+    for q in font_properties:
         g = 'uri' if q == 'src' else 'value'
         try:
             val = s.getProperty(q).propertyValue[0]
@@ -299,13 +300,20 @@ class SubsetFonts:
             if matches:
                 return matches[0]
 
-    def find_chars(self, elem):
+    def find_chars(self, elem, style):
         ans = set()
+        transform = lambda x: x  # noqa
+        tt = style.get('text-transform')
+        if tt:
+            if tt in ('uppercase', 'capitalize'):
+                transform = str.upper
+            elif tt == 'lowercase':
+                transform = str.lower
         if elem.text:
-            ans |= set(elem.text)
+            ans |= set(transform(elem.text))
         for child in elem:
             if child.tail:
-                ans |= set(child.tail)
+                ans |= set(transform(child.tail))
         return ans
 
     def find_usage_in(self, elem, inherited_style):
@@ -314,6 +322,6 @@ class SubsetFonts:
             self.find_usage_in(child, style)
         font = self.used_font(style)
         if font:
-            chars = self.find_chars(elem)
+            chars = self.find_chars(elem, style)
             if chars:
                 font['chars'] |= chars
