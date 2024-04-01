@@ -453,7 +453,9 @@ class CSSFlattener:
             if dp.tag and dp.tag.endswith('}div') and len(dp) == 1 and not dp.text:
                 if stylizer.style(dp).cssdict().get('float', None) == 'left':
                     is_drop_cap = True
-        if not self.context.disable_font_rescaling and not is_drop_cap:
+        if style.viewport_relative_font_size:
+            cssdict['font-size'] = style.viewport_relative_font_size
+        elif not self.context.disable_font_rescaling and not is_drop_cap:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
             dyn_rescale = node.attrib.pop('data-calibre-rescale', None)

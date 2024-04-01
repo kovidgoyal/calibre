@@ -428,10 +428,23 @@ class Stylizer:
 
 
 no_important_properties = frozenset()
+svg_text_tags = tuple(map(SVG, ('text', 'textPath', 'tref', 'tspan')))
+
+
+def is_only_number(x: str) -> bool:
+    try:
+        float(x)
+        return True
+    except Exception:
+        return False
+
+def is_svg_text_tag(x):
+    return getattr(x, 'tag', '') in svg_text_tags
 
 
 class Style:
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
+    viewport_relative_font_size: str = ''
 
     def __init__(self, element, stylizer):
         self._element = element
@@ -628,6 +641,8 @@ class Style:
                 base = self._profile.fbase
             if 'font-size' in self._style:
                 size = self._style['font-size']
+                if is_svg_text_tag(self._element) and (size.endswith('px') or is_only_number(size)):
+                    self.viewport_relative_font_size = size
                 result = normalize_fontsize(size, base)
             else:
                 result = base
