@@ -727,6 +727,7 @@ class ResultDetails(QWidget):
             text += '<p><a href="calibre://unindex" title="{1}">{2}\xa0{0}</a>'.format(
                 _('Un-index'), _('This book has been deleted from the library but is still present in the'
                                           ' full text search index. Remove it.'), ict.format('trash.png'))
+        text += '<p>' + _('This book may have more than one match, only a single match per book is shown.')
         self.book_info.setHtml(text)
 
     def render_results(self, results, individual_match=None):
