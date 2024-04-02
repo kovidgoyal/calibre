@@ -4,33 +4,36 @@
 
 import json
 
-from calibre.ebooks.BeautifulSoup import Tag
-from calibre.web.feeds.recipes import BasicNewsRecipe
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 from mechanize import Request
 
+def absurl(x):
+    if x.startswith('//'):
+        x = 'https:' + x
+    elif not x.startswith('http'):
+        x = 'https://caravanmagazine.in' + x
+    return x
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
-
+def safe_dict(data, *names):
+    ans = data
+    for x in names:
+        ans = ans.get(x) or ''
+    return ans
 
 class CaravanMagazine(BasicNewsRecipe):
 
     title = 'Caravan Magazine'
     __author__ = 'Kovid Goyal, Gobelinus, unkn0wn'
-    description = 'An Indian Journal of politics and culture'
+    description = (
+        'The Caravan has established itself as one of the country’s most respected and intellectually agile publications, '
+        'setting new benchmarks for the Indian and South Asian media. We publish immersive reportage, daring commentary, '
+        'path-breaking investigations, insightful literary criticism and more, spanning the worlds of politics, culture, '
+        'business, society, media, the environment and the arts.'
+    )
     language = 'en_IN'
     timefmt = ' [%b, %Y]'
     encoding = 'utf-8'
-    needs_subscription = 'optional'
 
     no_stylesheets = True
 
@@ -39,19 +42,11 @@ class CaravanMagazine(BasicNewsRecipe):
     resolve_internal_links = True
 
     extra_css = '''
-        blockquote {color:#202020;}
-        #fig-c {text-align:center; font-size:small;}
-        em {color:#202020;}
-        .article-footer {font-size:small;}
-        .date, .pre-title {font-size:small; color:#404040;}
-        .authors {font-size:small; font-weight:bold;}
+        blockquote, em {color:#202020;}
+        .article_subtitle {font-style:italic; color:#202020;}
+        #fig-c, .photo_wrapper, .cover_figure_element {text-align:center; font-size:small;}
+        .pre-title, .text_wrapper {font-size:small; color:#404040;}
     '''
-
-    remove_tags = [
-        classes('related-articles'),
-        dict(name='meta'),
-        dict(attrs={'class': ['share-with', 'img-wrap abs']}),
-    ]
 
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
@@ -79,75 +74,51 @@ class CaravanMagazine(BasicNewsRecipe):
             raise ValueError('Login failed, check your username and password')
         return br
 
-    # To parse article toc
-    def parse_index(self):
-        base_url = 'https://www.caravanmagazine.in/'
-        soup = self.index_to_soup('{0}magazine'.format(base_url))
-        if magdate := soup.find('h6', attrs={'class':'magazine-date'}):
-            self.timefmt = ' [' + self.tag_to_string(magdate).strip() + ']'
-
-        # find current issue cover
-        feeds = []
-        sections = soup.find(attrs={'class': lambda x: x and 'current-magazine-issue' in x.split()}).find(
-                attrs={'class': lambda x: x and 'sections' in x.split()})
-        for section in sections.findAll(attrs={'class': lambda x: x and 'section' in x.split()}):
-            a = section.find('a')
-            section_title = self.tag_to_string(a)
-            self.log('\nSection:', section_title)
-            articles = []
-            for article in section.findAll('article'):
-                details = article.find(attrs={'class': lambda x: x and 'details' in x.split()})
-                pre = details.find(attrs={'class': lambda x: x and 'pre-heading' in x.split()})
-                if pre is not None:
-                    pre.extract()
-                a = details.find('a')
-                url = base_url + a['href'].lstrip('/')
-                title = self.tag_to_string(a)
-                desc = self.tag_to_string(details.find('div'))
-                self.log('\t', title, url)
-                articles.append({'title': title, 'description': desc, 'url': url})
-            if articles:
-                feeds.append((section_title, articles))
-
-        return feeds
-
-    def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.readwhere.com/magazine/delhi-press/The-Caravan/5326'
-        )
-        for citem in soup.findAll(
-            'meta', content=lambda s: s and s.endswith('/magazine/300/new')
-        ):
-            return citem['content'].replace('300', '600')
-
-    def print_version(self, url):
-        if not self.username or not self.password:
-            return url.replace('.in/','.in/amp/')
-        return url
+    keep_only_tags = [
+        classes('text_wrapper cover_figure_element article_content')
+    ]
 
     def preprocess_html(self, soup):
-        if not self.username or not self.password:
-            keep_only_tags = [classes('main-content')]
-            for fc in soup.findAll('figcaption'):
-                fc['id'] = 'fig-c'
-            for img in soup.findAll('amp-img'):
-                img.name = 'img'
-            if h6 := soup.find('h6'):
-                h6.name = 'h4'
-        else:
-            keep_only_tags = [
-                classes('post-title short-desc author-details cover'),
-                dict(itemprop='articleBody'),
-            ]
-            for div in soup.findAll(itemprop='image'):
-                for img in div.findAll('img'):
-                    img['src'] = div['content']
-            for img in soup.findAll(attrs={'data-src': True}):
-                img['src'] = img['data-src']
-
-        body = new_tag(soup, 'body')
-        for spec in keep_only_tags:
-            for tag in soup.find('body').findAll(**spec):
-                body.insert(len(body.contents), tag)
-        soup.find('body').replaceWith(body)
+        h2 = soup.find('h2')
+        if h2:
+            h2.name = 'p'
+        for fc in soup.findAll('figcaption'):
+            fc['id'] = 'fig-c'
         return soup
+
+    def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
+        api = 'https://api.caravanmagazine.in/api/trpc/magazines.getLatestIssue'
+        # https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=
+        # %7B%220%22%3A%7B%22json%22%3A%7B%22month%22%3A 2 %2C%22year%22%3A 2024 %7D%7D%7D
+        # input={"0":{"json":{"month":2,"year":2024}}}
+        raw = self.index_to_soup(api, raw=True)
+        data = json.loads(raw)['result']['data']['json']
+        cover = safe_dict(data, 'issue', 'cover', 'data', 'url').replace('=s0', '=s768-rw')
+        self.cover_url = absurl(cover)
+
+        feeds = []
+
+        for sec in data['categories']:
+            section = sec['name']
+            self.log(section)
+            articles = []
+            for arts in sec['amc']:
+                title = safe_dict(arts, 'article', 'title')
+                desc = safe_dict(arts, 'article', 'theme', 'name') + ' | ' + safe_dict(arts, 'article', 'printTitle')
+                names = []
+                for auth in arts['article']['authors']:
+                    name = safe_dict(auth, 'profile', 'name')
+                    if name != '':
+                        names.append(name)
+                if names:
+                    desc = desc + ' | ' + ', '.join(names)
+                url = absurl(arts['article']['slug'])
+                self.log('\t', title, url, '\n\t', desc)
+                articles.append({'title': title, 'description': desc, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

@@ -51,6 +51,10 @@ class GlobalTimes(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
         sec_url = index + '{}/index.html'
 
         section_list = [
