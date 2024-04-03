@@ -1317,9 +1317,11 @@ class View:
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
         mi = self.book.metadata
+        sd = get_session_data()
+        view_mode = sd.get('read_mode')
 
         def render(div, name, which, override):
-            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override)
+            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override, view_mode)
 
         return render
 

@@ -34,6 +34,8 @@ def create_item(region, label, style):
             sep(),
             opt(_('Top level section'), 'top-section'),
             opt(_('Current section'), 'section'),
+            opt(_('View mode'), 'view-mode'),
+            opt(_('View mode as icon'), 'view-mode-icon'),
             sep(),
             opt(_('Clock'), 'clock'),
             sep(),
@@ -179,7 +181,7 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos, override):
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos, override, view_mode):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -207,6 +209,10 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         text = current_toc_toplevel_node.title if current_toc_toplevel_node else ''
         if not text:
             text = current_toc_node.title if current_toc_node else ''
+    elif field is 'view-mode':
+        text = _('Paged') if view_mode is 'paged' else _('Flow')
+    elif field is 'view-mode-icon':
+        text = '🗏' if view_mode is 'paged' else '📜'
     elif field.startswith('time-'):
         if book_time is None or chapter_time is None:
             text = _('Calculating...')
