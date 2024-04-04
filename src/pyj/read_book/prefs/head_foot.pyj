@@ -212,7 +212,7 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     elif field is 'view-mode':
         text = _('Paged') if view_mode is 'paged' else _('Flow')
     elif field is 'view-mode-icon':
-        text = '🗏' if view_mode is 'paged' else '📜'
+        text = '📄' if view_mode is 'paged' else '📜'
     elif field.startswith('time-'):
         if book_time is None or chapter_time is None:
             text = _('Calculating...')
