@@ -4,9 +4,9 @@
 
 import json
 
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from mechanize import Request
+
 
 def absurl(x):
     if x.startswith('//'):
