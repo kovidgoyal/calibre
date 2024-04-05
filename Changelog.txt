@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 7.8.0 2024-04-05
+
+:: new features
+
+- [2057929] E-book viewer: Highlight panel: Allow filtering the shown highlights by type of highlight
+
+- Conversion: Add support for the CSS text-transform property when subsetting embedded fonts
+
+- [2060079] E-book viewer: Allow displaying the view mode paged/flow in the header/footer
+
+- [2059162] Book details popup window: Allow dropping of files to add formats/set the cover just as for the book details panel
+
+- [2058814] Book details: Context menu: Add a menu action to remove the associated link
+
+- DOCX Input: Add role=doc-noteref for links to footnotes/endnotes so that they popup in more e-book readers
+
+- Add a "Mark all selected books" to the Mark action.
+
+- [2059169] Add "Hide Empty Categories" to tag browser configuration menu
+
+- Supernote: Support for new device firmware
+
+- Sort by tool:  Add an action to re-apply the current sort
+
+:: bug fixes
+
+- Grid view cover cache: Fix covers not loading when cache entries are stale
+
+- [2058798] Conversion: Do not change viewport relative font sizes used for SVG text elements
+
+- [2058798] Conversion: Fix <style> tags inside <svg> tags not being processed
+
+- Get books: Update Kobo store plugin for website changes
+
+- EPUB Input: Use a translated name for the cover page
+
+
+:: improved recipes
+- Caravan
+- Global Times
+- New York Review of Books
+- Himal Southasian
+- The Week
+- CBC Canada
+
+:: new recipes
+- Bergfreunde Blog by VoHe
+- Live Law and Politico.eu by unkn0wn
+}}}
+
 {{{ 7.7.0 2024-03-14
 
 :: new features
@@ -1683,4 +1733,3 @@ Then, when searching the Tag browser, press Ctrl+Alt+Shift+F to restrict the dis
 - Business Standard Print Edition by unkn0wn
 - The Economic Times India Print Edition by unkn0wn
 }}}
-
