@@ -737,7 +737,7 @@ class GetTranslations(Translations):  # {{{
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
         if errfiles:
-            subprocess.check_call(['vim', '-f', '-p', '--']+errfiles)
+            subprocess.check_call([os.environ.get('EDITOR', 'vim'), '-f', '-p', '--']+errfiles)
             for f in errfiles:
                 with open(f, 'r+b') as f:
                     raw = f.read()
