@@ -234,11 +234,11 @@ class TestAuth(BaseTest):
             curl = shutil.which('curl')
             if curl:
                 def docurl(data, *args):
-                    cmd = [curl] + list(args) + ['http://localhost:%d/closed' % server.address[1]]
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-                    x = p.stdout.read()
+                    cmd = [curl, '--silent'] + list(args) + ['http://localhost:%d/closed' % server.address[1]]
+                    p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    stdout, stderr = p.communicate()
                     p.wait()
-                    self.ae(x, data)
+                    self.ae(stdout, data, f'stderr:\n{stderr.decode(errors="replace")}')
                 docurl(b'')
                 docurl(b'', '--digest', '--user', 'xxxx:testpw')
                 docurl(b'', '--digest', '--user', 'testuser:xtestpw')
