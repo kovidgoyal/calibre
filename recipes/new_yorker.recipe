@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from collections import defaultdict
 
 from calibre import browser
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
@@ -114,12 +113,11 @@ class NewYorker(BasicNewsRecipe):
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
         feeds_dict = defaultdict(list)
-        for section in soup.findAll('section', 
+        for section in soup.findAll('section',
             attrs={'class': lambda x: x and 'SummaryRiverSection-' in x}):
             for h2 in section.findAll(attrs={'class':lambda x: x and 'SectionTitleHed-' in x}):
                 secname = self.tag_to_string(h2)
             self.log(secname)
-            articles = []
             for a in section.findAll('a', href=True, attrs={'class':lambda x: x and 'summary-item__hed-link' in x}):
                 section = secname
                 url = absurl(a['href'])
