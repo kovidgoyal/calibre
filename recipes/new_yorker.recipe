@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from collections import OrderedDict
+from collections import defaultdict
 
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import Tag
@@ -14,14 +14,6 @@ def absurl(x):
     if x.startswith('/') and not x.startswith('//'):
         x = 'https://www.newyorker.com' + x
     return x
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
-
 
 class NewYorker(BasicNewsRecipe):
 
@@ -36,22 +28,16 @@ class NewYorker(BasicNewsRecipe):
     encoding = 'utf-8'
     extra_css = '''
         img { display:block; margin:0 auto; }
-        .byline { font-size:smaller; font-weight: bold;}
+        .rubric__name, .byline, time, .caption { font-size:small; }
+        .byline, .rubric__name { font-size:smaller; font-weight: bold;}
         h3 { margin-bottom: 6px; }
-        .caption { font-size: smaller; font-style: italic; font-weight: normal; }
+        .caption, .contributors { font-size: smaller; font-style: italic; font-weight: normal; }
+        .content-header__accreditation { font-style:italic; }
     '''
 
     keep_only_tags = [
-        prefixed_classes(
-            'SplitScreenContentHeaderHed- SplitScreenContentHeaderDek- SplitScreenContentHeaderByline-'
-            ' SplitScreenContentHeaderLeadWrapper-'
-        ),
         classes(
-            'split-screen-content-header__dek split-screen-content-header__hed'
-            ' content-header__dek content-header__hed content-header__publish-date content-header__lede-block'
-            ' content-header__rubric--issue-date content-header__lead-asset'
-            ' split-screen-content-header__publish-date split-screen-content-header__lede-block'
-            ' article__body bylines featured-image byline-and-date inset-mobile-crop-image hero-image-caption'
+            'article__content-header article__body contributors'
         ),
     ]
     remove_tags = [
@@ -127,57 +113,31 @@ class NewYorker(BasicNewsRecipe):
 
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
-        stories = OrderedDict()  # So we can list sections in order
+        feeds_dict = defaultdict(list)
+        for section in soup.findAll('section', 
+            attrs={'class': lambda x: x and 'SummaryRiverSection-' in x}):
+            for h2 in section.findAll(attrs={'class':lambda x: x and 'SectionTitleHed-' in x}):
+                secname = self.tag_to_string(h2)
+            self.log(secname)
+            articles = []
+            for a in section.findAll('a', href=True, attrs={'class':lambda x: x and 'summary-item__hed-link' in x}):
+                section = secname
+                url = absurl(a['href'])
+                title = self.tag_to_string(a)
+                desc = ''
+                summ = a.find_next_sibling(attrs={'class':lambda x: x and 'summary-item__dek' in x})
+                if summ:
+                    desc = self.tag_to_string(summ)
+                byl = a.find_next_sibling(attrs={'class':lambda x: x and 'summary-item__byline-' in x})
+                if byl:
+                    desc = self.tag_to_string(byl) + ' | ' + desc
+                rub = a.find_previous_sibling(attrs={'class':lambda x: x and 'summary-item__rubric' in x})
+                if rub:
+                    desc = self.tag_to_string(rub) + ' | ' + desc
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+        return feeds_dict.items()
 
-        # Iterate sections of content
-
-        for section_soup in soup.findAll(
-            attrs={'class': lambda x: x and 'MagazinePageSection__section___21cc7' in x}):
-            section = section_soup.find('h2').text
-            self.log("Found section:", section)
-
-            # Iterate stories in section
-
-            is_mail_section = (section == "Mail")
-
-            if is_mail_section:
-                cname = "Link__link___"
-            else:
-                cname = "River__riverItemContent___"
-
-            for story in section_soup.findAll(
-                attrs={'class': lambda x: x and cname in x}):
-
-                title = ""
-                url = ""
-                desc = ""
-
-                if is_mail_section:
-                    title = story.text
-                    url = absurl(story['href'])
-                else:
-                    h4 = story.find('h4')
-                    title = self.tag_to_string(h4)
-                    a = story.find('h4').parent
-                    url = absurl(a['href'])
-                    # Get description
-                    body = story.find(attrs={'class': 'River__dek___CayIg'})
-                    if body is not None:
-                        desc = str(body.contents[0])
-
-                self.log('Found article:', title)
-                self.log('\t' + url)
-                self.log('\t' + desc)
-                self.log('')
-
-                if section not in stories:
-                    stories[section] = []
-                stories[section].append({
-                    'title': title,
-                    'url': url,
-                    'description': desc})
-
-        return [(k, stories[k]) for k, v in stories.items()]
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies

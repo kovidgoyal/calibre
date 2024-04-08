@@ -77,10 +77,14 @@ class barrons(BasicNewsRecipe):
         return br
 
     def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
         archive = self.index_to_soup('https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y'))
         issue = archive.find(**prefixed_classes('BarronsTheme--archive-box--'))
         self.timefmt = ' [' + self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--date--'))) + ']'
-        self.log(self.timefmt)
+        self.description = self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--headline--')))
         self.cover_url = issue.img['src'].split('?')[0]
 
         ans = defaultdict(list)
