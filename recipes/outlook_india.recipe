@@ -1,6 +1,3 @@
-import json
-import re
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -18,68 +15,57 @@ class outlook(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
+    masthead_url = 'https://images.assettype.com/outlookindia/2024-02/96fb06ce-1cc8-410e-ad6c-da4de57405f8/Outlook.svg'
     extra_css = '''
-        .story-summary{font-style:italic; color:#202020;}
-        .author_wrapper, .relatedCategory{font-size:small; color:#404040;}
-        #figcap{font-size:small; text-align:center;}
+        .subcap-story {font-style:italic; color:#202020;}
+        .story-slug, .article-name-date {font-size:small; color:#404040;}
+        .main-img-div, .sb-image {font-size:small; text-align:center;}
+        em { color:#202020; }
     '''
 
-    keep_only_tags = [classes('__story_detail')]
+    keep_only_tags = [
+        # classes('story-slug story-title subcap-story article-name-date main-img-div sb-article')
+        classes('story-slug story-title subcap-story article-name-date w-93')
+    ]
+
     remove_tags = [
-        classes(
-            'social_sharing_article left_trending left-sticky __tag_links next_prev_stories '
-            'downarrow uparrow more_from_author_links next prev __related_stories_thumbs home_ad_title'
-        )
+        dict(name='svg'),
+        dict(name='a', attrs={'href':lambda x: x and x.startswith('https://www.whatsapp.com/')}),
+        classes('ads-box info-img-absolute mobile-info-id story-dec-time-mobile')
     ]
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based', verify_ssl_certificates=False)
 
     def parse_index(self):
+        self.log(
+            '\n***\nif this recipe fails, report it on: '
+            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        )
         soup = self.index_to_soup('https://www.outlookindia.com/magazine')
-        div = soup.find('div', attrs={'class':'wrapper'})
-        a = div.find('a', href=lambda x: x and x.startswith('/magazine/issue/'))
+        a = soup.find('a', attrs={'aria-label':'magazine-cover-image'})
+        self.cover_url = a.img['src'].split('?')[0]
         url = a['href']
-        self.timefmt = ' [' + self.tag_to_string(a.find('p')).strip() + ']'
+        self.description = self.tag_to_string(a)
+        self.timefmt = ' [' + self.tag_to_string(a.div).strip() + ']'
         self.log('Downloading issue:', url, self.timefmt)
-        soup = self.index_to_soup('https://www.outlookindia.com' + url)
-        cover = soup.find(**classes('listingPage_lead_story'))
-        self.cover_url = cover.find('img', attrs={'src': True})['src']
+        soup = self.index_to_soup(url)
+
         ans = []
 
-        for h3 in soup.findAll(['h3', 'h4'],
-                               attrs={'class': 'tk-kepler-std-condensed-subhead'}):
-            a = h3.find('a', href=True)
+        for div in soup.findAll(attrs={'class': 'article-heading-two'}):
+            a = div.a
             url = a['href']
             title = self.tag_to_string(a)
             desc = ''
-            p = h3.find_next_sibling('p')
+            p = div.find_next_sibling('p', attrs={'class':lambda x: x and 'article-desc' in x.split()})
             if p:
                 desc = self.tag_to_string(p)
+            auth = div.find_next_sibling('p', attrs={'class':'author'})
+            if auth:
+                desc = self.tag_to_string(auth) + ' | ' + desc
             self.log('\t', title)
             self.log('\t', desc)
             self.log('\t\t', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
-
-    def preprocess_html(self,soup):
-        for fig in soup.findAll('figure'):
-            fig['id'] = 'figcap'
-        return soup
-
-    def preprocess_raw_html(self, raw, *a):
-        return raw
-        m = re.search('<!-- NewsArticle Schema -->.*?script.*?>', raw, flags=re.DOTALL)
-        raw = raw[m.end():].lstrip()
-        data = json.JSONDecoder().raw_decode(raw)[0]
-        title = data['headline']
-        body = data['articleBody']
-        body = body.replace('\r\n', '<p>')
-        author = ' and '.join(x['name'] for x in data['author'])
-        image = desc = ''
-        if data.get('image'):
-            image = '<p><img src="{}">'.format(data['image']['url'])
-        if data.get('description'):
-            desc = '<h2>' + data['description'] + '</h2>'
-        html = '<html><body><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
-        return html
