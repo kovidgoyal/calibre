@@ -31,7 +31,7 @@ class outlook(BasicNewsRecipe):
     remove_tags = [
         dict(name='svg'),
         dict(name='a', attrs={'href':lambda x: x and x.startswith('https://www.whatsapp.com/')}),
-        classes('ads-box info-img-absolute mobile-info-id story-dec-time-mobile')
+        classes('ads-box info-img-absolute mobile-info-id story-dec-time-mobile sb-also-read ads-box1')
     ]
 
     def get_browser(self):
