@@ -19,7 +19,7 @@ from collections import OrderedDict, deque
 from io import BytesIO
 
 import apsw
-from qt.core import QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
+from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
 
 from calibre import detect_ncpus, force_unicode, prints
 from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
@@ -612,6 +612,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 window.show()
                 setattr(window, '__systray_minimized', False)
         self.update_toggle_to_tray_action()
+
+    def changeEvent(self, ev):
+        # Handle bug in Qt 6 that causes the window to be shown as blank if it was first
+        # maximized and then closed to system tray, when remote desktop is
+        # reconnected: https://bugreports.qt.io/browse/QTBUG-124177
+        if (
+                iswindows and ev.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
+                self.isActiveWindow() and not self.isVisible()
+        ):
+            QTimer.singleShot(0, self.show_windows)
+        return super().changeEvent(ev)
 
     def test_server(self, *args):
         if self.content_server is not None and \
