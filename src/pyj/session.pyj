@@ -77,6 +77,8 @@ all_settings = {
     'book_search_case_sensitive': {'default': False, 'category': 'read_book', 'is_local': True},
     'reverse_page_turn_zones': {'default': False, 'category': 'read_book', 'is_local': True},
     'gesture_overrides': {'default': {}, 'category': 'read_book'},
+    'cite_text_template': {'default': '[{text}]({url})', 'category': 'read_book'},
+    'cite_hl_template': {'default': '[{text}]({url})', 'category': 'read_book'},
 }
 
 defaults = {}

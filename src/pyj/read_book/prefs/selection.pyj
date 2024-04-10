@@ -42,6 +42,11 @@ def restore_defaults():
             control.valueAsNumber = val
         else:
             control.value = val
+
+    for ta in container.querySelectorAll('textarea[name]'):
+        val = session_defaults()[ta.getAttribute('name')]
+        ta.value = val
+
     set_actions(True)
 
 
@@ -167,6 +172,11 @@ def create_selection_panel(container, apply_func, cancel_func):
         inp.style.marginTop = '1ex'
         return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
 
+    def cite_template_textarea(name, text, title):
+        ans = E.textarea(name=name, style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10')
+        ans.value = sd.get(name) or '[{text}]({url})'
+        return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
+
     container.appendChild(cb(
         'show_selection_bar', _('Show a popup bar with common actions next to selected text')))
     container.appendChild(url(
@@ -187,6 +197,24 @@ def create_selection_panel(container, apply_func, cancel_func):
         E.h3(_('Quick highlight actions')),
         E.div(_('Choose highlight styles that will have dedicated buttons in the selection bar to create highlights with a single click')),
         E.div(class_='quick-actions'),
+    ))
+    container.appendChild(cite_template_textarea(
+        'cite_text_template', _('Template for citing text:')))
+    container.appendChild(cite_template_textarea(
+        'cite_hl_template', _('Template for citing highlight:')))
+    container.appendChild(E.div(
+        E.div(
+            style='margin-top: 2ex',
+            _('{text} and {url} could be used in cite text template.')
+        ),
+        E.div(
+            style='margin-top: 2ex;',
+            _('{text}, {url}, {timestamp}, {chapter}, {notes}, {style_type}, {style_kind}, {style_which} could be used in cite highlight template.')
+        ),
+        E.div(
+            style='margin-top: 2ex; margin-bottom: 2ex; border-bottom: solid 1px; padding-bottom: 1ex;',
+            _('Use "}}" and "{{" to escape "}" and "{".')
+        )
     ))
     set_actions()
 
@@ -222,5 +250,13 @@ def commit_selection(onchange):
     if list(quick_highlights) != list(sd.get('selection_bar_quick_highlights')):
         changed = True
         sd.set('selection_bar_quick_highlights', quick_highlights)
+    # Save textarea
+    for ta in container.querySelectorAll('textarea[name]'):
+        name = ta.getAttribute('name')
+        val = ta.value or ''
+        old = sd.get(name)
+        if old is not val:
+            sd.set(name, val)
+            changed = True
     if changed:
         onchange()
