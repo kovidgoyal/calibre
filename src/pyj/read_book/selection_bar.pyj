@@ -18,6 +18,7 @@ from read_book.shortcuts import shortcut_for_key_event
 from read_book.toc import family_for_toc_node, get_toc_nodes_bordering_spine_item
 from uuid import short_uuid
 from widgets import create_button
+from utils import parse_url_params
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 BUTTON_MARGIN = '0.5rem'
@@ -1148,15 +1149,46 @@ class SelectionBar:
         elif msg.type is 'double-click':
             self.last_double_click_at = window.performance.now()
         elif msg.type is 'cite-data':
-            spine_index = self.view.currently_showing.spine_index
-            spine_index = (1 + spine_index) * 2
-            cfi = msg.bounds.start
-            link_prefix = get_current_link_prefix()
-            if not link_prefix:
-                return self.view.show_not_a_library_book_error()
-            url = link_to_epubcfi(f'epubcfi(/{spine_index}{cfi})', link_prefix)
-            text = msg.highlighted_text.replace(/\[/g, r'\[').replace(/\]/g, r'\]')
-            ui_operations.copy_selection(f'[{text}]({url})')
+            annot_id = self.view.currently_showing.selection.annot_id
+            # If selected text is highlighted
+            if annot_id:
+                data = self.annotations_manager.data_for_highlight(annot_id)
+                spine_index = self.view.currently_showing.spine_index
+                cfi = self.annotations_manager.cfi_for_highlight(annot_id, spine_index)
+
+                if runtime.is_standalone_viewer:
+                    url = get_current_link_prefix() + "?open_at=" + cfi
+                else:
+                    url = get_current_link_prefix() + f"bookpos={cfi}" 
+                    for key, value in Object.entries(parse_url_params()):
+                        if key != "bookpos":
+                            url = url + f"&{key}={value}"
+                info = { "text" : data.highlighted_text, 
+                            "url": url,
+                            "timestamp": data.timestamp,
+                            "style_type": data.style.type,
+                            "style_kind": data.style.kind,
+                            "style_which": data.style.which,
+                            "chapter": data.toc_family_titles[0] if data.toc_family_titles[0] else "",
+                            "notes": data.notes if "notes" in data else "",
+                        }
+                copy_info = get_session_data().get('cite_hl_template').format(**info)
+            # If selected text isn't highlighted
+            else:
+                spine_index = self.view.currently_showing.spine_index
+                spine_index = (1 + spine_index) * 2
+                cfi = msg.bounds.start
+                link_prefix = get_current_link_prefix()
+                if not link_prefix:
+                    return self.view.show_not_a_library_book_error()
+                text = msg.highlighted_text.replace(/\[/g, r'\[').replace(/\]/g, r'\]')
+                url = link_to_epubcfi(f'epubcfi(/{spine_index}{cfi})', link_prefix)
+                info = { "text" : text,
+                            "url": url,
+                        }
+                copy_info = get_session_data().get('cite_text_template').format(**info)
+  
+            ui_operations.copy_selection(copy_info)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
