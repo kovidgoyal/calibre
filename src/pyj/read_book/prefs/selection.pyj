@@ -198,18 +198,19 @@ def create_selection_panel(container, apply_func, cancel_func):
         E.div(_('Choose highlight styles that will have dedicated buttons in the selection bar to create highlights with a single click')),
         E.div(class_='quick-actions'),
     ))
+    container.appendChild(E.h3(_('Citing text')))
     container.appendChild(cite_template_textarea(
-        'cite_text_template', _('Template for citing text:')))
+        'cite_text_template', _('Template for citing plain text:')))
     container.appendChild(cite_template_textarea(
-        'cite_hl_template', _('Template for citing highlight:')))
+        'cite_hl_template', _('Template for citing highlighted text:')))
     container.appendChild(E.div(
         E.div(
             style='margin-top: 2ex',
-            _('{text} and {url} could be used in cite text template.')
-        ),
-        E.div(
-            style='margin-top: 2ex;',
-            _('{text}, {url}, {timestamp}, {chapter}, {notes}, {style_type}, {style_kind}, {style_which} could be used in cite highlight template.')
+            _('{text} and {url} are available in both types of template. Additionally, {timestamp},'
+              '{chapter}, {notes}, {style_type}, {style_kind} and {style_which} are available when citing a highlight.'
+            ).format(text='{text}', url='{url}', chapter='{chapter}', notes='{notes}', style_type='{style_type}',
+                     style_kind='{style_kind}', style_which='{style_which}', timestamp='{timestamp}',
+            )
         ),
         E.div(
             style='margin-top: 2ex; margin-bottom: 2ex; border-bottom: solid 1px; padding-bottom: 1ex;',
