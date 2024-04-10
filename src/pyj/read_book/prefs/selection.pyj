@@ -34,8 +34,9 @@ def set_actions(use_defaults):
 
 def restore_defaults():
     container = get_container()
+    sd = session_defaults()
     for control in container.querySelectorAll('input[name]'):
-        val = session_defaults()[control.getAttribute('name')]
+        val = sd[control.getAttribute('name')]
         if control.type is 'checkbox':
             control.checked = val
         elif control.type is 'number':
@@ -44,7 +45,7 @@ def restore_defaults():
             control.value = val
 
     for ta in container.querySelectorAll('textarea[name]'):
-        val = session_defaults()[ta.getAttribute('name')]
+        val = sd[ta.getAttribute('name')]
         ta.value = val
 
     set_actions(True)
@@ -174,7 +175,7 @@ def create_selection_panel(container, apply_func, cancel_func):
 
     def cite_template_textarea(name, text, title):
         ans = E.textarea(name=name, style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10')
-        ans.value = sd.get(name) or '[{text}]({url})'
+        ans.value = sd.get(name)
         return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
 
     container.appendChild(cb(
@@ -254,7 +255,7 @@ def commit_selection(onchange):
     # Save textarea
     for ta in container.querySelectorAll('textarea[name]'):
         name = ta.getAttribute('name')
-        val = ta.value or ''
+        val = (ta.value or '').strip() or session_defaults()[name]
         old = sd.get(name)
         if old is not val:
             sd.set(name, val)
