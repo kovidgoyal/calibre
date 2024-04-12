@@ -208,7 +208,7 @@ def create_selection_panel(container, apply_func, cancel_func):
         E.div(
             style='margin-top: 2ex',
             _('{text} and {url} are available in both types of template. Additionally, {timestamp},'
-              '{chapter}, {notes}, {style_type}, {style_kind} and {style_which} are available when citing a highlight.'
+              ' {chapter}, {notes}, {style_type}, {style_kind} and {style_which} are available when citing a highlight.'
             ).format(text='{text}', url='{url}', chapter='{chapter}', notes='{notes}', style_type='{style_type}',
                      style_kind='{style_kind}', style_which='{style_which}', timestamp='{timestamp}',
             )
