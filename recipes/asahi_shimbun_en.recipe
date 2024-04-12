@@ -153,7 +153,7 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
             ("Asia & World - World", self.get_section("asia_world/world")),
             ("Sci & Tech", self.get_section("sci_tech")),
             ("Culture - Style", self.get_section("culture/style")),
-            ("Culture - Cooking", self.get_section("culture/cooking")),
+            # ("Culture - Cooking", self.get_section("culture/cooking")),
             ("Culture - Movies", self.get_section("culture/movies")),
             ("Culture - Manga & Anime", self.get_section("culture/manga_anime")),
             ("Travel", self.get_section("travel")),
