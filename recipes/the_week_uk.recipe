@@ -41,8 +41,9 @@ class TheWeek(BasicNewsRecipe):
         url = 'https://ukmagazine.theweek.com/timelines.json'
         data = json.loads(self.index_to_soup(url, raw=True))
         for x in data['timelines'][:5]:
-            if '-cover-' in x['image']:
-                return 'https://ukmagazine.theweek.com' + x['image'][1:]
+            if 'image' in x:
+                if '-cover-' in x['image']:
+                    return 'https://ukmagazine.theweek.com' + x['image'][1:]
 
     articles_are_obfuscated = True
 
