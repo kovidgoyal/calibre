@@ -80,27 +80,21 @@ class NewYorker(BasicNewsRecipe):
         # return buf.getvalue()
 
     def parse_index(self):
-        # Get cover
-        cover_soup = self.index_to_soup('https://www.newyorker.com/archive')
-        cover_img = cover_soup.find(
-            attrs={'class': lambda x: x and 'MagazineSection__cover___' in x})
-        if cover_img is not None:
-            cover_img = cover_img.find('img')
-            if cover_img is not None:
-                self.cover_url = cover_img.get('src')
-                try:
-                    # the src original resolution w_280 was too low, replace w_280 with w_560
-                    cover_url_width_index = self.cover_url.find("w_")
-                    old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
-                    self.cover_url = self.cover_url.replace(old_width, "w_560")
-                except Exception:
-                    self.log('Failed enlarging cover img, using the original one')
-                self.log('Found cover:', self.cover_url)
-
-        # Get content
-
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
+        cover_img = soup.find('picture',
+            attrs={'class': lambda x: x and 'asset-embed__responsive-asset' in x})
+        if cover_img is not None:
+            self.cover_url = cover_img.img['src']
+            self.log('Found cover:', self.cover_url)
+            try:
+                # the src original resolution w_280 was too low, replace w_280 with w_560
+                cover_url_width_index = self.cover_url.find("w_")
+                old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
+                self.cover_url = self.cover_url.replace(old_width, "w_640")
+            except Exception:
+                self.log('Failed enlarging cover img, using the original one')
+
         feeds_dict = defaultdict(list)
         for section in soup.findAll('section',
             attrs={'class': lambda x: x and 'SummaryRiverSection-' in x}):
