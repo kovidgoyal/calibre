@@ -79,5 +79,10 @@ class Harpers(BasicNewsRecipe):
     .index-statement .index-tooltip { font-size: small; }
     """
 
+    def get_cover_url(self):
+        issues_soup = self.index_to_soup("https://harpers.org/issues/")
+        curr_issue_a_ele = issues_soup.select_one("div.issue-card a")
+        if curr_issue_a_ele.find("img"):
+            return curr_issue_a_ele.img["src"]
 
     feeds = [(u"Harper's Magazine", u'https://harpers.org/feed/')]

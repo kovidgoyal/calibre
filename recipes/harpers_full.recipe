@@ -131,7 +131,8 @@ class Harpers_full(BasicNewsRecipe):
         if not _issue_url:
             issues_soup = self.index_to_soup("https://harpers.org/issues/")
             curr_issue_a_ele = issues_soup.select_one("div.issue-card a")
-            curr_issue_url = urljoin(self.base_url, curr_issue_a_ele["href"])
+            if curr_issue_a_ele.find("img"):
+                self.cover_url = curr_issue_a_ele.img["src"]
         else:
             curr_issue_url = _issue_url
 
