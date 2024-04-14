@@ -53,7 +53,7 @@ def parse_inline(inl):
             yield '<div class="img"><img src="{}"></div>'.format(props['image']['src'])
         if 'caption' in props:
             yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
-                props['caption']['text'], ' ' + props['caption']['credit']
+                props['caption'].get('text', ''), ' ' + props['caption'].get('credit', '')
             )
         yield '</p>'
     if inl.get('content', {}).get('name', '') == 'ImageGroup':
@@ -64,7 +64,7 @@ def parse_inline(inl):
                     yield '<div class="img"><img src="{}"></div>'.format(imgs['src'])
                 if 'caption' in imgs:
                     yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
-                        imgs['caption']['text'], ' ' + imgs['caption']['credit']
+                        imgs['caption'].get('text', ''), ' ' + imgs['caption'].get('credit', '')
                     )
                 yield '</p>'
 
