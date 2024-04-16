@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QAction, QTimer
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
 
@@ -82,6 +82,15 @@ class ShowQuickviewAction(InterfaceAction):
     @property
     def qv_button(self):
         return self.gui.layout_container.quick_view_button
+
+    def shutting_down(self):
+        is_open = True
+        if not self.current_instance or self.current_instance.is_closed:
+            is_open = False
+        gprefs.set('qv_open_at_shutdown', is_open)
+
+    def needs_show_on_startup(self):
+        return gprefs.get('qv_open_at_shutdown', False)
 
     def initialization_complete(self):
         set_quickview_action_plugin(self)
