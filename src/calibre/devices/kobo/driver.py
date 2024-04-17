@@ -1462,7 +1462,7 @@ class KOBOTOUCH(KOBO):
     SAGE_PRODUCT_ID     = [0x4231]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
-    LIBRA_COLOR_PRODUCT_ID = [0x4237]
+    LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW. Sigh.
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
@@ -3543,6 +3543,9 @@ class KOBOTOUCH(KOBO):
     def isAura(self):
         return self.detected_device.idProduct in self.AURA_PRODUCT_ID
 
+    def is2024Device(self):
+        return self.detected_device.idProduct in self.LIBRA_COLOR_PRODUCT_ID
+
     def isAuraEdition2(self):
         return self.detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
 
@@ -3651,7 +3654,9 @@ class KOBOTOUCH(KOBO):
 
     def set_device_name(self):
         device_name = self.gui_name
-        if self.isAura():
+        if self.is2024Device():
+            device_name = 'Kobo 2024'
+        elif self.isAura():
             device_name = 'Kobo Aura'
         elif self.isAuraEdition2():
             device_name = 'Kobo Aura Edition 2'
