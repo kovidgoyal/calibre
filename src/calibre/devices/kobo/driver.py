@@ -3604,7 +3604,9 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def cover_file_endings(self):
-        if self.isAura():
+        if self.is2024Device():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
+        elif self.isAura():
             _cover_file_endings = self.AURA_COVER_FILE_ENDINGS
         elif self.isAuraEdition2():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
