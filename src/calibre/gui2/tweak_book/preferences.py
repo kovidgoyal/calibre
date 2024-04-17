@@ -197,6 +197,10 @@ class EditorSettings(BasicSettings):  # {{{
         fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
         l.addRow(_('Editor font &size:'), fs)
 
+        cs = self('editor_cursor_width')
+        cs.setMinimum(1), cs.setSuffix(' px'), cs.setMaximum(50)
+        l.addRow(_('Editor cursor &width:'), cs)
+
         choices = self.theme_choices()
         theme = self.choices_widget('editor_theme', choices, 'auto', 'auto')
         self.custom_theme_button = b = QPushButton(_('Create/edit &custom color schemes'))

@@ -7,6 +7,7 @@ import os
 import re
 import textwrap
 import unicodedata
+from contextlib import suppress
 
 import regex
 from qt.core import (
@@ -229,6 +230,8 @@ class TextEdit(PlainTextEdit):
         prefs = prefs or tprefs
         self.setAcceptDrops(prefs.get('editor_accepts_drops', True))
         self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.LineWrapMode.NoWrap)
+        with suppress(Exception):
+            self.setCursorWidth(int(prefs.get('editor_cursor_width', 1)))
         theme = get_theme(prefs['editor_theme'])
         self.apply_theme(theme)
         fm = self.fontMetrics()
