@@ -461,7 +461,7 @@ static PyObject*
 set_thread_name(PyObject *self, PyObject *args) {
 	(void)(self); (void)(args);
 #if defined(_MSC_VER) || defined(__HAIKU__)
-	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on on this platform");
+	PyErr_SetString(PyExc_RuntimeError, "Setting thread names not supported on this platform");
 	return NULL;
 #else
 	char *name;

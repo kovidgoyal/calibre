@@ -521,7 +521,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def selectedIndexes(self):
         ans = super().selectedIndexes()
         if self.in_drop_event:
-            # For order to be be preserved when moving by drag and drop, we
+            # For order to be preserved when moving by drag and drop, we
             # have to ensure that selectedIndexes returns an ordered list of
             # indexes.
             sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iter_items())}
