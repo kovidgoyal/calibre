@@ -11,8 +11,6 @@ This recipe only get's article's published in text format
 images and pdf's are ignored
 """
 
-from urllib.parse import urljoin
-
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 

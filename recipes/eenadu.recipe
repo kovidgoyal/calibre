@@ -1,4 +1,5 @@
 from urllib.parse import quote
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -19,7 +20,7 @@ class eenadu_ts(BasicNewsRecipe):
     art_url = ''
 
     extra_css = '''
-        img {display:block; margin:0 auto;}	
+        img {display:block; margin:0 auto;}
         blockquote, em {color:#202020;}
         .pub-t{font-size:small; font-style:italic;}
     '''
