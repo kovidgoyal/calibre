@@ -386,7 +386,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     def stop_metadata_backup(self):
         if getattr(self, 'metadata_backup', None) is not None:
             self.metadata_backup.stop()
-            # Would like to to a join here, but the thread might be waiting to
+            # Would like to a join here, but the thread might be waiting to
             # do something on the GUI thread. Deadlock.
 
     def refresh_ids(self, ids, current_row=-1):

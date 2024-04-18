@@ -3072,7 +3072,7 @@ unzFile unzOpenInternal(LUFILE *fin)
   uLong number_disk;          // number of the current dist, used for spanning ZIP, unsupported, always 0
   if (unzlocal_getShort(fin,&number_disk)!=UNZ_OK) err=UNZ_ERRNO;
   // number of the disk with the start of the central directory
-  uLong number_disk_with_CD;  // number the the disk with central dir, used for spanning ZIP, unsupported, always 0
+  uLong number_disk_with_CD;  // number the disk with central dir, used for spanning ZIP, unsupported, always 0
   if (unzlocal_getShort(fin,&number_disk_with_CD)!=UNZ_OK) err=UNZ_ERRNO;
   // total number of entries in the central dir on this disk
   if (unzlocal_getShort(fin,&us.gi.number_entry)!=UNZ_OK) err=UNZ_ERRNO;
