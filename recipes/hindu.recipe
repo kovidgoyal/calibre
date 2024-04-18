@@ -43,7 +43,7 @@ class TheHindu(BasicNewsRecipe):
         .author, .dateLine {font-size:small; font-weight:bold;}
         .subhead, .subhead_lead, .bold {font-weight:bold;}
         img {display:block; margin:0 auto;}
-        .italic {font-style:italic; color:#202020;}
+        .italic, .sub-title {font-style:italic; color:#202020;}
     '''
 
     ignore_duplicate_articles = {'url'}
@@ -61,6 +61,8 @@ class TheHindu(BasicNewsRecipe):
             cap.name = 'figcaption'
         for img in soup.findAll('img', attrs={'data-original':True}):
             img['src'] = img['data-original']
+        for h3 in soup.findAll(**classes('sub-title')):
+            h3.name = 'p'
         return soup
 
     def __init__(self, *args, **kwargs):

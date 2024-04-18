@@ -1,184 +1,115 @@
-#!/usr/bin/env python
-__license__ = 'GPL v3'
-__copyright__ = '08 Januery 2011, desUBIKado'
-__author__ = 'desUBIKado'
-__description__ = 'Daily newspaper from Biscay'
-__version__ = 'v0.14'
-__date__ = '10, September 2017'
 '''
 http://www.elcorreo.com/
 '''
 
-import re
-import time
-
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class elcorreo(BasicNewsRecipe):
-    __author__ = 'desUBIKado'
-    description = 'Daily newspaper from Biscay'
-    title = u'El Correo'
-    publisher = 'Vocento'
-    category = 'News, politics, culture, economy, general interest'
-    oldest_article = 1
-    delay = 1
-    max_articles_per_feed = 100
-    no_stylesheets = True
-    use_embedded_content = False
-    masthead_url = 'http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
+    title = 'El Correo'
+    __author__ = 'unkn0wn'
+    description = 'Daily newspaper in Bilbao and the Basque Country of northern Spain'
+    oldest_article = 1  # days
     language = 'es'
-    timefmt = '[%a, %d %b, %Y]'
+    no_stylesheets = True
+    remove_attributes = ['height', 'width', 'style']
+    ignore_duplicate_articles = {'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://s1.ppllstatics.com/starfish/1.3.76/assets/images/logos/logo-elcorreo.svg'
     encoding = 'utf-8'
     remove_empty_feeds = True
-    remove_javascript = True
+    resolve_internal_links = True
 
-    feeds = [
-        (u'Portada', u'http://www.elcorreo.com/rss/atom/portada'),
-        (u'Mundo', u'http://www.elcorreo.com/rss/atom/?section=internacional'),
-        (u'Bizkaia', u'http://www.elcorreo.com/rss/atom/?section=bizkaia'),
-        (u'Guipuzkoa', u'http://www.elcorreo.com/rss/atom/?section=gipuzkoa'),
-        (u'Araba', u'http://www.elcorreo.com/rss/atom/?section=araba'),
-        (u'La Rioja', u'http://www.elcorreo.com/rss/atom/?section=larioja'),
-        (u'Miranda', u'http://www.elcorreo.com/rss/atom/?section=miranda'),
-        (u'Economía', u'http://www.elcorreo.com/rss/atom/?section=economia'),
-        (u'Culturas', u'http://www.elcorreo.com/rss/atom/?section=culturas'),
-        (u'Politica', u'http://www.elcorreo.com/rss/atom/?section=politica'),
-        (u'Tecnología', u'http://www.elcorreo.com/rss/atom/?section=tecnologia'),
-        (u'Gente - Estilo', u'http://www.elcorreo.com/rss/atom/?section=gente-estilo'),
-        (u'Planes', u'http://www.elcorreo.com/rss/atom/?section=planes'),
-        (u'Athletic', u'http://www.elcorreo.com/rss/atom/?section=athletic'),
-        (u'Alavés', u'http://www.elcorreo.com/rss/atom/?section=alaves'),
-        (u'Bilbao Basket', u'http://www.elcorreo.com/rss/atom/?section=bilbaobasket'),
-        (u'Baskonia', u'http://www.elcorreo.com/rss/atom/?section=baskonia'),
-        (u'Deportes', u'http://www.elcorreo.com/rss/atom/?section=deportes'),
-        (u'Jaiak', u'http://www.elcorreo.com/rss/atom/?section=jaiak'),
-        (u'La Blanca', u'http://www.elcorreo.com/rss/atom/?section=la-blanca-vitoria'),
-        (u'Aste Nagusia', u'http://www.elcorreo.com/rss/atom/?section=aste-nagusia-bilbao'),
-        (u'Semana Santa', u'http://www.elcorreo.com/rss/atom/?section=semana-santa'),
-        (u'Festivales', u'http://www.elcorreo.com/rss/atom/?section=festivales')
-    ]
+    extra_css = '''
+        .v-mdl-ath__inf, .v-mdl-ath__p--2, .v-mdl-ath__p {font-size:small; color:#404040;}
+        .v-fc, .v-a-fig {  text-align:center; font-size:small; }
+        #sub { font-style:italic; color:#202020; }
+        blockquote, em { color:#202020; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    def get_cover_url(self):
+        from datetime import date
+        return 'https://portada.iperiodico.es/' + date.today().strftime('%Y/%m/%d') + '_elcorreo.750.jpg'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['col-xs-12 col-sm-12 col-md-8 col-lg-8']})
+        dict(name='article', attrs={'class': lambda x: x and set(x.split()).intersection(
+            {'v-a--d-bs', 'v-a--d-opn', 'v-a--d-rpg'})}),
+        classes(
+            'v-d--ab-c v-d--rpg'
+        )
     ]
 
     remove_tags = [
-        dict(
-            name='div',
-            attrs={
-                'class': [
-                    'voc-topics voc-detail-grid ', 'voc-newsletter ',
-                    'voc-author-social'
-                ]
-            }
-        ),
-        dict(name='section', attrs={'class': ['voc-ficha-detail voc-file-sports']})
+        dict(name = ['svg', 'section', 'nav']),
+        dict(attrs={'data-voc-component':['dropdown', 'modal', 'slider-grab']}),
+        classes(
+            'v-mdl-ath__img-c v-adv v-i-b v-mdl-ath__c--2 v-d-cmp-adv v-d-cmp-nws '
+            'v-pill-m--zoom v-stk-adv slider-grab g-artboard v-d-cmp-rld v-pill-m--glly' 
+        )
     ]
 
-    remove_tags_before = dict(
-        name='div', attrs={'class': 'col-xs-12 col-sm-12 col-md-8 col-lg-8'}
-    )
-    remove_tags_after = dict(
-        name='div', attrs={'class': 'col-xs-12 col-sm-12 col-md-8 col-lg-8'}
-    )
-
-    _processed_links = []
-
-    def get_article_url(self, article):
-        link = article.get('link', None)
-
-        if link is None:
-            return article
-
-        # modificamos la url de las noticias de los equipos deportivos para que funcionen, por ejemplo:
-        # http://athletic.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html
-        # http://m.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html?external=deportes/athletic
-
-        parte = link.split('/')
-
-        if parte[2] == 'athletic.elcorreo.com':
-            link = 'http://www.elcorreo.com/' + parte[3] + '/' + parte[
-                4
-            ] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/athletic'
-        else:
-            if parte[2] == 'baskonia.elcorreo.com':
-                link = 'http://www.elcorreo.com/' + parte[3] + '/' + parte[
-                    4
-                ] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/baskonia'
+    def preprocess_html(self, soup):
+        art = soup.find('article')
+        h1 = soup.find('h1')
+        h2 = soup.find('h2')
+        if h1 and art:
+            art.insert_before(h1)
+        if h2 and h1:
+            h1.insert_after(h2)
+            h2.name = 'p'
+            h2['id'] = 'sub'
+        for but in soup.findAll('button'):
+            if but.find('img'):
+                but.name = 'div'
             else:
-                if parte[2] == 'bilbaobasket.elcorreo.com':
-                    link = 'http://www.elcorreo.com/' + parte[3] + '/' + parte[
-                        4
-                    ] + '/' + parte[5] + '/' + parte[
-                        6
-                    ] + '?external=deportes/bilbaobasket'
-                else:
-                    if parte[2] == 'alaves.elcorreo.com':
-                        link = 'http://www.elcorreo.com/' + parte[3] + '/' + parte[
-                            4
-                        ] + '/' + parte[5] + '/' + parte[
-                            6
-                        ] + '?external=deportes/alaves'
+                but.extract()
+        x = soup.find(**classes('v-mdl-ath__c'))
+        if x:
+            for p in x.findAll('p'):
+                p.name = 'div'
+        return soup
 
-        # A veces el mismo articulo aparece en la versión de Alava y en la de Bizkaia. Por ejemplo:
-        # http://www.elcorreo.com/alava/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
-        # http://www.elcorreo.com/bizkaia/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
-        # para controlar los duplicados, unificamos las url para que sean siempre de bizkaia (excepto para la sección "araba")
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
 
-        if ((parte[3] == 'alava') and (parte[4] != 'araba')):
-            link = link.replace('elcorreo.com/alava', 'elcorreo.com/bizkaia')
-
-        # Controlamos si el artículo ha sido incluido en otro feed para eliminarlo
-
-        if link not in self._processed_links:
-            self._processed_links.append(link)
-        else:
-            link = None
-
-        return link
-
-    # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
-
-    def get_cover_url(self):
-        cover = None
-        st = time.localtime()
-        year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
-        # http://info.elcorreo.com/pdf/07082013-viz.pdf
-        cover = 'http://info.elcorreo.com/pdf/' + day + month + year + '-viz.pdf'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            self.log("\nPortada no disponible")
-            cover = 'http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
-        return cover
-
-    # Para cambiar el estilo del texto
-
-    extra_css = '''
-        h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
-        h2 {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:16px;color:#4D4D4D;}
-        h3 {font-family:georgia,serif; font-weight:bold;font-size:18px;}
-    '''
-
-    preprocess_regexps = [
-
-        # Para presentar la imagen de los video incrustados
-        (
-            re.compile(r'stillURLVideo: \'', re.DOTALL | re.IGNORECASE),
-            lambda match: '</script><img src="'
-        ),
-        (
-            re.compile(r'.jpg\',', re.DOTALL | re.IGNORECASE),
-            lambda match: '.jpg"><SCRIPT TYPE="text/JavaScript"'
-        ),
-
-        # Para quitar el punto de la lista
-        (
-            re.compile(r'<li class="destacada">', re.DOTALL | re.IGNORECASE),
-            lambda match: '<div class="destacada"></div>'
-        )
+    # https://www.elcorreo.com/rss/
+    feeds = [
+        ('Portada', 'http://www.elcorreo.com/rss/atom/portada'),
+        ('Mundo', 'http://www.elcorreo.com/rss/atom/?section=internacional'),
+        ('Bizkaia', 'http://www.elcorreo.com/rss/atom/?section=bizkaia'),
+        ('Opinión', 'https://www.elcorreo.com/rss/atom/?section=opinion'),
+        ('Internacional', 'https://www.elcorreo.com/rss/atom/?section=internacional'),
+        ('Ciencia', 'https://www.elcorreo.com/rss/atom/?section=ciencia'),
+        ('Guipuzkoa', 'http://www.elcorreo.com/rss/atom/?section=gipuzkoa'),
+        ('Araba', 'http://www.elcorreo.com/rss/atom/?section=araba'),
+        ('La Rioja', 'http://www.elcorreo.com/rss/atom/?section=larioja'),
+        ('Miranda', 'http://www.elcorreo.com/rss/atom/?section=miranda'),
+        ('Economía', 'http://www.elcorreo.com/rss/atom/?section=economia'),
+        ('Culturas', 'http://www.elcorreo.com/rss/atom/?section=culturas'),
+        ('Politica', 'http://www.elcorreo.com/rss/atom/?section=politica'),
+        ('De tiendas', 'https://www.elcorreo.com/rss/atom/?section=de-tiendas'),
+        ('Deportes', 'https://www.elcorreo.com/rss/atom/?section=deportes'),
+        ('Elecciones', 'https://www.elcorreo.com/rss/atom/?section=elecciones'),
+        ('Sociedad', 'https://www.elcorreo.com/rss/atom/?section=sociedad'),
+        ('Vivir', 'https://www.elcorreo.com/rss/atom/?section=vivir'),
+        ('Tecnología', 'http://www.elcorreo.com/rss/atom/?section=tecnologia'),
+        ('Gente - Estilo', 'http://www.elcorreo.com/rss/atom/?section=gente-estilo'),
+        ('Planes', 'http://www.elcorreo.com/rss/atom/?section=planes'),
+        ('Athletic', 'http://www.elcorreo.com/rss/atom/?section=athletic'),
+        ('Alavés', 'http://www.elcorreo.com/rss/atom/?section=alaves'),
+        ('Bilbao Basket', 'http://www.elcorreo.com/rss/atom/?section=bilbaobasket'),
+        ('Baskonia', 'http://www.elcorreo.com/rss/atom/?section=baskonia'),
+        ('Deportes', 'http://www.elcorreo.com/rss/atom/?section=deportes'),
+        ('Jaiak', 'http://www.elcorreo.com/rss/atom/?section=jaiak'),
+        ('La Blanca', 'http://www.elcorreo.com/rss/atom/?section=la-blanca-vitoria'),
+        ('Aste Nagusia', 'http://www.elcorreo.com/rss/atom/?section=aste-nagusia-bilbao'),
+        ('Semana Santa', 'http://www.elcorreo.com/rss/atom/?section=semana-santa'),
+        ('Festivales', 'http://www.elcorreo.com/rss/atom/?section=festivales')
     ]
