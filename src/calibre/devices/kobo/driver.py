@@ -81,7 +81,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the original Kobo Reader and the Kobo WiFi.')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 5, 1)
+    version = (2, 6, 0)
 
     dbversion = 0
     fwversion = (0,0,0)
@@ -211,14 +211,17 @@ class KOBO(USBMS):
             debug_print(f"device_version_info - version_file={version_file}")
             if os.path.isfile(version_file):
                 debug_print("device_version_info - have opened version_file")
-                vf = open(version_file)
-                self._device_version_info = vf.read().strip().split(",")
-                vf.close()
+                with open(version_file) as vf:
+                    self._device_version_info = vf.read().strip().split(",")
                 debug_print("device_version_info - self._device_version_info=", self._device_version_info)
         return self._device_version_info
 
     def device_serial_no(self):
-        return self.device_version_info()[0]
+        try:
+            return self.device_version_info()[0]
+        except Exception as e:
+            debug_print(f"Kobo::device_serial_no - didn't get serial number from file' - Exception: {e}")
+        return ''
 
     def get_firmware_version(self):
         # Determine the firmware version
@@ -230,6 +233,15 @@ class KOBO(USBMS):
             fwversion = (0,0,0)
 
         return fwversion
+
+    def get_device_model_id(self):
+        try:
+            # Unique model id has format '00000000-0000-0000-0000-000000000388'
+            # So far (Apr2024) only the last 3 digits have ever been used
+            return self.device_version_info()[-1]
+        except Exception as e:
+            debug_print(f"Kobo::get_device_model_id - didn't get model id from file' - Exception: {e}")
+        return ''
 
     def sanitize_path_components(self, components):
         invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
@@ -1381,11 +1393,12 @@ class KOBOTOUCH(KOBO):
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
         ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
-        ' Sage, Libra 2 and Clara 2E eReaders.'
+        ' Sage, Libra 2, Clara 2E,'
+        ' Clara BW, Clara Colour, Libra Colour eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = 'devices/kobotouch.jpg'
 
-    supported_dbversion             = 174
+    supported_dbversion             = 175
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1423,8 +1436,13 @@ class KOBOTOUCH(KOBO):
     min_clara2e_fwversion           = (4, 33, 19759)
     min_fwversion_audiobooks        = (4, 29, 18730)
     min_fwversion_bookstats         = (4, 32, 19501)
+    min_clarabw_fwversion           = (4, 39, 22801) # not sure whether needed
+    min_claracolor_fwversion        = (4, 39, 22801) # not sure whether needed
+    min_libracolor_fwversion        = (4, 39, 22801) # not sure whether needed
 
     has_kepubs = True
+
+    device_model_id = ''
 
     booklist_class = KTCollectionsBookList
     book_class = Book
@@ -1512,7 +1530,7 @@ class KOBOTOUCH(KOBO):
                           #       Kobo officially advertised the screen resolution with those chopped off.
                           ' - N3_FULL.parsed':        [(758,1014),0, 200,True,],
                           }
-    # Glo HD, Clara HD and Clara 2E share resolution, so the image sizes should be the same.
+    # Glo HD, Clara HD, Clara 2E, Clara BW, Clara Colour share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
@@ -3540,11 +3558,15 @@ class KOBOTOUCH(KOBO):
         cls.opts = opts
         return opts
 
-    def isAura(self):
-        return self.detected_device.idProduct in self.AURA_PRODUCT_ID
-
     def is2024Device(self):
         return self.detected_device.idProduct in self.LIBRA_COLOR_PRODUCT_ID
+
+    def isColorDevice(self):
+        # may be useful at some point
+        return self.isClaraColor() or self.isLibraColor()
+
+    def isAura(self):
+        return self.detected_device.idProduct in self.AURA_PRODUCT_ID
 
     def isAuraEdition2(self):
         return self.detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
@@ -3567,6 +3589,12 @@ class KOBOTOUCH(KOBO):
     def isClara2E(self):
         return self.detected_device.idProduct in self.CLARA_2E_PRODUCT_ID
 
+    def isClaraBW(self):
+        return self.device_model_id.endswith('391')
+
+    def isClaraColor(self):
+        return self.device_model_id.endswith('393')
+
     def isElipsa2E(self):
         return self.detected_device.idProduct in self.ELIPSA_2E_PRODUCT_ID
 
@@ -3588,6 +3616,9 @@ class KOBOTOUCH(KOBO):
     def isLibra2(self):
         return self.detected_device.idProduct in self.LIBRA2_PRODUCT_ID
 
+    def isLibraColor(self):
+        return self.device_model_id.endswith('390')
+
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
 
@@ -3604,9 +3635,7 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def cover_file_endings(self):
-        if self.is2024Device():
-            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
-        elif self.isAura():
+        if self.isAura():
             _cover_file_endings = self.AURA_COVER_FILE_ENDINGS
         elif self.isAuraEdition2():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
@@ -3622,6 +3651,10 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isClara2E():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isClaraBW():
+            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isClaraColor():
+            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isElipsa():
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
         elif self.isElipsa2E():
@@ -3635,6 +3668,8 @@ class KOBOTOUCH(KOBO):
         elif self.isLibraH2O():
             _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isLibra2():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
+        elif self.isLibraColor():
             _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
@@ -3655,10 +3690,12 @@ class KOBOTOUCH(KOBO):
         return _all_cover_file_endings
 
     def set_device_name(self):
-        device_name = self.gui_name
+        self.device_model_id = ''
         if self.is2024Device():
-            device_name = 'Kobo 2024'
-        elif self.isAura():
+            self.device_model_id = self.get_device_model_id()
+
+        device_name = self.gui_name
+        if self.isAura():
             device_name = 'Kobo Aura'
         elif self.isAuraEdition2():
             device_name = 'Kobo Aura Edition 2'
@@ -3674,6 +3711,10 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Clara HD'
         elif self.isClara2E():
             device_name = 'Kobo Clara 2E'
+        elif self.isClaraBW():
+            device_name = 'Kobo Clara BW'
+        elif self.isClaraColor():
+            device_name = 'Kobo Clara Colour'
         elif self.isElipsa():
             device_name = 'Kobo Elipsa'
         elif self.isElipsa2E():
@@ -3688,6 +3729,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Libra H2O'
         elif self.isLibra2():
             device_name = 'Kobo Libra 2'
+        elif self.isLibraColor():
+            device_name = 'Kobo Libra Colour'
         elif self.isMini():
             device_name = 'Kobo Mini'
         elif self.isNia():
