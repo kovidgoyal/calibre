@@ -569,9 +569,6 @@ class BooksView(QTableView):  # {{{
             view.apply_state(view.get_default_state())
         elif action == 'addcustcol':
             self.add_column_signal.emit()
-        elif action == 'viewcustcol':
-            col_manager = CreateNewCustomColumn(self.gui)
-            col_manager.view_existing_column(column)
         elif action == 'editcustcol':
             def show_restart_dialog():
                 from calibre.gui2.preferences.main import must_restart_message
@@ -651,13 +648,10 @@ class BooksView(QTableView):  # {{{
         if not isinstance(view, DeviceBooksView):
             col_manager = CreateNewCustomColumn(self.gui)
             if self.can_add_columns and self.model().is_custom_column(col):
-                actv = ans.addAction(QIcon.ic('view-image.png'), _('View column definition for %s') % name,
-                                    partial(handler, action='viewcustcol'))
-                acte = ans.addAction(QIcon.ic('edit_input.png'), _('Edit column definition for %s') % name,
+                act = ans.addAction(QIcon.ic('edit_input.png'), _('Edit column definition for %s') % name,
                                     partial(handler, action='editcustcol'))
                 if col_manager.must_restart():
-                    actv.setEnabled(False)
-                    acte.setEnabled(False)
+                    act.setEnabled(False)
         if self.is_library_view:
             if self._model.db.field_metadata[col]['is_category']:
                 act = ans.addAction(QIcon.ic('quickview.png'), _('Quickview column %s') % name,

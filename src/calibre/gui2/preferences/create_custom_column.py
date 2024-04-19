@@ -106,11 +106,10 @@ class CreateCustomColumn(QDialog):
     )))
     column_types_map = {k['datatype']:idx for idx, k in iteritems(column_types)}
 
-    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False, view_only=False):
+    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
         QDialog.__init__(self, gui)
         self.orig_column_number = -1
         self.gui = gui
-        self.view_only = view_only
         self.setup_ui()
         self.setWindowTitle(_('Create a custom column'))
         self.heading_label.setText('<b>' + _('Create a custom column'))
@@ -139,12 +138,8 @@ class CreateCustomColumn(QDialog):
             self.exec()
             return
 
-        if view_only:
-            self.setWindowTitle(_('View custom column'))
-            self.heading_label.setText('<b>' + _('View custom column definition. Changes will be ignored'))
-        else:
-            self.setWindowTitle(_('Edit custom column'))
-            self.heading_label.setText('<b>' + _('Edit custom column definition'))
+        self.setWindowTitle(_('Edit custom column'))
+        self.heading_label.setText('<b>' + _('Edit custom column'))
         self.shortcuts.setVisible(False)
         col = current_key
         if col not in caller.custcols:
@@ -297,13 +292,15 @@ class CreateCustomColumn(QDialog):
         self.g = g = QGridLayout()
         l.addLayout(g)
         l.addStretch(10)
-        if self.view_only:
-            self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, self)
-        else:
-            self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
-                                                    QDialogButtonBox.StandardButton.Cancel, self)
+        bbl = QHBoxLayout()
+        txt = QLabel(_('Pressing OK will require restarting calibre even if nothing was changed'))
+        txt.setWordWrap(True)
+        bbl.addWidget(txt)
+        bbl.addStretch(1)
+        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        l.addWidget(bb)
+        bbl.addWidget(bb)
+        l.addLayout(bbl)
 
         def add_row(text, widget):
             if text is None:
@@ -1010,17 +1007,11 @@ class CreateNewCustomColumn:
             return self.Result.INVALID_KEY
         return self._create_or_edit_column(lookup_name, freeze_lookup_name=False, operation='edit')
 
-    def view_existing_column(self, lookup_name):
-        if lookup_name not in self.custcols:
-            return self.Result.INVALID_KEY
-        return self._create_or_edit_column(lookup_name, freeze_lookup_name=True, operation='view')
-
     def _create_or_edit_column(self, lookup_name, freeze_lookup_name, operation=None):
         try:
             dialog = CreateCustomColumn(self.gui, self, lookup_name,
                                         self.gui.library_view.model().orig_headers,
-                                        freeze_lookup_name=freeze_lookup_name,
-                                        view_only=operation=='view')
+                                        freeze_lookup_name=freeze_lookup_name)
             if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
                 cc = self.custcols[lookup_name]
                 if operation == 'create':
