@@ -1,0 +1,74 @@
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Volkskrant(BasicNewsRecipe):
+    title = 'Revista 22'
+    __author__ = 'Cristi Ghera'
+    max_articles_per_feed = 100
+    description = 'Revista 22'
+    needs_subscription = False
+    language = 'ro'
+    country = 'RO'
+    category = 'news, politics, Romania'
+    resolve_internal_links = True
+    remove_tags_before = { 'class': 'col-span-8' }
+    remove_tags_after = { 'class': 'col-span-8' }
+    remove_tags = [
+        dict(
+            attrs={
+                'class': [
+                    'icons',
+                    'float-left',
+                    'samesection',
+                ]
+            }
+        ),
+        dict(
+            name=['div'],
+            attrs={
+                'class': ['mb-2']
+            }
+        ),
+        dict(id=['comments']),
+        dict(name=['script', 'noscript', 'style']),
+    ]
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://revista22.ro')
+        url = soup.find('div', attrs={'class': 'uppercase'}).find('a').attrs['href']
+        if url[0] == '/':
+            url = 'https://revista22.ro' + url
+        soup = self.index_to_soup(url)
+        main_container = soup.find('div', attrs={'class': 'col-span-8'})
+        containers = main_container.findAll(attrs={'class': 'mb-4'})
+        articles = []
+        for container in containers:
+            if 'pb-4' not in container.attrs['class']:
+                continue
+            a = container.find('a')
+            url = a['href']
+            if url[0] == '/':
+                url = 'https://revista22.ro' + url
+            article_title = self.tag_to_string(a.find('h3')).strip()
+            author = self.tag_to_string(
+                container.find('span', attrs={'class': 'text-red'})
+            ).strip()
+            summary = self.tag_to_string(container.find('p')).strip()
+            pubdate = self.tag_to_string(a.find('span'))
+            description = author + ' - ' + summary
+            articles.append(
+                dict(
+                    title=article_title,
+                    url=url,
+                    date=pubdate,
+                    description=description,
+                    content=''
+                )
+            )
+
+        sections = [('Numărul curent', articles)]
+        return sections
