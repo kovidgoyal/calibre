@@ -23,6 +23,36 @@
 # - title by author
 # }}}
 
+{{{ 7.9.0 2024-04-19
+
+:: new features
+
+- [2060886] Kobo driver: Add support for the new color Kobo devices
+
+- Edit book: Add a setting to control cursor width under Preferences->Editor settings
+
+- Edit book: Regex-function mode: Show a confirmation popup when closing the function editor when there are unsaved changes
+
+:: bug fixes
+
+- [2060314] Fix undocked Quickview dialog not being restored at startup
+
+- [2044118] Windows: Fix an issue where closing a maximized calibre window to the system tray and then reconnecting with remote desktop would cause a blank calibre window to be displayed
+
+:: improved recipes
+- El Correo
+- Eenadu
+- ORFonline
+- NatGeo
+- Harpers Magazine
+- New Yorker
+- Business Today
+- The Week
+- Asahi Shimbun
+- Outlook Magazine
+
+}}}
+
 {{{ 7.8.0 2024-04-05
 
 :: new features
