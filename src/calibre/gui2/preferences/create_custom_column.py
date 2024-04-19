@@ -292,9 +292,15 @@ class CreateCustomColumn(QDialog):
         self.g = g = QGridLayout()
         l.addLayout(g)
         l.addStretch(10)
+        bbl = QHBoxLayout()
+        txt = QLabel(_('Pressing OK will require restarting calibre even if nothing was changed'))
+        txt.setWordWrap(True)
+        bbl.addWidget(txt)
+        bbl.addStretch(1)
         self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        l.addWidget(bb)
+        bbl.addWidget(bb)
+        l.addLayout(bbl)
 
         def add_row(text, widget):
             if text is None:
@@ -932,6 +938,7 @@ class CreateNewCustomColumn:
         INVALID_DISPLAY = 7
         EXCEPTION_RAISED = 8
         MUST_RESTART = 9
+        COLUMN_EDITED = 11
 
     def __init__(self, gui):
         self.gui = gui
@@ -991,20 +998,40 @@ class CreateNewCustomColumn:
                 'colnum': self.created_count,
                 'is_multiple': is_multiple,
             }
+
+        return self._create_or_edit_column(lookup_name, freeze_lookup_name=freeze_lookup_name,
+                                           operation='create')
+
+    def edit_existing_column(self, lookup_name):
+        if lookup_name not in self.custcols:
+            return self.Result.INVALID_KEY
+        return self._create_or_edit_column(lookup_name, freeze_lookup_name=False, operation='edit')
+
+    def _create_or_edit_column(self, lookup_name, freeze_lookup_name, operation=None):
         try:
             dialog = CreateCustomColumn(self.gui, self, lookup_name,
                                         self.gui.library_view.model().orig_headers,
                                         freeze_lookup_name=freeze_lookup_name)
             if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
                 cc = self.custcols[lookup_name]
-                self.db.create_custom_column(
-                                label=cc['label'],
-                                name=cc['name'],
-                                datatype=cc['datatype'],
-                                is_multiple=cc['is_multiple'],
-                                display=cc['display'])
-                self.gui.must_restart_before_config = True
-                return (self.Result.COLUMN_ADDED, self.cc_column_key)
+                if operation == 'create':
+                    self.db.create_custom_column(
+                                    label=cc['label'],
+                                    name=cc['name'],
+                                    datatype=cc['datatype'],
+                                    is_multiple=bool(cc['is_multiple']),
+                                    display=cc['display'])
+                    self.gui.must_restart_before_config = True
+                    return (self.Result.COLUMN_ADDED, self.cc_column_key)
+                # editing/viewing
+                if operation == 'edit':
+                    self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
+                                                  label=cc['label'], display=cc['display'],
+                                                  notify=False)
+                    if '*must_restart' in cc:
+                        self.gui.must_restart_before_config = True
+                    return (self.Result.COLUMN_EDITED, self.cc_column_key)
+                return (self.Result.CANCELED, self.cc_column_key)
         except Exception as e:
             import traceback
             traceback.print_exc()
