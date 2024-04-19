@@ -1,0 +1,117 @@
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Volkskrant(BasicNewsRecipe):
+    title = 'Internazionale'
+    __author__ = 'Cristi Ghera'
+    max_articles_per_feed = 100
+    description = 'Internazionale - Notizie dall’Italia e dal mondo'
+    needs_subscription = False
+    language = 'it'
+    country = 'IT'
+    category = 'news, politics, Italy, world'
+    resolve_internal_links = True
+    remove_tags_before = { 'name': 'article' }
+    remove_tags_after = { 'name': 'article' }
+    remove_tags = [
+        dict(
+            attrs={
+                'class': [
+                    'item-banner',
+                    'hentryfeed__side',
+                    'magazine-article-share-tools',
+                    'magazine-article-share-popup',
+                    'article_next',
+                    'cta_nl_ext_container',
+                ]
+            }
+        ),
+        dict(name=['script', 'style']),
+    ]
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    
+    current_number_url = "https://www.internazionale.it/sommario"
+    home_url = "https://www.internazionale.it"
+    cover_url = None
+    
+    def extract_article(self, article):
+        url = article.find('a')['href']
+        if url[0] == '/':
+            url = self.home_url + url
+        title_parts = []
+        tag = article.find('div', {'class': 'abstract-article__tag'})
+        if tag: title_parts.append(self.tag_to_string(tag).upper())
+        title_parts.append(self.tag_to_string(article.find('div', {'class': 'abstract-article__title'})))
+        article_title = ' \u2022 '.join(title_parts)
+        pubdate=''
+        description_parts = []
+        author = article.find('div', {'class': 'abstract-article__author'})
+        if author: description_parts.append(self.tag_to_string(author))
+        summary = article.find('div', {'class': 'abstract-article__content'})
+        if summary: description_parts.append(self.tag_to_string(summary))
+        description = ' \u2022 '.join(description_parts)
+        return dict(
+            title=article_title,
+            url=url,
+            date=pubdate,
+            description=description,
+            content=''
+        )
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.current_number_url)
+        self.cover_url = soup.find('span', { 'class': 'img_expand' })['data-src']
+        main_container = soup.find('div', { 'class': 'content_data' })
+        children = main_container.findAll('div', recursive=False)
+        sections = []
+        current_section = None
+        for container in children:
+            if 'abstract-testatina' in container['class'] or 'abstract-testatina-cultura' in container['class']:
+                if current_section:
+                    sections.append(current_section)
+                current_section = (self.tag_to_string(container), [])
+                continue
+            
+            if 'masonry-items' in container['class']:
+                for article in container.findAll('div', {'class': 'abstract-article'}):
+                    current_section[1].append(self.extract_article(article))
+                continue
+            
+            if 'abstract-article' in container['class']:
+                current_section[1].append(self.extract_article(container))
+                continue
+            
+            # print(container['class'])
+        if current_section:
+            sections.append(current_section)
+        return sections
+
+    def preprocess_html(self, soup):
+        for node in soup.findAll('figure'):
+            img_src = None
+            image_attributes = [
+                'data-media1024',
+                'data-media1025',
+                'data-media641',
+                'data-media321',
+                'data-media',
+            ]
+            for attr in image_attributes:
+                if node.has_attr(attr):
+                    img_src = node[attr]
+                    break
+            node.name = 'div'
+            if img_src:
+                img = soup.new_tag('img', src=img_src)
+                node.insert(0, img)
+        for node in soup.findAll('figcaption'):
+            node.name = 'div'
+        # if self.browser.cookiejar:
+        #     self.browser.cookiejar.clear()
+        return soup
+    
+    def get_cover_url(self):
+        return self.cover_url

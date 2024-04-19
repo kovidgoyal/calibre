@@ -1,0 +1,107 @@
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from bs4 import BeautifulSoup
+
+class Volkskrant(BasicNewsRecipe):
+    title = 'Dilema'
+    __author__ = 'Cristi Ghera'
+    max_articles_per_feed = 100
+    description = '"Sint vechi, domnule!" (I.L. Caragiale)'
+    needs_subscription = False
+    language = 'ro'
+    country = 'RO'
+    category = 'politics, culture, Romania'
+    resolve_internal_links = True
+    remove_tags_before = { 'class': 'post' }
+    remove_tags_after = { 'class': 'post_content' }
+    remove_tags = [
+        dict(
+            attrs={
+                'class': [
+                    'single_meta_category',
+                    'avatar',
+                    'jm-post-like',
+                    'fa',
+                ]
+            }
+        ),
+        dict(
+            name=['div'],
+            attrs={
+                'class': ['mb-2']
+            }
+        ),
+        dict(id=['like', 'dlik']),
+        dict(name=['script', 'noscript', 'style']),
+    ]
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        homepage_url = 'https://www.dilema.ro/'
+        soup = self.index_to_soup(homepage_url)
+        
+        articles = []
+        
+        # .banner-container
+        banner_container = soup.find('div', attrs={'class': 'banner-container'})
+        container = banner_container.find('h5')
+        a = container.find('a')
+        url = homepage_url + a.attrs['href']
+        articles.append(
+            dict(
+                title=self.tag_to_string(container).strip(),
+                url=url,
+                date=self.tag_to_string(banner_container.find(attrs={'class': 'post-date'})).strip(),
+                description='',
+                content=''
+            )
+        )
+        
+        # .homepage_builder_3grid_post
+        containers = soup.findAll('div', attrs={'class': 'homepage_builder_3grid_post'})
+        for container in containers:
+            if self.tag_to_string(container.find('h2')) in ['CELE MAI RECENTE', 'CELE MAI CITITE']:
+                continue
+            for article in container.findAll('div', attrs={'class': 'blog_grid_post_style'}):
+                title_container = article.find('h3')
+                if not title_container:
+                    continue
+                url = title_container.find('a')['href']
+                url = homepage_url + url
+                article_title = self.tag_to_string(title_container).strip()
+                author = self.tag_to_string(
+                    article.find('a', attrs={'rel': 'author'})
+                ).strip()
+                summary = self.tag_to_string(article.find('p')).strip()
+                pubdate = self.tag_to_string(article.find(attrs={'class': 'post-date'}))
+                description = author + ' - ' + summary
+                articles.append(
+                    dict(
+                        title=article_title,
+                        url=url,
+                        date=pubdate,
+                        description=description,
+                        content=''
+                    )
+                )
+
+        sections = [("Numărul curent", articles)]
+        return sections
+
+    def preprocess_html(self, soup):
+        main_carousel = soup.find(attrs={'id': 'main-carousel'})
+        if main_carousel:
+            img = main_carousel.find('img')
+            body = soup.find('body')
+            body.clear()
+            body.append(img)
+        return soup
+    
+    def get_cover_url(self):
+        url = 'https://www.dilema.ro/coperta-saptaminii/'
+        soup = self.index_to_soup(url)
+        img = soup.find(attrs={'id': 'main-carousel'}).find('img')
+        return url + img.attrs['src']

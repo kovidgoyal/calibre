@@ -1,0 +1,96 @@
+#!/usr/bin/env  python
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import uuid
+from mechanize import Request
+from contextlib import closing
+import json
+
+class Parool(BasicNewsRecipe):
+    title = 'Het Parool'
+    __author__ = 'Cristi Ghera'
+    max_articles_per_feed = 100
+    description = 'Het Parool - Vrij, Onverveerd'
+    needs_subscription = False
+    language = 'nl'
+    country = 'NL'
+    category = 'news, politics, Netherlands'
+    resolve_internal_links = True
+    remove_tags_before = dict(id='main-content')
+    remove_tags_after  = dict(id='main-content')
+    remove_tags = [
+        dict(attrs={'class':['article-footer__sharing', 'artstyle__editorial-tips', 'artstyle__advertisement','artstyle__container__icon','artstyle__disabled-embed','container__title__icon',]}),
+        dict(attrs={'data-element-id': ['article-element-authors']}),
+        dict(name=['script', 'noscript', 'style']),
+    ]
+    remove_attributes = ["class", "id", "name", "style"]
+    encoding = 'utf-8'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.parool.nl/privacy-wall/accept?redirectUri=%2Feditie%2Fvandaag%2F&authId=' + str(uuid.uuid4()))
+        containers = soup.findAll('section', attrs={'class': 'section--horizontal'})
+        sections = []
+        for container in containers:
+            section_title = self.tag_to_string(container.find('h2')).strip()
+            articles = []
+            
+            for art in container.findAll('article'):
+                a = art.find('a')
+                url = a['href']
+                if url[0] == '/':
+                    url = 'https://www.parool.nl' + url
+                if '/editie/' not in url:
+                    continue
+                header = a.find('header')
+                teaser_label = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__label'})).strip()
+                teaser_sublabel = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__sublabel'})).strip()
+                teaser_title = self.tag_to_string(header.find('h3').find('span', attrs={'class': 'teaser__title__value--short'})).strip()
+                ignore = { "dirkjan", "s1ngle", "pukkels", "hein de kort" }
+                if teaser_label.lower() in ignore:
+                    continue
+                parts = []
+                if teaser_label:
+                    parts.append(teaser_label.upper())
+                if teaser_sublabel:
+                    parts.append(teaser_sublabel)
+                if teaser_title:
+                    parts.append(teaser_title)
+                article_title = ' \u2022 '.join(parts)
+                articles.append(dict(title=article_title,
+                                    url=url,
+                                    content=''))
+            
+            sections.append((section_title, articles))
+        return sections
+
+    def preprocess_html(self, soup):
+        for tag in soup():
+            if tag.name == 'img':
+                if tag['src'][0] == '/':
+                    tag['src'] = 'https://www.parool.nl' + tag['src']
+        for tag in soup():
+            if tag.name == "picture":
+                tag.replaceWith(tag.find("img"))
+        comic_articles = {
+            "Alle strips van Dirkjan",
+            "S1NGLE",
+            "Pukkels",
+            "Bekijk hier alle cartoons van Hein de Kort",
+        }
+        if self.tag_to_string(soup.find('h1')).strip() in comic_articles:
+            for node in soup.find('figure').find_next_siblings():
+                node.extract()
+        return soup
+    
+    def get_cover_url(self):
+        headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'DNT': '1',
+        }
+        url = "https://login-api.e-pages.dk/v1/krant.parool.nl/folders"
+        with closing(self.browser.open(Request(url, None, headers))) as r:
+            folders = json.loads(r.read())
+            return folders["objects"][0]["teaser_medium"]
+        return None
