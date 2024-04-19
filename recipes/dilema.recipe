@@ -1,6 +1,6 @@
 #!/usr/bin/env  python
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from bs4 import BeautifulSoup
+
 
 class Volkskrant(BasicNewsRecipe):
     title = 'Dilema'
@@ -42,9 +42,9 @@ class Volkskrant(BasicNewsRecipe):
     def parse_index(self):
         homepage_url = 'https://www.dilema.ro/'
         soup = self.index_to_soup(homepage_url)
-        
+
         articles = []
-        
+
         # .banner-container
         banner_container = soup.find('div', attrs={'class': 'banner-container'})
         container = banner_container.find('h5')
@@ -59,7 +59,7 @@ class Volkskrant(BasicNewsRecipe):
                 content=''
             )
         )
-        
+
         # .homepage_builder_3grid_post
         containers = soup.findAll('div', attrs={'class': 'homepage_builder_3grid_post'})
         for container in containers:
@@ -99,7 +99,7 @@ class Volkskrant(BasicNewsRecipe):
             body.clear()
             body.append(img)
         return soup
-    
+
     def get_cover_url(self):
         url = 'https://www.dilema.ro/coperta-saptaminii/'
         soup = self.index_to_soup(url)

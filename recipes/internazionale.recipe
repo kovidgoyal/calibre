@@ -1,6 +1,7 @@
 #!/usr/bin/env  python
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class Volkskrant(BasicNewsRecipe):
     title = 'Internazionale'
     __author__ = 'Cristi Ghera'
@@ -32,11 +33,11 @@ class Volkskrant(BasicNewsRecipe):
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
-    
+
     current_number_url = "https://www.internazionale.it/sommario"
     home_url = "https://www.internazionale.it"
     cover_url = None
-    
+
     def extract_article(self, article):
         url = article.find('a')['href']
         if url[0] == '/':
@@ -74,16 +75,16 @@ class Volkskrant(BasicNewsRecipe):
                     sections.append(current_section)
                 current_section = (self.tag_to_string(container), [])
                 continue
-            
+
             if 'masonry-items' in container['class']:
                 for article in container.findAll('div', {'class': 'abstract-article'}):
                     current_section[1].append(self.extract_article(article))
                 continue
-            
+
             if 'abstract-article' in container['class']:
                 current_section[1].append(self.extract_article(container))
                 continue
-            
+
             # print(container['class'])
         if current_section:
             sections.append(current_section)
@@ -112,6 +113,6 @@ class Volkskrant(BasicNewsRecipe):
         # if self.browser.cookiejar:
         #     self.browser.cookiejar.clear()
         return soup
-    
+
     def get_cover_url(self):
         return self.cover_url
