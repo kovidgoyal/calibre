@@ -218,6 +218,12 @@ class Browser(QScrollArea):  # {{{
 
 # }}}
 
+
+must_restart_message = _('The changes you have made require calibre be '
+                         'restarted immediately. You will not be allowed to '
+                         'set any more preferences, until you restart.')
+
+
 class Preferences(QDialog):
 
     run_wizard_requested = pyqtSignal()
@@ -394,13 +400,11 @@ class Preferences(QDialog):
         do_restart = False
         if must_restart:
             self.must_restart = True
-            msg = _('Some of the changes you made require a restart.'
-                    ' Please restart calibre as soon as possible.')
             if rc:
-                msg = _('The changes you have made require calibre be '
-                        'restarted immediately. You will not be allowed to '
-                        'set any more preferences, until you restart.')
-
+                msg = must_restart_message
+            else:
+                msg = _('Some of the changes you made require a restart.'
+                        ' Please restart calibre as soon as possible.')
             do_restart = show_restart_warning(msg, parent=self)
 
         self.showing_widget.refresh_gui(self.gui)
