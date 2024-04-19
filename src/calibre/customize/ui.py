@@ -857,7 +857,8 @@ def option_parser():
     parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))
     parser.add_option('--customize-plugin', default=None,
-                      help=_('Customize plugin. Specify name of plugin and customization string separated by a comma.'))
+                      help=_('Customize plugin. Specify name of plugin and customization string separated by a comma.'
+                             ' The customization string is the same as you would enter when customizing the plugin in the main calibre GUI.'))
     parser.add_option('-l', '--list-plugins', default=False, action='store_true',
                       help=_('List all installed plugins'))
     parser.add_option('--enable-plugin', default=None,
