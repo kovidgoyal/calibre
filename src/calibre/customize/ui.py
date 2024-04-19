@@ -884,7 +884,10 @@ def main(args=sys.argv):
         else:
             print('No custom plugin named', opts.remove_plugin)
     if opts.customize_plugin is not None:
-        name, custom = opts.customize_plugin.split(',')
+        try:
+            name, custom = opts.customize_plugin.split(',')
+        except ValueError:
+            name, custom = opts.customize_plugin, ''
         plugin = find_plugin(name.strip())
         if plugin is None:
             print('No plugin with the name %s exists'%name)
