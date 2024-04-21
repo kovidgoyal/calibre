@@ -19,6 +19,8 @@ class elcorreo(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_empty_feeds = True
     resolve_internal_links = True
+    max_articles_per_feed = 25 # articles
+    compress_news_images = True 
 
     extra_css = '''
         .v-mdl-ath__inf, .v-mdl-ath__p--2, .v-mdl-ath__p {font-size:small; color:#404040;}
