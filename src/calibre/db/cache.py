@@ -3453,9 +3453,8 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     if abort is not None and abort.is_set():
         return
     with open(os.path.join(library_path, 'metadata.db'), 'wb') as f:
-        src = importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)
-        shutil.copyfileobj(src, f)
-        src.close()
+        with closing(importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)) as src:
+            shutil.copyfileobj(src, f)
     if 'full-text-search.db' in metadata:
         if progress is not None:
             progress('full-text-search.db', 1, total)
@@ -3463,9 +3462,8 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
             return
         poff += 1
         with open(os.path.join(library_path, 'full-text-search.db'), 'wb') as f:
-            src = importer.start_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path)
-            shutil.copyfileobj(src, f)
-            src.close()
+            with closing(importer.start_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path)) as src:
+                shutil.copyfileobj(src, f)
     if abort is not None and abort.is_set():
         return
     if 'notes.db' in metadata:
