@@ -246,6 +246,21 @@ class FilesystemTest(BaseTest):
     def test_export_import(self):
         from calibre.db.cache import import_library
         from calibre.utils.exim import Exporter, Importer
+        with TemporaryDirectory('export_lib') as tdir:
+            for part_size in (8, 1, 1024):
+                exporter = Exporter(tdir, part_size=part_size + Exporter.tail_size())
+                files = {
+                    'a': b'a' * 7, 'b': b'b' * 7, 'c': b'c' * 2, 'd': b'd' * 9, 'e': b'e' * 3,
+                }
+                for key, data in files.items():
+                    exporter.add_file(BytesIO(data), key)
+                exporter.commit()
+                importer = Importer(tdir)
+                for key, expected in files.items():
+                    with importer.start_file(key, key) as f:
+                        actual = f.read()
+                    self.assertEqual(expected, actual, key)
+                self.assertFalse(importer.corrupted_files)
         cache = self.init_cache()
         bookdir = os.path.dirname(cache.format_abspath(1, '__COVER_INTERNAL__'))
         with open(os.path.join(bookdir, 'exf'), 'w') as f:
@@ -255,13 +270,14 @@ class FilesystemTest(BaseTest):
             f.write('recurse')
         self.assertEqual({ef.relpath for ef in cache.list_extra_files(1, pattern='sub/**/*')}, {'sub/recurse'})
         self.assertEqual({ef.relpath for ef in cache.list_extra_files(1)}, {'exf', 'sub/recurse'})
-        for part_size in (1 << 30, 100, 1):
+        for part_size in (512, 1027, None):
             with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
-                exporter = Exporter(tdir, part_size=part_size)
+                exporter = Exporter(tdir, part_size=part_size if part_size is None else (part_size + Exporter.tail_size()))
                 cache.export_library('l', exporter)
                 exporter.commit()
                 importer = Importer(tdir)
                 ic = import_library('l', importer, idir)
+                self.assertFalse(importer.corrupted_files)
                 self.assertEqual(cache.all_book_ids(), ic.all_book_ids())
                 for book_id in cache.all_book_ids():
                     self.assertEqual(cache.cover(book_id), ic.cover(book_id), 'Covers not identical for book: %d' % book_id)
@@ -290,6 +306,7 @@ class FilesystemTest(BaseTest):
             exporter.commit()
             importer = Importer(tdir)
             ic = import_library('l', importer, idir)
+            self.assertFalse(importer.corrupted_files)
             self.assertEqual(ic.fts_search('exim')[0]['id'], 1)
             self.assertEqual(cache.notes_for('authors', 2), ic.notes_for('authors', 2))
             a, b = cache.get_notes_resource(r1), ic.get_notes_resource(r1)

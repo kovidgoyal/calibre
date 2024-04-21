@@ -15,7 +15,6 @@ import traceback
 import weakref
 from collections import defaultdict
 from collections.abc import MutableSet, Set
-from contextlib import closing
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
@@ -3162,10 +3161,10 @@ class Cache:
                 if mtime is not None:
                     mtime = timestampfromdt(mtime)
                 with exporter.start_file(key, mtime=mtime) as dest:
-                    self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
+                    self._copy_format_to(book_id, fmt, dest)
             cover_key = '{}:{}:{}'.format(key_prefix, book_id, '.cover')
             with exporter.start_file(cover_key) as dest:
-                if not self.copy_cover_to(book_id, dest, report_file_size=dest.ensure_space):
+                if not self.copy_cover_to(book_id, dest):
                     dest.discard()
                 else:
                     fm['.cover'] = cover_key
@@ -3442,6 +3441,7 @@ class Cache:
                         dest_value.extend(src_value)
                     self._set_field(field, {dest_id: dest_value})
 
+
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
     metadata = importer.metadata[library_key]
@@ -3455,25 +3455,22 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     report_progress('metadata.db')
     if abort is not None and abort.is_set():
         return
-    with open(os.path.join(library_path, 'metadata.db'), 'wb') as f:
-        with closing(importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)) as src:
-            shutil.copyfileobj(src, f)
+    importer.save_file(metadata['metadata.db'], 'metadata.db for ' + library_path, os.path.join(library_path, 'metadata.db'))
     if 'full-text-search.db' in metadata:
         if progress is not None:
             progress('full-text-search.db', 1, total)
         if abort is not None and abort.is_set():
             return
         poff += 1
-        with open(os.path.join(library_path, 'full-text-search.db'), 'wb') as f:
-            with closing(importer.start_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path)) as src:
-                shutil.copyfileobj(src, f)
+        importer.save_file(metadata['full-text-search.db'], 'full-text-search.db for ' + library_path,
+                           os.path.join(library_path, 'full-text-search.db'))
     if abort is not None and abort.is_set():
         return
     if 'notes.db' in metadata:
         import zipfile
         notes_dir = os.path.join(library_path, NOTES_DIR_NAME)
         os.makedirs(notes_dir, exist_ok=True)
-        with closing(importer.start_file(metadata['notes.db'], 'notes.db for ' + library_path)) as stream:
+        with importer.start_file(metadata['notes.db'], 'notes.db for ' + library_path) as stream:
             stream.check_hash = False
             with zipfile.ZipFile(stream) as zf:
                 for zi in zf.infolist():
@@ -3482,6 +3479,8 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
                     os.utime(tpath, (date_time, date_time))
     if abort is not None and abort.is_set():
         return
+    if importer.corrupted_files:
+        raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
 
@@ -3494,20 +3493,22 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         if progress is not None:
             progress(title, i + poff, total)
         cache._update_path((book_id,), mark_as_dirtied=False)
-        for fmt, fmtkey in iteritems(fmt_key_map):
+        for fmt, fmtkey in fmt_key_map.items():
             if fmt == '.cover':
-                with closing(importer.start_file(fmtkey, _('Cover for %s') % title)) as stream:
+                with importer.start_file(fmtkey, _('Cover for %s') % title) as stream:
                     path = cache._field_for('path', book_id).replace('/', os.sep)
                     cache.backend.set_cover(book_id, path, stream, no_processing=True)
             else:
-                with closing(importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title))) as stream:
+                with importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title)) as stream:
                     size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
                     cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
         for relpath, efkey in extra_files.get(book_id, {}).items():
-            with closing(importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title))) as stream:
+            with importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title)) as stream:
                 path = cache._field_for('path', book_id).replace('/', os.sep)
                 cache.backend.add_extra_file(relpath, stream, path)
         cache.dump_metadata({book_id})
+        if importer.corrupted_files:
+            raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     if progress is not None:
         progress(_('Completed'), total, total)
     return cache
