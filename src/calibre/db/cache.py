@@ -46,7 +46,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import UNDEFINED_DATE, utcnow
+from calibre.utils.date import UNDEFINED_DATE, timestampfromdt, utcnow
 from calibre.utils.date import now as nowf
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
@@ -3158,7 +3158,10 @@ class Cache:
                 mdata = self.format_metadata(book_id, fmt)
                 key = f'{key_prefix}:{book_id}:{fmt}'
                 fm[fmt] = key
-                with exporter.start_file(key, mtime=mdata.get('mtime')) as dest:
+                mtime = mdata.get('mtime')
+                if mtime is not None:
+                    mtime = timestampfromdt(mtime)
+                with exporter.start_file(key, mtime=mtime) as dest:
                     self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
             cover_key = '{}:{}:{}'.format(key_prefix, book_id, '.cover')
             with exporter.start_file(cover_key) as dest:

@@ -25,18 +25,6 @@ from polyglot.builtins import error_message, iteritems
 
 # Export {{{
 
-
-def send_file(from_obj, to_obj, chunksize=1<<20):
-    m = hashlib.sha1()
-    while True:
-        raw = from_obj.read(chunksize)
-        if not raw:
-            break
-        m.update(raw)
-        to_obj.write(raw)
-    return str(m.hexdigest())
-
-
 class FileDest:
 
     def __init__(self, key, exporter, mtime=None):
@@ -44,7 +32,7 @@ class FileDest:
         self.hasher = hashlib.sha1()
         self.start_pos = exporter.f.tell()
         self._discard = False
-        self.mtime = None
+        self.mtime = mtime
 
     def discard(self):
         self._discard = True
@@ -59,7 +47,7 @@ class FileDest:
         self.exporter.f.write(data)
 
     def flush(self):
-        pass
+        self.exporter.f.flush()
 
     def close(self):
         if not self._discard:
@@ -127,15 +115,8 @@ class Exporter:
         self.commit_part(is_last=True)
 
     def add_file(self, fileobj, key):
-        fileobj.seek(0, os.SEEK_END)
-        size = fileobj.tell()
-        fileobj.seek(0)
-        self.ensure_space(size)
-        pos = self.f.tell()
-        digest = send_file(fileobj, self.f)
-        size = self.f.tell() - pos
-        mtime = os.fstat(fileobj.fileno()).st_mtime
-        self.file_metadata[key] = (len(self.parts), pos, size, digest, mtime)
+        with self.start_file(key, os.fstat(fileobj.fileno()).st_mtime) as dest:
+            shutil.copyfileobj(fileobj, dest)
 
     def start_file(self, key, mtime=None):
         return FileDest(key, self, mtime=mtime)
