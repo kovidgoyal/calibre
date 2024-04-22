@@ -64,9 +64,9 @@ def load_article_from_json(raw, root):
     for child in tuple(body):
         body.remove(child)
     article = E(body, 'article')
-    E(article, 'div', data['subheadline'] , style='color: red; font-size:small; font-weight:bold;')
-    E(article, 'h1', data['headline'])
-    E(article, 'div', data['description'], style='font-style: italic; color:#202020;')
+    E(article, 'div', replace_entities(data['subheadline']) , style='color: red; font-size:small; font-weight:bold;')
+    E(article, 'h1', replace_entities(data['headline']))
+    E(article, 'div', replace_entities(data['description']), style='font-style: italic; color:#202020;')
     if data['dateline'] is None:
         E(article, 'p', (data['datePublishedString'] or ''), style='color: gray; font-size:small;')
     else:
@@ -233,7 +233,7 @@ class Economist(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        #     'url':'https://www.economist.com/interactive/briefing/2022/06/11/huge-foundation-models-are-turbo-charging-ai-progress'
+        #     'url':'https://www.economist.com/the-americas/2024/04/14/elon-musk-is-feuding-with-brazils-powerful-supreme-court'
         # }])]
         if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
