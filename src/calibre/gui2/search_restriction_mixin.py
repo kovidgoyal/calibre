@@ -590,14 +590,16 @@ class SearchRestrictionMixin:
         dex = 0
         def add_action(current_menu, name, last):
             nonlocal dex
+            def compare_fix_amps(name1, name2):
+                return (self._trim_restriction_name(name1).replace('&&', '&') ==
+                        self._trim_restriction_name(name2).replace('&&', '&'))
             self.search_restriction.addItem(name)
             txt = self._trim_restriction_name(last)
-            if self._trim_restriction_name(name) == self._trim_restriction_name(current_restriction):
+            if compare_fix_amps(name, current_restriction):
                 a = current_menu.addAction(self.checked, txt if txt else self.no_restriction)
             else:
                 a = current_menu.addAction(txt if txt else self.no_restriction)
-            a.triggered.connect(partial(self.search_restriction_triggered,
-                                        action=a, index=dex))
+            a.triggered.connect(partial(self.search_restriction_triggered, action=a, index=dex))
             dex += 1
             return a
 
@@ -649,10 +651,9 @@ class SearchRestrictionMixin:
         if i == 1:
             self.apply_text_search_restriction(str(self.search.currentText()))
         elif i == 2 and str(self.search_restriction.currentText()).startswith('*'):
-            self.apply_text_search_restriction(
-                                str(self.search_restriction.currentText())[1:])
+            self.apply_text_search_restriction(str(self.search_restriction.currentText())[1:])
         else:
-            r = str(self.search_restriction.currentText())
+            r = str(self.search_restriction.currentText()).replace('&&', '&')
             if r is not None and r != '':
                 restriction = 'search:"%s"'%(r)
             else:
