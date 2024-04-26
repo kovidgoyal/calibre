@@ -146,6 +146,10 @@ class ft(BasicNewsRecipe):
         return html
 
     def preprocess_html(self, soup):
+        for table in soup.findAll('table'):
+            if len(table.find('tbody').findAll('tr')) > 20:
+                table.find('tbody').decompose()
+                table.string = '** a table that was supposed to be here has been removed.'
         for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
             if con.find('figure'):
                 con['id'] = 'fig'
