@@ -321,8 +321,8 @@
     {
         "name": "libxml2",
         "unix": {
-            "filename": "libxml2-2.12.1.tar.xz",
-            "hash": "sha256:8982b9ccdf7f456e30d8f7012d50858c6623e495333b6191def455c7e95427eb",
+            "filename": "libxml2-2.12.6.tar.xz",
+            "hash": "sha256:889c593a881a3db5fdd96cc9318c87df34eb648edfc458272ad46fd607353fbb",
             "urls": ["https://download.gnome.org/sources/libxml2/2.12/{filename}"]
         }
     },
@@ -668,8 +668,8 @@
     {
         "name": "lxml",
         "unix": {
-            "filename": "lxml-4.9.3.tar.gz",
-            "hash": "sha256:48628bd53a426c9eb9bc066a923acaa0878d1e86129fd5359aee99285f4eed9c",
+            "filename": "lxml-5.2.1.tar.gz",
+            "hash": "sha256:3f7765e69bbce0906a7c74d5fe46d2c7a7596147318dbc08e4a2431f3060e306",
             "urls": ["pypi"]
         }
     },
@@ -1012,6 +1012,15 @@
         "unix": {
             "filename": "fonttools-4.47.0-py3-none-any.whl",
             "hash": "sha256:d6477ba902dd2d7adda7f0fd3bfaeb92885d45993c9e1928c9f28fc3961415f7",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "lxml-html-clean",
+        "unix": {
+            "filename": "lxml_html_clean-0.1.1-py3-none-any.whl",
+            "hash": "sha256:58c04176593c9caf72ec92e033d2f38859e918b3eff0cc0f8051ad27dc2ab8ef",
             "urls": ["pypi"]
         }
     },
