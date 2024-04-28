@@ -72,7 +72,10 @@ def extract_dicts(cache_path):
             buf.seek(0)
             tf = tarfile.TarFile(fileobj=buf)
         with tf:
-            tf.extractall(tdir)
+            try:
+                tf.extractall(tdir, filter='data')
+            except TypeError:
+                tf.extractall(tdir)
         with open(os.path.join(tdir, 'sha1sum'), 'wb') as f:
             f.write(expected_hash())
         dest = os.path.join(cache_path, 'f')
