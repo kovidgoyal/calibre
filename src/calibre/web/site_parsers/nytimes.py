@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 4  # needed for live updates
+module_version = 5  # needed for live updates
 pprint
 
 
@@ -185,15 +185,12 @@ def extract_html(soup):
     return json_to_html(raw)
 
 
-def download_url(url=None, br=None):
-    # Get the URL from the Wayback machine
+def download_url_from_wayback(category, url, br=None):
     from mechanize import Request
     host = 'http://localhost:8090'
     host = 'https://wayback1.calibre-ebook.com'
-    if url is None:
-        url = sys.argv[-1]
     rq = Request(
-        host + '/nytimes',
+        host + '/' + category,
         data=json.dumps({"url": url}),
         headers={'User-Agent': 'calibre', 'Content-Type': 'application/json'}
     )
@@ -202,6 +199,13 @@ def download_url(url=None, br=None):
         br = browser()
     br.set_handle_gzip(True)
     return br.open_novisit(rq, timeout=3 * 60).read()
+
+
+def download_url(url=None, br=None):
+    # Get the URL from the Wayback machine
+    if url is None:
+        url = sys.argv[-1]
+    return download_url_from_wayback('nytimes', url, br)
 
 
 if __name__ == '__main__':
