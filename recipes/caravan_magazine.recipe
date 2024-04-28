@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-
 import json
+from urllib.parse import urlparse, quote
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from mechanize import Request
@@ -20,6 +17,45 @@ def safe_dict(data, *names):
     for x in names:
         ans = ans.get(x) or ''
     return ans
+
+
+def parse_body(x):
+    if x.get('type', '') == 'paragraph':
+        yield '<p>'
+        for p in x.get('content', {}):
+            yield ''.join(parse_p(p))
+        yield '</p>\n'
+    elif x.get('type', '') in {'blockquote', 'pullquote'}:
+        yield '<blockquote>' 
+        for p in x.get('content', {}):
+            yield from parse_body(p)
+        yield '</blockquote>'
+    elif x.get('type', '') == 'figure':
+        yield '<img src="{}">'.format(absurl(x['attrs']['src'].replace('=s0', '=s768-rw')))
+        for p in x.get('content', {}):
+            yield from parse_body(p)
+    elif x.get('type', '') in {'caption', 'credit'}:
+        yield '<div class="sub">'
+        for div in x.get('content', {}):    
+            yield ''.join(parse_p(div))
+        yield '</div>\n'
+    elif x.get('type', '') != '':
+        if 'content' in x:
+            yield '<p>'
+            for p in x.get('content', {}):
+                yield from parse_body(p)
+            yield '</p>'
+
+def parse_p(p):
+    if p.get('type', '') == 'text':
+        if 'marks' in p:
+            tag = p['marks'][0]['type']
+            yield '<' + tag + '>'
+            yield p['text']
+            yield '</' + tag + '>'
+        else:
+            yield p['text']
+
 
 class CaravanMagazine(BasicNewsRecipe):
 
@@ -40,23 +76,26 @@ class CaravanMagazine(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
+    needs_subscription = 'optional'
+    logged = False
 
     extra_css = '''
+        img {display:block; margin:0 auto;}
         blockquote, em {color:#202020;}
-        .article_subtitle {font-style:italic; color:#202020;}
-        #fig-c, .photo_wrapper, .cover_figure_element {text-align:center; font-size:small;}
-        .pre-title, .text_wrapper {font-size:small; color:#404040;}
+        .desc {font-style:italic; color:#202020;}
+        .sub {text-align:center; font-size:small;}
+        .cat, .auth {font-size:small; color:#404040;}
     '''
 
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         if not self.username or not self.password:
             return br
-        data = json.dumps({'email': self.username, 'name': '', 'password': self.password})
+        data = json.dumps({"0":{"json":{"email":self.username,"password":self.password}}})
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         rq = Request(
-            url='https://caravanmagazine.in/api/users/login',
+            url='https://caravanmagazine.in/api/trpc/users.login?batch=1',
             data=data,
             headers={
                 'Accept': 'application/json, text/plain, */*',
@@ -66,37 +105,33 @@ class CaravanMagazine(BasicNewsRecipe):
             },
             method='POST'
         )
-        res = br.open(rq).read()
-        res = res.decode('utf-8')
-        self.log('Login request response: {}'.format(res))
-        res = json.loads(res)
-        if res['code'] != 200 or res['message'] != "Login success":
-            raise ValueError('Login failed, check your username and password')
+        try:
+            res = br.open(rq).read()
+            res = res.decode('utf-8')
+            res = json.loads(res)
+            self.log(safe_dict(res[0], 'result', 'data', 'json', 'message'))
+            self.logged = True
+        except:
+            self.log.warn('\n**Login failed, check your username and password\n')
+            return br
         return br
-
-    keep_only_tags = [
-        classes('text_wrapper cover_figure_element article_content')
-    ]
-
-    def preprocess_html(self, soup):
-        h2 = soup.find('h2')
-        if h2:
-            h2.name = 'p'
-        for fc in soup.findAll('figcaption'):
-            fc['id'] = 'fig-c'
-        return soup
 
     def parse_index(self):
         self.log(
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
+
         api = 'https://api.caravanmagazine.in/api/trpc/magazines.getLatestIssue'
-        # api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&' + \
-        # 'input=%7B%220%22%3A%7B%22json%22%3A%7B%22month%22%3A' + '2' + '%2C%22year%22%3A' + '2024' + '%7D%7D%7D'
-        # input={"0":{"json":{"month":2,"year":2024}}}
-        raw = self.index_to_soup(api, raw=True)
-        data = json.loads(raw)['result']['data']['json']
+        # for past editions
+        # inp = json.dumps({"0":{"json":{"month":6,"year":2023}}})
+        # api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
+        
+        raw = json.loads(self.index_to_soup(api, raw=True))
+        if isinstance(raw, list):
+            data = raw[0]['result']['data']['json']
+        else:
+            data = raw['result']['data']['json']
         cover = safe_dict(data, 'issue', 'cover', 'data', 'url').replace('=s0', '=s768-rw')
         self.cover_url = absurl(cover)
 
@@ -122,3 +157,46 @@ class CaravanMagazine(BasicNewsRecipe):
             if articles:
                 feeds.append((section, articles))
         return feeds
+
+    def print_version(self, url):
+        slug = urlparse(url).path
+        inp = json.dumps({"0":{"json":{"slug":slug}}})
+        return 'https://api.caravanmagazine.in/api/trpc/articles.getFromCache?batch=1&input=' + quote(inp, safe='')
+
+    def preprocess_raw_html(self, raw, url):
+        cache_data = json.loads(raw)[0]
+        art_id = cache_data['result']['data']['json']['articleId']
+        prim_data = cache_data['result']['data']['json']['data']
+
+        cat = subhead = desc = lede = auth = ''
+
+        cat = '<div class="cat">' + safe_dict(prim_data, 'printTitle') + '</div>\n'
+        title = '<h1>' + safe_dict(prim_data, 'title') + '</h1>\n'
+        desc = '<p class="desc">' + safe_dict(prim_data, 'description') + '</p>\n'
+
+        authors = []
+        for q in prim_data.get('authors', {}):
+            authors.append(safe_dict(q, 'name'))
+        dt = ''
+        if prim_data.get('writtenAt', '') != '':
+            from datetime import datetime, timedelta
+            import time
+            dt = datetime.fromisoformat(prim_data['writtenAt'][:-1]) + timedelta(seconds=time.timezone)
+            dt = dt.strftime('%b %d, %Y, %I:%M %p')
+        auth ='<p class="auth">' + ', '.join(authors) + ' | ' + dt + '</p>\n'
+        lede = ''.join(parse_body(prim_data.get('cover', {})))
+
+        free_cont = ''
+        for x in prim_data['data']['content']:
+            free_cont += '\n'+ ''.join(parse_body(x))
+
+        premium_cont = ''
+        if self.logged:
+            cont_url = 'https://api.caravanmagazine.in/api/paywall/check-article?articleId='
+            art_cont = json.loads(self.index_to_soup(cont_url + str(art_id), raw=True))
+            for x in art_cont['premiumContent']:
+                premium_cont += '\n' + ''.join(parse_body(x))
+
+        return '<html><body><div>' \
+                    + cat + title + desc + auth + lede + free_cont + premium_cont + \
+                        '</div></body></html>'
