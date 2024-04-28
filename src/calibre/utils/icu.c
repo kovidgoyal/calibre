@@ -1231,9 +1231,16 @@ icu_set_filesystem_encoding(PyObject *self, PyObject *args) {
     char *encoding;
     if (!PyArg_ParseTuple(args, "s:setfilesystemencoding", &encoding))
         return NULL;
+#if PY_VERSION_HEX < 0x03012000
+    // The nitwits at Python deprecated this in 3.12 claiming we should use
+    // PyConfig.filesystem_encoding instead. But that can only be used if we
+    // control the interpreter, which we do not in Linux distro builds. Sigh.
+    // Well, if this causes issues we just continue to tell people not to use
+    // Linux distro builds. On frozen aka non-distro builds we set
+    // PyPreConfig.utf8_mode = 1 which supposedly sets this to utf-8 anyway.
     Py_FileSystemDefaultEncoding = strdup(encoding);
+#endif
     Py_RETURN_NONE;
-
 }
 // }}}
 
