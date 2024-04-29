@@ -224,10 +224,13 @@ class MyBlockingBusy(QDialog):  # {{{
                             else:
                                 db.set_metadata(book_id, mi, allow_case_change=True)
                         if cdata is not None:
-                            db.set_cover({book_id: cdata})
+                            try:
+                                db.set_cover({book_id: cdata})
+                            except Exception:
+                                import traceback
+                                traceback.print_exc()
                 self.progress_update.emit(1)
             self.progress_finished_cur_step.emit()
-
         finally:
             worker.shutdown()
 
