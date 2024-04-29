@@ -197,18 +197,9 @@ class Economist(BasicNewsRecipe):
     remove_attributes = ['data-reactid', 'width', 'height']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
-    delay = 0 if use_archive else 1
+    delay = 1
 
     needs_subscription = False
-
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            # Reduce image sizes to get file size below amazon's email
-            # sending threshold
-            self.web2disk_options.compress_news_images = True
-            self.web2disk_options.compress_news_images_auto_size = 5
-            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
 
     def get_browser(self, *args, **kwargs):
         # Needed to bypass cloudflare
@@ -298,6 +289,16 @@ class Economist(BasicNewsRecipe):
             return soup
 
     else: # Load articles from individual article pages {{{
+
+        def __init__(self, *args, **kwargs):
+            BasicNewsRecipe.__init__(self, *args, **kwargs)
+            if self.output_profile.short_name.startswith('kindle'):
+                # Reduce image sizes to get file size below amazon's email
+                # sending threshold
+                self.web2disk_options.compress_news_images = True
+                self.web2disk_options.compress_news_images_auto_size = 5
+                self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+
         def parse_index(self):
             # return self.economist_test_article()
             if edition_date:
