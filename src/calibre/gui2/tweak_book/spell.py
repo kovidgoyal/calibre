@@ -11,6 +11,7 @@ from functools import partial
 from itertools import chain
 from threading import Thread
 
+import regex
 from qt.core import (
     QT_VERSION_STR,
     QAbstractItemView,
@@ -75,7 +76,7 @@ from calibre.spell.dictionary import (
 )
 from calibre.spell.import_from import import_from_online, import_from_oxt
 from calibre.startup import connect_lambda
-from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
+from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key, upper
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
 from calibre.utils.resources import get_path as P
 from calibre_extensions.progress_indicator import set_no_activate_on_click
@@ -726,6 +727,7 @@ class WordsModel(QAbstractTableModel):
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.counts = (0, 0)
+        self.all_caps = self.with_numbers = self.camel_case = self.snake_case = False
         self.words = {}  # Map of (word, locale) to location data for the word
         self.spell_map = {}  # Map of (word, locale) to dictionaries.recognized(word, locale)
         self.sort_on = (0, False)
@@ -734,6 +736,9 @@ class WordsModel(QAbstractTableModel):
         self.show_only_misspelt = True
         self.headers = (_('Word'), _('Count'), _('Language'), _('Misspelled?'))
         self.alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignHCenter
+        self.num_pat = regex.compile(r'\d', flags=regex.UNICODE)
+        self.camel_case_pat = regex.compile(r'[a-z][A-Z]', flags=regex.UNICODE)
+        self.snake_case_pat = regex.compile(r'\w_\w', flags=regex.UNICODE)
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.items)
@@ -794,8 +799,10 @@ class WordsModel(QAbstractTableModel):
         self.do_sort()
         self.endResetModel()
 
-    def filter(self, filter_text):
+    def filter(self, filter_text, *, all_caps=False, with_numbers=False, camel_case=False, snake_case=False):
         self.filter_expression = filter_text or None
+        self.all_caps, self.with_numbers = all_caps, with_numbers
+        self.camel_case, self.snake_case = camel_case, snake_case
         self.beginResetModel()
         self.do_filter()
         self.do_sort()
@@ -839,7 +846,16 @@ class WordsModel(QAbstractTableModel):
         if self.show_only_misspelt and self.spell_map[x]:
             return False
         func = contains if tprefs['spell_check_case_sensitive_search'] else primary_contains
-        if self.filter_expression is not None and not func(self.filter_expression, x[0]):
+        word = x[0]
+        if self.filter_expression is not None and not func(self.filter_expression, word):
+            return False
+        if self.all_caps and upper(word) == word:
+            return False
+        if self.with_numbers and self.num_pat.search(word) is not None:
+            return False
+        if self.camel_case and self.camel_case_pat.search(word) is not None:
+            return False
+        if self.snake_case and self.snake_case_pat.search(word) is not None:
             return False
         return True
 
@@ -1149,6 +1165,27 @@ class SpellCheck(Dialog):
         t.textChanged.connect(self.do_filter)
         t.setClearButtonEnabled(True)
         l.addWidget(t)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(QLabel(_('Also hide words:')))
+        any_hide_checked = False
+        def hw(name, title, tooltip):
+            nonlocal any_hide_checked
+            ac = QCheckBox(title)
+            pref_name = f'spell-check-hide-words-{name}'
+            ac.setObjectName(pref_name)
+            ac.setChecked(tprefs.get(pref_name, False))
+            if ac.isChecked():
+                any_hide_checked = True
+            ac.toggled.connect(self.hide_words_toggled)
+            ac.setToolTip(tooltip)
+            h.addWidget(ac)
+            return ac
+        self.all_caps = hw('all-caps', _('ALL CAPS'), _('Hide words with all capital letters'))
+        self.with_numbers = hw('with-numbers', _('with numbers'), _('Hide words that contain numbers'))
+        self.camel_case = hw('camel-case', _('camelCase'), _('Hide words in camelCase'))
+        self.snake_case = hw('snake-case', _('snake_case'), _('Hide words in snake_case'))
+        h.addStretch(10)
 
         m.h2 = h = QHBoxLayout()
         l.addLayout(h)
@@ -1252,6 +1289,14 @@ class SpellCheck(Dialog):
 
         self.action_change_word = button_action('ctrl+right', _('Change all occurrences of this word'), self.change_button)
         self.action_show_next_occurrence = button_action('alt+right', _('Show next occurrence of this word in the book'), self.next_occurrence)
+        if any_hide_checked:
+            QTimer.singleShot(0, self.do_filter)
+
+    def hide_words_toggled(self, checked):
+        cb = self.sender()
+        pref_name = cb.objectName()
+        tprefs.set(pref_name, checked)
+        self.do_filter()
 
     def next_word(self):
         v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
@@ -1465,7 +1510,9 @@ class SpellCheck(Dialog):
     def do_filter(self):
         text = str(self.filter_text.text()).strip()
         with self:
-            self.words_model.filter(text)
+            self.words_model.filter(
+                    text, all_caps=self.all_caps.isChecked(), with_numbers=self.with_numbers.isChecked(),
+                    camel_case=self.camel_case.isChecked(), snake_case=self.snake_case.isChecked())
 
     def refresh(self, change_request=None):
         if not self.isVisible():
