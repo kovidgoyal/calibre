@@ -263,7 +263,8 @@ class Economist(BasicNewsRecipe):
             dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
             dt = dt.strftime('%b %d, %Y')
             self.timefmt = ' [' + dt + ']'
-            self.cover_url = data['image']['cover'][0]['url']['canonical']
+            self.cover_url = data['image']['cover'][0]['url']['canonical'].replace('economist.com/', 
+                'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/')
             self.log('Got cover:', self.cover_url)
 
             feeds_dict = defaultdict(list)
@@ -289,6 +290,12 @@ class Economist(BasicNewsRecipe):
 
         def populate_article_metadata(self, article, soup, first):
             article.url = soup.find('h1')['title']
+
+        def preprocess_html(self, soup):
+            for img in soup.findAll('img', src=True):
+                img['src'] = img['src'].replace('economist.com/', 
+                    'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
+            return soup
 
     else: # Load articles from individual article pages {{{
         def parse_index(self):
