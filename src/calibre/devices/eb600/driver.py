@@ -427,7 +427,7 @@ class POCKETBOOK701(USBMS):
 
 class POCKETBOOK740(USBMS):
 
-    name = 'PocketBook 701 Device Interface'
+    name = 'PocketBook 740 Device Interface'
     gui_name = 'PocketBook'
     description = _('Communicate with the PocketBook 740')
     supported_platforms = ['windows', 'osx', 'linux']
