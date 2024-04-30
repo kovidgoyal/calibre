@@ -25,17 +25,30 @@ def get_winid(widget=None):
         return widget.effectiveWinId()
 
 
+def to_known_dialog_provider_name(q: str) -> str:
+    uq = q.upper()
+    if uq in ('KDE', 'LXQT', 'LXDE'):
+        return 'KDE'
+    if uq in ('GNOME', 'GNOME-FLASHBACK', 'GNOME-FLASHBACK:GNOME', 'MATE', 'XFCE'):
+        return 'GNOME'
+    return ''
+
+
 def detect_desktop_environment():
     de = os.getenv('XDG_CURRENT_DESKTOP')
     if de:
-        return de.upper().split(':', 1)[0]
+        for x in de.split(':'):
+            q = to_known_dialog_provider_name(x)
+            if q:
+                return q
     if os.getenv('KDE_FULL_SESSION') == 'true':
         return 'KDE'
     if os.getenv('GNOME_DESKTOP_SESSION_ID'):
         return 'GNOME'
     ds = os.getenv('DESKTOP_SESSION')
     if ds and ds.upper() in {'GNOME', 'XFCE'}:
-        return ds.upper()
+        return 'GNOME'
+    return ''
 
 
 def is_executable_present(name):
@@ -343,9 +356,9 @@ def check_for_linux_native_dialogs():
     if ans is None:
         de = detect_desktop_environment()
         order = ('zenity', 'kdialog')
-        if de in {'GNOME', 'UNITY', 'MATE', 'XFCE'}:
+        if de == 'GNOME':
             order = ('zenity',)
-        elif de in {'KDE', 'LXDE'}:
+        elif de == 'KDE':
             order = ('kdialog',)
         for exe in order:
             if is_executable_present(exe):
