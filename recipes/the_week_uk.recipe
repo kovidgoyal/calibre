@@ -65,7 +65,7 @@ class TheWeek(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='aside'),
+        dict(name=['aside', 'source']),
         classes(
             'blueconic-article__wrapper ad-unit van_vid_carousel tag-links'
         )
