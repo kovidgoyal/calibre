@@ -1,9 +1,11 @@
 #!/usr/bin/env  python
-from calibre.web.feeds.recipes import BasicNewsRecipe
-import uuid
-from mechanize import Request
-from contextlib import closing
 import json
+import uuid
+from contextlib import closing
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from mechanize import Request
+
 
 class Parool(BasicNewsRecipe):
     title = 'Het Parool'
@@ -18,7 +20,8 @@ class Parool(BasicNewsRecipe):
     remove_tags_before = dict(id='main-content')
     remove_tags_after  = dict(id='main-content')
     remove_tags = [
-        dict(attrs={'class':['article-footer__sharing', 'artstyle__editorial-tips', 'artstyle__advertisement','artstyle__container__icon','artstyle__disabled-embed','container__title__icon',]}),
+        dict(attrs={'class':['article-footer__sharing', 'artstyle__editorial-tips', 'artstyle__advertisement',
+                             'artstyle__container__icon','artstyle__disabled-embed','container__title__icon',]}),
         dict(attrs={'data-element-id': ['article-element-authors']}),
         dict(name=['script', 'noscript', 'style']),
     ]
@@ -26,7 +29,7 @@ class Parool(BasicNewsRecipe):
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
-    
+
     def parse_index(self):
         soup = self.index_to_soup('https://www.parool.nl/privacy-wall/accept?redirectUri=%2Feditie%2Fvandaag%2F&authId=' + str(uuid.uuid4()))
         containers = soup.findAll('section', attrs={'class': 'section--horizontal'})
@@ -34,7 +37,7 @@ class Parool(BasicNewsRecipe):
         for container in containers:
             section_title = self.tag_to_string(container.find('h2')).strip()
             articles = []
-            
+
             for art in container.findAll('article'):
                 a = art.find('a')
                 url = a['href']
@@ -60,7 +63,7 @@ class Parool(BasicNewsRecipe):
                 articles.append(dict(title=article_title,
                                     url=url,
                                     content=''))
-            
+
             sections.append((section_title, articles))
         return sections
 
@@ -82,7 +85,7 @@ class Parool(BasicNewsRecipe):
             for node in soup.find('figure').find_next_siblings():
                 node.extract()
         return soup
-    
+
     def get_cover_url(self):
         headers = {
             'X-Requested-With': 'XMLHttpRequest',

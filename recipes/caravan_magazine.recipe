@@ -1,7 +1,7 @@
 import json
-from urllib.parse import urlparse, quote
+from urllib.parse import quote, urlparse
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 from mechanize import Request
 
 
@@ -26,7 +26,7 @@ def parse_body(x):
             yield ''.join(parse_p(p))
         yield '</p>\n'
     elif x.get('type', '') in {'blockquote', 'pullquote'}:
-        yield '<blockquote>' 
+        yield '<blockquote>'
         for p in x.get('content', {}):
             yield from parse_body(p)
         yield '</blockquote>'
@@ -36,7 +36,7 @@ def parse_body(x):
             yield from parse_body(p)
     elif x.get('type', '') in {'caption', 'credit'}:
         yield '<div class="sub">'
-        for div in x.get('content', {}):    
+        for div in x.get('content', {}):
             yield ''.join(parse_p(div))
         yield '</div>\n'
     elif x.get('type', '') != '':
@@ -126,7 +126,7 @@ class CaravanMagazine(BasicNewsRecipe):
         # for past editions
         # inp = json.dumps({"0":{"json":{"month":6,"year":2023}}})
         # api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
-        
+
         raw = json.loads(self.index_to_soup(api, raw=True))
         if isinstance(raw, list):
             data = raw[0]['result']['data']['json']
@@ -168,7 +168,7 @@ class CaravanMagazine(BasicNewsRecipe):
         art_id = cache_data['result']['data']['json']['articleId']
         prim_data = cache_data['result']['data']['json']['data']
 
-        cat = subhead = desc = lede = auth = ''
+        cat = desc = lede = auth = ''
 
         cat = '<div class="cat">' + safe_dict(prim_data, 'printTitle') + '</div>\n'
         title = '<h1>' + safe_dict(prim_data, 'title') + '</h1>\n'
@@ -179,8 +179,8 @@ class CaravanMagazine(BasicNewsRecipe):
             authors.append(safe_dict(q, 'name'))
         dt = ''
         if prim_data.get('writtenAt', '') != '':
-            from datetime import datetime, timedelta
             import time
+            from datetime import datetime, timedelta
             dt = datetime.fromisoformat(prim_data['writtenAt'][:-1]) + timedelta(seconds=time.timezone)
             dt = dt.strftime('%b %d, %Y, %I:%M %p')
         auth ='<p class="auth">' + ', '.join(authors) + ' | ' + dt + '</p>\n'
