@@ -76,7 +76,9 @@ class MitTechnologyReview(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         issue = soup.find(attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
         time = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__date')})
+        desc = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__description')})
         self.title = 'MIT Tech Review ' + self.tag_to_string(issue)
+        self.description = self.tag_to_string(desc)
         self.timefmt = ' [' + self.tag_to_string(time) + ']'
         self.log('Downloading issue: ', self.timefmt)
 
