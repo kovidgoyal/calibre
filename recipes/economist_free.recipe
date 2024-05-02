@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
 from lxml import etree
 
-# For past editions, set date to, for example, '2020-11-28'. Currently not functional.
+# For past editions, set date to, for example, '2020-11-28'.
 edition_date = None
 use_archive = True
 
@@ -232,7 +232,10 @@ class Economist(BasicNewsRecipe):
     if use_archive:
         def parse_index(self):
             # return self.economist_test_article()
-            soup = self.index_to_soup('https://www.economist.com/weeklyedition/archive')
+            url = 'https://www.economist.com/weeklyedition/archive'
+            if edition_date:
+                url = 'https://www.economist.com/weeklyedition/' + edition_date
+            soup = self.index_to_soup(url)
             script_tag = soup.find("script", id="__NEXT_DATA__")
             if script_tag is None:
                 raise ValueError('No script tag with JSON data found in the weeklyedition archive')
@@ -243,13 +246,22 @@ class Economist(BasicNewsRecipe):
                 'operationName': 'LatestWeeklyAutoEditionQuery',
                 'variables': '{{"ref":"/content/{}"}}'.format(content_id),
             }
+            if edition_date:
+                query = {
+                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa
+                    'operationName': 'SpecificWeeklyEditionQuery',
+                    'variables': '{{"path":"/content/{}"}}'.format(content_id),
+                }
             url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
             raw = self.index_to_soup(url, raw=True)
             ans = self.economist_parse_index(raw)
             return self.economist_return_index(ans)
 
         def economist_parse_index(self, raw):
-            data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+            if edition_date:
+                data = json.loads(raw)['data']['section']
+            else:
+                data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
             self.description = data['image']['cover'][0]['headline']
             dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
             dt = dt.strftime('%b %d, %Y')
@@ -276,7 +288,7 @@ class Economist(BasicNewsRecipe):
                 pt.close()
                 url = 'file:///' + pt.name
                 feeds_dict[section].append({"title": title, "url": url, "description": desc})
-                self.log('\t', title, '\n\t', desc)
+                self.log('\t', title, '\n\t\t', desc)
             return [(section, articles) for section, articles in feeds_dict.items()]
 
         def populate_article_metadata(self, article, soup, first):
