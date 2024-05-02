@@ -56,6 +56,9 @@ class Espresso(BasicNewsRecipe):
             ),
         ]
 
+    def print_version(self, url):
+        return 'https://webcache.googleusercontent.com/search?q=cache:' + url
+
     def preprocess_html(self, soup):
         if h1 := soup.find('h1'):
             if p := h1.find_next_sibling('p'):
