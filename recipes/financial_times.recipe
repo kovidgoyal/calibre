@@ -146,6 +146,9 @@ class ft(BasicNewsRecipe):
         return html
 
     def preprocess_html(self, soup):
+        p = soup.find(**classes('o-topper__standfirst'))
+        if p:
+            p.name = 'p'
         for table in soup.findAll('table'):
             if len(table.find('tbody').findAll('tr')) > 20:
                 table.find('tbody').decompose()
