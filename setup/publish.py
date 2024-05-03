@@ -195,7 +195,9 @@ class Manual(Command):
         languages = opts.language or list(
             json.load(open(self.j(base, 'locale', 'completed.json'), 'rb'))
         )
-        languages = ['en'] + list(set(languages) - {'en'})
+        languages = set(languages) - {'en'}
+        languages.discard('ta')  # Tamil translations break Sphinx
+        languages = ['en'] + list(languages)
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         for language in languages:
             jobs.append(create_job([
