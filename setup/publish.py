@@ -287,8 +287,9 @@ class ManPages(Command):
             shutil.rmtree(dest)
         os.makedirs(dest)
         base = self.j(self.d(self.SRC), 'manual')
-        languages = list(available_translations())
-        languages = ['en'] + list(set(languages) - {'en', 'en_GB'})
+        languages = set(available_translations())
+        languages.discard('ta')  # Tamil translatins are completely borked break sphinx
+        languages = ['en'] + list(languages - {'en', 'en_GB'})
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         try:
             os.makedirs(dest)
