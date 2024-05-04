@@ -61,7 +61,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, editors, set_book_locale, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
-from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
 from calibre.spell.break_iterator import split_into_words
 from calibre.spell.dictionary import (
@@ -861,6 +860,7 @@ class WordsModel(QAbstractTableModel):
 
     def do_filter(self):
         self.items = list(filter(self.filter_item, self.words))
+        self.counts_changed.emit()
 
     def toggle_ignored(self, row):
         w = self.word_for_row(row)
@@ -1267,9 +1267,8 @@ class SpellCheck(Dialog):
         cs2.setToolTip(_('When filtering the list of words, be case sensitive'))
         cs2.setChecked(tprefs['spell_check_case_sensitive_search'])
         cs2.stateChanged.connect(self.search_type_changed)
-        self.hb = h = FlowLayout()
-        self.summary = s = QLabel('')
-        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2)
+        self.hb = h = QHBoxLayout()
+        self.main.l.addLayout(h), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2), h.addStretch(11)
         self.action_next_word = a = QAction(self)
         a.setShortcut(QKeySequence(Qt.Key.Key_Down))
         a.triggered.connect(self.next_word)
@@ -1583,7 +1582,12 @@ class SpellCheck(Dialog):
                     ' and the word %s no longer exists.') % w[0], show=True)
 
     def update_summary(self):
-        self.summary.setText(_('Misspelled words: {0} Total words: {1}').format(*self.words_model.counts))
+        misspelled, total = self.words_model.counts
+        visible = len(self.words_model.items)
+        if visible != misspelled:
+            self.setWindowTitle(_('Spellcheck showing: {0} of {1} misspelled and {2} total words').format(visible, misspelled, total))
+        else:
+            self.setWindowTitle(_('Spellcheck showing: {0} misspelled of {1} total words').format(misspelled, total))
 
     def sizeHint(self):
         return QSize(1000, 650)
