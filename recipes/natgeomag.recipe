@@ -110,7 +110,7 @@ def parse_article(edg):
     yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
     yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
     yield '<p>'
-    for line in parse_contributors(edg['cntrbGrp']):
+    for line in parse_contributors(edg.get('cntrbGrp', {})):
         yield line
     ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
     yield '<div class="time">Published: ' + escape(ts) + '</div>'
@@ -187,14 +187,20 @@ class NatGeo(BasicNewsRecipe):
         name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
         self.title = 'National Geographic ' + self.tag_to_string(name)
         ans = {}
-        ans2 = None
         if photoart := soup.find(attrs={'class':lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):
-            ans2 = []
+            section = 'Photo Essay'
             title = self.tag_to_string(photoart)
             url = photoart['href']
             if url.startswith('/'):
                 url = 'https://www.nationalgeographic.com' + url
-            ans2.append(('Photo Essay', [{'title': title, 'url': url}]))
+            articles = ans.setdefault(section, [])
+            articles.append({'title': title, 'url': url})
+        for promo in soup.findAll(**classes('OneUpPromoCard__Content')):
+            url = promo.a['href']
+            section = self.tag_to_string(promo.find(**classes('SectionLabel')))
+            title = self.tag_to_string(promo.find(**classes('Card__Content__Heading')))
+            articles = ans.setdefault(section, [])
+            articles.append({'title': title, 'url': url})
         for gird in soup.findAll(attrs={'class':'GridPromoTile'}):
             for article in soup.findAll('article'):
                 a = article.find('a')
@@ -208,8 +214,6 @@ class NatGeo(BasicNewsRecipe):
                 articles = ans.setdefault(section, [])
                 articles.append({'title': title, 'url': url})
             self.log(pformat(ans))
-            if ans2:
-                return list(ans.items()) + ans2
             return list(ans.items())
 
     def preprocess_raw_html(self, raw_html, url):
