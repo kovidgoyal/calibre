@@ -105,7 +105,7 @@ def parse_article(edg):
     yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
     yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
     yield '<p>'
-    for line in parse_contributors(edg['cntrbGrp']):
+    for line in parse_contributors(edg.get('cntrbGrp', {})):
         yield line
     ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
     yield '<div class="time">Published: ' + escape(ts) + '</div>'
