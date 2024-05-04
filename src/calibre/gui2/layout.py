@@ -9,6 +9,7 @@ from functools import partial
 
 from qt.core import (
     QActionGroup,
+    QApplication,
     QCoreApplication,
     QFrame,
     QHBoxLayout,
@@ -357,10 +358,13 @@ class MainWindowMixin:  # {{{
         smw.setAlignment(Qt.AlignmentFlag.AlignCenter)
         smw.setVisible(False)
         smw.setAutoFillBackground(True)
-        smw.setStyleSheet('QLabel { background-color: rgba(200, 200, 200, 200); color: black }')
 
     def show_shutdown_message(self, message=''):
         smw = self.shutdown_message_widget
+        bg, fg = 200, 'black'
+        if QApplication.instance().is_dark_theme:
+            bg, fg = 30, 'lightgray'
+        smw.setStyleSheet(f'QLabel {{ background-color: rgba({bg}, {bg}, {bg}, 200); color: {fg} }}')
         smw.setGeometry(0, 0, self.width(), self.height())
         smw.setVisible(True)
         smw.raise_()
