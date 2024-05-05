@@ -55,6 +55,8 @@ def parse_p(p):
             yield '</' + tag + '>'
         else:
             yield p['text']
+    elif p.get('type', '') == 'hard_break':
+        yield '<br>'
 
 
 class CaravanMagazine(BasicNewsRecipe):

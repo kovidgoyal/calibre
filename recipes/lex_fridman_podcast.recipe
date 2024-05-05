@@ -1,0 +1,44 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class lexfridman(BasicNewsRecipe):
+    title          = 'Lex Fridman Podcast'
+    description = (
+        'Transcripts from Lex Fridman Podcast. Conversations about science, technology, history, '
+        'philosophy and the nature of intelligence, consciousness, love, and power. Lex is an AI '
+        'researcher at MIT and beyond. Download monthly.'
+    )
+    oldest_article = 30 # days
+    __author__ = 'unkn0wn'
+    language = 'en'
+    encoding = 'utf-8'
+    remove_attributes = ['style', 'height', 'width']
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    use_embedded_content = False
+    timefmt = ' [%b, %Y]'
+    cover_url = 'https://i.scdn.co/image/ab6765630000ba8a563ebb538d297875b10114b7'
+
+    extra_css = '''
+        .ts-name { font-weight:bold; }
+        .ts-timestamp { font-size:small; }
+    '''
+
+    keep_only_tags = [dict(name='article')]
+    remove_tags = [
+        dict(name=['svg']),
+        dict(name='div', attrs={'class':'episode-player'})
+    ]
+
+    feeds = [
+        ('Transcripts', 'https://lexfridman.com/feed/podcast/')
+    ]
+
+    def print_version(self, url):
+        return url.split('?')[0][:-1] + '-transcript/'
+
+    def preprocess_html(self, soup):
+        for div in soup.findAll('div', attrs={'class':'ts-segment'}):
+            div.name = 'p'
+        for name in soup.findAll('span', attrs={'class':'ts-name'}):
+            name.name = 'div'
+        return soup
