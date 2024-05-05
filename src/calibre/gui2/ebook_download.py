@@ -116,10 +116,18 @@ class EbookDownload:
             with open(path, 'rb') as f:
                 mi = get_metadata(f, ext, force_read_metadata=True)
             mi.tags.extend(tags)
+            db = gui.current_db
             if gprefs.get('tag_map_on_add_rules'):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
                 mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
-            db = gui.current_db
+            if gprefs.get('author_map_on_add_rules'):
+                from calibre.ebooks.metadata.author_mapper import compile_rules as acr
+                from calibre.ebooks.metadata.author_mapper import map_authors
+                author_map_rules = acr(gprefs['author_map_on_add_rules'])
+                new_authors = map_authors(mi.authors, author_map_rules)
+                if new_authors != mi.authors:
+                    mi.authors = new_authors
+                    mi.author_sort = db.new_api.author_sort_from_authors(mi.authors)
             book_id = db.create_book_entry(mi)
             db.new_api.add_format(book_id, ext.upper(), path)
         gui.library_view.model().books_added(1)
