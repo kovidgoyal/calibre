@@ -116,6 +116,9 @@ class EbookDownload:
             with open(path, 'rb') as f:
                 mi = get_metadata(f, ext, force_read_metadata=True)
             mi.tags.extend(tags)
+            if gprefs.get('tag_map_on_add_rules'):
+                from calibre.ebooks.metadata.tag_mapper import map_tags
+                mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
             db = gui.current_db
             book_id = db.create_book_entry(mi)
             db.new_api.add_format(book_id, ext.upper(), path)
