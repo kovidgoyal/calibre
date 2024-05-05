@@ -52,7 +52,9 @@ Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
-    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality')
+    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality '
+    'tag_map_rules author_map_rules publisher_map_rules'
+)
 
 null = object()
 
@@ -102,6 +104,12 @@ class MyBlockingBusy(QDialog):  # {{{
             bool(do_sr), args.do_compress_cover
         ]
         self.selected_options = sum(options)
+        if args.tag_map_rules:
+            self.selected_options += 1
+        if args.author_map_rules:
+            self.selected_options += 1
+        if args.publisher_map_rules:
+            self.selected_options += 1
         if DEBUG:
             print("Number of steps for bulk metadata: %d" % self.selected_options)
             print("Optionslist: ")
@@ -238,6 +246,9 @@ class MyBlockingBusy(QDialog):  # {{{
         cache = self.db.new_api
         args = self.args
         from_file = args.cover_action == 'fromfmt' or args.read_file_metadata
+        if args.author_map_rules:
+            from calibre.ebooks.metadata.author_mapper import compile_rules
+            args = args._replace(author_map_rules=compile_rules(args.author_map_rules))
         if from_file:
             old = prefs['read_file_metadata']
             if not old:
@@ -315,6 +326,20 @@ class MyBlockingBusy(QDialog):  # {{{
             cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
             self.progress_finished_cur_step.emit()
 
+        if args.author_map_rules:
+            self.progress_next_step_range.emit(0)
+            from calibre.ebooks.metadata.author_mapper import map_authors
+            authors_map = cache.all_field_for('authors', self.ids)
+            changed, sorts = {}, {}
+            for book_id, authors in authors_map.items():
+                new_authors = map_authors(authors, args.author_map_rules)
+                if tuple(new_authors) != tuple(authors):
+                    changed[book_id] = new_authors
+                    sorts[book_id] = cache.author_sort_from_authors(new_authors)
+            cache.set_field('authors', changed)
+            cache.set_field('author_sort', sorts)
+            self.progress_finished_cur_step.emit()
+
         # Covers
         if args.cover_action == 'remove':
             self.progress_next_step_range.emit(0)
@@ -384,6 +409,19 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.pub:
             self.progress_next_step_range.emit(0)
             cache.set_field('publisher', {bid: args.pub for bid in self.ids})
+            self.progress_finished_cur_step.emit()
+
+        if args.publisher_map_rules:
+            self.progress_next_step_range.emit(0)
+            from calibre.ebooks.metadata.tag_mapper import map_tags
+            publishers_map = cache.all_field_for('publisher', self.ids)
+            changed = {}
+            for book_id, publisher in publishers_map.items():
+                new_publishers = map_tags([publisher], args.publisher_map_rules)
+                new_publisher = new_publishers[0] if new_publishers else ''
+                if new_publisher != publisher:
+                    changed[book_id] = new_publisher
+            cache.set_field('publisher', changed)
             self.progress_finished_cur_step.emit()
 
         if args.clear_series:
@@ -456,6 +494,18 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.add or args.remove:
             self.progress_next_step_range.emit(0)
             self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+            self.progress_finished_cur_step.emit()
+
+        if args.tag_map_rules:
+            self.progress_next_step_range.emit(0)
+            from calibre.ebooks.metadata.tag_mapper import map_tags
+            tags_map = cache.all_field_for('tags', self.ids)
+            changed = {}
+            for book_id, tags in tags_map.items():
+                new_tags = map_tags(tags, args.tag_map_rules)
+                if new_tags != tags:
+                    changed[book_id] = new_tags
+            cache.set_field('tags', changed)
             self.progress_finished_cur_step.emit()
 
         if args.do_compress_cover:
@@ -582,7 +632,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             'Immediately make all changes without closing the dialog. '
             'This operation cannot be canceled or undone'))
         self.do_again = False
-        self.central_widget.setCurrentIndex(tab)
         self.restore_geometry(gprefs, 'bulk_metadata_window_geometry')
         ct = gprefs.get('bulk_metadata_window_tab', 0)
         self.central_widget.setCurrentIndex(ct)
@@ -591,7 +640,46 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.authors.setFocus(Qt.FocusReason.OtherFocusReason)
         self.generate_cover_settings = None
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
+        self.button_transform_tags.clicked.connect(self.transform_tags)
+        self.button_transform_authors.clicked.connect(self.transform_authors)
+        self.button_transform_publishers.clicked.connect(self.transform_publishers)
+        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = ()
+        self.update_transform_labels()
+        self.central_widget.setCurrentIndex(tab)
         self.exec()
+
+    def update_transform_labels(self):
+        def f(label, count):
+            if count:
+                label.setText(_('Number of rules: {}').format(count))
+            else:
+                label.setText(_('There are currently no rules'))
+        f(self.label_transform_tags, len(self.tag_map_rules))
+        f(self.label_transform_authors, len(self.author_map_rules))
+        f(self.label_transform_publishers, len(self.publisher_map_rules))
+
+    def _change_transform_rules(self, RulesDialog, which):
+        d = RulesDialog(self)
+        pref = f'{which}_map_on_bulk_metadata_rules'
+        previously_used = gprefs.get(pref)
+        if previously_used:
+            d.rules = previously_used
+        if d.exec() == QDialog.DialogCode.Accepted:
+            setattr(self, f'{which}_map_rules', d.rules)
+            gprefs.set(pref, d.rules)
+            self.update_transform_labels()
+
+    def transform_tags(self):
+        from calibre.gui2.tag_mapper import RulesDialog
+        self._change_transform_rules(RulesDialog, 'tag')
+
+    def transform_authors(self):
+        from calibre.gui2.author_mapper import RulesDialog
+        self._change_transform_rules(RulesDialog, 'author')
+
+    def transform_publishers(self):
+        from calibre.gui2.publisher_mapper import RulesDialog
+        self._change_transform_rules(RulesDialog, 'publisher')
 
     def sizeHint(self):
         geom = self.screen().availableSize()
@@ -1254,7 +1342,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             do_title_case, cover_action, clear_series, clear_pub, pubdate,
             adddate, do_title_sort, languages, clear_languages,
             restore_original, self.comments, self.generate_cover_settings,
-            read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()], do_compress_cover, compress_cover_quality)
+            read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()],
+            do_compress_cover, compress_cover_quality, self.tag_map_rules, self.author_map_rules,
+            self.publisher_map_rules
+        )
         if DEBUG:
             print('Running bulk metadata operation with settings:')
             print(args)

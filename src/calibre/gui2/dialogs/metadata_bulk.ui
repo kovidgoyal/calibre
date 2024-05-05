@@ -39,7 +39,7 @@
          <x>0</x>
          <y>0</y>
          <width>933</width>
-         <height>660</height>
+         <height>658</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -783,8 +783,8 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>804</width>
-         <height>388</height>
+         <width>729</width>
+         <height>429</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="vargrid">
@@ -1264,8 +1264,8 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>203</width>
-             <height>70</height>
+             <width>187</width>
+             <height>72</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="testgrid">
@@ -1318,6 +1318,120 @@ not multiple and the destination field is multiple</string>
         </item>
        </layout>
       </widget>
+     </widget>
+     <widget class="QWidget" name="transform_tab">
+      <attribute name="title">
+       <string>&amp;Transform tags/authors</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Create rules to transform metadata by clicking the buttons below. The rules will be applied to all selected books when you click OK.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QPushButton" name="button_transform_tags">
+           <property name="text">
+            <string>Transform &amp;tags</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_transform_tags">
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QPushButton" name="button_transform_authors">
+           <property name="text">
+            <string>Transform &amp;authors</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_transform_authors">
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_8">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QPushButton" name="button_transform_publishers">
+           <property name="text">
+            <string>Transform &amp;publishers</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_transform_publishers">
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
