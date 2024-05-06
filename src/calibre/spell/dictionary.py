@@ -291,7 +291,7 @@ class Dictionaries:
         wl = len(ud.words)
         if isinstance(word, (set, frozenset)):
             ud.words |= word
-            self.add_user_words(word, locale.langcode)
+            self.add_user_words({x[0] for x in word}, locale.langcode)
         else:
             ud.words.add((word, locale.langcode))
             self.add_user_words((word,), locale.langcode)

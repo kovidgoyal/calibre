@@ -493,8 +493,8 @@ class ManageUserDictionaries(Dialog):
                 'You must specify a language to import words'), show=True)
         words = set(filter(None, [x.strip() for x in str(w.toPlainText()).splitlines()]))
         lang = lc[0]
-        words = {(w, lang) for w in words} - self.current_dictionary.words
-        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, DictionaryLocale(lang, None)):
+        words_with_lang = {(w, lang) for w in words} - self.current_dictionary.words
+        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words_with_lang, DictionaryLocale(lang, None)):
             dictionaries.clear_caches()
             self.show_current_dictionary()
             self.dictionaries_changed = True
