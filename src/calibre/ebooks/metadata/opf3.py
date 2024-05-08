@@ -1064,7 +1064,11 @@ def read_metadata(root, ver=None, return_extra_data=False):
     ans.link_maps = read_link_maps(root, prefixes, refines) or ans.link_maps
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
     for name, fm in iteritems(read_user_metadata(root, prefixes, refines) or {}):
-        ans.set_user_metadata(name, fm)
+        try:
+            ans.set_user_metadata(name, fm)
+        except Exception:
+            import traceback
+            traceback.print_exc()
     if return_extra_data:
         ans = ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)
     return ans
