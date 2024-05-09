@@ -1369,7 +1369,7 @@ class DB:
         data = self.custom_field_metadata(label, num)
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
 
-    def close(self, force=False, unload_formatter_functions=True):
+    def close(self, force=True, unload_formatter_functions=True):
         if getattr(self, '_conn', None) is not None:
             if self.prefs['expire_old_trash_after'] == 0:
                 self.expire_old_trash(0)
@@ -1382,7 +1382,7 @@ class DB:
             del self._conn
             self.is_closed = True
 
-    def reopen(self, force=False):
+    def reopen(self, force=True):
         self.close(force=force, unload_formatter_functions=False)
         self._conn = None
         self.conn
