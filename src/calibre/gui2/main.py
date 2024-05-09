@@ -336,7 +336,8 @@ class GuiRunner(QObject):
                     # On some windows systems the existing db file gets locked
                     # by something when running restore from the main process.
                     # So run the restore in a separate process.
-                    windows_repair(self.library_path)
+                    import atexit
+                    atexit.register(windows_repair, self.library_path)
                     self.app.quit()
                     return
                 if repair_library(self.library_path):
