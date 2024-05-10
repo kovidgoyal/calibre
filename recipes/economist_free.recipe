@@ -252,7 +252,10 @@ class Economist(BasicNewsRecipe):
                     'variables': '{{"path":"/content/{}"}}'.format(content_id),
                 }
             url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
-            raw = self.index_to_soup(url, raw=True)
+            try:
+                raw = self.index_to_soup(url, raw=True)
+            except Exception:
+                 raise ValueError('Server is not reachable, try again after some time.')
             ans = self.economist_parse_index(raw)
             return self.economist_return_index(ans)
 
@@ -261,13 +264,17 @@ class Economist(BasicNewsRecipe):
                 data = json.loads(raw)['data']['section']
             else:
                 data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
-            self.description = data['image']['cover'][0]['headline']
             dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
             dt = dt.strftime('%b %d, %Y')
             self.timefmt = ' [' + dt + ']'
-            self.cover_url = data['image']['cover'][0]['url']['canonical'].replace('economist.com/', 
-                'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/')
-            self.log('Got cover:', self.cover_url)
+            # get local issue cover, title
+            region = json.loads(self.index_to_soup('https://geolocation-db.com/json', raw=True))['country_code']
+            for cov in data['image']['cover']:
+                if region in cov['regionsAllowed']:
+                    self.description = cov['headline']
+                    self.cover_url = cov['url']['canonical'].replace('economist.com/', 
+                        'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/')
+                    self.log('Got cover:', self.cover_url, '\n', self.description)
 
             feeds_dict = defaultdict(list)
             for part in safe_dict(data, "hasPart", "parts"):
