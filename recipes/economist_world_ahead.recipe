@@ -10,7 +10,6 @@ from urllib.parse import quote, urlencode
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.date import parse_only_date
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
 from lxml import etree
@@ -270,7 +269,7 @@ class Economist(BasicNewsRecipe):
 
         def preprocess_html(self, soup):
             for img in soup.findAll('img', src=True):
-                img['src'] = img['src'].replace('economist.com/', 
+                img['src'] = img['src'].replace('economist.com/',
                     'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
             return soup
 

@@ -268,13 +268,21 @@ class Economist(BasicNewsRecipe):
             dt = dt.strftime('%b %d, %Y')
             self.timefmt = ' [' + dt + ']'
             # get local issue cover, title
-            region = json.loads(self.index_to_soup('https://geolocation-db.com/json', raw=True))['country_code']
+            try:
+                region = json.loads(self.index_to_soup('https://geolocation-db.com/json', raw=True))['country_code']
+            except Exception:
+                region = ''
             for cov in data['image']['cover']:
                 if region in cov['regionsAllowed']:
                     self.description = cov['headline']
-                    self.cover_url = cov['url']['canonical'].replace('economist.com/', 
+                    self.cover_url = cov['url']['canonical'].replace('economist.com/',
                         'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/')
-                    self.log('Got cover:', self.cover_url, '\n', self.description)
+                    break
+            else:
+                self.description = data['image']['cover'][0]['headline']
+                self.cover_url = data['image']['cover'][0]['url']['canonical'].replace('economist.com/',
+                'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/')
+            self.log('Got cover:', self.cover_url, '\n', self.description)
 
             feeds_dict = defaultdict(list)
             for part in safe_dict(data, "hasPart", "parts"):
@@ -302,7 +310,7 @@ class Economist(BasicNewsRecipe):
 
         def preprocess_html(self, soup):
             for img in soup.findAll('img', src=True):
-                img['src'] = img['src'].replace('economist.com/', 
+                img['src'] = img['src'].replace('economist.com/',
                     'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
             return soup
 
