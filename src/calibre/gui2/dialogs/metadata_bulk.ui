@@ -1344,7 +1344,13 @@ not multiple and the destination field is multiple</string>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_transform_tags">
+          <widget class="QLabel" name="label_transform_tags"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="button_clear_tags_rules">
+           <property name="text">
+            <string>...</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -1372,7 +1378,13 @@ not multiple and the destination field is multiple</string>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_transform_authors">
+          <widget class="QLabel" name="label_transform_authors"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="button_clear_authors_rules">
+           <property name="text">
+            <string>...</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -1400,7 +1412,13 @@ not multiple and the destination field is multiple</string>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_transform_publishers">
+          <widget class="QLabel" name="label_transform_publishers"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="button_clear_publishers_rules">
+           <property name="text">
+            <string>...</string>
+           </property>
           </widget>
          </item>
          <item>
