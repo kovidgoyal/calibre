@@ -1183,11 +1183,11 @@ class SpellCheck(Dialog):
             ac.setToolTip(tooltip)
             h.addWidget(ac)
             return ac
-        self.show_only_misspelt = hw('misspelled', _('spelled correctly'), _('Hide words that are spelled correctly'))
-        self.all_caps = hw('all-caps', _('ALL CAPS'), _('Hide words with all capital letters'))
-        self.with_numbers = hw('with-numbers', _('with numbers'), _('Hide words that contain numbers'))
-        self.camel_case = hw('camel-case', _('camelCase'), _('Hide words in camelCase'))
-        self.snake_case = hw('snake-case', _('snake_case'), _('Hide words in snake_case'))
+        self.show_only_misspelt = hw('misspelled', _('&spelled correctly'), _('Hide words that are spelled correctly'))
+        self.all_caps = hw('all-caps', _('&ALL CAPS'), _('Hide words with all capital letters'))
+        self.with_numbers = hw('with-numbers', _('with &numbers'), _('Hide words that contain numbers'))
+        self.camel_case = hw('camel-case', _('ca&melCase'), _('Hide words in camelCase'))
+        self.snake_case = hw('snake-case', _('sna&ke_case'), _('Hide words in snake_case'))
         h.addStretch(10)
 
         m.h2 = h = QHBoxLayout()
