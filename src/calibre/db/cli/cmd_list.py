@@ -43,10 +43,7 @@ def implementation(
         for k in fm.custom_field_keys():
             afields.add('*' + k[1:])
         if 'all' in fields:
-            if template:
-                fields = sorted(afields - {'template'})
-            else:
-                fields = sorted(afields)
+            fields = sorted(afields if template else (afields - {'template'}))
         sort_by = sort_by or 'id'
         sort_fields = sort_by.split(',')
         for sf in sort_fields:
