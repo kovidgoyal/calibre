@@ -40,7 +40,7 @@ class TheHindu(BasicNewsRecipe):
 
     extra_css = '''
         .caption {font-size:small; text-align:center;}
-        .author, .dateLine {font-size:small; font-weight:bold;}
+        .author, .dateLine {font-size:small;}
         .subhead, .subhead_lead, .bold {font-weight:bold;}
         img {display:block; margin:0 auto;}
         .italic, .sub-title {font-style:italic; color:#202020;}
@@ -117,7 +117,7 @@ class TheHindu(BasicNewsRecipe):
             ans2 = self.hindu_parse_index(soup)
             if ans2:
                 return ans + ans2
-            self.log('\tMagazine not Found')
+            self.log('\nMagazine not Found')
             return ans
         return ans
 
