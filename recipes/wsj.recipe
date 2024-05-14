@@ -81,6 +81,22 @@ class WSJ(BasicNewsRecipe):
                 div.extract()
         return soup
 
+    def _download_cover(self):
+        import os
+        from calibre import browser
+        from contextlib import closing
+        from calibre.utils.img import add_borders_to_image, image_to_data, save_cover_data_to
+        br = browser()
+        raw = br.open('https://www.frontpages.com/the-wall-street-journal/')
+        soup = BeautifulSoup(raw.read())
+        cu = 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        self.report_progress(1, _('Downloading cover from %s')%cu)
+        with closing(br.open(cu, timeout=self.timeout)) as r:
+            cdata = r.read()
+        cpath = os.path.join(self.output_dir, 'cover.jpg')
+        save_cover_data_to(cdata, cpath)
+        self.cover_path = cpath
+
     def get_browser(self, *args, **kw):
         kw['user_agent'] = 'okhttp/4.10.0'
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
