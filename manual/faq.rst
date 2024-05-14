@@ -57,7 +57,7 @@ The first thing to realize is that most e-books have two tables of contents. One
 
 Then there is the *metadata ToC*. A metadata ToC is a ToC that is not part of the book text and is typically accessed by some special button on a reader. For example, in the calibre E-book viewer, you use the Show Table of Contents button to see this ToC. This ToC cannot be styled by the book creator. How it is represented is up to the viewer program.
 
-In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream e-book formats, *does not* have decent support for a metadata ToC. A MOBI book simulates the presence of a metadata ToC by putting an *extra* content ToC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content ToC that the Kindle takes you.
+In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream e-book formats, *does not* have decent support for a metadata ToC. A MOBI book simulates the presence of a metadata ToC by putting an *extra* content ToC at the end of the book. When you click Go to Table of Contents on your Kindle, it is to this extra content ToC that the Kindle takes you.
 
 Now it might well seem to you that the MOBI book has two identical ToCs. Remember that one is semantically a content ToC and the other is a metadata ToC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot.
 
@@ -297,7 +297,7 @@ utility, etc.
 Over the air
 ^^^^^^^^^^^^^^
 
-calibre has a builtin web server, the :doc:`server`. It makes your calibre
+calibre has a builtin web server, the :doc:`calibre Content server <server>`. It makes your calibre
 collection available over the net. You can browse it on your device using a
 simple browser or a dedicated application. First perform the following steps in calibre:
 
@@ -349,7 +349,7 @@ a well known relay. The most robust way to setup email sending in calibre is to
 do the following:
 
   * Create a free GMX account at `GMX <https://www.gmx.com>`_.
-  * Goto :guilabel:`Preferences->Sharing->Sharing books by email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
+  * Go to :guilabel:`Preferences->Sharing->Sharing books by email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
   * Log into your GMX account on the website and enable SMTP sending (`Settings->POP3 & IMAP->Send and receive emails via external program`)
   * calibre will then be able to use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
