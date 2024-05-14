@@ -22,6 +22,7 @@ class barrons(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.barrons.com/asset/barrons/images/barrons-logo.png'
     delay = 1
+    resolve_internal_links = True
 
     extra_css = '''
         img {display:block; margin:0 auto;}
