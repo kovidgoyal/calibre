@@ -85,6 +85,11 @@ class WSJ(BasicNewsRecipe):
             div = col.findParent('div')
             if div:
                 div.extract()
+        time = soup.find('time')
+        if time:
+            p = time.findParent('div')
+            if p:
+                p.name = 'p'
         return soup
 
     if not past_edition:
@@ -117,29 +122,25 @@ class WSJ(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://bartender.mobile.dowjones.io'
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
-        edit = []
-        for itm in catalog['items']:
-            if itm['type'] == 'ITP':
-                edit.append(itm['key'][3:])
+        edit = [itm['key'][3:] for itm in catalog['items'] if itm['type'] == 'ITP'][1:]
         self.log('**Past Editions available :', ', '.join(edit))
         for itm in catalog['items']:
             if past_edition:
                 if itm['key'] == 'ITP' + past_edition:
                     key = itm['key']
                     manifest = itm['manifest']
-                    dt = datetime.fromisoformat(itm['date'][:-1]) + timedelta(seconds=time.timezone)
-                    dt = dt.strftime('%b %d, %Y')
-                    self.log('Downloading Past Edition ', dt)
-                    self.timefmt = ' [' + dt + ']'
+                    date = itm['date']
                     break   
             elif itm['type'] == 'ITP':
                 key = itm['key']
                 manifest = itm['manifest']
-                dt = datetime.fromisoformat(itm['date'][:-1]) + timedelta(seconds=time.timezone)
-                dt = dt.strftime('%b %d, %Y')
-                self.log('Downloading ', dt)
-                self.timefmt = ' [' + dt + ']'
+                date = itm['date']
                 break
+
+        dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
+        dt = dt.strftime('%b %d, %Y')
+        self.log('Downloading ', dt)
+        self.timefmt = ' [' + dt + ']'
 
         feeds = []
 
@@ -179,6 +180,10 @@ class WSJ(BasicNewsRecipe):
                 h1 = soup.find('h1')
                 if h1:
                     h1['title'] = url['content']
+            h2 = soup.find('h2')
+            if h2:
+                h2['id'] = 'subhed'
+                h2.name = 'p'
             return soup.prettify()
 
     def populate_article_metadata(self, article, soup, first):
