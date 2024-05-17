@@ -26,18 +26,24 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     no_stylesheets = True
     delay = 1
     encoding = 'utf-8'
-    INDEX = 'https://www.lrb.co.uk'
+    INDEX = 'https://www.lrb.co.uk/the-paper/'
     publication_type = 'magazine'
-    needs_subscription = True
+    needs_subscription = 'optional'
     requires_version = (3, 0, 0)
+    masthead_url = 'https://www.mylrb.co.uk/out/lrb-2014/img/logo-2x.png'
+    extra_css = '''
+        .article-word-count, #article-tag-holder { font-size:small; color:#202020; }
+        .embedded-image-caption { font-size:small; text-align:center; }
+        blockquote, em { color:#202020; }
+    '''
+    resolve_internal_links = True
 
     keep_only_tags = [
-        classes('article-header--title paperArticle-reviewsHeader article-content letters-content'),
+        dict(attrs={'id':['article-tag-holder', 'article-heading-holder']}),
+        classes('article-copy article-word-count'),
     ]
-    remove_tags = [
-        classes('social-button article-mask lrb-readmorelink article-send-letter article-share'),
-    ]
-    remove_attributes = ['width', 'height']
+
+    remove_attributes = ['style', 'width', 'height']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -52,22 +58,23 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
+        for cap in soup.findAll(**classes('embedded-image-caption')):
+            for p in cap.findAll('p'):
+                p.name = 'div'
         for img in soup.findAll('img', attrs={'data-srcset': True}):
-            for x in img['data-srcset'].split():
-                if '/' in x:
-                    img['src'] = x
+            img['src'] = 'https://www.lrb.co.uk/storage/400_filter/images/' + img['data-appsrc'].split('/images/')[-1]
         return soup
 
     def parse_index(self):
-        articles = []
         soup = self.index_to_soup(self.INDEX)
-        container = soup.find(attrs={'class': 'issue-grid'})
-        img = container.find('img')
-        self.cover_url = img['data-srcset'].split()[-2]
-        h3 = container.find('h3')
-        self.timefmt = ' [{}]'.format(self.tag_to_string(h3))
-        a = img.findParent('a')
-        soup = self.index_to_soup(absolutize(a['href']))
+        container = soup.find('div', attrs={'class': 'article-issue-cover-image'})
+        if container:
+            self.cover_url = 'https://www.lrb.co.uk/storage/800_filter/images/' + container.img['data-appsrc'].split('/images/')[-1]
+        edition = self.tag_to_string(soup.find('h1', attrs={'class': 'toc-title'}))
+        self.timefmt = ' [{}]'.format(edition)
+        self.log('Downloading: ', edition)
         grid = soup.find(attrs={'class': 'toc-grid-items'})
         articles = []
         for a in grid.findAll(**classes('toc-item')):
@@ -77,5 +84,4 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
             title = '{}: {}'.format(self.tag_to_string(h3), self.tag_to_string(h4))
             self.log(title, url)
             articles.append({'title': title, 'url': url})
-
         return [('Articles', articles)]
