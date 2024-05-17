@@ -350,6 +350,8 @@ class Boss(QObject):
         if self.file_was_readonly:
             warning_dialog(self.gui, _('Read-only file'), _(
                 'The file {} is read-only. Saving changes to it will either fail or cause its permissions to be reset.').format(path), show=True)
+        with self.editor_cache:
+            self.save_book_edit_state()
 
         for name in tuple(editors):
             self.close_editor(name)
