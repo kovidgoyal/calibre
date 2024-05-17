@@ -32,7 +32,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     requires_version = (3, 0, 0)
     masthead_url = 'https://www.mylrb.co.uk/out/lrb-2014/img/logo-2x.png'
     extra_css = '''
-        .article-word-count, .article-tag-holder { font-size:small; color:#202020; }
+        .article-word-count, #article-tag-holder { font-size:small; color:#202020; }
         .embedded-image-caption { font-size:small; text-align:center; }
         blockquote, em { color:#202020; }
     '''
