@@ -9,3 +9,4 @@ pacman -S --noconfirm --needed base-devel sudo git sip pyqt-builder cmake chmlib
 
 useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
+pip install --break-system-packages lxml-html-clean
