@@ -40,6 +40,7 @@ class WSJ(BasicNewsRecipe):
         dict(name='panel', attrs={'id':'metadata'}),
         dict(name='panel', attrs={'layout':'inline'}),
         dict(name='panel', attrs={'embed':'inner-article-ad'}),
+        dict(name='span', attrs={'embed':'ticker'}),
         classes('lamrelated-articles-inset-panel'),
         dict(name='p', attrs={'id':[
             'keywords', 'orig-pubdate-number', 'type', 'is-custom-flashline', 'grouphed', 'author-ids',
@@ -90,6 +91,9 @@ class WSJ(BasicNewsRecipe):
             p = time.findParent('div')
             if p:
                 p.name = 'p'
+        for img in soup.findAll('img', src=True):
+            if img['src'].endswith('/OR'):
+                img['src'] = img['src'][:-3]
         return soup
 
     if not past_edition:
