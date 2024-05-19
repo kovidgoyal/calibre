@@ -1,36 +1,52 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1282101454(BasicNewsRecipe):
-    title = 'How To Geek'
+class AdvancedUserRecipe1716091656(BasicNewsRecipe):
+    title          = 'How-To Geek'
+    description = 'How-To Geek is an digital publication focused on technology, reaching millions of readers each month.'
+    __author__ = 'Spicy Poison'
+    encoding = 'utf-8'
     language = 'en'
-    __author__ = 'TonytheBookworm, PatStapleton (update 2020-05-20)'
-    description = 'Daily Computer Tips and Tricks'
-    publisher = 'Howtogeek'
-    category = 'PC,tips,tricks'
-    oldest_article = 2
-    max_articles_per_feed = 100
-    linearize_tables = True
-    no_stylesheets = True
-    remove_javascript = True
     use_embedded_content = False
+    masthead_url = 'https://www.valnetinc.com/images/brand/htg-logo-full-colored-light.svg'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup   = True
 
-    keep_only_tags = [
-        dict(id='main')
+    feeds          = [
+        ('Windows', 'https://www.howtogeek.com/feed/category/windows/'),
+        ('Mac', 'https://www.howtogeek.com/feed/category/mac/'),
+        ('Linux', 'https://www.howtogeek.com/feed/category/linux/'),
+        ('Chromebook', 'https://www.howtogeek.com/feed/category/chromebook-chrome-os/'),
+        ('Android', 'https://www.howtogeek.com/feed/category/android/'),
+        ('iOS', 'https://www.howtogeek.com/feed/tag/ios/'),
+        ('Cellular Carriers', 'https://www.howtogeek.com/feed/category/cellular-carriers/'),
+        ('Computer Hardware', 'https://www.howtogeek.com/feed/category/hardware/'),
+        ('Wifi & Networking', 'https://www.howtogeek.com/feed/category/wifi-routers/'),
+        ('Smart Home', 'https://www.howtogeek.com/feed/category/smart-home/'),
+        ('eReaders', 'https://www.howtogeek.com/feed/category/ereaders/'),
+        ('Audio', 'https://www.howtogeek.com/feed/category/audio/'),
+        ('Televisions', 'https://www.howtogeek.com/feed/category/tv/'),
+        ('Web Apps', 'https://www.howtogeek.com/feed/category/apps-web-apps/'),
+        ('Social Media', 'https://www.howtogeek.com/feed/category/social-media/'),
+        ('Computer History', 'https://www.howtogeek.com/feed/category/computer-history/'),
+        ('Cyber Security', 'https://www.howtogeek.com/feed/category/cybersecurity/'),
+        ('Google', 'https://www.howtogeek.com/feed/category/google/'),
+        ('Microsoft', 'https://www.howtogeek.com/feed/category/microsoft/'),
+        ('Privacy & Security', 'https://www.howtogeek.com/feed/category/privacy-security/'),
+        ('Electric Vehicles', 'https://www.howtogeek.com/feed/category/electric-vehicles/'),
+        ('Virtual Reality', 'https://www.howtogeek.com/feed/category/virtual-reality/'),
+        ('AI & Machine Learning', 'https://www.howtogeek.com/feed/category/ai-machine-learning/'),
+        ('Cryptocurrency', 'https://www.howtogeek.com/feed/category/cryptocurrency/'),
+        ('Gaming', 'https://www.howtogeek.com/feed/category/video-games/'),
+        ('Streaming', 'https://www.howtogeek.com/feed/category/cord-cutting-streaming/'),
+        ('Photography', 'https://www.howtogeek.com/feed/category/photography/'),
+        ('DIY', 'https://www.howtogeek.com/feed/category/diy/'),
+        ('Product Reviews', 'https://www.howtogeek.com/feed/category/product-reviews/'),
+        ('Buying Guides', 'https://www.howtogeek.com/feed/buying-guides/'),
+        ('Deals', 'https://www.howtogeek.com/feed/tag/deals/'),
     ]
-    remove_tags_after = dict(classes='affiliate-disclosure')
-    remove_tags = [
-        dict(name='a', attrs={'target': ['_blank']}),
-        dict(name='table', attrs={'id': ['articleTable']}),
-        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets', 'related-articles', 'comments', 'nextup']}),
-    ]
-
-    feeds = [
-        ('How-to Geek', 'https://www.howtogeek.com/feed/')
-
-    ]
-
-    def preprocess_html(self, soup, *a):
-        for img in soup.findAll('img', attrs={'data-pagespeed-lazy-src': True}):
-            img['src'] = img['data-pagespeed-lazy-src']
-        return soup

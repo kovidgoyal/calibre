@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1716109928(BasicNewsRecipe):
+    title          = 'Screen Rant'
+    description = ('ScreenRant is a digital publication. ScreenRant has grown into one of the world’s'
+                   ' most prominent entertainment news sources. ScreenRant don’t just break and report news;'
+                   ' they analyze and editorialize it with unique insight and inside information.')
+    __author__ = 'Spicy Poison'
+    encoding = 'utf-8'
+    language = 'en'
+    use_embedded_content = False
+    masthead_url = 'https://www.valnetinc.com/images/brand/sr-logo-full-colored-dark.svg'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Movies', 'https://screenrant.com/feed/movies/'),
+        ('Movie Features', 'https://screenrant.com/feed/movie-features/'),
+        ('Movie News', 'https://screenrant.com/feed/movie-news/'),
+        ('Movie Reviews', 'https://screenrant.com/feed/movie-reviews/'),
+        ('Movie Lists', 'https://screenrant.com/feed/movie-lists/'),
+        ('Movie Trailers', 'https://screenrant.com/feed/movie-trailers/'),
+        ('TV', 'https://screenrant.com/feed/tv/'),
+        ('TV Features', 'https://screenrant.com/feed/tv-features/'),
+        ('TV News', 'https://screenrant.com/feed/tv-news/'),
+        ('TV Reviews', 'https://screenrant.com/feed/tv-reviews/'),
+        ('TV Lists', 'https://screenrant.com/feed/tv-lists/'),
+        ('Reality TV', 'https://screenrant.com/feed/reality-tv/'),
+        ('Reality TV Features', 'https://screenrant.com/feed/reality-tv-features/'),
+        ('Reality TV News', 'https://screenrant.com/feed/reality-tv-news/'),
+        ('Reality TV Lists', 'https://screenrant.com/feed/reality-tv-lists/'),
+        ('Gaming', 'https://screenrant.com/feed/gaming/'),
+        ('Game Features', 'https://screenrant.com/feed/game-features/'),
+        ('Game News', 'https://screenrant.com/feed/game-news/'),
+        ('Game Guides', 'https://screenrant.com/feed/game-guides/'),
+        ('Game Reviews', 'https://screenrant.com/feed/game-reviews/'),
+        ('Game Lists', 'https://screenrant.com/feed/game-lists/'),
+        ('Comics', 'https://screenrant.com/feed/comics/'),
+        ('Comic Features', 'https://screenrant.com/feed/comics-features/'),
+        ('Comic News', 'https://screenrant.com/feed/comics-news/'),
+        ('Comic Reviews', 'https://screenrant.com/feed/comics-reviews/'),
+        ('Comic Lists', 'https://screenrant.com/feed/comics-lists/'),
+        ('Anime', 'https://screenrant.com/feed/anime/'),
+        ('Anime Features', 'https://screenrant.com/feed/anime-features/'),
+        ('Anime News', 'https://screenrant.com/feed/anime-news/'),
+        ('Anime Lists', 'https://screenrant.com/feed/anime-lists/'),
+        ('Lists', 'https://screenrant.com/feed/lists/'),
+        ('Interviews', 'https://screenrant.com/feed/interviews/'),
+        ('Podcasts', 'https://screenrant.com/feed/podcasts/'),
+    ]

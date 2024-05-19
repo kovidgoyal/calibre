@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1716102924(BasicNewsRecipe):
+    title          = 'Make Use of'
+    description = 'MUO is now one of the largest online technology publications that millions of readers every month turn to for expert tech guidance.'
+    __author__ = 'Spicy Poison'
+    encoding = 'utf-8'
+    language = 'en'
+    use_embedded_content = False
+    masthead_url = 'https://www.valnetinc.com/images/brand/muo-logo-full-colored-dark.svg'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('PC & Mobile', 'https://www.makeuseof.com/feed/category/pc-mobile/'),
+        ('Windows', 'https://www.makeuseof.com/feed/category/windows/'),
+        ('Mac', 'https://www.makeuseof.com/feed/category/mac/'),
+        ('Linux', 'https://www.makeuseof.com/feed/category/linux/'),
+        ('Android', 'https://www.makeuseof.com/feed/category/google-android/'),
+        ('iOS', 'https://www.makeuseof.com/feed/category/ios/'),
+        ('Internet', 'https://www.makeuseof.com/feed/category/web-based/'),
+        ('Social Media', 'https://www.makeuseof.com/feed/category/social-media/'),
+        ('Security', 'https://www.makeuseof.com/feed/category/security/'),
+        ('Programming', 'https://www.makeuseof.com/feed/category/programming/'),
+        ('Productivity', 'https://www.makeuseof.com/feed/category/productivity/'),
+        ('Creative', 'https://www.makeuseof.com/feed/category/creative/'),
+        ('DIY', 'https://www.makeuseof.com/feed/category/diy-projects/'),
+        ('Lifestyle', 'https://www.makeuseof.com/feed/category/lifestyle/'),
+        ('Smart Home', 'https://www.makeuseof.com/feed/category/smart-home/'),
+        ('Gaming', 'https://www.makeuseof.com/feed/category/games/'),
+        ('Entertainment', 'https://www.makeuseof.com/feed/category/entertainment/'),
+        ('Technology Explained', 'https://www.makeuseof.com/feed/category/technology-explained/'),
+        ('Artificial Intelligence', 'https://www.makeuseof.com/feed/tag/artificial-intelligence/'),
+        ('Tech Jargon', 'https://www.makeuseof.com/feed/tag/pc-jargon-terminology/'),
+        ('Computer Networking', 'https://www.makeuseof.com/feed/tag/computer-networking/'),
+        ('Product Reviews', 'https://www.makeuseof.com/feed/category/product-reviews/'),
+        ('Buying Guides', 'https://www.makeuseof.com/feed/category/buying-guides/'),
+        ('Cheet Sheet', 'https://www.makeuseof.com/feed/tag/cheat-sheet/'),
+    ]

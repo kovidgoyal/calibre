@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1716108103(BasicNewsRecipe):
+    title          = 'Collider'
+    description = (
+        'Collider has been a consistent and authoritative voice in the entertainment industry,'
+        ' delivering breaking news, insightful discussion and thorough reviews.')
+    __author__ = 'Spicy Poison'
+    encoding = 'utf-8'
+    language = 'en'
+    use_embedded_content = False
+    masthead_url = 'https://collider.com/public/build/images/cl-logo-full-colored-dark.svg'
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Movies', 'https://collider.com/feed/category/movies/'),
+        ('Movie News', 'https://collider.com/feed/category/movie-news/'),
+        ('Movie Features', 'https://collider.com/feed/category/movie-features/'),
+        ('TV', 'https://collider.com/feed/category/tv/'),
+        ('TV News', 'https://collider.com/feed/category/tv-news/'),
+        ('TV Features', 'https://collider.com/feed/category/tv-features/'),
+        ('Streaming Guides', 'https://collider.com/feed/category/streaming-guides/'),
+        ('Netflix', 'https://collider.com/feed/category/netflix/'),
+        ('Amazon Prime Video', 'https://collider.com/feed/category/amazon/'),
+        ('Disney+', 'https://collider.com/feed/category/disney/'),
+        ('HBO Max', 'https://collider.com/feed/category/max/'),
+        ('Hulu', 'https://collider.com/feed/category/hulu/'),
+        ('Apple TV+', 'https://collider.com/feed/category/apple-tv-plus/'),
+        ('Lists', 'https://collider.com/feed/category/tag/lists/'),
+        ('Reality TV', 'https://collider.com/feed/category/reality-tv/'),
+        ('Reviews', 'https://collider.com/feed/category/all-reviews/'),
+        ('Interviews', 'https://collider.com/feed/category/interviews/'),
+        ('Trailers', 'https://collider.com/feed/category/trailers/'),
+    ]
