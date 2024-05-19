@@ -393,36 +393,27 @@
            <string>Cover size</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0" colspan="5">
-            <widget class="QLabel" name="cover_size_label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="2" column="2">
+            <widget class="QPushButton" name="cover_grid_smaller_cover">
+             <property name="toolTip">
+              <string>Make the covers smaller, maintaining current aspect ratio.</string>
              </property>
              <property name="text">
-              <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
+              <string>&amp;Smaller covers</string>
              </property>
-             <property name="wordWrap">
-              <bool>true</bool>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="5">
-            <widget class="QLabel" name="cover_grid_aspect_ratio">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_12">
              <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Cover &amp;width: </string>
+              <string>Cover &amp;height: </string>
              </property>
              <property name="buddy">
-              <cstring>opt_cover_grid_width</cstring>
+              <cstring>opt_cover_grid_height</cstring>
              </property>
             </widget>
            </item>
@@ -443,30 +434,6 @@ A value of zero means calculate automatically.</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="cover_grid_larger_cover">
-             <property name="toolTip">
-              <string>Make the covers larger, maintaining current aspect ratio.</string>
-             </property>
-             <property name="text">
-              <string>&amp;Larger covers</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../../../../resources/images.qrc">
-               <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>Cover &amp;height: </string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_cover_grid_height</cstring>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="1">
             <widget class="QDoubleSpinBox" name="opt_cover_grid_height">
              <property name="toolTip">
@@ -484,27 +451,50 @@ A value of zero means calculate automatically.</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QPushButton" name="cover_grid_smaller_cover">
-             <property name="toolTip">
-              <string>Make the covers smaller, maintaining current aspect ratio.</string>
+           <item row="0" column="0" colspan="5">
+            <widget class="QLabel" name="cover_size_label">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="text">
-              <string>&amp;Smaller covers</string>
+              <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
              </property>
-             <property name="icon">
-              <iconset resource="../../../../resources/images.qrc">
-               <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="1" column="3" rowspan="2">
-            <widget class="QPushButton" name="cover_grid_reset_size">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Cover &amp;width: </string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cover_grid_width</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="5">
+            <widget class="QLabel" name="cover_grid_aspect_ratio">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="cover_grid_larger_cover">
              <property name="toolTip">
-              <string>Reset size to automatic</string>
+              <string>Make the covers larger, maintaining current aspect ratio.</string>
              </property>
              <property name="text">
-              <string>&amp;Reset size</string>
+              <string>&amp;Larger covers</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
              </property>
             </widget>
            </item>
@@ -520,6 +510,39 @@ A value of zero means calculate automatically.</string>
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="1" column="3" rowspan="2">
+            <widget class="QPushButton" name="cover_grid_reset_size">
+             <property name="toolTip">
+              <string>Reset size to automatic</string>
+             </property>
+             <property name="text">
+              <string>&amp;Reset size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>&amp;Round the corners:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cover_grid_corner_radius</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QSpinBox" name="opt_cover_grid_corner_radius">
+             <property name="toolTip">
+              <string>The amount by which to round the corners of the covers when they are displayed in the Cover grid. A value of 10 looks good with typical cover sizes. Adjust to your preference. A value of zero disables rounding.</string>
+             </property>
+             <property name="specialValueText">
+              <string>no rounding</string>
+             </property>
+             <property name="suffix">
+              <string> px</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

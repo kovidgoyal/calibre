@@ -10,6 +10,7 @@ import operator
 import os
 import weakref
 from collections import namedtuple
+from contextlib import contextmanager
 from functools import wraps
 from io import BytesIO
 from textwrap import wrap
@@ -36,11 +37,13 @@ from qt.core import (
     QMimeData,
     QModelIndex,
     QPainter,
+    QPainterPath,
     QPalette,
     QPixmap,
     QPoint,
     QPropertyAnimation,
     QRect,
+    QRectF,
     QSize,
     QStyledItemDelegate,
     QStyleOptionViewItem,
@@ -562,7 +565,8 @@ class CoverDelegate(QStyledItemDelegate):
         return ans
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
+        with self.clip_border_radius(painter, option.rect):
+            QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         m = index.model()
         db = m.db
         try:
@@ -636,7 +640,7 @@ class CoverDelegate(QStyledItemDelegate):
                 dy = max(0, int((rect.height() - ch)/2.0))
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
-                painter.drawPixmap(rect, cdata)
+                self.paint_cover(painter, rect, cdata)
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
             if self.emblem_size > 0:
@@ -657,6 +661,23 @@ class CoverDelegate(QStyledItemDelegate):
                 self.paint_embossed_emblem(p, painter, orect, right_adjust, left=False)
         finally:
             painter.restore()
+
+    @contextmanager
+    def clip_border_radius(self, painter, rect):
+        painter.save()
+        r = gprefs['cover_grid_corner_radius']
+        if r > 0:
+            pp = QPainterPath()
+            pp.addRoundedRect(QRectF(rect), r, r)
+            painter.setClipPath(pp)
+        try:
+            yield
+        finally:
+            painter.restore()
+
+    def paint_cover(self, painter: QPainter, rect: QRect, pixmap: QPixmap):
+        with self.clip_border_radius(painter, rect):
+            painter.drawPixmap(rect, pixmap)
 
     def paint_title(self, painter, rect, db, book_id):
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
