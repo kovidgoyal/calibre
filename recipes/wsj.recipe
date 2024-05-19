@@ -7,7 +7,6 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from html5_parser import parse
 
-
 # Past 6 editions are available for download.
 # For available past editions see log and set date to, for example, '20240513'.
 past_edition = None
@@ -99,8 +98,9 @@ class WSJ(BasicNewsRecipe):
     if not past_edition:
         def _download_cover(self):
             import os
-            from calibre import browser
             from contextlib import closing
+
+            from calibre import browser
             from calibre.utils.img import save_cover_data_to
             br = browser()
             raw = br.open('https://www.frontpages.com/the-wall-street-journal/')
@@ -134,7 +134,7 @@ class WSJ(BasicNewsRecipe):
                     key = itm['key']
                     manifest = itm['manifest']
                     date = itm['date']
-                    break   
+                    break
             elif itm['type'] == 'ITP':
                 key = itm['key']
                 manifest = itm['manifest']
