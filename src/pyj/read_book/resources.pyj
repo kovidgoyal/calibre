@@ -409,7 +409,8 @@ def text_from_serialized_html(data, get_anchor_offset_map):
     tag_map = serialized_data.tag_map
     ans = v'[]'
     no_visit = {'script': True, 'style': True, 'title': True, 'head': True}
-    ignore_text = {'img': True, 'math': True, 'rt': true, 'rp': True, 'rtc': True}
+    ignore_text = {'img': True, 'math': True, 'rt': True, 'rp': True, 'rtc': True}
+    ignore_text
     if tag_map:
         stack = v'[[serialized_data.tree[2], False]]'
     else:
