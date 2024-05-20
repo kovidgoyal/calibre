@@ -10,7 +10,6 @@ import operator
 import os
 import weakref
 from collections import namedtuple
-from contextlib import contextmanager
 from functools import wraps
 from io import BytesIO
 from textwrap import wrap
@@ -37,13 +36,11 @@ from qt.core import (
     QMimeData,
     QModelIndex,
     QPainter,
-    QPainterPath,
     QPalette,
     QPixmap,
     QPoint,
     QPropertyAnimation,
     QRect,
-    QRectF,
     QSize,
     QStyledItemDelegate,
     QStyleOptionViewItem,
@@ -64,7 +61,7 @@ from qt.core import (
 from calibre import fit_image, human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.gui2 import config, empty_index, gprefs, rating_font
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
@@ -565,7 +562,7 @@ class CoverDelegate(QStyledItemDelegate):
         return ans
 
     def paint(self, painter, option, index):
-        with self.clip_border_radius(painter, option.rect):
+        with clip_border_radius(painter, option.rect):
             QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         m = index.model()
         db = m.db
@@ -662,21 +659,8 @@ class CoverDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
-    @contextmanager
-    def clip_border_radius(self, painter, rect):
-        painter.save()
-        r = gprefs['cover_grid_corner_radius']
-        if r > 0:
-            pp = QPainterPath()
-            pp.addRoundedRect(QRectF(rect), r, r)
-            painter.setClipPath(pp)
-        try:
-            yield
-        finally:
-            painter.restore()
-
     def paint_cover(self, painter: QPainter, rect: QRect, pixmap: QPixmap):
-        with self.clip_border_radius(painter, rect):
+        with clip_border_radius(painter, rect):
             painter.drawPixmap(rect, pixmap)
 
     def paint_title(self, painter, rect, db, book_id):

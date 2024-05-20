@@ -38,7 +38,9 @@ from qt.core import (
     QLocale,
     QNetworkProxyFactory,
     QObject,
+    QPainterPath,
     QPalette,
+    QRectF,
     QResource,
     QSettings,
     QSocketNotifier,
@@ -426,7 +428,7 @@ def create_defs():
     defs['cover_grid_disk_cache_size'] = 2500
     defs['cover_grid_show_title'] = False
     defs['cover_grid_texture'] = None
-    defs['cover_grid_corner_radius'] = 0
+    defs['cover_corner_radius'] = 0
     defs['show_vl_tabs'] = False
     defs['vl_tabs_closable'] = True
     defs['show_highlight_toggle_button'] = False
@@ -1756,3 +1758,17 @@ def raise_without_focus(self: QWidget) -> None:
 
 QWidget.raise_and_focus = raise_and_focus
 QWidget.raise_without_focus = raise_without_focus
+
+
+@contextmanager
+def clip_border_radius(painter, rect):
+    painter.save()
+    r = gprefs['cover_corner_radius']
+    if r > 0:
+        pp = QPainterPath()
+        pp.addRoundedRect(QRectF(rect), r, r)
+        painter.setClipPath(pp)
+    try:
+        yield
+    finally:
+        painter.restore()

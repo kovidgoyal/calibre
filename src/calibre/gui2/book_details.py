@@ -43,7 +43,18 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
 from calibre.ebooks.metadata.search_internet import all_author_searches, all_book_searches, name_for, url_for_author_search, url_for_book_search
-from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
+from calibre.gui2 import (
+    NO_URL_FORMATTING,
+    choose_save_file,
+    clip_border_radius,
+    config,
+    default_author_link,
+    gprefs,
+    pixmap_to_data,
+    question_dialog,
+    rating_font,
+    safe_open_url,
+)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
 from calibre.gui2.dnd import dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
@@ -825,7 +836,8 @@ class CoverView(QWidget):  # {{{
             dpr = self.devicePixelRatio()
         spmap = self.pixmap.scaled(target.size() * dpr, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         spmap.setDevicePixelRatio(dpr)
-        p.drawPixmap(target, spmap)
+        with clip_border_radius(p, target):
+            p.drawPixmap(target, spmap)
         if gprefs['bd_overlay_cover_size']:
             sztgt = target.adjusted(0, 0, 0, -4)
             f = p.font()

@@ -15,6 +15,7 @@ from qt.core import (
     QCursor,
     QEvent,
     QFont,
+    QGraphicsPixmapItem,
     QGraphicsScene,
     QGraphicsView,
     QIcon,
@@ -43,7 +44,7 @@ from qt.core import (
 from calibre import fit_image, force_unicode, strftime
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.gui2 import error_dialog, gprefs, pixmap_to_data, warning_dialog
+from calibre.gui2 import clip_border_radius, error_dialog, gprefs, pixmap_to_data, warning_dialog
 from calibre.gui2.dnd import DownloadDialog, dnd_get_files, dnd_get_image, dnd_get_local_image_and_pixmap, dnd_has_extension, dnd_has_image, image_extensions
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
@@ -414,7 +415,8 @@ class ImageView(QWidget, ImageDropMixin):
         x = int(abs(cw - w)/2)
         y = int(abs(ch - h)/2)
         target = QRect(x, y, w, h)
-        p.drawPixmap(target, pmap)
+        with clip_border_radius(p, target):
+            p.drawPixmap(target, pmap)
         if self.draw_border:
             pen = QPen()
             pen.setWidth(self.BORDER_WIDTH)
@@ -424,8 +426,18 @@ class ImageView(QWidget, ImageDropMixin):
             draw_size(p, target, ow, oh)
 # }}}
 
+# CoverView {{{
 
-class CoverView(QGraphicsView, ImageDropMixin):  # {{{
+class RoundedPixmap(QGraphicsPixmapItem):
+
+    def paint(self, painter, option, widget):
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        target = self.boundingRect().toAlignedRect()
+        with clip_border_radius(painter, target):
+            painter.drawPixmap(target, self.pixmap())
+
+
+class CoverView(QGraphicsView, ImageDropMixin):
 
     cover_changed = pyqtSignal(object)
 
@@ -445,7 +457,7 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
 
     def set_pixmap(self, pmap):
         self.scene = QGraphicsScene()
-        self.scene.addPixmap(pmap)
+        self.scene.addItem(RoundedPixmap(pmap))
         self.setScene(self.scene)
 
     def set_background(self, brush=None):
