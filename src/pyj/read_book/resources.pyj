@@ -408,26 +408,24 @@ def text_from_serialized_html(data, get_anchor_offset_map):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
     ans = v'[]'
+    no_visit = {'script': True, 'style': True, 'title': True, 'head': True}
+    ignore_text = {'img': True, 'math': True, 'rt': true, 'rp': True, 'rtc': True}
     if tag_map:
-        stack = v'[serialized_data.tree[2]]'
+        stack = v'[[serialized_data.tree[2], False]]'
     else:
         stack = v'[]'
         for child in serialized_data.tree.c:
             if child.n is 'body':
-                stack.push(child)
-    ignore_text = {'script':True, 'style':True, 'title': True}
+                stack.push(v'[child, False]')
     anchor_offset_map = {}
     text_pos = 0
     while stack.length:
-        node = stack.pop()
+        node, text_ignored_in_parent = stack.pop()
         if jstype(node) is 'string':
             ans.push(node)
             text_pos += node.length
             continue
-        if tag_map:
-            src = tag_map[node[0]]
-        else:
-            src = node
+        src = tag_map[node[0]] if tag_map else node
         if get_anchor_offset_map and src.a:
             for v'var i = 0; i < src.a.length; i++':
                 x = src.a[i]
@@ -435,19 +433,21 @@ def text_from_serialized_html(data, get_anchor_offset_map):
                     aid = x[1]
                     if jstype(anchor_offset_map[aid]) is not 'number':
                         anchor_offset_map[aid] = text_pos
-
-        if src.n and not ignore_text[src.n] and src.x:
+        if no_visit[src.n]:
+            continue
+        ignore_text_in_node_and_children = v'!!ignore_text[src.n]'
+        if not ignore_text_in_node_and_children and src.x:
             ans.push(src.x)
             text_pos += src.x.length
-        if src.l:
-            stack.push(src.l)
+        if not text_ignored_in_parent and src.l:
+            stack.push(v'[src.l, ignore_text_in_node_and_children]')
         if tag_map:
             for v'var i = node.length - 1; i >= 1; i--':
-                stack.push(node[i])
+                stack.push(v'[node[i], ignore_text_in_node_and_children]')
         else:
             if src.c:
                 for v'var i = src.c.length; i-- > 0;':
-                    stack.push(v'src.c[i]')
+                    stack.push(v'[src.c[i], ignore_text_in_node_and_children]')
     ans = ans.join('')
     if get_anchor_offset_map:
         return ans, anchor_offset_map
