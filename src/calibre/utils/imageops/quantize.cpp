@@ -54,7 +54,7 @@ private:
     T *first_available;
 
 public:
-    Pool<T>(int size) : nodes(size), first_available(nodes.data()) {
+    Pool(int size) : nodes(size), first_available(nodes.data()) {
         for (int i = 0; i < size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
     }
 
