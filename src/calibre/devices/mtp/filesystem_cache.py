@@ -113,6 +113,10 @@ class FileOrFolder:
         return None if self.parent_id is None else self.id_map[self.parent_id]
 
     @property
+    def storage(self):
+        return self.fs_cache().storage(self.storage_id)
+
+    @property
     def full_path(self):
         parts = deque()
         parts.append(self.name)

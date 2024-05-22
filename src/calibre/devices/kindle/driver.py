@@ -45,6 +45,26 @@ file metadata.
 '''
 
 
+def thumbnail_filename(stream) -> str:
+    from calibre.ebooks.metadata.kfx import CONTAINER_MAGIC, read_book_key_kfx
+    from calibre.ebooks.mobi.reader.headers import MetadataHeader
+    from calibre.utils.logging import default_log
+    stream.seek(0)
+    is_kfx = stream.read(4) == CONTAINER_MAGIC
+    stream.seek(0)
+    uuid = cdetype = None
+    if is_kfx:
+        uuid, cdetype = read_book_key_kfx(stream)
+    else:
+        mh = MetadataHeader(stream, default_log)
+        if mh.exth is not None:
+            uuid = mh.exth.uuid
+            cdetype = mh.exth.cdetype
+    if not uuid or not cdetype:
+        return ''
+    return f'thumbnail_{uuid}_{cdetype}_portrait.jpg'
+
+
 def get_files_in(path):
     if hasattr(os, 'scandir'):
         for dir_entry in os.scandir(path):
@@ -502,28 +522,12 @@ class KINDLE2(KINDLE):
         return os.path.join(self._main_prefix, 'system', 'thumbnails')
 
     def thumbpath_from_filepath(self, filepath):
-        from calibre.ebooks.metadata.kfx import CONTAINER_MAGIC, read_book_key_kfx
-        from calibre.ebooks.mobi.reader.headers import MetadataHeader
-        from calibre.utils.logging import default_log
         thumb_dir = self.amazon_system_thumbnails_dir()
-        if not os.path.exists(thumb_dir):
-            return
-        with open(filepath, 'rb') as f:
-            is_kfx = f.read(4) == CONTAINER_MAGIC
-            f.seek(0)
-            uuid = cdetype = None
-            if is_kfx:
-                uuid, cdetype = read_book_key_kfx(f)
-            else:
-                mh = MetadataHeader(f, default_log)
-                if mh.exth is not None:
-                    uuid = mh.exth.uuid
-                    cdetype = mh.exth.cdetype
-        if not uuid or not cdetype:
-            return
-        return os.path.join(thumb_dir,
-                'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
-                    uuid=uuid, cdetype=cdetype))
+        if os.path.exists(thumb_dir):
+            with open(filepath, 'rb') as f:
+                tfname = thumbnail_filename(f)
+            if tfname:
+                return os.path.join(thumb_dir, tfname)
 
     def amazon_cover_bug_cache_dir(self):
         # see https://www.mobileread.com/forums/showthread.php?t=329945

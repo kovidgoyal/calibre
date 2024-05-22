@@ -9,14 +9,17 @@ import importlib
 import json
 import os
 import posixpath
+import sys
 import traceback
 from io import BytesIO
+from typing import Sequence
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
 from calibre.devices.errors import PathError
 from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
+from calibre.devices.mtp.filesystem_cache import FileOrFolder
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import shorten_components_to
 from calibre.utils.icu import lower as icu_lower
@@ -97,11 +100,14 @@ class MTP_DEVICE(BASE):
         # Top level ignores
         if lpath[0] in {
             'alarms', 'dcim', 'movies', 'music', 'notifications',
-            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts', 'system',
+            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
         if lpath[0].startswith('.') and lpath[0] != '.tolino':
             # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
+            return True
+        if lpath[0] == 'system' and self.current_vid != 0x1949:
+            # on Kindles we need the system folder for the amazon cover bug workaround
             return True
 
         if len(lpath) > 1 and lpath[0] == 'android':
@@ -151,9 +157,6 @@ class MTP_DEVICE(BASE):
             except Exception:
                 import traceback
                 traceback.print_exc()
-
-    def sync_kindle_thumbnails(self):
-        raise NotImplementedError('TODO: Implement me')
 
     def list(self, path, recurse=False):
         if path.startswith('/'):
@@ -476,8 +479,14 @@ class MTP_DEVICE(BASE):
                 sz = os.path.getsize(infile)
                 stream = open(infile, 'rb')
                 close = True
+            relpath = parent.mtp_relpath + (path[-1].lower(),)
             try:
                 mtp_file = self.put_file(parent, path[-1], stream, sz)
+                try:
+                    self.upload_cover(parent, relpath, storage, mi, stream)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
             finally:
                 if close:
                     stream.close()
@@ -488,6 +497,79 @@ class MTP_DEVICE(BASE):
         self.report_progress(1, _('Transfer to device finished...'))
         debug('upload_books() ended')
         return ans
+
+    def upload_cover(self, parent_folder: FileOrFolder, relpath_of_ebook_on_device: Sequence[str], storage: FileOrFolder, mi, ebook_file_as_stream):
+        if self.current_vid == 0x1949:
+            self.upload_kindle_thumbnail(parent_folder, relpath_of_ebook_on_device, storage, mi, ebook_file_as_stream)
+
+    # Kindle cover thumbnail handling {{{
+
+    def upload_kindle_thumbnail(self, parent_folder: FileOrFolder, relpath_of_ebook_on_device: Sequence[str], storage: FileOrFolder, mi, ebook_file_as_stream):
+        coverdata = getattr(mi, 'thumbnail', None)
+        if not coverdata or not coverdata[2]:
+            return
+        from calibre.devices.kindle.driver import thumbnail_filename
+        tfname = thumbnail_filename(ebook_file_as_stream)
+        if not tfname:
+            return
+        thumbpath = 'system', 'thumbnails', tfname
+        cover_stream = BytesIO(coverdata[2])
+        sz = len(coverdata[2])
+        try:
+            parent = self.ensure_parent(storage, thumbpath)
+        except Exception as err:
+            print(f'Failed to upload cover thumbnail to system/thumbnails with error: {err}', file=sys.stderr)
+            return
+        self.put_file(parent, tfname, cover_stream, sz)
+        cover_stream.seek(0)
+        cache_path = 'amazon-cover-bug', tfname
+        parent = self.ensure_parent(storage, cache_path)
+        self.put_file(parent, tfname, cover_stream, sz)
+        # mapping from ebook relpath to thumbnail filename
+        from hashlib import sha1
+        index_name = sha1('/'.join(relpath_of_ebook_on_device).encode()).hexdigest()
+        data = tfname.encode()
+        self.put_file(parent, index_name, BytesIO(data), len(data))
+
+    def delete_kindle_cover_thumbnail_for(self, storage: FileOrFolder, mtp_relpath: Sequence[str]) -> None:
+        from hashlib import sha1
+        index_name = sha1('/'.join(mtp_relpath).encode()).hexdigest()
+        index = storage.find_path(('amazon-cover-bug', index_name))
+        if index is not None:
+            data = BytesIO()
+            self.get_mtp_file(index, data)
+            tfname = data.getvalue().decode().strip()
+            thumbnail = storage.find_path(('system', 'thumbnails', tfname))
+            if thumbnail is not None:
+                self.delete_file_or_folder(thumbnail)
+            cache = storage.find_path(('amazon-cover-bug', tfname))
+            if cache is not None:
+                self.delete_file_or_folder(cache)
+            self.delete_file_or_folder(index)
+
+    def sync_kindle_thumbnails(self):
+        for storage in self.filesystem_cache.entries:
+            self._sync_kindle_thumbnails(storage)
+
+    def _sync_kindle_thumbnails(self, storage):
+        system_thumbnails_dir = storage.find_path(('system', 'thumbnails'))
+        amazon_cover_bug_cache_dir = storage.find_path(('amazon-cover-bug',))
+        if system_thumbnails_dir is None or amazon_cover_bug_cache_dir is None:
+            return
+        debug('Syncing cover thumbnails to workaround amazon cover bug')
+        system_thumbnails = {x.name: x for x in system_thumbnails_dir.files}
+        count = 0
+        for f in amazon_cover_bug_cache_dir.files:
+            s = system_thumbnails.get(f.name)
+            if s is not None and s.size != f.size:
+                count += 1
+                data = BytesIO()
+                self.get_mtp_file(f, data)
+                data.seek(0)
+                sz = len(data.getvalue())
+                self.put_file(system_thumbnails_dir, f.name, data, sz)
+        debug(f'Restored {count} cover thumbnails that were destroyed by Amazon')
+    # }}}
 
     def add_books_to_metadata(self, mtp_files, metadata, booklists):
         debug('add_books_to_metadata() called')
@@ -528,7 +610,11 @@ class MTP_DEVICE(BASE):
 
         for i, path in enumerate(paths):
             f = self.filesystem_cache.resolve_mtp_id_path(path)
+            fpath = f.mtp_relpath
+            storage = f.storage
             self.recursive_delete(f)
+            if self.current_vid == 0x1949:
+                self.delete_kindle_cover_thumbnail_for(storage, fpath)
             self.report_progress((i+1) / float(len(paths)),
                     _('Deleted %s')%path)
         self.report_progress(1, _('All books deleted'))
