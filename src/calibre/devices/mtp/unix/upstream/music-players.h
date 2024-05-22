@@ -350,16 +350,22 @@
    *
    * 0x685b - UMS
    * 0x685c - MTP + ADB
+   * 0x685d - Odin
    * 0x685e - UMS + CDC (not MTP)
    * 0x6860 - MTP mode (default)
    * 0x6863 - USB CDC RNDIS (not MTP)
+   * 0x6864 - USB CDC RNDIS ADB (not MTP)
    * 0x6865 - PTP mode (not MTP)
+   * 0x6865 - PTP ADB mode (not MTP)
+   * 0x686c - MIDI ADB mode (not MTP)
    * 0x6877 - Kies mode? Does it have MTP?
    *
    * Used on these samsung devices:
    * GT P7310/P7510/N7000/I9100/I9250/I9300
+   * Galaxy Core
    * Galaxy Nexus
    * Galaxy Tab 7.7/10.1
+   * Galaxy A5
    * Galaxy S GT-I9000
    * Galaxy S Advance GT-I9070
    * Galaxy S2
@@ -1296,6 +1302,7 @@
   /*
    * Qualcomm
    * This vendor ID seems to be used a bit by others.
+   * Qualcomm is an OEM (Snapdragon) chip vendor.
    */
 
   // Reported by Richard Wall <richard@the-moon.net>
@@ -1321,6 +1328,9 @@
 
   { "Qualcomm (for PhiComm)", 0x05c6, "C230w (MTP)",
       0x9039, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 QCOM */
+  /* 9091=PTP+ADB, 9092=PTP *low-level* requires precise software */
 
   /* https://github.com/libmtp/libmtp/issues/78 */
   { "OnePlus", 0x05c6, "OnePlus 7 Pro (MTP)",
@@ -2413,8 +2423,11 @@
       DEVICE_FLAG_BROKEN_SET_OBJECT_PROPLIST |
       DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
   /* https://sourceforge.net/p/libmtp/support-requests/130/ */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (conflicts with USB tether) */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 (conflicts with RNDIS) */
   { "Motorola", 0x22b8, "X 2nd edition XT1097 (MTP)", 0x2e24,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* 2e24=(Tether), 2e25=(Tether+ADB) */
   { "Motorola", 0x22b8, "Atrix/Razr HD (MTP)", 0x2e32,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Motorola", 0x22b8, "Atrix/Razr HD (MTP+ADB)", 0x2e33,
@@ -2437,18 +2450,28 @@
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Motorola", 0x22b8, "Droid Ultra", 0x2e68,
       DEVICE_FLAGS_ANDROID_BUGS },
-  { "Motorola", 0x22b8, "Moto G (ID1)", 0x2e76,
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (MTP) */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 (MTP+ADB) */
+  { "Motorola", 0x22b8, "Moto E/G (ID1) (MTP+ADB)", 0x2e76,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* 2e80=(fastboot) Moto E/G */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (sideload) */
   /* https://sourceforge.net/p/libmtp/bugs/1841/ */
   { "Motorola", 0x22b8, "Moto Z2 (XT1789)", 0x2e81,
       DEVICE_FLAGS_ANDROID_BUGS },
-  { "Motorola", 0x22b8, "Moto G (ID2)", 0x2e82,
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (MTP) */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 (MTP) */
+  { "Motorola", 0x22b8, "Moto E/G/Z (ID2) (MTP)", 0x2e82,
       DEVICE_FLAGS_ANDROID_BUGS & ~(DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL|DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST)},
   /* https://github.com/gphoto/gphoto2/issues/463 */
-  { "Motorola", 0x22b8, "XT1032", 0x2e83,
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (PTP) */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 (PTP) */
+  { "Motorola", 0x22b8, "Moto XT1032/XT1052/Z (PTP)", 0x2e83,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1030/, PTP Id */
-  { "Motorola", 0x22b8, "Moto G (XT1032)", 0x2e84,
+  /* https://github.com/M0Rf30/android-udev-rules/issues/264 (PTP+ADB) */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 (PTP+ADB) */
+  { "Motorola", 0x22b8, "Moto E/G/Z (XT1032) (PTP+ADB)", 0x2e84,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1477/ */
   { "Motorola", 0x22b8, "Moto Maxx (XT1225)", 0x2ea4,
@@ -2458,6 +2481,7 @@
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Motorola", 0x22b8, "Droid Turbo Verizon", 0x2ea8,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* not used here. 2eb7. BP TOOLS {2ee5,2ee6,2ee7,2ee8} */
   /* https://sourceforge.net/p/libmtp/feature-requests/189/ */
   { "Motorola", 0x22b8, "MB632", 0x2dff,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -2563,9 +2587,13 @@
   /* https://sourceforge.net/p/libmtp/feature-requests/218/ */
   { "Google Inc (for Fairphone)", 0x18d1, "Fairphone 2", 0x0a07,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/269 2d02=audio */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 2d02=audio */
   // Reported by anonymous Sourceforge user
   { "Google Inc (for Barnes & Noble)", 0x18d1, "Nook Color", 0x2d02,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/269 2d03=audio+adb */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/277 2d03=audio+adb */
   // Reported by anonymous Sourceforge user
   { "Google Inc (for Asus)", 0x18d1, "TF201 Transformer", 0x4d00,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -2585,11 +2613,13 @@
       (DEVICE_FLAGS_ANDROID_BUGS | DEVICE_FLAG_PROPLIST_OVERRIDES_OI) & ~DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST },
   { "Google Inc", 0x18d1, "Nexus/Pixel (MTP+ADB)", 0x4ee2,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* 4ee3=(Tethering), 4ee4=(Tethering+ADB) */
   /* https://sourceforge.net/p/libmtp/bugs/1255/ */
   { "Google Inc", 0x18d1, "Nexus/Pixel (PTP)", 0x4ee5,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Google Inc", 0x18d1, "Nexus/Pixel (PTP+ADB)", 0x4ee6,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* 4ee8=(MIDI), 4ee9=(MIDI+ADB) */
   /* https://sourceforge.net/p/libmtp/bugs/1444/ */
   { "Google", 0x18d1, "Pixel C (MTP)", 0x5202,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3515,6 +3545,9 @@
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Foxconn (for Vizio)", 0x0489, "Unknown 1", 0xc026,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/196 */
+  { "SHARP", 0x0489, "AQUOS Wish2", 0xc030,
+      DEVICE_FLAGS_ANDROID_BUGS },
   { "Foxconn (for Vizio)", 0x0489, "VTAB1008", 0xe040,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Foxconn (for Lenovo)", 0x0489, "IdeaTab A2109/A2110/Medion LIFETAB S9714", 0xe111,
@@ -3561,6 +3594,15 @@
   /* https://sourceforge.net/p/libmtp/bugs/1491/ */
   { "Amazon", 0x1949, "Kindle Fire 5", 0x0222,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (5.7.0.0) */
+  { "Amazon", 0x1949, "Kindle Fire 8 (MTP) (3rd ID)", 0x0231,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  { "Amazon", 0x1949, "Kindle Fire 8 (MTP+ADB) (3rd ID)", 0x0232,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  { "Amazon", 0x1949, "Kindle Fire 8 (PTP) (3rd ID)", 0x0233,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  { "Amazon", 0x1949, "Kindle Fire 8 (PTP+ADB) (3rd ID)", 0x0234,
+      DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1718/ */
   { "Amazon", 0x1949, "Kindle Fire 8 (2nd ID)", 0x0261,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3586,7 +3628,14 @@
   { "Amazon", 0x1949, "Kindle Fire HD8 Plus", 0x0581,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1913/ */
-  { "Amazon", 0x1949, "Kindle Fire 10 Plus", 0x05e1,
+  { "Amazon", 0x1949, "Kindle Fire 10 Plus (MTP)", 0x05e1,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (7.3.2.8) */
+  { "Amazon", 0x1949, "Kindle Fire 10 (MTP+ADB)", 0x05e2,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  { "Amazon", 0x1949, "Kindle Fire 10 (PTP)", 0x05e3,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  { "Amazon", 0x1949, "Kindle Fire 10 (PTP+ADB)", 0x05e4,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Amazon", 0x1949, "Fire Phone", 0x0800,
       DEVICE_FLAGS_ANDROID_BUGS },
@@ -3595,6 +3644,10 @@
       DEVICE_FLAGS_ANDROID_BUGS },
 
   { "Amazon", 0x1949, "Kindle Fire 8 HD (7th Gen)", 0x0262,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* 2046=(MIDI), 2048=(MIDI+ADB) */
+  /* https://github.com/libmtp/libmtp/issues/191 */
+  { "Amazon", 0x1949, "Kindle Scribe 32GB", 0x9981,
       DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
@@ -3611,10 +3664,25 @@
   /*
    * Viewpia, bq, YiFang
    * Seems like some multi-branded OEM product line.
+   * 
+   * These values were given for the Anbernic RG353P (Beta#1) depending on mode:
+   * https://github.com/M0Rf30/android-udev-rules/issues/256 (Anbernic RG353P)
+   * 0x0003 - USB tether (not MTP)
+   * 0x0007 - MTP
+   * 0x0008 - PTP
+   * 0x0013 - CDC + ADB (tether, not MTP)
+   * 0x0017 - MTP + ADB
+   * 0x0018 - PTP + ADB
    */
   { "Various", 0x2207, "Viewpia DR/bq Kepler", 0x0001,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "YiFang", 0x2207, "BQ Tesla", 0x0006,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (Anbernic RG353P) */
+  { "Various", 0x2207, "Anbernic RG353P (MTP)", 0x0007,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (Anbernic RG353P) */
+  { "Various", 0x2207, "Anbernic RG353P (PTP+ADB)", 0x0008,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://bugs.debian.org/917259 */
   { "Various", 0x2207, "Onyx Boox Max 2", 0x000b,
@@ -3635,7 +3703,11 @@
   { "Onyx", 0x2207, "Boox Nova Pro", 0x0015,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/125 */
-  { "iBasso", 0x2207, "DX170 DAP", 0x0017,
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (Anbernic RG353P) */
+  { "Various", 0x2207, "Anbernic RG353P/iBasso DX170 DAP (MTP+ADB)", 0x0017,
+      DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/256 (Anbernic RG353P) */
+  { "Various", 0x2207, "Anbernic RG353P (PTP+ADB)", 0x0018,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/82 */
   { "Supernote", 0x2207, "A5X", 0x0031,
@@ -3840,6 +3912,7 @@
   /* https://sourceforge.net/p/libmtp/bugs/1553/ */
   { "Bravis", 0x0e8d, "A401 Neo", 0x0c03,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/259 (MOTO e22i, 2005=USB) */
   /* https://sourceforge.net/p/libmtp/bugs/1422/ */
   /* https://sourceforge.net/p/libmtp/bugs/1467/ */
   /* https://sourceforge.net/p/libmtp/bugs/1922/ */
@@ -3849,19 +3922,27 @@
   /* https://sourceforge.net/p/libmtp/bugs/1923/ */
   { "MediaTek Inc", 0x0e8d, "MT65xx/67xx (MTP + CDC + ADB mode)", 0x200a,
       DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/M0Rf30/android-udev-rules/issues/259 (MOTO e22i) */
+  { "MediaTek Inc", 0x0e8d, "MOTO E22i (PTP + ADB mode)", 0x200c, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/support-requests/289/ */
   { "MediaTek Inc", 0x0e8d, "MT65xx/67xx (MTP + CDC mode)", 0x2012, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/feature-requests/79/ */
+  /* https://github.com/M0Rf30/android-udev-rules/issues/259 (MOTO e22i) */
   { "MediaTek Inc", 0x0e8d, "MT65xx/67xx (MTP + ADB mode)", 0x201d, DEVICE_FLAGS_ANDROID_BUGS },
 
   /* likely also a mediatek rebrand: https://github.com/libmtp/libmtp/issues/155 */
   { "qin", 0x0e8d, "phone f21 pro", 0x2026, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/M0Rf30/android-udev-rules/issues/259 (MOTO e22i, 2048=MIDI) */
 
   /* https://sourceforge.net/p/libmtp/bugs/1717/ */
   { "MediaTek Inc", 0x0e8d, "Wiko Sunny", 0x4001,
       DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1855/ */
   { "Vivo", 0x0e8d, "Y21", 0xff00, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/libmtp/libmtp/issues/192 */
+  { "Lenovo", 0x0e8d, "Tab P12", 0x7e16, DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * Jolla
@@ -3919,8 +4000,10 @@
   { "Garmin", 0x091e, "Darth Vader", 0x4dab, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Captain Marvel", 0x4dac, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "First Avenger", 0x4dad, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Descent Mk2s", 0x4dd7, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Forerunner 745", 0x4e05, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Venu Sq Music", 0x4e0c, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Forerunner 945 LTE", 0x4e44, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Descent Mk2/Mk2i (APAC)", 0x4e76, DEVICE_FLAGS_ANDROID_BUGS }, /* APAC version */
   /* https://github.com/libmtp/libmtp/issues/156 */
   { "Garmin", 0x091e, "Venu 2", 0x4e77, DEVICE_FLAGS_ANDROID_BUGS },
@@ -3928,24 +4011,36 @@
   { "Garmin", 0x091e, "Venu Mercedes-Benz Collection", 0x4e9C, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/161 */
   { "Garmin", 0x091e, "Venu 2 Plus", 0x4f0b, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Fenix 7s", 0x4f41, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/95 */
   { "Garmin", 0x091e, "Fenix 7 Sapphire Solar", 0x4f42, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/211 */
+  { "Garmin", 0x091e, "Euduro 2", 0x4f43, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/164 */
   { "Garmin", 0x091e, "Fenix 7", 0x4f43, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Descent Mk2s (APAC)", 0x4f5a, DEVICE_FLAGS_ANDROID_BUGS }, /* APAC version */
   /* https://sourceforge.net/p/libmtp/support-requests/299/ */
   { "Garmin", 0x091e, "EPIX 2", 0x4f67, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/150 */
-  { "Garmin", 0x091e, "Garmin Forerunner 255M", 0x4f96, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Forerunner 255M", 0x4f96, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/146 */
   { "Garmin", 0x091e, "Forerunner 255S Music", 0x4f97, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Forerunner 955 Solar", 0x4fb8, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/202 */
+  { "Garmin", 0x091e, "Venu SQ 2 Music", 0x5014, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1920/ */
   { "Garmin", 0x091e, "Tactix 7", 0x5027, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Descent Mk3/Mk3i - 43mm", 0x507e, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Descent Mk3i - 51mm", 0x507f, DEVICE_FLAGS_ANDROID_BUGS },
   { "Garmin", 0x091e, "Forerunner 265", 0x50a1, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://github.com/libmtp/libmtp/issues/152 */
   { "Garmin", 0x091e, "Forerunner 965", 0x50db, DEVICE_FLAGS_ANDROID_BUGS },
   /* https://sourceforge.net/p/libmtp/bugs/1934/ */
-  { "Garmin", 0x091e, "Fenix 7s pro sapphire solar", 0x5116, DEVICE_FLAGS_ANDROID_BUGS },
+  { "Garmin", 0x091e, "Fenix 7s Pro Sapphire Solar", 0x5116, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/194 */
+  { "Garmin", 0x091e, "Fenix 7 Pro Solar", 0x5117, DEVICE_FLAGS_ANDROID_BUGS },
+  /* https://github.com/libmtp/libmtp/issues/207 */
+  { "Garmin", 0x091e, "Tactix 7 AMOLED", 0x51be, DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * Wacom
@@ -4286,7 +4381,7 @@
   { "Nox", 0x1e0a, "A1", 0x1001, DEVICE_FLAG_NONE },
 
   /* https://sourceforge.net/p/libmtp/bugs/1893/ */
-  { "Nintendo", 0x057e, "Switch Lite", 0x201d, DEVICE_FLAG_NONE },
+  { "Nintendo", 0x057e, "Switch / Switch Lite", 0x201d, DEVICE_FLAG_NONE },
 
   /* https://github.com/libmtp/libmtp/issues/72 https://sourceforge.net/p/libmtp/bugs/1895/ */
   { "Mudita", 0x3310, "Pure Phone", 0x0100, DEVICE_FLAG_NONE },
@@ -4310,6 +4405,9 @@
 
   /* https://github.com/libmtp/libmtp/issues/160 */
   { "Teenage engineering", 0x2367, "OP-1 field", 0x0102, DEVICE_FLAGS_ANDROID_BUGS },
+
+  /* https://github.com/libmtp/libmtp/issues/203 */
+  { "DJI", 0x2ca3, "Controller 2", 0x1021, DEVICE_FLAGS_ANDROID_BUGS },
 
   /* qemu 3.0.0 hw/usb/dev-mtp.c */
   { "QEMU", 0x46f4, "Virtual MTP", 0x0004, DEVICE_FLAG_NONE }
