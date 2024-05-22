@@ -3,12 +3,13 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _, ngettext
+from gettext import gettext as _
+from gettext import ngettext
 
 from book_list.globals import get_session_data
-from dom import unique_id
+from dom import clear, unique_id
 from read_book.prefs.utils import create_button_box
-from session import session_defaults, get_interface_data
+from session import get_interface_data, session_defaults
 from utils import fmt_sidx
 
 CONTAINER = unique_id('reader-hf-prefs')
@@ -38,6 +39,7 @@ def create_item(region, label, style):
             opt(_('View mode as icon'), 'view-mode-icon'),
             sep(),
             opt(_('Clock'), 'clock'),
+            opt(_('Controls button on hover'), 'menu-icon-on-hover'),
             sep(),
             opt(_('Progress'), 'progress'),
             opt(_('Time to read book'), 'time-book'),
@@ -189,6 +191,10 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     has_clock = False
     if override:
         text = override
+    elif field is 'menu-icon-on-hover':
+        clear(div)
+        div.appendChild(E.div(class_='visible-on-hover', E.span(_('Show controls')), title=_('Show viewer controls'), style='cursor: pointer'))
+        return has_clock
     elif field is 'progress':
         percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'

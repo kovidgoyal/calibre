@@ -60,6 +60,9 @@ add_extra_css(def():
     ans += build_rule(sel + ':active > .not-arrow', display='none')
     ans += build_rule(sel + ':hover > .arrow', display='block')
     ans += build_rule(sel + ':active > .arrow', display='block', transform='scale(2)')
+    ans += build_rule('.book-h-margin .visible-on-hover', visibility='hidden')
+    ans += build_rule('.book-h-margin:hover .visible-on-hover', visibility='visible')
+    ans += build_rule('.book-h-margin .visible-on-hover:hover', color=get_color('window-hover-foreground'))
     return ans
 )
 
@@ -180,7 +183,7 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     fsz = header_footer_font_size(sz)
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
-        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center; user-select: none',
+        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: pointer', class_='book-h-margin',
         id=id,
         E.div(style='margin-right: 1.5em' + s), E.div(style=s), E.div(style='margin-left: 1.5em' + s)
     )
@@ -406,7 +409,7 @@ class View:
             self.focus_iframe()
 
     def bottom_margin_clicked(self, event):
-        if event.button is 2:
+        if event.button is 0 or event.button is 2:
             event.preventDefault(), event.stopPropagation()
             window.setTimeout(self.show_chrome, 0)
         self.focus_iframe()
