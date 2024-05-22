@@ -145,6 +145,34 @@ class MTP_DEVICE(BASE):
         self.current_device_defaults, self.current_vid, self.current_pid = self.device_defaults(device, self)
         self.calibre_file_paths = self.current_device_defaults.get(
             'calibre_file_paths', {'metadata':self.METADATA_CACHE, 'driveinfo':self.DRIVEINFO})
+        if self.current_vid == 0x1949:
+            try:
+                self.sync_kindle_thumbnails()
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
+    def sync_kindle_thumbnails(self):
+        raise NotImplementedError('TODO: Implement me')
+
+    def list(self, path, recurse=False):
+        if path.startswith('/'):
+            q = self._main_id
+            path = path[1:]
+        elif path.startswith('card:/'):
+            q = self._carda_id
+            path = path[6:]
+        for storage in self.filesystem_cache.entries:
+            if storage.storage_id == q:
+                if path:
+                    path = path.replace(os.sep, '/')
+                    parts = path.split('/')
+                    if parts:
+                        storage = storage.find_path(parts)
+                        if storage is None:
+                            return []
+                return list(storage.list(recurse))
+        return []
 
     def get_device_uid(self):
         return self.current_serial_num

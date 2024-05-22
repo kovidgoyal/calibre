@@ -7,9 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 import json
 import sys
+import time
 import weakref
 from collections import deque
 from datetime import datetime
+from itertools import chain
 from operator import attrgetter
 
 from calibre import force_unicode, human_readable, prints
@@ -19,6 +21,17 @@ from calibre.utils.icu import lower, sort_key
 from polyglot.builtins import itervalues
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
+
+
+class ListEntry:
+
+    def __init__(self, entry: 'FileOrFolder'):
+        self.is_dir = entry.is_folder
+        self.is_readonly = not entry.can_delete
+        self.path = '/'.join(entry.full_path)
+        self.name = entry.name
+        self.size = entry.size
+        self.ctime = self.wtime = time.mktime(entry.last_modified.timetuple())
 
 
 class FileOrFolder:
@@ -138,6 +151,17 @@ class FileOrFolder:
         for c in (self.folders, self.files):
             for e in sorted(c, key=lambda x:sort_key(x.name)):
                 e.dump(prefix=prefix+'  ', out=out)
+
+    def list(self, recurse=False):
+        if not self.is_folder:
+            parent = self.id_map[self.parent_id]
+            yield '/'.join(parent.full_path[1:]), ListEntry(self)
+            return
+        entries = [ListEntry(x) for x in chain(self.folders, self.files)]
+        yield '/'.join(self.full_path[1:]), entries
+        if recurse:
+            for x in self.folders:
+                yield from x.list(recurse=True)
 
     def folder_named(self, name):
         name = lower(name)
