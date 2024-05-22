@@ -539,13 +539,14 @@ class MTP_DEVICE(BASE):
             data = BytesIO()
             self.get_mtp_file(index, data)
             tfname = data.getvalue().decode().strip()
-            thumbnail = storage.find_path(('system', 'thumbnails', tfname))
-            if thumbnail is not None:
-                self.delete_file_or_folder(thumbnail)
-            cache = storage.find_path(('amazon-cover-bug', tfname))
-            if cache is not None:
-                self.delete_file_or_folder(cache)
-            self.delete_file_or_folder(index)
+            if tfname:
+                thumbnail = storage.find_path(('system', 'thumbnails', tfname))
+                if thumbnail is not None:
+                    self.delete_file_or_folder(thumbnail)
+                cache = storage.find_path(('amazon-cover-bug', tfname))
+                if cache is not None:
+                    self.delete_file_or_folder(cache)
+                self.delete_file_or_folder(index)
 
     def sync_kindle_thumbnails(self):
         for storage in self.filesystem_cache.entries:
