@@ -82,6 +82,10 @@ class MTP_DEVICE(BASE):
 
         return self._prefs
 
+    @property
+    def is_kindle(self) -> bool:
+        return self.current_vid == 0x1949
+
     def is_folder_ignored(self, storage_or_storage_id, path,
                           ignored_folders=None):
         storage_id = str(getattr(storage_or_storage_id, 'object_id',
@@ -92,7 +96,7 @@ class MTP_DEVICE(BASE):
         if storage_id in ignored_folders:
             # Use the users ignored folders settings
             return '/'.join(lpath) in {icu_lower(x) for x in ignored_folders[storage_id]}
-        if self.current_vid == 0x1949 and lpath and lpath[-1].endswith('.sdr'):
+        if self.is_kindle and lpath and lpath[-1].endswith('.sdr'):
             return True
 
         # Implement the default ignore policy
@@ -106,7 +110,7 @@ class MTP_DEVICE(BASE):
         if lpath[0].startswith('.') and lpath[0] != '.tolino':
             # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
             return True
-        if lpath[0] == 'system' and self.current_vid != 0x1949:
+        if lpath[0] == 'system' and not self.is_kindle:
             # on Kindles we need the system folder for the amazon cover bug workaround
             return True
 
@@ -151,7 +155,7 @@ class MTP_DEVICE(BASE):
         self.current_device_defaults, self.current_vid, self.current_pid = self.device_defaults(device, self)
         self.calibre_file_paths = self.current_device_defaults.get(
             'calibre_file_paths', {'metadata':self.METADATA_CACHE, 'driveinfo':self.DRIVEINFO})
-        if self.current_vid == 0x1949:
+        if self.is_kindle:
             try:
                 self.sync_kindle_thumbnails()
             except Exception:
@@ -499,7 +503,7 @@ class MTP_DEVICE(BASE):
         return ans
 
     def upload_cover(self, parent_folder: FileOrFolder, relpath_of_ebook_on_device: Sequence[str], storage: FileOrFolder, mi, ebook_file_as_stream):
-        if self.current_vid == 0x1949:
+        if self.is_kindle:
             self.upload_kindle_thumbnail(parent_folder, relpath_of_ebook_on_device, storage, mi, ebook_file_as_stream)
 
     # Kindle cover thumbnail handling {{{
@@ -614,7 +618,7 @@ class MTP_DEVICE(BASE):
             fpath = f.mtp_relpath
             storage = f.storage
             self.recursive_delete(f)
-            if self.current_vid == 0x1949:
+            if self.is_kindle:
                 self.delete_kindle_cover_thumbnail_for(storage, fpath)
             self.report_progress((i+1) / float(len(paths)),
                     _('Deleted %s')%path)
