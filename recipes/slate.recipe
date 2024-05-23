@@ -20,66 +20,48 @@ class Slate(BasicNewsRecipe):
     title = 'Slate'
     description = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
     __author__ = 'Kovid Goyal'
-    timefmt = ''
     no_stylesheets = True
     language = 'en'
     encoding = 'utf-8'
-    remove_attributes = ['style']
+    remove_attributes = ['style', 'height', 'width']
+    oldest_article = 2  # days
     INDEX = 'https://slate.com'
-    compress_news_images = True
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    extra_css = '''
+        .article__rubric { font-size:small; color:#404040; }
+        .article__byline, time { font-size:small; }
+        .article__top-image, .image__credit, .image__meta { font-size:small; text-align:center; }
+        em, blockquote, .alternativeHeadline { color:#202020; }
+    '''
 
     keep_only_tags = [
-        classes('article__header article__content'),
+        classes('article__header article__top-image article__content article-hotseats__body'),
     ]
     remove_tags = [
+        dict(name=['aside', 'svg', 'iframe']),
         classes('social-share slate-ad newsletter-signup in-article-recirc'),
     ]
 
     def preprocess_html(self, soup):
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
         for img in soup.findAll('img', attrs={'data-srcset': True}):
-            img['src'] = img['data-srcset'].split()[0]
+            img['src'] = img['data-src'] + '&width=600'
         return soup
 
-    def parse_index(self):
-        ans = []
-        for sectitle, url in (
-                ('News & Politics', '/articles/news_and_politics.html'),
-                ('Technology', '/articles/technology.html'),
-                ('Business', '/articles/business.html'),
-                ('Arts', '/articles/arts.html'),
-                ('Life', '/articles/life.html'),
-                ('Health & Science', '/articles/health_and_science.html'),
-                ('Sports', '/articles/sports.html'),
-                ('Double X', '/articles/double_x.html'),
-        ):
-            url = self.INDEX + url
-            self.log('\nFound section:', sectitle, url)
-            articles = self.slate_section_articles(self.index_to_soup(url))
-            if articles:
-                ans.append((sectitle, articles))
-            if self.test and len(ans) > 1:
-                break
-        return ans
+    feeds = [
+        ('News & Politics', 'https://slate.com/feeds/news-and-politics.rss'),
+        ('Culture', 'https://slate.com/feeds/culture.rss'),
+        ('Technology', 'https://slate.com/feeds/technology.rss'),
+        ('Business', 'https://slate.com/feeds/business.rss'),
+        ('Human Interest', 'https://slate.com/feeds/human-interest.rss'),
+        ('Others', 'https://slate.com/feeds/all.rss')
+    ]
 
-    def slate_section_articles(self, soup):
-        ans = []
-        main = soup.find('section', **classes('main'))
-        if main is None:
-            return ans
-        for div in main.findAll(**classes('section-feed__item')):
-            a = div.find('a')
-            url = a['href']
-            if url.endswith('/'):
-                continue
-            h = a.find(['h2', 'h3', 'h4'])
-            title = self.tag_to_string(h)
-            desc = ''
-            for q in ('byline', 'dek'):
-                span = div.find(attrs={'class': lambda x: x and ('-' + q) in x})
-                if span is not None:
-                    desc += self.tag_to_string(span).strip()
-            self.log('\t' + title)
-            self.log('\t\t' + url)
-            ans.append({'title': title, 'description': desc.strip(),
-                        'date': '', 'url': url})
-        return ans
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if '/podcasts/' not in url:
+            return url.split('?')[0]
