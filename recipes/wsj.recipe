@@ -196,5 +196,4 @@ class WSJ(BasicNewsRecipe):
             article.url = lnk['title']
         art = soup.find('h1', attrs={'title':True})
         if art:
-            self.log('found art ', art['title'])
             article.url = art['title']

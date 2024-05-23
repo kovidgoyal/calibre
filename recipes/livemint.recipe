@@ -102,7 +102,7 @@ class LiveMint(BasicNewsRecipe):
             classes(
                 'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider'
                 ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo author-widget'
-                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText'
+                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText checkCibilBtn'
             )
         ]
 
