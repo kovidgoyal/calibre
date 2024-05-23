@@ -626,6 +626,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
         r('cover_corner_radius', gprefs)
+        r('cover_corner_radius_unit', gprefs, choices=[(_('Pixels'), 'px'), (_('Percentage'), '%')])
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
         r('cover_grid_cache_size_multiple', gprefs)

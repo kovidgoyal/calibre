@@ -429,6 +429,7 @@ def create_defs():
     defs['cover_grid_show_title'] = False
     defs['cover_grid_texture'] = None
     defs['cover_corner_radius'] = 0
+    defs['cover_corner_radius_unit'] = 'px'
     defs['show_vl_tabs'] = False
     defs['vl_tabs_closable'] = True
     defs['show_highlight_toggle_button'] = False
@@ -1766,7 +1767,7 @@ def clip_border_radius(painter, rect):
     r = gprefs['cover_corner_radius']
     if r > 0:
         pp = QPainterPath()
-        pp.addRoundedRect(QRectF(rect), r, r)
+        pp.addRoundedRect(QRectF(rect), r, r, Qt.SizeMode.RelativeSize if gprefs['cover_corner_radius_unit'] == '%' else Qt.SizeMode.AbsoluteSize)
         painter.setClipPath(pp)
     try:
         yield
