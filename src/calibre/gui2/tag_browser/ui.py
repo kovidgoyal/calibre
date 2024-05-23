@@ -101,7 +101,7 @@ class TagBrowserMixin:  # {{{
                 current_cat = model.column_map[col]
                 if current_cat in ('authors', 'series', 'publisher', 'tags') or current_cat in cust_cats:
                     cdn = cat_display_name(current_cat) or current_cat
-                    m.addAction(get_icon(current_cat), cdn, menu_func(current_cat, None))
+                    m.addAction(get_icon(current_cat), cdn.replace('&', '&&'), menu_func(current_cat, None))
                     proxy_md = db.new_api.get_proxy_metadata(db.id(idx.row()))
                     items = proxy_md.get(current_cat)
                     if isinstance(items, str):
@@ -130,7 +130,7 @@ class TagBrowserMixin:  # {{{
             for cat in sorted(cust_cats, key=lambda v: sort_key(cat_display_name(v))):
                 if cat == current_cat:
                     continue
-                m.addAction(get_icon(cat), cat_display_name(cat), menu_func(cat, None))
+                m.addAction(get_icon(cat), cat_display_name(cat).replace('&', '&&'), menu_func(cat, None))
 
     def init_tag_browser_mixin(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
