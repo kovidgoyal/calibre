@@ -667,7 +667,7 @@ def show_export_dialog(annotations_manager):
                 fmt_item(_('Markdown'), 'markdown'),
                 fmt_item('calibre', 'calibre_annotations_collection'),
             ),
-            E.textarea(style='margin-top: 1ex; resize: none; max-height: 25vh', readonly=True, rows='20', cols='80', id=ta_id),
+            E.textarea(style='margin-top: 1ex; resize: none; max-height: 25svh', readonly=True, rows='20', cols='80', id=ta_id),
             E.div(
                 class_='button-box',
                 create_button(_('Copy'), 'copy', def (ev):

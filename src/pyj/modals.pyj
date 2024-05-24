@@ -76,7 +76,7 @@ class ModalContainer:
         )
         # Content container style
         # need padding: 1px to avoid scrollbar in modal on Qt WebEngine 6.3
-        set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto', padding='1px')
+        set_css(div.firstChild.firstChild, user_select='text', max_height='60svh', overflow='auto', padding='1px')
 
         self.modals = v'[]'
         self.current_modal = None

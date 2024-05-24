@@ -75,8 +75,8 @@ class SearchOverlay:
         self.result_map = {}
         c = self.container
         c.style.backgroundColor = get_color('window-background')
-        c.style.maxHeight = '100vh'
-        c.style.minHeight = '100vh'
+        c.style.maxHeight = '100svh'
+        c.style.minHeight = '100svh'
         c.style.flexDirection = 'column'
         c.style.alignItems = 'stretch'
         c.style.overflow = 'hidden'

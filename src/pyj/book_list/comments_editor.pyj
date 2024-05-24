@@ -685,7 +685,7 @@ def get_comments_html(container, proceed):
 
 
 def develop(container):
-    container.setAttribute('style', 'width: 100%; min-height: 90vh; display: flex; flex-direction: column; align-items: stretch')
+    container.setAttribute('style', 'width: 100%; min-height: 90svh; display: flex; flex-direction: column; align-items: stretch')
     editor = create_comments_editor(container)
     set_comments_html(container, '<p>Testing, <i>testing</i> 123...')
     focus_comments_editor(container)

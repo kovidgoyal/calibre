@@ -162,7 +162,7 @@ def adjusting_sandboxed_html(html, extra_css):
     # needed for links with target="_parent"
     ans = sandboxed_html(html, css, 'allow-same-origin allow-top-navigation-by-user-activation')
     ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
-    ans.style.height = '50vh'
+    ans.style.height = '50svh'
     ans.dataset.last_window_width = '0'
     return ans
 
@@ -558,7 +558,7 @@ def render_book(container_id, book_id):
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
             onclick=read_book.bind(None, book_id),
-            style='cursor: pointer; border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: {}px'.format(get_font_size('title'), border_radius
+            style='cursor: pointer; border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100svh - 4ex - {}); display: block; width:auto; height:auto; border-radius: {}px'.format(get_font_size('title'), border_radius
         )),
         E.div(
             style=f'position: absolute; top:0; width: 100%; padding: {border_radius//2}px; box-sizing: border-box; font-size: 2rem; display: flex; justify-content: space-between; color: {get_color("button-text")}',

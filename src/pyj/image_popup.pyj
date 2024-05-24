@@ -64,7 +64,7 @@ class ImagePopup(TouchHandler):
     def container(self):
         if self._container is None:
             self._container = E.div(
-                style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
+                style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100svh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
                 id=self.container_id, tabindex='0', class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,

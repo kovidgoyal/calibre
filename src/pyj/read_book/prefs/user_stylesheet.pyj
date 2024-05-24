@@ -106,7 +106,7 @@ def create_user_stylesheet_panel(container, apply_func, cancel_func):
     create_user_stylesheet_panel.container_id = ensure_id(container)
     container.appendChild(
         E.div(
-            style='min-height: 75vh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
+            style='min-height: 75svh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
             E.div(
                 style='border-bottom: solid 1px; margin-bottom: 1.5ex; padding-bottom: 1.5ex',
                 E.div(_('Choose a background image to display behind the book text'), style='margin-bottom: 1.5ex'),

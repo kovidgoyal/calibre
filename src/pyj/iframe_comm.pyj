@@ -24,7 +24,7 @@ __SCRIPT__
 end_script
 </head>
 <body>
-<div style="font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
+<div style="font-size:larger; font-weight: bold; margin-top:48svh; text-align:center">
 __BS__
 </div>
 </body>

@@ -25,7 +25,7 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
         c.lastChild.setAttribute('multiple', 'multiple')
     if accept_extensions:
         c.lastChild.setAttribute('accept', ', '.join(['.' + x for x in accept_extensions.split(' ')]))
-    c.style.minHeight = '80vh'
+    c.style.minHeight = '80svh'
     c.style.padding = '1rem'
     c.style.borderBottom = 'solid 1px currentColor'
 

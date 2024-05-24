@@ -125,7 +125,7 @@ def onkeydown(container_id, close_action, ev):
 
 
 def setup_container(container, close_action):
-    container.style.height = '100vh'
+    container.style.height = '100svh'
     container.style.display = 'flex'
     container.style.flexDirection = 'column'
     container.appendChild(E.div(tabindex='0', style='flex-grow: 10; display: flex; align-items: stretch'))

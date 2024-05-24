@@ -173,7 +173,7 @@ def text_edit_get_value(container):
 def text_edit(container_id, book_id, field, fm, div, mi, get_name):
     nonlocal value_to_json
     name = fm.name or field
-    le = E.textarea(name=name.replace('#', '_c_'), spellcheck='true', wrap='soft', style='width: 100%; min-height: 70vh')
+    le = E.textarea(name=name.replace('#', '_c_'), spellcheck='true', wrap='soft', style='width: 100%; min-height: 70svh')
     le.value = resolved_metadata(mi, get_name or field) or ''
     form = create_form(le, text_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
@@ -192,7 +192,7 @@ def html_edit(container_id, book_id, field, fm, div, mi):
     value_to_json = identity
     val = resolved_metadata(mi, field) or ''
     name = fm.name or field
-    c = E.div(style='width: 100%; min-height: 75vh')
+    c = E.div(style='width: 100%; min-height: 75svh')
     form = create_form(c, html_edit_get_value, container_id, book_id, field)
     editor = create_comments_editor(c)
     set_comments_html(c, val)

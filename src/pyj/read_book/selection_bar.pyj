@@ -374,7 +374,7 @@ class SelectionBar:
         notes_container.style.display = notes_container.previousSibling.style.display = 'block'
         c.style.overflow = 'auto'
         if self.supports_css_min_max:
-            c.style.maxHeight = 'min(20ex, 40vh)'
+            c.style.maxHeight = 'min(20ex, 40svh)'
         else:
             c.style.maxHeight = '20ex'
         render_notes(notes, c, True)

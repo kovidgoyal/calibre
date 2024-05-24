@@ -452,7 +452,7 @@ def create_search_panel(container):
     loading_panel = component(container, 'loading')
     loading_panel.appendChild(E.div(
         create_spinner(), '\xa0' + _('Fetching data for the Tag browser, please wait') + '…',
-        style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
+        style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30svh')
     )
 
     # Build breadcrumbs

@@ -17,7 +17,7 @@ def fix_fullscreen_svg_images():
     # Full screen images using SVG no longer render correctly
     # webengine. This is because it sets the width to the
     # viewport width and simply adjusts the height accordingly
-    # So we replace 100% with 100vw and 100vh to get the desired
+    # So we replace 100% with 100vw and 100svh to get the desired
     # rendering
     child_names = v'[]'
     for node in document.body.childNodes:
@@ -40,4 +40,4 @@ def fix_fullscreen_svg_images():
 
         if is_svg_fs_markup(names, svg):
             svg.setAttribute('width', '100vw')
-            svg.setAttribute('height', '100vh')
+            svg.setAttribute('height', '100svh')

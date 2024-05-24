@@ -802,7 +802,7 @@ class Overlay:
                         container = document.getElementById(container_id)
                         clear(container)
                         container.appendChild(E.iframe(
-                            style='position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; border-width: 0',
+                            style='position: absolute; left: 0; top: 0; width: 100vw; height: 100svh; border-width: 0',
                             src=query_as_href({
                             'from_read_book': from_read_book, 'library_id': lname, 'book_id': book_id + ''}, 'edit_metadata')
                         ))

@@ -68,7 +68,7 @@ def create_page_div(elem):
     document.body.appendChild(div)
     # the min-height is needed to get firefox to always insert a column break before this div
     set_important_css(div, break_before='column', break_inside='avoid', display='block', white_space='pre', background_color='transparent',
-            background_image='none', border_width='0', float='none', position='static', min_height='100vh')
+            background_image='none', border_width='0', float='none', position='static', min_height='100svh')
 
 _in_paged_mode = False
 def in_paged_mode():
@@ -156,7 +156,7 @@ def fit_images():
         if scroll_viewport.vertical_writing_mode:
             set_important_css(img_tag, break_before='always', max_width='100vw')
         else:
-            set_important_css(img_tag, break_before='always', max_height='100vh')
+            set_important_css(img_tag, break_before='always', max_height='100svh')
         set_elem_data(img_tag, 'block-limited', True)
 
 
@@ -300,7 +300,7 @@ def layout(is_single_page, on_resize):
     col_and_gap = col_size + gap
 
     set_important_css(document.body, column_gap=gap + 'px', column_width=col_size + 'px', column_rule='0px inset blue',
-        min_width='0', max_width='none', min_height='0', max_height='100vh', column_fill='auto',
+        min_width='0', max_width='none', min_height='0', max_height='100svh', column_fill='auto',
         margin='0', border_width='0', padding='0', box_sizing='content-box',
         width=scroll_viewport.width() + 'px', height=scroll_viewport.height() + 'px', overflow_wrap='break-word'
     )

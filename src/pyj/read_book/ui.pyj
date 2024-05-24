@@ -43,7 +43,7 @@ class ReadUI:
 
         container.appendChild(E.div(
             id=self.progress_id, style='display:none; text-align: center',
-            E.h3(style='margin-top:30vh; margin-bottom: 1ex;'),
+            E.h3(style='margin-top:30svh; margin-bottom: 1ex;'),
             E.progress(style='margin: 1ex'),
             E.div(style='margin: 1ex')
         ))
