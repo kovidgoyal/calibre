@@ -53,7 +53,7 @@ from utils import (
 
 add_extra_css(def():
     sel = '.book-side-margin'
-    ans = build_rule(sel, cursor='pointer', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
+    ans = build_rule(sel, cursor='pointer', text_align='center', height='100dvh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
     ans += build_rule(sel + ' > .arrow', display='none')
     ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
     ans += build_rule(sel + ':hover > .not-arrow', display='none')
@@ -138,11 +138,11 @@ def show_controls_help():
         container.removeChild(container.firstChild)
 
     container.appendChild(E.div(
-        style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
+        style=f'overflow: hidden; width: 100vw; height: 100dvh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
                 'display:flex; flex-direction: column; align-items: stretch',
         E.div(
             msg(_('Tap (or right click) for controls')),
-            style='height: 25vh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
+            style='height: 25dvh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
         ),
         E.div(
             style="display: flex; align-items: stretch; flex-grow: 10",
@@ -294,14 +294,14 @@ class View:
         }
         iframe, self.iframe_wrapper = create_wrapped_iframe(handlers, _('Bootstrapping book reader...'), entry_point, iframe_kw)
         container.appendChild(
-            E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+            E.div(style='max-height: 100dvh; width: 100vw; height: 100dvh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                 oncontextmenu=def (ev):
                     if not default_context_menu_should_be_allowed(ev):
                         ev.preventDefault()
                 ,
 
-                E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                E.div(style='max-height: 100dvh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='max-height: 100dvh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
                         left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
