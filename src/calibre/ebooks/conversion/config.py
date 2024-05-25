@@ -260,7 +260,7 @@ OPTIONS = {
         'structure_detection': (
             'chapter', 'chapter_mark', 'start_reading_at',
             'remove_first_image', 'remove_fake_margins', 'insert_metadata',
-            'page_breaks_before'),
+            'page_breaks_before', 'add_alt_text_to_img',),
 
         'toc': (
             'level1_toc', 'level2_toc', 'level3_toc',

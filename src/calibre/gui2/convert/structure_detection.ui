@@ -14,38 +14,8 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="3">
-    <widget class="QCheckBox" name="opt_remove_fake_margins">
-     <property name="text">
-      <string>Remove &amp;fake margins</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>The header and footer removal options have been replaced by the Search &amp; replace options. Click the Search &amp; replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" rowspan="2" colspan="4">
+   <item row="7" column="0" rowspan="2" colspan="4">
     <widget class="XPathEdit" name="opt_page_breaks_before" native="true"/>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="QCheckBox" name="opt_insert_metadata">
-     <property name="text">
-      <string>Insert &amp;metadata as page at start of book</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="4">
-    <widget class="XPathEdit" name="opt_start_reading_at" native="true"/>
-   </item>
-   <item row="0" column="0" colspan="4">
-    <widget class="XPathEdit" name="opt_chapter" native="true"/>
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QLabel" name="label">
@@ -57,12 +27,8 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QComboBox" name="opt_chapter_mark">
-     <property name="minimumContentsLength">
-      <number>20</number>
-     </property>
-    </widget>
+   <item row="0" column="0" colspan="4">
+    <widget class="XPathEdit" name="opt_chapter" native="true"/>
    </item>
    <item row="1" column="3">
     <spacer name="horizontalSpacer">
@@ -77,14 +43,24 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QCheckBox" name="opt_remove_first_image">
-     <property name="text">
-      <string>Remove first &amp;image</string>
+   <item row="1" column="2">
+    <widget class="QComboBox" name="opt_chapter_mark">
+     <property name="minimumContentsLength">
+      <number>20</number>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="6" column="0" colspan="4">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>The header and footer removal options have been replaced by the Search &amp; replace options. Click the Search &amp; replace category in the bar to the left to use these options. Leave the replace field blank and enter your header/footer removal regexps into the search field.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -96,6 +72,37 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_insert_metadata">
+     <property name="text">
+      <string>Insert &amp;metadata as page at start of book</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="4">
+    <widget class="XPathEdit" name="opt_start_reading_at" native="true"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="opt_remove_fake_margins">
+     <property name="text">
+      <string>Remove &amp;fake margins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QCheckBox" name="opt_remove_first_image">
+     <property name="text">
+      <string>Remove first &amp;image</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="opt_add_alt_text_to_img">
+     <property name="text">
+      <string>Add &amp;alt text to images</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

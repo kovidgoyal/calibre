@@ -420,6 +420,11 @@ OptionRecommendation(name='remove_fake_margins',
                 'case you can disable the removal.')
         ),
 
+OptionRecommendation(name='add_alt_text_to_img',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('When an <img> tag has no alt attribute, check the associated image file for metadata that specifies alternate text, and'
+            ' use it to fill in the alt attribute. The alt attribute is used by screen readers for assisting the visually challenged.')
+),
 
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
@@ -1203,6 +1208,12 @@ OptionRecommendation(name='search_replace',
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts, self.user_metadata)
+        pr(0.37)
+        self.flush()
+
+        if self.opts.add_alt_text_to_img:
+            from calibre.ebooks.oeb.transforms.alt_text import AddAltText
+            AddAltText()(self.oeb, self.opts)
         pr(0.4)
         self.flush()
 

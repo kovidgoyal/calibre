@@ -360,6 +360,7 @@ def structure_detection(container):
     g.appendChild(choices('chapter_mark', _('Chap&ter mark:'), ['pagebreak', 'rule', 'both', 'none']))
     g.appendChild(checkbox('remove_first_image', _('Remove first &image')))
     g.appendChild(checkbox('remove_fake_margins', _('Remove &fake margins')))
+    g.appendChild(checkbox('add_alt_text_to_img', _('Add &alt text to images')))
     g.appendChild(checkbox('insert_metadata', _('Insert metadata at start of book')))
     g.appendChild(lineedit('page_breaks_before', _('Insert page breaks before'), 50))
     g.appendChild(lineedit('start_reading_at', _('Start reading at'), 50))
