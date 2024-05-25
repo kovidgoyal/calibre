@@ -231,12 +231,14 @@ class UpdateMixin:
                     self._update_notification__.show()
         elif has_plugin_updates:
             if force:
-                from calibre.gui2.dialogs.plugin_updater import FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
-                d = PluginUpdaterDialog(self,
-                        initial_filter=FILTER_UPDATE_AVAILABLE)
-                d.exec()
-                if d.do_restart:
-                    self.quit(restart=True)
+                self.show_plugin_update_dialog()
+
+    def show_plugin_update_dialog(self):
+        from calibre.gui2.dialogs.plugin_updater import FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+        d = PluginUpdaterDialog(self, initial_filter=FILTER_UPDATE_AVAILABLE)
+        d.exec()
+        if d.do_restart:
+            self.quit(restart=True)
 
     def plugin_update_found(self, number_of_updates):
         # Change the plugin icon to indicate there are updates available
