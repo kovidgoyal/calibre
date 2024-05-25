@@ -719,6 +719,80 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     if colortable:
         qimg.setColorTable(colortable)
     return QPixmap.fromImage(qimg)
+
+
+def read_xmp_from_pil_image(im) -> str:
+    fmt = im.format.lower()
+    xml = ''
+    if fmt == 'jpeg':
+        for segment, content in im.applist:
+            if segment == "APP1":
+                marker, xmp_tags = content.split(b"\x00")[:2]
+                if marker == b"http://ns.adobe.com/xap/1.0/":
+                    xml = xmp_tags
+                    break
+    elif fmt == 'png':
+        xml = im.info.get('XML:com.adobe.xmp', '')
+    elif fmt == 'webp':
+        xml = im.info.get("xmp", '')
+    elif fmt == 'tiff':
+        xml = im.tag_v2.get(700, '')
+    return xml
+
+
+def read_text_from_container(container, target_lang=''):
+    lang_map = {}
+    for li in container.xpath('descendant::*[local-name()="li"]'):
+        if li.text:
+            lang = li.attrib.get('{http://www.w3.org/XML/1998/namespace}lang', 'x-default')
+            lang_map[lang] = li.text
+    if not target_lang and 'x-default' in lang_map:
+        return lang_map['x-default']
+    if target_lang in lang_map:
+        return lang_map[target_lang]
+    from calibre.utils.localization import canonicalize_lang
+    target_lang = canonicalize_lang(target_lang)
+    if target_lang:
+        for lang, ans in lang_map.items():
+            if canonicalize_lang(lang) == target_lang:
+                return ans
+    return lang_map.get('x-default', '')
+
+
+def read_alt_text_from_xmp(xmp, target_lang='') -> str:
+    from lxml import etree
+    try:
+        root = etree.fromstring(xmp)
+    except Exception:
+        return ''
+    # print(etree.tostring(root, encoding='utf-8', pretty_print=True).decode())
+    for a in root.xpath('//*[local-name()="AltTextAccessibility"]'):
+        if ans := read_text_from_container(a, target_lang):
+            return ans
+
+    for d in etree.XPath('//dc:description', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'})(root):
+        if ans := read_text_from_container(d, target_lang):
+            return ans
+    return ''
+
+
+def read_alt_text(pil_im_or_path, target_lang='') -> str:
+    if isinstance(pil_im_or_path, str):
+        from PIL import Image
+        im = Image.open(pil_im_or_path)
+    else:
+        im = pil_im_or_path
+    xmp = read_xmp_from_pil_image(im)
+    if xmp:
+        alt = read_alt_text_from_xmp(xmp, target_lang)
+        if alt:
+            return alt.strip()
+    exif = im.getexif()
+    if exif:
+        if desc := exif.get(270):
+            return desc.strip()
+    return ''
+
 # }}}
 
 def test():  # {{{
