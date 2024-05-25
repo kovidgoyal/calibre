@@ -534,7 +534,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         changed = False
         refresh_books = set(book_ids)
         try:
-            current_tab = 0
+            current_tab = -1
             while True:
                 dialog = MetadataBulkDialog(self.gui, rows,
                                 self.gui.library_view.model(), current_tab, refresh_books)
