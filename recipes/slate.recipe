@@ -19,13 +19,12 @@ def classes(classes):
 class Slate(BasicNewsRecipe):
     title = 'Slate'
     description = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'unkn0wn'
     no_stylesheets = True
     language = 'en'
     encoding = 'utf-8'
     remove_attributes = ['style', 'height', 'width']
-    oldest_article = 2  # days
-    INDEX = 'https://slate.com'
+    INDEX = 'https://slate.com/'
     resolve_internal_links = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
@@ -52,16 +51,44 @@ class Slate(BasicNewsRecipe):
             img['src'] = img['data-src'] + '&width=600'
         return soup
 
-    feeds = [
-        ('News & Politics', 'https://slate.com/feeds/news-and-politics.rss'),
-        ('Culture', 'https://slate.com/feeds/culture.rss'),
-        ('Technology', 'https://slate.com/feeds/technology.rss'),
-        ('Business', 'https://slate.com/feeds/business.rss'),
-        ('Human Interest', 'https://slate.com/feeds/human-interest.rss'),
-        ('Others', 'https://slate.com/feeds/all.rss')
-    ]
+    def parse_index(self):
+        ans = []
+        for sectitle, url in (
+                ('News & Politics', 'news-and-politics'),
+                ('Culture', 'culture'),
+                ('Technology', 'technology'),
+                ('Business', 'business'),
+                ('Life', 'life'),
+                ('Advice', 'advice'),
+        ):
+            url = self.INDEX + url
+            self.log('\nFound section:', sectitle, url)
+            articles = self.slate_section_articles(url)
+            if articles:
+                ans.append((sectitle, articles))
+        return ans
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        if '/podcasts/' not in url:
-            return url.split('?')[0]
+    def slate_section_articles(self, url):
+        from datetime import date
+        soup = self.index_to_soup(url)
+        ans = []
+        dt = date.today().strftime('/%Y/%m')
+        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + dt)}):
+            url = a['href']
+            head = a.find(attrs={'class':[
+                'section-feed-two-column__card-headline',
+                'section-feed-three-column__teaser-headline',
+                'section-feed-two-column__teaser-headline',
+                'topic-story__hed'
+            ]})
+            if head:
+                title = self.tag_to_string(head).strip()
+                self.log('\t' + title)
+                self.log('\t\t' + url)
+                ans.append({'title': title, 'url': url})
+        return ans
+
+    def populate_article_metadata(self, article, soup, first):
+        summ = soup.find(attrs={'class':'article__dek'})
+        if summ:
+            article.summary = article.text_summary = self.tag_to_string(summ)
