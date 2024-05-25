@@ -436,7 +436,7 @@ def text_from_serialized_html(data, get_anchor_offset_map):
                         anchor_offset_map[aid] = text_pos
         if no_visit[src.n]:
             continue
-        ignore_text_in_node_and_children = v'!!ignore_text[src.n]'
+        ignore_text_in_node_and_children = text_ignored_in_parent or v'!!ignore_text[src.n]'
         if not ignore_text_in_node_and_children and src.x:
             ans.push(src.x)
             text_pos += src.x.length
