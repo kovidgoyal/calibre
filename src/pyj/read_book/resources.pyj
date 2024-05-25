@@ -412,12 +412,12 @@ def text_from_serialized_html(data, get_anchor_offset_map):
     ignore_text = {'img': True, 'math': True, 'rt': True, 'rp': True, 'rtc': True}
     ignore_text
     if tag_map:
-        stack = v'[[serialized_data.tree[2], False]]'
+        stack = v'[[serialized_data.tree[2], false]]'
     else:
         stack = v'[]'
         for child in serialized_data.tree.c:
             if child.n is 'body':
-                stack.push(v'[child, False]')
+                stack.push(v'[child, false]')
     anchor_offset_map = {}
     text_pos = 0
     while stack.length:
