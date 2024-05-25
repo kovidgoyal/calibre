@@ -784,9 +784,8 @@ def read_alt_text(pil_im_or_path, target_lang='') -> str:
         im = pil_im_or_path
     xmp = read_xmp_from_pil_image(im)
     if xmp:
-        alt = read_alt_text_from_xmp(xmp, target_lang)
-        if alt:
-            return alt.strip()
+        if alt := read_alt_text_from_xmp(xmp, target_lang).strip():
+            return alt
     exif = im.getexif()
     if exif:
         if desc := exif.get(270):
