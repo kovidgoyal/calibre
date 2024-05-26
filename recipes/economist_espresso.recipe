@@ -196,7 +196,7 @@ class Espresso(BasicNewsRecipe):
             pt.close()
             url = 'file:///' + pt.name
             ans.append({"title": title, "url": url})
-        return [('Espresso', ans)]
+        return [('The world in brief', ans)]
 
     def populate_article_metadata(self, article, soup, first):
         article.url = soup.find('h1')['title']
