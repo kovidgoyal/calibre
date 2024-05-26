@@ -27,6 +27,7 @@ from polyglot.builtins import as_bytes, iteritems, itervalues
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
+DEFAULT_THUMBNAIL_WIDTH, DEFAULT_THUMBNAIL_HEIGHT = 120, 160
 
 
 class MTPInvalidSendPathError(PathError):
@@ -43,8 +44,8 @@ class MTP_DEVICE(BASE):
     CAN_SET_METADATA = []
     NEWS_IN_FOLDER = True
     MAX_PATH_LEN = 230
-    THUMBNAIL_HEIGHT = 160
-    THUMBNAIL_WIDTH = 120
+    THUMBNAIL_HEIGHT = DEFAULT_THUMBNAIL_HEIGHT
+    THUMBNAIL_WIDTH = DEFAULT_THUMBNAIL_WIDTH
     CAN_SET_METADATA = []
     BACKLOADING_ERROR_MESSAGE = None
     MANAGES_DEVICE_PRESENCE = True
@@ -155,7 +156,9 @@ class MTP_DEVICE(BASE):
         self.current_device_defaults, self.current_vid, self.current_pid = self.device_defaults(device, self)
         self.calibre_file_paths = self.current_device_defaults.get(
             'calibre_file_paths', {'metadata':self.METADATA_CACHE, 'driveinfo':self.DRIVEINFO})
+        self.THUMBNAIL_WIDTH, self.THUMBNAIL_HEIGHT = DEFAULT_THUMBNAIL_WIDTH, DEFAULT_THUMBNAIL_HEIGHT
         if self.is_kindle:
+            self.THUMBNAIL_WIDTH = self.THUMBNAIL_HEIGHT = 500  # see kindle/driver.py
             try:
                 self.sync_kindle_thumbnails()
             except Exception:
