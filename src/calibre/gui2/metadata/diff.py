@@ -626,6 +626,7 @@ class CoverZoom(QWidget):
 
 class CompareMany(QDialog):
 
+
     def __init__(self, ids, get_metadata, field_metadata, parent=None,
                  window_title=None,
                  reject_button_tooltip=None,
@@ -641,6 +642,13 @@ class CompareMany(QDialog):
         self.l = l = QVBoxLayout(w)
         s.addWidget(w)
         self.next_called = False
+        
+        # initialize the previous items list, we will use it to store the watched items that were rejected or accepted
+        # when the user clicks on the next or reject button we will add the current item to the previous items list
+        # when the user presses the back button we will pop the last item from the previous items list and set it as current item
+        # also the popped item will be removed from the rejected or accepted items list (and will be unmarked if it was marked)
+        self.previous_items = []
+        
         self.setWindowIcon(QIcon.ic('auto_author_sort.png'))
         self.get_metadata = get_metadata
         self.ids = list(ids)
@@ -667,7 +675,9 @@ class CompareMany(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         bb.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
+        
         if self.total > 1:
+            
             self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
             b.setIcon(QIcon.ic('ok.png')), b.setAutoDefault(False)
             if accept_all_tooltip:
@@ -696,6 +706,21 @@ class CompareMany(QDialog):
             b.setIcon(QIcon.ic(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
+        
+        # Add a Back button, wich allows the user to go back to the previous book cancel any reject/edit/accept that was done to it, and review it again
+        # create a Back action that will be triggered when the user presses the back button or the back shortcut
+        self.back_action = QAction(self)
+        self.back_action.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.Key.Key_Left))
+        self.back_action.triggered.connect(self.previous_item)
+        self.addAction(self.back_action)
+        # create the back button, set it's name, tooltip, icon and action to call the previous_item method        
+        self.back_button = bb.addButton(_('P&revious'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.back_button.setToolTip(_(f'Move to previous {self.back_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)}'))
+        self.back_button.setIcon(QIcon.ic('back.png'))
+        self.back_button.clicked.connect(self.previous_item)
+        self.back_button.setDefault(True)
+        self.back_button.setAutoDefault(False)
+        
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), QDialogButtonBox.ButtonRole.ActionRole)
         if self.total > 1:
             b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
@@ -722,21 +747,26 @@ class CompareMany(QDialog):
         b.setFocus(Qt.FocusReason.OtherFocusReason)
         self.next_called = False
 
+
     def show_zoomed_cover(self, pixmap):
         self.cover_zoom.set_pixmap(pixmap)
         self.stack.setCurrentIndex(1)
+
 
     @property
     def mark_rejected(self):
         return self.markq.isChecked()
 
+
     def action_button_clicked(self):
         self.action_button_action(self.ids[0])
+
 
     def accept(self):
         self.save_geometry(gprefs, 'diff_dialog_geom')
         self.compare_widget.save_comments_controls_state()
         super().accept()
+
 
     def reject(self):
         if self.stack.currentIndex() == 1:
@@ -750,18 +780,27 @@ class CompareMany(QDialog):
         self.compare_widget.save_comments_controls_state()
         super().reject()
 
+
     @property
     def current_mi(self):
         return self.compare_widget.current_mi
+
 
     def next_item(self, accept):
         self.next_called = True
         if not self.ids:
             return self.accept()
+        
+        
         if self.current_mi is not None:
             changed = self.compare_widget.apply_changes()
         if self.current_mi is not None:
             old_id = self.ids.pop(0)
+                
+            # Save the current book that was just reviewed and accepted or rejected to the previous_items list
+            # this book can be displayed again if the user presses the back button
+            self.previous_items.append(old_id)
+            
             if not accept:
                 self.rejected_ids.add(old_id)
             self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
@@ -772,6 +811,31 @@ class CompareMany(QDialog):
         oldmi, newmi = self.get_metadata(self.ids[0])
         self.compare_widget(oldmi, newmi)
 
+
+    def previous_item(self):
+        if self.previous_items:
+            # get the last book id from the previous items list and remove it from the previous items list
+            # this book id is the last book id that was reviewed and accepted or rejected
+            last_previous_item = self.previous_items.pop()
+            
+            # if this book id was rejected, remove it from the rejected ids set
+            if last_previous_item in self.rejected_ids:
+                self.rejected_ids.remove(last_previous_item)
+                self.markq.setChecked(False)            
+            # if this book id was accepted, remove it from the accepted dictionary
+            elif last_previous_item in self.accepted:
+                self.accepted.pop(last_previous_item)
+            
+            # move the last previous item to the begining of the pending list
+            self.ids.insert(0, last_previous_item)
+            
+            # display the last previous item (from the ids list)
+            self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
+                num=(self.total - len(self.ids) + 1), tot=self.total))
+            oldmi, newmi = self.get_metadata(self.ids[0])
+            self.compare_widget(oldmi, newmi)
+
+
     def accept_all_remaining(self):
         self.next_item(True)
         for id_ in self.ids:
@@ -779,6 +843,7 @@ class CompareMany(QDialog):
             self.accepted[id_] = (False, newmi)
         self.ids = []
         self.accept()
+
 
     def reject_all_remaining(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
@@ -794,6 +859,7 @@ class CompareMany(QDialog):
             self.accepted[id_] = (False, None)
         self.ids = []
         self.accept()
+
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
