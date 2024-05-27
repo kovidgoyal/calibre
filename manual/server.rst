@@ -174,7 +174,7 @@ A much loved feature of the main program, :guilabel:`Virtual libraries` is
 present in the server interface as well. Click the three vertical dots in the
 top right corner to choose a Virtual library.
 
-The book reader
+The book viewer
 ^^^^^^^^^^^^^^^^
 
 You can read any book in your calibre library by simply tapping on
