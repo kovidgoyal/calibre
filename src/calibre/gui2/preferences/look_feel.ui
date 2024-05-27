@@ -143,7 +143,7 @@
          <item>
           <widget class="QComboBox" name="opt_cover_corner_radius_unit">
            <property name="toolTip">
-            <string>The unit for the cover corner rounding. Either pixel values or as a percetage of the cover size.</string>
+            <string>The unit for the cover corner rounding. Either pixel values or as a percentage of the cover size.</string>
            </property>
           </widget>
          </item>
