@@ -48,7 +48,7 @@ all_author_searches = AUTHOR_SEARCHES.__iter__
 
 def qquote(val, use_plus=True):
     if not isinstance(val, bytes):
-        val = val.encode('utf-8')
+        val = val.encode('utf-8', 'replace')
     ans = quote_plus(val) if use_plus else quote(val)
     if isinstance(ans, bytes):
         ans = ans.decode('utf-8')
