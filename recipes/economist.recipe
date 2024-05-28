@@ -200,6 +200,19 @@ class Economist(BasicNewsRecipe):
     delay = 1
 
     needs_subscription = False
+    
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        global edition_date
+        if self.recipe_config:
+            edition_date = self.parse_config(self.recipe_config)
+
+    def parse_config(self,config):
+        if config == 'help':
+            raise SystemExit('You can pass a past date in format "date=yyyy-mm-dd". Note that only several past issues can be downloaded at the moment.')
+       	else:
+            edition_date = config.split('=')[1]
+            return edition_date
 
     def get_browser(self, *args, **kwargs):
         # Needed to bypass cloudflare

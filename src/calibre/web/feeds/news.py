@@ -800,6 +800,18 @@ class BasicNewsRecipe(Recipe):
         index.sort(key=lambda x: weights[x])
         return index
 
+    def parse_config(self,config):
+        '''
+        Method that allows for arbitrary data to be passed via --parse-config
+        on the command line or through Schedule news download dialog to a recipe.
+        A possible use is for example to specify an url to a past issue
+        to download instead of the latest one.
+        The format is arbitrary but suggested to be in the form key=value.
+        It is suggested to implement it in a way that will tell the user
+        the desired format when "help" is passed as argument.
+        '''
+        raise NotImplementedError('This recipe does not implement any custom configuration.')
+
     def parse_index(self):
         '''
         This method should be implemented in recipes that parse a website
@@ -893,6 +905,7 @@ class BasicNewsRecipe(Recipe):
 
     def postprocess_book(self, oeb, opts, log):
         '''
+        self.custom_tags.setText(', '.join(custom_tags))
         Run any needed post processing on the parsed downloaded e-book.
 
         :param oeb: An OEBBook object
@@ -921,6 +934,7 @@ class BasicNewsRecipe(Recipe):
         self.password = options.password
         self.lrf = options.lrf
         self.output_profile = options.output_profile
+        self.recipe_config= options.recipe_config
         self.touchscreen = getattr(self.output_profile, 'touchscreen', False)
         if self.touchscreen:
             self.template_css += self.output_profile.touchscreen_news_css
@@ -932,6 +946,9 @@ class BasicNewsRecipe(Recipe):
         if self.debug:
             self.verbose = True
         self.report_progress = progress_reporter
+
+        if self.recipe_config:
+            self.config = self.parse_config(self.recipe_config)
 
         if self.needs_subscription and (
                 self.username is None or self.password is None or (

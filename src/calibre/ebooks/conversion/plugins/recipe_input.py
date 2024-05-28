@@ -52,6 +52,8 @@ class RecipeInput(InputFormatPlugin):
             help=_('Do not download latest version of builtin recipes from the calibre server')),
         OptionRecommendation(name='lrf', recommended_value=False,
             help='Optimize fetching for subsequent conversion to LRF.'),
+        OptionRecommendation(name='recipe_config', recommended_value=None,
+            help='Pass arbitrary configuration data to a recipe.'),
         }
 
     def convert(self, recipe_or_file, opts, file_ext, log,

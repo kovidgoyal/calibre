@@ -359,7 +359,12 @@ class SchedulerDialog(QDialog):
         self.custom_tags = ct = QLineEdit(self)
         la.setBuddy(ct)
         g.addWidget(la), g.addWidget(ct, 1, 1)
-        t2.la2 = la = QLabel(_("&Keep at most:"))
+        t2.la2 = la = QLabel(_("&Extra configurationi:"))
+        la.setToolTip(_("Extra configuration to be passed to the recipe, if the recipe implements it."))
+        self.recipe_config = cc = QLineEdit(self)
+        la.setBuddy(cc)
+        g.addWidget(la), g.addWidget(cc, 2, 1)
+        t2.la3 = la = QLabel(_("&Keep at most:"))
         la.setToolTip(_("Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep all (disable)."))
         self.keep_issues = ki = QSpinBox(t2)
         tt.toggled['bool'].connect(self.keep_issues.setEnabled)
@@ -371,9 +376,9 @@ class SchedulerDialog(QDialog):
             " option to add the title as tag checked, above.\n<p>Also, the setting for deleting periodicals"
             " older than a number of days, below, takes priority over this setting."))
         ki.setSpecialValueText(_("all issues")), ki.setSuffix(_(" issues"))
-        g.addWidget(la), g.addWidget(ki, 2, 1)
+        g.addWidget(la), g.addWidget(ki, 3, 1)
         si = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        g.addItem(si, 3, 1, 1, 1)
+        g.addItem(si, 4, 1, 1, 1)
 
         # Bottom area
         self.hb = h = QHBoxLayout()
@@ -506,7 +511,8 @@ class SchedulerDialog(QDialog):
             keep_issues = str(self.keep_issues.value())
         custom_tags = str(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
-        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, keep_issues)
+        recipe_config = str(self.recipe_config.text()).strip()
+        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, recipe_config, keep_issues)
         return True
 
     def initialize_detail_box(self, urn):
@@ -578,9 +584,10 @@ class SchedulerDialog(QDialog):
         rb.setChecked(True)
         self.schedule_stack.setCurrentIndex(sch_widget)
         self.schedule_stack.currentWidget().initialize(typ, sch)
-        add_title_tag, custom_tags, keep_issues = customize_info
+        add_title_tag, custom_tags, recipe_config, keep_issues = customize_info
         self.add_title_tag.setChecked(add_title_tag)
         self.custom_tags.setText(', '.join(custom_tags))
+        self.recipe_config.setText(recipe_config)
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
         try:
             keep_issues = int(keep_issues)
@@ -687,12 +694,13 @@ class Scheduler(QObject):
             un = pw = None
             if account_info is not None:
                 un, pw = account_info
-            add_title_tag, custom_tags, keep_issues = customize_info
+            add_title_tag, custom_tags, recipe_config, keep_issues = customize_info
             arg = {
                     'username': un,
                     'password': pw,
                     'add_title_tag':add_title_tag,
                     'custom_tags':custom_tags,
+                    'recipe_config':recipe_config,
                     'title':recipe.get('title',''),
                     'urn':urn,
                     'keep_issues':keep_issues
