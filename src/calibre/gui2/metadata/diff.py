@@ -715,7 +715,7 @@ class CompareMany(QDialog):
         self.addAction(self.back_action)
         # create the back button, set it's name, tooltip, icon and action to call the previous_item method
         self.back_button = bb.addButton(_('P&revious'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.back_button.setToolTip(_(f'Move to previous {self.back_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)}'))
+        self.back_button.setToolTip(_('Move to previous {}').format(self.back_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         self.back_button.setIcon(QIcon.ic('back.png'))
         self.back_button.clicked.connect(self.previous_item)
         self.back_button.setDefault(True)
