@@ -642,13 +642,13 @@ class CompareMany(QDialog):
         self.l = l = QVBoxLayout(w)
         s.addWidget(w)
         self.next_called = False
-        
+
         # initialize the previous items list, we will use it to store the watched items that were rejected or accepted
         # when the user clicks on the next or reject button we will add the current item to the previous items list
         # when the user presses the back button we will pop the last item from the previous items list and set it as current item
         # also the popped item will be removed from the rejected or accepted items list (and will be unmarked if it was marked)
         self.previous_items = []
-        
+
         self.setWindowIcon(QIcon.ic('auto_author_sort.png'))
         self.get_metadata = get_metadata
         self.ids = list(ids)
@@ -675,9 +675,9 @@ class CompareMany(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         bb.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
-        
+
         if self.total > 1:
-            
+
             self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
             b.setIcon(QIcon.ic('ok.png')), b.setAutoDefault(False)
             if accept_all_tooltip:
@@ -706,21 +706,21 @@ class CompareMany(QDialog):
             b.setIcon(QIcon.ic(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
-        
+
         # Add a Back button, wich allows the user to go back to the previous book cancel any reject/edit/accept that was done to it, and review it again
         # create a Back action that will be triggered when the user presses the back button or the back shortcut
         self.back_action = QAction(self)
         self.back_action.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.Key.Key_Left))
         self.back_action.triggered.connect(self.previous_item)
         self.addAction(self.back_action)
-        # create the back button, set it's name, tooltip, icon and action to call the previous_item method        
+        # create the back button, set it's name, tooltip, icon and action to call the previous_item method
         self.back_button = bb.addButton(_('P&revious'), QDialogButtonBox.ButtonRole.ActionRole)
         self.back_button.setToolTip(_(f'Move to previous {self.back_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)}'))
         self.back_button.setIcon(QIcon.ic('back.png'))
         self.back_button.clicked.connect(self.previous_item)
         self.back_button.setDefault(True)
         self.back_button.setAutoDefault(False)
-        
+
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), QDialogButtonBox.ButtonRole.ActionRole)
         if self.total > 1:
             b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
@@ -786,30 +786,38 @@ class CompareMany(QDialog):
         return self.compare_widget.current_mi
 
 
+    def show_current_item(self):
+        self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
+            num=(self.total - len(self.ids) + 1), tot=self.total))
+        oldmi, newmi = self.get_metadata(self.ids[0])
+        self.compare_widget(oldmi, newmi)
+        self.update_back_button_state()
+
+    def update_back_button_state(self):
+        enabled = bool(self.previous_items)
+        self.back_action.setEnabled(enabled)
+        self.back_button.setEnabled(enabled)
+
     def next_item(self, accept):
         self.next_called = True
         if not self.ids:
             return self.accept()
-        
-        
+
         if self.current_mi is not None:
             changed = self.compare_widget.apply_changes()
         if self.current_mi is not None:
             old_id = self.ids.pop(0)
-                
+
             # Save the current book that was just reviewed and accepted or rejected to the previous_items list
             # this book can be displayed again if the user presses the back button
             self.previous_items.append(old_id)
-            
+
             if not accept:
                 self.rejected_ids.add(old_id)
             self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
         if not self.ids:
             return self.accept()
-        self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
-            num=(self.total - len(self.ids) + 1), tot=self.total))
-        oldmi, newmi = self.get_metadata(self.ids[0])
-        self.compare_widget(oldmi, newmi)
+        self.show_current_item()
 
 
     def previous_item(self):
@@ -817,23 +825,18 @@ class CompareMany(QDialog):
             # get the last book id from the previous items list and remove it from the previous items list
             # this book id is the last book id that was reviewed and accepted or rejected
             last_previous_item = self.previous_items.pop()
-            
+
             # if this book id was rejected, remove it from the rejected ids set
             if last_previous_item in self.rejected_ids:
                 self.rejected_ids.remove(last_previous_item)
-                self.markq.setChecked(False)            
+                self.markq.setChecked(False)
             # if this book id was accepted, remove it from the accepted dictionary
             elif last_previous_item in self.accepted:
                 self.accepted.pop(last_previous_item)
-            
+
             # move the last previous item to the begining of the pending list
             self.ids.insert(0, last_previous_item)
-            
-            # display the last previous item (from the ids list)
-            self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
-                num=(self.total - len(self.ids) + 1), tot=self.total))
-            oldmi, newmi = self.get_metadata(self.ids[0])
-            self.compare_widget(oldmi, newmi)
+            self.show_current_item()
 
 
     def accept_all_remaining(self):
