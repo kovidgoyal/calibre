@@ -614,7 +614,7 @@ class ChapterGroup:
             sg.render_as_text(lines, link_prefix, current_query, as_markdown)
 
 
-def show_export_dialog(annotations_manager):
+def show_export_dialog(annotations_manager, book_metadata):
     sd = get_session_data()
     fmt = sd.get('highlights_export_format')
     if v"['text', 'markdown', 'calibre_annotations_collection']".indexOf(fmt) < 0:
@@ -682,7 +682,8 @@ def show_export_dialog(annotations_manager):
                     text = document.getElementById(ta_id).textContent
                     ext = 'md' if fmt is 'markdown' else ('txt' if fmt is 'text' else 'json')
                     mt = 'text/markdown' if fmt is 'markdown' else ('text/plain' if fmt is 'text' else 'application/json')
-                    filename = f'highlights.{ext}'
+                    title = book_metadata?.title or _('Unknown')
+                    filename = _('{title} - highlights').format(title=title) + f'.{ext}'
                     file = new Blob([text], {'type': mt})
                     url = window.URL.createObjectURL(file)
                     a = E.a(href=url, download=filename)
@@ -956,7 +957,7 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
         _('All'), 'plus', select_all, _('Select all highlights'),
         class_='ac-button sel-button')
     export_button = create_button(
-        _('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager), _('Export all or selected highlights'),
+        _('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager, book.metadata), _('Export all or selected highlights'),
         class_='ac-button')
     c = E.div(
         style='padding: 1rem',
