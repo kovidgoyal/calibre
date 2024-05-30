@@ -95,6 +95,7 @@ class LiveMint(BasicNewsRecipe):
 
         keep_only_tags = [
             dict(name='article', attrs={'id':lambda x: x and x.startswith(('article_', 'box_'))}),
+            dict(attrs={'class':lambda x: x and x.startswith('storyPage_storyBox__')}),
             classes('contentSec')
         ]
         remove_tags = [
