@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 
-# Pour personnaliser quels fils RSS sont téléchargés, voire le commentaire 
+# Pour personnaliser quels fils RSS sont téléchargés, voire le commentaire
 # 'Note aux utilisateurs', plus bas. (~ ligne 60)
 
 # Base class code by quatorze, 2023
@@ -55,7 +55,7 @@ class RadioCanada(BasicNewsRecipe):
                 ' sc-1tkrlyq-0 sc-1tkrlyq-1 eJZZNJ dthPak sc-1fmq1ly-0 hGSCGE' # images
                 ' sc-1tkrlyq-2 gucMx transition-opacity ease-out' # images
                 ' sc-ic6be9-0 eZGuin' # figure/picture caption
-                ' blockquote' 
+                ' blockquote'
                  ),
     ]
 
@@ -72,19 +72,19 @@ class RadioCanada(BasicNewsRecipe):
                     ),
             dict(name='aside')
     ]
-   
+
     # Note aux utilisateurs : Pour personnaliser ce qui est téléchargé dans votre fil de
     # nouvelles, suffit de mettre en commentaire les fils RSS qui ne vous intéressent pas
     # (en ajoutant un dièse au début de la ligne). ATTENTION : si vous mettez en
     # commentaire le dernier élément, il faudra également retirer la virgule à la fin de
     # la dernière ligne non commentée.
-    
-    # From the list situated at https://ici.radio-canada.ca/rss    
+
+    # From the list situated at https://ici.radio-canada.ca/rss
     feeds            = [
         # Information
         ('Grands titres',	'https://ici.radio-canada.ca/rss/4159'),
         ('En continu',	  	'https://ici.radio-canada.ca/rss/1000524'),
-        
+
         # Thématiques
         ('Alimentation',  			'https://ici.radio-canada.ca/rss/7239'),
         ('Art de vivre',  			'https://ici.radio-canada.ca/rss/4163'),
@@ -94,12 +94,12 @@ class RadioCanada(BasicNewsRecipe):
         ('Justice et faits divers', 'https://ici.radio-canada.ca/rss/92411'),
         ('Politique',     			'https://ici.radio-canada.ca/rss/4175'),
         ('Santé',         			'https://ici.radio-canada.ca/rss/4171'),
-        ('Science',       			'https://ici.radio-canada.ca/rss/4165'),	
+        ('Science',       			'https://ici.radio-canada.ca/rss/4165'),
         ('Société',       			'https://ici.radio-canada.ca/rss/7110'),
         ('Techno',			        'https://ici.radio-canada.ca/rss/4169'),
 
         # Sports
-        
+
         ('Grands titres',	'https://ici.radio-canada.ca/rss/771'),
         ('Football',		'https://ici.radio-canada.ca/rss/1000057'),
         ('Hockey',			'https://ici.radio-canada.ca/rss/1000056'),
@@ -107,7 +107,7 @@ class RadioCanada(BasicNewsRecipe):
         ('Podium',			'https://ici.radio-canada.ca/rss/555082'),
         ('Soccer',			'https://ici.radio-canada.ca/rss/1000058'),
         ('Tennis',			'https://ici.radio-canada.ca/rss/1000059'),
-        
+
         # Arts
         ('Grands Titres',	'https://ici.radio-canada.ca/rss/4167'),
         ('Célébrités',		'https://ici.radio-canada.ca/rss/1000232'),
@@ -116,7 +116,7 @@ class RadioCanada(BasicNewsRecipe):
         ('Livres',			'https://ici.radio-canada.ca/rss/1000083'),
         ('Musique',			'https://ici.radio-canada.ca/rss/1000230'),
         ('Télé',			'https://ici.radio-canada.ca/rss/1000233'),
-        
+
         # Régions
         ('Abitibi-Témiscamingue',			'https://ici.radio-canada.ca/rss/5763'),
         ('Alberta',							'https://ici.radio-canada.ca/rss/5767'),
@@ -140,12 +140,12 @@ class RadioCanada(BasicNewsRecipe):
         ('Terre-Neuve-et-Labrador',			'https://ici.radio-canada.ca/rss/1000815'),
         ('Toronto',							'https://ici.radio-canada.ca/rss/5779'),
         ('Windsor',							'https://ici.radio-canada.ca/rss/475289'),
-        
+
         # Autres
         ('Archives',			'https://ici.radio-canada.ca/rss/1000548'),
         ('Dossiers',			'https://ici.radio-canada.ca/rss/6735'),
         ('Espaces autochtones', 'https://ici.radio-canada.ca/rss/116435'),
-        ('RCI',					'http://www.rcinet.ca/fr/feed/rss/')        
+        ('RCI',					'http://www.rcinet.ca/fr/feed/rss/')
     ]
 
     # The following was copied and adapted as per the following post:
@@ -155,14 +155,12 @@ class RadioCanada(BasicNewsRecipe):
       feeds = BasicNewsRecipe.parse_feeds(self)
       for feed in feeds:
         for article in feed.articles[:]:
-            if ('VIDEO' in article.title.upper() or 
+            if ('VIDEO' in article.title.upper() or
                 'OHDIO' in article.title.upper() or
-                '/emissions/' in article.url or 
-                '/segments/' in article.url or 
-                '/entrevue/' in article.url or 
+                '/emissions/' in article.url or
+                '/segments/' in article.url or
+                '/entrevue/' in article.url or
                 '/ohdio/' in article.url
-                ): feed.articles.remove(article)
+                ):
+                feed.articles.remove(article)
       return feeds
-
-
-calibre_most_common_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
