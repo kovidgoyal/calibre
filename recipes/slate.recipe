@@ -72,7 +72,7 @@ class Slate(BasicNewsRecipe):
         from datetime import date
         soup = self.index_to_soup(url)
         ans = []
-        dt = date.today().strftime('/%Y/%m')
+        dt = date.today().strftime('/%Y/')
         for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + dt)}):
             url = a['href']
             head = a.find(attrs={'class':[
