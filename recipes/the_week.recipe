@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class TheWeek(BasicNewsRecipe):
@@ -17,17 +17,18 @@ class TheWeek(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://www.theweek.in/content/dam/week/logo/The-Week-Logo-Big.png'
 
-    keep_only_tags = [
-        dict(
-            name='div',
-            attrs={
-                'class': [
-                    'article-title', 'article-image', 'articlecontentbody section',
-                    'element11-page-content'
-                ]
-            }
-        ),
-    ]
+    keep_only_tags = [classes('article-post section-heading element11-page-content')]
+
+    remove_tags = [classes('article-highlights sharebar')]
+
+    remove_tags_after = [classes('articlecontentbody')]
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        em, blockquote { color: #202020; }
+        .article-image, .article-imgbox { text-align:center; font-size:small; }
+        .article-info { font-size:small; }
+    '''
 
     def get_cover_url(self):
         soup = self.index_to_soup(
