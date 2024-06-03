@@ -468,7 +468,11 @@ class Notes:
         resources = {}
         errors = []
         for subdir in os.listdir(make_long_path_useable(self.resources_dir)):
-            for rf in os.listdir(make_long_path_useable(os.path.join(self.resources_dir, subdir))):
+            try:
+                subitems = os.listdir(make_long_path_useable(os.path.join(self.resources_dir, subdir)))
+            except NotADirectoryError:
+                continue
+            for rf in subitems:
                 if not rf.endswith(METADATA_EXT):
                     name_path = os.path.join(self.resources_dir, subdir, rf + METADATA_EXT)
                     name = 'unnamed'
