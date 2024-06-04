@@ -272,13 +272,24 @@ class Page(QWebEnginePage):
             sys.stderr.flush()
 
     def zoom_in(self):
-        self.setZoomFactor(min(self.zoomFactor() + 0.2, 5))
+        factor = min(self.zoomFactor() + 0.2, 5)
+        vprefs['lookup_zoom_factor'] = factor
+        self.setZoomFactor(factor)
 
     def zoom_out(self):
-        self.setZoomFactor(max(0.25, self.zoomFactor() - 0.2))
+        factor = max(0.25, self.zoomFactor() - 0.2)
+        vprefs['lookup_zoom_factor'] = factor
+        self.setZoomFactor(factor)
 
     def default_zoom(self):
+        vprefs['lookup_zoom_factor'] = 1
         self.setZoomFactor(1)
+
+    def set_initial_zoom_factor(self):
+        try:
+            self.setZoomFactor(float(vprefs.get('lookup_zoom_factor', 1)))
+        except Exception:
+            pass
 
 
 class View(QWebEngineView):
@@ -338,6 +349,7 @@ class Lookup(QWidget):
         apply_font_settings(self._page)
         secure_webengine(self._page, for_viewer=True)
         self.view.setPage(self._page)
+        self._page.set_initial_zoom_factor()
         l.addWidget(self.view)
         self.populate_sources()
         self.source_box.currentIndexChanged.connect(self.source_changed)
