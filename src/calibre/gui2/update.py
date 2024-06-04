@@ -5,7 +5,7 @@ import re
 import ssl
 from threading import Event, Thread
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl, pyqtSignal
+from qt.core import QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl, pyqtSignal
 
 from calibre import as_unicode, prints
 from calibre.constants import __appname__, __version__, ismacos, isportable, iswindows, numeric_version
@@ -206,7 +206,6 @@ class UpdateMixin:
         self.plugin_update_found(number_of_plugin_updates)
         version_url = as_hex_unicode(msgpack_dumps((calibre_version, number_of_plugin_updates)))
         calibre_version = '.'.join(map(str, calibre_version))
-
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
             return
@@ -214,9 +213,10 @@ class UpdateMixin:
             plt = ''
             if has_plugin_updates:
                 plt = ngettext(' and one plugin update', ' and {} plugin updates', number_of_plugin_updates).format(number_of_plugin_updates)
-            msg = ('<span style="color:green; font-weight: bold">%s: '
+            green = 'darkgreen' if QApplication.instance().is_dark_theme else 'green'
+            msg = ('<span style="color:%s; font-weight: bold">%s: '
                     '<a href="update:%s">%s%s</a></span>') % (
-                        _('Update found'), version_url, calibre_version, plt)
+                            green, _('Update found'), version_url, calibre_version, plt)
         else:
             plt = ngettext('plugin update available', 'plugin updates available', number_of_plugin_updates)
             msg = ('<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates, plt)
