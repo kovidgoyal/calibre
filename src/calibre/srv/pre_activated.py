@@ -35,7 +35,8 @@ if islinux:
         return addr.nl_family
 
     try:
-        systemd = ctypes.CDLL(ctypes.util.find_library('systemd'))
+        from ctypes.util import find_library
+        systemd = ctypes.CDLL(find_library('systemd'))
         systemd.sd_listen_fds
     except Exception:
         pass
