@@ -24,7 +24,6 @@ class TheWeek(BasicNewsRecipe):
     remove_tags_after = [classes('articlecontentbody')]
 
     extra_css = '''
-        img {display:block; margin:0 auto;}
         em, blockquote { color: #202020; }
         .article-image, .article-imgbox { text-align:center; font-size:small; }
         .article-info { font-size:small; }
