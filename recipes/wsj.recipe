@@ -1,12 +1,10 @@
 import json
-import re
 import time
 from itertools import zip_longest 
 from datetime import datetime, timedelta
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from html5_parser import parse
 
 # Past 6 editions are available for download.
 # For available past editions see log and set date to, for example, '20240513'.
@@ -47,7 +45,6 @@ class WSJ(BasicNewsRecipe):
     '''
 
     remove_tags = [
-        dict(name=['nav', 'svg', 'iframe', 'source']),
         dict(name='panel', attrs={'id':'summary-image'}),
         dict(name='panel', attrs={'layout':'inline'}),
         dict(name='panel', attrs={'embed':'inner-article-ad'}),
@@ -57,15 +54,10 @@ class WSJ(BasicNewsRecipe):
             'keywords', 'orig-pubdate-number', 'type', 'is-custom-flashline', 'grouphed', 'author-ids', 'article-manifest',
             'body-extract', 'category', 'sub-category', 'socialhed', 'summary', 'deckline', 'article-flashline'
         ]}),
-        dict(attrs={'data-inset_type':'dynamic'}),
-        dict(attrs={'data-block':'dynamic-inset'})
     ]
 
     remove_tags_before = [
         dict(name='p', attrs={'id':'orig-pubdate-string'})
-    ]
-    remove_tags_after = [
-        dict(name='article')
     ]
 
     def preprocess_html(self, soup):
@@ -88,21 +80,6 @@ class WSJ(BasicNewsRecipe):
         if url:
             url['title'] = self.tag_to_string(url).strip()
             url.string = ''
-        for figc in soup.findAll('figcaption'):
-            figc['class'] = 'figc'
-        col = soup.find('div', text = re.compile('What to Read Next'))
-        if col:
-            div = col.findParent('div')
-            if div:
-                div.extract()
-        time = soup.find('time')
-        if time:
-            p = time.findParent('div')
-            if p:
-                p.name = 'p'
-        for img in soup.findAll('img', src=True):
-            if img['src'].endswith('/OR'):
-                img['src'] = img['src'][:-3]
         panel = soup.find('panel', attrs={'id':'metadata'})
         if panel:
             buck = panel.find('p', attrs={'id':'media-bucket'})
@@ -175,7 +152,9 @@ class WSJ(BasicNewsRecipe):
                 if '-pages_' in k:
                     section = k.split('-pages_')[0].replace('_', ' ')
                     if 'MAGAZINE' in section:
-                        continue
+                        if not datetime.now().strftime("%d") == 1:
+                            continue
+                        self.log('Loading Magazine section')
                     self.log(section)
 
                     articles = []
@@ -185,38 +164,16 @@ class WSJ(BasicNewsRecipe):
                     for art in data:
                         title = data[art]['headline']
                         desc = data[art]['summary']
-                        if 'articleWebViewLink' in data[art]:
-                            url = data[art]['articleWebViewLink']
-                        else:
-                            url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
                     feeds.append((section, articles))
         return feeds
 
     def preprocess_raw_html(self, raw, url):
-        if '/webview/' not in url:
-            root = parse(raw)
-            for x in root.xpath('//image'):
-                x.tag = 'img'
-            return BeautifulSoup(raw).prettify()
-        else:
-            soup = BeautifulSoup(raw)
-            url = soup.find('meta', attrs={'property':'og:url'})
-            if url:
-                h1 = soup.find('h1')
-                if h1:
-                    h1['title'] = url['content']
-            h2 = soup.find('h2')
-            if h2:
-                h2['id'] = 'subhed'
-                h2.name = 'p'
-            return soup.prettify()
+        return BeautifulSoup(raw).prettify()
 
     def populate_article_metadata(self, article, soup, first):
         lnk = soup.find('p', attrs={'id':'share-link'})
         if lnk:
             article.url = lnk['title']
-        art = soup.find('h1', attrs={'title':True})
-        if art:
-            article.url = art['title']
