@@ -152,7 +152,9 @@ class WSJ(BasicNewsRecipe):
                 if '-pages_' in k:
                     section = k.split('-pages_')[0].replace('_', ' ')
                     if 'MAGAZINE' in section:
-                        continue
+                        if not datetime.now().strftime("%d") == 1:
+                            continue
+                        self.log('Loading Magazine section')
                     self.log(section)
 
                     articles = []
@@ -172,6 +174,6 @@ class WSJ(BasicNewsRecipe):
         return BeautifulSoup(raw).prettify()
 
     def populate_article_metadata(self, article, soup, first):
-        art = soup.find('h1', attrs={'title':True})
-        if art:
-            article.url = art['title']
+        lnk = soup.find('p', attrs={'id':'share-link'})
+        if lnk:
+            article.url = lnk['title']
