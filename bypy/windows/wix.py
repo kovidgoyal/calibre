@@ -37,6 +37,12 @@ def create_installer(env, compression_level='9'):
     with open(j(d(__file__), 'wix-template.xml'), 'rb') as f:
         template = f.read().decode('utf-8')
 
+    cmd = [WIX, '--version']
+    WIXVERSION = run(*cmd, get_output=True).decode('utf-8').split('.')[0]
+    if int(WIXVERSION) >= 5:
+        # Virtual Symbol "WixUISupportPerUser" needs to be overridden in WIX V5 https://wixtoolset.org/docs/fivefour/
+        template = template.replace('WixUISupportPerUser', 'override WixUISupportPerUser')
+
     components, smap = get_components_from_files(env)
     wxs = template.format(
         app=calibre_constants['appname'],
