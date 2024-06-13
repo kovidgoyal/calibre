@@ -152,7 +152,7 @@ def process_url(url):
 class Economist(BasicNewsRecipe):
 
     title = '1843'
-    language = 'en'
+    language = 'en_GB'
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
