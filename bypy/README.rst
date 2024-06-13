@@ -76,9 +76,9 @@ To build the dependencies for calibre, run::
 
     ./setup.py build_dep windows
 
-The output (after a very long time) will be in :literal:`bypy/b/windows/[32|64]`.
+The output (after a very long time) will be in :literal:`bypy/b/windows/64`.
 Now you can build the calibre windows installers with::
 
-    ./setup.py win --dont-sign
+    ./setup.py win64 --dont-sign
 
 The output will be in :file:`dist`
