@@ -62,13 +62,6 @@ class IndiaToday(BasicNewsRecipe):
         section = None
         sections = {}
 
-        date = soup.find(attrs={'class':lambda x: x and x.startswith('MagazineEdition_edition__date')})
-        edition = soup.find(attrs={'class':'prime__magazine'})
-        self.timefmt = '(' + self.tag_to_string(edition).strip() +') [' + self.tag_to_string(date).strip() + ']'
-        if p := edition.findNext('p'):
-            self.description = self.tag_to_string(p)
-        self.log('Downloading Issue: ', self.timefmt)
-
         for tag in soup.findAll('div', attrs={'class': lambda x: x and 'NoCard_story__grid__' in x}):
             sec = tag.find('div', attrs={'class': lambda x: x and 'NoCard_header__nav__' in x})
             section = self.tag_to_string(sec).strip()
