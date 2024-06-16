@@ -141,22 +141,29 @@ class CACerts(Command):  # {{{
     description = 'Get updated mozilla CA certificate bundle'
     CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs.pem')
 
+    def add_options(self, parser):
+        parser.add_option('--path-to-cacerts', help='Path to mozilla-ca-certs.pem')
+
     def run(self, opts):
-        try:
-            with open(self.CA_PATH, 'rb') as f:
-                raw = f.read()
-        except OSError as err:
-            if err.errno != errno.ENOENT:
-                raise
-            raw = b''
-        nraw = download_securely('https://curl.haxx.se/ca/cacert.pem')
-        if not nraw:
-            raise RuntimeError('Failed to download CA cert bundle')
-        if nraw != raw:
-            self.info('Updating Mozilla CA certificates')
-            with open(self.CA_PATH, 'wb') as f:
-                f.write(nraw)
-            self.verify_ca_certs()
+        if opts.path_to_cacerts:
+            shutil.copyfile(opts.path_to_cacerts, self.CA_PATH)
+            os.chmod(self.CA_PATH, 0o644)
+        else:
+            try:
+                with open(self.CA_PATH, 'rb') as f:
+                    raw = f.read()
+            except OSError as err:
+                if err.errno != errno.ENOENT:
+                    raise
+                raw = b''
+            nraw = download_securely('https://curl.haxx.se/ca/cacert.pem')
+            if not nraw:
+                raise RuntimeError('Failed to download CA cert bundle')
+            if nraw != raw:
+                self.info('Updating Mozilla CA certificates')
+                with open(self.CA_PATH, 'wb') as f:
+                    f.write(nraw)
+                self.verify_ca_certs()
 
     def verify_ca_certs(self):
         from calibre.utils.https import get_https_resource_securely
@@ -169,11 +176,18 @@ class RecentUAs(Command):  # {{{
     description = 'Get updated list of common browser user agents'
     UA_PATH = os.path.join(Command.RESOURCES, 'user-agent-data.json')
 
+    def add_options(self, parser):
+        parser.add_option('--path-to-user-agent-data', help='Path to user-agent-data.json')
+
     def run(self, opts):
         from setup.browser_data import get_data
-        data = get_data()
-        with open(self.UA_PATH, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
+        if opts.path_to_user_agent_data:
+            shutil.copyfile(opts.path_to_user_agent_data, self.UA_PATH)
+            os.chmod(self.UA_PATH, 0o644)
+        else:
+            data = get_data()
+            with open(self.UA_PATH, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
 # }}}
 
 
@@ -199,7 +213,7 @@ class RapydScript(Command):  # {{{
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi', 'liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation']
+    sub_commands = ['kakasi', 'liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation', 'iso_data']
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps

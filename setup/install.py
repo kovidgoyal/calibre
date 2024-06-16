@@ -355,17 +355,32 @@ class Bootstrap(Command):
 
     description = 'Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers'
     TRANSLATIONS_REPO = 'kovidgoyal/calibre-translations'
-    sub_commands = 'build iso639 iso3166 translations gui resources cacerts recent_uas'.split()
+    sub_commands = 'build resources iso639 iso3166 translations gui cacerts recent_uas'.split()
 
     def add_options(self, parser):
         parser.add_option('--ephemeral', default=False, action='store_true',
             help='Do not download all history for the translations. Speeds up first time download but subsequent downloads will be slower.')
+        parser.add_option('--path-to-translations', help='Path to sources of translations')
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
         clone_cmd = [
             'git', 'clone', f'https://github.com/{self.TRANSLATIONS_REPO}.git', 'translations']
-        if opts.ephemeral:
+        if opts.path_to_translations:
+            if os.path.exists(tdir):
+                shutil.rmtree(tdir)
+            shutil.copytree(opts.path_to_translations, tdir)
+            # Change permissions for the top-level folder
+            os.chmod(tdir, 0o755)
+            for root, dirs, files in os.walk(tdir):
+              # set perms on sub-directories  
+              for momo in dirs:
+                os.chmod(os.path.join(root, momo), 0o755)
+              # set perms on files
+              for momo in files:
+                os.chmod(os.path.join(root, momo), 0o644)
+
+        elif opts.ephemeral:
             if os.path.exists(tdir):
                 shutil.rmtree(tdir)
 
