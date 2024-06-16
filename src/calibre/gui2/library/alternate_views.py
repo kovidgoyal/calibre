@@ -878,9 +878,10 @@ class GridView(QListView):
         r, g, b = gprefs['cover_grid_color']
         tex = gprefs['cover_grid_texture']
         pal = self.palette()
-        pal.setColor(QPalette.ColorRole.Base, QColor(r, g, b))
+        bgcol = QColor(r, g, b)
+        pal.setColor(QPalette.ColorRole.Base, bgcol)
         self.setPalette(pal)
-        ss = ''
+        ss = f'background-color: {bgcol.name()}; '
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
