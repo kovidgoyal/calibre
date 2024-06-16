@@ -16,7 +16,10 @@ class ISOData(Command):
     URL = f'https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/main/iso-codes-main.zip'
 
     def add_options(self, parser):
+        if self.option_added:
+            return
         parser.add_option('--path-to-isocodes', help='Path to iso-codes.zip')
+        self.option_added = True
 
     def run(self, opts):
         if self._zip_data is None:
@@ -34,6 +37,7 @@ class ISOData(Command):
         super().__init__()
         self._zip_data = None
         self.top_level = 'iso-codes-main'
+        self.option_added = False
 
     @property
     def zip_data(self):
