@@ -20,7 +20,7 @@ def media_bucket(x):
 
 
 class WSJ(BasicNewsRecipe):
-    title = 'Wall Street Journal Magazine'
+    title = 'WSJ. Magazine'
     __author__ = 'unkn0wn'
     description = (
         'Eight times a year the print edition of WSJ. Magazine covers contemporary culture '
