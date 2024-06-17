@@ -1082,7 +1082,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 7)
+    version = (1, 3, 8)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1684,13 +1684,20 @@ class Amazon(Source):
         if not self.use_search_engine:
             return True
         if title is not None:
+            import regex
+            only_punctuation_pat = regex.compile(r'^\p{P}+$')
 
             def tokenize_title(x):
-                return icu_lower(x).replace("'", '').replace('"', '').rstrip(':')
+                ans = icu_lower(x).replace("'", '').replace('"', '').rstrip(':')
+                if only_punctuation_pat.match(ans) is not None:
+                    ans = ''
+                return ans
 
             tokens = {tokenize_title(x) for x in title.split() if len(x) > 3}
+            tokens.discard('')
             if tokens:
                 result_tokens = {tokenize_title(x) for x in mi.title.split()}
+                result_tokens.discard('')
                 if not tokens.intersection(result_tokens):
                     log('Ignoring result:', mi.title, 'as its title does not match')
                     return False
