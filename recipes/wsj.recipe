@@ -1,7 +1,7 @@
 import json
 import time
-from itertools import zip_longest 
 from datetime import datetime, timedelta
+from itertools import zip_longest
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes

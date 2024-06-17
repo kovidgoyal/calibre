@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def p_dt(x):
     dt = datetime.fromisoformat(x[:-1]) + timedelta(seconds=time.timezone)
     return dt.strftime('%b %d, %Y, %I:%M %p')
@@ -39,7 +40,7 @@ class Reuters(BasicNewsRecipe):
         feed_api = index + '/arc/outboundfeeds/v3/mobile/section/{}/?from=0&size=50&outputType=json'
         path_api = index + '/arc/outboundfeeds/v3/mobile{}?outputType=json'
         sections = [
-            'world', 'business', 'markets','sustainability', 'legal', 
+            'world', 'business', 'markets','sustainability', 'legal',
             'breakingviews', 'technology', 'sports', 'science', 'lifestyle'
         ]
 
@@ -52,7 +53,7 @@ class Reuters(BasicNewsRecipe):
             articles = []
 
             data = json.loads(self.index_to_soup(feed_api.format(sec), raw=True))['wireitems']
-            
+
             for x in data:
                 if x.get('wireitem_type', '') == 'story':
                     for y in x['templates']:
