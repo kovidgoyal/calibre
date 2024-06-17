@@ -43,10 +43,26 @@ def imgurl_from_id(raw, tbnid):
                     return q
 
 
+def parse_google_markup(raw):
+    root = parse_html(raw)
+    # newer markup pages use data-docid not data-tbnid
+    results = root.xpath('//div/@data-tbnid') or root.xpath('//div/@data-docid')
+    ans = OrderedDict()
+    for tbnid in results:
+        try:
+            imgurl = imgurl_from_id(raw, tbnid)
+        except Exception:
+            continue
+        if imgurl:
+            ans[imgurl] = True
+    return list(ans)
+
+
+
 class GoogleImages(Source):
 
     name = 'Google Images'
-    version = (1, 0, 5)
+    version = (1, 0, 6)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from a Google Image search. Useful to find larger/alternate covers.')
     capabilities = frozenset(['cover'])
@@ -88,8 +104,6 @@ class GoogleImages(Source):
             from urllib.parse import urlencode
         except ImportError:
             from urllib import urlencode
-        from collections import OrderedDict
-        ans = OrderedDict()
         br = self.browser
         q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')})
         if isinstance(q, bytes):
@@ -116,21 +130,17 @@ class GoogleImages(Source):
         raw = clean_ascii_chars(br.open(url).read().decode('utf-8'))
         # with open('/t/raw.html', 'w') as f:
         #     f.write(raw)
-        root = parse_html(raw)
-        results = root.xpath('//div/@data-tbnid')  # could also use data-id
-        # from calibre.utils.ipython import ipython
-        # ipython({'root': root, 'raw': raw, 'url': url, 'results': results})
-        for tbnid in results:
-            try:
-                imgurl = imgurl_from_id(raw, tbnid)
-            except Exception:
-                continue
-            if imgurl:
-                ans[imgurl] = True
-        return list(ans)
+        return parse_google_markup(raw)
 
 
-def test():
+def test_raw():
+    import sys
+    raw = open(sys.argv[-1]).read()
+    for x in parse_google_markup(raw):
+        print(x)
+
+
+def test(title='Star Trek: Section 31: Control', authors=('David Mack',)):
     try:
         from queue import Queue
     except ImportError:
@@ -141,9 +151,9 @@ def test():
     p = GoogleImages(None)
     p.log = default_log
     rq = Queue()
-    p.download_cover(default_log, rq, Event(), title='The Heroes',
-                     authors=('Joe Abercrombie',))
+    p.download_cover(default_log, rq, Event(), title=title, authors=authors)
     print('Downloaded', rq.qsize(), 'covers')
+
 
 if __name__ == '__main__':
     test()
