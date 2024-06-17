@@ -360,7 +360,8 @@ class Bootstrap(Command):
     def add_options(self, parser):
         parser.add_option('--ephemeral', default=False, action='store_true',
             help='Do not download all history for the translations. Speeds up first time download but subsequent downloads will be slower.')
-        parser.add_option('--path-to-translations', help='Path to sources of translations')
+        parser.add_option('--path-to-translations',
+                          help='Path to existing out-of-tree translations checkout. Use this to avoid downloading translations at all.')
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
@@ -373,12 +374,12 @@ class Bootstrap(Command):
             # Change permissions for the top-level folder
             os.chmod(tdir, 0o755)
             for root, dirs, files in os.walk(tdir):
-              # set perms on sub-directories  
-              for momo in dirs:
-                os.chmod(os.path.join(root, momo), 0o755)
-              # set perms on files
-              for momo in files:
-                os.chmod(os.path.join(root, momo), 0o644)
+                # set perms on sub-directories
+                for momo in dirs:
+                    os.chmod(os.path.join(root, momo), 0o755)
+                # set perms on files
+                for momo in files:
+                    os.chmod(os.path.join(root, momo), 0o644)
 
         elif opts.ephemeral:
             if os.path.exists(tdir):

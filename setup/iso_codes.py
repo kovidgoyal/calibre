@@ -2,24 +2,24 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import fnmatch
+import optparse
 import os
 import shutil
 import time
 import zipfile
+from contextlib import suppress
 from io import BytesIO
 
-from setup import download_securely, Command
+from setup import Command, download_securely
 
 
 class ISOData(Command):
-    description = 'Get iso-codes data'
-    URL = f'https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/main/iso-codes-main.zip'
+    description = 'Get ISO codes name localization data'
+    URL = 'https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/main/iso-codes-main.zip'
 
     def add_options(self, parser):
-        if self.option_added:
-            return
-        parser.add_option('--path-to-isocodes', help='Path to iso-codes.zip')
-        self.option_added = True
+        with suppress(optparse.OptionConflictError):  # ignore if option already added
+            parser.add_option('--path-to-isocodes', help='Path to previously downloaded iso-codes-main.zip')
 
     def run(self, opts):
         if self._zip_data is None:
@@ -37,7 +37,6 @@ class ISOData(Command):
         super().__init__()
         self._zip_data = None
         self.top_level = 'iso-codes-main'
-        self.option_added = False
 
     @property
     def zip_data(self):

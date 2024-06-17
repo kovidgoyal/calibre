@@ -142,7 +142,7 @@ class CACerts(Command):  # {{{
     CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs.pem')
 
     def add_options(self, parser):
-        parser.add_option('--path-to-cacerts', help='Path to mozilla-ca-certs.pem')
+        parser.add_option('--path-to-cacerts', help='Path to previously downloaded mozilla-ca-certs.pem')
 
     def run(self, opts):
         if opts.path_to_cacerts:
@@ -177,7 +177,7 @@ class RecentUAs(Command):  # {{{
     UA_PATH = os.path.join(Command.RESOURCES, 'user-agent-data.json')
 
     def add_options(self, parser):
-        parser.add_option('--path-to-user-agent-data', help='Path to user-agent-data.json')
+        parser.add_option('--path-to-user-agent-data', help='Path to previously downloaded user-agent-data.json')
 
     def run(self, opts):
         from setup.browser_data import get_data
