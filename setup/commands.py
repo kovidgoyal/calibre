@@ -6,7 +6,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 __all__ = [
-    'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
+    'pot', 'translations', 'get_translations', 'iso_data', 'iso639', 'iso3166',
     'build', 'mathjax', 'man_pages',
     'gui',
     'git_version',
@@ -33,6 +33,7 @@ build_dep = BuildDep()
 export_packages = ExportPackages()
 
 from setup.translations import ISO639, ISO3166, POT, GetTranslations, Translations
+from setup.iso_codes import iso_data
 
 pot = POT()
 translations = Translations()

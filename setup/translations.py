@@ -763,6 +763,7 @@ class GetTranslations(Translations):  # {{{
 class ISO639(Command):  # {{{
 
     description = 'Compile language code maps for performance'
+    sub_commands = ['iso_data']
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'iso639.calibre_msgpack')
 
@@ -823,6 +824,7 @@ class ISO639(Command):  # {{{
 class ISO3166(ISO639):  # {{{
 
     description = 'Compile country code maps for performance'
+    sub_commands = ['iso_data']
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'iso3166.calibre_msgpack')
 
