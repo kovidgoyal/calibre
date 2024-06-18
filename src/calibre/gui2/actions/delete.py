@@ -149,6 +149,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
+        self.gui.tags_view.recount()
 
     def remove_format_by_id(self, book_id, fmt):
         title = self.gui.current_db.title(book_id, index_is_id=True)
