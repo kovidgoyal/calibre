@@ -1,60 +1,56 @@
-__license__ = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
-techcrunch.com
-'''
-
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-class TechCrunch(BasicNewsRecipe):
-    title = 'TechCrunch'
-    __author__ = 'Darko Miletic'
-    description = 'IT News'
-    publisher = 'AOL Inc.'
-    category = 'news, IT'
-    oldest_article = 2
-    max_articles_per_feed = 200
-    no_stylesheets = True
-    encoding = 'utf8'
-    use_embedded_content = False
+class AdvancedUserRecipe1718089036(BasicNewsRecipe):
+    title          = 'TechCrunch'
     language = 'en'
-    remove_empty_feeds = True
-    publication_type = 'newsportal'
-    masthead_url = 'http://s2.wp.com/wp-content/themes/vip/tctechcrunch2/images/site-logo.png'
-    extra_css             = """
-                               body{font-family: Helvetica,Arial,sans-serif }
-                               img{margin-bottom: 0.4em; display:block}
-                            """
+    __author__ = 'Spicy Poison'
+    description = 'TechCrunch is an American global online newspaper focusing on topics regarding high-tech and startup companies.'
+    publisher = 'Yahoo! Inc.'
+    oldest_article = 30
+    max_articles_per_feed = 50
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://aircoverpr.com/wp-content/uploads/2020/07/techcrunch-logo-png-4.png'
+    auto_cleanup   = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    remove_tags = [dict(name=['meta', 'link'])]
-    remove_attributes = ['lang']
-    keep_only_tags = [
-        dict(name='h1', attrs={'class': 'headline'}), dict(
-            attrs={'class': ['author', 'post-time', 'body-copy']})
-    ]
-
-    feeds = [(u'News', u'http://feeds.feedburner.com/TechCrunch/')]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-                str = item.string
-                item.replaceWith(str)
-            else:
-                if limg:
-                    item.name = 'div'
-                    item.attrs = []
-                else:
-                    str = self.tag_to_string(item)
-                    item.replaceWith(str)
-        for item in soup.findAll('img', alt=False):
-            item['alt'] = 'image'
-        return soup
+    feeds = [
+    ('TechCrunch', 'https://techcrunch.com/feed/'),
+    #Categories
+    ('Apps', 'https://techcrunch.com/category/apps/feed/'),
+    ('Artificial Intelligence', 'https://techcrunch.com/category/artificial-intelligence/feed/'),
+    ('Biotech', 'https://techcrunch.com/category/biotech-health/feed/'),
+    ('Climate', 'https://techcrunch.com/category/climate/feed/'),
+    ('Commerce', 'https://techcrunch.com/category/commerce/feed/'),
+    ('Crypto', 'https://techcrunch.com/category/cryptocurrency/feed/'),
+    ('Enterprise', 'https://techcrunch.com/category/enterprise/feed/'),
+    ('Fintech', 'https://techcrunch.com/category/fintech/feed'),
+    ('Fundraising', 'https://techcrunch.com/category/fundraising/feed/'),
+    ('Gadgets', 'https://techcrunch.com/category/gadgets/feed/'),
+    ('Gaming', 'https://techcrunch.com/category/gaming/feed/'),
+    ('Hardware', 'https://techcrunch.com/category/hardware/feed/'),
+    ('Media & Entertainment', 'https://techcrunch.com/category/media-entertainment/feed/'),
+    ('Privacy', 'https://techcrunch.com/category/privacy/feed/'),
+    ('Robotics', 'https://techcrunch.com/category/robotics/feed/'),
+    ('Security', 'https://techcrunch.com/category/security/feed/'),
+    ('Social Media', 'https://techcrunch.com/category/social/feed/'),
+    ('Space', 'https://techcrunch.com/category/space/feed/'),
+    ('Startups', 'https://techcrunch.com/category/startups/feed/'),
+    ('Tech Policy & Government', 'https://techcrunch.com/category/government-policy/feed/'),
+    ('Transportation', 'https://techcrunch.com/category/transportation/feed/'),
+    ('Venture Capital', 'https://techcrunch.com/category/venture/feed/'),
+    #Tags
+    ('Amazon', 'https://techcrunch.com/tag/amazon/feed/'),
+    ('Apple', 'https://techcrunch.com/tag/apple/feed/'),
+    ('Cloud Computing', 'https://techcrunch.com/tag/cloud-computing/feed/'),
+    ('Electric Vehicles', 'https://techcrunch.com/tag/evs/feed/'),
+    ('Google', 'https://techcrunch.com/tag/google/feed/'),
+    ('Instagram', 'https://techcrunch.com/tag/instagram/feed/'),
+    ('Layoffs', 'https://techcrunch.com/tag/layoffs/feed/'),
+    ('Meta', 'https://techcrunch.com/tag/meta/feed/'),
+    ('Microsoft', 'https://techcrunch.com/tag/microsoft/feed/'),
+    ('TikTok', 'https://techcrunch.com/tag/tiktok/feed/'),
+    #Other
+    ('Events Archive', 'https://techcrunch.com/events/feed/'),
+]
