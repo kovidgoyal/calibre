@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718382046(BasicNewsRecipe):
+    title          = 'Backyard Boss'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'Backyard Boss is a place where backyard enthusiasts and lovers of the great outdoors'
+            ' can gather to find everything you need to know about gardening, landscaping, and more.')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/byb-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #Gardening
+        ('Gardening', 'https://www.backyardboss.net/feed/category/gardening/'),
+        ('Outdoor Gardening', 'https://www.backyardboss.net/feed/category/gardening/outdoor-gardening/'),
+        ('Indoor Gardening', 'https://www.backyardboss.net/feed/category/gardening/indoor-gardening/'),
+        ('Fruits & Vegetables', 'https://www.backyardboss.net/feed/tag/gardening/fruits-and-vegetables/'),
+        ('Houseplants', 'https://www.backyardboss.net/feed/category/gardening/houseplants/'),
+        ('Plant Care', 'https://www.backyardboss.net/feed/category/gardening/plant-care/'),
+        #Backyard
+        ('Backyard', 'https://www.backyardboss.net/feed/category/backyard/'),
+        ('Home Improvement', 'https://www.backyardboss.net/feed/category/backyard/home-improvement/'),
+        ('Lawn Care', 'https://www.backyardboss.net/feed/category/backyard/lawn-care/'),
+        ('Landscaping', 'https://www.backyardboss.net/feed/category/backyard/landscape-industry/'),
+        ('Barbecue', 'https://www.backyardboss.net/feed/category/backyard/bbq/'),
+        ('Reviews', 'https://www.backyardboss.net/feed/category/backyard/reviews/'),
+        #DIY & Project
+        ('DIY & Projects', 'https://www.backyardboss.net/feed/category/diy/'),
+        ('How-To', 'https://www.backyardboss.net/feed/category/diy/how-to/'),
+        ('Designs & Ideas', 'https://www.backyardboss.net/feed/category/diy/designs-and-ideas/'),
+        ('Tips & Guides', 'https://www.backyardboss.net/feed/category/diy/tips-and-guide/'),
+    ]

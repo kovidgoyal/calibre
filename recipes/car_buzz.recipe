@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718369687(BasicNewsRecipe):
+    title          = 'Car Buzz'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'Founded in 2010, CarBuzz was the vision of a team of gearheads with a desire'
+            ' to share their passion for cars with the world. What resulted was the world’s premier car-related news app.')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/cb-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        ('News', 'https://carbuzz.com/feed/category/news/'),
+        ('Features', 'https://carbuzz.com/feed/category/features/'),
+        ('Car Reviews', 'https://carbuzz.com/feed/category/car-reviews/'),
+        ('Car Advice', 'https://carbuzz.com/feed/category/car-advice/'),
+        ('Threads', 'https://carbuzz.com/feed/category/threads/'),
+    ]

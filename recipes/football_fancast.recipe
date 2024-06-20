@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718373345(BasicNewsRecipe):
+    title          = 'Football Fancast'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = 'Football Fancast is a leading independent football news outlet serving with organic content, unique football news and analysis.'
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/ffc-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #EURO 2024
+        ('EURO 2024', 'https://www.footballfancast.com/feed/tag/euro-2024/'),
+        ('EURO England', 'https://www.footballfancast.com/feed/tag/england/'),
+        ('EURO Scotland', 'https://www.footballfancast.com/feed/tag/scotland/'),
+        ('EURO Groups', 'https://www.footballfancast.com/feed/tag/euro-2024-groups/'),
+        ('History of the EUROs', 'https://www.footballfancast.com/feed/tag/history-of-the-euros/'),
+        #Transfer Rumours
+        ('Transfer Focus', 'https://www.footballfancast.com/feed/tag/transfer-focus/'),
+        ('Saudi Pro League', 'https://www.footballfancast.com/feed/tag/saudi-pro-league/'),
+        ('Marcus Rashford', 'https://www.footballfancast.com/feed/tag/marcus-rashford/'),
+        ('Mohamed Salah', 'https://www.footballfancast.com/feed/tag/mohamed-salah/'),
+        ('Michael Olise', 'https://www.footballfancast.com/feed/tag/michael-olise/'),
+        ('Bruno Guimarães', 'https://www.footballfancast.com/feed/tag/bruno-guimaraes/'),
+        ('Fabrizio Romano', 'https://www.footballfancast.com/feed/tag/fabrizio-romano/'),
+        #Premier League
+        ('Premier League', 'https://www.footballfancast.com/feed/tag/premier-league/'),
+        ('Arsenal', 'https://www.footballfancast.com/feed/tag/arsenal/'),
+        ('Aston Villa', 'https://www.footballfancast.com/feed/tag/aston-villa/'),
+        ('Chelsea', 'https://www.footballfancast.com/feed/tag/chelsea/'),
+        ('Everton', 'https://www.footballfancast.com/feed/tag/everton/'),
+        ('Livepool', 'https://www.footballfancast.com/feed/tag/liverpool/'),
+        ('Manchester City', 'https://www.footballfancast.com/feed/tag/manchester-city/'),
+        ('Manchester United', 'https://www.footballfancast.com/feed/tag/manchester-united/'),
+        ('Tottenham Hotspur', 'https://www.footballfancast.com/feed/tag/tottenham-hotspur/'),
+        ('West Ham United', 'https://www.footballfancast.com/feed/tag/west-ham-united/'),
+        #European Leagues
+        ('La Liga', 'https://www.footballfancast.com/feed/la-liga/'),
+        ('Bundesliga', 'https://www.footballfancast.com/feed/bundesliga/'),
+        ('Ligue 1', 'https://www.footballfancast.com/feed/ligue-1/'),
+        ('Serie A', 'https://www.footballfancast.com/feed/serie-a/'),
+        #Champions League
+        ('Champions League', 'https://www.footballfancast.com/feed/champions-league/'),
+        ('Real Madrid', 'https://www.footballfancast.com/feed/tag/real-madrid/'),
+        ('Barcelona', 'https://www.footballfancast.com/feed/tag/barcelona/'),
+        ('Bayern Munich', 'https://www.footballfancast.com/feed/tag/bayern-munich/'),
+        ('Paris Saint-Germain', 'https://www.footballfancast.com/feed/tag/psg/'),
+        ('Europa League', 'https://www.footballfancast.com/feed/europa-league/'),
+        #Europa League
+        ('ROMA', 'https://www.footballfancast.com/feed/tag/roma/'),
+        ('Villarreal', 'https://www.footballfancast.com/feed/tag/villarreal/'),
+
+        ('Football Association Challenge Cup', 'https://www.footballfancast.com/feed/fa-cup/'),
+        ('English Football League Cup', 'https://www.footballfancast.com/feed/efl-cup/'),
+        ('Gaming', 'https://www.footballfancast.com/feed/gaming/'),
+    ]

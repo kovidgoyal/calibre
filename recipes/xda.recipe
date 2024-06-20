@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718385916(BasicNewsRecipe):
+    title          = 'XDA'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+        'XDA cover all aspects of computing, including desktops, laptops, PC components,'
+        ' gaming handhelds, peripherals, emerging technologies like AI/VR, and the software that powers it all.')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/xda-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #News & Deals
+        ('News', 'https://www.xda-developers.com/feed/news/'),
+        ('Computing News', 'https://www.xda-developers.com/feed/category/computing-news/'),
+        ('Today’s Deals', 'https://www.xda-developers.com/feed/deals/'),
+        #Reviews
+        ('Reviews', 'https://www.xda-developers.com/feed/reviews/'),
+        ('Laptop Reviews', 'https://www.xda-developers.com/feed/category/computing-reviews/'),
+        ('CPU Reviews', 'https://www.xda-developers.com/feed/cpu-reviews/'),
+        ('Graphics Card Reviews', 'https://www.xda-developers.com/feed/graphics-card-reviews/'),
+        ('SSD Reviews', 'https://www.xda-developers.com/feed/ssd-reviews/'),
+        ('Phone Reviews', 'https://www.xda-developers.com/feed/phone-reviews/'),
+        ('XDA’s Product Review Awards', 'https://www.xda-developers.com/feed/awards/'),
+        #Best Guides
+        ("Buyer's Guides", 'https://www.xda-developers.com/feed/buying-guides/'),
+        #Tutorials
+        ('Tutorials', 'https://www.xda-developers.com/feed/tutorials/'),
+        ('Windows Tutorials', 'https://www.xda-developers.com/feed/windows-tutorials/'),
+        ('MacOS Tutorials', 'https://www.xda-developers.com/feed/macos-tutorials/'),
+        ('Linux Tutorials', 'https://www.xda-developers.com/feed/linux-tutorials/'),
+        ('ChromeOS Tutorials', 'https://www.xda-developers.com/feed/chromeos-tutorials/'),
+
+        ('Computing', 'https://www.xda-developers.com/feed/category/computing/'),
+        ('Acer', 'https://www.xda-developers.com/feed/tag/acer/'),
+        ('Apple Mac', 'https://www.xda-developers.com/feed/apple-mac/'),
+        ('Dell', 'https://www.xda-developers.com/feed/tag/dell/'),
+        ('HP', 'https://www.xda-developers.com/feed/tag/hp/'),
+        ('Lenovo', 'https://www.xda-developers.com/feed/tag/lenovo/'),
+        ('Microsoft', 'https://www.xda-developers.com/feed/tag/microsoft/'),
+        ('Razer', 'https://www.xda-developers.com/feed/tag/razer/'),
+    ]

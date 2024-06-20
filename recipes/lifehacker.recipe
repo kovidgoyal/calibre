@@ -2,11 +2,14 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1718091380(BasicNewsRecipe):
     title          = 'LifeHacker'
     language = 'en'
     __author__ = 'Spicy Poison'
-    description = 'Lifehacker covers tech, cooking, health, finance, entertainment, parenting, home improvement, gardening, careers, and more, and our goal is to offer reliable tech help and credible, practical, science-based advice.'
+    description = (
+            'Lifehacker covers tech, cooking, health, finance, entertainment, parenting,'
+            ' home improvement, gardening, careers, and more, and our goal is to offer reliable tech help and credible, practical, science-based advice.')
     oldest_article = 30
     max_articles_per_feed = 50
     encoding = 'utf-8'

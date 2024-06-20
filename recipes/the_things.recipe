@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718105400(BasicNewsRecipe):
+    title          = 'The Things'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'At The Things they’re all about diving deep into the lives of celebrities and discovering'
+            ' who they really are behind the scenes. When the cameras stop rolling and the costumes come off,'
+            ' who are these Hollywood celebrities, really?')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/th-logo-full-colored-light.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #Celebrity
+        ('Celebrity', 'https://www.thethings.com/feed/category/celebrity/'),
+        ('Celebrity News', 'https://www.thethings.com/feed/category/celebrity-news/'),
+
+        ('TV Shows', 'https://www.thethings.com/feed/category/tv-shows/'),
+        ('Reality TV', 'https://www.thethings.com/feed/category/reality-tv/'),
+        ('Movies', 'https://www.thethings.com/feed/category/movies/'),
+        ('Fashion', 'https://www.thethings.com/feed/category/fashion/'),
+        ('Interviews', 'https://www.thethings.com/feed/category/interviews/'),
+        ('Music', 'https://www.thethings.com/feed/tag/music/'),
+    ]

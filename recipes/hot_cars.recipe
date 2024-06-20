@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718126839(BasicNewsRecipe):
+    title          = 'Hot Cars'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'HotCars.com is the go-to site for enthusiasts to keep up to date on everything in the automotive industry.'
+            ' Today, they serve over 5 million readers a month with the latest auto news, car reviews, and exclusives on the car,'
+            ' pickup truck, and motorcycle industries.')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/hc-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #Car Types
+        ('Fast Cars', 'https://www.hotcars.com/feed/category/fast-cars/'),
+        ('Classic Cars', 'https://www.hotcars.com/feed/tag/classic-cars/'),
+        ('Muscle Cars', 'https://www.hotcars.com/feed/category/muscle-cars/'),
+        ('Pickups & SUVs', 'https://www.hotcars.com/feed/category/pickup-trucks-suvs/'),
+        ('Electric Cars', 'https://www.hotcars.com/feed/category/electric-cars/'),
+        ('Mass Market Cars', 'https://www.hotcars.com/feed/category/mass-market-cars/'),
+        ('Luxury Cars', 'https://www.hotcars.com/feed/tag/luxury-cars/'),
+        ('Motorcycles', 'https://www.hotcars.com/feed/category/motorcycles/'),
+        #Hot Cars Exclusives
+        ('Hot Cars Exclusives', 'https://www.hotcars.com/feed/category/hotcars-exclusives/'),
+        ('Car Reviews', 'https://www.hotcars.com/feed/category/car-reviews/'),
+        ('Car Guides', 'https://www.hotcars.com/feed/category/car-guides/'),
+        ('Car Renders', 'https://www.hotcars.com/feed/category/car-renders/'),
+        ('Hot Cars Awards', 'https://www.hotcars.com/feed/category/hotcars-awards/'),
+        #Car Culture
+        ('News', 'https://www.hotcars.com/feed/category/news/'),
+        ('JDM Life', 'https://www.hotcars.com/feed/category/jdm-life/'),
+        ('Car TV', 'https://www.hotcars.com/feed/category/cars-on-tv/'),
+        ('Car Engines', 'https://www.hotcars.com/feed/category/car-engines/'),
+        ('Car Culture', 'https://www.hotcars.com/feed/category/car-culture/'),
+        ('Famous Collections', 'https://www.hotcars.com/feed/category/car-collections/'),
+
+        ('Threads', 'https://www.hotcars.com/feed/threads/'),
+    ]

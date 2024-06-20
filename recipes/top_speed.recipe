@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718128185(BasicNewsRecipe):
+    title          = 'Top Speed'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'TopSpeed has become the ultimate destination for both enthusiasts and consumers looking'
+            ' to explore the latest breakthroughs in gas-powered cars, electric vehicles, and hydrogen technology.')
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/tps-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        #News feeds
+        ('Car News', 'https://www.topspeed.com/feed/category/car-news/'),
+        ('Motorcycle News', 'https://www.topspeed.com/feed/category/motorcycle-news/'),
+        #Guides & Reviews feeds
+        ('Car Reviews', 'https://www.topspeed.com/feed/category/car-reviews/'),
+        ('Vehicle Comparisons', 'https://www.topspeed.com/feed/category/vehicle-comparisons/'),
+        ('Car Guides', 'https://www.topspeed.com/feed/category/car-guides/'),
+        ('Motorcycle Guides', 'https://www.topspeed.com/feed/category/motorcycle-guides/'),
+        ('Motorcycle Gear', 'https://www.topspeed.com/feed/category/motorcycle-gear/'),
+
+        ('Cars', 'https://www.topspeed.com/feed/category/cars/'),
+            ('Supercars', 'https://www.topspeed.com/feed/category/supercars/'),
+            ('Sports Cars', 'https://www.topspeed.com/feed/category/sports-cars/'),
+            ('Electric Cars', 'https://www.topspeed.com/feed/category/electric-cars/'),
+            ('Muscle Cars', 'https://www.topspeed.com/feed/category/muscle-cars/'),
+            ('Luxury Cars', 'https://www.topspeed.com/feed/category/luxury-cars/'),
+            ('Classic Cars', 'https://www.topspeed.com/feed/category/classic-cars/'),
+            ('Pickups & SUVs', 'https://www.topspeed.com/feed/category/pickups-suvs/'),
+        ('Motorcycles', 'https://www.topspeed.com/feed/category/motorcycles/'),
+            ('Fast Motorcycles', 'https://www.topspeed.com/feed/category/fast-motorcycles/'),
+            ('Custom Motorcycles', 'https://www.topspeed.com/feed/category/custom-motorcycles/'),
+            ('Cruiser Motorcycles', 'https://www.topspeed.com/feed/category/cruiser-motorcycles/'),
+            ('Touring Motorcycles', 'https://www.topspeed.com/feed/category/touring-motorcycles/'),
+            ('Electric Motorcycles', 'https://www.topspeed.com/feed/category/electric-motorcycles/'),
+            ('Naked Bikes', 'https://www.topspeed.com/feed/category/naked-bikes/'),
+            ('Dual Sport & Dirt Bikes', 'https://www.topspeed.com/feed/category/dual-sport-and-dirt-bikes/'),
+            ('Sport Bikes', 'https://www.topspeed.com/feed/category/sport-bikes/'),
+            ('Adventure Bikes', 'https://www.topspeed.com/feed/category/adventure-bikes/'),
+        ('Car TV', 'https://www.topspeed.com/feed/category/car-tv/'),
+        ('Car Collections', 'https://www.topspeed.com/feed/category/car-collections/'),
+        ('Custom Cars', 'https://www.topspeed.com/feed/category/custom-cars/'),
+        ('JDM', 'https://www.topspeed.com/feed/category/jdm/'),
+        ('Off-Roading', 'https://www.topspeed.com/feed/category/off-roading/'),
+        ('Car Renders', 'https://www.topspeed.com/feed/category/car-renders/'),
+        ('Exclusives', 'https://www.topspeed.com/feed/category/exclusives/'),
+        ('Top Speed Awards', 'https://www.topspeed.com/feed/category/topspeed-awards/'),
+    ]

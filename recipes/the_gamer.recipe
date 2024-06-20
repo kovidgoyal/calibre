@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1718109535(BasicNewsRecipe):
+    title          = 'The Gamer'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = 'TheGamer is a gaming site with a different spin on things, and we break some of the biggest stories around.'
+    publisher = 'Valnet Publishing Group'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+    masthead_url = 'https://www.valnetinc.com/images/brand/tg-logo-full-colored-dark.svg'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Game Guides', 'https://www.thegamer.com/feed/category/game-guides/'),
+        #AAA Games
+        ('AAA Games', 'https://www.thegamer.com/feed/aaa-games/'),
+        ('AAA Games Features', 'https://www.thegamer.com/feed/aaa-games/features/'),
+        ('AAA Games News', 'https://www.thegamer.com/feed/aaa-games/news/'),
+        ('AAA Games Lists', 'https://www.thegamer.com/feed/aaa-games/lists/'),
+        #Live-Service Games
+        ('Live-Service Games', 'https://www.thegamer.com/feed/live-service-games/'),
+        ('Live-Service Games Features', 'https://www.thegamer.com/feed/live-service-games/features/'),
+        ('Live-Service Games News', 'https://www.thegamer.com/feed/live-service-games/news/'),
+        ('Live-Service Games Lists', 'https://www.thegamer.com/feed/live-service-games/lists/'),
+        #Indie Games
+        ('Indie Games', 'https://www.thegamer.com/feed/indie-games/'),
+        ('Indie Games Features', 'https://www.thegamer.com/feed/indie-games/features/'),
+        ('Indie Games News', 'https://www.thegamer.com/feed/indie-games/news/'),
+        ('Indie Games Lists', 'https://www.thegamer.com/feed/indie-games/lists/'),
+        #Streaming
+        ('Streaming', 'https://www.thegamer.com/feed/streaming/'),
+        ('Streaming Features', 'https://www.thegamer.com/feed/streaming/features/'),
+        ('Streaming News', 'https://www.thegamer.com/feed/streaming/news/'),
+        #Movies & Shows
+        ('Movies & Shows', 'https://www.thegamer.com/feed/movies-tv-anime/'),
+        ('Movies & Shows Features', 'https://www.thegamer.com/feed/movies-tv-anime/features/'),
+        ('Movies & Shows News', 'https://www.thegamer.com/feed/movies-tv-anime/news/'),
+
+        ('Game News', 'https://www.thegamer.com/feed/category/game-news/'),
+        ('The Gamer Originals', 'https://www.thegamer.com/feed/category/tg-originals/'),
+        ('The Gamer Lists', 'https://www.thegamer.com/feed/category/lists/'),
+        ('Explainers', 'https://www.thegamer.com/feed/category/explainer/'),
+        ('Reviews & Previews', 'https://www.thegamer.com/feed/reviews-previews/'),
+        ('Tabletop', 'https://www.thegamer.com/feed/category/tabletop/'),
+    ]
