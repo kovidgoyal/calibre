@@ -5,11 +5,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1716111284(BasicNewsRecipe):
     title          = 'Comic Book Archive'
-    description = 'CBA was founded in 1995 and quickly became the go-to source for comics industry news, discussion, and community.'
+    description = 'CBR was founded in 1995 and quickly became the go-to source for comics industry news, discussion, and community.'
     __author__ = 'Spicy Poison'
     encoding = 'utf-8'
-    use_embedded_content = False
     language = 'en'
+    use_embedded_content = False
     masthead_url = 'https://www.valnetinc.com/images/brand/cbr-logo-full-colored-dark.svg'
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}

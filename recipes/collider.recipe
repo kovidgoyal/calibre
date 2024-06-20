@@ -6,8 +6,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1716108103(BasicNewsRecipe):
     title          = 'Collider'
     description = (
-        'Collider has been a consistent and authoritative voice in the entertainment industry,'
-        ' delivering breaking news, insightful discussion and thorough reviews.')
+            'Collider has been a consistent and authoritative voice in the entertainment industry,'
+            ' delivering breaking news, insightful discussion and thorough reviews.')
     __author__ = 'Spicy Poison'
     encoding = 'utf-8'
     language = 'en'
