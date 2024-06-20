@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1716097549(BasicNewsRecipe):
+    title          = 'VOX'
+    language = 'en'
+    __author__ = 'Spicy Poison'
+    description = (
+            'Vox is a general interest news site for the 21st century. Its mission:'
+            ' to help everyone understand our complicated world, so that we can all help shape it.')
+    publisher = 'VOX MEDIA'
+    oldest_article = 30
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    masthead_url = 'https://logonoid.com/images/vox-logo.png'
+    remove_empty_feeds = True
+    auto_cleanup   = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    feeds          = [
+        ('All Articles', 'https://www.vox.com/rss/index.xml'),
+        ('Abortion', 'https://www.vox.com/rss/abortion/index.xml'),
+        ('Advice', 'https://www.vox.com/rss/advice/index.xml'),
+        ('Business & Finance', 'https://www.vox.com/rss/business-and-finance/index.xml'),
+        ('Culture', 'https://www.vox.com/rss/culture/index.xml'),
+        ('Down to Earth', 'https://www.vox.com/rss/down-to-earth/index.xml'),
+        ('Energy', 'https://www.vox.com/rss/energy/index.xml'),
+        ('Even Better', 'https://www.vox.com/rss/even-better/index.xml'),
+        ('Explainers', 'https://www.vox.com/rss/explainers/index.xml'),
+        ('Features', 'https://www.vox.com/rss/features/index.xml'),
+        ('Future Perfect', 'https://www.vox.com/rss/future-perfect/index.xml'),
+        ('Health', 'http://www.vox.com/rss/health/index.xml'),
+        ('Housing', 'https://www.vox.com/rss/housing/index.xml'),
+        ('Internet Culture', 'https://www.vox.com/rss/internet-culture/index.xml'),
+        ('Life', 'https://www.vox.com/rss/life/index.xml'),
+        ('Money', 'https://www.vox.com/rss/money/index.xml'),
+        ('Press Room', 'https://www.vox.com/rss/press-room/index.xml'),
+        ('Policy', 'https://www.vox.com/rss/policy/index.xml'),
+        ('Politics', 'https://www.vox.com/rss/politics/index.xml'),
+        ('Science', 'https://www.vox.com/rss/science/index.xml'),
+        ('Techonology', 'https://www.vox.com/rss/technology/index.xml'),
+        ('The Gray Area', 'https://www.vox.com/rss/the-gray-area/index.xml'),
+        ('US Supreme Court', 'https://www.vox.com/rss/scotus/index.xml'),
+        ('World Politics', 'https://www.vox.com/rss/world-politics/index.xml'),
+    ]
