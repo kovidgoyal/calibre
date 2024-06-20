@@ -1,52 +1,18 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-class LifeHacker(BasicNewsRecipe):
-    title = u'LifeHacker'
-    __author__ = 'Kovid Goyal'
+class AdvancedUserRecipe1718091380(BasicNewsRecipe):
+    title          = 'LifeHacker'
     language = 'en'
-    description = u'Tips, tricks, and downloads for getting things done.'
-    publisher = u'lifehacker.com'
-    oldest_article = 4
-    max_articles_per_feed = 20
-    summary_length = 1000
+    __author__ = 'Spicy Poison'
+    description = 'Lifehacker covers tech, cooking, health, finance, entertainment, parenting, home improvement, gardening, careers, and more, and our goal is to offer reliable tech help and credible, practical, science-based advice.'
+    oldest_article = 30
+    max_articles_per_feed = 50
+    encoding = 'utf-8'
+    masthead_url = 'https://lifehacker.com/images/lifehacker-logo.svg'
+    auto_cleanup   = True
 
-    remove_javascript = True
-    no_stylesheets = True
-    use_embedded_content = False
-    remove_empty_feeds = True
-    remove_attributes = ['style']
-
-    keep_only_tags = [
-        dict(name='h1'),
-        classes('headline author post-content js_post-content'),
+    feeds          = [
+        ('All Articles', 'https://lifehacker.com/feed/rss'),
     ]
-    remove_tags = [
-        classes('magnifier commerce-inset gmg-avatar js_ad-dynamic instream-native-video inset--story js_commerce-inset-permalink'),
-        dict(id='lifehacker-avatar-svg'),
-        dict(name='aside'),
-    ]
-    remove_tags_after = classes('post-content')
-
-    feeds = [(u'Articles', u'https://lifehacker.com/rss')]
-
-    def preprocess_html(self, soup):
-
-        def choose_from_srcset(raw):
-            parts = raw.split()
-            if len(parts) > 2:
-                return parts[2]
-            return parts[0]
-
-        for img in soup.findAll(attrs={'data-srcset':True}):
-            img['src'] = choose_from_srcset(img['data-srcset'])
-        return soup
