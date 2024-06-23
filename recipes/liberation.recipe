@@ -9,6 +9,8 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 liberation.fr
 '''
 
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -19,8 +21,8 @@ class Liberation(BasicNewsRecipe):
     publication_type = 'newspaper'
     language = 'fr'
 
-    oldest_article = 2
-    max_articles_per_feed = 30
+    oldest_article = 3
+    max_articles_per_feed = 10
     no_stylesheets = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
@@ -29,29 +31,41 @@ class Liberation(BasicNewsRecipe):
     masthead_url = 'https://www.liberation.fr/pf/resources/images/liberation.png?d=47'
 
     feeds = [
-        ('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
-        ('Accueil', 'https://www.liberation.fr/arc/outboundfeeds/collection/accueil-une/?outputType=xml')
+        #('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
+        ('A la une', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/collection/accueil-une/?outputType=xml'),
+        ('Politique', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/politique/?outputType=xml'),
+        ('International', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/international/?outputType=xml'),
+        ('CheckNews', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/checknews/?outputType=xml'),
+        ('Culture', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/culture/?outputType=xml'),
+        ('Idées et Débats', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/idees-et-debats/?outputType=xml'),
+        ('Société', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/societe/?outputType=xml'),
+        ('Environnement', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/environnement/?outputType=xml'),
+        ('Economie', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/economie/?outputType=xml'),
+        ('Lifestyle', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/lifestyle/?outputType=xml'),
+        ('Portraits', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/portraits/?outputType=xml'),
+        ('Sports', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sports/?outputType=xml'),
+        ('Sciences', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sciences/?outputType=xml'),
+        ('Forums & événements', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/forums/?outputType=xml')
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'left-article-section'})
+        dict(name='div', attrs={'class': re.compile('default__Main')})
+    ]
+
+    remove_tags_after = [
+        dict(name='article', attrs={'class': re.compile('article-body-wrapper')})
     ]
 
     remove_tags = [
         dict(name=['button', 'source']),
-        dict(attrs={'class': ['ts-share-bar']}),
         dict(name='div', attrs={'class': [
             'article-dossier', 'color_background_green', 'display_block', 'tag-container'
         ]})
     ]
 
-    remove_attributes = [
-        'height', 'width'
-    ]
-
     extra_css = '''
+        h1 { font-size: 1.6em; margin-top: 0em; }
         h2, h3, h4, h5, h6 { font-size: 1em; }
-        .image-metadata { font-size: 0.6em; margin-top: 0em; margin-bottom: 1.6em; }
     '''
 
     def get_browser(self):
