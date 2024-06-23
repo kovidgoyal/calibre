@@ -520,6 +520,7 @@ class Worker(Thread):  # Get details {{{
         mi._details = dict()
         if detail_bullets:
             self.parse_detail_bullets(root, mi, detail_bullets[0])
+            self.parse_best_sellers_rank(root, mi)
         elif non_hero:
             try:
                 self.parse_new_details(root, mi, non_hero[0])
@@ -1054,6 +1055,26 @@ class Worker(Thread):  # Get details {{{
             from calibre.utils.date import parse_only_date
             date = self.delocalize_datestr(val)
             mi.pubdate = parse_only_date(date, assume_utc=True)
+
+    def parse_best_sellers_rank(self, root, mi):
+        if "Best Sellers Rank" in mi._details:
+            # best seller rank is part of new format product details
+            return
+        # parse old format best seller rank, add to new format product details
+        result = mi._details["Best Sellers Rank"] = list()
+        # first rank
+        elem1 = root.xpath('//*[@id="detailBulletsWrapper_feature_div"]/ul[1]/li/span/text()[2]')
+        # other ranks
+        elem2 = root.xpath('//*[@id="detailBulletsWrapper_feature_div"]/ul[1]/li/span/ul/descendant::li/span')
+        if elem1:
+            text = elem1[0].strip()
+            if text.endswith(" ("):
+                text = text[:-2]
+            result.append(text)
+        if elem2:
+            for span in elem2:
+                text = self.totext(span).strip()
+                result.append(text)
 
     def parse_isbn(self, pd):
         items = pd.xpath(
