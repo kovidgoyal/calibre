@@ -1859,8 +1859,6 @@ class DeviceMixin:  # {{{
 
         def clean_string(x):
             try:
-                # Replace '&' with 'and' kobo automatically doing this before adding data into db
-                x = x.replace('&', 'and')
                 # Convert to lowercase if x is not None or empty
                 x = x.lower() if x else ''
             except Exception:
@@ -1922,7 +1920,7 @@ class DeviceMixin:  # {{{
             Extracts id from dict with full match by author or partial match for cases when
             book has multiple authors.
             """
-            debug_prints('Trying to extract id for author:', author_to_look_for)
+            debug_prints('Trying to extract id for author:', author_to_look_for, ' in:', target_dict)
             if author_to_look_for in target_dict:
                 return target_dict[book_authors]
             else:
@@ -2049,8 +2047,7 @@ class DeviceMixin:  # {{{
                             book.application_id = extracted_id
 
                             if extracted_id is None:
-                                book.in_library = 'NO_AUTHOR_MATCH'
-                                debug_prints('No author match for book: ', book)
+                                debug_prints('No author match for a book: ', book)
 
                     else:
                         # Book definitely not matched. Clear its application ID
