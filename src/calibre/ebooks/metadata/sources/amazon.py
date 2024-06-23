@@ -517,6 +517,7 @@ class Worker(Thread):  # Get details {{{
             'div#bookDetails_container_div div#nonHeroSection')) or tuple(self.selector(
                 '#productDetails_techSpec_sections'))
         feature_and_detail_bullets = root.xpath('//*[@data-feature-name="featureBulletsAndDetailBullets"]')
+        mi._details = dict()
         if detail_bullets:
             self.parse_detail_bullets(root, mi, detail_bullets[0])
         elif non_hero:
@@ -1025,6 +1026,7 @@ class Worker(Thread):  # Get details {{{
         val = val.replace('\u200e', '').replace('\u200f', '')
         if not val:
             return
+        mi._details[name] = val
         if name in self.language_names:
             ans = self.lang_map.get(val)
             if not ans:
