@@ -468,6 +468,12 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('Error parsing authors for url: %r' % self.url)
             authors = []
 
+        try:
+            authors_with_roles = self.parse_authors_with_roles(root)
+        except:
+            self.log.exception('Error parsing authors with roles for url: %r' % self.url)
+            authors_with_roles = []
+
         if not title or not authors or not asin:
             self.log.error(
                 'Could not find title/authors/asin for %r' % self.url)
@@ -479,6 +485,7 @@ class Worker(Thread):  # Get details {{{
         idtype = 'amazon' if (self.domain == 'com' or self.domain == None) else 'amazon_' + self.domain
         mi.set_identifier(idtype, asin)
         self.amazon_id = asin
+        mi.authors_with_roles = authors_with_roles
 
         try:
             mi.rating = self.parse_rating(root)
@@ -652,6 +659,23 @@ class Worker(Thread):  # Get details {{{
                    in aname]
         authors = [a for a in authors if a]
         return authors
+
+    def parse_authors_with_roles(self, root):
+        # parse authors with roles (author, narrator, publisher, ...)
+        for sel in (
+            '#bylineInfo > span',
+        ):
+            matches = self.selector(sel)
+            if not matches:
+                continue
+            res = []
+            for elem in matches:
+                author = self.totext(elem)
+                if not author:
+                    continue
+                author = author.replace("),", ")")
+                res.append(author)
+            return res
 
     def parse_rating(self, root):
         for x in root.xpath('//div[@id="cpsims-feature" or @id="purchase-sims-feature" or @id="rhf"]'):
