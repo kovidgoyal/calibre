@@ -1908,23 +1908,6 @@ class DeviceMixin:  # {{{
             if get_covers and desired_thumbnail_height != 0:
                 self.update_thumbnail(book)
 
-        def extract_id_from_dict(author_to_look_for, target_dict):
-            '''
-            Extracts id from dict with full match by author or partial match for cases when
-            book has multiple authors.
-            '''
-            debug_print('Trying to extract id for author:', author_to_look_for, ' in:', target_dict)
-            if author_to_look_for in target_dict:
-                return target_dict[book_authors]
-            else:
-                # for cases when multiple authors like: Author A & Author B => 'authoraauthorb' need to match 'authorb'
-                for author in target_dict:
-                    if author_to_look_for in author:
-                        return target_dict[author]
-
-            debug_print('Id is not extracted!')
-            return None
-
         def updateq(id_, book):
             try:
                 if not update_metadata:
@@ -1951,6 +1934,21 @@ class DeviceMixin:  # {{{
                        )
             except:
                 return True
+
+        def get_by_author(book, d, author):
+            book_id = d['authors'].get(author)
+            if book_id is not None:
+                book.in_library = 'AUTHOR'
+                book.application_id = book_id
+                update_book(book_id, book)
+                return True
+            book_id = d['author_sort'].get(author)
+            if book_id is not None:
+                book.in_library = 'AUTH_SORT'
+                book.application_id = book_id
+                update_book(book_id, book)
+                return True
+            return False
 
         # Now iterate through all the books on the device, setting the
         # in_library field. If the UUID matches a book in the library, then
@@ -2024,24 +2022,11 @@ class DeviceMixin:  # {{{
                         if book.authors:
                             # Compare against both author and author sort, because
                             # either can appear as the author
-                            book_authors = clean_string(authors_to_string(book.authors))
-                            extracted_id = None
-                            authors_id = extract_id_from_dict(book_authors, d['authors'])
-                            if authors_id is not None:
-                                extracted_id = authors_id
-                                book.in_library = 'AUTHOR'
-                            else:
-                                author_sort_id = extract_id_from_dict(book_authors, d['author_sort'])
-                                if author_sort_id is not None:
-                                    extracted_id = author_sort_id
-                                    book.in_library = 'AUTH_SORT'
-
-                            update_book(extracted_id, book)
-                            book.application_id = extracted_id
-
-                            if extracted_id is None:
-                                debug_print('No author match for a book:\n', book)
-
+                            all_book_authors = clean_string(authors_to_string(book.authors))
+                            if not get_by_author(book, d, all_book_authors):
+                                for author in book.authors:
+                                    if get_by_author(book, d, clean_string(author)):
+                                        break
                     else:
                         # Book definitely not matched. Clear its application ID
                         book.application_id = None
