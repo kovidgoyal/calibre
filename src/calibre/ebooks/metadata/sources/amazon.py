@@ -476,7 +476,7 @@ class Worker(Thread):  # Get details {{{
             return
 
         mi = Metadata(title, authors)
-        idtype = 'amazon' if self.domain == 'com' else 'amazon_' + self.domain
+        idtype = 'amazon' if (self.domain == 'com' or self.domain == None) else 'amazon_' + self.domain
         mi.set_identifier(idtype, asin)
         self.amazon_id = asin
 
