@@ -567,8 +567,8 @@ class Worker(Thread):  # Get details {{{
                 filtered_characters = list(s for s in res if s.isprintable())
             except AttributeError:
                 filtered_characters = list(s for s in res if s in string.printable)
-            res = ''.join(filtered_characters).strip()
-        return res
+            res = ''.join(filtered_characters)
+        return res.strip()
 
     def parse_title(self, root):
 
@@ -1006,7 +1006,7 @@ class Worker(Thread):  # Get details {{{
 
     def parse_detail_cells(self, mi, c1, c2):
         name = self.totext(c1, only_printable=True).strip().strip(':').strip()
-        val = self.totext(c2).strip()
+        val = self.totext(c2)
         val = val.replace('\u200e', '').replace('\u200f', '')
         if not val:
             return
