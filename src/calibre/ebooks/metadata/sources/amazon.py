@@ -92,18 +92,23 @@ def parse_html(raw):
         return parse(raw)
 
 
-def parse_details_page(url, log, timeout, browser, domain):
+def parse_details_page(url, log, timeout, browser, domain, cache_path=None):
     from lxml.html import tostring
 
     from calibre.ebooks.chardet import xml_to_unicode
     from calibre.utils.cleantext import clean_ascii_chars
-    try:
-        from calibre.ebooks.metadata.sources.update import search_engines_module
-        get_data_for_cached_url = search_engines_module().get_data_for_cached_url
-    except Exception:
-        def get_data_for_cached_url(*a):
-            return None
-    raw = get_data_for_cached_url(url)
+    raw = None
+    if cache_path:
+        with open(cache_path, "rb") as f:
+            raw = f.read()
+    if not raw:
+        try:
+            from calibre.ebooks.metadata.sources.update import search_engines_module
+            get_data_for_cached_url = search_engines_module().get_data_for_cached_url
+        except Exception:
+            def get_data_for_cached_url(*a):
+                return None
+        raw = get_data_for_cached_url(url)
     if raw:
         log('Using cached details for url:', url)
     else:
@@ -150,7 +155,7 @@ def parse_details_page(url, log, timeout, browser, domain):
                     if url.startswith('/'):
                         url = 'https://amazon.co.jp' + a.get('href')
                     log('Black curtain redirect found, following')
-                    return parse_details_page(url, log, timeout, browser, domain)
+                    return parse_details_page(url, log, timeout, browser, domain, cache_path)
 
     errmsg = root.xpath('//*[@id="errorMessage"]')
     if errmsg:
@@ -179,9 +184,22 @@ class Worker(Thread):  # Get details {{{
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, relevance, domain,
-                 plugin, timeout=20, testing=False, preparsed_root=None,
-                 cover_url_processor=None, filter_result=None):
+    def __init__(
+            self,
+            url,
+            result_queue,
+            browser,
+            log,
+            relevance,
+            domain,
+            plugin,
+            timeout=20,
+            testing=False,
+            preparsed_root=None,
+            cover_url_processor=None,
+            filter_result=None,
+            cache_path=None,
+        ):
         Thread.__init__(self)
         self.cover_url_processor = cover_url_processor
         self.preparsed_root = preparsed_root
@@ -194,6 +212,7 @@ class Worker(Thread):  # Get details {{{
         self.browser = browser
         self.cover_url = self.amazon_id = self.isbn = None
         self.domain = domain
+        self.cache_path = cache_path
         from lxml.html import tostring
         self.tostring = tostring
 
@@ -416,7 +435,7 @@ class Worker(Thread):  # Get details {{{
     def get_details(self):
         if self.preparsed_root is None:
             raw, root, selector = parse_details_page(
-                self.url, self.log, self.timeout, self.browser, self.domain)
+                self.url, self.log, self.timeout, self.browser, self.domain, self.cache_path)
         else:
             raw, root, selector = self.preparsed_root
 
@@ -1623,7 +1642,7 @@ class Amazon(Source):
             domain, idtype, asin, durl = udata
             if durl is not None:
                 preparsed_root = parse_details_page(
-                    durl, log, timeout, br, domain)
+                    durl, log, timeout, br, domain, cache_path)
                 if preparsed_root is not None:
                     qasin = parse_asin(preparsed_root[1], log, durl)
                     if qasin == asin:
