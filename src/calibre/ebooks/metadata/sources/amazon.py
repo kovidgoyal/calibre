@@ -372,7 +372,7 @@ class Worker(Thread):  # Get details {{{
             'eng': ('English', 'Englisch', 'Engels', 'Engelska'),
             'fra': ('French', 'Français'),
             'ita': ('Italian', 'Italiano'),
-            'deu': ('German', 'Deutsch'),
+            'ger': ('German', 'Deutsch'),
             'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
             'jpn': ('Japanese', '日本語'),
             'por': ('Portuguese', 'Português'),
