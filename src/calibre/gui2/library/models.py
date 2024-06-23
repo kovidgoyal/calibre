@@ -188,7 +188,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.orig_headers = {
                         'title'     : _("Title"),
                         'ondevice'   : _("On Device"),
-                        'authors'   : _("Author(s)"),
+                        'authors'   : _("Authors"),
                         'size'      : _("Size (MB)"),
                         'timestamp' : _("Date"),
                         'pubdate'   : _('Published'),
@@ -1456,7 +1456,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.headers = {
                 'inlibrary'   : _('In Library'),
                 'title'       : _('Title'),
-                'authors'     : _('Author(s)'),
+                'authors'     : _('Authors'),
                 'timestamp'   : _('Date'),
                 'size'        : _('Size'),
                 'collections' : _('Collections')

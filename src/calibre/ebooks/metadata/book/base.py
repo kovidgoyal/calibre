@@ -767,7 +767,7 @@ class Metadata:
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
-            fmt('Author(s)',  authors_to_string(self.authors) +
+            fmt('Authors',  authors_to_string(self.authors) +
                ((' [' + self.author_sort + ']')
                 if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
@@ -809,7 +809,7 @@ class Metadata:
         from calibre.ebooks.metadata import authors_to_string
         from calibre.utils.date import isoformat
         ans = [(_('Title'), str(self.title))]
-        ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
+        ans += [(_('Authors'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
         ans += [(_('Publisher'), str(self.publisher))]
         ans += [(_('Producer'), str(self.book_producer))]
         ans += [(_('Comments'), str(self.comments))]

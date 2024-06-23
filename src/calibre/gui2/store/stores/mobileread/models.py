@@ -19,7 +19,7 @@ class BooksModel(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Title'), _('Author(s)'), _('Format')]
+    HEADERS = [_('Title'), _('Authors'), _('Format')]
 
     def __init__(self, all_books):
         QAbstractItemModel.__init__(self)

@@ -363,7 +363,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
 class AuthorsEdit(EditWithComplete, ToMetadataMixin):
 
     TOOLTIP = ''
-    LABEL = _('&Author(s):')
+    LABEL = _('&Authors:')
     FIELD_NAME = 'authors'
     data_changed = pyqtSignal()
 
