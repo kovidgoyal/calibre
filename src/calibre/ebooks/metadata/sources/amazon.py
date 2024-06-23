@@ -584,6 +584,10 @@ class Worker(Thread):  # Get details {{{
             for child in h1.xpath('./*[contains(@class, "a-color-secondary")]'):
                 h1.remove(child)
             return sanitize_title(self.totext(h1))
+        # audiobooks
+        elem = root.xpath('//*[@id="productTitle"]')
+        if elem:
+            return sanitize_title(self.totext(elem[0]))
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')
         if not tdiv:
             span = root.xpath('//*[@id="ebooksTitle"]')
@@ -767,7 +771,11 @@ class Worker(Thread):  # Get details {{{
                     ns = tuple(self.selector('#bookDescription_feature_div .a-expander-content'))
                     if ns:
                         ans = self._render_comments(ns[0])
-
+        # audiobooks
+        if not ans:
+            elem = root.xpath('//*[@id="audible_desktopTabbedDescriptionOverviewContent_feature_div"]')
+            if elem:
+                ans = self._render_comments(elem[0])
         desc = root.xpath(
             '//div[@id="productDescription"]/*[@class="content"]')
         if desc:
@@ -1082,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 8)
+    version = (1, 3, 9)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
