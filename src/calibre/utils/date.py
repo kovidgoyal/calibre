@@ -218,6 +218,8 @@ def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
+    if 0 == date_time.hour == date_time.minute == date_time.second:
+        return date_time.strftime("%F")
     # native_string_type(sep) because isoformat barfs with unicode sep on python 2.x
     return str(date_time.isoformat(native_string_type(sep)))
 
