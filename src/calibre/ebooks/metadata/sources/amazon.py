@@ -648,10 +648,14 @@ class Worker(Thread):  # Get details {{{
             if ratings:
                 break
 
+        # note: we convert from stars to rating
+        # stars: 0 to 5
+        # rating: 0 to 10
+
         def parse_ratings_text(text):
             try:
                 m = self.ratings_pat.match(text)
-                return float(m.group(1).replace(',', '.')) / float(m.group(3)) * 5
+                return float(m.group(1).replace(',', '.')) / float(m.group(3)) * 10
             except Exception:
                 pass
 
@@ -662,11 +666,11 @@ class Worker(Thread):  # Get details {{{
                 if self.domain == 'cn':
                     m = self.ratings_pat_cn.match(t)
                     if m is not None:
-                        return float(m.group(1))
+                        return float(m.group(1)) * 2
                 elif self.domain == 'jp':
                     m = self.ratings_pat_jp.match(t)
                     if m is not None:
-                        return float(m.group(1))
+                        return float(m.group(1)) * 2
                 else:
                     ans = parse_ratings_text(t)
                     if ans is not None:
@@ -684,7 +688,7 @@ class Worker(Thread):  # Get details {{{
                 if spans:
                     txt = self.tostring(spans[0], method='text', encoding='unicode', with_tail=False).strip()
                     try:
-                        return float(txt.replace(',', '.'))
+                        return float(txt.replace(',', '.')) * 2
                     except Exception:
                         pass
 
