@@ -568,14 +568,16 @@ class Worker(Thread):  # Get details {{{
 
         mi.source_relevance = self.relevance
 
-        if self.amazon_id:
-            if self.isbn:
-                self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
-            if self.cover_url:
-                self.plugin.cache_identifier_to_cover_url(self.amazon_id,
-                                                          self.cover_url)
+        if self.plugin:
 
-        self.plugin.clean_downloaded_metadata(mi)
+            if self.amazon_id:
+                if self.isbn:
+                    self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
+                if self.cover_url:
+                    self.plugin.cache_identifier_to_cover_url(self.amazon_id,
+                                                              self.cover_url)
+
+            self.plugin.clean_downloaded_metadata(mi)
 
         if self.filter_result(mi, self.log):
             self.result_queue.put(mi)
