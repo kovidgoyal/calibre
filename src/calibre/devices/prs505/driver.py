@@ -13,7 +13,8 @@ import time
 from calibre import __appname__, fsync, prints
 from calibre.devices.prs505 import CACHE_EXT, CACHE_THUMBNAIL, CACHE_XML, MEDIA_EXT, MEDIA_THUMBNAIL, MEDIA_XML
 from calibre.devices.usbms.books import CollectionsBookList
-from calibre.devices.usbms.driver import USBMS, debug_print
+from calibre.devices.usbms.driver import USBMS
+from calibre.prints import debug_print
 
 
 class PRS505(USBMS):

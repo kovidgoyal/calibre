@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.devices.usbms.driver import debug_print
+from calibre.prints import debug_print
 
 
 class Bookmark():  # {{{

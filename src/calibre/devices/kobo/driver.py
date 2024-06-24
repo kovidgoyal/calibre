@@ -25,10 +25,11 @@ from calibre.constants import DEBUG
 from calibre.devices.kobo.books import Book, ImageWrapper, KTCollectionsBookList
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
-from calibre.devices.usbms.driver import USBMS, debug_print
+from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import normalize_languages
+from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date

@@ -14,7 +14,8 @@ from contextlib import closing
 from calibre.devices.errors import DeviceError
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
-from calibre.devices.usbms.driver import USBMS, debug_print
+from calibre.devices.usbms.driver import USBMS
+from calibre.prints import debug_print
 
 DBPATH = 'paladin/database/books.db'
 
