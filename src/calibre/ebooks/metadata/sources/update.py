@@ -15,9 +15,9 @@ import calibre.ebooks.metadata.sources.search_engines as builtin_search_engines
 from calibre import as_unicode, prints
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.sources.base import Source
+from calibre.prints import debug_print
 from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
-from calibre.prints import debug_print
 from polyglot.builtins import iteritems, itervalues
 
 cache = JSONConfig('metadata-sources-cache.json')

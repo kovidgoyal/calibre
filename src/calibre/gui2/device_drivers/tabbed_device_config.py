@@ -23,9 +23,9 @@ from qt.core import (
     QWidget,
 )
 
-from calibre.prints import debug_print
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import FormatsConfig, TemplateConfig
+from calibre.prints import debug_print
 
 
 def wrap_msg(msg):
