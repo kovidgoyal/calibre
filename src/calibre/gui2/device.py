@@ -30,7 +30,7 @@ from calibre.devices.errors import (
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.scanner import DeviceScanner
-from calibre.devices.usbms.driver import debug_print
+from calibre.prints import debug_print
 from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import (

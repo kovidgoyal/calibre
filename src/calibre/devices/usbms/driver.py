@@ -11,50 +11,16 @@ for a particular device.
 import json
 import os
 import shutil
-import time
 from itertools import cycle
 
 from calibre import fsync, isbytestring, prints
-from calibre.constants import filesystem_encoding, is_debugging, ismacos, numeric_version
+from calibre.constants import filesystem_encoding, ismacos, numeric_version
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from calibre.prints import debug_print
 from polyglot.builtins import itervalues, string_or_bytes
-
-
-def debug_print(*args, **kw):
-    '''
-    Prints debug information to the console if debugging is enabled.
-
-    This function prints a message prefixed with a timestamp showing the elapsed time
-    since the first call to this function. The message is printed only if debugging is enabled.
-
-    Parameters:
-    *args : tuple
-        Variable length argument list to be printed.
-    **kw : dict
-        Arbitrary keyword arguments to be passed to the `print` function.
-
-    Attributes:
-    base_time : float
-        The timestamp of the first call to this function. Stored as an attribute of the function.
-
-    Behavior:
-    - On the first call, initializes `base_time` to the current time using `time.monotonic()`.
-    - If `is_debugging()` returns True, prints the elapsed time since `base_time` along with the provided arguments.
-    '''
-
-    # Get the base_time attribute, initializing it on the first call
-    base_time = getattr(debug_print, 'base_time', None)
-    if base_time is None:
-        # Set base_time to the current monotonic time if it hasn't been set
-        debug_print.base_time = base_time = time.monotonic()
-
-    # Check if debugging is enabled
-    if is_debugging():
-        # Print the elapsed time and the provided arguments if debugging is enabled
-        prints('DEBUG: %6.1f' % (time.monotonic() - base_time), *args, **kw)
 
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):

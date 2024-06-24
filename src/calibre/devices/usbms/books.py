@@ -14,6 +14,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.devices.mime import mime_type_ext
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.prints import debug_print
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
@@ -158,7 +159,6 @@ class CollectionsBookList(BookList):
         return cat_name.strip()
 
     def get_collections(self, collection_attributes):
-        from calibre.devices.usbms.driver import debug_print
         from calibre.utils.config import device_prefs
         debug_print('Starting get_collections:', device_prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])

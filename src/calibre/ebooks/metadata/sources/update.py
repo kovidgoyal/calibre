@@ -13,10 +13,11 @@ from threading import Thread
 
 import calibre.ebooks.metadata.sources.search_engines as builtin_search_engines
 from calibre import as_unicode, prints
-from calibre.constants import DEBUG, numeric_version
+from calibre.constants import numeric_version
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
+from calibre.prints import debug_print
 from polyglot.builtins import iteritems, itervalues
 
 cache = JSONConfig('metadata-sources-cache.json')
@@ -28,11 +29,6 @@ current_search_engines = builtin_search_engines
 
 def search_engines_module():
     return current_search_engines
-
-
-def debug_print(*args, **k):
-    if DEBUG:
-        prints(*args, **k)
 
 
 def load_plugin(src):

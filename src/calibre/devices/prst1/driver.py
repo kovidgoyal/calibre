@@ -21,8 +21,9 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
 from calibre.devices.usbms.device import USBDevice
-from calibre.devices.usbms.driver import USBMS, debug_print
+from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
+from calibre.prints import debug_print
 from polyglot.builtins import long_type
 
 DBPATH = 'Sony_Reader/database/books.db'
