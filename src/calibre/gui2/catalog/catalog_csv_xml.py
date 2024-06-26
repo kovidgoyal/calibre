@@ -133,10 +133,13 @@ class PluginWidget(QWidget):
 
         self.db_fields.clear()
         for x in sorted(self.all_fields, key=key):
-            i = ListWidgetItem(x, name(x) + ' (%s)' % x, cpos.get(x, sys.maxsize), self.db_fields)
+            pos = cpos.get(x, sys.maxsize)
+            if x == 'series_index':
+                pos = cpos.get('series', sys.maxsize)
+            ListWidgetItem(x, name(x) + ' (%s)' % x, pos, self.db_fields)
             if x.startswith('#') and fm[x]['datatype'] == 'series':
                 x += '_index'
-                ListWidgetItem(x, name(x) + ' (%s)' % x, i.position_in_booklist, self.db_fields)
+                ListWidgetItem(x, name(x) + ' (%s)' % x, pos, self.db_fields)
 
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
