@@ -1,0 +1,114 @@
+import json, re
+from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+
+def re_html(y):
+    soup = BeautifulSoup(y.rstrip(), "html.parser")
+    return soup.text
+
+def get_cont(x):
+    url = x['url']
+    title = x['headline']
+    desc = x['standfirst']
+    if x['byline']['text']:
+        desc = 'By ' + x['byline']['text'] + ' | ' + desc
+    print('              ', re_html(title), '\n\t', re_html(desc), '\n\t', url)
+    return ({ 'title': re_html(title), 'description': re_html(desc), 'url': url })
+
+def get_id(url):
+    rq = browser().open(url)
+    return re.search('\?p=(\S+)>', str(rq.info())).group(1)
+
+
+class tls(BasicNewsRecipe):
+    title = 'Times Literary Supplement'
+    description = (
+        'TLS, world’s leading journal for literature and ideas. Every week, we publish book reviews, book extracts, '
+        'essays and poems from leading writers from around the world. We cover far more than just literature, featuring '
+        'major articles on subjects from anthropology to zoology, philosophy to politics, comedy to psychology. Each week, '
+        'we also review the latest in fiction, film, opera, theatre, dance, radio and television.'
+    )
+    encoding = 'utf-8'
+    language = 'en_GB'
+    masthead_url = 'https://www.the-tls.co.uk/wp-content/uploads/sites/7/2019/11/Smaller-Logo.jpg'
+
+    extra_css = '''
+        .label { font-size:small; color:#404040; }
+        .figc { font-size:small; text-align:center; }
+        .desc { font-style:italic; color:#202020; }
+        .auth { font-size:small; }
+        em, blockquote { color:#202020; }
+        .det { font-size:small; color:#202020; }
+    '''
+
+    def parse_index(self):
+        issue = 'https://www.the-tls.co.uk/issues/current-issue/'
+        url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
+        raw = self.index_to_soup(url, raw=True)
+        data = json.loads(raw)
+        self.cover_url = data['featuredimage']['full_image'] + '?w600'
+        self.timefmt = ' [' + data['issuedateline']['issuedate'] + ']'
+        self.description = 'Issue ' + data['issuedateline']['issuenumber']
+
+        feeds = []
+
+        self.log('A note from the Editor')
+        feeds.append(('A note from the Editor', [get_cont(data['featuredarticle'])]))
+
+        cont = data['contents']
+        for c in cont:
+            section = re_html(cont[c]['articleheader']['title'])
+            self.log(section)
+            articles = []
+            for arts in cont[c]['articleslist']:
+                articles.append(get_cont(arts))
+            if articles:
+                feeds.append((section, articles))
+        return feeds
+
+    def print_version(self, url):
+        return 'https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + get_id(url)
+
+    def preprocess_raw_html(self, raw, *a):
+        data = json.loads(raw)
+        prim = data['articleIntroPrimary']
+        title = '<h1>' + prim['headline'] + '</h1>\n'
+        desc = '<p class="desc">' + prim['standfirst'] + '</p>\n'
+
+        auth = lede = ''
+
+        label = '<div class="label">{}</div>\n'
+        if prim['label']['category']['text']:
+            label = label.format(prim['label']['articletype'] + ' | ' + prim['label']['category']['text'])
+        else:
+            label = label.format(prim['label']['articletype'])
+
+        if prim['byline']['text']:
+            auth = '<p class="auth"><a href="{}">'.format(prim['byline']['link']) + prim['byline']['text'] + '</a></p>\n'
+
+        bks = ''
+        if data['bookdetails']:
+            for a in data['bookdetails']:
+                bks += '<br>'
+                for x, y in a.items():
+                    if isinstance(y, str):
+                        if x == 'imageurl':
+                            bks += '<img src="{}">'.format(y)
+                        elif y:
+                            bks += '<div class="det">' + y + '</div>\n'
+                bks += '<br>'
+
+        if 'full_image' in data['leadimage'] and data['leadimage']['full_image']:
+            lede = '<br><img src="{}"><div class="figc">{}</div>'.format(
+                data['leadimage']['full_image'] + '?w600', data['leadimage']['imagecaption'] + ' <i>' \
+                    + data['leadimage']['imagecredit'] + '</i>'
+            )
+
+        body = data['content']
+
+        html = '<html><body><div>' \
+                    + label + title + desc + auth + lede + bks + body + \
+                        '</div></body></html>'
+        return BeautifulSoup(html).prettify()
