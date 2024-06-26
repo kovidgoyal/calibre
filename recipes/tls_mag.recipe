@@ -24,6 +24,7 @@ def get_id(url):
 
 class tls(BasicNewsRecipe):
     title = 'Times Literary Supplement'
+	__author__ = 'unkn0wn'
     description = (
         'TLS, world’s leading journal for literature and ideas. Every week, we publish book reviews, book extracts, '
         'essays and poems from leading writers from around the world. We cover far more than just literature, featuring '
