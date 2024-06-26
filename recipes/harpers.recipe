@@ -1,88 +1,91 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre import browser
 
 
 class Harpers(BasicNewsRecipe):
-    title = u"Harper's Magazine"
-    __author__ = u'Darko Miletic'
-    language = 'en'
-    description = u"Harper's Magazine: Founded June 1850."
+    title = 'Harper’s Magazine'
+    __author__ = 'unkn0wn'
+    language = 'en_US'
+    description = (
+        'Harper’s Magazine, the oldest general-interest monthly in America, explores the issues that drive our '
+        'national conversation, through long-form narrative journalism and essays, and such celebrated '
+        'features as the iconic Harper’s Index. With its emphasis on fine writing and original thought '
+        'Harper’s provides readers with a unique perspective on politics, society, the environment, and culture.'
+    )
     publisher = "Harper's Magazine "
     category = 'news, politics, USA'
-    oldest_article = 30
-    max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    masthead_url = 'https://harpers.org/wp-content/themes/timber/assets/img/logo.svg'
+    ignore_duplicate_articles = {'url'}
+    encoding = 'utf-8'
+    remove_attributes = ['style', 'height', 'width']
 
     keep_only_tags = [
-        dict(
-            class_=[
-                "article-content",
-                "template-index-archive",  # harper's index
-            ]
-        )
+        dict(attrs={'class':lambda x: x and (
+            'title-header desktop ' in x or 'col-md-8 col-xl-9' in x
+        )}),
+        classes('article-hero-img entry-content pdf-only')
     ]
     remove_tags = [
-        dict(
-            class_=[
-                "component-newsletter-signup",
-                "sidebar",
-                "header-meta",
-                "component-from-author",
-                "from-issue",
-                "d-none",
-                "COA_roles_fix_space",
-                "section-tags",
-                "aria-font-adjusts",
-                "component-share-buttons",
-                "index-footer",
-                "index-prev-link",
-                "comma",
-            ]
-        ),
-        # for harper's index
-        dict(
-            class_=[
-                "aria-font-adjusts",
-                "component-share-buttons",
-                "index-footer",
-                "index-prev-link",
-            ]
-        ),
+        classes('header-controls')
     ]
     remove_attributes = ["style", "width", "height"]
 
-    extra_css = """
-    h1.article-title { font-size: x-large; margin-bottom: 0.4rem; }
-    .subheading, .post-subtitle { font-size: large; font-style: italic; margin-bottom: 1rem; }
-    .byline { margin-bottom: 1rem }
-    .article-hero-img img, .flex-section-image img, .wp-caption img {
-        display: block; margin-bottom: 0.3rem; max-width: 100%; height: auto;
-        box-sizing: border-box;
-    }
-    .wp-caption-text { font-size: small; margin-top: 0.3rem; }
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .category, .from-issue { font-size:small; color:#404040; }
+        .wp-caption-text { font-size:small; text-align:center; }
+        .subheading { font-style:italic; color:#202020; }
+        .byline { font-size:small; }
+        em, blockquote { color:#202020; }
+    '''
 
-    .author-bio { margin-top: 2.5rem; font-style: italic; }
-    .author-bio em { font-weight: bold; }
+    def preprocess_html(self, soup):
+        sub = soup.find(attrs={'class':'subheading'})
+        if sub:
+            sub.name = 'p'
+        for img in soup.findAll('img', attrs={'srcset':True}):
+            for src in img['srcset'].split(','):
+                if '768w' in src:
+                    img['src'] = img['src'].split()[0]
+        return soup
 
-    .index-item { font-size: large; margin: 1rem 0; }
-    .index-statement > p { display: inline-block; margin: 0.5rem 0; }
-    .index-statement > span { display: inline-block; }
-    .index-statement .index-tooltip { font-size: small; }
-    """
-
-    def get_cover_url(self):
+    def parse_index(self):
         issues_soup = self.index_to_soup("https://harpers.org/issues/")
-        curr_issue_a_ele = issues_soup.select_one("div.issue-card a")
-        if curr_issue_a_ele.find("img"):
-            return curr_issue_a_ele.img["src"]
+        a_ele = issues_soup.select_one("div.issue-card a")
+        self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class':'issue-title'})) + ']'
+        url = a_ele['href']
+        soup = self.index_to_soup(url)
+        cov_div = soup.find('div', attrs={'class':'issue-cover'})
+        if cov_div:
+            self.cover_url = cov_div.find('img', attrs={'class':'cover-img'})['src']
+        ans = []
+        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + '/')}):
+            if not a.find('img') and a.find(['h1', 'h2', 'h3', 'h4']):
+                url = a['href']
+                title = self.tag_to_string(a)
+                desc = ''
+                div = a.findParent('div').find('div', attrs={'class':'byline'})
+                if div:
+                    desc = self.tag_to_string(div)
+                self.log('\t', title, '\n\t', desc, '\n\t', url)
+                ans.append({'title': title, 'description': desc, 'url': url})
+        return [('Articles', ans)]
 
-    feeds = [(u"Harper's Magazine", u'https://harpers.org/feed/')]
+    # Harpers changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit
