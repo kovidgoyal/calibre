@@ -337,6 +337,8 @@ class Restore(Thread):
         old_notes_path = os.path.join(self.src_library_path, NOTES_DIR_NAME)
         new_notes_path = os.path.join(self.library_path, NOTES_DIR_NAME)
         temp = old_notes_path + '-staging'
+        with suppress(OSError):
+            shutil.rmtree(temp)
         try:
             shutil.move(new_notes_path, temp)
         except OSError:
