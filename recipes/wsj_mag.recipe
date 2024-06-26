@@ -9,15 +9,18 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 def media_bucket(x):
     if x.get('type', '') == 'image':
-        return '<img src="{}"><div class="figc">{}</div>\n'.format(
-            x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+        if x.get('subtype', '') == 'graphic':
+            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+                x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
+        return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+            x['manifest-url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
         )
     if x.get('type', '') == 'video':
-        return '<a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
-            x['share_link'], x['thumbnail_url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+        return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
+            x['share_link'], x['thumbnail_url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
         )
     return
-
 
 class WSJ(BasicNewsRecipe):
     title = 'WSJ. Magazine'
@@ -87,7 +90,6 @@ class WSJ(BasicNewsRecipe):
                 m_itm = soup.findAll('panel', attrs={'class':'media-item'})
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
-                        x.name = 'p'
                         x.insert_after(BeautifulSoup(y, 'html.parser'))
         return soup
 
