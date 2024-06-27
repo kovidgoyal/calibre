@@ -41,10 +41,11 @@ class tls(BasicNewsRecipe):
         .desc { font-style:italic; color:#202020; }
         .auth { font-size:small; }
         em, blockquote { color:#202020; }
-        .det { font-size:small; color:#202020; }
+        .det { font-size:small; color:#202020; font-weight:bold; }
     '''
 
     def parse_index(self):
+        # for past edition, change the issue link below 
         issue = 'https://www.the-tls.co.uk/issues/current-issue/'
         url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)
@@ -91,8 +92,8 @@ class tls(BasicNewsRecipe):
 
         bks = ''
         if data['bookdetails']:
+            bks += '<br>'
             for a in data['bookdetails']:
-                bks += '<br>'
                 for x, y in a.items():
                     if isinstance(y, str):
                         if x == 'imageurl':
