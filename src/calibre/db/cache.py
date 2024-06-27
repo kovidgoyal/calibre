@@ -3398,7 +3398,7 @@ class Cache:
             if is_null_date(dest_mi.pubdate) and not is_null_date(src_mi.pubdate):
                 dest_mi.pubdate = src_mi.pubdate
 
-            src_identifiers = self.field_for('identifier', src_id) or {}
+            src_identifiers = (src_mi.get_identifiers() or {}).copy()
             src_identifiers.update(merged_identifiers)
             merged_identifiers = src_identifiers.copy()
 
