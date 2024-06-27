@@ -50,8 +50,9 @@ class Target(QTextBrowser):
 
 class ConfirmMerge(Dialog):
 
-    def __init__(self, msg, name, parent, mi):
+    def __init__(self, msg, name, parent, mi, ask_about_save_alternate_cover=False):
         self.msg, self.mi, self.conf_name = msg, mi, name
+        self.ask_about_save_alternate_cover = ask_about_save_alternate_cover
         Dialog.__init__(self, _('Are you sure?'), 'confirm-merge-dialog', parent)
         needed, sz = self.sizeHint(), self.size()
         if needed.width() > sz.width() or needed.height() > sz.height():
@@ -71,6 +72,13 @@ class ConfirmMerge(Dialog):
         self.la = la = QLabel(self.msg)
         la.setWordWrap(True)
         l.addWidget(la)
+        self.save_alternate_cover_cb = c = QCheckBox(_('Save replaced or discarded &cover'), self)
+        c.setToolTip(_('Save the replaced or discarded cover in the data files associated with the target book as an alternate cover'))
+        c.setObjectName('choose-merge-cb-save_alternate_cover')
+        c.setChecked(bool(gprefs.get(c.objectName(), False)))
+        l.addWidget(c)
+        c.setVisible(self.ask_about_save_alternate_cover)
+        c.toggled.connect(self.alternate_covers_toggled)
         self.confirm = c = QCheckBox(_('Show this confirmation again'), self)
         c.setChecked(True)
         c.stateChanged.connect(self.toggle)
@@ -78,6 +86,9 @@ class ConfirmMerge(Dialog):
 
         self.right = r = Target(self.mi, self)
         s.addWidget(r)
+
+    def alternate_covers_toggled(self):
+        gprefs.set(self.save_alternate_cover_cb.objectName(), self.save_alternate_cover_cb.isChecked())
 
     def toggle(self):
         dynamic[confirm_config_name(self.conf_name)] = self.confirm.isChecked()
@@ -88,12 +99,12 @@ class ConfirmMerge(Dialog):
         return ans
 
 
-def confirm_merge(msg, name, parent, mi):
+def confirm_merge(msg, name, parent, mi, ask_about_save_alternate_cover=False):
     config_set = dynamic
     if not config_set.get(confirm_config_name(name), True):
         return True
-    d = ConfirmMerge(msg, name, parent, mi)
-    return d.exec() == QDialog.DialogCode.Accepted
+    d = ConfirmMerge(msg, name, parent, mi, ask_about_save_alternate_cover)
+    return d.exec() == QDialog.DialogCode.Accepted, d.save_alternate_cover_cb.isChecked()
 
 
 class ChooseMerge(Dialog):
@@ -116,11 +127,11 @@ class ChooseMerge(Dialog):
         w.fl = fl = FlowLayout()
         l.addLayout(fl)
 
-        def cb(name, text, tt=''):
+        def cb(name, text, tt='', defval=True):
             ans = QCheckBox(text)
             fl.addWidget(ans)
             prefs_key = ans.prefs_key = 'choose-merge-cb-' + name
-            ans.setChecked(gprefs.get(prefs_key, True))
+            ans.setChecked(gprefs.get(prefs_key, defval))
             connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(getattr(self, name), state), type=Qt.ConnectionType.QueuedConnection)
             if tt:
                 ans.setToolTip(tt)
@@ -135,6 +146,8 @@ class ChooseMerge(Dialog):
             'Delete the selected books after merging'))
         cb('replace_cover', _('Replace existing cover'), _(
             'Replace the cover in the target book with the dragged cover'))
+        cb('save_alternate_cover', _('Save alternate cover'), _(
+            'Save the replaced or discarded cover in the data files associated with the target book as an alternate cover'), defval=False)
         l.addStretch(10)
         self.msg = la = QLabel(self)
         la.setWordWrap(True)
@@ -197,7 +210,7 @@ class ChooseMerge(Dialog):
     def merge_type(self):
         return MergeData(
             self.merge_metadata.isChecked(), self.merge_formats.isChecked(), self.delete_books.isChecked(),
-            self.replace_cover.isChecked(),
+            self.replace_cover.isChecked(), self.save_alternate_cover.isChecked(),
         )
 
 
@@ -206,6 +219,7 @@ class MergeData(NamedTuple):
     merge_formats: bool = False
     delete_books: bool = False
     replace_cover: bool = False
+    save_alternate_cover: bool = False
 
 
 def merge_drop(dest_id, src_ids, gui):

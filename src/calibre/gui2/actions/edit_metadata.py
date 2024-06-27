@@ -579,7 +579,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             if d.merge_formats:
                 self.add_formats(dest_id, self.formats_for_ids(list(src_ids)))
             if d.merge_metadata:
-                self.merge_metadata(dest_id, src_ids, replace_cover=d.replace_cover)
+                self.merge_metadata(dest_id, src_ids, replace_cover=d.replace_cover, save_alternate_cover=d.save_alternate_cover)
                 if d.replace_cover:
                     covers_replaced = True
             if d.delete_books:
@@ -613,16 +613,17 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         title = mi.title
         hpos = self.gui.library_view.horizontalScrollBar().value()
         if safe_merge:
-            if not confirm_merge('<p>'+_(
+            confirmed, save_alternate_cover = confirm_merge('<p>'+_(
                 'Book formats and metadata from the selected books '
                 'will be added to the <b>first selected book</b> (%s).<br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')%title + '</p>',
-                'merge_books_safe', self.gui, mi):
+                'merge_books_safe', self.gui, mi, ask_about_save_alternate_cover=True)
+            if not confirmed:
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
-            self.merge_metadata(dest_id, src_ids)
+            self.merge_metadata(dest_id, src_ids, save_alternate_cover=save_alternate_cover)
         elif merge_only_formats:
             if not confirm_merge('<p>'+_(
                 'Book formats from the selected books will be merged '
@@ -640,7 +641,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.delete_books_after_merge(src_ids)
         else:
-            if not confirm_merge('<p>'+_(
+            confirmed, save_alternate_cover = confirm_merge('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
                 'into the <b>first selected book</b> (%s).<br><br>'
                 'After being merged, the second and '
@@ -649,10 +650,11 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')%title + '</p>',
-                'merge_books', self.gui, mi):
+                'merge_books', self.gui, mi, ask_about_save_alternate_cover=True)
+            if not confirmed:
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
-            self.merge_metadata(dest_id, src_ids)
+            self.merge_metadata(dest_id, src_ids, save_alternate_cover=save_alternate_cover)
             self.merge_data_files(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
@@ -709,8 +711,8 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     def delete_books_after_merge(self, ids_to_delete):
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
-    def merge_metadata(self, dest_id, src_ids, replace_cover=False):
-        self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover)
+    def merge_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False):
+        self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover, save_alternate_cover=save_alternate_cover)
     # }}}
 
     def edit_device_collections(self, view, oncard=None):

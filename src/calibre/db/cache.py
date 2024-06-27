@@ -28,7 +28,7 @@ from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, 
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
 from calibre.db.categories import get_categories
-from calibre.db.constants import NOTES_DIR_NAME
+from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
@@ -3346,12 +3346,13 @@ class Cache:
         self.backend.copy_extra_file_to(book_id, path, relpath, stream_or_path)
 
     @write_api
-    def merge_book_metadata(self, dest_id, src_ids, replace_cover=False):
+    def merge_book_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False):
         dest_mi = self.get_metadata(dest_id)
         merged_identifiers = self._field_for('identifiers', dest_id) or {}
         orig_dest_comments = dest_mi.comments
         dest_cover = orig_dest_cover = self.cover(dest_id)
         had_orig_cover = bool(dest_cover)
+        alternate_covers = []
         from calibre.utils.date import is_date_undefined
 
         def is_null_date(x):
@@ -3379,8 +3380,14 @@ class Cache:
             if not dest_cover or replace_cover:
                 src_cover = self.cover(src_id)
                 if src_cover:
+                    if save_alternate_cover and dest_cover:
+                        alternate_covers.append(dest_cover)
                     dest_cover = src_cover
                     replace_cover = False
+            elif save_alternate_cover:
+                src_cover = self.cover(src_id)
+                if src_cover:
+                    alternate_covers.append(src_cover)
             if not dest_mi.publisher:
                 dest_mi.publisher = src_mi.publisher
             if not dest_mi.rating:
@@ -3401,6 +3408,17 @@ class Cache:
 
         if dest_cover and (not had_orig_cover or dest_cover is not orig_dest_cover):
             self._set_cover({dest_id: dest_cover})
+        if alternate_covers:
+            existing = {x[0] for x in self._list_extra_files(dest_id)}
+            h, ext = os.path.splitext(COVER_FILE_NAME)
+            template = f'{DATA_DIR_NAME}/{h}-{{:03d}}{ext}'
+            for cdata in alternate_covers:
+                for i in range(1, 1000):
+                    q = template.format(i)
+                    if q not in existing:
+                        existing.add(q)
+                        self._add_extra_files(dest_id, {q: BytesIO(cdata)}, replace=False, auto_rename=True)
+                        break
 
         for key in self.field_metadata:  # loop thru all defined fields
             fm = self.field_metadata[key]
