@@ -1,7 +1,9 @@
-import json, re
+import json
+import re
+
 from calibre import browser
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def re_html(y):
@@ -45,7 +47,7 @@ class tls(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        # for past edition, change the issue link below 
+        # for past edition, change the issue link below
         issue = 'https://www.the-tls.co.uk/issues/current-issue/'
         url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)

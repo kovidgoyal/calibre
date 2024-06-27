@@ -1,8 +1,8 @@
 '''
 harpers.org
 '''
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Harpers(BasicNewsRecipe):
