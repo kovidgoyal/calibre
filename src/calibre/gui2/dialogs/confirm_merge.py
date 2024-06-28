@@ -102,7 +102,7 @@ class ConfirmMerge(Dialog):
 def confirm_merge(msg, name, parent, mi, ask_about_save_alternate_cover=False):
     config_set = dynamic
     if not config_set.get(confirm_config_name(name), True):
-        return True
+        True, bool(gprefs.get('choose-merge-cb-save_alternate_cover', False))
     d = ConfirmMerge(msg, name, parent, mi, ask_about_save_alternate_cover)
     return d.exec() == QDialog.DialogCode.Accepted, d.save_alternate_cover_cb.isChecked()
 

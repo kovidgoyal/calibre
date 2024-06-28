@@ -636,7 +636,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')%title + '</p>',
-                'merge_only_formats', self.gui, mi):
+                'merge_only_formats', self.gui, mi)[0]:
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.delete_books_after_merge(src_ids)
