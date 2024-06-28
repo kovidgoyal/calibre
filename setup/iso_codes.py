@@ -50,6 +50,8 @@ class ISOData(Command):
     def extract_po_files(self, name: str, output_dir: str) -> None:
         name = name.split('.', 1)[0]
         pat = f'{self.top_level}/{name}/*.po'
+        if self.zip_data is None:
+            self._zip_data = BytesIO(download_securely(self.URL))
         with zipfile.ZipFile(self.zip_data) as zf:
             for name in fnmatch.filter(zf.namelist(), pat):
                 dest = os.path.join(output_dir, name.split('/')[-1])
