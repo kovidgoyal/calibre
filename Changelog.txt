@@ -23,6 +23,58 @@
 # - title by author
 # }}}
 
+{{{ 7.13.0 2024-06-28
+
+:: new features
+
+- [2071033] When merging books add an option to store discarded or replaced covers as an alternate cover in the data folder of the target book
+
+- [2068070] Generate CSV catalog: Add a button to sort the fields by the order in which they appear in the book list
+
+:: bug fixes
+
+- [2067755] MTP driver: Preserve cover aspect ratio for thumbnail generation
+
+- [2071044] Fix identifiers not always being merged correctly when merging books
+
+- [2069541] DOCX Input: Fix extra left padding when converting lists
+
+- Amazon metadata download: Get title and comments for audiobook pages
+
+- Amazon metadata: When filtering search engine results by title ignore words of the title that are purely punctuation
+
+- When matching books on a device to book in the library assume a match if the title and any one author match, dont require all authors to match
+
+- [2069553] Update Google Images cover download plugin for website changes
+
+- [2069494] When adding new books if the timestamp is specified as undefined use the current timestamp
+
+- Content server: Fix systemd pre-activated socket not working
+
+- [2071390] Content server: Fix no KFX download link in OPDS acquisition feeds
+
+:: improved recipes
+- Harpers
+- Wall Street Journal
+- Liberation
+- How to Geek
+- Make Use Of
+- TechCrunch
+- LifeHacker
+- India Today
+- 1843
+- Reuters
+- The Week India
+- Slate
+
+:: new recipes
+- Times Literary Supplement by unkn0wn
+- Wall Street Journal Magazine by unkn0wn
+- Various Valnet Publishing Group recipes by Spicy Poison
+- VOX, The Good E-reder and The e-book Reader by SpicyPoison
+- Gates Notes, Greatist, Halthline and United Nations by SpicyPoison
+}}}
+
 {{{ 7.12.0 2024-05-30
 
 :: new features
