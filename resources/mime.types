@@ -1371,6 +1371,7 @@ application/x-topaz-ebook                  tpz azw1
 application/x-mobipocket-subscription      pobi
 application/x-kindle-application           azw2
 application/x-mobi8-ebook                  azw3
+application/x-mobi10-ebook                 kfx
 application/x-cbz                          cbz
 application/x-cbr                          cbr
 application/x-cb7                          cb7
