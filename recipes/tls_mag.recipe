@@ -7,8 +7,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def re_html(y):
-    soup = BeautifulSoup(y.rstrip(), "html.parser")
-    return soup.text
+    if y:
+        soup = BeautifulSoup(y.rstrip(), "html.parser")
+        return soup.text
 
 def get_cont(x):
     url = x['url']
@@ -36,6 +37,7 @@ class tls(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'en_GB'
     masthead_url = 'https://www.the-tls.co.uk/wp-content/uploads/sites/7/2019/11/Smaller-Logo.jpg'
+    remove_empty_feeds = True
 
     extra_css = '''
         .label { font-size:small; color:#404040; }
@@ -58,12 +60,15 @@ class tls(BasicNewsRecipe):
 
         feeds = []
 
-        self.log('A note from the Editor')
-        feeds.append(('A note from the Editor', [get_cont(data['featuredarticle'])]))
+        if data['featuredarticle']:
+            self.log('A note from the Editor')
+            feeds.append(('A note from the Editor', [get_cont(data['featuredarticle'])]))
 
         cont = data['contents']
         for c in cont:
             section = re_html(cont[c]['articleheader']['title'])
+            if not section:
+                continue
             self.log(section)
             articles = []
             for arts in cont[c]['articleslist']:
@@ -84,10 +89,13 @@ class tls(BasicNewsRecipe):
         auth = lede = ''
 
         label = '<div class="label">{}</div>\n'
-        if prim['label']['category']['text']:
-            label = label.format(prim['label']['articletype'] + ' | ' + prim['label']['category']['text'])
-        else:
-            label = label.format(prim['label']['articletype'])
+        l = prim['label']
+        if l['category']['text'] and l['articletype']:
+            label = label.format(l['articletype'] + ' | ' + l['category']['text'])
+        elif l['articletype']:
+            label = label.format(l['articletype'])
+        elif l['category']['text']:
+            label = label.format(l['category']['text'])
 
         if prim['byline']['text']:
             auth = '<p class="auth"><a href="{}">'.format(prim['byline']['link']) + prim['byline']['text'] + '</a></p>\n'

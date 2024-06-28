@@ -51,7 +51,7 @@ class Harpers(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'srcset':True}):
             for src in img['srcset'].split(','):
                 if '768w' in src:
-                    img['src'] = img['src'].split()[0]
+                    img['src'] = src.split()[0]
         return soup
 
     def parse_index(self):
@@ -67,12 +67,12 @@ class Harpers(BasicNewsRecipe):
         for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + '/')}):
             if not a.find('img') and a.find(['h1', 'h2', 'h3', 'h4']):
                 url = a['href']
-                title = self.tag_to_string(a)
+                title = self.tag_to_string(a).strip()
                 desc = ''
                 div = a.findParent('div').find('div', attrs={'class':'byline'})
                 if div:
-                    desc = self.tag_to_string(div)
-                self.log('\t', title, '\n\t', desc, '\n\t', url)
+                    desc = self.tag_to_string(div).strip()
+                self.log('      ', title, '\n\t', desc[:-1], '\n\t', url)
                 ans.append({'title': title, 'description': desc, 'url': url})
         return [('Articles', ans)]
 
