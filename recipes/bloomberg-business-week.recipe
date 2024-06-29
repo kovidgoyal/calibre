@@ -2,8 +2,9 @@ import json
 import random
 import time
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 from html5_parser import parse
+from collections import defaultdict
 
 
 def get_contents(x):
@@ -106,30 +107,29 @@ class Bloomberg(BasicNewsRecipe):
         self.log('Downloading ', edition)
         self.cover_url = bw.find('img')['src'].replace('25x19', '600x800')
         soup = self.index_to_soup(edition)
-        if timefmt := soup.find(attrs={'class':lambda x: x and x.startswith('styles_MagazineTitle__')}):
+        if timefmt := soup.find(**prefixed_classes('styles_TableOfContentsTitle__')):
             self.timefmt = ' [' + (self.tag_to_string(timefmt).replace(' Issue', '')).strip() + ']'
 
-        feeds = []
-        for div in soup.findAll(attrs={'class':lambda x: x and x.startswith(
-                ('styles_MagazineFeatures__', 'styles_MagazineStoryList__')
-            )}):
-            h3 = div.find(attrs={'class':lambda x: x and x.startswith(
-                ('styles_featuresTitle__', 'styles_magazineSectionTitle__')
-            )})
-            sec = self.tag_to_string(h3)
-            self.log(sec)
+        feeds_dict = defaultdict(list)
+
+        sec = ''
+        toc = soup.find('section', attrs={'id':'toc-archive-businessweek'})
+        for div in toc.findAll(**prefixed_classes('MagazinePageMagazineArchive_itemContainer__')):
+            h3 = div.find(**prefixed_classes('MagazinePageMagazineArchive_itemSection__'))
+            if h3 and h3.text:
+                sec = self.tag_to_string(h3)
+                self.log(sec)
             articles = []
-            for art in div.findAll(attrs={'data-component':'headline'}):
-                a = art.find('a', href=True)
-                url = a['href']
-                if url.startswith('http') is False:
-                    url = 'https://www.bloomberg.com' + a['href']
-                title = self.tag_to_string(a)
-                articles.append({'title': title, 'url': url})
-                self.log('\t', title, '\n\t\t', url)
-            if articles:
-                feeds.append((sec, articles))
-        return feeds
+            a = div.find(**prefixed_classes('MagazinePageMagazineArchive_storyLink__'))
+            url = a['href']
+            if url.startswith('http') is False:
+                url = 'https://www.bloomberg.com' + a['href']
+            title = self.tag_to_string(a)
+            byl = div.find(**prefixed_classes('Byline_phoenix__'))
+            desc = self.tag_to_string(byl)
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            feeds_dict[sec].append({"title": title, "url": url, "description": desc})
+        return [(sec, articles) for sec, articles in feeds_dict.items()]
 
     def preprocess_raw_html(self, raw, *a):
         root = parse(raw)
