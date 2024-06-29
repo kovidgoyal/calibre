@@ -1,159 +1,138 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010-2019, Bobby Steel <bob at xdca.com>, Darko Miletic'
-'''
-www.thetimes.co.uk
-'''
-import html5lib
-from calibre import random_user_agent
-from calibre.web.feeds.news import BasicNewsRecipe
-from lxml import html
-from mechanize import Request
+from urllib.parse import quote
+from calibre.scraper.simple import read_url
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
+def resize(x):
+    if 'resize' in x:
+        return x.split('&resize')[0] + '&resize=600'
+    elif '?crop=' in x:
+        return x + '&resize=600'
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-class TimesOnline(BasicNewsRecipe):
-    title = 'The Times & Sunday Times (UK)'
-    __author__ = 'Bobby Steel'
-    description = 'news from United Kingdom and World'
+class times(BasicNewsRecipe):
+    title = 'The Times and Sunday Times'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Times, founded in 1785 as the Daily Universal Register, is the oldest national daily newspaper '
+        'in the UK and holds an important place as the “paper of record” on public life, from politics and world '
+        'affairs to business and sport.'
+    )
     language = 'en_GB'
-    publisher = 'Times Newspapers Ltd'
-    category = 'news, politics, UK'
-    excludeSections = ['Puzzles']
-    oldest_article = 1
-    max_articles_per_feed = 100
-    no_stylesheets = True
-    use_embedded_content = False
     encoding = 'utf-8'
-    delay = 1
-    needs_subscription = True
-    publication_type = 'newspaper'
-    INDEX = 'http://www.thetimes.co.uk/'
-    LOGIN = 'https://login.thetimes.co.uk/'
-    PREFIX = u'http://www.thetimes.co.uk'
-    extra_css = """
-        .author-name,.authorName{font-style: italic}
-        .published-date,.multi-position-photo-text{font-family: Arial,Helvetica,sans-serif;
-                                                    font-size: small; color: gray;
-                                                    display:block; margin-bottom: 0.5em}
-        body{font-family: Georgia,"Times New Roman",Times,serif}
-    """
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['width', 'height', 'style']
+    masthead_url = 'https://www.thetimes.com/d/img/logos/times-black-ee1e0ce4ed.png'
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language}
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    simultaneous_downloads = 1
+    oldest_article = 1 # days
+    web_url = ''
 
     def get_cover_url(self):
-        from datetime import date
-        today = date.today()
-        today_index = today.weekday()
-        if (today_index == 6):  # Special cover on Sundays
-            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime(
-                '%Y') + today.strftime('%m') + today.strftime(
-                    '%d') + '00000000001001&page=1&scale=99'
-            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1163' + today.strftime(
-                '%Y') + today.strftime('%m') + today.strftime(
-                    '%d') + '00000051001001&page=1&scale=99'
-            # on some days cover is iterated using format here for altcover
-        else:  # Mon-Thurs
-            cover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime(
-                '%Y') + today.strftime('%m') + today.strftime(
-                    '%d') + '00000000001001&page=1&scale=99'
-            altcover = 'https://cdn2-img.pressreader.com/pressdisplay/docserver/getimage.aspx?file=1148' + today.strftime(
-                '%Y') + today.strftime('%m') + today.strftime(
-                    '%d') + '00000051001001&page=1&scale=99'
-        self.log(cover)
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            cover = altcover
-            br.open(cover)
-        return cover
+        soup = self.index_to_soup('https://www.frontpages.com/the-times/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
 
-    def get_browser(self, *a, **kw):
-        start_url = self.INDEX
-        kw['user_agent'] = random_user_agent(allow_ie=False)
-        br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        self.log('Starting login process...')
-        res = br.open(start_url)
-        sso_url = res.geturl()
-        self.log(sso_url)
-        request_query = {
-            'username': self.username,
-            'password': self.password,
-            's': 1,
-            'gotoUrl': self.INDEX,
-        }
-        rq = Request(self.LOGIN, headers={
-            'Accept': 'text/html',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'X-HTTP-Method-Override': 'POST',
-            'X-Requested-With': 'XMLHttpRequest',
-        }, data=request_query)
-        self.log('Sending login request...')
-        res = br.open(rq)
-        return br
+    extra_css = '''
+        .tc-view__TcView-nuazoi-0, [class^="keylines__KeylineItem-"], .sub { font-size:small; }
+        [class^="responsive__StandfirstContainer-"] { font-style:italic; }
+    '''
 
-    remove_tags = [
-        classes('is-hidden Toolbar Tooltip Topics Comments u-hide RelatedLinks ArticlePager Media-caption'),
-        {'name': ['object', 'link', 'iframe', 'base', 'meta', 'script']},
+    keep_only_tags = [
+        prefixed_classes(
+            'responsive__HeadlineContainer- keylines__KeylineItem- responsive__StandfirstContainer- '
+            'responsive__LeadAsset- responsive__ArticleContent-'
+        )
     ]
 
-    remove_attributes = ['lang']
-    keep_only_tags = [{
-        'attrs': {
-            'id': ['article-main', 'bodycopy']}}, {
-                'attrs': {
-                    'class': ['Article Article--default', 'f-author']}}]
-    remove_tags_after = dict(attrs={'class': 'Article-content'})
+    remove_tags = [
+        dict(name=['svg']),
+        dict(attrs={'id':'iframe-wrapper'}),
+        dict(attrs={'old-position':'sticky'}),
+        prefixed_classes(
+            'responsive__InlineAdWrapper-'
+        )
+    ]
 
-    feeds = [(u'All News', u'http://www.thetimes.co.uk/')]
-
-    def preprocess_raw_html(self, raw, url):
-        return html.tostring(
-            html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False),
-            method='html',
-            encoding='unicode')
+    remove_tags_after = [
+        dict(name = 'div', attrs={'id':'paywall-portal-article-footer'})
+    ]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
+        h2 = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
+        if h2:
+            h2.name = 'p'
+        for h2 in soup.findAll('h2'):
+            if h2.text == 'Advertisement':
+                div = h2.findParent('div')
+                if div:
+                    div.extract()
+        for img in soup.findAll('img', src=True):
+            img['src'] = resize(img['src'])
+        for img in soup.findAll('img', attrs={'old-src':True}):
+            img['src'] = resize(img['old-src'])
+        for a in soup.findAll('a', href=True):
+            a['href'] = 'http' + a['href'].split('http')[-1]
+        div = soup.findAll(attrs={'style': lambda x: x and x.startswith(
+        	'color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular'
+        )})
+        for p in div:
+            p.name = 'p'
+        for d in soup.findAll(attrs={'id': lambda x: x and '.' in x}):
+            d['class'] = 'sub'
+        for fig in soup.findAll('figure'):
+            fig['class'] = 'sub'
+        return soup
 
-    def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
-        totalfeeds = []
-        current_section = []
-        div = []
-        for div in soup.findAll('section', attrs={'data-text': True}):
-            current_articles = []
-            self.log('in section: ', div['data-text'])
-            current_section = div['data-text']
-            if current_section not in self.excludeSections:
-                for article in div.findAll('div', attrs={'class': 'Item-content'}):
-                    h3 = article.find('h3')
-                    if h3 is not None:
-                        title = self.tag_to_string(h3)
-                        aurl = h3.find('a')
-                        if aurl is not None:
-                            url = aurl['href']
-                            if url.startswith('/'):
-                                url = 'http://www.thetimes.co.uk' + url
-                            desc = title
-                            self.log(
-                                'section: ', current_section, 'title: ', title,
-                                'url: ', url, 'desc: ', desc, '\n')
-                            current_articles.append({
-                                'title': title,
-                                'url': url,
-                                'description': desc})
-                if current_articles:
-                    totalfeeds.append((current_section, current_articles))
-        return totalfeeds
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        soup = self.index_to_soup(url)
+        link = soup.a['href']
+        skip_sections =[ # add sections you want to skip
+            '/video/', '/videos/', '/multimedia/',
+        ]
+        if any(x in link for x in skip_sections):
+            self.abort_article('skipping video links ', link)
+        self.web_url = link
+        html = self.index_to_soup(link, raw=True)
+        return ({ 'data': html, 'url': link })
+
+    feeds = []
+    when = oldest_article*24
+    index = 'https://www.thetimes.com/'   
+    sections = [
+        'politics', 'world', 'uk/politics', 'uk/scotland', 'uk', 'comment', 'business-money', 'sport',
+        'life-style', 'culture', 'magazine', 'travel', 'sunday-times', 'edition', 'article'
+    ]
+    for sec in sections:
+        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-GB&gl=GB&ceid=GB:en'
+        feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
+    feeds.append(('Others', a.format(when, quote(index, safe=''))))
+
+    def preprocess_raw_html(self, raw, url):
+        access = '"userState":{"isLoggedIn":false,"isMetered":false,"hasAccess":true}'
+        if access not in raw and 'comment/cartoons' not in url:
+            raw_ar = read_url([], 'https://archive.is/latest/' + url)
+            archive = BeautifulSoup(str(raw_ar))
+            if archive.find('div', attrs={'id':'top'}):
+                content = archive.find('article', attrs={'id':False})
+                soup = BeautifulSoup(raw)
+                article = soup.find(**prefixed_classes('responsive__ArticleContent-'))
+                if article and content:
+                    self.log('**fetching archive content')
+                    article.clear()
+                    article.append(content)
+                    return str(soup)
+                return raw
+            return raw
+        return raw
+
+    def populate_article_metadata(self, article, soup, first):
+        article.title = article.title.replace(' - The Times', '')
+        desc = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
+        if desc:
+            article.summary = self.tag_to_string(desc)
+            article.text_summary = article.summary
+        article.url = self.web_url
