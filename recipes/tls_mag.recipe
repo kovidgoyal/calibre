@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def re_html(y):
     if y:
-        soup = BeautifulSoup(y.rstrip(), "html.parser")
+        soup = BeautifulSoup(y.rstrip())
         return soup.text
 
 def get_cont(x):
@@ -56,7 +56,8 @@ class tls(BasicNewsRecipe):
         data = json.loads(raw)
         self.cover_url = data['featuredimage']['full_image'] + '?w600'
         self.timefmt = ' [' + data['issuedateline']['issuedate'] + ']'
-        self.description = 'Issue ' + data['issuedateline']['issuenumber']
+        if data['issuedateline']['issuenumber']:
+            self.description = 'Issue ' + data['issuedateline']['issuenumber']
 
         feeds = []
 
