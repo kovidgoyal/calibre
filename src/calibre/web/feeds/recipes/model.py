@@ -424,9 +424,9 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.scheduler_config.schedule_recipe(self.recipe_from_urn(urn),
                 sched_type, schedule)
 
-    def customize_recipe(self, urn, add_title_tag, custom_tags, keep_issues):
+    def customize_recipe(self, urn, add_title_tag, custom_tags, recipe_config, keep_issues):
         self.scheduler_config.customize_recipe(urn, add_title_tag,
-                custom_tags, keep_issues)
+                custom_tags, recipe_config, keep_issues)
 
     def get_to_be_downloaded_recipes(self):
         ans = self.scheduler_config.get_to_be_downloaded_recipes()
