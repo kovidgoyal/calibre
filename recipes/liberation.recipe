@@ -1,37 +1,94 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
-
 '''
 liberation.fr
 '''
 
-import re
+import json, base64, time, locale
 
+from mechanize import Request
+from datetime import datetime, timedelta
+from urllib.parse import quote, urlparse, urlencode
+
+from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def resize(x):
+    for k, v in x.items():
+        if '_750' in k:
+            return v
+
+def json_to_html(raw):
+    data = json.loads(raw)
+
+    title = '<h1>' + data['headlines']['basic'] + '</h1>\n'
+    sub = '<p class="desc">' + data['subheadlines']['basic'] + '</p>'
+
+    auth = '<p class="auth">{}</p>\n'
+    locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+    dt = datetime.fromisoformat(data['last_updated_date'][:-1]) + timedelta(seconds=time.timezone)
+    dt = dt.strftime('%b %d, %Y, %H:%M')
+    a = [x['name'] for x in data['credits']['by']]
+    if a:
+        auth = auth.format(', '.join(a) + ' | ' + dt)
+    else:
+        auth = auth.format(dt)
+
+    lede = ''
+    if data['promo_items']['basic'].get('type', '') == 'image':  
+        lede = '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+            resize(data['promo_items']['basic']['resized_image_urls']),
+            data['promo_items']['basic'].get('caption', '')
+        )
+
+    body = ''
+    for c in data['content_elements']:
+        if c.get('type', '') == 'text':
+            body += '\t<p>' + c['content'] + '</p>\n'
+        if c.get('type', '') == 'image':
+            body += '\t<br><img src="{}"><div class="figc">{}</div>\n'.format(
+                resize(c['resized_image_urls']), c.get('caption', '')
+            )
+        if c.get('type', '') == 'header':
+            body += '\t<h4>' + c['content'] + '</h4>\n'
+        if c.get('type', '') == 'list':
+            body += '\t<ul>'
+            if 'items' in c:
+                for l in c['items']:
+                    if 'content' in l:
+                        body += '<li>' + l['content'] + '</li>'
+            body += '\t</ul>'
+        if c.get('type', '') == 'oembed_response':
+            if 'raw_oembed' in c:
+                if 'html' in c['raw_oembed']:
+                    body += c['raw_oembed']['html']
+
+    return '<html><body><div>\n' + title + sub + auth + lede + body + '\n</div></body></html>'
 
 
 class Liberation(BasicNewsRecipe):
     title = 'Libération'
-    __author__ = 'calibre'
-    description = 'Actualités'
-    publication_type = 'newspaper'
+    __author__ = 'unkn0wn'
+    description = (
+        'Libération est un quotidien d\'information libre, vigilant et engagé. L\'objectif de Libération est de '
+        'fournir une information complète et vérifiée, dans tous les domaines. Sans préjugés, ni complaisance, '
+        'ses enquêtes reportages et analyses s\'emploient à comprendre et à décrire l\'actualité et à révéler '
+        'les mutations des sociétés et des cultures.'
+    )
     language = 'fr'
-
-    oldest_article = 3
-    max_articles_per_feed = 10
-    no_stylesheets = True
+    oldest_article = 1
     remove_empty_feeds = True
+    articles_are_obfuscated = True
     ignore_duplicate_articles = {'title', 'url'}
-    needs_subscription = 'optional'
-
-    masthead_url = 'https://www.liberation.fr/pf/resources/images/liberation.png?d=47'
+    key = 'ZWplZVBlaW5nZWl0YWVnaG8zd2VlbmdlZXlvaHB1'
+    masthead_url = 'https://journal.liberation.fr/img/logo.svg'
+    extra_css = '''
+        .desc { font-style:italic; color:#202020; }
+        .auth { font-size:small; }
+        .figc { font-size:small; text-align:center; }
+        blockquote { color:#202020; }
+    '''
 
     feeds = [
-        #('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
         ('A la une', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/collection/accueil-une/?outputType=xml'),
         ('Politique', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/politique/?outputType=xml'),
         ('International', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/international/?outputType=xml'),
@@ -45,52 +102,40 @@ class Liberation(BasicNewsRecipe):
         ('Portraits', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/portraits/?outputType=xml'),
         ('Sports', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sports/?outputType=xml'),
         ('Sciences', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sciences/?outputType=xml'),
-        ('Forums & événements', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/forums/?outputType=xml')
+        ('Forums & événements', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/forums/?outputType=xml'),
+        ('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml')
     ]
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile('default__Main')})
-    ]
-
-    remove_tags_after = [
-        dict(name='article', attrs={'class': re.compile('article-body-wrapper')})
-    ]
-
-    remove_tags = [
-        dict(name=['button', 'source']),
-        dict(name='div', attrs={'class': [
-            'article-dossier', 'color_background_green', 'display_block', 'tag-container'
-        ]})
-    ]
-
-    extra_css = '''
-        h1 { font-size: 1.6em; margin-top: 0em; }
-        h2, h3, h4, h5, h6 { font-size: 1em; }
-    '''
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            try:
-                br.open('http://token.liberation.fr/accounts/login/')
-                br.select_form(nr=0)
-                br['email'] = self.username
-                br['password'] = self.password
-                br.submit()
-            except Exception as e:
-                self.log('Login failed with error: ' + str(e))
-        return br
+    def get_obfuscated_article(self, url):
+        slug = urlparse(url).path       
+        br = browser()
+        b64 = base64.b64decode(self.key)
+        query = {
+            'website':'liberation',
+            'website_url':'{}'.format(slug),
+            'published':'true',
+            '_sourceInclude':'_id,content_restrictions.content_code,credits,promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,promo_items.basic.height,promo_items.basic.width,promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,promo_items.lead_art.height,promo_items.lead_art.width,promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,source.additional_properties.legacy_url,content_elements,source.source_id,taxonomy.primary_section.additional_properties.original._admin.alias_ids,taxonomy.primary_section.additional_properties.original.navigation.nav_title,taxonomy.primary_section._id,taxonomy.primary_section.name,taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,headlines.basic,source.additional_properties.legacy_url,source.source_type,first_publish_date,display_date,canonical_url' # noqa
+        }
+        headers = {
+            'cache-control': 'public, max-age=5',
+            'x-api-key': b64.decode(),
+            'accept-encoding': 'gzip',
+            'user-agent': 'okhttp/4.11.0'
+        }
+        api = 'https://arc.api.liberation.fr/content/v4/?' + urlencode(query, safe='()!', quote_via=quote)
+        rq = Request(
+            url= api,
+            headers=headers
+        )
+        raw = br.open(rq).read()
+        data = {
+            'data': json_to_html(raw),
+            'url': url
+        }
+        return data
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://journal.liberation.fr/')
         cover = soup.find(name='img', attrs={'class': 'ui image'})
-        if cover is not None and cover['src'] is not None:
-            self.cover_url = 'https:' + cover['src']
-        return self.cover_url
-
-    def postprocess_html(self, soup, first_fetch):
-        # remove local hyperlinks
-        for a in soup.find_all('a', {'href': True}):
-            if '.liberation.fr/' in a['href']:
-                a.replace_with(self.tag_to_string(a))
-        return soup
+        if cover:
+            return 'https:' + cover['src']
