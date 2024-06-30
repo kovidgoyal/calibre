@@ -1844,6 +1844,13 @@ class Boss(QObject):
         if ed is not None:
             ed.paste()
 
+    def toggle_line_wrapping_in_all_editors(self):
+        tprefs['editor_line_wrap'] ^= True
+        yes = tprefs['editor_line_wrap']
+        for ed in editors.values():
+            if getattr(ed, 'editor', None) and hasattr(ed.editor, 'apply_line_wrap_mode'):
+                ed.editor.apply_line_wrap_mode(yes)
+
     def editor_data_changed(self, editor):
         self.gui.preview.start_refresh_timer()
         for name, ed in iteritems(editors):

@@ -226,10 +226,13 @@ class TextEdit(PlainTextEdit):
     def sizeHint(self):
         return self.size_hint
 
+    def apply_line_wrap_mode(self, yes: bool = True) -> None:
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth if yes else QPlainTextEdit.LineWrapMode.NoWrap)
+
     def apply_settings(self, prefs=None, dictionaries_changed=False):  # {{{
         prefs = prefs or tprefs
         self.setAcceptDrops(prefs.get('editor_accepts_drops', True))
-        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.LineWrapMode.NoWrap)
+        self.apply_line_wrap_mode(prefs['editor_line_wrap'])
         with suppress(Exception):
             self.setCursorWidth(int(prefs.get('editor_cursor_width', 1)))
         theme = get_theme(prefs['editor_theme'])

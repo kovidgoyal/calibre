@@ -411,6 +411,9 @@ class Main(MainWindow):
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
         self.action_quick_edit = treg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
             'Quickly open a file from the book to edit it'))
+        self.action_editor_toggle_wrap = treg(
+            'format-justify-fill.png', _('Toggle code line &wrapping'), self.boss.toggle_line_wrapping_in_all_editors, 'editor-toggle-wrap', (), _(
+                'Toggle line wrapping in all code editor tabs'))
 
         # Editor actions
         group = _('Editor actions')
