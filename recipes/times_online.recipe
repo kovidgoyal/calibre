@@ -1,6 +1,9 @@
 from urllib.parse import quote
+
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+
 
 def resize(x):
     if 'resize' in x:
@@ -75,7 +78,7 @@ class times(BasicNewsRecipe):
         for a in soup.findAll('a', href=True):
             a['href'] = 'http' + a['href'].split('http')[-1]
         div = soup.findAll(attrs={'style': lambda x: x and x.startswith(
-        	'color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular'
+            'color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular'
         )})
         for p in div:
             p.name = 'p'
@@ -101,7 +104,7 @@ class times(BasicNewsRecipe):
 
     feeds = []
     when = oldest_article*24
-    index = 'https://www.thetimes.com/'   
+    index = 'https://www.thetimes.com/'
     sections = [
         'politics', 'world', 'uk/politics', 'uk/scotland', 'uk', 'comment', 'business-money', 'sport',
         'life-style', 'culture', 'magazine', 'travel', 'sunday-times', 'edition', 'article'
