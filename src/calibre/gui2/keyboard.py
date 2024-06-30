@@ -447,6 +447,7 @@ class Editor(QFrame):  # {{{
             l.addWidget(la, off+which, 0, 1, 3)
             setattr(self, 'label%d'%which, la)
             button = QPushButton(_('None'), self)
+            button.setObjectName(_('None'))
             button.clicked.connect(partial(self.capture_clicked, which=which))
             button.installEventFilter(self)
             setattr(self, 'button%d'%which, button)
@@ -491,7 +492,9 @@ class Editor(QFrame):  # {{{
             self.use_custom.setChecked(True)
             for key, which in zip(self.current_keys, [1,2]):
                 button = getattr(self, 'button%d'%which)
-                button.setText(key.toString(QKeySequence.SequenceFormat.NativeText))
+                ns = key.toString(QKeySequence.SequenceFormat.NativeText)
+                button.setText(ns.replace('&', '&&'))
+                button.setObjectName(ns)
 
     def custom_toggled(self, checked):
         for w in ('1', '2'):
@@ -508,6 +511,7 @@ class Editor(QFrame):  # {{{
     def clear_clicked(self, which=0):
         button = getattr(self, 'button%d'%which)
         button.setText(_('None'))
+        button.setObjectName(_('None'))
 
     def eventFilter(self, obj, event):
         if self.capture and obj in (self.button1, self.button2):
@@ -530,7 +534,9 @@ class Editor(QFrame):  # {{{
 
         button = getattr(self, 'button%d'%which)
         button.setStyleSheet('QPushButton { font-weight: normal}')
-        button.setText(sequence.toString(QKeySequence.SequenceFormat.NativeText))
+        ns = sequence.toString(QKeySequence.SequenceFormat.NativeText)
+        button.setText(ns.replace('&', '&&'))
+        button.setObjectName(ns)
         self.capture = 0
         dup_desc = self.dup_check(sequence)
         if dup_desc is not None:
@@ -554,8 +560,8 @@ class Editor(QFrame):  # {{{
         ans = []
         for which in (1, 2):
             button = getattr(self, 'button%d'%which)
-            t = str(button.text())
-            if t == _('None'):
+            t = button.objectName()
+            if not t or t == _('None'):
                 continue
             ks = QKeySequence(t, QKeySequence.SequenceFormat.NativeText)
             if not ks.isEmpty():
