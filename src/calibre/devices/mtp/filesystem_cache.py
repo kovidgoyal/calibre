@@ -95,7 +95,7 @@ class FileOrFolder:
             name = 'Folder' if self.is_folder else 'File'
         try:
             path = str(self.full_path)
-        except:
+        except Exception:
             path = ''
         datum = 'size=%s'%(self.size)
         if self.is_folder or self.is_storage:
