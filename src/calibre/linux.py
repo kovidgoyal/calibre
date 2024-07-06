@@ -1099,6 +1099,7 @@ Exec=lrfviewer %f
 Icon=calibre-viewer
 MimeType=application/x-sony-bbeb;
 Categories=Office;Viewer;
+Keywords=lrf;viewer;
 '''
 
 EVIEWER = '''\
@@ -1112,6 +1113,7 @@ TryExec=ebook-viewer
 Exec=ebook-viewer --detach %f
 Icon=calibre-viewer
 Categories=Office;Viewer;
+Keywords=epub;ebook;viewer;
 '''
 
 ETWEAK = '''\
@@ -1125,6 +1127,7 @@ TryExec=ebook-edit
 Exec=ebook-edit --detach %f
 Icon=calibre-ebook-edit
 Categories=Office;WordProcessor
+Keywords=epub;ebook;editor;
 '''
 
 GUI = '''\
@@ -1139,6 +1142,7 @@ Exec=calibre --detach %U
 Icon=calibre-gui
 Categories=Office;
 X-GNOME-UsesNotifications=true
+Keywords=epub;ebook;manager;
 '''
 
 
