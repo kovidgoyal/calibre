@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 # Written April 2015
-# Last edited 08/2022
+# Last edited 07/2024
 '''
 technologyreview.com
 '''
 import json
+import re
 from collections import OrderedDict
 
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
@@ -38,7 +39,6 @@ class MitTechnologyReview(BasicNewsRecipe):
         ' This is different than the recipe named simply "Technology Review"'
         ' which downloads the rss feed with daily articles from the website.'
     )
-    INDEX = 'http://www.technologyreview.com/magazine/'
     language = 'en'
     encoding = 'utf-8'
     tags = 'news, technology, science'
@@ -65,22 +65,19 @@ class MitTechnologyReview(BasicNewsRecipe):
         ),
     ]
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.technologyreview.com/')
-        if script := soup.find('script', id='preload'):
-            JSON = script.contents[0].split('magazineCover\":')[1].strip()
-            data = json.JSONDecoder().raw_decode(JSON)[0]
-            return data['config']['src']
-
     def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
-        issue = soup.find(attrs={'class':lambda x: x and x.startswith('magazineHero__title')})
-        time = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__date')})
-        desc = soup.find(attrs={'class': lambda x: x and x.startswith('magazineHero__description')})
-        self.title = 'MIT Tech Review ' + self.tag_to_string(issue)
-        self.description = self.tag_to_string(desc)
-        self.timefmt = ' [' + self.tag_to_string(time) + ']'
-        self.log('Downloading issue: ', self.timefmt)
+        # for past editions, change the issue link below 
+        issue = 'http://www.technologyreview.com/magazine/'
+        soup = self.index_to_soup(issue)
+        if script := soup.find('script', id='preload'):
+            raw = script.contents[0]
+            m = re.search(r'\"children\":\[{\"name\":\"magazine-hero\"', raw)
+            spl = re.split(r"(?=\{)", raw[m.start():], 1)[1]
+            data = json.JSONDecoder().raw_decode(spl)[0]
+            self.cover_url = data['children'][0]['config']['src'] + '?fit=572,786'
+            self.timefmt = ' [' + data['config']['issueDate'] + ']'
+            self.description = data['config']['description']
+            self.title = 'MIT TR: ' + data['config']['title']
 
         # parse articles
         feeds = OrderedDict()

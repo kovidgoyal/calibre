@@ -50,7 +50,7 @@ class times(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name=['svg']),
+        dict(name=['svg', 'times-datawrapper']),
         dict(attrs={'id':'iframe-wrapper'}),
         dict(attrs={'old-position':'sticky'}),
         prefixed_classes(
