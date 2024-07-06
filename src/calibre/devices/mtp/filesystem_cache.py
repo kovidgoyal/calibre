@@ -36,8 +36,6 @@ class ListEntry:
 class FileOrFolder:
 
     def __init__(self, entry, fs_cache):
-        self.all_storage_ids = fs_cache.all_storage_ids
-
         self.object_id = entry['id']
         self.is_folder = entry['is_folder']
         self.storage_id = entry['storage_id']
@@ -60,9 +58,9 @@ class FileOrFolder:
         self.last_mod_string = self.last_modified.strftime('%Y/%m/%d %H:%M')
         self.last_modified = as_utc(self.last_modified)
 
-        if self.storage_id not in self.all_storage_ids:
+        if self.storage_id not in fs_cache.all_storage_ids:
             raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
-                entry, self.all_storage_ids))
+                entry, fs_cache.all_storage_ids))
 
         if self.parent_id == 0:
             self.parent_id = self.storage_id
