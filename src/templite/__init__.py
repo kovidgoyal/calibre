@@ -32,7 +32,7 @@ from polyglot.builtins import unicode_type
 
 
 class Templite:
-    auto_emit = re.compile('(^[\'\"])|(^[a-zA-Z0-9_\[\]\'\"]+$)')
+    auto_emit = re.compile(r'''(^['"])|(^[a-zA-Z0-9_\[\]'"]+$)''')
 
     def __init__(self, template, start='${', end='}$'):
         if len(start) != 2 or len(end) != 2:
@@ -44,18 +44,21 @@ class Templite:
             part = part.replace('\\'.join(list(start)), start)
             part = part.replace('\\'.join(list(end)), end)
             if i % 2 == 0:
-                if not part: continue
+                if not part:
+                    continue
                 part = part.replace('\\', '\\\\').replace('"', '\\"')
                 part = '\t' * offset + 'emit("""%s""")' % part
             else:
                 part = part.rstrip()
-                if not part: continue
+                if not part:
+                    continue
                 if part.lstrip().startswith(':'):
                     if not offset:
                         raise SyntaxError('no block statement to terminate: ${%s}$' % part)
                     offset -= 1
                     part = part.lstrip()[1:]
-                    if not part.endswith(':'): continue
+                    if not part.endswith(':'):
+                        continue
                 elif self.auto_emit.match(part.lstrip()):
                     part = 'emit(%s)' % part.lstrip()
                 lines = part.splitlines()
@@ -75,8 +78,10 @@ class Templite:
         **kw - keyword arguments which are added to the namespace
         """
         namespace = {}
-        if __namespace: namespace.update(__namespace)
-        if kw: namespace.update(kw)
+        if __namespace:
+            namespace.update(__namespace)
+        if kw:
+            namespace.update(kw)
         namespace['emit'] = self.write
 
         __stdout = sys.stdout
