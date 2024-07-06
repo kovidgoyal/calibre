@@ -114,3 +114,9 @@ class Guardian(BasicNewsRecipe):
         feeds = list(self.parse_section(self.base_url))
         feeds += list(self.parse_section('https://www.theguardian.com/uk/sport'))
         return feeds
+
+    def preprocess_html(self, soup):
+        for table in soup.findAll('table'):
+            if len(table.findAll('tr')) > 20:
+                table.decompose()
+        return soup
