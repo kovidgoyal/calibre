@@ -111,6 +111,7 @@ class WSJ(BasicNewsRecipe):
                 date = itm['date']
                 key = itm['key']
                 manifest = itm['manifest']
+                self.title = itm['label']
 
         dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b, %Y')

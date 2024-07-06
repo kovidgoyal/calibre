@@ -156,7 +156,7 @@ class WSJ(BasicNewsRecipe):
                 if '-pages_' in k:
                     section = k.split('-pages_')[0].replace('_', ' ')
                     if 'MAGAZINE' in section:
-                        if not dt.strftime('%d') == 1:
+                        if not dt.day == 1:
                             continue
                         self.log('Loading Magazine section')
                     self.log(section)
