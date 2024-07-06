@@ -18,7 +18,6 @@ from calibre import force_unicode, human_readable, prints
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.date import as_utc, local_tz
 from calibre.utils.icu import lower, sort_key
-from polyglot.builtins import itervalues
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
@@ -228,7 +227,7 @@ class FilesystemCache:
         for entry in entries:
             FileOrFolder(entry, self)
 
-        for item in itervalues(self.id_map):
+        for item in self.id_map.values():
             try:
                 p = item.parent
             except KeyError:
@@ -254,7 +253,7 @@ class FilesystemCache:
                 return e
 
     def iterebooks(self, storage_id):
-        for x in itervalues(self.id_map):
+        for x in self.id_map.values():
             if x.storage_id == storage_id and x.is_ebook:
                 if x.parent_id == storage_id and x.name.lower().endswith('.txt'):
                     continue  # Ignore .txt files in the root
