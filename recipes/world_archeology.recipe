@@ -5,7 +5,7 @@ from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class worldarch(BasicNewsRecipe):
-    title = 'Current World Archaeology'
+    title = 'The Past: Current World Archaeology'
     language = 'en'
     __author__ = 'unkn0wn'
     description = (
@@ -55,6 +55,9 @@ class worldarch(BasicNewsRecipe):
         # url = ''
 
         issue = self.index_to_soup(url)
+        ti = issue.find('h1', attrs={'class':lambda x: x and 'post-title' in x.split()})
+        if ti:
+            self.title = self.tag_to_string(ti).strip()
         dt = soup.find(attrs={'class':lambda x: x and '__date' in x})
         if dt:
             self.timefmt = ' [' + self.tag_to_string(dt).strip() + ']'
