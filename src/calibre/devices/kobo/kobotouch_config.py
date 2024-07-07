@@ -6,12 +6,10 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import (QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
-                     QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget)
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.device_drivers.tabbed_device_config import (DeviceConfigTab,
-                                      DeviceOptionsGroupBox, TabbedDeviceConfig)
+from calibre.gui2.device_drivers.tabbed_device_config import DeviceConfigTab, DeviceOptionsGroupBox, TabbedDeviceConfig
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.widgets2 import ColorButton
