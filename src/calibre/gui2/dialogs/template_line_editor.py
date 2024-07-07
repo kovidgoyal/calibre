@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QLineEdit
 
+from calibre import prints
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 
@@ -19,7 +20,18 @@ class TemplateLineEditor(QLineEdit):
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
-        self.mi   = None
+        try:
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            view = gui.library_view
+            db = gui.current_db
+            mi = []
+            for _id in view.get_selected_ids()[:5]:
+                mi.append(db.new_api.get_metadata(_id))
+            self.mi = mi
+        except Exception as e:
+            prints(f'TemplateLineEditor: exception fetching metadata: {str(e)}')
+            self.mi = None
         self.setClearButtonEnabled(True)
 
     def set_mi(self, mi):
