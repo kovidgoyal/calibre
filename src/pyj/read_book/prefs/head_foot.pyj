@@ -189,6 +189,9 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     interface_data = get_interface_data()
     text = ''
     has_clock = False
+    div.style.textOverflow = 'ellipsis'
+    div.style.overflow = 'hidden'
+    force_display_even_if_overflowed = False
     if override:
         text = override
     elif field is 'menu-icon-on-hover':
@@ -198,6 +201,7 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     elif field is 'progress':
         percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
+        force_display_even_if_overflowed = True
     elif field is 'title':
         text = metadata.title or _('Untitled')
     elif field is 'authors':
@@ -207,6 +211,7 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
             ival = fmt_sidx(metadata.series_index, use_roman=interface_data.use_roman_numerals_for_series_number)
             text = _('{0} of {1}').format(ival, metadata.series)
     elif field is 'clock':
+        force_display_even_if_overflowed = True
         text = time_formatter.format(Date())
         has_clock = True
     elif field is 'section':
@@ -243,4 +248,7 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         text = '\xa0'
     if text is not div.textContent:
         div.textContent = text
+    if force_display_even_if_overflowed:
+        div.style.textOverflow = 'clip'
+        div.style.overflow = 'visible'
     return has_clock
