@@ -79,31 +79,32 @@ class OEB2HTML:
         return self.links[href]
 
     def map_resources(self, oeb_book):
-        for item in oeb_book.manifest:
-            if item.media_type in OEB_IMAGES:
-                if item.href not in self.images:
-                    ext = os.path.splitext(item.href)[1]
-                    fname = f'{len(self.images)}{ext}'
-                    fname = fname.zfill(10)
-                    self.images[item.href] = fname
-            if item in oeb_book.spine:
-                self.get_link_id(item.href)
-                root = item.data.find(XHTML('body'))
-                link_attrs = set(html.defs.link_attrs)
-                link_attrs.add(XLINK('href'))
-                for el in root.iter():
-                    attribs = el.attrib
-                    try:
-                        if not isinstance(el.tag, string_or_bytes):
-                            continue
-                    except:
+        from operator import attrgetter
+        images = sorted((item for item in oeb_book.manifest if item.media_type in OEB_IMAGES), key=attrgetter('href'))
+        for item in images:
+            if item.href not in self.images:
+                ext = os.path.splitext(item.href)[1]
+                fname = f'{len(self.images):06d}{ext}'
+                self.images[item.href] = fname
+
+        for item in oeb_book.spine:
+            self.get_link_id(item.href)
+            root = item.data.find(XHTML('body'))
+            link_attrs = set(html.defs.link_attrs)
+            link_attrs.add(XLINK('href'))
+            for el in root.iter():
+                attribs = el.attrib
+                try:
+                    if not isinstance(el.tag, string_or_bytes):
                         continue
-                    for attr in attribs:
-                        if attr in link_attrs:
-                            href = item.abshref(attribs[attr])
-                            href, id = urldefrag(href)
-                            if href in self.base_hrefs:
-                                self.get_link_id(href, id)
+                except Exception:
+                    continue
+                for attr in attribs:
+                    if attr in link_attrs:
+                        href = item.abshref(attribs[attr])
+                        href, id = urldefrag(href)
+                        if href in self.base_hrefs:
+                            self.get_link_id(href, id)
 
     def rewrite_link(self, url, page=None):
         if not page:
