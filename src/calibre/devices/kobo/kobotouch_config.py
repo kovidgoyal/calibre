@@ -6,10 +6,12 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from qt.core import (QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout,
+                     QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget)
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.device_drivers.tabbed_device_config import DeviceConfigTab, DeviceOptionsGroupBox, TabbedDeviceConfig
+from calibre.gui2.device_drivers.tabbed_device_config import (DeviceConfigTab,
+                                      DeviceOptionsGroupBox, TabbedDeviceConfig)
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.widgets2 import ColorButton
@@ -118,6 +120,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['update_device_metadata'] = self.update_device_metadata
         p['update_series'] = self.update_series
+        p['force_series_id'] = self.force_series_id
         p['update_core_metadata'] = self.update_core_metadata
         p['update_purchased_kepubs'] = self.update_purchased_kepubs
         p['subtitle_template'] = self.subtitle_template
@@ -578,9 +581,20 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              _("Set series information"),
                              _('The book lists on the Kobo devices can display series information. '
                                'This is not read by the device from the sideloaded books. '
-                               'Series information can only be added to the device after the book has been processed by the device. '
+                               'Series information can only be added to the device after the '
+                               'book has been processed by the device. '
                                'Enable if you wish to set series information.'),
                              device.get_pref('update_series')
+                             )
+        self.force_series_id_checkbox = create_checkbox(
+                             _("Force series ID"),
+                             _('Kobo devices use a SeriesID to distinguish between different series. '
+                               'Purchased books have a SeriesID assigned by Kobo. Sideloaded books '
+                               'have a SeriesID assigned by calibre, which is usually different. '
+                               'This causes a series to be shown twice on the Kobo device. '
+                               'Enable if you wish to force all the SeriesID for books '
+                               'in a series to the same value.'),
+                             device.get_pref('force_series_id')
                              )
         self.update_core_metadata_checkbox = create_checkbox(
                              _("Update metadata on Book Details pages"),
@@ -648,7 +662,12 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                             )
 
         line = 0
-        self.options_layout.addWidget(self.update_series_checkbox,                   line, 0, 1, 4)
+        hbl = QHBoxLayout()
+        hbl.setContentsMargins(0, 0, 0, 0)
+        hbl.addWidget(self.update_series_checkbox)
+        hbl.addWidget(self.force_series_id_checkbox)
+        hbl.addStretch(1)
+        self.options_layout.addLayout(hbl,                                           line, 0, 1, 4)
         line += 1
         self.options_layout.addWidget(self.update_core_metadata_checkbox,            line, 0, 1, 4)
         line += 1
@@ -665,15 +684,23 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         line += 1
         self.options_layout.addWidget(self.update_purchased_kepubs_checkbox,         line, 0, 1, 4)
 
+        self.force_series_id_checkbox.setEnabled(self.update_series)
         self.update_core_metadata_checkbox.clicked.connect(self.update_core_metadata_checkbox_clicked)
+        self.update_series_checkbox.clicked.connect(self.update_series_checkbox_clicked)
         self.update_subtitle_checkbox.clicked.connect(self.update_subtitle_checkbox_clicked)
         self.update_bookstats_checkbox.clicked.connect(self.update_bookstats_checkbox_clicked)
         self.update_core_metadata_checkbox_clicked(device.get_pref('update_core_metadata'))
         self.update_subtitle_checkbox_clicked(device.get_pref('update_subtitle'))
         self.update_bookstats_checkbox_clicked(device.get_pref('update_bookstats'))
 
+    def update_series_checkbox_clicked(self, checked):
+        self.force_series_id_checkbox.setEnabled(checked)
+        if not checked:
+            self.force_series_id_checkbox.setChecked(False)
+
     def update_core_metadata_checkbox_clicked(self, checked):
         self.update_series_checkbox.setEnabled(not checked)
+        self.force_series_id_checkbox.setEnabled(self.update_series)
         self.subtitle_template_edit.setEnabled(checked)
         self.update_subtitle_checkbox.setEnabled(checked)
         self.update_bookstats_checkbox.setEnabled(checked)
@@ -713,6 +740,10 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     @property
     def update_series(self):
         return self.update_series_checkbox.isChecked()
+
+    @property
+    def force_series_id(self):
+        return self.update_series and self.force_series_id_checkbox.isChecked()
 
     @property
     def update_core_metadata(self):
