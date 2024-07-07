@@ -43,7 +43,7 @@
 
 - Amazon metadata: When filtering search engine results by title ignore words of the title that are purely punctuation
 
-- When matching books on a device to book in the library assume a match if the title and any one author match, dont require all authors to match
+- When matching books on a device to book in the library assume a match if the title and any one author match, don't require all authors to match
 
 - [2069553] Update Google Images cover download plugin for website changes
 
@@ -749,7 +749,7 @@
 
 - MTP driver: Ignore top level folders whose names start with a leading dot Also ignore AppleDouble files, top level system and fonts folders and sdr folders on Kindle devices
 
-- [2033074] FB2 Input: use the <p> tag for paragraphs that dont contain other block content
+- [2033074] FB2 Input: use the <p> tag for paragraphs that don't contain other block content
 
 - [2033118] E-book viewer: Fix clicking on the back/forward buttons not working in some situations
 
