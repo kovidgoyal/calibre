@@ -1,23 +1,24 @@
 '''
-https://www.military-history.org/
+https://ancientegyptmagazine.com
 '''
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class milthist(BasicNewsRecipe):
-    title = 'The Past: Military History Matters'
+class ancientegypt(BasicNewsRecipe):
+    title = 'The Past: Ancient Egypt Magazine'
     language = 'en'
     __author__ = 'unkn0wn'
     description = (
-        'Transport yourself to the thick of battle with the compelling narrative and authoritative detail in '
-        'Military History Matters – from the 20th-century to the ancient world.'
+        'Ancient Egypt is the world\'s leading Egyptology magazine, exploring the history, people and culture of the Nile Valley. '
+        'Now in a larger format with a fresh new design, AE brings you the latest news and discoveries, and feature articles covering '
+        'more than 5000 years of Egyptian history. Published bimonthly.'
     )
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
-    masthead_url = 'https://i0.wp.com/www.military-history.org/wp-content/uploads/2018/08/MHMatters-masthead-web1.jpg?w=600&ssl=1'
+    masthead_url = 'https://ancientegyptmagazine.com/media/website/ae-logo-2.png'
     simultaneous_downloads = 1
 
     extra_css = '''
@@ -45,7 +46,7 @@ class milthist(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        soup = self.index_to_soup('https://the-past.com/category/magazines/mhm/')
+        soup = self.index_to_soup('https://the-past.com/category/magazines/ae/')
         art = soup.find('article', attrs={'class':lambda x: x and 'tag-magazines' in x.split()})
         url = art.h2.a['href']
 

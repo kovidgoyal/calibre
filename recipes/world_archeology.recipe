@@ -1,23 +1,25 @@
 '''
-https://www.military-history.org/
+https://www.world-archaeology.com
 '''
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class milthist(BasicNewsRecipe):
-    title = 'The Past: Military History Matters'
+class worldarch(BasicNewsRecipe):
+    title = 'The Past: Current World Archaeology'
     language = 'en'
     __author__ = 'unkn0wn'
     description = (
-        'Transport yourself to the thick of battle with the compelling narrative and authoritative detail in '
-        'Military History Matters – from the 20th-century to the ancient world.'
+        'Travel the globe with Current World Archaeology, the magazine that brings you up-to-date with the latest archaeological discoveries. '
+        'Explore sites – and sights – through our exclusive features and eye-popping photography. We bring you the stories from the '
+        'archaeologists themselves, so you learn first-hand from the experts about the latest finds and most up-to-date research. '
+        'Published six times a year.'
     )
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
-    masthead_url = 'https://i0.wp.com/www.military-history.org/wp-content/uploads/2018/08/MHMatters-masthead-web1.jpg?w=600&ssl=1'
+    masthead_url = 'https://i0.wp.com/www.world-archaeology.com/wp-content/uploads/2016/02/cwa-logo.png'
     simultaneous_downloads = 1
 
     extra_css = '''
@@ -45,7 +47,7 @@ class milthist(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        soup = self.index_to_soup('https://the-past.com/category/magazines/mhm/')
+        soup = self.index_to_soup('https://the-past.com/category/magazines/cwa/')
         art = soup.find('article', attrs={'class':lambda x: x and 'tag-magazines' in x.split()})
         url = art.h2.a['href']
 
