@@ -127,7 +127,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     tdir = tempfile.mkdtemp(dir=rd.tdir)
     with tempfile.NamedTemporaryFile(prefix='', suffix=('.' + fmt.lower()), dir=tdir, delete=False) as src_file:
         db.copy_format_to(book_id, fmt, src_file)
-    with tempfile.NamedTemporaryFile(prefix='', suffix='.jpg', dir=tdir, delete=False) as cover_file:
+    with tempfile.NamedTemporaryFile(prefix='', suffix='.jpeg', dir=tdir, delete=False) as cover_file:
         cover_copied = db.copy_cover_to(book_id, cover_file)
     cover_path = cover_file.name if cover_copied else None
     mi = db.get_metadata(book_id)
