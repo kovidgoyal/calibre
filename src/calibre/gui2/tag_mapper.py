@@ -468,6 +468,7 @@ class Tester(Dialog):
 class SaveLoadMixin:
 
     ruleset_changed = pyqtSignal()
+    base_window_title = ''
 
     def save_ruleset(self):
         if not self.rules:
@@ -559,10 +560,11 @@ class RulesDialog(Dialog, SaveLoadMixin):
         self.ruleset_changed.connect(self.update_title_bar)
 
     def update_title_bar(self):
-        if self.loaded_ruleset:
-            self.setWindowTitle('{0} - ({1}: {2})'.format(self.base_window_title, _('ruleset'), self.loaded_ruleset))
-        else:
-            self.setWindowTitle(self.base_window_title)
+        if self.base_window_title:
+            if self.loaded_ruleset:
+                self.setWindowTitle(_('{base} - (ruleset: {name})').format(base=self.base_window_title, name=self.loaded_ruleset))
+            else:
+                self.setWindowTitle(self.base_window_title)
 
     def exec(self):
         self.base_window_title = self.windowTitle()
