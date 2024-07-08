@@ -467,6 +467,8 @@ class Tester(Dialog):
 
 class SaveLoadMixin:
 
+    ruleset_changed = pyqtSignal()
+
     def save_ruleset(self):
         if not self.rules:
             error_dialog(self, _('No rules'), _(
@@ -483,8 +485,13 @@ class SaveLoadMixin:
             rules = self.rules
             if rules:
                 self.PREFS_OBJECT[text] = self.rules
-            elif text in self.PREFS_OBJECT:
+                self.loaded_ruleset = text
+                self.ruleset_changed.emit()
+            elif text in self.PREFS_OBJECT: # Don't think we can get here because 'if rules:' is always True
                 del self.PREFS_OBJECT[text]
+                if self.loaded_ruleset == text:
+                    self.loaded_ruleset = ''
+                    self.ruleset_changed.emit()
             self.build_load_menu()
 
     def build_load_menu(self):
@@ -506,9 +513,13 @@ class SaveLoadMixin:
     def load_ruleset(self, name):
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
+        self.ruleset_changed.emit()
 
     def delete_ruleset(self, name):
         del self.PREFS_OBJECT[name]
+        if self.loaded_ruleset == name:
+            self.loaded_ruleset = ''
+            self.ruleset_changed.emit()
         self.build_load_menu()
 
 
@@ -545,6 +556,17 @@ class RulesDialog(Dialog, SaveLoadMixin):
         self.build_load_menu()
         self.test_button = b = self.bb.addButton(_('&Test rules'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.test_rules)
+        self.ruleset_changed.connect(self.update_title_bar)
+
+    def update_title_bar(self):
+        if self.loaded_ruleset:
+            self.setWindowTitle('{0} - ({1}: {2})'.format(self.base_window_title, _('ruleset'), self.loaded_ruleset))
+        else:
+            self.setWindowTitle(self.base_window_title)
+
+    def exec(self):
+        self.base_window_title = self.windowTitle()
+        return super().exec()
 
     def extra_bottom_widget(self):
         pass
