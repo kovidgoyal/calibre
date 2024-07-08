@@ -660,7 +660,7 @@ then import it on another computer. First let's see how to export the data:
     that case, right-click the calibre icon in the toolbar and point it to the
     newly copied folder. You will now have two calibre libraries on your
     computer and you can switch between them by clicking the calibre icon on
-    the toolbar. Transferring your library in this manner preserver all your
+    the toolbar. Transferring your library in this manner preserves all your
     metadata, tags, custom columns, etc.
 
 
