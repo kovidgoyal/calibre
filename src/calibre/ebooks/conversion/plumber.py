@@ -560,13 +560,15 @@ OptionRecommendation(name='asciiize',
 OptionRecommendation(name='keep_ligatures',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Preserve ligatures present in the input document. '
-                'A ligature is a special rendering of a pair of '
+                'A ligature is a combined character of a pair of '
                 'characters like ff, fi, fl et cetera. '
                 'Most readers do not have support for '
                 'ligatures in their default fonts, so they are '
                 'unlikely to render correctly. By default, calibre '
                 'will turn a ligature into the corresponding pair of normal '
-                'characters. This option will preserve them instead.')
+                'characters. Note that ligatures here mean only unicode ligatures '
+                'not ligatures created via CSS or font styles. '
+                'This option will preserve them instead.')
         ),
 
 OptionRecommendation(name='title',
