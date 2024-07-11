@@ -52,7 +52,7 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('Don\'t add Table of Contents to the book. Useful if '
                 'the book has its own table of contents.')),
         OptionRecommendation(name='toc_title', recommended_value=None,
-            help=_('Title for any generated in-line table of contents.')
+            help=_('Title for any generated inline table of contents.')
         ),
         OptionRecommendation(name='dont_compress',
             recommended_value=False, level=OptionRecommendation.LOW,
@@ -282,7 +282,7 @@ class AZW3Output(OutputFormatPlugin):
             help=_('Don\'t add Table of Contents to the book. Useful if '
                 'the book has its own table of contents.')),
         OptionRecommendation(name='toc_title', recommended_value=None,
-            help=_('Title for any generated in-line table of contents.')
+            help=_('Title for any generated inline table of contents.')
         ),
         OptionRecommendation(name='dont_compress',
             recommended_value=False, level=OptionRecommendation.LOW,

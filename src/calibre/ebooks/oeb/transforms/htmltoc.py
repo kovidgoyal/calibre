@@ -54,7 +54,7 @@ class HTMLTOCAdder:
     def config(cls, cfg):
         group = cfg.add_group('htmltoc', _('HTML TOC generation options.'))
         group('toc_title', ['--toc-title'], default=None,
-              help=_('Title for any generated in-line table of contents.'))
+              help=_('Title for any generated inline table of contents.'))
         return cfg
 
     @classmethod

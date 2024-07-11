@@ -116,7 +116,7 @@ class EPUBOutput(OutputFormatPlugin):
         ),
 
         OptionRecommendation(name='toc_title', recommended_value=None,
-            help=_('Title for any generated in-line table of contents.')
+            help=_('Title for any generated inline table of contents.')
         ),
 
         OptionRecommendation(name='epub_version', recommended_value='2', choices=ui_data['versions'],
