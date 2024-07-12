@@ -23,6 +23,42 @@
 # - title by author
 # }}}
 
+{{{ 7.14.0 2024-07-12
+
+:: new features
+
+- [2072442] Book details: When dropping files add an option to add them to the book as data files
+
+- Edit book: A new action to toggle line wrapping mode in all code editors. Can be assigned via Preferences->Keyboard shortcuts->Global actions or added to the toolbar via Preferences->Toolbars->Book wide actions
+
+- Kobo driver: Add an option to force the SeriesID for all books in a series to have the same value
+
+:: bug fixes
+
+- [2071458] Fix a regression in the previous release that broke merging of books when the confirmation for the merge was disabled
+
+- [2072412] E-book viewer: Allow some header and footer items such as progress to overflow instead of being truncated
+
+- [2072405] HTMLZ output: Make renaming of image files happen in filename order
+
+- [2072384] MTP driver: Fix infinite loop when connecting to some devices with more 65K objects in their filesystem
+
+- Fix shortcut editing widget when Qt is using a theme that inserts accelerators into push button labels automatically
+
+:: improved recipes
+- Instapaper
+- MIT Tech Review
+- Guardian
+- Liberation
+- The Times and Sunday Times
+- Bloomberg Businessweek
+- Times Literary Supplement
+
+:: new recipes
+- Ancient Egypt Magazine, Minerva Magazine, Military History Magazine and World Archaeology Magazine by unkn0wn
+
+}}}
+
 {{{ 7.13.0 2024-06-28
 
 :: new features
