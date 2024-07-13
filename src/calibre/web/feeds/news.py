@@ -1007,7 +1007,7 @@ class BasicNewsRecipe(Recipe):
         self.aborted_articles = []
         self.recipe_specific_options_metadata = rso = self.recipe_specific_options or {}
         self.recipe_specific_options = {k: rso[k]['default'] for k in rso if 'default' in rso[k]}
-        for x in options.recipe_specific_option:
+        for x in (options.recipe_specific_option or ()):
             k, sep, v = x.partition(':')
             if not sep:
                 raise ValueError(f'{x} is not a valid recipe specific option')
