@@ -13,7 +13,7 @@ past_edition = None
 
 def media_bucket(x):
     if x.get('type', '') == 'image':
-        if x.get('subtype', '') == 'graphic':
+        if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
             return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
                 x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
             )
@@ -82,6 +82,7 @@ class WSJ(BasicNewsRecipe):
             byl.insert(0, read)
         url = soup.find('p', attrs={'id':'share-link'})
         if url:
+            url.name = 'div'
             url['title'] = self.tag_to_string(url).strip()
             url.string = ''
         panel = soup.find('panel', attrs={'id':'metadata'})
@@ -95,6 +96,11 @@ class WSJ(BasicNewsRecipe):
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
                         x.insert_after(BeautifulSoup(y, 'html.parser'))
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for pan in soup.findAll('panel'):
+            pan.name = 'div'
         return soup
 
     if not past_edition:
@@ -178,6 +184,6 @@ class WSJ(BasicNewsRecipe):
         return BeautifulSoup(raw).prettify()
 
     def populate_article_metadata(self, article, soup, first):
-        lnk = soup.find('p', attrs={'id':'share-link'})
+        lnk = soup.find('div', attrs={'id':'share-link'})
         if lnk:
             article.url = lnk['title']
