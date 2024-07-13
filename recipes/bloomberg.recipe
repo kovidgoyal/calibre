@@ -207,3 +207,11 @@ class Bloomberg(BasicNewsRecipe):
         article.summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
         article.text_summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
         article.title = article.title.replace(' - Bloomberg', '')
+
+    def get_browser(self):
+        # -- Handle Google's cookies consent page
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('https://news.google.com')
+        br.select_form(action="https://consent.google.com/save")
+        br.submit()
+        return br
