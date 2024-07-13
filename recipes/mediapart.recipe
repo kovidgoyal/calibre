@@ -43,7 +43,7 @@ class Mediapart(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('action-links media--rich read-also login-subscribe print-source_url'),
+        classes('action-links media--rich read-also login-subscribe print-source_url screen-reader-only'),
         dict(name='svg'),
     ]
 
@@ -92,17 +92,18 @@ class Mediapart(BasicNewsRecipe):
 
     def get_browser(self):
         # -- Handle login
-
-        def is_form_login(form):
-            return "id" in form.attrs and form.attrs['id'] == "logFormEl"
-
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.mediapart.fr/login')
-            br.select_form(predicate=is_form_login)
-            br['name'] = self.username
+            br.select_form(nr=0)
+            br['email'] = self.username
             br['password'] = self.password
             br.submit()
+
+        # -- Handle Google's cookies consent page
+        br.open('https://news.google.com')
+        br.select_form(action="https://consent.google.com/save")
+        br.submit()
         return br
 
     def default_cover(self, cover_file):
