@@ -320,6 +320,11 @@ def fetch_scheduled_recipe(arg):  # {{{
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
+    if arg.get('recipe_specific_options', None):
+        serialized = []
+        for name, val in arg['recipe_specific_options'].items():
+            serialized.append(f'{name}:{val}')
+        recs.append(('recipe_specific_option', serialized, OptionRecommendation.HIGH))
 
     return 'gui_convert_recipe', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
 

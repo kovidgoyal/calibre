@@ -47,6 +47,8 @@ class RecipeInput(InputFormatPlugin):
         OptionRecommendation(name='password', recommended_value=None,
             help=_('Password for sites that require a login to access '
                 'content.')),
+        OptionRecommendation(name='recipe_specific_option',
+            help=_('Recipe specific options.')),
         OptionRecommendation(name='dont_download_recipe',
             recommended_value=False,
             help=_('Do not download latest version of builtin recipes from the calibre server')),
@@ -56,6 +58,7 @@ class RecipeInput(InputFormatPlugin):
 
     def convert(self, recipe_or_file, opts, file_ext, log,
             accelerators):
+        listing_recipe_specific_options = 'list' in (opts.recipe_specific_option or ())
         from calibre.web.feeds.recipes import compile_recipe
         opts.output_profile.flow_size = 0
         orig_no_inline_navbars = opts.no_inline_navbars
@@ -80,7 +83,7 @@ class RecipeInput(InputFormatPlugin):
                 if rtype == 'custom':
                     self.recipe_source = get_custom_recipe(recipe_id)
                 else:
-                    self.recipe_source = get_builtin_recipe_by_id(urn, log=log, download_recipe=True)
+                    self.recipe_source = get_builtin_recipe_by_id(urn, log=log, download_recipe=not listing_recipe_specific_options)
                 if not self.recipe_source:
                     raise ValueError('Could not find recipe with urn: ' + urn)
                 if not isinstance(self.recipe_source, bytes):
@@ -101,7 +104,7 @@ class RecipeInput(InputFormatPlugin):
                     title = title.rpartition('.')[0]
 
                 raw = get_builtin_recipe_by_title(title, log=log,
-                        download_recipe=not opts.dont_download_recipe)
+                        download_recipe=not opts.dont_download_recipe and not listing_recipe_specific_options)
                 builtin = False
                 try:
                     recipe = compile_recipe(raw)
@@ -133,6 +136,20 @@ class RecipeInput(InputFormatPlugin):
             disabled = getattr(recipe, 'recipe_disabled', None)
             if disabled is not None:
                 raise RecipeDisabled(disabled)
+            if listing_recipe_specific_options:
+                rso = (getattr(recipe, 'recipe_specific_options', None) or {})
+                if rso:
+                    log(recipe.title, _('specific options:'))
+                    name_maxlen = max(map(len, rso))
+                    for name, meta in rso.items():
+                        log(' ', name.ljust(name_maxlen), '-', meta.get('short'))
+                        if 'long' in meta:
+                            from textwrap import wrap
+                            for line in wrap(meta['long'], 70 - name_maxlen + 5):
+                                log(' '*(name_maxlen + 4), line)
+                else:
+                    log(recipe.title, _('has no recipe specific options'))
+                raise SystemExit(0)
             try:
                 ro = recipe(opts, log, self.report_progress)
                 ro.download()

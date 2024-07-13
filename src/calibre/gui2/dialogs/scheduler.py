@@ -18,6 +18,7 @@ from qt.core import (
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
+    QFormLayout,
     QFrame,
     QGridLayout,
     QGroupBox,
@@ -297,7 +298,6 @@ class SchedulerDialog(QDialog):
         self.tab = QWidget()
         self.detail_box.addTab(self.tab, _("&Schedule"))
         self.tab.v = vt = QVBoxLayout(self.tab)
-        vt.setContentsMargins(0, 0, 0, 0)
         self.blurb = la = QLabel('blurb')
         la.setWordWrap(True), la.setOpenExternalLinks(True)
         vt.addWidget(la)
@@ -351,19 +351,15 @@ class SchedulerDialog(QDialog):
         # Second tab (advanced settings)
         self.tab2 = t2 = QWidget()
         self.detail_box.addTab(self.tab2, _("&Advanced"))
-        self.tab2.g = g = QGridLayout(t2)
-        g.setContentsMargins(0, 0, 0, 0)
+        self.tab2.g = g = QFormLayout(t2)
+        g.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.add_title_tag = tt = QCheckBox(_("Add &title as tag"), t2)
-        g.addWidget(tt, 0, 0, 1, 2)
-        t2.la = la = QLabel(_("&Extra tags:"))
+        g.addRow(tt)
         self.custom_tags = ct = QLineEdit(self)
-        la.setBuddy(ct)
-        g.addWidget(la), g.addWidget(ct, 1, 1)
-        t2.la2 = la = QLabel(_("&Keep at most:"))
-        la.setToolTip(_("Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep all (disable)."))
+        g.addRow(_("&Extra tags:"), ct)
         self.keep_issues = ki = QSpinBox(t2)
         tt.toggled['bool'].connect(self.keep_issues.setEnabled)
-        ki.setMaximum(100000), la.setBuddy(ki)
+        ki.setMaximum(100000)
         ki.setToolTip(_(
             "<p>When set, this option will cause calibre to keep, at most, the specified number of issues"
             " of this periodical. Every time a new issue is downloaded, the oldest one is deleted, if the"
@@ -371,9 +367,8 @@ class SchedulerDialog(QDialog):
             " option to add the title as tag checked, above.\n<p>Also, the setting for deleting periodicals"
             " older than a number of days, below, takes priority over this setting."))
         ki.setSpecialValueText(_("all issues")), ki.setSuffix(_(" issues"))
-        g.addWidget(la), g.addWidget(ki, 2, 1)
-        si = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        g.addItem(si, 3, 1, 1, 1)
+        g.addRow(_("&Keep at most:"), ki)
+        self.recipe_specific_widgets = {}
 
         # Bottom area
         self.hb = h = QHBoxLayout()
@@ -506,7 +501,11 @@ class SchedulerDialog(QDialog):
             keep_issues = str(self.keep_issues.value())
         custom_tags = str(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
-        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, keep_issues)
+        from calibre.web.feeds.recipes.collection import RecipeCustomization
+        recipe_specific_options = None
+        if self.recipe_specific_widgets:
+            recipe_specific_options = {name: w.text().strip() for name, w in self.recipe_specific_widgets.items() if w.text().strip()}
+        self.recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
         return True
 
     def initialize_detail_box(self, urn):
@@ -578,16 +577,30 @@ class SchedulerDialog(QDialog):
         rb.setChecked(True)
         self.schedule_stack.setCurrentIndex(sch_widget)
         self.schedule_stack.currentWidget().initialize(typ, sch)
-        add_title_tag, custom_tags, keep_issues = customize_info
-        self.add_title_tag.setChecked(add_title_tag)
-        self.custom_tags.setText(', '.join(custom_tags))
+        self.add_title_tag.setChecked(customize_info.add_title_tag)
+        self.custom_tags.setText(', '.join(customize_info.custom_tags))
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
-        try:
-            keep_issues = int(keep_issues)
-        except:
-            keep_issues = 0
-        self.keep_issues.setValue(keep_issues)
+        self.keep_issues.setValue(customize_info.keep_issues)
         self.keep_issues.setEnabled(self.add_title_tag.isChecked())
+        g = self.tab2.layout()
+        for x in self.recipe_specific_widgets.values():
+            g.removeRow(x)
+        self.recipe_specific_widgets = {}
+        raw = recipe.get('options')
+        if raw:
+            import json
+            rsom = json.loads(raw)
+            rso = customize_info.recipe_specific_options
+            for name, metadata in rsom.items():
+                w = QLineEdit(self)
+                if 'default' in metadata:
+                    w.setPlaceholderText(_('Default if unspecified: {}').format(metadata['default']))
+                w.setClearButtonEnabled(True)
+                w.setText(str(rso.get(name, '')).strip())
+                w.setToolTip(str(metadata.get('long', '')))
+                title = '&' + str(metadata.get('short') or name).replace('&', '&&') + ':'
+                g.addRow(title, w)
+                self.recipe_specific_widgets[name] = w
 
 
 class Scheduler(QObject):
@@ -687,15 +700,15 @@ class Scheduler(QObject):
             un = pw = None
             if account_info is not None:
                 un, pw = account_info
-            add_title_tag, custom_tags, keep_issues = customize_info
             arg = {
                     'username': un,
                     'password': pw,
-                    'add_title_tag':add_title_tag,
-                    'custom_tags':custom_tags,
+                    'add_title_tag':customize_info.add_title_tag,
+                    'custom_tags':customize_info.custom_tags,
                     'title':recipe.get('title',''),
                     'urn':urn,
-                    'keep_issues':keep_issues
+                    'keep_issues':str(customize_info.keep_issues),
+                    'recipe_specific_options': customize_info.recipe_specific_options,
                    }
             self.download_queue.add(urn)
             self.start_recipe_fetch.emit(arg)

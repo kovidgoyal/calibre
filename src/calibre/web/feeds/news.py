@@ -410,6 +410,23 @@ class BasicNewsRecipe(Recipe):
     #: with the URL scheme of your particular website.
     resolve_internal_links = False
 
+    #: Specify options specific to this recipe. These will be available for the user to customize
+    #: in the Advanced tab of the Fetch News dialog or at the ebook-convert command line. The options
+    #: are specified as a dictionary mapping option name to metadata about the option. For example::
+    #:
+    #:   recipe_specific_options = {
+    #:       'edition_date': {
+    #:           'short': 'The issue date to download',
+    #:           'long':  'Specify a date in the format YYYY-mm-dd to download the issue corresponding to that date',
+    #:           'default': 'current',
+    #:       }
+    #:   }
+    #:
+    #: When the recipe is run, self.recipe_specific_options will be a dict mapping option name to the option value
+    #: specified by the user. When the option is unspecified by the user, it will have the value specified by 'default'.
+    #: If no default is specified, the option will not be in the dict at all, when unspecified by the user.
+    recipe_specific_options = None
+
     #: Set to False if you do not want to use gzipped transfers. Note that some old servers flake out with gzip
     handle_gzip = True
 
@@ -988,6 +1005,19 @@ class BasicNewsRecipe(Recipe):
         self.failed_downloads = []
         self.partial_failures = []
         self.aborted_articles = []
+        self.recipe_specific_options_metadata = rso = self.recipe_specific_options or {}
+        self.recipe_specific_options = {k: rso[k]['default'] for k in rso if 'default' in rso[k]}
+        for x in options.recipe_specific_option:
+            k, sep, v = x.partition(':')
+            if not sep:
+                raise ValueError(f'{x} is not a valid recipe specific option')
+            if k not in rso:
+                raise KeyError(f'{k} is not an option supported by: {self.title}')
+            self.recipe_specific_options[k] = v
+        if self.recipe_specific_options:
+            log('Recipe specific options:')
+            for k, v in self.recipe_specific_options.items():
+                log(' ', f'{k} = {v}')
 
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
