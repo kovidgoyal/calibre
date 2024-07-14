@@ -68,7 +68,7 @@ cleanup() {
     for i in "${CONFIG_DIR}" "${CALIBRE_LIBRARY_DIRECTORY}" \
              "${METADATA_DIR}" "${SRC_DIR}" "${BIN_DIR}"; do
         if [[ -d "${i}" ]]; then
-            chmod a+rwX "${i}"
+            chmod a+rwx "${i}"
         fi
     done
     rm -rf "${CALIBRE_TEMP_DIR}"
