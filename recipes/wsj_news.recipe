@@ -132,8 +132,6 @@ class WSJ(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://bartender.mobile.dowjones.io'
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
-        edit = [itm['key'][10:] for itm in catalog['items'] if itm['type'] == 'ITPNEXTGEN'][1:]
-        self.log('**Past Editions available :', ', '.join(edit))
         for itm in catalog['items']:
             if itm['key'] == 'NOW':
                 key = itm['key']
