@@ -19,7 +19,7 @@ def get_contents(x):
     elif otype == 'br':
         return '<br>'
     elif otype == 'anchor':
-        return '<em>' + ''.join(map(get_contents, x.get('parts', ''))) + '</em>'
+        return '<span>' + ''.join(map(get_contents, x.get('parts', ''))) + '</span>'
     elif otype == 'h3':
         return '<h4>' + ''.join(map(get_contents, x.get('parts', ''))) + '</h4>'
     elif otype == 'ul':
@@ -30,11 +30,11 @@ def get_contents(x):
         return '<br>' + x['html'] + ''.join(map(get_contents, x.get('parts', '')))
     elif otype == 'blockquote':
         return '<blockquote>' + ''.join(map(get_contents, x.get('parts', ''))) + '</blockquote>'
-    elif otype == ('image' or 'video'):
+    elif otype in {'image', 'video'}:
         return '<br><img src="{}"><div class="img">{}</div>\n'.format(
                 x['imageURLs']['default'], x['caption'] + '<i> ' + x['credit'] + '</i>'
             )
-    elif otype == ('correction' or 'disclaimer'):
+    elif otype in {'correction', 'disclaimer'}:
         return '<p class="corr">' + ''.join(map(get_contents, x.get('parts', ''))) + '</p>'
 
     elif not any(x == otype for x in ['', 'ad', 'inline-newsletter', 'tabularData']):
@@ -44,7 +44,7 @@ def get_contents(x):
 
 class Bloomberg(BasicNewsRecipe):
     title = u'Bloomberg'
-    language = 'en'
+    language = 'en_US'
     __author__ = 'unkn0wn'
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
@@ -89,7 +89,7 @@ class Bloomberg(BasicNewsRecipe):
                 for arts in json.loads(art_soup)['modules']:
                     if arts['stories']:
                         for x in arts['stories']:
-                            if x.get('type', '') == 'article':
+                            if x.get('type', '') in {'article', 'interactive'}:
                                 dt = datetime.fromtimestamp(x['published'] + time.timezone)
                                 if (datetime.now() - dt) > timedelta(self.oldest_article):
                                     continue
@@ -109,7 +109,7 @@ class Bloomberg(BasicNewsRecipe):
         cat = subhead = lede = auth = caption = ''
 
         if 'primaryCategory' in data and data['primaryCategory'] is not None:
-            cat = '<p class="cat">' + data['primaryCategory'] + '</p>'
+            cat = '<div class="cat">' + data['primaryCategory'] + '</div>'
 
         if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
             subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join([x for x in data['abstract']]) + '</li></ul></div>'
@@ -127,6 +127,8 @@ class Bloomberg(BasicNewsRecipe):
             )
 
         body = ''
+        if data.get('type', '') == 'interactive':
+            body += '<p><em>' + 'This is an interactive article, which is supposed to be read in a browser.' + '</p></em>'
         body_data = data['components']
         for x in body_data:
             body += get_contents(x)

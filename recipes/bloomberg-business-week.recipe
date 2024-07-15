@@ -1,196 +1,141 @@
 import json
-import random
 import time
-from collections import defaultdict
+from datetime import datetime, timedelta
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
-from html5_parser import parse
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
+
+# https://www.bloomberg.com/magazine/businessweek/24_12
+# Set past_edition to edition id, which is '24_12'.
+past_edition = None
 
 def get_contents(x):
     if x == '':
         return ''
-    otype = x.get('type', '')
-    if otype == 'text':
-        if 'attributes' in x:
-            if 'strong' in x['attributes']:
-                return '<strong>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</strong>'
-            if 'emphasis' in x['attributes']:
-                return '<em>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</em>'
-            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-        return x.get('value', '') + ''.join(map(get_contents, x.get('content', '')))
+    otype = x.get('role', '')
+    if otype == 'p':
+        return '<p>' + ''.join(map(get_contents, x.get('parts', ''))) + '</p>'
+    elif otype == 'text':
+        if 'style' in x:
+            return '<' + x['style']  + '>' + ''.join(map(get_contents, x.get('parts', ''))) + '</' + x['style']  + '>'
+        return x.get('text', '') + ''.join(map(get_contents, x.get('parts', '')))
     elif otype == 'br':
         return '<br>'
-    elif otype == 'paragraph':
-        return '<p>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</p>'
-    elif otype == 'heading':
-        return '<h3>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</h3>'
-    elif otype == 'list':
-        return '<ul>' + ''.join(map(get_contents, x.get('content', ''))) + '</ul>'
-    elif otype == 'listItem':
-        return '<li>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</li>'
-    elif otype == 'quote':
-        return '<blockquote class="col">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</blockquote>'
-    elif otype == 'media':
-        if x['subType'] == 'photo':
-            return '<div><div class="img"><img src="{}"></div><div class="cap">{} <span>{}</span></div></div>'.format(
-                x['data']['photo']['src'], x['data']['photo']['caption'], x['data']['photo']['credit'])
-        elif x['subType'] == 'chart':
-            if x['data'] and x['data']['chart']:
-                return '<div class="img"><img src="{}"></div>'.format(x['data']['chart']['fallback'])
-    elif otype == 'link':
-        if 'data' in x:
-            if 'href' in x['data']:
-                return '<a href="' + x['data']['href'] + '">' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</a>'
-            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-        return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-    elif otype == 'entity':
-        if x['subType'] == 'story':
-            if x['data'] and x['data']['link'] and x['data']['link']['destination']:
-                if 'web' in x['data']['link']['destination']:
-                    return '<a href="' + x['data']['link']['destination']['web'] + '">' + x.get('value', '') + ''.join(
-                        map(get_contents, x.get('content', ''))) + '</a>'
-                return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-        return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
-    elif otype in {'div', 'callout'}:
-        return '<div>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</div>'
-    elif not any(x == otype for x in ['', 'ad', 'inline-newsletter', 'tabularData']):
-        if any(b in x for b in ['value', 'content']):
-            return '<i>' + x.get('value', '') + ''.join(map(get_contents, x.get('content', ''))) + '</i>'
+    elif otype == 'anchor':
+        return '<span>' + ''.join(map(get_contents, x.get('parts', ''))) + '</span>'
+    elif otype == 'h3':
+        return '<h4>' + ''.join(map(get_contents, x.get('parts', ''))) + '</h4>'
+    elif otype == 'ul':
+        return '<ul>' + ''.join(map(get_contents, x.get('parts', ''))) + '</ul>'
+    elif otype == 'li':
+        return '<li>' + ''.join(map(get_contents, x.get('parts', ''))) + '</li>'
+    elif otype == 'webview':
+        return '<br>' + x['html'] + ''.join(map(get_contents, x.get('parts', '')))
+    elif otype == 'blockquote':
+        return '<blockquote>' + ''.join(map(get_contents, x.get('parts', ''))) + '</blockquote>'
+    elif otype in {'image', 'video'}:
+        return '<br><img src="{}"><div class="img">{}</div>\n'.format(
+                x['imageURLs']['default'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
+    elif otype in {'correction', 'disclaimer'}:
+        return '<p class="corr">' + ''.join(map(get_contents, x.get('parts', ''))) + '</p>'
 
+    elif not any(x == otype for x in ['', 'ad', 'inline-newsletter', 'tabularData']):
+        return '<i>' + ''.join(map(get_contents, x.get('parts', ''))) + '</i>'
     return ''
 
+
 class Bloomberg(BasicNewsRecipe):
-    title = u'Bloomberg Businessweek'
+    title = 'Bloomberg Businessweek'
     language = 'en'
     __author__ = 'unkn0wn'
     no_stylesheets = True
-    use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
+    encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
-    resolve_internal_links = True
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
     description = (
         'Bloomberg Businessweek helps global leaders stay ahead with insights and in-depth analysis on the people,'
         ' companies, events, and trends shaping today\'s complex, global economy.'
     )
-
-    simultaneous_downloads = 1
+    remove_empty_feeds = True
 
     extra_css = '''
-        .auth {font-size:small; font-weight:bold;}
-        .time, .chart, .css--lede-byline, .css--lede-timestamp {font-size:small;}
-        .subhead, .cap span {font-style:italic; color:#404040;}
-        em, .col {color:#202020;}
-        .cat {font-size:small; color:gray;}
-        .news-figure-caption-text, .cap, .img, .css--caption-outer-wrapper {font-size:small; text-align:center;}
+        .auth { font-size:small; font-weight:bold; }
+        .subhead, .cap span { font-style:italic; color:#202020; }
+        em, blockquote { color:#202020; }
+        .cat { font-size:small; color:gray; }
+        .img, .news-figure-caption-text { font-size:small; text-align:center; }
+        .corr { font-size:small; font-style:italic; color:#404040; }
+        .chart { font-size:small; }
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
 
-    remove_tags = [
-        dict(name=['button', 'svg']),
-        dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
-        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer')
-    ]
-
-    def get_browser(self, *a, **kw):
-        kw['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/119.0'
-        br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.set_handle_redirect(False)
-        return br
-
     def parse_index(self):
-        soup = self.index_to_soup('https://www.bloomberg.com/businessweek')
-        bw = soup.find('a', href=lambda x: x and x.startswith('/magazine/businessweek/'))
-        edition = 'https://www.bloomberg.com' + bw['href']
-        self.log('Downloading ', edition)
-        self.cover_url = bw.find('img')['src'].replace('25x19', '600x800')
-        soup = self.index_to_soup(edition)
-        if timefmt := soup.find(**prefixed_classes('styles_TableOfContentsTitle__')):
-            self.timefmt = ' [' + (self.tag_to_string(timefmt).replace(' Issue', '')).strip() + ']'
+        inx = 'https://cdn-mobapi.bloomberg.com'
+        sec = self.index_to_soup(inx + '/wssmobile/v1/bw/news/list?limit=1', raw=True)
+        id = json.loads(sec)['magazines'][0]['id']
+        if past_edition:
+            id = past_edition
+        edit = self.index_to_soup(inx + '/wssmobile/v1/bw/news/week/' + id, raw=True)
+        d = json.loads(edit)
+        self.timefmt = ' [' + d['date'] + ']'
+        self.cover_url = d['image']['thumbUrl']
 
-        feeds_dict = defaultdict(list)
+        feeds = []
 
-        sec = ''
-        toc = soup.find('section', attrs={'id':'toc-archive-businessweek'})
-        for div in toc.findAll(**prefixed_classes('MagazinePageMagazineArchive_itemContainer__')):
-            h3 = div.find(**prefixed_classes('MagazinePageMagazineArchive_itemSection__'))
-            if h3 and h3.text:
-                sec = self.tag_to_string(h3)
-                self.log(sec)
-            a = div.find(**prefixed_classes('MagazinePageMagazineArchive_storyLink__'))
-            url = a['href']
-            if url.startswith('http') is False:
-                url = 'https://www.bloomberg.com' + a['href']
-            title = self.tag_to_string(a)
-            byl = div.find(**prefixed_classes('Byline_phoenix__'))
-            desc = self.tag_to_string(byl)
-            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-            feeds_dict[sec].append({"title": title, "url": url, "description": desc})
-        return [(sec, articles) for sec, articles in feeds_dict.items()]
+        for i in d['modules']:
+            section = i['title']
+            self.log(section)
+
+            articles = []
+
+            for x in i['articles']:
+                title = x['title']
+                url = inx + '/wssmobile/v1/stories/' + x['id']
+                self.log('\t', title)
+                articles.append({'title': title, 'url': url})
+            feeds.append((section, articles))
+        return feeds
 
     def preprocess_raw_html(self, raw, *a):
-        root = parse(raw)
-        m = root.xpath('//script[@data-component-props="ArticleBody"]')
-        if not m:
-            m = root.xpath('//script[@data-component-props="FeatureBody"]')
-            if not m:
-                m2 = root.xpath('//script[@id="__NEXT_DATA__"]')
-                if not m2:
-                    return raw
-        if m:
-            data = json.loads(m[0].text)
-            data = data['story']
+        data = json.loads(raw)
 
-        else:
-            data = json.loads(m2[0].text)
-            if 'story' in data['props']['pageProps']:
-                data = data['props']['pageProps']['story']
-            else:
-                return raw
-
-        title = '<h1>' + data['headline'] + '</h1>'
+        title = '<h1 title="{}">'.format(data['longURL']) + data['title'] + '</h1>'
 
         cat = subhead = lede = auth = caption = ''
 
         if 'primaryCategory' in data and data['primaryCategory'] is not None:
-                cat = '<p class="cat">' + data['primaryCategory'] + '</p>'
+            cat = '<div class="cat">' + data['primaryCategory'] + '</div>'
 
-        if len(data['abstract']) != 0 and len(data['abstract']) == 2:
-                subhead = '<div class="subhead"><p>' + data['abstract'][0] + '</p><p>' + data['abstract'][1] + '</p></div>'
-        else:
-            if 'summary' in data:
-                subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
+        if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
+            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join([x for x in data['abstract']]) + '</li></ul></div>'
+        elif 'summary' in data and data['summary']:
+            subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
 
         if 'byline' in data and data['byline'] is not None:
-                auth = '<div><span class="auth">' + data['byline']\
-                 + '</span> | <span class="time">' + data['publishedAt'][:-14] + '</span></div>'
+            dt = datetime.fromtimestamp(data['updatedAt'] + time.timezone)
+            auth = '<p class="auth">' + 'By ' + data['byline'] + ' | Updated on ' + dt.strftime('%b %d, %Y at %I:%M %p') + '</p>'
 
-        if 'ledeImageUrl' in data and data['ledeImageUrl'] is not None:
-                lede = '<p id="img"><img src="{}">'.format(data['ledeImageUrl'])
+        if 'ledeImage' in data and data['ledeImage'] is not None:
+            x = data['ledeImage']
+            lede = '<br><img src="{}"><div class="img">{}</div>\n'.format(
+                x['imageURLs']['default'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
 
-        if 'ledeDescription' in data and data['ledeDescription'] is not None:
-                caption = '<span class="cap">' + data['ledeDescription'] + '</span>'
-        else:
-            if 'lede' in data and data['lede'] is not None:
-                    if 'alt' in data['lede'] and data['lede']['alt'] is not None:
-                            caption = '<span class="cap">' + data['lede']['alt'] + '</span>'
-
-        if m:
-            time.sleep(3)
-            body = data['body']
-        else:
-            body = ''
-            body_data = data['body']['content']
-            for x in body_data:
-                body += get_contents(x)
-            pause = random.choice((5, 6, 7, 8, 9))
-            self.log('Delay: ', pause, ' seconds')
-            time.sleep(pause)
-        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
+        body = ''
+        if data.get('type', '') == 'interactive':
+            body += '<p><em>' + 'This is an interactive article, which is supposed to be read in a browser.' + '</p></em>'
+        body_data = data['components']
+        for x in body_data:
+            body += get_contents(x)
+        html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
+        return BeautifulSoup(html).prettify()
 
     def preprocess_html(self, soup):
+        for h3 in soup.findAll('h3'):
+            h3.name = 'h4'
         for icon in soup.findAll('img', attrs={'class':'video-player__play-icon'}):
             icon.decompose()
         for div in soup.findAll('div', attrs={'class':'chart'}):
@@ -205,3 +150,9 @@ class Bloomberg(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'src':lambda x: x and x.endswith(('-1x-1.jpg', '-1x-1.png'))}):
             img['src'] = img['src'].replace('-1x-1', '750x-1')
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = soup.find('h1')['title']
+        article.summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
+        article.text_summary = article.summary
+
