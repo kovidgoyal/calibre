@@ -1,0 +1,174 @@
+import json
+import time
+from datetime import datetime, timedelta
+from itertools import zip_longest
+
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+def media_bucket(x):
+    if x.get('type', '') == 'image':
+        if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
+            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+                x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
+        return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+            x['manifest-url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
+        )
+    if x.get('type', '') == 'video':
+        return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
+            x['share_link'], x['thumbnail_url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
+        )
+    return
+
+class WSJ(BasicNewsRecipe):
+    title = 'WSJ News'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Wall Street Journal is your source for breaking news, analysis and insights from the U.S. and '
+        'around the world, the world\'s leading business and finance publication. Get the Latest News here.'
+    )
+    language = 'en_US'
+    masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
+    encoding = 'utf-8'
+    no_javascript = True
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    resolve_internal_links = True
+    ignore_duplicate_articles = {'url', 'title'}
+    remove_empty_feeds = True
+    oldest_article = 1 # days
+
+    extra_css = '''
+        #subhed, em { font-style:italic; color:#202020; }
+        #byline, #time-to-read, #orig-pubdate-string, .article-byline, time, #flashline { font-size:small; }
+        .figc { font-size:small; text-align:center; }
+        img {display:block; margin:0 auto;}
+    '''
+
+    remove_tags = [
+        dict(name='panel', attrs={'id':'summary-image'}),
+        dict(name='panel', attrs={'layout':'inline'}),
+        dict(name='panel', attrs={'embed':'inner-article-ad'}),
+        dict(name='span', attrs={'embed':'ticker'}),
+        classes('lamrelated-articles-inset-panel'),
+        dict(name='p', attrs={'id':[
+            'keywords', 'orig-pubdate-number', 'type', 'is-custom-flashline', 'grouphed', 'author-ids', 'article-manifest',
+            'body-extract', 'category', 'sub-category', 'socialhed', 'summary', 'deckline', 'article-flashline'
+        ]}),
+    ]
+
+    remove_tags_before = [
+        dict(name='p', attrs={'id':'orig-pubdate-string'})
+    ]
+
+    def preprocess_html(self, soup):
+        jpml = soup.find('jpml')
+        if jpml:
+            jpml.name = 'article'
+        h1 = soup.find('p', attrs={'id':'headline'})
+        if h1:
+            h1.name = 'h1'
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
+        dt = soup.find('p', attrs={'id':'orig-pubdate-string'})
+        read = soup.find('p', attrs={'id':'time-to-read'})
+        byl = soup.find('p', attrs={'id':'byline'})
+        if dt and byl and read:
+            dt.name = read.name = byl.name = 'div'
+            byl.insert(0, dt)
+            byl.insert(0, read)
+        url = soup.find('p', attrs={'id':'share-link'})
+        if url:
+            url.name = 'div'
+            url['title'] = self.tag_to_string(url).strip()
+            url.string = ''
+        panel = soup.find('panel', attrs={'id':'metadata'})
+        if panel:
+            buck = panel.find('p', attrs={'id':'media-bucket'})
+            if buck:
+                data = json.loads(buck.string)
+                buck.extract()
+                i_lst = [media_bucket(x) for x in data['items']]
+                m_itm = soup.findAll('panel', attrs={'class':'media-item'})
+                if i_lst and m_itm:
+                    for x, y in list(zip_longest(m_itm, i_lst)):
+                        x.insert_after(BeautifulSoup(y, 'html.parser'))
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for pan in soup.findAll('panel'):
+            pan.name = 'div'
+        return soup
+
+    def _download_cover(self):
+        import os
+        from contextlib import closing
+
+        from calibre import browser
+        from calibre.utils.img import save_cover_data_to
+        br = browser()
+        raw = br.open('https://www.frontpages.com/the-wall-street-journal/')
+        soup = BeautifulSoup(raw.read())
+        cu = 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        self.report_progress(1, _('Downloading cover from %s')%cu)
+        with closing(br.open(cu, timeout=self.timeout)) as r:
+            cdata = r.read()
+        cpath = os.path.join(self.output_dir, 'cover.jpg')
+        save_cover_data_to(cdata, cpath)
+        self.cover_path = cpath
+
+    def get_browser(self, *args, **kw):
+        kw['user_agent'] = 'okhttp/4.10.0'
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        br.addheaders += [
+            ('Accept-Encoding', 'gzip'),
+            ('cache-control', 'no-cache'),
+            ('x-api-key', ('e''b''2''4''0''8''c''d''2''7''f''8''9''1''3''d''4''2''1''f''a''3''d''5''c''3''d''0''7''c''c''f''0''3''4''c''b''4''4''8')),
+        ]
+        return br
+
+    def parse_index(self):
+        index = 'https://bartender.mobile.dowjones.io'
+        catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
+        edit = [itm['key'][10:] for itm in catalog['items'] if itm['type'] == 'ITPNEXTGEN'][1:]
+        self.log('**Past Editions available :', ', '.join(edit))
+        for itm in catalog['items']:
+            if itm['key'] == 'NOW':
+                key = itm['key']
+                manifest = itm['manifest']
+                break
+
+        feeds = []
+
+        manif = json.loads(self.index_to_soup(index + manifest, raw=True))
+        for itm in manif['items']:
+            for k, v in itm.items():
+                if '-pages_' in k:
+                    section = k.split('-pages_')[0].replace('_', ' ')
+                    self.log(section)
+
+                    articles = []
+
+                    sec_parse = json.loads(self.index_to_soup(index + v, raw=True))
+                    data = sec_parse['articles']
+                    for art in data:
+                        dt = datetime.fromtimestamp(data[art]['pubdateNumber'] + time.timezone)
+                        if (datetime.now() - dt) > timedelta(self.oldest_article):
+                            continue
+                        title = data[art]['headline']
+                        desc = data[art]['summary']
+                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        self.log('          ', title, '\n\t', desc)
+                        articles.append({'title': title, 'description':desc, 'url': url})
+                    feeds.append((section, articles))
+        return feeds
+
+    def preprocess_raw_html(self, raw, url):
+        return BeautifulSoup(raw).prettify()
+
+    def populate_article_metadata(self, article, soup, first):
+        lnk = soup.find('div', attrs={'id':'share-link'})
+        if lnk:
+            article.url = lnk['title']
