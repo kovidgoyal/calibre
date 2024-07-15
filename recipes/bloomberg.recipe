@@ -2,8 +2,8 @@ import json
 import time
 from datetime import datetime, timedelta
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def get_contents(x):
