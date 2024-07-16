@@ -47,6 +47,13 @@ class eenadu_ap(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
 
+    def get_browser(self, *args, **kw):
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        br.addheaders += [
+            ('Referer', 'https://www.eenadu.net/')
+        ]
+        return br
+
     def get_cover_url(self):
         import json
         from datetime import date
@@ -94,10 +101,10 @@ class eenadu_ap(BasicNewsRecipe):
             ('ఆహా', 'recipes'),
             ('హాయ్ బుజ్జీ', 'kids-stories'),
             ('మకరందం', 'devotional'),
-             ('దేవతార్చన', 'temples'),
-             ('స్థిరాస్తి', 'real-estate'),
-             ('కథామృతం', 'kathalu'),
-             ('సండే మ్యాగజైన్', 'sunday-magazine')
+            ('దేవతార్చన', 'temples'),
+            ('స్థిరాస్తి', 'real-estate'),
+            ('కథామృతం', 'kathalu'),
+            ('సండే మ్యాగజైన్', 'sunday-magazine')
     ]
     for x in art_list:
         art_index = art + x[1] + '/'
