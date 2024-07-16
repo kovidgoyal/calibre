@@ -47,6 +47,13 @@ class eenadu_ts(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
 
+    def get_browser(self, *args, **kw):
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        br.addheaders += [
+            ('Referer', 'https://www.eenadu.net/')
+        ]
+        return br
+
     def get_cover_url(self):
         import json
         from datetime import date
