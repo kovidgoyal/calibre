@@ -101,10 +101,10 @@ class eenadu_ts(BasicNewsRecipe):
             ('ఆహా', 'recipes'),
             ('హాయ్ బుజ్జీ', 'kids-stories'),
             ('మకరందం', 'devotional'),
-             ('దేవతార్చన', 'temples'),
-             ('స్థిరాస్తి', 'real-estate'),
-             ('కథామృతం', 'kathalu'),
-             ('సండే మ్యాగజైన్', 'sunday-magazine')
+            ('దేవతార్చన', 'temples'),
+            ('స్థిరాస్తి', 'real-estate'),
+            ('కథామృతం', 'kathalu'),
+            ('సండే మ్యాగజైన్', 'sunday-magazine')
     ]
     for x in art_list:
         art_index = art + x[1] + '/'
