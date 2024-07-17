@@ -136,10 +136,15 @@ def read_theme_from_folder(path):
     name_map = read_images_from_folder(path)
     name_map.pop(THEME_COVER, None)
     name_map.pop('blank.png', None)
-    current_names = frozenset(current_image_map)
-    names = frozenset(name_map)
+
+    def canonical_name(x):
+        return x.replace('-for-dark-theme', '').replace('-for-light-theme', '')
+
+    current_names = set(map(canonical_name, current_image_map))
+    names = set(map(canonical_name, name_map))
     extra = names - current_names
     missing = current_names - names
+    missing.discard('blank.png')
     try:
         with open(os.path.join(path, THEME_METADATA), 'rb') as f:
             metadata = json.load(f)
