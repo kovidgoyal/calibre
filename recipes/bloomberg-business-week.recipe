@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timedelta
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 # https://www.bloomberg.com/magazine/businessweek/24_12
@@ -61,6 +61,13 @@ class Bloomberg(BasicNewsRecipe):
     )
     remove_empty_feeds = True
 
+    remove_tags = [
+        dict(name=['button', 'svg', 'meta']),
+        dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
+        dict(attrs={'data-image-type':'audio'}),
+        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer')
+    ]
+
     extra_css = '''
         .auth { font-size:small; font-weight:bold; }
         .subhead, .cap span { font-style:italic; color:#202020; }
@@ -99,7 +106,7 @@ class Bloomberg(BasicNewsRecipe):
             feeds.append((section, articles))
         return feeds
 
-    def preprocess_raw_html(self, raw, *a):
+    def preprocess_raw_html(self, raw, url):
         data = json.loads(raw)
 
         title = '<h1 title="{}">'.format(data['longURL']) + data['title'] + '</h1>'
@@ -118,23 +125,28 @@ class Bloomberg(BasicNewsRecipe):
             dt = datetime.fromtimestamp(data['updatedAt'] + time.timezone)
             auth = '<p class="auth">' + 'By ' + data['byline'] + ' | Updated on ' + dt.strftime('%b %d, %Y at %I:%M %p') + '</p>'
 
-        if 'ledeImage' in data and data['ledeImage'] is not None:
-            x = data['ledeImage']
-            lede = '<br><img src="{}"><div class="img">{}</div>\n'.format(
-                x['imageURLs']['default'], x['caption'] + '<i> ' + x['credit'] + '</i>'
-            )
-
         body = ''
         if data.get('type', '') == 'interactive':
             body += '<p><em>' + 'This is an interactive article, which is supposed to be read in a browser.' + '</p></em>'
-        body_data = data['components']
-        for x in body_data:
-            body += get_contents(x)
+        # body_data = data['components']
+        # for x in body_data:
+        #     body += get_contents(x)
+
+        b_data = self.index_to_soup('https://cdn-mobapi.bloomberg.com/wssmobile/v1/bw/news/stories/' + url.split('/')[-1], raw=True)
+        body += json.loads(b_data)['html']
+
+        if 'ledeImage' in data and data['ledeImage'] is not None:
+            x = data['ledeImage']
+            if x['imageURLs']['default'].rsplit('/', 1)[0] not in body:
+                lede = '<br><img src="{}"><div class="img">{}</div>\n'.format(
+                    x['imageURLs']['default'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+                )
+
         html = '<html><body>' + cat + title + subhead + auth + lede + caption + '<div>' + body + '</div></body></html>'
         return BeautifulSoup(html).prettify()
 
     def preprocess_html(self, soup):
-        for h3 in soup.findAll('h3'):
+        for h3 in soup.findAll(['h2', 'h3']):
             h3.name = 'h4'
         for icon in soup.findAll('img', attrs={'class':'video-player__play-icon'}):
             icon.decompose()
@@ -155,4 +167,3 @@ class Bloomberg(BasicNewsRecipe):
         article.url = soup.find('h1')['title']
         article.summary = self.tag_to_string(soup.find('div', attrs={'class':'subhead'}))
         article.text_summary = article.summary
-
