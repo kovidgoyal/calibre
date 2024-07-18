@@ -1,5 +1,9 @@
-from urllib.parse import quote
+import json
+import re
+from datetime import date, datetime, timedelta
 
+from urllib.parse import quote
+from calibre.utils.date import parse_date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -14,10 +18,6 @@ class eenadu_ap(BasicNewsRecipe):
     masthead_url = 'https://dxxd96tbpm203.cloudfront.net//img/logo.png'
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
-    reverse_article_order = True
-    remove_empty_feeds = True
-    simultaneous_downloads = 1
-    art_url = ''
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -27,22 +27,6 @@ class eenadu_ap(BasicNewsRecipe):
 
     keep_only_tags = [classes('bookWrapper fullstory')]
     remove_tags = [classes('ext-link offset-tb1 sshare-c')]
-
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        soup = self.index_to_soup(url)
-        link = soup.a['href']
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/', 'marathi', 'hindi', 'bangla'
-        ]
-        if any(x in link for x in skip_sections):
-            self.abort_article('skipping video links')
-        self.log('Found ', link)
-        self.art_url = link
-        html = br.open(link).read()
-        return ({ 'data': html, 'url': link })
 
     resolve_internal_links = True
     remove_empty_feeds = True
@@ -65,66 +49,71 @@ class eenadu_ap(BasicNewsRecipe):
             if cov['NewsProPageTitle'].lower().startswith('front'):
                 return cov['HighResolution']
 
-    feeds = []
-
-    when = '27' # hours
-    index = 'https://www.eenadu.net'
-    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=te-IN&gl=IN&ceid=IN:te'
-
-    news = index + '/telugu-news/'
-    news_list = [
-            ('ఆంధ్రప్రదేశ్ ప్రధానాంశాలు', 'ap-top-news'),
-            ('సంపాదకీయం', 'editorial'),
-            ('వ్యాఖ్యానం', 'vyakyanam'),
-            ('విశాఖపట్నం జిల్లా వార్తలు', 'districts/Visakhapatnam'),
-            ('క్రైమ్', 'crime'),
+    def parse_index(self):
+        inx = 'https://www.eenadu.net/'
+        section_list = [
+            ('ఆంధ్రప్రదేశ్', 'andhra-pradesh'),
             ('పాలిటిక్స్', 'politics'),
             ('జాతీయం', 'india'),
+            ('సంపాదకీయం', 'editorial'),
             ('బిజినెస్', 'business'),
+            # ('క్రైమ్', 'crime'),
             ('అంతర్జాతీయం', 'world'),
             ('క్రీడలు', 'sports'),
             ('సినిమా', 'movies'),
             ('వసుంధర', 'women'),
-            ('ఈ-నాడు', 'technology'),
-            ('వెబ్ ప్రత్యేకం', 'explained')
+            ('విశాఖపట్నం జిల్లా వార్తలు', 'andhra-pradesh/districts/visakhapatnam'),
         ]
-    for n in news_list:
-        news_index = news + n[1] + '/'
-        feeds.append((n[0], a.format(when, quote(news_index, safe=''))))
-    feeds.append(('Other News', a.format(when, quote(news, safe=''))))
 
+        feeds = []
 
-    art = index +  '/telugu-article/'
-    art_list = [
-            ('చదువు', 'education'),
-            ('సుఖీభవ', 'health'),
-            ('ఆహా', 'recipes'),
-            ('హాయ్ బుజ్జీ', 'kids-stories'),
-            ('మకరందం', 'devotional'),
-            ('దేవతార్చన', 'temples'),
-            ('స్థిరాస్తి', 'real-estate'),
-            ('కథామృతం', 'kathalu'),
-            ('సండే మ్యాగజైన్', 'sunday-magazine')
-    ]
-    for x in art_list:
-        art_index = art + x[1] + '/'
-        feeds.append((x[0], a.format(when, quote(art_index, safe=''))))
-    feeds.append(('Other Articles', a.format(when, quote(art, safe=''))))
+        # For each section title, fetch the article urls
+        for section in section_list:
+            section_title = section[0]
+            section_url = section[1]
+            self.log(section_title)
+            soup = self.index_to_soup(inx + section_url)
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
 
-    feeds.append(('ఇతరులు', a.format(when, quote(index, safe=''))))
-    feeds.append(('ప్రతిభ', a.format(when, 'https://pratibha.eenadu.net/')))
+    def articles_from_soup(self, soup):
+        div = soup.find('div', attrs={'class':['col-left', 'district-more']})
+        ans = []
+        for link in div.findAll(attrs={'class': ['telugu_uni_body', 'thumb-content-more', 'owl-carousel']}):
+            for a in link.findAll('a', attrs={'href': True}):
+                url = a['href']
+                if not url.startswith('http'):
+                    url = 'https://www.eenadu.net/' + url
+                h = a.find(['h4', 'h3', 'h2', 'h1'])
+                if h:
+                    title = self.tag_to_string(h).strip()
+                    if 'telugu-news' not in url:
+                        continue
+                    self.log('\t', title, '\n\t\t', url)
+                    ans.append({'title': title, 'url': url})
+        return ans
 
     def populate_article_metadata(self, article, soup, first):
-        article.url = self.art_url
-        article.title = article.title.replace(' - Eenadu', '')
         desc = soup.find(attrs={'class':'srtdes'})
         if desc:
             article.summary = self.tag_to_string(desc)
             article.text_summary = article.summary
 
     def preprocess_raw_html(self, raw, *a):
-        import re
         if '<!--Top Full Story Start -->' in raw:
             body = re.search(r'<!--Top Full Story Start -->([^~]+?)<!--Tags Start -->', raw)
             return '<html><body><div>' + body.group(1) + '</div></body></html>'
         return raw
+
+    def preprocess_html(self, soup):
+        div = soup.find(**classes('pub-t'))
+        if div:
+            dt = re.search(r'\d+.+\d+', self.tag_to_string(div))
+            date = parse_date(dt.group(0) + ':00.000000').replace(tzinfo=None)
+            if (datetime.now() - date) > timedelta(1.5):
+                self.abort_article('Skipping old article')
+        else:
+            self.abort_article('may not be an artilce')
+        return soup
