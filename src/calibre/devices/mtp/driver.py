@@ -223,7 +223,7 @@ class MTP_DEVICE(BASE):
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([str(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join(str(i) for i in numeric_version)
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = as_bytes(json.dumps(dinfo, default=to_json))
