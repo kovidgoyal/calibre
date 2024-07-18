@@ -16,6 +16,7 @@ from operator import attrgetter
 from typing import Dict, Tuple
 
 from calibre import force_unicode, human_readable, prints
+from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.date import as_utc, local_tz
 from calibre.utils.icu import lower, sort_key
@@ -75,9 +76,15 @@ class FileOrFolder:
         self.files = []
         self.folders = []
         if not self.is_storage:
-            # storage ids can overlap filesystem object ids. See https://bugs.launchpad.net/bugs/2072384
+            # storage ids can overlap filesystem object ids on libmtp. See https://bugs.launchpad.net/bugs/2072384
             # so only store actual filesystem object ids in id_map
             fs_cache.id_maps[self.storage_id][self.object_id] = self
+            if iswindows:
+                # On windows parent_id == storage_id for objects in root. Set
+                # it 0 so the rest of the logic works as on libmtp.
+                # See https://bugs.launchpad.net/bugs/2073323
+                if self.storage_id == self.parent_id:
+                    self.parent_id = 0
         self.fs_cache = weakref.ref(fs_cache)
         self.deleted = False
 
