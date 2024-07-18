@@ -18,6 +18,7 @@ from io import BytesIO
 from itertools import count
 from multiprocessing.pool import ThreadPool
 from threading import Event, Thread
+from xml.sax.saxutils import escape
 
 from qt.core import (
     QAbstractItemView,
@@ -581,6 +582,10 @@ class Delegate(QStyledItemDelegate):
 
     SPACING = 10
 
+    def __init__(self, *a):
+        super().__init__(*a)
+        self.static_text_cache = {}
+
     def sizeHint(self, option, index):
         return QSize(COVER_SIZE[0] * 2, COVER_SIZE[1] + 2 * self.SPACING)
 
@@ -598,11 +603,9 @@ class Delegate(QStyledItemDelegate):
             painter.setPen(QPen(QApplication.instance().palette().highlightedText().color()))
         bottom = option.rect.bottom() - 2
         painter.drawLine(0, bottom, option.rect.right(), bottom)
-        if 'static-text' not in theme:
-            from xml.sax.saxutils import escape
-            visit = _('Right click to visit theme homepage') if theme.get('url') else ''
-            theme['static-text'] = QStaticText(_('''\
-            <p><b>{title}</b><p>
+        visit = _('Right click to visit theme homepage') if theme.get('url') else ''
+        text = _('''\
+            <p><b><big>{title}<big></b><p>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage:n}</p>
@@ -611,8 +614,11 @@ class Delegate(QStyledItemDelegate):
                        number=theme.get('number', 0), description=escape(theme.get('description', '')),
                        size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
                        usage=theme.get('usage', 0), visit=escape(visit)
-        ))
-        painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
+            )
+        st = self.static_text_cache.get(text)
+        if st is None:
+            self.static_text_cache[text] = st = QStaticText(text)
+        painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, st)
         painter.restore()
 
 
