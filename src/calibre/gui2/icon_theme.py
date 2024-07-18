@@ -122,8 +122,9 @@ class Theme:
 
 class Report:
 
-    def __init__(self, path, name_map, extra, missing, theme):
+    def __init__(self, path, name_map, extra, missing, theme, number):
         self.path, self.name_map, self.extra, self.missing, self.theme = path, name_map, extra, missing, theme
+        self.number = number
         self.bad = {}
 
     @property
@@ -146,6 +147,7 @@ def read_theme_from_folder(path):
     extra = names - current_names
     missing = current_names - names
     missing.discard('blank.png')
+    number = len(names - extra)
     try:
         with open(os.path.join(path, THEME_METADATA), 'rb') as f:
             metadata = json.load(f)
@@ -167,7 +169,7 @@ def read_theme_from_folder(path):
         return metadata.get(x, defval)
     theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'), g('url', None))
 
-    ans = Report(path, name_map, extra, missing, theme)
+    ans = Report(path, name_map, extra, missing, theme, number)
     try:
         with open(os.path.join(path, THEME_COVER), 'rb') as f:
             theme.cover = f.read()
@@ -310,7 +312,7 @@ class ThemeCreateDialog(Dialog):
             'color_palette': self.color_palette.currentData(),
             'version': self.version.value(),
             'description': self.description.toPlainText().strip(),
-            'number': len(self.report.name_map) - len(self.report.extra),
+            'number': self.report.number,
             'date': utcnow().date().isoformat(),
             'name': self.report.name,
             'license': self.license.text().strip() or 'Unknown',
@@ -1006,8 +1008,8 @@ def install_icon_theme(theme, f, rcc_path, for_theme):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    # create_theme(sys.argv[-1])
-    d = ChooseTheme()
-    if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
-        d.commit_changes()
+    create_theme(sys.argv[-1])
+    # d = ChooseTheme()
+    # if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
+    #     d.commit_changes()
     del app
