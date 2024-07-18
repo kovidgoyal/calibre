@@ -599,18 +599,18 @@ class Delegate(QStyledItemDelegate):
         bottom = option.rect.bottom() - 2
         painter.drawLine(0, bottom, option.rect.right(), bottom)
         if 'static-text' not in theme:
+            from xml.sax.saxutils import escape
             visit = _('Right click to visit theme homepage') if theme.get('url') else ''
-            theme['static-text'] = QStaticText(_(
-                '''
-            <h2>{title}</h2>
+            theme['static-text'] = QStaticText(_('''\
+            <p><b>{title}</b><p>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage:n}</p>
             <p><i>{visit}</i></p>
-            ''').format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
-                       number=theme.get('number', 0), description=theme.get('description', ''),
+            ''').format(title=escape(theme.get('title') or _('Unknown')), author=escape(theme.get('author', _('Unknown'))),
+                       number=theme.get('number', 0), description=escape(theme.get('description', '')),
                        size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
-                       usage=theme.get('usage', 0), visit=visit
+                       usage=theme.get('usage', 0), visit=escape(visit)
         ))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
         painter.restore()
@@ -1000,8 +1000,8 @@ def install_icon_theme(theme, f, rcc_path, for_theme):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    create_theme(sys.argv[-1])
-    # d = ChooseTheme()
-    # if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
-    #     d.commit_changes()
+    # create_theme(sys.argv[-1])
+    d = ChooseTheme()
+    if d.exec() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
+        d.commit_changes()
     del app
