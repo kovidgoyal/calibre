@@ -3086,7 +3086,10 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves:
             return bookshelves
 
-        query = "SELECT Name FROM Shelf WHERE _IsDeleted = 'false'"
+        if self.dbversion >= 188:
+            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
+        else:
+            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
 
         cursor = connection.cursor()
         cursor.execute(query)
