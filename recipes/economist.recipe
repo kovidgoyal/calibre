@@ -266,6 +266,7 @@ class Economist(BasicNewsRecipe):
             return self.economist_return_index(ans)
 
         def economist_parse_index(self, raw):
+            edition_date = self.recipe_specific_options.get('date')
             if edition_date:
                 data = json.loads(raw)['data']['section']
             else:
