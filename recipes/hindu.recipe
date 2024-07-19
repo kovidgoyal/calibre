@@ -11,23 +11,6 @@ def absurl(url):
         url = 'https://www.thehindu.com' + url
     return url
 
-# Chennai is default edition, for other editions use 'th_hyderabad', 'th_bangalore', 'th_delhi', 'th_kolkata' etc
-local_edition = None
-
-# For past editions, set date to, for example, '2023-01-28'
-past_edition = None
-
-is_monday = date.today().weekday() == 0
-is_friday = date.today().weekday() == 4
-is_saturday = date.today().weekday() == 5
-is_sunday = date.today().weekday() == 6
-
-if past_edition:
-    year, month, day = (int(x) for x in past_edition.split('-'))    
-    dt = date(year, month, day)
-    is_monday = dt.weekday() == 0
-    is_saturday = dt.weekday() == 5
-    is_sunday = dt.weekday() == 6
 
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu'
@@ -45,6 +28,17 @@ class TheHindu(BasicNewsRecipe):
         img {display:block; margin:0 auto;}
         .italic, .sub-title {font-style:italic; color:#202020;}
     '''
+
+    recipe_specific_options = {
+        'location': {
+            'short': 'The name of the local edition',
+            'long': 'If The Hindu is available in your local town/city, set this to, for example, hyderabad'
+        },
+        'date': {
+            'short': 'The date of the edition to download (YYYY-MM-DD format)',
+            'long': 'For example, 2023-01-28'
+        }
+    }
 
     ignore_duplicate_articles = {'url'}
 
@@ -65,17 +59,24 @@ class TheHindu(BasicNewsRecipe):
             h3.name = 'p'
         return soup
 
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            if not past_edition:
-                self.title = 'The Hindu ' + date.today().strftime('%b %d, %Y')
-            else:
-                self.title = 'The Hindu ' + dt.strftime('%b %d, %Y')
-
     def parse_index(self):
         mag_url = None
-        global local_edition
+        local_edition = self.recipe_specific_options.get('location')
+        if local_edition:
+            local_edition = 'th_' + local_edition
+        past_edition = self.recipe_specific_options.get('date')
+
+        dt = date.today()
+        if past_edition:
+            year, month, day = (int(x) for x in past_edition.split('-'))    
+            dt = date(year, month, day)
+
+        is_monday = dt.weekday() == 0
+        is_friday = dt.weekday() == 4
+        is_saturday = dt.weekday() == 5
+        is_sunday = dt.weekday() == 6
+
+
         if local_edition or past_edition:
             if local_edition is None:
                 local_edition = 'th_chennai'
