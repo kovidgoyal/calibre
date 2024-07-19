@@ -1565,10 +1565,15 @@ class KOBOTOUCH(KOBO):
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
-    TOLINO_COVER_FILE_ENDINGS = {
+    TOLINO_SHINE_COVER_FILE_ENDINGS = {
                           # Used for ???
                           # There's probably only one ending used
                           '':                         [(1072,1448), 0, 200,True,],
+    }
+    TOLINO_VISION_COVER_FILE_ENDINGS = {
+                          # Used for ???
+                          # There's probably only one ending used
+                          '':                         [(1264,1680), 0, 200,True,],
     }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -3710,15 +3715,15 @@ class KOBOTOUCH(KOBO):
         elif self.isSage():
             _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
         elif self.isShine5():
-            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.TOLINO_SHINE_COVER_FILE_ENDINGS
         elif self.isShineColor():
-            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.TOLINO_SHINE_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isVisionColor():
-            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
+            _cover_file_endings = self.TOLINO_VISION_COVER_FILE_ENDINGS
         else:
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
