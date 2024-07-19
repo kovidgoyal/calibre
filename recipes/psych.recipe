@@ -31,6 +31,19 @@ class PsychologyToday(BasicNewsRecipe):
     encoding = 'UTF-8'
     no_stylesheets = True
     publication_type = 'magazine'
+    remove_attributes = ['style', 'height', 'width']
+    extra_css = '''
+        .image-article_inline_full, .image-article-inline-half { text-align:center; font-size:small; }
+        em, blockquote { color:#202020; }
+        .blog-entry__date--full { font-size:small; }
+    '''
+
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the Past Edition to download (YYYY/MM format)',
+            'long': 'For example, 2024/07'
+        }
+    }
 
     keep_only_tags = [dict(attrs={'id': 'block-pt-content'})]
     remove_tags = [classes('pt-social-media')]
@@ -38,9 +51,15 @@ class PsychologyToday(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('https://www.psychologytoday.com/us/magazine/archive')
         a = soup.find(**classes('magazine-thumbnail')).a
-        self.timefmt = ' [%s]' % a['title']
-        self.cover_url = absurl(a.img['src'])
-        soup = self.index_to_soup(absurl(a['href']))
+        url = a['href']
+        past_edition = self.recipe_specific_options.get('date')
+        if past_edition:
+            url = '/us/magazine/archive/' + past_edition
+        soup = self.index_to_soup(absurl(url))
+        cov = soup.find(**classes('content-header--cover-image'))
+        if cov:
+            self.cover_url = cov.img['src']
+            self.timefmt = ' [%s]' % cov.img['alt'].replace(' magazine cover', '')
         articles = []
         for article in soup.findAll('div', attrs={'class':'article-text'}):
             title = self.tag_to_string(article.find(attrs={'class':['h2','h3']})).strip()
@@ -53,4 +72,4 @@ class PsychologyToday(BasicNewsRecipe):
             else:
                 desc = ''
             articles.append({'title': title, 'url': url, 'description': desc, 'author': author})
-        return [('Current Issue', articles)]
+        return [('Articles', articles)]
