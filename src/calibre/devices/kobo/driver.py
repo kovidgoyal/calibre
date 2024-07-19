@@ -3709,13 +3709,13 @@ class KOBOTOUCH(KOBO):
         elif self.isShine5():
             _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
         elif self.isShineColor():
-            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isVisionColor():
-            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
+            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
         else:
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
