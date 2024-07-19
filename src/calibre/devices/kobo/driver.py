@@ -1395,11 +1395,13 @@ class KOBOTOUCH(KOBO):
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
         ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
         ' Sage, Libra 2, Clara 2E,'
-        ' Clara BW, Clara Colour, Libra Colour eReaders.'
+        ' Clara BW, Clara Colour, Libra Colour'
+        ' as well as tolino shine 5, shine color and'
+        ' vision color eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = 'devices/kobotouch.jpg'
 
-    supported_dbversion             = 175
+    supported_dbversion             = 188
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1413,7 +1415,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 39, 22861)
+    max_supported_fwversion         = (5, 0, 178115)
     # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1481,7 +1483,8 @@ class KOBOTOUCH(KOBO):
     SAGE_PRODUCT_ID     = [0x4231]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
-    LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW. Sigh.
+    LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW
+                                       # as well as tolino shine 5, shine color and vision color. Sigh.
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
@@ -1562,6 +1565,11 @@ class KOBOTOUCH(KOBO):
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
+    TOLINO_COVER_FILE_ENDINGS = {
+                          # Used for ???
+                          # There's probably only one ending used
+                          '':                         [(1072,1448), 0, 200,True,],
+    }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 # ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
@@ -2740,7 +2748,7 @@ class KOBOTOUCH(KOBO):
             path_prefix = 'koboExtStorage/images-cache/' if self.supports_images_tree() else 'koboExtStorage/images/'
             path = os.path.join(self._card_a_prefix, path_prefix)
         else:
-            path_prefix = '.kobo-images/' if self.supports_images_tree() else KOBO_ROOT_DIR_NAME + '/images/'
+            path_prefix = '.kobo-images/' if self.supports_images_tree() or (not self.supports_images_tree() and self.isTolinoDevice()) else KOBO_ROOT_DIR_NAME + '/images/'
             path = os.path.join(self._main_prefix, path_prefix)
 
         if self.supports_images_tree() and imageId:
@@ -3637,11 +3645,23 @@ class KOBOTOUCH(KOBO):
     def isSage(self):
         return self.detected_device.idProduct in self.SAGE_PRODUCT_ID
 
+    def isShine5(self):
+        return self.device_model_id.endswith('691')
+
+    def isShineColor(self):
+        return self.device_model_id.endswith('693')
+
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def isTouch2(self):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
+
+    def isVisionColor(self):
+        return self.device_model_id.endswith('690')
+
+    def isTolinoDevice(self):
+        return self.isShine5() or self.isShineColor() or self.isVisionColor()
 
     def cover_file_endings(self):
         if self.isAura():
@@ -3686,16 +3706,27 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isSage():
             _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
+        elif self.isShine5():
+            _cover_file_endings = self.TOLINO_COVER_FILE_ENDINGS
+        elif self.isShineColor():
+            _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
+        elif self.isVisionColor():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         else:
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
         # Don't forget to merge that on top of the common dictionary (c.f., https://stackoverflow.com/q/38987)
-        _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
-        _all_cover_file_endings.update(_cover_file_endings)
+        # But the tolino devices have only one cover file ending.
+        if self.isTolinoDevice():
+            _all_cover_file_endings = _cover_file_endings.copy()
+        else:
+            _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
+            _all_cover_file_endings.update(_cover_file_endings)
+
         return _all_cover_file_endings
 
     def set_device_name(self):
@@ -3746,10 +3777,16 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Nia'
         elif self.isSage():
             device_name = 'Kobo Sage'
+        elif self.isShine5():
+            device_name = 'tolino shine 5'
+        elif self.isShineColor():
+            device_name = 'tolino shine color'
         elif self.isTouch():
             device_name = 'Kobo Touch'
         elif self.isTouch2():
             device_name = 'Kobo Touch 2'
+        elif self.isVisionColor():
+            device_name = 'tolino vision color'
         self.__class__.gui_name = device_name
         return device_name
 
@@ -3965,7 +4002,7 @@ class KOBOTOUCH(KOBO):
         return self.dbversion >= self.min_dbversion_images_on_sdcard and self.fwversion >= self.min_fwversion_images_on_sdcard
 
     def supports_images_tree(self):
-        return self.fwversion >= self.min_fwversion_images_tree
+        return self.fwversion >= self.min_fwversion_images_tree and not self.isTolinoDevice()
 
     def has_externalid(self):
         return self.dbversion >= self.min_dbversion_externalid
