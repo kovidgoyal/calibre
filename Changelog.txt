@@ -23,6 +23,27 @@
 # - title by author
 # }}}
 
+{{{ 7.15.0 2024-07-19
+
+:: new features
+
+- Fetch news: Allow individual news sources to specify source specific options such as downloading of past editions
+
+:: bug fixes
+
+- [2073323] Windows: MTP driver: Fix a regression in the previous release that caused an error with some devices
+
+- Icon theme creation dialog: Fix various issues when creating an icon theme with many icons that have light/dark variants
+
+:: improved recipes
+- Bloomberg
+- Eenadu
+- Mediapart
+
+:: new recipes
+- WSJ News by unkn0wn
+}}}
+
 {{{ 7.14.0 2024-07-12
 
 :: new features
