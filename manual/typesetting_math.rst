@@ -56,6 +56,10 @@ with an e-book you can distribute easily to other people.
 .. literalinclude:: mathjax.html
     :language: html
 
+.. note:: The calibre viewer supports MathML as well as TeX, but you must
+   include the ``<script type="text/x-mathjax-config"></script>`` line in
+   your HTML file otherwise the MathML will not render.
+
 More information
 -----------------
 
