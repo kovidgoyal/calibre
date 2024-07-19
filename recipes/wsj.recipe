@@ -6,6 +6,7 @@ from itertools import zip_longest
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 def media_bucket(x):
     if x.get('type', '') == 'image':
         if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
