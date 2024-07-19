@@ -1,10 +1,9 @@
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-
 
 # https://www.bloomberg.com/magazine/businessweek/24_12
 # Set past_edition to edition id, which is '24_12'.

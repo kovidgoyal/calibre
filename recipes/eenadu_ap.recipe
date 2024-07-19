@@ -1,8 +1,7 @@
-import json
 import re
-from datetime import date, datetime, timedelta
-
+from datetime import datetime, timedelta
 from urllib.parse import quote
+
 from calibre.utils.date import parse_date
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
