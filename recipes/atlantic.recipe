@@ -199,7 +199,7 @@ class TheAtlantic(BasicNewsRecipe):
                 self.cover_url = img['src']
             current_section, current_articles = 'Cover Story', []
             feeds = []
-            for x in soup.findAll(**prefix_classes('TocFeaturedSection_heading__ TocSection_heading__ TocHeroGridItem_hedLink___ TocGridItem_hedLink__')):
+            for x in soup.findAll(**prefix_classes('TocFeaturedSection_heading__ TocSection_heading__ TocHeroGridItem_hedLink__ TocGridItem_hedLink__')):
                 cls = x['class']
                 if not isinstance(cls, str):
                     cls = ' '.join(cls)

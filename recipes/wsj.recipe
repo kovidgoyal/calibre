@@ -6,11 +6,6 @@ from itertools import zip_longest
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-# Past 6 editions are available for download.
-# For available past editions see log and set date to, for example, '20240513'.
-past_edition = None
-
-
 def media_bucket(x):
     if x.get('type', '') == 'image':
         if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
@@ -40,6 +35,13 @@ class WSJ(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
+
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYYMMDD format)\nOnly the past 6 editions will be available ',
+            'long': 'For example, 20240513'
+        }
+    }
 
     extra_css = '''
         #subhed, em { font-style:italic; color:#202020; }
@@ -103,8 +105,8 @@ class WSJ(BasicNewsRecipe):
             pan.name = 'div'
         return soup
 
-    if not past_edition:
-        def _download_cover(self):
+    def _download_cover(self):
+        if not self.recipe_specific_options.get('date'):
             import os
             from contextlib import closing
 
@@ -136,6 +138,9 @@ class WSJ(BasicNewsRecipe):
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
         edit = [itm['key'][10:] for itm in catalog['items'] if itm['type'] == 'ITPNEXTGEN'][1:]
         self.log('**Past Editions available :', ', '.join(edit))
+
+        past_edition = self.recipe_specific_options.get('date')
+
         for itm in catalog['items']:
             if past_edition:
                 if itm['key'] == 'ITPNEXTGEN' + past_edition:
