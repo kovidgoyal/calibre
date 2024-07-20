@@ -19,22 +19,34 @@ class lexfridman(BasicNewsRecipe):
     timefmt = ' [%b, %Y]'
     cover_url = 'https://i.scdn.co/image/ab6765630000ba8a563ebb538d297875b10114b7'
 
-    extra_css = '''
-        .ts-name { font-weight:bold; }
-        .ts-timestamp { font-size:small; }
-    '''
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles for the past 12 hours',
+            'default': '30 Days'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d:
+            self.oldest_article = float(d)
+
+    extra_css = '.ts-name { font-weight:bold; }'
 
     keep_only_tags = [dict(name='article')]
     remove_tags = [
         dict(name=['svg']),
-        dict(name='div', attrs={'class':'episode-player'})
+        dict(attrs={'class':['episode-player', 'ts-timestamp']})
     ]
 
     feeds = [
         ('Transcripts', 'https://lexfridman.com/feed/podcast/')
     ]
 
-    def print_version(self, url):
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
         return url.split('?')[0][:-1] + '-transcript/'
 
     def preprocess_html(self, soup):

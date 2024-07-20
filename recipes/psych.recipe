@@ -41,7 +41,8 @@ class PsychologyToday(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the Past Edition to download (YYYY/MM format)',
-            'long': 'For example, 2024/07'
+            'long': 'For example, 2024/07',
+            'default': 'current'
         }
     }
 

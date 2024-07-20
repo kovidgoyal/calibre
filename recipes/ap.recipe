@@ -19,7 +19,21 @@ class AssociatedPress(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = False
-    oldest_article = 1.5
+    oldest_article = 1.2
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles for the past 12 hours',
+            'default': '1.2 Days'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d:
+            self.oldest_article = float(d)
 
     keep_only_tags = [
         classes('Page-headline Page-lead Page-storyBody Page-authorinfo'),
