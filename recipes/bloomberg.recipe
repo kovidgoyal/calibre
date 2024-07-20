@@ -82,14 +82,14 @@ class Bloomberg(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles for the past 12 hours',
-            'default': '1.2 Days'
+            'default': str(oldest_article),
         }
     }
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         d = self.recipe_specific_options.get('days')
-        if d:
+        if d and isinstance(d, str):
             self.oldest_article = float(d)
 
     def parse_index(self):
