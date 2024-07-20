@@ -38,7 +38,7 @@ class TheHindu(BasicNewsRecipe):
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
             'long': 'For example, 2023-01-28',
-            'default': 'Today's Paper'
+            'default': 'Today\'s Paper'
         }
     }
 
