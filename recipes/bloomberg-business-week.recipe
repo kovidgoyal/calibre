@@ -5,9 +5,6 @@ from datetime import datetime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-# https://www.bloomberg.com/magazine/businessweek/24_12
-# Set past_edition to edition id, which is '24_12'.
-past_edition = None
 
 def get_contents(x):
     if x == '':
@@ -60,6 +57,13 @@ class Bloomberg(BasicNewsRecipe):
     )
     remove_empty_feeds = True
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The ID of the edition to download (YY_XX format)',
+            'long': 'For example, 24_17\nHint: Edition ID can be found at the end of its URL'
+        }
+    }
+
     remove_tags = [
         dict(name=['button', 'svg', 'meta']),
         dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
@@ -82,6 +86,7 @@ class Bloomberg(BasicNewsRecipe):
         inx = 'https://cdn-mobapi.bloomberg.com'
         sec = self.index_to_soup(inx + '/wssmobile/v1/bw/news/list?limit=1', raw=True)
         id = json.loads(sec)['magazines'][0]['id']
+        past_edition = self.recipe_specific_options.get('date')
         if past_edition:
             id = past_edition
         edit = self.index_to_soup(inx + '/wssmobile/v1/bw/news/week/' + id, raw=True)
