@@ -55,7 +55,7 @@ class Bloomberg(BasicNewsRecipe):
         'Bloomberg delivers business and markets news, data, analysis, and video'
         ' to the world, featuring stories from Businessweek and Bloomberg News.'
     )
-    oldest_article = 1 # days
+    oldest_article = 1.2 # days
     resolve_internal_links = True
     remove_empty_feeds = True
     cover_url = 'https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ivUxvlPidC3M/v0/600x-1.jpg'
@@ -78,7 +78,17 @@ class Bloomberg(BasicNewsRecipe):
         .news-figure-credit {font-size:small; text-align:center; color:#202020;}
     '''
 
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles for the past 12 hours'
+        }
+    }
+
     def parse_index(self):
+        d = self.recipe_specific_options.get('days')
+        if d:
+            self.oldest_article = d
         inx = 'https://cdn-mobapi.bloomberg.com'
         sec = self.index_to_soup(inx + '/wssmobile/v1/navigation/bloomberg_app/search-v2', raw=True)
         sec_data = json.loads(sec)['searchNav']
