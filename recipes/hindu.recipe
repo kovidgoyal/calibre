@@ -62,7 +62,7 @@ class TheHindu(BasicNewsRecipe):
     def parse_index(self):
 
         local_edition = self.recipe_specific_options.get('location')
-        if local_edition:
+        if local_edition and isinstance(local_edition, str):
             local_edition = 'th_' + local_edition
         else:
             local_edition = 'th_international'
@@ -70,8 +70,8 @@ class TheHindu(BasicNewsRecipe):
         past_edition = self.recipe_specific_options.get('date')
 
         dt = date.today()
-        if past_edition:
-            year, month, day = (int(x) for x in past_edition.split('-'))    
+        if past_edition and isinstance(past_edition, str):
+            year, month, day = (int(x) for x in past_edition.split('-'))
             dt = date(year, month, day)
 
         today = dt.strftime('%Y-%m-%d')

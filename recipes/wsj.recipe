@@ -107,7 +107,8 @@ class WSJ(BasicNewsRecipe):
         return soup
 
     def _download_cover(self):
-        if not self.recipe_specific_options.get('date'):
+        d = self.recipe_specific_options.get('date')
+        if not (d and isinstance(d, str)):
             import os
             from contextlib import closing
 
@@ -143,7 +144,7 @@ class WSJ(BasicNewsRecipe):
         past_edition = self.recipe_specific_options.get('date')
 
         for itm in catalog['items']:
-            if past_edition:
+            if past_edition and isinstance(past_edition, str):
                 if itm['key'] == 'ITPNEXTGEN' + past_edition:
                     key = itm['key']
                     manifest = itm['manifest']

@@ -87,7 +87,7 @@ class Bloomberg(BasicNewsRecipe):
         sec = self.index_to_soup(inx + '/wssmobile/v1/bw/news/list?limit=1', raw=True)
         id = json.loads(sec)['magazines'][0]['id']
         past_edition = self.recipe_specific_options.get('date')
-        if past_edition:
+        if past_edition and isinstance(past_edition, str):
             id = past_edition
         edit = self.index_to_soup(inx + '/wssmobile/v1/bw/news/week/' + id, raw=True)
         d = json.loads(edit)

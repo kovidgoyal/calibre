@@ -81,14 +81,15 @@ class Bloomberg(BasicNewsRecipe):
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
-            'long': 'For example, 0.5, gives you articles for the past 12 hours'
+            'long': 'For example, 0.5, gives you articles for the past 12 hours',
+            'default': str(oldest_article),
         }
     }
 
     def parse_index(self):
         d = self.recipe_specific_options.get('days')
-        if d:
-            self.oldest_article = d
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
         inx = 'https://cdn-mobapi.bloomberg.com'
         sec = self.index_to_soup(inx + '/wssmobile/v1/navigation/bloomberg_app/search-v2', raw=True)
         sec_data = json.loads(sec)['searchNav']

@@ -215,7 +215,7 @@ class Economist(BasicNewsRecipe):
 
     def publication_date(self):
         edition_date = self.recipe_specific_options.get('date')
-        if edition_date:
+        if edition_date and isinstance(edition_date, str):
             return parse_only_date(edition_date, as_utc=False)
         url = self.browser.open("https://www.economist.com/printedition").geturl()
         return parse_only_date(url.split("/")[-1], as_utc=False)
@@ -245,7 +245,7 @@ class Economist(BasicNewsRecipe):
                 'operationName': 'LatestWeeklyAutoEditionQuery',
                 'variables': '{"ref":"/content/d06tg8j85rifiq3oo544c6b9j61dno2n"}',
             }
-            if edition_date:
+            if edition_date and isinstance(edition_date, str):
                 url = 'https://www.economist.com/weeklyedition/' + edition_date
                 soup = self.index_to_soup(url)
                 script_tag = soup.find("script", id="__NEXT_DATA__")
@@ -268,7 +268,7 @@ class Economist(BasicNewsRecipe):
 
         def economist_parse_index(self, raw):
             edition_date = self.recipe_specific_options.get('date')
-            if edition_date:
+            if edition_date and isinstance(edition_date, str):
                 data = json.loads(raw)['data']['section']
             else:
                 data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
@@ -336,7 +336,7 @@ class Economist(BasicNewsRecipe):
         def parse_index(self):
             edition_date = self.recipe_specific_options.get('date')
             # return self.economist_test_article()
-            if edition_date:
+            if edition_date and isinstance(edition_date, str):
                 url = 'https://www.economist.com/weeklyedition/' + edition_date
                 self.timefmt = ' [' + edition_date + ']'
             else:
@@ -423,10 +423,11 @@ class Economist(BasicNewsRecipe):
             x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
         return raw
+
     def parse_index_from_printedition(self):
         # return self.economist_test_article()
         edition_date = self.recipe_specific_options.get('date')
-        if edition_date:
+        if edition_date and isinstance(edition_date, str):
             url = 'https://www.economist.com/weeklyedition/' + edition_date
             self.timefmt = ' [' + edition_date + ']'
         else:
