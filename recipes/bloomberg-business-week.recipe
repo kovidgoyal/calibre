@@ -44,7 +44,7 @@ def get_contents(x):
 
 class Bloomberg(BasicNewsRecipe):
     title = 'Bloomberg Businessweek'
-    language = 'en'
+    language = 'en_US'
     __author__ = 'unkn0wn'
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
