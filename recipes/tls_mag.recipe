@@ -48,9 +48,21 @@ class tls(BasicNewsRecipe):
         .det { font-size:small; color:#202020; font-weight:bold; }
     '''
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download\nlower case Month-DD-YYYY format',
+            'long': 'For example, july-12-2024',
+            'default': 'current-issue'
+        }
+    }
+
     def parse_index(self):
-        # for past edition, change the issue link below
         issue = 'https://www.the-tls.co.uk/issues/current-issue/'
+
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            issue = 'https://www.the-tls.co.uk/issues/' + d + '/'
+
         url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
