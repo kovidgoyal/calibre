@@ -32,7 +32,8 @@ class TheHindu(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': 'If The Hindu is available in your local town/city,\nset this to your location, for example, hyderabad'
+            'long': 'If The Hindu is available in your local town/city,\nset this to your location, for example, hyderabad',
+            'default': 'international'
         },
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
@@ -60,12 +61,10 @@ class TheHindu(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-
-        local_edition = self.recipe_specific_options.get('location')
-        if local_edition and isinstance(local_edition, str):
-            local_edition = 'th_' + local_edition
-        else:
-            local_edition = 'th_international'
+        local_edition = 'th_international'
+        d = self.recipe_specific_options.get('location')
+        if d and isinstance(d, str):
+            local_edition = 'th_' + d
 
         past_edition = self.recipe_specific_options.get('date')
 
