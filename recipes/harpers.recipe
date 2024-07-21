@@ -54,11 +54,24 @@ class Harpers(BasicNewsRecipe):
                     img['src'] = src.split()[0]
         return soup
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY/MM format)',
+            'long': 'For example, 2023/08',
+        }
+    }
+
     def parse_index(self):
         issues_soup = self.index_to_soup("https://harpers.org/issues/")
         a_ele = issues_soup.select_one("div.issue-card a")
         self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class':'issue-title'})) + ']'
         url = a_ele['href']
+
+        edition = self.recipe_specific_options.get('date')
+        if edition and isinstance(edition, str):
+            url = 'https://harpers.org/archive/' + edition
+            self.timefmt = ' [' +edition + ']'
+
         soup = self.index_to_soup(url)
         cov_div = soup.find('div', attrs={'class':'issue-cover'})
         if cov_div:
