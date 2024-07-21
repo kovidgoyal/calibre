@@ -4,12 +4,6 @@ from datetime import datetime
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
 
-today = datetime.today().strftime('%d-%m-%Y')
-
-# today = '20-09-2023'
-
-day, month, year = (int(x) for x in today.split('-'))
-dt = datetime(year, month, day)
 
 class BusinessStandardPrint(BasicNewsRecipe):
     title = 'Business Standard Print Edition'
@@ -18,18 +12,12 @@ class BusinessStandardPrint(BasicNewsRecipe):
     language = 'en_IN'
     masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
     encoding = 'utf-8'
-    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
     resolve_internal_links = True
     remove_empty_feeds = True
 
     no_stylesheets = True
     remove_javascript = True
-    remove_attributes = ['width', 'height', 'float', 'style']
-
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            self.title = 'Business Standard ' + dt.strftime('%b %d, %Y')
+    remove_attributes = ['width', 'height', 'style']
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
@@ -40,16 +28,35 @@ class BusinessStandardPrint(BasicNewsRecipe):
 
     extra_css = '''
         img {display:block; margin:0 auto;}
+        .sub { font-style:italic; color:#202020; }
         .auth, .cat { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
     '''
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the print edition to download (DD-MM-YYYY format)',
+            'long': 'For example, 20-09-2023'
+        }
+    }
+
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
-        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-            return citem['content']
+        d = self.recipe_specific_options.get('date')
+        if not (d and isinstance(d, str)):
+            soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
+            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
+                return citem['content']
 
     def parse_index(self):
+        today = datetime.today().strftime('%d-%m-%Y')
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            today = d
+
+        day, month, year = (int(x) for x in today.split('-'))
+        dt = datetime(year, month, day)
+        self.timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
+
         if dt.weekday() == 6:
             self.log.warn(
                 'Business Standard Does Not Have A Print Publication On Sunday. The Reports'
@@ -97,10 +104,10 @@ class BusinessStandardPrint(BasicNewsRecipe):
 
         if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
             if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
-                cat = '<div><p class="cat">' + data['defaultArticleCat']['h1_tag'] + '</p></div>'
+                cat = '<div class="cat">' + data['defaultArticleCat']['h1_tag'] + '</div>'
 
         if 'metaDescription' in data and data['metaDescription'] is not None:
-            subhead = '<h3>' + data['metaDescription'] + '</h3>'
+            subhead = '<p class="sub">' + data['metaDescription'] + '</p>'
             self.art_desc = data['metaDescription']
 
         date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
@@ -120,6 +127,13 @@ class BusinessStandardPrint(BasicNewsRecipe):
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
 
-        body = data['htmlContent']
+        body = data['htmlContent'].replace('<br />\r\n\t\t&nbsp;', '<br>')
 
-        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><p></p>' + body + '</div></body></html>'
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><br>' + body + '</div></body></html>'
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            img.attrs = {'src': img.get('src', '')}
+        for x in soup.findAll('div'):
+            x.attrs = {'class': x.get('class', '')}
+        return soup
