@@ -3086,7 +3086,7 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves:
             return bookshelves
 
-        # No idea why, but the newer database version seems to make this necessary
+        # No idea why, but the newer database version seems to make this distinction necessary
         if self.dbversion >= 188:
             query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
         else:
