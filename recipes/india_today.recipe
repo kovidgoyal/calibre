@@ -47,17 +47,30 @@ class IndiaToday(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         return raw_html.replace('â€”', '--')
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (DD-MM-YYYY format)',
+            'long': 'For example, 22-07-2024'
+        }
+    }
+
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.readwhere.com/magazine/the-india-today-group/India-Today/1154'
-        )
-        for citem in soup.findAll(
-            'meta', content=lambda s: s and s.endswith('/magazine/300/new')
-        ):
-            return citem['content'].replace('300', '600')
+        d = self.recipe_specific_options.get('date')
+        if not (d and isinstance(d, str)):
+            soup = self.index_to_soup(
+                'https://www.readwhere.com/magazine/the-india-today-group/India-Today/1154'
+            )
+            for citem in soup.findAll(
+                'meta', content=lambda s: s and s.endswith('/magazine/300/new')
+            ):
+                return citem['content'].replace('300', '600')
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.indiatoday.in/magazine')
+        issue = https://www.indiatoday.in/magazine'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            issue = issue + '/' + d
+        soup = self.index_to_soup(issue)
 
         section = None
         sections = {}
