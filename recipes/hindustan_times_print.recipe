@@ -6,7 +6,6 @@ from datetime import date
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 index = 'https://epaper.hindustantimes.com'
 
 class ht(BasicNewsRecipe):
@@ -27,7 +26,11 @@ class ht(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': 'If The Hindustan Times is available in your local town/city,\nset this to your location, for example, Delhi\nAvailable Editions: Delhi, Mumbai, Chandigarh, Lucknow, Patna, Bengaluru, Pune, Gurgaon, Ludhiana, Rajasthan, Amritsar,\nEast UP, Haryana, Jammu, Navi Mumbai, Noida, Punjab, Ranchi, Thane, Uttarakhand, West UP',
+            'long': ('If The Hindustan Times is available in your local town/city,\n'
+                     'set this to your location, for example, Delhi\nAvailable Editions:'
+                     'Delhi, Mumbai, Chandigarh, Lucknow, Patna, Bengaluru, Pune, Gurgaon,'
+                     'Ludhiana, Rajasthan, Amritsar,\nEast UP, Haryana, Jammu, Navi Mumbai,'
+                     'Noida, Punjab, Ranchi, Thane, Uttarakhand, West UP'),
             'default': 'Delhi'
         },
         'date': {
@@ -55,7 +58,6 @@ class ht(BasicNewsRecipe):
         self.timefmt = ' [%s]' % today
 
         day, month, year = (int(x) for x in today.split('/'))
-        dt = date(year, month, day)
         today = today.replace('/', '%2F')
 
         get_edition = index + '/Home/GetEditionSupplementHierarchy?EditionDate=' + today

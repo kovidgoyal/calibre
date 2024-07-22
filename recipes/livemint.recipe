@@ -49,7 +49,7 @@ class LiveMint(BasicNewsRecipe):
                 return cov['HighResolution']
 
     if is_saturday:
-        self.title = 'Mint Lounge'
+        title = 'Mint Lounge'
         masthead_url = 'https://lifestyle.livemint.com/mintlounge/static-images/lounge-logo.svg'
 
         oldest_article = 6.5 # days

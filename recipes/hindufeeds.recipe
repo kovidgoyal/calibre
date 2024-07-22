@@ -39,6 +39,8 @@ class TheHindufeeds(BasicNewsRecipe):
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
             self.oldest_article = float(d)
+        if self.output_profile.short_name.startswith('kindle'):
+            self.title = 'The Hindu (Feeds) ' + date.today().strftime('%b %d, %Y')
 
     ignore_duplicate_articles = {'url'}
 
@@ -76,14 +78,9 @@ class TheHindufeeds(BasicNewsRecipe):
             src.extract()
         return soup
 
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            self.title = 'The Hindu (Feeds) ' + date.today().strftime('%b %d, %Y')
-           
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')  
+        soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')
         if cover := soup.find(attrs={'class':'hindu-ad'}):
             return cover.img['src']
 
