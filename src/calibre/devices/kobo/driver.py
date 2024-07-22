@@ -3087,7 +3087,8 @@ class KOBOTOUCH(KOBO):
             return bookshelves
 
         # No idea why, but the newer database version seems to make this distinction necessary
-        if self.dbversion >= 188:
+        # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
+        if self.dbversion >= 188 and self.isTolinoDevice():
             query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
         else:
             query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
