@@ -47,8 +47,20 @@ class ForeignPolicy(BasicNewsRecipe):
     ]
     remove_tags_after = [classes('post-content-main')]
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue ID you want to download ',
+            'long': 'For example, 411131563'
+        }
+    }
+
     def parse_index(self):
-        soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
+        issue_url = 'https://foreignpolicy.com/the-magazine'
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            issue_url = issue_url + '/?issue_id=' + d
+
+        soup = self.index_to_soup(issue_url)
         img = soup.find('img', attrs={'src': lambda x: x and '-cover' in x})
         if img:
             self.cover_url = img['src'].split('?')[0] + '?w=800?quality=90'
