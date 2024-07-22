@@ -49,7 +49,7 @@ class ForeignPolicy(BasicNewsRecipe):
 
     recipe_specific_options = {
         'issue': {
-            'short': 'Enter the Issue Number you want to download ',
+            'short': 'Enter the Issue ID you want to download ',
             'long': 'For example, 411131563'
         }
     }
