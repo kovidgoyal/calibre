@@ -1,20 +1,11 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import json
 from collections import defaultdict
 from datetime import date
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-# figure out your local_edition from the fetch news log of this recipe
-local_edition = 'Delhi'
-
-today = date.today().strftime('%d/%m/%Y')
-
-# for older edition, change today
-# today = '22/12/2023'
-
-day, month, year = (int(x) for x in today.split('/'))
-dt = date(year, month, day)
-today = today.replace('/', '%2F')
 
 index = 'https://epaper.hindustantimes.com'
 
@@ -23,28 +14,49 @@ class ht(BasicNewsRecipe):
     language = 'en_IN'
     __author__ = 'unkn0wn'
     masthead_url = 'https://www.htmedia.in/wp-content/uploads/2020/08/HT-dot-com-logo-product.png'
-    timefmt = ' [' + dt.strftime('%b %d, %Y') + ']'
     description = 'Articles from the Hindustan Times epaper, digital edition'
     encoding = 'utf-8'
     delay = 1
     ignore_duplicate_articles = {'title'}
-
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            self.title = 'HT Print Edition ' + dt.strftime('%b %d, %Y')
 
     extra_css = '''
         .cap { text-align:center; font-size:small; }
         img { display:block; margin:0 auto; }
     '''
 
-    def parse_index(self):
+    recipe_specific_options = {
+        'location': {
+            'short': 'The name of the local edition',
+            'long': 'If The Hindustan Times is available in your local town/city,\nset this to your location, for example, Delhi\nAvailable Editions: Delhi, Mumbai, Chandigarh, Lucknow, Patna, Bengaluru, Pune, Gurgaon, Ludhiana, Rajasthan, Amritsar,\nEast UP, Haryana, Jammu, Navi Mumbai, Noida, Punjab, Ranchi, Thane, Uttarakhand, West UP',
+            'default': 'Delhi'
+        },
+        'date': {
+            'short': 'The date of the edition to download (DD/MM/YYYY format)',
+            'long': 'For example, 22/12/2023'
+        }
+    }
 
+    def parse_index(self):
         self.log(
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
+        local_edition = 'Delhi'
+        d = self.recipe_specific_options.get('location')
+        if d and isinstance(d, str):
+            local_edition = d
+
+        today = date.today().strftime('%d/%m/%Y')
+
+        p = self.recipe_specific_options.get('date')
+        if p and isinstance(p, str):
+            today = p
+
+        self.timefmt = ' [%s]' % today
+
+        day, month, year = (int(x) for x in today.split('/'))
+        dt = date(year, month, day)
+        today = today.replace('/', '%2F')
 
         get_edition = index + '/Home/GetEditionSupplementHierarchy?EditionDate=' + today
         edi_data = json.loads(self.index_to_soup(get_edition, raw=True))
@@ -56,7 +68,7 @@ class ht(BasicNewsRecipe):
             if edi['EditionName'] == local_edition:
                 edi_name = edi['EditionName']
                 edi_id = str(edi['EditionId'])
-        self.log('Downloading', edi_name, 'Edition')
+        self.log('Downloading', edi_name, 'Edition', self.timefmt)
 
         url = index + '/Home/GetAllpages?editionid=' + edi_id + '&editiondate=' + today
         main_data = json.loads(self.index_to_soup(url, raw=True))
