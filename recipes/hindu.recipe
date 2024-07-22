@@ -32,7 +32,8 @@ class TheHindu(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': 'If The Hindu is available in your local town/city,\nset this to your location, for example, hyderabad'
+            'long': 'If The Hindu is available in your local town/city,\nset this to your location, for example, hyderabad',
+            'default': 'international'
         },
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
@@ -60,47 +61,32 @@ class TheHindu(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        mag_url = None
-        local_edition = self.recipe_specific_options.get('location')
-        if local_edition:
-            local_edition = 'th_' + local_edition
+        local_edition = 'th_international'
+        d = self.recipe_specific_options.get('location')
+        if d and isinstance(d, str):
+            local_edition = 'th_' + d
+
         past_edition = self.recipe_specific_options.get('date')
 
         dt = date.today()
-        if past_edition:
-            year, month, day = (int(x) for x in past_edition.split('-'))    
+        if past_edition and isinstance(past_edition, str):
+            year, month, day = (int(x) for x in past_edition.split('-'))
             dt = date(year, month, day)
 
-        is_monday = dt.weekday() == 0
-        is_friday = dt.weekday() == 4
-        is_saturday = dt.weekday() == 5
-        is_sunday = dt.weekday() == 6
+        today = dt.strftime('%Y-%m-%d')
 
+        self.log('Downloading The Hindu, ' + local_edition[3:] + ' edition, ' + today)
+        url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
 
-        if local_edition or past_edition:
-            if local_edition is None:
-                local_edition = 'th_chennai'
-            today = date.today().strftime('%Y-%m-%d')
-            if past_edition:
-                today = past_edition
-                self.log('Downloading past edition of', local_edition + ' from ' + today)
-            url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
-            if is_monday:
-                mag_url = url + '?supplement=' + local_edition + '-epbs'
-            if is_saturday:
-                mag_url = url + '?supplement=' + local_edition + '-mp'
-            if is_sunday:
-                mag_url = url + '?supplement=' + local_edition + '-sm'
-        else:
-            url = 'https://www.thehindu.com/todays-paper/'
-            if is_monday:
-                mag_url = url + '?supplement=th_chennai-epbs'
-            if is_friday:
-                mag_url = url + '?supplement=th_chennai-fr'
-            if is_saturday:
-                mag_url = url + '?supplement=th_chennai-mp'
-            if is_sunday:
-                mag_url = url + '?supplement=th_chennai-sm'
+        mag_url = None
+        if dt.weekday() == 0:
+            mag_url = url + '?supplement=' + local_edition + '-epbs'
+        if dt.weekday() == 4:
+            mag_url = url + '?supplement=' + local_edition + '-fr'
+        if dt.weekday() == 5:
+            mag_url = url + '?supplement=' + local_edition + '-mp'
+        if dt.weekday() == 6:
+            mag_url = url + '?supplement=' + local_edition + '-sm'
 
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
@@ -139,7 +125,7 @@ class TheHindu(BasicNewsRecipe):
                         title = item['articleheadline']
                         url = absurl(item['href'])
                         desc = 'Page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
-                        self.log('\t', title, '\n\t\t', url)
+                        self.log('            ', title, '\n\t', url)
                         feeds_dict[section].append({"title": title, "url": url, "description": desc})
                 return [(section, articles) for section, articles in feeds_dict.items()]
             else:

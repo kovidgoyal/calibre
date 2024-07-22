@@ -53,7 +53,7 @@ class PsychologyToday(BasicNewsRecipe):
         a = soup.find(**classes('magazine-thumbnail')).a
         url = a['href']
         past_edition = self.recipe_specific_options.get('date')
-        if past_edition:
+        if past_edition and isinstance(past_edition, str):
             url = '/us/magazine/archive/' + past_edition
         soup = self.index_to_soup(absurl(url))
         cov = soup.find(**classes('content-header--cover-image'))

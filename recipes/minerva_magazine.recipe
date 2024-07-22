@@ -45,13 +45,21 @@ class minerva(BasicNewsRecipe):
             exp.name = 'p'
         return soup
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download ',
+            'long': 'For example, 136'
+        }
+    }
+
     def parse_index(self):
         soup = self.index_to_soup('https://the-past.com/category/magazines/minerva/')
         art = soup.find('article', attrs={'class':lambda x: x and 'tag-magazines' in x.split()})
         url = art.h2.a['href']
 
-        # for past editions, add url
-        # url = ''
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            url = 'https://the-past.com/magazines/minerva-magazine-' + d + '/'
 
         issue = self.index_to_soup(url)
         ti = issue.find('h1', attrs={'class':lambda x: x and 'post-title' in x.split()})

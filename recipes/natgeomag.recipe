@@ -10,9 +10,6 @@ from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.web.feeds.news import BasicNewsRecipe
 
-edition = date.today().strftime('%B-%Y')
-
-# edition = 'March-2023'
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -175,7 +172,18 @@ class NatGeo(BasicNewsRecipe):
         .auth, .time, .sub { font-size:small; color:#5c5c5c; }
     '''
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (Month-YYYY format)',
+            'long': 'For example, March-2023'
+        }
+    }
+
     def parse_index(self):
+        edition = date.today().strftime('%B-%Y')
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            edition = d
         url = 'https://www.nationalgeographic.com/magazine/issue/' + edition.lower()
         self.log('Downloading ', url)
         self.timefmt = ' [' + edition + ']'
@@ -185,7 +193,7 @@ class NatGeo(BasicNewsRecipe):
         self.cover_url = soup.find('meta', attrs={'property':'og:image'})['content'].split('?')[0] + '?w=1000'
 
         name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
-        self.title = 'National Geographic ' + self.tag_to_string(name)
+        # self.title = 'National Geographic ' + self.tag_to_string(name)
         ans = {}
         if photoart := soup.find(attrs={'class':lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):
             section = 'Photo Essay'
