@@ -59,16 +59,29 @@ class ScientificAmerican(BasicNewsRecipe):
             br.submit()
         return br
 
+    recipe_specific_options = {
+        'issue_url': {
+            'short': 'The issue URL ',
+            'long': (
+                'For example, https://www.scientificamerican.com/issue/sa/2024/07-01/'
+                '\nYou can also download special-editions, physics, health, mind magazines by pasting the URL here.'
+            )
+        }
+    }
+
     def parse_index(self):
         # Get the cover, date and issue URL
-        fp_soup = self.index_to_soup("https://www.scientificamerican.com")
-        curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
-        if not curr_issue_link:
-            self.abort_recipe_processing("Unable to find issue link")
-        issue_url = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
-        # for past editions https://www.scientificamerican.com/archive/issues/
-        # issue_url = 'https://www.scientificamerican.com/issue/sa/2024/01-01/'
-        soup = self.index_to_soup(issue_url)
+        d = self.recipe_specific_options.get('issue_url')
+        if d and isinstance(d, str):
+            issue = d
+        else:
+            fp_soup = self.index_to_soup("https://www.scientificamerican.com")
+            curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
+            if not curr_issue_link:
+                self.abort_recipe_processing("Unable to find issue link")
+            issue = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
+
+        soup = self.index_to_soup(issue)
         script = soup.find("script", id="__DATA__")
         if not script:
             self.abort_recipe_processing("Unable to find script")

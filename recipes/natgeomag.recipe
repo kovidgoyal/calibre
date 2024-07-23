@@ -192,7 +192,6 @@ class NatGeo(BasicNewsRecipe):
         # self.cover_url = png[0] + '?w=1000&h=1000'
         self.cover_url = soup.find('meta', attrs={'property':'og:image'})['content'].split('?')[0] + '?w=1000'
 
-        name = soup.find(attrs={'class':lambda x: x and 'Header__Description' in x.split()})
         # self.title = 'National Geographic ' + self.tag_to_string(name)
         ans = {}
         if photoart := soup.find(attrs={'class':lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):

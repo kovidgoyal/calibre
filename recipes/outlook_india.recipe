@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -34,6 +36,13 @@ class outlook(BasicNewsRecipe):
         classes('ads-box info-img-absolute mobile-info-id story-dec-time-mobile sb-also-read ads-box1')
     ]
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (DD-Month-YYYY format)',
+            'long': 'For example, 10-june-2024'
+        }
+    }
+
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based', verify_ssl_certificates=False)
 
@@ -42,14 +51,27 @@ class outlook(BasicNewsRecipe):
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
-        soup = self.index_to_soup('https://www.outlookindia.com/magazine')
-        a = soup.find('a', attrs={'aria-label':'magazine-cover-image'})
-        self.cover_url = a.img['src'].split('?')[0]
-        url = a['href']
-        self.description = self.tag_to_string(a)
-        self.timefmt = ' [' + self.tag_to_string(a.div).strip() + ']'
-        self.log('Downloading issue:', url, self.timefmt)
+
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            url = 'https://www.outlookindia.com/magazine/' + d
+        else:
+            soup = self.index_to_soup('https://www.outlookindia.com/magazine')
+            a = soup.find('a', attrs={'aria-label':'magazine-cover-image'})
+            url = a['href']
+
+        self.log('Downloading issue:', url)
+
         soup = self.index_to_soup(url)
+        cov = soup.find(attrs={'aria-label':'magazine-cover-image'})
+        self.cover_url = cov.img['src'].split('?')[0]
+        summ = soup.find(attrs={'data-test-id':'magazine-summary'})
+        if summ:
+            self.description = self.tag_to_string(summ)
+        tme = soup.find(attrs={'class':'arr__timeago'})
+        if tme:
+            self.timefmt = ' [' + self.tag_to_string(tme).strip() + ']'
+        
 
         ans = []
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -56,8 +58,19 @@ class spectator(BasicNewsRecipe):
         ]
         return br
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (DD-MM-YYYY format)',
+            'long': 'For example, 20-07-2024'
+        }
+    }
+
     def parse_index(self):
-        soup = self.index_to_soup('https://www.spectator.co.uk/magazine')
+        index = 'https://www.spectator.co.uk/magazine'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            index = index + '/' + d + '/'
+        soup = self.index_to_soup(index)
         self.cover_url = soup.find(**classes(
             'magazine-header__container')).img['src'].split('?')[0]
         issue = self.tag_to_string(soup.find(**classes(

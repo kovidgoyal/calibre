@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import json
 import re
 from collections import defaultdict
@@ -32,7 +34,12 @@ class TheHindu(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': 'If The Hindu is available in your local town/city,\nset this to your location, for example, hyderabad',
+            'long': ('If The Hindu is available in your local town/city,\n'
+                     'set this to your location, for example, hyderabad\n'
+                     'Available Editions: bengaluru, chennai, coimbatore, delhi, '
+                     'erode, hyderabad, international, kochi, kolkata,\n'
+                     'kozhikode, madurai, mangalore, mumbai, thiruvananthapuram, '
+                     'tiruchirapalli, vijayawada, visakhapatnam'),
             'default': 'international'
         },
         'date': {

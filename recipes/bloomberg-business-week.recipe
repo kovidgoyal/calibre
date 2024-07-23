@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
 import json
 import time
 from datetime import datetime
@@ -58,7 +61,7 @@ class Bloomberg(BasicNewsRecipe):
     remove_empty_feeds = True
 
     recipe_specific_options = {
-        'date': {
+        'issue': {
             'short': 'The ID of the edition to download (YY_XX format)',
             'long': 'For example, 24_17\nHint: Edition ID can be found at the end of its URL'
         }
@@ -86,7 +89,7 @@ class Bloomberg(BasicNewsRecipe):
         inx = 'https://cdn-mobapi.bloomberg.com'
         sec = self.index_to_soup(inx + '/wssmobile/v1/bw/news/list?limit=1', raw=True)
         id = json.loads(sec)['magazines'][0]['id']
-        past_edition = self.recipe_specific_options.get('date')
+        past_edition = self.recipe_specific_options.get('issue')
         if past_edition and isinstance(past_edition, str):
             id = past_edition
         edit = self.index_to_soup(inx + '/wssmobile/v1/bw/news/week/' + id, raw=True)
