@@ -1,7 +1,8 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import json
 from datetime import datetime
 
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
 
@@ -28,7 +29,22 @@ class BusinessStandard(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
-    max_articles_per_feed = 20
+    max_articles_per_feed = 50
+    oldest_article = 1.15
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -36,35 +52,21 @@ class BusinessStandard(BasicNewsRecipe):
         .cap { font-size:small; text-align:center; }
     '''
 
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        soup = self.index_to_soup(url)
-        link = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://www.business-standard.com')})
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/',
-        ]
-        if any(x in link['href'] for x in skip_sections):
-            self.abort_article('skipping video links ', link['href'])
-        self.log('Found ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-
-    feeds = []
-
-    sections = [
-        'india-news', 'economy', 'opinion', 'markets', 'companies', 'industry', 'finance', 'world-news',
-    #    'politics', 'cricket', 'sports', 'technology', 'book', 'education', 'specials'
+    # https://www.business-standard.com/rss-feeds/listing
+    feeds = [
+        ('Top Stories', 'https://www.business-standard.com/rss/home_page_top_stories.rss'),
+        ('Todays Paper', 'https://www.business-standard.com/rss/todays-paper.rss'),
+        ('Budget', 'https://www.business-standard.com/rss/budget-110.rss'),
+        ('Economy', 'https://www.business-standard.com/rss/economy-102.rss'),
+        ('Opinion', 'https://www.business-standard.com/rss/opinion-105.rss'),
+        ('Companies', 'https://www.business-standard.com/rss/companies-101.rss'),
+        ('Industries', 'https://www.business-standard.com/rss/industry-217.rss'),
+        ('Market', 'https://www.business-standard.com/rss/markets-106.rss'),
+        ('Politics', 'https://www.business-standard.com/rss/budget-110.rss'),
+        ('World', 'https://www.business-standard.com/rss/industry-217.rss'),
+        ('Technology', 'https://www.business-standard.com/rss/technology-108.rss'),
+        ('Latest', 'https://www.business-standard.com/rss/latest.rss')
     ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:business-standard.com{}&hl=en-IN&gl=IN&ceid=IN:en'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    # feeds.append(('Others', a.format('')))
 
     def preprocess_raw_html(self, raw, *a):
         root = parse(raw)
@@ -112,9 +114,3 @@ class BusinessStandard(BasicNewsRecipe):
         body = data['htmlContent']
 
         return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><p></p>' + body + '</div></body></html>'
-
-    def populate_article_metadata(self, article, soup, first):
-        article.url = soup.find('h1')['title']
-        article.summary = self.tag_to_string(soup.find('h3'))
-        article.text_summary = self.tag_to_string(soup.find('h3'))
-        article.title = article.title.replace(' - Business Standard', '')
