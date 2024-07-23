@@ -1567,12 +1567,10 @@ class KOBOTOUCH(KOBO):
                           ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
     TOLINO_SHINE_COVER_FILE_ENDINGS = {
-                          # Used for ???
                           # There's probably only one ending used
                           '':                         [(1072,1448), 0, 200,True,],
     }
     TOLINO_VISION_COVER_FILE_ENDINGS = {
-                          # Used for ???
                           # There's probably only one ending used
                           '':                         [(1264,1680), 0, 200,True,],
     }
