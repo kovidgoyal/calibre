@@ -121,9 +121,19 @@ class NewYorkTimes(BasicNewsRecipe):
                 tf.write(self.get_nyt_page(url))
             return tf.name
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY/MM/DD format)',
+            'long': 'For example, 2024/07/16'
+        }
+    }
+
     def read_todays_paper(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            INDEX = 'https://www.nytimes.com/issue/todayspaper/' + d + '/todays-new-york-times'
         return self.index_to_soup(self.get_nyt_page(INDEX, skip_wayback=True))
 
     def read_nyt_metadata(self):

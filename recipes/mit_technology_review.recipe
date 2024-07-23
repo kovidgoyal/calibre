@@ -65,9 +65,20 @@ class MitTechnologyReview(BasicNewsRecipe):
         ),
     ]
 
+    recipe_specific_options = {
+        'issue_url': {
+            'short': 'The issue URL ',
+            'long': 'For example, https://www.technologyreview.com/magazines/the-education-issue/',
+            'default': 'http://www.technologyreview.com/magazine/'
+        }
+    }
+
     def parse_index(self):
         # for past editions, change the issue link below 
         issue = 'http://www.technologyreview.com/magazine/'
+        d = self.recipe_specific_options.get('issue_url')
+        if d and isinstance(d, str):
+            issue = d
         soup = self.index_to_soup(issue)
         if script := soup.find('script', id='preload'):
             raw = script.contents[0]
