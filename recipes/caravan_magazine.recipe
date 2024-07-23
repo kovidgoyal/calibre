@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import json
 from urllib.parse import quote, urlparse
 
@@ -118,6 +120,13 @@ class CaravanMagazine(BasicNewsRecipe):
             return br
         return br
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (MM-YYYY format)',
+            'long': 'For example, 07-2024'
+        }
+    }
+
     def parse_index(self):
         self.log(
             '\n***\nif this recipe fails, report it on: '
@@ -125,9 +134,11 @@ class CaravanMagazine(BasicNewsRecipe):
         )
 
         api = 'https://api.caravanmagazine.in/api/trpc/magazines.getLatestIssue'
-        # for past editions
-        # inp = json.dumps({"0":{"json":{"month":6,"year":2023}}})
-        # api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            x = d.split('-')
+            inp = json.dumps({"0":{"json":{"month":int(x[0]),"year":int(x[1])}}})
+            api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
 
         raw = json.loads(self.index_to_soup(api, raw=True))
         if isinstance(raw, list):
