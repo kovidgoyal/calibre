@@ -1411,6 +1411,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_keywords          = 82
     min_dbversion_seriesid          = 136
     min_dbversion_bookstats         = 168
+    min_dbversion_real_bools        = 188
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
@@ -1939,7 +1940,7 @@ class KOBOTOUCH(KOBO):
             cursor = connection.cursor()
             # No idea why, but the newer database version seems to make this distinction necessary
             # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-            if self.dbversion >= 188 and self.isTolinoDevice():
+            if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
                 query = "select ShelfName "     \
                     "from ShelfContent "        \
                     "where ContentId = ? "      \
@@ -3050,7 +3051,7 @@ class KOBOTOUCH(KOBO):
 
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = false "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
@@ -3072,7 +3073,7 @@ class KOBOTOUCH(KOBO):
 
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             update_query = ("UPDATE Shelf "
                         "SET _IsDeleted = true "
                         "WHERE Shelf._IsSynced = true "
@@ -3096,7 +3097,7 @@ class KOBOTOUCH(KOBO):
 
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             delete_activity_query = ("DELETE FROM Activity "
                                  "WHERE Type = 'Shelf' "
                                  "AND NOT EXISTS "
@@ -3133,7 +3134,7 @@ class KOBOTOUCH(KOBO):
 
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
         else:
             query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
@@ -3165,14 +3166,14 @@ class KOBOTOUCH(KOBO):
         test_values = (shelfName, book.contentID, )
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, false, false)'
         else:
             addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, "false", "false")'
         add_values = (shelfName, book.contentID, time.strftime(self.TIMESTAMP_STRING, time.gmtime()), )
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             updatequery = 'UPDATE ShelfContent SET _IsDeleted = false WHERE ShelfName = ? and ContentId = ?'
         else:
             updatequery = 'UPDATE ShelfContent SET _IsDeleted = "false" WHERE ShelfName = ? and ContentId = ?'
@@ -3207,7 +3208,7 @@ class KOBOTOUCH(KOBO):
         addquery = 'INSERT INTO "main"."Shelf"'
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
                       time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
@@ -3239,7 +3240,7 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:check_for_bookshelf add_values=', add_values)
         # No idea why, but the newer database version seems to make this distinction necessary
         # (to minimise the risk of a regression bug, only do this - for now - if device is a tolino)
-        if self.dbversion >= 188 and self.isTolinoDevice():
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
             updatequery = 'UPDATE Shelf SET _IsDeleted = false WHERE Name = ?'
         else:
             updatequery = 'UPDATE Shelf SET _IsDeleted = "false" WHERE Name = ?'
