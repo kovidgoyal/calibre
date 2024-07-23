@@ -127,6 +127,13 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     INDEX = 'https://www.foreignaffairs.com/magazine'
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download ',
+            'long': 'For example, 2024/103/1'
+        }
+    }
+
     keep_only_tags = [
         classes('article-header article-body article-lead-image article-body-text'),
     ]
@@ -140,6 +147,10 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
 
     def parse_index(self):
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            self.INDEX = 'https://www.foreignaffairs.com/issues/' + d
+
         soup = self.index_to_soup(self.INDEX)
         # get dates
         date = re.split(r'\s\|\s', self.tag_to_string(

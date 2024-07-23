@@ -72,7 +72,7 @@ class Harpers(BasicNewsRecipe):
         edition = self.recipe_specific_options.get('date')
         if edition and isinstance(edition, str):
             url = 'https://harpers.org/archive/' + edition
-            self.timefmt = ' [' +edition + ']'
+            self.timefmt = ' [' + edition + ']'
 
         soup = self.index_to_soup(url)
         cov_div = soup.find('div', attrs={'class':'issue-cover'})

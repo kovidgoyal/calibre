@@ -57,7 +57,6 @@ class ht(BasicNewsRecipe):
 
         self.timefmt = ' [%s]' % today
 
-        day, month, year = (int(x) for x in today.split('/'))
         today = today.replace('/', '%2F')
 
         get_edition = index + '/Home/GetEditionSupplementHierarchy?EditionDate=' + today
