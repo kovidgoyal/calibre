@@ -81,6 +81,19 @@ class TheAtlantic(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf-8'
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY/MM format)',
+            'long': 'For example, 2024/05'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            self.INDEX = 'https://www.theatlantic.com/magazine/toc/' + d + '/'
+
     keep_only_tags = [
         dict(itemprop=['headline']),
         classes(
