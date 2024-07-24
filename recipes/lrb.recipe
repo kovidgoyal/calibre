@@ -67,7 +67,18 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
             img['src'] = 'https://www.lrb.co.uk/storage/400_filter/images/' + img['data-appsrc'].split('/images/')[-1]
         return soup
 
+    recipe_specific_options = {
+        'issue_url': {
+            'short': 'The issue URL ',
+            'long': 'For example, https://www.lrb.co.uk/the-paper/v46/n01',
+            'default': 'https://www.lrb.co.uk/the-paper/'
+        }
+    }
+
     def parse_index(self):
+        d = self.recipe_specific_options.get('issue_url')
+        if d and isinstance(d, str):
+            self.INDEX = d
         soup = self.index_to_soup(self.INDEX)
         container = soup.find('div', attrs={'class': 'article-issue-cover-image'})
         if container:

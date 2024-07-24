@@ -51,14 +51,14 @@ class BT(BasicNewsRecipe):
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
-        soup = self.index_to_soup('https://www.businesstoday.in')
-        a = soup.findAll('a', attrs={'class':'mag_sld_img'})[1]
-        url = a['href']
 
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             url = 'https://www.businesstoday.in/magazine/issue/' + d
         else:
+            soup = self.index_to_soup('https://www.businesstoday.in')
+            a = soup.findAll('a', attrs={'class':'mag_sld_img'})[1]
+            url = a['href']
             self.cover_url = a.img['data-src'].split('?')[0]
 
         self.log('issue =', url)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import re
 from collections import defaultdict
 from datetime import date
@@ -77,12 +79,23 @@ class barrons(BasicNewsRecipe):
         ]
         return br
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYYMMDD format)',
+            'long': 'For example, 20240722.\nIf it didn\'t work, try again later.'
+        }
+    }
+
     def parse_index(self):
         self.log(
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
-        archive = self.index_to_soup('https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y'))
+        issue_url = 'https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y')'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            issue_url = 'https://www.barrons.com/magazine?archives=' + d
+        archive = self.index_to_soup(issue_url)
         issue = archive.find(**prefixed_classes('BarronsTheme--archive-box--'))
         self.timefmt = ' [' + self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--date--'))) + ']'
         self.description = self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--headline--')))
