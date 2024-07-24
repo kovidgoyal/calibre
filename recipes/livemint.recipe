@@ -97,9 +97,8 @@ class LiveMint(BasicNewsRecipe):
             .summary, .highlights, .synopsis {
                 font-weight:normal !important; font-style:italic; color:#202020;
             }
-            h2 {font-size:normal !important;}
             em, blockquote {color:#202020;}
-            .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag {font-size:small;}
+            .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag, .auth {font-size:small;}
         '''
 
         keep_only_tags = [
@@ -109,12 +108,15 @@ class LiveMint(BasicNewsRecipe):
         ]
         remove_tags = [
             dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
+            dict(attrs={'class':lambda x: x and x.startswith(
+                ('storyPage_alsoRead__', 'storyPage_firstPublishDate__', 'storyPage_bcrumb__')
+            )}),
+            dict(attrs={'id':['faqSection', 'seoText', 'ellipsisId']}),
             classes(
-                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider'
+                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider ninSec'
                 ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo author-widget'
-                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText checkCibilBtn'
-            ),
-            dict(attrs={'class':lambda x: x and x.startswith('storyPage_alsoRead__')})
+                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText checkCibilBtn trade'
+            )
         ]
 
         feeds = [
@@ -160,22 +162,36 @@ class LiveMint(BasicNewsRecipe):
             return raw
 
         def preprocess_html(self, soup):
+            for h2 in soup.findAll('h2'):
+                h2.name = 'h4'
+            auth = soup.find(attrs={'class':lambda x: x and x.startswith(('storyPage_authorInfo__', 'storyPage_authorSocial__'))})
+            if auth:
+                auth['class'] = 'auth'
+            summ = soup.find(attrs={'class':lambda x: x and x.startswith('storyPage_summary__')})
+            if summ:
+                summ['class'] = 'summary'
             for strong in soup.findAll('strong'):
                 if strong.find('p'):
                     strong.name = 'div'
             for embed in soup.findAll('div', attrs={'class':'embed'}):
-                if nos := embed.find('noscript'):
+                nos = embed.find('noscript')
+                if nos:
                     nos.name = 'span'
             for span in soup.findAll('figcaption'):
                 span['id'] = 'img-cap'
             for auth in soup.findAll('span', attrs={'class':lambda x: x and 'articleInfo' in x.split()}):
                 auth.name = 'div'
-            for span in soup.findAll('span', attrs={'class':'exclusive'}):
-                span.extract()
             for img in soup.findAll('img', attrs={'data-src': True}):
                 img['src'] = img['data-src']
+            for span in soup.findAll('span', attrs={'class':'exclusive'}):
+                span.extract()
+            for al in soup.findAll('a', attrs={'class':'manualbacklink'}):
+                pa = al.findParent('p')
+                if pa:
+                    pa.extract()
             if wa := soup.find(**classes('autobacklink-topic')):
-                if p := wa.findParent('p'):
+                p = wa.findParent('p')
+                if p:
                     p.extract()
             return soup
 
