@@ -168,7 +168,11 @@ class WSJ(BasicNewsRecipe):
                     sec_parse = json.loads(self.index_to_soup(index + v, raw=True))
                     data = sec_parse['articles']
                     for art in data:
-                        dt = datetime.fromtimestamp(data[art]['pubdateNumber'] + time.timezone)
+                        try:
+                            tme = data[art]['pubdateNumber']
+                        except Exception:
+                            tme = data[art]['origPubdateNumber']
+                        dt = datetime.fromtimestamp(tme + time.timezone)
                         if (datetime.now() - dt) > timedelta(self.oldest_article):
                             continue
                         title = data[art]['headline']

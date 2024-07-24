@@ -55,7 +55,10 @@ class ht(BasicNewsRecipe):
         if p and isinstance(p, str):
             today = p
 
-        self.timefmt = ' [%s]' % today
+        day, month, year = (int(x) for x in today.split('/'))
+        dt = date(year, month, day)
+
+        self.timefmt = ' [%s]' % dt.strftime('%b %d, %Y')
 
         today = today.replace('/', '%2F')
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 '''
 https://www.cirsd.org/en/horizons
 '''
@@ -28,23 +30,34 @@ class horizons(BasicNewsRecipe):
         classes('back-link'),
         dict(name='div', attrs={'class':'single-post-footer'})
     ]
+
+    recipe_specific_options = {
+        'issue_url': {
+            'short': 'The issue URL ',
+            'long': 'For example, https://www.cirsd.org/en/horizons/horizons-winter-2024--issue-no-25',
+        }
+    }
     
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
-        a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0] #use 1 for previous edition
-        url = a['href']
-        if url.startswith('/'):
-            url = 'https://www.cirsd.org' + url
-        self.cover_url = a.find('img')['src']
-        self.log(self.cover_url)
-        issue = a.find('div', attrs={'class':'horizon-gallery-title'})
-        if issue:
-            self.title = self.tag_to_string(issue).strip()
-            self.timefmt = ' [' + self.tag_to_string(issue).strip().replace('Horizons ', '')  + ']'
-            self.log('Downloading Issue: ', self.timefmt, self.title)
+        d = self.recipe_specific_options.get('issue_url')
+        if d and isinstance(d, str):
+            url = d
+        else:
+            soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
+            a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0] #use 1 for previous edition
+            url = a['href']
+            if url.startswith('/'):
+                url = 'https://www.cirsd.org' + url
+            self.cover_url = a.find('img')['src']
+            self.log(self.cover_url)
+            issue = a.find('div', attrs={'class':'horizon-gallery-title'})
+            if issue:
+                self.title = self.tag_to_string(issue).strip()
+                self.timefmt = ' [' + self.tag_to_string(issue).strip().replace('Horizons ', '')  + ']'
+                self.log('Downloading Issue: ', self.timefmt, self.title)
         soup = self.index_to_soup(url)
 
         feeds = []
