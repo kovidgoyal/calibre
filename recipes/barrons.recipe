@@ -91,7 +91,7 @@ class barrons(BasicNewsRecipe):
             '\n***\nif this recipe fails, report it on: '
             'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
         )
-        issue_url = 'https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y')'
+        issue_url = 'https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y')
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             issue_url = 'https://www.barrons.com/magazine?archives=' + d
