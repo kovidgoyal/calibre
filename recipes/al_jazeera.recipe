@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 __license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 
@@ -34,6 +36,20 @@ class AlJazeera(BasicNewsRecipe):
         dict(name=['object', 'link', 'table',
                    'meta', 'base', 'iframe', 'embed']),
     ]
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     feeds = [(u'Al Jazeera English',
               u'http://www.aljazeera.com/xml/rss/all.xml')]
