@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 '''
 newscientist.com
 '''
@@ -70,8 +72,20 @@ class NewScientist(BasicNewsRecipe):
         classes('ArticleHeader__SocialWrapper AdvertWrapper ReadMoreWithImage ArticleTopics')
     ]
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download ',
+            'long': 'For example, 3498'
+        }
+    }
+
     def parse_index(self):
-        soup = self.index_to_soup('https://www.newscientist.com/issues/current/')
+        issue_url = 'https://www.newscientist.com/issues/current/'
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            issue_url = 'https://www.newscientist.com/issue/' + d
+        
+        soup = self.index_to_soup(issue_url)
         div = soup.find('div', attrs={'class':'ThisWeeksMagazineHero__CoverInfo'})
         tme = div.find(**classes('ThisWeeksMagazineHero__MagInfoHeading'))
         self.log('Downloading issue:', self.tag_to_string(tme))

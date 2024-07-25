@@ -143,9 +143,7 @@ class LiveMint(BasicNewsRecipe):
             # remove empty p tags
             raw = re.sub(
                 r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', '\g<2>', re.sub(
-                    r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', re.sub(
-                        r'(?=<h2>\s*Also\s*Read).*?(?<=</h2>)', '', raw
-                    )
+                    r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
                 )
             )
             if '<script>var wsjFlag=true;</script>' in raw:
@@ -186,10 +184,11 @@ class LiveMint(BasicNewsRecipe):
             for span in soup.findAll('span', attrs={'class':'exclusive'}):
                 span.extract()
             for al in soup.findAll('a', attrs={'class':'manualbacklink'}):
-                pa = al.findParent('p')
+                pa = al.findParent(['p', 'h2', 'h3', 'h4'])
                 if pa:
                     pa.extract()
-            if wa := soup.find(**classes('autobacklink-topic')):
+            wa = soup.find(**classes('autobacklink-topic'))
+            if wa:
                 p = wa.findParent('p')
                 if p:
                     p.extract()
