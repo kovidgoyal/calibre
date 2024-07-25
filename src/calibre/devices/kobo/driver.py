@@ -1751,7 +1751,7 @@ class KOBOTOUCH(KOBO):
                 # - FW2.0.0, DBVersion 53,55 accessibility == 1
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
                 # So, the following should be OK
-                if isdownloaded == 'false':
+                if isdownloaded == 'false' or isdownloaded == False:
                     if self.dbversion < 56 and accessibility <= 1 or self.dbversion >= 56 and accessibility == -1:
                         playlist_map[lpath].append('Deleted')
                         allow_shelves = False
@@ -2267,7 +2267,10 @@ class KOBOTOUCH(KOBO):
             try:
                 with closing(self.device_database_connection()) as connection:
                     cursor = connection.cursor()
-                    cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
+                    if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = false"
+                    else:
+                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
 
                     for fname, cycle in result:
                         show_debug = self.is_debugging_title(fname)
