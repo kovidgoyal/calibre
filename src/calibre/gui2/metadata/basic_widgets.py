@@ -2004,6 +2004,13 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
         else:
             return super().keyPressEvent(ev)
 
+    def wheelEvent(self, ev):
+        if is_date_undefined(self.current_val):
+            self.setDateTime(QDateTime.currentDateTime())
+            ev.accept()
+        else:
+            return super().wheelEvent(ev)
+
 
 class PubdateEdit(DateEdit):
     LABEL = _('P&ublished:')
