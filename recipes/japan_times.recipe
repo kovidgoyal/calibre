@@ -32,6 +32,20 @@ class JapanTimes(BasicNewsRecipe):
     masthead_url = "https://cdn-japantimes.com/wp-content/themes/jt_theme/library/img/japantimes-logo-tagline.png"
     extra_css = "body{font-family: Geneva,Arial,Helvetica,sans-serif}"
 
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
     conversion_options = {
         "comment": description,
         "tags": category,
