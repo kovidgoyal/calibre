@@ -1657,6 +1657,15 @@ class KOBOTOUCH(KOBO):
             return x == 'true'
         return bool(x)
 
+    @property
+    def needs_real_bools(self) -> bool:
+        return self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice()
+
+    def bool_for_query(self, x: bool = False) -> str:
+        if self.needs_real_bools:
+            return 'true' if x else 'false'
+        return "'true'" if x else "'false'"
+
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
         self.debugging_title = self.get_debugging_title()
@@ -1946,18 +1955,11 @@ class KOBOTOUCH(KOBO):
                 return bookshelves
 
             cursor = connection.cursor()
-            if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-                query = "select ShelfName "     \
-                    "from ShelfContent "        \
-                    "where ContentId = ? "      \
-                    "and _IsDeleted = false "   \
-                    "and ShelfName is not null"         # This should never be null, but it is protection against an error cause by a sync to the Kobo server
-            else:
-                query = "select ShelfName "     \
-                    "from ShelfContent "        \
-                    "where ContentId = ? "      \
-                    "and _IsDeleted = 'false' " \
-                    "and ShelfName is not null"         # This should never be null, but it is protection against an error cause by a sync to the Kobo server
+            query = "select ShelfName "     \
+                "from ShelfContent "        \
+                "where ContentId = ? "      \
+                f"and _IsDeleted = {self.bool_for_query(False)} "   \
+                "and ShelfName is not null"         # This should never be null, but it is protection against an error cause by a sync to the Kobo server
             values = (ContentID, )
             cursor.execute(query, values)
             for i, row in enumerate(cursor):
@@ -2277,11 +2279,7 @@ class KOBOTOUCH(KOBO):
             try:
                 with closing(self.device_database_connection()) as connection:
                     cursor = connection.cursor()
-                    if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = false"
-                    else:
-                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
-
+                    cleanup_query = f"DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = {self.bool_for_query(False)}"
                     for fname, cycle in result:
                         show_debug = self.is_debugging_title(fname)
                         contentID = self.contentid_from_path(fname, 6)
@@ -3061,64 +3059,35 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections_in=", ignore_collections_placeholder)
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections=", ignore_collections_values)
 
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            delete_query = ("DELETE FROM Shelf "
-                        "WHERE Shelf._IsSynced = false "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
-                        "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
-                        "AND NOT EXISTS "
-                        "(SELECT 1 FROM ShelfContent c "
-                        "WHERE Shelf.Name = c.ShelfName "
-                        "AND c._IsDeleted <> true)")
-        else:
-            delete_query = ("DELETE FROM Shelf "
-                        "WHERE Shelf._IsSynced = 'false' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
-                        "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
-                        "AND NOT EXISTS "
-                        "(SELECT 1 FROM ShelfContent c "
-                        "WHERE Shelf.Name = C.ShelfName "
-                        "AND c._IsDeleted <> 'true')")
+        true, false = self.bool_for_query(True), self.bool_for_query(False)
+        delete_query = ("DELETE FROM Shelf "
+                    f"WHERE Shelf._IsSynced = {false} "
+                    "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
+                    "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
+                    "AND NOT EXISTS "
+                    "(SELECT 1 FROM ShelfContent c "
+                    "WHERE Shelf.Name = c.ShelfName "
+                    f"AND c._IsDeleted <> {true})")
         debug_print("KoboTouch:delete_empty_bookshelves - delete_query=", delete_query)
 
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            update_query = ("UPDATE Shelf "
-                        "SET _IsDeleted = true "
-                        "WHERE Shelf._IsSynced = true "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
-                        "AND (Type IS NULL OR Type <> 'SystemTag') "
-                        "AND NOT EXISTS "
-                        "(SELECT 1 FROM ShelfContent c "
-                        "WHERE Shelf.Name = c.ShelfName "
-                        "AND c._IsDeleted <> true)")
-        else:
-            update_query = ("UPDATE Shelf "
-                        "SET _IsDeleted = 'true' "
-                        "WHERE Shelf._IsSynced = 'true' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
-                        "AND (Type IS NULL OR Type <> 'SystemTag') "
-                        "AND NOT EXISTS "
-                        "(SELECT 1 FROM ShelfContent C "
-                        "WHERE Shelf.Name = C.ShelfName "
-                        "AND c._IsDeleted <> 'true')")
+        update_query = ("UPDATE Shelf "
+                    f"SET _IsDeleted = {true} "
+                    f"WHERE Shelf._IsSynced = {true} "
+                    "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
+                    "AND (Type IS NULL OR Type <> 'SystemTag') "
+                    "AND NOT EXISTS "
+                    "(SELECT 1 FROM ShelfContent c "
+                    "WHERE Shelf.Name = c.ShelfName "
+                    f"AND c._IsDeleted <> {true})")
         debug_print("KoboTouch:delete_empty_bookshelves - update_query=", update_query)
 
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            delete_activity_query = ("DELETE FROM Activity "
-                                 "WHERE Type = 'Shelf' "
-                                 "AND NOT EXISTS "
-                                    "(SELECT 1 FROM Shelf "
-                                    "WHERE Shelf.Name = Activity.Id "
-                                    "AND Shelf._IsDeleted = false)"
-                                 )
-        else:
-            delete_activity_query = ("DELETE FROM Activity "
-                                 "WHERE Type = 'Shelf' "
-                                 "AND NOT EXISTS "
-                                    "(SELECT 1 FROM Shelf "
-                                    "WHERE Shelf.Name = Activity.Id "
-                                    "AND Shelf._IsDeleted = 'false')"
-                                 )
+        delete_activity_query = ("DELETE FROM Activity "
+                                "WHERE Type = 'Shelf' "
+                                "AND NOT EXISTS "
+                                "(SELECT 1 FROM Shelf "
+                                "WHERE Shelf.Name = Activity.Id "
+                                f"AND Shelf._IsDeleted = {false}"
+                                )
         debug_print("KoboTouch:delete_empty_bookshelves - delete_activity_query=", delete_activity_query)
 
         cursor = connection.cursor()
@@ -3138,11 +3107,7 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves:
             return bookshelves
 
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
-        else:
-            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
-
+        query = f'SELECT Name FROM Shelf WHERE _IsDeleted = {self.bool_for_query(False)}'
         cursor = connection.cursor()
         cursor.execute(query)
 #        count_bookshelves = 0
@@ -3168,15 +3133,10 @@ class KOBOTOUCH(KOBO):
 
         test_query = 'SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = ? and ContentId = ?'
         test_values = (shelfName, book.contentID, )
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, false, false)'
-        else:
-            addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, "false", "false")'
+        false = self.bool_for_query(False)
+        addquery = f'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, {false}, {false})'
         add_values = (shelfName, book.contentID, time.strftime(self.TIMESTAMP_STRING, time.gmtime()), )
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            updatequery = 'UPDATE ShelfContent SET _IsDeleted = false WHERE ShelfName = ? and ContentId = ?'
-        else:
-            updatequery = 'UPDATE ShelfContent SET _IsDeleted = "false" WHERE ShelfName = ? and ContentId = ?'
+        updatequery = f'UPDATE ShelfContent SET _IsDeleted = {false} WHERE ShelfName = ? and ContentId = ?'
         update_values = (shelfName, book.contentID, )
 
         cursor = connection.cursor()
@@ -3206,7 +3166,7 @@ class KOBOTOUCH(KOBO):
         test_query = 'SELECT InternalName, Name, _IsDeleted FROM Shelf WHERE Name = ?'
         test_values = (bookshelf_name, )
         addquery = 'INSERT INTO "main"."Shelf"'
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+        if self.needs_real_bools:
             add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
                       time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
@@ -3236,10 +3196,7 @@ class KOBOTOUCH(KOBO):
         if show_debug:
             debug_print('KoboTouch:check_for_bookshelf addquery=', addquery)
             debug_print('KoboTouch:check_for_bookshelf add_values=', add_values)
-        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
-            updatequery = 'UPDATE Shelf SET _IsDeleted = false WHERE Name = ?'
-        else:
-            updatequery = 'UPDATE Shelf SET _IsDeleted = "false" WHERE Name = ?'
+        updatequery = f'UPDATE Shelf SET _IsDeleted = {self.bool_for_query(False)} WHERE Name = ?'
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
