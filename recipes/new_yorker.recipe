@@ -79,9 +79,19 @@ class NewYorker(BasicNewsRecipe):
         # img.save(buf, format='JPEG')
         # return buf.getvalue()
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY/MM/DD format)',
+            'long': 'For example, 2024/07/08'
+        }
+    }
+
     def parse_index(self):
-        soup = self.index_to_soup(
-            'https://www.newyorker.com/magazine?intcid=magazine')
+        issue_url = 'https://www.newyorker.com/magazine?intcid=magazine'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            issue_url = 'https://www.newyorker.com/magazine/' + d
+        soup = self.index_to_soup(issue_url)
         cover_img = soup.find('picture',
             attrs={'class': lambda x: x and 'asset-embed__responsive-asset' in x})
         if cover_img is not None:

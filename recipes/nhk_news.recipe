@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
 # feed source: https://www.nhk.or.jp/toppage/rss/index.html
