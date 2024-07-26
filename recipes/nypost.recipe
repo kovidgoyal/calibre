@@ -22,8 +22,22 @@ class NewYorkPost(BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
-    language = 'en'
+    language = 'en_US'
     extra_css = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

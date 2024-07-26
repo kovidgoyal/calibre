@@ -29,3 +29,9 @@ class ReutersJa(BasicNewsRecipe):
         ('スポーツ', 'https://www.nhk.or.jp/rss/news/cat7.xml?format=xml'),
         ('文化・エンタメ', 'https://www.nhk.or.jp/rss/news/cat2.xml?format=xml')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup
+

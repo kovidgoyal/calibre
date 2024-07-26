@@ -86,7 +86,7 @@ class NewYorkTimes(BasicNewsRecipe):
         description = 'Today\'s New York Times'
     encoding = 'utf-8'
     __author__ = 'Kovid Goyal'
-    language = 'en'
+    language = 'en_US'
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     compress_news_images = True
