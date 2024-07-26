@@ -19,7 +19,7 @@ class NewYorkMagazine(BasicNewsRecipe):
     title = 'New York Magazine'
     __author__ = 'Kovid Goyal'
     description = 'Food, culture, arts and entertainment in New York'
-    language = 'en'
+    language = 'en_US'
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
@@ -32,8 +32,19 @@ class NewYorkMagazine(BasicNewsRecipe):
     ]
     remove_attributes = ['srcset']
 
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY-MM-DD format)',
+            'long': 'For example, 2024-07-01'
+        }
+    }
+
     def nymag_get_index(self):
-        return self.index_to_soup('https://nymag.com/maglinks/nym-home-05')
+        issue_url = 'https://nymag.com/maglinks/nym-home-05'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            issue_url = 'https://nymag.com/magazine/toc/' + d + '.html'
+        return self.index_to_soup(issue_url)
 
     def parse_index(self):
         soup = self.nymag_get_index()
