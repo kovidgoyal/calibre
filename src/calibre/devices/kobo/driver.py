@@ -1647,6 +1647,16 @@ class KOBOTOUCH(KOBO):
         debug_print('KoboTouch::is_main_drive - drive={}, path={}'.format(drive, os.path.join(drive, '.kobo')))
         return os.path.exists(self.normalize_path(os.path.join(drive, '.kobo')))
 
+    def is_false_value(self, x) -> bool:
+        if isinstance(x, str):
+            return x == 'false'
+        return not x
+
+    def is_true_value(self, x) -> bool:
+        if isinstance(x, str):
+            return x == 'true'
+        return bool(x)
+
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
         self.debugging_title = self.get_debugging_title()
@@ -1751,7 +1761,7 @@ class KOBOTOUCH(KOBO):
                 # - FW2.0.0, DBVersion 53,55 accessibility == 1
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
                 # So, the following should be OK
-                if isdownloaded == 'false' or isdownloaded == False:
+                if self.is_false_value(isdownloaded):
                     if self.dbversion < 56 and accessibility <= 1 or self.dbversion >= 56 and accessibility == -1:
                         playlist_map[lpath].append('Deleted')
                         allow_shelves = False
@@ -2762,7 +2772,10 @@ class KOBOTOUCH(KOBO):
             path_prefix = 'koboExtStorage/images-cache/' if self.supports_images_tree() else 'koboExtStorage/images/'
             path = os.path.join(self._card_a_prefix, path_prefix)
         else:
-            path_prefix = '.kobo-images/' if self.supports_images_tree() or (not self.supports_images_tree() and self.isTolinoDevice()) else KOBO_ROOT_DIR_NAME + '/images/'
+            path_prefix = (
+                '.kobo-images/' if (
+                    self.supports_images_tree() or (not self.supports_images_tree() and self.isTolinoDevice())
+                ) else KOBO_ROOT_DIR_NAME + '/images/')
             path = os.path.join(self._main_prefix, path_prefix)
 
         if self.supports_images_tree() and imageId:
@@ -3177,7 +3190,7 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Did not find a record - adding')
             cursor.execute(addquery, add_values)
-        elif result['_IsDeleted'] == 'true' or result['_IsDeleted'] == True:
+        elif self.is_true_value(result['_IsDeleted']):
             if show_debug:
                 debug_print('        Found a record - updating - result=', result)
             cursor.execute(updatequery, update_values)
@@ -3239,7 +3252,7 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Did not find a record - adding shelf "%s"' % bookshelf_name)
             cursor.execute(addquery, add_values)
-        elif result['_IsDeleted'] == 'true' or result['_IsDeleted'] == True:
+        elif self.is_true_value(result['_IsDeleted']):
             debug_print("KoboTouch:check_for_bookshelf - Shelf '{}' is deleted - undeleting. result['_IsDeleted']='{}'".format(
                 bookshelf_name, str(result['_IsDeleted'])))
             cursor.execute(updatequery, test_values)
@@ -3844,15 +3857,15 @@ class KOBOTOUCH(KOBO):
         elif self.isSage():
             device_name = 'Kobo Sage'
         elif self.isShine5():
-            device_name = 'tolino shine 5'
+            device_name = 'Tolino Shine 5'
         elif self.isShineColor():
-            device_name = 'tolino shine color'
+            device_name = 'Tolino Shine Color'
         elif self.isTouch():
             device_name = 'Kobo Touch'
         elif self.isTouch2():
             device_name = 'Kobo Touch 2'
         elif self.isVisionColor():
-            device_name = 'tolino vision color'
+            device_name = 'Tolino Vision Color'
         self.__class__.gui_name = device_name
         return device_name
 
