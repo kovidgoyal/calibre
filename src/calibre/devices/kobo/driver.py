@@ -1395,11 +1395,13 @@ class KOBOTOUCH(KOBO):
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
         ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
         ' Sage, Libra 2, Clara 2E,'
-        ' Clara BW, Clara Colour, Libra Colour eReaders.'
+        ' Clara BW, Clara Colour, Libra Colour'
+        ' as well as tolino shine 5, shine color and'
+        ' vision color eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = 'devices/kobotouch.jpg'
 
-    supported_dbversion             = 175
+    supported_dbversion             = 189
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1409,11 +1411,12 @@ class KOBOTOUCH(KOBO):
     min_dbversion_keywords          = 82
     min_dbversion_seriesid          = 136
     min_dbversion_bookstats         = 168
+    min_dbversion_real_bools        = 188 # newer (tolino) 5.x fw uses 0 and 1 as boolean values
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 39, 22861)
+    max_supported_fwversion         = (5, 1, 184318)
     # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1481,7 +1484,8 @@ class KOBOTOUCH(KOBO):
     SAGE_PRODUCT_ID     = [0x4231]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
-    LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW. Sigh.
+    LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW
+                                       # as well as tolino shine 5, shine color and vision color. Sigh.
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
@@ -1562,6 +1566,14 @@ class KOBOTOUCH(KOBO):
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
                           }
+    TOLINO_SHINE_COVER_FILE_ENDINGS = {
+                          # There's probably only one ending used
+                          '':                         [(1072,1448), 0, 200,True,],
+    }
+    TOLINO_VISION_COVER_FILE_ENDINGS = {
+                          # There's probably only one ending used
+                          '':                         [(1264,1680), 0, 200,True,],
+    }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 # ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
@@ -1739,7 +1751,7 @@ class KOBOTOUCH(KOBO):
                 # - FW2.0.0, DBVersion 53,55 accessibility == 1
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
                 # So, the following should be OK
-                if isdownloaded == 'false':
+                if isdownloaded == 'false' or isdownloaded == False:
                     if self.dbversion < 56 and accessibility <= 1 or self.dbversion >= 56 and accessibility == -1:
                         playlist_map[lpath].append('Deleted')
                         allow_shelves = False
@@ -1924,7 +1936,14 @@ class KOBOTOUCH(KOBO):
                 return bookshelves
 
             cursor = connection.cursor()
-            query = "select ShelfName "         \
+            if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+                query = "select ShelfName "     \
+                    "from ShelfContent "        \
+                    "where ContentId = ? "      \
+                    "and _IsDeleted = false "   \
+                    "and ShelfName is not null"         # This should never be null, but it is protection against an error cause by a sync to the Kobo server
+            else:
+                query = "select ShelfName "     \
                     "from ShelfContent "        \
                     "where ContentId = ? "      \
                     "and _IsDeleted = 'false' " \
@@ -2248,7 +2267,10 @@ class KOBOTOUCH(KOBO):
             try:
                 with closing(self.device_database_connection()) as connection:
                     cursor = connection.cursor()
-                    cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
+                    if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = false"
+                    else:
+                        cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
 
                     for fname, cycle in result:
                         show_debug = self.is_debugging_title(fname)
@@ -2740,7 +2762,7 @@ class KOBOTOUCH(KOBO):
             path_prefix = 'koboExtStorage/images-cache/' if self.supports_images_tree() else 'koboExtStorage/images/'
             path = os.path.join(self._card_a_prefix, path_prefix)
         else:
-            path_prefix = '.kobo-images/' if self.supports_images_tree() else KOBO_ROOT_DIR_NAME + '/images/'
+            path_prefix = '.kobo-images/' if self.supports_images_tree() or (not self.supports_images_tree() and self.isTolinoDevice()) else KOBO_ROOT_DIR_NAME + '/images/'
             path = os.path.join(self._main_prefix, path_prefix)
 
         if self.supports_images_tree() and imageId:
@@ -3026,7 +3048,17 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections_in=", ignore_collections_placeholder)
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections=", ignore_collections_values)
 
-        delete_query = ("DELETE FROM Shelf "
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            delete_query = ("DELETE FROM Shelf "
+                        "WHERE Shelf._IsSynced = false "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
+                        "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
+                        "AND NOT EXISTS "
+                        "(SELECT 1 FROM ShelfContent c "
+                        "WHERE Shelf.Name = c.ShelfName "
+                        "AND c._IsDeleted <> true)")
+        else:
+            delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = 'false' "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
                         "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
@@ -3036,7 +3068,18 @@ class KOBOTOUCH(KOBO):
                         "AND c._IsDeleted <> 'true')")
         debug_print("KoboTouch:delete_empty_bookshelves - delete_query=", delete_query)
 
-        update_query = ("UPDATE Shelf "
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            update_query = ("UPDATE Shelf "
+                        "SET _IsDeleted = true "
+                        "WHERE Shelf._IsSynced = true "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
+                        "AND (Type IS NULL OR Type <> 'SystemTag') "
+                        "AND NOT EXISTS "
+                        "(SELECT 1 FROM ShelfContent c "
+                        "WHERE Shelf.Name = c.ShelfName "
+                        "AND c._IsDeleted <> true)")
+        else:
+            update_query = ("UPDATE Shelf "
                         "SET _IsDeleted = 'true' "
                         "WHERE Shelf._IsSynced = 'true' "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
@@ -3047,7 +3090,16 @@ class KOBOTOUCH(KOBO):
                         "AND c._IsDeleted <> 'true')")
         debug_print("KoboTouch:delete_empty_bookshelves - update_query=", update_query)
 
-        delete_activity_query = ("DELETE FROM Activity "
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            delete_activity_query = ("DELETE FROM Activity "
+                                 "WHERE Type = 'Shelf' "
+                                 "AND NOT EXISTS "
+                                    "(SELECT 1 FROM Shelf "
+                                    "WHERE Shelf.Name = Activity.Id "
+                                    "AND Shelf._IsDeleted = false)"
+                                 )
+        else:
+            delete_activity_query = ("DELETE FROM Activity "
                                  "WHERE Type = 'Shelf' "
                                  "AND NOT EXISTS "
                                     "(SELECT 1 FROM Shelf "
@@ -3073,7 +3125,10 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves:
             return bookshelves
 
-        query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = false'
+        else:
+            query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
 
         cursor = connection.cursor()
         cursor.execute(query)
@@ -3100,9 +3155,15 @@ class KOBOTOUCH(KOBO):
 
         test_query = 'SELECT _IsDeleted FROM ShelfContent WHERE ShelfName = ? and ContentId = ?'
         test_values = (shelfName, book.contentID, )
-        addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, "false", "false")'
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, false, false)'
+        else:
+            addquery = 'INSERT INTO ShelfContent ("ShelfName","ContentId","DateModified","_IsDeleted","_IsSynced") VALUES (?, ?, ?, "false", "false")'
         add_values = (shelfName, book.contentID, time.strftime(self.TIMESTAMP_STRING, time.gmtime()), )
-        updatequery = 'UPDATE ShelfContent SET _IsDeleted = "false" WHERE ShelfName = ? and ContentId = ?'
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            updatequery = 'UPDATE ShelfContent SET _IsDeleted = false WHERE ShelfName = ? and ContentId = ?'
+        else:
+            updatequery = 'UPDATE ShelfContent SET _IsDeleted = "false" WHERE ShelfName = ? and ContentId = ?'
         update_values = (shelfName, book.contentID, )
 
         cursor = connection.cursor()
@@ -3116,7 +3177,7 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Did not find a record - adding')
             cursor.execute(addquery, add_values)
-        elif result['_IsDeleted'] == 'true':
+        elif result['_IsDeleted'] == 'true' or result['_IsDeleted'] == True:
             if show_debug:
                 debug_print('        Found a record - updating - result=', result)
             cursor.execute(updatequery, update_values)
@@ -3132,7 +3193,17 @@ class KOBOTOUCH(KOBO):
         test_query = 'SELECT InternalName, Name, _IsDeleted FROM Shelf WHERE Name = ?'
         test_values = (bookshelf_name, )
         addquery = 'INSERT INTO "main"."Shelf"'
-        add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
+                      bookshelf_name,
+                      time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
+                      bookshelf_name,
+                      False,
+                      True,
+                      False,
+                      )
+        else:
+            add_values = (time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
                       time.strftime(self.TIMESTAMP_STRING, time.gmtime()),
                       bookshelf_name,
@@ -3152,7 +3223,10 @@ class KOBOTOUCH(KOBO):
         if show_debug:
             debug_print('KoboTouch:check_for_bookshelf addquery=', addquery)
             debug_print('KoboTouch:check_for_bookshelf add_values=', add_values)
-        updatequery = 'UPDATE Shelf SET _IsDeleted = "false" WHERE Name = ?'
+        if self.dbversion >= self.min_dbversion_real_bools and self.isTolinoDevice():
+            updatequery = 'UPDATE Shelf SET _IsDeleted = false WHERE Name = ?'
+        else:
+            updatequery = 'UPDATE Shelf SET _IsDeleted = "false" WHERE Name = ?'
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
@@ -3165,7 +3239,7 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Did not find a record - adding shelf "%s"' % bookshelf_name)
             cursor.execute(addquery, add_values)
-        elif result['_IsDeleted'] == 'true':
+        elif result['_IsDeleted'] == 'true' or result['_IsDeleted'] == True:
             debug_print("KoboTouch:check_for_bookshelf - Shelf '{}' is deleted - undeleting. result['_IsDeleted']='{}'".format(
                 bookshelf_name, str(result['_IsDeleted'])))
             cursor.execute(updatequery, test_values)
@@ -3637,11 +3711,23 @@ class KOBOTOUCH(KOBO):
     def isSage(self):
         return self.detected_device.idProduct in self.SAGE_PRODUCT_ID
 
+    def isShine5(self):
+        return self.device_model_id.endswith('691')
+
+    def isShineColor(self):
+        return self.device_model_id.endswith('693')
+
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def isTouch2(self):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
+
+    def isVisionColor(self):
+        return self.device_model_id.endswith('690')
+
+    def isTolinoDevice(self):
+        return self.isShine5() or self.isShineColor() or self.isVisionColor()
 
     def cover_file_endings(self):
         if self.isAura():
@@ -3686,16 +3772,27 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isSage():
             _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
+        elif self.isShine5():
+            _cover_file_endings = self.TOLINO_SHINE_COVER_FILE_ENDINGS
+        elif self.isShineColor():
+            _cover_file_endings = self.TOLINO_SHINE_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
+        elif self.isVisionColor():
+            _cover_file_endings = self.TOLINO_VISION_COVER_FILE_ENDINGS
         else:
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
 
         # Don't forget to merge that on top of the common dictionary (c.f., https://stackoverflow.com/q/38987)
-        _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
-        _all_cover_file_endings.update(_cover_file_endings)
+        # But the tolino devices have only one cover file ending.
+        if self.isTolinoDevice():
+            _all_cover_file_endings = _cover_file_endings.copy()
+        else:
+            _all_cover_file_endings = self.COMMON_COVER_FILE_ENDINGS.copy()
+            _all_cover_file_endings.update(_cover_file_endings)
+
         return _all_cover_file_endings
 
     def set_device_name(self):
@@ -3746,10 +3843,16 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Nia'
         elif self.isSage():
             device_name = 'Kobo Sage'
+        elif self.isShine5():
+            device_name = 'tolino shine 5'
+        elif self.isShineColor():
+            device_name = 'tolino shine color'
         elif self.isTouch():
             device_name = 'Kobo Touch'
         elif self.isTouch2():
             device_name = 'Kobo Touch 2'
+        elif self.isVisionColor():
+            device_name = 'tolino vision color'
         self.__class__.gui_name = device_name
         return device_name
 
@@ -3965,7 +4068,7 @@ class KOBOTOUCH(KOBO):
         return self.dbversion >= self.min_dbversion_images_on_sdcard and self.fwversion >= self.min_fwversion_images_on_sdcard
 
     def supports_images_tree(self):
-        return self.fwversion >= self.min_fwversion_images_tree
+        return self.fwversion >= self.min_fwversion_images_tree and not self.isTolinoDevice()
 
     def has_externalid(self):
         return self.dbversion >= self.min_dbversion_externalid
