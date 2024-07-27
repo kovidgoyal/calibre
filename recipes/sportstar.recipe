@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from collections import OrderedDict
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
@@ -25,6 +27,13 @@ class Sportstar(BasicNewsRecipe):
         .author, .publish-time {font-size:small;}
     '''
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download\n(Volume-Issue format)',
+            'long': 'For example, 47-16'
+        }
+    }
+
     keep_only_tags = [
         dict(name='h1', attrs={'class':'title'}),
         dict(name='h2', attrs={'class':'sub-title'}),
@@ -39,10 +48,15 @@ class Sportstar(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('https://sportstar.thehindu.com/magazine/')
-        url = soup.find('a', href=lambda x: x and x.startswith('https://sportstar.thehindu.com/magazine/issue/'))['href']
-        self.log('Downloading Issue: ', url)
-        soup = self.index_to_soup(url)
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            issue_url = 'https://sportstar.thehindu.com/magazine/issue/vol' + d
+        else:
+            soup = self.index_to_soup('https://sportstar.thehindu.com/magazine/')
+            issue_url = soup.find('a', href=lambda x: x and x.startswith('https://sportstar.thehindu.com/magazine/issue/'))['href']
+        self.log('Downloading Issue: ', issue_url)
+
+        soup = self.index_to_soup(issue_url)
 
         feeds = OrderedDict()
 
