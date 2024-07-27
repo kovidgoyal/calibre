@@ -20,7 +20,8 @@ class Reuters(BasicNewsRecipe):
         'reaching billions of people worldwide every day. Reuters provides business, financial, national and international '
         'news to professionals via desktop terminals, the world’s media organizations, industry events and directly to consumers.'
     )
-    masthead_url = 'https://www.reutersprofessional.com/wp-content/uploads/2024/03/primary-logo.svg'
+    masthead_url = 'https://www.reutersagency.com/wp-content/uploads/2024/06/reuters-logo.png'
+    cover_url = 'https://yt3.googleusercontent.com/ytc/AIdro_mk43b9eQwN15ZBDyMPDaElxvw4V-oUS9XDUvVnYB3gA9yA=s1024' 
     language = 'en'
     encoding = 'utf-8'
     oldest_article = 1.2 # days
