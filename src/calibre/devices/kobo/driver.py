@@ -3086,7 +3086,7 @@ class KOBOTOUCH(KOBO):
                                 "AND NOT EXISTS "
                                 "(SELECT 1 FROM Shelf "
                                 "WHERE Shelf.Name = Activity.Id "
-                                f"AND Shelf._IsDeleted = {false}"
+                                f"AND Shelf._IsDeleted = {false})"
                                 )
         debug_print("KoboTouch:delete_empty_bookshelves - delete_activity_query=", delete_activity_query)
 
