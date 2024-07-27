@@ -1199,6 +1199,8 @@ class Application(QApplication):
         self.headless = headless
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
+        self._file_open_paths = []
+        self._file_open_lock = RLock()
         QApplication.setOrganizationName('calibre-ebook.com')
         QApplication.setOrganizationDomain(QApplication.organizationName())
         QApplication.setApplicationVersion(__version__)
@@ -1258,8 +1260,6 @@ class Application(QApplication):
         self._translator = None
         self.load_translations()
         qt_app = self
-        self._file_open_paths = []
-        self._file_open_lock = RLock()
 
         if not ismacos:
             # OS X uses a native color dialog that does not support custom
@@ -1375,8 +1375,15 @@ class Application(QApplication):
     def _send_file_open_events(self):
         with self._file_open_lock:
             if self._file_open_paths:
-                self.file_event_hook(self._file_open_paths)
+                if callable(self.file_event_hook):
+                    self.file_event_hook(self._file_open_paths)
                 self._file_open_paths = []
+
+    def get_pending_file_open_events(self):
+        with self._file_open_lock:
+            ans = self._file_open_paths
+            self._file_open_paths = []
+        return ans
 
     def load_translations(self):
         if self._translator is not None:
@@ -1386,7 +1393,7 @@ class Application(QApplication):
 
     def event(self, e):
         etype = e.type()
-        if callable(self.file_event_hook) and etype == QEvent.Type.FileOpen:
+        if etype == QEvent.Type.FileOpen:
             url = e.url().toString(QUrl.ComponentFormattingOption.FullyEncoded)
             if url and url.startswith('calibre://'):
                 with self._file_open_lock:
@@ -1394,7 +1401,7 @@ class Application(QApplication):
                 QTimer.singleShot(1000, self._send_file_open_events)
                 return True
             path = str(e.file())
-            if os.access(path, os.R_OK):
+            if path and os.access(path, os.R_OK):
                 with self._file_open_lock:
                     self._file_open_paths.append(path)
                 QTimer.singleShot(1000, self._send_file_open_events)

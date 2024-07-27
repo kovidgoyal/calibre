@@ -8,7 +8,7 @@ import time
 
 from qt.core import QIcon
 
-from calibre.constants import EDITOR_APP_UID, islinux
+from calibre.constants import EDITOR_APP_UID, islinux, ismacos
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
 from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
@@ -34,17 +34,21 @@ files inside the book which will be opened for editing automatically.
     return parser
 
 
-class EventAccumulator:
-
-    def __init__(self):
-        self.events = []
-
-    def __call__(self, ev):
-        self.events.append(ev)
-
-
 def gui_main(path=None, notify=None):
     _run(['ebook-edit', path], notify=notify)
+
+
+def open_path_in_new_editor_instance(path: str):
+    import subprocess
+
+    from calibre.gui2 import sanitize_env_vars
+    with sanitize_env_vars():
+        if ismacos:
+            from calibre.utils.ipc.launch import macos_edit_book_bundle_path
+            bundle = os.path.dirname(os.path.dirname(macos_edit_book_bundle_path().rstrip('/')))
+            subprocess.Popen(['open', '-n', '-a', bundle, path])
+        else:
+            subprocess.Popen([sys.executable, path])
 
 
 def _run(args, notify=None):
@@ -68,7 +72,6 @@ def _run(args, notify=None):
     app = Application(args, override_program_name=override, color_prefs=tprefs, windows_app_uid=EDITOR_APP_UID)
     from calibre.utils.webengine import setup_default_profile
     setup_default_profile()
-    app.file_event_hook = EventAccumulator()
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon.ic('tweak.png'))
     main = Main(opts, notify=notify)
@@ -78,10 +81,17 @@ def _run(args, notify=None):
     if len(args) > 1:
         main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False, search_text=opts.select_text)
     else:
-        for path in reversed(app.file_event_hook.events):
-            main.boss.open_book(path)
-            break
-        app.file_event_hook = main.boss.open_book
+        paths = app.get_pending_file_open_events()
+        if paths:
+            if len(paths) > 1:
+                for path in paths[1:]:
+                    try:
+                        open_path_in_new_editor_instance(path)
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+            main.boss.open_book(paths[0])
+    app.file_event_hook = main.boss.open_book
     app.exec()
     # Ensure that the parse worker has quit so that temp files can be deleted
     # on windows
