@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 import json
 import re
 from collections import OrderedDict
@@ -6,8 +8,6 @@ from urllib.parse import urlencode, urljoin
 from calibre import browser, random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from mechanize import Request
-
-_issue_url = ""  # custom issue url
 
 
 class HBR(BasicNewsRecipe):
@@ -129,15 +129,23 @@ class HBR(BasicNewsRecipe):
         content_ele.append(new_soup.body)
         return str(soup)
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download ',
+            'long': 'For example, 2403'
+        }
+    }
+
     def parse_index(self):
-        if not _issue_url:
+        d = self.recipe_specific_options.get('issue')
+        if not (d and isinstance(d, str)):
             soup = self.index_to_soup(f"{self.base_url}/magazine")
             a = soup.find("a", href=lambda x: x and x.startswith("/archive-toc/"))
             cov_url = a.find("img", attrs={"src": True})["src"]
             self.cover_url = urljoin(self.base_url, cov_url)
             issue_url = urljoin(self.base_url, a["href"])
         else:
-            issue_url = _issue_url
+            issue_url = 'https://hbr.org/archive-toc/BR' + d
             mobj = re.search(r"archive-toc/(?P<issue>(BR)?\d+)\b", issue_url)
             if mobj:
                 self.cover_url = f'https://hbr.org/resources/images/covers/{mobj.group("issue")}_500.png'
