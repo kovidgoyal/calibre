@@ -8,7 +8,7 @@ import time
 
 from qt.core import QIcon
 
-from calibre.constants import EDITOR_APP_UID, islinux, ismacos
+from calibre.constants import EDITOR_APP_UID, islinux
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
 from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
@@ -36,19 +36,6 @@ files inside the book which will be opened for editing automatically.
 
 def gui_main(path=None, notify=None):
     _run(['ebook-edit', path], notify=notify)
-
-
-def open_path_in_new_editor_instance(path: str):
-    import subprocess
-
-    from calibre.gui2 import sanitize_env_vars
-    with sanitize_env_vars():
-        if ismacos:
-            from calibre.utils.ipc.launch import macos_edit_book_bundle_path
-            bundle = os.path.dirname(os.path.dirname(macos_edit_book_bundle_path().rstrip('/')))
-            subprocess.Popen(['open', '-n', '-a', bundle, path])
-        else:
-            subprocess.Popen([sys.executable, path])
 
 
 def _run(args, notify=None):
@@ -84,6 +71,7 @@ def _run(args, notify=None):
         paths = app.get_pending_file_open_events()
         if paths:
             if len(paths) > 1:
+                from .boss import open_path_in_new_editor_instance
                 for path in paths[1:]:
                     try:
                         open_path_in_new_editor_instance(path)

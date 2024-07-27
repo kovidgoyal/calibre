@@ -118,6 +118,19 @@ def get_boss():
     return get_boss.boss
 
 
+def open_path_in_new_editor_instance(path: str):
+    import subprocess
+
+    from calibre.gui2 import sanitize_env_vars
+    with sanitize_env_vars():
+        if ismacos:
+            from calibre.utils.ipc.launch import macos_edit_book_bundle_path
+            bundle = os.path.dirname(os.path.dirname(macos_edit_book_bundle_path().rstrip('/')))
+            subprocess.Popen(['open', '-n', '-a', bundle, path])
+        else:
+            subprocess.Popen([sys.executable, path])
+
+
 class Boss(QObject):
 
     handle_completion_result_signal = pyqtSignal(object)
@@ -316,7 +329,10 @@ class Boss(QObject):
         if isinstance(path, (list, tuple)) and path:
             # Can happen from an file_event_hook on OS X when drag and dropping
             # onto the icon in the dock or using open -a
-            path = path[-1]
+            extra_paths = path[1:]
+            path = path[0]
+            for x in extra_paths:
+                open_path_in_new_editor_instance(x)
         if not self._check_before_open():
             return
         if not hasattr(path, 'rpartition'):
