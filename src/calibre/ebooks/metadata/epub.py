@@ -21,6 +21,9 @@ from calibre.utils.localunzip import LocalZipFile
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
 
+import PIL
+from PIL import Image as PILImage
+
 
 class EPubException(Exception):
     pass
@@ -36,7 +39,7 @@ class ContainerException(OCFException):
 
 class Container(dict):
 
-    def __init__(self, stream=None):
+    def __init__(self, stream=None, archive=None):
         if not stream:
             return
         container = safe_xml_fromstring(stream.read())
@@ -49,6 +52,15 @@ class Container(dict):
             mt, fp = rootfile.get('media-type'), rootfile.get('full-path')
             if not mt or not fp:
                 raise EPubException("<rootfile/> element malformed")
+
+            if archive:
+                try:
+                    archive.getinfo(fp)
+                except KeyError:
+                    # Some Kobo epubs have multiple rootfile entries, but only
+                    # one exists.  Ignore the ones that don't exist.
+                    continue
+
             self[mt] = fp
 
 
@@ -95,7 +107,7 @@ class OCFReader(OCF):
 
         try:
             with closing(self.open(OCF.CONTAINER_PATH)) as f:
-                self.container = Container(f)
+                self.container = Container(f, self.archive)
         except KeyError:
             raise EPubException("missing OCF container.xml file")
         self.opf_path = self.container[OPF.MIMETYPE]
@@ -192,6 +204,17 @@ def render_cover(cpage, zf, reader=None):
             cpage = os.path.join(tdir, cpage)
             if not os.path.exists(cpage):
                 return
+
+            # In the case of manga, the first spine item may be an image
+            # already, so treat it as a raster cover
+            try:
+                PILImage.open(cpage)
+            except PIL.UnidentifiedImageError:
+                pass
+            else:
+                with open(cpage, "rb") as source:
+                    return source.read()
+
             return render_html_svg_workaround(cpage, default_log, root=tdir)
 
 
