@@ -254,9 +254,13 @@ def mobile(ctx, rd):
 @endpoint('/browse/{+rest=""}')
 def browse(ctx, rd, rest):
     if rest.startswith('book/'):
+        try:
+            book_id = int(rest[5:])
+        except Exception:
+            raise HTTPRedirect(ctx.url_for(None))
         # implementation of https://bugs.launchpad.net/calibre/+bug/1698411
         # redirect old server book URLs to new URLs
-        redirect = ctx.url_for(None) + '#book_id=' + int(rest[5:]) + "&amp;panel=book_details"
+        redirect = ctx.url_for(None) + f'#book_id={book_id}&amp;panel=book_details'
         from lxml import etree as ET
         return html(ctx, rd, endpoint,
                  E.html(E.head(
