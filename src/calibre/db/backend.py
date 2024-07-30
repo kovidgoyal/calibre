@@ -2365,18 +2365,20 @@ class DB:
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
         text = 'annotations.searchable_text'
+        data = []
         if highlight_start is not None and highlight_end is not None:
             if snippet_size is not None:
-                text = "snippet({fts_table}, 0, '{highlight_start}', '{highlight_end}', '…', {snippet_size})".format(
-                        fts_table=fts_table, highlight_start=highlight_start, highlight_end=highlight_end,
-                        snippet_size=max(1, min(snippet_size, 64)))
+                text = "snippet({fts_table}, 0, ?, ?, '…', {snippet_size})".format(
+                        fts_table=fts_table, snippet_size=max(1, min(snippet_size, 64)))
             else:
-                text = f"highlight({fts_table}, 0, '{highlight_start}', '{highlight_end}')"
+                text = f"highlight({fts_table}, 0, ?, ?)"
+            data.append(highlight_start)
+            data.append(highlight_end)
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
         query = query.format('annotations', text)
         query += ' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'.format(fts_table=fts_table)
         query += f' WHERE {fts_table} MATCH ?'
-        data = [fts_engine_query]
+        data.append(fts_engine_query)
         if restrict_to_user:
             query += ' AND annotations.user_type = ? AND annotations.user = ?'
             data += list(restrict_to_user)

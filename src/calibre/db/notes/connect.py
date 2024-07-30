@@ -413,13 +413,15 @@ class Notes:
             return
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'notes_fts' + ('_stemmed' if use_stemming else '')
+        hl_data = ()
         if return_text:
             text = 'notes.searchable_text'
             if highlight_start is not None and highlight_end is not None:
                 if snippet_size is not None:
-                    text = f'''snippet("{fts_table}", 0, '{highlight_start}', '{highlight_end}', '…', {max(1, min(snippet_size, 64))})'''
+                    text = f'''snippet("{fts_table}", 0, ?, ?, '…', {max(1, min(snippet_size, 64))})'''
                 else:
-                    text = f'''highlight("{fts_table}", 0, '{highlight_start}', '{highlight_end}')'''
+                    text = f'''highlight("{fts_table}", 0, ?, ?)'''
+                hl_data = (highlight_start, highlight_end)
             text = ', ' + text
         else:
             text = ''
@@ -433,7 +435,7 @@ class Notes:
         if limit is not None:
             query += f' LIMIT {limit}'
         try:
-            for record in conn.execute(query, restrict_to_fields+(fts_engine_query,)):
+            for record in conn.execute(query, hl_data + restrict_to_fields + (fts_engine_query,)):
                 result = {
                     'id': record[0],
                     'field': record[1],
