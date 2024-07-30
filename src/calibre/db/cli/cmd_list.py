@@ -36,6 +36,12 @@ def implementation(
     db, notify_changes, fields, sort_by, ascending, search_text, limit, template=None
 ):
     is_remote = notify_changes is not None
+    if is_remote:
+        # templates allow arbitrary code execution via python templates. We
+        # could possibly disallow only python templates but that is more work
+        # than I feel like doing for this, so simply ignore templates on remote
+        # connections.
+        template = None
     formatter = None
     with db.safe_read_lock:
         fm = db.field_metadata
@@ -161,6 +167,8 @@ def do_list(
 ):
     if sort_by is None:
         ascending = True
+    if dbctx.is_remote and (template or template_file or template_title):
+        raise SystemExit(_('The use of templates is disallowed when connecting to remote servers for security reasons'))
     if 'template' in (f.strip() for f in fields):
         if template_file:
             with open(template_file, 'rb') as f:
@@ -331,7 +339,8 @@ List the books available in the calibre database.
     parser.add_option(
         '--template',
         default=None,
-        help=_('The template to run if "{}" is in the field list. Default: None').format('template')
+        help=_('The template to run if "{}" is in the field list. Note that templates are ignored while connecting to a calibre server.'
+               ' Default: None').format('template')
     )
     parser.add_option(
         '--template_file',
