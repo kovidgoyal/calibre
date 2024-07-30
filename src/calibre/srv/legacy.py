@@ -256,7 +256,7 @@ def browse(ctx, rd, rest):
     if rest.startswith('book/'):
         # implementation of https://bugs.launchpad.net/calibre/+bug/1698411
         # redirect old server book URLs to new URLs
-        redirect = ctx.url_for(None) + '#book_id=' + rest[5:] + "&amp;panel=book_details"
+        redirect = ctx.url_for(None) + '#book_id=' + int(rest[5:]) + "&amp;panel=book_details"
         from lxml import etree as ET
         return html(ctx, rd, endpoint,
                  E.html(E.head(
