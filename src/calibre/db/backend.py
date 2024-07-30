@@ -2006,7 +2006,7 @@ class DB:
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         extra_file_path = os.path.abspath(os.path.join(full_book_path, relpath))
         if not extra_file_path.startswith(full_book_path):
-            raise FileNotFoundError(f'No data file {relpath} in book: {book_id}')
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), relpath)
         src_path = make_long_path_useable(extra_file_path)
         if isinstance(stream_or_path, str):
             shutil.copy2(src_path, make_long_path_useable(stream_or_path))
