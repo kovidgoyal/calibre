@@ -74,6 +74,9 @@ def implementation(
                 data[field] = {k: v.get('isbn') or '' for k, v in iteritems(x)}
                 continue
             if field == 'template':
+                if not template:
+                    data['template'] = _('Template not allowed') if is_remote else _('No template specified')
+                    continue
                 vals = {}
                 global_vars = {}
                 if formatter is None:
