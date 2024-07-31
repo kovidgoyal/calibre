@@ -55,15 +55,14 @@ Setup
 
 By now, your question might be "How was all of this setup?" There are three steps: 1) create the custom column, 2) tell calibre that the new column is to be treated as a hierarchy, and 3) add genres.
 
-You create the custom column in the usual way, using Preferences -> Add your own columns. This example uses "#genre" as the lookup name and "Genre" as the column heading. The column type is "Comma-separated text, like tags, shown in the Tag browser."
+You create the custom column in the usual way, using Preferences -> Add your own columns. This example uses "#genre" as the lookup name and "Genre" as the column heading. It is important that the column type is set to :guilabel:`Comma-separated text, like tags, shown in the Tag browser`.
 
 .. image:: images/sg_cc.jpg
     :align: center
 
-Then after restarting calibre, you must tell calibre that the column is to be treated as a hierarchy. Go to :guilabel:`Preferences -> Look & feel -> Tag browser` and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press :guilabel:`Apply`, and you are done with setting up.
-
-.. image:: images/sg_pref.png
-    :align: center
+Then after restarting calibre, you must tell calibre that the column is to be treated as a hierarchy.
+Go to :guilabel:`Preferences -> Look & feel -> Tag browser -> Hierarchy and searching`
+and choose the new Genre column as having hierarchical items.
 
 At the point there are no genres in the column. We are left with the last step: how to apply a genre to a book. A genre does not exist in calibre until it appears on at least one book. To learn how to apply a genre for the first time, we must go into some detail about what a genre looks like in the metadata for a book.
 
