@@ -11,7 +11,7 @@ class NV(BasicNewsRecipe):
     publisher = '\u041E\u041E\u041E \u00AB\u0418\u0437\u0434\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0439 \u0434\u043E\u043C \u00AB\u041C\u0435\u0434\u0438\u0430-\u0414\u041A\u00BB'  # noqa
     category = 'magazine'
     cover_url = u'https://yes-ukraine.org/imglib/_newimage/Yalta-annual-meeting/11th-yalta-annual-meeting/partners/media-partneri/nv_logo.png'
-    language = 'ru'
+    language = 'ru_UK'
     no_stylesheets = False
     remove_javascript = False
     auto_cleanup = False

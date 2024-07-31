@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 
 from calibre.web.feeds.news import BasicNewsRecipe

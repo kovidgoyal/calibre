@@ -11,7 +11,7 @@ class ViknaSTB(BasicNewsRecipe):
     publisher = '\u041E\u041E\u041E \u201C\u0421\u041B\u041C \u041D\u043E\u0432\u043E\u0441\u0442\u0438\u201D'
     category = 'newspaper'
     cover_url = u'https://yt3.ggpht.com/QZxhLPDcqhjMitCDPWbzk-Zs-ILbGo3ww1iuV9SIE1k0iqjoOIctT2d4BdyEsSAR6yWsbKbGWg=s900-c-k-c0x00ffffff-no-rj'
-    language = 'ru'
+    language = 'ru_UK'
     no_stylesheets = False
     remove_javascript = False
     auto_cleanup = False

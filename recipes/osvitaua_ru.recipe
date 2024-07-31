@@ -11,7 +11,7 @@ class Osvita(BasicNewsRecipe):
     publisher = '\u041E\u0441\u0432\u0456\u0442\u0430.ua'
     category = 'blog'
     cover_url = u'http://osvita.ua/doc/i/Contacts-logo.jpg'
-    language = 'ru'
+    language = 'ru_UK'
     no_stylesheets = False
     remove_javascript = False
     auto_cleanup = False

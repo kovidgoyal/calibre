@@ -11,7 +11,7 @@ class PravdaUARU(BasicNewsRecipe):
     publisher = 'pravda.com.ua'
     category = 'newspaper'
     cover_url = u'https://img.pravda.com/images/up_for_fb.gif'
-    language = 'ru'
+    language = 'ru_UK'
     no_stylesheets = False
     remove_javascript = False
     auto_cleanup = False

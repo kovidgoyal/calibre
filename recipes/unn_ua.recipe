@@ -15,8 +15,8 @@ class UNN(BasicNewsRecipe):
     no_stylesheets = False
     remove_javascript = False
     auto_cleanup = False
-    oldest_article = 7
-    max_articles_per_feed = 50
+    oldest_article = 4
+    max_articles_per_feed = 30
 
     remove_tags_before = dict(name='span', attrs={'itemprop': 'datePublished'})
 

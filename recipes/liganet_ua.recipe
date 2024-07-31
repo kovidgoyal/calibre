@@ -33,6 +33,9 @@ class LigaNet(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'chronicle-news m-t-30'}),
         dict(name='div', attrs={'class': 'right-inner-content'}),
         dict(name='div', attrs={'class': 'right-part'}),
+        dict(name='div', attrs={'class': 'article-footer article-content__footer'}),
+        dict(name='div', attrs={'class': 'tags article__tags'}),
+        dict(name='div', attrs={'class': 'article-sidebar article-grid__sidebar'}),
         dict(name='div', attrs={'class': 'hreflang-link'}),
         dict(name='div', attrs={'class': 'vakansii-block-article'}),
         dict(

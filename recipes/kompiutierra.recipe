@@ -22,11 +22,18 @@ class Computerra(BasicNewsRecipe):
     conversion_options = {'linearize_tables': True}
     simultaneous_downloads = 5
 
-    remove_tags_before = dict(name='div', attrs={'id': 'article'})
+    remove_tags_before = dict(name='article')
 
-    remove_tags_after = dict(name='div', attrs={'class': 'article-body'})
+    remove_tags_after = dict(name='article')
 
-    remove_tags = [dict(name='div', attrs={'class': 'cta-row'})]
+    remove_tags =   [
+        dict(name='ul', attrs={'class': 'breadcrumbs'}),
+        dict(name='div', attrs={'class': 'post-info__likes post-info-likes'}),
+        dict(name='div', attrs={'class': 'cta-row'}),
+        dict(name='div', attrs={'class': 'post-info__img'}),
+        dict(name='div', attrs={'class': 'post-footer__wrap'}),
+        dict(name='div', attrs={'class': 'widget featured-posts'})
+        ]
 
     feeds = [(
         u'\u041A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440\u0440\u0430',
