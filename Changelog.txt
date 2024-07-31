@@ -23,6 +23,66 @@
 # - title by author
 # }}}
 
+{{{ 7.16.0 2024-07-31
+
+:: new features
+
+- Add a driver for the new 2024 Tolino devices. They use a modified version of the Kobo firmware, so they are detected as Kobo devices.
+
+- Various news recipes now have the ability to download past issues, accessible via the Advanced tab in the Schedule news dialog
+
+:: bug fixes
+
+- [major 2075128] ONLY if you use the calibre Content server, you should update calibre as soon as possible
+
+  If you do not know what the Content server is, you do not use it, and
+  these do not apply to you. If you have set a password to access the
+  Content server that you have not shared with anyone, these do not
+  affect you.
+
+  A remote code execution bug in the Content server introduced in
+  calibre version 6.9.0 (released on 2022-11-25) means that anyone with
+  access to the server also has access to the rest of the computer the
+  server is running on. If you are using a password to protect access to
+  the server only people that know the password can gain access via the
+  bug. Thanks to STAR Labs (https://starlabs.sg) for finding these
+  vulnerabilities.
+
+- [2075125] Content server: Fix path traversal vulnerability
+
+  A bug in a feature introduced in calibre version 6.16.0 (released
+  2023-04-20) means anyone with access to the server can also read non
+  calibre related files on the computer running the server.
+
+- [2075131] Content server: Fix SQL injection vulnerability
+
+  A bug in a feature introduced in calibre version 6.10.0 (released
+  2022-12-16) means anyone with access to the server can also read
+  non-calibre SQLITE database files on the computer running the server.
+
+- [2075130] Content server: Fix an XSS vulnerability in one endpoint
+
+  Only relevant if you embed the calibre server within a larger server, it means
+  attackers who can convince users to click on a specially crafted link, can run
+  JavaScript code with the same origin as the larger server calibre is embedded in.
+
+- [2073972] Content server: Fix an error when opening the downloaded books page directly via a link and using a custom book list template
+
+- macOS: Fix opening multiple books from Finder with the editor only opening one of the books
+
+- Fix the legacy LRF format viewer not starting
+
+- [2074147] Fix mouse wheel not transitioning from undefined date to current date in date entry controls
+
+:: improved recipes
+- Harvard Business Review
+- Live Mint
+- Business Standard
+- Pagina12
+- Bloomberg
+
+}}}
+
 {{{ 7.15.0 2024-07-19
 
 :: new features
