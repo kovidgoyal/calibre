@@ -34,6 +34,7 @@ from qt.core import (
     QTableWidgetItem,
     QTextCharFormat,
     QTextOption,
+    QToolButton,
     QVBoxLayout,
     pyqtSignal,
 )
@@ -536,6 +537,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         the contents of the field selectors for editing rules.
         '''
         self.fm = fm
+        from calibre.gui2.ui import get_gui
         if mi:
             if not isinstance(mi, (tuple, list)):
                 mi = (mi, )
@@ -547,7 +549,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             mi.rating = 4.0
             mi.tags = [_('Tag 1'), _('Tag 2')]
             mi.languages = ['eng']
-            mi.id = 1
+            mi.id = -1
             if self.fm is not None:
                 mi.set_all_user_metadata(self.fm.custom_field_metadata())
             else:
@@ -555,7 +557,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 # that we can validate any custom column names. The values for
                 # the columns will all be empty, which in some very unusual
                 # cases might cause formatter errors. We can live with that.
-                from calibre.gui2.ui import get_gui
                 fm = get_gui().current_db.new_api.field_metadata
                 mi.set_all_user_metadata(fm.custom_field_metadata())
             for col in mi.get_all_user_metadata(False):
@@ -572,8 +573,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             mi = (mi, )
         self.mi = mi
         tv = self.template_value
-        tv.setColumnCount(2)
-        tv.setHorizontalHeaderLabels((_('Book title'), _('Template value')))
+        tv.setColumnCount(3)
+        tv.setHorizontalHeaderLabels((_('Book title'), '', _('Template value')))
         tv.horizontalHeader().setStretchLastSection(True)
         tv.horizontalHeader().sectionResized.connect(self.table_column_resized)
         tv.setRowCount(len(mi))
@@ -595,16 +596,51 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             w.setReadOnly(True)
             w.setText(mi[r].title)
             tv.setCellWidget(r, 0, w)
+            tb = QToolButton()
+            tb.setContentsMargins(0, 0, 0, 0)
+            tb.setIcon(QIcon.ic("edit_input.png"))
+            tb.setToolTip(_('Open Edit metadata on this book'))
+            tb.clicked.connect(partial(self.metadata_button_clicked, r))
+            tb.setEnabled(mi[r].get('id', -1) >= 0)
+            tv.setCellWidget(r, 1, tb)
             w = QLineEdit(tv)
             w.setReadOnly(True)
-            tv.setCellWidget(r, 1, w)
+            tv.setCellWidget(r, 2, w)
+        tv.resizeColumnToContents(1)
         self.set_waiting_message()
+
+    def metadata_button_clicked(self, row):
+        # Get the booklist row number for the book
+        mi = self.mi[row]
+        id_ = mi.get('id', -1)
+        if id_ > 0:
+            from calibre.gui2.ui import get_gui
+            db = get_gui().current_db
+            try:
+                idx = db.data.id_to_index(id_)
+                em = get_gui().iactions['Edit Metadata']
+                from calibre.gui2.library.views import PreserveViewState
+                with PreserveViewState(get_gui().current_view(), require_selected_ids=False):
+                    with em.different_parent(self):
+                        em.edit_metadata_for([idx], [id_], bulk=False)
+            except Exception:
+                pass
+            new_mi = []
+            for mi in self.mi:
+                try:
+                    pmi = db.new_api.get_proxy_metadata(mi.get('id'))
+                except Exception:
+                    pmi = None
+                new_mi.append(pmi)
+            self.set_mi(new_mi, self.fm)
+            if not self.break_box.isChecked():
+                self.display_values(str(self.textbox.toPlainText()))
 
     def set_waiting_message(self):
         if self.break_box.isChecked():
             for i in range(len(self.mi)):
-                self.template_value.cellWidget(i, 1).setText('')
-            self.template_value.cellWidget(0, 1).setText(
+                self.template_value.cellWidget(i, 2).setText('')
+            self.template_value.cellWidget(0, 2).setText(
                 _("*** Breakpoints are enabled. Waiting for the 'Go' button to be pressed"))
 
     def show_context_menu(self, point):
@@ -882,7 +918,7 @@ def evaluate(book, context):
                                  template_functions=self.all_functions,
                                  break_reporter=self.break_reporter if r == break_on_mi else None,
                                  python_context_object=self.python_context_object)
-                w = tv.cellWidget(r, 1)
+                w = tv.cellWidget(r, 2)
                 w.setText(v.translate(translate_table))
                 w.setCursorPosition(0)
             finally:
