@@ -53,7 +53,7 @@ class NrcNextRecipe(BasicNewsRecipe):
                 '''
 
     def parse_index(self):
-        # Use the wesbite as an index. Their RSS feeds can be out of date.
+        # Use the website as an index. Their RSS feeds can be out of date.
         feeds = {}
         feeds[u'columnisten'] = u'http://www.nrcnext.nl/columnisten/'
         feeds[u'koken'] = u'http://www.nrcnext.nl/koken/'
@@ -67,7 +67,7 @@ class NrcNextRecipe(BasicNewsRecipe):
         for index, feed in feeds.items():
             soup = self.index_to_soup(feed)
             for post in soup.findAll(True, attrs={'class': 'post '}):
-                # Find the links to the actual articles and rember the location
+                # Find the links to the actual articles and remember the location
                 # they're pointing to and the title
                 a = post.find('a', attrs={'rel': 'bookmark'})
                 href = a['href']

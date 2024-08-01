@@ -440,10 +440,10 @@ class InterfaceAction(QObject):
 
 class InterfaceActionWithLibraryDrop(InterfaceAction):
     '''
-    Subclass of InterfaceAction that implemente methods to execute the default action
+    Subclass of InterfaceAction that implements methods to execute the default action
     by drop some books from the library.
 
-    Inside the do_drop() method, the ids of the droped books are provided
+    Inside the do_drop() method, the ids of the dropped books are provided
     by the attribute self.dropped_ids
     '''
 

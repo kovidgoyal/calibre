@@ -1200,7 +1200,7 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
             add_show_hidden_categories()
 
-        # partioning. If partitioning is active, provide a way to turn it on or
+        # partitioning. If partitioning is active, provide a way to turn it on or
         # off for this category.
         if gprefs['tags_browser_partition_method'] != 'disable' and key is not None:
             m = self.context_menu
