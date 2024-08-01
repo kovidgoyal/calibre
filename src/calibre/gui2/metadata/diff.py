@@ -707,7 +707,7 @@ class CompareMany(QDialog):
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
 
-        # Add a Back button, wich allows the user to go back to the previous book cancel any reject/edit/accept that was done to it, and review it again
+        # Add a Back button, which allows the user to go back to the previous book cancel any reject/edit/accept that was done to it, and review it again
         # create a Back action that will be triggered when the user presses the back button or the back shortcut
         self.back_action = QAction(self)
         self.back_action.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.Key.Key_Left))
@@ -834,7 +834,7 @@ class CompareMany(QDialog):
             elif last_previous_item in self.accepted:
                 self.accepted.pop(last_previous_item)
 
-            # move the last previous item to the begining of the pending list
+            # move the last previous item to the beginning of the pending list
             self.ids.insert(0, last_previous_item)
             self.show_current_item()
 

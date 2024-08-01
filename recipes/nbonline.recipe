@@ -12,7 +12,7 @@ class NBOnline(BasicNewsRecipe):
     remove_tags_before = dict(id='kanban')
     remove_tags = [dict(name='div', id='footer')]
 
-    feeds = [('Nikkei Buisiness Online',
+    feeds = [('Nikkei Business Online',
               'http://business.nikkeibp.co.jp/rss/all_nbo.rdf')]
 
     def get_cover_url(self):
