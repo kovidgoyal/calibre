@@ -61,6 +61,8 @@ def render_field(field, mi, book_id):  # {{{
     if field is 'id':
         return book_id + ''
     field_metadata = library_data.field_metadata
+    if not field_metadata:
+        return
     fm = field_metadata[field]
     if not fm or not mi:
         return
