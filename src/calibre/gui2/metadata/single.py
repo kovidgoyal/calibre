@@ -10,6 +10,7 @@ from datetime import datetime
 from functools import partial
 
 from qt.core import (
+    QAction,
     QDialog,
     QDialogButtonBox,
     QFrame,
@@ -121,11 +122,17 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.rejected.connect(self.reject)
         self.next_button = QPushButton(QIcon.ic('forward.png'), _('Next'),
                 self)
-        self.next_button.setShortcut(QKeySequence('Alt+Right'))
+        self.next_action = ac = QAction(self)
+        ac.triggered.connect(self.next_clicked)
+        self.addAction(ac)
+        ac.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(self.next_clicked)
-        self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'),
-                self)
-        self.prev_button.setShortcut(QKeySequence('Alt+Left'))
+        self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'), self)
+        self.prev_button.clicked.connect(self.prev_clicked)
+        self.prev_action = ac = QAction(self)
+        ac.triggered.connect(self.prev_clicked)
+        ac.setShortcut(QKeySequence('Alt+Left'))
+        self.addAction(ac)
         from calibre.gui2.actions.edit_metadata import DATA_FILES_ICON_NAME
         self.data_files_button = QPushButton(QIcon.ic(DATA_FILES_ICON_NAME), _('Data files'), self)
         self.data_files_button.setShortcut(QKeySequence('Alt+Space'))
@@ -135,7 +142,6 @@ class MetadataSingleDialogBase(QDialog):
 
         self.button_box.addButton(self.prev_button, QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.next_button, QDialogButtonBox.ButtonRole.ActionRole)
-        self.prev_button.clicked.connect(self.prev_clicked)
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
@@ -718,14 +724,20 @@ class MetadataSingleDialogBase(QDialog):
         return ret
 
     def next_clicked(self):
+        fw = self.focusWidget()
         if not self.apply_changes():
             return
         self.do_one(delta=1, apply_changes=False)
+        if fw is not None:
+            fw.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def prev_clicked(self):
+        fw = self.focusWidget()
         if not self.apply_changes():
             return
         self.do_one(delta=-1, apply_changes=False)
+        if fw is not None:
+            fw.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def do_one(self, delta=0, apply_changes=True):
         if apply_changes:
@@ -739,11 +751,13 @@ class MetadataSingleDialogBase(QDialog):
             next_ = self.db.title(self.row_list[self.current_row+1])
 
         if next_ is not None:
-            tip = _('Save changes and edit the metadata of {} [Alt+Right]').format(next_)
+            tip = _('Save changes and edit the metadata of {0} [{1}]').format(
+                next_, self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.next_button.setToolTip(tip)
         self.next_button.setEnabled(next_ is not None)
         if prev is not None:
-            tip = _('Save changes and edit the metadata of {} [Alt+Left]').format(prev)
+            tip = _('Save changes and edit the metadata of {0} [{1}]').format(
+                prev, self.prev_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
