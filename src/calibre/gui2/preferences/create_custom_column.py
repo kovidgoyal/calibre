@@ -426,7 +426,7 @@ class CreateCustomColumn(QDialog):
                       _('Choose whether or not the column heading is shown in the Book '
                       'details panel and, if shown, where. Setting this to '
                       "'Show heading to the side of the text' moves the information "
-                      "from dislayed with other comments to displayed with the "
+                      "from displayed with other comments to displayed with the "
                       "non-comments columns.") + '</p>')
         self.comments_heading_position_label = add_row(_('Heading position:'), ct)
 

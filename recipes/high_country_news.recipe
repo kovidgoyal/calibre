@@ -17,7 +17,7 @@ class HighCountryNews(BasicNewsRecipe):
     #               Update language to fix how it appears in UI tree
     #               Version 2.2
     #               Update RSS feeds to hcn.org and keep the old feedburner feeds still in place
-    #               as there are some old articles available only at feedburner adress
+    #               as there are some old articles available only at feedburner address
     #               2019-07-04
     #               Version 2.3
     #               New Page design at HighCountryNews
