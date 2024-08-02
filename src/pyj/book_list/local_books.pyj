@@ -8,6 +8,7 @@ from gettext import gettext as _, ngettext
 from book_list.globals import get_db
 from book_list.router import home, open_book
 from book_list.top_bar import add_button, create_top_bar
+from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
 from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode
 from dom import clear, ensure_id
@@ -209,7 +210,7 @@ def show_recent_stage2(books):
 def show_recent():
     container = this
     db = get_db()
-    if not db.initialized:
+    if not db.initialized or not library_data.field_metadata:
         conditional_timeout(container.id, 5, show_recent)
         return
     if db.is_ok:
