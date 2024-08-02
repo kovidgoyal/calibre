@@ -666,7 +666,7 @@ class Quickview(QDialog, Ui_Quickview):
                         select_item = a
                 # The data is supplied on demand when the item is displayed
                 a.setData(Qt.ItemDataRole.UserRole, b)
-                a.setToolTip(tt)
+                a.setToolTip(f"<div>{_('Value')}: {a.text()}</div>{tt}")
                 self.books_table.setItem(row, self.key_to_table_widget_column(col), a)
                 self.books_table.setRowHeight(row, self.books_table_row_height)
         self.books_table.blockSignals(False)
