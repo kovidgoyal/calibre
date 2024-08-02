@@ -40,7 +40,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.utils import type_safe_sort_key_function
 from calibre.db.write import get_series_values, uniq
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
+from calibre.ebooks.metadata import author_to_author_sort, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile, base_dir
@@ -1882,6 +1882,7 @@ class Cache:
 
                 val = mi.get('title_sort', None)
                 if (force_changes and val is not None) or not mi.is_null('title_sort'):
+
                     protected_set_field('sort', val)
 
                 # identifiers will always be replaced if force_changes is True
@@ -2133,6 +2134,8 @@ class Cache:
             mi.authors = (_('Unknown'),)
         aus = mi.author_sort if not mi.is_null('author_sort') else self._author_sort_from_authors(mi.authors)
         mi.title = mi.title or _('Unknown')
+        if mi.is_null('title_sort'):
+            mi.title_sort = title_sort(mi.title, lang=mi.languages[0] if mi.languages else None)
         if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
         if isbytestring(mi.title):
