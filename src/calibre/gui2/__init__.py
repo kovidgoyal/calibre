@@ -1288,6 +1288,10 @@ class Application(QApplication):
                 self.setCursorFlashTime(int(cft))
 
     @property
+    def using_calibre_style(self) -> bool:
+        return self.palette_manager.using_calibre_style
+
+    @property
     def is_dark_theme(self):
         return self.palette_manager.is_dark_theme
 

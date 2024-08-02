@@ -1061,6 +1061,12 @@ class BookInfo(HTMLDisplay):
         ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
+        if iswindows and not QApplication.instance().using_calibre_style:
+            # workaround Qt bug that causes selected text to be invisible on
+            # windows when using system theme
+            bg = self.palette().color(QPalette.ColorRole.Highlight).name()
+            fg = self.palette().color(QPalette.ColorRole.HighlightedText).name()
+            self.setStyleSheet(f'QTextBrowser {{ selection-color: {fg}; selection-background-color: {bg}; }}')
 
     def change_layout(self, vertical):
         if vertical != self.vertical:
