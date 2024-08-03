@@ -66,8 +66,15 @@ class Nautilus(BasicNewsRecipe):
         soup = self.index_to_soup('https://nautil.us/shop/category/issues/')
         a = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://nautil.us/shop/issues/issue-')})
         if a:
-            self.cover_url = a.img['src'].split('?')[0]
+            listing_url = a['href']
+            listing_soup = self.index_to_soup(listing_url)
+            listing = listing_soup.find('div', {'class': 'product'})
+            if listing:
+                imgs = listing.find_all('img', attrs={'src':lambda x: x and x.startswith('https://assets.nautil.us/sites/3/nautilus/')})
+                if len(imgs) > 1:
+                    self.cover_url = imgs[1]['src'].split('?')[0]
         return getattr(self, 'cover_url', self.cover_url)
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0]
