@@ -59,7 +59,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     def abs_url(self, url):
         return self.web_root + url if url.startswith('/') else url
 
-    # Create a correctly formated DICT entry for Calibre parse_index return
+    # Create a correctly formatted DICT entry for Calibre parse_index return
     def article_entry(self, title, url, author=None):
         article = {
             'title': title,

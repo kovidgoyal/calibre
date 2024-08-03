@@ -73,7 +73,7 @@ class WorkerThread(threading.Thread):
     """
 
     def __init__(self, requestsQueue, resultsQueue, **kwds):
-        """Set up thread in daemonic mode and start it immediatedly.
+        """Set up thread in daemonic mode and start it immediately.
 
         requestsQueue and resultQueue are instances of queue.Queue passed
         by the ThreadPool class when it creates a new worker thread.

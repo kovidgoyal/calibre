@@ -1199,7 +1199,7 @@ def get_appdata():
 
 def changelog_bullet_to_text(bullet):
     # It would be great if we could use any fancier formatting here, but the
-    # only allowed inline formattings within the AppData description bullet
+    # only allowed inline formatting within the AppData description bullet
     # points are emphasis (italics) and code (monospaced font)
     text = [bullet['title']]
     if 'author' in bullet:

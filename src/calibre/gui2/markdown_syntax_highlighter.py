@@ -130,7 +130,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         cursor = QTextCursor(self.document())
         bf = cursor.blockFormat()
 
-        #Block quotes can contain all elements so process it first, internaly process recusively and return
+        #Block quotes can contain all elements so process it first, internally process recursively and return
         if self.highlightBlockQuote(text, cursor, bf):
             return
 

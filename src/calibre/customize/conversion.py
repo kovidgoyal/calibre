@@ -221,7 +221,7 @@ class InputFormatPlugin(Plugin):
                          by this plugin.
         :param log: A :class:`calibre.utils.logging.Log` object. All output
                     should use this object.
-        :param accelarators: A dictionary of various information that the input
+        :param accelerators: A dictionary of various information that the input
                              plugin can get easily that would speed up the
                              subsequent stages of the conversion.
 

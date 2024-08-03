@@ -515,7 +515,7 @@ class BasicNewsRecipe(Recipe):
     def image_url_processor(cls, baseurl, url):
         '''
         Perform some processing on image urls (perhaps removing size restrictions for
-        dynamically generated images, etc.) and return the precessed URL. Return None
+        dynamically generated images, etc.) and return the processed URL. Return None
         or an empty string to skip fetching the image.
         '''
         return url
