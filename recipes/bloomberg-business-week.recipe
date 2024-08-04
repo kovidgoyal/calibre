@@ -68,10 +68,10 @@ class Bloomberg(BasicNewsRecipe):
     }
 
     remove_tags = [
-        dict(name=['button', 'svg', 'meta']),
+        dict(name=['button', 'svg', 'meta', 'iframe']),
         dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
         dict(attrs={'data-image-type':'audio'}),
-        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer')
+        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer bplayer-container')
     ]
 
     extra_css = '''

@@ -21,9 +21,9 @@ def resize(x):
             return v
 
 m_fr = {
-    1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
-    5: 'mai', 6: 'juin', 7: 'juillet', 8: 'août',
-    9: 'septembre', 10: 'octobre', 11: 'novembre', 12: 'décembre'
+    1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
+    5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
+    9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
 }
 
 def json_to_html(raw):
@@ -34,7 +34,7 @@ def json_to_html(raw):
 
     auth = '<p class="auth">{}</p>\n'
     dt = datetime.fromisoformat(data['last_updated_date'][:-1]) + timedelta(seconds=time.timezone)
-    dt = dt.strftime('%d ' + m_fr[dt.month] + ' %Y')
+    dt = dt.strftime(m_fr[dt.month] + '%d, %Y')
     a = [x['name'] for x in data['credits']['by']]
     if a:
         auth = auth.format(', '.join(a) + ' | ' + dt)
@@ -86,6 +86,7 @@ class Liberation(BasicNewsRecipe):
     oldest_article = 1.15
     remove_empty_feeds = True
     articles_are_obfuscated = True
+    timefmt = '[ %s]' % datetime.now().strftime(m_fr[datetime.now().month] '%d, %Y')
     ignore_duplicate_articles = {'title', 'url'}
     key = 'ZWplZVBlaW5nZWl0YWVnaG8zd2VlbmdlZXlvaHB1'
     masthead_url = 'https://journal.liberation.fr/img/logo.svg'

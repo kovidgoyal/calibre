@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
 import json
 import time
 from datetime import datetime, timedelta
@@ -61,10 +64,10 @@ class Bloomberg(BasicNewsRecipe):
     cover_url = 'https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ivUxvlPidC3M/v0/600x-1.jpg'
 
     remove_tags = [
-        dict(name=['button', 'svg', 'meta']),
+        dict(name=['button', 'svg', 'meta', 'iframe']),
         dict(name='div', attrs={'id':['bb-that', 'bb-nav']}),
         dict(attrs={'data-image-type':'audio'}),
-        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer')
+        classes('twitter-logo bb-global-footer __sticky__audio__bar__portal__ css--social-wrapper-outer bplayer-container')
     ]
 
     extra_css = '''
