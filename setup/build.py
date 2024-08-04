@@ -732,7 +732,10 @@ sip-file = {os.path.basename(sipf)!r}
         cwd = os.getcwd()
         try:
             os.chdir(os.path.join(src_dir, 'build'))
-            self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]))
+            env = os.environ.copy()
+            if is_macos_universal_build:
+                env['ARCHS'] = 'x86_64 arm64'
+            self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]), env=env)
             e = 'pyd' if iswindows else 'so'
             m = glob.glob(f'{ext.name}/{ext.name}.*{e}')
             if not m:
