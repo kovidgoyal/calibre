@@ -17,13 +17,10 @@ from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
 from calibre.ebooks.metadata.opf import set_metadata as set_metadata_opf
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.imghdr import what as what_image_type
 from calibre.utils.localunzip import LocalZipFile
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
-
-import PIL
-from PIL import Image as PILImage
-
 
 class EPubException(Exception):
     pass
@@ -39,7 +36,7 @@ class ContainerException(OCFException):
 
 class Container(dict):
 
-    def __init__(self, stream=None, archive=None):
+    def __init__(self, stream=None, file_exists=None):
         if not stream:
             return
         container = safe_xml_fromstring(stream.read())
@@ -53,13 +50,10 @@ class Container(dict):
             if not mt or not fp:
                 raise EPubException("<rootfile/> element malformed")
 
-            if archive:
-                try:
-                    archive.getinfo(fp)
-                except KeyError:
-                    # Some Kobo epubs have multiple rootfile entries, but only
-                    # one exists.  Ignore the ones that don't exist.
-                    continue
+            if file_exists and not file_exists(fp):
+                # Some Kobo epubs have multiple rootfile entries, but only one
+                # exists.  Ignore the ones that don't exist.
+                continue
 
             self[mt] = fp
 
@@ -107,7 +101,7 @@ class OCFReader(OCF):
 
         try:
             with closing(self.open(OCF.CONTAINER_PATH)) as f:
-                self.container = Container(f, self.archive)
+                self.container = Container(f, self.exists)
         except KeyError:
             raise EPubException("missing OCF container.xml file")
         self.opf_path = self.container[OPF.MIMETYPE]
@@ -137,6 +131,14 @@ class OCFReader(OCF):
     def read_bytes(self, name):
         return self.open(name).read()
 
+    def exists(self, path):
+        try:
+            self.open(path)
+            return True
+        except OSError:
+            return False
+
+
 
 class OCFZipReader(OCFReader):
 
@@ -164,6 +166,13 @@ class OCFZipReader(OCFReader):
 
     def read_bytes(self, name):
         return self.archive.read(name)
+
+    def exists(self, path):
+        try:
+            self.archive.getinfo(path)
+            return True
+        except KeyError:
+            return False
 
 
 def get_zip_reader(stream, root=None):
@@ -206,12 +215,13 @@ def render_cover(cpage, zf, reader=None):
                 return
 
             # In the case of manga, the first spine item may be an image
-            # already, so treat it as a raster cover
-            try:
-                PILImage.open(cpage)
-            except PIL.UnidentifiedImageError:
-                pass
-            else:
+            # already, so treat it as a raster cover.
+            file_format = what_image_type(cpage)
+            if file_format == "jpeg":
+                # Only JPEG is allowed since elsewhere we assume raster covers
+                # are JPEG.  In principle we could convert other image formats
+                # but this is already an out-of-spec case that happens to
+                # arise in books from some stores.
                 with open(cpage, "rb") as source:
                     return source.read()
 
