@@ -82,13 +82,25 @@ class Mediapart(BasicNewsRecipe):
     feeds = []
 
     sections = [
-        'france', 'international', 'economie', 'culture-idees', 'politique', 'ecologie', 'fil-dactualites'
+        'france', 'international', 'economie', 'culture-et-idees', 'politique', 'ecologie', 'fil-dactualites'
     ]
 
+    mediapart_feed = 'https://www.mediapart.fr/articles/feed'
     for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:mediapart.fr%2Fjournal{}&hl=fr-FR&gl=FR&ceid=FR:fr'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    feeds.append(('Autres', a.format('')))
+        feeds.append((sec.capitalize(), mediapart_feed))
+    feeds.append(('Autres', mediapart_feed))
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            feed_name = feed.title.lower()
+            for article in feed.articles:
+                if feed_name != 'autres'  and feed_name not in article.url:
+                    feed.articles.remove(article)
+                if feed_name == 'autres' and any(section in article.url for section in self.sections):
+                    feed.articles.remove(article)
+
+        return feeds
 
     def get_browser(self):
         # -- Handle login
@@ -99,11 +111,7 @@ class Mediapart(BasicNewsRecipe):
             br['email'] = self.username
             br['password'] = self.password
             br.submit()
-
-        # -- Handle Google's cookies consent page
-        br.open('https://news.google.com')
-        br.select_form(action="https://consent.google.com/save")
-        br.submit()
+            
         return br
 
     def default_cover(self, cover_file):
