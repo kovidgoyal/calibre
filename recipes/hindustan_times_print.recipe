@@ -26,7 +26,7 @@ class ht(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': ('If The Hindustan Times is available in your local town/city,\n'
+            'long': ('If The Hindustan Times is available in your local town/city, '
                      'set this to your location, for example, Delhi\nAvailable Editions:'
                      'Delhi, Mumbai, Chandigarh, Lucknow, Patna, Bengaluru, Pune, Gurgaon,'
                      'Ludhiana, Rajasthan, Amritsar,\nEast UP, Haryana, Jammu, Navi Mumbai,'
