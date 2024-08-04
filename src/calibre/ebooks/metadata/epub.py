@@ -10,7 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import io
 import os
 import posixpath
-from contextlib import closing
+from contextlib import closing, suppress
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
@@ -21,6 +21,7 @@ from calibre.utils.imghdr import what as what_image_type
 from calibre.utils.localunzip import LocalZipFile
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
+
 
 class EPubException(Exception):
     pass
@@ -133,7 +134,7 @@ class OCFReader(OCF):
 
     def exists(self, path):
         try:
-            self.open(path)
+            self.open(path).close()
             return True
         except OSError:
             return False
@@ -214,16 +215,17 @@ def render_cover(cpage, zf, reader=None):
             if not os.path.exists(cpage):
                 return
 
-            # In the case of manga, the first spine item may be an image
-            # already, so treat it as a raster cover.
-            file_format = what_image_type(cpage)
-            if file_format == "jpeg":
-                # Only JPEG is allowed since elsewhere we assume raster covers
-                # are JPEG.  In principle we could convert other image formats
-                # but this is already an out-of-spec case that happens to
-                # arise in books from some stores.
-                with open(cpage, "rb") as source:
-                    return source.read()
+            with suppress(Exception):
+                # In the case of manga, the first spine item may be an image
+                # already, so treat it as a raster cover.
+                file_format = what_image_type(cpage)
+                if file_format == "jpeg":
+                    # Only JPEG is allowed since elsewhere we assume raster covers
+                    # are JPEG.  In principle we could convert other image formats
+                    # but this is already an out-of-spec case that happens to
+                    # arise in books from some stores.
+                    with open(cpage, "rb") as source:
+                        return source.read()
 
             return render_html_svg_workaround(cpage, default_log, root=tdir)
 
