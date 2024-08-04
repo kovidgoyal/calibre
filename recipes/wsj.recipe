@@ -140,22 +140,22 @@ class WSJ(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://bartender.mobile.dowjones.io'
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
-        edit = [itm['key'][10:] for itm in catalog['items'] if itm['type'] == 'ITPNEXTGEN'][1:]
+        edit = [''.join([n for n in itm['key'] if n.isdigit()]) for itm in catalog['items'] if itm['type'] == 'ITP'][1:]
         self.log('**Past Editions available :', ', '.join(edit))
 
         past_edition = self.recipe_specific_options.get('date')
 
         for itm in catalog['items']:
             if past_edition and isinstance(past_edition, str):
-                if itm['key'] == 'ITPNEXTGEN' + past_edition:
+                if past_edition in itm['key']:
                     key = itm['key']
                     manifest = itm['manifest']
                     date = itm['date']
                     break
-            elif itm['type'] == 'ITPNEXTGEN':
+            elif itm['type'] == 'TODAYSPAPER':
                 key = itm['key']
                 manifest = itm['manifest']
-                date = itm['date']
+                date = itm['updated']
                 break
 
         dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
