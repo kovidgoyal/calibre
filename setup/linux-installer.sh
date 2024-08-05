@@ -86,17 +86,18 @@ if machine.startswith('arm') or machine.startswith('aarch64'):
 if py3:
     unicode = str
     raw_input = input
-    from urllib.parse import urlparse
-    from urllib.request import BaseHandler, build_opener, Request, urlopen, getproxies, addinfourl
     import http.client as httplib
+    from urllib.parse import urlparse
+    from urllib.request import BaseHandler, Request, addinfourl, build_opener, getproxies, urlopen
     def encode_for_subprocess(x):
         return x
 else:
-    from future_builtins import map
-    from urlparse import urlparse
-    from urllib import urlopen, getproxies, addinfourl
-    from urllib2 import BaseHandler, build_opener, Request
+    from urllib import addinfourl, getproxies, urlopen
+
     import httplib
+    from future_builtins import map
+    from urllib2 import BaseHandler, Request, build_opener
+    from urlparse import urlparse
 
     def encode_for_subprocess(x):
         if isinstance(x, unicode):
@@ -854,11 +855,12 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             ' available for 64-bit systems. You will have to compile from'
             ' source.')
     glibc_versions = {
-        (6, 0, 0) : {'min_required': (2, 31), 'release_date': '2020-02-01'}
+        (6, 0, 0) : {'min_required': (2, 31), 'release_date': '2020-02-01'},
+        (7, 17, 0) : {'min_required': (2, 35), 'release_date': '2022-02-03'}
     }
     if is_linux_arm64:
         glibc_versions.update({
-            (6, 8, 0) : {'min_required': (2, 34), 'release_date': '2022-02-03'}
+            (6, 8, 0) : {'min_required': (2, 34), 'release_date': '2021-08-02'}
         })
     q = tuple(map(int, version.split('.'))) if version else (sys.maxsize, 999, 999)
     for key in sorted(glibc_versions, reverse=True):
