@@ -23,7 +23,7 @@ class TheWashingtonPost(BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
-    language = 'en'
+    language = 'en_US'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.washingtonpost.com/pb/resources/img/twp-masthead-415x57.svg'
@@ -51,7 +51,7 @@ class TheWashingtonPost(BasicNewsRecipe):
     '''
 
     def get_browser(self):
-        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False, user_agent='common_words/based')
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False, user_agent='Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0')
 
     # Official feeds: https://www.washingtonpost.com/discussions/2018/10/12/washington-post-rss-feeds/
     feeds = [
