@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 '''
 washingtonpost.com
 '''
@@ -22,7 +24,7 @@ class wapoprint(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
-    language = 'en'
+    language = 'en_US'
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
     ignore_duplicate_articles = {'title', 'url'}
@@ -34,7 +36,7 @@ class wapoprint(BasicNewsRecipe):
     '''
 
     def get_browser(self):
-        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False, user_agent='Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0')
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
