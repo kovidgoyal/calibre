@@ -23,8 +23,7 @@ def canonicalize_qurl(qurl):
     return qurl
 
 
-@lru_cache(maxsize=None)
-def create_profile(cache_name='', allow_js=False):
+def create_base_profile(cache_name='', allow_js=False):
     from calibre.utils.random_ua import random_common_chrome_user_agent
     if cache_name:
         ans = QWebEngineProfile(cache_name, QApplication.instance())
@@ -43,6 +42,12 @@ def create_profile(cache_name='', allow_js=False):
     # ensure javascript cannot read from local files
     a(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, False)
     a(QWebEngineSettings.WebAttribute.AllowWindowActivationFromJavaScript, False)
+    return ans
+
+
+@lru_cache(maxsize=None)
+def create_profile(cache_name='', allow_js=False):
+    ans = create_base_profile(cache_name, allow_js)
     js = P('scraper.js', allow_user_override=False, data=True).decode('utf-8')
     ans.token = secrets.token_hex()
     js = js.replace('TOKEN', ans.token)
