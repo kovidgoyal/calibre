@@ -150,7 +150,6 @@ class WSJ(BasicNewsRecipe):
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
         for itm in catalog['items']:
             if itm['key'] == 'NOW':
-                key = itm['key']
                 manifest = itm['manifest']
                 break
 
@@ -177,7 +176,7 @@ class WSJ(BasicNewsRecipe):
                             continue
                         title = data[art]['headline']
                         desc = data[art]['summary']
-                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
                     feeds.append((section, articles))

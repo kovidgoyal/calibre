@@ -111,7 +111,6 @@ class WSJ(BasicNewsRecipe):
         for itm in catalog['items']:
             if itm['type'] == 'MAG':
                 date = itm['date']
-                key = itm['key']
                 manifest = itm['manifest']
                 self.title = 'WSJ. Magazine: ' + itm['label']
 
@@ -140,14 +139,14 @@ class WSJ(BasicNewsRecipe):
                     for art in data:
                         title = data[art]['headline']
                         desc = data[art]['summary']
-                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
                     data = sec_parse['decos']
                     for art in data:
                         title = data[art]['headline']
                         desc = data[art]['summary']
-                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
                     feeds.append((section, articles))
