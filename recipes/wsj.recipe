@@ -140,20 +140,18 @@ class WSJ(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://bartender.mobile.dowjones.io'
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
-        edit = [''.join([n for n in itm['key'] if n.isdigit()]) for itm in catalog['items'] if itm['type'] == 'ITPNEXTGEN'][1:]
+        edit = [''.join([n for n in itm['key'] if n.isdigit()]) for itm in catalog['items'] if itm['type'] == 'ITP'][1:]
         self.log('**Past Editions available :', ', '.join(edit))
 
         past_edition = self.recipe_specific_options.get('date')
 
         for itm in catalog['items']:
             if past_edition and isinstance(past_edition, str):
-                if itm['key'] == 'ITPNEXTGEN' + past_edition:
-                    key = itm['key']
+                if past_edition in itm['key']:
                     manifest = itm['manifest']
                     date = itm['date']
                     break
-            elif itm['type'] == 'ITPNEXTGEN':
-                key = itm['key']
+            elif itm['type'] == 'ITP':
                 manifest = itm['manifest']
                 date = itm['date']
                 break
@@ -183,7 +181,7 @@ class WSJ(BasicNewsRecipe):
                     for art in data:
                         title = data[art]['headline']
                         desc = data[art]['summary']
-                        url = index + '/contents/v1/wsj/us/' + key + '/' + data[art]['filename']
+                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
                     feeds.append((section, articles))
