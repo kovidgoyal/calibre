@@ -167,11 +167,10 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
-            if is_for_kindle(to):
+            if not is_for_kindle(to):
+                # Amazon nowadays reads metadata from attachment filename instead of
+                # file internal metadata so dont nuke the filename.
                 # https://www.mobileread.com/forums/showthread.php?t=349290
-                from calibre.utils.filenames import ascii_filename
-                aname = ascii_filename(aname)
-            else:
                 aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
             subject = uuid4()
             text = uuid4()
