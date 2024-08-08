@@ -252,7 +252,7 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.utils.matcher import test
         a(test(return_tests=True))
     if ok('scraper'):
-        from calibre.scraper.simple import find_tests
+        from calibre.scraper.test_fetch_backend import find_tests
         a(find_tests())
     if ok('icu'):
         from calibre.utils.icu_test import find_tests

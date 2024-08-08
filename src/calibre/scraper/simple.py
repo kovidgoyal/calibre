@@ -12,7 +12,6 @@ from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import retry_on_fail
 from calibre.utils.ipc.simple_worker import start_pipe_worker
-from calibre.utils.resources import get_path as P
 
 
 def worker_main(source):
@@ -134,44 +133,6 @@ def read_url(storage, url, timeout=60):
         scraper = storage[0]
     from calibre.ebooks.chardet import strip_encoding_declarations
     return strip_encoding_declarations(scraper.fetch_url(url, timeout=timeout))
-
-
-def find_tests():
-    import re
-    import unittest
-
-    from lxml.html import fromstring, tostring
-    skip = ''
-    is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
-    if is_sanitized:
-        skip = 'Skipping Scraper tests as ASAN is enabled'
-    elif 'SKIP_QT_BUILD_TEST' in os.environ:
-        skip = 'Skipping Scraper tests as it causes crashes in macOS VM'
-
-    @unittest.skipIf(skip, skip)
-    class TestSimpleWebEngineScraper(unittest.TestCase):
-
-        def test_dom_load(self):
-            from qt.core import QUrl
-            overseer = Overseer()
-            for f in ('book', 'nav'):
-                path = P(f'templates/new_{f}.html', allow_user_override=False)
-                url = QUrl.fromLocalFile(path)
-                html = overseer.fetch_url(url, 'test')
-
-                def c(a):
-                    ans = tostring(fromstring(a.encode('utf-8')), pretty_print=True, encoding='unicode')
-                    return re.sub(r'\s+', ' ', ans)
-                with open(path, 'rb') as f:
-                    raw = f.read().decode('utf-8')
-                self.assertEqual(c(html), c(raw))
-            self.assertRaises(ValueError, overseer.fetch_url, 'file:///does-not-exist.html', 'test')
-            w = overseer.workers
-            self.assertEqual(len(w), 1)
-            del overseer
-            self.assertFalse(w)
-
-    return unittest.defaultTestLoader.loadTestsFromTestCase(TestSimpleWebEngineScraper)
 
 
 if __name__ == '__main__':
