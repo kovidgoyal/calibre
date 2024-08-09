@@ -56,6 +56,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         if self.test_obj.dont_send_response:
             return
+        if self.path == '/redirect':
+            self.send_response(http.HTTPStatus.FOUND)
+            self.send_header('Location', '/redirected')
+            self.end_headers()
+            self.flush_headers()
+            return
         h = {}
         for k, v in self.headers.items():
             h.setdefault(k, []).append(v)
@@ -71,10 +77,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header('Content-Length', str(len(data)))
         self.send_header('Set-Cookie', 'sc=1')
         self.end_headers()
-        self.flush_headers()
         if self.test_obj.dont_send_body:
-            return
-        self.wfile.write(data)
+            self.flush_headers()
+        else:
+            self.wfile.write(data)
 
     def log_request(self, code='-', size='-'):
         pass
@@ -98,13 +104,24 @@ class TestFetchBackend(unittest.TestCase):
         self.server_thread.join(5)
 
     def test_recipe_browser(self):
+        from urllib.error import URLError
+        from urllib.request import Request
         def u(path=''):
             return f'http://localhost:{self.port}{path}'
-        def get(path='', timeout=None):
-            raw = br.open(u(path), timeout=timeout).read()
-            return json.loads(raw)
+
+        def get(path='', headers=None, timeout=None):
+            url = u(path)
+            if headers:
+                req = Request(url, headers=headers)
+            else:
+                req = url
+            res = br.open(req, timeout=timeout)
+            raw = res.read()
+            ans = json.loads(raw)
+            ans['final_url'] = res.geturl()
+            return ans
+
         def test_with_timeout(no_response=True):
-            from urllib.error import URLError
             self.dont_send_body = True
             if no_response:
                 self.dont_send_response = True
@@ -129,6 +146,14 @@ class TestFetchBackend(unittest.TestCase):
             self.ae(r['headers']['Cookie'], ['sc=1'])
             test_with_timeout(True)
             test_with_timeout(False)
+            r = get('/redirect')
+            self.ae(r['path'], '/redirected')
+            self.ae(r['headers']['th'], ['1'])
+            self.assertTrue(r['final_url'].endswith('/redirected'))
+            self.ae(r['headers']['User-Agent'], ['test-ua'])
+            r = get(headers={'th': '2', 'tc': '1'})
+            self.ae(r['headers']['Th'], ['2'])
+            self.ae(r['headers']['Tc'], ['1'])
         finally:
             br.shutdown()
 

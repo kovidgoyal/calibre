@@ -30,7 +30,7 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             for dr in fb.live_requests:
                 if dr.url_key == url_key:
                     for k, v in dr.headers:
-                        req.setHttpHeader(k.encode(), v.encode())
+                        req.setHttpHeader(str(k).encode(), str(v).encode())
 
 
 def qurl_to_string(url: QUrl | str) -> str:
