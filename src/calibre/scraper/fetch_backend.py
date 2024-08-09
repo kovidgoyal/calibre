@@ -84,6 +84,8 @@ class FetchBackend(QWebEnginePage):
 
     request_download = pyqtSignal(str, str, object, float, int)
     input_finished = pyqtSignal(str)
+    set_cookies = pyqtSignal(object)
+    set_user_agent_signal = pyqtSignal(str)
     download_finished = pyqtSignal(object)
 
     def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '') -> None:
@@ -98,11 +100,14 @@ class FetchBackend(QWebEnginePage):
         self.interceptor = RequestInterceptor(self)
         profile.setUrlRequestInterceptor(self.interceptor)
         self.request_download.connect(self.download, type=Qt.ConnectionType.QueuedConnection)
+        self.set_cookies.connect(self._set_cookies, type=Qt.ConnectionType.QueuedConnection)
+        self.set_user_agent_signal.connect(self.set_user_agent, type=Qt.ConnectionType.QueuedConnection)
         self.input_finished.connect(self.on_input_finished, type=Qt.ConnectionType.QueuedConnection)
         self.live_requests: set[DownloadRequest] = set()
         self.pending_download_requests: dict[int, DownloadRequest] = {}
         self.download_requests_by_id: dict[int, DownloadRequest] = {}
         self.dr_identifier_count = 0
+        self.all_request_cookies: list[QNetworkCookie] = []
         self.timeout_timer = t = QTimer(self)
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
@@ -138,6 +143,11 @@ class FetchBackend(QWebEnginePage):
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
             self.timeout_timer.start()
+        cs = self.profile().cookieStore()
+        for c in self.all_request_cookies:
+            c = QNetworkCookie(c)
+            c.normalize(qurl)
+            cs.setCookie(c)
         super().download(qurl, str(self.dr_identifier_count))
 
     def _download_requested(self, wdr: QWebEngineDownloadRequest) -> None:
@@ -213,11 +223,30 @@ class FetchBackend(QWebEnginePage):
     def set_user_agent(self, new_val: str) -> None:
         self.profile().setHttpUserAgent(new_val)
 
-    def set_simple_cookie(self, name, value, domain, path='/'):
+    def _set_cookie_from_header(self, cookie_string: str) -> None:
         cs = self.profile().cookieStore()
-        cookie_string = f'{name}={value}; Domain={domain}; Path={path}'
-        for c in QNetworkCookie.parseCookies(cookie_string):
+        for c in QNetworkCookie.parseCookies(cookie_string.encode()):
             cs.setCookie(c)
+
+    def _set_cookies(self, cookies: list[dict[str, str]]) -> None:
+        for c in cookies:
+            if 'header' in c:
+                self._set_cookie_from_header(c['header'])
+            else:
+                self.set_simple_cookie(c['name'], c['value'], c.get('domain'), c.get('path'))
+
+    def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
+        c = QNetworkCookie()
+        c.setName(name.encode())
+        c.setValue(value.encode())
+        if domain is not None:
+            c.setDomain(domain)
+        if path is not None:
+            c.setPath(path)
+        if c.domain():
+            self.profile().cookieStore().setCookie(c)
+        else:
+            self.all_request_cookies.append(c)
 
 
 def read_commands(backend: FetchBackend, tdir: str) -> None:
@@ -233,6 +262,10 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
                 if timeout is None:
                     timeout = default_timeout
                 backend.request_download.emit(cmd['url'], os.path.join(tdir, str(file_counter)), cmd.get('headers'), timeout, cmd.get('id', 0))
+            elif ac == 'set_cookies':
+                backend.set_cookies.emit(cmd['cookies'])
+            elif ac == 'set_user_agent':
+                backend.set_user_agent_signal.emit(cmd['user_agent'])
             elif ac == 'quit':
                 break
     except Exception as err:

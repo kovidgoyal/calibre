@@ -154,6 +154,11 @@ class TestFetchBackend(unittest.TestCase):
             r = get(headers={'th': '2', 'tc': '1'})
             self.ae(r['headers']['Th'], ['2'])
             self.ae(r['headers']['Tc'], ['1'])
+            br.set_simple_cookie('cook', 'ie')
+            br.set_user_agent('man in black')
+            r = get()
+            self.ae(r['headers']['User-Agent'], ['man in black'])
+            self.ae(r['headers']['Cookie'], ['sc=1; cook=ie'])
         finally:
             br.shutdown()
 
