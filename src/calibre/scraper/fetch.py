@@ -55,7 +55,7 @@ class FakeResponse:
 
 class Browser:
 
-    def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = ()):
+    def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = (), start_worker: bool = False):
         self.tdir = ''
         self.worker = self.dispatcher = None
         self.dispatch_map = {}
@@ -64,6 +64,8 @@ class Browser:
         self.user_agent = user_agent
         self.lock = Lock()
         self.shutting_down = False
+        if start_worker:
+            self._ensure_state()
 
     def open(self, url_or_request, data=None, timeout=None):
         if data is not None:

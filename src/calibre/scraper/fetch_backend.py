@@ -27,7 +27,7 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
         fb: FetchBackend = self.parent()
         if fb:
             key = qurl_to_key(req.requestUrl())
-            if dr := fb.download_requests[key]:
+            if dr := fb.download_requests.get(key):
                 for (name, val) in dr.headers:
                     req.setHttpHeader(name.encode(), val.encode())
 
@@ -36,7 +36,10 @@ def qurl_to_string(url: QUrl | str) -> str:
     return bytes(QUrl(url).toEncoded()).decode()
 
 
-qurl_to_key = qurl_to_string
+def qurl_to_key(url: QUrl | str) -> str:
+    return qurl_to_string(url).rstrip('/')
+
+
 Headers = list[tuple[str, str]]
 
 
@@ -91,6 +94,7 @@ class FetchBackend(QWebEnginePage):
         self.output_dir = output_dir or os.getcwd()
         profile.setDownloadPath(self.output_dir)
         super().__init__(profile, parent)
+        sys.excepthook = self.excepthook
         self.interceptor = RequestInterceptor(self)
         profile.setUrlRequestInterceptor(self.interceptor)
         self.request_download.connect(self.download, type=Qt.ConnectionType.QueuedConnection)
@@ -103,6 +107,11 @@ class FetchBackend(QWebEnginePage):
         self.timeout_timer = t = QTimer(self)
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
+
+    def excepthook(self, cls: type, exc: Exception, tb) -> None:
+        if not isinstance(exc, KeyboardInterrupt):
+            sys.__excepthook__(cls, exc, tb)
+        QApplication.instance().exit(1)
 
     def on_input_finished(self, error_msg: str) -> None:
         if error_msg:
