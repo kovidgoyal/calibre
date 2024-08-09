@@ -290,7 +290,7 @@ class RecursiveFetcher:
         except URLError as err:
             if hasattr(err, 'code') and err.code in responses:
                 raise FetchError(responses[err.code])
-            is_temp = False
+            is_temp = getattr(err, 'worth_retry', False)
             reason = getattr(err, 'reason', None)
             if isinstance(reason, socket.gaierror):
                 # see man gai_strerror() for details
