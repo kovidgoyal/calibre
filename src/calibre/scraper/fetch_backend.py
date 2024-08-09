@@ -26,10 +26,11 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, req: QWebEngineUrlRequestInfo) -> None:
         fb: FetchBackend = self.parent()
         if fb:
-            key = qurl_to_key(req.requestUrl())
-            if dr := fb.download_requests.get(key):
-                for (name, val) in dr.headers:
-                    req.setHttpHeader(name.encode(), val.encode())
+            url_key = qurl_to_key(req.requestUrl())
+            for dr in fb.live_requests:
+                if dr.url_key == url_key:
+                    for k, v in dr.headers:
+                        req.setHttpHeader(k.encode(), v.encode())
 
 
 def qurl_to_string(url: QUrl | str) -> str:
@@ -47,21 +48,20 @@ class DownloadRequest:
 
     cancel_on_start: bool = False
     error: str = ''
-    finished: bool = False
     worth_retry: bool = False
     webengine_download_request: QWebEngineDownloadRequest | None = None
 
-    def __init__(self, url: str, filename: str, headers: Headers | None = None, timeout: float = default_timeout):
+    def __init__(self, url: str, filename: str, headers: Headers | None = None, timeout: float = default_timeout, req_id: int = 0):
         self.url, self.filename = url, filename
         self.url_key = qurl_to_key(url)
         self.headers: Headers = headers or []
-        self.responses_needed: list[int] = []
+        self.req_id: int = req_id
         self.error_message = ''
         self.created_at = self.last_activity_at = monotonic()
         self.timeout = timeout
 
-    def as_result(self, req_id: int) -> dict[str, str]:
-        result = {'action': 'finished', 'id': req_id, 'url': self.url, 'output': os.path.join(
+    def as_result(self) -> dict[str, str]:
+        result = {'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': os.path.join(
             self.webengine_download_request.downloadDirectory(), self.webengine_download_request.downloadFileName()),
                   'final_url': qurl_to_string(self.webengine_download_request.url())
         }
@@ -99,7 +99,6 @@ class FetchBackend(QWebEnginePage):
         profile.setUrlRequestInterceptor(self.interceptor)
         self.request_download.connect(self.download, type=Qt.ConnectionType.QueuedConnection)
         self.input_finished.connect(self.on_input_finished, type=Qt.ConnectionType.QueuedConnection)
-        self.download_requests: dict[str, DownloadRequest] = {}
         self.live_requests: set[DownloadRequest] = set()
         self.pending_download_requests: dict[int, DownloadRequest] = {}
         self.download_requests_by_id: dict[int, DownloadRequest] = {}
@@ -133,24 +132,13 @@ class FetchBackend(QWebEnginePage):
     def download(self, url: str, filename: str, extra_headers: Headers | None = None, timeout: float = default_timeout, req_id: int = 0) -> None:
         filename = os.path.basename(filename)
         qurl = QUrl(url)
-        key = qurl_to_key(qurl)
-        dr = self.download_requests.get(key)
-        if dr and not dr.error:
-            if dr.finished:
-                result = dr.as_result(req_id)
-                self.download_finished.emit(result)
-                self.send_response(result)
-            else:
-                dr.responses_needed.append(req_id)
-        else:
-            self.download_requests[key] = dr = DownloadRequest(url, filename, extra_headers, timeout)
-            self.dr_identifier_count += 1
-            self.pending_download_requests[self.dr_identifier_count] = dr
-            self.live_requests.add(dr)
-            dr.responses_needed.append(req_id)
-            if not self.timeout_timer.isActive():
-                self.timeout_timer.start()
-            super().download(qurl, str(self.dr_identifier_count))
+        dr = DownloadRequest(url, filename, extra_headers, timeout, req_id)
+        self.dr_identifier_count += 1
+        self.pending_download_requests[self.dr_identifier_count] = dr
+        self.live_requests.add(dr)
+        if not self.timeout_timer.isActive():
+            self.timeout_timer.start()
+        super().download(qurl, str(self.dr_identifier_count))
 
     def _download_requested(self, wdr: QWebEngineDownloadRequest) -> None:
         try:
@@ -161,7 +149,8 @@ class FetchBackend(QWebEnginePage):
         try:
             if dr.cancel_on_start:
                 dr.error = 'Timed out trying to open URL'
-                dr.finished = True
+                dr.worth_retry = True
+                self.send_response(dr.as_result())
                 return
             dr.last_activity_at = monotonic()
             if dr.filename:
@@ -189,7 +178,6 @@ class FetchBackend(QWebEnginePage):
     def report_finish(self, wdr: QWebEngineDownloadRequest, dr: DownloadRequest) -> None:
         s = wdr.state()
         dr.last_activity_at = monotonic()
-        dr.finished = True
         self.live_requests.discard(dr)
         has_result = False
 
@@ -214,11 +202,9 @@ class FetchBackend(QWebEnginePage):
             has_result = True
 
         if has_result:
-            for req_id in dr.responses_needed:
-                result = dr.as_result(req_id)
-                self.download_finished.emit(result)
-                self.send_response(result)
-            del dr.responses_needed[:]
+            result = dr.as_result()
+            self.download_finished.emit(result)
+            self.send_response(result)
 
     def send_response(self, r: dict[str, str]) -> None:
         with suppress(OSError):

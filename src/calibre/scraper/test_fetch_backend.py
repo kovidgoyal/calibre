@@ -49,27 +49,35 @@ class TestSimpleWebEngineScraper(unittest.TestCase):
 
 class Handler(http.server.BaseHTTPRequestHandler):
 
-    request_count = 0
+    def __init__(self, test_obj, *a):
+        self.test_obj = test_obj
+        super().__init__(*a)
 
     def do_GET(self):
+        if self.test_obj.dont_send_response:
+            return
         h = {}
         for k, v in self.headers.items():
             h.setdefault(k, []).append(v)
+        self.test_obj.request_count += 1
         ans = {
             'path': self.path,
             'headers': h,
-            'request_count': self.request_count,
+            'request_count': self.test_obj.request_count,
         }
         data = json.dumps(ans).encode()
         self.send_response(http.HTTPStatus.OK)
         self.send_header('Content-type', 'application/json')
         self.send_header('Content-Length', str(len(data)))
+        self.send_header('Set-Cookie', 'sc=1')
         self.end_headers()
         self.flush_headers()
+        if self.test_obj.dont_send_body:
+            return
         self.wfile.write(data)
 
     def log_request(self, code='-', size='-'):
-        self.request_count += 1
+        pass
 
 
 @unittest.skipIf(skip, skip)
@@ -83,6 +91,7 @@ class TestFetchBackend(unittest.TestCase):
         self.server_thread.start()
         self.server_started.wait(5)
         self.request_count = 0
+        self.dont_send_response = self.dont_send_body = False
 
     def tearDown(self):
         self.server.shutdown()
@@ -91,17 +100,35 @@ class TestFetchBackend(unittest.TestCase):
     def test_recipe_browser(self):
         def u(path=''):
             return f'http://localhost:{self.port}{path}'
-        def get(path=''):
-            raw = br.open(u(path)).read()
+        def get(path='', timeout=None):
+            raw = br.open(u(path), timeout=timeout).read()
             return json.loads(raw)
+        def test_with_timeout(no_response=True):
+            from urllib.error import URLError
+            self.dont_send_body = True
+            if no_response:
+                self.dont_send_response = True
+            try:
+                get(timeout=0.02)
+            except URLError as e:
+                self.assertTrue(e.worth_retry)
+            else:
+                raise AssertionError('Expected timeout not raised')
+            self.dont_send_body = False
+            self.dont_send_response = False
+
         br = Browser(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
         try:
             r = get()
-            self.ae(r['request_count'], 0)
-            print(r)
+            self.ae(r['request_count'], 1)
             self.ae(r['headers']['th'], ['1'])
             self.ae(r['headers']['User-Agent'], ['test-ua'])
             self.assertIn('Accept-Encoding', r['headers'])
+            r = get()
+            self.ae(r['request_count'], 2)
+            self.ae(r['headers']['Cookie'], ['sc=1'])
+            test_with_timeout(True)
+            test_with_timeout(False)
         finally:
             br.shutdown()
 
@@ -109,8 +136,7 @@ class TestFetchBackend(unittest.TestCase):
         import socketserver
 
         def create_handler(*a):
-            ans = Handler(*a)
-            ans.backend = self
+            ans = Handler(self, *a)
             return ans
 
         with socketserver.TCPServer(("", 0), create_handler) as httpd:
