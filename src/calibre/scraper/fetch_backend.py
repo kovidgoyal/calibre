@@ -17,10 +17,6 @@ from calibre.scraper.simple_backend import create_base_profile
 default_timeout: float = 60.  # seconds
 
 
-def debug(*a, **kw):
-    print(*a, **kw, file=sys.stderr)
-
-
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
     def interceptRequest(self, req: QWebEngineUrlRequestInfo) -> None:
@@ -218,7 +214,7 @@ class FetchBackend(QWebEnginePage):
 
     def send_response(self, r: dict[str, str]) -> None:
         with suppress(OSError):
-            print(json.dumps(r), flush=True)
+            print(json.dumps(r), flush=True, file=sys.__stdout__)
 
     def set_user_agent(self, new_val: str) -> None:
         self.profile().setHttpUserAgent(new_val)
@@ -277,6 +273,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
 
 def worker(tdir: str, user_agent: str) -> None:
     app = QApplication.instance()
+    sys.stdout = sys.stderr
     backend = FetchBackend(output_dir=tdir, parent=app, user_agent=user_agent)
     try:
         read_thread = Thread(target=read_commands, args=(backend, tdir), daemon=True)
