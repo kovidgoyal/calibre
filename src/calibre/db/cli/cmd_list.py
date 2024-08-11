@@ -170,7 +170,7 @@ def do_list(
 ):
     if sort_by is None:
         ascending = True
-    if dbctx.is_remote and (template or template_file or template_title):
+    if dbctx.is_remote and (template or template_file):
         raise SystemExit(_('The use of templates is disallowed when connecting to remote servers for security reasons'))
     if 'template' in (f.strip() for f in fields):
         if template_file:
