@@ -716,7 +716,7 @@ class KOBO(USBMS):
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
-            elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
+            elif (ContentType == "6" or ContentType == "10") and (MimeType == 'application/x-kobo-epub+zip' or MimeType == 'application/epub+zip'):
                 if path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
                 else:
