@@ -716,7 +716,7 @@ class KOBO(USBMS):
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
-            elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
+            elif (ContentType == "6" or ContentType == "10") and (MimeType == 'application/x-kobo-epub+zip' or (MimeType == 'application/epub+zip' and self.isTolinoDevice())):
                 if path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
                 else:
@@ -2173,7 +2173,7 @@ class KOBOTOUCH(KOBO):
     def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId=None):
         path = ContentID
 
-        if not (externalId or MimeType == 'application/octet-stream'):
+        if not (externalId or MimeType == 'application/octet-stream' or (self.isTolinoDevice() and MimeType == 'audio/mpeg')):
             return super().path_from_contentid(ContentID, ContentType, MimeType, oncard)
 
         if oncard == 'cardb':
@@ -2181,6 +2181,8 @@ class KOBOTOUCH(KOBO):
         else:
             if (ContentType == "6" or ContentType == "10"):
                 if (MimeType == 'application/octet-stream'):  # Audiobooks purchased from Kobo are in a different location.
+                    path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
+                elif (MimeType == 'audio/mpeg' and self.isTolinoDevice()):
                     path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
                 elif path.startswith("file:///mnt/onboard/"):
                     path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
