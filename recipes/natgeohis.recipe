@@ -163,6 +163,14 @@ class NatGeo(BasicNewsRecipe):
     masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
     resolve_internal_links = True
 
+    recipe_specific_options = {
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600'
+        }
+    }
+
     extra_css = '''
         blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
@@ -198,8 +206,11 @@ class NatGeo(BasicNewsRecipe):
         for h2 in soup.findAll('h2'):
             h2.name = 'h4'
         for img in soup.findAll('img', src=True):
-            # for high res images use '?w=2000&h=2000'
-            img['src'] = img['src'] + '?w=600&h=600'
+            res = '?w=600'
+            w = self.recipe_specific_options.get('res')
+            if w and isinstance(w, str):
+                res = '?w=' + w
+            img['src'] = img['src'] + res
         return soup
 
     def populate_article_metadata(self, article, soup, first):

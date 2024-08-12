@@ -70,8 +70,7 @@ class outlook(BasicNewsRecipe):
             self.description = self.tag_to_string(summ)
         tme = soup.find(attrs={'class':'arr__timeago'})
         if tme:
-            self.timefmt = ' [' + self.tag_to_string(tme).strip() + ']'
-        
+            self.timefmt = ' [' + self.tag_to_string(tme).split('-')[-1].strip() + ']'
 
         ans = []
 
