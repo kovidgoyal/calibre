@@ -106,6 +106,9 @@ class Browser:
         self.user_agent = val
         self._send_command({'action': 'set_user_agent', 'user_agent': val})
 
+    def clone_browser(self):
+        return self
+
     def _send_command(self, cmd):
         self.worker.stdin.write(json.dumps(cmd).encode())
         self.worker.stdin.write(b'\n')

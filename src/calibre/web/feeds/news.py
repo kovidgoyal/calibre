@@ -427,7 +427,15 @@ class BasicNewsRecipe(Recipe):
     #: If no default is specified, the option will not be in the dict at all, when unspecified by the user.
     recipe_specific_options = None
 
-    #: Set to False if you do not want to use gzipped transfers. Note that some old servers flake out with gzip
+    #: The simulated browser engine to use when downloading from servers. The default is to use the Python mechanize
+    #: browser engine. An alternate is "chromium" which will use the network engine from the Chromium web browser instead.
+    #: The mechanize engine supports logging in, the Chromium engine does not. However, the Chromium engine supports HTTP/2 and
+    #: similar technologies and also is harder for bot interception services to fingerprint. To customize the Chromium based
+    #: browser, such as adding headers or cookies override the get_chromium_browser() method in your recipe.
+    browser_type = 'mechanize'
+
+    #: Set to False if you do not want to use gzipped transfers with the mechanize browser.
+    #: Note that some old servers flake out with gzip.
     handle_gzip = True
 
     # See the built-in recipes for examples of these settings.
@@ -550,6 +558,8 @@ class BasicNewsRecipe(Recipe):
                 return br
 
         '''
+        if self.browser_type == 'chromium':
+            return self.get_chromium_browser()
         if 'user_agent' not in kwargs:
             # More and more news sites are serving JPEG XR images to IE
             ua = getattr(self, 'last_used_user_agent', None) or self.calibre_most_common_ua or random_user_agent(allow_ie=False)
@@ -560,6 +570,25 @@ class BasicNewsRecipe(Recipe):
         if self.handle_gzip:
             br.set_handle_gzip(True)
         return br
+
+    def get_chromium_browser(self, *a, **kw):
+        '''
+        Get a "browser" that uses the Chromium network stack for support of HTTP/2 and HTTP/3 and a TLS fingerprint identical
+        to that of a normal browser. Customizing the browser is simple::
+
+            br = super().get_chromium_browser()
+            # Adding headers that are added to every network request
+            br.addheaders += [
+                ('My-Header': 'Some value'),
+                ('Another-Header': 'another value'),
+            ]
+            # Changing the user agent
+            br.set_user_agent('some user agent')
+            # Adding cookies
+            br.set_simple_cookie('cookie-name', 'cookie-value')
+        '''
+        from calibre.scraper.fetch import Browser
+        return Browser()
 
     def clone_browser(self, br):
         '''
@@ -580,7 +609,7 @@ class BasicNewsRecipe(Recipe):
 
     @property
     def cloned_browser(self):
-        if hasattr(self.get_browser, 'is_base_class_implementation'):
+        if hasattr(self.get_browser, 'is_base_class_implementation') and self.browser_type == 'mechanize':
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
