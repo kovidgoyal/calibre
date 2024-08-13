@@ -276,9 +276,9 @@ def create_tarfile(env, compression_level='9'):
     try:
         shutil.rmtree(base)
     except EnvironmentError as err:
-        if err.errno != errno.ENOENT:
+        if err.errno not in (errno.ENOENT, errno.EBUSY):
             raise
-    os.mkdir(base)
+    os.makedirs(base, exist_ok=True)  # when base is a mount point deleting it fails with EBUSY
     dist = os.path.join(base, '%s-%s-%s.tar' % (calibre_constants['appname'], calibre_constants['version'], arch))
     with tarfile.open(dist, mode='w', format=tarfile.PAX_FORMAT) as tf:
         cwd = os.getcwd()

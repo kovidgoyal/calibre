@@ -316,6 +316,9 @@ class BuildTest(unittest.TestCase):
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QNetworkAccessManager, QSslSocket, QTimer
         QLoggingCategory.setFilterRules('''qt.webenginecontext.debug=true''')
+        if hasattr(os, 'geteuid') and os.geteuid() == 0:
+            # likely a container build, webengine cannot run as root with sandbox
+            os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = '--no-sandbox'
         from qt.webengine import QWebEnginePage
 
         from calibre.utils.img import image_from_data, image_to_data, test
