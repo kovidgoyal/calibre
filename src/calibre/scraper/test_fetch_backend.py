@@ -12,8 +12,8 @@ from lxml.html import fromstring, tostring
 
 from calibre.utils.resources import get_path as P
 
+from .qt import Browser
 from .simple import Overseer
-from .webengine_download import Browser
 
 skip = ''
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
@@ -158,7 +158,7 @@ class TestFetchBackend(unittest.TestCase):
             br.set_user_agent('man in black')
             r = get()
             self.ae(r['headers']['User-Agent'], ['man in black'])
-            self.ae(r['headers']['Cookie'], ['sc=1; cook=ie'])
+            self.ae(r['headers']['Cookie'], ['cook=ie; sc=1'])
         finally:
             br.shutdown()
 

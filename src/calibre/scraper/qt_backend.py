@@ -95,7 +95,8 @@ class DownloadRequest(QObject):
 
     def on_data_available(self) -> None:
         with open(self.output_path, 'ab') as f:
-            f.write(memoryview(self.reply.readAll()))
+            ba = self.reply.readAll()
+            f.write(memoryview(ba))
 
     def on_ssl_errors(self, err) -> None:
         pass
@@ -106,6 +107,16 @@ class DownloadRequest(QObject):
                   'final_url': qurl_to_string(self.reply.url())}
 
         if e != QNetworkReply.NetworkError.NoError:
+            if e in (
+                QNetworkReply.NetworkError.TimeoutError,
+                QNetworkReply.NetworkError.TemporaryNetworkFailureError,
+
+                QNetworkReply.NetworkError.ConnectionRefusedError,
+                QNetworkReply.NetworkError.RemoteHostClosedError,
+                QNetworkReply.NetworkError.OperationCanceledError,  # abort() called in overall timeout check
+                QNetworkReply.NetworkError.SslHandshakeFailedError,
+            ):
+                self.worth_retry = True
             es = f'{e}: {self.reply.errorString()}'
             result['error'], result['worth_retry'] = es, self.worth_retry
         return result
@@ -248,27 +259,25 @@ def request_from_cmd(cmd: dict[str, Any], filename: str) -> Request:
     if timeout is None:
         timeout = default_timeout
     req: Request = {
-        'id': cmd.get(id) or 0,
+        'id': int(cmd['id']),
         'url': cmd['url'],
         'headers': cmd.get('headers') or [],
         'data_path': cmd.get('data_path') or '',
         'method': cmd.get('method') or 'get',
         'filename': filename,
-        'timeout': timeout,
+        'timeout': float(timeout),
     }
     return req
 
 
 def read_commands(backend: FetchBackend, tdir: str) -> None:
-    file_counter = 0
     error_msg = ''
     try:
         for line in sys.stdin:
             cmd = json.loads(line)
             ac = cmd['action']
             if ac == 'download':
-                file_counter += 1
-                backend.request_download.emit(request_from_cmd(cmd, str(file_counter)))
+                backend.request_download.emit(request_from_cmd(cmd, f'o{cmd["id"]}'))
             elif ac == 'set_cookies':
                 backend.set_cookies.emit(cmd['cookies'])
             elif ac == 'set_user_agent':
@@ -285,7 +294,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
 def worker(tdir: str, user_agent: str) -> None:
     app = QApplication.instance()
     sys.stdout = sys.stderr
-    backend = FetchBackend(parent=app, user_agent=user_agent)
+    backend = FetchBackend(parent=app, user_agent=user_agent, output_dir=tdir)
     try:
         read_thread = Thread(target=read_commands, args=(backend, tdir), daemon=True)
         read_thread.start()
@@ -312,7 +321,7 @@ def develop(url: str) -> None:
 
     backend.download_finished.connect(download_finished)
     for i, url in enumerate(sys.argv[1:]):
-        backend.download(request_from_cmd({'url':url}, f'test-output-{i}'))
+        backend.download(request_from_cmd({'url':url, 'id': i}, f'test-output-{i}'))
         num_left += 1
     app.exec()
 
