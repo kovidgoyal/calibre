@@ -18,6 +18,7 @@ from qt.core import (
     QNetworkReply,
     QNetworkRequest,
     QObject,
+    QSslError,
     Qt,
     QTimer,
     QUrl,
@@ -82,10 +83,9 @@ class DownloadRequest(QObject):
         self.req_id: int = req_id
         self.created_at = self.last_activity_at = monotonic()
         self.timeout = timeout
-        self.reply.downloadProgress.connect(self.on_download_progress)
-        self.reply.uploadProgress.connect(self.on_upload_progress)
+        self.reply.downloadProgress.connect(self.on_download_progress, type=Qt.ConnectionType.QueuedConnection)
+        self.reply.uploadProgress.connect(self.on_upload_progress, type=Qt.ConnectionType.QueuedConnection)
         # self.reply.readyRead.connect(self.on_data_available)
-        self.reply.sslErrors.connect(self.on_ssl_errors)
 
     def on_download_progress(self, bytes_received: int, bytes_total: int) -> None:
         self.last_activity_at = monotonic()
@@ -141,9 +141,10 @@ class FetchBackend(QNetworkAccessManager):
     set_user_agent_signal = pyqtSignal(str)
     download_finished = pyqtSignal(object)
 
-    def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '') -> None:
+    def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
         super().__init__(parent)
         self.cookie_jar = CookieJar(self)
+        self.verify_ssl_certificates = verify_ssl_certificates
         self.setCookieJar(self.cookie_jar)
         self.user_agent = user_agent or random_common_chrome_user_agent()
         self.setTransferTimeout(int(default_timeout * 1000))
@@ -154,6 +155,7 @@ class FetchBackend(QNetworkAccessManager):
         self.set_user_agent_signal.connect(self.set_user_agent, type=Qt.ConnectionType.QueuedConnection)
         self.input_finished.connect(self.on_input_finished, type=Qt.ConnectionType.QueuedConnection)
         self.finished.connect(self.on_reply_finished, type=Qt.ConnectionType.QueuedConnection)
+        self.sslErrors.connect(self.on_ssl_errors)
         self.live_requests: set[DownloadRequest] = set()
         self.all_request_cookies: list[QNetworkCookie] = []
         self.timeout_timer = t = QTimer(self)
@@ -212,6 +214,10 @@ class FetchBackend(QNetworkAccessManager):
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
             self.timeout_timer.start()
+
+    def on_ssl_errors(self, reply: QNetworkReply, errors: list[QSslError]) -> None:
+        if not self.verify_ssl_certificates:
+            reply.ignoreSslErrors()
 
     def on_reply_finished(self, reply: QNetworkReply) -> None:
         reply.deleteLater()
@@ -293,10 +299,10 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
     backend.input_finished.emit(error_msg)
 
 
-def worker(tdir: str, user_agent: str) -> None:
+def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
     app = QApplication.instance()
     sys.stdout = sys.stderr
-    backend = FetchBackend(parent=app, user_agent=user_agent, output_dir=tdir)
+    backend = FetchBackend(parent=app, user_agent=user_agent, output_dir=tdir, verify_ssl_certificates=verify_ssl_certificates)
     try:
         read_thread = Thread(target=read_commands, args=(backend, tdir), daemon=True)
         read_thread.start()

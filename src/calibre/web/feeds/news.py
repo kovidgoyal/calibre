@@ -573,7 +573,7 @@ class BasicNewsRecipe(Recipe):
         self.log('Using user agent:', kwargs['user_agent'])
         if self.browser_type == 'qt':
             from calibre.scraper.qt import Browser
-            return Browser(user_agent=kwargs['user_agent'])
+            return Browser(user_agent=kwargs['user_agent'], verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False))
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:

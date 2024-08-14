@@ -60,10 +60,11 @@ class FakeResponse:
 
 class Browser:
 
-    def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = (), start_worker: bool = False):
+    def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = (), verify_ssl_certificates: bool = True, start_worker: bool = False):
         self.tdir = ''
         self.worker = self.dispatcher = None
         self.dispatch_map = {}
+        self.verify_ssl_certificates = verify_ssl_certificates
         self.id_counter = 0
         self.addheaders: list[tuple[str, str]] = list(headers)
         self.user_agent = user_agent
@@ -145,7 +146,7 @@ class Browser:
         with self.lock:
             if not self.tdir:
                 self.tdir = PersistentTemporaryDirectory()
-                self.worker = run_worker(self.tdir, self.user_agent)
+                self.worker = run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates)
                 self.dispatcher = Thread(target=self._dispatch, daemon=True)
                 self.dispatcher.start()
 
@@ -189,9 +190,9 @@ class Browser:
         self.shutdown()
 
 
-def run_worker(tdir: str, user_agent: str):
+def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
-    return start_pipe_worker(f'from calibre.scraper.qt import worker; worker({tdir!r}, {user_agent!r})')
+    return start_pipe_worker(f'from calibre.scraper.qt import worker; worker({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
 
 
 def worker(*args):
