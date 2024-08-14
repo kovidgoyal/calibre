@@ -8,7 +8,7 @@ import sys
 from contextlib import suppress
 from threading import Thread
 from time import monotonic
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from qt.core import (
     QApplication,
@@ -132,9 +132,9 @@ class FetchBackend(QNetworkAccessManager):
     def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '') -> None:
         super().__init__(parent)
         self.cookie_jar = CookieJar(self)
-        self.setNetworkCookieJar(self.cookie_jar)
+        self.setCookieJar(self.cookie_jar)
         self.user_agent = user_agent or random_common_chrome_user_agent()
-        self.setTransferTimeout(default_timeout)
+        self.setTransferTimeout(int(default_timeout * 1000))
         self.output_dir = output_dir or os.getcwd()
         sys.excepthook = self.excepthook
         self.request_download.connect(self.download, type=Qt.ConnectionType.QueuedConnection)
@@ -243,6 +243,22 @@ class FetchBackend(QNetworkAccessManager):
         self.cookie_jar.add_cookie(c)
 
 
+def request_from_cmd(cmd: dict[str, Any], filename: str) -> Request:
+    timeout = cmd.get('timeout')
+    if timeout is None:
+        timeout = default_timeout
+    req: Request = {
+        'id': cmd.get(id) or 0,
+        'url': cmd['url'],
+        'headers': cmd.get('headers') or [],
+        'data_path': cmd.get('data_path') or '',
+        'method': cmd.get('method') or 'get',
+        'filename': filename,
+        'timeout': timeout,
+    }
+    return req
+
+
 def read_commands(backend: FetchBackend, tdir: str) -> None:
     file_counter = 0
     error_msg = ''
@@ -252,19 +268,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
             ac = cmd['action']
             if ac == 'download':
                 file_counter += 1
-                timeout = cmd.get('timeout')
-                if timeout is None:
-                    timeout = default_timeout
-                req: Request = {
-                    'id': cmd.get(id) or 0,
-                    'url': cmd['url'],
-                    'headers': cmd.get('headers') or [],
-                    'data_path': cmd.get('data_path') or '',
-                    'method': cmd.get('method') or 'get',
-                    'filename': os.path.join(tdir, str(file_counter)),
-                    'timeout': timeout,
-                }
-                backend.request_download.emit(req)
+                backend.request_download.emit(request_from_cmd(cmd, str(file_counter)))
             elif ac == 'set_cookies':
                 backend.set_cookies.emit(cmd['cookies'])
             elif ac == 'set_user_agent':
@@ -308,7 +312,7 @@ def develop(url: str) -> None:
 
     backend.download_finished.connect(download_finished)
     for i, url in enumerate(sys.argv[1:]):
-        backend.download(url, f'test-output-{i}')
+        backend.download(request_from_cmd({'url':url}, f'test-output-{i}'))
         num_left += 1
     app.exec()
 
