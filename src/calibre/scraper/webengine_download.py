@@ -164,13 +164,13 @@ class Browser:
 
 def run_worker(tdir: str, user_agent: str):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
-    return start_pipe_worker(f'from calibre.scraper.fetch import worker; worker({tdir!r}, {user_agent!r})')
+    return start_pipe_worker(f'from calibre.scraper.webengine_download import worker; worker({tdir!r}, {user_agent!r})')
 
 
 def worker(*args):
     from calibre.gui2 import must_use_qt
     must_use_qt()
-    from .fetch_backend import worker
+    from .webengine_download_backend import worker
     worker(*args)
 
 

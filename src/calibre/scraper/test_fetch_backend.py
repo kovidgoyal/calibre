@@ -12,8 +12,8 @@ from lxml.html import fromstring, tostring
 
 from calibre.utils.resources import get_path as P
 
-from .fetch import Browser
 from .simple import Overseer
+from .webengine_download import Browser
 
 skip = ''
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
