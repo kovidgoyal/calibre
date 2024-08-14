@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Poligon(BasicNewsRecipe):
+    title          	  = '\u041F\u043E\u043B\u0438\u0433\u043E\u043D'
+    __author__            = 'bugmen00t'
+    description           = '\u041D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u043E\u0435 \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442-\u0438\u0437\u0434\u0430\u043D\u0438\u0435, \u0432\u044B\u043F\u0443\u0441\u043A\u0430\u0435\u043C\u043E\u0435 \u0436\u0443\u0440\u043D\u0430\u043B\u0438\u0441\u0442\u0430\u043C\u0438 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u0438\u0445 \u0440\u043E\u0441\u0441\u0438\u0439\u0441\u043A\u0438\u0445 \u0438\u0437\u0434\u0430\u043D\u0438\u0439, \u043F\u043E\u0434\u0432\u0435\u0440\u0433\u0448\u0438\u0445\u0441\u044F \u0434\u0430\u0432\u043B\u0435\u043D\u0438\u044E \u0441\u043E \u0441\u0442\u043E\u0440\u043E\u043D\u044B \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u0430. \u041F\u0438\u0448\u0435\u043C \u043E \u0420\u043E\u0441\u0441\u0438\u0438 \u0438 \u043D\u0435 \u0442\u043E\u043B\u044C\u043A\u043E.'  # noqa
+    publisher             = 'poligon.media'
+    category              = 'news'
+    cover_url = u'https://www.plgnmedia.io/wp-content/uploads/2022/02/poligon-share.png'
+    language              = 'ru'
+    no_stylesheets        = False
+    remove_javascript = False
+    auto_cleanup   = False
+    oldest_article = 14
+    max_articles_per_feed = 10
+
+    remove_tags_after = dict(name='article')
+
+    feeds = [
+        ('\u0412\u0441\u0435 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B', 'https://poligonmedia.io/feed/'),
+        ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://poligonmedia.io/category/news/feed/'),
+        ('\u0418\u043D\u0442\u0435\u0440\u0432\u044C\u044E', 'https://poligonmedia.io/category/int/feed/'),
+        ('\u0420\u0430\u0441\u043A\u043B\u0430\u0434', 'https://poligonmedia.io/category/rasklad/feed/'),
+        ('\u0420\u0430\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F', 'https://poligonmedia.io/category/rassled/feed/'),
+        ('\u0420\u0435\u043F\u043E\u0440\u0442\u0430\u0436', 'https://poligonmedia.io/category/reportazh/feed/'),
+        ('\u041C\u043E\u0436\u0435\u043C \u043E\u0431\u044A\u044F\u0441\u043D\u0438\u0442\u044C', 'https://poligonmedia.io/category/mozhem-obyasnit/feed/'),
+        ('\u0418\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F', 'https://poligonmedia.io/category/issledovaniya/feed/'),
+        ('English', 'https://poligon.media/category/eng/feed/')
+    ]
