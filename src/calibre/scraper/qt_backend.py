@@ -209,7 +209,7 @@ class FetchBackend(QNetworkAccessManager):
         elif method == 'delete':
             reply = self.deleteRequest(rq)
         else:
-            raise TypeError(f'Unknown HTTP request type: {method}')
+            reply = self.sendCustomRequest(rq, method.encode(), data)
         dr = DownloadRequest(req['url'], os.path.join(self.output_dir, filename), reply, timeout, req['id'], self)
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
