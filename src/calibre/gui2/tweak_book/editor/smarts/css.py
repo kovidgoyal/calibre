@@ -72,7 +72,7 @@ class Smarts(NullSmarts):
         if key == Qt.Key.Key_Home and smart_home(editor, ev):
             return True
 
-        if key == Qt.Key.Key_Tab:
+        if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
             mods = ev.modifiers()
             if not mods & Qt.KeyboardModifier.ControlModifier and smart_tab(editor, ev):
                 return True

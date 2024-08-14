@@ -74,17 +74,71 @@ def expand_tabs(text, tw):
     return text.replace('\t', ' ' * tw)
 
 
-def smart_tab(editor, ev):
+def smart_tab_if_whitespace_only_before_cursor(editor, backwards):
     cursor, text = get_text_before_cursor(editor)
     if not text.lstrip():
         # cursor is preceded by only whitespace
         tw = editor.tw
         text = expand_tabs(text, tw)
-        spclen = len(text) - (len(text) % tw) + tw
-        cursor.insertText(' ' * spclen)
-        editor.setTextCursor(cursor)
-        return True
+        if backwards:
+            if leading := len(text):
+                new_leading = max(0, leading - tw)
+                extra = new_leading % tw
+                if extra:
+                    new_leading += tw - extra
+                cursor.insertText(' ' * new_leading)
+                return True
+        else:
+            spclen = len(text) - (len(text) % tw) + tw
+            cursor.insertText(' ' * spclen)
+            editor.setTextCursor(cursor)
+            return True
     return False
+
+
+def smart_tab_all_blocks_in_selection(editor, backwards):
+    cursor = editor.textCursor()
+    c = QTextCursor(cursor)
+    c.clearSelection()
+    c.setPosition(cursor.selectionStart())
+    tab_width = editor.tw
+    changed = False
+    while not c.atEnd() and c.position() <= cursor.selectionEnd():
+        c.clearSelection()
+        c.movePosition(QTextCursor.MoveOperation.EndOfBlock)
+        c.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
+        # select leading whitespace
+        while not c.atEnd() and c.document().characterAt(c.position()).isspace():
+            c.movePosition(QTextCursor.MoveOperation.NextCharacter, QTextCursor.MoveMode.KeepAnchor)
+        text = expand_tabs(editor.selected_text_from_cursor(c), tab_width)
+        leading = len(text)
+        replaced = False
+        if backwards:
+            if leading:
+                new_leading = max(0, leading - tab_width)
+                extra = new_leading % tab_width
+                if extra:
+                    new_leading += tab_width - extra
+                replaced = True
+        else:
+            new_leading = leading + tab_width
+            new_leading -= new_leading % tab_width
+            replaced = True
+        if replaced:
+            c.insertText(' ' * new_leading)
+            changed = True
+        c.movePosition(QTextCursor.MoveOperation.NextBlock)
+        c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
+    return changed
+
+
+def smart_tab(editor, ev):
+    cursor = editor.textCursor()
+    backwards = ev.key() == Qt.Key.Key_Backtab or (ev.key() == Qt.Key.Key_Tab and bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier))
+    if cursor.hasSelection():
+        return smart_tab_all_blocks_in_selection(editor, backwards)
+    return smart_tab_if_whitespace_only_before_cursor(editor, backwards)
 
 
 def smart_backspace(editor, ev):

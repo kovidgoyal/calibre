@@ -36,7 +36,7 @@ class Smarts(NullSmarts):
     def handle_key_press(self, ev, editor):
         key = ev.key()
 
-        if key == Qt.Key.Key_Tab:
+        if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
             mods = ev.modifiers()
             if not mods & Qt.KeyboardModifier.ControlModifier and smart_tab(editor, ev):
                 return True
