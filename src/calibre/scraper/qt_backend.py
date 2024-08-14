@@ -204,6 +204,8 @@ class FetchBackend(QNetworkAccessManager):
             reply = self.put(rq, data)
         elif method == 'head':
             reply = self.head(rq, data)
+        elif method == 'delete':
+            reply = self.deleteRequest(rq)
         else:
             raise TypeError(f'Unknown HTTP request type: {method}')
         dr = DownloadRequest(req['url'], os.path.join(self.output_dir, filename), reply, timeout, req['id'], self)
