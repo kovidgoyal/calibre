@@ -552,8 +552,8 @@ class BasicNewsRecipe(Recipe):
                     ('My-Header2', 'two'),
                 ]
                 # Set some cookies
-                br.set_simple_cookie('name', 'value')
-                br.set_simple_cookie('name2', 'value2', domain='.mydomain.com')
+                br.set_cookie('name', 'value')
+                br.set_cookie('name2', 'value2', domain='.mydomain.com')
                 # Make a POST request with some data
                 br.open('https://someurl.com', {'username': 'def', 'password': 'pwd'}).read()
                 # Do a login via a simple web form (only supported with mechanize browsers)

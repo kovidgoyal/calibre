@@ -128,6 +128,7 @@ class Browser:
         '''
         c = {'name': name, 'value': value, 'domain': domain, 'path': path}
         self._send_command({'action': 'set_cookies', 'cookies':[c]})
+    set_cookie = set_simple_cookie
 
     def set_user_agent(self, val: str = '') -> None:
         self.user_agent = val
