@@ -428,10 +428,9 @@ class BasicNewsRecipe(Recipe):
     recipe_specific_options = None
 
     #: The simulated browser engine to use when downloading from servers. The default is to use the Python mechanize
-    #: browser engine. An alternate is "chromium" which will use the network engine from the Chromium web browser instead.
-    #: The mechanize engine supports logging in, the Chromium engine does not. However, the Chromium engine supports HTTP/2 and
-    #: similar technologies and also is harder for bot interception services to fingerprint. To customize the Chromium based
-    #: browser, such as adding headers or cookies override the get_chromium_browser() method in your recipe.
+    #: browser engine. An alternate is "qt" which will use the network engine from the Qt toolkit.
+    #: The mechanize engine supports logging in, the Qt engine does not. However, the Qt engine supports HTTP/2 and
+    #: similar technologies and also is harder for bot interception services to fingerprint.
     browser_type = 'mechanize'
 
     #: Set to False if you do not want to use gzipped transfers with the mechanize browser.
@@ -541,14 +540,23 @@ class BasicNewsRecipe(Recipe):
         Return a browser instance used to fetch documents from the web. By default
         it returns a `mechanize <https://mechanize.readthedocs.io/en/latest/>`_
         browser instance that supports cookies, ignores robots.txt, handles
-        refreshes and has a mozilla firefox user agent.
+        refreshes and has a random common user agent.
 
-        If your recipe requires that you login first, override this method
-        in your subclass. For example, the following code is used in the New York
-        Times recipe to login for full access::
+        To customize the browser override this method in your sub-class as::
 
-            def get_browser(self):
-                br = BasicNewsRecipe.get_browser(self)
+            def get_browser(self, *a, **kw):
+                br = super().get_browser(*a, **kw)
+                # Add some headers
+                br.addheaders += [
+                    ('My-Header', 'one'),
+                    ('My-Header2', 'two'),
+                ]
+                # Set some cookies
+                br.set_simple_cookie('name', 'value')
+                br.set_simple_cookie('name2', 'value2', domain='.mydomain.com')
+                # Make a POST request with some data
+                br.open('https://someurl.com', {'username': 'def', 'password': 'pwd'}).read()
+                # Do a login via a simple web form (only supported with mechanize browsers)
                 if self.username is not None and self.password is not None:
                     br.open('https://www.nytimes.com/auth/login')
                     br.select_form(name='login')
@@ -558,37 +566,19 @@ class BasicNewsRecipe(Recipe):
                 return br
 
         '''
-        if self.browser_type == 'chromium':
-            return self.get_chromium_browser()
         if 'user_agent' not in kwargs:
             # More and more news sites are serving JPEG XR images to IE
             ua = getattr(self, 'last_used_user_agent', None) or self.calibre_most_common_ua or random_user_agent(allow_ie=False)
             kwargs['user_agent'] = self.last_used_user_agent = ua
         self.log('Using user agent:', kwargs['user_agent'])
+        if self.browser_type == 'qt':
+            from calibre.scraper.qt import Browser
+            return Browser(user_agent=kwargs['user_agent'])
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:
             br.set_handle_gzip(True)
         return br
-
-    def get_chromium_browser(self, *a, **kw):
-        '''
-        Get a "browser" that uses the Chromium network stack for support of HTTP/2 and HTTP/3 and a TLS fingerprint identical
-        to that of a normal browser. Customizing the browser is simple::
-
-            br = super().get_chromium_browser()
-            # Adding headers that are added to every network request
-            br.addheaders += [
-                ('My-Header': 'Some value'),
-                ('Another-Header': 'another value'),
-            ]
-            # Changing the user agent
-            br.set_user_agent('some user agent')
-            # Adding cookies
-            br.set_simple_cookie('cookie-name', 'cookie-value')
-        '''
-        from calibre.scraper.fetch import Browser
-        return Browser()
 
     def clone_browser(self, br):
         '''
