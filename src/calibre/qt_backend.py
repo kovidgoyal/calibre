@@ -8,8 +8,24 @@ import sys
 from contextlib import suppress
 from threading import Thread
 from time import monotonic
+from typing import TypedDict
 
-from qt.core import QApplication, QNetworkAccessManager, QNetworkCookie, QNetworkReply, QNetworkRequest, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
+from qt.core import (
+    QApplication,
+    QNetworkAccessManager,
+    QNetworkCookie,
+    QNetworkCookieJar,
+    QNetworkReply,
+    QNetworkRequest,
+    QObject,
+    Qt,
+    QTimer,
+    QUrl,
+    pyqtSignal,
+    sip,
+)
+
+from calibre.utils.random_ua import random_common_chrome_user_agent
 
 default_timeout: float = 60.  # seconds
 
@@ -24,40 +40,81 @@ def qurl_to_key(url: QUrl | str) -> str:
 
 Headers = list[tuple[str, str]]
 
+class Request(TypedDict):
+    id: int
+    url: str
+    headers: Headers
+    data_path: str
+    method: str
+    filename: str
+    timeout: float
 
-class DownloadRequest(QNetworkRequest):
 
-    error: str = ''
+class CookieJar(QNetworkCookieJar):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.all_request_cookies = []
+
+    def add_cookie(self, c: QNetworkCookie) -> None:
+        if c.domain():
+            self.insertCookie(c)
+        else:
+            self.all_request_cookies.append(c)
+
+    def cookiesForUrl(self, url: QUrl) -> list[QNetworkCookie]:
+        ans = []
+        for c in self.all_request_cookies:
+            c = QNetworkCookie(c)
+            c.normalize(url)
+            ans.append(c)
+        return ans + super().cookiesForUrl(url)
+
+
+class DownloadRequest(QObject):
+
     worth_retry: bool = False
-    reply: QNetworkReply
 
-    def __init__(self, url: str, filename: str, headers: Headers | None = None, timeout: float = default_timeout, req_id: int = 0):
-        super().__init__(QUrl(url))
-        self.setTransferTimeout(int(timeout * 1000))
-        self.url, self.filename = url, filename
-        self.url_key = qurl_to_key(url)
-        self.headers: Headers = headers or []
-        for (name, val) in self.headers:
-            self.setRawHeader(name.encode(), val.encode())
+    def __init__(self, url: str, output_path: str, reply: QNetworkReply, timeout: float, req_id: int, parent: 'FetchBackend'):
+        super().__init__(parent)
+        self.url, self.filename = url, os.path.basename(output_path)
+        self.output_path = output_path
+        self.reply = reply
         self.req_id: int = req_id
-        self.error_message = ''
         self.created_at = self.last_activity_at = monotonic()
         self.timeout = timeout
+        self.reply.downloadProgress.connect(self.on_download_progress)
+        self.reply.uploadProgress.connect(self.on_upload_progress)
+        self.reply.readyRead.connect(self.on_data_available)
+        self.reply.sslErrors.connect(self.on_ssl_errors)
+
+    def on_download_progress(self, bytes_received: int, bytes_total: int) -> None:
+        self.last_activity_at = monotonic()
+
+    def on_upload_progress(self, bytes_received: int, bytes_total: int) -> None:
+        self.last_activity_at = monotonic()
+
+    def on_data_available(self) -> None:
+        with open(self.output_path, 'ab') as f:
+            f.write(memoryview(self.reply.readAll()))
+
+    def on_ssl_errors(self, err) -> None:
+        pass
 
     def as_result(self) -> dict[str, str]:
-        result = {'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': os.path.join(
-            self.webengine_download_request.downloadDirectory(), self.webengine_download_request.downloadFileName()),
-                  'final_url': qurl_to_string(self.webengine_download_request.url())
-        }
-        if self.error:
-            result['error'], result['worth_retry'] = self.error, self.worth_retry
+        e = self.reply.error()
+        result = {'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
+                  'final_url': qurl_to_string(self.reply.url())}
+
+        if e != QNetworkReply.NetworkError.NoError:
+            es = f'{e}: {self.reply.errorString()}'
+            result['error'], result['worth_retry'] = es, self.worth_retry
         return result
 
     def too_slow_or_timed_out(self, now: float) -> bool:
         if self.timeout and self.last_activity_at + self.timeout < now:
             return True
         time_taken = now - self.created_at
-        if time_taken > default_timeout and self.webengine_download_request is not None:
+        if time_taken > default_timeout:
             downloaded = self.webengine_download_request.receivedBytes()
             rate = downloaded / time_taken
             return rate < 10
@@ -66,7 +123,7 @@ class DownloadRequest(QNetworkRequest):
 
 class FetchBackend(QNetworkAccessManager):
 
-    request_download = pyqtSignal(str, str, object, float, int)
+    request_download = pyqtSignal(object)
     input_finished = pyqtSignal(str)
     set_cookies = pyqtSignal(object)
     set_user_agent_signal = pyqtSignal(str)
@@ -74,6 +131,9 @@ class FetchBackend(QNetworkAccessManager):
 
     def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '') -> None:
         super().__init__(parent)
+        self.cookie_jar = CookieJar(self)
+        self.setNetworkCookieJar(self.cookie_jar)
+        self.user_agent = user_agent or random_common_chrome_user_agent()
         self.setTransferTimeout(default_timeout)
         self.output_dir = output_dir or os.getcwd()
         sys.excepthook = self.excepthook
@@ -86,6 +146,7 @@ class FetchBackend(QNetworkAccessManager):
         self.timeout_timer = t = QTimer(self)
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
+        self.finished.connect(self.on_reply_finished)
 
     def excepthook(self, cls: type, exc: Exception, tb) -> None:
         if not isinstance(exc, KeyboardInterrupt):
@@ -101,107 +162,68 @@ class FetchBackend(QNetworkAccessManager):
         now = monotonic()
         timed_out = tuple(dr for dr in self.live_requests if dr.too_slow_or_timed_out(now))
         for dr in timed_out:
-            if dr.webengine_download_request is None:
-                dr.cancel_on_start = True
-            else:
-                dr.webengine_download_request.cancel()
-            self.live_requests.discard(dr)
+            dr.reply.abort()
         if self.live_requests:
             self.timeout_timer.start()
 
-    def download(self, url: str, filename: str, extra_headers: Headers | None = None, timeout: float = default_timeout, req_id: int = 0) -> None:
-        filename = os.path.basename(filename)
-        qurl = QUrl(url)
-        dr = DownloadRequest(url, filename, extra_headers, timeout, req_id)
-        self.dr_identifier_count += 1
-        self.pending_download_requests[self.dr_identifier_count] = dr
+    def current_user_agent(self) -> str:
+        return self.user_agent
+
+    def download(self, req: Request) -> None:
+        filename = os.path.basename(req['filename'])
+        qurl = QUrl(req['url'])
+        rq = QNetworkRequest(qurl)
+        timeout = req['timeout']
+        rq.setTransferTimeout(int(timeout * 1000))
+        rq.setRawHeader(b'User-Agent', self.current_user_agent().encode())
+        for (name, val) in req['headers']:
+            rq.setRawHeader(name.encode(), val.encode())
+        method = req['method'].lower()
+        data_path = req['data_path']
+        data = None
+        if data_path:
+            with open(data_path, 'rb') as f:
+                data = f.read()
+        if method == 'get':
+            reply = self.get(rq, data)
+        elif method == 'post':
+            reply = self.post(rq, data)
+        elif method == 'put':
+            reply = self.put(rq, data)
+        elif method == 'head':
+            reply = self.head(rq, data)
+        else:
+            raise TypeError(f'Unknown HTTP request type: {method}')
+        dr = DownloadRequest(req['url'], os.path.join(self.output_dir, filename), reply, timeout, req['id'], self)
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
             self.timeout_timer.start()
-        cs = self.profile().cookieStore()
-        for c in self.all_request_cookies:
-            c = QNetworkCookie(c)
-            c.normalize(qurl)
-            cs.setCookie(c)
-        super().download(qurl, str(self.dr_identifier_count))
 
-    def _download_requested(self, wdr: QWebEngineDownloadRequest) -> None:
-        try:
-            idc = int(wdr.suggestedFileName())
-            dr: DownloadRequest = self.pending_download_requests.pop(idc)
-        except Exception:
-            return
-        try:
-            if dr.cancel_on_start:
-                dr.error = 'Timed out trying to open URL'
-                dr.worth_retry = True
-                self.send_response(dr.as_result())
-                return
-            dr.last_activity_at = monotonic()
-            if dr.filename:
-                wdr.setDownloadFileName(dr.filename)
-            dr.webengine_download_request = wdr
-            self.download_requests_by_id[wdr.id()] = dr
-            wdr.isFinishedChanged.connect(self._download_finished)
-            wdr.receivedBytesChanged.connect(self._bytes_received)
-            wdr.accept()
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            self.report_finish(wdr, dr)
+    def on_reply_finished(self, reply: QNetworkReply) -> None:
+        reply.deleteLater()
+        for x in tuple(self.live_requests):
+            if x.reply is reply:
+                self.live_requests.discard(x)
+                self.report_finish(x)
+                x.reply = None
+                break
+        reply.deleteLater()
 
-    def _bytes_received(self) -> None:
-        wdr: QWebEngineDownloadRequest = self.sender()
-        if dr := self.download_requests_by_id.get(wdr.id()):
-            dr.last_activity_at = monotonic()
-
-    def _download_finished(self) -> None:
-        wdr: QWebEngineDownloadRequest = self.sender()
-        if dr := self.download_requests_by_id.get(wdr.id()):
-            self.report_finish(wdr, dr)
-
-    def report_finish(self, wdr: QWebEngineDownloadRequest, dr: DownloadRequest) -> None:
-        s = wdr.state()
-        dr.last_activity_at = monotonic()
-        self.live_requests.discard(dr)
-        has_result = False
-
-        if s == QWebEngineDownloadRequest.DownloadState.DownloadRequested:
-            dr.error = 'Open of URL failed'
-            has_result = True
-        elif s == QWebEngineDownloadRequest.DownloadState.DownloadCancelled:
-            dr.error = 'Timed out waiting for download'
-            dr.worth_retry = True
-            has_result = True
-        elif s == QWebEngineDownloadRequest.DownloadState.DownloadInterrupted:
-            dr.error = wdr.interruptReasonString()
-            dr.worth_retry = wdr.interruptReason() in (
-                QWebEngineDownloadRequest.DownloadInterruptReason.NetworkTimeout,
-                QWebEngineDownloadRequest.DownloadInterruptReason.NetworkFailed,
-                QWebEngineDownloadRequest.DownloadInterruptReason.NetworkDisconnected,
-                QWebEngineDownloadRequest.DownloadInterruptReason.NetworkServerDown,
-                QWebEngineDownloadRequest.DownloadInterruptReason.ServerUnreachable,
-            )
-            has_result = True
-        elif s == QWebEngineDownloadRequest.DownloadState.DownloadCompleted:
-            has_result = True
-
-        if has_result:
-            result = dr.as_result()
-            self.download_finished.emit(result)
-            self.send_response(result)
+    def report_finish(self, dr: DownloadRequest) -> None:
+        result = dr.as_result()
+        self.download_finished.emit(result)
+        self.send_response(result)
 
     def send_response(self, r: dict[str, str]) -> None:
         with suppress(OSError):
             print(json.dumps(r), flush=True, file=sys.__stdout__)
 
     def set_user_agent(self, new_val: str) -> None:
-        self.profile().setHttpUserAgent(new_val)
+        self.user_agent = new_val
 
     def _set_cookie_from_header(self, cookie_string: str) -> None:
-        cs = self.profile().cookieStore()
         for c in QNetworkCookie.parseCookies(cookie_string.encode()):
-            cs.setCookie(c)
+            self.cookie_jar.add_cookie(c)
 
     def _set_cookies(self, cookies: list[dict[str, str]]) -> None:
         for c in cookies:
@@ -218,10 +240,7 @@ class FetchBackend(QNetworkAccessManager):
             c.setDomain(domain)
         if path is not None:
             c.setPath(path)
-        if c.domain():
-            self.profile().cookieStore().setCookie(c)
-        else:
-            self.all_request_cookies.append(c)
+        self.cookie_jar.add_cookie(c)
 
 
 def read_commands(backend: FetchBackend, tdir: str) -> None:
@@ -236,7 +255,16 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
                 timeout = cmd.get('timeout')
                 if timeout is None:
                     timeout = default_timeout
-                backend.request_download.emit(cmd['url'], os.path.join(tdir, str(file_counter)), cmd.get('headers'), timeout, cmd.get('id', 0))
+                req: Request = {
+                    'id': cmd.get(id) or 0,
+                    'url': cmd['url'],
+                    'headers': cmd.get('headers') or [],
+                    'data_path': cmd.get('data_path') or '',
+                    'method': cmd.get('method') or 'get',
+                    'filename': os.path.join(tdir, str(file_counter)),
+                    'timeout': timeout,
+                }
+                backend.request_download.emit(req)
             elif ac == 'set_cookies':
                 backend.set_cookies.emit(cmd['cookies'])
             elif ac == 'set_user_agent':
