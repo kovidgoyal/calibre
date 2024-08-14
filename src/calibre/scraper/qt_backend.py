@@ -192,24 +192,24 @@ class FetchBackend(QNetworkAccessManager):
         rq.setRawHeader(b'User-Agent', self.current_user_agent().encode())
         for (name, val) in req['headers']:
             rq.setRawHeader(name.encode(), val.encode())
-        method = req['method'].lower()
+        qmethod = req['method'].lower()
         data_path = req['data_path']
         data = None
         if data_path:
             with open(data_path, 'rb') as f:
                 data = f.read()
-        if method == 'get':
+        if qmethod == 'get':
             reply = self.get(rq, data)
-        elif method == 'post':
+        elif qmethod == 'post':
             reply = self.post(rq, data)
-        elif method == 'put':
+        elif qmethod == 'put':
             reply = self.put(rq, data)
-        elif method == 'head':
+        elif qmethod == 'head':
             reply = self.head(rq, data)
-        elif method == 'delete':
+        elif qmethod == 'delete':
             reply = self.deleteRequest(rq)
         else:
-            reply = self.sendCustomRequest(rq, method.encode(), data)
+            reply = self.sendCustomRequest(rq, req['method'].encode(), data)
         dr = DownloadRequest(req['url'], os.path.join(self.output_dir, filename), reply, timeout, req['id'], self)
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
