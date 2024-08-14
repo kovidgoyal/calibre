@@ -139,6 +139,7 @@ class Browser:
 
     def _send_command(self, cmd):
         with self.lock:
+            self._ensure_state()
             self.worker.stdin.write(json.dumps(cmd).encode())
             self.worker.stdin.write(b'\n')
             self.worker.stdin.flush()
