@@ -843,14 +843,18 @@ def merge_font_files(fonts, log):
     descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0']
     total_size = sum(len(f['Data']) for f in descendant_fonts)
     merged_sfnt = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
-    w_arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
-    glyph_ids = all_glyph_ids_in_w_arrays(w_arrays, as_set=True)
-    h_arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
-    glyph_ids |= all_glyph_ids_in_w_arrays(h_arrays, as_set=True)
-    try:
-        pdf_subset(merged_sfnt, glyph_ids)
-    except NoGlyphs:
-        log.warn(f'Subsetting of {fonts[0]["BaseFont"]} failed with no glyphs found, ignoring')
+    if False:
+        # As of Qt 6.7.2 webengine produces W arrays that do not contain all
+        # used glyph ids, so we cannot subset. Can be tested by
+        # echo 'this is a test boulder sentence' > test.txt; ebook-convert test.txt .pdf
+        w_arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
+        glyph_ids = all_glyph_ids_in_w_arrays(w_arrays, as_set=True)
+        h_arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
+        glyph_ids |= all_glyph_ids_in_w_arrays(h_arrays, as_set=True)
+        try:
+            pdf_subset(merged_sfnt, glyph_ids)
+        except NoGlyphs:
+            log.warn(f'Subsetting of {fonts[0]["BaseFont"]} failed with no glyphs found, ignoring')
     font_data = merged_sfnt()[0]
     log(f'Merged {len(fonts)} instances of {fonts[0]["BaseFont"]} reducing size from {human_readable(total_size)} to {human_readable(len(font_data))}')
     return font_data, tuple(f['Reference'] for f in descendant_fonts)
