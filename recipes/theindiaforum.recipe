@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from datetime import datetime, timedelta, timezone
 
 from calibre.utils.date import parse_date
@@ -21,11 +23,22 @@ class mains(BasicNewsRecipe):
     use_embedded_content = False
     oldest_article = 30  # days
     masthead_url = 'https://www.theindiaforum.in/themes/the_india_forum/images/tif_logo.png'
+    extra_css = '''
+        [class*="caption"], [class*="references"], #article-author-top-container { font-size:small; }
+        [class*="blurb"] { font-style:italic; }
+        blockquote, em { color:#202020; }
+    '''
 
     keep_only_tags = [
         classes('article-lead-container block-views-blockarticle-block-1'),
         dict(name='section', attrs={'id':'article-author-top-container'}),
         classes('block-field-blocknodearticlebody block-field-blocknodearticlefield-references')
+    ]
+
+    remove_tags = [
+        dict(name=['source', 'svg']),
+        dict(attrs={'src':lambda x: x and x.endswith('quote_logo.png')}),
+        classes('s_info')
     ]
 
     def parse_index(self):

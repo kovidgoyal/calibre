@@ -9,21 +9,6 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-def media_bucket(x):
-    if x.get('type', '') == 'image':
-        if x.get('subtype', '') == 'graphic':
-            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
-            )
-        return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-            x['manifest-url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
-        )
-    if x.get('type', '') == 'video':
-        return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
-            x['share_link'], x['thumbnail_url'].split('?')[0] + '?width=600', x['caption'] + '<i> ' + x['credit'] + '</i>'
-        )
-    return
-
 class WSJ(BasicNewsRecipe):
     title = 'WSJ. Magazine'
     __author__ = 'unkn0wn'
@@ -38,6 +23,14 @@ class WSJ(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
+
+    recipe_specific_options = {
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600'
+        }
+    }
 
     extra_css = '''
         #subhed, em { font-style:italic; color:#202020; }
@@ -62,6 +55,25 @@ class WSJ(BasicNewsRecipe):
         dict(name='p', attrs={'id':'orig-pubdate-string'})
     ]
 
+    def media_bucket(self, x):
+        res = '?width=600'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '?width=' + w
+        if x.get('type', '') == 'image':
+            if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
+                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+                    x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
+                )
+            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
+                x['manifest-url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
+        if x.get('type', '') == 'video':
+            return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
+                x['share_link'], x['thumbnail_url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
+            )
+        return
+
     def preprocess_html(self, soup):
         jpml = soup.find('jpml')
         if jpml:
@@ -74,8 +86,9 @@ class WSJ(BasicNewsRecipe):
         dt = soup.find('p', attrs={'id':'orig-pubdate-string'})
         read = soup.find('p', attrs={'id':'time-to-read'})
         byl = soup.find('p', attrs={'id':'byline'})
-        if dt and byl and read:
-            dt.name = read.name = byl.name = 'div'
+        fl = soup.find('p', attrs={'id':'flashline'})
+        if dt and byl and read and fl:
+            dt.name = read.name = byl.name = fl.name = 'div'
             byl.insert(0, dt)
             byl.insert(0, read)
         url = soup.find('p', attrs={'id':'share-link'})
@@ -88,7 +101,7 @@ class WSJ(BasicNewsRecipe):
             if buck:
                 data = json.loads(buck.string)
                 buck.extract()
-                i_lst = [media_bucket(x) for x in data['items']]
+                i_lst = [self.media_bucket(x) for x in data['items']]
                 m_itm = soup.findAll('panel', attrs={'class':'media-item'})
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
