@@ -84,7 +84,7 @@ class DownloadRequest(QObject):
         self.timeout = timeout
         self.reply.downloadProgress.connect(self.on_download_progress)
         self.reply.uploadProgress.connect(self.on_upload_progress)
-        self.reply.readyRead.connect(self.on_data_available)
+        # self.reply.readyRead.connect(self.on_data_available)
         self.reply.sslErrors.connect(self.on_ssl_errors)
 
     def on_download_progress(self, bytes_received: int, bytes_total: int) -> None:
@@ -93,8 +93,8 @@ class DownloadRequest(QObject):
     def on_upload_progress(self, bytes_received: int, bytes_total: int) -> None:
         self.last_activity_at = monotonic()
 
-    def on_data_available(self) -> None:
-        with open(self.output_path, 'ab') as f:
+    def save_data(self) -> None:
+        with open(self.output_path, 'wb') as f:
             ba = self.reply.readAll()
             f.write(memoryview(ba))
 
@@ -102,6 +102,7 @@ class DownloadRequest(QObject):
         pass
 
     def as_result(self) -> dict[str, str]:
+        self.save_data()
         e = self.reply.error()
         result = {'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
                   'final_url': qurl_to_string(self.reply.url())}
@@ -152,12 +153,12 @@ class FetchBackend(QNetworkAccessManager):
         self.set_cookies.connect(self._set_cookies, type=Qt.ConnectionType.QueuedConnection)
         self.set_user_agent_signal.connect(self.set_user_agent, type=Qt.ConnectionType.QueuedConnection)
         self.input_finished.connect(self.on_input_finished, type=Qt.ConnectionType.QueuedConnection)
+        self.finished.connect(self.on_reply_finished, type=Qt.ConnectionType.QueuedConnection)
         self.live_requests: set[DownloadRequest] = set()
         self.all_request_cookies: list[QNetworkCookie] = []
         self.timeout_timer = t = QTimer(self)
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
-        self.finished.connect(self.on_reply_finished)
 
     def excepthook(self, cls: type, exc: Exception, tb) -> None:
         if not isinstance(exc, KeyboardInterrupt):
@@ -218,7 +219,6 @@ class FetchBackend(QNetworkAccessManager):
                 self.report_finish(x)
                 x.reply = None
                 break
-        reply.deleteLater()
 
     def report_finish(self, dr: DownloadRequest) -> None:
         result = dr.as_result()
