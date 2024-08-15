@@ -10,7 +10,6 @@ from functools import lru_cache
 from qt.core import QApplication, QEventLoop, QUrl
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 
-from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import create_script, insert_scripts, setup_profile
 
 
@@ -48,8 +47,28 @@ def create_base_profile(cache_name='', allow_js=False):
 @lru_cache(maxsize=None)
 def create_profile(cache_name='', allow_js=False):
     ans = create_base_profile(cache_name, allow_js)
-    js = P('scraper.js', allow_user_override=False, data=True).decode('utf-8')
     ans.token = secrets.token_hex()
+    js = '''
+(function() {
+    "use strict";
+
+    function send_msg(data) {
+        var token = 'TOKEN';
+        var msg = token + '  ' + JSON.stringify(data);
+        console.log(msg);
+    }
+
+    function debug() {
+        var args = Array.prototype.slice.call(arguments);
+        var text = args.join(' ');
+        send_msg({type: 'print', text: text});
+    }
+
+    if (document.location && document.location.href && !document.location.href.startsWith('chrome-error:') && !document.location.href.startsWith('about:')) {
+        send_msg({type: 'domready', url: document.location.href, html: new XMLSerializer().serializeToString(document)});
+    }
+})();
+'''
     js = js.replace('TOKEN', ans.token)
     insert_scripts(ans, create_script('scraper.js', js))
     return ans
