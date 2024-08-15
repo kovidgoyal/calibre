@@ -144,7 +144,7 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
 
 
 def human_readable(size, sep=' '):
-    if size == 0:
+    if size <= 0:
         return f'0{sep}B'
     i = Math.floor(Math.log(size) / Math.log(1024))
     size = (size / Math.pow(1024, i)).toFixed(1)
