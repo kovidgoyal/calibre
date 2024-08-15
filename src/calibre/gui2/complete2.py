@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from contextlib import suppress
+
 from qt.core import (
     QAbstractItemView,
     QAbstractListModel,
@@ -78,15 +80,19 @@ class CompleteModel(QAbstractListModel):  # {{{
 
     def data(self, index, role):
         if role == Qt.ItemDataRole.DisplayRole:
-            try:
-                return self.current_items[index.row()].replace('\n', ' ')
-            except IndexError:
-                pass
+            with suppress(IndexError):
+                ans = self.current_items[index.row()].replace('\n', ' ')
+                if not self.strip_completion_entries:
+                    ls = ans.lstrip()
+                    if len(ls) < len(ans):
+                        ans = '␣'*(len(ans) - len(ls)) + ls
+                    rs = ans.rstrip()
+                    if len(rs) < len(ans):
+                        ans = rs + '␣'*(len(ans) - len(rs))
+                return ans
         if role == Qt.ItemDataRole.UserRole:
-            try:
+            with suppress(IndexError):
                 return self.current_items[index.row()]
-            except IndexError:
-                pass
 
     def index_for_prefix(self, prefix):
         for i, item in enumerate(self.current_items):
