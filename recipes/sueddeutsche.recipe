@@ -1,45 +1,62 @@
-# -*- coding: utf-8 -*-
-__license__ = 'GPL v3'
-# 2012-01-26 AGe change to actual Year
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 '''
 Fetch sueddeutsche.de
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Sueddeutsche(BasicNewsRecipe):
 
-    title = u'Süddeutsche.de'
-    description = 'News from Germany, Access to online content'
-    __author__ = 'Oliver Niesner and Armin Geller'  # Update AGe 2012-12-05
-    publisher = u'Süddeutsche Zeitung'
-    category = 'news, politics, Germany'
-    timefmt = ' [%a, %d %b %Y]'
-    oldest_article = 2
-    max_articles_per_feed = 100
-    language = 'de'
+    title = 'Sueddeutsche Zeitung'
+    __author__ = 'unkn0wn'
+    oldest_article = 1.2
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/4/42/S%C3%BCddeutsche_Zeitung_Logo.svg'
+    description = 'Deutschlands führende Nachrichtenseite. Alles Wichtige aus Politik, Wirtschaft, Sport, Kultur, Wissenschaft, Technik und mehr.'
     encoding = 'utf-8'
-    publication_type = 'newspaper'
-    # 2012-01-26 AGe add from Darko Miletic paid content source
-    cover_source = 'http://www.sueddeutsche.de/verlag'
-    # 2012-12-05 AGe add
-    masthead_url = 'http://www.sueddeutsche.de/static_assets/img/sdesiteheader/logo_standard.a152b0df.png'
-
-    use_embedded_content = False
+    language = 'de'
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    no_javascript = True
     no_stylesheets = True
-    remove_javascript = True
-    auto_cleanup = True
 
-    # 2012-01-26 AGe add from Darko Miletic paid content source
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    extra_css = '''
+        [data-manual="overline"] { font-size:small; color: #404040; }
+        [data-manual="date"], [data-manual^="headerImageCaption"], [data-manual="author"] { font-size:small; }
+         [data-manual="teaserText"] { font-style:italic; color:#202020; }
+        blockquote, em { color: #202020; }
+    '''
+
     def get_cover_url(self):
-        cover_source_soup = self.index_to_soup(self.cover_source)
-        preview_image_div = cover_source_soup.find(
-            attrs={'class': 'preview-image'})
-        return preview_image_div.div.img['src']
+        soup = self.index_to_soup('https://www.frontpages.com/suddeutsche-zeitung/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
 
-    feeds = [									# 2015-10-22 Spanjaart: redefined most feeds. Previous version did not work anymore.
+    keep_only_tags = [
+        dict(attrs={'data-manual':['overline', 'title', 'date', 'headerImage', 'teaserText', 'author', 'body']}),
+    ]
+    remove_tags = [
+        dict(name=['svg', 'button', 'meta']),
+        dict(attrs={'data-manual-remove':'true'})
+    ]
+
+    # https://www.sueddeutsche.de/service/updates-mit-rss-uebersicht-aller-rss-feeds-fuer-sz-de-sz-magazin-und-jetzt-de-1.393950
+    feeds = [
         (u'Politik', u'http://rss.sueddeutsche.de/rss/Politik'),
         (u'Wirtschaft', u'http://rss.sueddeutsche.de/rss/Wirtschaft'),
         (u'Geld', u'http://rss.sueddeutsche.de/rss/Geld'),
@@ -58,21 +75,25 @@ class Sueddeutsche(BasicNewsRecipe):
         (u'Wissen', u'http://rss.sueddeutsche.de/rss/Wissen'),
         (u'Panorama', u'http://rss.sueddeutsche.de/rss/Panorama'),
         (u'Reise', u'http://rss.sueddeutsche.de/rss/Reise'),
-        (u'Technik', u'http://rss.sueddeutsche.de/rss/Technik'),
-        (u'Macht', u'http://rss.sueddeutsche.de/rss/Macht'),
-        (u'Job', u'http://rss.sueddeutsche.de/rss/Job'),
-        (u'Service', u'http://rss.sueddeutsche.de/rss/Service'),
-        (u'Verlag', u'http://rss.sueddeutsche.de/rss/Verlag'),
-
+        (u'Alles', u'https://rss.sueddeutsche.de/alles')
     ]
-# AGe 2011-12-16 Problem of Handling redirections solved by a solution of Recipes-Re-usable code from kiklop74.
-# Feed is:                    http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss
-# Article download source is: http://sz.de/1.1237295 (Ski Alpin: Der Erfolg kommt, der Trainer geht)
-# Article source is:          http://www.sueddeutsche.de/sport/ski-alpin-der-erfolg-kommt-der-trainer-geht-1.1237295
-# Article printversion is:
-# http://www.sueddeutsche.de/sport/2.220/ski-alpin-der-erfolg-kommt-der-trainer-geht-1.1237295
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        url = url.split('?')[0]
+        if 'sz-magazin.sueddeutsche.de/' not in url and 'artikel' not in url:
+            return url
+
+    def preprocess_html(self, soup):
+        sub = soup.find(attrs={'data-manual':['overline', 'date']})
+        if sub:
+            sub.name = 'div'
+        h1 = soup.find(attrs={'data-manual':'title'})
+        if h1:
+            h1.name = 'h1'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup
 
     def print_version(self, url):
-        n_url = self.browser.open_novisit(url).geturl()
-        main, sep, id = n_url.rpartition('/')
-        return main + '/2.220/' + id
+        return 'https://och.to/unlock/' + url
