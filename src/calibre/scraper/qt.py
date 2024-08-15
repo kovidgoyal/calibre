@@ -23,6 +23,8 @@ class FakeResponse:
         self.queue = Queue()
         self.done = False
         self.final_url = ''
+        self._status = None
+        self._headers = []
         self.data = BytesIO()
 
     def _wait(self):
@@ -33,6 +35,8 @@ class FakeResponse:
         if res['action'] == 'input_error':
             raise Exception(res['error'])
         self.final_url = res['final_url']
+        self._status = res.get('http_code')
+        self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
             ex.worth_retry = bool(res.get('worth_retry'))
@@ -51,9 +55,34 @@ class FakeResponse:
     def tell(self, *a, **kw):
         return self.data.tell(*a, **kw)
 
-    def geturl(self):
+    @property
+    def url(self) -> str:
         self._wait()
         return self.final_url
+
+    @property
+    def status(self) -> int | None:
+        self._wait()
+        return self._status
+    code = status
+
+    @property
+    def headers(self):
+        self._wait()
+        from email.message import EmailMessage
+        ans = EmailMessage()
+        for k, v in self._headers:
+            ans[k] = v
+        return ans
+
+    def getcode(self) -> int | None:
+        return self.status
+
+    def geturl(self):
+        return self.url
+
+    def getinfo(self):
+        return self.headers
 
     def close(self):
         self.data.close()
@@ -206,15 +235,31 @@ class Browser:
         self.shutdown()
 
 
-def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool):
+class WebEngineBrowser(Browser):
+
+    def is_method_ok(self, method: str) -> bool:
+        return method.upper() in ('GET', 'POST')
+
+    def run_worker(self) -> subprocess.Popen:
+        return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates, function='webengine_worker')
+
+
+def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, function: str = 'worker'):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
-    return start_pipe_worker(f'from calibre.scraper.qt import worker; worker({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
+    return start_pipe_worker(f'from calibre.scraper.qt import {function}; {function}({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
 
 
 def worker(*args):
     from calibre.gui2 import must_use_qt
     must_use_qt()
     from .qt_backend import worker
+    worker(*args)
+
+
+def webengine_worker(*args):
+    from calibre.gui2 import must_use_qt
+    must_use_qt()
+    from .webengine_backend import worker
     worker(*args)
 
 

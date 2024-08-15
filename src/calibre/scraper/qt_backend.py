@@ -104,8 +104,17 @@ class DownloadRequest(QObject):
     def as_result(self) -> dict[str, str]:
         self.save_data()
         e = self.reply.error()
-        result = {'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
-                  'final_url': qurl_to_string(self.reply.url())}
+        result = {
+            'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
+            'final_url': qurl_to_string(self.reply.url()), 'headers': []
+        }
+        h = result['headers']
+        for (k, v) in self.reply.rawHeaderPairs():
+            h.append((bytes(k).decode('utf-8', 'replace'), bytes(v).decode('utf-8', 'replace')))
+        if code := self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute):
+            result['http_code'] = code
+        if msg := self.reply.attribute(QNetworkRequest.Attribute.HttpReasonPhraseAttribute):
+            result['http_status_message'] = msg
 
         if e != QNetworkReply.NetworkError.NoError:
             if e in (
@@ -299,10 +308,10 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
     backend.input_finished.emit(error_msg)
 
 
-def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
+def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, backend_class: type = FetchBackend) -> None:
     app = QApplication.instance()
     sys.stdout = sys.stderr
-    backend = FetchBackend(parent=app, user_agent=user_agent, output_dir=tdir, verify_ssl_certificates=verify_ssl_certificates)
+    backend = backend_class(parent=app, user_agent=user_agent, output_dir=tdir, verify_ssl_certificates=verify_ssl_certificates)
     try:
         read_thread = Thread(target=read_commands, args=(backend, tdir), daemon=True)
         read_thread.start()
