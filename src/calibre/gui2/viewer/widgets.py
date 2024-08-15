@@ -114,7 +114,7 @@ class SearchBox(HistoryComboBox):  # {{{
     cleared = pyqtSignal()
 
     def __init__(self, parent=None):
-        HistoryComboBox.__init__(self, parent)
+        HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.lineEdit().setPlaceholderText(_('Search'))
         self.lineEdit().setClearButtonEnabled(True)
         ac = self.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
