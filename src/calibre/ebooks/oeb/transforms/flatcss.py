@@ -242,19 +242,29 @@ class CSSFlattener:
             self.oeb.log.warn(msg)
             return body_font_family, efi
 
+        from calibre.ebooks.oeb.polish.utils import OEB_FONTS
         for i, font in enumerate(faces):
             ext = 'otf' if font['is_otf'] else 'ttf'
-            fid, href = self.oeb.manifest.generate(id='font',
-                href='fonts/%s.%s'%(ascii_filename(font['full_name']).replace(' ', '-'), ext))
-            item = self.oeb.manifest.add(fid, href,
-                    guess_type('dummy.'+ext)[0],
-                    data=font_scanner.get_font_data(font))
-            item.unload_data_from_memory()
+            font_data = font_scanner.get_font_data(font)
+            for x in self.oeb.manifest:
+                if x.media_type in OEB_FONTS:
+                    matches = x.data == font_data
+                    x.unload_data_from_memory()
+                    if matches:
+                        item = x
+                        href = item.href
+                        break
+            else:
+                fid, href = self.oeb.manifest.generate(id='font',
+                    href='fonts/%s.%s'%(ascii_filename(font['full_name']).replace(' ', '-'), ext))
+                item = self.oeb.manifest.add(fid, href,
+                        guess_type('dummy.'+ext)[0],
+                        data=font_data)
+                item.unload_data_from_memory()
 
             cfont = {
-                    'font-family': '"%s"'%font['font-family'],
-                    'panose-1': ' '.join(map(str, font['panose'])),
-                    'src': 'url(%s)'%item.href,
+                'font-family': '"%s"'%font['font-family'],
+                'src': 'url(%s)'%item.href,
             }
 
             if i == 0:
@@ -620,6 +630,25 @@ class CSSFlattener:
         return href
 
     def collect_global_css(self):
+        def rules_in(sheets):
+            for s in sheets:
+                yield from s.cssRules
+        def unique_font_face_rules(*rules):
+            seen = set()
+            for rule in rules:
+                try:
+                    ff = rule.style.getPropertyValue('font-family')
+                    src = rule.style.getPropertyValue('src')
+                    w = rule.style.getPropertyValue('font-weight')
+                    s = rule.style.getPropertyValue('font-style')
+                except Exception:
+                    yield rule
+                else:
+                    key = ff, src, w, s
+                    if key not in seen:
+                        seen.add(key)
+                        yield rule
+
         global_css = defaultdict(list)
         for item in self.items:
             stylizer = self.stylizers[item]
@@ -632,7 +661,7 @@ class CSSFlattener:
             items = sorted(stylizer.page_rule.items())
             css = ';\n'.join(f"{key}: {val}" for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
-            rules = [css_text(r) for r in stylizer.font_face_rules + self.embed_font_rules]
+            rules = [css_text(r) for r in unique_font_face_rules(*stylizer.font_face_rules, *rules_in(self.embed_font_rules))]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
             global_css[css].append(item)
