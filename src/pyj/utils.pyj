@@ -142,19 +142,17 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
         ans = star.repeat(int(r/2.0))
     return ans
 
+
 def human_readable(size, sep=' '):
-    divisor, suffix = 1, "B"
-    for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
-        if size < (1 << ((i + 1) * 10)):
-            divisor, suffix = (1 << (i * 10)), candidate
-            break
-    size = (float(size)/divisor) + ''
-    pos = size.find(".")
-    if pos > -1:
-        size = size[:pos + 2]
+    if size == 0:
+        return f'0{sep}B'
+    i = Math.floor(Math.log(size) / Math.log(1024))
+    size = (size / Math.pow(1024, i)).toFixed(1)
     if size.endswith('.0'):
         size = size[:-2]
+    suffix = v"['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']"[i]
     return size + sep + suffix
+
 
 def document_height():
     html = document.documentElement
