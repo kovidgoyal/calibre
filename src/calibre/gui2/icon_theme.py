@@ -607,7 +607,7 @@ class Delegate(QStyledItemDelegate):
         painter.drawLine(0, bottom, option.rect.right(), bottom)
         visit = _('Right click to visit theme homepage') if theme.get('url') else ''
         text = _('''\
-            <p><b><big>{title}<big></b><p>
+            <p><b><big>{title}</big></b><p>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
             <p>Version: {version} Number of users: {usage:n}</p>
