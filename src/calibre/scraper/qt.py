@@ -4,6 +4,7 @@
 import json
 import os
 import shutil
+import subprocess
 import time
 from contextlib import suppress
 from io import BytesIO
@@ -73,7 +74,7 @@ class Browser:
         if start_worker:
             self._ensure_state()
 
-    def open(self, url_or_request: Request, data=None, timeout=None):
+    def _open(self, url_or_request: Request, data=None, timeout=None, visit: bool = True):
         method = 'POST' if data else 'GET'
         headers = []
         if hasattr(url_or_request, 'get_method'):
@@ -100,12 +101,15 @@ class Browser:
             if not has_header('Content-Type'):
                 headers.append(('Content-Type', 'text/plain'))
 
+        if not self.is_method_ok(method):
+            raise KeyError(f'The HTTP {method} request method is not supported')
+
         with self.lock:
             self._ensure_state()
             self.id_counter += 1
             cmd = {
                 'action': 'download', 'id': self.id_counter, 'url': url, 'method': method, 'timeout': timeout,
-                'headers': self.addheaders + headers}
+                'headers': self.addheaders + headers, 'visit': visit,}
             if data:
                 with open(os.path.join(self.tdir, f'i{self.id_counter}'), 'wb') as f:
                     if hasattr(data, 'read'):
@@ -118,7 +122,14 @@ class Browser:
             self._send_command(cmd)
         return res
 
-    open_novisit = open
+    def open(self, url_or_request: Request, data=None, timeout=None):
+        return self._open(url_or_request, data, timeout)
+
+    def open_novisit(self, url_or_request: Request, data=None, timeout=None):
+        return self._open(url_or_request, data, timeout, visit=False)
+
+    def is_method_ok(self, method: str) -> bool:
+        return True
 
     def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
         '''
@@ -148,9 +159,12 @@ class Browser:
         with self.lock:
             if not self.tdir:
                 self.tdir = PersistentTemporaryDirectory()
-                self.worker = run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates)
+                self.worker = self.run_worker()
                 self.dispatcher = Thread(target=self._dispatch, daemon=True)
                 self.dispatcher.start()
+
+    def run_worker(self) -> subprocess.Popen:
+        return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates)
 
     def _dispatch(self):
         try:
