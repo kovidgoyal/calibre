@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://sz-magazin.sueddeutsche.de' + url
+
+
+class szmagazin(BasicNewsRecipe):
+    title = 'Süddeutsche Zeitung Magazin'
+    __author__ = 'unkn0wn'
+    description = (
+        'Das SZ-Magazin ist ein Wochenendmagazin, das der Süddeutschen Zeitung (SZ) beiliegt. Es erscheint jeden Freitag und umfasst verschiedene'
+        'Themenbereiche wie Politik, Kultur, Gesellschaft, Wissenschaft, Technologie, Reisen, Mode und Lifestyle.'
+    )
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/8/89/SZ-Magazin_logo.svg'
+    encoding = 'utf-8'
+    language = 'de'
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    remove_empty_feeds = True
+    no_javascript = True
+    no_stylesheets = True
+
+    extra_css = '''
+        .figure__caption, .articleheader__author { font-size:small; }
+        .articleheader__subline { font-style:italic; color:#202020; }
+        blockquote, em { color: #202020; }
+    '''
+
+    recipe_specific_options = {
+        'issue': {
+            'short': 'The edition to download (YYYY/Number format)',
+            'long': 'For example, 2024/31'
+        }
+    }
+
+    keep_only_tags = [
+        classes(
+            'articleheader__headline articleheader__subline articleheader__author articleheader__mediasection articlemain__content'
+        )
+    ]
+    remove_tags = [
+        dict(name=['svg', 'button', 'meta']),
+        classes('articlemain__ad inline-teaser')
+    ]
+
+    def parse_index(self):
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            issue = 'https://sz-magazin.sueddeutsche.de/heft/' + d
+        else:
+            url = 'https://sz-magazin.sueddeutsche.de/hefte'
+            soup = self.index_to_soup(url)
+            issue = absurl(soup.find(**classes('teaser--issue')).a['href'])
+
+        soup = self.index_to_soup(issue)
+        self.cover_url = soup.find(**classes('issue-page-header__img'))['src']
+        self.title = 'SZ Magazin ' + self.tag_to_string(soup.find(**classes('page-header__headline')))
+        self.description = self.tag_to_string(soup.find(**classes('page-header__text')))
+        self.timefmt = ' [' + self.tag_to_string(soup.find(**classes('issue-page-header-date'))) + ']'
+
+        ans = []
+
+        for a in soup.findAll('a', attrs={'class':'link teaser__text-link'}):
+            title = self.tag_to_string(a.h5)
+            url = absurl(a['href'])
+            desc = self.tag_to_string(a.p)
+            self.log('              ', title, '\n\t', desc, '\n\t', url)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', ans)]
+
+    def print_version(self, url):
+        return 'https://och.to/unlock/' + url.split('?')[0]
+
+    def preprocess_html(self, soup):
+        h2 = soup.find(**classes('articleheader__subline'))
+        if h2:
+            h2.name = 'p'
+        for bq in soup.findAll('blockquote'):
+            h2 = bq.find('h2')
+            if h2:
+                h2.name = 'h4'
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup
