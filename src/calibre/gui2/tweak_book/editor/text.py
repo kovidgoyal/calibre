@@ -50,6 +50,13 @@ from calibre.utils.titlecase import titlecase
 from polyglot.builtins import as_unicode
 
 
+def adjust_for_non_bmp_chars(raw: str, start: int, end: int) -> tuple[int, int]:
+    adjusted_start = utf16_length(raw[:start])
+    end = adjusted_start + utf16_length(raw[start:end])
+    start = adjusted_start
+    return start, end
+
+
 def get_highlighter(syntax):
     if syntax:
         try:
@@ -395,6 +402,7 @@ class TextEdit(PlainTextEdit):
         start, end = m.span()
         if start == end:
             return False
+        start, end = adjust_for_non_bmp_chars(raw, start, end)
         if wrap:
             if reverse:
                 textpos = c.anchor()
@@ -486,7 +494,7 @@ class TextEdit(PlainTextEdit):
         start, end = m.span()
         if start == end:
             return False
-        end = start + utf16_length(raw[start:end])
+        start, end = adjust_for_non_bmp_chars(raw, start, end)
         if wrap and not complete:
             if reverse:
                 textpos = c.anchor()
@@ -532,7 +540,7 @@ class TextEdit(PlainTextEdit):
             start, end = m.span()
             if start == end:
                 return False
-            end = start + utf16_length(raw[start:end])
+            start, end = adjust_for_non_bmp_chars(raw, start, end)
         if reverse:
             start, end = end, start
         c.clearSelection()
