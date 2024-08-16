@@ -274,14 +274,16 @@ def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
     return qt_worker(tdir, user_agent, verify_ssl_certificates, FetchBackend)
 
 
-def develop(url: str) -> None:
+def develop(*urls: str) -> None:
     from calibre.scraper.qt import WebEngineBrowser
     br = WebEngineBrowser()
-    res = br.open(url)
-    print(f'{res.code} {res.reason}')
-    print(res.headers)
-    print(len(res.read()))
+    for url in urls:
+        print(url)
+        res = br.open(url)
+        print(f'{res.code} {res.reason}')
+        print(res.headers)
+        print(len(res.read()))
 
 
 if __name__ == '__main__':
-    develop(sys.argv[-1])
+    develop(*sys.argv[1:])

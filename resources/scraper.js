@@ -83,8 +83,8 @@
         return ans;
     }
 
-    const payload = JSON.parse(document.getElementById('payload').textContent);
     window.get_messages = get_messages;
     window.abort_download = abort_download;
+    const payload = JSON.parse(document.getElementById('payload').textContent);
     download(payload.req, payload.data);
 })();
