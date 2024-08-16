@@ -201,8 +201,6 @@ class LoopTest(BaseTest):
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=2048)
             ctx = ssl.create_default_context(cafile=ca_file)
-            # python 3.13 added this flag to validate stricter RFC compliance. It is unneeded complexity for the testsuite.
-            ctx.verify_flags &= ~ssl.VERIFY_X509_STRICT
             with TestServer(
                     lambda data:(data.path[0] + data.read().decode('utf-8')),
                     ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:

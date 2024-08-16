@@ -269,6 +269,20 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     if (!PubKey) { set_error("X509_REQ_get_pubkey"); goto error; }
     if (!X509_REQ_verify(req, PubKey)) { set_error("X509_REQ_verify"); goto error; }
     if (!X509_set_pubkey(Cert, PubKey)) { set_error("X509_set_pubkey"); goto error; }
+    if (!req_is_for_CA_cert) {
+        X509V3_CTX ctx;
+        X509V3_set_ctx(&ctx, Cert, Cert, NULL, NULL, 0);
+        X509V3_set_ctx_nodb(&ctx);
+        X509_EXTENSION *ex;
+        ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_subject_key_identifier, "hash");
+        if (!ex) { set_error("creating subject key identifier failed"); goto error; }
+        X509_add_ext(Cert, ex, -1);
+        X509_EXTENSION_free(ex);
+        ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_authority_key_identifier, "keyid:always");
+        if (!ex) { set_error("creating authority key identifier failed"); goto error; }
+        X509_add_ext(Cert, ex, -1);
+        X509_EXTENSION_free(ex);
+    }
     Py_BEGIN_ALLOW_THREADS;
     signature_length = X509_sign(Cert, CA_key, EVP_sha256());
     Py_END_ALLOW_THREADS;
