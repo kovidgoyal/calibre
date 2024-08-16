@@ -69,14 +69,15 @@ def create_server_cert(
     # Create the Certificate Authority
     cakey = create_key_pair(key_size)
     careq = create_cert_request(
-        cakey, ca_name, basic_constraints='critical,CA:TRUE', digital_key_usage='critical,keyCertSign,cRLSign')
+    cakey, ca_name, basic_constraints='critical,CA:TRUE', digital_key_usage='critical,keyCertSign,cRLSign',
+        ext_key_usage='critical,serverAuth,clientAuth')
     cacert = create_ca_cert(careq, cakey)
 
     # Create the server certificate issued by the newly created CA
     pkey = create_key_pair(key_size)
     req = create_cert_request(
         pkey, domain_or_ip, country, state, locality, organization, organizational_unit, email_address, alt_names,
-        ext_key_usage='critical,serverAuth')
+        digital_key_usage='critical,keyEncipherment,digitalSignature', ext_key_usage='critical,serverAuth,clientAuth')
     cert = create_cert(req, cacert, cakey, expire=expire)
 
     def export(dest, obj, func, *args):

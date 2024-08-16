@@ -279,20 +279,21 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     if (!X509_set_pubkey(Cert, PubKey)) { set_error("X509_set_pubkey"); goto error; }
     X509_EXTENSION *ex;
     if (req_is_for_CA_cert) {
-        X509V3_set_ctx(&ctx, NULL, Cert, NULL, NULL, 0);
+        X509V3_set_ctx(&ctx, Cert, Cert, NULL, NULL, 0);
         X509V3_set_ctx_nodb(&ctx);
-        ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_subject_key_identifier, "hash");
-        if (!ex) { set_error("creating subject key identifier failed"); goto error; }
-        X509_add_ext(Cert, ex, -1);
-        X509_EXTENSION_free(ex);
     } else {
         X509V3_set_ctx(&ctx, CA_cert, Cert, NULL, NULL, 0);
         X509V3_set_ctx_nodb(&ctx);
-        ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_authority_key_identifier, "keyid:always");
-        if (!ex) { set_error("creating authority key identifier failed"); goto error; }
-        X509_add_ext(Cert, ex, -1);
-        X509_EXTENSION_free(ex);
     }
+    ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_subject_key_identifier, "hash");
+    if (!ex) { set_error("creating subject key identifier failed"); goto error; }
+    X509_add_ext(Cert, ex, -1);
+    X509_EXTENSION_free(ex);
+    ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_authority_key_identifier, "keyid:always");
+    if (!ex) { set_error("creating authority key identifier failed"); goto error; }
+    X509_add_ext(Cert, ex, -1);
+    X509_EXTENSION_free(ex);
+
     Py_BEGIN_ALLOW_THREADS;
     signature_length = X509_sign(Cert, CA_key, EVP_sha256());
     Py_END_ALLOW_THREADS;
@@ -402,7 +403,7 @@ verify_cert(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS
     X509_STORE_CTX_free(vfy_ctx);
     X509_STORE_free(store);
-    if (!ok) { set_error("Verification failed"); return NULL; }
+    if (!ok) { set_error("X509_verify_cert"); return NULL; }
     Py_RETURN_NONE;
 }
 
