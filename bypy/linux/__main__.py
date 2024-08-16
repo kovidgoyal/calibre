@@ -20,9 +20,6 @@ from bypy.utils import create_job, get_dll_path, mkdtemp, parallel_build, py_com
 j = os.path.join
 self_dir = os.path.dirname(os.path.abspath(__file__))
 machine = (os.uname()[4] or '').lower()
-arch = 'x86_64'
-if machine.startswith('arm') or machine.startswith('aarch64'):
-    arch = 'arm64'
 py_ver = '.'.join(map(str, python_major_minor_version()))
 QT_PREFIX = os.path.join(PREFIX, 'qt')
 iv = globals()['init_env']
@@ -273,6 +270,7 @@ def strip_binaries(env):
 def create_tarfile(env, compression_level='9'):
     print('Creating archive...')
     base = OUTPUT_DIR
+    arch = 'arm64' if 'arm64' in os.environ['BYPY_ARCH'] else ('i686' if 'i386' in os.environ['BYPY_ARCH'] else 'x86_64')
     try:
         shutil.rmtree(base)
     except EnvironmentError as err:
