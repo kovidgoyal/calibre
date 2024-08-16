@@ -216,7 +216,7 @@ class FetchBackend(QObject):
                 self.timeout_timer.start()
                 return
         if len(self.workers) < 5:
-            self.workers.append(self.create_worker)
+            self.workers.append(self.create_worker())
             self.workers[-1].start_download(self.output_dir, req, data)
             self.timeout_timer.start()
             return

@@ -43,7 +43,6 @@ class science(BasicNewsRecipe):
         classes('pb-ad')
     ]
     browser_type = 'qt'
-    simultaneous_downloads = 1  # server returns invalid data on HTTP2 connections when multiple requests are queued on the same connection
 
     def preprocess_html(self, soup):
         for p in soup.findAll(attrs={'role':'paragraph'}):

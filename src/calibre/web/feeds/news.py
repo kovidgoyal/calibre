@@ -428,9 +428,10 @@ class BasicNewsRecipe(Recipe):
     recipe_specific_options = None
 
     #: The simulated browser engine to use when downloading from servers. The default is to use the Python mechanize
-    #: browser engine. An alternate is "qt" which will use the network engine from the Qt toolkit.
-    #: The mechanize engine supports logging in, the Qt engine does not. However, the Qt engine supports HTTP/2 and
-    #: similar technologies and also is harder for bot interception services to fingerprint.
+    #: browser engine, which supports logging in. However, if you don't need logging in, consider changing this
+    #: to either 'webengine' which uses an actual Chromium browser to do the network requests or 'qt' which
+    #: uses the Qt Networking backend. Both 'webengine' and 'qt' support HTTP/2, which mechanize does not and
+    #: are thus harder to fingerprint for bot protection services.
     browser_type = 'mechanize'
 
     #: Set to False if you do not want to use gzipped transfers with the mechanize browser.
@@ -571,9 +572,10 @@ class BasicNewsRecipe(Recipe):
             ua = getattr(self, 'last_used_user_agent', None) or self.calibre_most_common_ua or random_user_agent(allow_ie=False)
             kwargs['user_agent'] = self.last_used_user_agent = ua
         self.log('Using user agent:', kwargs['user_agent'])
-        if self.browser_type == 'qt':
-            from calibre.scraper.qt import Browser
-            return Browser(user_agent=kwargs['user_agent'], verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False))
+        if self.browser_type != 'mechanize':
+            from calibre.scraper.qt import Browser, WebEngineBrowser
+            return {'qt': Browser, 'webengine': WebEngineBrowser}[self.browser_type](
+                user_agent=kwargs['user_agent'], verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False))
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:
