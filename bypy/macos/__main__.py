@@ -49,7 +49,7 @@ EXPECTED_ARCHES = {'x86_64', 'arm64'}
 MINIMUM_SYSTEM_VERSION = '13.0.0'
 
 
-def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
+def compile_launcher_lib(contents_dir, base, pyver, inc_dir):
     print('\tCompiling calibre_launcher.dylib')
     env, env_vals = [], []
     for key, val in ENV.items():
@@ -59,7 +59,7 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
 
     dest = join(contents_dir, 'Frameworks', 'calibre-launcher.dylib')
     src = join(base, 'util.c')
-    cmd = [gcc] + ARCH_FLAGS + CFLAGS + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
+    cmd = gcc + ARCH_FLAGS + CFLAGS + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
         ['-I' + base] + '-DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*pyver.split('.')).split() + \
         [f'-I{path_to_freeze_dir()}', f'-I{inc_dir}'] + \
         [f'-DENV_VARS={env}', f'-DENV_VAR_VALS={env_vals}'] + \
@@ -81,13 +81,13 @@ def compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir):
     return dest
 
 
-gcc = os.environ.get('CC', 'clang')
-CFLAGS = os.environ.get('CFLAGS', '-Os')
+gcc = os.environ.get('CC', 'clang').split()
+CFLAGS = os.environ.get('CFLAGS', '-Os').split()
 
 
 def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
     base = dirname(abspath(__file__))
-    lib = compile_launcher_lib(contents_dir, gcc, base, pyver, inc_dir)
+    lib = compile_launcher_lib(contents_dir, base, pyver, inc_dir)
     src = join(base, 'launcher.c')
     programs = [lib]
     for program, x in xprograms.items():
@@ -96,7 +96,7 @@ def compile_launchers(contents_dir, inc_dir, xprograms, pyver):
         out = join(contents_dir, 'MacOS', program)
         programs.append(out)
         is_gui = 'true' if ptype == 'gui' else 'false'
-        cmd = [gcc] + ARCH_FLAGS + CFLAGS + [
+        cmd = gcc + ARCH_FLAGS + CFLAGS + [
             '-Wall', f'-DPROGRAM=L"{program}"', f'-DMODULE=L"{module}"', f'-DFUNCTION=L"{func}"', f'-DIS_GUI={is_gui}',
             '-I' + base, src, lib, '-o', out, '-headerpad_max_install_names',
         ]
@@ -708,7 +708,7 @@ class Freeze:
                 plist['CFBundleExecutable'] = exe + '-placeholder-for-codesigning'
                 nexe = join(exe_dir, plist['CFBundleExecutable'])
                 base = os.path.dirname(abspath(__file__))
-                cmd = [gcc] + ARCH_FLAGS + CFLAGS + [
+                cmd = gcc + ARCH_FLAGS + CFLAGS + [
                     '-Wall', '-Werror', '-DEXE_NAME="%s"' % exe, '-DREL_PATH="%s"' % rel_path,
                     join(base, 'placeholder.c'), '-o', nexe, '-headerpad_max_install_names'
                 ]
