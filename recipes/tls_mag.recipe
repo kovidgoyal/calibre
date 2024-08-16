@@ -13,15 +13,6 @@ def re_html(y):
         soup = BeautifulSoup(y.rstrip())
         return soup.text
 
-def get_cont(x):
-    url = x['url']
-    title = x['headline']
-    desc = x['standfirst']
-    if x['byline']['text']:
-        desc = 'By ' + x['byline']['text'] + ' | ' + desc
-    print('              ', re_html(title), '\n\t', re_html(desc), '\n\t', url)
-    return ({ 'title': re_html(title), 'description': re_html(desc), 'url': url })
-
 def get_id(url):
     rq = browser().open(url)
     return re.search('\?p=(\S+)>', str(rq.info())).group(1)
@@ -77,7 +68,7 @@ class tls(BasicNewsRecipe):
 
         if data['featuredarticle']:
             self.log('A note from the Editor')
-            feeds.append(('A note from the Editor', [get_cont(data['featuredarticle'])]))
+            feeds.append(('A note from the Editor', [self.get_cont(data['featuredarticle'])]))
 
         cont = data['contents']
         for c in cont:
@@ -87,10 +78,19 @@ class tls(BasicNewsRecipe):
             self.log(section)
             articles = []
             for arts in cont[c]['articleslist']:
-                articles.append(get_cont(arts))
+                articles.append(self.get_cont(arts))
             if articles:
                 feeds.append((section, articles))
         return feeds
+
+    def get_cont(self, x):
+        url = x['url']
+        title = re_html(x['headline'])
+        desc = re_html(x['standfirst'])
+        if x['byline']['text']:
+            desc = 'By ' + re_html(x['byline']['text']) + ' | ' + desc
+        self.log('              ', title, '\n\t', desc, '\n\t', url)
+        return ({ 'title': title, 'description': desc, 'url': url })
 
     def print_version(self, url):
         return 'https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + get_id(url)
