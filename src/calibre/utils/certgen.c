@@ -110,14 +110,14 @@ add_ext(STACK_OF(X509_EXTENSION) *sk, int nid, const char *value, char *item_typ
 static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     PyObject *capsule = NULL, *ans = NULL, *t = NULL;
     X509_NAME *Name = NULL;
-    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL;
+    char *common_name = NULL, *country = NULL, *state = NULL, *locality = NULL, *org = NULL, *org_unit = NULL, *email = NULL, *basic_constraints = NULL, *digital_key_usage = NULL;
     X509_REQ *Cert = NULL;
     PyObject *alt_names = NULL;
     int ok = 0, signature_length = 0;
     Py_ssize_t i = 0;
     STACK_OF(X509_EXTENSION) *exts = NULL;
 
-    if(!PyArg_ParseTuple(args, "OO!szzzzzzz", &capsule, &PyTuple_Type, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email, &basic_constraints)) return NULL;
+    if(!PyArg_ParseTuple(args, "OO!szzzzzzzz", &capsule, &PyTuple_Type, &alt_names, &common_name, &country, &state, &locality, &org, &org_unit, &email, &basic_constraints, &digital_key_usage)) return NULL;
     if(!PyCapsule_CheckExact(capsule)) return PyErr_Format(PyExc_TypeError, "The key is not a capsule object");
     EVP_PKEY *KeyPair = PyCapsule_GetPointer(capsule, NULL);
     if (!KeyPair) return PyErr_Format(PyExc_TypeError, "The key capsule is NULL");
@@ -134,7 +134,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     if (!add_entry(Name, "emailAddress", email)) goto error;
     if (!add_entry(Name, "CN", common_name)) goto error;
 
-    if (PyTuple_GET_SIZE(alt_names) > 0 || basic_constraints) {
+    if (PyTuple_GET_SIZE(alt_names) > 0 || basic_constraints || digital_key_usage) {
         exts = sk_X509_EXTENSION_new_null();
         if (!exts) { set_error("sk_X509_EXTENSION_new_null"); goto error; }
         for (i = 0; i < PyTuple_GET_SIZE(alt_names); i++) {
@@ -146,6 +146,9 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
         }
         if (basic_constraints) {
             if(!add_ext(exts, NID_basic_constraints, basic_constraints, "basic_constraints")) goto error;
+        }
+        if (digital_key_usage) {
+            if(!add_ext(exts, NID_key_usage, digital_key_usage, "key_usage")) goto error;
         }
         X509_REQ_add_extensions(Cert, exts);
         sk_X509_EXTENSION_pop_free(exts, X509_EXTENSION_free);
