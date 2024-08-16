@@ -250,9 +250,6 @@ class Browser:
 
 class WebEngineBrowser(Browser):
 
-    def is_method_ok(self, method: str) -> bool:
-        return method.upper() in ('GET', 'POST')
-
     def run_worker(self) -> subprocess.Popen:
         return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates, function='webengine_worker')
 

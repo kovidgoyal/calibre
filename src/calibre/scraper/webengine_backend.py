@@ -104,7 +104,6 @@ class Worker(QWebEnginePage):
 
     def start_download(self, output_dir: str, req: Request, data: str) -> DownloadRequest:
         filename = os.path.basename(req['filename'])
-        # TODO: Implement POST requests with data
         payload = json.dumps({'req': req, 'data': data})
         content = f'''<!DOCTYPE html>
         <html><head></head></body><div id="payload">{html.escape(payload)}</div></body></html>

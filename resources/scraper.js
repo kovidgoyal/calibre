@@ -18,6 +18,11 @@
         console.log(msg);
     }
 
+    function base64_to_bytes(base64) {
+        const bin_string = atob(base64);
+        return Uint8Array.from(bin_string, (m) => m.codePointAt(0));
+    }
+
     function notify_that_messages_are_available() {
         send_msg({type: 'messages_available', count: messages.length});
     }
@@ -49,6 +54,14 @@
                 method: req.method.toUpperCase(),
                 signal: controller.signal,
             };
+            if (data && data.length > 0) fetch_options.body = base64_to_bytes(data);
+            if (req.headers) {
+                const headers = new Headers();
+                for (const p of req.headers) {
+                    headers.append(p[0], p[1]);
+                }
+                fetch_options.headers = headers;
+            }
             const response = await fetch(req.url, fetch_options);
             var headers = [];
             for (const pair of response.headers) {
