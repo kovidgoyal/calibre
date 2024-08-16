@@ -39,6 +39,10 @@ class FakeResponse:
         self.final_url = res['final_url']
         self._status = res.get('http_code')
         self._reason = res.get('http_status_message')
+        if not self._reason:
+            from http.client import responses
+            with suppress(KeyError):
+                self._reason = responses[self._status]
         self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
