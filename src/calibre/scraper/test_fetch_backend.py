@@ -12,6 +12,7 @@ from lxml.html import fromstring, tostring
 
 from calibre.utils.resources import get_path as P
 
+from .qt import Browser, WebEngineBrowser
 from .simple import Overseer
 
 skip = ''
@@ -54,6 +55,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.test_obj.dont_send_response:
+            return
+        if self.path == '/favicon.ico':
+            self.send_response(http.HTTPStatus.NOT_FOUND)
             return
         if self.path == '/redirect':
             self.send_response(http.HTTPStatus.FOUND)
@@ -103,18 +107,16 @@ class TestFetchBackend(unittest.TestCase):
         self.server_thread.join(5)
 
     def test_recipe_browser_qt(self):
-        from .qt import Browser
         self.do_recipe_browser_test(Browser)
 
     def test_recipe_browser_webengine(self):
-        from .qt import WebEngineBrowser
         self.do_recipe_browser_test(WebEngineBrowser)
 
-    def do_recipe_browser_test(self, Browser):
+    def do_recipe_browser_test(self, browser_class):
         from urllib.error import URLError
         from urllib.request import Request
 
-        br = Browser(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
+        br = browser_class(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
 
         def u(path=''):
             return f'http://localhost:{self.port}{path}'
@@ -161,13 +163,17 @@ class TestFetchBackend(unittest.TestCase):
             self.assertTrue(r['final_url'].endswith('/redirected'))
             self.ae(r['headers']['User-Agent'], ['test-ua'])
             r = get(headers={'th': '2', 'tc': '1'})
-            self.ae(r['headers']['Th'], ['2'])
-            self.ae(r['headers']['Tc'], ['1'])
+            if browser_class is Browser:
+                self.ae(r['headers']['Th'], ['1, 2'])
+                self.ae(r['headers']['Tc'], ['1'])
+            else:
+                self.ae(r['headers']['th'], ['1, 2'])
+                self.ae(r['headers']['tc'], ['1'])
             br.set_simple_cookie('cook', 'ie')
             br.set_user_agent('man in black')
             r = get()
             self.ae(r['headers']['User-Agent'], ['man in black'])
-            self.ae(r['headers']['Cookie'], ['cook=ie; sc=1'])
+            self.ae(r['headers']['Cookie'], ['sc=1; cook=ie'])
         finally:
             br.shutdown()
 

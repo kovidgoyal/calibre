@@ -68,7 +68,7 @@ class CookieJar(QNetworkCookieJar):
             c = QNetworkCookie(c)
             c.normalize(url)
             ans.append(c)
-        return ans + super().cookiesForUrl(url)
+        return super().cookiesForUrl(url) + ans
 
 
 def too_slow_or_timed_out(timeout: float, last_activity_at: float, created_at: float, downloaded_bytes: int, now: float) -> bool:
@@ -206,6 +206,9 @@ class FetchBackend(QNetworkAccessManager):
         rq.setTransferTimeout(int(timeout * 1000))
         rq.setRawHeader(b'User-Agent', self.current_user_agent().encode())
         for (name, val) in req['headers']:
+            ex = rq.rawHeader(name)
+            if len(ex):
+                val = bytes(ex).decode() + ', ' + val
             rq.setRawHeader(name.encode(), val.encode())
         qmethod = req['method'].lower()
         data_path = req['data_path']

@@ -12,7 +12,7 @@ from contextlib import suppress
 from http import HTTPStatus
 from time import monotonic
 
-from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal
+from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineScript
 
 from calibre.scraper.qt_backend import Request, too_slow_or_timed_out
@@ -94,10 +94,14 @@ class Worker(QWebEnginePage):
                 msg = json.loads(message.partition(' ')[2])
                 t = msg.get('type')
                 if t == 'messages_available':
-                    self.runjs('window.get_messages()', self.messages_dispatch.emit)
+                    self.runjs('window.get_messages()', self.dispatch_messages)
             else:
                 print(f'{source_id}:{line_num}:{message}')
             return
+
+    def dispatch_messages(self, messages: list) -> None:
+        if not sip.isdeleted(self):
+            self.messages_dispatch.emit(messages)
 
     def runjs(self, js: str, callback) -> None:
         self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
