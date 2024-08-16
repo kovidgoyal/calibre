@@ -16,11 +16,13 @@ def create_key_pair(size=2048):
 def create_cert_request(
     key_pair, common_name,
     country='IN', state='Maharashtra', locality='Mumbai', organization=None,
-    organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None, digital_key_usage=None
+    organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None,
+    digital_key_usage=None, ext_key_usage=None,
 ):
     return certgen.create_rsa_cert_req(
         key_pair, tuple(alt_names), common_name,
-        country, state, locality, organization, organizational_unit, email_address, basic_constraints, digital_key_usage
+        country, state, locality, organization, organizational_unit, email_address,
+        basic_constraints, digital_key_usage, ext_key_usage,
     )
 
 
@@ -66,12 +68,15 @@ def create_server_cert(
 
     # Create the Certificate Authority
     cakey = create_key_pair(key_size)
-    careq = create_cert_request(cakey, ca_name, basic_constraints='critical,CA:TRUE', digital_key_usage='critical,keyCertSign,cRLSign')
+    careq = create_cert_request(
+        cakey, ca_name, basic_constraints='critical,CA:TRUE', digital_key_usage='critical,keyCertSign,cRLSign')
     cacert = create_ca_cert(careq, cakey)
 
     # Create the server certificate issued by the newly created CA
     pkey = create_key_pair(key_size)
-    req = create_cert_request(pkey, domain_or_ip, country, state, locality, organization, organizational_unit, email_address, alt_names)
+    req = create_cert_request(
+        pkey, domain_or_ip, country, state, locality, organization, organizational_unit, email_address, alt_names,
+        ext_key_usage='critical,serverAuth')
     cert = create_cert(req, cacert, cakey, expire=expire)
 
     def export(dest, obj, func, *args):
@@ -92,24 +97,14 @@ def create_server_cert(
 
 
 def develop():
-    import subprocess
-    import tempfile
     cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['DNS:moose.cat', 'DNS:huge.bat'])
     print("CA Certificate")
     print(cert_info(cacert))
     print(), print(), print()
     print('Server Certificate')
     print(cert_info(cert))
-    with tempfile.NamedTemporaryFile(prefix='CA-', suffix='.pem') as cafile, tempfile.NamedTemporaryFile(prefix='Server-', suffix='.crt') as certfile:
-        cafile.write(serialize_cert(cacert).encode())
-        certfile.write(serialize_cert(cert).encode())
-        cafile.flush()
-        certfile.flush()
-        # Verify the self signed certificate
-        subprocess.check_call(['openssl', 'verify', '-verbose', '-x509_strict', '-CAfile', cafile.name, cafile.name])
-        # Verify the server certificate signed with the self signed certificate
-        raise SystemExit(subprocess.run([
-            'openssl', 'verify', '-show_chain', '-no_check_time', '-verbose', '-x509_strict', '-CAfile', cafile.name, certfile.name]).returncode)
+    certgen.verify_cert(cacert, cacert)
+    certgen.verify_cert(cacert, cert)
 
 
 if __name__ == '__main__':

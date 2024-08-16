@@ -12,7 +12,6 @@ from lxml.html import fromstring, tostring
 
 from calibre.utils.resources import get_path as P
 
-from .qt import Browser
 from .simple import Overseer
 
 skip = ''
@@ -103,9 +102,20 @@ class TestFetchBackend(unittest.TestCase):
         self.server.shutdown()
         self.server_thread.join(5)
 
-    def test_recipe_browser(self):
+    def test_recipe_browser_qt(self):
+        from .qt import Browser
+        self.do_recipe_browser_test(Browser)
+
+    def test_recipe_browser_webengine(self):
+        from .qt import WebEngineBrowser
+        self.do_recipe_browser_test(WebEngineBrowser)
+
+    def do_recipe_browser_test(self, Browser):
         from urllib.error import URLError
         from urllib.request import Request
+
+        br = Browser(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
+
         def u(path=''):
             return f'http://localhost:{self.port}{path}'
 
@@ -134,7 +144,6 @@ class TestFetchBackend(unittest.TestCase):
             self.dont_send_body = False
             self.dont_send_response = False
 
-        br = Browser(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
         try:
             r = get()
             self.ae(r['request_count'], 1)
