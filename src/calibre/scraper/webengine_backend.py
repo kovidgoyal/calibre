@@ -7,35 +7,24 @@ import json
 import os
 import secrets
 import sys
+from collections import deque
 from contextlib import suppress
+from http import HTTPStatus
 from time import monotonic
 
-from qt.core import QApplication, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal
+from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal
 from qt.webengine import QWebEnginePage, QWebEngineScript
 
-from calibre.scraper.qt_backend import Request
+from calibre.scraper.qt_backend import Request, too_slow_or_timed_out
 from calibre.scraper.qt_backend import worker as qt_worker
 from calibre.scraper.simple_backend import create_base_profile
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import create_script, insert_scripts
 
-default_timeout: float = 60.  # seconds
-
-
-def qurl_to_string(url: QUrl | str) -> str:
-    return bytes(QUrl(url).toEncoded()).decode()
-
-
-def qurl_to_key(url: QUrl | str) -> str:
-    return qurl_to_string(url).rstrip('/')
-
-
-Headers = list[tuple[str, str]]
-
 
 class DownloadRequest(QObject):
 
-    worth_retry: bool = False
+    aborted_on_timeout: bool = False
     response_received = pyqtSignal(object)
 
     def __init__(self, url: str, output_path: str, timeout: float, req_id: int, parent: 'FetchBackend'):
@@ -45,23 +34,50 @@ class DownloadRequest(QObject):
         self.req_id: int = req_id
         self.created_at = self.last_activity_at = monotonic()
         self.timeout = timeout
-
-    def handle_response(self, r: dict) -> None:
-        result = {
+        self.bytes_received = 0
+        self.result = {
             'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
-            'final_url': r['url'], 'headers': r.get('headers', []), 'worth_retry': self.worth_retry,
+            'headers': [], 'final_url': self.url, 'worth_retry': False,
         }
-        if 'error' in r:
-            result['error'] = r['error']
+
+    def metadata_received(self, r: dict) -> None:
+        if r['response_type'] != 'basic':
+            print(f'WARNING: response type for {self.url} indicates headers are restrcited: {r["type"]}')
+        self.result['worth_retry'] = r['status_code'] in (
+            HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT)
+        self.result['final_url'] = r['url']
+        self.result['headers'] = r['headers']
+        self.result['http_code'] = r['status_code']
+        self.result['http_status_message'] = r['status_msg']
+
+    def chunk_received(self, chunk: QByteArray) -> None:
+        mv = memoryview(chunk)
+        self.bytes_received += len(mv)
+        with open(self.output_path, 'ab') as f:
+            f.write(mv)
+
+    def as_result(self, r: dict | None = {}) -> dict:
+        if self.aborted_on_timeout:
+            self.result['error'] = 'Timed out'
+            self.result['worth_retry'] = True
         else:
-            if r['type'] != 'basic':
-                print(f'WARNING: response type for {self.url} indicates headers are restrcited: {r["type"]}')
-            with open(self.output_path, 'wb') as f:
-                f.write(memoryview(r['data']))
+            if r:
+                self.result['error'] = r['error']
+                self.result['worth_retry'] = True  # usually some kind of network error
+        return self.result
+
+    def too_slow_or_timed_out(self, now: float) -> bool:
+        return too_slow_or_timed_out(self.timeout, self.last_activity_at, self.created_at, self.bytes_received, now)
 
 
 class Worker(QWebEnginePage):
     working_on_request: DownloadRequest | None = None
+    messages_dispatch = pyqtSignal(object)
+    result_received = pyqtSignal(object)
+
+    def __init__(self, profile, parent):
+        super().__init__(profile, parent)
+        self.messages_dispatch.connect(self.on_messages)
 
     def javaScriptAlert(self, url, msg):
         pass
@@ -77,10 +93,8 @@ class Worker(QWebEnginePage):
             if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message.startswith(self.token):
                 msg = json.loads(message.partition(' ')[2])
                 t = msg.get('type')
-                if t == 'print':
-                    print(msg['text'])
-                elif t == 'messages_available':
-                    self.runjs('window.get_messages()', self.on_messages)
+                if t == 'messages_available':
+                    self.runjs('window.get_messages()', self.messages_dispatch.emit)
             else:
                 print(f'{source_id}:{line_num}:{message}')
             return
@@ -91,7 +105,6 @@ class Worker(QWebEnginePage):
     def start_download(self, output_dir: str, req: Request, data: str) -> DownloadRequest:
         filename = os.path.basename(req['filename'])
         # TODO: Implement POST requests with data
-        # TODO: Implement timeout
         payload = json.dumps({'req': req, 'data': data})
         content = f'''<!DOCTYPE html>
         <html><head></head></body><div id="payload">{html.escape(payload)}</div></body></html>
@@ -100,11 +113,32 @@ class Worker(QWebEnginePage):
         self.working_on_request = DownloadRequest(req['url'], os.path.join(output_dir, filename), req['timeout'], req['id'], self.parent())
         return self.working_on_request
 
+    def abort_on_timeout(self) -> None:
+        if self.working_on_request is not None:
+            self.working_on_request.aborted_on_timeout = True
+            self.runjs(f'window.abort_download({self.req_id})')
+
     def on_messages(self, messages: list[dict]) -> None:
+        if not messages:
+            return
+        if self.working_on_request is None:
+            print('Got messages without request:', messages)
+            return
+        self.working_on_request.last_activity_at = monotonic()
         for m in messages:
-            if m['type'] == 'finished':
-                self.working_on_request.handle_response(m)
+            t = m['type']
+            if t == 'metadata_received':
+                self.working_on_request.metadata_received(m)
+            elif t == 'chunk_received':
+                self.working_on_request.chunk_received(m['chunk'])
+            elif t == 'finished':
+                result = self.working_on_request.as_result()
                 self.working_on_request = None
+                self.result_received.emit(result)
+            elif t == 'error':
+                result = self.working_on_request.as_result(m)
+                self.working_on_request = None
+                self.result_received.emit(result)
 
 
 class FetchBackend(QObject):
@@ -126,7 +160,7 @@ class FetchBackend(QObject):
         self.profile = profile
         super().__init__(parent)
         self.workers: list[Worker] = []
-        self.pending_requests: list[tuple[Request, str]] = []
+        self.pending_requests: deque[tuple[Request, str]] = deque()
         sys.excepthook = self.excepthook
         self.request_download.connect(self.download, type=Qt.ConnectionType.QueuedConnection)
         self.set_cookies.connect(self._set_cookies, type=Qt.ConnectionType.QueuedConnection)
@@ -148,17 +182,16 @@ class FetchBackend(QObject):
         QApplication.instance().exit(1)
 
     def enforce_timeouts(self):
-        # TODO: Start timer on download and port this method
         now = monotonic()
-        timed_out = tuple(dr for dr in self.live_requests if dr.too_slow_or_timed_out(now))
-        for dr in timed_out:
-            if dr.webengine_download_request is None:
-                dr.cancel_on_start = True
-            else:
-                dr.webengine_download_request.cancel()
-            self.live_requests.discard(dr)
-        if self.live_requests:
-            self.timeout_timer.start()
+        has_workers = False
+        for w in self.workers:
+            if w.working_on_request is not None:
+                if w.working_on_request.too_slow_or_timed_out(now):
+                    w.abort_on_timeout()
+                else:
+                    has_workers = True
+        if not has_workers:
+            self.timeout_timer.stop()
 
     def download(self, req: Request) -> None:
         qurl = QUrl(req['url'])
@@ -177,18 +210,29 @@ class FetchBackend(QObject):
         for w in self.workers:
             if w.working_on_request is None:
                 w.start_download(self.output_dir, req, data)
+                self.timeout_timer.start()
                 return
         if len(self.workers) < 5:
             self.workers.append(self.create_worker)
             self.workers[-1].start_download(self.output_dir, req, data)
+            self.timeout_timer.start()
             return
-        # TODO: Drain pending requests on finish
         self.pending_requests.append((req, data))
 
     def create_worker(self) -> Worker:
         ans = Worker(self.profile, self)
         ans.token = self.token + ' '
+        ans.result_received.connect(self.result_received)
         return ans
+
+    def result_received(self, result: dict) -> None:
+        self.send_response(result)
+        self.download_finished.emit(result)
+        if self.pending_requests:
+            w = self.sender()
+            req, data = self.pending_requests.popleft()
+            w.start_download(self.output_dir, req, data)
+            self.timeout_timer.start()
 
     def send_response(self, r: dict[str, str]) -> None:
         with suppress(OSError):
@@ -233,8 +277,10 @@ def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
 def develop(url: str) -> None:
     from calibre.scraper.qt import WebEngineBrowser
     br = WebEngineBrowser()
-    raw = br.open(url).read()
-    print(len(raw))
+    res = br.open(url)
+    print(f'{res.code} {res.reason}')
+    print(res.headers)
+    print(len(res.read()))
 
 
 if __name__ == '__main__':

@@ -18,19 +18,33 @@
         console.log(msg);
     }
 
-    function debug() {
-        var args = Array.prototype.slice.call(arguments);
-        var text = args.join(' ');
-        send_msg({type: 'print', text: text});
-    }
-
     function notify_that_messages_are_available() {
         send_msg({type: 'messages_available', count: messages.length});
+    }
+
+    function notify(type, msg) {
+        msg.type = type;
+        messages.push(msg);
+        notify_that_messages_are_available();
+    }
+
+    async function* stream_to_async_iterable(stream) {
+        const reader = stream.getReader()
+        try {
+            while (true) {
+                const {done, value} = await reader.read()
+                if (done) return
+                yield value
+            }
+        } finally {
+            reader.releaseLock()
+        }
     }
 
     async function download(req, data) {
         try {
             const controller = new AbortController();
+            live_requests[req.id] = controller;
             var fetch_options = {
                 method: req.method.toUpperCase(),
                 signal: controller.signal,
@@ -40,13 +54,17 @@
             for (const pair of response.headers) {
                 headers.push(pair);
             }
-            const body = await response.arrayBuffer();
+            notify('metadata_received', {
+                status_code: response.status, status_msg: response.statusText,
+                url: response.url, headers: headers, response_type: response.type,
+            })
+            for await (const chunk of stream_to_async_iterable(response.body)) {
+                notify('chunk_received', {chunk: chunk})
+            }
             delete live_requests[req.id];
-            messages.push({type: 'finished', req: req, status_code: response.status, status_msg: response.statusText, url: response.url, headers: headers, type: response.type, body: body});
-            notify_that_messages_are_available();
+            notify('finished', {})
         } catch (error) {
-            messages.push({type: 'finished', error: error.message, req: req, url: req.url});
-            notify_that_messages_are_available();
+            notify('error', {error: error.message});
         }
     }
 

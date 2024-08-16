@@ -71,6 +71,16 @@ class CookieJar(QNetworkCookieJar):
         return ans + super().cookiesForUrl(url)
 
 
+def too_slow_or_timed_out(timeout: float, last_activity_at: float, created_at: float, downloaded_bytes: int, now: float) -> bool:
+    if timeout and last_activity_at + timeout < now:
+        return True
+    time_taken = now - created_at
+    if time_taken > default_timeout:
+        rate = downloaded_bytes / time_taken
+        return rate < 10
+    return False
+
+
 class DownloadRequest(QObject):
 
     worth_retry: bool = False
@@ -83,14 +93,17 @@ class DownloadRequest(QObject):
         self.req_id: int = req_id
         self.created_at = self.last_activity_at = monotonic()
         self.timeout = timeout
+        self.bytes_received = 0
         self.reply.downloadProgress.connect(self.on_download_progress, type=Qt.ConnectionType.QueuedConnection)
         self.reply.uploadProgress.connect(self.on_upload_progress, type=Qt.ConnectionType.QueuedConnection)
         # self.reply.readyRead.connect(self.on_data_available)
 
     def on_download_progress(self, bytes_received: int, bytes_total: int) -> None:
+        self.bytes_received = bytes_received
         self.last_activity_at = monotonic()
 
     def on_upload_progress(self, bytes_received: int, bytes_total: int) -> None:
+        self.bytes_received = bytes_received
         self.last_activity_at = monotonic()
 
     def save_data(self) -> None:
@@ -132,14 +145,7 @@ class DownloadRequest(QObject):
         return result
 
     def too_slow_or_timed_out(self, now: float) -> bool:
-        if self.timeout and self.last_activity_at + self.timeout < now:
-            return True
-        time_taken = now - self.created_at
-        if time_taken > default_timeout:
-            downloaded = self.webengine_download_request.receivedBytes()
-            rate = downloaded / time_taken
-            return rate < 10
-        return False
+        return too_slow_or_timed_out(self.timeout, self.last_activity_at, self.created_at, self.bytes_received, now)
 
 
 class FetchBackend(QNetworkAccessManager):
@@ -186,8 +192,8 @@ class FetchBackend(QNetworkAccessManager):
         timed_out = tuple(dr for dr in self.live_requests if dr.too_slow_or_timed_out(now))
         for dr in timed_out:
             dr.reply.abort()
-        if self.live_requests:
-            self.timeout_timer.start()
+        if not self.live_requests:
+            self.timeout_timer.stop()
 
     def current_user_agent(self) -> str:
         return self.user_agent

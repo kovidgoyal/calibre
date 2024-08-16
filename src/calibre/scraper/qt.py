@@ -23,37 +23,41 @@ class FakeResponse:
         self.queue = Queue()
         self.done = False
         self.final_url = ''
+        self._reason = ''
         self._status = None
         self._headers = []
-        self.data = BytesIO()
+        self._data = BytesIO()
 
     def _wait(self):
         if self.done:
             return
         self.done = True
         res = self.queue.get()
+        del self.queue
         if res['action'] == 'input_error':
             raise Exception(res['error'])
         self.final_url = res['final_url']
         self._status = res.get('http_code')
+        self._reason = res.get('http_status_message')
         self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
             ex.worth_retry = bool(res.get('worth_retry'))
             raise ex
-        self.data = open(res['output'], 'rb')
+        with suppress(FileNotFoundError):
+            self._data = open(res['output'], 'rb')
 
     def read(self, *a, **kw):
         self._wait()
-        ans = self.data.read(*a, **kw)
+        ans = self._data.read(*a, **kw)
         return ans
 
     def seek(self, *a, **kw):
         self._wait()
-        return self.data.seek(*a, **kw)
+        return self._data.seek(*a, **kw)
 
     def tell(self, *a, **kw):
-        return self.data.tell(*a, **kw)
+        return self._data.tell(*a, **kw)
 
     @property
     def url(self) -> str:
@@ -75,6 +79,11 @@ class FakeResponse:
             ans[k] = v
         return ans
 
+    @property
+    def reason(self) -> str:
+        self._wait()
+        return self._reason or ''
+
     def getcode(self) -> int | None:
         return self.status
 
@@ -85,7 +94,7 @@ class FakeResponse:
         return self.headers
 
     def close(self):
-        self.data.close()
+        self._data.close()
 
 
 class Browser:
