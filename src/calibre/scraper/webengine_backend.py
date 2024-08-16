@@ -13,13 +13,35 @@ from http import HTTPStatus
 from time import monotonic
 
 from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
-from qt.webengine import QWebEnginePage, QWebEngineScript
+from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings
 
 from calibre.scraper.qt_backend import Request, too_slow_or_timed_out
 from calibre.scraper.qt_backend import worker as qt_worker
-from calibre.scraper.simple_backend import create_base_profile
 from calibre.utils.resources import get_path as P
-from calibre.utils.webengine import create_script, insert_scripts
+from calibre.utils.webengine import create_script, insert_scripts, setup_profile
+
+
+def create_base_profile(cache_name='', allow_js=False):
+    from calibre.utils.random_ua import random_common_chrome_user_agent
+    if cache_name:
+        ans = QWebEngineProfile(cache_name, QApplication.instance())
+    else:
+        ans = QWebEngineProfile(QApplication.instance())
+    setup_profile(ans)
+    ans.setHttpUserAgent(random_common_chrome_user_agent())
+    ans.setHttpCacheMaximumSize(0)  # managed by webengine
+    s = ans.settings()
+    a = s.setAttribute
+    a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
+    a(QWebEngineSettings.WebAttribute.JavascriptEnabled, allow_js)
+    s.setUnknownUrlSchemePolicy(QWebEngineSettings.UnknownUrlSchemePolicy.DisallowUnknownUrlSchemes)
+    a(QWebEngineSettings.WebAttribute.JavascriptCanOpenWindows, False)
+    a(QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, False)
+    # ensure javascript cannot read from local files
+    a(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, False)
+    a(QWebEngineSettings.WebAttribute.AllowWindowActivationFromJavaScript, False)
+    return ans
+
 
 
 class DownloadRequest(QObject):
