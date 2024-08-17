@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+import atexit
 import json
 import os
 import shutil
 import subprocess
-import time
+import weakref
 from contextlib import suppress
 from io import BytesIO
 from queue import Queue
@@ -101,6 +102,12 @@ class FakeResponse:
         self._data.close()
 
 
+def shutdown_browser(bref):
+    br = bref()
+    if br is not None:
+        br.shutdown()
+
+
 class Browser:
 
     def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = (), verify_ssl_certificates: bool = True, start_worker: bool = False):
@@ -113,6 +120,7 @@ class Browser:
         self.user_agent = user_agent
         self.lock = RLock()
         self.shutting_down = False
+        atexit.register(shutdown_browser, weakref.ref(self))
         if start_worker:
             self._ensure_state()
 
@@ -226,16 +234,18 @@ class Browser:
     def shutdown(self):
         self.shutting_down = True
         import shutil
+        import time
         if self.worker:
+            w, self.worker = self.worker, None
             with suppress(OSError):
-                self.worker.stdin.close()
+                w.stdin.close()
             with suppress(OSError):
-                self.worker.stdout.close()
+                w.stdout.close()
             give_up_at = time.monotonic() + 1.5
-            while time.monotonic() < give_up_at and self.worker.poll() is None:
+            while time.monotonic() < give_up_at and w.poll() is None:
                 time.sleep(0.01)
-            if self.worker.poll() is None:
-                self.worker.kill()
+            if w.poll() is None:
+                w.kill()
         if self.tdir:
             with suppress(OSError):
                 shutil.rmtree(self.tdir)
