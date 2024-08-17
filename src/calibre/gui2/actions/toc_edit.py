@@ -95,7 +95,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         if not ans:
             error_dialog(self.gui, _('Cannot edit ToC'),
                 _('Editing Table of Contents is only supported for books in the %s'
-                  ' formats. Convert to one of those formats before polishing.')
+                  ' formats. Convert to one of those formats before editing.')
                          %_(' or ').join(sorted(supported)), show=True)
         ans = OrderedDict(ans)
         if len(ans) > 5:
