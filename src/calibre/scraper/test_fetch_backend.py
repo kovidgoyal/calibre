@@ -23,6 +23,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.test_obj = test_obj
         super().__init__(*a)
 
+    def do_POST(self):
+        if self.test_obj.dont_send_response:
+            return
+        self.do_response()
+
     def do_GET(self):
         if self.test_obj.dont_send_response:
             return
@@ -35,6 +40,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.flush_headers()
             return
+        self.do_response()
+
+    def do_response(self):
         h = {}
         for k, v in self.headers.items():
             h.setdefault(k, []).append(v)
@@ -43,7 +51,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             'path': self.path,
             'headers': h,
             'request_count': self.test_obj.request_count,
+            'method': self.command,
         }
+        if 'Content-Length' in self.headers:
+            ans['data'] = self.rfile.read(int(self.headers['Content-Length'])).decode()
         data = json.dumps(ans).encode()
         self.send_response(http.HTTPStatus.OK)
         self.send_header('Content-type', 'application/json')
@@ -91,13 +102,13 @@ class TestFetchBackend(unittest.TestCase):
         def u(path=''):
             return f'http://localhost:{self.port}{path}'
 
-        def get(path='', headers=None, timeout=None):
+        def get(path='', headers=None, timeout=None, data=None):
             url = u(path)
             if headers:
                 req = Request(url, headers=headers)
             else:
                 req = url
-            res = br.open(req, timeout=timeout)
+            res = br.open(req, data=data, timeout=timeout)
             raw = res.read()
             ans = json.loads(raw)
             ans['final_url'] = res.geturl()
@@ -118,6 +129,7 @@ class TestFetchBackend(unittest.TestCase):
 
         try:
             r = get()
+            self.ae(r['method'], 'GET')
             self.ae(r['request_count'], 1)
             self.ae(r['headers']['th'], ['1'])
             self.ae(r['headers']['User-Agent'], ['test-ua'])
@@ -144,17 +156,20 @@ class TestFetchBackend(unittest.TestCase):
             r = get()
             self.ae(r['headers']['User-Agent'], ['man in black'])
             self.ae(r['headers']['Cookie'], ['sc=1; cook=ie'])
+            r = get(data=b'1234')
+            self.ae(r['method'], 'POST')
+            self.ae(r['data'], '1234')
         finally:
             br.shutdown()
 
     def run_server(self):
-        import socketserver
+        from http.server import ThreadingHTTPServer
 
         def create_handler(*a):
             ans = Handler(self, *a)
             return ans
 
-        with socketserver.TCPServer(("", 0), create_handler) as httpd:
+        with ThreadingHTTPServer(("", 0), create_handler) as httpd:
             self.server = httpd
             self.port = httpd.server_address[1]
             self.server_started.set()

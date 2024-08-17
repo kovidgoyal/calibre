@@ -167,6 +167,11 @@ class Browser:
                     else:
                         f.write(data)
                 cmd['data_path'] = f.name
+                for k, v in cmd['headers']:
+                    if k.lower() == 'content-type':
+                        break
+                else:
+                    cmd['headers'].append(('Content-Type', 'application/x-www-form-urlencoded'))
             res = FakeResponse()
             self.dispatch_map[self.id_counter] = res.queue
             self._send_command(cmd)
