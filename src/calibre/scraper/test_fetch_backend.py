@@ -127,38 +127,43 @@ class TestFetchBackend(unittest.TestCase):
             self.dont_send_body = False
             self.dont_send_response = False
 
+        def header(name, *expected):
+            name = name.lower()
+            ans = []
+            for k, v in r['headers'].items():
+                if k.lower() == name:
+                    ans.extend(v)
+            self.ae(expected, tuple(ans))
+
         try:
             r = get()
             self.ae(r['method'], 'GET')
             self.ae(r['request_count'], 1)
-            self.ae(r['headers']['th'], ['1'])
-            self.ae(r['headers']['User-Agent'], ['test-ua'])
+            header('th', '1')
+            header('User-Agent', 'test-ua')
             self.assertIn('Accept-Encoding', r['headers'])
             r = get()
             self.ae(r['request_count'], 2)
-            self.ae(r['headers']['Cookie'], ['sc=1'])
+            header('Cookie', 'sc=1')
             test_with_timeout(True)
             test_with_timeout(False)
             r = get('/redirect')
             self.ae(r['path'], '/redirected')
-            self.ae(r['headers']['th'], ['1'])
+            header('th', '1')
             self.assertTrue(r['final_url'].endswith('/redirected'))
-            self.ae(r['headers']['User-Agent'], ['test-ua'])
+            header('User-Agent', 'test-ua')
             r = get(headers={'th': '2', 'tc': '1'})
-            if browser_class is Browser:
-                self.ae(r['headers']['Th'], ['1, 2'])
-                self.ae(r['headers']['Tc'], ['1'])
-            else:
-                self.ae(r['headers']['th'], ['1, 2'])
-                self.ae(r['headers']['tc'], ['1'])
+            header('Th', '1, 2')
+            header('Tc', '1')
             br.set_simple_cookie('cook', 'ie')
             br.set_user_agent('man in black')
             r = get()
-            self.ae(r['headers']['User-Agent'], ['man in black'])
-            self.ae(r['headers']['Cookie'], ['sc=1; cook=ie'])
+            header('User-Agent', 'man in black')
+            header('Cookie', 'sc=1; cook=ie')
             r = get(data=b'1234')
             self.ae(r['method'], 'POST')
             self.ae(r['data'], '1234')
+            header('Content-Type', 'application/x-www-form-urlencoded')
         finally:
             br.shutdown()
 
