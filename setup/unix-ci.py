@@ -114,7 +114,7 @@ def run_python(*args):
 def install_linux_deps():
     run('sudo', 'apt-get', 'update', '-y')
     # run('sudo', 'apt-get', 'upgrade', '-y')
-    run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev', 'libxkbcommon-dev', 'libxkbcommon-x11-dev')
+    run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev', 'libxkbcommon-dev', 'libxkbcommon-x11-dev', 'libflite1', 'libspeechd2')
 
 
 def get_tx():
