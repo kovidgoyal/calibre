@@ -82,7 +82,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.dest_fields = ['',
                             'authors', 'author_sort', 'language', 'publisher',
-                            'series', 'tags', 'title', 'title_sort', 'comments']
+                            'series', 'series_index', 'tags', 'title', 'title_sort',
+                            'comments']
 
         self.source_widgets = []
         self.dest_widgets = []
