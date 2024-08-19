@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class GeekCity(BasicNewsRecipe):
+    title = u'GeekCity'
+    description = u'\u041F\u043E\u0440\u0442\u0430\u043B \u043E \u043A\u043E\u043C\u0438\u043A\u0441\u0430\u0445, \u043A\u0438\u043D\u043E, \u0441\u0435\u0440\u0438\u0430\u043B\u0430\u0445, \u0438\u0433\u0440\u0430\u0445, sci-fi \u0438 \u043C\u043D\u043E\u0433\u043E\u043C \u0434\u0440\u0443\u0433\u043E\u043C. \u0417\u0434\u0435\u0441\u044C \u0432\u044B \u0432\u0441\u0435\u0433\u0434\u0430 \u0441\u043C\u043E\u0436\u0435\u0442\u0435 \u043D\u0430\u0439\u0442\u0438 \u0441\u0432\u0435\u0436\u0438\u0435 \u043D\u043E\u0432\u043E\u0441\u0442\u0438 \u043E \u0441\u0430\u043C\u044B\u0445 \u0432\u0430\u0436\u043D\u044B\u0445 \u0441\u043E\u0431\u044B\u0442\u0438\u044F\u0445 \u0432 \u043C\u0438\u0440\u0435 \u0433\u0438\u043A\u043E\u0432, \u0430\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0435 \u043E\u0431\u0437\u043E\u0440\u044B, \u0433\u0430\u0439\u0434\u044B, \u0441\u0442\u0430\u0442\u044C\u0438 \u0438 \u043C\u043D\u043E\u0433\u043E\u0435 \u0434\u0440\u0443\u0433\u043E\u0435.'  # noqa
+    __author__ = 'bugmen00t'
+    publisher = 'GeekCity.ru'
+    publication_type = 'blog'
+    oldest_article = 7
+    max_articles_per_feed = 10
+    language = 'ru'
+    cover_url = 'https://geekcity.ru/wp-content/uploads/2021/03/og.jpg'
+    auto_cleanup = False
+    no_stylesheets = False
+
+    remove_tags_before = dict(name='article')
+
+    remove_tags_after = dict(name='article')
+
+    remove_tags =   [
+        dict(name='div', attrs={'class': 'term-badges floated'}),
+        dict(name='div', attrs={'class': 'post-meta single-post-meta'}),
+        dict(name='div', attrs={'class': 'post-share single-post-share top-share clearfix style-1'}),
+        dict(name='div', attrs={'class': 'post-share single-post-share bottom-share clearfix style-1'}),
+        dict(name='div', attrs={'class': 'entry-terms post-tags clearfix'}),
+        ]
+
+    feeds = [
+        ('\u0412\u0441\u0435 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B', 'https://geekcity.ru/feed/'),
+        ('\u0411\u0435\u0437 \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0438', 'https://geekcity.ru/category/%D0%B1%D0%B5%D0%B7-%D1%80%D1%83%D0%B1%D1%80%D0%B8%D0%BA%D0%B8/feed/'),
+        ('\u0421\u0430\u0439\u0442', 'https://geekcity.ru/category/site/'),
+        ('\u0424\u0438\u043B\u044C\u043C\u044B', 'https://geekcity.ru/category/moviespod/feed/'),
+        ('\u0421\u0435\u0440\u0438\u0430\u043B\u044B', 'https://geekcity.ru/category/tvshow/feed/'),
+        ('\u041A\u043E\u043C\u0438\u043A\u0441\u044B', 'https://geekcity.ru/category/comics-2/feed/'),
+        ('\u0418\u0433\u0440\u044B', 'https://geekcity.ru/category/games/feed/'),
+        ('\u0422\u0435\u0445\u043D\u043E', 'https://geekcity.ru/category/tech/feed/'),
+        ('\u0428\u043C\u043E\u0442', 'https://geekcity.ru/category/shopping/feed/'),
+        ('\u0413\u0430\u0439\u0434\u044B', 'https://geekcity.ru/category/guides/feed/'),
+    ]
