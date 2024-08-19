@@ -1,0 +1,104 @@
+﻿#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Gagadget(BasicNewsRecipe):
+    title = u'Gagadget'
+    description = u'Gagadget.com is Ukrainian no-nonsense tech site. We only write about what is interesting to us, and we do this in the most vivid and ironic way.'  # noqa
+    __author__ = 'bugmen00t'
+    publisher = 'Gagadget'
+    publication_type = 'news'
+    oldest_article = 7
+    max_articles_per_feed = 100
+#    language = 'ru_UK'
+#    language = 'uk'
+#    language = 'en_UK'
+#    language = 'de'
+    language = 'nb'
+#    language = 'nl'
+#    language = 'es'
+#    language = 'it'
+#    language = 'fr'
+    cover_url = 'https://gagadget.com/static/img/gagadget.jpg'
+    auto_cleanup = False
+    no_stylesheets = False
+
+    remove_tags_before = dict(name='h1')
+
+    remove_tags_after = dict(name='div', attrs={'class': 'l-inner l-inner_high'})
+#
+# Ukrainian version only
+#
+#    remove_tags_after = dict(name='div', attrs={'class': 'top20 bottom20 post-links'})
+#
+#    remove_tags =   [
+#        dict(name='div', attrs={'class': 'footer-content'}),
+#        ]
+
+    feeds = [
+#
+# Russian
+#
+#       ('\u0412\u0441\u0435 \u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B', 'https://gagadget.com/rss/'),
+#       ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://gagadget.com/rss/news/'),
+#       ('\u0421\u0442\u0430\u0442\u044C\u0438', 'https://gagadget.com/rss/articles/'),
+#       ('\u041E\u0431\u0437\u043E\u0440\u044B', 'https://gagadget.com/rss/reviews/'),
+#       ('\u0421\u043F\u0435\u0446\u043F\u0440\u043E\u0435\u043A\u0442\u044B', 'https://gagadget.com/rss/specials/'),
+#
+# Ukrainian
+#
+#       ('\u0423\u0441\u0456 \u043C\u0430\u0442\u0435\u0440\u0456\u0430\u043B\u0438', 'https://gagadget.com/uk/rss/'),
+#       ('\u041D\u043E\u0432\u0438\u043D\u0438', 'https://gagadget.com/uk/rss/news/'),
+#       ('\u0421\u0442\u0430\u0442\u0442\u0456', 'https://gagadget.com/uk/rss/articles/'),
+#       ('\u041E\u0433\u043B\u044F\u0434\u0438', 'https://gagadget.com/uk/rss/reviews/'),
+#
+# English
+#
+#       ('Gagadget', 'https://gagadget.com/en/rss/'),
+#       ('News', 'https://gagadget.com/en/rss/news/'),
+#
+# German
+#
+#       ('Gagadget', 'https://gagadget.com/de/rss/'),
+#       ('Nachrichten', 'https://gagadget.com/de/rss/news/'),
+#       ('Tests', 'https://gagadget.com/de/rss/reviews/'),
+#       ('Artikel', 'https://gagadget.com/de/rss/articles/'),
+#
+# Norwegian
+#
+       ('Gagadget', 'https://gagadget.com/nb/rss/'),
+       ('Nyheter', 'https://gagadget.com/nb/rss/news/'),
+       ('Anmeldelser', 'https://gagadget.com/nb/rss/reviews/'),
+       ('Artikler', 'https://gagadget.com/nb/rss/articles/'),
+#
+# Dutch
+#
+#       ('Gagadget', 'https://gagadget.com/nl/rss/'),
+#       ('Nieuws', 'https://gagadget.com/nl/rss/news/'),
+#       ('Recensies', 'https://gagadget.com/nl/rss/reviews/'),
+#       ('Artikelen', 'https://gagadget.com/nl/rss/articles/'),
+#
+# Spanish
+#
+#       ('Gagadget', 'https://gagadget.com/es/rss/'),
+#       ('Noticias', 'https://gagadget.com/es/rss/news/'),
+#       ('Rese\u00F1as', 'https://gagadget.com/es/rss/reviews/'),
+#       ('Art\u00EDculos', 'https://gagadget.com/es/rss/articles/'),
+#
+# Italian
+#
+#       ('Gagadget', 'https://gagadget.com/it/rss/'),
+#       ('Notizia', 'https://gagadget.com/it/rss/news/'),
+#       ('Recensioni', 'https://gagadget.com/it/rss/reviews/'),
+#       ('Articoli', 'https://gagadget.com/it/rss/articles/'),
+#
+# French
+#
+#       ('Gagadget', 'https://gagadget.com/fr/rss/'),
+#       ('Nouvelles', 'https://gagadget.com/fr/rss/news/'),
+#       ('Commentaires', 'https://gagadget.com/fr/rss/reviews/'),
+#       ('Des articles', 'https://gagadget.com/fr/rss/articles/'),
+#
+     ]
