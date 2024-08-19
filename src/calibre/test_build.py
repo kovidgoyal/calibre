@@ -314,7 +314,7 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
-        from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QNetworkAccessManager, QSslSocket, QTimer, QTextToSpeech
+        from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QNetworkAccessManager, QSslSocket, QTextToSpeech, QTimer
         QLoggingCategory.setFilterRules('''qt.webenginecontext.debug=true''')
         if hasattr(os, 'geteuid') and os.geteuid() == 0:
             # likely a container build, webengine cannot run as root with sandbox

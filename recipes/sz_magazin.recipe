@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 def absurl(url):
     if url.startswith('/'):
         return 'https://sz-magazin.sueddeutsche.de' + url

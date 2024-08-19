@@ -8,8 +8,9 @@ www.washingtonpost.com
 
 import json
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheWashingtonPost(BasicNewsRecipe):
