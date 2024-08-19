@@ -16,7 +16,7 @@ from read_book.toc import get_border_nodes, get_toc_maps
 from widgets import create_button
 
 
-def create_goto_list(onclick, current_position_data):
+def create_goto_list(onclick, current_position_data, page_list):
     ans = E.div()
     items = v'[]'
     location_text = format_pos(current_position_data.progress_frac, current_position_data.book_length) + ' :: '
@@ -40,6 +40,8 @@ def create_goto_list(onclick, current_position_data):
             view.open_book_page()
         )))
     items.push(create_item(_('Location'), subtitle=location_text, action=onclick.bind(None, def(view): view.overlay.show_ask_for_location();)))
+    if page_list and page_list.length > 0:
+        items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'), action=onclick.bind(None, def(view): view.overlay.show_page_list(page_list);)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
@@ -54,10 +56,21 @@ def get_next_section(forward):
 
 
 def create_goto_panel(current_position_data, book, container, onclick):
-    panel = create_goto_list(onclick, current_position_data)
+    panel = create_goto_list(onclick, current_position_data, book.manifest.page_list)
     set_css(container, display='flex', flex_direction='column')
     set_css(panel, flex_grow='10')
     container.appendChild(panel)
+
+
+def create_page_list_overlay(book, overlay, container):
+    page_list = book.manifest.page_list or v'[]'
+    items = v'[]'
+    for x in page_list:
+        items.push(create_item(x['pagenum'], action=def():
+            overlay.view.goto_pagelist_item(x)
+            overlay.hide()
+    ))
+    build_list(container, items)
 
 
 def create_location_overlay(current_position_data, book, overlay, container):

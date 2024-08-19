@@ -480,6 +480,8 @@ class IframeBoss:
                 , 5)
             elif ipos.type is 'smil_id':
                 self.audio_ebook_msg_received({'type': 'play', 'anchor': ipos.anchor})
+            elif ipos.type is 'pagelist_ref':
+                self.scroll_to_pagelist_ref(ipos.anchor)
         spine = self.book.manifest.spine
         files = self.book.manifest.files
         spine_index = csi.index
@@ -757,6 +759,21 @@ class IframeBoss:
                 scroll_to_elem(elem)
         else:
             scroll_viewport.scroll_to(0, 0)
+
+    def scroll_to_pagelist_ref(self, frag):
+        elem = document.getElementById(frag)
+        if not elem:
+            c = document.getElementsByName(frag)
+            if c and c.length:
+                elem = c[0]
+        if elem:
+            # The stupid EPUB 3 examples have page list links pointing to
+            # display:none divs. Sigh.
+            if window.getComputedStyle(elem).display is 'none':
+                elem.textContent = ''
+                elem.setAttribute('style', 'all: revert')
+                elem.style.display = 'block'
+            scroll_to_elem(elem)
 
     def scroll_to_ref(self, refnum):
         refnum = int(refnum)

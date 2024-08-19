@@ -1115,6 +1115,11 @@ class View:
         val = max(0, min(1000 * float(bpos) / self.current_position_data.book_length, 1))
         return self.goto_frac(val)
 
+    def goto_pagelist_item(self, item):
+        name = item.dest
+        frag = item.frag or ''
+        self.show_name(name, initial_position={'type':'pagelist_ref', 'anchor':frag, 'replace_history':False})
+
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 

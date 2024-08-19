@@ -20,7 +20,7 @@ from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from read_book.bookmarks import create_bookmarks_panel
 from read_book.globals import runtime, ui_operations
-from read_book.goto import create_goto_panel, create_location_overlay
+from read_book.goto import create_goto_panel, create_location_overlay, create_page_list_overlay
 from read_book.highlights import create_highlights_panel
 from read_book.profiles import create_profiles_panel
 from read_book.open_book import create_open_book
@@ -852,6 +852,12 @@ class Overlay:
         self.hide_current_panel()
         self.panels.push(SimpleOverlay(
             self, create_location_overlay.bind(None, self.view.current_position_data, self.view.book), _('Go to location, position or reference…')))
+        self.show_current_panel()
+
+    def show_page_list(self):
+        self.hide_current_panel()
+        self.panels.push(SimpleOverlay(
+            self, create_page_list_overlay.bind(None, self.view.book), _('Go to page')))
         self.show_current_panel()
 
     def show_search(self):
