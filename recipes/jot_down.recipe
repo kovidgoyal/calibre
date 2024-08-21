@@ -34,7 +34,7 @@ class jotdown(BasicNewsRecipe):
                          (u'Portada', u'http://www.jotdown.es/feed/')
                      ]
 
-    keep_only_tags     = [dict(name='div', attrs={'id':['content']}),
+    keep_only_tags     = [dict(name='div', attrs={'class':['entry-content']}),
                           dict(name='div', attrs={'id':['comments']}),
                          ]
 
