@@ -79,7 +79,8 @@ class TestFetchBackend(unittest.TestCase):
         self.server_started = Event()
         self.server_thread = Thread(target=self.run_server, daemon=True)
         self.server_thread.start()
-        self.server_started.wait(5)
+        if not self.server_started.wait(15):
+            raise Exception('Test server failed to start')
         self.request_count = 0
         self.dont_send_response = self.dont_send_body = False
 
