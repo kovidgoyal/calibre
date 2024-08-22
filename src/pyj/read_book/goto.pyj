@@ -65,10 +65,13 @@ def create_goto_panel(current_position_data, book, container, onclick):
 def create_page_list_overlay(book, overlay, container):
     page_list = book.manifest.page_list or v'[]'
     items = v'[]'
+
+    def goto(x):
+        overlay.view.goto_pagelist_item(x)
+        overlay.hide()
+
     for x in page_list:
-        items.push(create_item(x['pagenum'], action=def():
-            overlay.view.goto_pagelist_item(x)
-            overlay.hide()
+        items.push(create_item(x.pagenum, action=goto.bind(None, x),
     ))
     build_list(container, items)
 

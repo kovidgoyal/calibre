@@ -91,6 +91,52 @@ def family_for_toc_node(toc_node_id, parent_map, id_map):
     return family
 
 
+def get_page_list_id_map(page_list):
+    return {x.id: x for x in page_list}
+
+
+def get_page_list_before(page_list, id_map):
+    # Find the page list entries that point to the closest files on either side of the spine item
+    csi = csi or current_spine_item()
+    spine = current_book().manifest.spine
+    spine_before, spine_after = {}, {}
+    which = spine_before
+    before = prev = None
+    for name in spine:
+        if name is csi:
+            which = spine_after
+        else:
+            which[name] = True
+    for item in page_list:
+        if item.dest:
+            if spine_before[item.dest]:
+                prev = item
+            elif spine_after[item.dest]:
+                if not before:
+                    before = prev
+                break
+    return before
+
+
+def get_current_pagelist_items():
+    ans = {}
+    page_list = current_book().manifest.page_list
+    data = update_visible_toc_nodes.data?.page_list
+    if not data or not page_list:
+        return ans
+    id_map = get_page_list_id_map(page_list)
+    if data.has_visible:
+        ans = data.visible_anchors
+    else:
+        if data.before?:
+            ans[data.before] = True
+        else:
+            before = get_page_list_before(page_list, id_map)
+            if before?:
+                ans[before.id] = True
+    return [id_map[x] for x in Object.keys(ans)]
+
+
 def get_current_toc_nodes():
     toc = current_book().manifest.toc
     parent_map, id_map = get_toc_maps(toc)
@@ -203,7 +249,7 @@ def create_toc_panel(book, container, onclick):
     toc_panel.style.flexShrink = '1'
     toc_panel.style.overflow = 'auto'
 
-def recalculate_toc_anchor_positions(tam):
+def recalculate_toc_anchor_positions(tam, plam):
     name = current_spine_item().name
     am = {}
     anchors = v'[]'
@@ -217,25 +263,39 @@ def recalculate_toc_anchor_positions(tam):
     anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
     current_map = {'layout_mode': current_layout_mode(), 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
+    am = {}
+    anchors = v'[]'
+    pos_map = {}
+    if plam:
+        for i, anchor in enumerate(plam[name] or v'[]'):
+            am[anchor.id] = position_for_anchor(anchor.frag, True)
+            anchors.push(anchor.id)
+            pos_map[anchor.id] = i
+    # stable sort by position in document
+    anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
+    current_map.page_list_pos_map = am
+    current_map.page_list_sorted_anchors = anchors
+
     set_toc_anchor_map(current_map)
     return current_map
 
 
-def current_toc_anchor_map(tam):
+def current_toc_anchor_map(tam, plam):
     current_map = toc_anchor_map()
     if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
-        current_map = recalculate_toc_anchor_positions(tam)
+        current_map = recalculate_toc_anchor_positions(tam, plam)
     return current_map
 
 
-def update_visible_toc_anchors(toc_anchor_map, recalculate):
+def update_visible_toc_anchors(toc_anchor_map, page_list_anchor_map, recalculate):
     if recalculate:
-        recalculate_toc_anchor_positions(toc_anchor_map)
-    tam = current_toc_anchor_map(toc_anchor_map)
+        recalculate_toc_anchor_positions(toc_anchor_map, page_list_anchor_map)
+    anchor_funcs = get_boss().anchor_funcs
+
+    tam = current_toc_anchor_map(toc_anchor_map, page_list_anchor_map)
     before = after = None
     visible_anchors = {}
     has_visible = False
-    anchor_funcs = get_boss().anchor_funcs
 
     for anchor_id in tam.sorted_anchors:
         pos = tam.pos_map[anchor_id]
@@ -248,14 +308,30 @@ def update_visible_toc_anchors(toc_anchor_map, recalculate):
         elif visibility > 0:
             after = anchor_id
             break
+    ans = {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
 
-    return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
+    before = after = None
+    visible_anchors = {}
+    has_visible = False
+    for anchor_id in tam.page_list_sorted_anchors:
+        pos = tam.page_list_pos_map[anchor_id]
+        visibility = anchor_funcs.visibility(pos)
+        if visibility < 0:
+            before = anchor_id
+        elif visibility is 0:
+            has_visible = True
+            visible_anchors[anchor_id] = True
+        elif visibility > 0:
+            after = anchor_id
+            break
+    ans.page_list = {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.page_list_sorted_anchors}
+    return ans
 
 
-def find_anchor_before_range(r, toc_anchor_map):
+def find_anchor_before_range(r, toc_anchor_map, page_list_anchor_map):
     name = current_spine_item().name
     prev_anchor = None
-    tam = current_toc_anchor_map(toc_anchor_map)
+    tam = current_toc_anchor_map(toc_anchor_map, page_list_anchor_map)
     anchors = toc_anchor_map[name]
     if anchors:
         amap = {x.id: x for x in anchors}

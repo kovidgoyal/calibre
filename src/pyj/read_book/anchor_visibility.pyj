@@ -21,7 +21,15 @@ def ensure_anchor_cache_valid():
         invalidate_anchor_position_cache()
 
 
-def position_for_anchor(anchor):
+def ensure_page_list_target_is_displayed(elem):
+    # The stupid EPUB 3 examples have page list links pointing to
+    # display:none divs. Sigh.
+    if window.getComputedStyle(elem).display is 'none':
+        elem.textContent = ''
+        elem.setAttribute('style', 'all: revert')
+
+
+def position_for_anchor(anchor, is_page_list_anchor):
     ensure_anchor_cache_valid()
     cache = anchor_position_cache.positions
     val = cache[anchor]
@@ -29,6 +37,8 @@ def position_for_anchor(anchor):
         return val
     anchor_funcs = get_boss().anchor_funcs
     elem = document.getElementById(anchor)
+    if is_page_list_anchor:
+        ensure_page_list_target_is_displayed(elem)
     val = anchor_funcs.pos_for_elem(elem) if elem else anchor_funcs.pos_for_elem()
     cache[anchor] = val
     return val

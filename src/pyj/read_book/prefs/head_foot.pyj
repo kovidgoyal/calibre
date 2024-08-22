@@ -48,6 +48,7 @@ def create_item(region, label, style):
             opt(_('Position in book'), 'pos-book'),
             opt(_('Position in chapter'), 'pos-chapter'),
             opt(_('Pages in chapter'), 'pages-progress'),
+            opt(_('Pages from paper edition'), 'page-list'),
         ))
     )
 
@@ -183,7 +184,7 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos, override, view_mode):
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, page_list, book_time, chapter_time, pos, override, view_mode):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
@@ -244,6 +245,12 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
             text = f'{pos.page_counts.current + 1} / {pos.page_counts.total}'
         else:
             text = _('Unknown')
+    elif field is 'page-list':
+        if page_list and page_list.length > 0:
+            if page_list.length is 1:
+                text = page_list[0].pagenum
+            else:
+                text = f'{page_list[0].pagenum} - {page_list[-1].pagenum}'
     if not text:
         text = '\xa0'
     if text is not div.textContent:

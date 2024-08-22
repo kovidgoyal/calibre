@@ -196,11 +196,12 @@ def toc_anchor_map(toc):
 def pagelist_anchor_map(page_list):
     ans = defaultdict(list)
     seen_map = defaultdict(set)
-    for x in page_list:
+    for i, x in enumerate(page_list):
+        x['id'] = i
         name = x['dest']
         frag = x['frag']
         if name and frag not in seen_map[name]:
-            ans[name].append({'frag':frag})
+            ans[name].append({'id': i, 'pagenum': x['pagenum'], 'frag':frag})
             seen_map[name].add(frag)
     return dict(ans)
 
@@ -761,7 +762,7 @@ def process_exploded_book(
         'link_to_map': {},
         'page_progression_direction': page_progression_direction,
         'page_list': page_list,
-        'pagelist_anchor_map': pagelist_anchor_map(page_list),
+        'page_list_anchor_map': pagelist_anchor_map(page_list),
     }
 
     names = sorted(

@@ -43,7 +43,7 @@ from read_book.selection_bar import SelectionBar
 from read_book.shortcuts import create_shortcut_map
 from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
-from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
+from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes, get_current_pagelist_items
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import (
@@ -1323,7 +1323,7 @@ class View:
         view_mode = sd.get('read_mode')
 
         def render(div, name, which, override):
-            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override, view_mode)
+            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, self.current_pagelist_items, book_time, chapter_time, pos, override, view_mode)
 
         return render
 
@@ -1365,6 +1365,7 @@ class View:
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
         self.current_toc_families = get_current_toc_nodes()
+        self.current_pagelist_items = get_current_pagelist_items()
         if self.current_toc_families.length:
             first = self.current_toc_families[0]
             self.current_toc_node = first[-1]
