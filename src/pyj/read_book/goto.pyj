@@ -63,6 +63,15 @@ def create_goto_panel(current_position_data, book, container, onclick):
 
 
 def create_page_list_overlay(book, overlay, container):
+    list_container = E.div()
+    pl = overlay.view.current_pagelist_items
+    if pl and pl.length > 0:
+        if pl.length is 1:
+            text = _('Currently on page: {}').format(pl[0].pagenum)
+        else:
+            text = _('Currently on pages: {}').format(pl[0].pagenum + ' - ' + pl[1].pagenum)
+        container.appendChild(E.div(style='margin: 1em', text))
+    container.appendChild(list_container)
     page_list = book.manifest.page_list or v'[]'
     items = v'[]'
 
@@ -73,7 +82,7 @@ def create_page_list_overlay(book, overlay, container):
     for x in page_list:
         items.push(create_item(x.pagenum, action=goto.bind(None, x),
     ))
-    build_list(container, items)
+    build_list(list_container, items)
 
 
 def create_location_overlay(current_position_data, book, overlay, container):

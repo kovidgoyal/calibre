@@ -197,11 +197,11 @@ def pagelist_anchor_map(page_list):
     ans = defaultdict(list)
     seen_map = defaultdict(set)
     for i, x in enumerate(page_list):
-        x['id'] = i
+        x['id'] = i + 1
         name = x['dest']
         frag = x['frag']
         if name and frag not in seen_map[name]:
-            ans[name].append({'id': i, 'pagenum': x['pagenum'], 'frag':frag})
+            ans[name].append({'id': x['id'], 'pagenum': x['pagenum'], 'frag':frag})
             seen_map[name].add(frag)
     return dict(ans)
 
