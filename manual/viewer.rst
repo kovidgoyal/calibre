@@ -254,6 +254,18 @@ You can zoom in to show an image at full size in a separate window by either
 double clicking or long tapping on it. You can also right click on it and
 choose :guilabel:`View image`.
 
+
+Syncing with a paper edition of the current book
+----------------------------------------------------
+
+Some e-books, that have corresponding print editions, include metadata that
+marks the start of each paper page. For such e-books, the viewer allows you to
+jump to a particular paper edition page via the :guilabel:`Go to` button in the
+viewer controls. You can also optionally display the paper page corressponding
+to the current location in the book's headers or footers via the viewer
+settings, by adding :guilabel:`Pages from paper edition` to either the header
+or the footer.
+
 .. _viewer_shortcuts:
 
 Keyboard shortcuts
