@@ -343,7 +343,8 @@ class VLTabs(QTabBar):  # {{{
             self.setCurrentIndex(idx)
 
     def update_visibility(self):
-        self.setVisible(gprefs['show_vl_tabs'] and self.count() > 1)
+        cv = self.gui.current_view()
+        self.setVisible(gprefs['show_vl_tabs'] and self.count() > 1 and (cv is self.gui.library_view or cv is None))
 
     def enable_bar(self):
         gprefs['show_vl_tabs'] = True

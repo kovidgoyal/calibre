@@ -916,7 +916,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
-        idx = self.stack.currentIndex()
+        try:
+            idx = self.stack.currentIndex()
+        except AttributeError:
+            return None  # happens during startup
         if idx == 0:
             return self.library_view
         if idx == 1:
@@ -1038,6 +1041,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.book_details.reset_info()
         self.layout_container.tag_browser_button.setEnabled(location == 'library')
         self.layout_container.cover_browser_button.setEnabled(location == 'library')
+        self.vl_tabs.update_visibility()
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
