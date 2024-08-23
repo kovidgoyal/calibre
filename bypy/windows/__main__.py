@@ -138,6 +138,8 @@ def freeze(env, ext_dir, incdir):
     os.mkdir(ossm)
     for f in glob.glob(os.path.join(PREFIX, 'lib', 'ossl-modules', '*.dll')):
         copybin(f, ossm)
+    for f in glob.glob(os.path.join(PREFIX, 'ffmpeg', 'bin', '*.dll')):
+        copybin(f)
 
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver.replace('.', '')))
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver[0]))

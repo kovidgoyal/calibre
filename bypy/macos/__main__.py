@@ -272,7 +272,7 @@ class Freeze:
             if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib', 'libjbig.2.1.dylib') and not is_id:
                 yield x, x, is_id
             else:
-                for y in ('@rpath/', PREFIX + '/lib/', PREFIX + '/python/Python.framework/'):
+                for y in ('@rpath/', PREFIX + '/lib/', PREFIX + '/python/Python.framework/', PREFIX + '/ffmpeg/lib/'):
                     if x.startswith(y):
                         if y == PREFIX + '/python/Python.framework/':
                             y = PREFIX + '/python/'
@@ -322,6 +322,14 @@ class Freeze:
     @flush
     def add_qt_frameworks(self):
         print('\nAdding Qt Frameworks')
+        # First add FFMPEG
+        for x in os.listdir(join(PREFIX, 'ffmpeg', 'lib')):
+            if x.endswith('.dylib') and x.count('.') == 2:
+                src = join(PREFIX, 'ffmpeg', 'lib', x)
+                shutil.copy2(src, self.frameworks_dir)
+                dest = join(self.frameworks_dir, os.path.basename(src))
+                self.set_id(dest, self.FID + '/' + os.path.basename(src))
+                self.fix_dependencies_in_lib(dest)
         for f in QT_FRAMEWORKS:
             self.add_qt_framework(f)
         pdir = join(QT_PREFIX, 'plugins')

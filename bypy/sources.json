@@ -507,6 +507,16 @@
     },
 
     {
+        "name": "ffmpeg",
+        "os": "macos,windows",
+		"unix": {
+			"filename": "ffmpeg-6.1.2.tar.xz",
+			"hash": "sha256:3b624649725ecdc565c903ca6643d41f33bd49239922e45c9b1442c63dca4e38",
+			"urls": ["https://www.ffmpeg.org/releases/{filename}"]
+		}
+    },
+
+    {
         "name": "qt-base",
         "version": "6.7.2",
         "hashes": {
