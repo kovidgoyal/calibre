@@ -1,4 +1,5 @@
-from calibre.ptempfile import PersistentTemporaryFile
+#!/usr/bin/env python
+import random
 from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -27,11 +28,26 @@ class projectsynd(BasicNewsRecipe):
 
     articles_are_obfuscated = True
     def get_obfuscated_article(self, url):
-        raw = read_url(self.storage, 'https://archive.is/latest/' + url)
-        pt = PersistentTemporaryFile('.html')
-        pt.write(raw.encode('utf-8'))
-        pt.close()
-        return pt.name
+        dom = random.choice(('fo', 'is', 'li', 'md', 'ph', 'vn'))
+        data = read_url(self.storage, 'https://archive.' + dom + '/latest/' + url.split('?')[0])
+        return {
+            'data': data,
+            'url': url.split('?')[0]
+        }
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     extra_css = '''
         [itemprop^="associatedMedia"]{ font-size:small; text-align:center; }
@@ -47,7 +63,7 @@ class projectsynd(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name=['button', 'svg']),
+        dict(name=['button', 'svg', 'source']),
         dict(attrs={'data-message-area':True}),
         dict(attrs={'id':['editorspicks', 'movie_player']}),
         dict(name='aside', attrs={'id':lambda x: x and x.startswith('comments-')})
@@ -64,14 +80,18 @@ class projectsynd(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
         for img in soup.findAll('img', attrs={'old-src':True}):
             img['src'] = img['old-src'].replace('medium', 'xlarge')
         if abst := soup.find(attrs={'itemprop':'abstract'}):
             if div := abst.find('div'):
                 div.name = 'p'
                 div['class'] = 'sub'
-        for div in soup.findAll('div', attrs={'data-line-id':True}):
-            div.name = 'p'
+        bdy = soup.find(attrs={'itemprop':'articleBody'})
+        if bdy:
+            for div in bdy.findAll('div', recursive=False):
+                div.name = 'p'
         for a in soup.findAll('a', href=True):
             a['href'] = 'http' + a['href'].split('http')[-1]
         return soup
