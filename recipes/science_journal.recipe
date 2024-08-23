@@ -1,13 +1,10 @@
 #!/usr/bin/env python
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-
 
 def absurl(url):
     if url.startswith('/'):
         url = 'https://www.science.org' + url
     return url
-
 
 
 class science(BasicNewsRecipe):
@@ -21,11 +18,15 @@ class science(BasicNewsRecipe):
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://www.science.org/pb-assets/images/styleguide/logo-1672180580750.svg'
     language = 'en'
+    simultaneous_downloads = 1
+    browser_type = 'qt'
+
     extra_css = '''
         .news-article__figure__caption {font-size:small; text-align:center;}
-        .contributors, .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta,
-		.news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
+        .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
+        .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
         .core-lede {font-style:italic; color:#202020;}
     '''
@@ -35,30 +36,44 @@ class science(BasicNewsRecipe):
     keep_only_tags = [
         classes('meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'),
         dict(name='h1', attrs={'property':'name'}),
-        classes('core-lede contributors core-self-citation'),
+        dict(name='div', **classes('core-lede contributors core-self-citation')),
         dict(attrs={'data-core-wrapper':'content'})
     ]
 
     remove_tags = [
-        classes('pb-ad')
+        classes('pb-ad news-article__hero__scroller news-article__version-of-story')
     ]
-    browser_type = 'qt'
+
+    recipe_specific_options = {
+        'issue': {
+            'short': 'Enter the Issue Number you want to download\n(Vol/Issue format)',
+            'long': 'For example, 385/6710',
+            'default': 'current'
+        }
+    }
 
     def preprocess_html(self, soup):
         for p in soup.findAll(attrs={'role':'paragraph'}):
             p.name = 'p'
+            p.attrs = {}
         return soup
 
     def parse_index(self):
-        url = 'https://www.science.org/toc/science/current'
+        issue_url = 'https://www.science.org/toc/science/current'
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            issue_url = 'https://www.science.org/toc/science/' + d
 
-        soup = self.index_to_soup(url)
+        soup = self.index_to_soup(issue_url)
         tme = soup.find(**classes('journal-issue__vol'))
         if tme:
-            self.timefmt = ' [%s]' % self.tag_to_string(tme).strip()
+            self.timefmt = ' [%s]' % self.tag_to_string(tme).strip().replace('|', ' | ')
         det = soup.find(attrs={'id':'journal-issue-details'})
         if det:
             self.description = self.tag_to_string(det).strip()
+        cov = soup.find(**classes('cover-image__image'))
+        if cov:
+            self.cover_url = absurl(cov.img['src'])
 
         feeds = []
 
@@ -78,7 +93,7 @@ class science(BasicNewsRecipe):
                 meta = card.find(**classes('card-meta'))
                 if meta:
                     desc = self.tag_to_string(meta).strip()
-                self.log('          ', title, '\n\t', desc, '\n\t', url)
+                self.log('            ', title, '\n\t', desc, '\n\t\t', url)
                 articles.append({'title': title, 'description':desc, 'url': url})
             feeds.append((section, articles))
         return feeds
