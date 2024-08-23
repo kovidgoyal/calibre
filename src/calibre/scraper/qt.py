@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 import weakref
 from contextlib import suppress
 from io import BytesIO
@@ -238,8 +239,6 @@ class Browser:
 
     def shutdown(self):
         self.shutting_down = True
-        import shutil
-        import time
         if self.worker:
             w, self.worker = self.worker, None
             with suppress(OSError):
