@@ -352,7 +352,8 @@ class BuildTest(unittest.TestCase):
             self.assertTrue(available_tts_engines)
 
             adevs = QMediaDevices.audioOutputs()
-            self.assertTrue(adevs)
+            if not is_ci:
+                self.assertTrue(adevs)
 
             self.assertGreaterEqual
             from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
