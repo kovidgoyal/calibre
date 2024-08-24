@@ -169,6 +169,7 @@ class CreateCustomColumn(QDialog):
                 self.format_box.setText(c['display'].get('date_format', ''))
         elif ct in ['composite', '*composite']:
             self.composite_box.setText(c['display'].get('composite_template', ''))
+            self.store_template_value_in_opf.setChecked(c['display'].get('composite_store_template_value_in_opf', True))
             if c['display'].get('composite_show_in_comments', ''):
                 self.composite_in_comments_box.setChecked(True)
                 idx = max(0, self.composite_heading_position.findData(c['display'].get('heading_position', 'hide')))
@@ -510,6 +511,16 @@ class CreateCustomColumn(QDialog):
         l.addWidget(la), l.addWidget(chp)
         l.addStretch()
         add_row(None, l)
+        l = QHBoxLayout()
+        self.store_template_value_in_opf = cmc = QCheckBox(_("Store this column's value in an OPF"))
+        cmc.setToolTip('<p>' + _('If you check this box then the result of '
+             "evaluating this column's template will be stored in the backup OPF "
+             'stored in the library. The same is true when sending to a device, '
+             'assuming the format has an OPF. One reason to uncheck this box is '
+             'that the column contains large images.') + '</p>')
+        l.addWidget(cmc)
+        l.addStretch()
+        add_row(None, l)
 
         # Default value
         self.default_value = dv = QLineEdit(self)
@@ -610,6 +621,7 @@ class CreateCustomColumn(QDialog):
                   'make_category', 'contains_html'):
             getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
         self.composite_heading_position.setEnabled(False)
+        self.store_template_value_in_opf.setVisible(col_type == 'composite')
 
         for x in ('box', 'default_label',  'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
@@ -708,6 +720,7 @@ class CreateCustomColumn(QDialog):
                                 'contains_html': self.composite_contains_html.isChecked(),
                                 'composite_show_in_comments': False,
                             }
+            display_dict['composite_store_template_value_in_opf'] = self.store_template_value_in_opf.isChecked()
 
         elif col_type == 'enumeration':
             if not str(self.enum_box.text()).strip():
