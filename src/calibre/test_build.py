@@ -314,7 +314,7 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
-        from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QNetworkAccessManager, QSslSocket, QTextToSpeech, QTimer
+        from qt.core import QApplication, QFontDatabase, QImageReader, QLoggingCategory, QMediaDevices, QNetworkAccessManager, QSslSocket, QTextToSpeech, QTimer
         QLoggingCategory.setFilterRules('''qt.webenginecontext.debug=true''')
         if hasattr(os, 'geteuid') and os.geteuid() == 0:
             # likely a container build, webengine cannot run as root with sandbox
@@ -350,6 +350,9 @@ class BuildTest(unittest.TestCase):
             self.assertGreaterEqual(len(QFontDatabase.families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
             available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
             self.assertTrue(available_tts_engines)
+
+            adevs = QMediaDevices.audioOutputs()
+            self.assertTrue(adevs)
 
             self.assertGreaterEqual
             from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
