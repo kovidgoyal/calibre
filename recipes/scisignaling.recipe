@@ -8,19 +8,18 @@ def absurl(url):
 
 
 class scienceadv(BasicNewsRecipe):
-    title = 'Science Advances'
+    title = 'Science Signaling'
     __author__ = 'unkn0wn'
     description = (
-        'Science Advances is the American Association for the Advancement of Science’s (AAAS) open access '
-        'multidisciplinary journal, publishing impactful research papers and reviews in any area of science, in '
-        'both disciplinary-specific and broad, interdisciplinary areas. The mission of Science Advances is to provide '
-        ';fair, fast, and expert peer review to authors and a vetted selection of research, freely available to readers.'
+        'Science Signaling offers researchers the most up-to-date resource for groundbreaking research and commentary '
+        'in the dynamic field of cellular signaling. From basic science to design of therapeutics and from molecules to '
+        'networks and systems design, this weekly e-resource keeps your researchers, faculty, and students ahead of the curve.'
     )
     encoding = 'utf-8'
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = 'https://www.science.org/pb-assets/images/logos/sciadv-logo-1620488349693.svg'
+    masthead_url = 'https://www.science.org/pb-assets/images/logos/signaling-logo-1620488350150.svg'
     language = 'en'
     simultaneous_downloads = 1
     browser_type = 'qt'
@@ -61,10 +60,10 @@ class scienceadv(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        issue_url = 'https://www.science.org/toc/sciadv/current'
+        issue_url = 'https://www.science.org/toc/signaling/current'
         d = self.recipe_specific_options.get('issue')
         if d and isinstance(d, str):
-            issue_url = 'https://www.science.org/toc/sciadv/' + d
+            issue_url = 'https://www.science.org/toc/signaling/' + d
 
         soup = self.index_to_soup(issue_url)
         tme = soup.find(**classes('journal-issue__vol'))

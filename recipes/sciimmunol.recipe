@@ -8,19 +8,19 @@ def absurl(url):
 
 
 class scienceadv(BasicNewsRecipe):
-    title = 'Science Advances'
+    title = 'Science Immunology'
     __author__ = 'unkn0wn'
     description = (
-        'Science Advances is the American Association for the Advancement of Science’s (AAAS) open access '
-        'multidisciplinary journal, publishing impactful research papers and reviews in any area of science, in '
-        'both disciplinary-specific and broad, interdisciplinary areas. The mission of Science Advances is to provide '
-        ';fair, fast, and expert peer review to authors and a vetted selection of research, freely available to readers.'
+        'Immunology is in a period of unprecedented expansion and progress. The broad influence of the immune system on diverse '
+        'aspects of health and disease is beginning to be appreciated, and innovative immunological interventions are proving successful '
+        'in the clinic. New tools are revealing the extent of this influence with exceptional precision and reach. Science Immunology '
+        'provides a platform for the most exciting findings in this growing field.'
     )
     encoding = 'utf-8'
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = 'https://www.science.org/pb-assets/images/logos/sciadv-logo-1620488349693.svg'
+    masthead_url = 'https://www.science.org/pb-assets/images/logos/sciimmunol-logo-1620488349717.svg'
     language = 'en'
     simultaneous_downloads = 1
     browser_type = 'qt'
@@ -61,10 +61,10 @@ class scienceadv(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        issue_url = 'https://www.science.org/toc/sciadv/current'
+        issue_url = 'https://www.science.org/toc/sciimmunol/current'
         d = self.recipe_specific_options.get('issue')
         if d and isinstance(d, str):
-            issue_url = 'https://www.science.org/toc/sciadv/' + d
+            issue_url = 'https://www.science.org/toc/sciimmunol/' + d
 
         soup = self.index_to_soup(issue_url)
         tme = soup.find(**classes('journal-issue__vol'))
