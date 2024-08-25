@@ -26,7 +26,7 @@ class scienceadv(BasicNewsRecipe):
     browser_type = 'qt'
 
     extra_css = '''
-        .news-article__figure__caption {font-size:small; text-align:center;}
+        .news-article__figure__caption, .figc {font-size:small;}
         .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
         .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
@@ -51,6 +51,11 @@ class scienceadv(BasicNewsRecipe):
             'short': 'Enter the Issue Number you want to download\n(Vol/Issue format)',
             'long': 'For example, 385/6710',
             'default': 'current'
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600'
         }
     }
 
@@ -58,6 +63,15 @@ class scienceadv(BasicNewsRecipe):
         for p in soup.findAll(attrs={'role':'paragraph'}):
             p.name = 'p'
             p.attrs = {}
+        for img in soup.findAll('img', attrs={'src':True}):
+            if img['src'].endswith('.jpg'):
+                res = '/cdn-cgi/image/width=600'
+                w = self.recipe_specific_options.get('res')
+                if w and isinstance(w, str):
+                    res = '/cdn-cgi/image/width=' + w
+                img['src'] = absurl(res + img['src'])
+        for figc in soup.findAll('figcaption'):
+            figc['class'] = 'figc'
         return soup
 
     def parse_index(self):
@@ -75,7 +89,7 @@ class scienceadv(BasicNewsRecipe):
             self.description = self.tag_to_string(det).strip()
         cov = soup.find(**classes('cover-image__image'))
         if cov:
-            self.cover_url = absurl(cov.img['src'])
+            self.cover_url = absurl('/cdn-cgi/image/width=800' + cov.img['src'])
 
         feeds = []
 
