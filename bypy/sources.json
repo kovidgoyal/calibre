@@ -112,6 +112,17 @@
     },
 
     {
+        "name": "libdeflate",
+        "comments": "Used optionally libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
+        "os": "linux",
+        "unix": {
+            "filename": "libdeflate-1.21.tar.gz",
+            "hash": "sha256:7f05b533dd1d95e48a9f7d633beab67d8c6f502c01a2a5f46b204c16d1e748ad",
+            "urls": ["https://github.com/ebiggers/libdeflate/releases/download/v1.21/{filename}"]
+        }
+    },
+
+    {
         "name": "zstd",
         "unix": {
             "filename": "zstd-1.5.5.tar.gz",
