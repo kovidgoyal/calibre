@@ -11,15 +11,66 @@ from modals import create_custom_dialog, error_dialog
 from widgets import create_button
 
 
-def escaper():
-    doc = document.implementation.createDocument("", "", None)
-    el = doc.createElement("temp")
-    el.textContent = "temp"
-    el = el.firstChild
-    ser =  new XMLSerializer()  # noqa
-    return def(text):
-        el.nodeValue = text
-        return ser.serializeToString(el)
+class Tracker:
+
+    def __init__(self):
+        self.clear()
+
+    def clear(self):
+        self.positions = v'[]'
+        self.last_pos = 0
+        self.queue = v'[]'
+
+    def parse_marked_text(self, marked_text):
+        self.clear()
+        text = v'[]'
+        text_len = chunk_len = index_in_positions = 0
+        limit = 4096
+        for x in marked_text:
+            if jstype(x) is 'number':
+                self.positions.push({'mark': x, 'offset_in_text': text_len})
+            else:
+                text_len += x.length
+                chunk_len += x.length
+                text.push(x)
+                if chunk_len > limit:
+                    self.queue.push({'text': ''.join(text), 'index_in_positions': index_in_positions})
+                    chunk_len = 0
+                    text = v'[]'
+                    index_in_positions = self.positions.length - 1
+        if text.length:
+            self.queue.push({'text': ''.join(text), 'index_in_positions': index_in_positions})
+        self.marked_text = marked_text
+        console.log(self.queue)
+        return self.current_text()
+
+    def pop_first(self):
+        self.queue.splice(0, 1)
+
+    def current_text(self):
+        if self.queue.length:
+            return self.queue[0].text
+        return ''
+
+    def resume(self):
+        self.last_pos = 0
+        if self.queue.length:
+            self.last_pos = self.queue[0].index_in_positions
+        return self.current_text()
+
+    def mark_word(self, start, length):
+        end = start + length
+        matches = v'[]'
+        while self.last_pos < self.positions.length:
+            pos = self.positions[self.last_pos]
+            if start <= pos.offset_in_text < end:
+                matches.push(pos)
+            elif pos.offset_in_text >= end:
+                break
+            self.last_pos += 1
+        if matches.length:
+            return matches[0].mark, matches[-1].mark
+        return None
 
 
 class Client:
@@ -30,7 +81,7 @@ class Client:
     def __init__(self):
         self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
-        self.queue = v'[]'
+        self.tracker = Tracker(v'[]')
         self.last_reached_mark = None
         self.onevent = def():
             pass
@@ -38,19 +89,14 @@ class Client:
         self.current_voice_uri = data.voice or ''
         self.current_rate = data.rate or None
 
-    def create_utterance(self, text_or_ssml, wrap_in_ssml):
-        if wrap_in_ssml:
-            text_or_ssml = (
-                '<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' +
-                text_or_ssml +
-                '</s></speak>')
-        ut = new window.SpeechSynthesisUtterance(text_or_ssml)
+    def create_utterance(self, text):
+        ut = new window.SpeechSynthesisUtterance(text)
         ut.onstart = self.utterance_started
         ut.onpause = self.utterance_paused
         ut.onend = self.utterance_ended
         ut.onerror = self.utterance_failed
-        ut.onmark = self.utterance_mark_reached
         ut.onresume = self.utterance_resumed
+        ut.addEventListener('boundary', self.utterance_boundary_reached)
         if self.current_voice_uri:
             for voice in window.speechSynthesis.getVoices():
                 if voice.voiceURI is self.current_voice_uri:
@@ -58,7 +104,6 @@ class Client:
                     break
         if self.current_rate:
             ut.rate = self.current_rate
-        self.queue.push(ut)
         return ut
 
     def utterance_started(self, event):
@@ -74,22 +119,27 @@ class Client:
         if self.stop_requested_at? and window.performance.now() - self.stop_requested_at < 1000:
             self.stop_requested_at = None
             return
-        self.queue.splice(0, 1)
-        if self.queue.length:
-            window.speechSynthesis.speak(self.queue[0])
+        self.tracker.pop_first()
+        text = self.tracker.current_text()
+        if text and text.length:
+            window.speechSynthesis.speak(text)
         else:
             self.onevent('end')
 
     def utterance_failed(self, event):
         self.status = {'synthesizing': False, 'paused': False}
-        self.queue = v'[]'
-        error_dialog(_('Speaking failed'), _(
-            'An error has occurred with speech synthesis: ' + event.error))
+        self.tracker.clear()
+        if event.error is not 'interrupted':
+            error_dialog(_('Speaking failed'), _(
+                'An error has occurred with speech synthesis: ' + event.error))
         self.onevent('cancel')
 
-    def utterance_mark_reached(self, event):
-        self.last_reached_mark = event.name
-        self.onevent('mark', int(event.name))
+    def utterance_boundary_reached(self, event):
+        if event.name is 'word':
+            x = self.tracker.mark_word(event.charIndex, event.charLength)
+            if x:
+                first, last = x[0], x[1]
+                self.onevent('mark', {'first': first, 'last': last})
 
     def utterance_resumed(self, event):
         self.status = {'synthesizing': True, 'paused': False}
@@ -102,61 +152,28 @@ class Client:
         window.speechSynthesis.resume()
 
     def resume_after_configure(self):
-        if self.queue.length:
-            window.speechSynthesis.speak(self.queue[0])
+        text = self.tracker.resume()
+        if text and text.length:
+            window.speechSynthesis.speak(text)
 
     def stop(self):
-        self.queue = v'[]'
+        self.tracker.clear()
         self.stop_requested_at = window.performance.now()
         window.speechSynthesis.cancel()
         self.status = {'synthesizing': False, 'paused': False}
 
     def speak_simple_text(self, text):
         self.stop()
-        while text.length > 32766:
-            self.create_utterance(text[:32766])
-            text = text[32766:]
-        if text:
-            self.create_utterance(text)
-        if self.queue.length:
-            window.speechSynthesis.speak(self.queue[0])
+        text = self.tracker.parse_marked_text(v'[text]')
+        if text and text.length:
+            window.speechSynthesis.speak(self.create_utterance(text))
 
     def speak_marked_text(self, text_segments, onevent):
         self.stop()
         self.onevent = onevent
-        buf = v'[]'
-        size = 0
-        limit = 2048
-
-        def commit():
-            nonlocal buf, size
-            text = buf.join('')
-            if text.length:
-                self.create_utterance(text)
-            buf = v'[]'
-            size = 0
-
-        for x in text_segments:
-            if jstype(x) is 'number':
-                # Currently the sad sack browsers dont support SSML
-                # https://github.com/WICG/speech-api/issues/37
-                # buf.push()
-                # markup = '<mark name="' + x + '"/>'
-                continue
-            else:
-                if x.length > limit:
-                    commit()
-                    while x.length:
-                        self.create_utterance(x[:limit])
-                        x = x[limit:]
-                    continue
-            if size + x.length > limit:
-                commit()
-            buf.push(x)
-            size += x.length
-        commit()
-        if self.queue.length:
-            window.speechSynthesis.speak(self.queue[0])
+        text = self.tracker.parse_marked_text(text_segments)
+        if text and text.length:
+            window.speechSynthesis.speak(self.create_utterance(text))
 
     def faster(self):
         self.change_rate(steps=1)
@@ -167,13 +184,6 @@ class Client:
     def apply_settings(self):
         sd = get_session_data()
         sd.set('tts_backend', {'voice': self.current_voice_uri, 'rate': self.current_rate})
-        existing = self.queue
-        if self.queue and self.queue.length:
-            if self.status.paused:
-                window.speechSynthesis.resume()
-            self.stop()
-            for ut in existing:
-                self.create_utterance(ut.text)
 
     def change_rate(self, steps=1):
         rate = current_rate = (self.current_rate or 1) * 10

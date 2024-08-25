@@ -1041,9 +1041,11 @@ class IframeBoss:
             sel.removeAllRanges()
             self.send_message('tts', type='text-extracted', marked_text=marked_text, pos=data.pos)
 
-    def mark_word_being_spoken(self, occurrence_number):
+    def mark_word_being_spoken(self, x):
+        if jstype(x) is 'number':
+            x = {'first': x, 'last': x}
         self.last_search_at = window.performance.now()
-        if select_tts_mark(occurrence_number):
+        if select_tts_mark(x.first, x.last):
             self.ensure_selection_boundary_visible()
 
     def audio_ebook_msg_received(self, data):

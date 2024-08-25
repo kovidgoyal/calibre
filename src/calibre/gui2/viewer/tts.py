@@ -115,7 +115,7 @@ class TTS(QObject):
     def callback(self, event):
         data = event.data
         if event.type is event.type.mark:
-            data = int(data)
+            data = {'first': int(data), 'last': int(data)}
         self.event_received.emit(event.type.name, data)
 
     def stop(self, data):

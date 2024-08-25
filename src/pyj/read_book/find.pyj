@@ -162,17 +162,24 @@ def select_search_result(sr):
     return select_find_result(match)
 
 
-def select_tts_mark(idx_in_flat_text):
-    window.getSelection().removeAllRanges()
-    if not cache.text_map:
-        cache.text_map = build_text_map()
+def find_word_length(idx):
     r = tts_word_regex()
-    r.lastIndex = idx_in_flat_text
+    r.lastIndex = idx
     match = v'r.exec(cache.text_map.flat_text)'
     word_length = 5
     if match:
         word_length = match[0]?.length or 5
-    match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, idx_in_flat_text + word_length)
+    return word_length
+
+
+def select_tts_mark(idx_in_flat_text, last_idx_in_flat_text):
+    window.getSelection().removeAllRanges()
+    if not cache.text_map:
+        cache.text_map = build_text_map()
+    if idx_in_flat_text is last_idx_in_flat_text:
+        match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, idx_in_flat_text + find_word_length(idx_in_flat_text))
+    else:
+        match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, last_idx_in_flat_text + find_word_length(last_idx_in_flat_text))
     if not match:
         return False
     return select_find_result(match)
