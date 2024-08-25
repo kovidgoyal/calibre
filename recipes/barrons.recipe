@@ -94,7 +94,7 @@ class barrons(BasicNewsRecipe):
         issue_url = 'https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y')
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
-            issue_url = 'https://www.barrons.com/magazine?archives=' + d
+            issue_url = 'https://www.barrons.com/magazine/' + d
         archive = self.index_to_soup(issue_url)
         issue = archive.find(**prefixed_classes('BarronsTheme--archive-box--'))
         self.timefmt = ' [' + self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--date--'))) + ']'
