@@ -261,7 +261,7 @@ Syncing with a paper edition of the current book
 Some e-books, that have corresponding print editions, include metadata that
 marks the start of each paper page. For such e-books, the viewer allows you to
 jump to a particular paper edition page via the :guilabel:`Go to` button in the
-viewer controls. You can also optionally display the paper page corressponding
+viewer controls. You can also optionally display the paper page corresponding
 to the current location in the book's headers or footers via the viewer
 settings, by adding :guilabel:`Pages from paper edition` to either the header
 or the footer.
