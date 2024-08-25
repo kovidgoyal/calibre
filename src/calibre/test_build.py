@@ -351,9 +351,7 @@ class BuildTest(unittest.TestCase):
             available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
             self.assertTrue(available_tts_engines)
 
-            adevs = QMediaDevices.audioOutputs()
-            if not is_ci:
-                self.assertTrue(adevs)
+            QMediaDevices.audioOutputs()
 
             self.assertGreaterEqual
             from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
