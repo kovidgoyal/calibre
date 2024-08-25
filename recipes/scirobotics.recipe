@@ -26,7 +26,7 @@ class scienceadv(BasicNewsRecipe):
     browser_type = 'qt'
 
     extra_css = '''
-        .news-article__figure__caption {font-size:small; text-align:center;}
+        .news-article__figure__caption, .figc {font-size:small;}
         .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
         .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
@@ -70,6 +70,8 @@ class scienceadv(BasicNewsRecipe):
                 if w and isinstance(w, str):
                     res = '/cdn-cgi/image/width=' + w
                 img['src'] = absurl(res + img['src'])
+        for figc in soup.findAll('figcaption'):
+            figc['class'] = 'figc'
         return soup
 
     def parse_index(self):
