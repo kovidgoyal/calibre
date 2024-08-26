@@ -24,8 +24,14 @@ class Tracker:
     def parse_marked_text(self, marked_text):
         self.clear()
         text = v'[]'
-        text_len = chunk_len = index_in_positions = 0
-        limit = 4096
+        text_len = chunk_len = index_in_positions = offset_in_text = 0
+        limit = 2048
+
+        def commit():
+            self.queue.push({
+                'text': ''.join(text), 'index_in_positions': index_in_positions,
+                'offset_in_text': offset_in_text, 'reached_offset': 0})
+
         for x in marked_text:
             if jstype(x) is 'number':
                 self.positions.push({'mark': x, 'offset_in_text': text_len})
@@ -34,14 +40,14 @@ class Tracker:
                 chunk_len += x.length
                 text.push(x)
                 if chunk_len > limit:
-                    self.queue.push({'text': ''.join(text), 'index_in_positions': index_in_positions})
+                    commit()
                     chunk_len = 0
                     text = v'[]'
-                    index_in_positions = self.positions.length - 1
+                    index_in_positions = max(0, self.positions.length - 1)
+                    offset_in_text = text_len
         if text.length:
-            self.queue.push({'text': ''.join(text), 'index_in_positions': index_in_positions})
+            commit()
         self.marked_text = marked_text
-        console.log(self.queue)
         return self.current_text()
 
     def pop_first(self):
@@ -56,9 +62,20 @@ class Tracker:
         self.last_pos = 0
         if self.queue.length:
             self.last_pos = self.queue[0].index_in_positions
+            if self.queue[0].reached_offset:
+                o = self.queue[0].reached_offset
+                # make sure positions remain the same for word tracking
+                self.queue[0].text = (' ' * o) + self.queue[0].text[o:]
         return self.current_text()
 
+    def boundary_reached(self, start):
+        if self.queue.length:
+            self.queue[0].reached_offset = start
+
     def mark_word(self, start, length):
+        if not self.queue.length:
+            return
+        start += self.queue[0].offset_in_text
         end = start + length
         matches = v'[]'
         while self.last_pos < self.positions.length:
@@ -135,14 +152,18 @@ class Client:
     def utterance_failed(self, event):
         self.status = {'synthesizing': False, 'paused': False}
         self.tracker.clear()
-        if event.error is not 'interrupted':
-            error_dialog(_('Speaking failed'), _(
-                'An error has occurred with speech synthesis: ' + event.error))
+        if event.error is not 'interrupted' and event.error is not 'canceled':
+            if event.error is 'synthesis-unavailable':
+                msg = _('Text-to-Speech not available in this browser. You may need to install some Text-to-Speech software.')
+            else:
+                msg = _('An error has occurred with speech synthesis: ') + event.error
+            error_dialog(_('Speaking failed'), msg)
         self.onevent('cancel')
 
     def utterance_boundary_reached(self, event):
+        self.tracker.boundary_reached(event.charIndex)
         if event.name is 'word':
-            x = self.tracker.mark_word(event.charIndex, event.charLength)
+            x = self.tracker.mark_word(event.charIndex, event.charLength or 2)
             if x:
                 first, last = x[0], x[1]
                 self.onevent('mark', {'first': first, 'last': last})
@@ -156,6 +177,13 @@ class Client:
 
     def resume(self):
         window.speechSynthesis.resume()
+
+    def pause_for_configure(self):
+        if self.current_utterance:
+            ut = self.current_utterance
+            self.current_utterance = None
+            ut.onstart = ut.onpause = ut.onend = ut.onerror = ut.onresume = None
+        window.speechSynthesis.cancel()
 
     def resume_after_configure(self):
         text = self.tracker.resume()
@@ -197,8 +225,13 @@ class Client:
         rate /= 10
         rate = max(self.min_rate, min(rate, self.max_rate))
         if rate is not current_rate:
+            is_speaking = bool(window.speechSynthesis.speaking)
+            if is_speaking:
+                self.pause_for_configure()
             self.current_rate = rate
             self.save_settings()
+            if is_speaking:
+                self.resume_after_configure()
 
     def configure(self):
         voice_id = unique_id()
@@ -250,7 +283,12 @@ class Client:
                 if changed:
                     self.current_voice_uri = voice
                     self.current_rate = rate
+                    is_speaking = bool(window.speechSynthesis.speaking)
+                    if is_speaking:
+                        self.pause_for_configure()
                     self.save_settings()
+                    if is_speaking:
+                        self.resume_after_configure()
 
                 self.onevent('configured')
         )
