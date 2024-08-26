@@ -36,7 +36,14 @@ def position_for_anchor(anchor, is_page_list_anchor):
     if val?:
         return val
     anchor_funcs = get_boss().anchor_funcs
-    elem = document.getElementById(anchor)
+    if anchor:
+        elem = document.getElementById(anchor)
+        if not elem:
+            q = document.getElementsByName(anchor)
+            if q and q.length:
+                elem = q[0]
+    else:
+        elem = document.body
     if is_page_list_anchor:
         ensure_page_list_target_is_displayed(elem)
     val = anchor_funcs.pos_for_elem(elem) if elem else anchor_funcs.pos_for_elem()
