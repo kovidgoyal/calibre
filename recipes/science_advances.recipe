@@ -23,7 +23,7 @@ class scienceadv(BasicNewsRecipe):
     masthead_url = 'https://www.science.org/pb-assets/images/logos/sciadv-logo-1620488349693.svg'
     language = 'en'
     simultaneous_downloads = 1
-    browser_type = 'qt'
+    browser_type = 'webengine'
 
     extra_css = '''
         .news-article__figure__caption, .figc {font-size:small;}

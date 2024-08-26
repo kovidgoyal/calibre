@@ -21,7 +21,7 @@ class science(BasicNewsRecipe):
     masthead_url = 'https://www.science.org/pb-assets/images/styleguide/logo-1672180580750.svg'
     language = 'en'
     simultaneous_downloads = 1
-    browser_type = 'qt'
+    browser_type = 'webengine'
 
     extra_css = '''
         .news-article__figure__caption, .figc {font-size:small;}
