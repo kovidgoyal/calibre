@@ -186,9 +186,9 @@ class TestImports(unittest.TestCase):
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
             exclude_modules |= {
-                    'calibre.linux',
-                    'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
-                    'calibre.gui2.linux_file_dialogs',
+                'calibre.linux', 'calibre.gui2.tts2.speechd',
+                'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
+                'calibre.gui2.linux_file_dialogs',
             }
         if not isbsd:
             exclude_modules.add('calibre.devices.usbms.hal')
