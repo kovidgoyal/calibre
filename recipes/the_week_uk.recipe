@@ -1,8 +1,7 @@
+#!/usr/bin/env python
 '''
 www.theweek.com
 '''
-from urllib.parse import quote
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -24,9 +23,6 @@ class TheWeek(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
-    simultaneous_downloads = 1
-    oldest_article = 7 # days
-    web_url = ''
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -45,21 +41,6 @@ class TheWeek(BasicNewsRecipe):
                 if '-cover-' in x['image']:
                     return 'https://ukmagazine.theweek.com' + x['image'][1:]
 
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        soup = self.index_to_soup(url)
-        link = soup.a['href']
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/',
-        ]
-        if any(x in link for x in skip_sections):
-            self.abort_article('skipping video links ', link)
-        self.web_url = link
-        html = br.open(link).read()
-        return ({ 'data': html, 'url': link })
-
     keep_only_tags = [
         classes('article-type__breadcrumb header__title header__strapline image image--hero author-byline__author-text article__body')
     ]
@@ -76,22 +57,31 @@ class TheWeek(BasicNewsRecipe):
             img['src'] = img['data-pin-media'].replace('.jpg', '-768-80.jpg')
         return soup
 
-    feeds = []
-    when = oldest_article*24
-    index = 'https://theweek.com/'   
-    sections = [
-        'politics', 'news', 'cartoons', 'tech', 'science', 'health', 
-        'culture-life', 'business', 'travel', 'arts-life', 'history'
-    ]
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-GB&gl=GB&ceid=GB:en'
-        feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
-    feeds.append(('Others', a.format(when, quote(index, safe=''))))
+    def parse_index(self):
+        soup = self.index_to_soup('https://theweek.com/archive')
+        list = soup.find('ul', attrs={'class':'archive__list'})
+
+        feeds = []
+
+        for li in list.findAll('li', **classes('archive__item--heading'))[:7]:
+            section = self.tag_to_string(li)
+            self.log(section)
+
+            articles = []
+
+            ul = li.findNext('li').ul
+            for a in ul.findAll('a', href=True):
+                url = a['href']
+                if '/puzzles/' in url:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('          ', title, '\n\t', url)
+                articles.append({'title': title, 'url': url})
+            feeds.append((section, articles))
+        return feeds
 
     def populate_article_metadata(self, article, soup, first):
-        article.title = article.title.replace(' - The Week', '')
         desc = soup.find(**classes('header__strapline'))
         if desc:
             article.summary = self.tag_to_string(desc)
             article.text_summary = article.summary
-        article.url = self.web_url
