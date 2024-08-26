@@ -144,6 +144,7 @@ class TestServer(Thread):
             self.log.error('Failed to stop server with error:', e)
         self.join(self.loop.opts.shutdown_timeout)
         self.loop.close_control_connection()
+        self.log.close()
 
     def connect(self, timeout=None, interface=None):
         if timeout is None:
