@@ -7,8 +7,11 @@ import os
 import unittest
 from threading import Event, Thread
 
+from calibre.constants import iswindows
+
 from .qt import Browser, WebEngineBrowser
 
+is_ci = os.environ.get('CI', '').lower() == 'true'
 skip = ''
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 if is_sanitized:
@@ -91,6 +94,7 @@ class TestFetchBackend(unittest.TestCase):
     def test_recipe_browser_qt(self):
         self.do_recipe_browser_test(Browser)
 
+    @unittest.skipIf(iswindows and is_ci, 'WebEngine browser test hangs on windows CI')
     def test_recipe_browser_webengine(self):
         self.do_recipe_browser_test(WebEngineBrowser)
 
