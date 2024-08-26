@@ -102,6 +102,12 @@ class FakeResponse:
     def close(self):
         self._data.close()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        self._data.close()
+
 
 def shutdown_browser(bref):
     br = bref()

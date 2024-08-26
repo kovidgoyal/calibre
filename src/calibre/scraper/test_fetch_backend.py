@@ -109,10 +109,10 @@ class TestFetchBackend(unittest.TestCase):
                 req = Request(url, headers=headers)
             else:
                 req = url
-            res = br.open(req, data=data, timeout=timeout)
-            raw = res.read()
-            ans = json.loads(raw)
-            ans['final_url'] = res.geturl()
+            with br.open(req, data=data, timeout=timeout) as res:
+                raw = res.read()
+                ans = json.loads(raw)
+                ans['final_url'] = res.geturl()
             return ans
 
         def test_with_timeout(no_response=True):
