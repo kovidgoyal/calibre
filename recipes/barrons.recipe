@@ -95,11 +95,13 @@ class barrons(BasicNewsRecipe):
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             issue_url = 'https://www.barrons.com/magazine/' + d
-        archive = self.index_to_soup(issue_url)
-        issue = archive.find(**prefixed_classes('BarronsTheme--archive-box--'))
-        self.timefmt = ' [' + self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--date--'))) + ']'
-        self.description = self.tag_to_string(issue.find(**prefixed_classes('BarronsTheme--headline--')))
-        self.cover_url = issue.img['src'].split('?')[0]
+            archive = self.index_to_soup(issue_url)
+        else:
+            archive = self.index_to_soup(issue_url)
+            self.cover_url = archive.find(**prefixed_classes('BarronsTheme--archive-box--')).img['src'].split('?')[0]
+
+        self.timefmt = ' [' + self.tag_to_string(archive.find(**prefixed_classes('BarronsTheme--edition-date--'))) + ']'
+        self.description = self.tag_to_string(archive.find(**prefixed_classes('BarronsTheme--headline--')))
 
         ans = defaultdict(list)
 
