@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+import os
 from enum import Enum, auto
 from functools import lru_cache
 from typing import Literal, NamedTuple
@@ -23,7 +24,6 @@ class EngineMetadata(NamedTuple):
     allows_choosing_audio_device: bool = True
     can_synthesize_audio_data: bool = True
     has_multiple_output_modules: bool = False
-    can_change_rate: bool = True
     can_change_pitch: bool = True
     can_change_volume: bool = True
 
@@ -92,7 +92,12 @@ def available_engines() -> dict[str, EngineMetadata]:
         elif x == 'flite':
             ans[x] = qt_engine_metadata(x, True)
         elif x == 'speechd':
-            ans[x] = EngineMetadata(x, TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
+            continue
+    if islinux:
+        from speechd.paths import SPD_SPAWN_CMD
+        cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
+        if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
+            ans['speechd'] = EngineMetadata('speechd', TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
     return ans
 
 
@@ -101,11 +106,14 @@ def create_tts_backend(engine_name: str = '', settings: EngineSpecificSettings =
         engine_name = 'speechd'
     if engine_name not in available_engines():
         engine_name = ''
+
     if engine_name == 'speechd':
         from calibre.gui2.tts2.speechd import SpeechdTTSBackend
-        return SpeechdTTSBackend(engine_name, settings, parent)
-    from calibre.gui2.tts2.qt import QtTTSBackend
-    return QtTTSBackend(engine_name, settings, parent)
+        ans = SpeechdTTSBackend(engine_name, settings, parent)
+    else:
+        from calibre.gui2.tts2.qt import QtTTSBackend
+        ans = QtTTSBackend(engine_name, settings, parent)
+    return ans
 
 
 def develop(engine_name=''):

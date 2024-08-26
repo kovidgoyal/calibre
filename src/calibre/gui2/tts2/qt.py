@@ -85,6 +85,14 @@ class QtTTSBackend(QObject):
         self.tts.sayingWord.connect(self._saying_word)
         self.tts.stateChanged.connect(self.state_changed.emit)
 
+    def change_rate(self, steps: int = 1) -> bool:
+        current = self.tts.rate()
+        new_rate = max(-1, min(current + 0.2 * steps, 1))
+        if current == new_rate:
+            return False
+        self.tts.setRate(new_rate)
+        return True
+
     def shutdown(self) -> None:
         self.tts.stop(QTextToSpeech.BoundaryHint.Immediate)
 
