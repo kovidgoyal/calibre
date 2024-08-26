@@ -125,8 +125,11 @@ class Worker(QWebEnginePage):
         if not sip.isdeleted(self):
             self.messages_dispatch.emit(messages)
 
-    def runjs(self, js: str, callback) -> None:
-        self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
+    def runjs(self, js: str, callback = None) -> None:
+        if callback is None:
+            self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld)
+        else:
+            self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
     def start_download(self, output_dir: str, req: Request, data: str) -> DownloadRequest:
         filename = os.path.basename(req['filename'])
@@ -141,7 +144,7 @@ class Worker(QWebEnginePage):
     def abort_on_timeout(self) -> None:
         if self.working_on_request is not None:
             self.working_on_request.aborted_on_timeout = True
-            self.runjs(f'window.abort_download({self.req_id})')
+            self.runjs(f'window.abort_download({self.working_on_request.req_id})')
 
     def on_messages(self, messages: list[dict]) -> None:
         if not messages:
