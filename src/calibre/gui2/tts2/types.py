@@ -8,7 +8,8 @@ from typing import Literal, NamedTuple
 
 from qt.core import QLocale, QObject, QTextToSpeech, QVoice
 
-from calibre.constants import islinux
+from calibre.constants import islinux, iswindows
+from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
 
 
@@ -74,10 +75,10 @@ def available_engines() -> dict[str, EngineMetadata]:
 
     def qt_engine_metadata(name: str, allows_choosing_audio_device: bool = False) -> EngineMetadata:
         e.setEngine(name)
-        cap = e.engineCapabilities()
-        return EngineMetadata(
-            name, TrackingCapability.WordByWord if cap & QTextToSpeech.Capability.WordByWordProgress else TrackingCapability.NoTracking,
-            allows_choosing_audio_device, cap & QTextToSpeech.Capability.Synthesize)
+        cap = int(e.engineCapabilities().value)
+        return EngineMetadata(name,
+            TrackingCapability.WordByWord if cap & int(QTextToSpeech.Capability.WordByWordProgress.value) else TrackingCapability.NoTracking,
+            allows_choosing_audio_device, bool(cap & int(QTextToSpeech.Capability.Synthesize.value)))
 
     for x in QTextToSpeech.availableEngines():
         if x == 'winrt':
@@ -102,8 +103,11 @@ def available_engines() -> dict[str, EngineMetadata]:
 
 
 def create_tts_backend(engine_name: str = '', settings: EngineSpecificSettings = EngineSpecificSettings(), parent: QObject|None = None):
-    if engine_name == '' and islinux:
-        engine_name = 'speechd'
+    if engine_name == '':
+        if iswindows and tweaks.get('prefer_winsapi'):
+            engine_name = 'sapi'
+        elif islinux:
+            engine_name = 'speechd'
     if engine_name not in available_engines():
         engine_name = ''
 
@@ -147,6 +151,7 @@ def develop(engine_name=''):
 
     def state_changed(state):
         nonlocal speech_started
+        print('State changed:', state)
         if state == QTextToSpeech.State.Speaking:
             speech_started = True
         elif state == QTextToSpeech.State.Error:
