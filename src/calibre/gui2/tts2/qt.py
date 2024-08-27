@@ -53,11 +53,11 @@ class QtTTSBackend(QObject):
     saying = pyqtSignal(int, int)
     state_changed = pyqtSignal(QTextToSpeech.State)
 
-    def __init__(self, engine_name: str = '', settings: EngineSpecificSettings = EngineSpecificSettings(), parent: QObject|None = None):
+    def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
         self.tracker = Tracker()
         self._voices = None
-        self.apply_settings(engine_name, settings)
+        self._create_engine(engine_name)
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
@@ -65,32 +65,14 @@ class QtTTSBackend(QObject):
             self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
         return {'': self._voices}
 
-    def apply_settings(self, engine_name: str, settings: EngineSpecificSettings) -> None:
-        s = {}
-        if settings.audio_device_id:
-            for x in QMediaDevices.audioOutputs():
-                if bytes(x.id) == settings.audio_device_id.id:
-                    s['audioDevice'] = x
-                    break
-        self.tts = QTextToSpeech(engine_name, s, self)
-        self.tts.setRate(max(-1, min(float(settings.rate), 1)))
-        self.tts.setPitch(max(-1, min(float(settings.pitch), 1)))
-        if settings.volume is not None:
-            self.tts.setVolume(max(0, min(float(settings.volume), 1)))
-        if settings.voice_name:
-            for v in self.availableVoices():
-                if v.name() == settings.voice_name:
-                    self.setVoice(v)
-                    break
-        self.tts.sayingWord.connect(self._saying_word)
-        self.tts.stateChanged.connect(self.state_changed.emit)
-
     def change_rate(self, steps: int = 1) -> bool:
         current = self.tts.rate()
         new_rate = max(-1, min(current + 0.2 * steps, 1))
         if current == new_rate:
             return False
         self.tts.setRate(new_rate)
+        self._current_settings = self._current_settings._replace(rate=new_rate)
+        self._current_settings.save_to_config()
         return True
 
     def shutdown(self) -> None:
@@ -116,6 +98,40 @@ class QtTTSBackend(QObject):
 
     def error_message(self) -> str:
         return self.tts.errorString()
+
+    def _create_engine(self, engine_name: str) -> None:
+        s = {}
+        if engine_name:
+            settings = EngineSpecificSettings.create_from_config(engine_name)
+            if settings.audio_device_id:
+                for x in QMediaDevices.audioOutputs():
+                    if bytes(x.id) == settings.audio_device_id.id:
+                        s['audioDevice'] = x
+                        break
+            self.tts = QTextToSpeech(engine_name, s, self)
+        else:
+            self.tts = QTextToSpeech(self)
+            engine_name = self.tts.engine()
+            settings = EngineSpecificSettings.create_from_config(engine_name)
+            if settings.audio_device_id:
+                for x in QMediaDevices.audioOutputs():
+                    if bytes(x.id) == settings.audio_device_id.id:
+                        s['audioDevice'] = x
+                        self.tts = QTextToSpeech(engine_name, s, self)
+                        break
+
+        self.tts.setRate(max(-1, min(float(settings.rate), 1)))
+        self.tts.setPitch(max(-1, min(float(settings.pitch), 1)))
+        if settings.volume is not None:
+            self.tts.setVolume(max(0, min(float(settings.volume), 1)))
+        if settings.voice_name:
+            for v in self.availableVoices():
+                if v.name() == settings.voice_name:
+                    self.setVoice(v)
+                    break
+        self.tts.sayingWord.connect(self._saying_word)
+        self.tts.stateChanged.connect(self.state_changed.emit)
+        self._current_settings = settings
 
     def _saying_word(self, word: str, utterance_id: int, start: int, length: int) -> None:
         x = self.tracker.mark_word(start, length)

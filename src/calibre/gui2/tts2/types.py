@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
 from typing import Literal, NamedTuple
@@ -9,8 +10,15 @@ from typing import Literal, NamedTuple
 from qt.core import QLocale, QObject, QTextToSpeech, QVoice
 
 from calibre.constants import islinux, iswindows
+from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
+
+CONFIG_NAME = 'tts'
+
+@lru_cache(2)
+def load_config():
+    return JSONConfig(CONFIG_NAME)
 
 
 class TrackingCapability(Enum):
@@ -65,7 +73,62 @@ class EngineSpecificSettings(NamedTuple):
     pitch: float = 0  # -1 to 1 0 is normal speech
     volume: float | None = None  # 0 to 1, None is platform default volume
     output_module: str = ''
+    engine_name: str = ''
 
+    @classmethod
+    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object]) -> 'EngineSpecificSettings':
+        adev = prefs.get('audio_device_id')
+        audio_device_id = None
+        if adev:
+            with suppress(Exception):
+                aid = bytes.fromhex(adev['id'])
+                description = adev['description']
+                audio_device_id = AudioDeviceId(aid, description)
+        rate = 0
+        with suppress(Exception):
+            rate = max(-1, min(float(prefs.get('rate')), 1))
+        pitch = 0
+        with suppress(Exception):
+            pitch = max(-1, min(float(prefs.get('pitch')), 1))
+        volume = None
+        with suppress(Exception):
+            volume = max(0, min(float(prefs.get('volume')), 1))
+        return EngineSpecificSettings(
+            voice_name=str(prefs.get('voice_name', '')),
+            output_module=str(prefs.get('output_module', '')),
+            audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
+
+    @classmethod
+    def create_from_config(cls, engine_name: str) -> 'EngineSpecificSettings':
+        prefs = load_config().get('engines', {}).get(engine_name, {})
+        return cls.create_from_prefs(engine_name, prefs)
+
+    @property
+    def as_dict(self) -> dict[str, object]:
+        ans = {}
+        if self.audio_device_id:
+            ans['audio_device_id'] = {'id': self.audio_device_id.id.hex(), 'description': self.audio_device_id.description}
+        if self.voice_name:
+            ans['voice_name'] = self.voice_name
+        if self.rate:
+            ans['rate'] = self.rate
+        if self.pitch:
+            ans['pitch'] = self.pitch
+        if self.volume is not None:
+            ans['volume'] = self.volume
+        if self.output_module:
+            ans['output_module'] = self.output_module
+        return ans
+
+    def save_to_config(self):
+        prefs = load_config()
+        val = self.as_dict
+        engines = prefs.get('engines', {})
+        if not val:
+            engines.pop(self.engine_name, None)
+        else:
+            engines[self.engine_name] = val
+        prefs['engines'] = engines
 
 
 @lru_cache(2)
@@ -102,7 +165,7 @@ def available_engines() -> dict[str, EngineMetadata]:
     return ans
 
 
-def create_tts_backend(engine_name: str = '', settings: EngineSpecificSettings = EngineSpecificSettings(), parent: QObject|None = None):
+def create_tts_backend(engine_name: str = '', parent: QObject|None = None):
     if engine_name == '':
         if iswindows and tweaks.get('prefer_winsapi'):
             engine_name = 'sapi'
@@ -113,10 +176,10 @@ def create_tts_backend(engine_name: str = '', settings: EngineSpecificSettings =
 
     if engine_name == 'speechd':
         from calibre.gui2.tts2.speechd import SpeechdTTSBackend
-        ans = SpeechdTTSBackend(engine_name, settings, parent)
+        ans = SpeechdTTSBackend(engine_name, parent)
     else:
         from calibre.gui2.tts2.qt import QtTTSBackend
-        ans = QtTTSBackend(engine_name, settings, parent)
+        ans = QtTTSBackend(engine_name, parent)
     return ans
 
 

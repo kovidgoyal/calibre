@@ -43,7 +43,7 @@ class SpeechdTTSBackend(QObject):
 
     _event_signal = pyqtSignal(object, object)
 
-    def __init__(self, engine_name: str = '', settings: EngineSpecificSettings = EngineSpecificSettings(), parent: QObject|None = None):
+    def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
         self._last_error = ''
         self._state = QTextToSpeech.State.Ready
@@ -55,7 +55,7 @@ class SpeechdTTSBackend(QObject):
         self._ssip_client: SSIPClient | None = None
         self._event_signal.connect(self._update_status, type=Qt.ConnectionType.QueuedConnection)
         self._current_marked_text = self._last_mark = None
-        self.apply_settings(engine_name, settings)
+        self._apply_settings(EngineSpecificSettings.create_from_config(engine_name))
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
@@ -65,12 +65,6 @@ class SpeechdTTSBackend(QObject):
             except Exception as e:
                 self._set_error(str(e))
        return self._voices or {}
-
-    def apply_settings(self, engine_name: str, settings: EngineSpecificSettings) -> None:
-        try:
-            self._apply_settings(settings)
-        except Exception as err:
-            self._set_error(str(err))
 
     def change_rate(self, steps: int = 1) -> bool:
         current = self._current_settings.rate
@@ -83,6 +77,7 @@ class SpeechdTTSBackend(QObject):
             self._set_error(str(e))
             return False
         self._current_settings = self._current_settings._replace(rate=new_rate)
+        self._current_settings.save_to_config()
         return True
 
     def stop(self) -> None:
@@ -168,16 +163,20 @@ class SpeechdTTSBackend(QObject):
     def _apply_settings(self, settings: EngineSpecificSettings) -> bool:
         if not self._ensure_state():
             return False
-        self._ssip_client.set_pitch_range(int(max(-1, min(settings.pitch, 1)) * 100))
-        self._ssip_client.set_rate(int(max(-1, min(settings.rate, 1)) * 100))
-        if settings.volume is not None:
-            self._ssip_client.set_volume(-100 + int(max(0, min(settings.volume, 1)) * 200))
-        om = settings.output_module or self._system_default_output_module
-        self._ssip_client.set_output_module(om)
-        if settings.voice_name:
-            self._ssip_client.set_synthesis_voice(settings.voice_name)
-        self._current_settings = settings
-        return True
+        try:
+            self._ssip_client.set_pitch_range(int(max(-1, min(settings.pitch, 1)) * 100))
+            self._ssip_client.set_rate(int(max(-1, min(settings.rate, 1)) * 100))
+            if settings.volume is not None:
+                self._ssip_client.set_volume(-100 + int(max(0, min(settings.volume, 1)) * 200))
+            om = settings.output_module or self._system_default_output_module
+            self._ssip_client.set_output_module(om)
+            if settings.voice_name:
+                self._ssip_client.set_synthesis_voice(settings.voice_name)
+            self._current_settings = settings
+            return True
+        except Exception as e:
+            self._set_error(str(e))
+            return False
 
     def _get_all_voices_for_all_output_modules(self) -> dict[str, Voice]:
         ans = {}
