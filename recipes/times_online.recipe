@@ -1,7 +1,7 @@
-from urllib.parse import quote
+#!/usr/bin/env python
+import random
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
@@ -10,6 +10,11 @@ def resize(x):
         return x.split('&resize')[0] + '&resize=600'
     elif '?crop=' in x:
         return x + '&resize=600'
+
+def absurl(url):
+    if url.startswith('/'):
+        url = 'https://www.thetimes.com' + url
+    return url
 
 class times(BasicNewsRecipe):
     title = 'The Times and Sunday Times'
@@ -30,8 +35,7 @@ class times(BasicNewsRecipe):
     remove_empty_feeds = True
     resolve_internal_links = True
     simultaneous_downloads = 1
-    oldest_article = 1 # days
-    web_url = ''
+    browser_type = 'webengine'
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.frontpages.com/the-times/')
@@ -88,36 +92,34 @@ class times(BasicNewsRecipe):
             fig['class'] = 'sub'
         return soup
 
-    articles_are_obfuscated = True
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.thetimes.com/')
+        main = soup.find('div', attrs={'id':'main-container', 'data-edition-date':True})
+        self.timefmt = ' [%s]' % main['data-edition-date']
 
-    def get_obfuscated_article(self, url):
-        soup = self.index_to_soup(url)
-        link = soup.a['href']
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/',
-        ]
-        if any(x in link for x in skip_sections):
-            self.abort_article('skipping video links ', link)
-        self.web_url = link
-        html = self.index_to_soup(link, raw=True)
-        return ({ 'data': html, 'url': link })
+        feeds = []
 
-    feeds = []
-    when = oldest_article*24
-    index = 'https://www.thetimes.com/'
-    sections = [
-        'politics', 'world', 'uk/politics', 'uk/scotland', 'uk', 'comment', 'business-money', 'sport',
-        'life-style', 'culture', 'magazine', 'travel', 'sunday-times', 'edition', 'article'
-    ]
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-GB&gl=GB&ceid=GB:en'
-        feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
-    feeds.append(('Others', a.format(when, quote(index, safe=''))))
+        for sec in main.findAll('section', attrs={'id':lambda x: x and x.startswith('section-')}, recursive=False):
+            section = sec['id'].replace('section-', '').capitalize()
+            self.log(section)
+
+            articles = []
+
+            for a in sec.findAll(**prefixed_classes('Item-headline')):
+                if not a.find('a'):
+                    continue
+                url = absurl(a.a['href']).split('?')[0]
+                title = self.tag_to_string(a)
+                self.log('          ', title, '\n\t', url)
+                articles.append({'title': title, 'url': url})
+            feeds.append((section, articles))
+        return feeds
 
     def preprocess_raw_html(self, raw, url):
         access = '"userState":{"isLoggedIn":false,"isMetered":false,"hasAccess":true}'
         if access not in raw and 'comment/cartoons' not in url:
-            raw_ar = read_url([], 'https://archive.is/latest/' + url)
+            dom = random.choice(('fo', 'is', 'li', 'md', 'ph', 'vn'))
+            raw_ar = self.index_to_soup('https://archive.' + dom + '/latest/' + url)
             archive = BeautifulSoup(str(raw_ar))
             if archive.find('div', attrs={'id':'top'}):
                 content = archive.find('article', attrs={'id':False})
@@ -133,9 +135,7 @@ class times(BasicNewsRecipe):
         return raw
 
     def populate_article_metadata(self, article, soup, first):
-        article.title = article.title.replace(' - The Times', '')
         desc = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
         if desc:
             article.summary = self.tag_to_string(desc)
             article.text_summary = article.summary
-        article.url = self.web_url
