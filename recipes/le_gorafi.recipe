@@ -10,27 +10,57 @@ __author__ = '2013, Malah <malah at neuf dot fr>'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class legorafi(BasicNewsRecipe):
+class LeGorafi(BasicNewsRecipe):
     title = u'Le GORAFI.fr'
-    __author__ = 'Malah'
+    __author__ = 'Malah, LAntoine'
     description = u'Depuis 1826, toute l\'information de sources contradictoires'
     oldest_article = 7
     language = 'fr'
     max_articles_per_feed = 100
     use_embedded_content = False
     no_stylesheets = True
+    compress_news_images = True
+    extra_css = '''
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    '''
+    
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'entry-content'}),
-        dict(name='h3', attrs={'id': 'comments-title'}),
+        dict(name='h1'),
+        dict(name='img', attrs={'class': 'attachment- size- wp-post-image'}),
+        dict(name='div', attrs={'id': 'mvp-content-main'}),
     ]
     remove_tags = [
-        dict(name='div', attrs={'id': 'soshake-sharebox'}),
-        dict(name='div', attrs={'class': 'social-ring'}),
-        dict(name='div', attrs={'class': 'entry-utility'}),
-        dict(name='div', attrs={'id': 'respond'}),
+        dict(name='div', attrs={'class': 'heateor_sss_sharing_container'}),
     ]
-    masthead_url = u'http://web.gweno.free.fr/img/logositeter.png'
-    couverture_url = u'http://www.legorafi.fr/wp-content/uploads/2013/02/iconegorafi.png'
-    feeds = [
-        (u'Articles', u'http://www.legorafi.fr/feed/'),
-    ]
+    feeds = ['http://www.legorafi.fr/feed/']
+    
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            if 'svg' in img['src']:
+                img.decompose()  # Removes the tag entirely
+        return soup
+    
+    def is_cover(article):
+        return 'gorafi-magazine' in article.url
+    
+    def get_cover_url(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles:
+                if LeGorafi.is_cover(article):
+                    soup = self.index_to_soup(article.url)
+                    img = soup.select_one('#mvp-post-feat-img img')
+                    return img['data-lazy-src']
+        print("No cover found")
+        return None 
+    
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles:
+                if LeGorafi.is_cover(article):
+                    feed.articles.remove(article)
+        return feeds
