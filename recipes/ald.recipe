@@ -28,9 +28,7 @@ class ALD(BasicNewsRecipe):
     __author__ = 'https://github.com/pjpaulpj'
     language = 'en'
     encoding = 'utf-8'
-
-    def get_browser(self, *args, **kwargs):
-        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+    browser_type = 'qt'
 
     def parse_index(self):
         articles_note = []
