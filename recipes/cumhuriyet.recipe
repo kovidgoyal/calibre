@@ -3,7 +3,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Cumhuriyet(BasicNewsRecipe):
     title = 'Cumhuriyet'
-    __author__ = 'ims'
     description = 'News from Turkey'
     language = 'tr'
     publisher = 'Cumhuriyet'
