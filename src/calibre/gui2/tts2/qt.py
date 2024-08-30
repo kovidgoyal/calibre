@@ -65,6 +65,10 @@ class QtTTSBackend(QObject):
             self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
         return {'': self._voices}
 
+    @property
+    def engine_name(self) -> str:
+        return self.tts.engine()
+
     def change_rate(self, steps: int = 1) -> bool:
         current = self.tts.rate()
         new_rate = max(-1, min(current + 0.2 * steps, 1))

@@ -9,7 +9,7 @@ from typing import Literal, NamedTuple
 
 from qt.core import QLocale, QObject, QTextToSpeech, QVoice
 
-from calibre.constants import islinux, iswindows
+from calibre.constants import islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
@@ -35,6 +35,7 @@ class EngineMetadata(NamedTuple):
     has_multiple_output_modules: bool = False
     can_change_pitch: bool = True
     can_change_volume: bool = True
+    voices_have_quality_metadata: bool = False
 
 
 class Quality(Enum):
@@ -44,15 +45,22 @@ class Quality(Enum):
 
 
 class Voice(NamedTuple):
-    name: str
-    language_code: str
+    name: str = ''
+    language_code: str = ''
 
     country_code: str = ''
     human_name: str = ''
-    notes: str = ''
+    notes: str = ''  # variant from speechd voices, or notes from piper voices
     gender: QVoice.Gender = QVoice.Gender.Unknown
     age: QVoice.Age = QVoice.Age.Other
     quality: Quality = Quality.High
+
+    @property
+    def short_text(self) -> str:
+        return self.human_name or self.name or _('System default voice')
+
+    def sort_key(self) -> tuple[Quality, str]:
+        return (self.quality, self.short_text.lower())
 
 
 def qvoice_to_voice(v: QVoice) -> QVoice:
@@ -93,9 +101,10 @@ class EngineSpecificSettings(NamedTuple):
         volume = None
         with suppress(Exception):
             volume = max(0, min(float(prefs.get('volume')), 1))
+        om = str(prefs.get('output_module', ''))
+        voice = str(prefs.get('voice_map', {}).get(om, ''))
         return EngineSpecificSettings(
-            voice_name=str(prefs.get('voice_name', '')),
-            output_module=str(prefs.get('output_module', '')),
+            voice_name=voice, output_module=om,
             audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
 
     @classmethod
@@ -109,7 +118,7 @@ class EngineSpecificSettings(NamedTuple):
         if self.audio_device_id:
             ans['audio_device_id'] = {'id': self.audio_device_id.id.hex(), 'description': self.audio_device_id.description}
         if self.voice_name:
-            ans['voice_name'] = self.voice_name
+            ans['voice_map'] = { self.output_module: self.voice_name }
         if self.rate:
             ans['rate'] = self.rate
         if self.pitch:
@@ -165,19 +174,27 @@ def available_engines() -> dict[str, EngineMetadata]:
     return ans
 
 
-def create_tts_backend(engine_name: str = '', parent: QObject|None = None):
-    if engine_name == '':
-        if iswindows and tweaks.get('prefer_winsapi'):
-            engine_name = 'sapi'
-        elif islinux:
-            engine_name = 'speechd'
+def default_engine_name() -> str:
+    if iswindows:
+        return 'sapi' if tweaks.get('prefer_winsapi') else 'winrt'
+    if ismacos:
+        return 'darwin'
+    return 'speechd'
+
+
+def create_tts_backend(parent: QObject|None = None, force_engine: str | None = None):
+    prefs = load_config()
+    engine_name = prefs.get('engine', '') if force_engine is None else force_engine
+    engine_name = engine_name or default_engine_name()
     if engine_name not in available_engines():
-        engine_name = ''
+        engine_name = default_engine_name()
 
     if engine_name == 'speechd':
         from calibre.gui2.tts2.speechd import SpeechdTTSBackend
         ans = SpeechdTTSBackend(engine_name, parent)
     else:
+        if engine_name not in available_engines():
+            engine_name = ''  # let Qt pick the engine
         from calibre.gui2.tts2.qt import QtTTSBackend
         ans = QtTTSBackend(engine_name, parent)
     return ans
@@ -190,7 +207,7 @@ def develop(engine_name=''):
     from calibre.gui2 import Application
     app = Application([])
     app.shutdown_signal_received.connect(lambda: app.exit(1))
-    tts = create_tts_backend(engine_name=engine_name)
+    tts = create_tts_backend(force_engine=engine_name)
     speech_started = False
 
     def print_saying(s, e):

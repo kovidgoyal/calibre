@@ -58,6 +58,12 @@ class SpeechdTTSBackend(QObject):
         self._apply_settings(EngineSpecificSettings.create_from_config(engine_name))
 
     @property
+    def default_output_module(self) -> str:
+        if self._ensure_state():
+            return self._system_default_output_module
+        return ''
+
+    @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
        if self._voices is None:
             try:
@@ -65,6 +71,10 @@ class SpeechdTTSBackend(QObject):
             except Exception as e:
                 self._set_error(str(e))
        return self._voices or {}
+
+    @property
+    def engine_name(self) -> str:
+        return 'speechd'
 
     def change_rate(self, steps: int = 1) -> bool:
         current = self._current_settings.rate
