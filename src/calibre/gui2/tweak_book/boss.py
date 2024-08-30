@@ -576,7 +576,7 @@ class Boss(QObject):
             folder_map = get_recommended_folders(current_container(), files)
             files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
                      for x, folder in iteritems(folder_map)}
-            self.add_savepoint(_('Before Add files'))
+            self.add_savepoint(_('Before: Add files'))
             c = current_container()
             added_fonts = set()
             for path in sorted(files, key=numeric_sort_key):
