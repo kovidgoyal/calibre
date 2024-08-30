@@ -69,6 +69,10 @@ class QtTTSBackend(QObject):
     def engine_name(self) -> str:
         return self.tts.engine()
 
+    @property
+    def default_output_module(self) -> str:
+        return ''
+
     def change_rate(self, steps: int = 1) -> bool:
         current = self.tts.rate()
         new_rate = max(-1, min(current + 0.2 * steps, 1))
@@ -129,9 +133,9 @@ class QtTTSBackend(QObject):
         if settings.volume is not None:
             self.tts.setVolume(max(0, min(float(settings.volume), 1)))
         if settings.voice_name:
-            for v in self.availableVoices():
+            for v in self.tts.availableVoices():
                 if v.name() == settings.voice_name:
-                    self.setVoice(v)
+                    self.tts.setVoice(v)
                     break
         self.tts.sayingWord.connect(self._saying_word)
         self.tts.stateChanged.connect(self.state_changed.emit)

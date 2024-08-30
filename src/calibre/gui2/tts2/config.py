@@ -2,9 +2,10 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QCheckBox, QFormLayout, QLabel, QLocale, QSize, QSlider, Qt, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QCheckBox, QFormLayout, QLabel, QLocale, QMediaDevices, QSize, QSlider, Qt, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.gui2.tts2.types import (
+    AudioDeviceId,
     EngineMetadata,
     EngineSpecificSettings,
     TrackingCapability,
@@ -27,15 +28,15 @@ class EngineChoice(QWidget):
         self.engine_choice = ec = QComboBox(self)
         l.addRow(_('Text-to-Speech &engine:'), ec)
         configured_engine_name = load_config().get('engine', '')
-        l.addItem(_('Automatically select (currently {})').format(default_engine_name()), '')
+        ec.addItem(_('Automatically select (currently {})').format(default_engine_name()), '')
         for engine_name in available_engines():
-            l.addItem(engine_name)
+            ec.addItem(engine_name, engine_name)
         idx = ec.findData(configured_engine_name)
         if idx > -1:
             ec.setCurrentIndex(idx)
         self.engine_description = la = QLabel(self)
         la.setWordWrap(True)
-        l.addWidget(la)
+        l.addRow(la)
         ec.currentIndexChanged.connect(self.current_changed)
         self.update_description()
 
@@ -45,7 +46,7 @@ class EngineChoice(QWidget):
 
     def current_changed(self):
         self.changed.emit(self.value)
-        self.update_description(self)
+        self.update_description()
 
     def update_description(self):
         engine = self.value or default_engine_name()
@@ -56,22 +57,28 @@ class EngineChoice(QWidget):
             text = _('The {} engine highlights words on the screen as they are spoken')
         else:
             text = _('The {} engine highlights sentences on the screen as they are spoken')
-        self.engine_description.setText(text)
+        self.engine_description.setText(text.format(engine))
 
 
 class FloatSlider(QSlider):
 
     def __init__(self, minimum: float = -1, maximum: float = 1, factor: int = 10, parent=None):
-        QSlider.__init__(parent)
+        super().__init__(parent)
+        self.factor = factor
         self.setRange(int(minimum * factor), int(maximum * factor))
         self.setSingleStep(int((self.maximum() - self.minimum()) / (2 * factor)))
         self.setPageStep(5 * self.singleStep())
-        self.setTicksPosition(QSlider.TickPosition.TicksBelow)
+        self.setTickPosition(QSlider.TickPosition.TicksBelow)
+        self.setOrientation(Qt.Orientation.Horizontal)
         if maximum - minimum >= 2:
             self.setTickInterval((self.maximum() - self.minimum()) // 2)
         else:
             self.setTickInterval(self.maximum() - self.minimum())
-        self.factor = factor
+
+    def sizeHint(self) -> QSize:
+        ans = super().sizeHint()
+        ans.setWidth(ans.width() * 2)
+        return ans
 
     @property
     def val(self) -> float:
@@ -87,15 +94,16 @@ class Volume(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.l = l = QFormLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
         self.system = e = QCheckBox(_('Use system default volume'), self)
-        l.addWidget(e)
+        l.addRow(e)
         self.vol = v = FloatSlider(minimum=0, parent=self)
-        l.addRow(_('&Volume of speech'), v)
-        self.e.toggled.connect(self.update_state)
+        l.addRow(_('&Volume of speech:'), v)
+        e.toggled.connect(self.update_state)
         self.update_state()
 
     def update_state(self):
-        self.vol.setEnabled(not self.system.isChecked())
+        self.layout().setRowVisible(self.vol, not self.system.isChecked())
 
     @property
     def val(self):
@@ -106,14 +114,14 @@ class Volume(QWidget):
     @val.setter
     def val(self, v):
         self.system.setChecked(v is None)
-        if v is not None:
-            self.vol.val = v
+        self.vol.val = 0.5 if v is None else v
 
 
 class Voices(QTreeWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setHeaderHidden(True)
         self.system_default_voice = Voice()
 
     def sizeHint(self) -> QSize:
@@ -121,9 +129,13 @@ class Voices(QTreeWidget):
 
     def set_voices(self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata) -> None:
         self.clear()
+        current_item = None
         def qv(parent, voice):
-            ans = QTreeWidgetItem(parent, voice.short_text)
+            nonlocal current_item
+            ans = QTreeWidgetItem(parent, [voice.short_text])
             ans.setData(0, Qt.ItemDataRole.UserRole, voice)
+            if current_voice == voice.name:
+                current_item = ans
             return ans
         qv(self.invisibleRootItem(), self.system_default_voice)
         vmap = {}
@@ -138,9 +150,17 @@ class Voices(QTreeWidget):
         for langcode in sorted(vmap, key=lambda lc: lang(lc).lower()):
             parent = parent_map.get(langcode)
             if parent is None:
-                parent_map[langcode] = parent = QTreeWidgetItem(self.invisibleRootItem(), lang(langcode))
+                parent_map[langcode] = parent = QTreeWidgetItem(self.invisibleRootItem(), [lang(langcode)])
+                parent.setFlags(parent.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             for voice in vmap[langcode]:
                 qv(parent, voice)
+        if current_item is not None:
+            self.setCurrentItem(current_item)
+
+    @property
+    def val(self) -> str:
+        voice = self.currentItem().data(0, Qt.ItemDataRole.UserRole)
+        return voice.name if voice else ''
 
 
 class EngineSpecificConfig(QWidget):
@@ -148,6 +168,10 @@ class EngineSpecificConfig(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.l = l = QFormLayout(self)
+        devs = QMediaDevices.audioOutputs()
+        dad = QMediaDevices.defaultAudioOutput()
+        self.all_audio_devices = [AudioDeviceId(bytes(x.id()), x.description()) for x in devs]
+        self.default_audio_device = AudioDeviceId(bytes(dad.id()), dad.description())
         self.output_module = om = QComboBox(self)
         l.addRow(_('&Output module:'), om)
         self.engine_name = ''
@@ -160,14 +184,19 @@ class EngineSpecificConfig(QWidget):
         self.pitch = p = FloatSlider(parent=self)
         l.addRow(_('&Pitch of speech:'), p)
         self.volume = v = Volume(self)
-        l.addWidget(v)
+        l.addRow(v)
+        self.audio_device = ad = QComboBox(self)
+        l.addRow(_('Output a&udio to:'), ad)
         self.voices = v = Voices(self)
         la = QLabel(_('V&oices:'))
         la.setBuddy(v)
-        l.addWidget(la)
-        l.addWidget(v)
+        l.addRow(la)
+        l.addRow(v)
 
     def set_engine(self, engine_name):
+        engine_name = engine_name or default_engine_name()
+        if self.engine_name and self.engine_name != engine_name:
+            self.engine_specific_settings[self.engine_name] = self.as_settings()
         self.engine_name = engine_name
         metadata = available_engines()[engine_name]
         if engine_name not in self.engine_instances:
@@ -178,10 +207,8 @@ class EngineSpecificConfig(QWidget):
             tts = self.engine_instances[engine_name]
         self.output_module.blockSignals(True)
         self.output_module.clear()
-        if metadata.has_multiple_output_modules and len(self.voice_data[engine_name]) > 1:
-            self.output_module.setVisible(True)
+        if metadata.has_multiple_output_modules:
             self.layout().setRowVisible(self.output_module, True)
-            self.output_module.clear()
             self.output_module.addItem(_('System default (currently {})').format(tts.default_output_module), '')
             for om in self.voice_data[engine_name]:
                 self.output_module.addItem(om, om)
@@ -195,10 +222,31 @@ class EngineSpecificConfig(QWidget):
         except KeyError:
             return
         self.rate.val = s.rate
-        self.pitch.val = s.pitch
+        if metadata.can_change_pitch:
+            self.pitch.val = s.pitch
+            self.layout().setRowVisible(self.pitch, True)
+        else:
+            self.pitch.val = 0
+            self.layout().setRowVisible(self.pitch, False)
         self.layout().setRowVisible(self.pitch, metadata.can_change_pitch)
-        self.volume.val = s.volume
-        self.rebuild_voice_table()
+        if metadata.can_change_volume:
+            self.layout().setRowVisible(self.volume, True)
+            self.volume.val = s.volume
+        else:
+            self.layout().setRowVisible(self.volume, False)
+            self.volume.val = None
+        self.audio_device.clear()
+        if metadata.allows_choosing_audio_device:
+            self.audio_device.addItem(_('System default (currently {})').format(self.default_audio_device.description), '')
+            for ad in self.all_audio_devices:
+                self.audio_device.addItem(ad.description, ad.id.hex())
+            if cad := self.engine_specific_settings[engine_name].audio_device_id:
+                if (idx := self.audio_device.findData(cad.id.hex())):
+                    self.audio_device.setCurrentIndex(idx)
+            self.layout().setRowVisible(self.audio_device, True)
+        else:
+            self.layout().setRowVisible(self.audio_device, False)
+        self.rebuild_voices()
 
     def rebuild_voices(self):
         try:
@@ -206,11 +254,26 @@ class EngineSpecificConfig(QWidget):
         except KeyError:
             return
         metadata = available_engines()[self.engine_name]
-        output_module = self.output_module.currentData()
+        output_module = self.output_module.currentData() or ''
         if metadata.has_multiple_output_modules:
-            output_module = output_module or self.engine_instances.default_output_module
+            output_module = output_module or self.engine_instances[self.engine_name].default_output_module
         all_voices = self.voice_data[self.engine_name][output_module]
         self.voices.set_voices(all_voices, s.voice_name, metadata)
+
+    def as_settings(self) -> EngineSpecificSettings:
+        ans = EngineSpecificSettings(
+            engine_name=self.engine_name,
+            rate=self.rate.val, voice_name=self.voices.val, pitch=self.pitch.val, volume=self.volume.val)
+        metadata = available_engines()[self.engine_name]
+        if metadata.has_multiple_output_modules and self.output_module.currentIndex() > 0:
+            ans = ans._replace(output_module=self.output_module.currentData())
+        if metadata.allows_choosing_audio_device and self.audio_device.currentIndex() > 0:
+            aid = bytes.fromhex(self.audio_device.currentData())
+            for ad in self.all_audio_devices:
+                if ad.id == aid:
+                    ans = ans._replace(audio_device_id=ad)
+                    break
+        return ans
 
 
 class ConfigDialog(Dialog):
@@ -222,4 +285,31 @@ class ConfigDialog(Dialog):
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
         self.engine_choice = ec = EngineChoice(self)
+        self.engine_specific_config = esc = EngineSpecificConfig(self)
+        ec.changed.connect(esc.set_engine)
         l.addWidget(ec)
+        l.addWidget(esc)
+        l.addWidget(self.bb)
+        esc.set_engine(ec.value)
+
+    def accept(self):
+        s = self.engine_specific_config.as_settings()
+        prefs = load_config()
+        with prefs:
+            if engine_name := self.engine_choice.value:
+                prefs['engine'] = engine_name
+            else:
+                prefs.pop('engine', None)
+            s.save_to_config(prefs)
+        super().accept()
+
+
+def develop():
+    from calibre.gui2 import Application
+    app = Application([])
+    d = ConfigDialog(create_tts_backend(app))
+    d.exec()
+
+
+if __name__ == '__main__':
+    develop()

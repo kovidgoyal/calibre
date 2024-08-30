@@ -31,8 +31,8 @@ class EngineMetadata(NamedTuple):
     name: Literal['winrt', 'darwin', 'sapi', 'flite', 'speechd']
     tracking_capability: TrackingCapability = TrackingCapability.NoTracking
     allows_choosing_audio_device: bool = True
-    can_synthesize_audio_data: bool = True
     has_multiple_output_modules: bool = False
+    can_synthesize_audio_data: bool = True
     can_change_pitch: bool = True
     can_change_volume: bool = True
     voices_have_quality_metadata: bool = False
@@ -102,9 +102,8 @@ class EngineSpecificSettings(NamedTuple):
         with suppress(Exception):
             volume = max(0, min(float(prefs.get('volume')), 1))
         om = str(prefs.get('output_module', ''))
-        voice = str(prefs.get('voice_map', {}).get(om, ''))
         return EngineSpecificSettings(
-            voice_name=voice, output_module=om,
+            voice_name=str(prefs.get('voice', '')), output_module=om,
             audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
 
     @classmethod
@@ -118,7 +117,7 @@ class EngineSpecificSettings(NamedTuple):
         if self.audio_device_id:
             ans['audio_device_id'] = {'id': self.audio_device_id.id.hex(), 'description': self.audio_device_id.description}
         if self.voice_name:
-            ans['voice_map'] = { self.output_module: self.voice_name }
+            ans['voice'] = self.voice_name
         if self.rate:
             ans['rate'] = self.rate
         if self.pitch:
@@ -129,8 +128,7 @@ class EngineSpecificSettings(NamedTuple):
             ans['output_module'] = self.output_module
         return ans
 
-    def save_to_config(self):
-        prefs = load_config()
+    def save_to_config(self, prefs):
         val = self.as_dict
         engines = prefs.get('engines', {})
         if not val:
@@ -149,8 +147,10 @@ def available_engines() -> dict[str, EngineMetadata]:
         e.setEngine(name)
         cap = int(e.engineCapabilities().value)
         return EngineMetadata(name,
-            TrackingCapability.WordByWord if cap & int(QTextToSpeech.Capability.WordByWordProgress.value) else TrackingCapability.NoTracking,
-            allows_choosing_audio_device, bool(cap & int(QTextToSpeech.Capability.Synthesize.value)))
+            tracking_capability=TrackingCapability.WordByWord if cap & int(
+                QTextToSpeech.Capability.WordByWordProgress.value) else TrackingCapability.NoTracking,
+            allows_choosing_audio_device=allows_choosing_audio_device,
+            can_synthesize_audio_data=bool(cap & int(QTextToSpeech.Capability.Synthesize.value)))
 
     for x in QTextToSpeech.availableEngines():
         if x == 'winrt':
