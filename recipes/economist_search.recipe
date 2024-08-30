@@ -6,7 +6,7 @@ import json
 from html5_parser import parse
 from lxml import etree
 
-from calibre.ebooks.BeautifulSoup import NavigableString, Tag, BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag
 from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -199,7 +199,7 @@ class econ_search(BasicNewsRecipe):
             if article and content:
                 self.log('**fetching archive content')
                 article.append(content)
-                
+
                 div = soup.findAll(attrs={'style': lambda x: x and x.startswith(
                         ('color:rgb(13, 13, 13);', 'color: rgb(18, 18, 18);')
                     )})
@@ -236,7 +236,7 @@ class econ_search(BasicNewsRecipe):
             'default': '2'
         }
     }
-    
+
     def parse_index(self):
         url = 'https://www.economist.com/search?q={query}&sort={sort}&page={page}'
         search = self.recipe_specific_options.get('q')

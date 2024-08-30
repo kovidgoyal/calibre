@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import random
+
 from calibre.scraper.simple import read_url
 from calibre.web.feeds.news import BasicNewsRecipe
 

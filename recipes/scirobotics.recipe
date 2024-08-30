@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 def absurl(url):
     if url.startswith('/'):
         url = 'https://www.science.org' + url
