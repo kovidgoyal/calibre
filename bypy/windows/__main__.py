@@ -372,7 +372,7 @@ def sign_files(env, files):
             'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
 
     def runcmd(cmd):
-        for timeserver in ('http://sha256timestamp.ws.symantec.com/sha256/timestamp', 'http://timestamp.comodoca.com/rfc3161',):
+        for timeserver in ('http://timestamp.comodoca.com/rfc3161', 'http://timestamp.sectigo.com'):
             try:
                 subprocess.check_call(cmd + [timeserver] + list(files))
                 break
