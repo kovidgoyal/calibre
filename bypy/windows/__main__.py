@@ -372,12 +372,18 @@ def sign_files(env, files):
             'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
 
     def runcmd(cmd):
-        for timeserver in ('http://timestamp.comodoca.com/rfc3161', 'http://timestamp.sectigo.com'):
+        # See https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710 for list of timestamp servers
+        for timeserver in (
+            'http://timestamp.acs.microsoft.com/',  # this is Microsoft Azure Code Signing
+            'http://rfc3161.ai.moda/windows',  # this is a load balancer
+            'http://timestamp.comodoca.com/rfc3161',
+            'http://timestamp.sectigo.com'
+        ):
             try:
                 subprocess.check_call(cmd + [timeserver] + list(files))
                 break
             except subprocess.CalledProcessError:
-                print('Signing failed, retrying with different timestamp server')
+                print(f'Signing failed with timestamp server {timeserver}, retrying with different timestamp server')
         else:
             raise SystemExit('Signing failed')
 
