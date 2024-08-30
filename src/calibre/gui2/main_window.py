@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
     def native_menubar(self):
         return self.___menu_bar
 
-    def __init__(self, opts, parent=None, disable_automatic_gc=False):
+    def __init__(self, opts=None, parent=None, disable_automatic_gc=False):
         QMainWindow.__init__(self, parent)
         self.display_unhandled_exception.connect(self.unhandled_exception, type=Qt.ConnectionType.QueuedConnection)
         if disable_automatic_gc:
