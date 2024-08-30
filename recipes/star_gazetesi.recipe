@@ -7,13 +7,13 @@ class Star (BasicNewsRecipe):
 
     title = u'Star Gazetesi'
     __author__ = u'thomass'
-    description = 'yeni Türkiye''nin Gazetesi'
+    description = 'Yeni Türkiye''nin Gazetesi'
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True
     encoding = 'utf-8'
-    publisher = 'thomass'
-    category = 'güncel, haber, türkçe'
+    publisher = 'Star Media Group'
+    category = 'Güncel, Haber, Türkçe'
     language = 'tr'
     publication_type = 'newspaper'
 
