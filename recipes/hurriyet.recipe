@@ -7,7 +7,7 @@
 # Copyright:    Copyright 2015 Adrian Tennessee
 ##
 # Written:      2015-07-11
-# Last Edited:  2016-07-08
+# Last Edited:  2024-08-30
 ##
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -35,34 +35,33 @@ class Hurriyet(BasicNewsRecipe):
     compress_news_images = True
 
     # some mild formatting
-    extra_css = """.news-image { clear: left; }
-           .news-detail-title { clear:left; }
-           .col-md-7 { font-size:small; }
-           .news-detail-spot { font-style:italic; font-size:smaller }"""
+    extra_css = """.news-media { clear: left; }
+           .news-detail-title { clear:left; }"""
 
     keep_only_tags = [
         # title
-        {'class': 'news-detail-title selectionShareable'},
-        # date
-        {'class': 'col-md-7 text-right'},
-        # image
-        {'class': 'news-image'},
-        # detail
-        {'class': 'news-detail-spot'},
-        # text
-        {'class': 'news-box'},
+        {'class': 'news-detail-title'},
+        # date 
+        {'class': 'news-detail-text'},
+        # media
+        {'class': 'news-media'},
+        # brief content
+        {'class': 'news-content__inf'},
+        # main content
+        {'class': 'news-content readingTime'},
     ]
 
     feeds = [
-        (u'Anasayfa', u'http://www.hurriyet.com.tr/rss/anasayfa'),
-        (u'Gündem', u' http://www.hurriyet.com.tr/rss/gundem'),
-        (u'Ekonomi', u'http://www.hurriyet.com.tr/rss/ekonomi'),
-        (u'Magazin', u'http://www.hurriyet.com.tr/rss/magazin'),
-        (u'Spor', u'http://www.hurriyet.com.tr/rss/spor'),
-        (u'Planet', u'http://www.hurriyet.com.tr/rss/dunya'),
-        (u'Teknoloji', u'http://www.hurriyet.com.tr/rss/teknoloji'),
-        (u'Sağlık', u'http://www.hurriyet.com.tr/rss/saglik'),
-        (u'Astroloji', u'http://www.hurriyet.com.tr/rss/astroloji'),
-        (u'Ankara', u'http://www.hurriyet.com.tr/rss/ankara'),
-        (u'Ege', u'http://www.hurriyet.com.tr/rss/ege')
+        (u'Anasayfa', 'https://www.hurriyet.com.tr/rss/anasayfa'),
+        (u'Gündem', 'https://www.hurriyet.com.tr/rss/gundem'),
+        (u'Ekonomi', 'https://www.hurriyet.com.tr/rss/ekonomi'),
+        (u'Magazin', 'https://www.hurriyet.com.tr/rss/magazin'),
+        (u'Spor', 'https://www.hurriyet.com.tr/rss/spor'),
+        (u'Planet', 'https://www.hurriyet.com.tr/rss/dunya'),
+        (u'Teknoloji', 'https://www.hurriyet.com.tr/rss/teknoloji'),
+        (u'Sağlık', 'https://www.hurriyet.com.tr/rss/saglik'),
+        (u'Astroloji', 'https://www.hurriyet.com.tr/rss/astroloji'),
+        (u'Ankara', 'https://www.hurriyet.com.tr/rss/ankara'),
+        (u'Ege', 'https://www.hurriyet.com.tr/rss/ege')
     ]
+
