@@ -225,7 +225,3 @@ def create_tts_backend(parent: QObject|None = None, force_engine: str | None = N
         from calibre.gui2.tts2.qt import QtTTSBackend
         ans = QtTTSBackend(engine_name, parent)
     return ans
-
-
-if __name__ == '__main__':
-    develop()
