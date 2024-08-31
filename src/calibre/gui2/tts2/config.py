@@ -125,7 +125,7 @@ class Voices(QTreeWidget):
         self.system_default_voice = Voice()
 
     def sizeHint(self) -> QSize:
-        return QSize(400, 600)
+        return QSize(400, 500)
 
     def set_voices(self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata) -> None:
         self.clear()
@@ -176,7 +176,7 @@ class EngineSpecificConfig(QWidget):
         l.addRow(_('&Output module:'), om)
         self.engine_name = ''
         om.currentIndexChanged.connect(self.rebuild_voices)
-        self.engine_instances = {}
+        self.default_output_modules = {}
         self.voice_data = {}
         self.engine_specific_settings = {}
         self.rate = r = FloatSlider(parent=self)
@@ -199,12 +199,11 @@ class EngineSpecificConfig(QWidget):
             self.engine_specific_settings[self.engine_name] = self.as_settings()
         self.engine_name = engine_name
         metadata = available_engines()[engine_name]
-        if engine_name not in self.engine_instances:
-            self.engine_instances[engine_name] = tts = create_tts_backend(force_engine=engine_name)
+        tts = create_tts_backend(force_engine=engine_name)
+        if engine_name not in self.voice_data:
             self.voice_data[engine_name] = tts.available_voices
             self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name)
-        else:
-            tts = self.engine_instances[engine_name]
+            self.default_output_modules[engine_name] = tts.default_output_module
         self.output_module.blockSignals(True)
         self.output_module.clear()
         if metadata.has_multiple_output_modules:
@@ -256,7 +255,7 @@ class EngineSpecificConfig(QWidget):
         metadata = available_engines()[self.engine_name]
         output_module = self.output_module.currentData() or ''
         if metadata.has_multiple_output_modules:
-            output_module = output_module or self.engine_instances[self.engine_name].default_output_module
+            output_module = output_module or self.default_output_modules[self.engine_name].default_output_module
         all_voices = self.voice_data[self.engine_name][output_module]
         self.voices.set_voices(all_voices, s.voice_name, metadata)
 
@@ -289,7 +288,12 @@ class ConfigDialog(Dialog):
         l.addWidget(ec)
         l.addWidget(esc)
         l.addWidget(self.bb)
-        esc.set_engine(ec.value)
+        self.initial_engine_choice = ec.value
+        esc.set_engine(self.initial_engine_choice)
+
+    @property
+    def engine_changed(self) -> bool:
+        return self.engine_choice.value != self.initial_engine_choice
 
     def accept(self):
         s = self.engine_specific_config.as_settings()

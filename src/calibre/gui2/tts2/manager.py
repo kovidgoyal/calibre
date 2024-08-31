@@ -4,7 +4,7 @@
 
 from collections import deque
 from contextlib import contextmanager
-from typing import NamedTuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QApplication, QDialog, QObject, QTextToSpeech, QWidget, pyqtSignal
 
@@ -104,6 +104,11 @@ class Tracker:
         return None
 
 
+class ResumeData:
+    is_speaking: bool = True
+    needs_full_resume: bool = False
+
+
 class TTSManager(QObject):
 
     state_changed = pyqtSignal(QTextToSpeech.State)
@@ -120,7 +125,7 @@ class TTSManager(QObject):
         if self._tts is None:
             with BusyCursor():
                 from calibre.gui2.tts2.types import create_tts_backend
-                self._tts = create_tts_backend(parent=self)
+                self._tts = create_tts_backend()
                 self._tts.state_changed.connect(self._state_changed)
                 self._tts.saying.connect(self._saying)
         return self._tts
@@ -144,12 +149,13 @@ class TTSManager(QObject):
 
     @contextmanager
     def resume_after(self):
-        is_speaking = self._tts is not None and self.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
+        rd = ResumeData()
+        rd.is_speaking = self._tts is not None and self.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
         if self.state is not QTextToSpeech.State.Paused:
             self.tts.pause()
-        yield is_speaking
-        if is_speaking:
-            if self._tts is None:
+        yield rd
+        if rd.is_speaking:
+            if rd.needs_full_resume:
                 self.tts.say(self.tracker.resume())
             else:
                 self.tts.resume()
@@ -162,11 +168,10 @@ class TTSManager(QObject):
         if new_rate != s.rate:
             s = s._replace(rate=new_rate)
             s.save_to_config()
-            with self.resume_after() as is_speaking:
+            with self.resume_after() as rd:
                 if self._tts is not None:
-                    if is_speaking:
-                        self.tts.stop()
-                    self._tts = None
+                    rd.needs_full_resume = True
+                    self.tts.reload_after_configure()
             return True
         return False
 
@@ -183,13 +188,16 @@ class TTSManager(QObject):
         p = self
         while p is not None and not isinstance(p, QWidget):
             p = p.parent()
-        with self.resume_after() as is_speaking:
+        with self.resume_after() as rd:
             d = ConfigDialog(parent=p)
-            if d.exec() == QDialog.DialogCode.Accepted:
-                if self._tts is not None:
-                    if is_speaking:
+            if d.exec() == QDialog.DialogCode.Accepted and self._tts is not None:
+                rd.needs_full_resume = True
+                if d.engine_changed:
+                    if rd.is_speaking:
                         self.tts.stop()
                     self._tts = None
+                else:
+                    self.tts.reload_after_configure()
 
     def _state_changed(self, state: QTextToSpeech.State) -> None:
         self.state = state

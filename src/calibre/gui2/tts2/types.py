@@ -7,7 +7,7 @@ from enum import Enum, auto
 from functools import lru_cache
 from typing import Literal, NamedTuple
 
-from qt.core import QLocale, QObject, QTextToSpeech, QVoice, pyqtSignal
+from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, pyqtSignal
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
@@ -208,20 +208,30 @@ class TTSBackend(QObject):
     def error_message(self) -> str:
         raise NotImplementedError()
 
+    def reload_after_configure(self) -> str:
+        raise NotImplementedError()
 
-def create_tts_backend(parent: QObject|None = None, force_engine: str | None = None) -> TTSBackend:
+
+engine_instances: dict[str, TTSBackend] = {}
+
+
+def create_tts_backend(force_engine: str | None = None) -> TTSBackend:
     prefs = load_config()
     engine_name = prefs.get('engine', '') if force_engine is None else force_engine
     engine_name = engine_name or default_engine_name()
     if engine_name not in available_engines():
         engine_name = default_engine_name()
-
     if engine_name == 'speechd':
-        from calibre.gui2.tts2.speechd import SpeechdTTSBackend
-        ans = SpeechdTTSBackend(engine_name, parent)
+        if engine_name not in engine_instances:
+            from calibre.gui2.tts2.speechd import SpeechdTTSBackend
+            engine_instances[engine_name] = SpeechdTTSBackend(engine_name, QApplication.instance())
+        ans = engine_instances[engine_name]
     else:
-        if engine_name not in available_engines():
-            engine_name = ''  # let Qt pick the engine
-        from calibre.gui2.tts2.qt import QtTTSBackend
-        ans = QtTTSBackend(engine_name, parent)
+        if 'qt' not in engine_instances:
+            # Bad things happen with more than one QTextToSpeech instance
+            from calibre.gui2.tts2.qt import QtTTSBackend
+            engine_instances['qt'] = QtTTSBackend(engine_name if engine_name in available_engines() else '', QApplication.instance())
+        ans = engine_instances['qt']
+        if ans.engine_name != engine_name:
+            ans._qt_reload_after_configure(engine_name if engine_name in available_engines() else '')
     return ans

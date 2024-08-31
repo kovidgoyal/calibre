@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAction, QKeySequence, QPlainTextEdit, Qt, QTextCursor, QTextToSpeech, QToolBar
+from qt.core import QAction, QKeySequence, QPlainTextEdit, QSize, Qt, QTextCursor, QTextToSpeech, QToolBar
 
 from calibre.gui2 import Application
 from calibre.gui2.main_window import MainWindow
@@ -78,7 +78,7 @@ class MainWindow(MainWindow):
                 self.display.setTextCursor(c)
         else:
             self.play_action.setChecked(True)
-        self.stop_action.setEnabled(state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing))
+        self.stop_action.setEnabled(state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused))
 
     def toggled(self):
         if self.play_action.isChecked():
@@ -99,6 +99,9 @@ class MainWindow(MainWindow):
             c.setPosition(last, QTextCursor.MoveMode.KeepAnchor)
         c.movePosition(QTextCursor.MoveOperation.WordRight, QTextCursor.MoveMode.KeepAnchor)
         self.display.setTextCursor(c)
+
+    def sizeHint(self):
+        return QSize(500, 400)
 
 
 def main():

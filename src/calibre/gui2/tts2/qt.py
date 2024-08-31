@@ -11,8 +11,7 @@ class QtTTSBackend(TTSBackend):
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
-        self._voices = None
-        self._create_engine(engine_name)
+        self._qt_reload_after_configure(engine_name)
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
@@ -43,8 +42,14 @@ class QtTTSBackend(TTSBackend):
     def error_message(self) -> str:
         return self.tts.errorString()
 
-    def _create_engine(self, engine_name: str) -> None:
+    def reload_after_configure(self) -> None:
+        self._qt_reload_after_configure(self.engine_name)
+
+    def _qt_reload_after_configure(self, engine_name: str) -> None:
+        # Bad things happen with more than one QTextToSpeech instance
         s = {}
+        self._voices = None
+        new_backend = not hasattr(self, 'tts')
         if engine_name:
             settings = EngineSpecificSettings.create_from_config(engine_name)
             if settings.audio_device_id:
@@ -52,9 +57,15 @@ class QtTTSBackend(TTSBackend):
                     if bytes(x.id) == settings.audio_device_id.id:
                         s['audioDevice'] = x
                         break
-            self.tts = QTextToSpeech(engine_name, s, self)
+            if new_backend:
+                self.tts = QTextToSpeech(engine_name, s, self)
+            else:
+                self.tts.setEngine(engine_name, s)
         else:
-            self.tts = QTextToSpeech(self)
+            if new_backend:
+                self.tts = QTextToSpeech(self)
+            else:
+                self.tts.setEngine('')
             engine_name = self.tts.engine()
             settings = EngineSpecificSettings.create_from_config(engine_name)
             if settings.audio_device_id:
@@ -63,6 +74,9 @@ class QtTTSBackend(TTSBackend):
                         s['audioDevice'] = x
                         self.tts = QTextToSpeech(engine_name, s, self)
                         break
+        if new_backend:
+            self.tts.sayingWord.connect(self._saying_word)
+            self.tts.stateChanged.connect(self._state_changed)
 
         self.tts.setRate(max(-1, min(float(settings.rate), 1)))
         self.tts.setPitch(max(-1, min(float(settings.pitch), 1)))
@@ -73,9 +87,10 @@ class QtTTSBackend(TTSBackend):
                 if v.name() == settings.voice_name:
                     self.tts.setVoice(v)
                     break
-        self.tts.sayingWord.connect(self._saying_word)
-        self.tts.stateChanged.connect(self.state_changed.emit)
         self._current_settings = settings
 
     def _saying_word(self, word: str, utterance_id: int, start: int, length: int) -> None:
         self.saying.emit(start, length)
+
+    def _state_changed(self, state: QTextToSpeech.State) -> None:
+        self.state_changed.emit(state)
