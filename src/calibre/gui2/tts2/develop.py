@@ -48,8 +48,7 @@ class MainWindow(MainWindow):
         self.marked_text = marked_text
         self.play_action = pa = QAction('Play')
         pa.setShortcut(QKeySequence(Qt.Key.Key_Space))
-        pa.setCheckable(True)
-        pa.toggled.connect(self.toggled)
+        pa.triggered.connect(self.toggled)
         self.toolbar.addAction(pa)
         self.stop_action = sa = QAction('Stop')
         sa.setShortcut(QKeySequence(Qt.Key.Key_Escape))
@@ -79,18 +78,20 @@ class MainWindow(MainWindow):
         else:
             self.play_action.setChecked(True)
         self.stop_action.setEnabled(state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused))
+        if self.tts.state is QTextToSpeech.State.Paused:
+            self.play_action.setText('Resume')
+        elif self.tts.state is QTextToSpeech.State.Speaking:
+            self.play_action.setText('Pause')
+        else:
+            self.play_action.setText('Play')
 
     def toggled(self):
-        if self.play_action.isChecked():
-            self.play_action.setText('Pause')
-            if self.tts.state is QTextToSpeech.State.Paused:
-                self.tts.resume()
-            elif self.tts.state in (QTextToSpeech.State.Ready, QTextToSpeech.State.Error):
-                self.tts.speak_marked_text(self.marked_text)
+        if self.tts.state is QTextToSpeech.State.Paused:
+            self.tts.resume()
+        elif self.tts.state is QTextToSpeech.State.Speaking:
+            self.tts.pause()
         else:
-            if self.tts.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing):
-                self.tts.pause()
-            self.play_action.setText('Play')
+            self.tts.speak_marked_text(self.marked_text)
 
     def saying(self, first, last):
         c = self.display.textCursor()

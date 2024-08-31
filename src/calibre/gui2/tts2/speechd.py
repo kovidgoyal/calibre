@@ -76,10 +76,14 @@ class SpeechdTTSBackend(TTSBackend):
     def stop(self) -> None:
         self._last_mark = self._last_text = ''
         if self._ssip_client is not None:
-            try:
-                self._ssip_client.stop()
-            except Exception as e:
-                self._set_error(str(e))
+            if self._status['paused'] and self._status['synthesizing']:
+                self._status = {'synthesizing': False, 'paused': False}
+                self._set_state(QTextToSpeech.State.Ready)
+            else:
+                try:
+                    self._ssip_client.stop()
+                except Exception as e:
+                    self._set_error(str(e))
 
     def say(self, text: str) -> None:
         self.stop()
