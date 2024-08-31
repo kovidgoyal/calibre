@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAction, QPlainTextEdit, QToolBar
+from qt.core import QAction, QKeySequence, QPlainTextEdit, Qt, QTextCursor, QTextToSpeech, QToolBar
 
 from calibre.gui2 import Application
 from calibre.gui2.main_window import MainWindow
+from calibre.gui2.tts2.manager import TTSManager
 
 TEXT = '''\
 Demonstration of DOCX support in calibre
@@ -21,36 +22,81 @@ Set the output format in the top right corner of the conversion dialog to EPUB o
 '''
 
 
-def to_marked_text(text=TEXT):
-    pos = 0
-    for word in text.split():
-        yield pos
-        yield word
-        yield ' '
-        pos += 1 + len(word)
-
-
 class MainWindow(MainWindow):
 
     def __init__(self, text):
         super().__init__()
         self.display = d = QPlainTextEdit(self)
         self.toolbar = tb = QToolBar(self)
+        self.tts = TTSManager(self)
+        self.tts.state_changed.connect(self.state_changed, type=Qt.ConnectionType.QueuedConnection)
+        self.tts.saying.connect(self.saying)
         self.addToolBar(tb)
         self.setCentralWidget(d)
         d.setPlainText(text)
         d.setReadOnly(True)
-        self.marked_text = to_marked_text(text)
-        self.resize(self.sizeHint())
+        c = d.textCursor()
+        c.setPosition(0)
+        marked_text = []
+        while True:
+            marked_text.append(c.position())
+            if not c.movePosition(QTextCursor.MoveOperation.NextWord, QTextCursor.MoveMode.KeepAnchor):
+                break
+            marked_text.append(c.selectedText())
+            c.setPosition(c.position())
+        c.setPosition(0)
+        self.marked_text = marked_text
         self.play_action = pa = QAction('Play')
+        pa.setShortcut(QKeySequence(Qt.Key.Key_Space))
         pa.setCheckable(True)
+        pa.toggled.connect(self.toggled)
         self.toolbar.addAction(pa)
+        self.stop_action = sa = QAction('Stop')
+        sa.setShortcut(QKeySequence(Qt.Key.Key_Escape))
+        sa.triggered.connect(self.tts.stop)
+        self.toolbar.addAction(sa)
         self.faster_action = fa = QAction('Faster')
         self.toolbar.addAction(fa)
         self.slower_action = sa = QAction('Slower')
         self.toolbar.addAction(sa)
         self.configure_action = ca = QAction('Configure')
         self.toolbar.addAction(ca)
+        ca.triggered.connect(self.tts.configure)
+
+        self.state_changed(self.tts.state)
+        self.resize(self.sizeHint())
+
+    def state_changed(self, state):
+        self.statusBar().showMessage(str(state))
+        if state in (QTextToSpeech.State.Ready, QTextToSpeech.State.Paused, QTextToSpeech.State.Error):
+            self.play_action.setChecked(False)
+            if state is QTextToSpeech.State.Ready:
+                c = self.display.textCursor()
+                c.setPosition(0)
+                self.display.setTextCursor(c)
+        else:
+            self.play_action.setChecked(True)
+        self.stop_action.setEnabled(state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing))
+
+    def toggled(self):
+        if self.play_action.isChecked():
+            self.play_action.setText('Pause')
+            if self.tts.state is QTextToSpeech.State.Paused:
+                self.tts.resume()
+            elif self.tts.state in (QTextToSpeech.State.Ready, QTextToSpeech.State.Error):
+                self.tts.speak_marked_text(self.marked_text)
+        else:
+            if self.tts.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing):
+                self.tts.pause()
+            self.play_action.setText('Play')
+
+    def saying(self, first, last):
+        c = self.display.textCursor()
+        c.setPosition(first)
+        if last != first:
+            c.setPosition(last, QTextCursor.MoveMode.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.WordRight, QTextCursor.MoveMode.KeepAnchor)
+        self.display.setTextCursor(c)
 
 
 def main():

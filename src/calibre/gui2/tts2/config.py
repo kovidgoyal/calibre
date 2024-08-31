@@ -278,8 +278,7 @@ class EngineSpecificConfig(QWidget):
 
 class ConfigDialog(Dialog):
 
-    def __init__(self, current_tts_backend, parent=None):
-        self.current_tts_backend = current_tts_backend
+    def __init__(self, parent=None):
         super().__init__(_('Configure Read aloud'), 'configure-read-aloud2', parent=parent)
 
     def setup_ui(self):
@@ -307,8 +306,10 @@ class ConfigDialog(Dialog):
 def develop():
     from calibre.gui2 import Application
     app = Application([])
-    d = ConfigDialog(create_tts_backend(app))
+    d = ConfigDialog()
     d.exec()
+    del d
+    del app
 
 
 if __name__ == '__main__':
