@@ -4,12 +4,15 @@
 
 from collections import deque
 from contextlib import contextmanager
-from typing import NamedTuple
+from typing import NamedTuple, TYPE_CHECKING
 
 from qt.core import QApplication, QDialog, QObject, QTextToSpeech, QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets import BusyCursor
+
+if TYPE_CHECKING:
+    from calibre.gui2.tts2.types import TTSBackend
 
 
 class Utterance(NamedTuple):
@@ -108,12 +111,12 @@ class TTSManager(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._tts = None
+        self._tts: 'TTSBackend' | None = None
         self.state = QTextToSpeech.State.Ready
         self.tracker = Tracker()
 
     @property
-    def tts(self):
+    def tts(self) -> 'TTSBackend':
         if self._tts is None:
             with BusyCursor():
                 from calibre.gui2.tts2.types import create_tts_backend

@@ -2,15 +2,12 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QMediaDevices, QObject, QTextToSpeech, pyqtSignal
+from qt.core import QMediaDevices, QObject, QTextToSpeech
 
-from calibre.gui2.tts2.types import EngineSpecificSettings, Voice, qvoice_to_voice
+from calibre.gui2.tts2.types import EngineSpecificSettings, TTSBackend, Voice, qvoice_to_voice
 
 
-class QtTTSBackend(QObject):
-
-    saying = pyqtSignal(int, int)
-    state_changed = pyqtSignal(QTextToSpeech.State)
+class QtTTSBackend(TTSBackend):
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
@@ -30,18 +27,6 @@ class QtTTSBackend(QObject):
     @property
     def default_output_module(self) -> str:
         return ''
-
-    def change_rate(self, steps: int = 1) -> bool:
-        current = self.tts.rate()
-        new_rate = max(-1, min(current + 0.2 * steps, 1))
-        if current == new_rate:
-            return False
-        self.tts.pause()
-        self.tts.setRate(new_rate)
-        self._current_settings = self._current_settings._replace(rate=new_rate)
-        self._current_settings.save_to_config()
-        self.tts.resume()
-        self.tts.stop(QTextToSpeech.BoundaryHint.Immediate)
 
     def pause(self) -> None:
         self.tts.pause()
