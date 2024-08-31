@@ -1,34 +1,33 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-from contextlib import suppress
+import atexit
 
 from qt.core import QObject, Qt, QTextToSpeech, pyqtSignal
 from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError
 
 from calibre import prepare_string_for_xml
-from calibre.gui2.tts2.types import EngineSpecificSettings, Voice
+from calibre.gui2.tts2.types import EngineSpecificSettings, TTSBackend, Voice
+from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.utils.localization import canonicalize_lang
 
 MARK_TEMPLATE = '<mark name="{}"/>'
 
-def add_markup(text_parts, mark_template=MARK_TEMPLATE, escape_marked_text=prepare_string_for_xml, chunk_size=0):
-    buf = []
-    size = 0
-    for x in text_parts:
-        if isinstance(x, int):
-            item = mark_template.format(x)
-        else:
-            item = escape_marked_text(x)
-        sz = len(item)
-        if chunk_size and size + sz > chunk_size:
-            yield ''.join(buf).strip()
-            size = 0
-            buf = []
-        size += sz
-        buf.append(item)
-    if size:
-        yield ''.join(buf).strip()
+
+def mark_words(text: str, lang: str) -> str:
+    ans = []
+    pos = 0
+
+    def a(x):
+        ans.append(prepare_string_for_xml(x))
+
+    for offset, sz in split_into_words_and_positions(text, lang):
+        if offset > pos:
+            a(text[pos:offset])
+        ans.append(MARK_TEMPLATE.format(f'{offset}:{sz}'))
+        a(text[offset:offset+sz])
+        pos = offset + sz
+    return ''.join(ans)
 
 
 def wrap_in_ssml(text):
@@ -36,10 +35,11 @@ def wrap_in_ssml(text):
             text + '</s></speak>')
 
 
-class SpeechdTTSBackend(QObject):
+class SpeechdTTSBackend(TTSBackend):
 
     saying = pyqtSignal(int, int)
     state_changed = pyqtSignal(QTextToSpeech.State)
+    engine_name = 'speechd'
 
     _event_signal = pyqtSignal(object, object)
 
@@ -49,13 +49,14 @@ class SpeechdTTSBackend(QObject):
         self._state = QTextToSpeech.State.Ready
         self._voices = None
         self._system_default_output_module = None
-        self._current_settings = EngineSpecificSettings()
         self._status = {'synthesizing': False, 'paused': False}
-        self._next_begin_is_for_resume = False
         self._ssip_client: SSIPClient | None = None
+        self._voice_lang = 'en'
+        self._last_mark = self._last_text = ''
+        self._next_cancel_is_for_pause = False
         self._event_signal.connect(self._update_status, type=Qt.ConnectionType.QueuedConnection)
-        self._current_marked_text = self._last_mark = None
-        self._apply_settings(EngineSpecificSettings.create_from_config(engine_name))
+        self._apply_settings(EngineSpecificSettings.create_from_config(self.engine_name))
+        atexit.register(self.shutdown)
 
     @property
     def default_output_module(self) -> str:
@@ -72,52 +73,51 @@ class SpeechdTTSBackend(QObject):
                 self._set_error(str(e))
        return self._voices or {}
 
-    @property
-    def engine_name(self) -> str:
-        return 'speechd'
-
-    def change_rate(self, steps: int = 1) -> bool:
-        current = self._current_settings.rate
-        new_rate = max(-1, min(current + 0.2 * steps, 1))
-        if current == new_rate:
-            return False
-        try:
-            self._ssip_client.set_rate(int(max(-1, min(new_rate, 1)) * 100))
-        except Exception as e:
-            self._set_error(str(e))
-            return False
-        self._current_settings = self._current_settings._replace(rate=new_rate)
-        self._current_settings.save_to_config()
-        return True
-
     def stop(self) -> None:
-        self._current_marked_text = self._last_mark = None
-        self._next_cancel_is_for_pause = self._next_begin_is_for_resume = False
+        self._last_mark = self._last_text = ''
         if self._ssip_client is not None:
             try:
                 self._ssip_client.stop()
             except Exception as e:
                 self._set_error(str(e))
 
-    def speak_simple_text(self, text: str) -> None:
+    def say(self, text: str) -> None:
         self.stop()
-        self._current_marked_text = self._last_mark = None
-        self._speak(prepare_string_for_xml(text))
+        self._speak(mark_words(text, self._voice_lang))
 
-    def speak_marked_text(self, marked_text: list[str | int]) -> None:
-        self.stop()
-        text = ''.join(add_markup(marked_text))
-        self._current_marked_text = text
-        self._last_mark = None
-        self._speak(text)
+    def error_message(self) -> str:
+        return self._last_error
 
-    def __del__(self):
+    def pause(self) -> None:
+        if self._ssip_client is not None and self._status['synthesizing'] and not self._status['paused']:
+            try:
+                self._ssip_client.stop()
+                self._next_cancel_is_for_pause = True
+            except Exception as e:
+                self._set_error(str(e))
+
+    def resume(self) -> None:
+        if self._ssip_client is not None and self._status['synthesizing'] and self._status['paused']:
+            text = self._last_text
+            idx = text.find(self._last_mark)
+            if idx > -1:
+                text = text[idx:]
+            self._speak(text)
+
+    def reload_after_configure(self) -> None:
+        self._apply_settings(EngineSpecificSettings.create_from_config(self.engine_name))
+
+    def shutdown(self):
         if self._ssip_client is not None:
-            with suppress(Exception):
+            try:
                 self._ssip_client.cancel()
-            self._ssip_client.close()
+            except Exception:
+                pass
+            try:
+                self._ssip_client.close()
+            except Exception:
+                pass
             self._ssip_client = None
-    shutdown = __del__
 
     def _set_state(self, s: QTextToSpeech.State) -> None:
         self._state = s
@@ -174,15 +174,20 @@ class SpeechdTTSBackend(QObject):
         if not self._ensure_state():
             return False
         try:
+            om = settings.output_module or self._system_default_output_module
+            self._ssip_client.set_output_module(om)
+            if settings.voice_name:
+                for v in self.available_voices[om]:
+                    if v.name == settings.voice_name:
+                        self._voice_lang = v.language_code
+                        break
+                self._ssip_client.set_synthesis_voice(settings.voice_name)
+            else:
+                self._voice_lang = self.available_voices[om][0].language_code
             self._ssip_client.set_pitch_range(int(max(-1, min(settings.pitch, 1)) * 100))
             self._ssip_client.set_rate(int(max(-1, min(settings.rate, 1)) * 100))
             if settings.volume is not None:
                 self._ssip_client.set_volume(-100 + int(max(0, min(settings.volume, 1)) * 200))
-            om = settings.output_module or self._system_default_output_module
-            self._ssip_client.set_output_module(om)
-            if settings.voice_name:
-                self._ssip_client.set_synthesis_voice(settings.voice_name)
-            self._current_settings = settings
             return True
         except Exception as e:
             self._set_error(str(e))
@@ -205,13 +210,12 @@ class SpeechdTTSBackend(QObject):
     def _update_status(self, callback_type, index_mark=None):
         event = None
         if callback_type is CallbackType.INDEX_MARK:
-            mark = int(index_mark)
-            self._last_mark = mark
-            self.saying.emit(mark, mark)
+            pos, sep, length = index_mark.partition(':')
+            self._last_mark = MARK_TEMPLATE.format(index_mark)
+            self.saying.emit(int(pos), int(length))
         elif callback_type is CallbackType.BEGIN:
             self._status = {'synthesizing': True, 'paused': False}
             self._set_state(QTextToSpeech.State.Speaking)
-            self._next_begin_is_for_resume = False
         elif callback_type is CallbackType.END:
             self._status = {'synthesizing': False, 'paused': False}
             self._set_state(QTextToSpeech.State.Ready)
@@ -219,10 +223,10 @@ class SpeechdTTSBackend(QObject):
             if self._next_cancel_is_for_pause:
                 self._status = {'synthesizing': True, 'paused': True}
                 self._set_state(QTextToSpeech.State.Paused)
+                self._next_cancel_is_for_pause = False
             else:
                 self._status = {'synthesizing': False, 'paused': False}
                 self._set_state(QTextToSpeech.State.Ready)
-            self._next_cancel_is_for_pause = False
         return event
 
     def _speak_callback(self, callback_type: CallbackType, index_mark=None):
@@ -230,4 +234,9 @@ class SpeechdTTSBackend(QObject):
 
     def _speak(self, text: str) -> None:
         if self._ensure_state():
-            self._ssip_client.speak(wrap_in_ssml(text), self._speak_callback)
+            self._last_text = text
+            self._last_mark = ''
+            try:
+                self._ssip_client.speak(wrap_in_ssml(text), self._speak_callback)
+            except Exception as e:
+                self._set_error(str(e))

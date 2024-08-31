@@ -180,6 +180,8 @@ def default_engine_name() -> str:
         return 'sapi' if tweaks.get('prefer_winsapi') else 'winrt'
     if ismacos:
         return 'darwin'
+    if 'flite' in available_engines():
+        return 'flite'
     return 'speechd'
 
 
@@ -208,7 +210,7 @@ class TTSBackend(QObject):
     def error_message(self) -> str:
         raise NotImplementedError()
 
-    def reload_after_configure(self) -> str:
+    def reload_after_configure(self) -> None:
         raise NotImplementedError()
 
 
@@ -216,6 +218,8 @@ engine_instances: dict[str, TTSBackend] = {}
 
 
 def create_tts_backend(force_engine: str | None = None) -> TTSBackend:
+    if not available_engines():
+        raise OSError('There are no available TTS engines. Install a TTS engine before trying to use Read Aloud, such as flite or speech-dispatcher')
     prefs = load_config()
     engine_name = prefs.get('engine', '') if force_engine is None else force_engine
     engine_name = engine_name or default_engine_name()
