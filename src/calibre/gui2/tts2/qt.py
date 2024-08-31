@@ -36,12 +36,11 @@ class QtTTSBackend(QObject):
         new_rate = max(-1, min(current + 0.2 * steps, 1))
         if current == new_rate:
             return False
+        self.tts.pause()
         self.tts.setRate(new_rate)
         self._current_settings = self._current_settings._replace(rate=new_rate)
         self._current_settings.save_to_config()
-        return True
-
-    def shutdown(self) -> None:
+        self.tts.resume()
         self.tts.stop(QTextToSpeech.BoundaryHint.Immediate)
 
     def pause(self) -> None:

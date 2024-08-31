@@ -3,11 +3,13 @@
 
 
 from collections import deque
+from contextlib import contextmanager
 from typing import NamedTuple
 
-from qt.core import QDialog, QObject, QTextToSpeech, pyqtSignal
+from qt.core import QApplication, QDialog, QObject, QTextToSpeech, QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog
+from calibre.gui2.widgets import BusyCursor
 
 
 class Utterance(NamedTuple):
@@ -74,7 +76,7 @@ class Tracker:
             if self.queue[0].reached_offset:
                 o = self.queue[0].reached_offset
                 # make sure positions remain the same for word tracking
-                self.queue[0].text = (' ' * o) + self.queue[0].text[o:]
+                self.queue[0] = self.queue[0]._replace(text=(' ' * o) + self.queue[0].text[o:])
         return self.current_text()
 
     def boundary_reached(self, start):
@@ -113,10 +115,11 @@ class TTSManager(QObject):
     @property
     def tts(self):
         if self._tts is None:
-            from calibre.gui2.tts2.types import create_tts_backend
-            self._tts = create_tts_backend(parent=self)
-            self._tts.state_changed.connect(self._state_changed)
-            self._tts.saying.connect(self._saying)
+            with BusyCursor():
+                from calibre.gui2.tts2.types import create_tts_backend
+                self._tts = create_tts_backend(parent=self)
+                self._tts.state_changed.connect(self._state_changed)
+                self._tts.saying.connect(self._saying)
         return self._tts
 
     def stop(self) -> None:
@@ -136,17 +139,54 @@ class TTSManager(QObject):
         self.stop()
         self.tts.say(self.tracker.parse_marked_text(marked_text))
 
+    @contextmanager
+    def resume_after(self):
+        is_speaking = self._tts is not None and self.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
+        if self.state is not QTextToSpeech.State.Paused:
+            self.tts.pause()
+        yield is_speaking
+        if is_speaking:
+            if self._tts is None:
+                self.tts.say(self.tracker.resume())
+            else:
+                self.tts.resume()
+
+    def change_rate(self, steps: int = 1) -> bool:
+        from calibre.gui2.tts2.types import EngineSpecificSettings
+        engine_name = self.tts.engine_name
+        s = EngineSpecificSettings.create_from_config(engine_name)
+        new_rate = max(-1, min(s.rate + 0.2 * steps, 1))
+        if new_rate != s.rate:
+            s = s._replace(rate=new_rate)
+            s.save_to_config()
+            with self.resume_after() as is_speaking:
+                if self._tts is not None:
+                    if is_speaking:
+                        self.tts.stop()
+                    self._tts = None
+            return True
+        return False
+
+    def faster(self) -> None:
+        if not self.change_rate(1):
+            QApplication.instance().beep()
+
+    def slower(self) -> None:
+        if not self.change_rate(-1):
+            QApplication.instance().beep()
+
     def configure(self) -> None:
         from calibre.gui2.tts2.config import ConfigDialog
-        self.tts.pause()
-        d = ConfigDialog(parent=self)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            self.stop()
-            self._tts = None
-        if self._tts is None:
-            self.tts.say(self.tracker.resume())
-        else:
-            self.tts.resume()
+        p = self
+        while p is not None and not isinstance(p, QWidget):
+            p = p.parent()
+        with self.resume_after() as is_speaking:
+            d = ConfigDialog(parent=p)
+            if d.exec() == QDialog.DialogCode.Accepted:
+                if self._tts is not None:
+                    if is_speaking:
+                        self.tts.stop()
+                    self._tts = None
 
     def _state_changed(self, state: QTextToSpeech.State) -> None:
         self.state = state

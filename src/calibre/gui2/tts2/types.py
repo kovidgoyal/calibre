@@ -17,7 +17,7 @@ from calibre.utils.localization import canonicalize_lang
 CONFIG_NAME = 'tts'
 
 @lru_cache(2)
-def load_config():
+def load_config() -> JSONConfig:
     return JSONConfig(CONFIG_NAME)
 
 
@@ -128,7 +128,8 @@ class EngineSpecificSettings(NamedTuple):
             ans['output_module'] = self.output_module
         return ans
 
-    def save_to_config(self, prefs):
+    def save_to_config(self, prefs:JSONConfig | None = None):
+        prefs = prefs or load_config()
         val = self.as_dict
         engines = prefs.get('engines', {})
         if not val:
