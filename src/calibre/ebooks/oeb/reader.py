@@ -106,6 +106,8 @@ class OEBReader:
                 elem.tag = OPF(barename(elem.tag))
         nsmap.update(OPF2_NSMAP)
         attrib = dict(opf.attrib)
+        if xmlns := attrib.pop('xmlns:'):
+            attrib['xmlns'] = xmlns
         nroot = etree.Element(OPF('package'),
             nsmap={None: OPF2_NS}, attrib=attrib)
         metadata = etree.SubElement(nroot, OPF('metadata'), nsmap=nsmap)
