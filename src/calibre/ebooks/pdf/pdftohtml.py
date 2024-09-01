@@ -6,17 +6,16 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 
 from calibre import CurrentDir, prints, xml_replace_entities
-from calibre.constants import isbsd, islinux, ismacos, iswindows
+from calibre.constants import bundled_binaries_dir, isbsd, iswindows
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 
-PDFTOHTML = 'pdftohtml'
+PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')
 
 
 def popen(cmd, **kw):
@@ -25,14 +24,8 @@ def popen(cmd, **kw):
     return subprocess.Popen(cmd, **kw)
 
 
-if ismacos and hasattr(sys, 'frameworks_dir'):
-    base = os.path.join(os.path.dirname(sys.frameworks_dir), 'utils.app', 'Contents', 'MacOS')
-    PDFTOHTML = os.path.join(base, PDFTOHTML)
-if iswindows and hasattr(sys, 'frozen'):
-    base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
-    PDFTOHTML = os.path.join(base, 'pdftohtml.exe')
-if (islinux or isbsd) and getattr(sys, 'frozen', False):
-    PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
+if bbd := bundled_binaries_dir():
+    PDFTOHTML = os.path.join(bbd, PDFTOHTML)
 PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if iswindows else ''))
 
 

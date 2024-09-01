@@ -492,3 +492,16 @@ def get_umask():
 # with multi-threading. It's absurd there is no way to safely read the current
 # umask of a process.
 get_umask()
+
+
+@lru_cache(maxsize=2)
+def bundled_binaries_dir() -> str:
+    if ismacos and hasattr(sys, 'frameworks_dir'):
+        base = os.path.join(os.path.dirname(sys.frameworks_dir), 'utils.app', 'Contents', 'MacOS')
+        return base
+    if iswindows and hasattr(sys, 'frozen'):
+        base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
+        return base
+    if (islinux or isbsd) and getattr(sys, 'frozen', False):
+        return os.path.join(sys.executables_location, 'bin')
+    return ''
