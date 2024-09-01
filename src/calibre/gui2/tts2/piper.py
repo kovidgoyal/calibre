@@ -48,6 +48,7 @@ def split_into_utterances(text: str, lang: str = 'en'):
     text = re.sub(r'\n{2,}', PARAGRAPH_SEPARATOR, text.replace('\r', '')).replace('\n', ' ')
     for start, length in sentence_positions(text, lang):
         sentence = text[start:start+length].rstrip().replace('\n', ' ')
+        length = len(sentence)
         payload = sentence.encode('utf-8')
         ba = QByteArray()
         ba.reserve(len(payload) + 1)
