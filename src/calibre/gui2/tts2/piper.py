@@ -213,7 +213,6 @@ class Piper(TTSBackend):
             self._audio_sink.stateChanged.disconnect()
             self._audio_sink.stop()
             sip.delete(self._audio_sink)
-            # self._audio_sink.stop()
             self._process.readyReadStandardError.disconnect()
             self._process.bytesWritten.disconnect()
             self._process.readyReadStandardOutput.disconnect()
@@ -359,8 +358,8 @@ def develop():  # {{{
     p = Piper()
     play_started = False
     def state_changed(s):
-        debug('TTS State:', s)
         nonlocal play_started
+        debug('TTS State:', s)
         if s is QTextToSpeech.State.Error:
             debug(p.error_message(), file=sys.stderr)
             app.exit(1)
@@ -368,9 +367,11 @@ def develop():  # {{{
             play_started = True
         elif s is QTextToSpeech.State.Ready:
             if play_started:
+                debug('Quitting on completion')
                 app.quit()
 
     def input_ready():
+        nonlocal play_started
         q = sys.stdin.buffer.read()
         if q in (b'\x03', b'\x1b'):
             app.exit(1)
@@ -379,6 +380,11 @@ def develop():  # {{{
                 p.pause()
             elif p.state is QTextToSpeech.State.Paused:
                 p.resume()
+        elif q == b'r':
+            debug('Stopping')
+            play_started = False
+            p.stop()
+            p.say(text)
 
     text = (
         'First, relatively short sentence. '
