@@ -133,6 +133,7 @@ class UtteranceAudioQueue(QIODevice):
 
     def readData(self, maxlen: int) -> QByteArray:
         if maxlen < 1:
+            debug(f'Audio data sent to output: {maxlen=}')
             return QByteArray()
         if maxlen >= len(self.current_audio_data):
             ans = self.current_audio_data
@@ -142,6 +143,7 @@ class UtteranceAudioQueue(QIODevice):
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
             if len(self.current_audio_data):
                 self.readyRead.emit()
+        debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
         return ans
 
 
@@ -186,6 +188,7 @@ def split_into_utterances(text: str, counter: count, lang: str = 'en'):
 class Piper(TTSBackend):
 
     engine_name: str = 'piper'
+    _synthesis_done = pyqtSignal()
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
@@ -203,6 +206,7 @@ class Piper(TTSBackend):
         self._pending_stderr_data = b''
 
         self._stderr_pat = re.compile(rb'\[piper\] \[([a-zA-Z0-9_]+?)\] (.+)')
+        self._synthesis_done.connect(self._utterance_synthesized, type=Qt.ConnectionType.QueuedConnection)
         atexit.register(self.shutdown)
 
     def say(self, text: str) -> None:
@@ -281,9 +285,11 @@ class Piper(TTSBackend):
             rate = 1.0  # TODO: Make rate configurable
             cmdline = list(piper_cmdline()) + [
                 '--model', model_path, '--output-raw', '--json-input', '--sentence-silence', '0', '--length_scale', str(rate)]
+            if is_debugging():
+                cmdline.append('--debug')
             self._process.setProgram(cmdline[0])
             self._process.setArguments(cmdline[1:])
-            self._process.readyReadStandardError.connect(self.piper_stderr_available, type=Qt.ConnectionType.QueuedConnection)
+            self._process.readyReadStandardError.connect(self.piper_stderr_available)
             self._process.readyReadStandardOutput.connect(self.piper_stdout_available)
             self._process.bytesWritten.connect(self.bytes_written)
             # See https://www.riverbankcomputing.com/pipermail/pyqt/2024-September/046002.html
@@ -305,10 +311,10 @@ class Piper(TTSBackend):
                 ba = self.process.readAll()
                 if not len(ba):
                     break
+                debug('Synthesized data read:', len(ba), 'bytes')
                 u.audio_data.append(ba)
 
     def piper_stderr_available(self) -> None:
-        needs_status_update = False
         if self._process is not None:
             data = self._pending_stderr_data + bytes(self._process.readAllStandardError())
             lines = data.split(b'\n')
@@ -316,18 +322,24 @@ class Piper(TTSBackend):
                 if m := self._stderr_pat.search(line):
                     which, payload = m.group(1), m.group(2)
                     if which == b'info':
+                        debug(f'[piper-info] {payload.decode("utf-8", "replace")}')
                         if payload.startswith(b'Real-time factor:') and self._utterances_being_synthesized:
-                            u = self._utterances_being_synthesized.popleft()
-                            u.synthesized = True
-                            debug(f'Utterance {u.id} synthesized')
-                            needs_status_update = True
-                            self._utterances_being_spoken.add_utterance(u)
-                            self._write_current_utterance()
+                            self._synthesis_done.emit()
                     elif which == b'error':
                         self._errors_from_piper.append(payload.decode('utf-8', 'replace'))
+                    elif which == b'debug':
+                        debug(f'[piper-debug] {payload.decode("utf-8", "replace")}')
             self._pending_stderr_data = lines[-1]
-            if needs_status_update:
-                self._update_status()
+
+    def _utterance_synthesized(self):
+        self.piper_stdout_available()  # just in case
+        u = self._utterances_being_synthesized.popleft()
+        u.synthesized = True
+        debug(f'Utterance {u.id} got {len(u.audio_data)} bytes of audio data from piper')
+        if len(u.audio_data):
+            self._utterances_being_spoken.add_utterance(u)
+        self._write_current_utterance()
+        self._update_status()
 
     def _update_status(self):
         if self._process is not None and self._process.state() is QProcess.ProcessState.NotRunning:
