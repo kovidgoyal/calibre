@@ -240,14 +240,14 @@ class Piper(TTSBackend):
     def shutdown(self) -> None:
         if self._process is not None:
             self._audio_sink.stateChanged.disconnect()
-            self._audio_sink.stop()
-            sip.delete(self._audio_sink)
             self._process.readyReadStandardError.disconnect()
             self._process.bytesWritten.disconnect()
             self._process.readyReadStandardOutput.disconnect()
-            # self._process.stateChanged.disconnect()
+            self._process.stateChanged.disconnect()
             self._process.kill()
             self._process.waitForFinished(-1)
+            self._audio_sink.stop()
+            sip.delete(self._audio_sink)
             sip.delete(self._process)
             self._process = None
 
@@ -292,8 +292,7 @@ class Piper(TTSBackend):
             self._process.readyReadStandardError.connect(self.piper_stderr_available)
             self._process.readyReadStandardOutput.connect(self.piper_stdout_available)
             self._process.bytesWritten.connect(self.bytes_written)
-            # See https://www.riverbankcomputing.com/pipermail/pyqt/2024-September/046002.html
-            # self._process.stateChanged.connect(self._update_status)
+            self._process.stateChanged.connect(self._update_status)
             fmt = QAudioFormat()
             fmt.setSampleFormat(QAudioFormat.SampleFormat.Int16)
             fmt.setSampleRate(22050)  # TODO: Read this from voice JSON
