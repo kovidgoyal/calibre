@@ -249,7 +249,7 @@ class Piper(TTSBackend):
             self._audio_sink.stop()
             sip.delete(self._audio_sink)
             sip.delete(self._process)
-            self._process = None
+            self._process = self._audio_sink = None
 
     def reload_after_configure(self) -> None:
         self.shutdown()
