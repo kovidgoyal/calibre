@@ -180,9 +180,9 @@ def default_engine_name() -> str:
         return 'sapi' if tweaks.get('prefer_winsapi') else 'winrt'
     if ismacos:
         return 'darwin'
-    if 'flite' in available_engines():
-        return 'flite'
-    return 'speechd'
+    if 'speechd' in available_engines():
+        return 'speechd'
+    return 'flite'
 
 
 class TTSBackend(QObject):

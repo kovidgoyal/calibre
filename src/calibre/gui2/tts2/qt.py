@@ -11,6 +11,8 @@ class QtTTSBackend(TTSBackend):
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
+        self.speaking_text = ''
+        self.last_word_offset = 0
         self._qt_reload_after_configure(engine_name)
 
     @property
@@ -37,6 +39,8 @@ class QtTTSBackend(TTSBackend):
         self.tts.stop()
 
     def say(self, text: str) -> None:
+        self.last_word_offset = 0
+        self.speaking_text = text
         self.tts.say(text)
 
     def error_message(self) -> str:
@@ -90,7 +94,12 @@ class QtTTSBackend(TTSBackend):
         self._current_settings = settings
 
     def _saying_word(self, word: str, utterance_id: int, start: int, length: int) -> None:
-        self.saying.emit(start, length)
+        # Qt's word tracking is broken with non-BMP unicode chars, the
+        # start and length values are totally wrong, so track manually
+        idx = self.speaking_text.find(word, self.last_word_offset)
+        if idx > -1:
+            self.saying.emit(idx, len(word))
+            self.last_word_offset = idx + len(word)
 
     def _state_changed(self, state: QTextToSpeech.State) -> None:
         self.state_changed.emit(state)
