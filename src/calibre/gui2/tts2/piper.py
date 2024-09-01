@@ -17,7 +17,7 @@ from qt.core import QApplication, QAudio, QAudioFormat, QAudioSink, QByteArray, 
 from calibre.constants import bundled_binaries_dir, get_windows_username, is_debugging, iswindows
 from calibre.gui2.tts2.types import TTSBackend
 from calibre.ptempfile import base_dir
-from calibre.spell.break_iterator import sentence_positions
+from calibre.spell.break_iterator import sentence_positions, split_into_words_and_positions
 
 
 @lru_cache(2)
@@ -145,17 +145,42 @@ class UtteranceAudioQueue(QIODevice):
         return ans
 
 
+def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: int = 2048):
+    if len(sentence) <= limit:
+        yield offset, sentence
+        return
+    buf, total, start_at = [], 0, 0
+
+    def a(s, e):
+        nonlocal total, start_at
+        t = sentence[s:e]
+        if not buf:
+            start_at = s
+        buf.append(t)
+        total += len(t)
+
+    for start, length in split_into_words_and_positions(sentence, lang):
+        a(start, start + length)
+        if total >= limit:
+            yield offset + start_at, ' '.join(buf)
+            buf, total = [], 0
+    if buf:
+        yield offset + start_at, ' '.join(buf)
+
+
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):
     text = re.sub(r'\n{2,}', PARAGRAPH_SEPARATOR, text.replace('\r', '')).replace('\n', ' ')
     for start, length in sentence_positions(text, lang):
         sentence = text[start:start+length].rstrip().replace('\n', ' ')
-        length = len(sentence)
-        payload = json.dumps({'text': sentence}).encode('utf-8')
-        ba = QByteArray()
-        ba.reserve(len(payload) + 1)
-        ba.append(payload)
-        ba.append(UTTERANCE_SEPARATOR)
-        yield Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(), left_to_write=ba, start=start, length=length)
+        for start, sentence in split_long_sentences(sentence, start, lang):
+            payload = json.dumps({'text': sentence}).encode('utf-8')
+            ba = QByteArray()
+            ba.reserve(len(payload) + 1)
+            ba.append(payload)
+            ba.append(UTTERANCE_SEPARATOR)
+            u = Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(), left_to_write=ba, start=start, length=len(sentence))
+            debug(f'Utterance created {u.id}: {sentence}')
+            yield u
 
 
 class Piper(TTSBackend):
@@ -391,6 +416,7 @@ def develop():  # {{{
         'Second, much longer sentence which hopefully finishes synthesizing before the first finishes speaking. '
         'Third, and final short sentence.'
     )
+    # text = f'Hello world{PARAGRAPH_SEPARATOR}.{PARAGRAPH_SEPARATOR}Bye world'
 
     def saying(offset, length):
         debug('Saying:', repr(text[offset:offset+length]))
