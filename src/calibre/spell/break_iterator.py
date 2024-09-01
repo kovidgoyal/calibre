@@ -10,6 +10,7 @@ from calibre.utils.icu import _icu
 from calibre.utils.localization import lang_as_iso639_1
 
 _iterators = {}
+_sentence_iterators = {}
 _lock = Lock()
 
 
@@ -17,6 +18,13 @@ def get_iterator(lang):
     it = _iterators.get(lang)
     if it is None:
         it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+    return it
+
+
+def get_sentence_iterator(lang):
+    it = _sentence_iterators.get(lang)
+    if it is None:
+        it = _sentence_iterators[lang] = _icu.BreakIterator(_icu.UBRK_SENTENCE, lang_as_iso639_1(lang) or lang)
     return it
 
 
@@ -32,6 +40,20 @@ def split_into_words_and_positions(text, lang='en'):
         it = get_iterator(lang)
         it.set_text(text)
         return it.split2()
+
+
+def sentence_positions(text, lang='en'):
+    with _lock:
+        it = get_sentence_iterator(lang)
+        it.set_text(text)
+        return it.split2()
+
+
+def split_into_sentences(text, lang='en'):
+    with _lock:
+        it = get_sentence_iterator(lang)
+        it.set_text(text)
+        return tuple(text[p:p+s] for p, s in it.split2())
 
 
 def index_of(needle, haystack, lang='en'):

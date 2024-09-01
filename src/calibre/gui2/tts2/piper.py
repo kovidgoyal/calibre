@@ -6,11 +6,14 @@ import os
 import re
 import sys
 from collections import deque
+from dataclasses import dataclass
 from functools import lru_cache
 
-from qt.core import QApplication, QAudio, QAudioFormat, QAudioSink, QObject, QProcess, QTextToSpeech, pyqtSignal, sip
+from qt.core import QApplication, QAudio, QAudioFormat, QAudioSink, QByteArray, QObject, QProcess, QTextToSpeech, sip
 
 from calibre.constants import bundled_binaries_dir, iswindows
+from calibre.gui2.tts2.types import TTSBackend
+from calibre.spell.break_iterator import sentence_positions
 
 
 @lru_cache(2)
@@ -26,55 +29,78 @@ def piper_cmdline() -> tuple[str, ...]:
     return ()
 
 
+@dataclass
 class Utterance:
+    start: int
+    length: int
+    payload_size: int
+    left_to_write: QByteArray
+
     synthesized: bool = False
-
-    def __init__(self, id: int):
-        self.id = id
+    started: bool = False
 
 
-class PiperIPC(QObject):
+PARAGRAPH_SEPARATOR = '\u2029'
+UTTERANCE_SEPARATOR = b'\n'
 
-    state_changed = pyqtSignal(QTextToSpeech.State)
 
-    def __init__(self, parent=None):
+def split_into_utterances(text: str, lang: str = 'en'):
+    text = re.sub(r'\n{2,}', PARAGRAPH_SEPARATOR, text.replace('\r', '')).replace('\n', ' ')
+    for start, length in sentence_positions(text, lang):
+        sentence = text[start:start+length].rstrip().replace('\n', ' ')
+        payload = sentence.encode('utf-8')
+        ba = QByteArray()
+        ba.reserve(len(payload) + 1)
+        ba.append(payload)
+        ba.append(UTTERANCE_SEPARATOR)
+        yield Utterance(payload_size=len(ba), left_to_write=ba, start=start, length=length)
+
+
+class Piper(TTSBackend):
+
+    engine_name: str = 'piper'
+
+    def __init__(self, engine_name: str = '', parent: QObject|None = None):
         super().__init__(parent)
         self._process: QProcess | None = None
         self._audio_sink: QAudioSink | None = None
-        self._utterance_id_counter = 0
         self._utterances_in_flight: deque[Utterance] = deque()
-        self._write_buf: deque[memoryview] = deque()
         self._state = QTextToSpeech.State.Ready
         self._last_error = ''
         self._errors_from_piper: list[str] = []
         self._pending_stderr_data = b''
+        self._waiting_for_utterance_to_start = False
         self._stderr_pat = re.compile(rb'\[piper\] \[([a-zA-Z0-9_]+?)\] (.+)')
         atexit.register(self.shutdown)
 
-    def say(self, text) -> int:
+    def say(self, text: str) -> None:
         if self._last_error:
-            return 0
+            return
+        self.stop()
         if not self.process.waitForStarted():
             cmdline = [self.process.program()] + self.process.arguments()
             if self.process.error() is QProcess.ProcessError.TimedOut:
                 self._set_error(f'Timed out waiting for piper process {cmdline} to start')
             else:
                 self._set_error(f'Failed to start piper process: {cmdline}')
-            return 0
-        import json
-        self._utterance_id_counter += 1
-        self._utterances_in_flight.append(Utterance(self._utterance_id_counter))
-        payload = json.dumps({"text": text}).encode() + b'\n'
-        self._write(payload)
-        return self._utterance_id_counter
+            return
+        self._utterances_in_flight.extend(split_into_utterances(text)) # TODO: Use voice language
+        self._waiting_for_utterance_to_start = False
+        self._write_current_utterance()
 
-    def pause(self):
+    def pause(self) -> None:
         if self._audio_sink is not None:
             self._audio_sink.suspend()
 
-    def resume(self):
+    def resume(self) -> None:
         if self._audio_sink is not None:
             self._audio_sink.resume()
+
+    def stop(self) -> None:
+        if self._process is not None:
+            if self._state is not QTextToSpeech.State.Ready or self._utterances_in_flight:
+                self.shutdown()
+                self.process
 
     def shutdown(self) -> None:
         if self._process is not None:
@@ -110,22 +136,19 @@ class PiperIPC(QObject):
         self._last_error = msg
         self._set_state(QTextToSpeech.State.Error)
 
-    def _write(self, payload: bytes) -> None:
-        written = self.process.write(payload)
-        if written < 0:
-            self._set_error('Failed to write to piper process with error: {self.process.errorString()}')
-        elif written < len(payload):
-            self._write_buf.append(memoryview(payload)[written:])
-
     @property
     def process(self) -> QProcess:
         if self._process is None:
-            self._errors_from_piper: list[str] = []
+            self._utterances_in_flight.clear()
+            self._errors_from_piper.clear()
             self._process = QProcess(self)
             self._pending_stderr_data = b''
+            self._waiting_for_utterance_to_start = False
+            self._set_state(QTextToSpeech.State.Ready)
+
             model_path =  '/t/en_US-libritts-high.onnx' # TODO: Dont hardcode voice
             rate = 1.0  # TODO: Make rate configurable
-            cmdline = list(piper_cmdline()) + ['--model', model_path, '--output-raw', '--json-input', '--length_scale', str(rate)]
+            cmdline = list(piper_cmdline()) + ['--model', model_path, '--output-raw', '--length_scale', str(rate)]
             self._process.setProgram(cmdline[0])
             self._process.setArguments(cmdline[1:])
             self._process.readyReadStandardError.connect(self.piper_stderr_available)
@@ -163,13 +186,6 @@ class PiperIPC(QObject):
             if needs_status_update:
                 self._update_status()
 
-    @property
-    def all_synthesized(self) -> bool:
-        for u in self._utterances_in_flight:
-            if not u.synthesized:
-                return False
-        return True
-
     def _update_status(self):
         if self._process is not None and self._process.state() is QProcess.ProcessState.NotRunning:
             if self._process.exitStatus() is not QProcess.ExitStatus.NormalExit or self._process.exitCode():
@@ -178,6 +194,7 @@ class PiperIPC(QObject):
                 return
         state = self._audio_sink.state()
         if state is QAudio.State.ActiveState:
+            self._waiting_for_utterance_to_start = False
             self._set_state(QTextToSpeech.State.Speaking)
         elif state is QAudio.State.SuspendedState:
             self._set_state(QTextToSpeech.State.Paused)
@@ -188,29 +205,36 @@ class PiperIPC(QObject):
                 if self._state is not QTextToSpeech.State.Error:
                     self._set_state(QTextToSpeech.State.Ready)
         elif state is QAudio.State.IdleState:
-            if self.all_synthesized:
-                self._set_state(QTextToSpeech.State.Ready)
-            else:
-                self._set_state(QTextToSpeech.State.Speaking)
+            if not self._waiting_for_utterance_to_start:
+                if self._utterances_in_flight and (u := self._utterances_in_flight[0]) and u.synthesized:
+                    self._utterances_in_flight.popleft()
+                if self._utterances_in_flight:
+                    self._write_current_utterance()
+                else:
+                    self._set_state(QTextToSpeech.State.Ready)
 
     def bytes_written(self, count: int) -> None:
-        while self._write_buf:
-            payload = self._write_buf[0]
-            written = self.process.write(payload)
-            if written < 0:
-                self._set_error('Failed to write to piper process with error: {self.process.errorString()}')
-                break
-            elif written < len(payload):
-                self._write_buf[0] = payload[written:]
-                break
-            else:
-                self._write_buf.popleft()
+        self._write_current_utterance()
+
+    def _write_current_utterance(self) -> None:
+        if self._utterances_in_flight:
+            u = self._utterances_in_flight[0]
+            while len(u.left_to_write):
+                written = self.process.write(u.left_to_write)
+                if written < 0:
+                    self._set_error('Failed to write to piper process with error: {self.process.errorString()}')
+                    break
+                if not u.started and written:
+                    self._waiting_for_utterance_to_start = True
+                    u.started = True
+                    self.saying.emit(u.start, u.length)
+                u.left_to_write = u.left_to_write.last(len(u.left_to_write) - written)
 
     def audio_sink_state_changed(self, state: QAudio.State) -> None:
         self._update_status()
 
 
-def develop():
+def develop():  # {{{
     import tty
 
     from qt.core import QSocketNotifier
@@ -218,12 +242,11 @@ def develop():
     from calibre.gui2 import must_use_qt
     must_use_qt()
     app = QApplication.instance()
-    p = PiperIPC()
+    p = Piper()
     play_started = False
-    to_play = "Yes indeed, it is a very beautiful day today."
     def state_changed(s):
         print(s, end='\r\n')
-        nonlocal play_started, to_play
+        nonlocal play_started
         if s is QTextToSpeech.State.Error:
             print(p.error_message(), file=sys.stderr, end='\r\n')
             app.exit(1)
@@ -231,11 +254,7 @@ def develop():
             play_started = True
         elif s is QTextToSpeech.State.Ready:
             if play_started:
-                if to_play:
-                    p.say(to_play)
-                    to_play = ''
-                else:
-                    app.quit()
+                app.quit()
 
     def input_ready():
         q = sys.stdin.buffer.read()
@@ -247,13 +266,19 @@ def develop():
             elif p.state is QTextToSpeech.State.Paused:
                 p.resume()
 
+    text = "Hello, it is a beautiful day today, isn't it? Yes indeed, it is a very beautiful day!"
+
+    def saying(offset, length):
+        print('Saying:', repr(text[offset:offset+length]), end='\r\n')
+
     p.state_changed.connect(state_changed)
+    p.saying.connect(saying)
     attr = tty.setraw(sys.stdin.fileno())
     os.set_blocking(sys.stdin.fileno(), False)
     sn = QSocketNotifier(sys.stdin.fileno(), QSocketNotifier.Type.Read, p)
     sn.activated.connect(input_ready)
     try:
-        p.say("Hello, it is a beautiful day today, isn't it?")
+        p.say(text)
         app.exec()
     finally:
         import termios
@@ -262,3 +287,4 @@ def develop():
 
 if __name__ == '__main__':
     develop()
+# }}}
