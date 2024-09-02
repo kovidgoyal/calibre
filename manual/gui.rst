@@ -956,7 +956,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Restrict the displayed books to only those books that are in a category
         currently displayed in the :guilabel:`Tag browser`
     * - :kbd:`B`
-      - Browse annotations (highlights and bookmarks) made in the calibre viewer for all books in the library
+      - Browse annotations (highlights and bookmarks) made in the calibre E-book viewer for all books in the library
     * - :kbd:`Ctrl+Shift+N`
       - Browse notes associated with authors/series/tags/etc.
     * - :kbd:`Alt+Shift+L`
