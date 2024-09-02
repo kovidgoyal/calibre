@@ -63,7 +63,7 @@ class PiperVoices(ReVendor):
         if not lang_map:
             raise SystemExit(f'Failed to read any piper voices from: {url}')
         with open(self.output_file_path, 'w') as f:
-            json.dump(lang_map, f, indent=2, sort_keys=False)
+            json.dump({'version': 1, 'lang_map': lang_map}, f, indent=2, sort_keys=False)
 
     def clean(self):
         with suppress(FileNotFoundError):

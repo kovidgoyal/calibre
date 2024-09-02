@@ -9,7 +9,7 @@ from typing import Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, pyqtSignal
 
-from calibre.constants import islinux, ismacos, iswindows
+from calibre.constants import bundled_binaries_dir, islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
@@ -19,6 +19,20 @@ CONFIG_NAME = 'tts'
 @lru_cache(2)
 def load_config() -> JSONConfig:
     return JSONConfig(CONFIG_NAME)
+
+
+@lru_cache(2)
+def piper_cmdline() -> tuple[str, ...]:
+    ext = '.exe' if iswindows else ''
+    if bbd := bundled_binaries_dir():
+        # TODO: Add path to espeak-ng-data with --
+        return (os.path.join(bbd, 'piper' + ext),)
+    import shutil
+    exe = shutil.which('piper-tts')
+    if exe:
+        return (exe,)
+    return ()
+
 
 
 class TrackingCapability(Enum):
@@ -44,6 +58,10 @@ class Quality(Enum):
     Low: int = auto()
     ExtraLow: int = auto()
 
+    @classmethod
+    def from_piper_quality(self, x: str) -> 'Quality':
+        return {'x_low': Quality.ExtraLow, 'low': Quality.Low, 'medium': Quality.Medium, 'high': Quality.High}[x]
+
 
 class Voice(NamedTuple):
     name: str = ''
@@ -51,10 +69,12 @@ class Voice(NamedTuple):
 
     country_code: str = ''
     human_name: str = ''
-    notes: str = ''  # variant from speechd voices, or notes from piper voices
+    notes: str = ''  # variant from speechd voices
     gender: QVoice.Gender = QVoice.Gender.Unknown
     age: QVoice.Age = QVoice.Age.Other
     quality: Quality = Quality.High
+
+    engine_data: dict[str, str] | None = None
 
     @property
     def short_text(self) -> str:
@@ -62,6 +82,7 @@ class Voice(NamedTuple):
 
     def sort_key(self) -> tuple[Quality, str]:
         return (self.quality, self.short_text.lower())
+
 
 
 def qvoice_to_voice(v: QVoice) -> QVoice:

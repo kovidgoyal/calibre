@@ -8,26 +8,16 @@ import re
 import sys
 from collections import deque
 from dataclasses import dataclass
-from functools import lru_cache
 from itertools import count
 from time import monotonic
 
 from qt.core import QApplication, QAudio, QAudioFormat, QAudioSink, QByteArray, QIODevice, QIODeviceBase, QObject, QProcess, Qt, QTextToSpeech, pyqtSignal, sip
 
-from calibre.constants import bundled_binaries_dir, get_windows_username, is_debugging, iswindows
-from calibre.gui2.tts2.types import TTSBackend
-from calibre.ptempfile import base_dir
+from calibre.constants import is_debugging
+from calibre.gui2.tts2.types import Quality, TTSBackend, Voice, piper_cmdline
 from calibre.spell.break_iterator import sentence_positions, split_into_words_and_positions
-
-
-@lru_cache(2)
-def sentinel_path() -> str:
-    fname = f'piper-sentinel-{os.getpid()}'
-    if iswindows:
-        fname += f'-{get_windows_username()}'
-    else:
-        fname += f'-{os.geteuid()}'
-    return os.path.join(base_dir(), fname)
+from calibre.utils.localization import canonicalize_lang
+from calibre.utils.resources import get_path as P
 
 
 def debug(*a, **kw):
@@ -36,19 +26,6 @@ def debug(*a, **kw):
             debug.first = monotonic()
         kw['end'] = kw.get('end', '\r\n')
         print(f'[{monotonic() - debug.first:.2f}]', *a, **kw)
-
-
-@lru_cache(2)
-def piper_cmdline() -> tuple[str, ...]:
-    ext = '.exe' if iswindows else ''
-    if bbd := bundled_binaries_dir():
-        # TODO: Add path to espeak-ng-data with --
-        return (os.path.join(bbd, 'piper' + ext),)
-    import shutil
-    exe = shutil.which('piper-tts')
-    if exe:
-        return (exe,)
-    return ()
 
 
 @dataclass
@@ -201,6 +178,7 @@ class Piper(TTSBackend):
         self._utterances_being_spoken.saying.connect(self.saying)
         self._utterances_being_spoken.update_status.connect(self._update_status, type=Qt.ConnectionType.QueuedConnection)
         self._state = QTextToSpeech.State.Ready
+        self._voices = None
         self._last_error = ''
         self._errors_from_piper: list[str] = []
         self._pending_stderr_data = b''
@@ -208,6 +186,29 @@ class Piper(TTSBackend):
         self._stderr_pat = re.compile(rb'\[piper\] \[([a-zA-Z0-9_]+?)\] (.+)')
         self._synthesis_done.connect(self._utterance_synthesized, type=Qt.ConnectionType.QueuedConnection)
         atexit.register(self.shutdown)
+
+    @property
+    def available_voices(self) -> dict[str, tuple[Voice, ...]]:
+        if self._voices is None:
+            d = json.loads(P('piper-voices.json', data=True))
+            ans = []
+            for bcp_code, voice_map in d['lang_map'].items():
+                lang, sep, country = bcp_code.partition('_')
+                lang = canonicalize_lang(lang) or lang
+                for voice_name, qual_map in voice_map.items():
+                    best_qual = voice = None
+                    for qual, e in qual_map.items():
+                        q = Quality.from_piper_quality(qual)
+                        if best_qual is None or q.value < best_qual.value:
+                            best_qual = q
+                            voice = Voice(voice_name, lang, country, quality=q, engine_data={
+                                'model_url': e['model'], 'config_url': e['config'],
+                                'model_filename': f'{bcp_code}-{voice_name}-{qual}.onnx',
+                            })
+                    if voice:
+                        ans.append(voice)
+            self._voices = tuple(ans)
+        return {'': self._voices}
 
     def say(self, text: str) -> None:
         if self._last_error:
