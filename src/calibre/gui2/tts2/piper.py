@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from itertools import count
 from time import monotonic
 
-from qt.core import QApplication, QAudio, QAudioFormat, QAudioSink, QByteArray, QIODevice, QIODeviceBase, QObject, QProcess, Qt, QTextToSpeech, pyqtSignal, sip
+from qt.core import QAudio, QAudioFormat, QAudioSink, QByteArray, QIODevice, QIODeviceBase, QObject, QProcess, Qt, QTextToSpeech, pyqtSignal, sip
 
 from calibre.constants import is_debugging
 from calibre.gui2.tts2.types import Quality, TTSBackend, Voice, piper_cmdline
@@ -389,9 +389,8 @@ def develop():  # {{{
 
     from qt.core import QSocketNotifier
 
-    from calibre.gui2 import must_use_qt
-    must_use_qt()
-    app = QApplication.instance()
+    from calibre.gui2 import Application
+    app = Application([])
     p = Piper()
     play_started = False
     def state_changed(s):
