@@ -241,6 +241,9 @@ class TTSBackend(QObject):
     def reload_after_configure(self) -> None:
         raise NotImplementedError()
 
+    def validate_settings(self, s: EngineSpecificSettings, parent: QWidget | None) -> bool:
+        return True
+
 
 engine_instances: dict[str, TTSBackend] = {}
 

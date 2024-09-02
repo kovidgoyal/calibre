@@ -11,9 +11,25 @@ from dataclasses import dataclass
 from itertools import count
 from time import monotonic
 
-from qt.core import QAudio, QAudioFormat, QAudioSink, QByteArray, QDialog, QIODevice, QIODeviceBase, QObject, QProcess, Qt, QTextToSpeech, pyqtSignal, sip
+from qt.core import (
+    QAudio,
+    QAudioFormat,
+    QAudioSink,
+    QByteArray,
+    QDialog,
+    QIODevice,
+    QIODeviceBase,
+    QObject,
+    QProcess,
+    Qt,
+    QTextToSpeech,
+    QWidget,
+    pyqtSignal,
+    sip,
+)
 
 from calibre.constants import cache_dir, is_debugging
+from calibre.gui2 import error_dialog
 from calibre.gui2.tts2.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
 from calibre.spell.break_iterator import sentence_positions, split_into_words_and_positions
 from calibre.utils.localization import canonicalize_lang, get_lang
@@ -429,13 +445,28 @@ class Piper(TTSBackend):
             return model_path, config_path
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         from calibre.gui2.tts2.download import DownloadResources
-        d = DownloadResources(_('Downloading voice data'), _('Downloading neural network for the {} voice').format(voice.human_name), {
+        d = DownloadResources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
             voice.engine_data['model_url']: (model_path, _('Neural network data')),
             voice.engine_data['config_url']: (config_path, _('Neural network metadata')),
         }, parent=widget_parent(self))
         if d.exec() == QDialog.DialogCode.Accepted:
             return model_path, config_path
         return '', ''
+
+    def validate_settings(self, s: EngineSpecificSettings, parent: QWidget | None) -> bool:
+        self._load_voice_metadata()
+        voice = self._voice_name_map.get(s.voice_name) or self._default_voice
+        try:
+            m, c = self._ensure_voice_is_downloaded(voice)
+            if not m:
+                error_dialog(parent, _('Failed to download voice'), _('Failed to download the voice: {}').format(voice.human_name), show=True)
+                return False
+        except Exception:
+            import traceback
+            error_dialog(parent, _('Failed to download voice'), _('Failed to download the voice: {}').format(voice.human_name),
+                         det_msg=traceback.format_exc(), show=True)
+            return False
+        return True
 
 
 def develop():  # {{{

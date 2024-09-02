@@ -296,10 +296,14 @@ class ConfigDialog(Dialog):
         return self.engine_choice.value != self.initial_engine_choice
 
     def accept(self):
+        engine_name = self.engine_choice.value
+        tts = create_tts_backend(engine_name)
         s = self.engine_specific_config.as_settings()
+        if not tts.validate_settings(s, self):
+            return
         prefs = load_config()
         with prefs:
-            if engine_name := self.engine_choice.value:
+            if engine_name:
                 prefs['engine'] = engine_name
             else:
                 prefs.pop('engine', None)
