@@ -42,6 +42,7 @@ class Quality(Enum):
     High: int = auto()
     Medium: int = auto()
     Low: int = auto()
+    ExtraLow: int = auto()
 
 
 class Voice(NamedTuple):

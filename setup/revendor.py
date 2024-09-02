@@ -23,17 +23,20 @@ class ReVendor(Command):
             parser.add_option('--system-%s' % self.NAME, default=False, action='store_true',
                     help='Treat %s as system copy and symlink instead of copy' % self.TAR_NAME)
 
-    def download_vendor_release(self, tdir, url):
-        self.info('Downloading %s:' % self.TAR_NAME, url)
+    def download_securely(self, url: str) -> bytes:
         num = 5 if is_ci else 1
         for i in range(num):
             try:
-                raw = download_securely(url)
+                return download_securely(url)
             except Exception as err:
                 if i == num - 1:
                     raise
                 self.info(f'Download failed with error "{err}" sleeping and retrying...')
                 time.sleep(2)
+
+    def download_vendor_release(self, tdir, url):
+        self.info('Downloading %s:' % self.TAR_NAME, url)
+        raw = self.download_securely(url)
         with tarfile.open(fileobj=BytesIO(raw)) as tf:
             tf.extractall(tdir)
             if len(os.listdir(tdir)) == 1:

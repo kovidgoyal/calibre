@@ -20,7 +20,7 @@ __all__ = [
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas', 'publish_preview',
     'linux', 'linux64', 'linuxarm64', 'win', 'win64', 'osx', 'build_dep',
-    'export_packages', 'hyphenation', 'liberation_fonts', 'stylelint', 'xwin',
+    'export_packages', 'hyphenation', 'piper_voices', 'liberation_fonts', 'stylelint', 'xwin',
 ]
 
 from setup.installers import OSX, BuildDep, ExportPackages, ExtDev, Linux, Linux64, LinuxArm64, Win, Win64
@@ -32,8 +32,8 @@ extdev = ExtDev()
 build_dep = BuildDep()
 export_packages = ExportPackages()
 
-from setup.translations import ISO639, ISO3166, POT, GetTranslations, Translations
 from setup.iso_codes import iso_data
+from setup.translations import ISO639, ISO3166, POT, GetTranslations, Translations
 
 pot = POT()
 translations = Translations()
@@ -56,6 +56,10 @@ mathjax = MathJax()
 from setup.hyphenation import Hyphenation
 
 hyphenation = Hyphenation()
+
+from setup.piper import PiperVoices
+
+piper_voices = PiperVoices()
 
 from setup.liberation import LiberationFonts
 
