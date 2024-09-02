@@ -7,7 +7,7 @@ from enum import Enum, auto
 from functools import lru_cache
 from typing import Literal, NamedTuple
 
-from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, pyqtSignal
+from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
 from calibre.constants import bundled_binaries_dir, islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
@@ -205,6 +205,12 @@ def default_engine_name() -> str:
     if 'speechd' in available_engines():
         return 'speechd'
     return 'flite'
+
+
+def widget_parent(p: QObject) -> QWidget | None:
+    while p is not None and not isinstance(p, QWidget):
+        p = p.parent()
+    return p
 
 
 class TTSBackend(QObject):

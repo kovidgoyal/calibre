@@ -6,7 +6,7 @@ from collections import deque
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, NamedTuple
 
-from qt.core import QApplication, QDialog, QObject, QTextToSpeech, QWidget, pyqtSignal
+from qt.core import QApplication, QDialog, QObject, QTextToSpeech, pyqtSignal
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets import BusyCursor
@@ -125,7 +125,10 @@ class TTSManager(QObject):
         if self._tts is None:
             with BusyCursor():
                 from calibre.gui2.tts2.types import create_tts_backend
-                self._tts = create_tts_backend()
+                try:
+                    self._tts = create_tts_backend()
+                except AttributeError as e:
+                    raise Exception(str(e)) from e
                 self._tts.state_changed.connect(self._state_changed)
                 self._tts.saying.connect(self._saying)
         return self._tts
@@ -185,11 +188,9 @@ class TTSManager(QObject):
 
     def configure(self) -> None:
         from calibre.gui2.tts2.config import ConfigDialog
-        p = self
-        while p is not None and not isinstance(p, QWidget):
-            p = p.parent()
+        from calibre.gui2.tts2.types import widget_parent
         with self.resume_after() as rd:
-            d = ConfigDialog(parent=p)
+            d = ConfigDialog(parent=widget_parent(self))
             if d.exec() == QDialog.DialogCode.Accepted and self._tts is not None:
                 rd.needs_full_resume = True
                 if d.engine_changed:

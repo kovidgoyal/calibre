@@ -32,13 +32,13 @@ class PiperVoices(ReVendor):
             src = self.download_securely(url).decode('utf-8')
         lang_map = {}
         current_lang = current_voice = ''
-        lang_pat = re.compile(r'`(.+?)`')
+        lang_pat = re.compile(r'\((.+?)\)')
         model_pat = re.compile(r'\[model\]\((.+?)\)')
         config_pat = re.compile(r'\[config\]\((.+?)\)')
         for line in src.splitlines():
             if line.startswith('* '):
                 if m := lang_pat.search(line):
-                    current_lang = m.group(1)
+                    current_lang = m.group(1).partition(',')[0].replace('`', '')
                     lang_map[current_lang] = {}
                     current_voice = ''
             else:
@@ -62,6 +62,8 @@ class PiperVoices(ReVendor):
                     lang_map[current_lang][current_voice] = {}
         if not lang_map:
             raise SystemExit(f'Failed to read any piper voices from: {url}')
+        if 'en_US' not in lang_map:
+            raise SystemExit(f'Failed to read en_US piper voices from: {url}')
         with open(self.output_file_path, 'w') as f:
             json.dump({'version': 1, 'lang_map': lang_map}, f, indent=2, sort_keys=False)
 
