@@ -132,8 +132,9 @@ class Voices(QTreeWidget):
         current_item = None
         def qv(parent, voice):
             nonlocal current_item
-            ans = QTreeWidgetItem(parent, [voice.short_text])
+            ans = QTreeWidgetItem(parent, [voice.short_text(engine_metadata)])
             ans.setData(0, Qt.ItemDataRole.UserRole, voice)
+            ans.setToolTip(0, voice.tooltip(engine_metadata))
             if current_voice == voice.name:
                 current_item = ans
             return ans

@@ -62,6 +62,16 @@ class Quality(Enum):
     def from_piper_quality(self, x: str) -> 'Quality':
         return {'x_low': Quality.ExtraLow, 'low': Quality.Low, 'medium': Quality.Medium, 'high': Quality.High}[x]
 
+    @property
+    def localized_name(self) -> str:
+        if self is Quality.Medium:
+            return _('Medium quality')
+        if self is Quality.Low:
+            return _('Low quality')
+        if self is Quality.ExtraLow:
+            return _('Extra low quality')
+        return _('High quality')
+
 
 class Voice(NamedTuple):
     name: str = ''
@@ -77,11 +87,30 @@ class Voice(NamedTuple):
     engine_data: dict[str, str] | None = None
 
     @property
-    def short_text(self) -> str:
+    def basic_name(self) -> str:
         return self.human_name or self.name or _('System default voice')
 
+    def short_text(self, m: EngineMetadata) -> str:
+        ans = self.basic_name
+        if self.country_code:
+            territory = QLocale.codeToTerritory(self.country_code)
+            ans += f' ({QLocale.territoryToString(territory)})'
+        if m.voices_have_quality_metadata:
+            ans += f' [{self.quality.localized_name}]'
+        return ans
+
+    def tooltip(self, m: EngineMetadata) -> str:
+        ans = []
+        if self.notes:
+            ans.append(self.notes)
+        if self.age is not QVoice.Age.Other:
+            ans.append(_('Age: {}').format(QVoice.ageName(self.age)))
+        if self.gender is not QVoice.Gender.Unknown:
+            ans.append(_('Gender: {}').format(QVoice.genderName(self.gender)))
+        return '\n'.join(ans)
+
     def sort_key(self) -> tuple[Quality, str]:
-        return (self.quality, self.short_text.lower())
+        return (self.quality.value, self.basic_name.lower())
 
 
 
@@ -190,10 +219,13 @@ def available_engines() -> dict[str, EngineMetadata]:
         elif x == 'speechd':
             continue
     if islinux:
+        if piper_cmdline():
+            ans['piper'] = EngineMetadata('piper', TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True)
         from speechd.paths import SPD_SPAWN_CMD
         cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
         if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
             ans['speechd'] = EngineMetadata('speechd', TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
+
     return ans
 
 
@@ -202,6 +234,8 @@ def default_engine_name() -> str:
         return 'sapi' if tweaks.get('prefer_winsapi') else 'winrt'
     if ismacos:
         return 'darwin'
+    if 'piper' in available_engines():
+        return 'piper'
     if 'speechd' in available_engines():
         return 'speechd'
     return 'flite'
@@ -256,7 +290,12 @@ def create_tts_backend(force_engine: str | None = None) -> TTSBackend:
     engine_name = engine_name or default_engine_name()
     if engine_name not in available_engines():
         engine_name = default_engine_name()
-    if engine_name == 'speechd':
+    if engine_name == 'piper':
+        if engine_name not in engine_instances:
+            from calibre.gui2.tts2.piper import Piper
+            engine_instances[engine_name] = Piper(engine_name, QApplication.instance())
+        ans = engine_instances[engine_name]
+    elif engine_name == 'speechd':
         if engine_name not in engine_instances:
             from calibre.gui2.tts2.speechd import SpeechdTTSBackend
             engine_instances[engine_name] = SpeechdTTSBackend(engine_name, QApplication.instance())

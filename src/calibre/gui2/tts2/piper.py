@@ -19,6 +19,7 @@ from qt.core import (
     QDialog,
     QIODevice,
     QIODeviceBase,
+    QMediaDevices,
     QObject,
     QProcess,
     Qt,
@@ -188,6 +189,7 @@ class Piper(TTSBackend):
         self._process: QProcess | None = None
         self._audio_sink: QAudioSink | None = None
 
+        self._current_voice: Voice | None = None
         self._utterances_being_synthesized: deque[Utterance] = deque()
         self._utterance_counter = count(start=1)
         self._utterances_being_spoken = UtteranceAudioQueue()
@@ -219,7 +221,10 @@ class Piper(TTSBackend):
             else:
                 self._set_error(f'Failed to start piper process: {cmdline}')
             return
-        self._utterances_being_synthesized.extend(split_into_utterances(text, self._utterance_counter)) # TODO: Use voice language
+        lang = 'en'
+        if self._current_voice and self._current_voice.language_code:
+            lang = self._current_voice.language_code
+        self._utterances_being_synthesized.extend(split_into_utterances(text, self._utterance_counter, lang))
         self._write_current_utterance()
 
     def pause(self) -> None:
@@ -284,9 +289,11 @@ class Piper(TTSBackend):
                 raise Exception(str(e)) from e
             if not model_path:
                 raise Exception('Could not download voice data')
-            with open(config_path) as f:
-                voice_metadata = json.load(f)
-                audio_rate = voice_metadata['audio']['sample_rate']
+            if 'metadata' not in voice.engine_data:
+                with open(config_path) as f:
+                    voice.engine_data['metadata'] = json.load(f)
+            audio_rate = voice.engine_data['metadata']['audio']['sample_rate']
+            self._current_voice = voice
             self._utterances_being_spoken.clear()
             self._utterances_being_synthesized.clear()
             self._errors_from_piper.clear()
@@ -309,7 +316,18 @@ class Piper(TTSBackend):
             fmt.setSampleFormat(QAudioFormat.SampleFormat.Int16)
             fmt.setSampleRate(audio_rate)
             fmt.setChannelConfig(QAudioFormat.ChannelConfig.ChannelConfigMono)
-            self._audio_sink = QAudioSink(fmt, self)  # TODO: Make audio device configurable
+            dev = None
+            if s.audio_device_id:
+                for q in QMediaDevices.audioOutputs():
+                    if bytes(q.id()) == s.audio_device_id.id:
+                        dev = q
+                        break
+            if dev:
+                self._audio_sink = QAudioSink(dev, fmt, self)
+            else:
+                self._audio_sink = QAudioSink(fmt, self)
+            if s.volume is not None:
+                self._audio_sink.setVolume(s.volume)
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._process.start()
             self._audio_sink.start(self._utterances_being_spoken)
