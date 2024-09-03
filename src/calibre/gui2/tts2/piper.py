@@ -287,7 +287,7 @@ class Piper(TTSBackend):
             try:
                 self._load_voice_metadata()
                 s = EngineSpecificSettings.create_from_config(self.engine_name)
-                rate = max(0.1, 1 + s.rate)  # maps -1 to 1 to 0.1 to 2
+                length_scale = max(0.1, 1 + -1 * s.rate)  # maps -1 to 1 to 2 to 0.1
                 voice = self._voice_name_map.get(s.voice_name) or self._default_voice
                 model_path, config_path = self._ensure_voice_is_downloaded(voice)
             except AttributeError as e:
@@ -308,7 +308,7 @@ class Piper(TTSBackend):
 
             cmdline = list(piper_cmdline()) + [
                 '--model', model_path, '--config', config_path, '--output-raw', '--json-input',
-                '--sentence-silence', '0', '--length_scale', str(rate)]
+                '--sentence-silence', '0', '--length_scale', str(length_scale)]
             if is_debugging():
                 cmdline.append('--debug')
             self._process.setProgram(cmdline[0])
