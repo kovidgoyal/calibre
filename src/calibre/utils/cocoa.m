@@ -15,8 +15,6 @@
 #include <string.h>
 #include <Python.h>
 
-extern int nsss_init_module(PyObject*);
-
 static void
 disable_window_tabbing(void) {
 	if ([NSWindow respondsToSelector:@selector(allowsAutomaticWindowTabbing)])
@@ -360,7 +358,6 @@ static PyMethodDef module_methods[] = {
 
 static int
 exec_module(PyObject *module) {
-	if (nsss_init_module(module) == -1) return -1;
 #define A(which) if (PyModule_AddStringConstant(module, #which, [(__bridge NSString *)which UTF8String]) == -1) return -1;
 	A(kIOPMAssertionTypePreventUserIdleSystemSleep);
 	A(kIOPMAssertionTypePreventUserIdleDisplaySleep);
