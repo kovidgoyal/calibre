@@ -40,7 +40,7 @@ class MainWindow(MainWindow):
         self.toolbar.addAction(pa)
         self.stop_action = sa = QAction('Stop')
         sa.setShortcut(QKeySequence(Qt.Key.Key_Escape))
-        sa.triggered.connect(self.tts.stop)
+        sa.triggered.connect(self.stop)
         self.toolbar.addAction(sa)
         self.faster_action = fa = QAction('Faster')
         fa.triggered.connect(self.tts.faster)
@@ -56,6 +56,11 @@ class MainWindow(MainWindow):
         ra.triggered.connect(self.tts.test_resume_after_reload)
 
         self.resize(self.sizeHint())
+
+    def stop(self):
+        self.update_play_action('Play')
+        self.stop_action.setEnabled(False)
+        self.tts.stop()
 
     def create_marked_text(self):
         c = self.display.textCursor()

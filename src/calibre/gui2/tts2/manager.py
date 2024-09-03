@@ -129,8 +129,6 @@ class TTSManager(QObject):
             elif event == 'begin':
                 self.state_event.emit('resume')
                 self._resuming_after_configure = False
-            elif event == 'pause':
-                self.state_event.emit(event)
         else:
             self.state_event.emit(event)
 
@@ -176,6 +174,7 @@ class TTSManager(QObject):
         self._resuming_after_configure = True
         if self.state is not QTextToSpeech.State.Paused:
             self.tts.pause()
+            self.state_event.emit('pause')
         yield rd
         if rd.is_speaking:
             if rd.needs_full_resume:
