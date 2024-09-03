@@ -263,6 +263,7 @@ class TestICU(unittest.TestCase):
             'hello. I love you. Another small sentence. Fini.': [(0, 'hello. I love you. Another small sentence.'), (43, 'Fini.')],
             'a very long sentence to be split into at least two smaller sentences': [
                 (0, 'a very long sentence to be split into at least two'), (51, 'smaller sentences')],
+            'hello\u2029i love you': [(0, 'hello'), (6, 'i love you')],
         }.items():
             self.ae(expected, list(split_into_sentences_for_tts(sentence, max_sentence_length=40)))
 

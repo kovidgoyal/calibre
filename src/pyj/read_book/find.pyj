@@ -36,9 +36,11 @@ def build_text_map(for_tts):
                 process_node(v'children[i]')
             if for_tts and block_tags_for_tts[tag]:
                 # add a paragraph separator after block tags so that sentence splitting works
-                if node_list.length:
-                    node_list[-1].length += 1
+                if flat_text.length and ' \n\t\r'.indexOf(flat_text[-1]) > -1:
+                    flat_text = flat_text[:-1] + '\u2029'
+                elif node_list.length:
                     flat_text += '\u2029'
+                    node_list[-1].length += 1
 
     process_node(document.body)
     return {'timestamp': window.performance.now(), 'flat_text': flat_text, 'node_list': node_list}
