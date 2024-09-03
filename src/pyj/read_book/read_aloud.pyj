@@ -233,6 +233,10 @@ class ReadAloud:
             self.send_message('mark', num=data)
         elif which is 'begin':
             self.state = PLAYING
+        elif which is 'pause':
+            self.state = PAUSED
+        elif which is 'resume':
+            self.state = PLAYING
         elif which is 'end':
             self.state = STOPPED
             self.view.show_next_spine_item()
