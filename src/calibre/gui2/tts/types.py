@@ -210,7 +210,7 @@ def available_engines() -> dict[str, EngineMetadata]:
             continue
         elif x == 'flite':
             ans[x] = qt_engine_metadata(x, _('The "flite" Speech engine'), _(
-                'The "filte" engine can track the currently spoken word on screen.'
+                'The "flite" engine can track the currently spoken word on screen.'
             ), True)
         elif x == 'speechd':
             continue
@@ -225,7 +225,7 @@ def available_engines() -> dict[str, EngineMetadata]:
         if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
             ans['speechd'] = EngineMetadata('speechd', _('The Speech Dispatcher Speech Engine'), _(
                 'The "speechd" engine can usually track the currently spoken word on screen, however, it depends on the'
-                ' underlying output module it. The default espeak output module does support it.'
+                ' underlying output module. The default espeak output module does support it.'
             ), TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
 
     return ans
