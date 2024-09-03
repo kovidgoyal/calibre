@@ -32,7 +32,7 @@ from qt.core import (
 from calibre.constants import cache_dir, is_debugging
 from calibre.gui2 import error_dialog
 from calibre.gui2.tts2.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
-from calibre.spell.break_iterator import split_into_sentences_for_tts
+from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 
@@ -156,6 +156,7 @@ def split_into_utterances(text: str, counter: count, lang: str = 'en'):
 class Piper(TTSBackend):
 
     engine_name: str = 'piper'
+    filler_char: str = PARAGRAPH_SEPARATOR
     _synthesis_done = pyqtSignal()
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):

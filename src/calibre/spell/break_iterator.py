@@ -93,7 +93,10 @@ def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: in
         yield offset + start_at, ' '.join(buf)
 
 
-def split_into_sentences_for_tts(text: str, lang: str = 'en', PARAGRAPH_SEPARATOR: str = '\u2029'):
+PARAGRAPH_SEPARATOR = '\u2029'
+
+
+def split_into_sentences_for_tts(text: str, lang: str = 'en', PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR):
     import re
     def sub(m):
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)

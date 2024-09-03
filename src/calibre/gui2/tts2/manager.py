@@ -72,14 +72,14 @@ class Tracker:
             return self.queue[0].text
         return ''
 
-    def resume(self):
+    def resume(self, filler_char: str = ' '):
         self.last_pos = 0
         if self.queue:
             self.last_pos = self.queue[0].index_in_positions
             if self.queue[0].reached_offset:
                 o = self.queue[0].reached_offset
                 # make sure positions remain the same for word tracking
-                self.queue[0] = self.queue[0]._replace(text=(' ' * o) + self.queue[0].text[o:])
+                self.queue[0] = self.queue[0]._replace(text=(filler_char * o) + self.queue[0].text[o:])
         return self.current_text()
 
     def boundary_reached(self, start):
@@ -160,7 +160,7 @@ class TTSManager(QObject):
         yield rd
         if rd.is_speaking:
             if rd.needs_full_resume:
-                self.tts.say(self.tracker.resume())
+                self.tts.say(self.tracker.resume(self.tts.filler_char))
             else:
                 self.tts.resume()
 
