@@ -209,7 +209,7 @@ def available_engines() -> dict[str, EngineMetadata]:
     for x in QTextToSpeech.availableEngines():
         if x == 'winrt':
             ans[x] = qt_engine_metadata(x, _('Modern Windows Speech Engine'), _(
-                'The "winrt" engine can track the curretly spoken word on screen. Additional voices for it are available from Microsoft.'
+                'The "winrt" engine can track the currently spoken word on screen. Additional voices for it are available from Microsoft.'
                 ), True)
         elif x == 'darwin':
             ans[x] = qt_engine_metadata(x, _('macOS Speech Engine'), _(
