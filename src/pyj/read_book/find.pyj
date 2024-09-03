@@ -2,13 +2,18 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-def build_text_map():
+ignored_tags = {
+    'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
+    'img': True
+}
+
+block_tags_for_tts = {
+    'h1': True, 'h2': True, 'h3': True, 'h4': True, 'h5': True, 'h6': True, 'p': True, 'div': True, 'table': True, 'th': True, 'tr': True, 'td': True, 'section': True, 'article': True,
+}
+
+def build_text_map(for_tts):
     node_list = v'[]'
     flat_text = ''
-    ignored_tags = {
-        'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
-        'img': True
-    }
     text_node_type = Node.TEXT_NODE
     element_node_type = Node.ELEMENT_NODE
 
@@ -29,6 +34,11 @@ def build_text_map():
             children = node.childNodes
             for i in range(children.length):
                 process_node(v'children[i]')
+            if for_tts and block_tags_for_tts[tag]:
+                # add a paragraph separator after block tags so that sentence splitting works
+                if node_list.length:
+                    node_list[-1].length += 1
+                    flat_text += '\u2029'
 
     process_node(document.body)
     return {'timestamp': window.performance.now(), 'flat_text': flat_text, 'node_list': node_list}
@@ -45,17 +55,22 @@ def tts_word_regex():
     return /[\p{Letter}\p{Mark}\p{Number}\p{Punctuation}\p{Cf}]{1,50}/gu
 
 
+def cached_tts_text_map():
+    if not cache.tts_text_map:
+        cache.tts_text_map = build_text_map(True)
+    return cache.tts_text_map
+
+
 def tts_data(text_node, offset):
     offset_in_flat_text = offset or 0
-    if not cache.text_map:
-        cache.text_map = build_text_map()
+    text_map = cached_tts_text_map()
     if text_node:
-        offset_in_flat_text += index_for_node(text_node, cache.text_map.node_list) or 0
+        offset_in_flat_text += index_for_node(text_node, text_map.node_list) or 0
     match = None
     first = True
     last = None
     marked_text = v'[]'
-    text = cache.text_map.flat_text[offset_in_flat_text:]
+    text = text_map.flat_text[offset_in_flat_text:]
     for v'match of text.matchAll(tts_word_regex())':
         start = match.index
         if first:
@@ -162,10 +177,10 @@ def select_search_result(sr):
     return select_find_result(match)
 
 
-def find_word_length(idx):
+def find_word_length(text_map, idx):
     r = tts_word_regex()
     r.lastIndex = idx
-    match = v'r.exec(cache.text_map.flat_text)'
+    match = v'r.exec(text_map.flat_text)'
     word_length = 5
     if match:
         word_length = match[0]?.length or 5
@@ -174,12 +189,11 @@ def find_word_length(idx):
 
 def select_tts_mark(idx_in_flat_text, last_idx_in_flat_text):
     window.getSelection().removeAllRanges()
-    if not cache.text_map:
-        cache.text_map = build_text_map()
+    text_map = cached_tts_text_map()
     if idx_in_flat_text is last_idx_in_flat_text:
-        match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, idx_in_flat_text + find_word_length(idx_in_flat_text))
+        match = get_occurrence_data(text_map.node_list, idx_in_flat_text, idx_in_flat_text + find_word_length(text_map, idx_in_flat_text))
     else:
-        match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, last_idx_in_flat_text + find_word_length(last_idx_in_flat_text))
+        match = get_occurrence_data(text_map.node_list, idx_in_flat_text, last_idx_in_flat_text + find_word_length(text_map, last_idx_in_flat_text))
     if not match:
         return False
     return select_find_result(match)
