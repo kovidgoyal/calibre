@@ -237,7 +237,6 @@ class Piper(TTSBackend):
 
     def reload_after_configure(self) -> None:
         self.shutdown()
-        self.process
 
     @property
     def state(self) -> QTextToSpeech.State:

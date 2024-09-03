@@ -170,8 +170,8 @@ class TTSManager(QObject):
         rd = ResumeData()
         rd.is_speaking = self._tts is not None and self.state in (
             QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
-        self._resuming_after_configure = True
-        if self.state is not QTextToSpeech.State.Paused:
+        self._resuming_after_configure = rd.is_speaking
+        if self.state is not QTextToSpeech.State.Paused and rd.is_speaking:
             self.tts.pause()
             self.state_event.emit('pause')
         yield rd
