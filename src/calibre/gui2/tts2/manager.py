@@ -112,6 +112,7 @@ class ResumeData:
 class TTSManager(QObject):
 
     state_changed = pyqtSignal(QTextToSpeech.State)
+    state_event = pyqtSignal(str)
     saying = pyqtSignal(int, int)
 
     def __init__(self, parent=None):
@@ -201,10 +202,22 @@ class TTSManager(QObject):
                     self.tts.reload_after_configure()
 
     def _state_changed(self, state: QTextToSpeech.State) -> None:
-        self.state = state
+        prev_state, self.state = self.state, state
         if state is QTextToSpeech.State.Error:
             error_dialog(self, _('Read aloud failed'), self.tts.error_message(), show=True)
         self.state_changed.emit(state)
+        if state is QTextToSpeech.State.Paused:
+            self.state_event.emit('pause')
+        elif state is QTextToSpeech.State.Speaking:
+            if prev_state is QTextToSpeech.State.Paused:
+                self.state_event.emit('resume')
+            elif prev_state is QTextToSpeech.State.Ready:
+                self.state_event.emit('begin')
+        elif state is QTextToSpeech.State.Ready:
+            if prev_state in (QTextToSpeech.State.Paused, QTextToSpeech.State.Speaking):
+                self.state_event.emit('end')
+        elif state is QTextToSpeech.State.Error:
+            self.state_event.emit('cancel')
 
     def _saying(self, offset: int, length: int) -> None:
         self.tracker.boundary_reached(offset)
