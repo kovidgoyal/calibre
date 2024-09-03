@@ -252,6 +252,9 @@ class Piper(TTSBackend):
             self._process.stateChanged.disconnect()
             self._process.kill()
             self._process.waitForFinished(-1)
+            # this dance is needed otherwise stop() is very slow on Linux
+            self._audio_sink.suspend()
+            self._audio_sink.reset()
             self._audio_sink.stop()
             sip.delete(self._audio_sink)
             sip.delete(self._process)
@@ -310,6 +313,7 @@ class Piper(TTSBackend):
                 cmdline.append('--debug')
             self._process.setProgram(cmdline[0])
             self._process.setArguments(cmdline[1:])
+            debug('Running piper:', cmdline)
             self._process.readyReadStandardError.connect(self.piper_stderr_available)
             self._process.readyReadStandardOutput.connect(self.piper_stdout_available)
             self._process.bytesWritten.connect(self.bytes_written)
