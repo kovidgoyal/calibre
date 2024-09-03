@@ -37,6 +37,7 @@ from qt.core import (
 )
 
 from calibre.constants import ismacos
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
@@ -434,6 +435,7 @@ class MetadataSingleDialogBase(QDialog):
         from calibre.gui2.dialogs.data_files_manager import DataFilesManager
         d = DataFilesManager(self.db, self.book_id, self)
         d.exec()
+        self.update_data_files_button()
 
     def __call__(self, id_):
         self.book_id = id_
@@ -446,10 +448,15 @@ class MetadataSingleDialogBase(QDialog):
         if callable(self.set_current_callback):
             self.set_current_callback(id_)
         self.was_data_edited = False
+        self.update_data_files_button()
         # Commented out as it doesn't play nice with Next, Prev buttons
         # self.fetch_metadata_button.setFocus(Qt.FocusReason.OtherFocusReason)
 
     # Miscellaneous interaction methods {{{
+    def update_data_files_button(self):
+        num_files = len(self.db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
+        self.data_files_button.setText(_('{} Data &files').format(num_files))
+
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
