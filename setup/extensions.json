@@ -177,23 +177,6 @@
         "cflags": "/X"
     },
     {
-        "name": "winsapi",
-        "only": "windows",
-        "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
-        "sources": "calibre/utils/windows/winsapi.cpp",
-        "libraries": "SAPI Ole32",
-        "cflags": "/X"
-    },
-    {
-        "name": "winspeech",
-        "only": "windows",
-        "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h",
-        "sources": "calibre/utils/windows/winspeech.cpp",
-        "libraries": "WindowsApp",
-		"needs_c++": "20",
-        "cflags": "/X /Zc:__cplusplus /bigobj /permissive- /WX /Zc:twoPhase-"
-    },
-    {
         "name": "wpd",
         "only": "windows",
         "sources": "calibre/devices/mtp/windows/device_enumeration.cpp calibre/devices/mtp/windows/content_enumeration.cpp calibre/devices/mtp/windows/device.cpp calibre/devices/mtp/windows/wpd.cpp",
@@ -217,7 +200,7 @@
     {
         "name": "cocoa",
         "only": "macos",
-        "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m",
+        "sources": "calibre/utils/cocoa.m",
         "ldflags": "-framework Cocoa -framework UserNotifications"
     },
     {
