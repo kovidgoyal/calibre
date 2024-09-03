@@ -1156,5 +1156,16 @@
             "hash": "sha256:c3f9e322b1ebeebd44e3d9d2d9b124e0c550c1ef41bd552afdcdd719516ee41a",
             "urls": ["pypi"]
         }
+    },
+    {
+        "name": "piper",
+		"os": "linux",
+        "unix": {
+            "filename": "piper-2023.11.14.tar.gz",
+            "hash": "sha256:8b684e102cfe23af097830db9555a8641f17735725853c531a1daeb34b6ed1a8",
+            "urls": ["https://github.com/rhasspy/piper/archive/refs/tags/2023.11.14-2.tar.gz"]
+        }
     }
+
+
 ]

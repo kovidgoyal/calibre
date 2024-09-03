@@ -9,7 +9,7 @@ from typing import Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
-from calibre.constants import bundled_binaries_dir, islinux, ismacos, iswindows
+from calibre.constants import islinux, ismacos, iswindows, piper_cmdline
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
@@ -19,20 +19,6 @@ CONFIG_NAME = 'tts'
 @lru_cache(2)
 def load_config() -> JSONConfig:
     return JSONConfig(CONFIG_NAME)
-
-
-@lru_cache(2)
-def piper_cmdline() -> tuple[str, ...]:
-    ext = '.exe' if iswindows else ''
-    if bbd := bundled_binaries_dir():
-        # TODO: Add path to espeak-ng-data with --
-        return (os.path.join(bbd, 'piper' + ext),)
-    import shutil
-    exe = shutil.which('piper-tts')
-    if exe:
-        return (exe,)
-    return ()
-
 
 
 class TrackingCapability(Enum):

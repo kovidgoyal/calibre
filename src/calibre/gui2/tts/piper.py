@@ -29,9 +29,9 @@ from qt.core import (
     sip,
 )
 
-from calibre.constants import cache_dir, is_debugging
+from calibre.constants import cache_dir, is_debugging, piper_cmdline
 from calibre.gui2 import error_dialog
-from calibre.gui2.tts.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
+from calibre.gui2.tts.types import EngineSpecificSettings, Quality, TTSBackend, Voice, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P

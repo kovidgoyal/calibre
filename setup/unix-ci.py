@@ -168,6 +168,7 @@ username = api
     elif action == 'test':
         os.environ['CI'] = 'true'
         os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
+        os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
         if ismacos:
             os.environ['SSL_CERT_FILE'] = os.path.abspath(
                 'resources/mozilla-ca-certs.pem')

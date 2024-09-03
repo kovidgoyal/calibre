@@ -505,3 +505,18 @@ def bundled_binaries_dir() -> str:
     if (islinux or isbsd) and getattr(sys, 'frozen', False):
         return os.path.join(sys.executables_location, 'bin')
     return ''
+
+
+@lru_cache(2)
+def piper_cmdline() -> tuple[str, ...]:
+    ext = '.exe' if iswindows else ''
+    if bbd := bundled_binaries_dir():
+        # TODO: Add path to espeak-ng-data with --
+        return (os.path.join(bbd, 'piper' + ext),)
+    if pd := os.environ.get('PIPER_TTS_DIR'):
+        return (os.path.join(pd, 'piper' + ext),)
+    import shutil
+    exe = shutil.which('piper-tts')
+    if exe:
+        return (exe,)
+    return ()
