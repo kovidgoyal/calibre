@@ -135,6 +135,10 @@ class TTSManager(QObject):
         return self._tts
 
     def stop(self) -> None:
+        self.state = QTextToSpeech.State.Ready  # so no event is sent to the UI after a stop triggered by the UI
+        self._stop()
+
+    def _stop(self) -> None:
         self.tracker.clear()
         self.tts.stop()
 
@@ -148,13 +152,14 @@ class TTSManager(QObject):
         self.speak_marked_text([0, text])
 
     def speak_marked_text(self, marked_text):
-        self.stop()
+        self._stop()
         self.tts.say(self.tracker.parse_marked_text(marked_text))
 
     @contextmanager
     def resume_after(self):
         rd = ResumeData()
-        rd.is_speaking = self._tts is not None and self.state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
+        rd.is_speaking = self._tts is not None and self.state in (
+            QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
         if self.state is not QTextToSpeech.State.Paused:
             self.tts.pause()
         yield rd
