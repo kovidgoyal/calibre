@@ -8,7 +8,6 @@ from calibre.gui2.tts2.types import (
     AudioDeviceId,
     EngineMetadata,
     EngineSpecificSettings,
-    TrackingCapability,
     Voice,
     available_engines,
     create_tts_backend,
@@ -28,9 +27,10 @@ class EngineChoice(QWidget):
         self.engine_choice = ec = QComboBox(self)
         l.addRow(_('Text-to-Speech &engine:'), ec)
         configured_engine_name = load_config().get('engine', '')
-        ec.addItem(_('Automatically select (currently {})').format(default_engine_name()), '')
-        for engine_name in available_engines():
-            ec.addItem(engine_name, engine_name)
+        am = available_engines()
+        ec.addItem(_('Automatically select (currently {})').format(am[default_engine_name()].human_name), '')
+        for engine_name, metadata in am.items():
+            ec.addItem(metadata.human_name, engine_name)
         idx = ec.findData(configured_engine_name)
         if idx > -1:
             ec.setCurrentIndex(idx)
@@ -51,13 +51,7 @@ class EngineChoice(QWidget):
     def update_description(self):
         engine = self.value or default_engine_name()
         metadata = available_engines()[engine]
-        if metadata.tracking_capability is TrackingCapability.NoTracking:
-            text = _('The {} engine does not highlight words on the screen as they are spoken')
-        elif metadata.tracking_capability is TrackingCapability.WordByWord:
-            text = _('The {} engine highlights words on the screen as they are spoken')
-        else:
-            text = _('The {} engine highlights sentences on the screen as they are spoken')
-        self.engine_description.setText(text.format(engine))
+        self.engine_description.setText(metadata.description)
 
 
 class FloatSlider(QSlider):
