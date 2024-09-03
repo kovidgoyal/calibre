@@ -96,13 +96,30 @@ def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: in
 PARAGRAPH_SEPARATOR = '\u2029'
 
 
-def split_into_sentences_for_tts(text: str, lang: str = 'en', PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR):
+def split_into_sentences_for_tts(
+    text: str, lang: str = 'en', min_sentence_length: int = 32, max_sentence_length: int = 1024, PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR):
     import re
     def sub(m):
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
     text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')
+    pending_start, pending_sentence = 0, ''
     for start, length in sentence_positions(text, lang):
         sentence = text[start:start+length].rstrip().replace('\n', ' ').strip()
         if sentence:
-            for start, sentence in split_long_sentences(sentence, start, lang):
+            for start, sentence in split_long_sentences(sentence, start, lang, limit=max_sentence_length):
+                if len(sentence) < min_sentence_length:
+                    if pending_sentence:
+                        pending_sentence += ' ' + sentence
+                        if len(pending_sentence) >= min_sentence_length:
+                            yield pending_start, pending_sentence
+                            pending_start, pending_sentence = 0, ''
+                    else:
+                        pending_start, pending_sentence = start, sentence
+                    continue
+                if pending_sentence:
+                    sentence = pending_sentence + ' ' + sentence
+                    start = pending_start
+                    pending_start, pending_sentence = 0, ''
                 yield start, sentence
+    if pending_sentence:
+        yield pending_start, pending_sentence

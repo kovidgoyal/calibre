@@ -256,6 +256,16 @@ class TestICU(unittest.TestCase):
             }.items():
                 self.ae(expected, func(q))
 
+    def test_split_into_sentences(self):
+        from calibre.spell.break_iterator import split_into_sentences_for_tts
+        for sentence, expected in {
+            'hello.': [(0, 'hello.')],
+            'hello. I love you. Another small sentence. Fini.': [(0, 'hello. I love you. Another small sentence.'), (43, 'Fini.')],
+            'a very long sentence to be split into at least two smaller sentences': [
+                (0, 'a very long sentence to be split into at least two'), (51, 'smaller sentences')],
+        }.items():
+            self.ae(expected, list(split_into_sentences_for_tts(sentence, max_sentence_length=40)))
+
 
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestICU)
