@@ -61,6 +61,9 @@ class MainWindow(MainWindow):
         self.update_play_action('Play')
         self.stop_action.setEnabled(False)
         self.tts.stop()
+        c = self.display.textCursor()
+        c.setPosition(0)
+        self.display.setTextCursor(c)
 
     def create_marked_text(self):
         c = self.display.textCursor()
