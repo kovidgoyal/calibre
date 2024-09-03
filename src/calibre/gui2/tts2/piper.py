@@ -32,7 +32,7 @@ from qt.core import (
 from calibre.constants import cache_dir, is_debugging
 from calibre.gui2 import error_dialog
 from calibre.gui2.tts2.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
-from calibre.spell.break_iterator import sentence_positions, split_into_words_and_positions
+from calibre.spell.break_iterator import split_into_sentences_for_tts
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 
@@ -58,7 +58,6 @@ class Utterance:
     synthesized: bool = False
 
 
-PARAGRAPH_SEPARATOR = '\u2029'
 UTTERANCE_SEPARATOR = b'\n'
 
 
@@ -141,44 +140,17 @@ class UtteranceAudioQueue(QIODevice):
         return ans
 
 
-def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: int = 2048):
-    if len(sentence) <= limit:
-        yield offset, sentence
-        return
-    buf, total, start_at = [], 0, 0
-
-    def a(s, e):
-        nonlocal total, start_at
-        t = sentence[s:e]
-        if not buf:
-            start_at = s
-        buf.append(t)
-        total += len(t)
-
-    for start, length in split_into_words_and_positions(sentence, lang):
-        a(start, start + length)
-        if total >= limit:
-            yield offset + start_at, ' '.join(buf)
-            buf, total = [], 0
-    if buf:
-        yield offset + start_at, ' '.join(buf)
-
-
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):
-    text = re.sub(r'\n{2,}', PARAGRAPH_SEPARATOR, text.replace('\r', '')).replace('\n', ' ')
-    for start, length in sentence_positions(text, lang):
-        sentence = text[start:start+length].rstrip().replace('\n', ' ').strip()
-        if sentence:
-            for start, sentence in split_long_sentences(sentence, start, lang):
-                payload = json.dumps({'text': sentence}).encode('utf-8')
-                ba = QByteArray()
-                ba.reserve(len(payload) + 1)
-                ba.append(payload)
-                ba.append(UTTERANCE_SEPARATOR)
-                u = Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(),
-                              left_to_write=ba, start=start, length=len(sentence))
-                debug(f'Utterance created {u.id}: {sentence}')
-                yield u
+    for start, sentence in split_into_sentences_for_tts(text, lang):
+        payload = json.dumps({'text': sentence}).encode('utf-8')
+        ba = QByteArray()
+        ba.reserve(len(payload) + 1)
+        ba.append(payload)
+        ba.append(UTTERANCE_SEPARATOR)
+        u = Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(),
+                        left_to_write=ba, start=start, length=len(sentence))
+        debug(f'Utterance created {u.id} {start=}: {sentence!r}')
+        yield u
 
 
 class Piper(TTSBackend):
