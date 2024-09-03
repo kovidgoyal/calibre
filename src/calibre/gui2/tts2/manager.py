@@ -123,11 +123,10 @@ class TTSManager(QObject):
 
     def emit_state_event(self, event: str) -> None:
         if self._resuming_after_configure:
+            if event == 'begin':
+                event = 'resume'
             if event in ('resume', 'cancel'):
                 self.state_event.emit(event)
-                self._resuming_after_configure = False
-            elif event == 'begin':
-                self.state_event.emit('resume')
                 self._resuming_after_configure = False
         else:
             self.state_event.emit(event)
