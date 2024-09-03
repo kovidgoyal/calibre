@@ -214,7 +214,9 @@ class Piper(TTSBackend):
         if self._process is not None:
             if self._state is not QTextToSpeech.State.Ready or self._utterances_being_synthesized or self._utterances_being_spoken:
                 self.shutdown()
-                self.process
+                # We cannot re-create self.process here as that will cause the
+                # audio device to go to active state which will cause a
+                # speaking event to be generated
 
     def shutdown(self) -> None:
         if self._process is not None:
