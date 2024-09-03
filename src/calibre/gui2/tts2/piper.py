@@ -167,16 +167,18 @@ def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: in
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):
     text = re.sub(r'\n{2,}', PARAGRAPH_SEPARATOR, text.replace('\r', '')).replace('\n', ' ')
     for start, length in sentence_positions(text, lang):
-        sentence = text[start:start+length].rstrip().replace('\n', ' ')
-        for start, sentence in split_long_sentences(sentence, start, lang):
-            payload = json.dumps({'text': sentence}).encode('utf-8')
-            ba = QByteArray()
-            ba.reserve(len(payload) + 1)
-            ba.append(payload)
-            ba.append(UTTERANCE_SEPARATOR)
-            u = Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(), left_to_write=ba, start=start, length=len(sentence))
-            debug(f'Utterance created {u.id}: {sentence}')
-            yield u
+        sentence = text[start:start+length].rstrip().replace('\n', ' ').strip()
+        if sentence:
+            for start, sentence in split_long_sentences(sentence, start, lang):
+                payload = json.dumps({'text': sentence}).encode('utf-8')
+                ba = QByteArray()
+                ba.reserve(len(payload) + 1)
+                ba.append(payload)
+                ba.append(UTTERANCE_SEPARATOR)
+                u = Utterance(id=next(counter), payload_size=len(ba), audio_data=QByteArray(),
+                              left_to_write=ba, start=start, length=len(sentence))
+                debug(f'Utterance created {u.id}: {sentence}')
+                yield u
 
 
 class Piper(TTSBackend):

@@ -42,7 +42,7 @@ class MainWindow(MainWindow):
             marked_text.append(c.position())
             if not c.movePosition(QTextCursor.MoveOperation.NextWord, QTextCursor.MoveMode.KeepAnchor):
                 break
-            marked_text.append(c.selectedText())
+            marked_text.append(c.selectedText().replace('\u2029', '\n'))
             c.setPosition(c.position())
         c.setPosition(0)
         self.marked_text = marked_text
