@@ -63,6 +63,9 @@ class MainWindow(MainWindow):
         self.configure_action = ca = QAction('Configure')
         self.toolbar.addAction(ca)
         ca.triggered.connect(self.tts.configure)
+        self.reload_action = ra = QAction('Reload')
+        self.toolbar.addAction(ra)
+        ra.triggered.connect(self.tts.test_resume_after_reload)
 
         self.state_changed(self.tts.state)
         self.resize(self.sizeHint())

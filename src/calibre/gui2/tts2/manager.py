@@ -179,6 +179,12 @@ class TTSManager(QObject):
             return True
         return False
 
+    def test_resume_after_reload(self) -> None:
+        with self.resume_after() as rd:
+            if self._tts is not None:
+                rd.needs_full_resume = True
+                self.tts.reload_after_configure()
+
     def faster(self) -> None:
         if not self.change_rate(1):
             QApplication.instance().beep()
