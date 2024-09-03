@@ -36,7 +36,8 @@ class TTS(QObject):
         self.manager.speak_simple_text(text)
 
     def action(self, action, data):
-        getattr(self, action)(data)
+        if action != 'resume_after_configure':  # resume_after_configure is not used in new tts backend
+            getattr(self, action)(data)
 
     def play(self, data):
         set_sync_override(False)
