@@ -9,3 +9,6 @@ pacman -S --noconfirm --needed base-devel sudo git sip pyqt-builder cmake chmlib
 
 useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
+
+curl -fSsL https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz | tar -C /opt -x -v -z
+ln -s /opt/piper/piper /opt/bin/piper-tts
