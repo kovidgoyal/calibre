@@ -107,6 +107,11 @@ def import_site_packages(srcdir, dest):
             shutil.copytree(f, j(dest, x), ignore=ignore_in_lib)
 
 
+def copy_piper(env):
+    print('Copying piper...')
+    shutil.copytree(os.path.join(PREFIX, 'piper'), os.path.join(env.bin_dir, 'piper'))
+
+
 def copy_libs(env):
     print('Copying libs...')
 
@@ -252,7 +257,7 @@ def strip_files(files, argv_max=(256 * 1024)):
 
 
 def strip_binaries(env):
-    files = {j(env.bin_dir, x) for x in os.listdir(env.bin_dir)} | {
+    files = {j(env.bin_dir, x) for x in os.listdir(env.bin_dir) if x != 'piper'} | {
         x for x in {
             j(os.path.dirname(env.bin_dir), x) for x in os.listdir(env.bin_dir)} if os.path.exists(x)}
     for x in walk(env.lib_dir):
@@ -304,6 +309,7 @@ def main():
     env = Env()
     copy_libs(env)
     copy_python(env, ext_dir)
+    copy_piper(env)
     build_launchers(env)
     if not args.skip_tests:
         run_tests(j(env.base, 'calibre-debug'), env.base)

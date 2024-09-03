@@ -488,7 +488,7 @@ def get_umask():
     return mask
 
 
-# call this at startup as it changed process global state, which doesn't work
+# call this at startup as it changes process global state, which doesn't work
 # with multi-threading. It's absurd there is no way to safely read the current
 # umask of a process.
 get_umask()
@@ -511,8 +511,7 @@ def bundled_binaries_dir() -> str:
 def piper_cmdline() -> tuple[str, ...]:
     ext = '.exe' if iswindows else ''
     if bbd := bundled_binaries_dir():
-        # TODO: Add path to espeak-ng-data with --
-        return (os.path.join(bbd, 'piper' + ext),)
+        return (os.path.join(bbd, 'piper', 'piper' + ext),)
     if pd := os.environ.get('PIPER_TTS_DIR'):
         return (os.path.join(pd, 'piper' + ext),)
     import shutil
