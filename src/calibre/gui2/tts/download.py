@@ -145,7 +145,7 @@ class DownloadResources(QDialog):
         if not self.todo:
             if self.failures:
                 if len(self.failures) == len(self.bars):
-                    msg = ngettext(_('Could not download {}.'), _('Could not download all resources.'), len(self.bars)).format(self.bars[0].desc)
+                    msg = ngettext(_('Could not download {}.'), _('Could not download any of the resources.'), len(self.bars)).format(self.bars[0].desc)
                 else:
                     msg = _('Could not download some resources.')
                 error_dialog(
