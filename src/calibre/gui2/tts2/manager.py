@@ -111,7 +111,6 @@ class ResumeData:
 
 class TTSManager(QObject):
 
-    state_changed = pyqtSignal(QTextToSpeech.State)
     state_event = pyqtSignal(str)
     saying = pyqtSignal(int, int)
 
@@ -120,6 +119,20 @@ class TTSManager(QObject):
         self._tts: 'TTSBackend' | None = None
         self.state = QTextToSpeech.State.Ready
         self.tracker = Tracker()
+        self._resuming_after_configure = False
+
+    def emit_state_event(self, event: str) -> None:
+        if self._resuming_after_configure:
+            if event == 'cancel':
+                self.state_event.emit(event)
+                self._resuming_after_configure = False
+            elif event == 'begin':
+                self.state_event.emit('resume')
+                self._resuming_after_configure = False
+            elif event == 'pause':
+                self.state_event.emit(event)
+        else:
+            self.state_event.emit(event)
 
     @property
     def tts(self) -> 'TTSBackend':
@@ -160,6 +173,7 @@ class TTSManager(QObject):
         rd = ResumeData()
         rd.is_speaking = self._tts is not None and self.state in (
             QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused)
+        self._resuming_after_configure = True
         if self.state is not QTextToSpeech.State.Paused:
             self.tts.pause()
         yield rd
@@ -216,19 +230,18 @@ class TTSManager(QObject):
         prev_state, self.state = self.state, state
         if state is QTextToSpeech.State.Error:
             error_dialog(self, _('Read aloud failed'), self.tts.error_message(), show=True)
-        self.state_changed.emit(state)
         if state is QTextToSpeech.State.Paused:
-            self.state_event.emit('pause')
+            self.emit_state_event('pause')
         elif state is QTextToSpeech.State.Speaking:
             if prev_state is QTextToSpeech.State.Paused:
-                self.state_event.emit('resume')
+                self.emit_state_event('resume')
             elif prev_state is QTextToSpeech.State.Ready:
-                self.state_event.emit('begin')
+                self.emit_state_event('begin')
         elif state is QTextToSpeech.State.Ready:
             if prev_state in (QTextToSpeech.State.Paused, QTextToSpeech.State.Speaking):
-                self.state_event.emit('end')
+                self.emit_state_event('end')
         elif state is QTextToSpeech.State.Error:
-            self.state_event.emit('cancel')
+            self.emit_state_event('cancel')
 
     def _saying(self, offset: int, length: int) -> None:
         self.tracker.boundary_reached(offset)

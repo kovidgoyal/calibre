@@ -2,23 +2,20 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAction, QKeySequence, QPlainTextEdit, QSize, Qt, QTextCursor, QTextToSpeech, QToolBar
+from typing import Literal
+
+from qt.core import QAction, QKeySequence, QPlainTextEdit, QSize, Qt, QTextCursor, QToolBar
 
 from calibre.gui2 import Application
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.tts2.manager import TTSManager
 
 TEXT = '''\
-Demonstration 😹 🐈 of DOCX support in calibre
+Demonstration 🐈 of DOCX support in calibre
 
 This document demonstrates the ability of the calibre DOCX Input plugin to convert the various typographic features in a Microsoft Word
 (2007 and newer) document. Convert this document to a modern ebook format, such as AZW3 for Kindles or EPUB for other ebook readers,
 to see it in action.
-
-There is support for images, tables, lists, footnotes, endnotes, links, dropcaps and various types of text and paragraph level formatting.
-
-To see the DOCX conversion in action, simply add this file to calibre using the “Add Books” button and then click “Convert”.
-Set the output format in the top right corner of the conversion dialog to EPUB or AZW3 and click “OK”.
 '''
 
 
@@ -27,28 +24,19 @@ class MainWindow(MainWindow):
     def __init__(self, text):
         super().__init__()
         self.display = d = QPlainTextEdit(self)
+        self.page_count = 1
         self.toolbar = tb = QToolBar(self)
         self.tts = TTSManager(self)
-        self.tts.state_changed.connect(self.state_changed, type=Qt.ConnectionType.QueuedConnection)
+        self.tts.state_event.connect(self.state_event, type=Qt.ConnectionType.QueuedConnection)
         self.tts.saying.connect(self.saying)
         self.addToolBar(tb)
         self.setCentralWidget(d)
         d.setPlainText(text)
         d.setReadOnly(True)
-        c = d.textCursor()
-        c.setPosition(0)
-        marked_text = []
-        while True:
-            marked_text.append(c.position())
-            if not c.movePosition(QTextCursor.MoveOperation.NextWord, QTextCursor.MoveMode.KeepAnchor):
-                break
-            marked_text.append(c.selectedText().replace('\u2029', '\n'))
-            c.setPosition(c.position())
-        c.setPosition(0)
-        self.marked_text = marked_text
+        self.create_marked_text()
         self.play_action = pa = QAction('Play')
         pa.setShortcut(QKeySequence(Qt.Key.Key_Space))
-        pa.triggered.connect(self.toggled)
+        pa.triggered.connect(self.play_triggerred)
         self.toolbar.addAction(pa)
         self.stop_action = sa = QAction('Stop')
         sa.setShortcut(QKeySequence(Qt.Key.Key_Escape))
@@ -67,31 +55,50 @@ class MainWindow(MainWindow):
         self.toolbar.addAction(ra)
         ra.triggered.connect(self.tts.test_resume_after_reload)
 
-        self.state_changed(self.tts.state)
         self.resize(self.sizeHint())
 
-    def state_changed(self, state):
-        self.statusBar().showMessage(str(state))
-        if state in (QTextToSpeech.State.Ready, QTextToSpeech.State.Paused, QTextToSpeech.State.Error):
-            self.play_action.setChecked(False)
-            if state is QTextToSpeech.State.Ready:
-                c = self.display.textCursor()
-                c.setPosition(0)
-                self.display.setTextCursor(c)
-        else:
-            self.play_action.setChecked(True)
-        self.stop_action.setEnabled(state in (QTextToSpeech.State.Speaking, QTextToSpeech.State.Synthesizing, QTextToSpeech.State.Paused))
-        if self.tts.state is QTextToSpeech.State.Paused:
-            self.play_action.setText('Resume')
-        elif self.tts.state is QTextToSpeech.State.Speaking:
-            self.play_action.setText('Pause')
-        else:
-            self.play_action.setText('Play')
+    def create_marked_text(self):
+        c = self.display.textCursor()
+        c.setPosition(0)
+        marked_text = []
+        while True:
+            marked_text.append(c.position())
+            if not c.movePosition(QTextCursor.MoveOperation.NextWord, QTextCursor.MoveMode.KeepAnchor):
+                break
+            marked_text.append(c.selectedText().replace('\u2029', '\n'))
+            c.setPosition(c.position())
+        c.setPosition(0)
+        self.marked_text = marked_text
+        self.display.setTextCursor(c)
 
-    def toggled(self):
-        if self.tts.state is QTextToSpeech.State.Paused:
+    def next_page(self):
+        self.page_count += 1
+        self.display.setPlainText(f'This is page number {self.page_count}. Pages are turned automatically when the end of a page is reached.')
+        self.create_marked_text()
+
+    def update_play_action(self, text):
+        self.play_action.setText(text)
+
+    def state_event(self, ev: Literal['begin', 'end', 'cancel', 'pause', 'resume']):
+        sb = self.statusBar()
+        self.statusBar().showMessage((sb.currentMessage() + ' ' + ev).strip())
+        self.stop_action.setEnabled(ev in ('pause', 'resume', 'begin'))
+        if ev == 'cancel':
+            self.update_play_action('Play')
+        elif ev == 'pause':
+            self.update_play_action('Resume')
+        elif ev in ('resume', 'begin'):
+            self.update_play_action('Pause')
+        elif ev == 'end':
+            if self.play_action.text() == 'Pause':
+                self.next_page()
+                self.update_play_action('Play')
+                self.play_triggerred()
+
+    def play_triggerred(self):
+        if self.play_action.text() == 'Resume':
             self.tts.resume()
-        elif self.tts.state is QTextToSpeech.State.Speaking:
+        elif self.play_action.text() == 'Pause':
             self.tts.pause()
         else:
             self.tts.speak_marked_text(self.marked_text)
