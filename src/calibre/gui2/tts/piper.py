@@ -31,7 +31,7 @@ from qt.core import (
 
 from calibre.constants import cache_dir, is_debugging
 from calibre.gui2 import error_dialog
-from calibre.gui2.tts2.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
+from calibre.gui2.tts.types import EngineSpecificSettings, Quality, TTSBackend, Voice, piper_cmdline, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
@@ -442,7 +442,7 @@ class Piper(TTSBackend):
         if os.path.exists(model_path) and os.path.exists(config_path):
             return model_path, config_path
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        from calibre.gui2.tts2.download import DownloadResources
+        from calibre.gui2.tts.download import DownloadResources
         d = DownloadResources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
             voice.engine_data['model_url']: (model_path, _('Neural network data')),
             voice.engine_data['config_url']: (config_path, _('Neural network metadata')),

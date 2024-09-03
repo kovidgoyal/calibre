@@ -21,7 +21,7 @@ class TTS(QObject):
     @property
     def manager(self):
         if self._manager is None:
-            from calibre.gui2.tts2.manager import TTSManager
+            from calibre.gui2.tts.manager import TTSManager
             self._manager = TTSManager(self)
             self._manager.saying.connect(self.saying)
             self._manager.state_event.connect(self.state_event)

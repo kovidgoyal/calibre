@@ -12,7 +12,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.widgets import BusyCursor
 
 if TYPE_CHECKING:
-    from calibre.gui2.tts2.types import TTSBackend
+    from calibre.gui2.tts.types import TTSBackend
 
 
 class Utterance(NamedTuple):
@@ -135,7 +135,7 @@ class TTSManager(QObject):
     def tts(self) -> 'TTSBackend':
         if self._tts is None:
             with BusyCursor():
-                from calibre.gui2.tts2.types import create_tts_backend
+                from calibre.gui2.tts.types import create_tts_backend
                 try:
                     self._tts = create_tts_backend()
                 except AttributeError as e:
@@ -182,7 +182,7 @@ class TTSManager(QObject):
                 self.tts.resume()
 
     def change_rate(self, steps: int = 1) -> bool:
-        from calibre.gui2.tts2.types import EngineSpecificSettings
+        from calibre.gui2.tts.types import EngineSpecificSettings
         engine_name = self.tts.engine_name
         s = EngineSpecificSettings.create_from_config(engine_name)
         new_rate = max(-1, min(s.rate + 0.2 * steps, 1))
@@ -211,8 +211,8 @@ class TTSManager(QObject):
             QApplication.instance().beep()
 
     def configure(self) -> None:
-        from calibre.gui2.tts2.config import ConfigDialog
-        from calibre.gui2.tts2.types import widget_parent
+        from calibre.gui2.tts.config import ConfigDialog
+        from calibre.gui2.tts.types import widget_parent
         with self.resume_after() as rd:
             d = ConfigDialog(parent=widget_parent(self))
             if d.exec() == QDialog.DialogCode.Accepted and self._tts is not None:

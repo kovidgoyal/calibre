@@ -186,7 +186,7 @@ class TestImports(unittest.TestCase):
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
             exclude_modules |= {
-                'calibre.linux', 'calibre.gui2.tts2.speechd',
+                'calibre.linux', 'calibre.gui2.tts.speechd',
                 'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
                 'calibre.gui2.linux_file_dialogs',
             }

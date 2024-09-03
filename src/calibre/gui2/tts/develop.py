@@ -8,7 +8,7 @@ from qt.core import QAction, QKeySequence, QPlainTextEdit, QSize, Qt, QTextCurso
 
 from calibre.gui2 import Application
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.tts2.manager import TTSManager
+from calibre.gui2.tts.manager import TTSManager
 
 TEXT = '''\
 Demonstration 🐈 of DOCX support in calibre

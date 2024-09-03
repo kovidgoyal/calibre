@@ -4,7 +4,7 @@
 
 from qt.core import QMediaDevices, QObject, QTextToSpeech
 
-from calibre.gui2.tts2.types import EngineSpecificSettings, TTSBackend, Voice, qvoice_to_voice
+from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice, qvoice_to_voice
 
 
 class QtTTSBackend(TTSBackend):

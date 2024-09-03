@@ -309,18 +309,18 @@ def create_tts_backend(force_engine: str | None = None) -> TTSBackend:
         engine_name = default_engine_name()
     if engine_name == 'piper':
         if engine_name not in engine_instances:
-            from calibre.gui2.tts2.piper import Piper
+            from calibre.gui2.tts.piper import Piper
             engine_instances[engine_name] = Piper(engine_name, QApplication.instance())
         ans = engine_instances[engine_name]
     elif engine_name == 'speechd':
         if engine_name not in engine_instances:
-            from calibre.gui2.tts2.speechd import SpeechdTTSBackend
+            from calibre.gui2.tts.speechd import SpeechdTTSBackend
             engine_instances[engine_name] = SpeechdTTSBackend(engine_name, QApplication.instance())
         ans = engine_instances[engine_name]
     else:
         if 'qt' not in engine_instances:
             # Bad things happen with more than one QTextToSpeech instance
-            from calibre.gui2.tts2.qt import QtTTSBackend
+            from calibre.gui2.tts.qt import QtTTSBackend
             engine_instances['qt'] = QtTTSBackend(engine_name if engine_name in available_engines() else '', QApplication.instance())
         ans = engine_instances['qt']
         if ans.engine_name != engine_name:

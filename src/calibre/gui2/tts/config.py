@@ -4,7 +4,7 @@
 
 from qt.core import QCheckBox, QFormLayout, QLabel, QLocale, QMediaDevices, QSize, QSlider, Qt, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 
-from calibre.gui2.tts2.types import (
+from calibre.gui2.tts.types import (
     AudioDeviceId,
     EngineMetadata,
     EngineSpecificSettings,

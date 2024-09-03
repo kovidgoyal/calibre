@@ -7,7 +7,7 @@ from qt.core import QObject, Qt, QTextToSpeech, pyqtSignal
 from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError
 
 from calibre import prepare_string_for_xml
-from calibre.gui2.tts2.types import EngineSpecificSettings, TTSBackend, Voice
+from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.utils.localization import canonicalize_lang
 
