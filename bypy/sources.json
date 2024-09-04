@@ -1159,18 +1159,18 @@
     },
     {
         "name": "onnx",
-		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
-		"os": "linux",
+		"comment": "This is newer than the version needed for the version of piper-phonemize to get it to build on macOS (see CMakeLists.txt in piper-phonemize)",
+		"os": "linux,macos",
         "unix": {
-            "filename": "onnx-1.14.1.tar.gz",
-            "hash": "sha256:f998352b131bb89fa7dd1f1d87ddbafe647dfaddd11929b6b5168b3f4ef857de",
-            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.14.1.tar.gz"]
+            "filename": "onnx-1.19.0.tar.gz",
+            "hash": "sha256:dd945b2fb8c2e7df7243e9d96c0293f45350058f0f713f66c519834a49a6c99d",
+            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.19.0.tar.gz"]
         }
     },
     {
         "name": "piper-espeak",
 		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
-		"os": "linux",
+		"os": "linux,macos",
         "unix": {
             "filename": "espeak-1.zip",
             "hash": "sha256:150fc955926a084a77ebe25c9e8287bde2e2a17bbf9b23a25c147b556837949f",
@@ -1180,7 +1180,7 @@
     {
         "name": "piper-phonemize",
 		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
-		"os": "linux",
+		"os": "linux,macos",
         "unix": {
             "filename": "piper-phonemize-1.zip",
             "hash": "sha256:cc57a4a00a0f5bd50555a93c94c0622da065a2a90b9c896bfbe8b45519e2e9c2",
@@ -1188,28 +1188,8 @@
         }
     },
     {
-        "name": "piper-fmt",
-		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
-		"os": "linux",
-        "unix": {
-            "filename": "fmt-10.0.0.zip",
-            "hash": "sha256:4943cb165f3f587f26da834d3056ee8733c397e024145ca7d2a8a96bb71ac281",
-            "urls": ["https://github.com/fmtlib/fmt/releases/download/10.0.0/{filename}"]
-        }
-    },
-    {
-        "name": "piper-spdlog",
-		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
-		"os": "linux",
-        "unix": {
-            "filename": "piper-spdlog-1.12.0.0.0.tar.gz",
-            "hash": "sha256:4dccf2d10f410c1e2feaff89966bfc49a1abb29ef6f08246335b110e001e09a9",
-            "urls": ["https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.tar.gz"]
-        }
-    },
-    {
         "name": "piper",
-		"os": "linux",
+		"os": "linux,macos",
         "unix": {
             "filename": "piper-2023.11.14.tar.gz",
             "hash": "sha256:8b684e102cfe23af097830db9555a8641f17735725853c531a1daeb34b6ed1a8",

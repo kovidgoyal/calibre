@@ -15,7 +15,7 @@ from functools import partial
 from bypy.constants import LIBDIR, OUTPUT_DIR, PREFIX, python_major_minor_version
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
-from bypy.utils import create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
+from bypy.utils import copy_binaries, create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 
 j = os.path.join
 self_dir = os.path.dirname(os.path.abspath(__file__))
@@ -109,7 +109,11 @@ def import_site_packages(srcdir, dest):
 
 def copy_piper(env):
     print('Copying piper...')
-    shutil.copytree(os.path.join(PREFIX, 'piper'), os.path.join(env.bin_dir, 'piper'))
+    src = os.path.join(PREFIX, 'piper')
+    dest = os.path.join(env.bin_dir, 'piper')
+    copy_binaries(os.path.join(src, 'lib*'), dest)
+    copy_binaries(os.path.join(src, 'piper*'), dest)
+    shutil.copytree(os.path.join(src, 'espeak-ng-data'), os.path.join(dest, 'espeak-ng-data'))
 
 
 def copy_libs(env):
