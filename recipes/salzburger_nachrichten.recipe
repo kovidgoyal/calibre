@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class SalzburgerNachrichten(BasicNewsRecipe):
     title = 'Salzburger Nachrichten'
-    __author__ = 'ims'
+    __author__ = 'İlker Melik Sıtkı'
     oldest_article = 1
     max_articles_per_feed = 10
     language = 'de_AT'
