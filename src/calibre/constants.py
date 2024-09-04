@@ -511,6 +511,8 @@ def bundled_binaries_dir() -> str:
 def piper_cmdline() -> tuple[str, ...]:
     ext = '.exe' if iswindows else ''
     if bbd := bundled_binaries_dir():
+        if ismacos:
+            return (os.path.join(sys.frameworks_dir, 'piper', 'piper'),)
         return (os.path.join(bbd, 'piper', 'piper' + ext),)
     if pd := os.environ.get('PIPER_TTS_DIR'):
         return (os.path.join(pd, 'piper' + ext),)

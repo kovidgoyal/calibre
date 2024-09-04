@@ -22,6 +22,7 @@ from itertools import repeat
 from bypy.constants import OUTPUT_DIR, PREFIX, PYTHON, python_major_minor_version
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
+from bypy.pkgs.piper import copy_piper_dir
 from bypy.utils import current_dir, get_arches_in_binary, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
@@ -527,6 +528,15 @@ class Freeze:
 
     @flush
     def add_misc_libraries(self):
+
+        def add_lib(src):
+            x = os.path.basename(src)
+            print('\nAdding', x)
+            shutil.copy2(src, self.frameworks_dir)
+            dest = join(self.frameworks_dir, x)
+            self.set_id(dest, self.FID + '/' + x)
+            self.fix_dependencies_in_lib(dest)
+
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
             'icudata.73', 'icui18n.73', 'icuio.73', 'icuuc.73', 'hyphen.0', 'uchardet.0',
@@ -534,13 +544,9 @@ class Freeze:
             'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
             'crypto.3', 'ssl.3', 'iconv.2',  # 'ltdl.7'
         ):
-            print('\nAdding', x)
             x = 'lib%s.dylib' % x
             src = join(PREFIX, 'lib', x)
-            shutil.copy2(src, self.frameworks_dir)
-            dest = join(self.frameworks_dir, x)
-            self.set_id(dest, self.FID + '/' + x)
-            self.fix_dependencies_in_lib(dest)
+            add_lib(src)
 
         # OpenSSL modules and engines
         for x in ('ossl-modules', 'engines-3'):
@@ -551,6 +557,8 @@ class Freeze:
                     dylib = join(dest, dylib)
                     self.set_id(dylib, self.FID + '/' + x + '/' + os.path.basename(dylib))
                     self.fix_dependencies_in_lib(dylib)
+        # Piper TTS
+        copy_piper_dir(PREFIX, self.frameworks_dir)
 
     @flush
     def add_site_packages(self):

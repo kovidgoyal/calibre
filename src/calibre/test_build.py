@@ -123,7 +123,7 @@ class BuildTest(unittest.TestCase):
         from speechd.client import SSIPClient
         del SSIPClient
 
-    @unittest.skipUnless(islinux, 'Piper only used on Linux')
+    @unittest.skipIf(iswindows, 'Piper not available on windows')
     def test_piper(self):
         import subprocess
 
