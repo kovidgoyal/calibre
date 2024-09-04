@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class SalzburgerNachrichten(BasicNewsRecipe):
+    title = 'Salzburger Nachrichten'
+    oldest_article = 1
+    max_articles_per_feed = 10
+    remove_javascript = True
+    no_stylesheets = True
+    auto_cleanup = True
+    remove_empty_feeds = True
+
+    feeds = [
+        ('Salzburg', 'https://www.sn.at/salzburg/xml/rss'),
+        ('Innenpolitik', 'https://www.sn.at/politik/innenpolitik/xml/rss'),
+        ('Weltpolitik', 'https://www.sn.at/politik/weltpolitik/xml/rss'),
+        ('Wirtschaft', 'https://www.sn.at/wirtschaft/xml/rss'),
+        ('Kultur', 'https://www.sn.at/kultur/xml/rss'),
+        ('Leben', 'https://www.sn.at/leben/xml/rss'),
+        ('Wetter', 'https://www.sn.at/wetter/xml/rss'),
+        ('Festspiele', 'https://www.sn.at/festspiele/xml/rss'),
+        ('Sport', 'https://www.sn.at/sport/xml/rss'),
+        ('Panorama', 'https://www.sn.at/panorama/xml/rss'),
+        ('Wissen', 'https://www.sn.at/wissen/xml/rss'),
+        ('Wochenende', 'https://www.sn.at/panorama/wissen/xml/rss'),
+        ('Kinderseite', 'https://www.sn.at/panorama/kinder/xml/rss'),
+        ('Jengeseite', 'https://www.sn.at/jungeseite/xml/rss'),
+        ('SNin', 'https://www.sn.at/snin/xml/rss'),
+        ('Chronik Oesterreich', 'https://www.sn.at/panorama/oesterreich/xml/rss'),
+        ('Chronik International', 'https://www.sn.at/panorama/international/xml/rss'),
+        ('Medien', 'https://www.sn.at/panorama/medien/xml/rss'),
+        ('Briefe an die SN', 'https://www.sn.at/leserforum/xml/rss'),
+    ]       
