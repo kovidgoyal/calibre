@@ -27,7 +27,7 @@ class SalzburgerNachrichten(BasicNewsRecipe):
         ('Kinderseite', 'https://www.sn.at/panorama/kinder/xml/rss'),
         ('Jengeseite', 'https://www.sn.at/jungeseite/xml/rss'),
         ('SNin', 'https://www.sn.at/snin/xml/rss'),
-        ('Chronik Oesterreich', 'https://www.sn.at/panorama/oesterreich/xml/rss'),
+        ('Chronik Österreich', 'https://www.sn.at/panorama/oesterreich/xml/rss'),
         ('Chronik International', 'https://www.sn.at/panorama/international/xml/rss'),
         ('Medien', 'https://www.sn.at/panorama/medien/xml/rss'),
         ('Briefe an die SN', 'https://www.sn.at/leserforum/xml/rss'),
