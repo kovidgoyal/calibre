@@ -13,6 +13,7 @@ class SalzburgerNachrichten(BasicNewsRecipe):
     remove_empty_feeds = True
     compress_news_images = True
     ignore_duplicate_articles = {'url'}
+    cover_url = 'https://front.e-pages.dk/data/teasers/salzburgernachrichten/308/vector/ts1.jpg'
 
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'article-title'}),
