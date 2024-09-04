@@ -6,7 +6,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ComputerWeekly(BasicNewsRecipe):
     title          = 'ComputerWeekly'
     __author__ = 'İlker Melik Sıtkı'
-    lang = 'en'
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'en'
