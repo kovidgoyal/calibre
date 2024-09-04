@@ -8,8 +8,24 @@ class SalzburgerNachrichten(BasicNewsRecipe):
     max_articles_per_feed = 10
     remove_javascript = True
     no_stylesheets = True
-    auto_cleanup   = True
     remove_empty_feeds = True
+    compress_news_images = True
+
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'article-title'}),
+        dict(name='div', attrs={'class': 'article-author'}),
+        dict(name='div', attrs={'class': 'article-publication-date'}),
+        dict(name='div', attrs={'class': 'media-normal'}),
+        dict(name='div', attrs={'class': 'article-body-text'}),
+        dict(name='div', attrs={'class': 'article-sections'}),
+    ]
+
+    remove_tags = [
+        dict(name='source'),
+        dict(name='figcaption'),
+        dict(name='img', attrs={'class': 'article-author__logo'}),
+        dict(name='p', attrs={'class': 'article-author__desktopprefix'}),
+    ]
 
     feeds = [
         ('Salzburg', 'https://www.sn.at/salzburg/xml/rss'),
