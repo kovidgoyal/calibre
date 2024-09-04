@@ -9,6 +9,7 @@ class ComputerWeekly(BasicNewsRecipe):
     lang = 'en'
     oldest_article = 7
     max_articles_per_feed = 100
+    language = 'en'
     remove_javascript = True
     no_stylesheets = True
 
