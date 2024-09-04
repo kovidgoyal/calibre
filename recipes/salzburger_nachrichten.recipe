@@ -15,6 +15,9 @@ class SalzburgerNachrichten(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     cover_url = 'https://front.e-pages.dk/data/teasers/salzburgernachrichten/308/vector/ts1.jpg'
 
+    extra_css = '''.article-title {font-size: 1.5em; color: #0358a9;}
+                   h2 {font-size: 1.2em; color: #0358a9;}'''
+
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'article-title'}),
         dict(name='div', attrs={'class': 'article-author'}),
