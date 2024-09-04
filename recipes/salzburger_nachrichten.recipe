@@ -6,6 +6,7 @@ class SalzburgerNachrichten(BasicNewsRecipe):
     title = 'Salzburger Nachrichten'
     oldest_article = 1
     max_articles_per_feed = 10
+    language = 'de_AT'
     remove_javascript = True
     no_stylesheets = True
     remove_empty_feeds = True
