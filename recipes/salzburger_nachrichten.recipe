@@ -11,6 +11,7 @@ class SalzburgerNachrichten(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     compress_news_images = True
+    ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'article-title'}),
