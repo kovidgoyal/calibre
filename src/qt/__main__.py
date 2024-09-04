@@ -20,7 +20,9 @@ module_lists = {
         'QtOpenGL',
         'QtOpenGLWidgets',
         'QtQuick',
-        'QtMultimedia', 'QtMultimediaWidgets', 'QtTextToSpeech',
+        'QtMultimedia',
+        'QtMultimediaWidgets',
+        'QtTextToSpeech',
     ),
     'webengine': (
         'QtWebEngineCore',
