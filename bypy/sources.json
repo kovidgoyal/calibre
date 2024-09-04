@@ -113,7 +113,7 @@
 
     {
         "name": "libdeflate",
-        "comments": "Used optionally libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
+        "comment": "Used optionally libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
         "os": "linux",
         "unix": {
             "filename": "libdeflate-1.21.tar.gz",
@@ -1158,6 +1158,56 @@
         }
     },
     {
+        "name": "onnx",
+		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
+		"os": "linux",
+        "unix": {
+            "filename": "onnx-1.14.1.tar.gz",
+            "hash": "sha256:f998352b131bb89fa7dd1f1d87ddbafe647dfaddd11929b6b5168b3f4ef857de",
+            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.14.1.tar.gz"]
+        }
+    },
+    {
+        "name": "piper-espeak",
+		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
+		"os": "linux",
+        "unix": {
+            "filename": "espeak-1.zip",
+            "hash": "sha256:150fc955926a084a77ebe25c9e8287bde2e2a17bbf9b23a25c147b556837949f",
+            "urls": ["https://github.com/rhasspy/espeak-ng/archive/0f65aa301e0d6bae5e172cc74197d32a6182200f.zip"]
+        }
+    },
+    {
+        "name": "piper-phonemize",
+		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
+		"os": "linux",
+        "unix": {
+            "filename": "piper-phonemize-1.zip",
+            "hash": "sha256:cc57a4a00a0f5bd50555a93c94c0622da065a2a90b9c896bfbe8b45519e2e9c2",
+            "urls": ["https://github.com/rhasspy/piper-phonemize/archive/bfc2e7549957829b0227c66a305d11cc88167bda.zip"]
+        }
+    },
+    {
+        "name": "piper-fmt",
+		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
+		"os": "linux",
+        "unix": {
+            "filename": "fmt-10.0.0.zip",
+            "hash": "sha256:4943cb165f3f587f26da834d3056ee8733c397e024145ca7d2a8a96bb71ac281",
+            "urls": ["https://github.com/fmtlib/fmt/releases/download/10.0.0/{filename}"]
+        }
+    },
+    {
+        "name": "piper-spdlog",
+		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
+		"os": "linux",
+        "unix": {
+            "filename": "piper-spdlog-1.12.0.0.0.tar.gz",
+            "hash": "sha256:4dccf2d10f410c1e2feaff89966bfc49a1abb29ef6f08246335b110e001e09a9",
+            "urls": ["https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.tar.gz"]
+        }
+    },
+    {
         "name": "piper",
 		"os": "linux",
         "unix": {
@@ -1166,6 +1216,4 @@
             "urls": ["https://github.com/rhasspy/piper/archive/refs/tags/2023.11.14-2.tar.gz"]
         }
     }
-
-
 ]
