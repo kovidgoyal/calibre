@@ -214,12 +214,12 @@ def available_engines() -> dict[str, EngineMetadata]:
             ), True)
         elif x == 'speechd':
             continue
+    if piper_cmdline():
+        ans['piper'] = EngineMetadata('piper', _('The Piper Neural Speech Engine'), _(
+            'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
+            'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
+        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True)
     if islinux:
-        if piper_cmdline():
-            ans['piper'] = EngineMetadata('piper', _('The Piper Neural Speech Engine'), _(
-                'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
-                'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
-            ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True)
         from speechd.paths import SPD_SPAWN_CMD
         cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
         if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
@@ -232,12 +232,12 @@ def available_engines() -> dict[str, EngineMetadata]:
 
 
 def default_engine_name() -> str:
+    if 'piper' in available_engines():
+        return 'piper'
     if iswindows:
         return 'sapi' if tweaks.get('prefer_winsapi') else 'winrt'
     if ismacos:
         return 'darwin'
-    if 'piper' in available_engines():
-        return 'piper'
     if 'speechd' in available_engines():
         return 'speechd'
     return 'flite'
