@@ -12,6 +12,7 @@ def re_html(y):
     if y:
         soup = BeautifulSoup(y.rstrip())
         return soup.text
+    return ''
 
 def get_id(url):
     rq = browser().open(url)
