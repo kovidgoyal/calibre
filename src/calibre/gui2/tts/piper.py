@@ -308,6 +308,9 @@ class Piper(TTSBackend):
                 self._audio_sink = QAudioSink(fmt, self)
             if s.volume is not None:
                 self._audio_sink.setVolume(s.volume)
+            # On Windows, the buffer is zero causing data to be discarded.
+            # Ensure we have a nice large buffer on all platforms.
+            self._audio_sink.setBufferSize(2 * 1024 * 1024)
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._process.start()
             self._audio_sink.start(self._utterances_being_spoken)
