@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+from datetime import datetime, timedelta
+from calibre.utils.date import parse_date
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class ORF(BasicNewsRecipe):
+    title = 'Observer Research Foundation'
+    description = (
+        'Set up in 1990, ORF seeks to lead and aid policy thinking towards building a strong and prosperous India'
+        ' in a fair and equitable world. It helps discover and inform India’s choices, and carries Indian voices '
+        'and ideas to forums shaping global debates.'
+    )
+    language = 'en_IN'
+    __author__ = 'unkn0wn'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    masthead_url = 'https://www.orfonline.org/wp-content/uploads/2015/09/Logo_ORF_JPEG.jpg'
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url', 'title'}
+    remove_empty_feeds = True
+    oldest_article = 7
+    simultaneous_downloads = 1
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .report-slider, .author_panel {font-size:small; color:#404040;}
+        .report {font-size:small; font-weight:bold;}
+        .excert-italic, .recent-block-people {font-style:italic; color:#202020;}
+        blockquote, em {color:#202020;}
+        .espert_speak_panel {font-size:small;}
+    '''
+
+    def get_browser(self):
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
+    resolve_internal_links = True
+    remove_empty_feeds = True
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('author_panel espert_speak_panel expert_panel_content')
+    ]
+    remove_tags = [
+        classes(
+            'social socialshare comment-area-section telegramhtml post-tag '
+            'research-prev research-next col-md-4 button_group sharethis-p tags'
+        )
+    ]
+
+    def parse_index(self):
+        index = 'https://www.orfonline.org'
+        secs = [
+            ('Expert Speak', '/expert-speak'),
+            ('Young Voices', '/expert-speak-category/young-voices'),
+            ('Commentary', '/content-type/commentary'),
+            ('Issue Briefs', '/content-type/issue-briefs'),
+            ('Books', '/content-type/books'),
+            ('Special Reports', '/content-type/special-reports')
+        ]
+
+        feeds = []
+
+        for x, y in secs:
+            section = x
+            self.log(section)
+
+            articles = []
+
+            soup = self.index_to_soup(index + y)
+            for a in soup.findAll('a', attrs={'href':True}):
+                if not a.find('h3'):
+                    continue
+                div = a.find_previous_sibling(attrs={'class':'topic_story'})
+                if div:
+                    if div.find(**classes('show_date')):
+                        date = parse_date(self.tag_to_string(
+                                    div.find(**classes('show_date'))
+                                )
+                            ).replace(tzinfo=None)
+                        if (datetime.now() - date) > timedelta(self.oldest_article):
+                            self.log('      Skipping ', self.tag_to_string(a))
+                            continue
+                url = a['href']
+                title = self.tag_to_string(a)
+                desc = ''
+                if a.find_next_sibling('p'):
+                    desc = self.tag_to_string(a.find_next_sibling('p'))
+                if a.find_next_sibling(attrs={'class':'author_name'}):
+                    desc = self.tag_to_string(a.find_next_sibling(attrs={'class':'author_name'})) + ' | ' + desc
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
