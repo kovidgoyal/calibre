@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class znetwork(BasicNewsRecipe):
+    title = 'ZNetwork'
+    __author__ = 'unkn0wn'
+    language = 'en'
+    description = 'ZNetwork: Left News, Analysis, Vision & Strategy'
+    oldest_article = 2
+    no_stylesheets = True
+    encoding = 'utf-8'
+    remove_javascript = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://znetwork.org/wp-content/uploads/2022/08/Z_logo_64.png'
+    ignore_duplicate_articles = {'url'}
+    browser_type = 'qt'
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    extra_css = '''
+        .cat-labels { font-size:small; color:#404040; }
+        .post-author, .date, .author-info, .z-post-source, .read-time { font-size:small; }
+        .sub-title { font-style:italic; color:#202020; }
+        em, blockquote { color:#202020; }
+        .wp-caption-text, .wp-element-caption { font-size:small; text-align:center; }
+    '''
+
+    keep_only_tags = [
+        classes(
+            'cat-labels post-title z-post-source sub-title post-author date'
+            ' read-time featured entry-content author-info'
+        )
+    ]
+
+    remove_tags = [
+        dict(name=['aside', 'svg', 'source', 'iframe']),
+        classes('support-z-text yarpp-related yarpp-related-website')
+    ]
+
+    remove_tags_after = [classes('author-info')]
+
+    feeds = [('Articles', 'https://znetwork.org/feed/')]
+
+    def preprocess_html(self, soup):
+        for spn in soup.findAll(**classes('post-author date')):
+            spn.string = spn.text + ' | '
+        div = soup.findAll(**classes('featured'))
+        if div:
+            div.name = 'p'
+        p = soup.findAll(**classes('sub-title'))
+        if p:
+            p.name = 'p'
+        for h in soup.findAll(['h2', 'h3']):
+            h.name = 'h4'
+        return soup
