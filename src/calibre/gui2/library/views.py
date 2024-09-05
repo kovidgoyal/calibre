@@ -11,6 +11,7 @@ from collections import OrderedDict
 from functools import partial
 
 from qt.core import (
+    QAbstractItemDelegate,
     QAbstractItemView,
     QDialog,
     QDialogButtonBox,
@@ -1635,6 +1636,29 @@ class BooksView(QTableView):  # {{{
 
     def close(self):
         self._model.close()
+
+    def closeEditor(self, editor, hint):
+        # As of Qt 6.7.2, for some reason, Qt opens the next editor after
+        # closing this editor and then immediately closes it again. So
+        # workaround the bug by opening the editor again after an event loop
+        # tick.
+        orig = self.currentIndex()
+        move_by = None
+        if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
+            move_by = QAbstractItemView.CursorAction.MoveNext
+        elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
+            move_by = QAbstractItemView.CursorAction.MovePrevious
+        if move_by is not None:
+            hint = QAbstractItemDelegate.EndEditHint.NoHint
+        ans = super().closeEditor(editor, hint)
+        if move_by is not None and self.currentIndex() == orig:
+            index = self.moveCursor(move_by,Qt.KeyboardModifier.NoModifier)
+            if index.isValid():
+                def edit():
+                    self.setCurrentIndex(index)
+                    self.edit(index)
+                QTimer.singleShot(0, edit)
+        return ans
 
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
