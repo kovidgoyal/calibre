@@ -1651,8 +1651,8 @@ class BooksView(QTableView):  # {{{
         if move_by is not None:
             hint = QAbstractItemDelegate.EndEditHint.NoHint
         ans = super().closeEditor(editor, hint)
-        if move_by is not None and self.currentIndex() == orig:
-            index = self.moveCursor(move_by,Qt.KeyboardModifier.NoModifier)
+        if move_by is not None and self.currentIndex() == orig and self.state() is not QAbstractItemView.State.EditingState:
+            index = self.moveCursor(move_by, Qt.KeyboardModifier.NoModifier)
             if index.isValid():
                 def edit():
                     self.setCurrentIndex(index)
