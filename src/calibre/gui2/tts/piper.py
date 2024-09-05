@@ -468,10 +468,10 @@ class Piper(TTSBackend):
 
 
 def develop():  # {{{
-    import tty
 
     from qt.core import QSocketNotifier
 
+    from calibre.constants import iswindows
     from calibre.gui2 import Application
     app = Application([])
     p = Piper()
@@ -517,16 +517,19 @@ def develop():  # {{{
 
     p.state_changed.connect(state_changed)
     p.saying.connect(saying)
-    attr = tty.setraw(sys.stdin.fileno())
-    os.set_blocking(sys.stdin.fileno(), False)
+    if not iswindows:
+        import tty
+        attr = tty.setraw(sys.stdin.fileno())
+        os.set_blocking(sys.stdin.fileno(), False)
     sn = QSocketNotifier(sys.stdin.fileno(), QSocketNotifier.Type.Read, p)
     sn.activated.connect(input_ready)
     try:
         p.say(text)
         app.exec()
     finally:
-        import termios
-        termios.tcsetattr(sys.stdout.fileno(), termios.TCSANOW, attr)
+        if not iswindows:
+            import termios
+            termios.tcsetattr(sys.stdout.fileno(), termios.TCSANOW, attr)
 
 
 if __name__ == '__main__':
