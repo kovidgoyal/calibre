@@ -18,6 +18,7 @@ import zipfile
 from bypy.constants import CL, LINK, MT, PREFIX, RC, SIGNTOOL, SW, build_dir, python_major_minor_version, worker_env
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import cleanup_site_packages, extract_extension_modules, freeze_python, path_to_freeze_dir
+from bypy.pkgs.piper import copy_piper_dir
 from bypy.utils import mkdtemp, py_compile, run, walk
 
 iv = globals()['init_env']
@@ -140,6 +141,7 @@ def freeze(env, ext_dir, incdir):
         copybin(f, ossm)
     for f in glob.glob(os.path.join(PREFIX, 'ffmpeg', 'bin', '*.dll')):
         copybin(f)
+    copy_piper_dir(PREFIX, env.dll_dir)
 
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver.replace('.', '')))
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver[0]))

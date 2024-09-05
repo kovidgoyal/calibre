@@ -1160,7 +1160,6 @@
     {
         "name": "onnx",
 		"comment": "This is newer than the version needed for the version of piper-phonemize to get it to build on macOS (see CMakeLists.txt in piper-phonemize)",
-		"os": "linux,macos",
         "unix": {
             "filename": "onnx-1.19.0.tar.gz",
             "hash": "sha256:dd945b2fb8c2e7df7243e9d96c0293f45350058f0f713f66c519834a49a6c99d",
@@ -1170,7 +1169,6 @@
     {
         "name": "piper-espeak",
 		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
-		"os": "linux,macos",
         "unix": {
             "filename": "espeak-1.zip",
             "hash": "sha256:150fc955926a084a77ebe25c9e8287bde2e2a17bbf9b23a25c147b556837949f",
@@ -1180,7 +1178,6 @@
     {
         "name": "piper-phonemize",
 		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
-		"os": "linux,macos",
         "unix": {
             "filename": "piper-phonemize-1.zip",
             "hash": "sha256:cc57a4a00a0f5bd50555a93c94c0622da065a2a90b9c896bfbe8b45519e2e9c2",
@@ -1189,7 +1186,6 @@
     },
     {
         "name": "piper",
-		"os": "linux,macos",
         "unix": {
             "filename": "piper-2023.11.14.tar.gz",
             "hash": "sha256:8b684e102cfe23af097830db9555a8641f17735725853c531a1daeb34b6ed1a8",
