@@ -85,6 +85,7 @@ def setup_env():
     os.environ['CALIBRE_QT_PREFIX'] = os.path.join(SW, r'qt')
     os.environ['CI'] = 'true'
     os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
+    os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
 
 
 def main():
