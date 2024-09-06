@@ -102,10 +102,12 @@ class UtteranceAudioQueue(QIODevice):
     def close(self):
         self.utterances.clear()
         self.current_audio_data = QByteArray()
+        self.utterance_being_played = None
         return super().close()
 
     def clear(self):
         self.utterances.clear()
+        self.utterance_being_played = None
         self.current_audio_data = QByteArray()
         self.audio_state = QAudio.State.IdleState
 
@@ -234,6 +236,7 @@ class Piper(TTSBackend):
             sip.delete(self._audio_sink)
             sip.delete(self._process)
             self._process = self._audio_sink = None
+            self._set_state(QTextToSpeech.State.Ready)
 
     def reload_after_configure(self) -> None:
         self.shutdown()
