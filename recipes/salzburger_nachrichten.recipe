@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class SalzburgerNachrichten(BasicNewsRecipe):
     title = 'Salzburger Nachrichten'
     __author__ = 'İlker Melik Sıtkı'
@@ -56,4 +57,4 @@ class SalzburgerNachrichten(BasicNewsRecipe):
         ('Briefe an die SN', 'https://www.sn.at/leserforum/xml/rss'),
         ('Veranstaltungen', 'https://www.sn.at/veranstaltungen/xml/rss'),
         ('Klimawandel', 'https://www.sn.at/panorama/klimawandel/xml/rss')
-    ]       
+    ]

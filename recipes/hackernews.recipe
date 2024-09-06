@@ -92,7 +92,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
 
     def parse_feeds(self):
-        a = super(HNWithCommentsLinkAlt, self).parse_feeds()
+        a = super().parse_feeds()
         self.hn_articles = a[0].articles
         return a
 
@@ -113,11 +113,6 @@ class HNWithCommentsLink(BasicNewsRecipe):
                 content = u'<html><body><img src="' + url + u'"></body></html>'
             else:
                 content = self.get_readable_content(url)
-
-            article = 0
-            for a in self.hn_articles:
-                if a.url == url:
-                    article = a
 
         # content = re.sub(r'</body>\s*</html>\s*$', '', content) + \
         #    article.summary + '</body></html>'
