@@ -93,11 +93,9 @@ class tls(BasicNewsRecipe):
         self.log('              ', title, '\n\t', desc, '\n\t', url)
         return ({ 'title': title, 'description': desc, 'url': url })
 
-    def print_version(self, url):
-        return 'https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + get_id(url)
-
     def preprocess_raw_html(self, raw, *a):
-        data = json.loads(raw)
+        pg = re.search(r'var tlsPageObject = ({.+)', raw).group(1)
+        data = json.JSONDecoder().raw_decode(pg)[0]
         if 'articleIntroPrimary' in data:
             prim = data['articleIntroPrimary']
             title = '<h1>' + prim['headline'] + '</h1>\n'
@@ -121,7 +119,7 @@ class tls(BasicNewsRecipe):
             prim = title = desc = label = auth = lede = ''
 
         bks = ''
-        if data['bookdetails']:
+        if 'bookdetails' in data and data['bookdetails']:
             bks += '<br>'
             for a in data['bookdetails']:
                 for x, y in a.items():
@@ -132,14 +130,15 @@ class tls(BasicNewsRecipe):
                             bks += '<div class="det">' + y + '</div>\n'
                 bks += '<br>'
 
-        if 'leadimage' in data:
-            if 'full_image' in data['leadimage'] and data['leadimage']['full_image']:
+        if 'article_data_leadimage' in data:
+            i = data['article_data_leadimage']
+            if 'full_image' in i and i['full_image']:
                 lede = '<br><img src="{}"><div class="figc">{}</div>'.format(
-                    data['leadimage']['full_image'] + '?w600', data['leadimage']['imagecaption'] + ' <i>' \
-                        + data['leadimage']['imagecredit'] + '</i>'
+                    i['full_image'] + '?w600', i['imagecaption'] + ' <i>' \
+                        + i['imagecredit'] + '</i>'
                 )
-
-        body = data['content']
+        cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + data['ID'], raw=True)
+        body = json.loads(cont)['content']
 
         html = '<html><body><div>' \
                     + label + title + desc + auth + lede + bks + body + \
