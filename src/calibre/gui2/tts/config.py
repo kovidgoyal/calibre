@@ -1,8 +1,24 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-from qt.core import QCheckBox, QFormLayout, QLabel, QLocale, QMediaDevices, QSize, QSlider, Qt, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import (
+    QCheckBox,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLocale,
+    QMediaDevices,
+    QPushButton,
+    QSize,
+    QSlider,
+    Qt,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.gui2.tts.types import (
     AudioDeviceId,
@@ -113,10 +129,13 @@ class Volume(QWidget):
 
 class Voices(QTreeWidget):
 
+    voice_changed = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setHeaderHidden(True)
         self.system_default_voice = Voice()
+        self.currentItemChanged.connect(self.voice_changed)
 
     def sizeHint(self) -> QSize:
         return QSize(400, 500)
@@ -154,14 +173,23 @@ class Voices(QTreeWidget):
 
     @property
     def val(self) -> str:
-        voice = self.currentItem().data(0, Qt.ItemDataRole.UserRole)
+        voice = self.current_voice
         return voice.name if voice else ''
+
+    @property
+    def current_voice(self) -> Voice | None:
+        ci = self.currentItem()
+        if ci is not None:
+            return ci.data(0, Qt.ItemDataRole.UserRole)
 
 
 class EngineSpecificConfig(QWidget):
 
+    voice_changed = pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
+        self.engine_name = ''
         self.l = l = QFormLayout(self)
         devs = QMediaDevices.audioOutputs()
         dad = QMediaDevices.defaultAudioOutput()
@@ -183,6 +211,7 @@ class EngineSpecificConfig(QWidget):
         self.audio_device = ad = QComboBox(self)
         l.addRow(_('Output a&udio to:'), ad)
         self.voices = v = Voices(self)
+        v.voice_changed.connect(self.voice_changed)
         la = QLabel(_('V&oices:'))
         la.setBuddy(v)
         l.addRow(la)
@@ -241,6 +270,7 @@ class EngineSpecificConfig(QWidget):
         else:
             self.layout().setRowVisible(self.audio_device, False)
         self.rebuild_voices()
+        return metadata
 
     def rebuild_voices(self):
         try:
@@ -269,6 +299,29 @@ class EngineSpecificConfig(QWidget):
                     break
         return ans
 
+    def voice_action(self):
+        v = self.voices.current_voice
+        if v is None:
+            return
+        metadata = available_engines()[self.engine_name]
+        if not metadata.has_managed_voices:
+            return
+        tts = create_tts_backend(self.engine_name)
+        if tts.is_voice_downloaded(v):
+            tts.delete_voice(v)
+        else:
+            tts.download_voice(v)
+
+    def current_voice_is_downloaded(self) -> bool:
+        v = self.voices.current_voice
+        if v is None:
+            return False
+        metadata = available_engines()[self.engine_name]
+        if not metadata.has_managed_voices:
+            return False
+        tts = create_tts_backend(self.engine_name)
+        return tts.is_voice_downloaded(v)
+
 
 class ConfigDialog(Dialog):
 
@@ -279,12 +332,35 @@ class ConfigDialog(Dialog):
         self.l = l = QVBoxLayout(self)
         self.engine_choice = ec = EngineChoice(self)
         self.engine_specific_config = esc = EngineSpecificConfig(self)
-        ec.changed.connect(esc.set_engine)
+        ec.changed.connect(self.set_engine)
+        esc.voice_changed.connect(self.update_voice_button)
         l.addWidget(ec)
         l.addWidget(esc)
-        l.addWidget(self.bb)
+        self.voice_button = b = QPushButton(self)
+        b.clicked.connect(self.voice_action)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
         self.initial_engine_choice = ec.value
-        esc.set_engine(self.initial_engine_choice)
+        self.set_engine(self.initial_engine_choice)
+
+    def set_engine(self, engine_name: str) -> None:
+        metadata = self.engine_specific_config.set_engine(engine_name)
+        self.voice_button.setVisible(metadata.has_managed_voices)
+        self.update_voice_button()
+
+    def update_voice_button(self):
+        b = self.voice_button
+        if self.engine_specific_config.current_voice_is_downloaded():
+            b.setIcon(QIcon.ic('trash.png'))
+            b.setText(_('Remove downloaded voice'))
+        else:
+            b.setIcon(QIcon.ic('download-metadata.png'))
+            b.setText(_('Download voice'))
+
+    def voice_action(self):
+        self.engine_specific_config.voice_action()
+        self.update_voice_button()
 
     @property
     def engine_changed(self) -> bool:

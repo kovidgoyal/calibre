@@ -7,6 +7,7 @@ import os
 import re
 import sys
 from collections import deque
+from contextlib import suppress
 from dataclasses import dataclass
 from itertools import count
 from time import monotonic
@@ -441,12 +442,32 @@ class Piper(TTSBackend):
         lang = canonicalize_lang(lang) or lang
         return self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
 
-    def _ensure_voice_is_downloaded(self, voice: Voice) -> tuple[str, str]:
+    def _paths_for_voice(self, voice: Voice) -> tuple[str, str]:
         fname = voice.engine_data['model_filename']
         model_path = os.path.join(cache_dir(), 'piper-voices', fname)
         config_path = os.path.join(os.path.dirname(model_path), fname + '.json')
+        return model_path, config_path
+
+    def is_voice_downloaded(self, v: Voice) -> bool:
+        if not v.name:
+            v = self._default_voice
+        for path in self._paths_for_voice(v):
+            if not os.path.exists(path):
+                return False
+        return True
+
+    def delete_voice(self, v: Voice) -> None:
+        if not v.name:
+            v = self._default_voice
+        for path in self._paths_for_voice(v):
+            with suppress(FileNotFoundError):
+                os.remove(path)
+
+    def _download_voice(self, voice: Voice, download_even_if_exists: bool = False) -> tuple[str, str]:
+        model_path, config_path = self._paths_for_voice(voice)
         if os.path.exists(model_path) and os.path.exists(config_path):
-            return model_path, config_path
+            if not download_even_if_exists:
+                return model_path, config_path
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         from calibre.gui2.tts.download import DownloadResources
         d = DownloadResources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
@@ -456,6 +477,14 @@ class Piper(TTSBackend):
         if d.exec() == QDialog.DialogCode.Accepted:
             return model_path, config_path
         return '', ''
+
+    def download_voice(self, v: Voice) -> None:
+        if not v.name:
+            v = self._default_voice
+        self._download_voice(v, download_even_if_exists=True)
+
+    def _ensure_voice_is_downloaded(self, voice: Voice) -> tuple[str, str]:
+        return self._download_voice(voice)
 
     def validate_settings(self, s: EngineSpecificSettings, parent: QWidget | None) -> bool:
         self._load_voice_metadata()

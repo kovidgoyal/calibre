@@ -38,6 +38,7 @@ class EngineMetadata(NamedTuple):
     can_change_pitch: bool = True
     can_change_volume: bool = True
     voices_have_quality_metadata: bool = False
+    has_managed_voices: bool = False
 
 
 class Quality(Enum):
@@ -218,7 +219,7 @@ def available_engines() -> dict[str, EngineMetadata]:
         ans['piper'] = EngineMetadata('piper', _('The Piper Neural Speech Engine'), _(
             'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
             'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
-        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True)
+        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True)
     if islinux:
         from speechd.paths import SPD_SPAWN_CMD
         cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
@@ -280,6 +281,15 @@ class TTSBackend(QObject):
 
     def validate_settings(self, s: EngineSpecificSettings, parent: QWidget | None) -> bool:
         return True
+
+    def is_voice_downloaded(self, v: Voice) -> bool:
+        return True
+
+    def delete_voice(self, v: Voice) -> None:
+        pass
+
+    def download_voice(self, v: Voice) -> None:
+        pass
 
 
 engine_instances: dict[str, TTSBackend] = {}
