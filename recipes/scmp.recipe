@@ -1,34 +1,108 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 """
 scmp.com
 """
 
 import json
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+import time
 
+from html5_parser import parse
+from lxml import etree
+
+from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
+def E(parent, name, text='', **attrs):
+    ans = parent.makeelement(name, **attrs)
+    ans.text = text
+    parent.append(ans)
+    return ans
+
+
+def process_node(node, html_parent):
+    ntype = node.get('type')
+    
+    if not ntype in {'track-viewed-percentage', 'inline-ad-slot', 'inline-widget', 'text'}:
+        c = html_parent.makeelement(ntype)
+        if ntype != 'p':
+            c.attrib.update({k: v or '' for k, v in node.get('attribs', {}).items()})
+        html_parent.append(c)
+        for nc in node.get('children', ()):
+            process_node(nc, c)
+    elif ntype == 'text':
+        text = node.get('data')
+        if text:
+            text = replace_entities(text)
+            if len(html_parent):
+                t = html_parent[-1]
+                t.tail = (t.tail or '') + text
+            else:
+                html_parent.text = (html_parent.text or '') + text
+
+
+def ts_date(x):
+    dt = datetime.fromtimestamp(x/1000 + time.timezone)
+    return dt.strftime('%b %d, %Y at %I:%M %p')
+
+
+def auth(x):
+    return ', '.join([a['name'] for a in x])
+
+
+def load_article_from_json(raw, root):
+    # open('/t/raw.json', 'w').write(raw)
+    data = json.loads(raw)['props']['pageProps']['payload']['data']['article']
+    body = root.xpath('//body')[0]
+    for child in tuple(body):
+        body.remove(child)
+    article = E(body, 'article')
+    E(article, 'div', replace_entities(data['firstTopic']['name']) , style='color: gray; font-size:small; font-weight:bold;')
+    E(article, 'h1', replace_entities(data['headline']))
+    # E(article, 'p', replace_entities(data['subHeadline']['text']), style='font-style: italic; color:#202020;')
+    for subh in data['subHeadline']['json']:
+        process_node(subh, article)
+    E(article, 'p', ts_date(data['publishedDate']) + ' | ' + auth(data['authors']), style='color: #202020; font-size:small;')
+    main_image_url = sub_img = ''
+    for l in data['images']:
+        if l['type'] == 'leading':
+            main_image_url = l['url']
+            sub_img = l['title']
+    if main_image_url != '':
+        div = E(article, 'div')
+        E(div, 'img', src=main_image_url)
+        E(div, 'div', sub_img, style='text-align:center; font-size:small;')
+    for node in data['body']['json']:
+        process_node(node, article)
+
+
 class SCMP(BasicNewsRecipe):
     title = "South China Morning Post"
-    __author__ = "llam"
-    description = "SCMP.com, Hong Kong's premier online English daily provides exclusive up-to-date news, audio video news, podcasts, RSS Feeds, Blogs, breaking news, top stories, award winning news and analysis on Hong Kong and China."  # noqa
+    __author__ = "unkn0wn"
+    description = (
+        'The South China Morning Post is a leading news media company that has reported on China and Asia '
+        'for more than a century with global impact. Founded in 1903, SCMP is headquartered in Hong Kong, '
+        'where it is the city’s newspaper of record. Our teams span across Asia and the United States, '
+        'working together to connect with news consumers around the world. We are committed to informing '
+        'and inspiring through journalism of the highest standards. Our vision is to “Elevate Thought”, '
+        'and our mission is to “Lead the global conversation about China”.'
+    )
     publisher = "South China Morning Post Publishers Ltd."
     oldest_article = 1
-    max_articles_per_feed = 25
     no_stylesheets = True
     remove_javascript = True
+    remove_attributes = ['width', 'height']
     encoding = "utf-8"
     use_embedded_content = False
-    language = "en"
+    language = "en_HK"
     remove_empty_feeds = True
+    resolve_internal_links = True
     publication_type = "newspaper"
-    auto_cleanup = False
-    compress_news_images = True
     ignore_duplicate_articles = {"title", "url"}
+    extra_css = 'blockquote, em { color: #202020; }'
 
     recipe_specific_options = {
         'days': {
@@ -44,6 +118,10 @@ class SCMP(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/south-china-morning-post/')
+        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+
     # used when unable to extract article from <script>, particularly in the Sports section
     remove_tags = [
         dict(
@@ -56,22 +134,6 @@ class SCMP(BasicNewsRecipe):
         dict(attrs={"addthis_title": True}),
         dict(name=["script", "style"]),
     ]
-    remove_attributes = ["style", "font"]
-
-    extra_css = """
-    .headline { font-size: 1.8rem; margin-bottom: 0.4rem; }
-    .sub-headline { font-size: 1rem; margin-bottom: 1.5rem; }
-    .sub-headline ul { padding-left: 1rem; }
-    .sub-headline ul li { fmargin-bottom: 0.8rem; }
-    .article-meta, .article-header__publish { padding-bottom: 0.5rem; }
-    .article-meta .author { text-transform: uppercase; font-weight: bold; }
-    .article-meta .published-dt { margin-left: 0.5rem; }
-    .article-img { margin-bottom: 0.8rem; max-width: 100%; }
-    .article-img img, .carousel__slide img {
-        display: block; margin-bottom: 0.3rem; max-width: 100%; height: auto;
-        box-sizing: border-box; }
-    .article-img .caption, .article-caption { font-size: 0.8rem; }
-    """
 
     # https://www.scmp.com/rss
     feeds = [
@@ -86,156 +148,38 @@ class SCMP(BasicNewsRecipe):
         ("Sport", "https://www.scmp.com/rss/95/feed"),
         ("Post Mag", "https://www.scmp.com/rss/71/feed"),
         ("Style", "https://www.scmp.com/rss/72/feed"),
+        ("News", 'https://www.scmp.com/rss/91/feed')
     ]
+
+    def print_version(self, url):
+        return url.split('?')[0]
 
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/c/c3/SCMP_logo.svg'
 
-    def get_cover_url(self):
-        from datetime import date
-        cover = 'https://img.kiosko.net/' + str(
-            date.today().year
-        ) + '/' + date.today().strftime('%m') + '/' + date.today(
-        ).strftime('%d') + '/cn/scmp.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
-        try:
-            br.open(cover)
-        except:
-            index = 'https://es.kiosko.net/cn/np/scmp.html'
-            soup = self.index_to_soup(index)
-            for image in soup.findAll('img', src=True):
-                if image['src'].endswith('750.jpg'):
-                    return 'https:' + image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
-
-    def _extract_child_nodes(self, children, ele, soup, level=1):
-        if not children:
-            return
-
-        child_html = ""
-        for child in children:
-            if child.get("type", "") == "text":
-                child_html += child["data"]
-            else:
-                if child["type"] == "iframe":
-                    # change iframe to <span> with the src linked
-                    new_ele = soup.new_tag("span")
-                    new_ele["class"] = f'embed-{child["type"]}'
-                    iframe_src = child.get("attribs", {}).get("src")
-                    a_tag = soup.new_tag("a")
-                    a_tag["href"] = iframe_src
-                    a_tag.string = f"[Embed: {iframe_src}]"
-                    new_ele.append(a_tag)
-                else:
-                    new_ele = soup.new_tag(child["type"])
-                    for k, v in child.get("attribs", {}).items():
-                        if k.startswith("data-"):
-                            continue
-                        new_ele[k] = v
-                    if child.get("children"):
-                        self._extract_child_nodes(
-                            child["children"], new_ele, soup, level + 1
-                        )
-                child_html += str(new_ele)
-                if child["type"] == "img":
-                    # generate a caption <span> tag for <img>
-                    caption_text = child.get("attribs", {}).get("alt") or child.get(
-                        "attribs", {}
-                    ).get("title")
-                    if caption_text:
-                        new_ele = soup.new_tag("span")
-                        new_ele.append(caption_text)
-                        new_ele["class"] = "caption"
-                        child_html += str(new_ele)
-                    ele["class"] = "article-img"
-        ele.append(BeautifulSoup(child_html))
-
     def preprocess_raw_html(self, raw_html, url):
-        article = None
-        soup = BeautifulSoup(raw_html)
-
-        for script in soup.find_all("script"):
-            if not script.contents:
-                continue
-            if not script.contents[0].startswith("window.__APOLLO_STATE__"):
-                continue
-            article_js = re.sub(
-                r"window.__APOLLO_STATE__\s*=\s*", "", script.contents[0].strip()
-            )
-            if article_js.endswith(";"):
-                article_js = article_js[:-1]
+        body = '<html><body><article></article></body></html>'
+        b_root = parse(body)
+        root = parse(raw_html)
+        script = root.xpath('//script[@id="__NEXT_DATA__"]')
+        if script:
             try:
-                article = json.loads(article_js)
-                break
-            except json.JSONDecodeError:
-                self.log.exception("Unable to parse __APOLLO_STATE__")
+                load_article_from_json(script[0].text, b_root)
+            except Exception:
+                return raw_html
+            head = root.xpath('//h2') + root.xpath('//h3')    
+            for h2 in head:
+                h2.tag = 'h4'
+            raw = etree.tostring(b_root, encoding='unicode')
+            return raw
+        return raw_html
 
-        if not (article and article.get("contentService")):
-            # Sometimes the page does not have article content in the <script>
-            # particularly in the Sports section, so we fallback to
-            # raw_html and rely on remove_tags to clean it up
-            self.log(f"Unable to find article from script in {url}")
-            return raw_html
-
-        content_service = article.get("contentService")
-        content_node_id = None
-        for k, v in content_service["ROOT_QUERY"].items():
-            if not k.startswith("content"):
-                continue
-            content_node_id = v["id"]
-            break
-        content = content_service.get(content_node_id)
-
-        if content.get("sponsorType"):
-            # skip sponsored articles
-            self.abort_article(f"Sponsored article: {url}")
-
-        body = None
-        for k, v in content.items():
-            if (not k.startswith("body(")) or v.get("type", "") != "json":
-                continue
-            body = v
-
-        authors = [content_service[a["id"]]["name"] for a in content["authors"]]
-        date_published = datetime.fromtimestamp(
-            content["publishedDate"] / 1000, timezone.utc)
-        date_published_loc = date_published.astimezone(
-            timezone(offset=timedelta(hours=8))  # HK time
-        )
-        try:
-            df = date_published_loc.strftime('%-I:%M%p, %-d %b, %Y')
-        except Exception:
-            df = ''
-
-        html_output = f"""<html><head><title>{content["headline"]}</title></head>
-        <body>
-            <article>
-            <h1 class="headline">{content["headline"]}</h1>
-            <div class="sub-headline"></div>
-            <div class="article-meta">
-                <span class="author">{", ".join(authors)}</span>
-                <span class="published-dt">{df}</span>
-            </div>
-            </article>
-        </body></html>
-        """
-
-        new_soup = BeautifulSoup(html_output, "html.parser")
-        # sub headline
-        for c in content.get("subHeadline", {}).get("json", []):
-            ele = new_soup.new_tag(c["type"])
-            self._extract_child_nodes(c.get("children", []), ele, new_soup)
-            new_soup.find(class_="sub-headline").append(ele)
-
-        # article content
-        for node in body["json"]:
-            if node["type"] not in ["p", "div"]:
-                continue
-            new_ele = new_soup.new_tag(node["type"])
-            new_ele.string = ""
-            if node.get("children"):
-                self._extract_child_nodes(node["children"], new_ele, new_soup)
-            new_soup.article.append(new_ele)
-
-        return str(new_soup)
+    def preprocess_html(self, soup):
+        from urllib.parse import urlparse
+        for img in soup.findAll('img', attrs={'src':True}):
+            y = 'https://img.i-scmp.com/cdn-cgi/image/fit=contain,width=768,format=auto'
+            img['src'] = y + urlparse(img['src']).path
+        for img in soup.findAll('img', attrs={'title':True}):
+            div = soup.new_tag('div', attrs={'style':'text-align:center; font-size:small;'})
+            div.string = img['title']
+            img.find_parent('div').append(div)
+        return soup
