@@ -62,7 +62,8 @@ def load_article_from_json(raw, root):
     # E(article, 'p', replace_entities(data['subHeadline']['text']), style='font-style: italic; color:#202020;')
     for subh in data['subHeadline']['json']:
         process_node(subh, article)
-    E(article, 'p', ts_date(data['publishedDate']) + ' | ' + auth(data['authors']), style='color: #202020; font-size:small;')
+    auth = ts_date(data['publishedDate']) + ' | ' + data['readingTime'] or '' + ' min read | ' + auth(data['authors'])
+    E(article, 'p', auth, style='color: #202020; font-size:small;')
     main_image_url = sub_img = ''
     for l in data['images']:
         if l['type'] == 'leading':
