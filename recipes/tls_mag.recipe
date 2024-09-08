@@ -118,18 +118,6 @@ class tls(BasicNewsRecipe):
         else:
             prim = title = desc = label = auth = lede = ''
 
-        bks = ''
-        if 'bookdetails' in data and data['bookdetails']:
-            bks += '<br>'
-            for a in data['bookdetails']:
-                for x, y in a.items():
-                    if isinstance(y, str):
-                        if x == 'imageurl':
-                            bks += '<img src="{}">'.format(y)
-                        elif y:
-                            bks += '<div class="det">' + y + '</div>\n'
-                bks += '<br>'
-
         if 'article_data_leadimage' in data:
             i = data['article_data_leadimage']
             if 'full_image' in i and i['full_image']:
@@ -138,7 +126,20 @@ class tls(BasicNewsRecipe):
                         + i['imagecredit'] + '</i>'
                 )
         cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + data['ID'], raw=True)
-        body = json.loads(cont)['content']
+        c_data = json.loads(cont)
+        body = c_data['content']
+
+        bks = ''
+        if 'bookdetails' in c_data and c_data['bookdetails']:
+            bks += '<br>'
+            for a in c_data['bookdetails']:
+                for x, y in a.items():
+                    if isinstance(y, str):
+                        if x == 'imageurl':
+                            bks += '<img src="{}">'.format(y)
+                        elif y:
+                            bks += '<div class="det">' + y + '</div>\n'
+                bks += '<br>'
 
         html = '<html><body><div>' \
                     + label + title + desc + auth + lede + bks + body + \

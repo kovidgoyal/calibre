@@ -163,7 +163,7 @@ class SCMP(BasicNewsRecipe):
                 load_article_from_json(script[0].text, b_root)
             except Exception:
                 return raw_html
-            head = root.xpath('//h2') + root.xpath('//h3')    
+            head = b_root.xpath('//h2') + b_root.xpath('//h3')
             for h2 in head:
                 h2.tag = 'h4'
             raw = etree.tostring(b_root, encoding='unicode')
