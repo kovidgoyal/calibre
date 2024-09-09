@@ -950,7 +950,7 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
 
     * Try temporarily disabling your antivirus program (Microsoft Security Essentials, or Kaspersky or Norton or McAfee or whatever). This is most likely the culprit if the upgrade process is hanging in the middle.
     * Similarly, if the installer is failing/rolling back and you have Microsoft PowerToys running, quit it.
-    * If you have installed to a non-standrad location, try running the installer as Administrator
+    * If you have installed to a non-standard location, try running the installer as Administrator
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <https://www.wisecleaner.com>`_.
     * Try a clean install. That is, uninstall calibre, delete :file:`C:\\Program Files\\Calibre2` (or wherever you previously chose to install calibre). Then re-install calibre. Note that uninstalling does not touch your books or settings.
     * Try downloading the installer with an alternate browser. For example if you are using Microsoft Edge, try using Firefox or Chrome instead.
