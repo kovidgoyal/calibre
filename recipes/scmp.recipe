@@ -12,7 +12,6 @@ from html5_parser import parse
 from lxml import etree
 
 from calibre import replace_entities
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -160,6 +159,7 @@ class SCMP(BasicNewsRecipe):
             try:
                 load_article_from_json(script[0].text, b_root)
             except Exception:
+                self.log('** Failed parse: ', url)
                 return raw_html
             head = b_root.xpath('//h2') + b_root.xpath('//h3')
             for h2 in head:
