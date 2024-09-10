@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -27,16 +28,32 @@ class ArsTechnica(BasicNewsRecipe):
     encoding = 'utf-8'
     use_embedded_content = False
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url', 'title'}
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/5/51/Ars_Technica_logo_%282016%29.svg'
     extra_css             = '''
-    body {font-family: Arial,sans-serif}
-    .heading{font-family: "Times New Roman",serif}
-    .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
-    img{display: block}
-    .caption-text{font-size:small; font-style:italic}
-    .caption-byline{font-size:small; font-style:italic; font-weight:bold}
-    .video, .page-numbers, .story-sidebar { display: none }
-    .image { display: block }
+        body {font-family: Arial,sans-serif}
+        .heading{font-family: "Times New Roman",serif}
+        .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
+        img{display: block}
+        .caption-text{font-size:small; font-style:italic}
+        .caption-byline{font-size:small; font-style:italic; font-weight:bold}
+        .video, .page-numbers, .story-sidebar { display: none }
+        .image { display: block }
     '''
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     keep_only_tags = [
         dict(itemprop=['headline', 'description']),
@@ -58,19 +75,14 @@ class ArsTechnica(BasicNewsRecipe):
         ('Technology Lab', 'http://feeds.arstechnica.com/arstechnica/technology-lab'),
         ('Gear &amp; Gadgets', 'http://feeds.arstechnica.com/arstechnica/gadgets'),
         ('Ministry of Innovation', 'http://feeds.arstechnica.com/arstechnica/business'),
-        ('Risk Assessment', 'http://feeds.arstechnica.com/arstechnica/security'),
         ('Law &amp; Disorder', 'http://feeds.arstechnica.com/arstechnica/tech-policy'),
         ('Infinite Loop', 'http://feeds.arstechnica.com/arstechnica/apple'),
         ('Opposable Thumbs', 'http://feeds.arstechnica.com/arstechnica/gaming'),
         ('Scientific Method', 'http://feeds.arstechnica.com/arstechnica/science'),
-        ('The Multiverse', 'http://feeds.arstechnica.com/arstechnica/multiverse'),
         ('Cars Technica', 'http://feeds.arstechnica.com/arstechnica/cars'),
         ('Staff', 'http://feeds.arstechnica.com/arstechnica/staff-blogs'),
-        ('Open Source', 'http://feeds.arstechnica.com/arstechnica/open-source'),
-        ('microsoft', 'http://feeds.arstechnica.com/arstechnica/microsoft'),
-        ('software', 'http://feeds.arstechnica.com/arstechnica/software'),
-        ('telecom', 'http://feeds.arstechnica.com/arstechnica/telecom'),
-        ('Internet', 'http://feeds.arstechnica.com/arstechnica/web'),
+        ('Microsoft', 'http://feeds.arstechnica.com/arstechnica/microsoft'),
+        ('Others', 'https://feeds.arstechnica.com/arstechnica/index')
     ]
 
     recursions = 1
