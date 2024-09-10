@@ -250,7 +250,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
         i = float(i)
     except Exception:
         return str(i)
-    if int(i) == float(i):
+    if int(i) == i:
         return roman(int(i)) if use_roman else '%d'%int(i)
     ans = fmt%i
     if '.' in ans:
