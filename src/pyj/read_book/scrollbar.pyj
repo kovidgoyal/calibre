@@ -104,10 +104,13 @@ class BookScrollbar:
         frac = max(0, min(frac, 1))
         c.firstChild.style.top = f'{frac * (c.clientHeight - c.firstChild.clientHeight)}px'
 
+    def _sync_to_contents(self, frac):
+        self.sync_to_contents_timer = 0
+        self.set_position(frac)
+
     def sync_to_contents(self, frac):
-        if self.sync_to_contents_timer:
-            window.clearTimeout(self.sync_to_contents_timer)
-        self.sync_to_contents_timer = window.setTimeout(self.set_position.bind(None, frac), 100)
+        if not self.sync_to_contents_timer:
+            self.sync_to_contents_timer = window.setTimeout(self._sync_to_contents.bind(None, frac), 50)
 
     def apply_color_scheme(self, colors):
         fg = cached_color_to_rgba(colors.foreground)
