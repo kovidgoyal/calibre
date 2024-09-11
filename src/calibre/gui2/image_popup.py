@@ -224,7 +224,9 @@ class ImageView(QDialog):
     def factor_from_fit(self):
         scaled_height = self.label.size().height()
         actual_height = self.current_img.size().height()
-        return scaled_height / actual_height
+        if actual_height:
+            return scaled_height / actual_height
+        return 1
 
     def zoom_requested(self, zoom_out):
         if (zoom_out and self.zo_button.isEnabled()) or (not zoom_out and self.zi_button.isEnabled()):
