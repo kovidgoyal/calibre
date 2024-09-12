@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
+    <width>416</width>
     <height>300</height>
    </rect>
   </property>
@@ -152,7 +152,7 @@
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_new_pdf_engine">
      <property name="text">
-      <string>&amp;New, experimental, PDF conversion Engine</string>
+      <string>New, experimental, PDF conversion &amp;engine</string>
      </property>
     </widget>
    </item>
