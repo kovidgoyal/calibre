@@ -91,7 +91,7 @@ html5_entities = {
     'DifferentialD': 'ⅆ',
     'Dopf': '𝔻',
     'Dot': '¨',
-    'DotDot': '⃜\u20dc',
+    'DotDot': '⃜',
     'DotEqual': '≐',
     'DoubleContourIntegral': '∯',
     'DoubleDot': '¨',
@@ -502,7 +502,7 @@ html5_entities = {
     'TRADE': '™',
     'TSHcy': 'Ћ',
     'TScy': 'Ц',
-    'Tab': '	',
+    'Tab': '\t',
     'Tau': 'Τ',
     'Tcaron': 'Ť',
     'Tcedil': 'Ţ',
@@ -2133,11 +2133,10 @@ html5_entities = {
 }
 
 
-if __name__ == '__main__':
+def generate_entity_lists():
     import re
-
-    from html5lib.constants import entities
-    entities = {k.replace(';', ''): entities[k] for k in entities}
+    from html import entities
+    entities = {k.rstrip(';'): entities.html5[k] for k in entities.html5}
     lines = []
 
     for k in sorted(entities):
@@ -2145,8 +2144,7 @@ if __name__ == '__main__':
 
     with open(__file__, 'r+b') as f:
         raw = f.read().decode('utf-8')
-        raw = re.sub(r'^# ENTITY_DATA {{{.+^# }}}',
-                     '# ENTITY_DATA {{{\n' + '\n'.join(lines) + '\n# }}}',
-                     raw, flags=re.M | re.DOTALL)
+        pat = re.compile(r'^# ENTITY_DATA {{{.+^# }}}', flags=re.M | re.DOTALL)
+        raw = pat.sub(lambda m: '# ENTITY_DATA {{{\n' + '\n'.join(lines) + '\n# }}}', raw)
         f.seek(0), f.truncate()
         f.write(raw.encode('utf-8'))
