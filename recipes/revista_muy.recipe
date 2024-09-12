@@ -1,120 +1,62 @@
-from calibre.ebooks.BeautifulSoup import Tag
-from calibre.web.feeds.news import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
-
+#!/usr/bin/env python
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class RevistaMuyInteresante(BasicNewsRecipe):
-
     title = 'Revista Muy Interesante'
-    __author__ = 'Jefferson Frantz'
-    description = 'Revista de divulgacion'
-    timefmt = ' [%d %b, %Y]'
+    __author__ = 'unkn0wn'
+    description = 'Revista Muy Interesante, es un sitio con información sobre ciencia, tecnología, historia, sociedad, medio ambiente, etc.'
     language = 'es'
-
+    encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True
-
-    conversion_options = {'linearize_tables': True}
-
-    extra_css = ' .txt_articulo{ font-family: sans-serif; font-size: medium; text-align: justify } .contentheading{font-family: serif; font-size: large; font-weight: bold; color: #000000; text-align: center}'  # noqa
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-
-        for img_tag in soup.findAll('img'):
-            imagen = img_tag
-            nt = new_tag(soup, 'p')
-            img_tag.replaceWith(nt)
-            div = soup.find(attrs={'class': 'article_category'})
-            div.insert(0, imagen)
-            break
-        return soup
-
-    preprocess_regexps = [
-        (re.compile(r'<td class="contentheading" width="100%">.*?</td>', re.DOTALL | re.IGNORECASE), lambda match: '<td class="contentheading">' +
-         match.group().replace('<td class="contentheading" width="100%">', '').strip().replace('</td>', '').strip() + '</td>'),
-
-    ]
-
-    keep_only_tags = [dict(name='div', attrs={'class': ['article']}), dict(
-        name='td', attrs={'class': ['txt_articulo']})]
-
-    remove_tags = [
-        dict(name=['object', 'link', 'script', 'ul', 'iframe', 'ins']), dict(name='div', attrs={'id': ['comment']}), dict(name='td', attrs={'class': ['buttonheading']}), dict(name='div', attrs={'class': ['tags_articles', 'bajo_title']}), dict(name='table', attrs={'class': ['pagenav']}), dict(name='form', attrs={'class': ['voteform']})  # noqa
-    ]
-
-    remove_tags_after = dict(name='div', attrs={'class': 'tags_articles'})
-
-    # TO GET ARTICLES IN SECTION
-    def nz_parse_section(self, url):
-        soup = self.index_to_soup(url)
-        div = soup.find(attrs={'class': 'contenido'})
-        current_articles = []
-        for x in div.findAllNext(attrs={'class': ['headline']}):
-            a = x.find('a', href=True)
-            if a is None:
-                continue
-            title = self.tag_to_string(a)
-            url = a.get('href', False)
-            if not url or not title:
-                continue
-            if url.startswith('/'):
-                url = 'http://www.muyinteresante.es' + url
-#                    self.log('\t\tFound article:', title)
-#                    self.log('\t\t\t', url)
-            current_articles.append({'title': title, 'url': url,
-                                     'description': '', 'date': ''})
-
-        return current_articles
-
-    # To GET SECTIONS
-    def parse_index(self):
-        feeds = []
-        for title, url in [
-            ('Historia',
-             'http://www.muyinteresante.es/historia-articulos'),
-            ('Ciencia',
-             'http://www.muyinteresante.es/ciencia-articulos'),
-            ('Naturaleza',
-             'http://www.muyinteresante.es/naturaleza-articulos'),
-            ('Tecnología',
-             'http://www.muyinteresante.es/tecnologia-articulos'),
-            ('Salud',
-             'http://www.muyinteresante.es/salud-articulos'),
-            ('Más Muy',
-             'http://www.muyinteresante.es/muy'),
-            ('Innova - Automoción',
-             'http://www.muyinteresante.es/articulos-innovacion-autos'),
-            ('Innova - Salud',
-             'http://www.muyinteresante.es/articulos-innovacion-salud'),
-            ('Innova - Medio Ambiente',
-             'http://www.muyinteresante.es/articulos-innovacion-medio-ambiente'),
-            ('Innova - Alimentación',
-             'http://www.muyinteresante.es/articulos-innovacion-alimentacion'),
-            ('Innova - Sociedad',
-             'http://www.muyinteresante.es/articulos-innovacion-sociedad'),
-            ('Innova - Tecnología',
-             'http://www.muyinteresante.es/articulos-innovacion-tecnologia'),
-            ('Innova - Ocio',
-             'http://www.muyinteresante.es/articulos-innovacion-ocio'),
-        ]:
-            articles = self.nz_parse_section(url)
-            if articles:
-                feeds.append((title, articles))
-        return feeds
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.muyinteresante.com/static/img/logo_web.svg'
+    resolve_internal_links = True
 
     def get_cover_url(self):
-        index = 'http://www.muyinteresante.es/revista'
-        soup = self.index_to_soup(index)
-        link_item = soup.find('img', attrs={'class': 'img_portada'})
-        if link_item:
-            cover_url = "http://www.muyinteresante.es" + link_item['src']
-        return cover_url
+        soup = self.index_to_soup(
+            'https://www.magzter.com/ES/Zinet-Media-Global/Muy-Interesante-Espa%C3%B1a/Science/1806044'
+        )
+        for citem in soup.findAll(
+            'meta', content=lambda s: s and s.endswith('view/3.jpg')
+        ):
+            return citem['content']
+
+    extra_css = '''
+        .c-detail__bar, .c-detail__author, .c-detail__media__txt { font-size:small; }
+        .default-epigraph { font-style:italic; }
+    '''
+
+    keep_only_tags = [dict(name='article', attrs={'class':'c-detail'})]
+
+    remove_tags = [
+        dict(name=['aside', 'svg', 'script']),
+        classes('c-detail__share')
+    ]
+
+    def preprocess_html(self, soup):
+        au = soup.find(**classes('c-detail__author'))
+        if au:
+            for p in au.findAll('p'):
+                p.name = 'div'
+        for h in soup.findAll(['h2', 'h3']):
+            h.name = 'h4'
+        return soup
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.muyinteresante.com/')
+        ans = []
+        for articles in soup.findAll('article'):
+            a = articles.find('a', attrs={'class':'page-link', 'href':True})
+            if not a:
+                continue
+            title = self.tag_to_string(a)
+            url = a['href']
+            desc = ''
+            info = articles.find(**classes('c-article__info_content'))
+            if info:
+                desc = self.tag_to_string(info)
+            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', ans)]
