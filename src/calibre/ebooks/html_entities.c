@@ -9,7 +9,7 @@
 #define UNICODE
 #define _UNICODE
 #include <Python.h>
-#include "../utils/cpp_binding.h"
+#include <stdbool.h>
 
 unsigned int
 encode_utf8(uint32_t ch, char* dest) {
@@ -131,13 +131,16 @@ replace_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
         PyErr_SetString(PyExc_TypeError, "string must be unicode object or UTF-8 encoded bytes"); return NULL;
     }
     if (nargs > 1) keep_xml_entities = PyObject_IsTrue(args[1]);
-    generic_raii<char*, pymem_free> output((char*)PyMem_Malloc(input_sz + 1));
+    char *output = malloc(input_sz + 1);
     if (!output) { return PyErr_NoMemory(); }
-    size_t output_sz = replace(input, input_sz, output.ptr(), keep_xml_entities);
-    if (PyErr_Occurred()) return NULL;
-    if (!output_sz) return Py_NewRef(args[0]);
-    if (PyUnicode_Check(args[0])) return PyUnicode_FromStringAndSize(output.ptr(), output_sz);
-    return PyBytes_FromStringAndSize(output.ptr(), output_sz);
+    size_t output_sz = replace(input, input_sz, output, keep_xml_entities);
+    PyObject *retval;
+    if (PyErr_Occurred()) retval = NULL;
+    if (!output_sz) retval = Py_NewRef(args[0]);
+    if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(output, output_sz);
+    retval = PyBytes_FromStringAndSize(output, output_sz);
+    free(output);
+    return retval;
 }
 
 static PyMethodDef methods[] = {

@@ -140,10 +140,7 @@
     },
     {
         "name": "fast_html_entities",
-        "headers": "calibre/utils/cpp_binding.h calibre/utils/stb_sprintf.h",
-        "sources": "calibre/ebooks/html_entities.cpp",
-		"inc_dirs": "perfect-hashing",
-		"needs_c++": "14"
+        "sources": "calibre/ebooks/html_entities.c"
     },
     {
         "name": "rcc_backend",
