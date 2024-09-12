@@ -260,6 +260,7 @@ class ExtensionsImporter:
             'speedup',
             'html_as_json',
             'fast_css_transform',
+            'fast_html_entities',
             'unicode_names',
             'html_syntax_highlighter',
             'hyphen',
