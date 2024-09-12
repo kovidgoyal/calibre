@@ -10,6 +10,7 @@
 #define _UNICODE
 #include <Python.h>
 #include <stdbool.h>
+#include "html_entities.h"
 
 unsigned int
 encode_utf8(uint32_t ch, char* dest) {
@@ -38,11 +39,41 @@ encode_utf8(uint32_t ch, char* dest) {
     return 0;
 }
 
+static uint32_t
+parse_base10_integer(const char *input, size_t sz, bool *ok) {
+    uint32_t ans = 0;
+    *ok = true;
+    for (size_t i = 0; i < sz; i++) {
+        char ch = input[i];
+        if (ch < '0' || ch > '9') { *ok = false; return 0; }
+        uint32_t digit = ch - '0';
+        ans = ans * 10 + digit;
+    }
+    return ans;
+}
+
+static uint32_t
+parse_base16_integer(const char *input, size_t sz, bool *ok) {
+    uint32_t ans = 0;
+    *ok = true;
+    for (size_t i = 0; i < sz; i++) {
+        char ch = input[i];
+        uint32_t digit;
+        if ('a' <= ch && ch <= 'f') digit = 10 + ch - 'a';
+        else if ('A' <= ch && ch <= 'F') digit = 10 + ch - 'A';
+        else {
+            if (ch < '0' || ch > '9') { *ok = false; return 0; }
+            digit = ch - '0';
+        }
+        ans = ans * 10 + digit;
+    }
+    return ans;
+}
+
 static size_t
-add_entity(const char *entity, size_t elen, char *output) {
+add_entity(const char *entity, const size_t elen, char *output) {
     size_t ans = 0;
-    char e[64];
-    if (elen > sizeof(e) - 1) {
+    if (elen > 64) {
 bad_entity:
         output[ans++] = '&';
         memcpy(output + ans, entity, elen);
@@ -55,25 +86,27 @@ bad_entity:
         output[ans++] = ';';
         return ans;
     }
-    memcpy(e, entity, elen);
-    e[elen] = 0;
-    if (e[0] == '#') {
+    if (entity[0] == '#') {
         if (elen < 2) goto bad_entity;
-        char *end;
-        unsigned long codepoint = ULONG_MAX;
-        if (e[1] == 'x' || e[1] == 'X') {
-            errno = 0;
-            codepoint = strtoul(e + 2, &end, 16);
-            if (errno || *end) goto bad_entity;
+        uint32_t codepoint = 0;
+        bool ok;
+        if (entity[1] == 'x' || entity[1] == 'X') {
+            if (elen < 3) goto bad_entity;
+            codepoint = parse_base16_integer(entity + 2, elen - 2, &ok);
+            if (!ok || !codepoint) goto bad_entity;
         } else {
-            errno = 0;
-            codepoint = strtoul(e + 1, &end, 10);
-            if (errno || *end) goto bad_entity;
+            codepoint = parse_base10_integer(entity + 1, elen - 1, &ok);
+            if (!ok || !codepoint) goto bad_entity;
         }
         unsigned num = encode_utf8(codepoint, output);
         if (!num) goto bad_entity;
         return num;
     } else {
+        struct html_entity *s = in_word_set(entity, elen);
+        if (!s) goto bad_entity;
+        ans = strlen(s->val);
+        memcpy(output, s->val, ans);
+        return ans;
     }
     goto bad_entity;
 }
@@ -136,9 +169,9 @@ replace_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     size_t output_sz = replace(input, input_sz, output, keep_xml_entities);
     PyObject *retval;
     if (PyErr_Occurred()) retval = NULL;
-    if (!output_sz) retval = Py_NewRef(args[0]);
-    if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(output, output_sz);
-    retval = PyBytes_FromStringAndSize(output, output_sz);
+    else if (!output_sz) retval = Py_NewRef(args[0]);
+    else if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(output, output_sz);
+    else retval = PyBytes_FromStringAndSize(output, output_sz);
     free(output);
     return retval;
 }

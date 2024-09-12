@@ -1105,6 +1105,7 @@ html5_entities = {
     'hearts': '♥',
     'heartsuit': '♥',
     'hellip': '…',
+    'hellips': '…',
     'hercon': '⊹',
     'hfr': '𝔥',
     'hksearow': '⤥',
@@ -1857,6 +1858,7 @@ html5_entities = {
     'square': '□',
     'squarf': '▪',
     'squf': '▪',
+    'squot': "'",
     'srarr': '→',
     'sscr': '𝓈',
     'ssetmn': '∖',
@@ -2135,16 +2137,39 @@ html5_entities = {
 
 def generate_entity_lists():
     import re
-    from html import entities
-    entities = {k.rstrip(';'): entities.html5[k] for k in entities.html5}
+    from html import entities as e
+    entities = {k.rstrip(';'): e.name2codepoint[k] for k in e.name2codepoint}
+    entities.update({k.rstrip(';'): e.html5[k] for k in e.html5})
+    # common misspelled entity names
+    for k, v in {'apos': "'", 'squot': "'", 'hellips': entities['hellip']}.items():
+        if k not in entities:
+            entities[k] = v
     lines = []
+    native_lines = '''\
+struct html_entity { const char *name, *val; }
+%%
+'''.splitlines()
+
+    def esc_for_c(x):
+        if x == '\n':
+            return '\\n'
+        if x in '''"\\''':
+            return '\\' + x
+        return x
 
     for k in sorted(entities):
-        lines.append(f"    '{k}': {entities[k]!r},")
+        v = entities[k]
+        lines.append(f"    '{k}': {v!r},")
+        native_lines.append(f'"{esc_for_c(k)}","{esc_for_c(v)}"')
 
     with open(__file__, 'r+b') as f:
         raw = f.read().decode('utf-8')
-        pat = re.compile(r'^# ENTITY_DATA {{{.+^# }}}', flags=re.M | re.DOTALL)
+        pat = re.compile(r'^# ENTITY_DATA {{{.+?^# }}}', flags=re.M | re.DOTALL)
         raw = pat.sub(lambda m: '# ENTITY_DATA {{{\n' + '\n'.join(lines) + '\n# }}}', raw)
-        f.seek(0), f.truncate()
-        f.write(raw.encode('utf-8'))
+        f.seek(0), f.truncate(), f.write(raw.encode('utf-8'))
+
+    import subprocess
+    with open(__file__.replace('.py', '.h'), 'wb') as f:
+        cp = subprocess.run(['gperf', '-t'], input='\n'.join(native_lines).encode(), stdout=f)
+        if cp.returncode != 0:
+            raise SystemExit(cp.returncode)

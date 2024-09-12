@@ -54,3 +54,4 @@ resources/content-server/index-generated.html linguist-generated=true
 resources/editor.js linguist-generated=true
 resources/viewer.js linguist-generated=true
 resources/viewer.html linguist-generated=true
+src/calibre/ebooks/html_entities.h linguist-generated=true

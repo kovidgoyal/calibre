@@ -140,6 +140,7 @@
     },
     {
         "name": "fast_html_entities",
+        "headers": "calibre/ebooks/html_entities.h",
         "sources": "calibre/ebooks/html_entities.c"
     },
     {
