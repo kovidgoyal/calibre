@@ -11,7 +11,7 @@ from polyglot.builtins import as_bytes
 class PDFInput(InputFormatPlugin):
 
     name        = 'PDF Input'
-    author      = 'Kovid Goyal and John Schember'
+    author      = 'Kovid Goyal and John Schember and Alan Pettigrew'
     description = _('Convert PDF files to HTML')
     file_types  = {'pdf'}
     commit_name = 'pdf_input'
@@ -24,19 +24,26 @@ class PDFInput(InputFormatPlugin):
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
             'default is 0.45, just below the median line length.')),
         OptionRecommendation(name='new_pdf_engine', recommended_value=False,
-            help=_('Use the new PDF conversion engine. Currently not operational.'))
+            help=_('Use the new, experimental, PDF conversion engine.')),
+        OptionRecommendation(name='pdf_header_skip', recommended_value=-1,
+            help=_('Skip everything to the specified number pixels at the top of a page.'
+            ' Negative numbers mean auto-detect and remove headers, zero means do not remove headers and positive numbers'
+            ' mean remove headers that appear above that many pixels from the top of the page. Works only'
+            ' with the new PDF engine.'
+        )),
+        OptionRecommendation(name='pdf_footer_skip', recommended_value=-1,
+            help=_('Skip everything to the specified number of pixels at the bottom of a page.'
+            ' Negative numbers mean auto-detect and remove footers, zero means do not remove footers and positive numbers'
+            ' mean remove footers that appear below that many pixels from the bottom of the page. Works only'
+            ' with the new PDF engine.'
+        )),
+        OptionRecommendation(name='pdf_header_regex', recommended_value='',
+            help=_('Regular expression to remove lines at the top of a page. '
+                   'This only looks at the first line of a page and works only with the new PDF engine.')),
+        OptionRecommendation(name='pdf_footer_regex', recommended_value='',
+            help=_('Regular expression to remove lines at the bottom of a page. '
+                   'This only looks at the last line of a page and works only with the new PDF engine.')),
     }
-
-    def convert_new(self, stream, accelerators):
-        from calibre.ebooks.pdf.pdftohtml import pdftohtml
-        from calibre.ebooks.pdf.reflow import PDFDocument
-        from calibre.utils.cleantext import clean_ascii_chars
-
-        pdftohtml(os.getcwd(), stream.name, self.opts.no_images, as_xml=True)
-        with open('index.xml', 'rb') as f:
-            xml = clean_ascii_chars(f.read())
-        PDFDocument(xml, self.opts, self.log)
-        return os.path.join(os.getcwd(), 'metadata.opf')
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -47,8 +54,14 @@ class PDFInput(InputFormatPlugin):
         # The main html file will be named index.html
         self.opts, self.log = options, log
         if options.new_pdf_engine:
-            return self.convert_new(stream, accelerators)
-        pdftohtml(os.getcwd(), stream.name, options.no_images)
+            from calibre.ebooks.pdf.reflow import PDFDocument
+            from calibre.utils.cleantext import clean_ascii_chars
+            pdftohtml(os.getcwd(), stream.name, self.opts.no_images, as_xml=True)
+            with open(u'index.xml', 'rb') as f:
+                xml = clean_ascii_chars(f.read())
+            PDFDocument(xml, self.opts, self.log)
+        else:
+            pdftohtml(os.getcwd(), stream.name, options.no_images)
 
         from calibre.ebooks.metadata.meta import get_metadata
         log.debug('Retrieving document metadata...')

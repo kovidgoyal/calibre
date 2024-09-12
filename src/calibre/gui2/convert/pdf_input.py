@@ -18,8 +18,17 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent, OPTIONS['input']['pdf'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
+        self.opt_new_pdf_engine.toggled.connect(self.update_engine_opts)
+        self.update_engine_opts()
 
     def set_value_handler(self, g, val):
         if val is None and isinstance(g, QDoubleSpinBox):
             g.setValue(0.0)
             return True
+
+    def update_engine_opts(self):
+        enabled = self.opt_new_pdf_engine.isChecked()
+        self.opt_pdf_footer_skip.setEnabled(enabled)
+        self.opt_pdf_header_skip.setEnabled(enabled)
+        self.opt_pdf_header_regex.setEnabled(enabled)
+        self.opt_pdf_footer_regex.setEnabled(enabled)

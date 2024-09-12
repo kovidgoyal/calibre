@@ -221,7 +221,7 @@ OPTIONS = {
 
         'fb2': ('no_inline_fb2_toc',),
 
-        'pdf': ('no_images', 'unwrap_factor'),
+        'pdf': ('no_images', 'unwrap_factor', 'new_pdf_engine', 'pdf_header_skip', 'pdf_footer_skip', 'pdf_header_regex', 'pdf_footer_regex'),
 
         'rtf': ('ignore_wmf',),
 

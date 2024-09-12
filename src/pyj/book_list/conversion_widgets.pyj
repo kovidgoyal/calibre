@@ -487,6 +487,11 @@ def pdf_input(container):
     container.appendChild(g)
     g.appendChild(float_spin('unwrap_factor', _('Line &un-wrapping factor:'), max=1, step=0.01))
     g.appendChild(checkbox('no_images', _('No &images')))
+    g.appendChild(checkbox('new_pdf_engine', _('New, experimental, PDF conversion &engine')))
+    g.appendChild(int_spin('pdf_header_skip', _('Remove headers at &top of page by:'), min=-1, max=999999, step=1))
+    g.appendChild(int_spin('pdf_footer_skip', _('Remove footers at &bottom of page by:'), min=-1, max=999999, step=1))
+    g.appendChild(lineedit('pdf_header_regex', _('Regular expression to remove &header at top of page:')))
+    g.appendChild(lineedit('pdf_footer_regex', _('Regular expression to remove &footer at bottom of page:')))
 # }}}
 
 # RTF Input {{{
