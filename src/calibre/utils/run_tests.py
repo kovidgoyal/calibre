@@ -269,6 +269,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(find_tests())
         from calibre.gui2.viewer.annotations import find_tests
         a(find_tests())
+        from calibre.ebooks.html_entities import find_tests
+        a(find_tests())
     if ok('misc'):
         from calibre.ebooks.html.input import find_tests
         a(find_tests())

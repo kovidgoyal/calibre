@@ -2135,13 +2135,26 @@ html5_entities = {
 }
 
 
+def find_tests():
+    import unittest
+    class TestHTMLEntityReplacement(unittest.TestCase):
+        def test_html_entity_replacement(self):
+            from calibre_extensions.fast_html_entities import replace_entities
+            def t(inp, exp):
+                self.assertEqual(exp, replace_entities(inp), f'Failed for input: {inp!r}')
+            t('', '')
+            t('a', 'a')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLEntityReplacement)
+
+
 def generate_entity_lists():
     import re
     from html import entities as e
     entities = {k.rstrip(';'): e.name2codepoint[k] for k in e.name2codepoint}
     entities.update({k.rstrip(';'): e.html5[k] for k in e.html5})
     # common misspelled entity names
-    for k, v in {'apos': "'", 'squot': "'", 'hellips': entities['hellip']}.items():
+    for k, v in {'squot': "'", 'hellips': entities['hellip']}.items():
         if k not in entities:
             entities[k] = v
     lines = []
