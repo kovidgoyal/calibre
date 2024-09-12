@@ -9,8 +9,6 @@
 #define UNICODE
 #define _UNICODE
 #include <Python.h>
-#include <frozen/unordered_map.h>
-#include <frozen/string.h>
 #include "../utils/cpp_binding.h"
 
 unsigned int
@@ -58,26 +56,26 @@ bad_entity:
         return ans;
     }
     memcpy(e, entity, elen);
-    unsigned long codepoint = ULONG_MAX;
     e[elen] = 0;
     if (e[0] == '#') {
-        if (elen > 1) {
-            char *end;
-            if (e[1] == 'x' || e[1] == 'X') {
-                errno = 0;
-                codepoint = strtoul(e + 2, &end, 16);
-                if (errno || *end) goto bad_entity;
-            } else {
-                errno = 0;
-                codepoint = strtoul(e + 1, &end, 10);
-                if (errno || *end) goto bad_entity;
-            }
-            if (codepoint <= 1114111ul) return encode_utf8(codepoint, output);
+        if (elen < 2) goto bad_entity;
+        char *end;
+        unsigned long codepoint = ULONG_MAX;
+        if (e[1] == 'x' || e[1] == 'X') {
+            errno = 0;
+            codepoint = strtoul(e + 2, &end, 16);
+            if (errno || *end) goto bad_entity;
+        } else {
+            errno = 0;
+            codepoint = strtoul(e + 1, &end, 10);
+            if (errno || *end) goto bad_entity;
         }
+        unsigned num = encode_utf8(codepoint, output);
+        if (!num) goto bad_entity;
+        return num;
     } else {
     }
-
-    return 0;
+    goto bad_entity;
 }
 
 
