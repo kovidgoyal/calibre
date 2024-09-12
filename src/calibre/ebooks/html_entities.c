@@ -102,7 +102,7 @@ bad_entity:
         if (!num) goto bad_entity;
         return num;
     } else {
-        struct html_entity *s = in_word_set(entity, elen);
+        const struct html_entity *s = in_word_set(entity, elen);
         if (!s) goto bad_entity;
         ans = strlen(s->val);
         memcpy(output, s->val, ans);

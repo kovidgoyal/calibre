@@ -2170,6 +2170,6 @@ struct html_entity { const char *name, *val; }
 
     import subprocess
     with open(__file__.replace('.py', '.h'), 'wb') as f:
-        cp = subprocess.run(['gperf', '-t'], input='\n'.join(native_lines).encode(), stdout=f)
+        cp = subprocess.run(['gperf', '--struct-type', '--readonly', '--includes'], input='\n'.join(native_lines).encode(), stdout=f)
         if cp.returncode != 0:
             raise SystemExit(cp.returncode)

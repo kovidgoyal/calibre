@@ -1,5 +1,5 @@
 /* ANSI-C code produced by gperf version 3.1 */
-/* Command-line: gperf -t  */
+/* Command-line: gperf -t --readonly --includes  */
 /* Computed positions: -k'1-7,10,12,$' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -30,6 +30,7 @@
 #endif
 
 struct html_entity { const char *name, *val; };
+#include <string.h>
 
 #define TOTAL_KEYWORDS 2127
 #define MIN_WORD_LENGTH 2
@@ -48,7 +49,7 @@ inline
 static unsigned int
 hash (register const char *str, register size_t len)
 {
-  static unsigned short asso_values[] =
+  static const unsigned short asso_values[] =
     {
       20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839,
       20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839, 20839,
@@ -115,10 +116,10 @@ hash (register const char *str, register size_t len)
   return hval + asso_values[(unsigned char)str[len - 1]];
 }
 
-struct html_entity *
+const struct html_entity *
 in_word_set (register const char *str, register size_t len)
 {
-  static struct html_entity wordlist[] =
+  static const struct html_entity wordlist[] =
     {
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
