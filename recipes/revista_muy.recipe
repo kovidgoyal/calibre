@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
 class RevistaMuyInteresante(BasicNewsRecipe):
     title = 'Revista Muy Interesante'
     __author__ = 'unkn0wn'
