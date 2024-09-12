@@ -579,6 +579,19 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
      rof;
      ans
 
+* ``get_note(field_name, field_value, plain_text)`` -- fetch the note for field 'field_name' with value 'field_value'. If `plain_text` is empty, return the note's HTML including images. If `plain_text` is `1` (or `'1'`), return the note's plain text. If the note doesn't exist, return the empty string in both cases. Example:
+
+ * Return the HTML of the note attached to the tag `Fiction`::
+
+    program:
+      get_note('tags', 'Fiction', '')
+
+ * Return the plain text of the note attached to the author `Isaac Asimov`::
+
+    program:
+      get_note('authors', 'Isaac Asimov', 1)
+
+
 * ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
 * ``has_extra_files([pattern])`` -- returns the count of extra files, otherwise '' (the empty string). If the optional parameter ``pattern`` (a regular expression) is supplied then the list is filtered to files that match ``pattern`` before the files are counted. The pattern match is case insensitive. See also the functions ``extra_file_names()``, ``extra_file_size()`` and ``extra_file_modtime()``. This function can be used only in the GUI.
 * ``identifier_in_list(val, id_name [, found_val, not_found_val])`` -- treat ``val`` as a list of identifiers separated by commas. An identifier has the format ``id_name:value``. The ``id_name`` parameter is the id_name text to search for, either ``id_name`` or ``id_name:regexp``. The first case matches if there is any identifier matching that id_name. The second case matches if id_name matches an identifier and the regexp matches the identifier's value. If ``found_val`` and ``not_found_val`` are provided then if there is a match then return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and ``not_found_val`` are not provided then if there is a match then return the ``identifier:value`` pair, otherwise the empty string (``''``).
