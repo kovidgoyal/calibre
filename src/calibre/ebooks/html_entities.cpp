@@ -13,11 +13,39 @@
 #include <frozen/string.h>
 #include "../utils/cpp_binding.h"
 
+unsigned int
+encode_utf8(uint32_t ch, char* dest) {
+    if (ch < 0x80) { // only lower 7 bits can be 1
+        dest[0] = (char)ch;  // 0xxxxxxx
+        return 1;
+    }
+    if (ch < 0x800) { // only lower 11 bits can be 1
+        dest[0] = (ch>>6) | 0xC0; // 110xxxxx
+        dest[1] = (ch & 0x3F) | 0x80;  // 10xxxxxx
+        return 2;
+    }
+    if (ch < 0x10000) { // only lower 16 bits can be 1
+        dest[0] = (ch>>12) | 0xE0; // 1110xxxx
+        dest[1] = ((ch>>6) & 0x3F) | 0x80;  // 10xxxxxx
+        dest[2] = (ch & 0x3F) | 0x80;       // 10xxxxxx
+        return 3;
+    }
+    if (ch < 0x110000) { // only lower 21 bits can be 1
+        dest[0] = (ch>>18) | 0xF0; // 11110xxx
+        dest[1] = ((ch>>12) & 0x3F) | 0x80; // 10xxxxxx
+        dest[2] = ((ch>>6) & 0x3F) | 0x80;  // 10xxxxxx
+        dest[3] = (ch & 0x3F) | 0x80; // 10xxxxxx
+        return 4;
+    }
+    return 0;
+}
+
 static size_t
 add_entity(const char *entity, size_t elen, char *output) {
     size_t ans = 0;
     char e[64];
     if (elen > sizeof(e) - 1) {
+bad_entity:
         output[ans++] = '&';
         memcpy(output + ans, entity, elen);
         ans += elen;
@@ -30,7 +58,24 @@ add_entity(const char *entity, size_t elen, char *output) {
         return ans;
     }
     memcpy(e, entity, elen);
+    unsigned long codepoint = ULONG_MAX;
     e[elen] = 0;
+    if (e[0] == '#') {
+        if (elen > 1) {
+            char *end;
+            if (e[1] == 'x' || e[1] == 'X') {
+                errno = 0;
+                codepoint = strtoul(e + 2, &end, 16);
+                if (errno || *end) goto bad_entity;
+            } else {
+                errno = 0;
+                codepoint = strtoul(e + 1, &end, 10);
+                if (errno || *end) goto bad_entity;
+            }
+            if (codepoint <= 1114111ul) return encode_utf8(codepoint, output);
+        }
+    } else {
+    }
 
     return 0;
 }
@@ -41,17 +86,12 @@ process_entity(const char *input, size_t input_sz, char *output, size_t *output_
     size_t input_pos = 0;
     while (input_pos < input_sz) {
         char ch = input[input_pos++];
-        switch (ch) {
-            case 'a' ... 'z': case 'A' ... 'Z': case '0' ... '9': case '#': case '_': case '-': case '+':
-                break;
-            case ';':
-                *output_pos += add_entity(input, input_pos-1, output + *output_pos);
-                break;
-            default:
-                output[(*output_pos)++] = '&';
-                memcpy(output + *output_pos, input, input_pos);
-                *output_pos += input_pos;
-                break;
+        if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || (ch == '#' && input_pos == 1));
+        else if (ch == ';') *output_pos += add_entity(input, input_pos-1, output + *output_pos);
+        else {
+            output[(*output_pos)++] = '&';
+            memcpy(output + *output_pos, input, input_pos);
+            *output_pos += input_pos;
         }
     }
     return input_pos;
