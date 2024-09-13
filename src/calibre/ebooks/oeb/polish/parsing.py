@@ -14,6 +14,12 @@ from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+try:
+    from calibre_extensions.fast_html_entities import replace_all_entities
+except ImportError:
+    def replace_all_entities(raw, keep_xml_entities: bool = False):
+        xml_replace_entities(raw)
+
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 
 
@@ -21,7 +27,7 @@ def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numb
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     if replace_entities:
-        raw = xml_replace_entities(raw)
+        raw = replace_all_entities(raw, True)
     if fix_newlines:
         raw = raw.replace('\r\n', '\n').replace('\r', '\n')
     raw = clean_xml_chars(raw)
@@ -60,7 +66,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = handle_private_entities(raw)
     if replace_entities:
-        raw = xml_replace_entities(raw).replace('\0', '')  # Handle &#0;
+        raw = replace_all_entities(raw, True)
     raw = raw.replace('\r\n', '\n').replace('\r', '\n')
 
     # Remove any preamble before the opening html tag as it can cause problems,
