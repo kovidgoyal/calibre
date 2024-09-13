@@ -221,13 +221,17 @@ def available_engines() -> dict[str, EngineMetadata]:
             'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
         ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True)
     if islinux:
-        from speechd.paths import SPD_SPAWN_CMD
-        cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
-        if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
-            ans['speechd'] = EngineMetadata('speechd', _('The Speech Dispatcher Engine'), _(
-                'The "speechd" engine can usually track the currently spoken word on screen, however, it depends on the'
-                ' underlying output module. The default espeak output module does support it.'
-            ), TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
+        try:
+            from speechd.paths import SPD_SPAWN_CMD
+        except ImportError:
+            pass
+        else:
+            cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
+            if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
+                ans['speechd'] = EngineMetadata('speechd', _('The Speech Dispatcher Engine'), _(
+                    'The "speechd" engine can usually track the currently spoken word on screen, however, it depends on the'
+                    ' underlying output module. The default espeak output module does support it.'
+                ), TrackingCapability.WordByWord, allows_choosing_audio_device=False, has_multiple_output_modules=True)
 
     return ans
 
