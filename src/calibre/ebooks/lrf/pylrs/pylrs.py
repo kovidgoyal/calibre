@@ -65,7 +65,7 @@ from .pylrf import (
 DEFAULT_SOURCE_ENCODING = "cp1252"      # default is us-windows character set
 DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
-from calibre import __appname__, __version__, entity_to_unicode
+from calibre import __appname__, __version__, replace_entities
 from polyglot.builtins import iteritems, native_string_type, string_or_bytes
 
 
@@ -752,7 +752,7 @@ class TableOfContents:
 class TocLabel:
 
     def __init__(self, label, textBlock):
-        self.label = escape(re.sub(r'&(\S+?);', entity_to_unicode, label))
+        self.label = escape(replace_entities(label))
         self.textBlock = textBlock
 
     def toElement(self, se):

@@ -14,7 +14,7 @@ import textwrap
 
 from lxml import etree, html
 
-from calibre import entity_to_unicode, guess_type, xml_entity_to_unicode
+from calibre import guess_type, replace_entities, xml_replace_entities
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.compression.palmdoc import decompress_doc
@@ -181,8 +181,7 @@ class MobiReader:
                 self.processed_html)
 
         self.processed_html = strip_encoding_declarations(self.processed_html)
-        self.processed_html = re.sub(r'&(\S+?);', xml_entity_to_unicode,
-            self.processed_html)
+        self.processed_html = xml_replace_entities(self.processed_html)
         image_name_map = self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
@@ -707,7 +706,6 @@ class MobiReader:
             ncx_manifest_entry = 'toc.ncx'
             elems = root.xpath('//*[@id="%s"]' % toc.partition('#')[-1])
             tocobj = None
-            ent_pat = re.compile(r'&(\S+?);')
             if elems:
                 tocobj = TOC()
                 found = False
@@ -724,7 +722,7 @@ class MobiReader:
                                     x.xpath('descendant::text()')])
                             except:
                                 text = ''
-                            text = ent_pat.sub(entity_to_unicode, text)
+                            text = replace_entities(text)
                             item = tocobj.add_item(toc.partition('#')[0], href[1:],
                                 text)
                             item.left_space = int(self.get_left_whitespace(x))

@@ -12,7 +12,7 @@ import time
 import traceback
 from builtins import _
 
-from calibre import entity_to_unicode, force_unicode, strftime
+from calibre import force_unicode, replace_entities, strftime
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.date import dt_factory, local_tz, utcnow
 from calibre.utils.logging import default_log
@@ -30,9 +30,8 @@ class Article:
         title = force_unicode(title, 'utf-8')
         self._title = clean_xml_chars(title).strip()
         try:
-            self._title = re.sub(r'&(\S+?);',
-                entity_to_unicode, self._title)
-        except:
+            self._title = replace_entities(self._title)
+        except Exception:
             pass
         self._title = clean_ascii_chars(self._title)
         self.url = url
