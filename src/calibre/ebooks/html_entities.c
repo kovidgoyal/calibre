@@ -75,7 +75,7 @@ is_xml_unsafe(uint32_t codepoint) {
     return codepoint == '<' || codepoint == '>' || codepoint == '&' || codepoint == '"' || codepoint == '\'';
 }
 
-static ssize_t
+static int
 convert_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
     if (entity[0] == '#') {
         if (elen < 2) return -1;
@@ -99,7 +99,7 @@ convert_entity(const char *entity, const size_t elen, char *output, bool keep_xm
 
 static size_t
 add_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
-    ssize_t ans;
+    int ans;
     if (elen > 64 || elen < 3 || (ans = convert_entity(entity + 1, elen - 2, output, keep_xml_entities)) < 0) {
         memcpy(output, entity, elen);
         return elen;
