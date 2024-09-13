@@ -514,7 +514,7 @@ class Metadata:
         '''
         def copy_not_none(dest, src, attr):
             v = getattr(src, attr, None)
-            if v not in (None, NULL_VALUES.get(attr, None)):
+            if v is not None and v != NULL_VALUES.get(attr, None):
                 setattr(dest, attr, copy.deepcopy(v))
 
         unknown = _('Unknown')
