@@ -2142,9 +2142,24 @@ def find_tests():
             from calibre_extensions.fast_html_entities import replace_entities
             def t(inp, exp):
                 self.assertEqual(exp, replace_entities(inp), f'Failed for input: {inp!r}')
-            t('&amp', '&amp')
+            def x(inp, exp):
+                self.assertEqual(exp, replace_entities(inp, True), f'Failed for input: {inp!r}')
+            t('a&#1234;b', 'aӒb')
             t('', '')
             t('a', 'a')
+            t('&', '&')
+            t('&amp', '&amp')
+            t('&amp;', '&')
+            t('a&;b &#;c', 'a&;b &#;c')
+            t('&lt;', '<')
+            t('&amp;&lt;', '&<')
+            t('a&amp;b&lt;c', 'a&b<c')
+            t('a&acE;b', 'a∾̳b')
+            t('a&#1234;b', 'aӒb')
+            t('a&#X1234;b', 'a\u1234b')
+            t('a&#x1034fA;b', 'a\U001034fAb')
+            t('a&#0;b&#x000;c', 'abc')
+            x('&amp;&lt;&gt;&apos;&quot;', '&amp;&lt;&gt;&apos;&quot;')
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLEntityReplacement)
 
@@ -2184,6 +2199,6 @@ struct html_entity { const char *name, *val; }
 
     import subprocess
     with open(__file__.replace('.py', '.h'), 'wb') as f:
-        cp = subprocess.run(['gperf', '--struct-type', '--readonly', '--includes'], input='\n'.join(native_lines).encode(), stdout=f)
+        cp = subprocess.run(['gperf', '--struct-type', '--readonly', '--includes', '--compare-strncmp'], input='\n'.join(native_lines).encode(), stdout=f)
         if cp.returncode != 0:
             raise SystemExit(cp.returncode)

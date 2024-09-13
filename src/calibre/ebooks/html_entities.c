@@ -65,60 +65,56 @@ parse_base16_integer(const char *input, size_t sz, bool *ok) {
             if (ch < '0' || ch > '9') { *ok = false; return 0; }
             digit = ch - '0';
         }
-        ans = ans * 10 + digit;
+        ans = ans * 16 + digit;
     }
     return ans;
 }
 
-static size_t
-add_entity(const char *entity, const size_t elen, char *output) {
-    size_t ans = 0;
-    if (elen > 64) {
-bad_entity:
-        output[ans++] = '&';
-        memcpy(output + ans, entity, elen);
-        ans += elen;
-        output[ans++] = ';';
-        return ans;
-    }
-    if (!elen) {
-        output[ans++] = '&';
-        output[ans++] = ';';
-        return ans;
-    }
+static bool
+is_xml_unsafe(uint32_t codepoint) {
+    return codepoint == '<' || codepoint == '>' || codepoint == '&' || codepoint == '"' || codepoint == '\'';
+}
+
+static ssize_t
+convert_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
     if (entity[0] == '#') {
-        if (elen < 2) goto bad_entity;
+        if (elen < 2) return -1;
         uint32_t codepoint = 0;
-        bool ok;
+        bool ok = false;
         if (entity[1] == 'x' || entity[1] == 'X') {
-            if (elen < 3) goto bad_entity;
-            codepoint = parse_base16_integer(entity + 2, elen - 2, &ok);
-            if (!ok || !codepoint) goto bad_entity;
+            if (elen > 2) codepoint = parse_base16_integer(entity + 2, elen - 2, &ok);
         } else {
             codepoint = parse_base10_integer(entity + 1, elen - 1, &ok);
-            if (!ok || !codepoint) goto bad_entity;
         }
-        unsigned num = encode_utf8(codepoint, output);
-        if (!num) goto bad_entity;
-        return num;
-    } else {
-        const struct html_entity *s = in_word_set(entity, elen);
-        if (!s) goto bad_entity;
-        ans = strlen(s->val);
-        memcpy(output, s->val, ans);
-        return ans;
+        if (!ok || (keep_xml_entities && is_xml_unsafe(codepoint))) return -1;
+        return codepoint ? encode_utf8(codepoint, output) : 0;
     }
-    goto bad_entity;
+    const struct html_entity *s = in_word_set(entity, elen);
+    if (!s) return -1;
+    size_t ans = strlen(s->val);
+    if (keep_xml_entities && ans == 1 && is_xml_unsafe(s->val[0])) return -1;
+    memcpy(output, s->val, ans);
+    return ans;
+}
+
+static size_t
+add_entity(const char *entity, const size_t elen, char *output, bool keep_xml_entities) {
+    ssize_t ans;
+    if (elen > 64 || elen < 3 || (ans = convert_entity(entity + 1, elen - 2, output, keep_xml_entities)) < 0) {
+        memcpy(output, entity, elen);
+        return elen;
+    }
+    return ans;
 }
 
 
 static size_t
-process_entity(const char *input, size_t input_sz, char *output, size_t *output_pos) {
+process_entity(const char *input, size_t input_sz, char *output, size_t *output_pos, bool keep_xml_entities) {
     size_t input_pos = 1;  // ignore leading &
     while (input_pos < input_sz) {
         char ch = input[input_pos++];
-        if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || (ch == '#' && input_pos == 1));
-        else if (ch == ';') { *output_pos += add_entity(input, input_pos-1, output + *output_pos); return input_pos; }
+        if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || (ch == '#' && input_pos == 2));
+        else if (ch == ';') { *output_pos += add_entity(input, input_pos, output + *output_pos, keep_xml_entities); return input_pos; }
         else break;
     }
     memcpy(output + *output_pos, input, input_pos);
@@ -132,7 +128,10 @@ replace(const char *input, size_t input_sz, char *output, int keep_xml_entities)
     while (input_pos < input_sz) {
         const char *p = (const char*)memchr(input + input_pos, '&', input_sz - input_pos);
         if (p) {
-            input_pos += process_entity(p, input_sz - (p - input), output, &output_pos);
+            size_t before_amp = p - (input + input_pos);
+            memcpy(output + output_pos, input + input_pos, before_amp);
+            output_pos += before_amp; input_pos += before_amp;
+            input_pos += process_entity(p, input_sz - (p - input), output, &output_pos, keep_xml_entities);
         } else {
             memcpy(output + output_pos, input + input_pos, input_sz - input_pos);
             output_pos += input_sz - input_pos;
