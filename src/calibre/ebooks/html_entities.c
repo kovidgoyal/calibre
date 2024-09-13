@@ -114,17 +114,15 @@ bad_entity:
 
 static size_t
 process_entity(const char *input, size_t input_sz, char *output, size_t *output_pos) {
-    size_t input_pos = 0;
+    size_t input_pos = 1;  // ignore leading &
     while (input_pos < input_sz) {
         char ch = input[input_pos++];
         if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9') || (ch == '#' && input_pos == 1));
-        else if (ch == ';') *output_pos += add_entity(input, input_pos-1, output + *output_pos);
-        else {
-            output[(*output_pos)++] = '&';
-            memcpy(output + *output_pos, input, input_pos);
-            *output_pos += input_pos;
-        }
+        else if (ch == ';') { *output_pos += add_entity(input, input_pos-1, output + *output_pos); return input_pos; }
+        else break;
     }
+    memcpy(output + *output_pos, input, input_pos);
+    *output_pos += input_pos;
     return input_pos;
 }
 
@@ -134,12 +132,6 @@ replace(const char *input, size_t input_sz, char *output, int keep_xml_entities)
     while (input_pos < input_sz) {
         const char *p = (const char*)memchr(input + input_pos, '&', input_sz - input_pos);
         if (p) {
-            if (p > input + input_pos) {
-                size_t sz = p - (input + input_pos);
-                memcpy(output + output_pos, input + input_pos, sz);
-                output_pos += sz;
-                input_pos += sz;
-            }
             input_pos += process_entity(p, input_sz - (p - input), output, &output_pos);
         } else {
             memcpy(output + output_pos, input + input_pos, input_sz - input_pos);

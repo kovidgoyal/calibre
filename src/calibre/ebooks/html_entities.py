@@ -2142,6 +2142,7 @@ def find_tests():
             from calibre_extensions.fast_html_entities import replace_entities
             def t(inp, exp):
                 self.assertEqual(exp, replace_entities(inp), f'Failed for input: {inp!r}')
+            t('&amp', '&amp')
             t('', '')
             t('a', 'a')
 
