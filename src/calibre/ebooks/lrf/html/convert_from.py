@@ -8,11 +8,10 @@ import re
 import sys
 import tempfile
 from collections import deque
-from functools import partial
 from itertools import chain
 from math import ceil, floor
 
-from calibre import __appname__, entity_to_unicode, fit_image, force_unicode, preferred_encoding
+from calibre import __appname__, entity_regex, entity_to_unicode, fit_image, force_unicode, preferred_encoding
 from calibre.constants import filesystem_encoding
 from calibre.devices.interface import DevicePlugin as Device
 from calibre.ebooks import ConversionError
@@ -123,8 +122,7 @@ class HTMLConverter:
                                     re.IGNORECASE), lambda m: '<br />'),
 
                         # Replace entities
-                        (re.compile(r'&(\S+?);'), partial(entity_to_unicode,
-                                                           exceptions=['lt', 'gt', 'amp', 'quot'])),
+                        (entity_regex(), entity_to_unicode),
                         # Remove comments from within style tags as they can mess up BeatifulSoup
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
                          strip_style_comments),

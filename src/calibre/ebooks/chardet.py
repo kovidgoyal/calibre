@@ -9,6 +9,8 @@ import codecs
 import re
 import sys
 
+from calibre import xml_replace_entities
+
 _encoding_pats = (
     # XML declaration
     r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
@@ -38,7 +40,6 @@ class LazyEncodingPats:
 
 
 lazy_encoding_pats = LazyEncodingPats()
-ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 
 def strip_encoding_declarations(raw, limit=50*1024, preserve_newlines=False):
@@ -96,11 +97,6 @@ def find_declared_encoding(raw, limit=50*1024):
             if is_binary:
                 ans = ans.decode('ascii', 'replace')
                 return ans
-
-
-def substitute_entites(raw):
-    from calibre import xml_entity_to_unicode
-    return ENTITY_PATTERN.sub(xml_entity_to_unicode, raw)
 
 
 _CHARSET_ALIASES = {"macintosh" : "mac-roman", "x-sjis" : "shift-jis"}
@@ -191,6 +187,6 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
     if resolve_entities:
-        raw = substitute_entites(raw)
+        raw = xml_replace_entities(raw)
 
     return raw, encoding

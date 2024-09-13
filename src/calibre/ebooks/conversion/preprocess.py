@@ -9,7 +9,7 @@ import json
 import re
 from math import ceil
 
-from calibre import as_unicode
+from calibre import as_unicode, entity_regex, xml_replace_entities
 from calibre import xml_entity_to_unicode as convert_entities
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
@@ -62,7 +62,6 @@ def wrap_lines(match):
 
 
 def smarten_punctuation(html, log=None):
-    from calibre.ebooks.chardet import substitute_entites
     from calibre.ebooks.conversion.utils import HeuristicProcessor
     from calibre.utils.smartypants import smartyPants
     preprocessor = HeuristicProcessor(log=log)
@@ -75,7 +74,7 @@ def smarten_punctuation(html, log=None):
     html = smartyPants(html)
     html = html.replace(start, '<!--')
     html = html.replace(stop, '-->')
-    return substitute_entites(html)
+    return xml_replace_entities(html)
 
 
 class DocAnalysis:
@@ -375,7 +374,7 @@ def html_preprocess_rules():
         # Put all sorts of crap into <head>. This messes up lxml
         (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL), sanitize_head),
         # Convert all entities, since lxml doesn't handle them well
-        (re.compile(r'&(\S+?);'), convert_entities),
+        (entity_regex(), convert_entities),
         # Remove the <![if/endif tags inserted by everybody's darling, MS Word
         (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE), ''),
     ]

@@ -7,7 +7,8 @@ import re
 import struct
 import zlib
 
-from calibre import entity_to_unicode, prepare_string_for_xml
+from calibre import prepare_string_for_xml
+from calibre.ebooks.html_entities import entity_to_unicode_in_python
 from calibre.ebooks.lrf import PRS500_PROFILE, LRFParseError
 from calibre.ebooks.lrf.tags import Tag
 
@@ -711,7 +712,7 @@ class Text(LRFStream):
         s = str(text, "utf-16-le")
         if s:
             s = s.translate(self.text_map)
-            self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
+            self.content.append(self.entity_pattern.sub(entity_to_unicode_in_python, s))
 
     def end_container(self, tag, stream):
         self.content.append(None)

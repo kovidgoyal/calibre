@@ -19,7 +19,6 @@ from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
-from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, InvalidGenresSourceFieldException
@@ -2670,7 +2669,7 @@ class CatalogBuilder:
                     args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',
                     data=True).decode('utf-8').format(**args)
-            generated_html = substitute_entites(generated_html)
+            generated_html = xml_replace_entities(generated_html)
             return BeautifulSoup(generated_html)
 
         # Generate the template arguments

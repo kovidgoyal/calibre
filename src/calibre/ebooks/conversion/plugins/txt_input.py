@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre import _ent_pat, walk, xml_entity_to_unicode
+from calibre import walk, xml_replace_entities
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 MD_EXTENSIONS = {
@@ -228,7 +228,7 @@ class TXTInput(InputFormatPlugin):
         txt = txt.decode(ienc, 'replace')
 
         # Replace entities
-        txt = _ent_pat.sub(xml_entity_to_unicode, txt)
+        txt = xml_replace_entities(txt)
 
         # Normalize line endings
         txt = normalize_line_endings(txt)
