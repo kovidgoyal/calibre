@@ -5,25 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools
 import json
 import re
 from math import ceil
 
-from calibre import as_unicode, entity_to_unicode
+from calibre import as_unicode
+from calibre import xml_entity_to_unicode as convert_entities
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 
-convert_entities = functools.partial(entity_to_unicode,
-        result_exceptions={
-            '<' : '&lt;',
-            '>' : '&gt;',
-            "'" : '&apos;',
-            '"' : '&quot;',
-            '&' : '&amp;',
-        })
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 LIGATURES = {
