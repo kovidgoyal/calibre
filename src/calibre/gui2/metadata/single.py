@@ -611,6 +611,7 @@ class MetadataSingleDialogBase(QDialog):
             if d.cover_pixmap is not None:
                 self.metadata_before_fetch['cover'] = self.cover.current_val
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+        self.update_data_files_button()
 
     def undo_fetch_metadata(self):
         if self.metadata_before_fetch is None:
@@ -636,6 +637,7 @@ class MetadataSingleDialogBase(QDialog):
         if ret == QDialog.DialogCode.Accepted:
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+        self.update_data_files_button()
 
     # }}}
 
