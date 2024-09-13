@@ -157,7 +157,10 @@ replace_all_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     if (nargs > 1) keep_xml_entities = PyObject_IsTrue(args[1]);
     char *output = malloc(input_sz + 1);
     if (!output) { return PyErr_NoMemory(); }
-    size_t output_sz = replace(input, input_sz, output, keep_xml_entities);
+    size_t output_sz;
+    Py_BEGIN_ALLOW_THREADS
+    output_sz = replace(input, input_sz, output, keep_xml_entities);
+    Py_END_ALLOW_THREADS
     PyObject *retval;
     if (PyErr_Occurred()) retval = NULL;
     else if (!output_sz) retval = Py_NewRef(args[0]);
