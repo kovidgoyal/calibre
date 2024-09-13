@@ -2139,11 +2139,11 @@ def find_tests():
     import unittest
     class TestHTMLEntityReplacement(unittest.TestCase):
         def test_html_entity_replacement(self):
-            from calibre_extensions.fast_html_entities import replace_entities
+            from calibre_extensions.fast_html_entities import replace_all_entities
             def t(inp, exp):
-                self.assertEqual(exp, replace_entities(inp), f'Failed for input: {inp!r}')
+                self.assertEqual(exp, replace_all_entities(inp), f'Failed for input: {inp!r}')
             def x(inp, exp):
-                self.assertEqual(exp, replace_entities(inp, True), f'Failed for input: {inp!r}')
+                self.assertEqual(exp, replace_all_entities(inp, True), f'Failed for input: {inp!r}')
             t('a&#1234;b', 'aӒb')
             t('', '')
             t('a', 'a')

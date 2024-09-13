@@ -142,7 +142,7 @@ replace(const char *input, size_t input_sz, char *output, int keep_xml_entities)
 }
 
 static PyObject*
-replace_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+replace_all_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     if (nargs < 1) { PyErr_SetString(PyExc_TypeError, "Must specify string tp process"); return NULL; }
     const char *input = NULL; Py_ssize_t input_sz = 0;
     int keep_xml_entities = false;
@@ -168,8 +168,8 @@ replace_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
 }
 
 static PyMethodDef methods[] = {
-    {"replace_entities", (PyCFunction)replace_entities, METH_FASTCALL,
-     "Replace entities in the specified string"
+    {"replace_all_entities", (PyCFunction)replace_all_entities, METH_FASTCALL,
+     "Replace all entities in the specified string"
     },
     {NULL, NULL, 0, NULL}
 };

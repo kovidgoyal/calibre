@@ -449,8 +449,15 @@ def my_unichr(num):
     except (ValueError, OverflowError):
         return '?'
 
+XML_ENTITIES = {
+    '"' : '&quot;',
+    "'" : '&apos;',
+    '<' : '&lt;',
+    '>' : '&gt;',
+    '&' : '&amp;'
+}
 
-def entity_to_unicode(match, exceptions=[], encoding='cp1252',
+def entity_to_unicode(match, exceptions=(), encoding='cp1252',
         result_exceptions={}):
     '''
     :param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -502,12 +509,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
 
 
 _ent_pat = re.compile(r'&(\S+?);')
-xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions={
-    '"' : '&quot;',
-    "'" : '&apos;',
-    '<' : '&lt;',
-    '>' : '&gt;',
-    '&' : '&amp;'})
+xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions=XML_ENTITIES)
 
 
 def replace_entities(raw, encoding='cp1252'):
