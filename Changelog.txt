@@ -23,6 +23,54 @@
 # - title by author
 # }}}
 
+{{{ 7.18.0 2024-09-13
+
+:: new features
+
+- E-book viewer: Read aloud: A new Text-to-Speech engine (Piper) that uses a neural network for realistic sounding voices
+
+  To use it access the viewer controls and click the Read aloud button or press 'Ctrl+S'. The neural network
+  is run locally, no cloud services are used. Using the OS Text-to-Speech engine is still possible by clicking
+  the configure button on the Read aloud control bar. Note that the new engine highlights the currently read sentence rather than word.
+
+- [2076346] New experimental engine to convert PDF files with support for automatic header/footer removal
+
+  Turn it on via the PDF input section of the conversion dialog.
+
+- Content server: Viewer: Read Aloud: Implement word-by-word tracking when reading aloud if the browser and voice used support it, for example, Chromium on Windows, Firefox on Android and Safari on macOS
+
+- [2080315] Image popup: Add a context menu with an option to reset the current zoom
+
+- Edit metadata dialog: Show the number of data files on the data files button
+
+:: bug fixes
+
+- Fix a regression in the previous release that broke using Tab key to move around the book list while editing cells
+
+- [2077801] E-book viewer: Fix scrollbar position not updating during continuous scroll
+
+- [2077871] E-book viewer: Fix a harmless error when the book contains page list references whose targets do not exist
+
+- [2077794] Linux binary build: Fix missing libdeflate dependency
+
+:: improved recipes
+- Revista Muy Interesante
+- Ars Technica
+- South China Morning Post
+- Times Literary Supplement
+- Hackernews
+- Star Gazetesi
+- Hurriyet
+- Gorafi
+- Times Online
+
+:: new recipes
+- Muy Interesante México by unkn0wn
+- Salzburger Nachrichten by İlker Melik Sıtkı
+- Computer Weekly by İlker Melik Sıtkı
+
+}}}
+
 {{{ 7.17.0 2024-08-23
 
 :: new features
