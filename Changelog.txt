@@ -27,7 +27,7 @@
 
 :: new features
 
-- E-book viewer: Read aloud: A new Text-to-Speech engine (Piper) that uses a neural network for realistic sounding voices
+- [major] E-book viewer: Read aloud: A new Text-to-Speech engine (Piper) that uses a neural network for realistic sounding voices
 
   To use it access the viewer controls and click the Read aloud button or press 'Ctrl+S'. The neural network
   is run locally, no cloud services are used. Using the OS Text-to-Speech engine is still possible by clicking
