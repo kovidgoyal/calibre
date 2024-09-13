@@ -227,7 +227,8 @@ class TTSManager(QObject):
     def _state_changed(self, state: QTextToSpeech.State) -> None:
         prev_state, self.state = self.state, state
         if state is QTextToSpeech.State.Error:
-            error_dialog(self, _('Read aloud failed'), self.tts.error_message(), show=True)
+            from calibre.gui2.tts.types import widget_parent
+            error_dialog(widget_parent(self), _('Read aloud failed'), self.tts.error_message(), show=True)
         if state is QTextToSpeech.State.Paused:
             self.emit_state_event('pause')
         elif state is QTextToSpeech.State.Speaking:
