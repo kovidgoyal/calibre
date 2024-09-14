@@ -952,7 +952,12 @@ class Cache:
             uses exact matching instead of case-insensitive matching. It is up
             to 20 times faster than get_item_id().
         '''
-        return self.backend.get('SELECT id FROM {} WHERE name=?'.format(self.fields[field].metadata['table']),
+        table = self.fields[field].metadata['table']
+        if table is None:
+            return None
+        return self.backend.get('SELECT id FROM {} WHERE {}=?'.format(
+                                        self.fields[field].metadata['table'],
+                                        self.fields[field].metadata['column']),
                                 (item_name,), all=False)
 
     @read_api
