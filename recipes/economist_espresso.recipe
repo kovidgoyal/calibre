@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 https://www.economist.com/the-world-in-brief
 '''
@@ -195,6 +196,12 @@ class Espresso(BasicNewsRecipe):
             url = 'file:///' + pt.name
             ans.append({"title": title, "url": url})
         return [('Espresso', ans)]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', src=True):
+            img['src'] = img['src'].replace('economist.com/',
+                'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
+        return soup
 
     def populate_article_metadata(self, article, soup, first):
         article.url = soup.find('h1')['title']
