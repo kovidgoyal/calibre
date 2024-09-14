@@ -945,10 +945,22 @@ class Cache:
         specified field. See also :meth:`get_id_map`.'''
         return self.fields[field].table.id_map[item_id]
 
+    def get_item_id_using_db(self, field, item_name):
+        ''' Return the item_id for item_name with an exact match comparison using
+            the database index on the table. It works on many-to-one and many-
+            to-many columns. It is not equivalent to get_item_id() because it
+            uses exact matching instead of case-insensitive matching. It is up
+            to 20 times faster than get_item_id().
+        '''
+        return self.backend.get('SELECT id FROM {} WHERE name=?'.format(self.fields[field].metadata['table']),
+                                (item_name,), all=False)
+
     @read_api
     def get_item_id(self, field, item_name):
-        '''' Return the item id for item_name (case-insensitive) or None if not found.
-        This function is very slow if doing lookups for multiple names use either get_item_ids() or get_item_name_map(). '''
+        ''' Return the item id for item_name (case-insensitive) or None if not found.
+            This function is very slow. If doing lookups for multiple names or using
+            it in a loop then use one of get_item_ids(), get_item_name_map(), or
+            get_item_id_using_db(). '''
         q = icu_lower(item_name)
         try:
             for item_id, item_val in self.fields[field].table.id_map.items():
