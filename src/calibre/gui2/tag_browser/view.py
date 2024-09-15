@@ -595,7 +595,7 @@ class TagsView(QTreeView):  # {{{
             x = self.mouse_clicked_point.x()
             if self.click_in_button_range(x, category, orig_name, 'notes'):
                 from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
-                item_id = db.get_item_id(category, orig_name)
+                item_id = db.get_item_id(category, orig_name, case_sensitive=True)
                 if db.notes_for(category, item_id):
                     ShowNoteDialog(category, item_id, db, parent=self).show()
                     return
@@ -941,7 +941,7 @@ class TagsView(QTreeView):  # {{{
                                             key=key))
 
                         if self.db.new_api.field_supports_notes(key):
-                            item_id = self.db.new_api.get_item_id(tag.category, tag.original_name)
+                            item_id = self.db.new_api.get_item_id(tag.category, tag.original_name, case_sensitive=True)
                             has_note = self._model.item_has_note(key, tag.original_name)
                             self.context_menu.addAction(self.edit_metadata_icon,
                                 (_('Edit note for %s') if has_note else _('Create note for %s'))%display_name(tag),

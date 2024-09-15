@@ -2064,7 +2064,7 @@ class BuiltinGetLink(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             link = None
-            item_id = db.get_item_id(field_name, field_value)
+            item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
             if item_id is not None:
                 link = db.link_for(field_name, item_id)
             return link if link is not None else ''
@@ -2587,7 +2587,7 @@ class BuiltinGetNote(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         try:
             note = None
-            item_id = db.get_item_id(field_name, field_value)
+            item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
             if item_id is not None:
                 note = db.notes_data_for(field_name, item_id)
                 if note is not None:
@@ -2634,7 +2634,7 @@ class BuiltinHasNote(BuiltinFormatterFunction):
         db = self.get_database(mi).new_api
         note = None
         try:
-            item_id = db.get_item_id(field_name, field_value)
+            item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
             if item_id is not None:
                 note = db.notes_data_for(field_name, item_id)
         except Exception as e:

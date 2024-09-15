@@ -1619,7 +1619,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             for val, key, _ in user_cats[cat]:
                 datatype = cache.field_metadata.get(key, {}).get('datatype', '*****')
                 if datatype != 'composite':
-                    id_ = cache.get_item_id(key, val)
+                    id_ = cache.get_item_id(key, val, case_sensitive=True)
                     if id_ is not None:
                         v = cache.books_for_field(key, id_)
                         if v:
