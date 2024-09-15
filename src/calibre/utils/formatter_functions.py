@@ -2576,7 +2576,7 @@ class BuiltinGetNote(BuiltinFormatterFunction):
     category = 'Template database functions'
     __doc__ = doc = _("get_note(field_name, field_value, plain_text) -- fetch the "
                       "note for field 'field_name' with value 'field_value'. If "
-                      "'plain_text' is empty, return the note's HTML including"
+                      "'plain_text' is empty, return the note's HTML including "
                       "images. If 'plain_text' is 1 (or '1'), return the "
                       "note's plain text. If the note doesn't exist, return the "
                       "empty string in both cases. Example: "

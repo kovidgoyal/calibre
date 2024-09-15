@@ -26,7 +26,7 @@ class PDFInput(InputFormatPlugin):
         OptionRecommendation(name='new_pdf_engine', recommended_value=False,
             help=_('Use the new, experimental, PDF conversion engine.')),
         OptionRecommendation(name='pdf_header_skip', recommended_value=-1,
-            help=_('Skip everything to the specified number pixels at the top of a page.'
+            help=_('Skip everything to the specified number of pixels at the top of a page.'
             ' Negative numbers mean auto-detect and remove headers, zero means do not remove headers and positive numbers'
             ' mean remove headers that appear above that many pixels from the top of the page. Works only'
             ' with the new PDF engine.'

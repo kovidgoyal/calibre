@@ -947,7 +947,7 @@ class Cache:
 
     @read_api
     def get_item_id(self, field, item_name):
-        '''' Return the item id for item_name (case-insensitive) or None if not found.
+        ''' Return the item id for item_name (case-insensitive) or None if not found.
         This function is very slow if doing lookups for multiple names use either get_item_ids() or get_item_name_map(). '''
         q = icu_lower(item_name)
         try:

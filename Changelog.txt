@@ -37,7 +37,7 @@
 
   Turn it on via the PDF input section of the conversion dialog.
 
-- Content server: Viewer: Read Aloud: Implement word-by-word tracking when reading aloud if the browser and voice used support it, for example, Chromium on Windows, Firefox on Android and Safari on macOS
+- Content server: Viewer: Read Aloud: Implement word-by-word tracking when reading aloud if the browser and OS used support it, for example, Chromium on Windows, Firefox on Android and Safari on macOS
 
 - [2080315] Image popup: Add a context menu with an option to reset the current zoom
 
