@@ -8,7 +8,6 @@ engadget.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
@@ -17,8 +16,8 @@ def classes(classes):
 class Engadget(BasicNewsRecipe):
     title                 = u'Engadget'
     __author__            = 'Starson17, modified by epubli'
-    __version__           = 'v2.1'
-    __date__              = '2023-09-19'
+    __version__           = 'v2.2'
+    __date__              = '2024-09-15'
     description           = 'Tech news'
     language              = 'en'
     oldest_article        = 7
@@ -32,16 +31,13 @@ class Engadget(BasicNewsRecipe):
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Engadget-logo.svg'
 
     keep_only_tags = [ 
-        dict(name='div', attrs={'class':'caas-content-wrapper'}),
-        dict(name='figure', attrs={'data-component':'DefaultLede'}),
-        dict(name='div', attrs={'data-component':'ArticleHeader'}),
-        dict(name='div', attrs={'class':['article-text','article-text c-gray-1 no-review']}),
+        classes('caas-content-wrapper caas-title-wrapper'),
         dict(name='figure')
     ]
     remove_tags = [
         dict(name='div', attrs={'class':'caas-content-byline-wrapper'}),
         dict(name='div', attrs={'data-component':'ArticleAuthorInfo'}),
-        classes('caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')
+        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')
     ]
 
     feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]
@@ -53,8 +49,12 @@ class Engadget(BasicNewsRecipe):
       for feed in feeds:
         # Loop through all articles in feed.
         for article in feed.articles[:]:
+          # Remove articles with '...' in the url.
+          if '/deals/' in article.url:
+            print('Removing:',article.title)
+            feed.articles.remove(article)
           # Remove articles with '...' in the title.
-          if 'best tech deals' in article.title:
+          elif 'best tech deals' in article.title:
               print('Removing:',article.title)
               feed.articles.remove(article)
           elif 'Podcast' in article.title:
@@ -74,7 +74,10 @@ class Engadget(BasicNewsRecipe):
                 except KeyError:
                     continue
                 if ds:
-                    img['src'] = ds
+                    index = ds.rfind('https://')
+                    if index != -1:
+                        imgsrc = ds[index:]
+                        img['src'] = imgsrc
         for divs in soup.findAll('div'):
             try:
                 if divs['style'].split()[0].startswith('padding'):
@@ -82,6 +85,13 @@ class Engadget(BasicNewsRecipe):
                     del divs['style']
             except KeyError:
                 continue
-
+        # Reorder the "title" and "content" elements
+        body_tag = soup.find('body')
+        title_div = soup.find("div", {"class": "caas-title-wrapper"})
+        content_div = soup.find("div", {"class": "caas-content-wrapper"})
+        if title_div and content_div:
+            soup.body.clear()
+            soup.body.append(title_div)
+            soup.body.append(content_div)
         return soup
 
