@@ -58,7 +58,7 @@ class QtTTSBackend(TTSBackend):
             settings = EngineSpecificSettings.create_from_config(engine_name)
             if settings.audio_device_id:
                 for x in QMediaDevices.audioOutputs():
-                    if bytes(x.id) == settings.audio_device_id.id:
+                    if bytes(x.id()) == settings.audio_device_id.id:
                         s['audioDevice'] = x
                         break
             if new_backend:
