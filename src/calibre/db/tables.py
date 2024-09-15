@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import numbers
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import Iterable
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz
@@ -262,6 +263,26 @@ class ManyToOneTable(Table):
                     self.link_table, self.metadata['link_column']),
                     tuple((main_id, x) for x in v))
                 db.delete_category_items(self.name, self.metadata['table'], item_map)
+
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+        item_names = tuple(item_names)
+        if case_sensitive:
+            colname = self.metadata['column']
+            if len(item_names) == 1:
+                iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((item_names[0],)), all=False)
+                return {item_names[0]: iid}
+            inq = ('?,' * len(item_names))[:-1]
+            ans = dict.fromkeys(item_names)
+            ans.update(db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', item_names))
+            return ans
+        if len(item_names) == 1:
+            q = icu_lower(item_names[0])
+            for iid, name in self.id_map.items():
+                if icu_lower(name) == q:
+                    return {item_names[0]: iid}
+            return {item_names[0]: iid}
+        rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in self.id_map.items()}
+        return {name: rmap.get(icu_lower(name) if isinstance(name, str) else name, None) for name in item_names}
 
     def remove_books(self, book_ids, db):
         clean = set()

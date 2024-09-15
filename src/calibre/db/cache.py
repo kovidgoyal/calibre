@@ -946,22 +946,23 @@ class Cache:
         return self.fields[field].table.id_map[item_id]
 
     @read_api
-    def get_item_id(self, field, item_name):
-        ''' Return the item id for item_name (case-insensitive) or None if not found.
-        This function is very slow if doing lookups for multiple names use either get_item_ids() or get_item_name_map(). '''
-        q = icu_lower(item_name)
-        try:
-            for item_id, item_val in self.fields[field].table.id_map.items():
-                if icu_lower(item_val) == q:
-                    return item_id
-        except KeyError:
-            return None
+    def get_item_id(self, field, item_name, case_sensitive=False):
+        ''' Return the item id for item_name or None if not found.
+        This function is very slow if doing lookups for multiple names use either get_item_ids() or get_item_name_map().
+        Similarly, case sensitive lookups are faster than case insensitive ones. '''
+        field = self.fields[field]
+        if hasattr(field, 'item_ids_for_names'):
+            d = field.item_ids_for_names(self.backend, (item_name,), case_sensitive)
+            for v in d.values():
+                return v
 
     @read_api
-    def get_item_ids(self, field, item_names):
-        ' Return the item id for item_name (case-insensitive) '
-        rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in iteritems(self.fields[field].table.id_map)}
-        return {name:rmap.get(icu_lower(name) if isinstance(name, str) else name, None) for name in item_names}
+    def get_item_ids(self, field, item_names, case_sensitive=False):
+        ' Return a dict mapping item_name to the item id or None '
+        field = self.fields[field]
+        if hasattr(field, 'item_ids_for_names'):
+            return field.item_ids_for_names(self.backend, item_names, case_sensitive)
+        return dict.fromkeys(item_names)
 
     @read_api
     def get_item_name_map(self, field, normalize_func=None):

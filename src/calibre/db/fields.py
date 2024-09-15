@@ -9,6 +9,7 @@ import sys
 from collections import Counter, defaultdict
 from functools import partial
 from threading import Lock
+from typing import Iterable
 
 from calibre.db.tables import MANY_MANY, MANY_ONE, ONE_ONE, null
 from calibre.db.utils import atof, force_to_bool
@@ -531,6 +532,9 @@ class ManyToOneField(Field):
         except KeyError:
             raise InvalidLinkTable(self.name)
 
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+        return self.table.item_ids_for_names(db, item_names, case_sensitive)
+
 
 class ManyToManyField(Field):
 
@@ -539,6 +543,9 @@ class ManyToManyField(Field):
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
+
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+        return self.table.item_ids_for_names(db, item_names, case_sensitive)
 
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())

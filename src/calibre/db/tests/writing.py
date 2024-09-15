@@ -497,8 +497,12 @@ class WritingTest(BaseTest):
         # auto-generated authors sort
         mi = Metadata('empty', ['a1', 'a2'])
         cache.set_metadata(1, mi)
+        self.assertEqual(cache.get_item_ids('authors', ('a1', 'a2')), cache.get_item_ids('authors', ('a1', 'a2'), case_sensitive=True))
+        self.assertEqual(
+            set(cache.get_item_ids('authors', ('A1', 'a2')).values()),
+            set(cache.get_item_ids('authors', ('a1', 'a2'), case_sensitive=True).values()))
         self.assertEqual('a1 & a2', cache.field_for('author_sort', 1))
-        cache.set_sort_for_authors({cache.get_item_id('authors', 'a1'): 'xy'})
+        cache.set_sort_for_authors({cache.get_item_id('authors', 'a1', case_sensitive=True): 'xy'})
         self.assertEqual('xy & a2', cache.field_for('author_sort', 1))
         mi = Metadata('empty', ['a1'])
         cache.set_metadata(1, mi)
