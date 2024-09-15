@@ -197,6 +197,14 @@ class Economist(BasicNewsRecipe):
     # downloaded with connection reset by peer (104) errors.
     delay = 2
 
+    recipe_specific_options = {
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
+            'default': '600'
+        }
+    }
+
     needs_subscription = False
 
     def get_browser(self, *args, **kwargs):
@@ -269,9 +277,13 @@ class Economist(BasicNewsRecipe):
             article.url = soup.find('h1')['title']
 
         def preprocess_html(self, soup):
+            width = '600'
+            w = self.recipe_specific_options.get('res')
+            if w and isinstance(w, str):
+                width =  w
             for img in soup.findAll('img', src=True):
-                img['src'] = img['src'].replace('economist.com/',
-                    'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
+                qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
+                img['src'] = img['src'].replace('economist.com/', qua)
             return soup
 
     else: # Load articles from individual article pages {{{
