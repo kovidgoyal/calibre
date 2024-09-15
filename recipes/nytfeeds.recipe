@@ -168,7 +168,6 @@ class nytFeeds(BasicNewsRecipe):
         ('TMagazine', 'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml'),
         ('Travel', 'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml'),
         ('Sunday Review', 'https://rss.nytimes.com/services/xml/rss/nyt/sunday-review.xml'),
-        ('Sports', 'https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml')
     ]
 
     def get_browser(self, *args, **kwargs):
