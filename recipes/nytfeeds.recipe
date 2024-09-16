@@ -15,11 +15,11 @@ def parse_image(i):
     if i['__typename'] == 'Image':
         yield '<div>'
         yield '<img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
-        if 'caption' in i and i['caption']:
+        if i.get('caption'):
             yield '<div class="cap">{}'.format(
                 i['caption'].get('text', '')
             )
-            if 'credit' in i and i['credit']:
+            if i.get('credit'):
                 yield '<span class="cred"> ' + i['credit'] + '</span>'
             yield '</div>'
         yield '</div>'
@@ -27,15 +27,15 @@ def parse_image(i):
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
         yield ''.join(parse_image(grd))
-    if 'caption' in g and g['caption']:
+    if g.get('caption'):
         yield '<div class="cap">{}'.format(g['caption'])
-        if 'credit' in g and g['credit']:
+        if g.get('credit'):
             yield '<span class="cred"> ' + g['credit'] + '</span>'
         yield '</div>'
 
 def parse_cnt(cnt):
     if cnt['__typename'] == 'TextInline':
-        if 'formats' in cnt and cnt['formats']:
+        if cnt.get('formats'):
             for fmt in cnt.get('formats', {}):
                 if fmt['__typename'] == 'LinkFormat':
                     hrf = fmt['url']
@@ -58,34 +58,43 @@ def iso_date(x):
 def header_parse(h):
     for ch in h['headline']['content']:
         yield '<h1>' + ''.join(parse_cnt(ch)) + '</h1>'
-    if 'summary' in h and h['summary']:
+    if h.get('summary'):
         for cs in h['summary']['content']:
             yield '<p class="sub">' +  ''.join(parse_cnt(cs)) + '</p>'
-    if 'ledeMedia' in h and h['ledeMedia']:
+    if h.get('ledeMedia'):
         if h['ledeMedia'].get('__typename', '') == 'ImageBlock':
             yield ''.join(parse_image(h['ledeMedia']['media']))
-    if 'byline' in h and h['byline']:
+    if h.get('byline'):
         yield '<br><div class="byl">'
         yield '\t'.join(parse_byline(h['byline']))
-        if 'timestampBlock' in h and h['timestampBlock']:
+        if h.get('timestampBlock'):
             yield '\t<div>' + iso_date(h['timestampBlock']['timestamp']) + '</div>'
         yield '</div>'
 
 def article_parse(data):
     yield "<html><body>"
     for x in data:
-        if x.get('__typename', '') in {'HeaderBasicBlock', 'HeaderFullBleedVerticalBlock'}:
+        if x.get('__typename', '') in {'HeaderBasicBlock', 'HeaderFullBleedVerticalBlock', 'HeaderFullBleedHorizontalBlock'}:
             yield '\n'.join(header_parse(x))
         elif x.get('__typename', '') == 'ParagraphBlock':
             yield '<p>'
             for para in x['content']:
                 yield '\t'.join(parse_cnt(para))
             yield '</p>'
-        elif x.get('__typename', '') == 'Heading2Block':
+        elif x.get('__typename', '') in {'Heading2Block', 'Heading3Block'}:
             yield '<h4>'
-            for para in x['content']:
-                yield '\t'.join(parse_cnt(para))
+            for h2 in x['content']:
+                yield '\t'.join(parse_cnt(h2))
             yield '</h4>'
+        elif x.get('__typename', '') == 'Heading1Block':
+            yield '<h1>'
+            for h1 in x['content']:
+                yield '\t'.join(parse_cnt(h1))
+            yield '</h1>'
+        elif x.get('__typename', '') == 'BylineBlock':
+            yield '<br><div class="byl">'
+            yield '\t'.join(parse_byline(x))
+            yield '</div>'
         elif x.get('__typename', '') == 'ImageBlock':
             yield ''.join(parse_image(x['media']))
         elif x.get('__typename', '') == 'GridBlock':
@@ -133,6 +142,10 @@ class nytFeeds(BasicNewsRecipe):
             'short': 'Reverse the order of articles in each feed?',
             'long': 'enter yes',
             'default': 'no'
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: popup, jumbo, mobileMasterAt3x, superJumbo',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default(articleLarge), use articleInline.',
         }
     }
 
@@ -182,3 +195,11 @@ class nytFeeds(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         data = extract_json(raw_html)
         return '\n'.join(article_parse(data))
+
+    def preprocess_html(self, soup):
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '-' + w + '.jpg'
+            for img in soup.findAll('img', attrs={'src':True}):
+                img['src'] = img['src'].rsplit('-', 1)[0] + res
+        return soup
