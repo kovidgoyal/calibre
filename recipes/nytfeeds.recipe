@@ -56,6 +56,10 @@ def iso_date(x):
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
 def header_parse(h):
+    if h.get('label'):
+        if h['label'].get('content'):
+            for cl in h['label']['content']:
+                yield '<div class="lbl">' + ''.join(parse_cnt(cl)) + '</div>'
     for ch in h['headline']['content']:
         yield '<h1>' + ''.join(parse_cnt(ch)) + '</h1>'
     if h.get('summary'):
@@ -99,7 +103,7 @@ def article_parse(data):
             yield ''.join(parse_image(x['media']))
         elif x.get('__typename', '') == 'GridBlock':
             yield ''.join(parse_img_grid(x))
-        elif 'content' in x and x['content']:
+        elif x.get('content'):
             yield '<p><i>'
             for i in x['content']:
                 yield '\t'.join(parse_cnt(i))
@@ -168,6 +172,8 @@ class nytFeeds(BasicNewsRecipe):
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
         .sub { font-style:italic; }
+        .lbl { font-size:small; color:#404040; }
+        img { display:block; margin:0 auto; }
     '''
 
     feeds = [
