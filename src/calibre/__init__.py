@@ -56,6 +56,7 @@ def _init_mimetypes():
     _mt_inited = True
 
 
+@lru_cache(4096)
 def guess_type(*args, **kwargs):
     import mimetypes
     if not _mt_inited:
