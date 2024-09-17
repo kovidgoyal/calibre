@@ -12,17 +12,13 @@ def extract_json(raw):
     return js['initialData']['data']['article']['sprinkledBody']['content']
 
 def parse_image(i):
-    if i['__typename'] == 'Image':
-        yield '<div>'
-        yield '<img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
-        if i.get('caption'):
-            yield '<div class="cap">{}'.format(
-                i['caption'].get('text', '')
-            )
-            if i.get('credit'):
-                yield '<span class="cred"> ' + i['credit'] + '</span>'
-            yield '</div>'
+    yield '<div><img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
+    if i.get('caption'):
+        yield '<div class="cap">' + ''.join(parse_types(i['caption']))
+        if i.get('credit'):
+            yield '<span class="cred"> ' + i['credit'] + '</span>'
         yield '</div>'
+    yield '</div>'
 
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
@@ -33,92 +29,114 @@ def parse_img_grid(g):
             yield '<span class="cred"> ' + g['credit'] + '</span>'
         yield '</div>'
 
-def parse_cnt(cnt):
-    txt = ''
-    if cnt['__typename'] == 'TextInline':
-        if cnt.get('formats'):
-            for fmt in cnt.get('formats', {}):
-                if fmt['__typename'] == 'ItalicFormat':
-                    txt += '<i>'
-                if fmt['__typename'] == 'LinkFormat':
-                    txt += '<a href="{}">'.format(fmt['url'])
-        txt += cnt['text']
-    elif cnt['__typename'] == 'LineBreakInline':
-        txt += '<br/>'
-    if '<i>' in txt and '<a href' in txt:
-        yield txt + '</a></i>'
-    elif '<i>' in txt:
-        yield txt + '</i>'
-    elif '<a href' in txt:
-        yield txt + '</a>'
-    else:
-        yield txt
-
 def parse_byline(byl):
     for b in byl.get('bylines', {}):
         yield '<div>' + b['renderedRepresentation'] + '</div>'
     for rl in byl.get('role', {}):
-        yield '<div><i>' + ''.join(parse_cnt(rl)) + '</i></div>'
+        if ''.join(parse_cnt(rl)).strip():
+            yield '<div><i>' + ''.join(parse_cnt(rl)) + '</i></div>'
 
 def iso_date(x):
     dt = datetime.fromisoformat(x[:-1]) + timedelta(seconds=time.timezone)
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
-def header_parse(h):
+def parse_header(h):
     if h.get('label'):
-        if h['label'].get('content'):
-            for cl in h['label']['content']:
-                yield '<div class="lbl">' + ''.join(parse_cnt(cl)) + '</div>'
-    for ch in h['headline']['content']:
-        yield '<h1>' + ''.join(parse_cnt(ch)) + '</h1>'
+        yield '<div class="lbl">' + ''.join(parse_types(h['label'])) + '</div>'
+    if h.get('headline'):
+        yield ''.join(parse_types(h['headline']))
     if h.get('summary'):
-        for cs in h['summary']['content']:
-            yield '<p class="sub">' +  ''.join(parse_cnt(cs)) + '</p>'
+        yield '<p class="sub">' +  ''.join(parse_types(h['summary'])) + '</p>'
     if h.get('ledeMedia'):
-        if h['ledeMedia'].get('__typename', '') == 'ImageBlock':
-            yield ''.join(parse_image(h['ledeMedia']['media']))
+        yield ''.join(parse_types(h['ledeMedia']))
     if h.get('byline'):
-        yield '<div class="byl"><br/>'
-        yield '\t' + '\t'.join(parse_byline(h['byline']))
-        if h.get('timestampBlock'):
-            yield '\t<div>' + iso_date(h['timestampBlock']['timestamp']) + '</div>'
-        yield '</div>'
+        yield ''.join(parse_types(h['byline']))
+    if h.get('timestampBlock'):
+        yield ''.join(parse_types(h['timestampBlock']))
+
+def parse_fmt_type(fm):
+    for f in fm.get('formats', {}):
+        if f.get('__typename', '') == 'BoldFormat':
+            yield '<strong>'
+        if f.get('__typename', '') == 'ItalicFormat':
+            yield '<em>'
+        if f.get('__typename', '') == 'LinkFormat':
+            hrf = f['url']
+            yield '<a href="{}">'.format(hrf)
+    yield fm['text']
+    for f in reversed(fm.get('formats', {})):
+        if f.get('__typename', '') == 'BoldFormat':
+            yield '</strong>'
+        if f.get('__typename', '') == 'ItalicFormat':
+            yield '</em>'
+        if f.get('__typename', '') == 'LinkFormat':
+            yield '</a>'
+
+def parse_cnt(cnt):
+    if cnt.get('formats'):
+        yield ''.join(parse_fmt_type(cnt))
+    elif cnt.get('content'):
+        for cnt_ in cnt['content']:
+            yield from parse_types(cnt_)
+    elif cnt.get('text'):
+        yield cnt['text']
+
+def parse_types(x):
+    if 'Header' in x.get('__typename', ''):
+        yield '\n'.join(parse_header(x))
+
+    elif x.get('__typename', '') == 'Heading1Block':
+        yield '<h1>' + ''.join(parse_cnt(x)) + '</h1>'
+    elif x.get('__typename', '') in {'Heading2Block', 'Heading3Block', 'Heading4Block'}:
+        yield '<h4>' + ''.join(parse_cnt(x)) + '</h4>'
+
+    elif x.get('__typename', '') == 'ParagraphBlock':
+        yield '<p>' + ''.join(parse_cnt(x)) + '</p>'
+
+    elif x.get('__typename', '') == 'BylineBlock':
+        yield '<div class="byl"><br/>' + ''.join(parse_byline(x)) + '</div>'    
+    elif x.get('__typename', '') == 'LabelBlock':
+        yield '<div class="sc">' + ''.join(parse_cnt(x)) + '</div>'
+    elif x.get('__typename', '') == 'BlockquoteBlock':
+        yield '<blockquote>' + ''.join(parse_cnt(x)) + '</blockquote>'
+    elif x.get('__typename', '') == 'TimestampBlock':
+        yield '<div class="time">' + iso_date(x['timestamp']) + '</div>'
+    elif x.get('__typename', '') == 'LineBreakInline':
+        yield '<br/>'
+    elif x.get('__typename', '') == 'RuleBlock':
+        yield '<hr/>'
+
+    elif x.get('__typename', '') == 'Image':
+        yield ''.join(parse_image(x))
+    elif x.get('__typename', '') == 'ImageBlock':
+        yield ''.join(parse_image(x['media']))
+    elif x.get('__typename', '') == 'GridBlock':
+        yield ''.join(parse_img_grid(x))
+
+    elif x.get('__typename', '') == 'ListBlock':
+        yield '<ul>' + ''.join(parse_cnt(x)) + '</ul>'
+    elif x.get('__typename', '') == 'ListItemBlock':
+        yield '<li>' + ''.join(parse_cnt(x)) + '</li>'
+
+    elif x.get('__typename', '') == 'CapsuleBlock':
+        if x['capsuleContent'].get('body'):
+            yield ''.join(parse_cnt(x['capsuleContent']['body']))
+    elif x.get('__typename', '') == 'Capsule':
+        yield ''.join(parse_cnt(x['body']))
+
+    elif x.get('__typename', '') in {
+        'TextInline', 'TextOnlyDocumentBlock', 'DocumentBlock', 'SummaryBlock'
+    }:
+        yield ''.join(parse_cnt(x))
+
+    elif x.get('__typename'):
+        if ''.join(parse_cnt(x)).strip():
+            yield '<p><i>' + ''.join(parse_cnt(x)) + '</i></p>'
 
 def article_parse(data):
     yield "<html><body>"
-    for x in data:
-        if x.get('__typename', '') in {'HeaderBasicBlock', 'HeaderFullBleedVerticalBlock', 'HeaderFullBleedHorizontalBlock'}:
-            yield '\n'.join(header_parse(x))
-        elif x.get('__typename', '') == 'ParagraphBlock':
-            p_txt = ''
-            for para in x['content']:
-                p_txt += ''.join(parse_cnt(para))
-            if p_txt.strip():
-                yield '<p>' + p_txt + '</p>'
-        elif x.get('__typename', '') in {'Heading2Block', 'Heading3Block'}:
-            h4_txt = ''
-            for h2 in x['content']:
-                h4_txt += ''.join(parse_cnt(h2))
-            if h4_txt.strip():
-                yield '<h4>' + h4_txt + '</h4>'
-        elif x.get('__typename', '') == 'Heading1Block':
-            h1_txt = ''
-            for h1 in x['content']:
-                h1_txt += ''.join(parse_cnt(h1))
-            if h1_txt.strip():
-                yield '<h1>' + h1_txt + '</h1>'
-        elif x.get('__typename', '') == 'BylineBlock':
-            yield '<div class="byl">\n<br/>\t' + '\t'.join(parse_byline(x)) + '</div>'
-        elif x.get('__typename', '') == 'ImageBlock':
-            yield ''.join(parse_image(x['media']))
-        elif x.get('__typename', '') == 'GridBlock':
-            yield ''.join(parse_img_grid(x))
-        elif x.get('content'):
-            o_txt = ''
-            for i in x['content']:
-                o_txt += ''.join(parse_cnt(i))
-            if o_txt.strip():
-                yield '<p><i>' + o_txt + '</i></p>'
+    for d in data:
+        yield from parse_types(d)
     yield "</body></html>"
 
 
@@ -159,7 +177,7 @@ class nytFeeds(BasicNewsRecipe):
             'default': 'no'
         },
         'res': {
-            'short': 'For hi-res images, select a resolution from the\nfollowing options: popup, jumbo, mobileMasterAt3x, superJumbo',
+            'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default(articleLarge), use articleInline.',
         }
     }
@@ -179,10 +197,12 @@ class nytFeeds(BasicNewsRecipe):
                 self.compress_news_images = True
 
     extra_css = '''
-        .byl { font-size:small; color:#202020; }
+        .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
         .sub { font-style:italic; }
+        em, blockquote { color: #202020; }
+        .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
         img { display:block; margin:0 auto; }
     '''
@@ -216,7 +236,11 @@ class nytFeeds(BasicNewsRecipe):
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
-            res = '-' + w + '.jpg'
+            res = '-' + w
             for img in soup.findAll('img', attrs={'src':True}):
-                img['src'] = img['src'].rsplit('-article', 1)[0] + res
+                ext = img['src'].split('?')[0].split('.')[-1]
+                img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
+        for c in soup.findAll('div', attrs={'class':'cap'}):
+            for p in c.findAll(['p', 'div']):
+                p.name = 'span'
         return soup
