@@ -190,6 +190,8 @@ class TestImports(unittest.TestCase):
                 'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
                 'calibre.gui2.linux_file_dialogs',
             }
+        if 'SKIP_SPEECH_TESTS' in os.environ:
+            exclude_packages.add('calibre.gui2.tts')
         if not isbsd:
             exclude_modules.add('calibre.devices.usbms.hal')
         d = os.path.dirname
