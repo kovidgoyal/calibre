@@ -4,7 +4,6 @@
 
 import json
 import os
-import re
 import sys
 import time
 from collections import defaultdict
@@ -34,8 +33,8 @@ from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.logging import default_log
 from calibre.utils.serialize import json_dumps, json_loads, msgpack_dumps, msgpack_loads
 from calibre.utils.short_uuid import uuid4
-from calibre_extensions import speedup
 from calibre_extensions.fast_css_transform import transform_properties
+from calibre_extensions.speedup import get_element_char_length
 from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
@@ -144,31 +143,11 @@ def anchor_map(root):
 def get_length(root):
     ans = 0
 
-    fast = getattr(speedup, 'get_element_char_length', None)
-    if fast is None:
-        ignore_tags = frozenset('script style title noscript'.split())
-        img_tags = ('img', 'svg')
-        strip_space = re.compile(r'\s+')
-
-        def count(elem):
-            tag = getattr(elem, 'tag', count)
-            if callable(tag):
-                return len(strip_space.sub('', getattr(elem, 'tail', None) or ''))
-            num = 0
-            tname = tag.rpartition('}')[-1].lower()
-            if elem.text and tname not in ignore_tags:
-                num += len(strip_space.sub('', elem.text))
-            if elem.tail:
-                num += len(strip_space.sub('', elem.tail))
-            if tname in img_tags:
-                num += 1000
-            return num
-    else:
-        def count(elem):
-            tag = getattr(elem, 'tag', count)
-            if callable(tag):
-                return fast('', None, getattr(elem, 'tail', None))
-            return fast(tag, elem.text, elem.tail)
+    def count(elem):
+        tag = getattr(elem, 'tag', count)
+        if callable(tag):
+            return get_element_char_length('', None, getattr(elem, 'tail', None))
+        return get_element_char_length(tag, elem.text, elem.tail)
 
     for body in root.iterchildren(XHTML('body')):
         ans += count(body)
