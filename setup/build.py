@@ -272,8 +272,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         ldflags += base_ldflags
         cflags += ['-fvisibility=hidden']
         if sanitize:
-            cflags.append('-fsanitize-address')
-            ldflags.append('-shared-libasan')
+            cflags.append('-fsanitize=address')
 
     if islinux:
         cflags.append('-pthread')
