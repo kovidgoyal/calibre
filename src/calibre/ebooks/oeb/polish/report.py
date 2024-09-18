@@ -11,8 +11,6 @@ import types
 from collections import defaultdict, namedtuple
 from itertools import chain
 
-from css_selectors import Select, SelectorError
-
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
@@ -20,6 +18,7 @@ from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
+from css_selectors import Select, SelectorError
 from polyglot.builtins import iteritems
 
 File = namedtuple('File', 'name dir basename size category word_count')
@@ -369,3 +368,12 @@ def gather_data(container, book_locale):
         timing[x] = time.time() - st
     file_words_counts = None
     return data, timing
+
+
+def debug_data_gather():
+    import sys
+
+    from calibre.gui2.tweak_book import dictionaries
+    from calibre.gui2.tweak_book.boss import get_container
+    c = get_container(sys.argv[-1])
+    gather_data(c, dictionaries.default_locale)
