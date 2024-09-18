@@ -31,7 +31,7 @@ from calibre_extensions.fast_css_transform import transform_properties
 from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 from polyglot.urllib import quote, urlparse
 
 try:
@@ -584,8 +584,6 @@ def process_exploded_book(
     def needs_work(mt):
         return mt in OEB_STYLES or mt in OEB_DOCS or mt in ('image/svg+xml', 'application/smil', 'application/smil+xml')
 
-    names_that_need_work = tuple(n for n, mt in iteritems(container.mime_map) if needs_work(mt))
-    num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
 
     bookmark_data = None
     if save_bookmark_data:
@@ -598,7 +596,7 @@ def process_exploded_book(
     # browser has no good way to distinguish between zero byte files and
     # load failures.
     excluded_names = {
-        name for name, mt in iteritems(container.mime_map) if
+        name for name, mt in container.mime_map.items() if
         name == container.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
         name == 'mimetype' or not container.has_name_and_is_not_empty(name)}
     raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, book_metadata)
@@ -642,6 +640,8 @@ def process_exploded_book(
         'page_list_anchor_map': pagelist_anchor_map(page_list),
     }
 
+    names_that_need_work = tuple(n for n, mt in container.mime_map.items() if needs_work(mt))
+    num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     results = []
     if num_workers < 2:
         results.append(process_book_files(names_that_need_work, tdir, opfpath, virtualize_resources, book_render_data['link_uid'], container=container))
@@ -658,7 +658,7 @@ def process_exploded_book(
     virtualized_names = set()
 
     def merge_ltm(dest, src):
-        for k, v in iteritems(src):
+        for k, v in src.items():
             if k in dest:
                 dest[k] |= v
             else:
@@ -679,7 +679,7 @@ def process_exploded_book(
         html_data.update(hdata)
         virtualized_names |= vnames
         merge_smil_map(smil_map)
-        for k, v in iteritems(link_to_map):
+        for k, v in link_to_map.items():
             if k in ltm:
                 merge_ltm(ltm[k], v)
             else:
@@ -716,8 +716,8 @@ def process_exploded_book(
         os.remove(container.name_path_map[name])
 
     ltm = book_render_data['link_to_map']
-    for name, amap in iteritems(ltm):
-        for k, v in tuple(iteritems(amap)):
+    for name, amap in ltm.items():
+        for k, v in tuple(amap.items()):
             amap[k] = tuple(v)  # needed for JSON serialization
 
     data = as_bytes(json.dumps(book_render_data, ensure_ascii=False))
@@ -800,7 +800,7 @@ def get_stored_annotations(container, bookmark_data):
                 yield {'type': 'last-read', 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
 
 
-def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True, max_workers=1):
+def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True, max_workers=0):
     pathtoebook = os.path.abspath(pathtoebook)
     mi = None
     if serialize_metadata:
@@ -833,7 +833,7 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
 def render_for_viewer(path, out_dir, book_hash):
     return render(
         path, out_dir, book_hash=book_hash, serialize_metadata=True,
-        extract_annotations=True, virtualize_resources=False, max_workers=0
+        extract_annotations=True, virtualize_resources=False
     )
 
 
