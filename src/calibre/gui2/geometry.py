@@ -12,6 +12,10 @@ from calibre.constants import is_debugging as _is_debugging
 from calibre.utils.config_base import tweaks
 
 
+def geometry_pref_name(name):
+    return f'geometry-of-{name}'
+
+
 def is_debugging():
     return _is_debugging() and tweaks.get('show_geometry_debug_output')
 
@@ -77,6 +81,10 @@ def geometry_for_restore_as_dict(self: QWidget):
     return ans
 
 
+def delete_geometry(prefs: dict, name: str):
+    prefs.pop(geometry_pref_name(name), None)
+
+
 def save_geometry(self: QWidget, prefs: dict, name: str):
     x = geometry_for_restore_as_dict(self)
     if x:
@@ -84,7 +92,7 @@ def save_geometry(self: QWidget, prefs: dict, name: str):
             debug('Saving geometry for:', name)
             debug(x)
         x['qt'] = bytearray(self.saveGeometry())
-        prefs.set(f'geometry-of-{name}', x)
+        prefs.set(geometry_pref_name(name), x)
 
 
 def find_matching_screen(screen_as_dict):
@@ -153,7 +161,7 @@ def _restore_to_new_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
 
 
 def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: callable = None) -> bool:
-    x = prefs.get(f'geometry-of-{name}')
+    x = prefs.get(geometry_pref_name(name))
     if not x:
         old = get_legacy_saved_geometry() if get_legacy_saved_geometry else prefs.get(name)
         if old is not None:
