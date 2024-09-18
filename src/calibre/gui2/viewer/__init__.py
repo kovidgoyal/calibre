@@ -3,7 +3,7 @@
 
 
 import sys
-from time import monotonic
+from time import monotonic_ns
 
 from calibre.constants import DEBUG
 
@@ -60,15 +60,15 @@ def url_for_book_in_library():
 class PerformanceMonitor:
 
     def __init__(self):
-        self.start_time = monotonic()
+        self.start_time = monotonic_ns()
 
     def __call__(self, desc='', reset=False):
         if DEBUG:
-            at = monotonic()
+            at = monotonic_ns()
             if reset:
                 self.start_time = at
             if desc:
-                ts = at - self.start_time
+                ts = (at - self.start_time) / 1e9
                 print(f'[{ts:.3f}] {desc}', file=sys.stderr)
 
 
