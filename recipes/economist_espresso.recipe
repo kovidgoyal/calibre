@@ -6,12 +6,13 @@ https://www.economist.com/the-world-in-brief
 import json
 from urllib.parse import quote, urlencode
 
+from html5_parser import parse
+from lxml import etree
+
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-from html5_parser import parse
-from lxml import etree
 
 
 def E(parent, name, text='', **attrs):

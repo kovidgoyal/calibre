@@ -8,6 +8,7 @@ engadget.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
@@ -30,14 +31,14 @@ class Engadget(BasicNewsRecipe):
     scale_news_images_to_device = True
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Engadget-logo.svg'
 
-    keep_only_tags = [ 
+    keep_only_tags = [
         classes('caas-content-wrapper caas-title-wrapper'),
         dict(name='figure')
     ]
     remove_tags = [
         dict(name='div', attrs={'class':'caas-content-byline-wrapper'}),
         dict(name='div', attrs={'data-component':'ArticleAuthorInfo'}),
-        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')
+        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')  # noqa
     ]
 
     feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]
@@ -86,7 +87,6 @@ class Engadget(BasicNewsRecipe):
             except KeyError:
                 continue
         # Reorder the "title" and "content" elements
-        body_tag = soup.find('body')
         title_div = soup.find("div", {"class": "caas-title-wrapper"})
         content_div = soup.find("div", {"class": "caas-content-wrapper"})
         if title_div and content_div:
@@ -94,4 +94,3 @@ class Engadget(BasicNewsRecipe):
             soup.body.append(title_div)
             soup.body.append(content_div)
         return soup
-

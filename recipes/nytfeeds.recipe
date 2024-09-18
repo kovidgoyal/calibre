@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-import re
 import json
+import re
 import time
 from datetime import datetime, timedelta
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -94,7 +95,7 @@ def parse_types(x):
         yield '<p>' + ''.join(parse_cnt(x)) + '</p>'
 
     elif x.get('__typename', '') == 'BylineBlock':
-        yield '<div class="byl"><br/>' + ''.join(parse_byline(x)) + '</div>'    
+        yield '<div class="byl"><br/>' + ''.join(parse_byline(x)) + '</div>'
     elif x.get('__typename', '') == 'LabelBlock':
         yield '<div class="sc">' + ''.join(parse_cnt(x)) + '</div>'
     elif x.get('__typename', '') == 'BlockquoteBlock':
