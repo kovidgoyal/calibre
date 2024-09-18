@@ -233,14 +233,16 @@ def searchable_text_for_name(name):
     ignore_text = frozenset({'img', 'math', 'rt', 'rp', 'rtc'})
     for child in serialized_data['tree']['c']:
         if child.get('n') == 'body':
-            a((child, False))
+            a((child, False, False))
             # the JS code does not add the tail of body tags to flat text
             removed_tails.append((child.pop('l', None), child))
     text_pos = 0
     anchor_offset_map = OrderedDict()
     while stack:
-        node, text_ignored_in_parent = stack.pop()
+        node, text_ignored_in_parent, in_ruby = stack.pop()
         if isinstance(node, str):
+            if in_ruby:
+                node = node.strip()
             add_text(node)
             text_pos += len(node)
             continue
@@ -258,16 +260,21 @@ def searchable_text_for_name(name):
                         anchor_offset_map[aid] = text_pos
         if name in no_visit:
             continue
+        node_in_ruby = in_ruby
+        if not in_ruby and name == 'ruby':
+            in_ruby = True
         ignore_text_in_node_and_children = text_ignored_in_parent or name in ignore_text
 
         if text and not ignore_text_in_node_and_children:
+            if in_ruby:
+                text = text.strip()
             add_text(text)
             text_pos += len(text)
         if tail and not text_ignored_in_parent:
-            a((tail, ignore_text_in_node_and_children))
+            a((tail, ignore_text_in_node_and_children, node_in_ruby))
         if children:
             for child in reversed(children):
-                a((child, ignore_text_in_node_and_children))
+                a((child, ignore_text_in_node_and_children, in_ruby))
     for (tail, body) in removed_tails:
         if tail is not None:
             body['l'] = tail

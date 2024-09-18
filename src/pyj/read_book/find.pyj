@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 ignored_tags = {
     'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
-    'img': True
+    'img': True, 'rt': True, 'rp': True, 'rtc': True,
 }
 
 block_tags_for_tts = {
@@ -16,24 +16,36 @@ def build_text_map(for_tts):
     flat_text = ''
     text_node_type = Node.TEXT_NODE
     element_node_type = Node.ELEMENT_NODE
+    in_ruby = 0
 
     def process_node(node):
-        nonlocal flat_text
+        nonlocal flat_text, in_ruby
         nt = node.nodeType
         if nt is text_node_type:
             text = node.nodeValue
             if text and text.length:
-                node_list.push(v"{node: node, offset: flat_text.length, length: text.length}")
-                flat_text += text
+                if in_ruby:
+                    rtext = text.trim()
+                    if rtext.length:
+                        node_list.push(v"{node: node, offset: flat_text.length, length: rtext.length, offset_in_node: text.length - text.trimStart().length}")
+                        flat_text += rtext
+                else:
+                    node_list.push(v"{node: node, offset: flat_text.length, length: text.length}")
+                    flat_text += text
         elif nt is element_node_type:
             if not node.hasChildNodes():
                 return
             tag = node.tagName.toLowerCase()
             if ignored_tags[tag]:
                 return
+            is_ruby_tag = tag is 'ruby'
+            if is_ruby_tag:
+                in_ruby += 1
             children = node.childNodes
             for i in range(children.length):
                 process_node(v'children[i]')
+            if is_ruby_tag:
+                in_ruby -= 1
             if for_tts and block_tags_for_tts[tag]:
                 # add a paragraph separator after block tags so that sentence splitting works
                 if flat_text.length and ' \n\t\r'.indexOf(flat_text[-1]) > -1:
@@ -106,7 +118,7 @@ def find_node_for_index_binary(node_list, idx_in_flat_text, start):
         if q.offset <= idx_in_flat_text and limit > idx_in_flat_text:
             start_node = q.node
             start_offset = idx_in_flat_text - q.offset
-            return start_node, start_offset, mid
+            return start_node, start_offset + (q.offset_in_node or 0), mid
         if limit <= idx_in_flat_text:
             start = mid + 1
         else:
