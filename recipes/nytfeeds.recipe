@@ -208,17 +208,27 @@ class nytFeeds(BasicNewsRecipe):
         img { display:block; margin:0 auto; }
     '''
 
+    # https://www.nytimes.com/rss
+    # https://developer.nytimes.com/docs/rss-api/1/overview
     feeds = [
-        ('World', 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml'),
-        ('US', 'https://rss.nytimes.com/services/xml/rss/nyt/US.xml'),
-        ('Business', 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml'),
-        ('Technology', 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml'),
-        ('Science', 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml'),
-        ('Arts', 'https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml'),
-        ('Fashion & Style', 'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml'),
-        ('TMagazine', 'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml'),
-        ('Travel', 'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml'),
-        ('Sunday Review', 'https://rss.nytimes.com/services/xml/rss/nyt/sunday-review.xml'),
+        # to filter out all opinions from other sections first
+        'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
+
+        'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/US.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
+        'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
+        'http://nytimes.com/timeswire/feeds/'
     ]
 
     def get_browser(self, *args, **kwargs):
@@ -231,6 +241,10 @@ class nytFeeds(BasicNewsRecipe):
         return br
 
     def preprocess_raw_html(self, raw_html, url):
+        if '/interactive/' in url:
+            return '<html><body><p><em>'\
+                + 'This is an interactive article, which is supposed to be read in a browser.'\
+                    + '</p></em></body></html>'
         data = extract_json(raw_html)
         return '\n'.join(article_parse(data))
 
@@ -239,9 +253,15 @@ class nytFeeds(BasicNewsRecipe):
         if w and isinstance(w, str):
             res = '-' + w
             for img in soup.findAll('img', attrs={'src':True}):
-                ext = img['src'].split('?')[0].split('.')[-1]
-                img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
+                if '-article' in img['src']:
+                    ext = img['src'].split('?')[0].split('.')[-1]
+                    img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
         for c in soup.findAll('div', attrs={'class':'cap'}):
             for p in c.findAll(['p', 'div']):
                 p.name = 'span'
         return soup
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if not re.search(r'/video/|live|/athletic/', url):
+            return url
