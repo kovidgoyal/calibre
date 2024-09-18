@@ -489,43 +489,79 @@ set_thread_name(PyObject *self, PyObject *args) {
 
 #define char_is_ignored(ch) (ch <= 32)
 
+typedef struct udata {
+    void *data; int kind; Py_ssize_t len;
+} udata;
+
 static size_t
-count_chars_in(PyObject *text) {
-	size_t ans = 0;
-	if (PyUnicode_READY(text) != 0) return 0;
-	int kind = PyUnicode_KIND(text);
-	void *data = PyUnicode_DATA(text);
-	Py_ssize_t len = PyUnicode_GET_LENGTH(text);
-	ans = len;
-	for (Py_ssize_t i = 0; i < len; i++) {
-		if (char_is_ignored(PyUnicode_READ(kind, data, i))) ans--;
-	}
+count_chars_in(udata *text) {
+	size_t ans = text->len;
+	for (Py_ssize_t i = 0; i < text->len; i++) if (char_is_ignored(PyUnicode_READ(text->kind, text->data, i))) ans--;
 	return ans;
 }
 
-static PyObject*
-get_element_char_length(PyObject *self, PyObject *args) {
-	(void)(self);
-	const char *tag_name;
-	PyObject *text, *tail;
-	if (!PyArg_ParseTuple(args, "sOO", &tag_name, &text, &tail)) return NULL;
-	const char *b = strrchr(tag_name, '}');
-	if (b) tag_name = b + 1;
-	char ltagname[16];
-	const size_t tag_name_len = strnlen(tag_name, sizeof(ltagname)-1);
-	for (size_t i = 0; i < tag_name_len; i++) {
-		if ('A' <= tag_name[i] && tag_name[i] <= 'Z') ltagname[i] = 32 + tag_name[i];
-		else ltagname[i] = tag_name[i];
-	}
-	int is_ignored_tag = 0;
+static size_t
+count_chars(const char *tag_name, Py_ssize_t tag_len, udata *text, udata *tail) {
 	size_t ans = 0;
-#define EQ(x) memcmp(ltagname, #x, sizeof(#x) - 1) == 0
-	if (EQ(script) || EQ(noscript) || EQ(style) || EQ(title)) {
-        is_ignored_tag = 1;
-    } else if (EQ(img) || EQ(svg)) ans += 1000;
+    int is_ignored_tag = 0;
+    char ltagname[16];
+    if (tag_name) {
+        const char *b = memchr(tag_name, '}', tag_len);
+        if (b) {
+            b++;
+            tag_len -= b - tag_name;
+            tag_name = b;
+        }
+        if (tag_len < sizeof(ltagname)) {
+            memcpy(ltagname, tag_name, tag_len);
+            for (size_t i = 0; i < tag_len; i++) if ('A' <= ltagname[i] && ltagname[i] <= 'Z') ltagname[i] += 32;
+#define EQ(x) (memcmp(ltagname, #x, tag_len) == 0)
+            switch(ltagname[0]) {
+                case 's':
+                    if (EQ(script) || EQ(style)) is_ignored_tag = 1;
+                    else if (EQ(svg)) ans += 1000;
+                    break;
+                case 'n':
+                    if (EQ(noscript)) is_ignored_tag = 1;
+                    break;
+                case 't':
+                    if (EQ(title)) is_ignored_tag = 1;
+                    break;
+                case 'i':
+                    if (EQ(img)) ans += 1000;
+                    break;
+            }
+        }
+    }
 #undef EQ
-	if (tail != Py_None) ans += count_chars_in(tail);
-	if (text != Py_None && !is_ignored_tag) ans += count_chars_in(text);
+	ans += count_chars_in(tail);
+	if (!is_ignored_tag) ans += count_chars_in(text);
+    return ans;
+}
+
+static PyObject*
+get_num_of_significant_chars(PyObject *self, PyObject *elem) {
+	(void)(self);
+	const char *tag_name = NULL;
+    Py_ssize_t tag_len = 0;
+    PyObject *ptn = PyObject_GetAttrString(elem, "tag"), *text = NULL;
+    if (ptn && PyUnicode_Check(ptn)) tag_name = PyUnicode_AsUTF8AndSize(ptn, &tag_len);
+    udata xdata = {0}, tdata = {0};
+    if (tag_name) {
+        text = PyObject_GetAttrString(elem, "text");
+        if (text && PyUnicode_Check(text)) {
+            xdata.len = PyUnicode_GET_LENGTH(text); xdata.kind = PyUnicode_KIND(text); xdata.data = PyUnicode_DATA(text);
+        }
+    }
+    PyObject *tail = PyObject_GetAttrString(elem, "tail");
+    if (tail && PyUnicode_Check(tail)) {
+        tdata.len = PyUnicode_GET_LENGTH(tail); tdata.kind = PyUnicode_KIND(tail); tdata.data = PyUnicode_DATA(tail);
+    }
+    size_t ans;
+    Py_BEGIN_ALLOW_THREADS
+        ans = count_chars(tag_name, tag_len, &xdata, &tdata);
+    Py_END_ALLOW_THREADS;
+    Py_XDECREF(ptn); Py_XDECREF(text); Py_XDECREF(tail);
 	return PyLong_FromSize_t(ans);
 }
 
@@ -693,8 +729,8 @@ static PyMethodDef speedup_methods[] = {
 		"set_thread_name(name)\n\nWrapper for pthread_setname_np"
 	},
 
-	{"get_element_char_length", get_element_char_length, METH_VARARGS,
-		"get_element_char_length(tag_name, text, tail)\n\nGet the number of chars in specified tag"
+	{"get_num_of_significant_chars", get_num_of_significant_chars, METH_O,
+		"get_num_of_significant_chars(elem)\n\nGet the number of chars in specified tag"
 	},
 
     {NULL, NULL, 0, NULL}
