@@ -23,6 +23,7 @@ class TestTransform(SimpleTest):
         t('<p>abc<span>def</span><script>x yz', 6)
         t('<p>abc<span>def</span><style>x yz', 6)
         t('<p>abc<span>def</span>x yz<img>howdy', 1014)
+        t('<p>abc<span>def</span>x yz<img><!-- howdy -->howdy', 1014)
 
     def test_number_parsing(self):
         for x in '.314 -.314 0.314 0 2 +2 -1 1e2 -3.14E+2 2e-2'.split():
