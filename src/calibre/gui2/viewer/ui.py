@@ -557,6 +557,7 @@ class EbookViewer(MainWindow):
                 self.book_prepared.emit(True, {'base': ans, 'pathtoebook': pathtoebook, 'open_at': open_at, 'reloaded': reload_book})
 
     def prepare_notify(self):
+        performance_monitor('preparation started')
         self.book_preparation_started.emit()
 
     def load_finished(self, ok, data):
