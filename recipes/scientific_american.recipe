@@ -36,7 +36,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
     keep_only_tags = [
         prefixed_classes(
-            'article_hed- article_dek- article_authors- lead_image- article__content- bio-'
+            'article_hed- article_dek- article_authors- lead_image- article__body- bio-'
         ),
     ]
     remove_tags = [
@@ -45,7 +45,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for fig in soup.findAll('figcaption'):
-            for p in fig.findAll('p'):
+            for p in fig.findAll(['p', 'div']):
                 p.name = 'span'
         return soup
 
