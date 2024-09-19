@@ -1489,6 +1489,13 @@ class KOBOTOUCH(KOBO):
     TOUCH2_PRODUCT_ID   = [0x4224]
     LIBRA_COLOR_PRODUCT_ID = [0x4237]  # This is shared by Kobo Libra Color, Clara Color and Clara BW
                                        # as well as tolino shine 5, shine color and vision color. Sigh.
+    # Kobo says the following will be used in future firmware (end 2024/2025)
+    CLARA_COLOR_PRODUCT_ID = [0x4238]
+    CLARA_BW_PRODUCT_ID    = [0x4239]
+    TOLINO_VISION_COLOR_PRODUCT_ID = [0x5237]
+    TOLINO_SHINE_COLOR_PRODUCT_ID = [0x5238]
+    TOLINO_SHINE_5thGEN_PRODUCT_ID = [0x5239]
+
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
@@ -1496,7 +1503,8 @@ class KOBOTOUCH(KOBO):
                           AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID + \
                           NIA_PRODUCT_ID + ELIPSA_PRODUCT_ID + \
                           SAGE_PRODUCT_ID + LIBRA2_PRODUCT_ID + CLARA_2E_PRODUCT_ID + ELIPSA_2E_PRODUCT_ID + \
-                          LIBRA_COLOR_PRODUCT_ID
+                          LIBRA_COLOR_PRODUCT_ID + CLARA_COLOR_PRODUCT_ID + CLARA_BW_PRODUCT_ID + \
+                          TOLINO_VISION_COLOR_PRODUCT_ID + TOLINO_SHINE_COLOR_PRODUCT_ID + TOLINO_SHINE_5thGEN_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401, 0x409]
 
@@ -3648,10 +3656,10 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.CLARA_2E_PRODUCT_ID
 
     def isClaraBW(self):
-        return self.device_model_id.endswith('391')
+        return self.device_model_id.endswith('391') or self.detected_device.idProduct in self.CLARA_BW_PRODUCT_ID
 
     def isClaraColor(self):
-        return self.device_model_id.endswith('393')
+        return self.device_model_id.endswith('393') or self.detected_device.idProduct in self.CLARA_COLOR_PRODUCT_ID
 
     def isElipsa2E(self):
         return self.detected_device.idProduct in self.ELIPSA_2E_PRODUCT_ID
