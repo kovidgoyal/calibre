@@ -33,9 +33,11 @@ def parse_img_grid(g):
 def parse_byline(byl):
     for b in byl.get('bylines', {}):
         yield '<div>' + b['renderedRepresentation'] + '</div>'
+    yield '<div><b><i>'
     for rl in byl.get('role', {}):
         if ''.join(parse_cnt(rl)).strip():
-            yield '<div><i>' + ''.join(parse_cnt(rl)) + '</i></div>'
+            yield ''.join(parse_cnt(rl))
+    yield '</i></b></div>'
 
 def iso_date(x):
     dt = datetime.fromisoformat(x[:-1]) + timedelta(seconds=time.timezone)
@@ -47,7 +49,7 @@ def parse_header(h):
     if h.get('headline'):
         yield ''.join(parse_types(h['headline']))
     if h.get('summary'):
-        yield '<p class="sub">' +  ''.join(parse_types(h['summary'])) + '</p>'
+        yield '<p><i>' +  ''.join(parse_types(h['summary'])) + '</i></p>'
     if h.get('ledeMedia'):
         yield ''.join(parse_types(h['ledeMedia']))
     if h.get('byline'):
@@ -201,7 +203,6 @@ class nytFeeds(BasicNewsRecipe):
         .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
-        .sub { font-style:italic; }
         em, blockquote { color: #202020; }
         .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
@@ -263,5 +264,6 @@ class nytFeeds(BasicNewsRecipe):
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
-        if not re.search(r'/video/|live|/athletic/', url):
+        # you can remove '|/espanol/' from code below to include spanish articles.
+        if not re.search(r'/video/|live|/athletic/|/espanol/', url):
             return url
