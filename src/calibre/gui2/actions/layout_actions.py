@@ -8,7 +8,7 @@ from qt.core import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QIcon, QL
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
-from calibre.gui2.geometry import _restore_geometry, save_geometry, delete_geometry
+from calibre.gui2.geometry import _restore_geometry, delete_geometry, save_geometry
 from calibre.utils.icu import sort_key
 
 
