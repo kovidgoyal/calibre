@@ -216,7 +216,7 @@ class UpdateMixin:
             green = 'darkgreen' if QApplication.instance().is_dark_theme else 'green'
             msg = ('<span style="color:%s; font-weight: bold">%s: '
                     '<a href="update:%s">%s%s</a></span>') % (
-                            green, _('Update found'), version_url, calibre_version, plt)
+                            green, _('Update available'), version_url, calibre_version, plt)
         else:
             plt = ngettext('plugin update available', 'plugin updates available', number_of_plugin_updates)
             msg = ('<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates, plt)
