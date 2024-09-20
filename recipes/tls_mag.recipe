@@ -101,7 +101,7 @@ class tls(BasicNewsRecipe):
             title = '<h1>' + prim['headline'] + '</h1>\n'
             desc = '<p class="desc">' + prim['standfirst'] + '</p>\n'
 
-            auth = lede = ''
+            bks = auth = lede = ''
 
             label = '<div class="label">{}</div>\n'
             l = prim['label']
@@ -115,8 +115,19 @@ class tls(BasicNewsRecipe):
             if prim['byline']['text']:
                 auth = '<p class="auth"><a href="{}">'.format(prim['byline']['link']) + prim['byline']['text'] + '</a></p>\n'
 
+            if 'bookdetails' in prim and prim['bookdetails']:
+                bks += '<br>'
+                for a in c_data['bookdetails']:
+                    for x, y in a.items():
+                        if isinstance(y, str):
+                            if x == 'imageurl':
+                                bks += '<img src="{}">'.format(y)
+                            elif y:
+                                bks += '<div class="det">' + y + '</div>\n'
+                    bks += '<br>'
+
         else:
-            prim = title = desc = label = auth = lede = ''
+            prim = title = desc = label = auth = lede = bks = ''
 
         if 'article_data_leadimage' in data:
             i = data['article_data_leadimage']
@@ -125,21 +136,9 @@ class tls(BasicNewsRecipe):
                     i['full_image'] + '?w600', i['imagecaption'] + ' <i>' \
                         + i['imagecredit'] + '</i>'
                 )
-        cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/tls/v2/single-article/' + data['ID'], raw=True)
+        cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/wp/v2/tls_articles/' + data['ID'], raw=True)
         c_data = json.loads(cont)
-        body = c_data['content']
-
-        bks = ''
-        if 'bookdetails' in c_data and c_data['bookdetails']:
-            bks += '<br>'
-            for a in c_data['bookdetails']:
-                for x, y in a.items():
-                    if isinstance(y, str):
-                        if x == 'imageurl':
-                            bks += '<img src="{}">'.format(y)
-                        elif y:
-                            bks += '<div class="det">' + y + '</div>\n'
-                bks += '<br>'
+        body = c_data['content']['rendered']
 
         html = '<html><body><div>' \
                     + label + title + desc + auth + lede + bks + body + \
