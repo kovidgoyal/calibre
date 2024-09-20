@@ -19,7 +19,7 @@ _encoding_pats = (
     # HTML 4 Pragma directive
     r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''',
 )
-substitute_entities = xml_replace_entities  # for plugins that might use this
+substitute_entities = substitute_entites = xml_replace_entities  # for plugins that might use this
 
 
 def compile_pats(binary):
