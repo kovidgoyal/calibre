@@ -707,6 +707,7 @@ class OPF:  # {{{
 
         ans.set_identifiers(self.get_identifiers())
         ans.link_maps = self.link_maps
+        ans.cover = self.cover  # needed because we nuke the guide while creating ans
 
         return ans
 
