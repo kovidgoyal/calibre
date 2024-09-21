@@ -13,7 +13,10 @@ def extract_json(raw):
     return js['initialData']['data']['article']['sprinkledBody']['content']
 
 def parse_image(i):
-    yield '<div><img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
+    if i.get('crops'):
+        yield '<div><img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
+    elif i.get('spanImageCrops'):
+        yield '<div><img src="{}">'.format(i['spanImageCrops'][0]['renditions'][0]['url'])
     if i.get('caption'):
         yield '<div class="cap">' + ''.join(parse_types(i['caption']))
         if i.get('credit'):
@@ -23,12 +26,35 @@ def parse_image(i):
 
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
-        yield ''.join(parse_image(grd))
+        yield '<br/>'.join(parse_image(grd))
     if g.get('caption'):
         yield '<div class="cap">{}'.format(g['caption'])
         if g.get('credit'):
             yield '<span class="cred"> ' + g['credit'] + '</span>'
         yield '</div>'
+
+def parse_vid(v):
+    if v.get('promotionalMedia'):
+        if v.get('headline'):
+            if v.get('url'):
+                yield '<div><b><a href="{}">Video</a>: '.format(v['url'])\
+                    + v['headline'].get('default', '') + '</b></div>'
+            elif v['headline'].get('default'):
+                yield '<div><b>' + v['headline']['default'] + '</b></div>'
+        yield ''.join(parse_types(v['promotionalMedia']))
+        if v.get('promotionalSummary'):
+            yield '<div class="cap">' + v['promotionalSummary'] + '</div>'
+
+def parse_emb(e):
+    if e.get('html') and 'datawrapper.dwcdn.net' in e['html']:
+        dw = re.search(r'datawrapper.dwcdn.net/(.{5})', e['html']).group(1)
+        yield '<div><img src="{}">'.format('https://datawrapper.dwcdn.net/' + dw + '/full.png') + '</div>'
+    elif e.get('promotionalMedia'):
+        if e.get('headline'):
+            yield '<div><b>' + e['headline']['default'] + '</b></div>'
+        yield ''.join(parse_types(e['promotionalMedia']))
+        if e.get('note'):
+            yield '<div class="cap">' + e['note'] + '</div>'
 
 def parse_byline(byl):
     for b in byl.get('bylines', {}):
@@ -116,6 +142,16 @@ def parse_types(x):
     elif x.get('__typename', '') == 'GridBlock':
         yield ''.join(parse_img_grid(x))
 
+    elif x.get('__typename', '') == 'VideoBlock':
+        yield ''.join(parse_types(x['media']))
+    elif x.get('__typename', '') == 'Video':
+        yield ''.join(parse_vid(x))
+        
+    elif x.get('__typename', '') == 'InteractiveBlock':
+        yield ''.join(parse_types(x['media']))
+    elif x.get('__typename', '') == 'EmbeddedInteractive':
+        yield ''.join(parse_emb(x))
+
     elif x.get('__typename', '') == 'ListBlock':
         yield '<ul>' + ''.join(parse_cnt(x)) + '</ul>'
     elif x.get('__typename', '') == 'ListItemBlock':
@@ -181,7 +217,7 @@ class nytFeeds(BasicNewsRecipe):
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
-            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default(articleLarge), use articleInline.',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use articleInline.',
         }
     }
 
