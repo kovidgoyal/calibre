@@ -46,7 +46,7 @@ def parse_vid(v):
             yield '<div class="cap">' + v['promotionalSummary'] + '</div>'
 
 def parse_emb(e):
-    if e.get('html') and 'datawrapper.dwcdn.net' in e['html']:
+    if e.get('html') and 'datawrapper.dwcdn.net' in e.get('html', ''):
         dw = re.search(r'datawrapper.dwcdn.net/(.{5})', e['html']).group(1)
         yield '<div><img src="{}">'.format('https://datawrapper.dwcdn.net/' + dw + '/full.png') + '</div>'
     elif e.get('promotionalMedia'):
