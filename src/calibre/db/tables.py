@@ -68,6 +68,10 @@ class Table:
         if name == 'authors':
             # Legacy
             self.unserialize = lambda x: x.replace('|', ',') if x else ''
+            # Need serialize for get_item_id because in authors, commas become bars
+            self.serialize = lambda x: x.replace(',', '|') if x else ''
+        else:
+            self.serialize = lambda x: x
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
         if self.supports_notes and dt == 'rating':  # custom ratings table
@@ -269,7 +273,8 @@ class ManyToOneTable(Table):
         if case_sensitive:
             colname = self.metadata['column']
             if len(item_names) == 1:
-                iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((item_names[0],)), all=False)
+                iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?',
+                             ((self.serialize(item_names[0]),)), all=False)
                 return {item_names[0]: iid}
             inq = ('?,' * len(item_names))[:-1]
             ans = dict.fromkeys(item_names)
