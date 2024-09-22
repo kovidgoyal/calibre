@@ -112,7 +112,7 @@ class NewYorkTimes(BasicNewsRecipe):
         if use_wayback_machine and not skip_wayback:
             from calibre import browser
             return self.nyt_parser.download_url(url, browser())
-        return self.browser.open_novisit(url).read()
+        return self.index_to_soup(url)
 
     def preprocess_raw_html(self, raw_html, url):
         if '/interactive/' in url:
