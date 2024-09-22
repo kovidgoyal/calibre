@@ -339,11 +339,6 @@ class NewYorkTimes(BasicNewsRecipe):
         ]
         return br
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        if not '/video/' in url:
-            return url
-
     def preprocess_html(self, soup):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
