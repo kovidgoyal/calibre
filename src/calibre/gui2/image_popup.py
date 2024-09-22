@@ -412,5 +412,6 @@ def show_image(path=None):
     d()
     app.exec()
 
+
 if __name__ == '__main__':
     show_image()
