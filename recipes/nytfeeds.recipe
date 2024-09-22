@@ -26,7 +26,7 @@ def parse_image(i):
 
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
-        yield '<br/>'.join(parse_image(grd))
+        yield ''.join(parse_image(grd))
     if g.get('caption'):
         yield '<div class="cap">{}'.format(g['caption'])
         if g.get('credit'):
@@ -301,5 +301,5 @@ class nytFeeds(BasicNewsRecipe):
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         # you can remove '|/espanol/' from code below to include spanish articles.
-        if not re.search(r'/video/|live|/athletic/|/espanol/', url):
+        if not re.search(r'/video/|/live/|/athletic/|/espanol/', url):
             return url

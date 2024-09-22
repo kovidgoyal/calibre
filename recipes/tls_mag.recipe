@@ -117,15 +117,6 @@ class tls(BasicNewsRecipe):
 
             if 'bookdetails' in prim and prim['bookdetails']:
                 bks += '<br>'
-                for a in c_data['bookdetails']:
-                    for x, y in a.items():
-                        if isinstance(y, str):
-                            if x == 'imageurl':
-                                bks += '<img src="{}">'.format(y)
-                            elif y:
-                                bks += '<div class="det">' + y + '</div>\n'
-                    bks += '<br>'
-
         else:
             prim = title = desc = label = auth = lede = bks = ''
 
