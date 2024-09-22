@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 5  # needed for live updates
+module_version = 6  # needed for live updates
 pprint
 
 
@@ -147,7 +147,7 @@ def parse_types(x):
         yield ''.join(parse_types(x['media']))
     elif x.get('__typename', '') == 'Video':
         yield ''.join(parse_vid(x))
-        
+
     elif x.get('__typename', '') == 'InteractiveBlock':
         yield ''.join(parse_types(x['media']))
     elif x.get('__typename', '') == 'EmbeddedInteractive':
