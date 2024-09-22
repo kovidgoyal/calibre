@@ -280,7 +280,7 @@ class ManyToOneTable(Table):
             serialized_names = {self.serialize(v) for v in item_names}
             ans = dict.fromkeys(serialized_names)
             ans.update(db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names))
-            return {self.unserialize(k):v for k,v in ans.items()}
+            return {(self.unserialize(k) if self.unserialize else k):v for k,v in ans.items()}
         if len(item_names) == 1:
             q = icu_lower(item_names[0])
             for iid, name in self.id_map.items():
