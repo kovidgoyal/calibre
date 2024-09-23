@@ -65,9 +65,11 @@ class Table:
             'datetime': c_parse,
             'bool': bool
         }.get(dt)
+        self.serialize = None
         if name == 'authors':
             # Legacy
             self.unserialize = lambda x: x.replace('|', ',') if x else ''
+            self.serialize = lambda x: x.replace(',', '|')
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
         if self.supports_notes and dt == 'rating':  # custom ratings table
@@ -268,12 +270,16 @@ class ManyToOneTable(Table):
         item_names = tuple(item_names)
         if case_sensitive:
             colname = self.metadata['column']
+            serialized_names = tuple(map(self.serialize, item_names)) if self.serialize else item_names
             if len(item_names) == 1:
-                iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((item_names[0],)), all=False)
+                iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((serialized_names[0],)), all=False)
                 return {item_names[0]: iid}
             inq = ('?,' * len(item_names))[:-1]
             ans = dict.fromkeys(item_names)
-            ans.update(db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', item_names))
+            res = db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names)
+            if self.unserialize:
+                res = ((self.unserialize(name), iid) for name, iid in res)
+            ans.update(res)
             return ans
         if len(item_names) == 1:
             q = icu_lower(item_names[0])
