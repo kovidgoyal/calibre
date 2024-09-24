@@ -1,72 +1,112 @@
 #!/usr/bin/env python
-# encoding: utf-8
 
-from __future__ import with_statement
-
-__license__ = 'GPL 3'
-__copyright__ = 'zotzo'
-__docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+use_wayback_machine = False
 
 
 class NYTimesTechnology(BasicNewsRecipe):
     title = 'New York Times Technology Beat'
-    language = 'en'
+    language = 'en_US'
     description = 'The latest in technology - Gadgetwise'
-    publisher = 'The New York Times'
-    category = 'Technology'
-    oldest_article = 14
-    max_articles_per_feed = 25
-    remove_empty_feeds = True
+    __author__ = 'unkn0wn'
+    oldest_article = 14 # days
     no_stylesheets = True
-    language = 'en'
+    no_javascript = True
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+
+    extra_css = '''
+        .byl, .time { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+        .cred { font-style:italic; font-size:small; }
+        em, blockquote { color: #202020; }
+        .sc { font-variant: small-caps; }
+        .lbl { font-size:small; color:#404040; }
+        img { display:block; margin:0 auto; }
+    '''
+
+    articles_are_obfuscated = use_wayback_machine
+
+    if use_wayback_machine:
+        def get_obfuscated_article(self, url):
+            from calibre.ptempfile import PersistentTemporaryFile
+            with PersistentTemporaryFile() as tf:
+                tf.write(self.get_nyt_page(url))
+            return tf.name
+
+    @property
+    def nyt_parser(self):
+        ans = getattr(self, '_nyt_parser', None)
+        if ans is None:
+            from calibre.live import load_module
+            self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
+        return ans
+
+    def get_nyt_page(self, url, skip_wayback=False):
+        if use_wayback_machine and not skip_wayback:
+            from calibre import browser
+            return self.nyt_parser.download_url(url, browser())
+        return self.index_to_soup(url, raw=True)
+
+    def preprocess_raw_html(self, raw_html, url):
+        if '/interactive/' in url:
+            return '<html><body><p><em>'\
+                + 'This is an interactive article, which is supposed to be read in a browser.'\
+                    + '</p></em></body></html>'
+        html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
+        return html
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use articleInline.',
+        },
+        'comp': {
+            'short': 'Compress News Images?',
+            'long': 'enter yes',
+            'default': 'no'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        c = self.recipe_specific_options.get('comp')
+        if c and isinstance(c, str):
+            if c.lower() == 'yes':
+                self.compress_news_images = True
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
     feeds = [
              (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
     ]
-    keep_only_tags = [
-        dict(id='story'),
-    ]
-    remove_tags = [
-        dict(attrs={'aria-label':'tools'.split()}),
-        dict(attrs={'aria-label': lambda x: x and 'New York Times Logo' in x}),
-        dict(href='#site-content #site-index'.split()),
-        dict(attrs={'aria-hidden':'true'}),
-        dict(attrs={'data-videoid':True}),
-        dict(name='button meta link'.split()),
-        dict(id=lambda x: x and x.startswith('story-ad-')),
-        dict(name='head'),
-        dict(role='toolbar'),
-        dict(name='a', href=lambda x: x and '#story-continues-' in x),
-        dict(name='a', href=lambda x: x and '#whats-next' in x),
-        dict(id=lambda x: x and 'sharetools-' in x),
-        dict(id='newsletter-promo supported-by-ad bottom-wrapper'.split()),
-        classes('story-print-citation supported-by accessibility-ad-header visually-hidden bottom-of-article ad'),
-        dict(attrs={'class': lambda x: x and (
-            'SectionBar' in x or 'recirculation' in x or 'ResponsiveAd' in x or 'accessibility-visuallyHidden' in x or 'RelatedCoverage' in x)}),
-    ]
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
 
     def preprocess_html(self, soup):
-        # Add a space to the dateline
-        t = soup.find(**classes('dateline'))
-        if t is not None:
-            t.insert(0, ' ')
-
-        # Remove empty li tags
-        for li in soup.findAll('li', attrs={'class': lambda x: x and x.startswith('css-')}):
-            if not li.contents and not li.string:
-                li.extract()
-
-        # Ensure the headline is first
-        h1 = soup.find('h1', itemprop='headline')
-        if h1 is not None:
-            h1.extract()
-            soup.find('body').contents.insert(0, h1)
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '-' + w
+            for img in soup.findAll('img', attrs={'src':True}):
+                if '-article' in img['src']:
+                    ext = img['src'].split('?')[0].split('.')[-1]
+                    img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
+        for c in soup.findAll('div', attrs={'class':'cap'}):
+            for p in c.findAll(['p', 'div']):
+                p.name = 'span'
         return soup
