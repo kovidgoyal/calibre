@@ -126,11 +126,11 @@ class LeMonde(BasicNewsRecipe):
 
     remove_tags = [
         classes('article__status meta__reading-time meta__social multimedia-embed'),
-        dict(name=['footer', 'link', 'meta', 'svg', 'button']),
+        dict(name=['footer', 'link', 'meta', 'svg', 'button', 'source']),
         dict(name='img', attrs={'class': ['article__author-picture']}),
-        dict(name='section', attrs={'class': 
+        dict(name='section', attrs={'class':
 			[
-				'inread js-services-inread', 'catcher catcher--inline', 'inread inread--NL js-services-inread', 
+				'inread js-services-inread', 'catcher catcher--inline', 'inread inread--NL js-services-inread',
 				'article__reactions', 'author', 'catcher', 'portfolio', 'services-inread'
 			]
 		})
