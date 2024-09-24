@@ -2654,15 +2654,10 @@ class BuiltinIsDarkMode(BuiltinFormatterFunction):
                       "Example: if is_dark_mode() then 'dark.png' else 'light.png' fi ")
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        # Import these here so that Qt isn't referenced unless this function is used.
         try:
-            from qt.core import QApplication, Qt
-            from calibre.gui2 import gprefs
-
-            system_is_dark = QApplication.instance().styleHints().colorScheme() == Qt.ColorScheme.Dark
-            palette = gprefs['color_palette']
-            is_dark = palette == 'dark' or (palette == 'system' and system_is_dark)
-            return '1' if is_dark else ''
+            # Import this here so that Qt isn't referenced unless this function is used.
+            from calibre.gui2 import is_dark_theme
+            return '1' if is_dark_theme() else ''
         except Exception:
             only_in_gui_error('is_dark_mode')
 
