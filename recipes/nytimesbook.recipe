@@ -15,7 +15,7 @@ def absolutize(url):
 
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title = u'New York Times Book Review'
-    language = 'en'
+    language = 'en_US'
     description = 'The New York Times Sunday Book Review'
     __author__ = 'Kovid Goyal'
 
@@ -23,7 +23,16 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     no_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
-    delay = 0 if use_wayback_machine else 1
+
+    extra_css = '''
+        .byl, .time { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+        .cred { font-style:italic; font-size:small; }
+        em, blockquote { color: #202020; }
+        .sc { font-variant: small-caps; }
+        .lbl { font-size:small; color:#404040; }
+        img { display:block; margin:0 auto; }
+    '''
 
     articles_are_obfuscated = use_wayback_machine
 
@@ -46,11 +55,34 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         if use_wayback_machine and not skip_wayback:
             from calibre import browser
             return self.nyt_parser.download_url(url, browser())
-        return self.browser.open_novisit(url).read()
+        return self.index_to_soup(url, raw=True)
 
     def preprocess_raw_html(self, raw_html, url):
+        if '/interactive/' in url:
+            return '<html><body><p><em>'\
+                + 'This is an interactive article, which is supposed to be read in a browser.'\
+                    + '</p></em></body></html>'
         html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
         return html
+
+    recipe_specific_options = {
+        'res': {
+            'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use articleInline.',
+        },
+        'comp': {
+            'short': 'Compress News Images?',
+            'long': 'enter yes',
+            'default': 'no'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        c = self.recipe_specific_options.get('comp')
+        if c and isinstance(c, str):
+            if c.lower() == 'yes':
+                self.compress_news_images = True
 
     def parse_index(self):
         # return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
@@ -91,3 +123,25 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                 self.log('\t', desc)
 
         return feeds
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
+
+    def preprocess_html(self, soup):
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '-' + w
+            for img in soup.findAll('img', attrs={'src':True}):
+                if '-article' in img['src']:
+                    ext = img['src'].split('?')[0].split('.')[-1]
+                    img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
+        for c in soup.findAll('div', attrs={'class':'cap'}):
+            for p in c.findAll(['p', 'div']):
+                p.name = 'span'
+        return soup
