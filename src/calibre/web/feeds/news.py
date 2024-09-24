@@ -1096,6 +1096,7 @@ class BasicNewsRecipe(Recipe):
         # Nuke HTML5 tags
         for x in ans.findAll(['article', 'aside', 'header', 'footer', 'nav',
             'figcaption', 'figure', 'section']):
+            x.get_attribute_list('class').append(f'calibre-nuked-tag-{x.name}')
             x.name = 'div'
 
         if job_info:
