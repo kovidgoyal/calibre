@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 7)
+current_version = (1, 2, 8)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -221,9 +221,9 @@ def resolve_bing_wrapper_page(url, br, log):
     raw = br.open_novisit(url).read().decode('utf-8', 'replace')
     m = re.search(r'var u = "(.+)"', raw)
     if m is None:
-        log(f'Failed to resolve bing wrapper page for url: {url}')
+        log('Failed to resolve bing wrapper page for url: ' +  url)
         return url
-    log(f'Resolved bing wrapped URL: {url} to {m.group(1)}')
+    log('Resolved bing wrapped URL: ' + url + ' to ' + m.group(1))
     return m.group(1)
 
 
