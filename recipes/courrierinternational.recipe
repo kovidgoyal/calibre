@@ -35,20 +35,40 @@ class CourrierInternational(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     max_articles_per_feed = 50
+    ignore_duplicate_articles = {'title'}
     no_stylesheets = True
 
     html2lrf_options = ['--base-font-size', '10']
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'article-content'}),
-    ]
+    keep_only_tags = dict(name='article')
 
     remove_tags = [
-        dict(name='aside', attrs={'class': re.compile(
-            'article-sitesocial|article-ad|article-tertiary|view-ci-service-article')}),
-        dict(name='button', attrs={'id': re.compile(
-            'action-zen-off-(top|bottom)')}),
+        dict(attrs={'class': ['asset-read-more', 'article-secondary', 'article-aside', 'item', 'source-logo', 'source-lang', 'info-time']})
     ]
+
+    extra_css = '''
+        .article-lede {
+            margin-bottom: 1em;
+        }
+
+        .caption, .credit {
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .info-date, .info-reserved {
+            font-style: italic;
+            font-size: 0.9em; 
+            display: block;
+        }
+
+        .strapline {
+            font-size: 1.17em;
+            font-weight: bold;
+            margin: 0.67em 0; 
+            line-height: 1.2;
+        }
+    '''
 
     needs_subscription = "optional"
     login_url = 'http://www.courrierinternational.com/login'
@@ -72,30 +92,13 @@ class CourrierInternational(BasicNewsRecipe):
 
     feeds = [
         # Some articles requiring subscription fails on download.
-        ('Tous', 'http://www.courrierinternational.com/feed/all/rss.xml'),
-        ('France', 'https://www.courrierinternational.com/feed/category/6260/rss.xml'),
-        ('Europe', 'https://www.courrierinternational.com/feed/category/6261/rss.xml'),
-        ('Ameriques', 'https://www.courrierinternational.com/feed/category/6262/rss.xml'),
-        ('Asie', 'https://www.courrierinternational.com/feed/category/6263/rss.xml'),
-        ('Afrique', 'https://www.courrierinternational.com/feed/category/6264/rss.xml'),
-        ('Moyen-Orient', 'https://www.courrierinternational.com/feed/category/6265/rss.xml'),
-        ('Expat', 'https://www.courrierinternational.com/feed/category/6994/rss.xml'),
-        ('Business', 'https://www.courrierinternational.com/feed/category/6991/rss.xml'),
-        ('Culture', 'https://www.courrierinternational.com/feed/category/6270/rss.xml'),
-        ('Economie', 'https://www.courrierinternational.com/feed/category/6266/rss.xml'),
-        ('Écrans', 'https://www.courrierinternational.com/feed/category/7342/rss.xml'),
-        ('Éducation', 'https://www.courrierinternational.com/feed/category/6997/rss.xml'),
-        ('Environnement', 'https://www.courrierinternational.com/feed/category/6267/rss.xml'),
-        ('Infographie', 'https://www.courrierinternational.com/feed/category/6281/rss.xml'),
-        ('Lifestyle', 'https://www.courrierinternational.com/feed/category/7426/rss.xml'),
-        ('Planète buzz', 'https://www.courrierinternational.com/feed/category/6680/rss.xml'),
-        ('Politique', 'https://www.courrierinternational.com/feed/category/6681/rss.xml'),
-        ('Santé', 'https://www.courrierinternational.com/feed/category/6682/rss.xml'),
-        ('Sport', 'https://www.courrierinternational.com/feed/category/6273/rss.xml'),
-        ('Tendances', 'https://www.courrierinternational.com/feed/category/6282/rss.xml'),
-        ('Réveil', 'https://www.courrierinternational.com/feed/category/8224/rss.xml'),
-        ('Enquêtes', 'https://www.courrierinternational.com/feed/category/6678/rss.xml'),
-        ('Histoire', 'https://www.courrierinternational.com/feed/category/6679/rss.xml'),
-        ('Sciences & Techno', 'https://www.courrierinternational.com/feed/category/6268/rss.xml'),
-        ('Voyage', 'https://www.courrierinternational.com/feed/category/6271/rss.xml'),
+        ('France', 'https://www.courrierinternational.com/feed/rubrique/france/rss.xml'),
+        ('Geopolitique', 'https://www.courrierinternational.com/feed/rubrique/geopolitique/rss.xml'),
+        ('Economie', 'https://www.courrierinternational.com/feed/rubrique/economie/rss.xml'),
+        ('Société', 'https://www.courrierinternational.com/feed/rubrique/societe/rss.xml'),
+        ('Politique', 'https://www.courrierinternational.com/feed/rubrique/politique/rss.xml'),
+        ('Sciences & Environnement', 'https://www.courrierinternational.com/feed/rubrique/science-environnement/rss.xml'),
+        ('Culture', 'https://www.courrierinternational.com/feed/rubrique/culture/rss.xml'),
+        ('Expat', 'https://www.courrierinternational.com/feed/rubrique/expat/rss.xml'),
+        ('Autres', 'http://www.courrierinternational.com/feed/all/rss.xml'),
     ]
