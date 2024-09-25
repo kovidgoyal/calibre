@@ -2643,6 +2643,25 @@ class BuiltinHasNote(BuiltinFormatterFunction):
         return '1' if note is not None else ''
 
 
+class BuiltinIsDarkMode(BuiltinFormatterFunction):
+    name = 'is_dark_mode'
+    arg_count = 0
+    category = 'other'
+    __doc__ = doc = _("is_dark_mode() -- Returns '1' if calibre is running "
+                      "in dark mode, '' (the empty string) otherwise. This "
+                      "function can be used in advanced color and icon rules "
+                      "to choose different colors/icons according to the mode. "
+                      "Example: if is_dark_mode() then 'dark.png' else 'light.png' fi ")
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        try:
+            # Import this here so that Qt isn't referenced unless this function is used.
+            from calibre.gui2 import is_dark_theme
+            return '1' if is_dark_theme() else ''
+        except Exception:
+            only_in_gui_error('is_dark_mode')
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -2661,7 +2680,7 @@ _formatter_builtins = [
     BuiltinGetLink(),
     BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
     BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
+    BuiltinIfempty(), BuiltinIsDarkMode(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
     BuiltinListDifference(), BuiltinListEquals(), BuiltinListIntersection(),
     BuiltinListitem(), BuiltinListJoin(), BuiltinListRe(),
