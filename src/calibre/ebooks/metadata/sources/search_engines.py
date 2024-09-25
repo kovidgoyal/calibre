@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 5)
+current_version = (1, 2, 6)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -289,6 +289,7 @@ def google_cache_url_for_url(url):
 
 
 def google_get_cached_url(url, br=None, log=prints, timeout=60):
+    # Google's webcache was discontinued in september 2024
     cached_url = google_cache_url_for_url(url)
     br = google_specialize_browser(br or browser())
     try:
@@ -327,8 +328,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
         if curl in seen:
             continue
         seen.add(curl)
-        cached_url = google_cache_url_for_url(curl)
-        ans.append(Result(a.get('href'), title, cached_url))
+        ans.append(Result(a.get('href'), title, curl))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
         log('Failed to find any results on results page, with title:', title)
@@ -413,7 +413,7 @@ def google_develop(search_terms='1423146786', raw_from=''):
 
 
 def get_cached_url(url, br=None, log=prints, timeout=60):
-    return google_get_cached_url(url, br, log, timeout) or wayback_machine_cached_url(url, br, log, timeout)
+    return wayback_machine_cached_url(url, br, log, timeout)
 
 
 def get_data_for_cached_url(url):
