@@ -1,10 +1,13 @@
-from calibre.ptempfile import PersistentTemporaryFile
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 '''
 Hamilton Spectator Calibre Recipe
 '''
 
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.thespec.com' + url
 
 class HamiltonSpectator(BasicNewsRecipe):
     title = u'Hamilton Spectator'
@@ -21,8 +24,7 @@ class HamiltonSpectator(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://bloximages.chicago2.vip.townnews.com/thespec.com/content/tncms/custom/image/c0094646-1108-11ee-8af0-b3954ce40e5e.png'
 
-    ignore_duplicate_articles = {'title'}
-    articles_are_obfuscated = True
+    ignore_duplicate_articles = {'title', 'url'}
 
     extra_css = '''
         .caption { font-size:small; text-align:center; }
@@ -52,35 +54,26 @@ class HamiltonSpectator(BasicNewsRecipe):
                     img['src'] = x.split()[0]
         return soup
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/media/', 'podcast'
+    def parse_index(self):
+        index = 'https://www.thespec.com/'
+        sections = [
+            'news', 'politics', 'opinion', 'business', 'sports', 'life', 'entertainment'
         ]
-        if any(x in link['href'] for x in skip_sections):
-            self.log('Aborting Article ', link['href'])
-            self.abort_article('skipping video links')
-
-        self.log('Downloading ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-
-    feeds = []
-
-    sections = [
-        'news', 'politics', 'opinion', 'business', 'sports', 'life', 'entertainment'
-    ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:thespec.com{}&hl=en-CA&gl=IN&ceid=CA:en'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    feeds.append(('Others', a.format('')))
+        feeds = []
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+                url = absurl(a['href'].split('#')[0])
+                if url in {index + sec + '/', index + sec}:
+                    continue
+                if not url.endswith('.html'):
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

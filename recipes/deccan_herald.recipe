@@ -1,6 +1,9 @@
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.deccanherald.com' + url
 
 class herald(BasicNewsRecipe):
     title = 'Deccan Herald'
@@ -11,38 +14,13 @@ class herald(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url', 'title'}
     encoding = 'utf-8'
-    
-    articles_are_obfuscated = True
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/bengaluru-crime/', '/metrolife/',
-            '/karnataka-districts/', '/brandspot/', '/entertainment/',
-        ]
-        if any(x in link['href'] for x in skip_sections):
-            self.log('Aborting Article ', link['href'])
-            self.abort_article('skipping section')
-            
-        self.log('Downloading ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-    
     keep_only_tags = [
         classes('article-title article-author__name'),
         dict(name='div', attrs={'id':'main-content'})
         
     ]
-    
+
     remove_tags = [
         classes(
             'storyShare social-media-icons in_article_video static_text'
@@ -50,17 +28,26 @@ class herald(BasicNewsRecipe):
             ' field-name-field-tags section-full strip--business'
         )
     ]
-    
-    feeds = [
-        ('Nation', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fnational%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('Karnataka', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fstate%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('Opinion', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fopinion%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('City', 
-            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fcity%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('Business', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fbusiness%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('World', 
-            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Finternational%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('Sports',
-            'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com%2Fsports%2F&hl=en-IN&gl=IN&ceid=IN:en'),
-        ('Others', 'https://news.google.com/rss/search?q=when:27h+allinurl:deccanherald.com&hl=en-IN&gl=IN&ceid=IN:en'),
-    ]
+
+    def parse_index(self):
+        index = 'https://www.deccanherald.com/'
+        sections = [
+            'india', 'world', 'elections', 'opinion', 'specials', 'business', 'sports'
+        ]
+        feeds = []
+
+        for sec in sections:
+            soup = self.index_to_soup(index + sec)
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+                url = absurl(a['href'].split('?')[0])
+                if url in {index + sec + '/', index + sec}:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

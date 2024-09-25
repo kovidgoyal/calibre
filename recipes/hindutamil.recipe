@@ -1,4 +1,4 @@
-from calibre.ptempfile import PersistentTemporaryFile
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -22,53 +22,43 @@ class hindutamil(BasicNewsRecipe):
     keep_only_tags = [
         classes('main-article')
     ]
-    
+
     remove_tags = [
         classes('newsbot-ads article-details-ads-inner art-follow-title1 dont-miss-it')
     ]
-        
-    ignore_duplicate_articles = {'title'}
-    remove_empty_feeds = True    
 
-    articles_are_obfuscated = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/media/'
+    def parse_index(self):
+        index = 'https://www.hindutamil.in/'
+        sections = [
+            ('தமிழகம்', 'tamilnadu'),
+            ('இந்தியா', 'india'),
+            ('கருத்துப் பேழை', 'opinion'),
+            ('உலகம்', 'world'),
+            ('வணிகம்', 'business'),
+            ('விளையாட்டு', 'sports'),
+            ('தமிழ் சினிமா', 'cinema'),
+            ('தொழில்நுட்பம்', 'technology'),
+            ('இணைப்பிதழ்கள்', 'supplements'),
+            ('Cartoon', 'cartoon'),
+            ('Life-style', 'life-style')
         ]
-        if any(x in link['href'] for x in skip_sections):
-            self.log('Aborting Article ', link['href'])
-            self.abort_article('skipping video links')
-
-        self.log('Downloading ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-
-    feeds = []
-
-    sections = [
-        ('தமிழகம்', 'tamilnadu'),
-        ('இந்தியா', 'india'),
-        ('கருத்துப் பேழை', 'opinion'),
-        ('உலகம்', 'world'),
-        ('வணிகம்', 'business'),
-        # ('விளையாட்டு', 'sports'),
-        # ('தமிழ் சினிமா', 'cinema'),
-        ('தொழில்நுட்பம்', 'technology'),
-        # ('இணைப்பிதழ்கள்', 'supplements'),
-    ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:hindutamil.in%2Fnews{}&hl=ta-IN&gl=IN&ceid=IN:ta'
-        feeds.append((sec[0], a.format('%2F' + sec[1] + '%2F')))
-    # feeds.append(('Others', a.format('')))
+        feeds = []
+        soup = self.index_to_soup(index)
+        index = index + 'news/'
+        for sec in sections:
+            section = sec[0]
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec[1] + '/')}):
+                url = a['href']
+                if url in {index + sec[1] + '/', index + sec[1]}:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

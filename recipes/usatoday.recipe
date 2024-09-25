@@ -6,7 +6,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 usatoday.com
 '''
 
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -15,6 +14,9 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.usatoday.com' + url
 
 class USAToday(BasicNewsRecipe):
 
@@ -60,44 +62,32 @@ class USAToday(BasicNewsRecipe):
                     }
                 '''
 
-    ignore_duplicate_articles = {'title'}
+    ignore_duplicate_articles = {'title', 'url'}
     resolve_internal_links  = True
     remove_empty_feeds = True
 
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/media/', 'podcast-'
+    def parse_index(self):
+        index = 'https://www.usatoday.com/'
+        sections = [
+            'news', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations', 
         ]
-        if any(x in link['href'] for x in skip_sections):
-            self.log('Aborting Article ', link['href'])
-            self.abort_article('skipping video links')
-
-        self.log('Downloading ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-
-    feeds = []
-
-    sections = [
-        'news', 'nation', 'politics', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations', 
-    ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fwww.usatoday.com%2Fstory{}&hl=en-US&gl=US&ceid=US:en'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    # feeds.append(('Others', a.format('')))
+        feeds = []
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/story/' + sec + '/')}):
+                url = absurl(a['href'].split('?')[0])
+                if url == index + '/story/' + sec + '/':
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
+            
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):
