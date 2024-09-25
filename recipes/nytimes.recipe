@@ -14,9 +14,7 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-is_web_edition = True
-oldest_web_edition_article = 7  # days
-use_wayback_machine = True
+use_wayback_machine = False
 
 
 # The sections to download when downloading the web edition, comment out
@@ -77,22 +75,28 @@ def new_tag(soup, name, attrs=()):
 
 
 class NewYorkTimes(BasicNewsRecipe):
-
-    if is_web_edition:
-        title = 'The New York Times (Web)'
-        description = 'New York Times (Web). You can edit the recipe to remove sections you are not interested in.'
-    else:
-        title = 'The New York Times'
-        description = 'Today\'s New York Times'
+    title = 'The New York Times (Web)'
+    description = (
+        'New York Times (Web). You can edit the recipe to remove sections you are not interested in. '
+        'Use advanced menu to make changes to fetch Todays Paper'
+    )
     encoding = 'utf-8'
     __author__ = 'Kovid Goyal'
-    language = 'en'
+    language = 'en_US'
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
-    compress_news_images = True
-    compress_news_images_auto_size = 5
-    conversion_options = {'flow_size': 0}
-    delay = 0 if use_wayback_machine else 1
+    is_web_edition = True
+    oldest_web_edition_article = 7  # days
+
+    extra_css = '''
+        .byl, .time { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+        .cred { font-style:italic; font-size:small; }
+        em, blockquote { color: #202020; }
+        .sc { font-variant: small-caps; }
+        .lbl { font-size:small; color:#404040; }
+        img { display:block; margin:0 auto; }
+    '''
 
     @property
     def nyt_parser(self):
@@ -106,9 +110,13 @@ class NewYorkTimes(BasicNewsRecipe):
         if use_wayback_machine and not skip_wayback:
             from calibre import browser
             return self.nyt_parser.download_url(url, browser())
-        return self.browser.open_novisit(url).read()
+        return self.index_to_soup(url, raw=True)
 
     def preprocess_raw_html(self, raw_html, url):
+        if '/interactive/' in url:
+            return '<html><body><p><em>'\
+                + 'This is an interactive article, which is supposed to be read in a browser.'\
+                    + '</p></em></body></html>'
         html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
         return html
 
@@ -121,9 +129,51 @@ class NewYorkTimes(BasicNewsRecipe):
                 tf.write(self.get_nyt_page(url))
             return tf.name
 
+    recipe_specific_options = {
+        'web': {
+            'short': 'Type in yes, if you want Todays Paper',
+            'default': 'Web Edition'
+        },
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 1, gives you articles from the past 24 hours\n(Works only for Web_Edition)',
+            'default': str(oldest_web_edition_article)
+        },
+        'date': {
+            'short': 'The date of the edition to download (YYYY/MM/DD format)\nUsed to fetch past editions of NYT newspaper',
+            'long': 'For example, 2024/07/16'
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use articleInline.',
+        },
+        'comp': {
+            'short': 'Compress News Images?',
+            'long': 'enter yes',
+            'default': 'no'
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        c = self.recipe_specific_options.get('comp')
+        d = self.recipe_specific_options.get('days')
+        w = self.recipe_specific_options.get('web')
+        if w and isinstance(w, str):
+            if w == 'yes':
+                self.is_web_edition = False
+        if d and isinstance(d, str):
+            self.oldest_web_edition_article = float(d)
+        if c and isinstance(c, str):
+            if c.lower() == 'yes':
+                self.compress_news_images = True
+
     def read_todays_paper(self):
         INDEX = 'https://www.nytimes.com/section/todayspaper'
         # INDEX = 'file:///t/raw.html'
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            INDEX = 'https://www.nytimes.com/issue/todayspaper/' + d + '/todays-new-york-times'
         return self.index_to_soup(self.get_nyt_page(INDEX, skip_wayback=True))
 
     def read_nyt_metadata(self):
@@ -219,7 +269,7 @@ class NewYorkTimes(BasicNewsRecipe):
                         date = format_date(d)
                         today = datetime.date.today()
                         delta = today - d
-                        if delta.days > oldest_web_edition_article:
+                        if delta.days > self.oldest_web_edition_article:
                             self.log.debug('\tSkipping article', title, 'as it is too old')
                             continue
                     yield {'title': title, 'url': url, 'description': desc, 'date': date}
@@ -242,7 +292,7 @@ class NewYorkTimes(BasicNewsRecipe):
                         date = format_date(d)
                         today = datetime.date.today()
                         delta = today - d
-                        if delta.days > oldest_web_edition_article:
+                        if delta.days > self.oldest_web_edition_article:
                             self.log.debug('\tSkipping article', title, 'as it is too old')
                             continue
                     yield {'title': title, 'url': url, 'description': desc, 'date': date}
@@ -290,6 +340,34 @@ class NewYorkTimes(BasicNewsRecipe):
         # return [('All articles', [
         #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2020/11/27/world/americas/coronavirus-migrants-venezuela.html'},
         # ])]
-        if is_web_edition:
+        if self.is_web_edition:
             return self.parse_web_sections()
         return self.parse_todays_page()
+
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1')
+        ]
+        return br
+
+    def preprocess_html(self, soup):
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '-' + w
+            for img in soup.findAll('img', attrs={'src':True}):
+                if '-article' in img['src']:
+                    ext = img['src'].split('?')[0].split('.')[-1]
+                    img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
+        for c in soup.findAll('div', attrs={'class':'cap'}):
+            for p in c.findAll(['p', 'div']):
+                p.name = 'span'
+        return soup
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if not re.search(r'/video/|/athletic/|/card/', url):
+            return url
+        self.log('\tSkipping ', url)

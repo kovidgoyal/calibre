@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 import json
 import re
-import time
-from datetime import datetime, timedelta
 
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -66,7 +65,7 @@ def parse_byline(byl):
     yield '</i></b></div>'
 
 def iso_date(x):
-    dt = datetime.fromisoformat(x[:-1]) + timedelta(seconds=time.timezone)
+    dt = parse_iso8601(x, as_utc=False)
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
 def parse_header(h):
@@ -138,7 +137,7 @@ def parse_types(x):
     elif x.get('__typename', '') == 'Image':
         yield ''.join(parse_image(x))
     elif x.get('__typename', '') == 'ImageBlock':
-        yield ''.join(parse_image(x['media']))
+        yield ''.join(parse_types(x['media']))
     elif x.get('__typename', '') == 'GridBlock':
         yield ''.join(parse_img_grid(x))
 
@@ -265,6 +264,8 @@ class nytFeeds(BasicNewsRecipe):
         'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
         'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
         'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml',
         'http://nytimes.com/timeswire/feeds/'
     ]
 
@@ -301,5 +302,6 @@ class nytFeeds(BasicNewsRecipe):
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         # you can remove '|/espanol/' from code below to include spanish articles.
-        if not re.search(r'/video/|/live/|/athletic/|/espanol/', url):
+        if not re.search(r'/video/|/live/|/athletic/|/espanol/|/card/', url):
             return url
+        self.log('\tSkipped URL: ', url)
