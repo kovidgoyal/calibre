@@ -23,7 +23,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import error_dialog, simple_excepthook
+from calibre.gui2 import error_dialog, simple_excepthook, is_dark_theme
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
@@ -132,8 +132,15 @@ class ColumnIcon:  # {{{
                 total_width = 0
                 rh = max(2, self.model.row_height - 4)
                 dim = int(self.dpr * rh)
+                icon_dir = os.path.join(config_dir, 'cc_icons')
                 for icon in icons:
-                    d = os.path.join(config_dir, 'cc_icons', icon)
+                    d = None
+                    if is_dark_theme():
+                        root,ext = os.path.splitext(icon)
+                        d = os.path.join(icon_dir, root + '-dark' + ext)
+                        d = d if os.path.exists(d) else None
+                    if d is None:
+                        d = os.path.join(icon_dir, icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
                         scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)

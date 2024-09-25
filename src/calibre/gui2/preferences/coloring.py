@@ -21,6 +21,7 @@ from qt.core import (
     QDoubleValidator,
     QFrame,
     QGridLayout,
+    QHBoxLayout,
     QIcon,
     QIntValidator,
     QItemSelection,
@@ -47,7 +48,8 @@ from qt.core import (
 
 from calibre import as_unicode, prepare_string_for_xml, sanitize_file_name
 from calibre.constants import config_dir
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, open_local_file, pixmap_to_data, question_dialog
+from calibre.gui2 import (choose_files, choose_save_file, error_dialog, gprefs, info_dialog,
+                          open_local_file, pixmap_to_data, question_dialog)
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.preferences import ListViewWithMoveByKeyPress
@@ -512,11 +514,19 @@ class RuleEditor(QDialog):  # {{{
             ' blanking all of its boxes'))
         l.addWidget(l6, 8, 0, 1, 8)
 
+        bbl = QHBoxLayout()
         self.bb = bb = QDialogButtonBox(
                 QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 9, 0, 1, 8)
+        if self.rule_kind in ('emblem', 'icon'):
+            theme_button = QPushButton(_('Using icons in light/dark themes'))
+            theme_button.setIcon(QIcon.ic('help.png'))
+            theme_button.clicked.connect(self.show_theme_help)
+            bbl.addWidget(theme_button)
+        bbl.addStretch(10)
+        bbl.addWidget(bb)
+        l.addLayout(bbl, 9, 0, 1, 8)
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icons'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon.ic('minus.png'))
@@ -554,6 +564,23 @@ class RuleEditor(QDialog):  # {{{
             self.filename_button.clicked.connect(self.filename_button_clicked)
 
         self.resize(self.sizeHint())
+
+    def show_theme_help(self):
+        msg = '<p>'+ _(
+            'You can use different icons in light and dark themes. To do this, '
+            'add two icons to the icon list. The light theme icon will have '
+            'the "normal" name, for example "ok.png". The dark theme icon must '
+            'have the same name with "-dark" appended. For example, if the light '
+            'theme icon is named "ok.png" then the dark theme icon must be named '
+            '"ok-dark.png".'
+            '</p><p>'
+            'When defining a rule, always use the "normal" name. The -dark icon will be '
+            'automatically substituted for the normal icon when a dark theme is '
+            'being used.'
+            '</p><p>'
+            'Remember to add both the light and dark theme icons to the list of icons.'
+        ) + '</p>'
+        info_dialog(self, _('Using icons in light/dark themes'), msg, show=True)
 
     def multiple_box_clicked(self):
         self.update_filename_box()
