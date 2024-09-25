@@ -23,7 +23,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import error_dialog, simple_excepthook
+from calibre.gui2 import error_dialog, simple_excepthook, is_dark_theme
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
@@ -93,6 +93,20 @@ class ColumnColor:  # {{{
 # }}}
 
 
+def themed_icon_name(icon_dir, icon_name):
+    root,ext = os.path.splitext(icon_name)
+    # Remove any theme from the icon name
+    root = root.removesuffix('-for-dark-theme').removesuffix('-for-light-theme')
+    # Check if the correct themed icon exists.
+    theme_suffix = '-for-dark-theme' if is_dark_theme() else '-for-light-theme'
+    d = os.path.join(icon_dir, root + theme_suffix + ext)
+    if os.path.exists(d):
+        return d
+    # No themed icon exists. Try the original name
+    d = os.path.join(icon_dir, icon_name)
+    return d if os.path.exists(d) else None
+
+
 class ColumnIcon:  # {{{
 
     def __init__(self, formatter, model):
@@ -132,9 +146,10 @@ class ColumnIcon:  # {{{
                 total_width = 0
                 rh = max(2, self.model.row_height - 4)
                 dim = int(self.dpr * rh)
+                icon_dir = os.path.join(config_dir, 'cc_icons')
                 for icon in icons:
-                    d = os.path.join(config_dir, 'cc_icons', icon)
-                    if (os.path.exists(d)):
+                    d = themed_icon_name(icon_dir, icon)
+                    if d is not None:
                         bm = QPixmap(d)
                         scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)
                         bm = bm.scaled(int(nw), int(nh), aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio,

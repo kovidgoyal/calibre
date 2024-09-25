@@ -60,10 +60,11 @@ from qt.core import (
 from calibre import fit_image, human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, is_dark_theme
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
+from calibre.gui2.library.models import themed_icon_name
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
@@ -554,7 +555,12 @@ class CoverDelegate(QStyledItemDelegate):
         elif name == ':ondevice':
             ans = QIcon.ic('ok.png').pixmap(sz, sz)
         elif name:
-            pmap = QIcon(os.path.join(config_dir, 'cc_icons', name)).pixmap(sz, sz)
+            pmap = None
+            d = themed_icon_name(os.path.join(config_dir, 'cc_icons'), name)
+            if d is not None:
+                pmap = QIcon(d).pixmap(sz, sz)
+            if pmap is None:
+                pmap = QIcon(os.path.join(config_dir, 'cc_icons', name)).pixmap(sz, sz)
             if not pmap.isNull():
                 ans = pmap
         cache[name] = ans
