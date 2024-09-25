@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 6)
+current_version = (1, 2, 7)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -217,6 +217,15 @@ def bing_url_processor(url):
     return url
 
 
+def resolve_bing_wrapper_page(url, br, log):
+    raw = br.open_novisit(url).read().decode('utf-8', 'replace')
+    m = re.search(r'var u = "(.+)"', raw)
+    if m is None:
+        log(f'Failed to resolve bing wrapper page for url: {url}')
+        return url
+    return m.group(1)
+
+
 def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60, show_user_agent=False):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
     terms = [quote_term(bing_term(t)) for t in terms]
@@ -229,7 +238,7 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
     ua = ''
     from calibre.utils.random_ua import random_common_chrome_user_agent
-    while not ua or 'Edg/' in ua:
+    while not ua:
         ua = random_common_chrome_user_agent()
     if show_user_agent:
         print('User-agent:', ua)
@@ -249,15 +258,20 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
         d, w = div.get('u').split('|')[-2:]
         cached_url = 'https://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
             q=q, d=d, w=w)
-        ans.append(Result(a.get('href'), title, cached_url))
+        url = a.get('href')
+        if url.startswith('https://www.bing.com/'):
+            url = resolve_bing_wrapper_page(url, br, log)
+        ans.append(Result(url, title, cached_url))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
         log('Failed to find any results on results page, with title:', title)
     return ans, url
 
 
-def bing_develop():
-    for result in bing_search('heroes abercrombie'.split(), 'www.amazon.com', dump_raw='/t/raw.html', show_user_agent=True)[0]:
+def bing_develop(terms='heroes abercrombie'):
+    if isinstance(terms, str):
+        terms = terms.split()
+    for result in bing_search(terms, 'www.amazon.com', dump_raw='/t/raw.html', show_user_agent=True)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)
