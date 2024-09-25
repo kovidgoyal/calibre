@@ -1002,8 +1002,11 @@ def choose_files_and_remember_all_files(
 
 
 def is_dark_theme():
-    pal = QApplication.instance().palette()
-    return pal.is_dark_theme()
+    app = QApplication.instance()
+    if app is not None:
+        pal = QApplication.instance().palette()
+        return pal.is_dark_theme()
+    return False
 
 
 def choose_osx_app(window, name, title, default_dir='/Applications'):
