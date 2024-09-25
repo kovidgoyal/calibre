@@ -15,8 +15,9 @@ from lxml import etree
 
 #### Pages/lines
 
-# How many pages to scan when finding header/footer automatically
+# How many pages/lines to scan when finding header/footer automatically
 PAGE_SCAN_COUNT = 20		# Arbitrary
+LINE_SCAN_COUNT = 2		# Arbitrary
 
 # Fraction of a character width that two strings have to be apart,
 # for them to be considered part of the same text fragment
@@ -712,6 +713,7 @@ class Page:
             # Need to keep any href= (and others?)
             if len(tx) == 0 \
               or text.top < self.top \
+              or text.top > self.height \
               or text.left > self.left+self.width \
               or text.left < self.left:
               #and re.match(r'href=', text.raw) is None:
@@ -1006,28 +1008,34 @@ class Page:
         # if there is a regex supplied
         if len(opts.pdf_header_regex) > 0 \
           and len(self.texts) > 0:
-            # Remove the first line if it matches
-            if re.match(opts.pdf_header_regex, self.texts[0].text_as_string) is not None :
-                # There can be fragments which are spread out, so join_fragments has not coalesced them
-                # Not sure that this would work as it relies on the first fragment matching regex
-                t = self.texts[0]
-                #match = self.find_match(t)
-                #while match is not None:
-                #    self.texts.remove(match)
-                #    match = self.find_match(t)
-                self.texts.remove(t)
+            # Remove lines if they match
+            for i in range(LINE_SCAN_COUNT):
+                if len(self.texts) < 1:
+                    break
+                if re.match(opts.pdf_header_regex, self.texts[0].text_as_string) is not None :
+                    # There could be fragments which are spread out, so join_fragments has not coalesced them
+                    # Not sure that this would work as it relies on the first fragment matching regex
+                    t = self.texts[0]
+                    #match = self.find_match(t)
+                    #while match is not None:
+                    #    self.texts.remove(match)
+                    #    match = self.find_match(t)
+                    self.texts.remove(t)
 
         if len(opts.pdf_footer_regex) > 0 \
           and len(self.texts) > 0:
-            # Remove the last line if it matches
-            if re.match(opts.pdf_footer_regex, self.texts[-1].text_as_string) is not None :
-                # There can be fragments which are spread out, so join_fragments has not coalesced them
-                t = self.texts[-1]
-                #match = self.find_match(t)
-                #while match is not None:
-                #    self.texts.remove(match)
-                #    match = self.find_match(t)
-                self.texts.remove(t)
+            # Remove the last lines if they match
+            for i in range(LINE_SCAN_COUNT):
+                if len(self.texts) < 1:
+                    break
+                if re.match(opts.pdf_footer_regex, self.texts[-1].text_as_string) is not None :
+                    # There could be fragments which are spread out, so join_fragments has not coalesced them
+                    t = self.texts[-1]
+                    #match = self.find_match(t)
+                    #while match is not None:
+                    #    self.texts.remove(match)
+                    #    match = self.find_match(t)
+                    self.texts.remove(t)
 
     def create_page_format(self, stats, opts):
         # Join fragments into lines
@@ -1683,62 +1691,80 @@ class PDFDocument:
         if (self.opts.pdf_header_skip >= 0 \
             and self.opts.pdf_footer_skip >= 0) \
           or len(self.pages) < 2:
-            # Doc is empty or 1 page.  Can't decide on any skips
+            # If doc is empty or 1 page, can't decide on any skips
             return
 
         scan_count = PAGE_SCAN_COUNT
-        head_text = ''
-        head_match = 0
-        head_match1 = 0
+        head_text = [''] * LINE_SCAN_COUNT
+        head_match = [0] * LINE_SCAN_COUNT
+        head_match1 = [0] * LINE_SCAN_COUNT
+        #head_text = ''
+        #head_match = 0
+        #head_match1 = 0
         head_page = 0
         head_skip = 0
-        foot_text = ''
-        foot_match = 0
-        foot_match1 = 0
+        foot_text = [''] * LINE_SCAN_COUNT
+        foot_match = [0] * LINE_SCAN_COUNT
+        foot_match1 = [0] * LINE_SCAN_COUNT
+        #foot_text = ''
+        #foot_match = 0
+        #foot_match1 = 0
         foot_page = 0
         foot_skip = 0
-        pagenum_text = r'.*\d+\s+\w+\s+\d+.*'
+        pagenum_text = r'(.*\d+\s+\w+\s+\d+.*)|(\s*\d+\s+.*)|(^\s*[ivxlcIVXLC]+\s*$)'
 
         pages_to_scan = scan_count
         # Note the a line may be in more than 1 part
         # e.g. Page 1 of 6 ... DocName.pdf
-        # so merge first 2 lines if same top
+        # so should merge first 2 lines if same top
         # Ditto last 2 lines
         # Maybe should do more than 2 parts
         for page in self.pages:
-            if self.opts.pdf_header_skip < 0 and len(page.texts) > 0:
-                t = page.texts[0].text_as_string
-                if len(page.texts) > 1 and page.texts[0].top == page.texts[1].top:
-                    t += page.texts[1].text_as_string
-                if len(head_text) == 0:
-                    head_text = t
-                else:
-                    if head_text == t:
-                        head_match += 1
-                        if head_page == 0:
-                            head_page = page.number
-                    else:	# Look for page count of format 'n xxx n'
-                        if re.match(pagenum_text, t) is not None:
-                            head_match1 += 1
+            if self.opts.pdf_header_skip < 0 \
+              and len(page.texts) > 0:
+                # There is something at the top of the page
+                for head_ind in range(LINE_SCAN_COUNT):
+                    if len(page.texts) < head_ind+1 \
+                      or page.texts[head_ind].top > page.height/2:
+                        break  # Short page
+                    t = page.texts[head_ind].text_as_string
+                    #if len(page.texts) > 1 and page.texts[0].top == page.texts[1].top:
+                    #    t += ' ' + page.texts[1].text_as_string
+                    if len(head_text[head_ind]) == 0:
+                        head_text[head_ind] = t
+                    else:
+                        if head_text[head_ind] == t:
+                            head_match[head_ind] += 1
                             if head_page == 0:
                                 head_page = page.number
+                        else:	# Look for page count of format 'n xxx n'
+                            if re.match(pagenum_text, t) is not None:
+                                head_match1[head_ind] += 1
+                                if head_page == 0:
+                                    head_page = page.number
 
-            if self.opts.pdf_footer_skip < 0 and len(page.texts) > 0:
-                t = page.texts[-1].text_as_string
-                if len(page.texts) > 1 and page.texts[-1].top == page.texts[-2].top:
-                    t += page.texts[-2].text_as_string
-                if len(foot_text) == 0:
-                    foot_text = t
-                else:
-                    if foot_text == t:
-                        foot_match += 1
-                        if foot_page == 0:
-                            foot_page = page.number
-                    else:	# Look for page count of format 'n xxx n'
-                        if re.match(pagenum_text, t) is not None:
-                            foot_match1 += 1
+            if self.opts.pdf_footer_skip < 0 \
+              and len(page.texts) > 0:
+                # There is something at the bottom of the page
+                for foot_ind in range(LINE_SCAN_COUNT):
+                    if len(page.texts) < foot_ind+1 \
+                      or page.texts[-foot_ind-1].top < page.height/2:
+                        break  # Short page
+                    t = page.texts[-foot_ind-1].text_as_string
+                    #if len(page.texts) > 1 and page.texts[-1].top == page.texts[-2].top:
+                    #    t += ' ' + page.texts[-2].text_as_string
+                    if len(foot_text[foot_ind]) == 0:
+                        foot_text[foot_ind] = t
+                    else:
+                        if foot_text[foot_ind] == t:
+                            foot_match[foot_ind] += 1
                             if foot_page == 0:
                                 foot_page = page.number
+                        else:	# Look for page count of format 'n xxx n'
+                            if re.match(pagenum_text, t) is not None:
+                                foot_match1[foot_ind] += 1
+                                if foot_page == 0:
+                                    foot_page = page.number
 
             pages_to_scan -= 1
             if pages_to_scan < 1:
@@ -1752,12 +1778,20 @@ class PDFDocument:
             pages_to_scan = scan_count
         pages_to_scan /= 2	# Are at least half matching?
 
-        if head_match > pages_to_scan or head_match1 > pages_to_scan:
-            t = self.pages[head_page].texts[0]
+        head_ind = 0
+        for i in range(LINE_SCAN_COUNT):
+            if head_match[i] > pages_to_scan or head_match1[i] > pages_to_scan:
+                head_ind = i  # Remember the last matching line
+        if head_match[head_ind] > pages_to_scan or head_match1[head_ind] > pages_to_scan:
+            t = self.pages[head_page].texts[head_ind]
             head_skip = t.top + t.height + 1
 
-        if foot_match > pages_to_scan or foot_match1 > pages_to_scan:
-            t = self.pages[foot_page].texts[-1]
+        foot_ind = 0
+        for i in range(LINE_SCAN_COUNT):
+            if foot_match[i] > pages_to_scan or foot_match1[i] > pages_to_scan:
+                foot_ind = i  # Remember the last matching line
+        if foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan:
+            t = self.pages[foot_page].texts[-foot_ind-1]
             foot_skip = t.top - 1
 
         if head_skip > 0:
@@ -1773,8 +1807,8 @@ class PDFDocument:
             while removed:
                 removed = False
                 for t in page.texts:
-                    if self.opts.pdf_header_skip > 0 and t.top < self.opts.pdf_header_skip \
-                    or self.opts.pdf_footer_skip > 0 and t.top > self.opts.pdf_footer_skip:
+                    if (self.opts.pdf_header_skip > 0 and t.top < self.opts.pdf_header_skip) \
+                    or (self.opts.pdf_footer_skip > 0 and t.top > self.opts.pdf_footer_skip):
                         page.texts.remove(t)
                         removed = True
                         break    # Restart loop
