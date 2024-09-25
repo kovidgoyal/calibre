@@ -55,19 +55,6 @@ class afr(BasicNewsRecipe):
             fig['id'] = 'img-cap'
         return soup
 
-    feeds = []
-
-    sections = [
-        'companies', 'market', 'politics', 'policy', 'world', 'wealth', 'street-talk',
-        'chaticleer', 'rear-window', 'life-and-luxury', 'technology', 'property',
-        'work-and-careers',
-    ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fwww.afr.com{}&hl=en-AU&gl=AU&ceid=AU:en'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    feeds.append(('Others', a.format('')))
-
     def parse_index(self):
         index = 'https://www.afr.com/'
         sections = [
