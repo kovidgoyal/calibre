@@ -23,7 +23,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import error_dialog, simple_excepthook, is_dark_theme
+from calibre.gui2 import error_dialog, is_dark_theme, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard

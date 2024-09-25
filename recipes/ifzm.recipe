@@ -3,6 +3,7 @@ import json
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def absurl(url):
     if url.startswith('/'):
         return 'https://www.infzm.com' + url
@@ -74,5 +75,5 @@ class infzm(BasicNewsRecipe):
         return feeds
 
     def populate_article_metadata(self, article, soup, first):
-        if soup.find(attrs={'class':'intro'}:
+        if soup.find(attrs={'class':'intro'}):
             article.summary = article.text_summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))

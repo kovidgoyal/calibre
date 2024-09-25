@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def absurl(url):
@@ -35,7 +36,7 @@ class IrishTimes(BasicNewsRecipe):
     def get_cover_url(self):
         from datetime import date
         cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/ie/irish_times.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
+        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         try:
             br.open(cover)
         except:
@@ -63,8 +64,8 @@ class IrishTimes(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.irishtimes.com/'
         sections = [
-            'ireland', 'world', 'opinion', 'politics', 'crime-law', 'culture', 'business', 
-            'life-style', 'health', 'sport', 'property', 'food', 'abroad', 'environment', 
+            'ireland', 'world', 'opinion', 'politics', 'crime-law', 'culture', 'business',
+            'life-style', 'health', 'sport', 'property', 'food', 'abroad', 'environment',
             'obituaries'
         ]
         feeds = []

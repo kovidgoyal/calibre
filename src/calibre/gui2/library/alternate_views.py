@@ -60,7 +60,7 @@ from qt.core import (
 from calibre import fit_image, human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, is_dark_theme
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache

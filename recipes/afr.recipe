@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 
 def absurl(url):
     if url.startswith('/'):
