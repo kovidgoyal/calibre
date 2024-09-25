@@ -93,6 +93,20 @@ class ColumnColor:  # {{{
 # }}}
 
 
+def themed_icon_name(icon_dir, icon_name):
+    root,ext = os.path.splitext(icon_name)
+    # Remove any theme from the icon name
+    root = root.removesuffix('-for-dark-theme').removesuffix('-for-light-theme')
+    # Check if the correct themed icon exists.
+    theme_suffix = '-for-dark-theme' if is_dark_theme() else '-for-light-theme'
+    d = os.path.join(icon_dir, root + theme_suffix + ext)
+    if os.path.exists(d):
+        return d
+    # No themed icon exists. Try the original name
+    d = os.path.join(icon_dir, icon_name)
+    return d if os.path.exists(d) else None
+
+
 class ColumnIcon:  # {{{
 
     def __init__(self, formatter, model):
@@ -134,14 +148,8 @@ class ColumnIcon:  # {{{
                 dim = int(self.dpr * rh)
                 icon_dir = os.path.join(config_dir, 'cc_icons')
                 for icon in icons:
-                    d = None
-                    if is_dark_theme():
-                        root,ext = os.path.splitext(icon)
-                        d = os.path.join(icon_dir, root + '-dark' + ext)
-                        d = d if os.path.exists(d) else None
-                    if d is None:
-                        d = os.path.join(icon_dir, icon)
-                    if (os.path.exists(d)):
+                    d = themed_icon_name(icon_dir, icon)
+                    if d is not None:
                         bm = QPixmap(d)
                         scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)
                         bm = bm.scaled(int(nw), int(nh), aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio,
