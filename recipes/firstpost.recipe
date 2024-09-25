@@ -1,9 +1,6 @@
-from calibre.ptempfile import PersistentTemporaryFile
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-# Firstpost feeds mix sections into other feeds, like explainers end up in opinion feed and opinions end up in India feed.
-# change google_feeds to True to fetch right sections.
-google_feeds = False
 
 class firstpost(BasicNewsRecipe):
     title = 'Firstpost'
@@ -43,35 +40,11 @@ class firstpost(BasicNewsRecipe):
         'world', 'web-stories', 'tech', 'artandculture', 'health', 'health-supplement',
         # 'photos', 'entertainment', 'living', 'education', 'sports', 'firstcricket',
     ]
-    if not google_feeds:
-        oldest_article = 1.2 # days
-        for sec in sections:
-            a = 'https://www.firstpost.com/rss/{}.xml'
-            feeds.append((sec.capitalize(), a.format(sec)))
-    else:
-        articles_are_obfuscated = True
 
-        def get_obfuscated_article(self, url):
-            br = self.get_browser()
-            soup = self.index_to_soup(url)
-            link = soup.find('a', href=True)
-            skip_sections =[ # add sections you want to skip
-                '/video/', '/videos/', '/media/', '/vantage/'
-            ]
-            if any(x in link['href'] for x in skip_sections):
-                self.log('Aborting Article ', link['href'])
-                self.abort_article('skipping video links')
-            self.log('Downloading ', link['href'])
-            html = br.open(link['href']).read()
-            pt = PersistentTemporaryFile('.html')
-            pt.write(html)
-            pt.close()
-            return pt.name
-
-        for sec in sections:
-            a = 'https://news.google.com/rss/search?q=when:27h+allinurl:firstpost.com{}&hl=en-IN&gl=IN&ceid=IN:en'
-            feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-        # feeds.append(('Others', a.format('')))
+    oldest_article = 1.2 # days
+    for sec in sections:
+        a = 'https://www.firstpost.com/rss/{}.xml'
+        feeds.append((sec.capitalize(), a.format(sec)))
 
     def preprocess_html(self, soup):
         if h2 := soup.find('h2', attrs={'class':'category-name'}):

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -11,7 +12,7 @@ class STHKRecipe(BasicNewsRecipe):
     masthead_url = 'https://std.stheadline.com/dist/images/logo-v2@2x.png'
     no_stylesheets = True
     remove_javascript = True
-    ignore_duplicate_articles = {'title'}
+    ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
@@ -31,34 +32,26 @@ class STHKRecipe(BasicNewsRecipe):
         classes('in-article-banner stick-box-gray article-pagination comments')
     ]
 
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)['href']
-        skip_sections = [ # add sections you want to skip
-            '/video/', '/videos/', '/media/', 'podcast'
+    def parse_index(self):
+        index = 'https://std.stheadline.com/'
+        sections = [
+            'daily', 'realtime', 'supplement'
         ]
-        if any(x in link for x in skip_sections):
-            self.log('Aborting Article ', link)
-            self.abort_article('skipping video links')
-        html = br.open(link).read()
-        return ({ 'data': html, 'url': link }) 
-
-    feeds = [
-        ('日報', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Fdaily%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
-        ('即時', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Frealtime%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
-        ('副刊', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com%2Fsupplement%2F&hl=zh-HK&gl=HK&ceid=HK:zh'),
-        ('其他的 新聞', 'https://news.google.com/rss/search?q=when:27h+allinurl:https%3A%2F%2Fstd.stheadline.com&hl=zh-HK&gl=HK&ceid=HK:zh')
-    ]
-
-    def populate_article_metadata(self, article, soup, first):
-        article.title = article.title.replace(' - 星島頭條', '')
-
-    def preprocess_raw_html(self, raw, *a):
-        return raw.replace('<p></p>', '')
+        feeds = []
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec + '/')}):
+                url = a['href']
+                if url in {index + sec + '/', index + sec}:
+                    continue
+                if '/article/' not in url:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

@@ -1,7 +1,9 @@
-from urllib.parse import quote
-
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.livelaw.in' + url
 
 class livelaw(BasicNewsRecipe):
     title = 'Live Law'
@@ -20,28 +22,11 @@ class livelaw(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     simultaneous_downloads = 1
-    art_url = ''
 
     extra_css = '''
         .news_detail_person_detail {font-size:small; color:#202020;}
         .news-description { color:#202020; font-style:italic; }
     '''
-
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        soup = self.index_to_soup(url)
-        link = soup.a['href']
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/',
-        ]
-        if any(x in link for x in skip_sections):
-            self.abort_article('skipping video links ', link)
-        self.log('Found ', link)
-        self.art_url = link
-        html = br.open(link).read()
-        return ({ 'data': html, 'url': link })
 
     keep_only_tags = [
         dict(name='div', attrs={'id':'page-content-wrapper'})
@@ -65,22 +50,27 @@ class livelaw(BasicNewsRecipe):
             h2.name = 'p'
         return soup
 
-    feeds = []
-
-    when = '27' # hours
-    index = 'https://www.livelaw.in/'
-
-    sections = [
-        'top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles',
-        'lawschool', 'law-firms', 'round-ups'
-    ]
-
-    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'
-
-    for sec in sections:
-        feeds.append((sec.capitalize(), a.format(when, quote(index + sec, safe=''))))
-    feeds.append(('Others' , a.format(when, quote(index, safe=''))))
-
-    def populate_article_metadata(self, article, soup, first):
-        article.url = self.art_url
-        article.title = article.title.replace(' - Live Law - Indian Legal News', '')
+    def parse_index(self):
+        index = 'https://www.livelaw.in/'
+        sections = [
+            'top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles',
+            'lawschool', 'law-firms', 'round-ups'
+        ]
+        feeds = []
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+                url = absurl(a['href'].split('?')[0])
+                if url in {index + sec + '/', index + sec}:
+                    continue
+                if not url[-1].isdigit():
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds

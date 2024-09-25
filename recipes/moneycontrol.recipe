@@ -1,5 +1,4 @@
-from urllib.parse import quote
-
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -26,21 +25,6 @@ class MoneyControlRecipe(BasicNewsRecipe):
         .article_desc { font-style:italic; color:#202020; }
     '''
 
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        soup = self.index_to_soup(url)
-        link = soup.a['href']
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/multimedia/',
-        ]
-        if any(x in link for x in skip_sections):
-            self.abort_article('skipping video links ', link)
-        self.log('Found ', link)
-        html = br.open(link).read()
-        return ({ 'data': html, 'url': link })
-
     keep_only_tags = [
         dict(name='div', attrs={'id':lambda x: x and x.startswith('article-')})
     ]
@@ -65,41 +49,52 @@ class MoneyControlRecipe(BasicNewsRecipe):
             img['src'] = img['data-src']
         return soup
 
-    feeds = []
+    def parse_index(self):
+        index = 'https://www.moneycontrol.com/'
 
-    when = oldest_article*24
-    index = 'https://www.moneycontrol.com/'
+        business_sections = [
+            'markets', 'stocks', 'ipo', 'budget', 'banks', 'moneycontrol-research', 'economy', 'earnings', 'real-estate', 
+            'personal-finance', 'commodities', 'trade', 'companies'
+        ]
 
-    business_sections = [
-        'markets', 'stocks', 'ipo', 'budget', 'banks', 'moneycontrol-research', 'economy', 'earnings', 'real-estate', 
-        'personal-finance', 'commodities', 'trade', 'companies'
-    ]
+        news_sections = [
+            'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
+        ]
 
-    a = 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'
-
-    for sec in business_sections:
-        allinurl_a = index + 'news/business'
-        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_a + sec, safe=''))))
-    feeds.append(('Business' , a.format(when, quote(allinurl_a, safe=''))))
-
-    news_sections = [
-        'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
-    ]
-
-    for sec in news_sections:
-        allinurl_b = index + 'news'
-        feeds.append((sec.capitalize(), a.format(when, quote(allinurl_b + sec, safe=''))))
-    feeds.append(('News', a.format(when, quote(allinurl_b, safe=''), '')))
-    feeds.append(
-        ('Others', 'https://news.google.com/rss/search?q=when:{}h+allinurl:{}&hl=en-IN&gl=IN&ceid=IN:en'.format(when, quote(index, safe='')))
-    )
+        feeds = []
+        soup = self.index_to_soup(index)
+        for b_sec in business_sections:
+            burl = index + 'news/business/'
+            section = b_sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(burl + b_sec + '/')}):
+                url = a['href']
+                if url in {burl + b_sec + '/', burl + b_sec}:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        for n_sec in news_sections:
+            nurl = index + 'news/'
+            nsection = n_sec.capitalize()
+            self.log(nsection)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(nurl + n_sec + '/')}):
+                url = a['href']
+                if url in {nurl + n_sec + '/', nurl + n_sec}:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((nsection, articles))
+        return feeds
 
     def populate_article_metadata(self, article, soup, first):
-        div = soup.find('div', attrs={'data-io-article-url':True})
-        if div:
-            article.url = div['data-io-article-url']
         desc = soup.find(**classes('article_desc'))
         if desc:
             article.summary = self.tag_to_string(desc)
             article.text_summary = article.summary
-        article.title = article.title.replace(' - Moneycontrol', '')

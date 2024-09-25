@@ -1,7 +1,11 @@
+#!/usr/bin/env python
 import json
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.infzm.com' + url
 
 def json_to_html(raw, link):
     data = json.loads(raw)
@@ -21,24 +25,19 @@ class infzm(BasicNewsRecipe):
     encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True
-    ignore_duplicate_articles = {'title'}
+    ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     use_embedded_content = False
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'http://ssimg.kkod.cn/web/02/14227.gif'
 
-    articles_are_obfuscated = True
-
     remove_tags = [dict(name=['video', 'svg', 'button'])]
+
+    articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
         br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)['href'].split('?')[0]
+        link = url
         res_link = link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') \
             + '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type='
         # if article is paywalled, add code to figure out machine_id
@@ -51,12 +50,29 @@ class infzm(BasicNewsRecipe):
         .cm_pic_caption, .cm_pic_author { font-size:small; text-align:center; }
     '''
 
-    feeds = [
-        ('南方周末', 'https://news.google.com/rss/search?q=when:170h+allinurl:https%3A%2F%2Fwww.infzm.com&hl=zh-HK&gl=HK&ceid=HK:zh')
-    ]
+
+    def parse_index(self):
+        index = 'https://www.infzm.com/'
+        sections = [
+            'contents'
+        ]
+        feeds = []
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+                url = absurl(a['href'].split('?')[0])
+                if url in {index + sec + '/', index + sec}:
+                    continue
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
 
     def populate_article_metadata(self, article, soup, first):
-        article.title = article.title.replace(' - 南方周末', '')
-        article.url = soup.find('h1')['title']
-        article.summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))
-        article.text_summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))
+        if soup.find(attrs={'class':'intro'}:
+            article.summary = article.text_summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))
