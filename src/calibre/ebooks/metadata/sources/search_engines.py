@@ -223,6 +223,7 @@ def resolve_bing_wrapper_page(url, br, log):
     if m is None:
         log(f'Failed to resolve bing wrapper page for url: {url}')
         return url
+    log(f'Resolved bing wrapped URL: {url} to {m.group(1)}')
     return m.group(1)
 
 
