@@ -100,6 +100,7 @@ class QtTTSBackend(TTSBackend):
         # start and length values are totally wrong, so track manually
         # print(f'{repr(word)=} {idx=} {start=} {length=}, {repr(self.speaking_text[start:start+length])=}')
         key = word, start, length
+        # Qt sometimes repeats words with windows modern engine at least, for a test case see https://bugs.launchpad.net/calibre/+bug/2080708
         if self.last_spoken_word == key:
             return
         self.last_spoken_word = key
