@@ -13,6 +13,7 @@ import traceback
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
@@ -35,7 +36,7 @@ def extract_comic(path_to_comic_file):
     extract(path_to_comic_file, tdir)
     for x in walk(tdir):
         bn = os.path.basename(x)
-        nbn = bn.replace('#', '_')
+        nbn = clean_ascii_chars(bn.replace('#', '_'))
         if nbn != bn:
             os.rename(x, os.path.join(os.path.dirname(x), nbn))
     return tdir
