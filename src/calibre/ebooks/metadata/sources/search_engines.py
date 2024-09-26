@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 8)
+current_version = (1, 2, 9)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -217,8 +217,8 @@ def bing_url_processor(url):
     return url
 
 
-def bing_cached_url(url):
-    results, search_url = bing_search(['url:' + url])
+def bing_cached_url(url, br=None, log=prints, timeout=60):
+    results, search_url = bing_search(['url:' + url], br=br, log=log, timeout=timeout)
     for result in results:
         return result.cached_url
 
@@ -241,7 +241,10 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     q = '+'.join(terms)
     url = 'https://www.bing.com/search?q={q}'.format(q=q)
     log('Making bing query: ' + url)
-    br = br or browser()
+    if br is None:
+        br = browser()
+    else:
+        br = br.clone_browser()
     br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
     ua = ''
     from calibre.utils.random_ua import random_common_chrome_user_agent
@@ -349,7 +352,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
         if curl in seen:
             continue
         seen.add(curl)
-        ans.append(Result(a.get('href'), title, curl))
+        ans.append(Result(curl, title, None))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
         log('Failed to find any results on results page, with title:', title)
@@ -434,7 +437,7 @@ def google_develop(search_terms='1423146786', raw_from=''):
 
 
 def get_cached_url(url, br=None, log=prints, timeout=60):
-    return wayback_machine_cached_url(url, br, log, timeout)
+    return bing_cached_url(url, br, log, timeout) or wayback_machine_cached_url(url, br, log, timeout)
 
 
 def get_data_for_cached_url(url):
