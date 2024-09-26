@@ -14,6 +14,7 @@ class QtTTSBackend(TTSBackend):
         self.speaking_text = ''
         self.last_word_offset = 0
         self._qt_reload_after_configure(engine_name)
+        self.last_spoken_word = None
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
@@ -40,6 +41,7 @@ class QtTTSBackend(TTSBackend):
 
     def say(self, text: str) -> None:
         self.last_word_offset = 0
+        self.last_spoken_word = None
         self.speaking_text = text
         self.tts.say(text)
 
@@ -96,6 +98,11 @@ class QtTTSBackend(TTSBackend):
     def _saying_word(self, word: str, utterance_id: int, start: int, length: int) -> None:
         # Qt's word tracking is broken with non-BMP unicode chars, the
         # start and length values are totally wrong, so track manually
+        # print(f'{repr(word)=} {idx=} {start=} {length=}, {repr(self.speaking_text[start:start+length])=}')
+        key = word, start, length
+        if self.last_spoken_word == key:
+            return
+        self.last_spoken_word = key
         idx = self.speaking_text.find(word, self.last_word_offset)
         if idx > -1:
             self.saying.emit(idx, len(word))
