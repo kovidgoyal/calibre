@@ -37,7 +37,7 @@ def extract_comic(path_to_comic_file):
     for x in walk(tdir):
         bn = os.path.basename(x)
         nbn = clean_ascii_chars(bn.replace('#', '_'))
-        if nbn != bn:
+        if nbn and nbn != bn:
             os.rename(x, os.path.join(os.path.dirname(x), nbn))
     return tdir
 
