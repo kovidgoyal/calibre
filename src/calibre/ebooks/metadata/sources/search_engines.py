@@ -217,6 +217,12 @@ def bing_url_processor(url):
     return url
 
 
+def bing_cached_url(url):
+    results, search_url = bing_search(['url:' + url])
+    for result in results:
+        return result.cached_url
+
+
 def resolve_bing_wrapper_page(url, br, log):
     raw = br.open_novisit(url).read().decode('utf-8', 'replace')
     m = re.search(r'var u = "(.+)"', raw)
@@ -259,10 +265,10 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
         d, w = div.get('u').split('|')[-2:]
         cached_url = 'https://cc.bingj.com/cache.aspx?q={q}&d={d}&mkt=en-US&setlang=en-US&w={w}'.format(
             q=q, d=d, w=w)
-        url = a.get('href')
-        if url.startswith('https://www.bing.com/'):
-            url = resolve_bing_wrapper_page(url, br, log)
-        ans.append(Result(url, title, cached_url))
+        ans_url = a.get('href')
+        if ans_url.startswith('https://www.bing.com/'):
+            ans_url = resolve_bing_wrapper_page(ans_url, br, log)
+        ans.append(Result(ans_url, title, cached_url))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
         log('Failed to find any results on results page, with title:', title)
