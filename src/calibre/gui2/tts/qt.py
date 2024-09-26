@@ -38,7 +38,17 @@ class QtTTSBackend(TTSBackend):
         self.tts.resume()
 
     def stop(self) -> None:
-        self.tts.stop()
+        if self.tts.engine() == 'sapi' and self.tts.state() is QTextToSpeech.State.Speaking:
+            # prevent an occasional crash on stop by re-creating the engine rather than stopping it
+            self.tts.sayingWord.disconnect()
+            self.tts.stateChanged.disconnect()
+            self.tts.pause()
+            self.tts.deleteLater()
+            del self.tts
+            self._qt_reload_after_configure('sapi')
+            self._state_changed(QTextToSpeech.State.Ready)
+        else:
+            self.tts.stop()
 
     def say(self, text: str) -> None:
         self.last_word_offset = 0
