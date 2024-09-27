@@ -47,6 +47,12 @@ class ScientificAmerican(BasicNewsRecipe):
         for fig in soup.findAll('figcaption'):
             for p in fig.findAll(['p', 'div']):
                 p.name = 'span'
+        res = '?w=600'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '?w=' + w
+        for img in soup.findAll('img', src=True):
+            img['src'] = img['src'].split('?')[0] + res
         return soup
 
     def get_browser(self, *args):
@@ -66,6 +72,11 @@ class ScientificAmerican(BasicNewsRecipe):
                 'For example, https://www.scientificamerican.com/issue/sa/2024/07-01/'
                 '\nYou can also download special-editions, physics, health, mind magazines by pasting the URL here.'
             )
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600'
         }
     }
 
@@ -102,11 +113,11 @@ class ScientificAmerican(BasicNewsRecipe):
         self.timefmt = f" [{edition_date:%B %Y}]"
 
         feeds = {}
-        for section in ("featured", "departments"):
+        for section in issue_info.get("article_previews", {}):
             for article in issue_info.get("article_previews", {}).get(section, []):
                 self.log('\t', article["title"])
-                if section == "featured":
-                    feed_name = "Features"
+                if section.startswith('featur'):
+                    feed_name = section.capitalize()
                 else:
                     feed_name = article["category"]
                 if feed_name not in feeds:
@@ -121,5 +132,5 @@ class ScientificAmerican(BasicNewsRecipe):
                         "description": article["summary"],
                     }
                 )
-
-        return feeds.items()
+        sorted_feeds = dict(sorted(feeds.items(), key=lambda x: (not x[0].startswith('Featur'), x[0])))
+        return sorted_feeds.items()
