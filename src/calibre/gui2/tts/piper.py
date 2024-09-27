@@ -13,11 +13,11 @@ from itertools import count
 from time import monotonic
 
 from qt.core import (
+    QApplication,
     QAudio,
     QAudioFormat,
     QAudioSink,
     QByteArray,
-    QDialog,
     QIODevice,
     QIODeviceBase,
     QMediaDevices,
@@ -469,14 +469,13 @@ class Piper(TTSBackend):
             if not download_even_if_exists:
                 return model_path, config_path
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        from calibre.gui2.tts.download import DownloadResources
-        d = DownloadResources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
-            voice.engine_data['model_url']: (model_path, _('Neural network data')),
-            voice.engine_data['config_url']: (config_path, _('Neural network metadata')),
-        }, parent=widget_parent(self))
-        if d.exec() == QDialog.DialogCode.Accepted:
-            return model_path, config_path
-        return '', ''
+        from calibre.gui2.tts.download import download_resources
+        ok = download_resources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
+                voice.engine_data['model_url']: (model_path, _('Neural network data')),
+                voice.engine_data['config_url']: (config_path, _('Neural network metadata')),
+            }, parent=widget_parent(self), headless=getattr(QApplication.instance(), 'headless', False)
+        )
+        return (model_path, config_path) if ok else ('', '')
 
     def download_voice(self, v: Voice) -> None:
         if not v.name:

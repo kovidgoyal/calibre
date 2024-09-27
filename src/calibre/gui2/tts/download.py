@@ -162,6 +162,24 @@ class DownloadResources(QDialog):
         super().reject()
 
 
+def download_resources(
+    title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None, headless: bool = False
+) -> bool:
+    if not headless:
+        d = DownloadResources(title, message, urls, parent=parent)
+        return d.exec() == QDialog.DialogCode.Accepted
+    from calibre import browser
+    print(title)
+    print(message)
+    for url, (path, name) in urls.items():
+        print(_('Downloading {}...').format(name))
+        br = browser()
+        data = br.open_novisit(url).read()
+        with open(path, 'wb') as f:
+            f.write(data)
+    return True
+
+
 def develop():
     from calibre.gui2 import Application
     app = Application([])
