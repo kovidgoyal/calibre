@@ -23,6 +23,55 @@
 # - title by author
 # }}}
 
+{{{ 7.19.0 2024-09-27
+
+:: new features
+
+- [major] E-book viewer: Halve the time taken to open large EPUB format books for the first time
+
+  A four hundred thousand word EPUB book now opens in under a second on typical hardware.
+
+- PDF new engine: Improve header/footer detection
+
+- For column icons and grid view emblems, support icons for both light and dark themes
+
+- News downloads: Mark links to locally available articles with a middle-dot
+
+- [2079784] When saving a layout also save the main window geometry
+
+:: bug fixes
+
+- [2080705] Windows: Read Aloud: Fix an occasional crash when stopping read aloud when using the legacy windows TTS engine
+
+- [2080705] Windows: Read Aloud: Fix clicking in text to change what is being read causing tracking of currently read word to fail when using the legacy Windows TTS engine
+
+- [2080708] Read aloud: Fix reading large numeric words causing text synchronization to fail when using some legacy TTS engines
+
+- [2080701] EPUB3 metadata: Fix setting series number to zero not working
+
+- [2081982] Comic Input: Handle comics whose internal files have control codes in their filenames
+
+- [2071348] E-book viewer: Fix a regression that broke searching in Japanese books that use <ruby> text
+
+- [2080655] E-book viewer: Fix a regression in the previous release that broke Read aloud for selected text
+
+- Amazon metadata plugin: Workaround for downloads failing because Google discontinued its webcache
+
+- Cover grid: Suppress the 2px border Qt draws for the list view
+
+:: improved recipes
+- NY Times
+- NYT Book Review
+- Courrier International
+- Le Monde
+- TLS Magazine
+- Scientific American
+- Engadget
+
+:: new recipes
+- NYT News based on feeds by unkn0wn
+}}}
+
 {{{ 7.18.0 2024-09-13
 
 :: new features
