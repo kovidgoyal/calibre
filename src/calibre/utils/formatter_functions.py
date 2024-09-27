@@ -2651,7 +2651,7 @@ class BuiltinIsDarkMode(BuiltinFormatterFunction):
                       "in dark mode, '' (the empty string) otherwise. This "
                       "function can be used in advanced color and icon rules "
                       "to choose different colors/icons according to the mode. "
-                      "Example: if is_dark_mode() then 'dark.png' else 'light.png' fi ")
+                      "Example: {} ").format("if is_dark_mode() then 'dark.png' else 'light.png' fi")
 
     def evaluate(self, formatter, kwargs, mi, locals):
         try:
