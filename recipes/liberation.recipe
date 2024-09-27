@@ -34,7 +34,7 @@ def json_to_html(raw):
 
     auth = '<p class="auth">{}</p>\n'
     dt = datetime.fromisoformat(data['last_updated_date'][:-1]) + timedelta(seconds=time.timezone)
-    dt = dt.strftime(m_fr[dt.month] + '%d, %Y')
+    dt = dt.strftime(m_fr[dt.month] + ' %d, %Y')
     a = [x['name'] for x in data['credits']['by']]
     if a:
         auth = auth.format(', '.join(a) + ' | ' + dt)
