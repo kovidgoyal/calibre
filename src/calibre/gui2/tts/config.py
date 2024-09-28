@@ -3,6 +3,7 @@
 
 from qt.core import (
     QCheckBox,
+    QDoubleSpinBox,
     QFont,
     QFormLayout,
     QHBoxLayout,
@@ -69,6 +70,26 @@ class EngineChoice(QWidget):
         engine = self.value or default_engine_name()
         metadata = available_engines()[engine]
         self.engine_description.setText(metadata.description)
+
+
+class SentenceDelay(QDoubleSpinBox):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setRange(0., 2.)
+        self.setDecimals(2)
+        self.setSuffix(_(' seconds'))
+        self.setToolTip(_('The number of seconds to pause for at the end of a sentence.'))
+        self.setSpecialValueText(_('no pause'))
+        self.setSingleStep(0.05)
+
+    @property
+    def val(self) -> str:
+        return max(0.0, self.value())
+
+    @val.setter
+    def val(self, v) -> None:
+        self.setValue(float(v))
 
 
 class FloatSlider(QSlider):
@@ -220,6 +241,8 @@ class EngineSpecificConfig(QWidget):
         self.engine_specific_settings = {}
         self.rate = r = FloatSlider(parent=self)
         l.addRow(_('&Speed of speech:'), r)
+        self.sentence_delay = d = SentenceDelay(parent=self)
+        l.addRow(_('&Pause after sentence:'), d)
         self.pitch = p = FloatSlider(parent=self)
         l.addRow(_('&Pitch of speech:'), p)
         self.volume = v = Volume(self)
@@ -256,6 +279,7 @@ class EngineSpecificConfig(QWidget):
         else:
             self.layout().setRowVisible(self.output_module, False)
         self.output_module.blockSignals(False)
+        self.layout().setRowVisible(self.sentence_delay, metadata.has_sentence_delay)
         try:
             s = self.engine_specific_settings[self.engine_name]
         except KeyError:
@@ -274,6 +298,8 @@ class EngineSpecificConfig(QWidget):
         else:
             self.layout().setRowVisible(self.volume, False)
             self.volume.val = None
+        if metadata.has_sentence_delay:
+            self.sentence_delay.val = s.sentence_delay
         self.audio_device.clear()
         if metadata.allows_choosing_audio_device:
             self.audio_device.addItem(_('System default (currently {})').format(self.default_audio_device.description), '')
@@ -305,6 +331,8 @@ class EngineSpecificConfig(QWidget):
             engine_name=self.engine_name,
             rate=self.rate.val, voice_name=self.voices.val, pitch=self.pitch.val, volume=self.volume.val)
         metadata = available_engines()[self.engine_name]
+        if metadata.has_sentence_delay:
+            ans = ans._replace(sentence_delay=self.sentence_delay.val)
         if metadata.has_multiple_output_modules and self.output_module.currentIndex() > 0:
             ans = ans._replace(output_module=self.output_module.currentData())
         if metadata.allows_choosing_audio_device and self.audio_device.currentIndex() > 0:

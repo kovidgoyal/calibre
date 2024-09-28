@@ -286,7 +286,7 @@ class Piper(TTSBackend):
 
             cmdline = list(piper_cmdline()) + [
                 '--model', model_path, '--config', config_path, '--output-raw', '--json-input',
-                '--sentence-silence', '0', '--length_scale', str(length_scale)]
+                '--sentence-silence', str(s.sentence_delay), '--length_scale', str(length_scale)]
             if is_debugging():
                 cmdline.append('--debug')
             self._process.setProgram(cmdline[0])

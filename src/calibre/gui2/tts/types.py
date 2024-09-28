@@ -39,6 +39,7 @@ class EngineMetadata(NamedTuple):
     can_change_volume: bool = True
     voices_have_quality_metadata: bool = False
     has_managed_voices: bool = False
+    has_sentence_delay: bool = False
 
 
 class Quality(Enum):
@@ -122,6 +123,7 @@ class EngineSpecificSettings(NamedTuple):
     volume: float | None = None  # 0 to 1, None is platform default volume
     output_module: str = ''
     engine_name: str = ''
+    sentence_delay: float = 0  # seconds >= 0
 
     @classmethod
     def create_from_prefs(cls, engine_name: str, prefs: dict[str, object]) -> 'EngineSpecificSettings':
@@ -142,8 +144,11 @@ class EngineSpecificSettings(NamedTuple):
         with suppress(Exception):
             volume = max(0, min(float(prefs.get('volume')), 1))
         om = str(prefs.get('output_module', ''))
+        sentence_delay = 0.
+        with suppress(Exception):
+            sentence_delay = max(0, float(prefs.get('sentence_delay')))
         return EngineSpecificSettings(
-            voice_name=str(prefs.get('voice', '')), output_module=om,
+            voice_name=str(prefs.get('voice', '')), output_module=om, sentence_delay=sentence_delay,
             audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
 
     @classmethod
@@ -166,6 +171,8 @@ class EngineSpecificSettings(NamedTuple):
             ans['volume'] = self.volume
         if self.output_module:
             ans['output_module'] = self.output_module
+        if self.sentence_delay:
+            ans['sentence_delay'] = self.sentence_delay
         return ans
 
     def save_to_config(self, prefs:JSONConfig | None = None):
@@ -219,7 +226,8 @@ def available_engines() -> dict[str, EngineMetadata]:
         ans['piper'] = EngineMetadata('piper', _('The Piper Neural Engine'), _(
             'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
             'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
-        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True)
+        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True,
+        has_sentence_delay=True)
     if islinux:
         try:
             from speechd.paths import SPD_SPAWN_CMD
