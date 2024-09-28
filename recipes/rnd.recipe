@@ -1,0 +1,122 @@
+#!/usr/bin/env python
+##
+## Written:      March 2020
+## Version:      1.2
+## Last update:  2024-09-26
+##
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+'''
+Fetch RSS-Feeds from saechsische.de
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def prefixed_classes(classes):
+    q = frozenset(classes.split(' '))
+
+    def matcher(x):
+        if x:
+            for candidate in frozenset(x.split()):
+                for x in q:
+                    if candidate.startswith(x):
+                        return True
+        return False
+    return {'attrs': {'class': matcher}}
+
+
+class RND(BasicNewsRecipe):
+    title = 'RedaktionsNetzwerk Deutschland'
+    __author__ = 'epubli'
+    description = 'RSS-Feeds von RedaktionsNetzwerk Deutschland (rnd.de)'
+    publisher = 'RND'
+    publication_type = 'newspaper'
+    language = 'de'
+    encoding = 'UTF-8'
+    oldest_article = 1
+    max_articles_per_feed = 40
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    compress_news_images = True
+    compress_news_images_auto_size = 8
+    scale_news_images_to_device = True
+    delay = 1
+    ignore_duplicate_articles = {'title', 'url'}
+
+    cover_url             = 'https://www.designtagebuch.de/wp-content/uploads/mediathek//2022/03/rnd-logo-bildmarke-1500x1125.jpg'
+
+    keep_only_tags = [
+        prefixed_classes('ArticleHeadstyled__ArticleHeader- Articlestyled__ArticleBodyWrapper- ArticleImagestyled__ArticleImage-')
+    ]
+    remove_tags = [
+        prefixed_classes('CallToActionBasestyled__Container- ArticleDetailsstyled__ArticleDetailsToggleCheckbox-'
+                         ' ArticleDetailsstyled__ArticleDetailsToggleButton- ArticleImagestyled__ArticleImageCheckbox-'
+                         ' Adstyled__AdWrapper- MoreItemsBlockstyled__TitleWrapper- MoreItemsBlockstyled__MoreItemsBlock-'
+                         ' ContentTeaserstyled__Article- Buttonstyled__Button-'),
+        dict(name='source')
+    ]
+
+    feeds = [
+ ('Politik', 'https://www.rnd.de/arc/outboundfeeds/rss/category/politik/'),
+ ('Wirtschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/wirtschaft/'),
+ ('Sport', 'https://www.rnd.de/arc/outboundfeeds/rss/category/sport/'),
+ ('Panorama', 'https://www.rnd.de/arc/outboundfeeds/rss/category/panorama/'),
+ #('Promis', 'https://www.rnd.de/arc/outboundfeeds/rss/category/promis/'),
+ #('Reise', 'https://www.rnd.de/arc/outboundfeeds/rss/category/reise/'),
+ #('Medien', 'https://www.rnd.de/arc/outboundfeeds/rss/category/medien/'),
+ #('Digital', 'https://www.rnd.de/arc/outboundfeeds/rss/category/digital/'),
+ #('Kultur', 'https://www.rnd.de/arc/outboundfeeds/rss/category/kultur/'),
+ #('Wissen', 'https://www.rnd.de/arc/outboundfeeds/rss/category/wissen/'),
+ #('Familie', 'https://www.rnd.de/arc/outboundfeeds/rss/category/familie/'),
+ #('Gesundheit',  'https://www.rnd.de/arc/outboundfeeds/rss/category/gesundheit/'),
+ #('Lifestyle', 'https://www.rnd.de/arc/outboundfeeds/rss/category/lifestyle/'),
+ #('Bauen & Wohnen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/bauen-und-wohnen/'),
+ #('Geld & Finanzen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/geld-und-finanzen/'),
+ #('Liebe & Partnerschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/liebe-und-partnerschaft/'),
+ #('Beruf & Bildung',  'https://www.rnd.de/arc/outboundfeeds/rss/category/beruf-und-bildung/'),
+ #('E-Mobility',  'https://www.rnd.de/arc/outboundfeeds/rss/category/e-mobility/')
+ ]
+
+
+    def parse_feeds(self):
+      # Call parent's method.
+      feeds = BasicNewsRecipe.parse_feeds(self)
+      # Loop through all feeds.
+      for feed in feeds:
+        # Loop through all articles in feed.
+        for article in feed.articles[:]:
+          # Remove articles with '...' in the url.
+          if '/anzeige/' in article.url:
+            print('Removing:',article.title)
+            feed.articles.remove(article)
+          # Remove articles with '...' in the title.
+          elif 'Liveticker' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Liveblog' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Newsblog' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Podcast' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+
+      return feeds
+
+    def preprocess_raw_html(self, raw, url):
+      # remove articles requiring login and advertisements
+      unwantedtag='ArticleHeadstyled__ArticleHeadPaidIconContainer'
+      if unwantedtag in raw:
+        print('Skipping unwanted article with tag:',unwantedtag)
+        self.abort_article('Skipping unwanted article')
+
+      unwanted_article_keywords = ['Zum Login']
+      for keyword in unwanted_article_keywords:
+          if keyword in raw:
+            print('Skipping unwanted article with keyword(s):',keyword)
+            #self.abort_article('Skipping unwanted article')
+      return raw
