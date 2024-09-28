@@ -286,7 +286,7 @@ class ManyToOneTable(Table):
             for iid, name in self.id_map.items():
                 if icu_lower(name) == q:
                     return {item_names[0]: iid}
-            return {item_names[0]: iid}
+            return {item_names[0]: None}
         rmap = {icu_lower(v) if isinstance(v, str) else v:k for k, v in self.id_map.items()}
         return {name: rmap.get(icu_lower(name) if isinstance(name, str) else name, None) for name in item_names}
 
