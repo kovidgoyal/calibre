@@ -3,6 +3,7 @@
 
 from qt.core import (
     QCheckBox,
+    QFont,
     QFormLayout,
     QHBoxLayout,
     QIcon,
@@ -136,20 +137,30 @@ class Voices(QTreeWidget):
         self.setHeaderHidden(True)
         self.system_default_voice = Voice()
         self.currentItemChanged.connect(self.voice_changed)
+        self.normal_font = f = self.font()
+        self.highlight_font = f = QFont(f)
+        f.setBold(True), f.setItalic(True)
 
     def sizeHint(self) -> QSize:
         return QSize(400, 500)
+
+    def set_item_downloaded_state(self, ans: QTreeWidgetItem) -> None:
+        voice = ans.data(0, Qt.ItemDataRole.UserRole)
+        is_downloaded = bool(voice.engine_data and voice.engine_data.get('is_downloaded'))
+        ans.setFont(0, self.highlight_font if is_downloaded else self.normal_font)
 
     def set_voices(self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata) -> None:
         self.clear()
         current_item = None
         def qv(parent, voice):
             nonlocal current_item
-            ans = QTreeWidgetItem(parent, [voice.short_text(engine_metadata)])
+            text = voice.short_text(engine_metadata)
+            ans = QTreeWidgetItem(parent, [text])
             ans.setData(0, Qt.ItemDataRole.UserRole, voice)
             ans.setToolTip(0, voice.tooltip(engine_metadata))
             if current_voice == voice.name:
                 current_item = ans
+            self.set_item_downloaded_state(ans)
             return ans
         qv(self.invisibleRootItem(), self.system_default_voice)
         vmap = {}
@@ -181,6 +192,11 @@ class Voices(QTreeWidget):
         ci = self.currentItem()
         if ci is not None:
             return ci.data(0, Qt.ItemDataRole.UserRole)
+
+    def refresh_current_item(self) -> None:
+        ci = self.currentItem()
+        if ci is not None:
+            self.set_item_downloaded_state(ci)
 
 
 class EngineSpecificConfig(QWidget):
@@ -357,6 +373,7 @@ class ConfigDialog(Dialog):
         else:
             b.setIcon(QIcon.ic('download-metadata.png'))
             b.setText(_('Download voice'))
+        self.engine_specific_config.voices.refresh_current_item()
 
     def voice_action(self):
         self.engine_specific_config.voice_action()
