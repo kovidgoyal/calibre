@@ -26,10 +26,9 @@ class ScientificAmerican(BasicNewsRecipe):
     extra_css = """
         [class^="article_dek-"] { font-style:italic; color:#202020; }
         [class^="article_authors-"] {font-size:small; color:#202020; }
-        [class^="article__image-"] { font-size:small; text-align:center; }
-        [class^="lead_image-"] { font-size:small; text-align:center; }
+        [class^="article__image-"], [class^="lead_image-"], .calibre-nuked-tag-figcaption { font-size:small; }
         [class^="bio-"] { font-size:small; color:#404040; }
-        em { color:#202020; }
+        em, blockquote { color:#202020; }
     """
 
     needs_subscription = "optional"
@@ -44,9 +43,11 @@ class ScientificAmerican(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
+        for h2 in soup.findAll(['h2', 'h3']):
+            h2.name = 'h4'
         for fig in soup.findAll('figcaption'):
-            for p in fig.findAll(['p', 'div']):
-                p.name = 'span'
+            for p in fig.findAll('p'):
+                p.name = 'div'
         res = '?w=600'
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):

@@ -103,7 +103,7 @@ class IndiaToday(BasicNewsRecipe):
         if 'description_short' in data:
             desc = '<p id="sub-h">' + data['description_short'] + '</p>\n'
         if data.get('author'):
-            author = ''.join([names['title'] for names in data['author']])
+            author = ', '.join([names['title'] for names in data['author']])
         if 'city' in data:
             city = data['city']
         if 'datetime_updated' in data:
