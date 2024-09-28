@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 ##
 ## Written:      March 2020
-## Version:      1.1
-## Last update:  2023-03-31
+## Version:      1.2
+## Last update:  2024-09-26
 ##
 from __future__ import absolute_import, division, print_function, unicode_literals
 
@@ -13,17 +13,24 @@ Fetch RSS-Feeds from saechsische.de
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-def classes(classes):
+def prefixed_classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+    def matcher(x):
+        if x:
+            for candidate in frozenset(x.split()):
+                for x in q:
+                    if candidate.startswith(x):
+                        return True
+        return False
+    return {'attrs': {'class': matcher}}
 
 
 class Saechsische(BasicNewsRecipe):
     title = 'Saechsische Zeitung'
     __author__ = 'epubli'
     description = 'RSS-Feeds von saechsische.de'
-    publisher = 'SZ'
+    publisher = 'Saechsische Zeitung'
     publication_type = 'newspaper'
     language = 'de'
     encoding = 'UTF-8'
@@ -38,89 +45,192 @@ class Saechsische(BasicNewsRecipe):
     delay = 1
     ignore_duplicate_articles = {'title', 'url'}
 
-    cover_url             = 'https://www.saechsische.de/img/logo.svg'
+    cover_url             = 'https://www.saechsische.de/pf/resources/wordmarks/Saez.svg?d=693'
 
-    feeds = [
-        ('Dresden', 'feed://www.saechsische.de/rss/dresden'),
-        ('Sachsen', 'feed://saechsische.de/rss/sachsen'),
-        ('Deutschland und Welt', 'feed://www.saechsische.de/rss/deutschland-welt'),
-        ('Politik', 'feed://www.saechsische.de/rss/politik'),
-        ('Wirtschaft', 'feed://www.saechsische.de/rss/wirtschaft'),
-        ('Feuilleton', 'feed://www.saechsische.de/rss/feuilleton'),
-        ('Sport', 'feed://www.saechsische.de/rss/sport'),
-        #('Dynamo', 'feed://www.saechsische.de/rss/dynamo'),
-        #('Bautzen', 'feed://www.saechsische.de/rss/bautzen'),
-        #('Bischofswerda', 'feed://www.saechsische.de/rss/bischofswerda'),
-        #('Dippoldiswalde', 'feed://www.saechsische.de/rss/dippoldiswalde'),
-        #('Döbeln', 'feed://www.saechsische.de/rss/doebeln'),
-        #('Freital', 'feed://www.saechsische.de/rss/freital'),
-        #('Großenhain', 'feed://www.saechsische.de/rss/grossenhain'),
-        #('Görlitz', 'feed://www.saechsische.de/rss/goerlitz'),
-        #('Kamenz', 'feed://www.saechsische.de/rss/kamenz'),
-        #('Löbau', 'feed://www.saechsische.de/rss/loebau'),
-        #('Meißen', 'feed://www.saechsische.de/rss/meissen'),
-        #('Niesky', 'feed://www.saechsische.de/rss/niesky'),
-        #('Pirna', 'feed://www.saechsische.de/rss/pirna'),
-        #('Radeberg', 'feed://www.saechsische.de/rss/radeberg'),
-        #('Radebeul', 'feed://www.saechsische.de/rss/radebeul'),
-        #('Riesa', 'feed://www.saechsische.de/rss/riesa'),
-        #('Sebnitz', 'feed://www.saechsische.de/rss/sebnitz'),
-        #('Zittau', 'feed://www.saechsische.de/rss/zittau'),
+    keep_only_tags = [
+        prefixed_classes('ArticleHeadstyled__ArticleHeader- Articlestyled__ArticleBodyWrapper- ArticleImagestyled__ArticleImage-')
+    ]
+    remove_tags = [
+        prefixed_classes(
+            'CallToActionBasestyled__Container- ArticleDetailsstyled__ArticleDetailsToggleCheckbox-'
+            ' ArticleDetailsstyled__ArticleDetailsToggleButton- ArticleImagestyled__ArticleImageCheckbox-'
+            ' Adstyled__AdWrapper- MoreItemsBlockstyled__TitleWrapper- MoreItemsBlockstyled__MoreItemsBlock-'
+            ' ContentTeaserstyled__Article- Buttonstyled__Button-'),
+        dict(name='source')
     ]
 
-    template_css = '''
-.article_date { color: gray; font-family: monospace;}
-.article_description { text-indent: 0pt; }
-a.article { font-weight: bold; text-align:left; }
-a.feed { font-weight: bold; }
-.calibre_navbar { font-size: 200% !important; }
-'''
+    feeds = [
+         #('Alle Artikel der SZ', 'https://www.saechsische.de/arc/outboundfeeds/rss/'),
+         ('Stadt Dresden',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden'),
+         #('Altstadt',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/altstadt'),
+         #('Blasewitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/blasewitz'),
+         #('Cotta',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/cotta'),
+         #('Klotzsche',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/klotzsche'),
+         #('Leuben',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/leuben'),
+         #('Loschwitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/loschwitz'),
+         #('Neustadt',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/neustadt'),
+         #('Pieschen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/pieschen'),
+         #('Plauen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/plauen'),
+         #('Prohlis',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/prohlis'),
+         #('Cossebaude',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/cossebaude'),
+         #('Langebrück',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/langebrueck'),
+         #('Gompitz/Altfranken',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/gompitz-altfranken'),
+         #('Weixdorf',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/weixdorf'),
+         #('Schönfeld-Weißig',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/dresden/schoenfeld-weissig'),
+         #('Landkreis Bautzen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk'),
+         #('Stadt Bautzen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/bautzen'),
+         #('Bischofswerda',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/bischofswerda'),
+         #('Kamenz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/kamenz'),
+         #('Pulsnitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/pulsnitz'),
+         #('Radeberg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/radeberg'),
+         #('Hoyerswerda',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/hoyerswerda'),
+         #('Bernsdorf',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/bernsdorf'),
+         #('Großröhrsdorf',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/grossroehrsdorf'),
+         #('Lauta',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/lauta'),
+         #('Schirgiswalde-Kirschau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/schirgiswalde-kirschau'),
+         #('Wittichenau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/bautzen-lk/wittichenau'),
+         #('Landkreis Görlitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk'),
+         #('Stadt Görlitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/goerlitz'),
+         #('Niesky',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/niesky'),
+         #('Löbau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/loebau'),
+         #('Zittau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/zittau'),
+         #('Ostritz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/ostritz'),
+         #('Rothenburg/Oberlausitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/rothenburg'),
+         #('Zittauer Gebirge',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/zittauer-gebirge'),
+         #('Vierkirchen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/vierkirchen'),
+         #('Bad Muskau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/bad-muskau'),
+         #('Weißwasser',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/weisswasser'),
+         #('Boxberg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/boxberg'),
+         #('Ebersbach-Neugersdorf',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/ebersbach-neugersdorf'),
+         #('Kodersdorf',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/goerlitz-lk/kodersdorf'),
+         #('Landkreis Sächsische Schweiz-Osterzgebirge',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge'),
+         #('Pirna',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/pirna'),
+         #('Sebnitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/sebnitz'),
+         #('Bad Schandau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/bad-schandau'),
+         #('Bad Gottleuba-Berggießhübel',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/bad-gottleuba-berggiesshuebel'),
+         #('Heidenau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/heidenau'),
+         #('Dippoldiswalde',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/dippoldiswalde'),
+         #('Altenberg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/altenberg'),
+         #('Freital',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/freital'),
+         #('Stolpen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/stolpen'),
+         #('Glashütte',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/glashuette'),
+         #('Wilsdruff',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/wilsdruff'),
+         #('Neustadt in Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/saechsische-schweiz-osterzgebirge/neustadt-in-sachsen'),
+         #('Landkreis Meißen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk'),
+         #('Meißen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/meissen'),
+         #('Radebeul',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/radebeul'),
+         #('Riesa',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/riesa'),
+         #('Großenhain',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/grossenhain'),
+         #('Nossen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/nossen'),
+         #('Lommatzsch',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/lommatzsch'),
+         #('Radeburg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/radeburg'),
+         #('Königsbrücker Heide',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/koenigsbruecker-heide'),
+         #('Weinböhla',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/weinboehla'),
+         #('Moritzburg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/moritzburg'),
+         #('Coswig',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/coswig'),
+         #('Gröditz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/groeditz'),
+         #('Klipphausen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/meissen-lk/klipphausen'),
+         #('Landkreis Mittelsachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen'),
+         #('Döbeln',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/doebeln'),
+         #('Freiberg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/freiberg'),
+         #('Mittweida',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/mittweida'),
+         #('Leisnig',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/leisnig'),
+         #('Waldheim',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/waldheim'),
+         #('Frankenberg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/frankenberg'),
+         #('Großschirma',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/grossschirma'),
+         #('Hainichen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/hainichen'),
+         #('Augustusburg',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/augustusburg'),
+         #('Jahnatal',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/mittelsachsen/jahnatal'),
+         #('Landkreis Zwickau',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/zwickau-lk'),
+         #('Stadt Leipzig',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/leipzig'),
+         #('Chemnitz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/chemnitz'),
+         #('Landkreis Nordsachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/nordsachsen'),
+         #('Landkreis Leipzig',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/leipzig-lk'),
+         #('Erzgebirgskreis',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/erzgebirgskreis'),
+         #('Annaberg-Buchholz',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/erzgebirgskreis/annaberg-buchholz'),
+         #('Seiffen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/erzgebirgskreis/seiffen'),
+         #('Vogtlandkreis',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/vogtland'),
+         #('Plauen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lokales/vogtland/plauen'),
+         #('Tschechien',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/tschechien'),
+         ('Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/sachsen'),
+         #('Der Osten',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/der-osten'),
+         #('Politik in Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/politik/regional'),
+         #('Wirtschaft in Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/wirtschaft/regional'),
+         #('Sport in Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/sport/regional'),
+         #('Dynamo Dresden',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/dynamo-dresden'),
+         #('Outdoor in Sachsen',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/outdoor-in-sachsen'),
+         #('Autobahn 17 (A17)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/autobahn-17-(a17)'),
+         #('Autobahn 4 (A4)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/autobahn-4-(a4)'),
+         #('Autobahn 72 (A72)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/autobahn-72-(a72)'),
+         #('Autobahn 9 (A9)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/autobahn-9-(a9)'),
+         #('Bundesstraße 170 (B170)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/bundesstrasse-170-(b170)'),
+         #('Bundesstraße 178 (B178)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/bundesstrasse-178-(b178)'),
+         #('Bundesstraße 96 (B96)',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/bundesstrasse-96-(b96)'),
+         #('Erzgebirge',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/erzgebirge'),
+         #('Sachsen Freizeit',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/sachsen-freizeit'),
+         #('Sachsen Gastronomie',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/sachsen-gastronomie'),
+         #('Genuss und Kochen',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/genuss-und-kochen'),
+         #('Sächsische Schweiz',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/saechsische-schweiz'),
+         #('Sachsenkompass',  'https://www.saechsische.de/arc/outboundfeeds/rss/tags_slug/sachsenkompass'),
+         ('Politik',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/politik'),
+         ('Wirtschaft',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/wirtschaft'),
+         #('Sport', 'https://www.saechsische.de/arc/outboundfeeds/rss/category/sport'),
+         ('Panorama',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/panorama'),
+         #('Promis', 'https://www.saechsische.de/arc/outboundfeeds/rss/category/promis'),
+         #('Reise', 'https://www.saechsische.de/arc/outboundfeeds/rss/category/reise'),
+         #('Medien & TV',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/medien'),
+         #('Digital',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/digital'),
+         #('Kultur', 'https://www.saechsische.de/arc/outboundfeeds/rss/category/kultur'),
+         #('Wissen', 'https://www.saechsische.de/arc/outboundfeeds/rss/category/wissen'),
+         #('Familie',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/familie'),
+         #('Gesundheit',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/gesundheit'),
+         #('Lifestyle',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/lifestyle'),
+         #('Mobilität',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/mobilitaet'),
+         #('Bauen & Wohnen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/bauen-und-wohnen'),
+         #('Geld & Finanzen',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/geld-und-finanzen'),
+         #('Liebe & Partnerschaft',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/liebe-und-partnerschaft'),
+         #('E-Mobility',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/e-mobility'),
+         #('Beruf & Bildung',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/beruf-und-bildung')
+    ]
 
-    extra_css = '''
-        h2 {margin-top: 0em;}
-    '''
-    keep_only_tags = [
-                        dict(name='article', attrs={'class':'article-detail'}),
-                      ]
-
-    remove_tags = [ classes('article-fill'),
-                    dict(name='div', attrs={'class':'related-articles'}),
-                    dict(name='a', attrs={'class':'article-remember-link'}),
-                    dict(name='a', attrs={'href':'https://www.saechsische.de/dresden'}),
-                    dict(name='a', attrs={'href':'https://www.saechsische.de/content/newsletter-lp?utm_content=dresden_kompakt'}),
-                    dict(name='div', attrs={'class':'article-detail-socials'}),
-                    dict(name='div', attrs={'class':'d-desktop-none'}),
-                    dict(name='div', attrs={'class':'floating-share-icon'}),
-                      ]
 
     def parse_feeds(self):
-        # Call parent's method.
-        feeds = BasicNewsRecipe.parse_feeds(self)
-        # Loop through all feeds.
-        for feed in feeds:
-            # Loop through all articles in feed.
-            for article in feed.articles[:]:
-                # Remove articles with '...' in the url.
-                if '/anzeige/' in article.url:
-                    print('Removing:',article.title)
-                    feed.articles.remove(article)
-                elif 'newsletter-dresden' in article.url:
-                    print('Removing:',article.title)
-                    feed.articles.remove(article)
-                # Remove articles with '...' in the title.
-                elif 'Newsblog' in article.title:
-                    print('Removing:',article.title)
-                    feed.articles.remove(article)
-                elif 'Podcast' in article.title:
-                    print('Removing:',article.title)
-                    feed.articles.remove(article)
-        return feeds
+      # Call parent's method.
+      feeds = BasicNewsRecipe.parse_feeds(self)
+      # Loop through all feeds.
+      for feed in feeds:
+        # Loop through all articles in feed.
+        for article in feed.articles[:]:
+          # Remove articles with '...' in the url.
+          if '/anzeige/' in article.url:
+            print('Removing:',article.title)
+            feed.articles.remove(article)
+          # Remove articles with '...' in the title.
+          elif 'Liveticker' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Liveblog' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Newsblog' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+          elif 'Podcast' in article.title:
+              print('Removing:',article.title)
+              feed.articles.remove(article)
+
+      return feeds
 
     def preprocess_raw_html(self, raw, url):
-        # remove Newsblogs, articles requiring login and advertisements
-        unwanted_article_keywords = ['unser Newsblog', 'Zum Login', '00:00 Uhr',]
-        for keyword in unwanted_article_keywords:
-            if keyword in raw:
-                print('Skipping unwanted article with keyword(s):',keyword)
-                self.abort_article('Skipping unwanted article')
-        return raw
+      # remove Newsblogs, articles requiring login and advertisements
+      unwantedtag='ArticleHeadstyled__ArticleHeadPaidIconContainer'
+      if unwantedtag in raw:
+        print('Skipping unwanted article with tag:',unwantedtag)
+        self.abort_article('Skipping unwanted article')
+
+      unwanted_article_keywords = ['Zum Login']
+      for keyword in unwanted_article_keywords:
+          if keyword in raw:
+            print('Skipping unwanted article with keyword(s):',keyword)
+            #self.abort_article('Skipping unwanted article')
+      return raw
