@@ -19,7 +19,7 @@ def get_id(url):
     return re.search('\?p=(\S+)>', str(rq.info())).group(1)
 
 
-class tls(BasicNewsRecipe):
+class TLS(BasicNewsRecipe):
     title = 'Times Literary Supplement'
     __author__ = 'unkn0wn'
     description = (
@@ -39,7 +39,7 @@ class tls(BasicNewsRecipe):
         .desc { font-style:italic; color:#202020; }
         .auth { font-size:small; }
         em, blockquote { color:#202020; }
-        .det { font-size:small; color:#202020; font-weight:bold; }
+        .det { font-size:small; color:#202020; }
     '''
 
     recipe_specific_options = {
@@ -60,7 +60,7 @@ class tls(BasicNewsRecipe):
         url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
-        self.cover_url = data['featuredimage']['full_image'] + '?w600'
+        self.cover_url = data['featuredimage']['full_image'].split('?')[0] + '?w=600'
         self.timefmt = ' [' + data['issuedateline']['issuedate'] + ']'
         if data['issuedateline']['issuenumber']:
             self.description = 'Issue ' + data['issuedateline']['issuenumber']
@@ -92,6 +92,11 @@ class tls(BasicNewsRecipe):
             desc = 'By ' + re_html(x['byline']['text']) + ' | ' + desc
         self.log('              ', title, '\n\t', desc, '\n\t', url)
         return ({ 'title': title, 'description': desc, 'url': url })
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'src':True}):
+            img['src'] = img['src'].split('?')[0] + '?w=600'
+        return soup
 
     def preprocess_raw_html(self, raw, *a):
         pg = re.search(r'var tlsPageObject = ({.+)', raw).group(1)
