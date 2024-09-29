@@ -85,8 +85,8 @@ CALIBRE_METADATA_FIELDS = frozenset((
     # a dict of user category names, where the value is a list of item names
     # from the book that are in that category
     'user_categories',
-    # a dict of items to associated hyperlink
-    'link_maps',
+    'link_maps',        # a dict of items to associated hyperlink
+    'id',               # the database book id
 ))
 
 ALL_METADATA_FIELDS =      SOCIAL_METADATA_FIELDS.union(
