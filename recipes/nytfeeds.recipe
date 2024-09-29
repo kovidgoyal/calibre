@@ -12,52 +12,52 @@ def extract_json(raw):
     return js['initialData']['data']['article']['sprinkledBody']['content']
 
 def parse_image(i):
-    if i.get('crops'):
-        yield '<div><img src="{}">'.format(i['crops'][0]['renditions'][0]['url'])
-    elif i.get('spanImageCrops'):
-        yield '<div><img src="{}">'.format(i['spanImageCrops'][0]['renditions'][0]['url'])
+    crop = i.get('crops') or i.get('spanImageCrops')
+    if crop:
+        yield f'<div><img src="{crop[0]["renditions"][0]["url"]}" title="{i.get("altText", "")}">'
     if i.get('caption'):
-        yield '<div class="cap">' + ''.join(parse_types(i['caption']))
+        yield f'<div class="cap">{"".join(parse_types(i["caption"]))}'
         if i.get('credit'):
-            yield '<span class="cred"> ' + i['credit'] + '</span>'
+            yield f'<span class="cred"> {i["credit"]}</span>'
         yield '</div>'
+    elif i.get('legacyHtmlCaption'):
+        if i['legacyHtmlCaption'].strip():
+            yield f'<div class="cap">{i["legacyHtmlCaption"]}</div>'
     yield '</div>'
 
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
         yield ''.join(parse_image(grd))
     if g.get('caption'):
-        yield '<div class="cap">{}'.format(g['caption'])
+        yield f'<div class="cap">{g["caption"]}'
         if g.get('credit'):
-            yield '<span class="cred"> ' + g['credit'] + '</span>'
+            yield f'<span class="cred"> {g["credit"]}</span>'
         yield '</div>'
 
 def parse_vid(v):
     if v.get('promotionalMedia'):
-        if v.get('headline'):
-            if v.get('url'):
-                yield '<div><b><a href="{}">Video</a>: '.format(v['url'])\
-                    + v['headline'].get('default', '') + '</b></div>'
-            elif v['headline'].get('default'):
-                yield '<div><b>' + v['headline']['default'] + '</b></div>'
-        yield ''.join(parse_types(v['promotionalMedia']))
+        headline = v.get("headline", {}).get("default", "")
+        rendition = v.get('renditions')
+        yield (f'<div><b><a href="{rendition[0]["url"]}">Video</a>: {headline}</b></div>'
+            if rendition else f'<div><b>{headline}</b></div>')
+        yield ''.join(parse_types(v["promotionalMedia"]))
         if v.get('promotionalSummary'):
-            yield '<div class="cap">' + v['promotionalSummary'] + '</div>'
+            yield f'<div class="cap">{v["promotionalSummary"]}</div>'
 
 def parse_emb(e):
     if e.get('html') and 'datawrapper.dwcdn.net' in e.get('html', ''):
         dw = re.search(r'datawrapper.dwcdn.net/(.{5})', e['html']).group(1)
-        yield '<div><img src="{}">'.format('https://datawrapper.dwcdn.net/' + dw + '/full.png') + '</div>'
+        yield f'<div><img src="https://datawrapper.dwcdn.net/{dw}/full.png"></div>'
     elif e.get('promotionalMedia'):
         if e.get('headline'):
-            yield '<div><b>' + e['headline']['default'] + '</b></div>'
-        yield ''.join(parse_types(e['promotionalMedia']))
+            yield f'<div><b>{e["headline"]["default"]}</b></div>'
+        yield ''.join(parse_types(e["promotionalMedia"]))
         if e.get('note'):
-            yield '<div class="cap">' + e['note'] + '</div>'
+            yield f'<div class="cap">{e["note"]}</div>'
 
 def parse_byline(byl):
     for b in byl.get('bylines', {}):
-        yield '<div>' + b['renderedRepresentation'] + '</div>'
+        yield f'<div>{b["renderedRepresentation"]}</div>'
     yield '<div><b><i>'
     for rl in byl.get('role', {}):
         if ''.join(parse_cnt(rl)).strip():
@@ -70,106 +70,114 @@ def iso_date(x):
 
 def parse_header(h):
     if h.get('label'):
-        yield '<div class="lbl">' + ''.join(parse_types(h['label'])) + '</div>'
+        yield f'<div class="lbl">{"".join(parse_types(h["label"]))}</div>'
     if h.get('headline'):
-        yield ''.join(parse_types(h['headline']))
+        yield ''.join(parse_types(h["headline"]))
     if h.get('summary'):
-        yield '<p><i>' +  ''.join(parse_types(h['summary'])) + '</i></p>'
+        yield f'<p><i>{"".join(parse_types(h["summary"]))}</i></p>'
     if h.get('ledeMedia'):
-        yield ''.join(parse_types(h['ledeMedia']))
+        yield ''.join(parse_types(h["ledeMedia"]))
     if h.get('byline'):
-        yield ''.join(parse_types(h['byline']))
+        yield ''.join(parse_types(h["byline"]))
     if h.get('timestampBlock'):
-        yield ''.join(parse_types(h['timestampBlock']))
+        yield ''.join(parse_types(h["timestampBlock"]))
 
 def parse_fmt_type(fm):
     for f in fm.get('formats', {}):
-        if f.get('__typename', '') == 'BoldFormat':
+        ftype = f.get("__typename", "")
+        if ftype == "BoldFormat":
             yield '<strong>'
-        if f.get('__typename', '') == 'ItalicFormat':
+        if ftype == "ItalicFormat":
             yield '<em>'
-        if f.get('__typename', '') == 'LinkFormat':
-            hrf = f['url']
-            yield '<a href="{}">'.format(hrf)
-    yield fm['text']
+        if ftype == "LinkFormat":
+            hrf = f["url"]
+            yield f'<a href="{hrf}">'
+    yield fm.get("text", "")
     for f in reversed(fm.get('formats', {})):
-        if f.get('__typename', '') == 'BoldFormat':
+        ftype = f.get("__typename", "")
+        if ftype == "BoldFormat":
             yield '</strong>'
-        if f.get('__typename', '') == 'ItalicFormat':
+        if ftype == "ItalicFormat":
             yield '</em>'
-        if f.get('__typename', '') == 'LinkFormat':
+        if ftype == "LinkFormat":
             yield '</a>'
 
 def parse_cnt(cnt):
-    if cnt.get('formats'):
-        yield ''.join(parse_fmt_type(cnt))
-    elif cnt.get('content'):
-        for cnt_ in cnt['content']:
-            yield from parse_types(cnt_)
-    elif cnt.get('text'):
+    for k in cnt:
+        if isinstance(cnt[k], list):
+            if k == 'formats':
+                yield ''.join(parse_fmt_type(cnt))
+            else:
+                for cnt_ in cnt[k]:
+                    yield from parse_types(cnt_)
+        if isinstance(cnt[k], dict):
+            yield from parse_types(cnt[k])
+    if cnt.get('text') and 'formats' not in cnt:
         yield cnt['text']
 
 def parse_types(x):
-    if 'Header' in x.get('__typename', ''):
+    typename = x.get('__typename', '')
+
+    if 'Header' in typename:
         yield '\n'.join(parse_header(x))
 
-    elif x.get('__typename', '') == 'Heading1Block':
-        yield '<h1>' + ''.join(parse_cnt(x)) + '</h1>'
-    elif x.get('__typename', '') in {'Heading2Block', 'Heading3Block', 'Heading4Block'}:
-        yield '<h4>' + ''.join(parse_cnt(x)) + '</h4>'
+    elif typename.startswith('Heading'):
+        htag = 'h' + re.match(r'Heading([1-6])Block', typename).group(1)
+        yield f'<{htag}>{"".join(parse_cnt(x))}</{htag}>'
 
-    elif x.get('__typename', '') == 'ParagraphBlock':
-        yield '<p>' + ''.join(parse_cnt(x)) + '</p>'
+    elif typename == 'ParagraphBlock':
+        yield f'<p>{"".join(parse_cnt(x))}</p>'
 
-    elif x.get('__typename', '') == 'BylineBlock':
-        yield '<div class="byl"><br/>' + ''.join(parse_byline(x)) + '</div>'
-    elif x.get('__typename', '') == 'LabelBlock':
-        yield '<div class="sc">' + ''.join(parse_cnt(x)) + '</div>'
-    elif x.get('__typename', '') == 'BlockquoteBlock':
-        yield '<blockquote>' + ''.join(parse_cnt(x)) + '</blockquote>'
-    elif x.get('__typename', '') == 'TimestampBlock':
-        yield '<div class="time">' + iso_date(x['timestamp']) + '</div>'
-    elif x.get('__typename', '') == 'LineBreakInline':
+    elif typename == 'BylineBlock':
+        yield f'<div class="byl"><br/>{"".join(parse_byline(x))}</div>'
+    elif typename == 'LabelBlock':
+        yield f'<div class="sc">{"".join(parse_cnt(x))}</div>'
+    elif typename == 'BlockquoteBlock':
+        yield f'<blockquote>{"".join(parse_cnt(x))}</blockquote>'
+    elif typename == 'TimestampBlock':
+        yield f'<div class="time">{iso_date(x["timestamp"])}</div>'
+    elif typename == 'LineBreakInline':
         yield '<br/>'
-    elif x.get('__typename', '') == 'RuleBlock':
+    elif typename == 'RuleBlock':
         yield '<hr/>'
 
-    elif x.get('__typename', '') == 'Image':
-        yield ''.join(parse_image(x))
-    elif x.get('__typename', '') == 'ImageBlock':
-        yield ''.join(parse_types(x['media']))
-    elif x.get('__typename', '') == 'GridBlock':
-        yield ''.join(parse_img_grid(x))
+    elif typename in {'ImageBlock', 'VideoBlock', 'InteractiveBlock'}:
+        yield "".join(parse_types(x['media']))
 
-    elif x.get('__typename', '') == 'VideoBlock':
-        yield ''.join(parse_types(x['media']))
-    elif x.get('__typename', '') == 'Video':
-        yield ''.join(parse_vid(x))
-        
-    elif x.get('__typename', '') == 'InteractiveBlock':
-        yield ''.join(parse_types(x['media']))
-    elif x.get('__typename', '') == 'EmbeddedInteractive':
-        yield ''.join(parse_emb(x))
+    elif typename == 'Image':
+        yield "".join(parse_image(x))
 
-    elif x.get('__typename', '') == 'ListBlock':
-        yield '<ul>' + ''.join(parse_cnt(x)) + '</ul>'
-    elif x.get('__typename', '') == 'ListItemBlock':
-        yield '<li>' + ''.join(parse_cnt(x)) + '</li>'
+    elif typename == 'GridBlock':
+        yield "".join(parse_img_grid(x))
 
-    elif x.get('__typename', '') == 'CapsuleBlock':
+    elif typename == 'Video':
+        yield "".join(parse_vid(x))
+
+    elif typename == 'EmbeddedInteractive':
+        yield "".join(parse_emb(x))
+
+    elif typename == 'ListBlock':
+        yield f'<ul>{"".join(parse_cnt(x))}</ul>'
+    elif typename == 'ListItemBlock':
+        yield f'<li>{"".join(parse_cnt(x))}</li>'
+
+    elif typename == 'CapsuleBlock':
         if x['capsuleContent'].get('body'):
-            yield ''.join(parse_cnt(x['capsuleContent']['body']))
-    elif x.get('__typename', '') == 'Capsule':
-        yield ''.join(parse_cnt(x['body']))
+            yield "".join(parse_cnt(x['capsuleContent']['body']))
+    elif typename == 'Capsule':
+        yield "".join(parse_cnt(x['body']))
 
-    elif x.get('__typename', '') in {
-        'TextInline', 'TextOnlyDocumentBlock', 'DocumentBlock', 'SummaryBlock'
+    elif typename in {
+        'TextInline', 'TextOnlyDocumentBlock', 'DocumentBlock', 
+        'SummaryBlock', 'VisualStackBlock'
     }:
-        yield ''.join(parse_cnt(x))
+        yield "".join(parse_cnt(x))
 
-    elif x.get('__typename'):
-        if ''.join(parse_cnt(x)).strip():
-            yield '<p><i>' + ''.join(parse_cnt(x)) + '</i></p>'
+    elif typename and typename not in {'RelatedLinksBlock', 'Dropzone'}:
+        if x.get('media'):
+            yield "".join(parse_types(x['media']))
+        elif "".join(parse_cnt(x)).strip():
+            yield f'<p><i>{"".join(parse_cnt(x))}</i></p>'
 
 def article_parse(data):
     yield "<html><body>"
@@ -178,7 +186,7 @@ def article_parse(data):
     yield "</body></html>"
 
 
-class nytFeeds(BasicNewsRecipe):
+class NytFeeds(BasicNewsRecipe):
     title = 'NYT News'
     __author__ = 'unkn0wn'
     description = (
@@ -236,7 +244,7 @@ class nytFeeds(BasicNewsRecipe):
 
     extra_css = '''
         .byl, .time { font-size:small; color:#202020; }
-        .cap { font-size:small; text-align:center; }
+        .cap { font-size:small; }
         .cred { font-style:italic; font-size:small; }
         em, blockquote { color: #202020; }
         .sc { font-variant: small-caps; }
@@ -305,3 +313,4 @@ class nytFeeds(BasicNewsRecipe):
         if not re.search(r'/video/|/live/|/athletic/|/espanol/|/card/', url):
             return url
         self.log('\tSkipped URL: ', url)
+        return None
