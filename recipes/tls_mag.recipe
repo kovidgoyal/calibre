@@ -60,7 +60,7 @@ class TLS(BasicNewsRecipe):
         url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
-        self.cover_url = data['featuredimage']['full_image'].split('?')[0] + '?w600'
+        self.cover_url = data['featuredimage']['full_image'].split('?')[0] + '?w=600'
         self.timefmt = ' [' + data['issuedateline']['issuedate'] + ']'
         if data['issuedateline']['issuenumber']:
             self.description = 'Issue ' + data['issuedateline']['issuenumber']
