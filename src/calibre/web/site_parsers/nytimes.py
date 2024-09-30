@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 7  # needed for live updates
+module_version = 8  # needed for live updates
 pprint
 
 
@@ -111,11 +111,12 @@ def parse_cnt(cnt):
                 yield ''.join(parse_fmt_type(cnt))
             else:
                 for cnt_ in cnt[k]:
-                    yield from parse_types(cnt_)
+                    yield ''.join(parse_types(cnt_))
         if isinstance(cnt[k], dict):
-            yield from parse_types(cnt[k])
-    if cnt.get('text') and 'formats' not in cnt:
-        yield cnt['text']
+            yield ''.join(parse_types(cnt[k]))
+    if cnt.get('text') and 'formats' not in cnt and 'content' not in cnt:
+        if isinstance(cnt['text'], str):
+            yield cnt['text']
 
 def parse_types(x):
     typename = x.get('__typename', '')
@@ -143,9 +144,6 @@ def parse_types(x):
     elif typename == 'RuleBlock':
         yield '<hr/>'
 
-    elif typename in {'ImageBlock', 'VideoBlock', 'InteractiveBlock'}:
-        yield "".join(parse_types(x['media']))
-
     elif typename == 'Image':
         yield "".join(parse_image(x))
 
@@ -161,25 +159,17 @@ def parse_types(x):
     elif typename == 'ListBlock':
         yield f'<ul>{"".join(parse_cnt(x))}</ul>'
     elif typename == 'ListItemBlock':
-        yield f'<li>{"".join(parse_cnt(x))}</li>'
+        yield f'\n<li>{"".join(parse_cnt(x))}</li>'
 
-    elif typename == 'CapsuleBlock':
-        if x['capsuleContent'].get('body'):
-            yield "".join(parse_cnt(x['capsuleContent']['body']))
-    elif typename == 'Capsule':
-        yield "".join(parse_cnt(x['body']))
-
-    elif typename in {
-        'TextInline', 'TextOnlyDocumentBlock', 'DocumentBlock', 
-        'SummaryBlock', 'VisualStackBlock'
-    }:
+    elif typename == 'TextInline':
         yield "".join(parse_cnt(x))
 
+    elif typename in {'DetailBlock', 'TextRunKV'}:
+        yield f'<p><i>{"".join(parse_cnt(x))}</i></p>'
+
     elif typename and typename not in {'RelatedLinksBlock', 'Dropzone'}:
-        if x.get('media'):
-            yield "".join(parse_types(x['media']))
-        elif "".join(parse_cnt(x)).strip():
-            yield f'<p><i>{"".join(parse_cnt(x))}</i></p>'
+        if "".join(parse_cnt(x)).strip():
+            yield "".join(parse_cnt(x))
 
 def article_parse(data):
     yield "<html><body>"

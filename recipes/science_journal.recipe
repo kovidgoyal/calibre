@@ -92,8 +92,7 @@ class science(BasicNewsRecipe):
 
         feeds = []
 
-        div = soup.find('div', attrs={'class':'toc__body'})
-        for sec in div.findAll('section', **classes('toc__section')):
+        for sec in soup.findAll('section', **classes('toc__section')):
             name = sec.find(**classes('sidebar-article-title--decorated'))
             section = self.tag_to_string(name).strip()
             self.log(section)
