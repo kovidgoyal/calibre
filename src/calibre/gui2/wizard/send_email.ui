@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>585</width>
-    <height>238</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -220,32 +220,6 @@
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextUnderIcon</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="relay_use_hotmail">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Use &amp;Outlook</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/hotmail.png</normaloff>:/images/hotmail.png</iconset>
        </property>
        <property name="iconSize">
         <size>

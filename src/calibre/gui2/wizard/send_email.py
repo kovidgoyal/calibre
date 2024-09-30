@@ -200,7 +200,7 @@ class SendEmail(QWidget, Ui_Form):
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
 
-        for x in ('gmx', 'hotmail'):
+        for x in ('gmx',):
             button = getattr(self, 'relay_use_'+x)
             button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
