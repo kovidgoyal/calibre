@@ -208,11 +208,12 @@ class NatGeo(BasicNewsRecipe):
             articles = ans.setdefault(section, [])
             articles.append({'title': title, 'url': url})
         for promo in soup.findAll(**classes('OneUpPromoCard__Content')):
-            url = promo.a['href']
-            section = self.tag_to_string(promo.find(**classes('SectionLabel')))
-            title = self.tag_to_string(promo.find(**classes('Card__Content__Heading')))
-            articles = ans.setdefault(section, [])
-            articles.append({'title': title, 'url': url})
+            if promo.find('a', attrs={'href': True}):
+                url = promo.a['href']
+                section = self.tag_to_string(promo.find(**classes('SectionLabel')))
+                title = self.tag_to_string(promo.find(**classes('Card__Content__Heading')))
+                articles = ans.setdefault(section, [])
+                articles.append({'title': title, 'url': url})
         for gird in soup.findAll(attrs={'class':'GridPromoTile'}):
             for article in soup.findAll('article'):
                 a = article.find('a')
