@@ -564,6 +564,8 @@ if has_ssl_verify:
 
         def __init__(self, ssl_version, *args, **kwargs):
             kwargs['context'] = ssl.create_default_context(cafile=kwargs.pop('cert_file'))
+            if hasattr(ssl, 'VERIFY_X509_STRICT'):
+                kwargs['context'].verify_flags &= ~ssl.VERIFY_X509_STRICT
             httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
     class HTTPSConnection(httplib.HTTPSConnection):
