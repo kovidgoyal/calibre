@@ -105,7 +105,7 @@ def split_into_sentences_for_tts(
     pending_start, pending_sentence = 0, ''
     for start, length in sentence_positions(text, lang):
         end = start + length
-        sentence = text[start:start+length].rstrip().replace('\n', ' ').strip()
+        sentence = text[start:end].rstrip().replace('\n', ' ').strip()
         if not sentence:
             continue
         if len(sentence) < min_sentence_length and text[end-1] != PARAGRAPH_SEPARATOR:
