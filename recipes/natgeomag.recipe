@@ -208,7 +208,7 @@ class NatGeo(BasicNewsRecipe):
             articles = ans.setdefault(section, [])
             articles.append({'title': title, 'url': url})
         for promo in soup.findAll(**classes('OneUpPromoCard__Content')):
-            if promo.find('a', attrs={'href': True}):
+            if promo.find('a', attrs={'href': True}) and promo.a.get('href'):
                 url = promo.a['href']
                 section = self.tag_to_string(promo.find(**classes('SectionLabel')))
                 title = self.tag_to_string(promo.find(**classes('Card__Content__Heading')))
