@@ -850,8 +850,9 @@ def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
 
 def check_for_recent_freetype():
     import ctypes
+    f = None
     try:
-        f = ctypes.CDLL('libfreetype.so')
+        f = ctypes.CDLL('libfreetype.so.6')
     except OSError:
         raise SystemExit('Your system is missing the FreeType library libfreetype.so. Try installing the freetype package.')
     try:
