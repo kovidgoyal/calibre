@@ -162,7 +162,7 @@ def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
                 return True
         return False
 
-    root_lang = lang_for_elem(root, canonicalize_lang(lang or get_lang()))
+    root_lang = lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'eng'
     seen_ids = set(root.xpath('//*/@id'))
     id_counter = 1
     ans = []
