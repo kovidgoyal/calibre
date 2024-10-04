@@ -167,7 +167,7 @@ class Voices(QTreeWidget):
 
     def set_item_downloaded_state(self, ans: QTreeWidgetItem) -> None:
         voice = ans.data(0, Qt.ItemDataRole.UserRole)
-        is_downloaded = bool(voice.engine_data and voice.engine_data.get('is_downloaded'))
+        is_downloaded = bool(voice and voice.engine_data and voice.engine_data.get('is_downloaded'))
         ans.setFont(0, self.highlight_font if is_downloaded else self.normal_font)
 
     def set_voices(self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata) -> None:
