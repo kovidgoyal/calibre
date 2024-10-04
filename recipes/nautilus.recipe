@@ -1,40 +1,42 @@
 #!/usr/bin/env  python
-'''
+"""
 nautil.us
-'''
+"""
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Nautilus(BasicNewsRecipe):
-    title = u'Nautilus Magazine'
+    title = 'Nautilus Magazine'
     language = 'en_US'
     __author__ = 'unkn0wn'
-    oldest_article = 45  # days
+    oldest_article = 30  # days
     max_articles_per_feed = 50
     description = (
         'Nautilus is a different kind of science magazine. Our stories take you into the depths'
         ' of science and spotlight its ripples in our lives and cultures. We believe any subject in science,'
-        ' no matter how complex, can be explained with clarity and vitality.')
+        ' no matter how complex, can be explained with clarity and vitality.'
+    )
     no_stylesheets = True
     use_embedded_content = False
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Nautilus.svg/640px-Nautilus.svg.png'
     remove_attributes = ['height', 'width']
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
-    extra_css = '''
+    extra_css = """
         .article-list_item-byline{font-size:small;}
         blockquote{color:#404040; text-align:center;}
         #fig-c{font-size:small;}
         em{color:#202020;}
         .breadcrumb{color:gray; font-size:small;}
         .article-author{font-size:small;}
-    '''
+    """
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -48,8 +50,9 @@ class Nautilus(BasicNewsRecipe):
 
     remove_tags = [
         classes(
-            'article-action-list article-bottom-newsletter_box main-post-comments-toggle-wrap main-post-comments-wrapper'
-            ' social-share supported-one article-collection_box browsi-ad'
+            'article-action-list article-bottom-newsletter_box article-ad article-ad__cta '
+            'main-post-comments-toggle-wrap main-post-comments-wrapper primis-ad '
+            'social-share supported-one article-collection_box browsi-ad'
         )
     ]
 
@@ -80,13 +83,25 @@ class Nautilus(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://nautil.us/shop/category/issues/')
-        a = soup.find('a', attrs={'href':lambda x: x and x.startswith('https://nautil.us/shop/issues/issue-')})
+        a = soup.find(
+            'a',
+            attrs={
+                'href': lambda x: x
+                and x.startswith('https://nautil.us/shop/issues/issue-')
+            },
+        )
         if a:
             listing_url = a['href']
             listing_soup = self.index_to_soup(listing_url)
             listing = listing_soup.find('div', {'class': 'product'})
             if listing:
-                imgs = listing.find_all('img', attrs={'src':lambda x: x and x.startswith('https://assets.nautil.us/sites/3/nautilus/')})
+                imgs = listing.find_all(
+                    'img',
+                    attrs={
+                        'src': lambda x: x
+                        and x.startswith('https://assets.nautil.us/sites/3/nautilus/')
+                    },
+                )
                 if len(imgs) > 1:
                     self.cover_url = imgs[1]['src'].split('?')[0]
         return getattr(self, 'cover_url', self.cover_url)
@@ -95,12 +110,21 @@ class Nautilus(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0]
         for figcaption in soup.findAll('figcaption'):
-            figcaption['id']='fig-c'
-        for ul in soup.findAll('ul', attrs={'class':
-            ['breadcrumb', 'article-list_item-byline', 'channel-article-author', 'article-author']}):
+            figcaption['id'] = 'fig-c'
+        for ul in soup.findAll(
+            'ul',
+            attrs={
+                'class': [
+                    'breadcrumb',
+                    'article-list_item-byline',
+                    'channel-article-author',
+                    'article-author',
+                ]
+            },
+        ):
             ul.name = 'span'
             for li in ul.findAll('li'):
                 li.name = 'p'
-        for img in soup.findAll('img', attrs={'srcset':True}):
+        for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split(',')[-1].split()[0]
         return soup
