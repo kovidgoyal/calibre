@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict
+from contextlib import suppress
 from threading import Lock
 from typing import NamedTuple
 
@@ -133,9 +134,12 @@ class Sentence(NamedTuple):
     elem_id: str
     text: str
     lang: str
+    voice : str
 
 
-def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
+def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Sentence]:
+    import json
+
     from lxml.etree import ElementBase as Element
     from lxml.etree import tostring as _tostring
 
@@ -162,7 +166,8 @@ def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
                 return True
         return False
 
-    root_lang = lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'eng'
+    root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'en')
+    root_voice = voice
     seen_ids = set(root.xpath('//*/@id'))
     id_counter = 1
     ans = []
@@ -177,10 +182,18 @@ def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
 
     class Parent:
 
-        def __init__(self, elem, tag_name, parent_lang, child_lang=''):
+        def __init__(self, elem, tag_name, parent_lang, parent_voice, child_lang=''):
             self.elem = elem
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
+            q = elem.get('data-calibre-tts', '')
+            self.voice = parent_voice
+            if q.startswith('{'):  # }
+                with suppress(Exception):
+                    q = json.loads(q)
+                    self.voice = q.get('voice') or parent_voice
+            else:
+                self.voice = q or parent_voice
             self.pos = 0
             self.texts = []
             if elem.text and elem.text.strip():
@@ -205,7 +218,7 @@ def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
             self.pos = 0
             for start, length in sentence_positions(text, self.lang):
                 elem_id = self.wrap_sentence(start, length)
-                ans.append(Sentence(elem_id, text[start:start+length], lang))
+                ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
             self.texts = []
             self.pos = 0
 
@@ -413,22 +426,23 @@ def mark_sentences_in_html(root, lang: str = '') -> list[Sentence]:
                 self.pos += 1
             return w.get('id')
 
-    stack_of_parents = [Parent(elem, 'body', root_lang) for elem in root.iterchildren('*') if barename(elem.tag).lower() == 'body']
+    stack_of_parents = [Parent(elem, 'body', root_lang, root_voice) for elem in root.iterchildren('*') if barename(elem.tag).lower() == 'body']
     while stack_of_parents:
         p = stack_of_parents.pop()
         if len(p.elem) == 1 and not has_text(p.elem):  # wrapper
             c = p.elem[0]
             if isinstance(c.tag, str):
-                stack_of_parents.append(Parent(c, barename(c.tag).lower(), p.lang))
+                stack_of_parents.append(Parent(c, barename(c.tag).lower(), p.lang, p.voice))
             continue
         for i in range(p.child_pos, len(p.children)):
             child = p.children[i]
+            child_voice = child.get('data-calibre-tts', '')
             child_lang = lang_for_elem(child, p.lang)
             child_tag_name = barename(child.tag).lower() if isinstance(child.tag, str) else ''
-            if child_lang == p.lang and child_tag_name in continued_tag_names and len(child) == 0:
+            if child_lang == p.lang and child_voice == p.voice and child_tag_name in continued_tag_names and len(child) == 0:
                 p.add_simple_child(child)
             elif child_tag_name not in ignored_tag_names:
-                stack_of_parents.append(Parent(child, child_tag_name, p.lang, child_lang))
+                stack_of_parents.append(Parent(child, child_tag_name, p.lang, p.voice, child_lang=child_lang))
                 p.commit()
                 p.child_pos = i + 1
                 stack_of_parents.append(p)

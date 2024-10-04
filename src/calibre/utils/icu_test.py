@@ -300,6 +300,12 @@ class TestICU(unittest.TestCase):
 
             '<p><i>Hello, </i><b>world</b>! Good day to you':
             '<body><p><span id="1"><i>Hello, </i><b>world</b>! </span><span id="2">Good day to you</span></p>',
+
+            '<p>Hello, <span lang="fr">world!':
+            '<body><p><span id="1">Hello, </span><span lang="fr"><span id="2">world!</span></span></p>',
+
+            '<p>Hello, <span data-calibre-tts="moose">world!':
+            '<body><p><span id="1">Hello, </span><span data-calibre-tts="moose"><span id="2">world!</span></span></p>',
         }.items()):
             root = parse(text, namespace_elements=True)
             mark_sentences_in_html(root)
@@ -308,6 +314,8 @@ class TestICU(unittest.TestCase):
             actual = actual[:actual.rfind('</body>')]
             actual = actual.replace('cttsw-', '')
             self.ae(expected, actual)
+        sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
+        self.ae(tuple(s.lang for s in sentences), ('eng', 'fra'))
 
 
 
