@@ -24,7 +24,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
 
-    extra_css = '''
+    extra_css = """
         .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
@@ -32,7 +32,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
         img { display:block; margin:0 auto; }
-    '''
+    """
 
     articles_are_obfuscated = use_wayback_machine
 
@@ -58,17 +58,18 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         return self.index_to_soup(url, raw=True)
 
     def preprocess_raw_html(self, raw_html, url):
-        if '/interactive/' in url:
-            return '<html><body><p><em>'\
-                + 'This is an interactive article, which is supposed to be read in a browser.'\
-                    + '</p></em></body></html>'
-        html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))
-        return html
+        return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
     recipe_specific_options = {
         'res': {
-            'short': 'For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo',
-            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use articleInline.',
+            'short': (
+                'For hi-res images, select a resolution from the following\noptions: '
+                'popup, jumbo, mobileMasterAt3x, superJumbo'
+            ),
+            'long': (
+                'This is useful for non e-ink devices, and for a lower file size\nthan '
+                'the default, use mediumThreeByTwo440, mediumThreeByTwo225, articleInline.'
+            ),
         },
         'comp': {
             'short': 'Compress News Images?',

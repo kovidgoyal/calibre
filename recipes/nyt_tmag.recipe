@@ -1,19 +1,16 @@
 #!/usr/bin/env python
-import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 use_wayback_machine = False
 
 
-class NytFeeds(BasicNewsRecipe):
-    title = 'NYT News'
+class NytMag(BasicNewsRecipe):
+    title = 'NYT T Magazine'
     __author__ = 'unkn0wn'
-    description = (
-        'The New York Times is dedicated to helping people understand the world through '
-        'on-the-ground, expert and deeply reported independent journalism. Feeds based recipe.'
-    )
-    oldest_article = 1
+    description = 'The latest from The New York Times Style Magazine.'
+    oldest_article = 30  # days
     encoding = 'utf-8'
     use_embedded_content = False
     language = 'en_US'
@@ -22,36 +19,10 @@ class NytFeeds(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'https://static01.nytimes.com/newsgraphics/2015-12-23-masthead-2016/b15c3d81d3d7b59065fff9a3f3afe85aa2e2dff5/_assets/nyt-logo.png'
 
-    # https://www.nytimes.com/rss
-    # https://developer.nytimes.com/docs/rss-api/1/overview
     feeds = [
-        # to filter out all opinions from other sections first
-        'https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/US.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml',
-        # 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml',
-        # 'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
-        # 'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
-        # 'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
-        'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml',
-        # 'http://nytimes.com/timeswire/feeds/',
+        'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
     ]
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-new-york-times/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
 
     recipe_specific_options = {
         'days': {
@@ -154,11 +125,3 @@ class NytFeeds(BasicNewsRecipe):
             for p in c.findAll(['p', 'div']):
                 p.name = 'span'
         return soup
-
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        # you can remove '|/espanol/' from code below to include spanish articles.
-        if not re.search(r'/video/|/live/|/athletic/|/espanol/|/card/', url):
-            return url
-        self.log('\tSkipped URL: ', url)
-        return None
