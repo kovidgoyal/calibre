@@ -37,7 +37,7 @@ class Region(QDialog):
         h.valueChanged.connect(self.value_changed)
         l.addRow(_('&Height:'), h)
         self.ratio_input = r = QDoubleSpinBox(self)
-        r.setRange(0.0, 5.00), r.setDecimals(2), r.setValue(max_width/max_height), r.setToolTip('For example, use 0.75 for kindle devices.')
+        r.setRange(0.0, 5.00), r.setDecimals(2), r.setValue(max_width/max_height), r.setSingleStep(0.01), r.setToolTip('For example, use 0.75 for kindle devices.')
         self.m_width = max_width
         self.m_height = max_height
         r.valueChanged.connect(self.aspect_changed)
