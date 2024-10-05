@@ -135,7 +135,7 @@ def parse_types(x):
 
     align = ''
     if x.get('textAlign'):
-        align = f' style="text-align: {x['textAlign'].lower()};"'
+        align = f' style="text-align: {x["textAlign"].lower()};"'
 
     if 'Header' in typename:
         yield '\n'.join(parse_header(x))
