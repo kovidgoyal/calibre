@@ -120,13 +120,11 @@ class Fokus(BasicNewsRecipe):
                 if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
                     swedish_date_str = self.tag_to_string(time_tag)
                     datetime_str = time_tag['datetime']
-                    datetime_time = datetime.strptime(
-                        datetime_str, '%Y-%m-%dT%H:%M:%S%z')
+                    datetime_time = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S%z')
                     now = datetime.now(timezone.utc)
                     delta = now - datetime_time
                     if delta.days > self.max_age:
-                        self.log.debug(
-                            f"\tSkipping article '{title}' as it is too old")
+                        self.log.debug(f"\tSkipping article '{title}' as it is too old")
                     else:
                         if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
                             desc = self.tag_to_string(desc_tag)
