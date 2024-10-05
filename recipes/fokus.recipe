@@ -91,7 +91,7 @@ class Fokus(BasicNewsRecipe):
         # Identify all unique <li> tags of class 'menu-item-type-taxonomy'. The class subsetting excludes sections that
         # are not suited for reading, e.g., the "Podcast" and "Läs E-Tidningen" sections.
         unique_urls = set()
-        urls_and_section_names = list()
+        section_urls_and_names = []
         for li_tag in soup.find_all('li', class_='menu-item-type-taxonomy'):
             # The <li> tag contains (should contain) an <a> anchor that in turn contains the URL and link name.
             a_tag = li_tag.find('a')
@@ -104,10 +104,10 @@ class Fokus(BasicNewsRecipe):
             unique_urls.add(url)
 
             self.log(f"Identified section '{link_name}' at URL '{url}'")
-            urls_and_section_names.append((url, link_name))
+            section_urls_and_names.append((url, link_name))
 
-        self.log(f'Identified a total of {len(urls_and_section_names)} unique sections.')
-        return urls_and_section_names
+        self.log(f'Identified a total of {len(section_urls_and_names)} unique sections.')
+        return section_urls_and_names
 
     def parse_article_blurb(self, article_blurb):
         desc = ''
