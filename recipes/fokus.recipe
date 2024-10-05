@@ -121,11 +121,12 @@ class Fokus(BasicNewsRecipe):
                         return {'title': title, 'url': url, 'description': desc, 'date': swedish_date_str}
 
     def parse_web_section(self, soup, slug):
-        def log(article):
+        def _log(article):
             log_message = f"\t{article['title']} : {article['date']} : {article['url']}"
             if article.get('description'):
                 log_message += f" : {article['description']}"
             self.log(log_message)
+
         try:
             article_blurbs = soup.find_all('article', {'class': 'Blurb'})
         except AttributeError:
