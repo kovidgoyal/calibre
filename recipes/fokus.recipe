@@ -74,37 +74,37 @@ class Fokus(BasicNewsRecipe):
             br.submit()
         return br
 
-    def get_web_sections(self, main_url: str) -> list[tuple[str, str]]:
-        """Return a list of tuples of (1) the URL and (2) the name of each section found on the Fokus website.
+    def get_web_sections(self, main_url: str) -> dict[str, str]:
+        """Return a dict of (1) section URL and (2) section name key-value pairs found at `main_url`.
 
-        For example, if the Fokus website currently includes an 'Aktuellt' section, create a
-        `('https://www.fokus.se/aktuellt', 'Aktuellt')` tuple.
+        For example, if the Fokus website currently includes an 'Aktuellt' section, the dict should include an entry on
+        the form: `{'https://www.fokus.se/aktuellt': 'Aktuellt'}`.
 
         Args:
             main_url (str): The entrypoint URL of the Fokus website.
 
         Yields:
-            list[tuple[str, str]]: Pairs of (1) the URL and (2) the human-readable name of each Fokus section.
+            dict[str, str]: (1) URLs and (2) human-readable names of Fokus sections.
         """
         soup = self.index_to_soup(main_url)
 
         # Identify all unique <li> tags of class 'menu-item-type-taxonomy'. The class subsetting excludes sections that
         # are not suited for reading, e.g., the "Podcast" and "Läs E-Tidningen" sections.
-        unique_urls = set()
-        section_urls_and_names = []
+        section_urls_and_names = {}
         for li_tag in soup.find_all('li', class_='menu-item-type-taxonomy'):
             # The <li> tag contains (should contain) an <a> anchor that in turn contains the URL and link name.
             a_tag = li_tag.find('a')
             url = a_tag.get('href').rstrip('/')
-            link_name = a_tag.text.strip()
+            section_name = a_tag.text.strip()
 
-            # Skip this <li> tag as we have already extracted its URL and link name from another <li> tag.
-            if url in unique_urls:
-                continue
-            unique_urls.add(url)
+            if url in section_urls_and_names:
+                # If this section URL has already been extracted from another <li> tag, it can be the case that the
+                # section name differs within this duplicate pair. In this case, use whichever section name is longer.
+                if len(section_name) >= len(section_urls_and_names[url]):
+                    section_urls_and_names[url] = section_name
 
-            self.log(f"Identified section '{link_name}' at URL '{url}'")
-            section_urls_and_names.append((url, link_name))
+            self.log(f"Identified section '{section_name}' at URL '{url}'")
+            section_urls_and_names[url] = section_name
 
         self.log(f'Identified a total of {len(section_urls_and_names)} unique sections.')
         return section_urls_and_names
@@ -152,7 +152,7 @@ class Fokus(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        for section_url, section_title in self.get_web_sections(self.main_url):
+        for section_url, section_title in self.get_web_sections(self.main_url).items():
             try:
                 soup = self.index_to_soup(section_url)
             except Exception:
