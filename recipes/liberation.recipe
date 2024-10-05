@@ -10,9 +10,10 @@ import time
 from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode, urlparse
 
+from mechanize import Request
+
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
-from mechanize import Request
 
 
 def resize(x):
