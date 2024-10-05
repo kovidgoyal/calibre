@@ -38,7 +38,7 @@ class Fokus(BasicNewsRecipe):
     description = "The last 7 days of news and articles from the Swedish current-affairs magazine 'Fokus'"
     encoding = 'utf-8'
     __author__ = 'Henrik Holm (https://github.com/h-holm)'
-    language = 'se'
+    language = 'sv'
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'https://cdn.fokus.se/app/uploads/fokus/2022/05/12214931/fokus-logo.svg'
     no_stylesheets = True
