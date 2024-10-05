@@ -15,10 +15,12 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
 
 CONFIG_NAME = 'tts'
+TTS_EMBEDED_CONFIG = 'tts-embedded'
+
 
 @lru_cache(2)
-def load_config() -> JSONConfig:
-    return JSONConfig(CONFIG_NAME)
+def load_config(config_name=CONFIG_NAME) -> JSONConfig:
+    return JSONConfig(config_name)
 
 
 class TrackingCapability(Enum):
@@ -124,6 +126,7 @@ class EngineSpecificSettings(NamedTuple):
     output_module: str = ''
     engine_name: str = ''
     sentence_delay: float = 0  # seconds >= 0
+    preferred_voices: dict[str, str] | None = None
 
     @classmethod
     def create_from_prefs(cls, engine_name: str, prefs: dict[str, object]) -> 'EngineSpecificSettings':
@@ -147,13 +150,15 @@ class EngineSpecificSettings(NamedTuple):
         sentence_delay = 0.
         with suppress(Exception):
             sentence_delay = max(0, float(prefs.get('sentence_delay')))
+        with suppress(Exception):
+            preferred_voices = prefs.get('preferred_voices')
         return EngineSpecificSettings(
-            voice_name=str(prefs.get('voice', '')), output_module=om, sentence_delay=sentence_delay,
+            voice_name=str(prefs.get('voice', '')), output_module=om, sentence_delay=sentence_delay, preferred_voices=preferred_voices,
             audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
 
     @classmethod
-    def create_from_config(cls, engine_name: str) -> 'EngineSpecificSettings':
-        prefs = load_config().get('engines', {}).get(engine_name, {})
+    def create_from_config(cls, engine_name: str, config_name: str = CONFIG_NAME) -> 'EngineSpecificSettings':
+        prefs = load_config(config_name).get('engines', {}).get(engine_name, {})
         return cls.create_from_prefs(engine_name, prefs)
 
     @property
@@ -173,10 +178,12 @@ class EngineSpecificSettings(NamedTuple):
             ans['output_module'] = self.output_module
         if self.sentence_delay:
             ans['sentence_delay'] = self.sentence_delay
+        if self.preferred_voices:
+            ans['preferred_voices'] = self.preferred_voices
         return ans
 
-    def save_to_config(self, prefs:JSONConfig | None = None):
-        prefs = prefs or load_config()
+    def save_to_config(self, prefs:JSONConfig | None = None, config_name: str = CONFIG_NAME):
+        prefs = prefs or load_config(config_name)
         val = self.as_dict
         engines = prefs.get('engines', {})
         if not val:
@@ -307,10 +314,10 @@ class TTSBackend(QObject):
 engine_instances: dict[str, TTSBackend] = {}
 
 
-def create_tts_backend(force_engine: str | None = None) -> TTSBackend:
+def create_tts_backend(force_engine: str | None = None, config_name: str = CONFIG_NAME) -> TTSBackend:
     if not available_engines():
         raise OSError('There are no available TTS engines. Install a TTS engine before trying to use Read Aloud, such as flite or speech-dispatcher')
-    prefs = load_config()
+    prefs = load_config(config_name)
     engine_name = prefs.get('engine', '') if force_engine is None else force_engine
     engine_name = engine_name or default_engine_name()
     if engine_name not in available_engines():

@@ -2,7 +2,9 @@
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import (
+    QAbstractItemView,
     QCheckBox,
+    QDialog,
     QDoubleSpinBox,
     QFont,
     QFormLayout,
@@ -14,6 +16,8 @@ from qt.core import (
     QPushButton,
     QSize,
     QSlider,
+    QStyle,
+    QStyleOptionViewItem,
     Qt,
     QTreeWidget,
     QTreeWidgetItem,
@@ -23,6 +27,7 @@ from qt.core import (
 )
 
 from calibre.gui2.tts.types import (
+    TTS_EMBEDED_CONFIG,
     AudioDeviceId,
     EngineMetadata,
     EngineSpecificSettings,
@@ -153,7 +158,8 @@ class Voices(QTreeWidget):
 
     voice_changed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, for_embedding=False):
+        self.for_embedding = for_embedding
         super().__init__(parent)
         self.setHeaderHidden(True)
         self.system_default_voice = Voice()
@@ -161,6 +167,34 @@ class Voices(QTreeWidget):
         self.normal_font = f = self.font()
         self.highlight_font = f = QFont(f)
         f.setBold(True), f.setItalic(True)
+        self.ignore_item_changes = False
+        if self.for_embedding:
+            self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+            self.itemChanged.connect(self.item_changed)
+
+    def item_changed(self, item: QTreeWidgetItem, column: int):
+        if column == 0 and item.parent() is not self.invisibleRootItem() and not self.ignore_item_changes:
+            if item.checkState(0) == Qt.CheckState.Checked:
+                p = item.parent()
+                for child in (p.child(i) for i in range(p.childCount())):
+                    if child is not item and child.checkState(0) == Qt.CheckState.Checked:
+                        self.ignore_item_changes = True
+                        child.setCheckState(0, Qt.CheckState.Unchecked)
+                        self.ignore_item_changes = False
+
+    def mousePressEvent(self, event):
+        item = self.itemAt(event.pos())
+        if self.for_embedding and item and item.parent() is not self.invisibleRootItem():
+            rect = self.visualItemRect(item)
+            x = event.pos().x() - (rect.x() + self.frameWidth())
+            option = QStyleOptionViewItem()
+            self.initViewItemOption(option)
+            option.rect = rect
+            option.features |= QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
+            checkbox_rect = self.style().subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
+            if x > checkbox_rect.width():
+                item.setCheckState(0, Qt.CheckState.Checked if item.checkState(0) != Qt.CheckState.Checked else Qt.CheckState.Unchecked)
+        super().mousePressEvent(event)
 
     def sizeHint(self) -> QSize:
         return QSize(400, 500)
@@ -170,8 +204,14 @@ class Voices(QTreeWidget):
         is_downloaded = bool(voice and voice.engine_data and voice.engine_data.get('is_downloaded'))
         ans.setFont(0, self.highlight_font if is_downloaded else self.normal_font)
 
-    def set_voices(self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata) -> None:
+    def set_voices(
+        self, all_voices: tuple[Voice, ...], current_voice: str, engine_metadata: EngineMetadata,
+        preferred_voices: dict[str, str] | None = None
+    ) -> None:
         self.clear()
+        if self.for_embedding:
+            current_voice = ''
+            preferred_voices = preferred_voices or {}
         current_item = None
         def qv(parent, voice):
             nonlocal current_item
@@ -179,11 +219,15 @@ class Voices(QTreeWidget):
             ans = QTreeWidgetItem(parent, [text])
             ans.setData(0, Qt.ItemDataRole.UserRole, voice)
             ans.setToolTip(0, voice.tooltip(engine_metadata))
+            if self.for_embedding:
+                ans.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+                ans.setCheckState(0, Qt.CheckState.Unchecked)
             if current_voice == voice.name:
                 current_item = ans
             self.set_item_downloaded_state(ans)
             return ans
-        qv(self.invisibleRootItem(), self.system_default_voice)
+        if not self.for_embedding:
+            qv(self.invisibleRootItem(), self.system_default_voice)
         vmap = {}
         for v in all_voices:
             vmap.setdefault(v.language_code, []).append(v)
@@ -197,9 +241,12 @@ class Voices(QTreeWidget):
             parent = parent_map.get(langcode)
             if parent is None:
                 parent_map[langcode] = parent = QTreeWidgetItem(self.invisibleRootItem(), [lang(langcode)])
-                parent.setFlags(parent.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+                parent.setFlags(parent.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsUserCheckable)
+                parent.setData(0, Qt.ItemDataRole.UserRole, langcode)
             for voice in vmap[langcode]:
-                qv(parent, voice)
+                v = qv(parent, voice)
+                if self.for_embedding and voice.name and preferred_voices.get(langcode) == voice.name:
+                    v.setCheckState(0, Qt.CheckState.Checked)
         if current_item is not None:
             self.setCurrentItem(current_item)
 
@@ -207,6 +254,19 @@ class Voices(QTreeWidget):
     def val(self) -> str:
         voice = self.current_voice
         return voice.name if voice else ''
+
+    @property
+    def preferred_voices(self) -> dict[str, str] | None:
+        r = self.invisibleRootItem()
+        ans = {}
+        for parent in (r.child(i) for i in range(r.childCount())):
+            langcode = parent.data(0, Qt.ItemDataRole.UserRole)
+            for child in (parent.child(i) for i in range(parent.childCount())):
+                if child.checkState(0) == Qt.CheckState.Checked:
+                    voice = child.data(0, Qt.ItemDataRole.UserRole)
+                    if voice.name:
+                        ans[langcode] = voice.name
+        return ans or None
 
     @property
     def current_voice(self) -> Voice | None:
@@ -224,8 +284,9 @@ class EngineSpecificConfig(QWidget):
 
     voice_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget = None, for_embedding: bool = False):
         super().__init__(parent)
+        self.for_embedding = for_embedding
         self.engine_name = ''
         self.l = l = QFormLayout(self)
         devs = QMediaDevices.audioOutputs()
@@ -249,9 +310,9 @@ class EngineSpecificConfig(QWidget):
         l.addRow(v)
         self.audio_device = ad = QComboBox(self)
         l.addRow(_('Output a&udio to:'), ad)
-        self.voices = v = Voices(self)
+        self.voices = v = Voices(self, self.for_embedding)
         v.voice_changed.connect(self.voice_changed)
-        la = QLabel(_('V&oices:'))
+        la = QLabel(_('Choose &default voice for language:') if self.for_embedding else _('V&oices:'))
         la.setBuddy(v)
         l.addRow(la)
         l.addRow(v)
@@ -265,7 +326,10 @@ class EngineSpecificConfig(QWidget):
         tts = create_tts_backend(force_engine=engine_name)
         if engine_name not in self.voice_data:
             self.voice_data[engine_name] = tts.available_voices
-            self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name)
+            if self.for_embedding:
+                self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name, TTS_EMBEDED_CONFIG)
+            else:
+                self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name)
             self.default_output_modules[engine_name] = tts.default_output_module
         self.output_module.blockSignals(True)
         self.output_module.clear()
@@ -292,7 +356,7 @@ class EngineSpecificConfig(QWidget):
             self.pitch.val = 0
             self.layout().setRowVisible(self.pitch, False)
         self.layout().setRowVisible(self.pitch, metadata.can_change_pitch)
-        if metadata.can_change_volume:
+        if metadata.can_change_volume and not self.for_embedding:
             self.layout().setRowVisible(self.volume, True)
             self.volume.val = s.volume
         else:
@@ -301,7 +365,7 @@ class EngineSpecificConfig(QWidget):
         if metadata.has_sentence_delay:
             self.sentence_delay.val = s.sentence_delay
         self.audio_device.clear()
-        if metadata.allows_choosing_audio_device:
+        if metadata.allows_choosing_audio_device and not self.for_embedding:
             self.audio_device.addItem(_('System default (currently {})').format(self.default_audio_device.description), '')
             for ad in self.all_audio_devices:
                 self.audio_device.addItem(ad.description, ad.id.hex())
@@ -324,12 +388,16 @@ class EngineSpecificConfig(QWidget):
         if metadata.has_multiple_output_modules:
             output_module = output_module or self.default_output_modules[self.engine_name]
         all_voices = self.voice_data[self.engine_name][output_module]
-        self.voices.set_voices(all_voices, s.voice_name, metadata)
+        self.voices.set_voices(all_voices, s.voice_name, metadata, s.preferred_voices)
 
     def as_settings(self) -> EngineSpecificSettings:
         ans = EngineSpecificSettings(
             engine_name=self.engine_name,
-            rate=self.rate.val, voice_name=self.voices.val, pitch=self.pitch.val, volume=self.volume.val)
+            rate=self.rate.val, pitch=self.pitch.val, volume=self.volume.val)
+        if self.for_embedding:
+            ans = ans._replace(preferred_voices=self.voices.preferred_voices)
+        else:
+            ans = ans._replace(voice_name=self.voices.val)
         metadata = available_engines()[self.engine_name]
         if metadata.has_sentence_delay:
             ans = ans._replace(sentence_delay=self.sentence_delay.val)
@@ -427,6 +495,42 @@ class ConfigDialog(Dialog):
         super().accept()
 
 
+class EmbeddingConfig(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        self.engine_specific_config = esc = EngineSpecificConfig(self, for_embedding=True)
+        l.addWidget(esc)
+        self.engine_specific_config.set_engine('piper')
+
+    def save_settings(self):
+        s = self.engine_specific_config.as_settings()
+        prefs = load_config(TTS_EMBEDED_CONFIG)
+        with prefs:
+            s.save_to_config(prefs, TTS_EMBEDED_CONFIG)
+
+
+def develop_embedding():
+    class D(Dialog):
+        def __init__(self, parent=None):
+            super().__init__('Configure Text to speech audio generation', 'configure-tts-embed', parent=parent)
+
+        def setup_ui(self):
+            self.l = l = QVBoxLayout(self)
+            self.conf = c = EmbeddingConfig(self)
+            l.addWidget(c)
+            l.addWidget(self.bb)
+
+    from calibre.gui2 import Application
+    app = Application([])
+    d = D()
+    if d.exec() == QDialog.DialogCode.Accepted:
+        d.conf.save_settings()
+    del d
+    del app
+
+
 def develop():
     from calibre.gui2 import Application
     app = Application([])
@@ -437,4 +541,4 @@ def develop():
 
 
 if __name__ == '__main__':
-    develop()
+    develop_embedding()
