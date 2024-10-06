@@ -1,150 +1,10 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import json
-
-from calibre import prepare_string_for_xml as escape
-from calibre.utils.iso8601 import parse_iso8601
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-def extract_json(raw):
-    s = raw.find("window['__natgeo__']")
-    script = raw[s:raw.find('</script>', s)]
-    return json.loads(script[script.find('{'):].rstrip(';'))['page']['content']['prismarticle']
-
-
-def parse_contributors(grp):
-    for item in grp:
-        line = '<div class="auth">' + escape(item['title']) + ' '
-        for c in item['contributors']:
-            line += escape(c['displayName'])
-        yield line + '</div>'
-
-
-def parse_lead_image(media):
-    if 'image' in media:
-        yield '<p>'
-        if 'dsc' in media['image']:
-            yield '<div><img src="{}" alt="{}"></div>'.format(
-                escape(media['image']['src'], True), escape(media['image']['dsc'], True)
-            )
-        else:
-            yield '<div><img src="{}"></div>'.format(escape(media['image']['src'], True))
-        if 'caption' in media and 'credit' in media:
-            yield '<div class="cap">' + media['caption'] + '<span class="cred"> ' + media['credit'] + '</span></div>'
-        elif 'caption' in media:
-            yield '<div class="cap">' + media['caption'] + '</div>'
-        yield '</p>'
-
-
-def parse_inline(inl):
-    if inl.get('content', {}).get('name', '') == 'Image':
-        props = inl['content']['props']
-        yield '<p>'
-        if 'image' in props:
-            yield '<div class="img"><img src="{}"></div>'.format(props['image']['src'])
-        if 'caption' in props:
-            yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
-                props['caption'].get('text', ''), ' ' + props['caption'].get('credit', '')
-            )
-        yield '</p>'
-    if inl.get('content', {}).get('name', '') == 'ImageGroup':
-        if 'images' in inl['content']['props']:
-            for imgs in inl['content']['props']['images']:
-                yield '<p>'
-                if 'src' in imgs:
-                    yield '<div class="img"><img src="{}"></div>'.format(imgs['src'])
-                if 'caption' in imgs:
-                    yield '<div class="cap">{}<span class="cred">{}</span></div>'.format(
-                        imgs['caption'].get('text', ''), ' ' + imgs['caption'].get('credit', '')
-                    )
-                yield '</p>'
-
-
-def parse_cont(content):
-    for cont in content.get('content', {}):
-        if isinstance(cont, dict):
-            yield from parse_body(cont)
-        if isinstance(cont, str):
-            yield cont
-
-
-def parse_body(x):
-    if isinstance(x, dict):
-        if 'type' in x:
-            tag = x['type']
-            if tag == 'inline':
-                yield ''.join(parse_inline(x))
-            elif 'attrs' in x and 'href' in x.get('attrs', ''):
-                yield '<' + tag + ' href="{}">'.format(x['attrs']['href'])
-                for yld in parse_cont(x):
-                    yield yld
-                yield '</' + tag + '>'
-            else:
-                yield '<' + tag + '>'
-                for yld in parse_cont(x):
-                    yield yld
-                yield '</' + tag + '>'
-    elif isinstance(x, list):
-        for y in x:
-            if isinstance(y, dict):
-                yield from parse_body(y)
-
-
-def parse_article(edg):
-    sc = edg['schma']
-    yield '<div class="sub">' + escape(edg['sctn']) + '</div>'
-    yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
-    yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
-    yield '<p>'
-    for line in parse_contributors(edg.get('cntrbGrp', {})):
-        yield line
-    ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
-    yield '<div class="time">Published: ' + escape(ts) + '</div>'
-    if 'readTime' in edg:
-        yield '<div class="time">' + escape(edg['readTime']) + '</div>'
-    yield '</p>'
-    if edg.get('ldMda', {}).get('cmsType') == 'image':
-        for line in parse_lead_image(edg['ldMda']):
-            yield line
-    for main in edg['prismData']['mainComponents']:
-        if main['name'] == 'Body':
-            for item in main['props']['body']:
-                if isinstance(item, dict):
-                    if item.get('type', '') == 'inline':
-                        yield ''.join(parse_inline(item))
-                elif isinstance(item, list):
-                    for line in item:
-                        yield ''.join(parse_body(line))
-
-
-def article_parse(data):
-    yield "<html><body>"
-    for frm in data['frms']:
-        if not frm:
-            continue
-        for mod in frm.get('mods', ()):
-            for edg in mod.get('edgs', ()):
-                if edg.get('cmsType') == 'ImmersiveLeadTile':
-                    if 'image' in edg.get('cmsImage', {}):
-                        for line in parse_lead_image(edg['cmsImage']):
-                            yield line
-                if edg.get('cmsType') == 'ArticleBodyTile':
-                    for line in parse_article(edg):
-                        yield line
-    yield "</body></html>"
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class NatGeo(BasicNewsRecipe):
-    title = u'National Geographic History'
+    title = 'National Geographic History'
     description = (
         'From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
         'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore.'
@@ -167,40 +27,52 @@ class NatGeo(BasicNewsRecipe):
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
-            'default': '600'
+            'default': '600',
         }
     }
 
-    extra_css = '''
+    @property
+    def natgeo_parser(self):
+        ans = getattr(self, '_natgeo_parser', None)
+        if ans is None:
+            from calibre.live import load_module
+
+            self._natgeo_parser = ans = load_module('calibre.web.site_parsers.natgeo')
+        return ans
+
+    def preprocess_raw_html(self, raw_html, url):
+        return self.natgeo_parser.extract_html(raw_html)
+
+    extra_css = """
         blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap { font-size:small; }
         img {display:block; margin:0 auto;}
         .cred { font-style:italic; font-size:small; color:#404040; }
         .auth, .time, .sub { font-size:small; color:#5c5c5c; }
-    '''
+    """
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://ngsingleissues.nationalgeographic.com/history')
-        wrap = soup.find(attrs={'class':'product-image-wrapper'})
+        wrap = soup.find(attrs={'class': 'product-image-wrapper'})
         return wrap.img['src']
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.nationalgeographic.com/history/history-magazine')
+        soup = self.index_to_soup(
+            'https://www.nationalgeographic.com/history/history-magazine'
+        )
         ans = []
         for article in soup.findAll('article'):
             a = article.find('a')
             url = a['href']
             if url.startswith('/'):
                 url = 'https://www.nationalgeographic.com' + url
-            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
+            title = self.tag_to_string(
+                article.find(**classes('PromoTile__Title--truncated'))
+            )
             ans.append({'title': title, 'url': url})
             self.log(title, '  ', url)
         return [('Articles', ans)]
-
-    def preprocess_raw_html(self, raw_html, url):
-        data = extract_json(raw_html)
-        return '\n'.join(article_parse(data))
 
     def preprocess_html(self, soup):
         for h2 in soup.findAll('h2'):
@@ -214,7 +86,7 @@ class NatGeo(BasicNewsRecipe):
         return soup
 
     def populate_article_metadata(self, article, soup, first):
-        summ = soup.find(attrs={'class':'byline'})
+        summ = soup.find(attrs={'class': 'byline'})
         if summ:
             article.summary = self.tag_to_string(summ)
             article.text_summary = self.tag_to_string(summ)

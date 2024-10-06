@@ -87,7 +87,7 @@ class Liberation(BasicNewsRecipe):
     oldest_article = 1.15
     remove_empty_feeds = True
     articles_are_obfuscated = True
-    timefmt = '[ %s]' % datetime.now().strftime(m_fr[datetime.now().month] + ' %d, %Y')
+    timefmt = ' [%s]' % datetime.now().strftime(m_fr[datetime.now().month] + ' %d, %Y')
     ignore_duplicate_articles = {'title', 'url'}
     key = 'ZWplZVBlaW5nZWl0YWVnaG8zd2VlbmdlZXlvaHB1'
     masthead_url = 'https://journal.liberation.fr/img/logo.svg'
