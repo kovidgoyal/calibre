@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from datetime import date
 from pprint import pformat
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 

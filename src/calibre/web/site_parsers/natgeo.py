@@ -1,18 +1,12 @@
 #!/usr/bin/env python
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
 from pprint import pprint
 
 from calibre import prepare_string_for_xml as escape
 from calibre.utils.iso8601 import parse_iso8601
-
 
 module_version = 1  # needed for live updates
 pprint
