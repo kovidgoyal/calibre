@@ -62,7 +62,8 @@ class Fokus(BasicNewsRecipe):
         # dict(name='p', class_='Meta__author'),  # Author.
         # dict(name='time', class_='Meta__updated'),  # Last updated.
         # Main article.
-        dict(name='div', class_='mediaconnect-protected-content'),
+        dict(name='div', class_='sesamy-protected-content'),
+        dict(name='div', class_='wp-block-core-paragraph'),
     ]
 
     def get_browser(self):
