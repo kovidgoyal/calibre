@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 8  # needed for live updates
+module_version = 9  # needed for live updates
 pprint
 
 
@@ -27,6 +27,7 @@ def parse_image(i):
             yield f'<div class="cap">{i["legacyHtmlCaption"]}</div>'
     yield '</div>'
 
+
 def parse_img_grid(g):
     for grd in g.get('gridMedia', {}):
         yield ''.join(parse_image(grd))
@@ -36,15 +37,20 @@ def parse_img_grid(g):
             yield f'<span class="cred"> {g["credit"]}</span>'
         yield '</div>'
 
+
 def parse_vid(v):
     if v.get('promotionalMedia'):
-        headline = v.get("headline", {}).get("default", "")
+        headline = v.get('headline', {}).get('default', '')
         rendition = v.get('renditions')
-        yield (f'<div><b><a href="{rendition[0]["url"]}">Video</a>: {headline}</b></div>'
-            if rendition else f'<div><b>{headline}</b></div>')
-        yield ''.join(parse_types(v["promotionalMedia"]))
+        yield (
+            f'<div><b><a href="{rendition[0]["url"]}">Video</a>: {headline}</b></div>'
+            if rendition
+            else f'<div><b>{headline}</b></div>'
+        )
+        yield ''.join(parse_types(v['promotionalMedia']))
         if v.get('promotionalSummary'):
             yield f'<div class="cap">{v["promotionalSummary"]}</div>'
+
 
 def parse_emb(e):
     if e.get('html') and 'datawrapper.dwcdn.net' in e.get('html', ''):
@@ -53,56 +59,61 @@ def parse_emb(e):
     elif e.get('promotionalMedia'):
         if e.get('headline'):
             yield f'<div><b>{e["headline"]["default"]}</b></div>'
-        yield ''.join(parse_types(e["promotionalMedia"]))
+        yield ''.join(parse_types(e['promotionalMedia']))
         if e.get('note'):
             yield f'<div class="cap">{e["note"]}</div>'
 
+
 def parse_byline(byl):
     for b in byl.get('bylines', {}):
-        yield f'<div>{b["renderedRepresentation"]}</div>'
-    yield '<div><b><i>'
+        yield f'<div><b>{b["renderedRepresentation"]}</b></div>'
+    yield '<div><i>'
     for rl in byl.get('role', {}):
         if ''.join(parse_cnt(rl)).strip():
             yield ''.join(parse_cnt(rl))
-    yield '</i></b></div>'
+    yield '</i></div>'
+
 
 def iso_date(x):
     dt = parse_iso8601(x, as_utc=False)
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
+
 def parse_header(h):
     if h.get('label'):
         yield f'<div class="lbl">{"".join(parse_types(h["label"]))}</div>'
     if h.get('headline'):
-        yield ''.join(parse_types(h["headline"]))
+        yield ''.join(parse_types(h['headline']))
     if h.get('summary'):
         yield f'<p><i>{"".join(parse_types(h["summary"]))}</i></p>'
     if h.get('ledeMedia'):
-        yield ''.join(parse_types(h["ledeMedia"]))
+        yield ''.join(parse_types(h['ledeMedia']))
     if h.get('byline'):
-        yield ''.join(parse_types(h["byline"]))
+        yield ''.join(parse_types(h['byline']))
     if h.get('timestampBlock'):
-        yield ''.join(parse_types(h["timestampBlock"]))
+        yield ''.join(parse_types(h['timestampBlock']))
+
 
 def parse_fmt_type(fm):
     for f in fm.get('formats', {}):
-        ftype = f.get("__typename", "")
-        if ftype == "BoldFormat":
+        ftype = f.get('__typename', '')
+        if ftype == 'BoldFormat':
             yield '<strong>'
-        if ftype == "ItalicFormat":
+        if ftype == 'ItalicFormat':
             yield '<em>'
-        if ftype == "LinkFormat":
-            hrf = f["url"]
+        if ftype == 'LinkFormat':
+            hrf = f['url']
             yield f'<a href="{hrf}">'
-    yield fm.get("text", "")
+    yield fm.get('text', '')
     for f in reversed(fm.get('formats', {})):
-        ftype = f.get("__typename", "")
-        if ftype == "BoldFormat":
+        ftype = f.get('__typename', '')
+        if ftype == 'BoldFormat':
             yield '</strong>'
-        if ftype == "ItalicFormat":
+        if ftype == 'ItalicFormat':
             yield '</em>'
-        if ftype == "LinkFormat":
+        if ftype == 'LinkFormat':
             yield '</a>'
+
 
 def parse_cnt(cnt):
     for k in cnt:
@@ -118,17 +129,22 @@ def parse_cnt(cnt):
         if isinstance(cnt['text'], str):
             yield cnt['text']
 
+
 def parse_types(x):
     typename = x.get('__typename', '')
+
+    align = ''
+    if x.get('textAlign'):
+        align = f' style="text-align: {x["textAlign"].lower()};"'
 
     if 'Header' in typename:
         yield '\n'.join(parse_header(x))
 
     elif typename.startswith('Heading'):
         htag = 'h' + re.match(r'Heading([1-6])Block', typename).group(1)
-        yield f'<{htag}>{"".join(parse_cnt(x))}</{htag}>'
+        yield f'<{htag}{align}>{"".join(parse_cnt(x))}</{htag}>'
 
-    elif typename == 'ParagraphBlock':
+    elif typename in {'ParagraphBlock', 'DetailBlock', 'TextRunKV'}:
         yield f'<p>{"".join(parse_cnt(x))}</p>'
 
     elif typename == 'BylineBlock':
@@ -145,16 +161,16 @@ def parse_types(x):
         yield '<hr/>'
 
     elif typename == 'Image':
-        yield "".join(parse_image(x))
+        yield ''.join(parse_image(x))
 
     elif typename == 'GridBlock':
-        yield "".join(parse_img_grid(x))
+        yield ''.join(parse_img_grid(x))
 
     elif typename == 'Video':
-        yield "".join(parse_vid(x))
+        yield ''.join(parse_vid(x))
 
     elif typename == 'EmbeddedInteractive':
-        yield "".join(parse_emb(x))
+        yield ''.join(parse_emb(x))
 
     elif typename == 'ListBlock':
         yield f'<ul>{"".join(parse_cnt(x))}</ul>'
@@ -162,20 +178,22 @@ def parse_types(x):
         yield f'\n<li>{"".join(parse_cnt(x))}</li>'
 
     elif typename == 'TextInline':
-        yield "".join(parse_cnt(x))
+        yield ''.join(parse_cnt(x))
 
-    elif typename in {'DetailBlock', 'TextRunKV'}:
-        yield f'<p><i>{"".join(parse_cnt(x))}</i></p>'
+    elif typename and typename not in {
+        'RelatedLinksBlock',
+        'EmailSignupBlock',
+        'Dropzone',
+    }:
+        if ''.join(parse_cnt(x)).strip():
+            yield ''.join(parse_cnt(x))
 
-    elif typename and typename not in {'RelatedLinksBlock', 'Dropzone'}:
-        if "".join(parse_cnt(x)).strip():
-            yield "".join(parse_cnt(x))
 
 def article_parse(data):
-    yield "<html><body>"
+    yield '<html><body>'
     for d in data:
         yield from parse_types(d)
-    yield "</body></html>"
+    yield '</body></html>'
 
 
 def json_to_html(raw):
@@ -232,7 +250,7 @@ def add_live_item(item, item_type, lines):
 
 
 def live_json_to_html(data):
-    for k, v in data["ROOT_QUERY"].items():
+    for k, v in data['ROOT_QUERY'].items():
         if isinstance(v, dict) and 'id' in v:
             root = data[v['id']]
     s = data[root['storylines'][0]['id']]
@@ -249,24 +267,32 @@ def live_json_to_html(data):
     return '<html><body>' + '\n'.join(lines) + '</body></html>'
 
 
-def extract_html(soup):
+def extract_html(soup, url):
+    if '/interactive/' in url:
+        return (
+            '<html><body><p><em>'
+            + 'This is an interactive article, which is supposed to be read in a browser.'
+            + '</p></em></body></html>'
+        )
     script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
     script = str(script)
-    raw = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
+    raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')
     return json_to_html(raw)
 
 
 def download_url_from_wayback(category, url, br=None):
     from mechanize import Request
+
     host = 'http://localhost:8090'
     host = 'https://wayback1.calibre-ebook.com'
     rq = Request(
         host + '/' + category,
-        data=json.dumps({"url": url}),
-        headers={'User-Agent': 'calibre', 'Content-Type': 'application/json'}
+        data=json.dumps({'url': url}),
+        headers={'User-Agent': 'calibre', 'Content-Type': 'application/json'},
     )
     if br is None:
         from calibre import browser
+
         br = browser()
     br.set_handle_gzip(True)
     return br.open_novisit(rq, timeout=3 * 60).read()
@@ -284,6 +310,7 @@ if __name__ == '__main__':
     raw = open(f).read()
     if f.endswith('.html'):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
         soup = BeautifulSoup(raw)
         print(extract_html(soup))
     else:
