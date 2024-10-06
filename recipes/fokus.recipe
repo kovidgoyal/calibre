@@ -2,9 +2,6 @@
 # vim:fileencoding=utf-8
 from datetime import datetime, timezone
 
-from bs4 import BeautifulSoup
-from bs4.element import Tag
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -112,7 +109,7 @@ class Fokus(BasicNewsRecipe):
         self.log(f'Identified a total of {len(section_urls_and_names)} unique sections.')
         return section_urls_and_names
 
-    def parse_article_blurb(self, article_blurb: Tag) -> dict[str, str, str, str] | None:
+    def parse_article_blurb(self, article_blurb) -> dict[str, str, str, str] | None:
         """Given a <article> tag of class 'Blurb', parse it into a dict.
 
         Args:
@@ -149,7 +146,7 @@ class Fokus(BasicNewsRecipe):
                     return {'url': url, 'title': title, 'description': desc, 'date': swedish_date_str}
         return
 
-    def _get_article_blurbs(self, soup: BeautifulSoup) -> dict[str, dict[str, str, str, str]]:
+    def _get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str]]:
         """Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
 
         The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
