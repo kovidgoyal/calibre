@@ -26,7 +26,7 @@ class Fokus(BasicNewsRecipe):
     needs_subscription = 'optional'
     max_age = 7  # days
     remove_empty_feeds = True
-    extra_css = 'img { display: block; width: 100%; height: auto }'
+    extra_css = 'img { display: block; width: 75%; height: auto }'
 
     remove_tags = [
         dict(name='div', attrs={'class': 'External-ad'}),
