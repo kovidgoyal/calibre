@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -86,6 +87,7 @@ class Fokus(BasicNewsRecipe):
         Yields:
             dict[str, str]: (1) URLs and (2) human-readable names of Fokus sections.
         """
+        self.log(f"Identifying all sections under '{main_url}'...")
         soup = self.index_to_soup(main_url)
 
         # Identify all unique <li> tags of class 'menu-item-type-taxonomy'. The class subsetting excludes sections that
@@ -103,69 +105,181 @@ class Fokus(BasicNewsRecipe):
                 if len(section_name) >= len(section_urls_and_names[url]):
                     section_urls_and_names[url] = section_name
 
-            self.log(f"Identified section '{section_name}' at URL '{url}'")
+            self.log(f"Identified section '{section_name}' at URL '{url}'.")
             section_urls_and_names[url] = section_name
 
         self.log(f'Identified a total of {len(section_urls_and_names)} unique sections.')
         return section_urls_and_names
 
-    def parse_article_blurb(self, article_blurb):
-        desc = ''
+    def parse_article_blurb(self, article_blurb: Tag) -> dict[str, str, str, str] | None:
+        """Given a <article> tag of class 'Blurb', parse it into a dict.
+
+        Args:
+            article_blurb (Tag): An <article> tag hosting metadata and the URL of an article.
+
+        Returns:
+            dict[str, str, str, str]: A dict on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
+        """
         if a_tag := article_blurb.find('a', href=True):
-            url = a_tag['href']
+            url = a_tag['href'].strip().rstrip('/')
             if url.startswith('/'):
                 url = f'{self.main_url}{url}'
+
             if title_tag := a_tag.find('h2', {'class': 'Blurb__title'}):
-                title = self.tag_to_string(title_tag)
+                title = self.tag_to_string(title_tag).strip()
                 if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
-                    swedish_date_str = self.tag_to_string(time_tag)
+                    swedish_date_str = self.tag_to_string(time_tag).rstrip()
+
+                    # Skip articles older than `self.max_age`.
                     datetime_str = time_tag['datetime']
                     datetime_time = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S%z')
                     now = datetime.now(timezone.utc)
                     delta = now - datetime_time
                     if delta.days > self.max_age:
-                        self.log.debug(f"\tSkipping article '{title}' as it is too old")
-                    else:
-                        if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
-                            desc = self.tag_to_string(desc_tag)
-                            if in_cooperation_with_tag := a_tag.find('p', {'class': 'Blurb__meta'}):
-                                desc += f' ({self.tag_to_string(in_cooperation_with_tag)})'
-                        return {'title': title, 'url': url, 'description': desc, 'date': swedish_date_str}
+                        self.log.debug(f"\tSkipping article as it is too old: '{title}'")
+                        return
 
-    def parse_web_section(self, section_soup: BeautifulSoup):
-        def _log(article):
+                    desc = ''
+                    if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
+                        desc = self.tag_to_string(desc_tag).strip()
+                        if in_cooperation_with_tag := a_tag.find('p', {'class': 'Blurb__meta'}):
+                            desc += f' ({self.tag_to_string(in_cooperation_with_tag).strip()})'
+
+                    return {'url': url, 'title': title, 'description': desc, 'date': swedish_date_str}
+        return
+
+    def _get_article_blurbs(self, soup: BeautifulSoup) -> dict[str, dict[str, str, str, str]]:
+        """Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
+
+        The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
+        on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
+
+        Args:
+            soup (BeautifulSoup): The `bs4.BeautifulSoup` soup of a Fokus webpage.
+
+        Returns:
+            dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
+        """
+
+        def _log(article) -> None:
+            """Log a digestible summary of the input `article` blurb."""
             log_message = f"\t{article['title']} : {article['date']} : {article['url']}"
             if article.get('description'):
                 log_message += f" : {article['description']}"
-            self.log(log_message)
+            self.log.debug(log_message)
 
         try:
-            article_blurbs = section_soup.find_all('article', {'class': 'Blurb'})
+            article_blurbs = soup.find_all('article', {'class': 'Blurb'})
         except AttributeError:
             article_blurbs = []
+
         if not article_blurbs:
-            raise ValueError('Failed to find article blurbs.')
+            raise ValueError('Failed to identify any article blurbs.')
+
+        parsed_blurbs = {}
         for article_blurb in article_blurbs:
             if article := self.parse_article_blurb(article_blurb):
                 _log(article)
-                yield article
+                # If an entry with the same URL already exists, keep whichever entry has the longer description.
+                if article['url'] in article_blurbs:
+                    if len(article['description']) <= len(parsed_blurbs[article['url']]['description']):
+                        continue
+                parsed_blurbs[article['url']] = article
 
-    def parse_index(self):
-        feeds = []
-        for section_url, section_title in self.get_web_sections(self.main_url).items():
+        return parsed_blurbs
+
+    def get_article_blurbs(self, sections: dict[str, str]) -> dict[str, dict[str, str, str, str]]:
+        """Create and return a dict of all unique article blurbs found in all `sections`.
+
+        The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
+        on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
+
+        Args:
+            sections (dict[str, str]): A dict on a `{section_url: section_name}` format.
+
+        Returns:
+            dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
+        """
+        self.log(f'Identifying all articles under all {len(sections)} sections...')
+
+        article_blurbs = {}
+        for section_url, section_title in sections.items():
             try:
-                soup = self.index_to_soup(section_url)
+                section_soup = self.index_to_soup(section_url)
             except Exception:
                 self.log.error(f"Failed to download section '{section_title}' via URL '{section_url}'")
                 continue
-            breakpoint()
-            articles = list(self.parse_web_section(soup))
-            if articles:
-                feeds.append((section_title, articles))
-        if not feeds:
+            self.log(f"Identifying all articles under '{section_url}'...")
+            for article_url, article_blurb in self._get_article_blurbs(section_soup).items():
+                # If the article URL has already been encountered, keep only the article blurb with the longer
+                # description string.
+                if article_url not in article_blurbs:
+                    article_blurbs[article_url] = article_blurb
+                elif len(article_blurb['description']) > len(article_blurbs[article_url]['description']):
+                    article_blurbs[article_url] = article_blurb
+
+        self.log(f'A total of {len(article_blurbs)} articles were identified in the {len(sections)} sections.')
+        return article_blurbs
+
+    def assign_articles_to_sections(
+        self,
+        sections: dict[str, str],
+        articles: dict[str, dict[str, str, str, str]],
+    ) -> dict[str, list[dict[str, str, str, str]]]:
+        """Assign each article in `articles` to a section in `sections`.
+
+        Args:
+            sections (dict[str, str]): A dict of section URLs as keys and section titles as values.
+            articles (dict[str, dict[str, str, str, str]]): A dict of article URLs as keys and article dicts as values.
+
+        Returns:
+            dict[str, list[dict[str, str, str, str]]]: A dict on a `{section_title: list[article_dict]}` format.
+        """
+        self.log(f'Assigning each of the {len(articles)} articles to either of the {len(sections)} sections...')
+        section_to_articles = {}
+        for article_url, article_dict in articles.items():
+            last_url = article_url
+            while article_url not in sections and len(article_url) > len(self.main_url):
+                article_url = article_url.rsplit('/', 1)[0]
+
+                # Prevent an infinite loop.
+                if article_url == last_url:
+                    break
+                last_url = article_url
+
+            # If no section corresponding to the URL exists, default to the 'Home Page' section.
+            section_title = sections[article_url] if article_url in sections else sections[self.main_url]
+            if section_title not in section_to_articles:
+                section_to_articles[section_title] = []
+            section_to_articles[section_title].append(article_dict)
+
+        # Log how many sections contained no articles younger than `self.max_age`.
+        if diff := len(sections) - len(section_to_articles):
+            self.log(f'{diff} sections contained no articles younger than {self.max_age} days.')
+
+        return section_to_articles
+
+    def parse_index(self):
+        # Identify all sections in the web version of Fokus.
+        sections = self.get_web_sections(self.main_url)
+
+        # Add an entry for the start page.
+        sections[self.main_url] = 'Home Page'
+
+        # From the section URLs and the main URL, identify all unique articles.
+        articles = self.get_article_blurbs(sections)
+        if not articles:
             raise NoArticles(
-                'Could not find any articles. Either the fokus.se server is having issues and '
-                'you should try later or the website format has changed and the recipe needs '
-                'to be updated.'
+                f"Could not find any articles. Either the '{self.main_url}' server is experiencing issues, in which "
+                'case you should try again later, or the website format has changed and the recipe needs updating.'
             )
+
+        # Assign each identified article to a section based on its URL.
+        section_to_articles = self.assign_articles_to_sections(sections, articles)
+
+        # Convert to the expected `list[tuple[str, dict[str, str, str, str]]]` format.
+        feeds = [(section_url, article_dicts) for section_url, article_dicts in section_to_articles.items()]
+        num_articles = sum(len(article_dicts) for article_dicts in section_to_articles.values())
+        self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
+
         return feeds
