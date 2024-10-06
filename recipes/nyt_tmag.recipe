@@ -2,7 +2,6 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 use_wayback_machine = False
 
 
