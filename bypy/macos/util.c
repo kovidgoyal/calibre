@@ -17,6 +17,7 @@ set_env_vars(const char* contents_path) {
 
 	for (size_t i = 0; i < arraysz(env_vars); i++) {
         env_var = env_vars[i]; val = env_var_vals[i];
+        if (strcmp(env_var, "SSL_CERT_FILE") == 0 && getenv("CALIBRE_USE_SYSTEM_CERTIFICATES") && strcmp(getenv("CALIBRE_USE_SYSTEM_CERTIFICATES"), "1") == 0) continue;
         if (strstr(val, EXE) == val && strlen(val) >= sizeof(EXE)) {
 			snprintf(buf, sizeof(buf) - 1, "%s%s", contents_path, val + sizeof(EXE) - 1);
             setenv(env_var, buf, 1);

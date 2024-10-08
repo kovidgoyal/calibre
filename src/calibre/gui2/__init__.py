@@ -1479,9 +1479,13 @@ def sanitize_env_vars():
         }
     elif iswindows:
         env_vars = {'OPENSSL_MODULES': None, 'QTWEBENGINE_DISABLE_SANDBOX': None}
+        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+            env_vars['SSL_CERT_FILE'] = None
     elif ismacos:
         env_vars = {k:None for k in (
-                    'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE OPENSSL_ENGINES OPENSSL_MODULES').split()}
+                    'FONTCONFIG_FILE FONTCONFIG_PATH OPENSSL_ENGINES OPENSSL_MODULES').split()}
+        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+            env_vars['SSL_CERT_FILE'] = None
     else:
         env_vars = {}
 

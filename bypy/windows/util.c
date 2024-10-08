@@ -49,6 +49,12 @@ get_install_locations(void) {
     _wputenv_s(L"QTWEBENGINE_DISABLE_SANDBOX", "1");
     _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\app", interpreter_data.app_dir);
     _wputenv_s(L"CALIBRE_QT_PREFIX", qt_prefix_dir);
+    // Lots of people have trouble with various websites failing to download
+    // because of missing intermediate certificates in the windows store
+    // so use the Mozilla certificate bundle
+    _snwprintf_s(qt_prefix_dir, MAX_PATH-1, _TRUNCATE, L"%ls\\mozilla-ca-certs.pem", interpreter_data.resources_path);
+    const char *s = getenv("CALIBRE_USE_SYSTEM_CERTIFICATES");
+    if (!s || strcmp(s, "1") != 0) _wputenv_s(L"SSL_CERT_FILE", qt_prefix_dir);
 }
 
 static void
