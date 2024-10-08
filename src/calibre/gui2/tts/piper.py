@@ -457,7 +457,7 @@ class Piper(TTSBackend):
         return model_path, config_path
 
     def is_voice_downloaded(self, v: Voice) -> bool:
-        if not v.name:
+        if not v or not v.name:
             v = self._default_voice
         for path in self._paths_for_voice(v):
             if not os.path.exists(path):
