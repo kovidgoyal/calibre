@@ -264,6 +264,7 @@ class ExtensionsImporter:
             'unicode_names',
             'html_syntax_highlighter',
             'hyphen',
+            'ffmpeg',
             'freetype',
             'imageops',
             'hunspell',

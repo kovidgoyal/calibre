@@ -40,6 +40,8 @@ from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentenc
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 
+HIGH_QUALITY_SAMPLE_RATE = 22050
+
 
 def debug(*a, **kw):
     if is_debugging():
@@ -49,7 +51,7 @@ def debug(*a, **kw):
         print(f'[{monotonic() - debug.first:.2f}]', *a, **kw)
 
 
-def audio_format(audio_rate: int = 22050) -> QAudioFormat:
+def audio_format(audio_rate: int = HIGH_QUALITY_SAMPLE_RATE) -> QAudioFormat:
     fmt = QAudioFormat()
     fmt.setSampleFormat(QAudioFormat.SampleFormat.Int16)
     fmt.setSampleRate(audio_rate)
@@ -566,7 +568,7 @@ class PiperEmbedded:
         lang = canonicalize_lang(lang) or lang
         self._default_voice = self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
         self._current_voice = self._process = self._process_shutdown_event = None
-        self._current_audio_format = QAudioFormat()
+        self._current_audio_rate = 0
 
     def resolve_voice(self, lang: str, voice_name: str) -> Voice:
         from calibre.utils.localization import canonicalize_lang, get_lang
@@ -580,10 +582,8 @@ class PiperEmbedded:
         return voice
 
     def text_to_raw_audio_data(
-        self, texts: Iterable[str], lang: str = '', voice_name: str = '', format: QAudioFormat | None = None, timeout: float = 10.,
+        self, texts: Iterable[str], lang: str = '', voice_name: str = '', sample_rate: int = HIGH_QUALITY_SAMPLE_RATE, timeout: float = 10.,
     ) -> Iterator[bytes]:
-        if format is None:
-            format = audio_format()
         voice = self.resolve_voice(lang, voice_name)
         if voice is not self._current_voice:
             self._current_voice = voice
@@ -603,6 +603,7 @@ class PiperEmbedded:
         for text in texts:
             if not text:
                 yield b''
+                continue
             self._process.stdin.write(text.encode('utf-8', 'replace'))
             stderr_data = b''
             buf, piper_done, errors_from_piper = [], [], []
@@ -622,8 +623,12 @@ class PiperEmbedded:
                         buf.append(data)
                     else:
                         stderr_data = detect_end_of_data(stderr_data + data, callback)
-        needs_conversion = format != self._current_audio_format
-        needs_conversion
+            needs_conversion = sample_rate != self._current_audio_rate
+            raw_data = b''.join(buf)
+            if needs_conversion:
+                from calibre_extensions.ffmpeg import resample_raw_audio_16bit
+                raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
+            yield raw_data
 
     def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> None:
         for lang, voice_name in specs:
@@ -649,8 +654,7 @@ class PiperEmbedded:
         if self._process is not None:
             return
         model_path, config_path = download_voice(self._current_voice, headless=True)
-        audio_rate, cmdline = piper_process_metadata(model_path, config_path, self._embedded_settings, self._current_voice)
-        self._current_audio_format = audio_format(audio_rate)
+        self._current_audio_rate, cmdline = piper_process_metadata(model_path, config_path, self._embedded_settings, self._current_voice)
         import subprocess
         from threading import Thread
         self._process_shutdown_event = Event()
