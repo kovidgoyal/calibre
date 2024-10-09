@@ -171,9 +171,9 @@ def download_resources(
     from calibre import browser
     print(title)
     print(message)
+    br = browser()
     for url, (path, name) in urls.items():
         print(_('Downloading {}...').format(name))
-        br = browser()
         data = br.open_novisit(url).read()
         with open(path, 'wb') as f:
             f.write(data)
