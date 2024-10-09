@@ -208,6 +208,13 @@ else:
     uchardet_inc_dirs = pkgconfig_include_dirs('uchardet', '', '/usr/include/uchardet')
     uchardet_lib_dirs = pkgconfig_lib_dirs('uchardet', '', '/usr/lib')
     uchardet_libs = pkgconfig_libs('uchardet', '', '')
+    for x in ('libavcodec', 'libavformat', 'libavdevice', 'libavfilter', 'libavutil', 'libpostproc', 'libswresample', 'libswscale'):
+        for inc in pkgconfig_include_dirs(x, '', '/usr/include'):
+            if inc and inc not in ffmpeg_inc_dirs:
+                ffmpeg_inc_dirs.append(inc)
+        for lib in pkgconfig_lib_dirs(x, '', '/usr/lib'):
+            if lib and lib not in ffmpeg_lib_dirs:
+                ffmpeg_lib_dirs.append(lib)
 
 if os.path.exists(os.path.join(sw, 'ffmpeg')):
     ffmpeg_inc_dirs = [os.path.join(sw, 'ffmpeg', 'include')] + ffmpeg_inc_dirs
