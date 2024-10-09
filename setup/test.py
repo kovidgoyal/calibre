@@ -6,7 +6,7 @@ import os
 import subprocess
 import sys
 
-from setup import Command, is_ci, ismacos
+from setup import Command, is_ci, ismacos, iswindows
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
@@ -54,12 +54,19 @@ class Test(BaseTest):
         import warnings
         warnings.filterwarnings('ignore', message="'cgi' is deprecated and slated for removal in Python 3.13")
 
-        if is_ci and ismacos:
-            import ctypes
-            sys.libxml2_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxml2.dylib'))
-            sys.libxslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libxslt.dylib'))
-            sys.libexslt_dylib = ctypes.CDLL(os.path.join(os.environ['SW'], 'lib', 'libexslt.dylib'))
-            print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
+        if is_ci:
+            SW = os.environ['SW']
+            if ismacos:
+                import ctypes
+                sys.libxml2_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libxml2.dylib'))
+                sys.libxslt_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libxslt.dylib'))
+                sys.libexslt_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libexslt.dylib'))
+                print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
+            elif iswindows:
+                ffmpeg_dll_dir = os.path.join(SW, 'ffmpeg', 'bin')
+                os.add_dll_directory(ffmpeg_dll_dir)
+
+
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         if opts.test_name:

@@ -86,9 +86,6 @@ def setup_env():
     os.environ['CI'] = 'true'
     os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
     os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
-    ffmpeg_dll_dir = os.path.join(SW, 'ffmpeg', 'bin')
-    if os.path.exists(ffmpeg_dll_dir):  # doesnt exist in install phase
-        os.add_dll_directory(ffmpeg_dll_dir)
 
 
 def main():
