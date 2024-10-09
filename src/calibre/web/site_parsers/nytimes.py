@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 9  # needed for live updates
+module_version = 10  # needed for live updates
 pprint
 
 
@@ -144,8 +144,10 @@ def parse_types(x):
         htag = 'h' + re.match(r'Heading([1-6])Block', typename).group(1)
         yield f'<{htag}{align}>{"".join(parse_cnt(x))}</{htag}>'
 
-    elif typename in {'ParagraphBlock', 'DetailBlock', 'TextRunKV'}:
+    elif typename == 'ParagraphBlock':
         yield f'<p>{"".join(parse_cnt(x))}</p>'
+    elif typename in {'DetailBlock', 'TextRunKV'}:
+        yield f'<p style="font-size: small;">{"".join(parse_cnt(x))}</p>'
 
     elif typename == 'BylineBlock':
         yield f'<div class="byl"><br/>{"".join(parse_byline(x))}</div>'
@@ -173,20 +175,16 @@ def parse_types(x):
         yield ''.join(parse_emb(x))
 
     elif typename == 'ListBlock':
-        yield f'<ul>{"".join(parse_cnt(x))}</ul>'
+        yield f'\n<ul>{"".join(parse_cnt(x))}</ul>'
     elif typename == 'ListItemBlock':
         yield f'\n<li>{"".join(parse_cnt(x))}</li>'
-
-    elif typename == 'TextInline':
-        yield ''.join(parse_cnt(x))
 
     elif typename and typename not in {
         'RelatedLinksBlock',
         'EmailSignupBlock',
         'Dropzone',
     }:
-        if ''.join(parse_cnt(x)).strip():
-            yield ''.join(parse_cnt(x))
+        yield ''.join(parse_cnt(x))
 
 
 def article_parse(data):

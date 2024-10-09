@@ -6,9 +6,9 @@ use_wayback_machine = False
 
 
 class NytMag(BasicNewsRecipe):
-    title = 'NYT T Magazine'
+    title = 'NYT Magazine'
     __author__ = 'unkn0wn'
-    description = 'The latest from The New York Times Style Magazine.'
+    description = 'The latest from The New York Times Magazine.'
     oldest_article = 30  # days
     encoding = 'utf-8'
     use_embedded_content = False
@@ -19,13 +19,13 @@ class NytMag(BasicNewsRecipe):
     masthead_url = 'https://static01.nytimes.com/newsgraphics/2015-12-23-masthead-2016/b15c3d81d3d7b59065fff9a3f3afe85aa2e2dff5/_assets/nyt-logo.png'
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.nytimes.com/section/t-magazine')
-        issue = soup.find(attrs={'class':'issue-promo'})
-        return issue.a.img['src']
+        soup = self.index_to_soup('https://www.nytimes.com/section/magazine')
+        issue = soup.find(attrs={'class': 'issue-promo'})
+        return issue.find(attrs={'class': 'promo-image'}).img['src']
 
     feeds = [
-        'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/Magazine.xml',
+        'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
     ]
 
     recipe_specific_options = {

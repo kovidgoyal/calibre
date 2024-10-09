@@ -41,8 +41,9 @@ class NytFeeds(BasicNewsRecipe):
         # 'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
         # 'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
         'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
-        'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
+        # 'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
         'https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml',
+        # 'https://rss.nytimes.com/services/xml/rss/nyt/Magazine.xml',
         # 'http://nytimes.com/timeswire/feeds/',
     ]
 
