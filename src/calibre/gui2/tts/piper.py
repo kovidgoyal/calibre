@@ -591,6 +591,9 @@ class PiperEmbedded:
         self.ensure_process_started()
         piper_done, errors_from_piper = [], []
         last_output_at = monotonic()
+        needs_conversion = sample_rate != self._current_audio_rate
+        if needs_conversion:
+            from calibre_extensions.ffmpeg import resample_raw_audio_16bit
 
         def callback(ok, payload):
             nonlocal last_output_at
@@ -623,10 +626,8 @@ class PiperEmbedded:
                         buf.append(data)
                     else:
                         stderr_data = detect_end_of_data(stderr_data + data, callback)
-            needs_conversion = sample_rate != self._current_audio_rate
             raw_data = b''.join(buf)
             if needs_conversion:
-                from calibre_extensions.ffmpeg import resample_raw_audio_16bit
                 raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
             yield raw_data
 
