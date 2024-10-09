@@ -572,8 +572,10 @@ def test_multiprocessing():
         p.join()
 
 
-def find_tests():
+def find_tests(only_build=False):
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
+    if only_build:
+        return ans
     from calibre.utils.icu_test import find_tests
     ans.addTests(find_tests())
     from tinycss.tests.main import find_tests
