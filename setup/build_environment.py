@@ -211,7 +211,7 @@ else:
 
 if os.path.exists(os.path.join(sw, 'ffmpeg')):
     ffmpeg_inc_dirs = [os.path.join(sw, 'ffmpeg', 'include')] + ffmpeg_inc_dirs
-    ffmpeg_lib_dirs = [os.path.join(sw, 'ffmpeg', 'lib')] + ffmpeg_lib_dirs
+    ffmpeg_lib_dirs = [os.path.join(sw, 'ffmpeg', 'bin' if iswindows else 'lib')] + ffmpeg_lib_dirs
 
 
 if 'PODOFO_PREFIX' in os.environ:
