@@ -143,6 +143,9 @@ hunspell_lib_dirs = []
 hyphen_inc_dirs = []
 hyphen_lib_dirs = []
 
+ffmpeg_inc_dirs = []
+ffmpeg_lib_dirs = []
+
 uchardet_inc_dirs, uchardet_lib_dirs, uchardet_libs = [], [], ['uchardet']
 
 openssl_inc_dirs, openssl_lib_dirs = [], []
@@ -205,6 +208,10 @@ else:
     uchardet_inc_dirs = pkgconfig_include_dirs('uchardet', '', '/usr/include/uchardet')
     uchardet_lib_dirs = pkgconfig_lib_dirs('uchardet', '', '/usr/lib')
     uchardet_libs = pkgconfig_libs('uchardet', '', '')
+
+if os.path.exists(os.path.join(sw, 'ffmpeg')):
+    ffmpeg_inc_dirs = [os.path.join(sw, 'ffmpeg', 'include')] + ffmpeg_inc_dirs
+    ffmpeg_lib_dirs = [os.path.join(sw, 'ffmpeg', 'lib')] + ffmpeg_lib_dirs
 
 
 if 'PODOFO_PREFIX' in os.environ:
