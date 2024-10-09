@@ -31,7 +31,7 @@ web_sections = [
     ('Health', 'health'),
     ('Opinion', 'opinion'),
     ('Arts', 'arts'),
-    ('Books', 'books'),
+    # ('Books', 'books'),
     ('Movies', 'movies'),
     ('Music', 'arts/music'),
     ('Television', 'arts/television'),
