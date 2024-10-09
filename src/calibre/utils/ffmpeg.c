@@ -51,10 +51,12 @@ resample_raw_audio_16bit(PyObject *self, PyObject *args) {
 #define free_resources av_free(output); PyBuffer_Release(&inb); swr_free(&swr_ctx);
     if ((ret = swr_init(swr_ctx)) < 0) { free_resources; return averror_as_python(ret); }
     const uint8_t *input = inb.buf;
+    Py_BEGIN_ALLOW_THREADS
     ret = swr_convert(swr_ctx,
-            &output, output_size / (output_num_channels * bytes_per_sample),
-            &input,  inb.len / (input_num_channels * bytes_per_sample)
-            );
+        &output, output_size / (output_num_channels * bytes_per_sample),
+        &input,  inb.len / (input_num_channels * bytes_per_sample)
+    );
+    Py_END_ALLOW_THREADS
     if (ret < 0) { free_resources; return averror_as_python(ret); }
     output_size = ret * output_num_channels * bytes_per_sample;
     PyObject *ans = PyBytes_FromStringAndSize((char*)output, output_size);
