@@ -105,7 +105,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
     }
 
     io_iterator_t iter;
-    kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
+    kr = IOServiceGetMatchingServices(kIOMainPortDefault, matchingDict, &iter);
     if (KERN_SUCCESS != kr) {
             printf("IOServiceGetMatchingServices returned 0x%08x\n", kr);
             PyErr_SetString(PyExc_RuntimeError, "Could not run IO Matching");
@@ -217,7 +217,7 @@ usbobserver_get_usb_drives(PyObject *self, PyObject *args) {
     ans = PyList_New(0);
     if (ans == NULL) return PyErr_NoMemory();
 
-    kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
+    kr = IOServiceGetMatchingServices(kIOMainPortDefault, matchingDict, &iter);
     if (KERN_SUCCESS != kr) {
             printf("IOServiceGetMatchingServices returned 0x%08x\n", kr);
             PyErr_SetString(PyExc_RuntimeError, "Could not run IO Matching");
@@ -411,7 +411,7 @@ usbobserver_is_mtp(PyObject *self, PyObject * args) {
     CFDictionarySetValue(matching_dict, CFSTR(kUSBDeviceReleaseNumber), num);
     CFRelease(num); num = NULL;
 
-    kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dict, &iter);
+    kr = IOServiceGetMatchingServices(kIOMainPortDefault, matching_dict, &iter);
     matching_dict = NULL;
     if (KERN_SUCCESS != kr) {
         PyErr_Format(PyExc_RuntimeError, "IOServiceGetMatchingServices returned 0x%x", kr);

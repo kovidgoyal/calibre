@@ -24,7 +24,7 @@ static wchar_t* unicode_to_wchar(PyObject *o) {
     Py_ssize_t len;
     if (o == NULL) return NULL;
     if (!PyUnicode_Check(o)) {PyErr_Format(PyExc_TypeError, "The python object must be a unicode object"); return NULL;}
-    len = PyUnicode_GET_SIZE(o);
+    len = PyUnicode_GET_LENGTH(o);
     buf = (wchar_t *)calloc(len+2, sizeof(wchar_t));
     if (buf == NULL) { PyErr_NoMemory(); return NULL; }
     len = PyUnicode_AsWideChar(o, buf, len);
