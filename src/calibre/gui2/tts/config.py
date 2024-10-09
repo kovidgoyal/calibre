@@ -173,7 +173,7 @@ class Voices(QTreeWidget):
             self.itemChanged.connect(self.item_changed)
 
     def item_changed(self, item: QTreeWidgetItem, column: int):
-        if column == 0 and item.parent() is not self.invisibleRootItem() and not self.ignore_item_changes:
+        if column == 0 and self.is_voice_item(item) and not self.ignore_item_changes:
             if item.checkState(0) == Qt.CheckState.Checked:
                 p = item.parent()
                 if p is not None:
@@ -183,9 +183,12 @@ class Voices(QTreeWidget):
                             child.setCheckState(0, Qt.CheckState.Unchecked)
                             self.ignore_item_changes = False
 
+    def is_voice_item(self, item):
+        return item is not None and isinstance(item.data(0, Qt.ItemDataRole.UserRole), Voice)
+
     def mousePressEvent(self, event):
         item = self.itemAt(event.pos())
-        if self.for_embedding and item and item.parent() is not self.invisibleRootItem():
+        if self.for_embedding and self.is_voice_item(item):
             rect = self.visualItemRect(item)
             x = event.pos().x() - (rect.x() + self.frameWidth())
             option = QStyleOptionViewItem()
@@ -280,7 +283,7 @@ class Voices(QTreeWidget):
 
     def refresh_current_item(self) -> None:
         ci = self.currentItem()
-        if ci is not None and ci.parent() is not self.invisibleRootItem():
+        if self.is_voice_item(ci):
             self.set_item_downloaded_state(ci)
 
 
