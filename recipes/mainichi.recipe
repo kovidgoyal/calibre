@@ -1,59 +1,46 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
-'''
+#!/usr/bin/env python
+"""
 www.mainichi.jp
-'''
-
-import re
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class MainichiDailyNews(BasicNewsRecipe):
     title = u'\u6bce\u65e5\u65b0\u805e'
-    __author__ = 'Hiroshi Miura'
-    oldest_article = 2
-    max_articles_per_feed = 20
-    description = 'Japanese traditional newspaper Mainichi Daily News'
-    publisher = 'Mainichi Daily News'
-    category = 'news, japan'
-    language = 'ja'
-    index = 'http://mainichi.jp/select/'
+    __author__ = 'unkn0wn'
+    description = "Japanese traditional newspaper Mainichi Daily News"
+    publisher = "Mainichi News"
+    publication_type = "newspaper"
+    category = "news, japan"
+    language = "ja"
+
+    no_stylesheets = True
     remove_javascript = True
-    masthead_title = u'MAINICHI DAILY NEWS'
+    auto_cleanup = True
 
-    remove_tags_before = {'class': "NewsTitle"}
-    remove_tags_after = {'class': "NewsBody clr"}
-
-    def parse_feeds(self):
-
-        feeds = BasicNewsRecipe.parse_feeds(self)
-
-        for curfeed in feeds:
-            delList = []
-            for a, curarticle in enumerate(curfeed.articles):
-                if re.search(r'pheedo.jp', curarticle.url):
-                    delList.append(curarticle)
-                if re.search(r'rssad.jp', curarticle.url):
-                    delList.append(curarticle)
-            if len(delList) > 0:
-                for d in delList:
-                    index = curfeed.articles.index(d)
-                    curfeed.articles[index:index + 1] = []
-
-        return feeds
+    ignore_duplicate_articles = {'title', 'url'}
 
     def parse_index(self):
+        index = 'https://mainichi.jp'
+        sections = [
+            'articles'
+        ]
         feeds = []
-        soup = self.index_to_soup(self.index)
-        topstories = soup.find('ul', attrs={'class': 'MaiLink'})
-        if topstories:
-            newsarticles = []
-            for itt in topstories.findAll('li'):
-                itema = itt.find('a', href=True)
-                if itema:
-                    newsarticles.append({
-                        'title': itema.string, 'date': '', 'url': itema['href'], 'description': ''
-                    })
-            feeds.append(('latest', newsarticles))
+        soup = self.index_to_soup(index)
+        for sec in sections:
+            section = sec.capitalize()
+            self.log(section)
+            articles = []
+            for a in soup.findAll('a', attrs={'href':lambda x: x and 'articles' in x}):
+                if a.find('img'):
+                    continue
+                url = a['href']
+                if not url.startswith('http'):
+                    url = 'https:' + url
+                title = self.tag_to_string(a)
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((section, articles))
         return feeds
