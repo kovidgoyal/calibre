@@ -1847,7 +1847,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     if tag.state == TAG_SEARCH_STATES['mark_minus'] or \
                             tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                        prefix = ' not '
+                        prefix = 'not '
                     else:
                         prefix = ''
                     if node.is_gst:
