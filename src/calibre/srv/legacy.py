@@ -282,4 +282,9 @@ def stanza(ctx, rd, rest):
 def legacy_get(ctx, rd, what, book_id, library_id, filename):
     # See https://www.mobileread.com/forums/showthread.php?p=3531644 for why
     # this is needed for Kobo browsers
-    return get(ctx, rd, what, book_id, library_id)
+    ua = rd.inheaders.get('User-Agent', '')
+    is_old_kindle = 'Kindle/3' in ua
+    ans = get(ctx, rd, what, book_id, library_id)
+    if is_old_kindle:  # Content-Disposition causes downloads to fail when the filename has non-ascii chars in it
+        rd.outheaders.pop('Content-Disposition', '')
+    return ans
