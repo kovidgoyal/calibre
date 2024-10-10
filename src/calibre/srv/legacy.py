@@ -285,6 +285,8 @@ def legacy_get(ctx, rd, what, book_id, library_id, filename):
     ua = rd.inheaders.get('User-Agent', '')
     is_old_kindle = 'Kindle/3' in ua
     ans = get(ctx, rd, what, book_id, library_id)
-    if is_old_kindle:  # Content-Disposition causes downloads to fail when the filename has non-ascii chars in it
+    if is_old_kindle:
+        # Content-Disposition causes downloads to fail when the filename has non-ascii chars in it
+        # https://www.mobileread.com/forums/showthread.php?t=364015
         rd.outheaders.pop('Content-Disposition', '')
     return ans
