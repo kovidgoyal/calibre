@@ -19,7 +19,7 @@
     {
         "name": "ffmpeg",
         "sources": "calibre/utils/ffmpeg.c",
-		"libraries": "swresample avcodec avutil",
+		"libraries": "swresample avcodec avformat avutil",
         "inc_dirs": "!ffmpeg_inc_dirs",
         "lib_dirs": "!ffmpeg_lib_dirs",
 		"needs_c": "99"
