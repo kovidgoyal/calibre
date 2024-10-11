@@ -6,6 +6,7 @@
  */
 
 
+#include <libavutil/version.h>
 #define UNICODE
 #define PY_SSIZE_T_CLEAN
 
@@ -63,9 +64,12 @@ read_packet(void *opaque, uint8_t *buf, int buf_size) {
     return b.len;
 }
 
-
 static int
+#if LIBAVFORMAT_VERSION_MAJOR >= 61
 write_packet(void *opaque, const uint8_t *buf, int buf_size) {
+#else
+write_packet(void *opaque, uint8_t *buf, int buf_size) {
+#endif
     Transcoder *t = opaque;
     PyObject *mv = PyMemoryView_FromMemory((char*)buf, buf_size, PyBUF_READ);
     if (!mv) return AVERROR_EXTERNAL;
