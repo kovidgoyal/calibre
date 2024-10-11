@@ -510,10 +510,14 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
         href = a.get(attr) or ''
         if href.startswith(link_uid):
             a.set(attr, 'javascript:void(0)')
-            parts = decode_url(href.split('|')[1])
-            lname, lfrag = parts[0], parts[1]
-            link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-            a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+            try:
+                parts = decode_url(href.split('|')[1])
+            except IndexError:
+                pass
+            else:
+                lname, lfrag = parts[0], parts[1]
+                link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+                a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
         elif href:
             a.set('target', '_blank')
             a.set('rel', 'noopener noreferrer')
