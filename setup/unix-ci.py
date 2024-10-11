@@ -53,7 +53,7 @@ else:
         setenv('PATH', '$SW/bin:$PATH')
         setenv('CFLAGS', '-I$SW/include')
         setenv('LDFLAGS', '-L$SW/lib')
-        setenv('LD_LIBRARY_PATH', '$SW/qt/lib:$SW/lib')
+        setenv('LD_LIBRARY_PATH', '$SW/qt/lib:$SW/ffmpeg/lib:$SW/lib')
         setenv('PKG_CONFIG_PATH', '$SW/lib/pkgconfig')
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('CALIBRE_QT_PREFIX', '$SW/qt')
