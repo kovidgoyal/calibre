@@ -83,6 +83,8 @@ def load_plugin(path_to_zip_file):  # {{{
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     plugin = find_plugin(x)
+    if plugin is None:
+        raise ValueError(f'No plugin named: {x} found')
     if not plugin.can_be_disabled:
         raise ValueError('Plugin %s cannot be disabled'%x)
     dp = config['disabled_plugins']
