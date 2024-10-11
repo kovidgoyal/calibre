@@ -917,6 +917,8 @@ footers, documented below:
     level section
   * ``_TOP_LEVEL_SECTION_PAGENUM_`` - the page number of the current page
     within the current top level section
+  * ``_WIDTH_PIXELS_`` - the width of the header/footer area in pixels
+  * ``_HEIGHT_PIXELS_`` - the height of the header/footer area in pixels
 
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the :guilabel:`PDF Output`

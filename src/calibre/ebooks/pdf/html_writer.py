@@ -924,6 +924,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     body.attrib.pop('id', None)
     body.set('style', reset_css)
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
+    page_layout = job[1]
 
     def m(tag_name, text=None, style=None, **attrs):
         ans = root.makeelement(XHTML(tag_name), **attrs)
@@ -1008,6 +1009,9 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
         toplevel_pagenum_map, toplevel_pages_map = page_counts_map(tc())
 
+    dpi = 96  # dont know how to query Qt for this, seems to be the same on all platforms
+    def pt_to_px(pt): return int(pt * dpi / 72)
+
     def create_container(page_num, margins):
         style = {
             'page-break-inside': 'avoid',
@@ -1025,11 +1029,11 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             'overflow': 'hidden',
             'background-color': 'unset',
         }
-
         ans = m('div', style=style, id=f'p{page_num}')
         return ans
 
-    def format_template(template, page_num, height):
+    def format_template(template, page_num, height, margins):
+        div_width_px = pt_to_px(page_layout.paintRectPoints().width() - margins.left - margins.right)
         template = template.replace('_TOP_LEVEL_SECTION_PAGES_', str(toplevel_pagenum_map[page_num - 1]))
         template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', str(toplevel_pages_map[page_num - 1]))
         template = template.replace('_TOTAL_PAGES_', str(pages_in_doc))
@@ -1038,6 +1042,8 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
         template = template.replace('_TOP_LEVEL_SECTION_', prepare_string_for_xml(toplevel_toc_map[page_num - 1]))
         template = template.replace('_SECTION_', prepare_string_for_xml(page_toc_map[page_num - 1]))
+        template = template.replace('_WIDTH_PIXELS_', str(div_width_px))
+        template = template.replace('_HEIGHT_PIXELS_', str(pt_to_px(height)))
         troot = parse(template, namespace_elements=True)
         ans = last_tag(troot)[0]
         style = ans.get('style') or ''
@@ -1060,9 +1066,9 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         div = create_container(page_num, margins)
         body.append(div)
         if header_template:
-            div.append(format_template(header_template, page_num, margins.top))
+            div.append(format_template(header_template, page_num, margins.top, margins))
         if footer_template:
-            div.append(format_template(footer_template, page_num, margins.bottom))
+            div.append(format_template(footer_template, page_num, margins.bottom, margins))
 
     container.commit()
     # print(container.raw_data(name))
