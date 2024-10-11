@@ -23,13 +23,16 @@ self_dir = os.path.dirname(os.path.abspath(__file__))
 machine = (os.uname()[4] or '').lower()
 py_ver = '.'.join(map(str, python_major_minor_version()))
 QT_PREFIX = os.path.join(PREFIX, 'qt')
+FFMPEG_PREFIX = os.path.join(PREFIX, 'ffmpeg', 'lib')
 iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
 QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
 qt_get_dll_path = partial(get_dll_path, loc=os.path.join(QT_PREFIX, 'lib'))
+ffmpeg_get_dll_path = partial(get_dll_path, loc=FFMPEG_PREFIX)
 
 
 def binary_includes():
+    ffmpeg_dlls = tuple(os.path.basename(x).partition('.')[0][3:] for x in glob.glob(os.path.join(FFMPEG_PREFIX, '*.so')))
     return [
         j(PREFIX, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'optipng', 'cwebp', 'JxrDecApp')] + [
 
@@ -59,7 +62,7 @@ def binary_includes():
             # distros do not have libstdc++.so.6, so it should be safe to leave it out.
             # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
             # debian stable libstdc++ is  libstdc++.so.6.0.17)
-    ] + list(map(qt_get_dll_path, QT_DLLS))
+    ] + list(map(qt_get_dll_path, QT_DLLS)) + list(map(ffmpeg_get_dll_path, ffmpeg_dlls))
 
 
 class Env:
