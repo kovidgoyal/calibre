@@ -40,7 +40,7 @@ typedef struct Transcoder {
     AVFrame *dec_frame;
     AVFormatContext *ifmt_ctx, *ofmt_ctx;
     AVPacket *pkt;
-    PyObject *write_output, *read_input, *seek_in_input, *seek_in_output, *tell_in_input, *tell_in_output;
+    PyObject *write_output, *read_input, *seek_in_input, *seek_in_output;
     unsigned int output_bitrate;
     const char *container_format, *output_codec_name;
     AVAudioFifo *fifo;
@@ -49,6 +49,7 @@ typedef struct Transcoder {
 } Transcoder;
 
 #define check_call(func, ...) if ((ret = func(__VA_ARGS__)) < 0) return averror_as_python(ret, __LINE__);
+static const bool debug_io = false;
 
 static int
 read_packet(void *opaque, uint8_t *buf, int buf_size) {
@@ -57,10 +58,13 @@ read_packet(void *opaque, uint8_t *buf, int buf_size) {
     Py_DECREF(psz);
     if (!ret) return AVERROR_EXTERNAL;
     Py_buffer b;
-    if (PyObject_GetBuffer(ret, &b, PyBUF_SIMPLE) != 0) return AVERROR_EXTERNAL;
+    if (PyObject_GetBuffer(ret, &b, PyBUF_SIMPLE) != 0) { Py_DECREF(ret); return AVERROR_EXTERNAL; }
     memcpy(buf, b.buf, b.len < buf_size ? b.len : buf_size);
-    Py_DECREF(ret); PyBuffer_Release(&b);
-    return b.len;
+    int ans = b.len;
+    PyBuffer_Release(&b); Py_DECREF(ret);
+    if (debug_io) printf("read: requested_size: %d actual_size: %d\n", buf_size, ans);
+    if (ans == 0 && buf_size > 0) ans = AVERROR_EOF;
+    return ans;
 }
 
 static int
@@ -77,23 +81,32 @@ write_packet(void *opaque, uint8_t *buf, int buf_size) {
     if (!ret) return AVERROR_EXTERNAL;
     int ans = PyLong_AsLong(ret);
     Py_DECREF(ret);
+    if (debug_io) printf("write: requested_size: %d actual_size: %d\n", buf_size, ans);
     return ans;
 }
 
 static int64_t
-tell_packet(PyObject *tell_func) {
-    PyObject *ret = PyObject_CallNoArgs(tell_func);
-    if (!ret) return AVERROR_EXTERNAL;
-    long long ans = PyLong_AsLongLong(ret);
-    Py_DECREF(ret);
+size_packet(PyObject *seek_func, const char *which) {
+    PyObject *pos = NULL, *end_pos = NULL, *ret = NULL, *set = NULL;
+    int64_t ans = AVERROR_EXTERNAL;
+    if (!(pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_CUR))) goto cleanup;
+    if (!(end_pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_END))) goto cleanup;
+    if (!(set = PyLong_FromLong(SEEK_SET))) goto cleanup;
+    if (!(ret = PyObject_CallFunctionObjArgs(seek_func, pos, set, NULL))) goto cleanup;
+    ans = PyLong_AsLongLong(end_pos);
+    if (debug_io) printf("size %s: %ld\n", which, ans);
+cleanup:
+    Py_XDECREF(pos); Py_XDECREF(end_pos); Py_XDECREF(ret); Py_XDECREF(set);
     return ans;
 }
 
 static int64_t
-seek_packet(PyObject *seek_func, int64_t offset, int whence) {
+seek_packet(PyObject *seek_func, int64_t offset, int whence, const char *which) {
+    whence &= ~AVSEEK_FORCE;
     PyObject *ret = PyObject_CallFunction(seek_func, "Li", (long long)offset, whence);
     if (!ret) return AVERROR_EXTERNAL;
     long long ans = PyLong_AsLongLong(ret);
+    if (debug_io) printf("seek %s offset=%ld whence: %d: %lld\n", which, offset, whence, ans);
     Py_DECREF(ret);
     return ans;
 }
@@ -101,33 +114,30 @@ seek_packet(PyObject *seek_func, int64_t offset, int whence) {
 static int64_t
 seek_packet_input(void *opaque, int64_t offset, int whence) {
     Transcoder *t = opaque;
-    if (whence == AVSEEK_SIZE) return tell_packet(t->tell_in_input);
-    return seek_packet(t->seek_in_input, offset, whence);
+    return whence & AVSEEK_SIZE ? size_packet(t->seek_in_input, "input") : seek_packet(t->seek_in_input, offset, whence, "input");
 }
 
 static int64_t
 seek_packet_output(void *opaque, int64_t offset, int whence) {
     Transcoder *t = opaque;
-    if (whence == AVSEEK_SIZE) return tell_packet(t->tell_in_output);
-    return seek_packet(t->seek_in_output, offset, whence);
+    return whence & AVSEEK_SIZE ? size_packet(t->seek_in_output, "output") : seek_packet(t->seek_in_output, offset, whence, "output");
 }
 
 static bool
-set_seek_pointers(PyObject *file, PyObject **seek, PyObject **tell) {
+set_seek_pointers(PyObject *file, PyObject **seek) {
     PyObject *ret = PyObject_CallMethod(file, "seekable", "");
     if (!ret) return false;
     bool seekable = PyObject_IsTrue(ret);
     Py_DECREF(ret);
     if (seekable) {
         if (!(*seek = PyObject_GetAttrString(file, "seek"))) return false;
-        if (!(*tell = PyObject_GetAttrString(file, "tell"))) return false;
-    } else { *seek = NULL; *tell = NULL; }
+    } else *seek = NULL;
     return true;
 }
 
 static PyObject*
 open_input_file(Transcoder *t, PyObject *input_file) {
-    if (!set_seek_pointers(input_file, &t->seek_in_input, &t->tell_in_input)) return NULL;
+    if (!set_seek_pointers(input_file, &t->seek_in_input)) return NULL;
     if (!(t->read_input = PyObject_GetAttrString(input_file, "read"))) return NULL;
     if (!(t->ifmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
@@ -156,7 +166,7 @@ open_input_file(Transcoder *t, PyObject *input_file) {
 
 static PyObject*
 open_output_file(Transcoder *t, PyObject *output_file) {
-    if (!set_seek_pointers(output_file, &t->seek_in_output, &t->tell_in_output)) return NULL;
+    if (!set_seek_pointers(output_file, &t->seek_in_output)) return NULL;
     if (!(t->write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
     if (!(t->ofmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
@@ -382,8 +392,8 @@ free_transcoder_resources(Transcoder *t) {
     if (t->ifmt_ctx) { if (t->ifmt_ctx->pb) { avio_context_free(&t->ifmt_ctx->pb); } avformat_close_input(&t->ifmt_ctx); }
     if (t->ofmt_ctx) { if (t->ofmt_ctx->pb) { avio_context_free(&t->ofmt_ctx->pb); } avformat_free_context(t->ofmt_ctx); }
     if (t->resample_ctx) swr_free(&t->resample_ctx);
-    Py_CLEAR(t->tell_in_input); Py_CLEAR(t->seek_in_input); Py_CLEAR(t->read_input);
-    Py_CLEAR(t->tell_in_output); Py_CLEAR(t->seek_in_output); Py_CLEAR(t->write_output);
+    Py_CLEAR(t->seek_in_input); Py_CLEAR(t->read_input);
+    Py_CLEAR(t->seek_in_output); Py_CLEAR(t->write_output);
 }
 
 static PyObject*
