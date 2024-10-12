@@ -252,6 +252,8 @@ decode_audio_frame(AVFrame *input_frame, AVFormatContext *input_format_context, 
     if (ret == AVERROR_EOF) { r = Py_True; *finished = true; goto cleanup; }
     if (ret < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
     *data_present = true;
+    r = Py_True;
+
 cleanup:
     av_packet_free(&input_packet);
     return r;
@@ -312,7 +314,6 @@ encode_audio_frame(AVFrame *frame, AVFormatContext *output_format_context, AVCod
     Py_END_ALLOW_THREADS;
     if (ret == AVERROR(EAGAIN)) {
         goto ok;
-        /* If the last frame has been encoded, stop encoding. */
     } else if (ret == AVERROR_EOF) {
         goto ok;
     } else if (ret < 0) {
