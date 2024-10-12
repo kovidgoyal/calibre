@@ -6,13 +6,13 @@
  */
 
 
-#include <libavutil/version.h>
 #define UNICODE
 #define PY_SSIZE_T_CLEAN
 
 #include <Python.h>
 #include <stdbool.h>
-
+#include <stdint.h>
+#include <libavutil/version.h>
 #include <libavutil/audio_fifo.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/samplefmt.h>
@@ -39,9 +39,8 @@ typedef struct Transcoder {
     AVCodecContext *dec_ctx, *enc_ctx;
     AVFrame *dec_frame;
     AVFormatContext *ifmt_ctx, *ofmt_ctx;
-    AVIOContext *input_ctx, *output_ctx;
     AVPacket *pkt;
-    PyObject *write_output, *read_input, *seek_in_input, *seek_in_output;
+    PyObject *write_output, *read_input, *seek_in_input, *seek_in_output, *tell_in_input, *tell_in_output;
     unsigned int output_bitrate;
     const char *container_format, *output_codec_name;
     AVAudioFifo *fifo;
@@ -82,8 +81,8 @@ write_packet(void *opaque, uint8_t *buf, int buf_size) {
 }
 
 static int64_t
-seek_packet(PyObject *seek_func, int64_t offset, int whence) {
-    PyObject *ret = PyObject_CallFunction(seek_func, "Li", offset, whence);
+tell_packet(PyObject *tell_func) {
+    PyObject *ret = PyObject_CallNoArgs(tell_func);
     if (!ret) return AVERROR_EXTERNAL;
     long long ans = PyLong_AsLongLong(ret);
     Py_DECREF(ret);
@@ -91,19 +90,52 @@ seek_packet(PyObject *seek_func, int64_t offset, int whence) {
 }
 
 static int64_t
-seek_packet_input(void *opaque, int64_t offset, int whence) { return seek_packet(((Transcoder*)opaque)->seek_in_input, offset, whence); }
+seek_packet(PyObject *seek_func, int64_t offset, int whence) {
+    PyObject *ret = PyObject_CallFunction(seek_func, "Li", (long long)offset, whence);
+    if (!ret) return AVERROR_EXTERNAL;
+    long long ans = PyLong_AsLongLong(ret);
+    Py_DECREF(ret);
+    return ans;
+}
 
 static int64_t
-seek_packet_output(void *opaque, int64_t offset, int whence) { return seek_packet(((Transcoder*)opaque)->seek_in_output, offset, whence); }
+seek_packet_input(void *opaque, int64_t offset, int whence) {
+    Transcoder *t = opaque;
+    if (whence == AVSEEK_SIZE) return tell_packet(t->tell_in_input);
+    return seek_packet(t->seek_in_input, offset, whence);
+}
+
+static int64_t
+seek_packet_output(void *opaque, int64_t offset, int whence) {
+    Transcoder *t = opaque;
+    if (whence == AVSEEK_SIZE) return tell_packet(t->tell_in_output);
+    return seek_packet(t->seek_in_output, offset, whence);
+}
+
+static bool
+set_seek_pointers(PyObject *file, PyObject **seek, PyObject **tell) {
+    PyObject *ret = PyObject_CallMethod(file, "seekable", "");
+    if (!ret) return false;
+    bool seekable = PyObject_IsTrue(ret);
+    Py_DECREF(ret);
+    if (seekable) {
+        if (!(*seek = PyObject_GetAttrString(file, "seek"))) return false;
+        if (!(*tell = PyObject_GetAttrString(file, "tell"))) return false;
+    } else { *seek = NULL; *tell = NULL; }
+    return true;
+}
 
 static PyObject*
-open_input_file(Transcoder *t) {
+open_input_file(Transcoder *t, PyObject *input_file) {
+    if (!set_seek_pointers(input_file, &t->seek_in_input, &t->tell_in_input)) return NULL;
+    if (!(t->read_input = PyObject_GetAttrString(input_file, "read"))) return NULL;
     if (!(t->ifmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
     if (!(input_buf = av_malloc(io_bufsize))) { PyErr_NoMemory(); return NULL; }
-    if (!(t->input_ctx =  avio_alloc_context(input_buf, io_bufsize, 0, t, &read_packet, NULL, &seek_packet_input))) { PyErr_NoMemory(); return NULL; }
-    t->ifmt_ctx->pb = t->input_ctx;
+    if (t->seek_in_input) t->ifmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, &read_packet, NULL, &seek_packet_input);
+    else t->ifmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, &read_packet, NULL, NULL);
+    if (!(t->ifmt_ctx->pb)) { PyErr_NoMemory(); return NULL; }
     int ret;
     check_call(avformat_open_input, &t->ifmt_ctx, NULL, NULL, NULL);
     check_call(avformat_find_stream_info, t->ifmt_ctx, NULL);
@@ -123,13 +155,16 @@ open_input_file(Transcoder *t) {
 }
 
 static PyObject*
-open_output_file(Transcoder *t) {
+open_output_file(Transcoder *t, PyObject *output_file) {
+    if (!set_seek_pointers(output_file, &t->seek_in_output, &t->tell_in_output)) return NULL;
+    if (!(t->write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
     if (!(t->ofmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
     if (!(input_buf = av_malloc(io_bufsize))) { PyErr_NoMemory(); return NULL; }
-    if (!(t->output_ctx = avio_alloc_context(input_buf, io_bufsize, 0, t, NULL, &write_packet, &seek_packet_output))) { PyErr_NoMemory(); return NULL; }
-    t->ofmt_ctx->pb = t->output_ctx;
+    if (t->seek_in_output) t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, NULL, &write_packet, &seek_packet_output);
+    else t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, NULL, &write_packet, NULL);
+    if (!t->ofmt_ctx->pb) { PyErr_NoMemory(); return NULL; }
 
     if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, NULL, NULL))) {
         PyErr_Format(PyExc_KeyError, "unknown output container format: %s", t->container_format); return NULL;
@@ -339,18 +374,27 @@ transcode_loop(Transcoder *t) {
     return Py_True;
 }
 
+static void
+free_transcoder_resources(Transcoder *t) {
+    if (t->fifo) { av_audio_fifo_free(t->fifo); t->fifo = NULL; }
+    if (t->enc_ctx) avcodec_free_context(&t->enc_ctx);
+    if (t->dec_ctx) avcodec_free_context(&t->dec_ctx);
+    if (t->ifmt_ctx) { if (t->ifmt_ctx->pb) { avio_context_free(&t->ifmt_ctx->pb); } avformat_close_input(&t->ifmt_ctx); }
+    if (t->ofmt_ctx) { if (t->ofmt_ctx->pb) { avio_context_free(&t->ofmt_ctx->pb); } avformat_free_context(t->ofmt_ctx); }
+    if (t->resample_ctx) swr_free(&t->resample_ctx);
+    Py_CLEAR(t->tell_in_input); Py_CLEAR(t->seek_in_input); Py_CLEAR(t->read_input);
+    Py_CLEAR(t->tell_in_output); Py_CLEAR(t->seek_in_output); Py_CLEAR(t->write_output);
+}
+
 static PyObject*
 transcode_single_audio_stream(PyObject *self, PyObject *args, PyObject *kw) {
-    static char *kwds[] = {"read_input", "seek_in_input", "write_output", "seek_in_output", "output_bitrate", "container_format", "output_codec_name", NULL};
+    static char *kwds[] = {"input_file", "output_file", "output_bitrate", "container_format", "output_codec_name", NULL};
     Transcoder t = {.container_format = "mp4", .output_codec_name = ""};
-    if (!PyArg_ParseTupleAndKeywords(args, kw, "OOOO|Iss", kwds, &t.read_input, &t.seek_in_input, &t.write_output, &t.seek_in_output, &t.output_bitrate, &t.container_format, &t.output_codec_name)) return NULL;
-    if (!PyCallable_Check(t.read_input)) { PyErr_SetString(PyExc_TypeError, "read_input must be callable"); return NULL; }
-    if (!PyCallable_Check(t.seek_in_input)) { PyErr_SetString(PyExc_TypeError, "seek_in_input must be callable"); return NULL; }
-    if (!PyCallable_Check(t.write_output)) { PyErr_SetString(PyExc_TypeError, "write_output must be callable"); return NULL; }
-    if (!PyCallable_Check(t.seek_in_output)) { PyErr_SetString(PyExc_TypeError, "seek_in_output must be callable"); return NULL; }
+    PyObject *input_file, *output_file;
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "OO|Iss", kwds, &input_file, &output_file, &t.write_output, &t.seek_in_output, &t.output_bitrate, &t.container_format, &t.output_codec_name)) return NULL;
 
-    if (!open_input_file(&t)) goto cleanup;
-    if (!open_output_file(&t)) goto cleanup;
+    if (!open_input_file(&t, input_file)) goto cleanup;
+    if (!open_output_file(&t, output_file)) goto cleanup;
     if (!(t.fifo = av_audio_fifo_alloc(t.enc_ctx->sample_fmt, t.enc_ctx->ch_layout.nb_channels, 1))) {
         PyErr_NoMemory(); goto cleanup;
     }
@@ -366,14 +410,7 @@ transcode_single_audio_stream(PyObject *self, PyObject *args, PyObject *kw) {
     if ((ret = av_write_trailer(t.ofmt_ctx)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
 
 cleanup:
-    if (t.fifo) { av_audio_fifo_free(t.fifo); t.fifo = NULL; }
-    if (t.enc_ctx) avcodec_free_context(&t.enc_ctx);
-    if (t.dec_ctx) avcodec_free_context(&t.dec_ctx);
-    if (t.ifmt_ctx) { avio_closep(&t.ifmt_ctx->pb); avformat_close_input(&t.ifmt_ctx); }
-    if (t.ofmt_ctx) { avio_closep(&t.ofmt_ctx->pb); avformat_free_context(t.ofmt_ctx); }
-    if (t.input_ctx) { av_freep(&t.input_ctx->buffer); avio_context_free(&t.input_ctx); }
-    if (t.output_ctx) { av_freep(&t.output_ctx->buffer); avio_context_free(&t.output_ctx); }
-    if (t.resample_ctx) swr_free(&t.resample_ctx);
+    free_transcoder_resources(&t);
     if (PyErr_Occurred()) return NULL;
     Py_RETURN_NONE;
 }

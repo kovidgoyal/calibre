@@ -35,6 +35,9 @@ class ReadOnlyFileBuffer:
         self.pos = max(0, min(self.pos, self.sz))
         return self.pos
 
+    def seekable(self):
+        return True
+
     def getvalue(self):
         return self.mv
 
