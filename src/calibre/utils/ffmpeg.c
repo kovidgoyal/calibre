@@ -518,7 +518,10 @@ wav_header_for_pcm_data(PyObject *self, PyObject *args) {
 
 // Boilerplate {{{
 static int
-exec_module(PyObject *module) { return 0; }
+exec_module(PyObject *module) {
+    av_log_set_level(AV_LOG_ERROR);
+    return 0;
+}
 
 CALIBRE_MODINIT_FUNC PyInit_ffmpeg(void) {
     static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
