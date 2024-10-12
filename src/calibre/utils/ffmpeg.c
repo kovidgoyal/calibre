@@ -172,8 +172,8 @@ open_output_file(Transcoder *t, PyObject *output_file) {
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
     if (!(input_buf = av_malloc(io_bufsize))) { PyErr_NoMemory(); return NULL; }
-    if (t->seek_in_output) t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, NULL, &write_packet, &seek_packet_output);
-    else t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, NULL, &write_packet, NULL);
+    if (t->seek_in_output) t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 1, t, NULL, &write_packet, &seek_packet_output);
+    else t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 1, t, NULL, &write_packet, NULL);
     if (!t->ofmt_ctx->pb) { PyErr_NoMemory(); return NULL; }
 
     if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, NULL, NULL))) {
