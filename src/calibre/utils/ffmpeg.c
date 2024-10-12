@@ -136,9 +136,7 @@ set_seek_pointers(PyObject *file, PyObject **seek) {
 }
 
 static PyObject*
-open_input_file(Transcoder *t, PyObject *input_file) {
-    if (!set_seek_pointers(input_file, &t->seek_in_input)) return NULL;
-    if (!(t->read_input = PyObject_GetAttrString(input_file, "read"))) return NULL;
+open_input_file(Transcoder *t) {
     if (!(t->ifmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
@@ -165,9 +163,7 @@ open_input_file(Transcoder *t, PyObject *input_file) {
 }
 
 static PyObject*
-open_output_file(Transcoder *t, PyObject *output_file) {
-    if (!set_seek_pointers(output_file, &t->seek_in_output)) return NULL;
-    if (!(t->write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
+open_output_file(Transcoder *t) {
     if (!(t->ofmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
@@ -403,9 +399,13 @@ transcode_single_audio_stream(PyObject *self, PyObject *args, PyObject *kw) {
     Transcoder t = {.container_format = "mp4", .output_codec_name = ""};
     PyObject *input_file, *output_file;
     if (!PyArg_ParseTupleAndKeywords(args, kw, "OO|Iss", kwds, &input_file, &output_file, &t.write_output, &t.seek_in_output, &t.output_bitrate, &t.container_format, &t.output_codec_name)) return NULL;
+    if (!set_seek_pointers(input_file, &t.seek_in_input)) return NULL;
+    if (!(t.read_input = PyObject_GetAttrString(input_file, "read"))) return NULL;
+    if (!set_seek_pointers(output_file, &t.seek_in_output)) return NULL;
+    if (!(t.write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
 
-    if (!open_input_file(&t, input_file)) goto cleanup;
-    if (!open_output_file(&t, output_file)) goto cleanup;
+    if (!open_input_file(&t)) goto cleanup;
+    if (!open_output_file(&t)) goto cleanup;
     if (!(t.fifo = av_audio_fifo_alloc(t.enc_ctx->sample_fmt, t.enc_ctx->ch_layout.nb_channels, 1))) {
         PyErr_NoMemory(); goto cleanup;
     }
