@@ -42,7 +42,7 @@ typedef struct Transcoder {
     AVPacket *pkt;
     PyObject *write_output, *read_input, *seek_in_input, *seek_in_output;
     unsigned int output_bitrate;
-    const char *container_format, *output_codec_name;
+    const char *container_format, *output_codec_name, *output_filename;
     AVAudioFifo *fifo;
     SwrContext *resample_ctx;
     int64_t pts;
@@ -218,8 +218,12 @@ open_output_file(Transcoder *t) {
     else t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 1, t, NULL, &write_packet, NULL);
     if (!t->ofmt_ctx->pb) return nomem(t);
 
-    if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, NULL, NULL))) return set_error(t, PyExc_KeyError,
-            "unknown output container format: %s", t->container_format);
+    if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, t->output_filename, NULL))) {
+        if (t->container_format[0] || t->output_filename[0]) return set_error(t, PyExc_KeyError,
+            "Could not determine container format for output filename: %s and container format name: %s", t->output_filename, t->container_format);
+        if (!(t->ofmt_ctx->oformat = av_guess_format("mp4", "file.mp4", NULL))) return set_error(t, PyExc_Exception, "ffmpeg is missing support for the MP4 container format");
+
+    }
     const AVCodec *output_codec = NULL;
     if (!t->output_codec_name[0]) {
         if (!(output_codec = avcodec_find_encoder(t->ofmt_ctx->oformat->audio_codec))) return set_error(t, PyExc_RuntimeError,
@@ -429,13 +433,17 @@ free_transcoder_resources(Transcoder *t) {
 static PyObject*
 transcode_single_audio_stream(PyObject *self, PyObject *args, PyObject *kw) {
     static char *kwds[] = {"input_file", "output_file", "output_bitrate", "container_format", "output_codec_name", NULL};
-    Transcoder t = {.container_format = "mp4", .output_codec_name = ""};
+    Transcoder t = {.container_format = "", .output_codec_name = "", .output_filename = ""};
     PyObject *input_file, *output_file;
     if (!PyArg_ParseTupleAndKeywords(args, kw, "OO|Iss", kwds, &input_file, &output_file, &t.write_output, &t.seek_in_output, &t.output_bitrate, &t.container_format, &t.output_codec_name)) return NULL;
     if (!set_seek_pointers(input_file, &t.seek_in_input)) return NULL;
     if (!(t.read_input = PyObject_GetAttrString(input_file, "read"))) return NULL;
     if (!set_seek_pointers(output_file, &t.seek_in_output)) return NULL;
     if (!(t.write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
+    PyObject *ofname = PyObject_GetAttrString(output_file, "name");
+    if (ofname) {
+        t.output_filename = PyUnicode_AsUTF8(ofname); Py_DECREF(ofname);
+    } else PyErr_Clear();
 
     release_gil(&t);
     if (!open_input_file(&t)) goto cleanup;
