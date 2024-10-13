@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from pprint import pformat
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class NatGeo(BasicNewsRecipe):
+    title = 'National Geographic Traveller'
+    description = 'News articles from The National Geographic Traveller, Download Monthly.'
+    language = 'en'
+    encoding = 'utf8'
+    publisher = 'nationalgeographic.com'
+    category = 'science, nat geo'
+    __author__ = 'unkn0wn'
+    description = 'Inspiring people to care about the planet since 1888'
+    timefmt = ' [%a, %d %b, %Y]'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style']
+    remove_javascript = False
+    masthead_url = 'https://i.natgeofe.com/n/e76f5368-6797-4794-b7f6-8d757c79ea5c/ng-logo-2fl.png?w=600&h=600'
+    remove_empty_feeds = True
+    resolve_internal_links = True
+    ignore_duplicate_articles = {'url'}
+
+    recipe_specific_options = {
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600',
+        }
+    }
+
+    @property
+    def natgeo_parser(self):
+        ans = getattr(self, '_natgeo_parser', None)
+        if ans is None:
+            from calibre.live import load_module
+
+            self._natgeo_parser = ans = load_module('calibre.web.site_parsers.natgeo')
+        return ans
+
+    def preprocess_raw_html(self, raw_html, url):
+        return self.natgeo_parser.extract_html(raw_html)
+
+    extra_css = """
+        blockquote { color:#404040; }
+        .byline, i { font-style:italic; color:#202020; }
+        .cap { font-size:small; }
+        img {display:block; margin:0 auto;}
+        .cred { font-style:italic; font-size:small; color:#404040; }
+        .auth, .time, .sub { font-size:small; color:#5c5c5c; }
+    """
+
+    def parse_index(self):
+        pages = [
+            'https://www.nationalgeographic.com/travel/topic/national-geographic-traveller-uk'
+        ]
+
+        feeds = []
+
+        for sec in pages:
+            soup = self.index_to_soup(sec)
+            parsed = self.articles_from_soup(soup)
+            if parsed:
+                feeds += parsed
+        return feeds
+
+    def articles_from_soup(self, soup):
+        ans = {}
+        for article in soup.findAll('article'):
+            a = article.find('a')
+            url = a['href']
+            if url.startswith('/'):
+                url = 'https://www.nationalgeographic.com' + url
+            section = self.tag_to_string(article.find(**classes('SectionLabel')))
+            if section.startswith('Paid Content'):
+                continue
+            title = self.tag_to_string(
+                article.find(**classes('PromoTile__Title--truncated'))
+            )
+            articles = ans.setdefault(section, [])
+            articles.append({'title': title, 'url': url})
+        self.log(pformat(ans))
+        return list(ans.items())
+
+    def preprocess_html(self, soup):
+        for h2 in soup.findAll('h2'):
+            h2.name = 'h4'
+        for img in soup.findAll('img', src=True):
+            res = '?w=600'
+            w = self.recipe_specific_options.get('res')
+            if w and isinstance(w, str):
+                res = '?w=' + w
+            img['src'] = img['src'] + res
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        summ = soup.find(attrs={'class': 'byline'})
+        if summ:
+            article.summary = self.tag_to_string(summ)
+            article.text_summary = self.tag_to_string(summ)

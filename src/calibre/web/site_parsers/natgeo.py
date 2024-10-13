@@ -15,9 +15,11 @@ pprint
 def extract_json(raw):
     s = raw.find("window['__natgeo__']")
     script = raw[s : raw.find('</script>', s)]
-    return json.loads(script[script.find('{') :].rstrip(';'))['page']['content'][
-        'prismarticle'
-    ]
+    content = json.loads(script[script.find('{') :].rstrip(';'))['page']['content']
+    if content.get('prismarticle'):
+        return content['prismarticle']
+    if content.get('article'):
+        return content['article']
 
 
 def parse_contributors(grp):
@@ -104,12 +106,37 @@ def parse_body(x):
             if isinstance(y, dict):
                 yield from parse_body(y)
 
+def parse_bdy(item):
+    c = item['cntnt']
+    if item.get('type') == 'inline':
+        if c.get('cmsType') == 'listicle':
+            if 'title' in c:
+                yield '<h3>' + escape(c['title']) + '</h3>'
+            yield c['text']
+        elif c.get('cmsType') == 'image':
+            yield from parse_lead_image(c)
+        elif c.get('cmsType') == 'imagegroup':
+            for imgs in c['images']:
+                yield from parse_lead_image(imgs)
+        elif c.get('cmsType') == 'pullquote':
+            if 'quote' in c:
+                yield '<blockquote>' + c['quote'] + '</blockquote>'
+        elif c.get('cmsType') == 'editorsNote':
+            if 'note' in c:
+                yield '<blockquote>' + c['note'] + '</blockquote>'
+    else:
+        if c['mrkup'].strip().startswith('<'):
+            yield c['mrkup']
+        else:
+            yield '<{tag}>{markup}</{tag}>'.format(
+                tag=item['type'], markup=c['mrkup'])
 
 def parse_article(edg):
     sc = edg['schma']
     yield '<div class="sub">' + escape(edg['sctn']) + '</div>'
     yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
-    yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
+    if sc.get('sclDsc'):
+        yield '<div class="byline">' + escape(sc['sclDsc']) + '</div>'
     yield '<p>'
     yield from parse_contributors(edg.get('cntrbGrp', {}))
     ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
@@ -119,15 +146,19 @@ def parse_article(edg):
     yield '</p>'
     if edg.get('ldMda', {}).get('cmsType') == 'image':
         yield from parse_lead_image(edg['ldMda'])
-    for main in edg['prismData']['mainComponents']:
-        if main['name'] == 'Body':
-            for item in main['props']['body']:
-                if isinstance(item, dict):
-                    if item.get('type', '') == 'inline':
-                        yield ''.join(parse_inline(item))
-                elif isinstance(item, list):
-                    for line in item:
-                        yield ''.join(parse_body(line))
+    if edg.get('prismData'):
+        for main in edg['prismData']['mainComponents']:
+            if main['name'] == 'Body':
+                for item in main['props']['body']:
+                    if isinstance(item, dict):
+                        if item.get('type', '') == 'inline':
+                            yield ''.join(parse_inline(item))
+                    elif isinstance(item, list):
+                        for line in item:
+                            yield ''.join(parse_body(line))
+    elif edg.get('bdy'):
+        for item in edg['bdy']:
+            yield from parse_bdy(item)
 
 
 def article_parse(data):
