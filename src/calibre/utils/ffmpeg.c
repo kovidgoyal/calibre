@@ -26,7 +26,7 @@
 #include <libswresample/swresample.h>
 
 static PyObject*
-averror_as_python(int errnum, int line) {
+averror_as_python_with_gil_held(int errnum, int line) {
     if (!PyErr_Occurred()) {  // python error happened in a callback function for example
         char avbuf[4096];
         av_strerror(errnum, avbuf, sizeof(avbuf));
@@ -46,22 +46,63 @@ typedef struct Transcoder {
     AVAudioFifo *fifo;
     SwrContext *resample_ctx;
     int64_t pts;
+    PyThreadState *gil_released;
+    char errmsg[2048]; PyObject *error_type;
 } Transcoder;
 
-#define check_call(func, ...) if ((ret = func(__VA_ARGS__)) < 0) return averror_as_python(ret, __LINE__);
+static void
+release_gil(Transcoder *t) {
+    if (!t->gil_released) t->gil_released = PyEval_SaveThread();
+}
+
+static void
+acquire_gil(Transcoder *t) {
+    if (t->gil_released) {
+        PyEval_RestoreThread(t->gil_released); t->gil_released = NULL;
+    }
+}
+
+static PyObject*
+nomem(Transcoder *t) {
+    t->error_type = PyExc_MemoryError;
+    snprintf(t->errmsg, sizeof(t->errmsg), "Out of memory"); return NULL;
+}
+
+static PyObject*
+set_error(Transcoder *t, PyObject *etype, const char *fmt, ...) {
+    t->error_type = etype;
+    va_list arg_ptr;
+    va_start(arg_ptr, fmt);
+    vsnprintf(t->errmsg, sizeof(t->errmsg), fmt, arg_ptr);
+    va_end(arg_ptr);
+    return NULL;
+}
+
+static PyObject*
+averror_as_python(Transcoder *t, int ret, int line) {
+    char avbuf[sizeof(t->errmsg) - 256];
+    av_strerror(ret, avbuf, sizeof(avbuf));
+    return set_error(t, PyExc_Exception, "%s:%d:%s", __FILE__, line, avbuf);
+}
+
+#define check_call(func, ...) if ((ret = func(__VA_ARGS__)) < 0) { return averror_as_python(t, ret, __LINE__); }
+
 static const bool debug_io = false;
 
 static int
 read_packet(void *opaque, uint8_t *buf, int buf_size) {
+    Transcoder *t = opaque;
+    acquire_gil(t);
     PyObject *psz = PyLong_FromLong((long)buf_size);
-    PyObject *ret = PyObject_CallOneArg(((Transcoder*)opaque)->read_input, psz);
+    PyObject *ret = PyObject_CallOneArg(t->read_input, psz);
     Py_DECREF(psz);
-    if (!ret) return AVERROR_EXTERNAL;
+    if (!ret) { release_gil(t); return AVERROR_EXTERNAL; }
     Py_buffer b;
-    if (PyObject_GetBuffer(ret, &b, PyBUF_SIMPLE) != 0) { Py_DECREF(ret); return AVERROR_EXTERNAL; }
+    if (PyObject_GetBuffer(ret, &b, PyBUF_SIMPLE) != 0) { Py_DECREF(ret); release_gil(t); return AVERROR_EXTERNAL; }
     memcpy(buf, b.buf, b.len < buf_size ? b.len : buf_size);
     int ans = b.len;
     PyBuffer_Release(&b); Py_DECREF(ret);
+    release_gil(t);
     if (debug_io) printf("read: requested_size: %d actual_size: %d\n", buf_size, ans);
     if (ans == 0 && buf_size > 0) ans = AVERROR_EOF;
     return ans;
@@ -74,13 +115,15 @@ write_packet(void *opaque, const uint8_t *buf, int buf_size) {
 write_packet(void *opaque, uint8_t *buf, int buf_size) {
 #endif
     Transcoder *t = opaque;
+    acquire_gil(t);
     PyObject *mv = PyMemoryView_FromMemory((char*)buf, buf_size, PyBUF_READ);
-    if (!mv) return AVERROR_EXTERNAL;
+    if (!mv) { release_gil(t); return AVERROR_EXTERNAL; }
     PyObject *ret = PyObject_CallOneArg(t->write_output, mv);
     Py_DECREF(mv);
-    if (!ret) return AVERROR_EXTERNAL;
+    if (!ret) { release_gil(t); return AVERROR_EXTERNAL; }
     int ans = PyLong_AsLong(ret);
     Py_DECREF(ret);
+    release_gil(t);
     if (debug_io) printf("write: requested_size: %d actual_size: %d\n", buf_size, ans);
     return ans;
 }
@@ -114,13 +157,19 @@ seek_packet(PyObject *seek_func, int64_t offset, int whence, const char *which) 
 static int64_t
 seek_packet_input(void *opaque, int64_t offset, int whence) {
     Transcoder *t = opaque;
-    return whence & AVSEEK_SIZE ? size_packet(t->seek_in_input, "input") : seek_packet(t->seek_in_input, offset, whence, "input");
+    acquire_gil(t);
+    int64_t ans = whence & AVSEEK_SIZE ? size_packet(t->seek_in_input, "input") : seek_packet(t->seek_in_input, offset, whence, "input");
+    release_gil(t);
+    return ans;
 }
 
 static int64_t
 seek_packet_output(void *opaque, int64_t offset, int whence) {
     Transcoder *t = opaque;
-    return whence & AVSEEK_SIZE ? size_packet(t->seek_in_output, "output") : seek_packet(t->seek_in_output, offset, whence, "output");
+    acquire_gil(t);
+    int64_t ans = whence & AVSEEK_SIZE ? size_packet(t->seek_in_output, "output") : seek_packet(t->seek_in_output, offset, whence, "output");
+    release_gil(t);
+    return ans;
 }
 
 static bool
@@ -137,25 +186,22 @@ set_seek_pointers(PyObject *file, PyObject **seek) {
 
 static PyObject*
 open_input_file(Transcoder *t) {
-    if (!(t->ifmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
+    if (!(t->ifmt_ctx = avformat_alloc_context())) return nomem(t);
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
-    if (!(input_buf = av_malloc(io_bufsize))) { PyErr_NoMemory(); return NULL; }
+    if (!(input_buf = av_malloc(io_bufsize))) return nomem(t);
     if (t->seek_in_input) t->ifmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, &read_packet, NULL, &seek_packet_input);
     else t->ifmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 0, t, &read_packet, NULL, NULL);
-    if (!(t->ifmt_ctx->pb)) { PyErr_NoMemory(); return NULL; }
+    if (!(t->ifmt_ctx->pb)) return nomem(t);
     int ret;
     check_call(avformat_open_input, &t->ifmt_ctx, NULL, NULL, NULL);
     check_call(avformat_find_stream_info, t->ifmt_ctx, NULL);
-    if (t->ifmt_ctx->nb_streams != 1) {
-        PyErr_Format(PyExc_ValueError, "input file must have only one stream, it has: %u streams", t->ifmt_ctx->nb_streams); return NULL;
-    }
+    if (t->ifmt_ctx->nb_streams != 1) return set_error(t, PyExc_ValueError,
+            "input file must have only one stream, it has: %u streams", t->ifmt_ctx->nb_streams);
     const AVStream *stream = t->ifmt_ctx->streams[0];
     const AVCodec *input_codec = avcodec_find_decoder(stream->codecpar->codec_id);
-    if (!input_codec) {
-        PyErr_SetString(PyExc_ValueError, "could not find codec to decode input file"); return NULL;
-    }
-    if (!(t->dec_ctx = avcodec_alloc_context3(input_codec))) return PyErr_NoMemory();
+    if (!input_codec) return set_error(t, PyExc_ValueError, "%s", "could not find codec to decode input file");
+    if (!(t->dec_ctx = avcodec_alloc_context3(input_codec))) return nomem(t);
     check_call(avcodec_parameters_to_context, t->dec_ctx, stream->codecpar);
     check_call(avcodec_open2, t->dec_ctx, input_codec, NULL);
     t->dec_ctx->pkt_timebase = stream->time_base;
@@ -164,30 +210,27 @@ open_input_file(Transcoder *t) {
 
 static PyObject*
 open_output_file(Transcoder *t) {
-    if (!(t->ofmt_ctx = avformat_alloc_context())) { PyErr_NoMemory(); return NULL; }
+    if (!(t->ofmt_ctx = avformat_alloc_context())) return nomem(t);
     static const size_t io_bufsize = 8192;
     uint8_t *input_buf;
-    if (!(input_buf = av_malloc(io_bufsize))) { PyErr_NoMemory(); return NULL; }
+    if (!(input_buf = av_malloc(io_bufsize))) return nomem(t);
     if (t->seek_in_output) t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 1, t, NULL, &write_packet, &seek_packet_output);
     else t->ofmt_ctx->pb = avio_alloc_context(input_buf, io_bufsize, 1, t, NULL, &write_packet, NULL);
-    if (!t->ofmt_ctx->pb) { PyErr_NoMemory(); return NULL; }
+    if (!t->ofmt_ctx->pb) return nomem(t);
 
-    if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, NULL, NULL))) {
-        PyErr_Format(PyExc_KeyError, "unknown output container format: %s", t->container_format); return NULL;
-    }
+    if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, NULL, NULL))) return set_error(t, PyExc_KeyError,
+            "unknown output container format: %s", t->container_format);
     const AVCodec *output_codec = NULL;
     if (!t->output_codec_name[0]) {
-        if (!(output_codec = avcodec_find_encoder(t->ofmt_ctx->oformat->audio_codec))) {
-            PyErr_Format(PyExc_RuntimeError, "Default audio output codec for %s not available", t->ofmt_ctx->oformat->long_name); return NULL;
-        }
+        if (!(output_codec = avcodec_find_encoder(t->ofmt_ctx->oformat->audio_codec))) return set_error(t, PyExc_RuntimeError,
+                "Default audio output codec for %s not available", t->ofmt_ctx->oformat->long_name);
     } else {
-        if (!(output_codec = avcodec_find_encoder_by_name(t->output_codec_name))) {
-            PyErr_Format(PyExc_KeyError, "unknown output codec: %s", t->output_codec_name); return NULL;
-        }
+        if (!(output_codec = avcodec_find_encoder_by_name(t->output_codec_name))) return set_error(t, PyExc_KeyError,
+                "unknown output codec: %s", t->output_codec_name);
     }
     AVStream *stream = NULL;
-    if (!(stream = avformat_new_stream(t->ofmt_ctx, NULL))) return PyErr_NoMemory();
-    if (!(t->enc_ctx = avcodec_alloc_context3(output_codec))) return PyErr_NoMemory();
+    if (!(stream = avformat_new_stream(t->ofmt_ctx, NULL))) return nomem(t);
+    if (!(t->enc_ctx = avcodec_alloc_context3(output_codec))) return nomem(t);
 
     // Setup encoding parameters
     av_channel_layout_default(&t->enc_ctx->ch_layout, t->dec_ctx->ch_layout.nb_channels);
@@ -212,41 +255,37 @@ open_output_file(Transcoder *t) {
 }
 
 static PyObject*
-add_samples_to_fifo(AVAudioFifo *fifo, uint8_t **converted_input_samples, const int frame_size) {
+add_samples_to_fifo(Transcoder *t, uint8_t **converted_input_samples, const int frame_size) {
     int ret;
 
     /* Make the FIFO as large as it needs to be to hold both,
      * the old and the new samples. */
-    check_call(av_audio_fifo_realloc, fifo, av_audio_fifo_size(fifo) + frame_size);
+    check_call(av_audio_fifo_realloc, t->fifo, av_audio_fifo_size(t->fifo) + frame_size);
     /* Store the new samples in the FIFO buffer. */
-    if (av_audio_fifo_write(fifo, (void **)converted_input_samples, frame_size) < frame_size) {
-        PyErr_SetString(PyExc_Exception, "could not write data to FIFO"); return NULL;
+    if (av_audio_fifo_write(t->fifo, (void **)converted_input_samples, frame_size) < frame_size) {
+        return set_error(t, PyExc_Exception, "%s", "could not write data to FIFO");
     }
     return Py_True;
 }
 
 static PyObject*
-decode_audio_frame(AVFrame *input_frame, AVFormatContext *input_format_context, AVCodecContext *input_codec_context, bool *data_present, bool *finished) {
+decode_audio_frame(Transcoder *t, AVFrame *input_frame, AVFormatContext *input_format_context, AVCodecContext *input_codec_context, bool *data_present, bool *finished) {
     AVPacket *input_packet = av_packet_alloc();
-    if (!input_packet) return PyErr_NoMemory();
+    if (!input_packet) return nomem(t);
     *data_present = false;
     *finished = false;
     int ret;
     PyObject *r = NULL;
     if ((ret = av_read_frame(input_format_context, input_packet)) < 0) {
         if (ret == AVERROR_EOF) *finished = 1;
-        else { averror_as_python(ret, __LINE__); goto cleanup; }
+        else { averror_as_python(t, ret, __LINE__); goto cleanup; }
     }
-    Py_BEGIN_ALLOW_THREADS;
     ret = avcodec_send_packet(input_codec_context, input_packet);
-    Py_END_ALLOW_THREADS;
-    if (ret < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
-    Py_BEGIN_ALLOW_THREADS;
+    if (ret < 0) { averror_as_python(t, ret, __LINE__); goto cleanup; }
     ret = avcodec_receive_frame(input_codec_context, input_frame);
-    Py_END_ALLOW_THREADS;
     if (ret == AVERROR(EAGAIN)) { r = Py_True; goto cleanup; }
     if (ret == AVERROR_EOF) { r = Py_True; *finished = true; goto cleanup; }
-    if (ret < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+    if (ret < 0) { averror_as_python(t, ret, __LINE__); goto cleanup; }
     *data_present = true;
     r = Py_True;
 
@@ -261,21 +300,19 @@ read_decode_convert_and_store(Transcoder *t, bool *finished) {
     int ret;
     AVFrame *input_frame = av_frame_alloc();
     uint8_t **converted_input_samples = NULL;
-    if (!input_frame) { PyErr_NoMemory(); goto cleanup; }
+    if (!input_frame) { nomem(t); goto cleanup; }
     bool data_present = false;
-    if (!decode_audio_frame(input_frame, t->ifmt_ctx, t->dec_ctx, &data_present, finished)) goto cleanup;
+    if (!decode_audio_frame(t, input_frame, t->ifmt_ctx, t->dec_ctx, &data_present, finished)) goto cleanup;
     if (*finished) { r = Py_True; goto cleanup; }
     if (data_present) {
         // Convert the samples to the format needed by the encoder
         if ((ret = av_samples_alloc_array_and_samples(
                 &converted_input_samples, NULL, t->enc_ctx->ch_layout.nb_channels,
-                input_frame->nb_samples, t->enc_ctx->sample_fmt, 0)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
-        Py_BEGIN_ALLOW_THREADS;
+                input_frame->nb_samples, t->enc_ctx->sample_fmt, 0)) < 0) { averror_as_python(t, ret, __LINE__); goto cleanup; }
         ret = swr_convert(t->resample_ctx, converted_input_samples, input_frame->nb_samples, (const uint8_t**)input_frame->extended_data, input_frame->nb_samples);
-        Py_END_ALLOW_THREADS;
-        if (ret < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+        if (ret < 0) { averror_as_python(t, ret, __LINE__); goto cleanup; }
         // Add the converted input samples to the FIFO buffer for later processing.
-        if (!add_samples_to_fifo(t->fifo, converted_input_samples, input_frame->nb_samples)) goto cleanup;
+        if (!add_samples_to_fifo(t, converted_input_samples, input_frame->nb_samples)) goto cleanup;
     }
 
     r = Py_True;
@@ -288,9 +325,9 @@ cleanup:
 
 
 static PyObject*
-encode_audio_frame(AVFrame *frame, AVFormatContext *output_format_context, AVCodecContext *output_codec_context, bool *data_present, int64_t *pts) {
+encode_audio_frame(Transcoder *t, AVFrame *frame, AVFormatContext *output_format_context, AVCodecContext *output_codec_context, bool *data_present, int64_t *pts) {
     AVPacket *output_packet = av_packet_alloc();
-    if (!output_packet) return PyErr_NoMemory();
+    if (!output_packet) return nomem(t);
 
     if (frame) {
         frame->pts = *pts;
@@ -299,28 +336,24 @@ encode_audio_frame(AVFrame *frame, AVFormatContext *output_format_context, AVCod
     *data_present = false;
     int ret;
     PyObject *r = NULL;
-    Py_BEGIN_ALLOW_THREADS;
     ret = avcodec_send_frame(output_codec_context, frame);
-    Py_END_ALLOW_THREADS;
     if (ret < 0 && ret != AVERROR_EOF) {
-        averror_as_python(ret, __LINE__); goto cleanup;
+        averror_as_python(t, ret, __LINE__); goto cleanup;
     }
-    Py_BEGIN_ALLOW_THREADS;
     ret = avcodec_receive_packet(output_codec_context, output_packet);
-    Py_END_ALLOW_THREADS;
     if (ret == AVERROR(EAGAIN)) {
         goto ok;
     } else if (ret == AVERROR_EOF) {
         goto ok;
     } else if (ret < 0) {
-        averror_as_python(ret, __LINE__);
+        averror_as_python(t, ret, __LINE__);
         goto cleanup;
         /* Default case: Return encoded data. */
     } else {
         *data_present = true;
     }
     if (*data_present && (ret = av_write_frame(output_format_context, output_packet)) < 0) {
-        averror_as_python(ret, __LINE__); goto cleanup;
+        averror_as_python(t, ret, __LINE__); goto cleanup;
     }
 
 ok:
@@ -333,22 +366,22 @@ cleanup:
 
 
 static PyObject*
-load_encode_and_write(AVAudioFifo *fifo, AVFormatContext *output_format_context, AVCodecContext *output_codec_context, int64_t *pts) {
+load_encode_and_write(Transcoder *t, AVAudioFifo *fifo, AVFormatContext *output_format_context, AVCodecContext *output_codec_context, int64_t *pts) {
     const int frame_size = FFMIN(av_audio_fifo_size(fifo), output_codec_context->frame_size);
     PyObject *r = NULL;
     bool data_written = false;
     AVFrame *output_frame = av_frame_alloc();
-    if (!output_frame) return PyErr_NoMemory();
+    if (!output_frame) return nomem(t);
     output_frame->nb_samples     = frame_size;
     av_channel_layout_copy(&output_frame->ch_layout, &output_codec_context->ch_layout);
     output_frame->format         = output_codec_context->sample_fmt;
     output_frame->sample_rate    = output_codec_context->sample_rate;
     int ret = av_frame_get_buffer(output_frame, 0);
-    if (ret < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+    if (ret < 0) { averror_as_python(t, ret, __LINE__); goto cleanup; }
     if (av_audio_fifo_read(fifo, (void **)output_frame->data, frame_size) < frame_size) {
-        PyErr_SetString(PyExc_Exception, "could not read audio data from AVAudioFifo"); goto cleanup;
+        set_error(t, PyExc_Exception, "%s", "could not read audio data from AVAudioFifo"); goto cleanup;
     }
-    if (!encode_audio_frame(output_frame, output_format_context, output_codec_context, &data_written, pts)) goto cleanup;
+    if (!encode_audio_frame(t, output_frame, output_format_context, output_codec_context, &data_written, pts)) goto cleanup;
     r = Py_True;
 
 cleanup:
@@ -367,13 +400,13 @@ transcode_loop(Transcoder *t) {
             if (!read_decode_convert_and_store(t, &finished)) return NULL;
         }
         while (av_audio_fifo_size(t->fifo) >= output_frame_size || (finished && av_audio_fifo_size(t->fifo) > 0)) {
-            if (!load_encode_and_write(t->fifo, t->ofmt_ctx, t->enc_ctx, &t->pts)) return NULL;
+            if (!load_encode_and_write(t, t->fifo, t->ofmt_ctx, t->enc_ctx, &t->pts)) return NULL;
         }
         if (finished) {
              bool data_written = false;
              /* Flush the encoder as it may have delayed frames. */
              do {
-                 if (!encode_audio_frame(NULL, t->ofmt_ctx, t->enc_ctx, &data_written, &t->pts)) return NULL;
+                 if (!encode_audio_frame(t, NULL, t->ofmt_ctx, t->enc_ctx, &data_written, &t->pts)) return NULL;
              } while (data_written);
              break;
          }
@@ -404,27 +437,34 @@ transcode_single_audio_stream(PyObject *self, PyObject *args, PyObject *kw) {
     if (!set_seek_pointers(output_file, &t.seek_in_output)) return NULL;
     if (!(t.write_output = PyObject_GetAttrString(output_file, "write"))) return NULL;
 
+    release_gil(&t);
     if (!open_input_file(&t)) goto cleanup;
     if (!open_output_file(&t)) goto cleanup;
     if (!(t.fifo = av_audio_fifo_alloc(t.enc_ctx->sample_fmt, t.enc_ctx->ch_layout.nb_channels, 1))) {
-        PyErr_NoMemory(); goto cleanup;
+        nomem(&t); goto cleanup;
     }
     int ret;
     if ((ret = swr_alloc_set_opts2(&t.resample_ctx,
         &t.enc_ctx->ch_layout, t.enc_ctx->sample_fmt, t.enc_ctx->sample_rate,
         &t.dec_ctx->ch_layout, t.dec_ctx->sample_fmt, t.dec_ctx->sample_rate,
-        0, NULL)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
-    if ((ret = swr_init(t.resample_ctx)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+        0, NULL)) < 0) { averror_as_python(&t, ret, __LINE__); goto cleanup; }
+    if ((ret = swr_init(t.resample_ctx)) < 0) { averror_as_python(&t, ret, __LINE__); goto cleanup; }
 
-    if ((ret = avformat_write_header(t.ofmt_ctx, NULL)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+    if ((ret = avformat_write_header(t.ofmt_ctx, NULL)) < 0) { averror_as_python(&t, ret, __LINE__); goto cleanup; }
     if (!transcode_loop(&t)) goto cleanup;
-    if ((ret = av_write_trailer(t.ofmt_ctx)) < 0) { averror_as_python(ret, __LINE__); goto cleanup; }
+    if ((ret = av_write_trailer(t.ofmt_ctx)) < 0) { averror_as_python(&t, ret, __LINE__); goto cleanup; }
 
 cleanup:
+    acquire_gil(&t);
     free_transcoder_resources(&t);
+    if (t.error_type) {
+        if (t.error_type == PyExc_MemoryError) return PyErr_NoMemory();
+        PyErr_SetString(t.error_type, t.errmsg);
+    }
     if (PyErr_Occurred()) return NULL;
     Py_RETURN_NONE;
 }
+#undef check_call
 
 // resample_raw_audio_16bit {{{
 static PyObject*
@@ -445,9 +485,9 @@ resample_raw_audio_16bit(PyObject *self, PyObject *args) {
             &output_layout, fmt, output_sample_rate,
             &input_layout, fmt, input_sample_rate,
             0, NULL);
-    if (ret != 0) { av_free(output); PyBuffer_Release(&inb); return averror_as_python(ret, __LINE__); }
+    if (ret != 0) { av_free(output); PyBuffer_Release(&inb); return averror_as_python_with_gil_held(ret, __LINE__); }
 #define free_resources av_free(output); PyBuffer_Release(&inb); swr_free(&swr_ctx);
-    if ((ret = swr_init(swr_ctx)) < 0) { free_resources; return averror_as_python(ret, __LINE__); }
+    if ((ret = swr_init(swr_ctx)) < 0) { free_resources; return averror_as_python_with_gil_held(ret, __LINE__); }
     const uint8_t *input = inb.buf;
     Py_BEGIN_ALLOW_THREADS
     ret = swr_convert(swr_ctx,
@@ -455,7 +495,7 @@ resample_raw_audio_16bit(PyObject *self, PyObject *args) {
         &input,  inb.len / (input_num_channels * bytes_per_sample)
     );
     Py_END_ALLOW_THREADS
-    if (ret < 0) { free_resources; return averror_as_python(ret, __LINE__); }
+    if (ret < 0) { free_resources; return averror_as_python_with_gil_held(ret, __LINE__); }
     output_size = ret * output_num_channels * bytes_per_sample;
     PyObject *ans = PyBytes_FromStringAndSize((char*)output, output_size);
     free_resources;
