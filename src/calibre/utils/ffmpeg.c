@@ -578,7 +578,7 @@ CALIBRE_MODINIT_FUNC PyInit_ffmpeg(void) {
         "resample_raw_audio(input_data, input_sample_rate, output_sample_rate, input_num_channels=1, output_num_channels=1) -> Return resampled raw audio data."
         },
         {"transcode_single_audio_stream", (PyCFunction)transcode_single_audio_stream, METH_VARARGS | METH_KEYWORDS,
-        "transcode_single_audio_stream() -> Transcode an input file containing a single audio stream to an output file in the specified format."
+        "transcode_single_audio_stream(input_file_like_object, output_file_like_object, output_bitrate: int = auto_select, container_format: str = auto_detect, output_codec_name: str = auto_detect) -> Transcode an input file containing a single audio stream to an output file. The format is autodetected from output file name or can be specified using the container_format and output_codec_name parameters. The output bitrate is by default automatically chosen based on the output codec."
         },
         {"wav_header_for_pcm_data", (PyCFunction)wav_header_for_pcm_data, METH_VARARGS,
         "wav_header_for_pcm_data(audio_data_size=0, sample_rate=22050, num_channels=1) -> WAV header for specified amount of PCM data as bytestring"
