@@ -22,7 +22,7 @@ class Ria_eng(BasicNewsRecipe):
     auto_cleanup = True
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+        'comment': description, 'tags': category, 'language': language
     }
 
 
