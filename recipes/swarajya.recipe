@@ -1,51 +1,91 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+#!/usr/bin/env python
+import re
+import json
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://swarajyamag.com' + url
+    return url
+
+
+html_entities = {'&quot;': '"', '&apos;': "'", '&lt;': '<', '&gt;': '>', '&amp;': '&'}
 
 
 class SwarajyaMag(BasicNewsRecipe):
-    title = u'Swarajya Magazine'
+    title = 'Swarajya Magazine'
     __author__ = 'unkn0wn'
     description = 'Swarajya - a big tent for liberal right of centre discourse that reaches out, engages and caters to the new India.'
     language = 'en_IN'
-    no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
-    remove_attributes = ['height', 'width', 'style']
     encoding = 'utf-8'
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
-
-    remove_tags = [
-        dict(name=['svg', 'button', 'source']),
-        classes('swarajya_patron_block hs-tooltip-content hidden'),
-    ]
+    recipe_specific_options = {
+        'issue': {
+            'short': 'The edition URL ',
+        }
+    }
 
     def preprocess_html(self, soup):
-        for span in soup.findAll('span'):
-            if self.tag_to_string(span).strip() == 'Tags':
-                div = span.findParent('div')
-                if div:
-                    div.extract()
+        for img in soup.findAll('img', attrs={'src': True}):
+            img['src'] = img['src'].split('?')[0] + '?w=600'
         return soup
 
     def parse_index(self):
-        soup = self.index_to_soup('https://swarajyamag.com/all-issues')
-        a = soup.find('a', href=lambda x: x and x.startswith('https://swarajyamag.com/issue/'))
-        url = a['href']
+        d = self.recipe_specific_options.get('issue')
+        if d and isinstance(d, str):
+            url = d
+        else:
+            soup = self.index_to_soup('https://swarajyamag.com/all-issues')
+            a = soup.find('a', href=lambda x: x and x.startswith('/issue/'))
+            url = absurl(a['href'])
         self.log('Downloading issue:', url)
-        self.cover_url = a.img['src']
+
         soup = self.index_to_soup(url)
         ans = []
 
-        for div in soup.findAll('div', attrs={'class':'rounded'}):
+        cont = soup.find(attrs={'id': 'container'})
+        self.cover_url = (
+            cont.find('a', href=lambda x: x and x.startswith('/issue/'))
+            .img['src']
+            .split('?')[0]
+            + '?w=600'
+        )
+        for div in cont.findAll('div', attrs={'class': 'rounded'}):
             url = div.findParent('a')['href']
             if url.startswith('/'):
                 url = 'https://swarajyamag.com' + url
             h4 = div.find('h4')
             title = self.tag_to_string(h4)
-            d = h4.next_sibling
+            d = h4.next_sibling.div
             desc = 'By ' + self.tag_to_string(d).strip()
             self.log(title, ' at ', url, '\n', desc)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
+
+    def preprocess_raw_html(self, raw, url):
+        app = re.search(
+            r'<script type=\"application/ld\+json\">({\"headline.+})', raw
+        ).group(1)
+        data = json.JSONDecoder().raw_decode(app)[0]
+
+        title = f'<h1>{data["headline"]}</h1>'
+
+        pattern = re.compile('|'.join(html_entities.keys()))
+        body = pattern.sub(lambda m: html_entities[m.group(0)], data['articleBody'])
+
+        image = desc = auth = sec = ''
+        if data.get('articleSection'):
+            sec = f'<div style="font-size: small;">{data["articleSection"]}</div>'
+        if data.get('author'):
+            auth = f'<p style="font-size: small;>By {", ".join(x["name"] for x in data["author"])}</p>'
+        if data.get('image'):
+            image_url = data['image']['url']
+            image = f'<div><img src="{image_url}"></div>'
+        if data.get('description'):
+            desc = '<p>' + data['description'] + '</p>'
+        html = '<html><body>' + sec + title + desc + image + auth + body
+        return html
