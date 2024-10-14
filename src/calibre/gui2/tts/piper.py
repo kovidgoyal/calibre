@@ -562,7 +562,7 @@ class Piper(TTSBackend):
 class PiperEmbedded:
 
     def __init__(self):
-        self._embedded_settings = EngineSpecificSettings.create_from_config(self.engine_name, TTS_EMBEDED_CONFIG)
+        self._embedded_settings = EngineSpecificSettings.create_from_config('piper', TTS_EMBEDED_CONFIG)
         self._voice_name_map, self._voices, self._voice_for_lang = load_voice_metadata()
         lang = get_lang()
         lang = canonicalize_lang(lang) or lang
@@ -573,9 +573,10 @@ class PiperEmbedded:
     def resolve_voice(self, lang: str, voice_name: str) -> Voice:
         from calibre.utils.localization import canonicalize_lang, get_lang
         lang = canonicalize_lang(lang or get_lang() or 'en')
+        pv = self._embedded_settings.preferred_voices or {}
         if voice_name and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]
-        elif (voice_name := self._embedded_settings.preferred_voices.get(lang, '')) and voice_name in self._voice_name_map:
+        elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
             voice = self._voice_name_map[voice_name]
         else:
             voice = self._voice_for_lang.get(lang) or self._default_voice
@@ -583,7 +584,7 @@ class PiperEmbedded:
 
     def text_to_raw_audio_data(
         self, texts: Iterable[str], lang: str = '', voice_name: str = '', sample_rate: int = HIGH_QUALITY_SAMPLE_RATE, timeout: float = 10.,
-    ) -> Iterator[bytes]:
+    ) -> Iterator[tuple[bytes, float]]:
         voice = self.resolve_voice(lang, voice_name)
         if voice is not self._current_voice:
             self._current_voice = voice
@@ -604,10 +605,14 @@ class PiperEmbedded:
                 errors_from_piper.append(payload.decode('utf-8', 'replace'))
 
         for text in texts:
+            text = text.strip()
             if not text:
-                yield b''
+                yield b'', 0.
                 continue
-            self._process.stdin.write(text.encode('utf-8', 'replace'))
+            payload = json.dumps({'text': text}).encode('utf-8')
+            self._process.stdin.write(payload)
+            self._process.stdin.write(UTTERANCE_SEPARATOR)
+            self._process.stdin.flush()
             stderr_data = b''
             buf, piper_done, errors_from_piper = [], [], []
             last_output_at = monotonic()
@@ -629,7 +634,7 @@ class PiperEmbedded:
             raw_data = b''.join(buf)
             if needs_conversion:
                 raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
-            yield raw_data
+            yield raw_data, duration_of_raw_audio_data(raw_data, sample_rate)
 
     def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> None:
         for lang, voice_name in specs:
@@ -659,10 +664,10 @@ class PiperEmbedded:
         import subprocess
         from threading import Thread
         self._process_shutdown_event = Event()
-        self._stdout_reader = Thread(target=self.reader, args=(self._process_shutdown_event, self._process.stdout, True), daemon=True)
-        self._stderr_reader = Thread(target=self.reader, args=(self._process_shutdown_event, self._process.stderr, False), daemon=True)
         self._from_process_queue = Queue()
         self._process = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        self._stdout_reader = Thread(target=self.reader, args=(self._process_shutdown_event, self._process.stdout, True), daemon=True)
+        self._stderr_reader = Thread(target=self.reader, args=(self._process_shutdown_event, self._process.stderr, False), daemon=True)
         self._stdout_reader.start()
         self._stderr_reader.start()
 
@@ -676,6 +681,36 @@ class PiperEmbedded:
                 break
             else:
                 self._from_process_queue.put((is_stdout, None, data))
+
+
+def duration_of_raw_audio_data(data: bytes, sample_rate: int = HIGH_QUALITY_SAMPLE_RATE, bytes_per_sample: int = 2, num_channels: int = 1) -> float:
+    total_num_of_samples = len(data) / bytes_per_sample
+    num_of_samples_per_channel = total_num_of_samples / num_channels
+    return num_of_samples_per_channel / sample_rate
+
+
+def develop_embedded():
+    import subprocess
+    from io import BytesIO
+
+    from calibre.utils.speedups import ReadOnlyFileBuffer
+    from calibre_extensions.ffmpeg import transcode_single_audio_stream, wav_header_for_pcm_data
+    p = PiperEmbedded()
+    all_data = [b'']
+    sz = 0
+    for data, duration in p.text_to_raw_audio_data((
+        'Hello, good day to you.', 'This is the second sentence.', 'This is the final sentence.'
+    )):
+        print(duration, len(data))
+        all_data.append(data)
+        sz += len(data)
+    all_data[0] = wav_header_for_pcm_data(sz, HIGH_QUALITY_SAMPLE_RATE)
+    wav = ReadOnlyFileBuffer(b''.join(all_data), name='tts.wav')
+    mp4 = BytesIO()
+    mp4.name = 'tts.mp4'
+    transcode_single_audio_stream(wav, mp4)
+    subprocess.run(['mpv', '-'], input=mp4.getvalue())
+
 
 
 def develop():  # {{{
