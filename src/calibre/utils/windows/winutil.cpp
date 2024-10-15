@@ -885,6 +885,50 @@ set_handle_information(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+set_pipe_blocking(PyObject *self, PyObject *args) {
+    int blocking = 0;
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&|p", convert_handle, &handle, &blocking)) return NULL;
+    DWORD mode = PIPE_READMODE_BYTE | (blocking ? PIPE_WAIT : PIPE_NOWAIT);
+    if (!SetNamedPipeHandleState(handle, &mode, NULL, NULL)) return set_error_from_handle(args);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+wait_for_single_object(PyObject *self, PyObject *args) {
+    int timeout_ms = -1;
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&|i", convert_handle, &handle, &timeout_ms)) return NULL;
+    unsigned long ans = WaitForSingleObject(handle, timeout_ms < 0 ? INFINITE : timeout_ms);
+    if (ans == WAIT_FAILED) return PyErr_SetExcFromWindowsErr(PyExc_OSError, GetLastError());
+    if (ans == WAIT_TIMEOUT) { PyErr_SetString(PyExc_TimeoutError, "timed out"); return NULL; }
+    return PyLong_FromUnsignedLong(ans);
+}
+
+static PyObject*
+wait_for_multiple_objects(PyObject *self, PyObject *args) {
+    PyObject *pyhandles;
+    int wait_all = 0;
+    int timeout_ms = -1;
+    if (!PyArg_ParseTuple(args, "O|pi", &pyhandles, &wait_all, &timeout_ms)) return NULL;
+    pyobject_raii ph(PySequence_Fast(pyhandles, "handles must be a sequence or convertible to one"));
+    if (!ph) return NULL;
+	generic_raii<HANDLE*, pymem_free> handles(reinterpret_cast<HANDLE*>(PyMem_Malloc(PySequence_Fast_GET_SIZE(ph.ptr()) * sizeof(HANDLE))));
+    if (!handles) return PyErr_NoMemory();
+    for (Py_ssize_t i = 0; i < PySequence_Fast_GET_SIZE(ph.ptr()); i++) {
+        PyObject *obj = PySequence_Fast_GET_ITEM(ph.ptr(), i);
+        if (Py_TYPE(obj) != &HandleType) {
+            PyErr_SetString(PyExc_TypeError, "handles must contain only Handle objects"); return NULL;
+        }
+        handles.ptr()[i] = ((Handle*)obj)->handle;
+    }
+    unsigned long ans = WaitForMultipleObjects(PySequence_Fast_GET_SIZE(ph.ptr()), handles.ptr(), wait_all, timeout_ms < 0 ? INFINITE : timeout_ms);
+    if (ans == WAIT_FAILED) return PyErr_SetExcFromWindowsErr(PyExc_OSError, GetLastError());
+    if (ans == WAIT_TIMEOUT) { PyErr_SetString(PyExc_TimeoutError, "timed out"); return NULL; }
+    return PyLong_FromUnsignedLong(ans);
+}
+
 static PyObject *
 get_long_path_name(PyObject *self, PyObject *args) {
     wchar_raii path, buf;
@@ -1212,6 +1256,9 @@ static PyMethodDef winutil_methods[] = {
     M(create_named_pipe, METH_VARARGS),
     M(connect_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
+    M(set_pipe_blocking, METH_VARARGS),
+    M(wait_for_single_object, METH_VARARGS),
+    M(wait_for_multiple_objects, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
     M(get_process_times, METH_O),
 	M(get_handle_information, METH_VARARGS),
@@ -1572,6 +1619,11 @@ exec_module(PyObject *m) {
     A(ES_DISPLAY_REQUIRED);
     A(ES_SYSTEM_REQUIRED);
     A(ES_USER_PRESENT);
+    A(WAIT_OBJECT_0);
+    A(WAIT_ABANDONED_0);
+    A(WAIT_TIMEOUT);
+    A(WAIT_FAILED);
+    A(ERROR_NO_DATA);
 #undef A
     return 0;
 }
