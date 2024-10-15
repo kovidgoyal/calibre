@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+import json
 from collections import defaultdict
 from contextlib import suppress
 from typing import NamedTuple
 
+from lxml.etree import ElementBase as Element
+from lxml.etree import tostring as _tostring
+
+from calibre.ebooks.oeb.base import barename
 from calibre.spell.break_iterator import sentence_positions
+from calibre.utils.localization import canonicalize_lang, get_lang
 
 
 class Sentence(NamedTuple):
@@ -15,49 +21,45 @@ class Sentence(NamedTuple):
     voice : str
 
 
+def tostring(x) -> str:
+    return _tostring(x, encoding='unicode')
+
+
+def lang_for_elem(elem, parent_lang):
+    return canonicalize_lang(elem.get('lang') or elem.get('xml_lang') or elem.get('{http://www.w3.org/XML/1998/namespace}lang')) or parent_lang
+
+
+def has_text(elem):
+    if elem.text and elem.text.strip():
+        return True
+    for child in elem:
+        if child.tail and child.tail.strip():
+            return True
+    return False
+
+
+class Chunk(NamedTuple):
+    child: Element | None
+    text: str
+    start_at: int
+    is_tail: bool = False
+
+
+continued_tag_names = frozenset({
+    'a', 'span', 'em', 'strong', 'b', 'i', 'u', 'code', 'sub', 'sup', 'cite', 'q', 'kbd'
+})
+ignored_tag_names = frozenset({
+    'img', 'object', 'script', 'style', 'head', 'title', 'form', 'input', 'br', 'hr', 'map', 'textarea', 'svg', 'math', 'rp', 'rt', 'rtc',
+})
+
 
 def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Sentence]:
-    import json
-
-    from lxml.etree import ElementBase as Element
-    from lxml.etree import tostring as _tostring
-
-    from calibre.ebooks.oeb.base import barename
-    from calibre.utils.localization import canonicalize_lang, get_lang
-    continued_tag_names = frozenset({
-        'a', 'span', 'em', 'strong', 'b', 'i', 'u', 'code', 'sub', 'sup', 'cite', 'q', 'kbd'
-    })
-    ignored_tag_names = frozenset({
-        'img', 'object', 'script', 'style', 'head', 'title', 'form', 'input', 'br', 'hr', 'map', 'textarea', 'svg', 'math', 'rp', 'rt', 'rtc',
-    })
-
-    def tostring(x) -> str:
-        return _tostring(x, encoding='unicode')
-
-    def lang_for_elem(elem, parent_lang):
-        return canonicalize_lang(elem.get('lang') or elem.get('xml_lang') or elem.get('{http://www.w3.org/XML/1998/namespace}lang')) or parent_lang
-
-    def has_text(elem):
-        if elem.text and elem.text.strip():
-            return True
-        for child in elem:
-            if child.tail and child.tail.strip():
-                return True
-        return False
-
     root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(lang or get_lang())) or 'en')
     root_voice = voice
     seen_ids = set(root.xpath('//*/@id'))
     id_counter = 1
     ans = []
     clones_map = defaultdict(list)
-
-    class Chunk(NamedTuple):
-        child: Element | None
-        text: str
-        start_at: int
-        is_tail: bool = False
-
 
     class Parent:
 
