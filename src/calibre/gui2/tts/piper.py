@@ -715,10 +715,8 @@ class ThreadedPipeReader(PipeReader):
         from threading import Event, Thread
         self.shutting_down = Event()
         self.queue = Queue()
-        self.stdout_thread = t = Thread(target=self._reader, args=(stdout.fileno(), True), daemon=True)
-        t.start()
-        self.stderr_thread = t = Thread(target=self._reader, args=(stderr.fileno(), False), daemon=True)
-        t.start()
+        Thread(target=self._reader, args=(stdout.fileno(), True), daemon=True).start()
+        Thread(target=self._reader, args=(stderr.fileno(), False), daemon=True).start()
 
     def close(self):
         self.shutting_down.set()
@@ -765,6 +763,7 @@ def duration_of_raw_audio_data(data: bytes, sample_rate: int = HIGH_QUALITY_SAMP
     return num_of_samples_per_channel / sample_rate
 
 
+# develop {{{
 def develop_embedded():
     import subprocess
 
@@ -787,8 +786,7 @@ def develop_embedded():
     subprocess.run(['mpv', '-'], input=mp4.getvalue())
 
 
-
-def develop():  # {{{
+def develop():
 
     from qt.core import QSocketNotifier
 
