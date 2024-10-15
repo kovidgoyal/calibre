@@ -140,13 +140,16 @@ class TestFetchBackend(unittest.TestCase):
                     ans.extend(v)
             self.ae(expected, tuple(ans))
 
+        def has_header(name):
+            self.assertIn(name.lower(), [h.lower() for h in r['headers']])
+
         try:
             r = get()
             self.ae(r['method'], 'GET')
             self.ae(r['request_count'], 1)
             header('th', '1')
             header('User-Agent', 'test-ua')
-            self.assertIn('Accept-Encoding', r['headers'])
+            has_header('accept-encoding')
             r = get()
             self.ae(r['request_count'], 2)
             header('Cookie', 'sc=1')
