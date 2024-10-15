@@ -1,4 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+#!/usr/bin/env pythona
+import json
+from html5_parser import parse
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 def absurl(url):
@@ -6,16 +9,17 @@ def absurl(url):
         url = 'https://asia.nikkei.com' + url
     return url
 
-class nikkei(BasicNewsRecipe):
-    title = 'Nikkei Asia'
+
+class Nikkei(BasicNewsRecipe):
+    title = 'Nikkei Asia Magazine'
     __author__ = 'unkn0wn'
     language = 'en'
     no_stylesheets = True
     description = (
-        'Japan, China, India and Southeast Asia news and expert analysis published by Nikkei'
-        ', an award-winning independent provider of quality journalism.'
+        'The voice of the Asian century. Trusted independent journalism '
+        'from Asia, the center of global growth.'
     )
-    masthead_url = 'https://www.global-nikkei.com/22ia/images/logo/Nikkei-Asia-Logo.svg'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Nikkei_Asia_logo.svg'
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     resolve_internal_links = True
@@ -23,46 +27,94 @@ class nikkei(BasicNewsRecipe):
     encoding = 'utf-8'
     use_embedded_content = False
 
-    extra_css = '''
-        .article-header__sub-title { font-style:italic; color:#202020; }
-        .article-header__details, .article__details { font-size:small; font-weight:bold; }
-        .timestamp { color:#5c5c5c; }
-        .article-header__topic { font-size:small; font-weight:bold; color:#5c5c5c; }
-        .article__image, .article__caption { font-size:small; text-align:center; color:#202020; }    
-    '''
+    extra_css = """
+        .subhead { font-style:italic; color:#202020; }
+        em, blockquote { color:#202020; }
+        .sec, .byline { font-size:small; font-weight:bold; }
+        .article__image, .article__caption { font-size:small; text-align:center; }
+    """
 
-    keep_only_tags = [
-        classes('article-header__container article')
-    ]
+    recipe_specific_options = {
+        'date': {'short': 'The edition date (YYYY-MM-DD format)', 'long': '2024-09-19'}
+    }
 
-    remove_tags = [
-        dict(name='svg'),
-        classes('article__advert share__container no-print')
-    ]
+    remove_tags = [dict(name='svg')]
 
     def parse_index(self):
-        archives = self.index_to_soup('https://asia.nikkei.com/Print-Edition/Archives')
-        card = archives.find(attrs={'class':'card-article__body'})
-        self.title = 'Nikkei Asia: ' + self.tag_to_string(card.h4).strip()
-        self.description = self.tag_to_string(card.p)
-        self.timefmt = ' [' + self.tag_to_string(card.span.time).strip() + ']'
-        self.log('Downloading ', self.title, self.timefmt, self.description)
- 
-        soup = self.index_to_soup(absurl(card.h4.a['href']))
-        self.cover_url = soup.find(**classes('print-edition__cover-image')).img['src']
+        d = self.recipe_specific_options.get('date')
+        if d and isinstance(d, str):
+            url = 'https://asia.nikkei.com/Print-Edition/Issue-' + d
+        else:
+            archives = self.index_to_soup(
+                'https://asia.nikkei.com/Print-Edition/Archives'
+            )
+            card = archives.find(
+                **prefixed_classes('MagazineIssueCardArchives_magazineIssueCardContent__')
+            )
+            url = absurl(card.a['href'])
+
+        self.timefmt = f' [{url.split("Issue-")[-1]}]'
+        self.title = 'Nikkei Asia'
+        self.log(self.title, self.timefmt)
+        soup = self.index_to_soup(url)
+        self.cover_url = (
+            soup.find(
+                **prefixed_classes('MagazineIssueCard_magazineIssueCardCoverImage__')
+            )['src'].split('?')[0]
+            + '?width=600&source=nar-cms'
+        )
 
         ans = []
 
-        for art in soup.findAll(**classes('card-article__body')):
-            head = art.find(**classes('card-article__headline'))
-            title = self.tag_to_string(head).strip()
-            url = absurl(head.a['href'])
+        grid = soup.find(**prefixed_classes('MagazineArticles_magazineArticlesGrid__'))
+        for a in grid.findAll(
+            **prefixed_classes(
+                'MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardHeadline__ '
+                'StreamArticleCard_streamArticleCardHeadline__'
+            )
+        ):
+            title = self.tag_to_string(a)
+            url = absurl(a.a['href'])
             desc = ''
-            if exc := art.find(**classes('card-article__excerpt')):
-                desc = self.tag_to_string(exc).strip()
-            self.log( title, '\n   ', desc,  '\n        ', url )
+            exc = a.findNext(
+                **prefixed_classes(
+                    'MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardSubheadWrapper__ '
+                    'StreamArticleCard_streamArticleCardSubhead__'
+                )
+            )
+            if exc:
+                desc = self.tag_to_string(exc)
+            self.log(title, '\n   ', desc, '\n        ', url)
             ans.append({'title': title, 'url': url, 'description': desc})
         return [('Articles', ans)]
 
-    def print_version(self, url):
-        return 'https://webcache.googleusercontent.com/search?q=cache:' + url.split('?')[0]
+    def preprocess_raw_html(self, raw, url):
+        root = parse(raw)
+        script = root.xpath('//script[@id="__NEXT_DATA__"]')[0].text
+        data = json.loads(script)['props']['pageProps']['data']
+        title = f'<h1>{data["headline"]}</h1>'
+        exp = auth = image = sec = ''
+        sec = f'<div class="sec">{data["primaryTag"]["name"]}</div>'
+        if data.get('subhead'):
+            exp = f'<p class="subhead">{data["subhead"]}</p>'
+        if data.get('byline'):
+            auth = f'<p class="byline">{data["byline"]}</p>'
+        if data.get('image'):
+            img = data['image']
+            image = (
+                f'<div><img src="{img["imageUrl"]}"><div class="article__caption">'
+                f'{data.get("fullCaption", "")}</div></div>'
+            )
+        return (
+            '<html><body>' + sec + title
+            + exp + image + auth + data['body']
+            + '</body></html>'
+        )
+
+    def preprocess_html(self, soup):
+        for attr in self.remove_attributes:
+            for x in soup.findAll(attrs={attr: True}):
+                del x[attr]
+        for img in soup.findAll('img', src=True):
+            img['src'] = img['src'].split('?')[0] + '?width=600&source=nar-cms'
+        return soup
