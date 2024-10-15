@@ -197,7 +197,14 @@ class Structure(BaseTest):
         from html5_parser import parse
         from lxml import html
 
-        from calibre.ebooks.oeb.polish.tts import mark_sentences_in_html
+        from calibre.ebooks.oeb.polish.tts import id_prefix, mark_sentences_in_html, unmark_sentences_in_html
+
+        def normalize_markup(root):
+            actual = html.tostring(root, encoding='unicode')
+            actual = actual[actual.find('<body'):]
+            actual = actual[:actual.rfind('</body>')]
+            return actual.replace(id_prefix, '')
+
         for text, expected in reversed({
             '<p id=1>hello cruel world': '<body><p id="1"><span id="1">hello cruel world</span></p>',
 
@@ -234,12 +241,12 @@ class Structure(BaseTest):
             '<body><p><span id="1">Hello, </span><span data-calibre-tts="moose"><span id="2">world!</span></span></p>',
         }.items()):
             root = parse(text, namespace_elements=True)
+            orig = normalize_markup(root)
             mark_sentences_in_html(root)
-            actual = html.tostring(root, encoding='unicode')
-            actual = actual[actual.find('<body'):]
-            actual = actual[:actual.rfind('</body>')]
-            actual = actual.replace('cttsw-', '')
-            self.assertEqual(expected, actual)
+            marked = normalize_markup(root)
+            self.assertEqual(expected, marked)
+            unmark_sentences_in_html(root)
+            self.assertEqual(orig, normalize_markup(root), f'Unmarking failed for {marked}')
         sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
 

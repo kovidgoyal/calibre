@@ -9,6 +9,7 @@ from typing import NamedTuple
 from lxml.etree import ElementBase as Element
 from lxml.etree import tostring as _tostring
 
+from calibre.ebooks.html_transform_rules import unwrap_tag
 from calibre.ebooks.oeb.base import barename
 from calibre.spell.break_iterator import sentence_positions
 from calibre.utils.localization import canonicalize_lang, get_lang
@@ -51,6 +52,14 @@ continued_tag_names = frozenset({
 ignored_tag_names = frozenset({
     'img', 'object', 'script', 'style', 'head', 'title', 'form', 'input', 'br', 'hr', 'map', 'textarea', 'svg', 'math', 'rp', 'rt', 'rtc',
 })
+id_prefix = 'cttsw-'
+
+
+def unmark_sentences_in_html(root):
+    for x in root.xpath(f'//*[starts-with(@id, "{id_prefix}")]'):
+        x.attrib.pop('id')
+        if not x.attrib and x.tag and x.tag.endswith('span'):
+            unwrap_tag(x)
 
 
 def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Sentence]:
@@ -106,7 +115,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
         def make_into_wrapper(self, elem: Element) -> str:
             nonlocal id_counter
             while True:
-                q = f'cttsw-{id_counter}'
+                q = f'{id_prefix}{id_counter}'
                 if q not in seen_ids:
                     elem.set('id', q)
                     seen_ids.add(q)
