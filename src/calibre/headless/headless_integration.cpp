@@ -21,6 +21,7 @@ class QCoreTextFontEngine;
 #include <qpa/qplatformwindow.h>
 #include <qpa/qplatformfontdatabase.h>
 #include <qpa/qplatformtheme.h>
+#include <qpa/qplatformnativeinterface.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -120,6 +121,13 @@ QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 #else
     return createUnixEventDispatcher();
 #endif
+}
+
+QPlatformNativeInterface *HeadlessIntegration::nativeInterface() const
+{
+    if (!m_nativeInterface)
+        m_nativeInterface.reset(new QPlatformNativeInterface);
+    return m_nativeInterface.get();
 }
 
 HeadlessIntegration *HeadlessIntegration::instance()
