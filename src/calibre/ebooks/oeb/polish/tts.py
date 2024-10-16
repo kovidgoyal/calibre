@@ -82,6 +82,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.elem = elem
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
+            self.parent_lang = parent_lang
             q = elem.get('data-calibre-tts', '')
             self.voice = parent_voice
             if q.startswith('{'):  # }
@@ -96,6 +97,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 self.texts.append(Chunk(None, elem.text, self.pos))
                 self.pos += len(elem.text)
             self.children = tuple(elem.iterchildren())
+            self.has_tail = bool((elem.tail or '').strip())
 
         def add_simple_child(self, elem):
             if text := elem.text:
@@ -107,15 +109,29 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.pos += len(text)
 
         def commit(self) -> None:
-            if not self.texts:
-                return
-            text = ''.join(c.text for c in self.texts)
-            self.pos = 0
-            for start, length in sentence_positions(text, self.lang):
-                elem_id = self.wrap_sentence(start, length)
-                ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
-            self.texts = []
-            self.pos = 0
+            if self.texts:
+                text = ''.join(c.text for c in self.texts)
+                self.pos = 0
+                for start, length in sentence_positions(text, self.lang):
+                    elem_id = self.wrap_sentence(start, length)
+                    ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
+            if self.has_tail:
+                p = self.elem.getparent()
+                spans = []
+                before = after = None
+                for start, length in sentence_positions(self.elem.tail, self.parent_lang):
+                    end = start + length
+                    text = self.elem.tail[start:end]
+                    if before is None:
+                        before = self.elem.tail[:start]
+                    span = self.make_wrapper(text, p)
+                    spans.append(span)
+                    after = self.elem.tail[end:]
+                self.elem.tail = before
+                if after and spans:
+                    spans[-1].tail = after
+                idx = p.index(self.elem)
+                p[idx+1:idx+1] = spans
 
         def make_into_wrapper(self, elem: Element) -> str:
             nonlocal id_counter
@@ -127,9 +143,11 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     return q
                 id_counter += 1
 
-        def make_wrapper(self, text: str | None) -> Element:
-            ns, sep, _ = self.elem.tag.partition('}')
-            ans = self.elem.makeelement(ns + sep + 'span')
+        def make_wrapper(self, text: str | None, elem: Element | None = None) -> Element:
+            if elem is None:
+                elem = self.elem
+            ns, sep, _ = elem.tag.partition('}')
+            ans = elem.makeelement(ns + sep + 'span')
             ans.text = text
             self.make_into_wrapper(ans)
             return ans
@@ -335,7 +353,6 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             elif child_tag_name not in ignored_tag_names:
                 simple_allowed = False
                 children_to_process.append(Parent(child, child_tag_name, p.lang, p.voice, child_lang=child_lang))
-                p.commit()
             if simple_allowed and (text := child.tail):
                 p.add_tail(child, text)
         p.commit()

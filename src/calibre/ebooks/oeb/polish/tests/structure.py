@@ -245,6 +245,9 @@ class Structure(BaseTest):
 
             '<div><p>something':
             '<body><div><p><span id="1">something</span></p></div>',
+
+            '<p>One</p> Two. Three <p>Four':
+            '<body><p><span id="1">One</span></p><span id="2"> Two. </span><span id="3">Three </span><p><span id="4">Four</span></p>',
         }.items()):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
