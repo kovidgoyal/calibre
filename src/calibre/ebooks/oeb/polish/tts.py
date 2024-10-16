@@ -382,13 +382,17 @@ class ReportProgress:
 def make_par(container, seq, html_href, audio_href, elem_id, pos, duration) -> None:
     seq.set(EPUB('textref'), html_href)
     par = seq.makeelement('par')
-    par.tail = '\n    '
+    par.tail = seq.text
     par.set('id', f'par-{len(seq) + 1}')
     seq.append(par)
+    par.text = seq.text + '  '
     text = par.makeelement('text')
     text.set('src', f'{html_href}#{elem_id}')
+    text.tail = par.text
     par.append(text)
     audio = par.makeelement('audio')
+    audio.tail = par.tail
+    par.append(audio)
     audio.set('src', audio_href)
     audio.set('clipBegin', seconds_to_timestamp(pos))
     audio.set('clipEnd', seconds_to_timestamp(pos + duration))
@@ -478,15 +482,17 @@ def embed_tts(container, report_progress=None, parent_widget=None):
         smilitem = container.generate_item(name + '.smil', id_prefix='smil-')
         pfd.smil_file_name = container.href_to_name(smilitem.get('href'), container.opf_name)
         with container.open(pfd.smil_file_name, 'w') as sf:
-            sf.write(f'''
+            sf.write(f'''\
 <smil xmlns="{SMIL_NS}" xmlns:epub="{EPUB_NS}" version="3.0">
- <body>
-  <seq id="generated-by-calibre">
-  </seq>
- </body>
+  <body>
+    <seq id="generated-by-calibre">
+      X
+    </seq>
+  </body>
 </smil>''')
         smil_root = container.parsed(pfd.smil_file_name)
         seq = smil_root[0][0]
+        seq.text = seq.text[:seq.text.find('X')]
         audio_href = container.name_to_href(pfd.audio_file_name, pfd.smil_file_name)
         html_href = container.name_to_href(pfd.name, pfd.smil_file_name)
         file_duration = 0
@@ -495,6 +501,8 @@ def embed_tts(container, report_progress=None, parent_widget=None):
             file_duration += duration
             wav.write(audio_data)
             make_par(container, seq, html_href, audio_href, s.elem_id, pos, duration)
+        if len(seq):
+            seq[-1].tail = seq.text[:-2]
         wav.seek(0)
         with container.open(pfd.audio_file_name, 'wb') as m4a:
             transcode_single_audio_stream(wav, m4a)
