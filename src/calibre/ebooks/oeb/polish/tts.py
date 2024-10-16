@@ -473,7 +473,7 @@ def embed_tts(container, report_progress=None, parent_widget=None):
         pos = 0
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))
-        afitem = container.generate_item(name + '.mp4', id_prefix='tts-')
+        afitem = container.generate_item(name + '.m4a', id_prefix='tts-')
         pfd.audio_file_name = container.href_to_name(afitem.get('href'), container.opf_name)
         smilitem = container.generate_item(name + '.smil', id_prefix='smil-')
         pfd.smil_file_name = container.href_to_name(smilitem.get('href'), container.opf_name)
@@ -496,8 +496,8 @@ def embed_tts(container, report_progress=None, parent_widget=None):
             wav.write(audio_data)
             make_par(container, seq, html_href, audio_href, s.elem_id, pos, duration)
         wav.seek(0)
-        with container.open(pfd.audio_file_name, 'wb') as mp4:
-            transcode_single_audio_stream(wav, mp4)
+        with container.open(pfd.audio_file_name, 'wb') as m4a:
+            transcode_single_audio_stream(wav, m4a)
         container.pretty_print.add(pfd.smil_file_name)
         container.dirty(pfd.smil_file_name)
         container.serialize_item(pfd.smil_file_name)

@@ -221,7 +221,7 @@ open_output_file(Transcoder *t) {
     if (!(t->ofmt_ctx->oformat = av_guess_format(t->container_format, t->output_filename, NULL))) {
         if (t->container_format[0] || t->output_filename[0]) return set_error(t, PyExc_KeyError,
             "Could not determine container format for output filename: %s and container format name: %s", t->output_filename, t->container_format);
-        if (!(t->ofmt_ctx->oformat = av_guess_format("mp4", "file.mp4", NULL))) return set_error(t, PyExc_Exception, "ffmpeg is missing support for the MP4 container format");
+        if (!(t->ofmt_ctx->oformat = av_guess_format("m4a", "file.m4a", NULL))) return set_error(t, PyExc_Exception, "ffmpeg is missing support for the m4a container format");
 
     }
     const AVCodec *output_codec = NULL;

@@ -780,10 +780,10 @@ def develop_embedded():
         sz += len(data)
     all_data[0] = wav_header_for_pcm_data(sz, HIGH_QUALITY_SAMPLE_RATE)
     wav = ReadOnlyFileBuffer(b''.join(all_data), name='tts.wav')
-    mp4 = io.BytesIO()
-    mp4.name = 'tts.mp4'
-    transcode_single_audio_stream(wav, mp4)
-    subprocess.run(['mpv', '-'], input=mp4.getvalue())
+    m4a = io.BytesIO()
+    m4a.name = 'tts.m4a'
+    transcode_single_audio_stream(wav, m4a)
+    subprocess.run(['mpv', '-'], input=m4a.getvalue())
 
 
 def develop():
