@@ -16,7 +16,9 @@ from calibre.utils.localization import canonicalize_lang
 
 CONFIG_NAME = 'tts'
 TTS_EMBEDED_CONFIG = 'tts-embedded'
-conf_cache = {}  # for some reason LRU cache doesn't work for this
+# lru_cache doesn't work for this because it returns different results for
+# load_config() and load_config(CONFIG_NAME)
+conf_cache = {}
 
 
 def load_config(config_name=CONFIG_NAME) -> JSONConfig:
