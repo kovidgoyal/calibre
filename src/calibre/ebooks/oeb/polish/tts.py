@@ -485,7 +485,6 @@ def embed_tts(container, report_progress=None, parent_widget=None):
                 size_of_audio_data += len(audio_data)
                 snum += 1
                 report_progress(stage, _('Sentence number: {}').format(snum), snum, total_num_sentences)
-        pos = 0
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))
         afitem = container.generate_item(name + '.m4a', id_prefix='tts-')
@@ -509,9 +508,9 @@ def embed_tts(container, report_progress=None, parent_widget=None):
         file_duration = 0
         for i, s in enumerate(pfd.sentences):
             audio_data, duration = audio_map[s]
-            file_duration += duration
             wav.write(audio_data)
-            make_par(container, seq, html_href, audio_href, s.elem_id, pos, duration)
+            make_par(container, seq, html_href, audio_href, s.elem_id, file_duration, duration)
+            file_duration += duration
         if len(seq):
             seq[-1].tail = seq.text[:-2]
         wav.seek(0)
