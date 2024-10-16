@@ -96,7 +96,6 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 self.texts.append(Chunk(None, elem.text, self.pos))
                 self.pos += len(elem.text)
             self.children = tuple(elem.iterchildren())
-            self.child_pos = 0
 
         def add_simple_child(self, elem):
             if text := elem.text:
@@ -325,27 +324,22 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
     stack_of_parents = [Parent(elem, 'body', root_lang, root_voice) for elem in root.iterchildren('*') if barename(elem.tag).lower() == 'body']
     while stack_of_parents:
         p = stack_of_parents.pop()
-        if len(p.elem) == 1 and not has_text(p.elem):  # wrapper
-            c = p.elem[0]
-            if isinstance(c.tag, str):
-                stack_of_parents.append(Parent(c, barename(c.tag).lower(), p.lang, p.voice))
-            continue
-        for i in range(p.child_pos, len(p.children)):
-            child = p.children[i]
+        simple_allowed = True
+        children_to_process = []
+        for child in p.children:
             child_voice = child.get('data-calibre-tts', '')
             child_lang = lang_for_elem(child, p.lang)
             child_tag_name = barename(child.tag).lower() if isinstance(child.tag, str) else ''
-            if child_lang == p.lang and child_voice == p.voice and child_tag_name in continued_tag_names and len(child) == 0:
+            if simple_allowed and child_lang == p.lang and child_voice == p.voice and child_tag_name in continued_tag_names and len(child) == 0:
                 p.add_simple_child(child)
             elif child_tag_name not in ignored_tag_names:
-                stack_of_parents.append(Parent(child, child_tag_name, p.lang, p.voice, child_lang=child_lang))
+                simple_allowed = False
+                children_to_process.append(Parent(child, child_tag_name, p.lang, p.voice, child_lang=child_lang))
                 p.commit()
-                p.child_pos = i + 1
-                stack_of_parents.append(p)
-                continue
-            if text := child.tail:
+            if simple_allowed and (text := child.tail):
                 p.add_tail(child, text)
         p.commit()
+        stack_of_parents.extend(reversed(children_to_process))
     for src_elem, clones in clones_map.items():
         for clone in clones + [src_elem]:
             if not clone.text and not clone.tail and not clone.get('id') and not clone.get('name'):

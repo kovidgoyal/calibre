@@ -239,6 +239,12 @@ class Structure(BaseTest):
 
             '<p>Hello, <span data-calibre-tts="moose">world!':
             '<body><p><span id="1">Hello, </span><span data-calibre-tts="moose"><span id="2">world!</span></span></p>',
+
+            '<p>One<p>Two':
+            '<body><p><span id="1">One</span></p><p><span id="2">Two</span></p>',
+
+            '<div><p>something':
+            '<body><div><p><span id="1">something</span></p></div>',
         }.items()):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
