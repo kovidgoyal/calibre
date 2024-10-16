@@ -128,6 +128,18 @@ def href_to_name(href, root, base=None):
         return None
 
 
+def seconds_to_timestamp(duration: float) -> str:
+    seconds = int(duration)
+    float_part = int((duration - seconds) * 1000)
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    ans = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+    if float_part:
+        ans += f'.{float_part}'
+    return ans
+
+
 class ContainerBase:  # {{{
     '''
     A base class that implements just the parsing methods. Useful to create
@@ -668,10 +680,13 @@ class Container(ContainerBase):  # {{{
         return parse_opf_version(self.opf_version)
 
     @property
+    def manifest_items(self):
+        return self.opf_xpath('//opf:manifest/opf:item[@href and @id]')
+
+    @property
     def manifest_id_map(self):
         ' Mapping of manifest id to canonical names '
-        return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
-            for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
+        return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name) for item in self.manifest_items}
 
     @property
     def manifest_type_map(self):
@@ -869,6 +884,12 @@ class Container(ContainerBase):  # {{{
                     self.remove_from_xml(meta)
                     self.dirty(self.opf_name)
 
+            for meta in self.opf_xpath('//opf:meta[@refines]'):
+                q = meta.get('refines')
+                if q.startswith('#') and q[1:] in removed:
+                    self.remove_from_xml(meta)
+                    self.dirty(self.opf_name)
+
         if remove_from_guide:
             for item in self.opf_xpath('//opf:guide/opf:reference[@href]'):
                 if self.href_to_name(item.get('href'), self.opf_name) == name:
@@ -881,6 +902,21 @@ class Container(ContainerBase):  # {{{
         self.mime_map.pop(name, None)
         self.parsed_cache.pop(name, None)
         self.dirtied.discard(name)
+
+    def set_media_overlay_durations(self, duration_map):
+        self.dirty(self.opf_name)
+        for meta in self.opf_xpath('//opf:meta[@property="media:duration"]'):
+            self.remove_from_xml(meta)
+        metadata = self.opf_xpath('//opf:metadata')[0]
+        total_duration = 0
+        for item_id, duration in duration_map.items():
+            meta = metadata.makeelement(OPF('meta'), property="media:duration", refines="#" + item_id)
+            meta.text = seconds_to_timestamp(duration)
+            self.insert_into_xml(metadata, meta)
+            total_duration += duration
+        meta = metadata.makeelement(OPF('meta'), property="media:duration")
+        meta.text = seconds_to_timestamp(total_duration)
+        self.insert_into_xml(metadata, meta)
 
     def dirty(self, name):
         ''' Mark the parsed object corresponding to name as dirty. See also: :meth:`parsed`. '''
@@ -951,11 +987,13 @@ class Container(ContainerBase):  # {{{
         href = self.name_to_href(name, self.opf_name)
         base, ext = href.rpartition('.')[0::2]
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
+        if id_prefix.endswith('-'):
+            all_ids.add(id_prefix)
         c = 0
         item_id = id_prefix
         while item_id in all_ids:
             c += 1
-            item_id = id_prefix + '%d'%c
+            item_id = f'{id_prefix}{c}'
 
         manifest = self.opf_xpath('//opf:manifest')[0]
         item = manifest.makeelement(OPF('item'),

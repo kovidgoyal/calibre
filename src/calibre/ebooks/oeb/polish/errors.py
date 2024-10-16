@@ -20,3 +20,7 @@ class DRMError(_DRMError):
 
 class MalformedMarkup(ValueError):
     pass
+
+
+class UnsupportedContainerType(Exception):
+    pass
