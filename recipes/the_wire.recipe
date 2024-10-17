@@ -1,5 +1,38 @@
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+#!/usr/bin/env python
+import json
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def absurl(url):
+    if not url.startswith('http'):
+        return 'https://thewire.in/' + url
+    return url
+
+
+def json_to_html(js):
+    data = json.loads(js)['post-detail'][0]
+    title = f'<h1>{data["post_title"]}</h1>'
+    exp = auth = image = sec = ''
+    sec = f'<div style="font-size: small;">{data["categories"][0]["slug"]}</div>'
+    if data.get('post_excerpt'):
+        exp = f'<p style="font-style: italic;">{data["post_excerpt"]}</p>'
+    if data.get('post_author_name'):
+        auth = (
+            f'<p style="font-size: small;">By {", ".join(x["author_name"] for x in data["post_author_name"])}'
+            f' | {data["post_date"]}</p>'
+        )
+    if data.get('featured_image'):
+        image_url = data['featured_image'][0]
+        image = (
+            f'<div><img src="{image_url}"><div style="font-size:small;">'
+            f'{data.get("featured_image_caption", "")}</div></div>'
+        )
+    return (
+        '<html><body>' + sec + title + exp
+        + image + auth + data['post_content']
+        + '</body></html>'
+    )
 
 
 class TheWire(BasicNewsRecipe):
@@ -7,56 +40,55 @@ class TheWire(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = 'The Wire is an Indian nonprofit news and opinion website'
     language = 'en_IN'
-    masthead_url = 'https://cdn.thewire.in/wp-content/uploads/thewire-app-images/wire-logo.svg'
-
-    no_stylesheets = True
+    masthead_url = (
+        'https://cdn.thewire.in/wp-content/uploads/thewire-app-images/wire-logo.svg'
+    )
     remove_javascript = True
-
-    keep_only_tags = [
-        classes(
-            'title shortDesc author__name featured-image postComplete__description'
-            ' post-content-container thb-article-featured-image post-title '
-            'sharing-counts-off post-bottom-meta'
-        )
-    ]
-
-    ignore_duplicate_articles = {'title'}
-    resolve_internal_links  = True
+    remove_attributes = ['height', 'width']
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
     remove_empty_feeds = True
+    extra_css = '[id^="caption"] { font-size: small;}'
+
+    def get_browser(self, *args, **kw):
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        br.addheaders += [('Referer', 'https://thewire.in/')]
+        return br
+
+    def parse_index(self):
+        raw = self.index_to_soup('https://thewirehindi.com/home_data_2.json', raw=True)
+        dmp = json.loads(raw)
+        feeds = []
+        for k, v in dmp.items():
+            if not isinstance(v, dict):
+                continue
+            if k == 'videos':
+                continue
+            section = k.capitalize()
+            self.log(section)
+            articles = []
+
+            for a, b in v.items():
+                if not isinstance(b, dict):
+                    continue
+                if not b.get('post_type', '') == 'post':
+                    continue
+                title = b['post_title']
+                desc = b['post_excerpt']
+                slg = b['categories'][0]['slug'] + '/' + b['post_name']
+                url = absurl(slg)
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'description': desc, 'url': url})
+            if articles:
+                feeds.append((section, articles))
+        return feeds
 
     articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        try:
-            br.open(url)
-        except Exception as e:
-            url = e.hdrs.get('location')
-        soup = self.index_to_soup(url)
-        link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
-            '/video/', '/videos/', '/media/', 'podcast-'
-        ]
-        if any(x in link['href'] for x in skip_sections):
-            self.log('Aborting Article ', link['href'])
-            self.abort_article('skipping video links')
-
-        self.log('Downloading ', link['href'])
-        html = br.open(link['href']).read()
-        pt = PersistentTemporaryFile('.html')
-        pt.write(html)
-        pt.close()
-        return pt.name
-
-    feeds = []
-
-    sections = [
-        'government', 'politics', 'law', 'business', 'economy', 'education', 'the-sciences',
-        'security', 'tech', 'culture', 'environment', 'health', 'travel', 'rights',
-        'labour', 'world', 'diplomacy', 'books', 'south-asia', 'caste', 'communalism',
-    ]
-
-    for sec in sections:
-        a = 'https://news.google.com/rss/search?q=when:27h+allinurl:thewire.in{}&hl=en-IN&gl=IN&ceid=IN:en'
-        feeds.append((sec.capitalize(), a.format('%2F' + sec + '%2F')))
-    feeds.append(('Others', a.format('')))
+        raw_ = self.index_to_soup(
+            'https://cms.thewire.in/wp-json/thewire/v2/posts/detail/'
+            + url.rsplit('/')[-1],
+            raw=True,
+        )
+        return {'data': json_to_html(raw_), 'url': url}
