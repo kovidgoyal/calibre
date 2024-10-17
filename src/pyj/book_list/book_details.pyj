@@ -127,7 +127,7 @@ def setup_iframe(iframe):
         a.setAttribute('target', '_parent')
 
     def forward_touch_events(ev):
-        container = window.top.document.getElementById(render_book.container_id)
+        container = window.parent.document.getElementById(render_book.container_id)
         if container:
             dup = v'new ev.constructor(ev.type, ev)'
             container.dispatchEvent(dup)
