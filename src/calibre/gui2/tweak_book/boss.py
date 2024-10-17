@@ -1664,6 +1664,19 @@ class Boss(QObject):
             self.commit_all_editors_to_container()
             self.gui.check_external_links.show()
 
+    def embed_tts(self):
+        if not self.ensure_book(_('You must first open a book in order to add Text-to-speech narration.')):
+            return
+        self.commit_all_editors_to_container()
+        from calibre.gui2.tweak_book.tts import TTSEmbed
+        self.add_savepoint(_('Before: adding narration'))
+        d = TTSEmbed(current_container(), self.gui)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.apply_container_update_to_gui()
+            self.show_current_diff()
+        else:
+            self.rewind_savepoint()
+
     def compress_images(self):
         if not self.ensure_book(_('You must first open a book in order to compress images.')):
             return
