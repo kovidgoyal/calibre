@@ -494,7 +494,7 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
                 audio_map[s] = audio_data, duration
                 size_of_audio_data += len(audio_data)
                 snum += 1
-                if report_progress(stage, _('Sentence number: {}').format(snum), snum, total_num_sentences):
+                if report_progress(stage, _('Sentence: {0} of {1}').format(snum, total_num_sentences), snum, total_num_sentences):
                     return False
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))

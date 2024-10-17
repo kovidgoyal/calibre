@@ -4,9 +4,11 @@
 import os
 import sys
 import traceback
+from time import monotonic
 
-from qt.core import QDialogButtonBox, QHBoxLayout, QIcon, QStackedLayout, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QProgressBar, QStackedLayout, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
 
+from calibre.db.utils import human_readable_interval
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
@@ -45,14 +47,39 @@ class Progress(QWidget):
 
     cancel_requested: bool = False
     current_stage: str = ''
+    stage_start_at: float = 0
 
     def __init__(self, parent: QWidget = None):
         super().__init__(parent)
         self.v = v = QVBoxLayout(self)
-        v.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v.setContentsMargins(0, 0, 0, 0)
+        v.addStretch(10)
+        self.stage_label = la = QLabel(self)
+        v.addWidget(la, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.bar = b = QProgressBar(self)
+        v.addWidget(b)
+        self.detail_label = la = QLabel(self)
+        v.addWidget(la, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.time_left = la = QLabel(self)
+        v.addWidget(la, alignment=Qt.AlignmentFlag.AlignCenter)
+        v.addStretch(10)
 
     def __call__(self, stage: str, item: str, count: int, total: int) -> bool:
+        self.stage_label.setText('<b>' + stage)
+        self.detail_label.setText(item)
+        self.detail_label.setVisible(bool(item))
+        self.bar.setRange(0, total)
+        self.bar.setValue(count)
+        now = monotonic()
+        if self.current_stage != stage:
+            self.stage_start_at = now
+            self.current_stage = stage
+        if (time_elapsed := now - self.stage_start_at) >= 5:
+            rate = count / time_elapsed
+            time_left = (total - count) / rate
+            self.time_left.setText(_('Time to complete this stage: {1}').format(stage, human_readable_interval(time_left)))
+        else:
+            self.time_left.setText(_('Estimating time left'))
         return self.cancel_requested
 
 
@@ -64,13 +91,13 @@ class TTSEmbed(Dialog):
 
     def __init__(self, container, parent=None):
         self.container = container
+        super().__init__(_('Add Text-to-speech narration'), 'tts-overlay-dialog', parent=parent)
+
+    def setup_ui(self):
         from threading import Thread
         self.worker_thread = Thread(target=self.worker, daemon=True)
         self.worker_done.connect(self.on_worker_done, type=Qt.ConnectionType.QueuedConnection)
         self.ensure_voices_downloaded_signal.connect(self.do_ensure_voices_downloaded, type=Qt.ConnectionType.QueuedConnection)
-        super().__init__(_('Add Text-to-speech narration'), 'tts-overlay-dialog', parent=parent)
-
-    def setup_ui(self):
         self.v = v = QVBoxLayout(self)
         self.engine_settings_widget = e = EngineSettingsWidget(self)
         self.stack = s = QStackedLayout()
@@ -152,8 +179,9 @@ class TTSEmbed(Dialog):
         with BusyCursor():
             self.progress.cancel_requested = True
             self.bb.setEnabled(False)
+            self.setWindowTitle(_('Cancelling, please wait...'))
+            self.worker_thread.join()
         return super().reject()
-
 
 
 def develop():
@@ -163,14 +191,13 @@ def develop():
     container = get_container(path, tweak_mode=True)
     app = Application([])
     d = TTSEmbed(container)
-    d.exec()
+    if d.exec() == QDialog.DialogCode.Accepted:
+        b, e = os.path.splitext(path)
+        outpath = b + '-tts' + e
+        container.commit(outpath)
+        print('Output saved to:', outpath)
     del d
     del app
-    b, e = os.path.splitext(path)
-    outpath = b + '-tts' + e
-    container.commit(outpath)
-    print('Output saved to:', outpath)
-
 
 
 if __name__ == '__main__':
