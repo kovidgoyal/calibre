@@ -7,6 +7,7 @@ import os
 import sys
 from collections import defaultdict
 from contextlib import suppress
+from functools import partial
 from typing import NamedTuple
 
 from lxml.etree import ElementBase as Element
@@ -380,14 +381,15 @@ class ReportProgress:
     def __init__(self):
         self.current_stage = ''
 
-    def __call__(self, stage: str, item: str, count: int, total: int) -> None:
+    def __call__(self, stage: str, item: str, count: int, total: int) -> bool:
         if stage != self.current_stage:
             self.current_stage = stage
             print()
             print(self.current_stage)
-            return
+            return False
         frac = count / total
         print(f'\r{frac:4.0%} {item}', end='')
+        return False
 
 
 def make_par(container, seq, html_href, audio_href, elem_id, pos, duration) -> None:
@@ -436,12 +438,13 @@ def remove_embedded_tts(container):
         container.remove_item(aname)
 
 
-def embed_tts(container, report_progress=None, parent_widget=None):
+def embed_tts(container, report_progress=None, callback_to_download_voices=None):
     report_progress = report_progress or ReportProgress()
     if container.book_type != 'epub':
         raise UnsupportedContainerType(_('Only the EPUB format has support for embedding speech overlay audio'))
     if container.opf_version_parsed[0] < 3:
-        report_progress(_('Updating book internals'), '', 0, 0)
+        if report_progress(_('Updating book internals'), '', 0, 0):
+            return False
         upgrade_book(container, print)
     remove_embedded_tts(container)
 
@@ -455,7 +458,8 @@ def embed_tts(container, report_progress=None, parent_widget=None):
         if container.mime_map.get(name) in OEB_DOCS:
             name_map[name] = PerFileData(name)
     stage = _('Processing HTML')
-    report_progress(stage, '', 0, len(name_map))
+    if report_progress(stage, '', 0, len(name_map)):
+        return False
     all_voices = set()
     total_num_sentences = 0
     for i, (name, pfd) in enumerate(name_map.items()):
@@ -467,10 +471,16 @@ def embed_tts(container, report_progress=None, parent_widget=None):
             pfd.key_map[key].append(s)
             all_voices.add(key)
         container.dirty(name)
-        report_progress(stage, name, i+1, len(name_map))
-    piper.ensure_voices_downloaded(iter(all_voices), parent=parent_widget)
+        if report_progress(stage, name, i+1, len(name_map)):
+            return False
+    if callback_to_download_voices is None:
+        piper.ensure_voices_downloaded(iter(all_voices))
+    else:
+        if not callback_to_download_voices(partial(piper.ensure_voices_downloaded, iter(all_voices))):
+            return False
     stage = _('Converting text to speech')
-    report_progress(stage, '', 0, total_num_sentences)
+    if report_progress(stage, '', 0, total_num_sentences):
+        return False
     snum = 0
     size_of_audio_data = 0
     mmap = {container.href_to_name(item.get('href'), container.opf_name):item for item in container.manifest_items}
@@ -484,7 +494,8 @@ def embed_tts(container, report_progress=None, parent_widget=None):
                 audio_map[s] = audio_data, duration
                 size_of_audio_data += len(audio_data)
                 snum += 1
-                report_progress(stage, _('Sentence number: {}').format(snum), snum, total_num_sentences)
+                if report_progress(stage, _('Sentence number: {}').format(snum), snum, total_num_sentences):
+                    return False
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))
         afitem = container.generate_item(name + '.m4a', id_prefix='tts-')

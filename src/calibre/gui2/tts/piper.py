@@ -628,10 +628,13 @@ class PiperEmbedded:
                 raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
             yield raw_data, duration_of_raw_audio_data(raw_data, sample_rate)
 
-    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> None:
+    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> bool:
         for lang, voice_name in specs:
             voice = self.resolve_voice(lang, voice_name)
-            download_voice(voice, parent=parent, headless=parent is None)
+            m, c = download_voice(voice, parent=parent, headless=parent is None)
+            if not m:
+                return False
+        return True
 
     def shutdown(self):
         if self._process is not None:
