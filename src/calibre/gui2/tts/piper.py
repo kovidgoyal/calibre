@@ -36,6 +36,7 @@ from calibre.constants import cache_dir, is_debugging, iswindows, piper_cmdline
 from calibre.gui2 import error_dialog
 from calibre.gui2.tts.types import TTS_EMBEDED_CONFIG, EngineSpecificSettings, Quality, TTSBackend, Voice, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
+from calibre.utils.filenames import ascii_text
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 
@@ -103,7 +104,7 @@ def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str
                 q = Quality.from_piper_quality(qual)
                 if best_qual is None or q.value < best_qual.value:
                     best_qual = q
-                    mf = f'{bcp_code}-{voice_name}-{qual}.onnx'
+                    mf = f'{bcp_code}-{ascii_text(voice_name)}-{qual}.onnx'
                     voice = Voice(bcp_code + ':' + voice_name, lang, country, human_name=voice_name, quality=q, engine_data={
                         'model_url': e['model'], 'config_url': e['config'],
                         'model_filename': mf, 'is_downloaded': mf in downloaded,
