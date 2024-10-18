@@ -477,21 +477,22 @@ class NotesBrowser(Dialog):
         gui = get_gui()
         if gui is not None:
             b = self.bb.addButton(_('Search books'), QDialogButtonBox.ButtonRole.ActionRole)
-            b.setToolTip(_('Search the calibre library for books in the currently selected category'))
+            b.setToolTip(_('Search the calibre library for books in the currently selected categories'))
             b.clicked.connect(self.search_books)
             b.setIcon(QIcon.ic('search.png'))
         QTimer.singleShot(0, self.do_find)
 
     def search_books(self):
-        self.notes_display.current_result_changed
-        item = self.results_list.currentItem()
-        if item:
+        vals = []
+        for item in self.results_list.selectedItems():
             r = item.data(0, Qt.ItemDataRole.UserRole)
             if isinstance(r, dict):
                 ival = r['text'].split('\n', 1)[0].replace('"', '\\"')
-                search_expression = f'{r["field"]}:"={ival}"'
-                from calibre.gui2.ui import get_gui
-                get_gui().search.set_search_string(search_expression)
+                vals.append(ival)
+        if vals:
+            search_expression = ' OR '.join(f'{r["field"]}:"={ival}"' for ival in vals)
+            from calibre.gui2.ui import get_gui
+            get_gui().search.set_search_string(search_expression)
 
     def export_selected(self):
         results = tuple(self.results_list.selected_results())
