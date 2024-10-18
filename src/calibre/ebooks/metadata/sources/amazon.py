@@ -1090,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 9)
+    version = (1, 3, 10)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1559,13 +1559,17 @@ class Amazon(Source):
             domain)[len('https://'):].partition('/')[0]
         matches = []
         server = override_server or self.server
-        urlproc, sfunc = se.google_url_processor, se.google_search
         if server == 'bing':
             urlproc, sfunc = se.bing_url_processor, se.bing_search
         elif server == 'wayback':
             urlproc, sfunc = se.wayback_url_processor, se.ddg_search
         elif server == 'ddg':
             urlproc, sfunc = se.ddg_url_processor, se.ddg_search
+        elif server == 'google':
+            urlproc, sfunc = se.google_url_processor, se.google_search
+        else:  # auto or unknown
+            # urlproc, sfunc = se.google_url_processor, se.google_search
+            urlproc, sfunc = se.bing_url_processor, se.bing_search
         try:
             results, qurl = sfunc(terms, site, log=log, br=br, timeout=timeout)
         except HTTPError as err:
