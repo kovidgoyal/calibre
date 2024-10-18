@@ -59,6 +59,7 @@ class Node:
     NODE_RANGE = 30
     NODE_SWITCH = 31
     NODE_SWITCH_IF = 32
+    NODE_FIELD_LIST_COUNT = 33
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -329,6 +330,13 @@ class StrcatNode(Node):
         Node.__init__(self, line_number, 'strcat()')
         self.node_type = self.NODE_STRCAT
         self.expression_list = expression_list
+
+
+class FieldListCountNode(Node):
+    def __init__(self, line_number, expression):
+        Node.__init__(self, line_number, 'field_list_count()')
+        self.node_type = self.NODE_FIELD_LIST_COUNT
+        self.expression = expression
 
 
 class _Parser:
@@ -709,7 +717,9 @@ class _Parser:
         'print':            (lambda _: True,
                              lambda ln, args: PrintNode(ln, args)),
         'strcat':           (lambda _: True,
-                             lambda ln, args: StrcatNode(ln, args))
+                             lambda ln, args: StrcatNode(ln, args)),
+        'field_list_count': (lambda args: len(args) == 1,
+                             lambda ln, args: FieldListCountNode(ln, args[0]))
     }
 
     def expr(self):
@@ -1337,6 +1347,18 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
+    def do_node_field_list_count(self, prog):
+        name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
+        if not self.parent_book.has_key(name):
+            self.error(_("'{0}' is not a field").format(name), prog.line_number)
+        res = getattr(self.parent_book, name, None)
+        if not isinstance(res, (list, tuple, set, dict)):
+            self.error(_("Field '{0}' is not a list").format(name), prog.line_number)
+        ans = str(len(res))
+        if self.break_reporter:
+            self.break_reporter(prog.node_name, ans, prog.line_number)
+        return ans
+
     def do_node_break(self, prog):
         if (self.break_reporter):
             self.break_reporter(prog.node_name, '', prog.line_number)
@@ -1566,6 +1588,7 @@ class _Interpreter:
         Node.NODE_BINARY_STRINGOP:       do_node_stringops,
         Node.NODE_LOCAL_FUNCTION_DEFINE: do_node_local_function_define,
         Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
+        Node.NODE_FIELD_LIST_COUNT:      do_node_field_list_count,
         }
 
     def expr(self, prog):
