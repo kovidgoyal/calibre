@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 10)
+current_version = (1, 2, 11)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -443,7 +443,31 @@ def google_develop(search_terms='1423146786', raw_from=''):
 
 
 def get_cached_url(url, br=None, log=prints, timeout=60):
-    return bing_cached_url(url, br, log, timeout) or wayback_machine_cached_url(url, br, log, timeout)
+    from threading import Lock, Thread
+
+    from polyglot.queue import Queue
+    print_lock = Lock()
+    q = Queue()
+
+    def safe_print(*a):
+        with print_lock:
+            log(*a)
+
+    def doit(func):
+        try:
+            q.put(func(url, br, safe_print, timeout))
+        except Exception as e:
+            safe_print(e)
+        q.put(None)
+
+    threads = []
+    threads.append(Thread(target=doit, args=(wayback_machine_cached_url,), daemon=True).start())
+    threads.append(Thread(target=doit, args=(bing_cached_url,), daemon=True).start())
+    while threads:
+        x = q.get()
+        if x is not None:
+            return x
+        threads.pop()
 
 
 def get_data_for_cached_url(url):
