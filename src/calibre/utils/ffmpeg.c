@@ -131,13 +131,13 @@ write_packet(void *opaque, uint8_t *buf, int buf_size) {
 static int64_t
 size_packet(PyObject *seek_func, const char *which) {
     PyObject *pos = NULL, *end_pos = NULL, *ret = NULL, *set = NULL;
-    int64_t ans = AVERROR_EXTERNAL;
+    long long ans = AVERROR_EXTERNAL;
     if (!(pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_CUR))) goto cleanup;
     if (!(end_pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_END))) goto cleanup;
     if (!(set = PyLong_FromLong(SEEK_SET))) goto cleanup;
     if (!(ret = PyObject_CallFunctionObjArgs(seek_func, pos, set, NULL))) goto cleanup;
     ans = PyLong_AsLongLong(end_pos);
-    if (debug_io) printf("size %s: %ld\n", which, ans);
+    if (debug_io) printf("size %s: %lld\n", which, ans);
 cleanup:
     Py_XDECREF(pos); Py_XDECREF(end_pos); Py_XDECREF(ret); Py_XDECREF(set);
     return ans;
@@ -149,7 +149,7 @@ seek_packet(PyObject *seek_func, int64_t offset, int whence, const char *which) 
     PyObject *ret = PyObject_CallFunction(seek_func, "Li", (long long)offset, whence);
     if (!ret) return AVERROR_EXTERNAL;
     long long ans = PyLong_AsLongLong(ret);
-    if (debug_io) printf("seek %s offset=%ld whence: %d: %lld\n", which, offset, whence, ans);
+    if (debug_io) printf("seek %s offset=%lld whence: %d: %lld\n", which, (long long)offset, whence, ans);
     Py_DECREF(ret);
     return ans;
 }
