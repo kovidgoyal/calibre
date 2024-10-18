@@ -23,6 +23,57 @@
 # - title by author
 # }}}
 
+{{{ 7.20.0 2024-10-18
+
+:: new features
+
+- [major] PDF Input: Automatic header/footer detection and removal
+
+  A new, dedicated PDF Input engine for calibre that implements
+  automatic detection of headers and footers based on document analysis.
+  The new engine is the default to go back to using the old engine, select
+  it in the PDF Input section of the Conversion dialog.
+
+- [2083058] Read Aloud: Allow configuring an extra pause at the end of every sentence when using the Piper TTS engine
+
+- PDF Output: Add _WIDTH_PIXELS_ and _HEIGHT_PIXELS_ variables to know the width and height of the header/footer area in templates
+
+- Windows: Use calibre's bundled SSL certificates instead of the system certificate store by default
+
+  Can be turned off via CALIBRE_USE_SYSTEM_CERTIFICATES=1 env var
+
+- Trim image tool: Add a control to adjust aspect ratio
+
+- Kobo driver: Add support for the new firmware used by the Tolino Shine 5
+
+:: bug fixes
+
+- Fix a regression in previous release that broke copying of book to another library if the books author does not exist in the destination database
+
+- Read aloud: Piper backend: Fix not working with voices whose names have non-ASCII characters on Windows.
+
+- Content server: Fix book with non-ASCII filenames not downloading in the Kindle browser when using the /mobile view
+
+- Content server: Fix embedding the server HTML inside a third party iframe causing an error
+
+:: improved recipes
+- The Wire
+- Nikkei Asia Magazine
+- Swarajya
+- Mainichi
+- Nautilus
+- National Geographic
+- Science Journal
+- Times Literary Supplement
+- Saechsische Zeitung
+- India Today
+- Scientific American
+
+:: new recipes
+- NYT Magazine by unkn0wn
+- RedaktionsNetzwerk Deutschland by epubli
+}}}
+
 {{{ 7.19.0 2024-09-27
 
 :: new features
