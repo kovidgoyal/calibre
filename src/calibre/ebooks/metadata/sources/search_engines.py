@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 9)
+current_version = (1, 2, 10)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -142,8 +142,12 @@ def ddg_href(url):
 def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     q = quote_term(url)
     br = br or browser()
-    data = query(br, 'https://archive.org/wayback/available?url=' +
-                 q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
+    try:
+        data = query(br, 'https://archive.org/wayback/available?url=' +
+                    q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
+    except Exception as e:
+        log(f'Wayback machine query failed for url: {url} with error: {e}')
+        return None
     try:
         closest = data['archived_snapshots']['closest']
         if closest['available']:
@@ -218,6 +222,7 @@ def bing_url_processor(url):
 
 
 def bing_cached_url(url, br=None, log=prints, timeout=60):
+    # See https://support.microsoft.com/en-gb/topic/advanced-search-keywords-ea595928-5d63-4a0b-9c6b-0b769865e78a for operators
     results, search_url = bing_search(['url:' + url], br=br, log=log, timeout=timeout)
     for result in results:
         return result.cached_url
@@ -233,7 +238,7 @@ def resolve_bing_wrapper_page(url, br, log):
     return m.group(1)
 
 
-def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60, show_user_agent=False):
+def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60, show_user_agent=False, result_url_is_ok=lambda x: True):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
     terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
@@ -271,7 +276,8 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
         ans_url = a.get('href')
         if ans_url.startswith('https://www.bing.com/'):
             ans_url = resolve_bing_wrapper_page(ans_url, br, log)
-        ans.append(Result(ans_url, title, cached_url))
+        if result_url_is_ok(ans_url):
+            ans.append(Result(ans_url, title, cached_url))
     if not ans:
         title = ' '.join(root.xpath('//title/text()'))
         log('Failed to find any results on results page, with title:', title)
