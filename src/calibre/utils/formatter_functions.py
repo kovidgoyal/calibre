@@ -2662,6 +2662,23 @@ class BuiltinIsDarkMode(BuiltinFormatterFunction):
             only_in_gui_error('is_dark_mode')
 
 
+class BuiltinFieldListCount(BuiltinFormatterFunction):
+    name = 'field_list_count'
+    arg_count = 0
+    category = 'List manipulation'
+    __doc__ = doc = _("field_list_count(field_name) -- returns the count of items "
+                      "in the field with the lookup name 'field_name'. The field "
+                      "must be multi-valued such as authors or tags, otherwise "
+                      "the function raises an error. This function is much faster "
+                      "than list_count() because it operates directly on calibre "
+                      "data without converting it to a string first. "
+                      "Example: {}").format("field_list_count('tags')")
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        # The globals function is implemented in-line in the formatter
+        raise NotImplementedError()
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -2673,7 +2690,7 @@ _formatter_builtins = [
     BuiltinCurrentVirtualLibraryName(), BuiltinDateArithmetic(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
     BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
-    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
+    BuiltinFieldListCount(), BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
