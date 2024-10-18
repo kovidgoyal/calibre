@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.sources.base import Source
 class OpenLibrary(Source):
 
     name = 'Open Library'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads covers from The Open Library')
 
@@ -22,6 +22,7 @@ class OpenLibrary(Source):
 
     def download_cover(self, log, result_queue, abort,
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+        return  # site is currently down and timing out leading to slow metadata retrieval
         if 'isbn' not in identifiers:
             return
         isbn = identifiers['isbn']
