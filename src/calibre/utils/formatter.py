@@ -1349,11 +1349,9 @@ class _Interpreter:
 
     def do_node_field_list_count(self, prog):
         name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
-        if not self.parent_book.has_key(name):
-            self.error(_("'{0}' is not a field").format(name), prog.line_number)
         res = getattr(self.parent_book, name, None)
-        if not isinstance(res, (list, tuple, set, dict)):
-            self.error(_("Field '{0}' is not a list").format(name), prog.line_number)
+        if res is None or not isinstance(res, (list, tuple, set, dict)):
+            self.error(_("Field '{0}' is either not a field or not a list").format(name), prog.line_number)
         ans = str(len(res))
         if self.break_reporter:
             self.break_reporter(prog.node_name, ans, prog.line_number)
