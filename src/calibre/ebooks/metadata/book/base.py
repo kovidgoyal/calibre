@@ -201,7 +201,7 @@ class Metadata:
         return iter(object.__getattribute__(self, '_data'))
 
     def has_key(self, key):
-        return key in object.__getattribute__(self, '_data')
+        return key in STANDARD_METADATA_FIELDS or key in object.__getattribute__(self, '_data')['user_metadata']
 
     def _evaluate_all_composites(self):
         custom_fields = object.__getattribute__(self, '_data')['user_metadata']

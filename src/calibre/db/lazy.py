@@ -387,7 +387,8 @@ class ProxyMetadata(Metadata):
                                    "Use the explicit methods such as all_field_keys()")
 
     def has_key(self, key):
-        return key in self.all_field_keys()
+        from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
+        return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
 
     def deepcopy(self, **kwargs):
         self._unimplemented_exception('deepcopy', add_txt=False)
