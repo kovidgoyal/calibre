@@ -32,7 +32,7 @@ from qt.core import (
     sip,
 )
 
-from calibre.constants import cache_dir, is_debugging, iswindows, piper_cmdline
+from calibre.constants import cache_dir, is_debugging, ismacos, iswindows, piper_cmdline
 from calibre.gui2 import error_dialog
 from calibre.gui2.tts.types import TTS_EMBEDED_CONFIG, EngineSpecificSettings, Quality, TTSBackend, Voice, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
@@ -421,7 +421,10 @@ class Piper(TTSBackend):
                 self._audio_sink.setVolume(s.volume)
             # On Windows, the buffer is zero causing data to be discarded.
             # Ensure we have a nice large buffer on all platforms.
-            self._audio_sink.setBufferSize(2 * 1024 * 1024)
+            # However, on Linux changing the buffer size causes audio to not
+            # play on some systems. See https://www.mobileread.com/forums/showthread.php?t=363881
+            if not iswindows and not ismacos:
+                self._audio_sink.setBufferSize(2 * 1024 * 1024)
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._process.start()
             self._audio_sink.start(self._utterances_being_spoken)
