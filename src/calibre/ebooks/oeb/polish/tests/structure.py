@@ -254,15 +254,15 @@ class Structure(BaseTest):
         }.items()):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
-            mark_sentences_in_html(root)
+            sentences = mark_sentences_in_html(root)
+            ids = tuple(int(s.elem_id[len(id_prefix):]) for s in sentences)
+            self.assertEqual(len(ids), ids[-1])
             marked = normalize_markup(root)
             self.assertEqual(expected, marked)
             unmark_sentences_in_html(root)
             self.assertEqual(orig, normalize_markup(root), f'Unmarking failed for {marked}')
         sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
-
-
 
 
 def find_tests():

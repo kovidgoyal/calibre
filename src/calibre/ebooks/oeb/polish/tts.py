@@ -84,6 +84,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
             self.parent_lang = parent_lang
+            self.parent_voice = parent_voice
             q = elem.get('data-calibre-tts', '')
             self.voice = parent_voice
             if q.startswith('{'):  # }
@@ -127,6 +128,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         before = self.elem.tail[:start]
                     span = self.make_wrapper(text, p)
                     spans.append(span)
+                    ans.append(Sentence(span.get('id'), text, self.parent_lang, self.parent_voice))
                     after = self.elem.tail[end:]
                 self.elem.tail = before
                 if after and spans:
