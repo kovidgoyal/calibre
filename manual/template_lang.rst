@@ -499,7 +499,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
 * ``field_exists(lookup_name)`` -- checks if a field (column) with the lookup name ``lookup_name`` exists, returning ``'1'`` if so and the empty string if not.
 * ``field_list_count(lookup_name)``-- returns the count of items in the field with the lookup name `lookup_name`. The field must be multi-valued such as ``authors`` or ``tags``, otherwise the function raises an error. This function is much faster than ``list_count()`` because it operates directly on calibre data without converting it to a string first. Example: ``field_list_count('tags')``
-* ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and uffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
+* ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
 
     program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
 
