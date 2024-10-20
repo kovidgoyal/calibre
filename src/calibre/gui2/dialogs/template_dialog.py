@@ -156,6 +156,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         config = self.Config = {}
         config["fontfamily"] = font_name
         app_palette = QApplication.instance().palette()
+        is_dark = QApplication.instance().is_dark_theme
 
         all_formats = (
             # name, color, bold, italic
@@ -164,9 +165,9 @@ class TemplateHighlighter(QSyntaxHighlighter):
             ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
             ("constant", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
             ("identifier", None, False, True),
-            ("comment", "#007F00", False, True),
-            ("string", "#808000", False, False),
-            ("number", "#924900", False, False),
+            ("comment", '#00c700' if is_dark else "#007F00", False, True),
+            ("string", '#b6b600' if is_dark else "#808000", False, False),
+            ("number", '#d96d00' if is_dark else "#924900", False, False),
             ("decorator", "#FF8000", False, True),
             ("pyqt", None, False, False),
             ("lparen", None, True, True),
