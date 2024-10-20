@@ -534,6 +534,7 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         html_item.set('media-overlay', smilitem.get('id'))
         duration_map[smilitem.get('id')] = file_duration
     container.set_media_overlay_durations(duration_map)
+    return True
 
 
 def develop():

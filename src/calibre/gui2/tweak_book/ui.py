@@ -468,6 +468,8 @@ class Main(MainWindow):
         self.action_get_ext_resources = treg('download-metadata.png', _('Download external &resources'),
                                              self.boss.get_external_resources, 'get-external-resources', (), _(
             'Download external resources in the book (images/stylesheets/etc/ that are not included in the book)'))
+        self.action_embed_tts = treg('bullhorn.png', _('Add Text-to-speech narration'), self.boss.embed_tts, 'embed-tts', (), _(
+            'Add audio narration for all the book text using Text-to-speech generation'))
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
@@ -639,6 +641,7 @@ class Main(MainWindow):
         e.addAction(self.action_transform_styles)
         e.addAction(self.action_transform_html)
         e.addAction(self.action_fix_html_all)
+        e.addAction(self.action_embed_tts)
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_add_cover)

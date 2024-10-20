@@ -196,6 +196,8 @@ def develop():
         outpath = b + '-tts' + e
         container.commit(outpath)
         print('Output saved to:', outpath)
+    else:
+        print('Failed')
     del d
     del app
 
