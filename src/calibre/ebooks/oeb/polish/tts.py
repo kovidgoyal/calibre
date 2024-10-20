@@ -171,10 +171,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     w.append(c)
                     first_child = c
                 if in_range:
-                    if last_child is not first_child:
-                        w.append(last_child)
                     if c is last_child:
+                        if last_child is not first_child:
+                            w.append(c)
                         break
+                    else:
+                        w.append(c)
             self.replace_reference_to_child(last_child, w)
             return w
 

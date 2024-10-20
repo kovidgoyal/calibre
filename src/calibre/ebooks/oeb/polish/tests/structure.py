@@ -248,6 +248,9 @@ class Structure(BaseTest):
 
             '<p>One</p> Two. Three <p>Four':
             '<body><p><span id="1">One</span></p><span id="2"> Two. </span><span id="3">Three </span><p><span id="4">Four</span></p>',
+
+            '<p>Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.':
+            '<body><p><span id="1">Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.</span></p>',
         }.items()):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
