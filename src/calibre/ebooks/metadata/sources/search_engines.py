@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 11)
+current_version = (1, 2, 12)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -146,7 +146,7 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
         data = query(br, 'https://archive.org/wayback/available?url=' +
                     q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
     except Exception as e:
-        log(f'Wayback machine query failed for url: {url} with error: {e}')
+        log('Wayback machine query failed for url: ' + url + ' with error: ' + str(e))
         return None
     try:
         closest = data['archived_snapshots']['closest']
