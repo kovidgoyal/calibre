@@ -17,6 +17,7 @@ from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.imghdr import what
+from calibre.utils.localization import canonicalize_lang, reverse_lang_map_for_ui
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import from_base64_bytes
@@ -206,6 +207,11 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
         dirtied.add(book_id)
 
     for field, value in iteritems(changes):
+        if field == 'languages' and value:
+            rmap = reverse_lang_map_for_ui()
+            def to_lang_code(x):
+                return rmap.get(x, canonicalize_lang(x))
+            value = list(filter(None, map(to_lang_code, value)))
         dirtied |= db.set_field(field, {book_id: value})
     ctx.notify_changes(db.backend.library_path, metadata(dirtied))
     all_ids = dirtied if all_dirtied else (dirtied & loaded_book_ids)
