@@ -178,8 +178,8 @@ Follow these steps to find the problem:
       no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
-    * If you are connecting a Kindle Fire or other Android device, read the note
-      under :ref:`android_usb`.
+    * If you are connecting a 2024 Kindle or newer or an Android device, and are on macOS or Linux,
+      read the note under :ref:`android_usb`.
     * On macOS if you get permission errors when connecting a device to calibre, you can
       fix that by looking under :guilabel:`System Preferences > Security and
       Privacy > Privacy > Files and Folders`.
