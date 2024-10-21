@@ -373,6 +373,7 @@ class ManyToOneTable(Table):
             # We have to replace
             new_id = existing_item
             self.id_map.pop(item_id, None)
+            self.link_map.pop(item_id, None)
             books = self.col_book_map.pop(item_id, set())
             for book_id in books:
                 self.book_col_map[book_id] = existing_item
@@ -522,6 +523,7 @@ class ManyToManyTable(ManyToOneTable):
             # We have to replace
             new_id = existing_item
             self.id_map.pop(item_id, None)
+            self.link_map.pop(item_id, None)
             books = self.col_book_map.pop(item_id, set())
             # Replacing item_id with existing_item could cause the same id to
             # appear twice in the book list. Handle that by removing existing
@@ -615,7 +617,6 @@ class AuthorsTable(ManyToManyTable):
     def rename_item(self, item_id, new_name, db):
         ret = ManyToManyTable.rename_item(self, item_id, new_name, db)
         if item_id not in self.id_map:
-            self.link_map.pop(item_id, None)
             self.asort_map.pop(item_id, None)
         else:
             # Was a simple rename, update the author sort value
