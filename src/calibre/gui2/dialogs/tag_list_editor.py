@@ -730,6 +730,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             tags = self.ordered_tags
 
         select_item = None
+        tooltips = ( # must be in the same order as the columns in the table
+             _('Name of the item'),
+             _('Count of books with this item'),
+             _('Value of the item before it was edited'),
+             _('The link (URL) associated with this item'),
+             _('Whether the item has a note. The icon changes if the note was created or edited')
+        )
         with block_signals(self.table):
             self.name_col = QTableWidgetItem(self.category_name)
             self.table.setHorizontalHeaderItem(VALUE_COLUMN, self.name_col)
@@ -742,6 +749,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if self.supports_notes:
                 self.notes_col = QTableWidgetItem(_('Notes'))
                 self.table.setHorizontalHeaderItem(4, self.notes_col)
+            for i,tt in enumerate(tooltips):
+                header_item = self.table.horizontalHeaderItem(i)
+                header_item.setToolTip(tt)
 
             self.table.setRowCount(len(tags))
             if self.supports_notes:
