@@ -289,7 +289,7 @@ class ZshCompleter:  # {{{
                 elif opt.choices:
                     arg += "(%s)"%'|'.join(opt.choices)
                 elif set(file_map).intersection(set(opt._long_opts)):
-                    k = list(set(file_map).intersection(set(opt._long_opts)))
+                    k = tuple(set(file_map).intersection(set(opt._long_opts)))
                     exts = file_map[k[0]]
                     if exts:
                         exts = ('*.%s'%x for x in sorted(exts + [x.upper() for x in exts]))
