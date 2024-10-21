@@ -2534,7 +2534,7 @@ class Cache:
         lm = table.link_map
         vm = table.id_map
         ans = {vm.get(fid):v for fid,v in lm.items() if v}
-        ans.pop(None)
+        ans.pop(None, None)
         return ans
 
     @read_api
