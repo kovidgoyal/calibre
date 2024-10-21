@@ -1290,21 +1290,23 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
 
 
 class BuiltinFormatDateField(BuiltinFormatterFunction):
-    name = 'format_date_field'
+    name = 'field_format_date'
     arg_count = 2
     category = 'Formatting values'
-    __doc__ = doc = _("format_date_field(field_name, format_string) -- format "
+    __doc__ = doc = _("field_format_date(field_name, format_string) -- format "
             "the value in the field 'field_name', which must be the lookup name "
             "of date field, either standard or custom. See 'format_date' for "
             "the formatting codes. This function is much faster than format_date "
             "and should be used when you are formatting the value in a field "
             "(column). It can't be used for computed dates or dates in string "
-            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd')")
+            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd'). "
+            "Alias: format_date_field")
+    aliases = ['format_date_field']
 
     def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
         try:
             if field not in mi.all_field_keys():
-                return _('Unknown field %s passed to function %s')%(field, 'format_date_field')
+                return _('Unknown field %s passed to function %s')%(field, 'field_format_date')
             val = mi.get(field, None)
             if val is None:
                 s = ''

@@ -558,10 +558,10 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
    format_date(raw_field('pubdate'), 'yyyy')
 
-* ``format_date_field(field_name, format_string)`` -- format the value in the field ``field_name``, which must be the lookup name of date field, either standard or custom. See ``format_date()`` for the formatting codes. This function is much faster than format_date and should be used when you are formatting the value in a field (column). It can't be used for computed dates or dates in string variables. Examples::
+* ``field_format_date(field_name, format_string)`` -- format the value in the field ``field_name``, which must be the lookup name of date field, either standard or custom. See ``format_date()`` for the formatting codes. This function is much faster than format_date and should be used when you are formatting the value in a field (column). It can't be used for computed dates or dates in string variables. Alias: format_date_field. Examples::
 
-   format_date_field('pubdate', 'yyyy.MM.dd')
-   format_date_field('#date_read', 'MMM dd, yyyy')
+   field_format_date('pubdate', 'yyyy.MM.dd')
+   field_format_date('#date_read', 'MMM dd, yyyy')
 
 * ``formats_modtimes(date_format_string)`` -- return a comma-separated list of colon-separated items ``FMT:DATE`` representing modification times for the formats of a book. The ``date_format_string`` parameter specifies how the date is to be formatted. See the ``format_date()`` function for details. You can use the ``select`` function to get the modification time for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_paths()`` -- return a comma-separated list of colon-separated items ``FMT:PATH`` giving the full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
