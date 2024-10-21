@@ -2533,7 +2533,9 @@ class Cache:
             raise ValueError(f"Lookup name {for_field} doesn't have a link map")
         lm = table.link_map
         vm = table.id_map
-        return {vm.get(fid):v for fid,v in lm.items() if v}
+        ans = {vm.get(fid):v for fid,v in lm.items() if v}
+        ans.pop(None)
+        return ans
 
     @read_api
     def link_for(self, field, item_id):
