@@ -344,6 +344,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                  ttm_is_first_letter=False, category=None, fm=None, link_map=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
+        self.table_column_widths = None
         self.setupUi(self)
 
         from calibre.gui2.ui import get_gui
@@ -629,6 +630,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # If we don't then the old items remain even if replaced by setItem().
         # I'm not sure if this is standard Qt behavior or behavior triggered by
         # something in this class, but replacing the table fixes it.
+        self.table_column_widths = gprefs.get('tag_list_editor_table_widths', None)
         if self.table is not None:
             self.save_geometry()
             self.central_layout.removeWidget(self.table)
@@ -684,7 +686,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
 
         self.restore_geometry(gprefs, 'tag_list_editor_dialog_geometry')
-        self.table_column_widths = gprefs.get('tag_list_editor_table_widths', None)
         if self.table_column_widths is not None:
             for col,width in enumerate(self.table_column_widths):
                 self.table.setColumnWidth(col, width)
