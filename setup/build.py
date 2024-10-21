@@ -696,8 +696,8 @@ qmake-settings = [
 ]
 
 [tool.sip.bindings.{ext.name}]
-headers = {ext.headers}
-sources = {ext.sources}
+headers = {sorted(ext.headers)}
+sources = {sorted(ext.sources)}
 exceptions = {needs_exceptions}
 include-dirs = {ext.inc_dirs}
 qmake-QT = {ext.qt_modules}
