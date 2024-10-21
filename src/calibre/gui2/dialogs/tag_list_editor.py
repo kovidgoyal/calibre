@@ -352,7 +352,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.search_box.setMinimumContentsLength(25)
         if category is not None:
             item_map = get_gui().current_db.new_api.get_item_name_map(category)
-            self.original_links = {item_map[k]:v for k,v in link_map.items()}
+            self.original_links = {item_map[k]:v for k,v in link_map.items() if k in item_map}
             self.current_links = copy.copy(self.original_links)
         else:
             self.original_links = {}
