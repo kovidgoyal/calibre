@@ -577,15 +577,16 @@ class Build(Command):
             cmd = [linker]
             elib = env.lib_dirs_to_ldflags(ext.lib_dirs)
             xlib = env.libraries_to_ldflags(ext.libraries)
+            all_objects = sorted(objects + ext.extra_objs)
             if iswindows or env is self.windows_cross_env:
                 pre_ld_flags = []
                 if ext.uses_icu:
                     # windows has its own ICU libs that dont work
                     pre_ld_flags = elib
                 cmd += pre_ld_flags + env.ldflags + ext.ldflags + elib + xlib + \
-                    ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
+                    ['/EXPORT:' + init_symbol_name(ext.name)] + all_objects + ['/OUT:'+dest]
             else:
-                cmd += objects + ext.extra_objs + ['-o', dest] + env.ldflags + ext.ldflags + elib + xlib
+                cmd += all_objects + ['-o', dest] + env.ldflags + ext.ldflags + elib + xlib
             return LinkCommand(cmd, objects, dest)
 
         env = self.env_for_compilation_db(ext)
@@ -695,8 +696,8 @@ qmake-settings = [
 ]
 
 [tool.sip.bindings.{ext.name}]
-headers = {ext.headers}
-sources = {ext.sources}
+headers = {sorted(ext.headers)}
+sources = {sorted(ext.sources)}
 exceptions = {needs_exceptions}
 include-dirs = {ext.inc_dirs}
 qmake-QT = {ext.qt_modules}
