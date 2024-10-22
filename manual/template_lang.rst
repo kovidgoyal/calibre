@@ -246,7 +246,7 @@ General Program Mode
     concatenate_expr::= compare_expr [ '&' compare_expr ]*
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' |
-                        'in' | 'inlist' | 'field_inlist' |
+                        'in' | 'inlist' | 'inlist_field' |
                         '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
     add_sub_expr    ::= times_div_expr [ add_sub_op times_div_expr ]*
     add_sub_op      ::= '+' | '-'
@@ -418,10 +418,12 @@ Examples:
 
   * ``program: field('series') == 'foo'`` returns ``'1'`` if the book's series is 'foo', otherwise ``''``.
   * ``program: 'f.o' in field('series')`` returns ``'1'`` if the book's series matches the regular expression ``f.o`` (e.g., `foo`, `Off Onyx`, etc.), otherwise ``''``.
-  * ``program: 'science' inlist field('#genre')`` returns ``'1'`` if any of the values retrieved from the book's genres match the regular expression ``science``, e.g., `Science`, `History of Science`, `Science Fiction` etc., otherwise ``''``.
-  * ``program: '^science$' inlist $#genre`` returns ``'1'`` if any of the book's genres exactly match the regular expression ``^science$``, e.g., `Science`. The genres `History of Science` and `Science Fiction` don't match. If there isn't a match then it returns ``''``.
-  * ``program: 'asimov' field_inlist 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov``, e.g., `Asimov, Isaac` or `Isaac Asimov`, otherwise ``''``.
-  * ``program: 'asimov$' field_inlist 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov$``, e.g., `Isaac Asimov`, otherwise ``''``. It doesn't match `Asimov, Isaac` because of the ``$`` anchor in the regular expression.
+  * ``program: 'science' inlist $#genre`` returns ``'1'`` if any of the values retrieved from the book's genres match the regular expression ``science``, e.g., `Science`, `History of Science`, `Science Fiction` etc., otherwise ``''``.
+  * ``program: '^science$' inlist $#genre`` returns ``'1'`` if any of the book's genres exactly match the regular expression ``^science$``, e.g., `Science`, otherwise ``''``. The genres `History of Science` and `Science Fiction` don't match.
+  * ``program: 'asimov' inlist $authors`` returns ``'1'`` if any author matches the regular expression ``asimov``, e.g., `Asimov, Isaac` or `Isaac Asimov`, otherwise ``''``.
+  * ``program: 'asimov' inlist_field 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov``, e.g., `Asimov, Isaac` or `Isaac Asimov`, otherwise ``''``.
+  * ``program: 'asimov$' inlist_field 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov$``, e.g., `Isaac Asimov`, otherwise ``''``. It doesn't match `Asimov, Isaac` because of the ``$`` anchor in the regular expression.
+  * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not ``foo``. Otherwise it returns ``'mumble'``.
   * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not ``foo``. Otherwise it returns ``'mumble'``.
   * ``program: if field('series') == 'foo' || field('series') == '1632' then 'yes' else 'no' fi`` returns ``'yes'`` if series is either ``'foo'`` or ``'1632'``, otherwise ``'no'``.
   * ``program: if '^(foo|1632)$' in field('series') then 'yes' else 'no' fi`` returns ``'yes'`` if series is either ``'foo'`` or ``'1632'``, otherwise ``'no'``.
@@ -503,7 +505,6 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``extra_file_names(sep [, pattern])`` -- returns a ``sep``-separated list of extra files in the book's ``data/`` folder. If the optional parameter ``pattern``, a regular expression, is supplied then the list is filtered to files that match ``pattern``. The pattern match is case insensitive. See also the functions ``has_extra_files()``, ``extra_file_modtime()`` and ``extra_file_size()``. This function can be used only in the GUI.
 * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
 * ``field_exists(lookup_name)`` -- checks if a field (column) with the lookup name ``lookup_name`` exists, returning ``'1'`` if so and the empty string if not.
-* ``field_list_count(lookup_name)``-- returns the count of items in the field with the lookup name `lookup_name`. The field must be multi-valued such as ``authors`` or ``tags``, otherwise the function raises an error. This function is much faster than ``list_count()`` because it operates directly on calibre data without converting it to a string first. Example: ``field_list_count('tags')``
 * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
 
     program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
@@ -609,6 +610,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``language_codes(lang_strings)`` -- return the `language codes <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ for the language names passed in `lang_strings`. The strings must be in the language of the current locale. ``Lang_strings`` is a comma-separated list.
 * ``list_contains(value, separator, [ pattern, found_val, ]* not_found_val)`` -- (Alias of ``in_list``) Interpreting the value as a list of items separated by ``separator``, evaluate the ``pattern`` against each value in the list. If the ``pattern`` matches any value then return ``found_val``, otherwise return ``not_found_val``. The ``pattern`` and ``found_value`` can be repeated as many times as desired, permitting returning different values depending on the search. The patterns are checked in order. The first match is returned. Aliases: ``in_list()``, ``list_contains()``
 * ``list_count(value, separator)`` -- interprets ``value`` as a list of items separated by ``separator``, returning the count of items in the list. Aliases: ``count()``, ``list_count()``
+* ``list_count_field(lookup_name)``-- returns the count of items in the field with the lookup name `lookup_name`. The field must be multi-valued such as ``authors`` or ``tags``, otherwise the function raises an error. This function is much faster than ``list_count()`` because it operates directly on calibre data without converting it to a string first. Example: ``list_count_field('tags')``
 * ``list_count_matching(list, pattern, separator)`` -- interprets ``list`` as a list of items separated by ``separator``, returning the number of items in the list that match the regular expression ``pattern``. Aliases: ``list_count_matching()``, ``count_matching()``
 * ``list_difference(list1, list2, separator)`` -- return a list made by removing from ``list1`` any item found in ``list2`` using a case-insensitive comparison. The items in ``list1`` and ``list2`` are separated by separator, as are the items in the returned list.
 * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return ``yes_val`` if ``list1`` and `list2` contain the same items, otherwise return ``no_val``. The items are determined by splitting each list using the appropriate separator character (``sep1`` or ``sep2``). The order of items in the lists is not relevant. The comparison is case-insensitive.
