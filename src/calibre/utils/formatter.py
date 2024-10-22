@@ -652,7 +652,7 @@ class _Parser:
     def compare_expr(self):
         left = self.add_subtract_expr()
         if (self.token_op_is_string_infix_compare() or
-                self.token_is('in') or self.token_is('inlist')):
+                self.token_is('in') or self.token_is('inlist') or self.token_is('field_inlist')):
             operator = self.token()
             return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
@@ -1398,11 +1398,27 @@ class _Interpreter:
                                            [v.strip() for v in y.split(',') if v.strip()]))
         }
 
+    def do_field_inlist(self, left, right, prog):
+        res = getattr(self.parent_book, right, None)
+        if res is None or not isinstance(res, (list, tuple, set, dict)):
+            self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
+        pat = re.compile(left, flags=re.I)
+        for v in res:
+            if re.search(pat, v):
+                return '1'
+        return ''
+
     def do_node_string_infix(self, prog):
         try:
             left = self.expr(prog.left)
             right = self.expr(prog.right)
-            res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
+            try:
+                res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
+            except KeyError:
+                if prog.operator == 'field_inlist':
+                    res = self.do_field_inlist(left, right, prog)
+                else:
+                    raise
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
@@ -1684,6 +1700,7 @@ class TemplateFormatter(string.Formatter):
             (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(field_inlist)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa

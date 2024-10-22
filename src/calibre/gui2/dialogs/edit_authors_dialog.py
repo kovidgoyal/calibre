@@ -57,10 +57,33 @@ class TableItem(QTableWidgetItem):
         return self.sort_key < other.sort_key
 
 
+class CountTableItem(QTableWidgetItem):
+
+    def __init__(self, val):
+        QTableWidgetItem.__init__(self, str(val))
+        self.val = val
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled)
+
+    def setText(self, val):
+        self.val = val
+        QTableWidgetItem.setText(self, str(val))
+
+    def set_sort_key(self):
+        pass
+
+    def __ge__(self, other):
+        return self.val >= other.val
+
+    def __lt__(self, other):
+        return self.val < other.val
+
+
 AUTHOR_COLUMN = 0
 AUTHOR_SORT_COLUMN = 1
-LINK_COLUMN = 2
-NOTES_COLUMN = 3
+COUNTS_COLUMN = 2
+LINK_COLUMN = 3
+NOTES_COLUMN = 4
 
 
 class EditColumnDelegate(QStyledItemDelegate):
@@ -83,7 +106,8 @@ class EditColumnDelegate(QStyledItemDelegate):
         if index.column() == NOTES_COLUMN:
             self.notes_utilities.edit_note(self.table.itemFromIndex(index))
             return None
-
+        if index.column() == COUNTS_COLUMN:
+            return None
         from calibre.gui2.widgets import EnLineEdit
         editor = EnLineEdit(parent)
         editor.setClearButtonEnabled(True)
@@ -193,13 +217,14 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.original_authors = {}
         auts = db.new_api.author_data()
         self.completion_data = []
+        counts = db.new_api.get_usage_count_by_id('authors')
         for id_, v in auts.items():
             name = v['name']
             name = name.replace('|', ',')
             self.completion_data.append(name)
-            self.authors[id_] = {'name': name, 'sort': v['sort'], 'link': v['link']}
-            self.original_authors[id_] = {'name': name, 'sort': v['sort'],
-                                          'link': v['link']}
+            vals = {'name': name, 'sort': v['sort'], 'link': v['link'], 'count':counts[id_]}
+            self.authors[id_] = vals
+            self.original_authors[id_] = vals.copy()
 
         if prefs['use_primary_find_in_search']:
             self.string_contains = primary_contains
@@ -260,7 +285,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.blockSignals(True)
         self.table.clear()
-        self.table.setColumnCount(4)
+        self.table.setColumnCount(5)
 
         self.table.setRowCount(len(auts_to_show))
         row = 0
@@ -269,19 +294,21 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
-            name, sort, link = (v['name'], v['sort'], v['link'])
+            name, sort, link, count = (v['name'], v['sort'], v['link'], v['count'])
             name = name.replace('|', ',')
 
             name_item = TableItem(name)
             name_item.setData(Qt.ItemDataRole.UserRole, id_)
             sort_item = TableItem(sort)
             link_item = TableItem(link)
+            count_item = CountTableItem(count)
 
             self.table.setItem(row, AUTHOR_COLUMN, name_item)
             self.table.setItem(row, AUTHOR_SORT_COLUMN, sort_item)
             self.table.setItem(row, LINK_COLUMN, link_item)
             note_item = NotesTableWidgetItem()
             self.table.setItem(row, NOTES_COLUMN, note_item)
+            self.table.setItem(row, COUNTS_COLUMN, count_item)
 
             self.set_icon(name_item, id_)
             self.set_icon(sort_item, id_)
@@ -289,7 +316,17 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.notes_utilities.set_icon(note_item, id_, id_ in all_items_that_have_notes)
             row += 1
 
-        self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link'), _('Notes')])
+        headers = { # this depends on the dict being ordered, which is true from python 3.7
+            _('Author'): _('Name of the author'),
+            _('Author sort'): _('Value used to sort this author'),
+            _('Count'): _('Count of books with this author'),
+            _('Link'): _('Link (URL) for this author'),
+            _('Notes'): _('Whether this author has a note attached. The icon changes if the note was created or edited'),
+        }
+        self.table.setHorizontalHeaderLabels(headers.keys())
+        for i,tt in enumerate(headers.values()):
+            header_item = self.table.horizontalHeaderItem(i)
+            header_item.setToolTip(tt)
 
         if self.last_sorted_by == 'sort':
             self.author_sort_order = 1 - self.author_sort_order
@@ -371,7 +408,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.save_state()
 
     def get_column_name(self, column):
-        return ('name', 'sort', 'link', 'notes')[column]
+        return ('name', 'sort', 'count', 'link', 'notes')[column]
 
     def item_is_modified(self, item, id_):
         sub = self.get_column_name(item.column())
@@ -381,7 +418,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
-        if self.context_item is None:
+        if self.context_item is None or self.context_item.column() == COUNTS_COLUMN:
             return
         case_menu = QMenu(_('Change case'))
         case_menu.setIcon(QIcon.cached_icon('font_size_larger.png'))
