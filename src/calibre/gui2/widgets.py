@@ -980,15 +980,16 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamilies(['monospace'])
         p = QApplication.instance().palette()
+        is_dark = QApplication.instance().is_dark_theme
         for name, color, bold, italic in (
                 ("normal", None, False, False),
                 ("keyword", p.color(QPalette.ColorRole.Link).name(), True, False),
                 ("builtin", p.color(QPalette.ColorRole.Link).name(), False, False),
                 ("constant", p.color(QPalette.ColorRole.Link).name(), False, False),
                 ("decorator", "#0000E0", False, False),
-                ("comment", "#007F00", False, True),
-                ("string", "#808000", False, False),
-                ("number", "#924900", False, False),
+                ("comment", '#00c700' if is_dark else "#007F00", False, True),
+                ("string", '#b6b600' if is_dark else "#808000", False, False),
+                ("number", '#d96d00' if is_dark else "#924900", False, False),
                 ("error", "#FF0000", False, False),
                 ("pyqt", "#50621A", False, False)):
 
