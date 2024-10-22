@@ -29,6 +29,7 @@ from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.db.notes.exim import expand_note_resources, parse_html
 from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
 from calibre.utils.icu import capitalize, sort_key, strcmp
@@ -1303,9 +1304,12 @@ class BuiltinFormatDateField(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
         try:
+            field = field_metadata.search_term_to_field_key(field)
             if field not in mi.all_field_keys():
-                return _('Unknown field %s passed to function %s')%(field, 'format_date_field')
+                raise ValueError(_("Function %s: Unknown field '%s'")%('format_date_field', field))
             val = mi.get(field, None)
+            if mi.metadata_for_field(field)['datatype'] != 'datetime':
+                raise ValueError(_("Function %s: field '%s' is not a date")%('format_date_field', field))
             if val is None:
                 s = ''
             elif format_string == 'to_number':
@@ -1317,9 +1321,11 @@ class BuiltinFormatDateField(BuiltinFormatterFunction):
             else:
                 s = format_date(val, format_string)
             return s
-        except:
+        except ValueError:
+            raise
+        except Exception:
             traceback.print_exc()
-            s = 'BAD DATE'
+            raise
         return s
 
 
