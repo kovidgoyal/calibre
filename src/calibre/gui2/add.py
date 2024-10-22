@@ -65,11 +65,7 @@ def validate_source(source, parent=None):  # {{{
 
 
 def resolve_windows_links(paths, hwnd=None):
-    try:
-        from calibre_extensions.winutil import resolve_lnk
-    except ImportError:
-        def resolve_lnk(x, *a):
-            return x
+    from calibre_extensions.winutil import resolve_lnk
     for x in paths:
         if x.lower().endswith('.lnk'):
             try:
