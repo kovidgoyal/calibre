@@ -29,6 +29,7 @@ from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.db.notes.exim import expand_note_resources, parse_html
 from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
 from calibre.utils.icu import capitalize, sort_key, strcmp
@@ -1290,24 +1291,25 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
 
 
 class BuiltinFormatDateField(BuiltinFormatterFunction):
-    name = 'field_format_date'
+    name = 'format_date_field'
     arg_count = 2
     category = 'Formatting values'
-    __doc__ = doc = _("field_format_date(field_name, format_string) -- format "
+    __doc__ = doc = _("format_date_field(field_name, format_string) -- format "
             "the value in the field 'field_name', which must be the lookup name "
             "of date field, either standard or custom. See 'format_date' for "
             "the formatting codes. This function is much faster than format_date "
             "and should be used when you are formatting the value in a field "
             "(column). It can't be used for computed dates or dates in string "
-            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd'). "
-            "Alias: format_date_field")
-    aliases = ['format_date_field']
+            "variables. Example: format_date_field('pubdate', 'yyyy.MM.dd')")
 
     def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
         try:
+            field = field_metadata.search_term_to_field_key(field)
             if field not in mi.all_field_keys():
-                return _('Unknown field %s passed to function %s')%(field, 'field_format_date')
+                raise ValueError(_("Function %s: Unknown field '%s'")%('format_date_field', field))
             val = mi.get(field, None)
+            if mi.metadata_for_field(field)['datatype'] != 'datetime':
+                raise ValueError(_("Function %s: field '%s' is not a date")%('format_date_field', field))
             if val is None:
                 s = ''
             elif format_string == 'to_number':
@@ -1319,9 +1321,11 @@ class BuiltinFormatDateField(BuiltinFormatterFunction):
             else:
                 s = format_date(val, format_string)
             return s
-        except:
+        except ValueError:
+            raise
+        except Exception:
             traceback.print_exc()
-            s = 'BAD DATE'
+            raise
         return s
 
 
@@ -2665,16 +2669,16 @@ class BuiltinIsDarkMode(BuiltinFormatterFunction):
 
 
 class BuiltinFieldListCount(BuiltinFormatterFunction):
-    name = 'field_list_count'
+    name = 'list_count_field'
     arg_count = 0
     category = 'List manipulation'
-    __doc__ = doc = _("field_list_count(field_name) -- returns the count of items "
+    __doc__ = doc = _("list_count_field(field_name) -- returns the count of items "
                       "in the field with the lookup name 'field_name'. The field "
                       "must be multi-valued such as authors or tags, otherwise "
                       "the function raises an error. This function is much faster "
                       "than list_count() because it operates directly on calibre "
                       "data without converting it to a string first. "
-                      "Example: {}").format("field_list_count('tags')")
+                      "Example: {}").format("list_count_field('tags')")
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         # The globals function is implemented in-line in the formatter

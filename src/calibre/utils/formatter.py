@@ -59,7 +59,7 @@ class Node:
     NODE_RANGE = 30
     NODE_SWITCH = 31
     NODE_SWITCH_IF = 32
-    NODE_FIELD_LIST_COUNT = 33
+    NODE_LIST_COUNT_FIELD = 33
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -332,10 +332,10 @@ class StrcatNode(Node):
         self.expression_list = expression_list
 
 
-class FieldListCountNode(Node):
+class ListCountFieldNode(Node):
     def __init__(self, line_number, expression):
-        Node.__init__(self, line_number, 'field_list_count()')
-        self.node_type = self.NODE_FIELD_LIST_COUNT
+        Node.__init__(self, line_number, 'list_count_field()')
+        self.node_type = self.NODE_LIST_COUNT_FIELD
         self.expression = expression
 
 
@@ -652,7 +652,7 @@ class _Parser:
     def compare_expr(self):
         left = self.add_subtract_expr()
         if (self.token_op_is_string_infix_compare() or
-                self.token_is('in') or self.token_is('inlist') or self.token_is('field_inlist')):
+                self.token_is('in') or self.token_is('inlist') or self.token_is('inlist_field')):
             operator = self.token()
             return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
@@ -718,8 +718,8 @@ class _Parser:
                              lambda ln, args: PrintNode(ln, args)),
         'strcat':           (lambda _: True,
                              lambda ln, args: StrcatNode(ln, args)),
-        'field_list_count': (lambda args: len(args) == 1,
-                             lambda ln, args: FieldListCountNode(ln, args[0]))
+        'list_count_field': (lambda args: len(args) == 1,
+                             lambda ln, args: ListCountFieldNode(ln, args[0]))
     }
 
     def expr(self):
@@ -1347,7 +1347,7 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
-    def do_node_field_list_count(self, prog):
+    def do_node_list_count_field(self, prog):
         name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
         res = getattr(self.parent_book, name, None)
         if res is None or not isinstance(res, (list, tuple, set, dict)):
@@ -1398,7 +1398,7 @@ class _Interpreter:
                                            [v.strip() for v in y.split(',') if v.strip()]))
         }
 
-    def do_field_inlist(self, left, right, prog):
+    def do_inlist_field(self, left, right, prog):
         res = getattr(self.parent_book, right, None)
         if res is None or not isinstance(res, (list, tuple, set, dict)):
             self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
@@ -1415,8 +1415,8 @@ class _Interpreter:
             try:
                 res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
             except KeyError:
-                if prog.operator == 'field_inlist':
-                    res = self.do_field_inlist(left, right, prog)
+                if prog.operator == 'inlist_field':
+                    res = self.do_inlist_field(left, right, prog)
                 else:
                     raise
             if (self.break_reporter):
@@ -1602,7 +1602,7 @@ class _Interpreter:
         Node.NODE_BINARY_STRINGOP:       do_node_stringops,
         Node.NODE_LOCAL_FUNCTION_DEFINE: do_node_local_function_define,
         Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
-        Node.NODE_FIELD_LIST_COUNT:      do_node_field_list_count,
+        Node.NODE_LIST_COUNT_FIELD:      do_node_list_count_field,
         }
 
     def expr(self, prog):
@@ -1700,7 +1700,7 @@ class TemplateFormatter(string.Formatter):
             (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(field_inlist)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
