@@ -75,7 +75,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     KEYWORDS_GPM = ['if', 'then', 'else', 'elif', 'fi', 'for', 'rof',
                     'separator', 'break', 'continue', 'return', 'in', 'inlist',
-                    'field_inlist', 'def', 'fed', 'limit']
+                    'inlist_field', 'def', 'fed', 'limit']
 
     KEYWORDS_PYTHON = ["and", "as", "assert", "break", "class", "continue", "def",
                        "del", "elif", "else", "except", "exec", "finally", "for", "from",
