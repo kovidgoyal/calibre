@@ -6,7 +6,7 @@ from collections import defaultdict, namedtuple
 from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
 from calibre.constants import islinux
-from calibre.gui2 import error_dialog, warning_dialog
+from calibre.gui2 import error_dialog, gprefs, warning_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.utils.icu import lower as icu_lower
@@ -115,6 +115,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         if self.current_cat_name is None:
             self.category_box.setCurrentIndex(0)
             self.select_category(0)
+        self.restore_geometry(gprefs, 'user_category_editor_dialog_geometry')
 
     def copy_category_name_to_clipboard_clicked(self):
         t = self.category_box.itemText(self.category_box.currentIndex())
@@ -369,4 +370,9 @@ class TagCategories(QDialog, Ui_TagCategories):
             for tup in self.user_categories[cat]:
                 cat_values.append([tup.v, tup.k, 0])
             self.categories[cat] = cat_values
+        super().save_geometry(gprefs, 'user_category_editor_dialog_geometry')
         QDialog.accept(self)
+
+    def reject(self):
+        super().save_geometry(gprefs, 'user_category_editor_dialog_geometry')
+        QDialog.reject(self)
