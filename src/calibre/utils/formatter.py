@@ -1403,9 +1403,14 @@ class _Interpreter:
         if res is None or not isinstance(res, (list, tuple, set, dict)):
             self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
         pat = re.compile(left, flags=re.I)
-        for v in res:
-            if re.search(pat, v):
-                return '1'
+        if isinstance(res, dict): # identifiers
+            for k,v in res.items():
+                if re.search(pat, f'{k}:{v}'):
+                    return '1'
+        else:
+            for v in res:
+                if re.search(pat, v):
+                    return '1'
         return ''
 
     def do_node_string_infix(self, prog):
