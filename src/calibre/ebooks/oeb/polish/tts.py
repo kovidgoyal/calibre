@@ -515,6 +515,17 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
                     return False
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))
+        durations = []
+        file_duration = 0
+        for i, s in enumerate(pfd.sentences):
+            audio_data, duration = audio_map[s]
+            if duration > 0:
+                wav.write(audio_data)
+                durations.append((s.elem_id, file_duration, duration))
+                file_duration += duration
+        if not file_duration:
+            continue
+
         afitem = container.generate_item(name + '.m4a', id_prefix='tts-')
         pfd.audio_file_name = container.href_to_name(afitem.get('href'), container.opf_name)
         smilitem = container.generate_item(name + '.smil', id_prefix='smil-')
@@ -533,12 +544,8 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         seq.text = seq.text[:seq.text.find('X')]
         audio_href = container.name_to_href(pfd.audio_file_name, pfd.smil_file_name)
         html_href = container.name_to_href(pfd.name, pfd.smil_file_name)
-        file_duration = 0
-        for i, s in enumerate(pfd.sentences):
-            audio_data, duration = audio_map[s]
-            wav.write(audio_data)
-            make_par(container, seq, html_href, audio_href, s.elem_id, file_duration, duration)
-            file_duration += duration
+        for elem_id, clip_start, duration in durations:
+            make_par(container, seq, html_href, audio_href, elem_id, clip_start, duration)
         if len(seq):
             seq[-1].tail = seq.text[:-2]
         wav.seek(0)
