@@ -96,6 +96,16 @@ def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: in
 PARAGRAPH_SEPARATOR = '\u2029'
 
 
+def split_into_sentences_for_tts_embed(
+    text: str, lang: str = 'en',
+):
+    import re
+    def sub(m):
+        return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
+    text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')
+    yield from sentence_positions(text, lang)
+
+
 def split_into_sentences_for_tts(
     text: str, lang: str = 'en', min_sentence_length: int = 32, max_sentence_length: int = 1024, PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR):
     import re

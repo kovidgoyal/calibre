@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.base import EPUB, EPUB_NS, SMIL_NS, barename
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, seconds_to_timestamp
 from calibre.ebooks.oeb.polish.errors import UnsupportedContainerType
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
-from calibre.spell.break_iterator import sentence_positions
+from calibre.spell.break_iterator import split_into_sentences_for_tts_embed
 from calibre.utils.localization import canonicalize_lang, get_lang
 
 
@@ -115,14 +115,14 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             if self.texts:
                 text = ''.join(c.text for c in self.texts)
                 self.pos = 0
-                for start, length in sentence_positions(text, self.lang):
+                for start, length in split_into_sentences_for_tts_embed(text, self.lang):
                     elem_id = self.wrap_sentence(start, length)
                     ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
             if self.has_tail:
                 p = self.elem.getparent()
                 spans = []
                 before = after = None
-                for start, length in sentence_positions(self.elem.tail, self.parent_lang):
+                for start, length in split_into_sentences_for_tts_embed(self.elem.tail, self.parent_lang):
                     end = start + length
                     text = self.elem.tail[start:end]
                     if before is None:
