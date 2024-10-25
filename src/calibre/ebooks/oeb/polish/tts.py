@@ -116,8 +116,10 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 text = ''.join(c.text for c in self.texts)
                 self.pos = 0
                 for start, length in split_into_sentences_for_tts_embed(text, self.lang):
-                    elem_id = self.wrap_sentence(start, length)
-                    ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
+                    stext = text[start:start+length]
+                    if stext.strip():
+                        elem_id = self.wrap_sentence(start, length)
+                        ans.append(Sentence(elem_id, stext, self.lang, self.voice))
             if self.has_tail:
                 p = self.elem.getparent()
                 spans = []
@@ -125,6 +127,8 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 for start, length in split_into_sentences_for_tts_embed(self.elem.tail, self.parent_lang):
                     end = start + length
                     text = self.elem.tail[start:end]
+                    if not text.strip():
+                        continue
                     if before is None:
                         before = self.elem.tail[:start]
                     span = self.make_wrapper(text, p)
@@ -422,7 +426,7 @@ def remove_embedded_tts(container):
     container.set_media_overlay_durations({})
     media_files = set()
     for item in manifest_items:
-        smil_id = item.get('media-overlay')
+        smil_id = item.attrib.pop('media-overlay', '')
         href = item.get('href')
         if href and smil_id:
             name = container.href_to_name(href, container.opf_name)
@@ -469,17 +473,23 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         return False
     all_voices = set()
     total_num_sentences = 0
+    files_with_no_sentences = set()
     for i, (name, pfd) in enumerate(name_map.items()):
         pfd.root = container.parsed(name)
         pfd.sentences = mark_sentences_in_html(pfd.root, lang=language)
-        total_num_sentences += len(pfd.sentences)
-        for s in pfd.sentences:
-            key = s.lang, s.voice
-            pfd.key_map[key].append(s)
-            all_voices.add(key)
-        container.dirty(name)
+        if not pfd.sentences:
+            files_with_no_sentences.add(name)
+        else:
+            total_num_sentences += len(pfd.sentences)
+            for s in pfd.sentences:
+                key = s.lang, s.voice
+                pfd.key_map[key].append(s)
+                all_voices.add(key)
+            container.dirty(name)
         if report_progress(stage, name, i+1, len(name_map)):
             return False
+    for rname in files_with_no_sentences:
+        name_map.pop(rname)
     if callback_to_download_voices is None:
         piper.ensure_voices_downloaded(iter(all_voices))
     else:
