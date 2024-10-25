@@ -119,6 +119,7 @@ class CountTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, count):
         QTableWidgetItem.__init__(self, str(count))
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
         self._count = count
 
     def __ge__(self, other):
