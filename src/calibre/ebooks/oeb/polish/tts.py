@@ -434,6 +434,7 @@ def remove_embedded_tts(container):
                 smil_href = smil_item.get('href')
                 if smil_href:
                     smil_name = container.href_to_name(smil_item.get('href'), container.opf_name)
+                    media_files.add(smil_name)
                     smil_root = container.parsed(smil_name)
                     for ahref in smil_root.xpath('//*[local-name() = "audio"]/@src'):
                         aname = container.href_to_name(ahref, smil_name)
