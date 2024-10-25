@@ -60,6 +60,7 @@ ignored_tag_names = frozenset({
     'img', 'object', 'script', 'style', 'head', 'title', 'form', 'input', 'br', 'hr', 'map', 'textarea', 'svg', 'math', 'rp', 'rt', 'rtc',
 })
 id_prefix = 'cttsw-'
+data_name = 'data-calibre-tts'
 
 
 def unmark_sentences_in_html(root):
@@ -85,7 +86,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
             self.parent_lang = parent_lang
             self.parent_voice = parent_voice
-            q = elem.get('data-calibre-tts', '')
+            q = elem.get(data_name, '')
             self.voice = parent_voice
             if q.startswith('{'):  # }
                 with suppress(Exception):
@@ -350,7 +351,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
         simple_allowed = True
         children_to_process = []
         for child in p.children:
-            child_voice = child.get('data-calibre-tts', '')
+            child_voice = child.get(data_name, '')
             child_lang = lang_for_elem(child, p.lang)
             child_tag_name = barename(child.tag).lower() if isinstance(child.tag, str) else ''
             if simple_allowed and child_lang == p.lang and child_voice == p.voice and child_tag_name in continued_tag_names and len(child) == 0:
@@ -429,17 +430,18 @@ def remove_embedded_tts(container):
             unmark_sentences_in_html(root)
             container.dirty(name)
             smil_item = id_map.get(smil_id)
-            if smil_item:
+            if smil_item is not None:
                 smil_href = smil_item.get('href')
                 if smil_href:
-                    smil_name = container.href_to_name(smil_item.get('href'))
+                    smil_name = container.href_to_name(smil_item.get('href'), container.opf_name)
                     smil_root = container.parsed(smil_name)
-                    for ahref in smil_root.xpath('//@src'):
+                    for ahref in smil_root.xpath('//*[local-name() = "audio"]/@src'):
                         aname = container.href_to_name(ahref, smil_name)
                         media_files.add(aname)
                     container.remove_from_xml(smil_item)
     for aname in media_files:
         container.remove_item(aname)
+    container.dirty(container.opf_name)
 
 
 def embed_tts(container, report_progress=None, callback_to_download_voices=None):
