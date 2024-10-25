@@ -86,11 +86,12 @@ def paths_for_voice(voice: Voice) -> tuple[str, str]:
     return model_path, config_path
 
 
-def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str, Voice]]:
+def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str, Voice], dict[str, Voice]]:
     d = json.loads(P('piper-voices.json', data=True))
     ans = []
     lang_voices_map = {}
     _voice_name_map = {}
+    human_voice_name_map = {}
     downloaded = set()
     with suppress(OSError):
         downloaded = set(os.listdir(piper_cache_dir()))
@@ -111,7 +112,7 @@ def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str
                     })
             if voice:
                 ans.append(voice)
-                _voice_name_map[voice.name] = voice
+                _voice_name_map[voice.name] = human_voice_name_map[voice.human_name] = voice
                 voices_for_lang.append(voice)
     _voices = tuple(ans)
     _voice_for_lang = {}
@@ -123,7 +124,7 @@ def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str
                 if v.human_name == 'libritts':
                     _voice_for_lang[lang] = v
                     break
-    return _voice_name_map, _voices, _voice_for_lang
+    return _voice_name_map, _voices, _voice_for_lang, human_voice_name_map
 
 
 def download_voice(voice: Voice, download_even_if_exists: bool = False, parent: QObject | None = None, headless: bool = False) -> tuple[str, str]:
@@ -508,7 +509,7 @@ class Piper(TTSBackend):
     def _load_voice_metadata(self) -> None:
         if self._voices is not None:
             return
-        self._voice_name_map, self._voices, self._voice_for_lang = load_voice_metadata()
+        self._voice_name_map, self._voices, self._voice_for_lang, self.human_voice_name_map = load_voice_metadata()
 
     @property
     def _default_voice(self) -> Voice:
@@ -568,7 +569,7 @@ class PiperEmbedded:
 
     def __init__(self):
         self._embedded_settings = EngineSpecificSettings.create_from_config('piper', TTS_EMBEDED_CONFIG)
-        self._voice_name_map, self._voices, self._voice_for_lang = load_voice_metadata()
+        self._voice_name_map, self._voices, self._voice_for_lang, self.human_voice_name_map = load_voice_metadata()
         lang = get_lang()
         lang = canonicalize_lang(lang) or lang
         self._default_voice = self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
@@ -579,10 +580,10 @@ class PiperEmbedded:
         from calibre.utils.localization import canonicalize_lang, get_lang
         lang = canonicalize_lang(lang or get_lang() or 'en')
         pv = self._embedded_settings.preferred_voices or {}
-        if voice_name and voice_name in self._voice_name_map:
-            voice = self._voice_name_map[voice_name]
-        elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
-            voice = self._voice_name_map[voice_name]
+        if voice_name and voice_name in self.human_voice_name_map:
+            voice = self.human_voice_name_map[voice_name]
+        elif (voice_name := pv.get(lang, '')) and voice_name in self.human_voice_name_map:
+            voice = self.human_voice_name_map[voice_name]
         else:
             voice = self._voice_for_lang.get(lang) or self._default_voice
         return voice
