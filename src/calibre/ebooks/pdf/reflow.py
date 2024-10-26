@@ -184,15 +184,16 @@ class Text(Element):
     @property
     def is_empty(self):
         # There is nothing in this Text
-        return len(self.raw) == 0
+        return not self.raw
 
     @property
     def is_spaces(self):
         # There are only spaces in this Text
-        return len(self.raw) > 0 \
-          and (re.match('^\s+$', self.raw) is not None \
-            or re.match('^\s*<i>\s*</i>\s*$', self.raw) is not None \
-            or re.match('^\s*<b>\s*</b>\s*$', self.raw) is not None)
+        return bool(self.raw) and (
+          re.match(r'^\s+$', self.raw) is not None or
+          re.match(r'^\s*<i>\s*</i>\s*$', self.raw) is not None or
+          re.match(r'^\s*<b>\s*</b>\s*$', self.raw) is not None
+        )
 
     def coalesce(self, other, page_number, left_margin, right_margin):
         if self.opts.verbose > 2:
@@ -283,7 +284,7 @@ class Text(Element):
                 # Float right if the text ends around the right margin,
                 # and there are no long groups of spaces earlier in the line
                 # as that probably means justified text.
-                if not '   ' in self.text_as_string \
+                if '   ' not in self.text_as_string \
                   and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR:
                     has_float = '<span style="float:right">'
                     has_gap = 1
@@ -334,10 +335,10 @@ class Text(Element):
         #elif sub_super > 0:
         #    other.raw = '<sub>' + other.raw + '</sub>'
 
-        if len(has_float):
+        if has_float:
             self.raw += has_float
         self.raw += other.raw
-        if len(has_float):
+        if has_float:
             self.raw += '</span>'
         self.average_character_width = self.width/len(self.text_as_string)
         #self.last_left = other.left
