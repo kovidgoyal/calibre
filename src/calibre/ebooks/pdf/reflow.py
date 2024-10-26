@@ -280,7 +280,11 @@ class Text(Element):
                 else:
                     has_gap = 0
             else:  # Large gap
-                if other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR:
+                # Float right if the text ends around the right margin,
+                # and there are no long groups of spaces earlier in the line
+                # as that probably means justified text.
+                if not '   ' in self.text_as_string \
+                  and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR:
                     has_float = '<span style="float:right">'
                     has_gap = 1
                 #else leave has_gap
@@ -811,7 +815,6 @@ class Page:
 
     def find_match(self, frag):
         for t in self.texts:
-            #  and abs(t.bottom - frag.bottom) <= BOTTOM_FACTOR :
             if t is not frag :
                 # Do the parts of a line overlap?
                 # Some files can have separate lines overlapping slightly
@@ -882,7 +885,10 @@ class Page:
         for i in range(m):
             t = self.texts[i]
             lmargin = t.last_left  # Allow for lines joined into a para
-            rmargin = self.width - t.last_right
+            if t.bottom - t.top > stats.line_space * 2:
+                rmargin = self.width - t.last_right  # Right of a coalesced paragraph
+            else:
+                rmargin = self.width - t.right  # Right of a coalesced line
             # Do we have a sequence of indented lines?
             xmargin = ymargin = -1
             if i > 0:
@@ -1025,11 +1031,10 @@ class Page:
                           and frag.left > left + frag.average_character_width:
                             #frag.indented = int((frag.left - self.stats_left) / frag.average_character_width)
                             # Is it approx self.stats_indent?
-                            if frag.left >= indent and frag.left <= indent1:
+                            if indent <= frag.left <= indent1:
                                 frag.indented = 1  # 1em
                             else:  # Assume left margin of approx = number of chars
                                 # Should check for values approx the same, as with indents
-                                #frag.margin_left = int(round((frag.left - left) / frag.average_character_width)+0.5)
                                 frag.margin_left = int(round((frag.left - left) / self.stats_margin_px)+0.5)
                         if last_frag is not None \
                           and frag.bottom - last_frag.bottom \
