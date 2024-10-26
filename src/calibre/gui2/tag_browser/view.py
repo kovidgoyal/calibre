@@ -89,17 +89,10 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
-    def paint_text(self, painter, rect, flags, text, hover, option):
-        painter.save()
-        pen = painter.pen()
-        if QApplication.instance().is_dark_theme:
-            if hover:
-                pen.setColor(QColor(Qt.GlobalColor.black))
-            else:
-                pen.setColor(option.palette.color(QPalette.ColorRole.WindowText))
-        painter.setPen(pen)
-        painter.drawText(rect, flags, text)
-        painter.restore()
+    def text_color(self, hover, palette) -> QColor:
+        if QApplication.instance().is_dark_theme and hover:
+                return QColor(Qt.GlobalColor.black)
+        return palette.color(QPalette.ColorRole.WindowText)
 
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
@@ -111,6 +104,9 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         hover = option.state & QStyle.StateFlag.State_MouseOver
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
+        pen = painter.pen()
+        pen.setColor(self.text_color(hover, option.palette))
+        painter.setPen(pen)
 
         def render_count():
             if not is_search and (hover or gprefs['tag_browser_show_counts']):
@@ -118,7 +114,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                 width = painter.fontMetrics().boundingRect(count).width()
                 r = QRect(tr)
                 r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-                self.paint_text(painter, r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count, hover, option)
+                painter.drawText(r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count)
                 tr.setRight(r.left() - 1)
             else:
                 tr.setRight(tr.right() - 1)
@@ -185,7 +181,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.setFont(self.rating_font)
         if text_rec.width() > tr.width():
             g = QLinearGradient(QPointF(tr.topLeft()), QPointF(tr.topRight()))
-            c = option.palette.color(QPalette.ColorRole.WindowText)
+            c = pen.color()
             g.setColorAt(0, c), g.setColorAt(0.8, c)
             c = QColor(c)
             c.setAlpha(0)
@@ -193,7 +189,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             pen = QPen()
             pen.setBrush(QBrush(g))
             painter.setPen(pen)
-        self.paint_text(painter, tr, flags, text, hover, option)
+        painter.drawText(tr, flags, text)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
