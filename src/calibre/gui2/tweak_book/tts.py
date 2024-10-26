@@ -17,6 +17,7 @@ from calibre.gui2.widgets import BusyCursor
 class EngineSettingsWidget(QWidget):
 
     def __init__(self, parent=None):
+        from calibre.ebooks.oeb.polish.tts import skip_name
         from calibre.gui2.tts.config import EmbeddingConfig
         super().__init__(parent)
         self.h = h = QHBoxLayout(self)
@@ -33,13 +34,14 @@ audio overlays, such as the calibre viewer, will be able to hear the text read t
 
 <p>You can mark different passages to be spoken by different voices as shown in the example below:
 
-<div><code>&lt;p data-calibre-tts="{0}"&gt;This will be voiced by "{0}"&lt;/p&gt;</code></div>
-<div><code>&lt;p data-calibre-tts="{1}"&gt;This will be voiced by "{1}"&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{0}"&gt;This will be voiced by "{0}".&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{1}"&gt;This will be voiced by "{1}".&lt;/p&gt;</code></div>
+<div><code>&lt;p data-calibre-tts="{2}"&gt;This text will not be voiced at all.&lt;/p&gt;</code></div>
 
 <p style="font-size: small">Note that generating the Text-to-speech audio will be quite slow,
 at the rate of approximately one sentence per couple of seconds, depending on your computer's hardware,
 so consider leave it running overnight.
-''').format('cory', 'ryan'))
+''').format('cory', 'ryan', skip_name))
         self.save_settings = c.save_settings
 
 

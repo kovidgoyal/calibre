@@ -61,6 +61,7 @@ ignored_tag_names = frozenset({
 })
 id_prefix = 'cttsw-'
 data_name = 'data-calibre-tts'
+skip_name = '__skip__'
 
 
 def unmark_sentences_in_html(root):
@@ -117,7 +118,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 self.pos = 0
                 for start, length in split_into_sentences_for_tts_embed(text, self.lang):
                     stext = text[start:start+length]
-                    if stext.strip():
+                    if stext.strip() and self.voice != '__skip__':
                         elem_id = self.wrap_sentence(start, length)
                         ans.append(Sentence(elem_id, stext, self.lang, self.voice))
             if self.has_tail:
@@ -127,7 +128,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 for start, length in split_into_sentences_for_tts_embed(self.elem.tail, self.parent_lang):
                     end = start + length
                     text = self.elem.tail[start:end]
-                    if not text.strip():
+                    if not text.strip() or self.parent_voice == '__skip__':
                         continue
                     if before is None:
                         before = self.elem.tail[:start]
