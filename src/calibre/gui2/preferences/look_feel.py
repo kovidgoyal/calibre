@@ -486,7 +486,8 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         tv = self.gui.tags_view
-        cats = [k for k in tv.model().categories.keys() if k not in self.cant_make_hierarical]
+        cats = [k for k in tv.model().categories.keys() if (not k.startswith('@') and
+                                                            k not in self.cant_make_hierarical)]
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]

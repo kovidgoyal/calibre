@@ -1685,7 +1685,8 @@ and 'Mystery.Thriller' will be displayed with English and Thriller
 both under 'Mystery'. If 'tags' is not checked
 then the tags will be displayed each on their own line.&lt;/p&gt;
 &lt;p&gt;The categories 'authors', 'publisher', 'news', 'formats', and 'rating'
-cannot be hierarchical.&lt;/p&gt;</string>
+cannot be hierarchical.&lt;/p&gt;
+&lt;p&gt;User categories are always hierarchical and so do not appear in this list.&lt;/p&gt;</string>
           </property>
           <property name="text">
            <string>Select categories with &amp;hierarchical items:</string>
