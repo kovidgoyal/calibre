@@ -11,6 +11,7 @@ import traceback
 from collections import defaultdict
 from contextlib import suppress
 from functools import partial
+from math import ceil
 
 from qt.core import (
     QAbstractItemView,
@@ -113,7 +114,8 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                 count = str(index.data(COUNT_ROLE))
                 width = painter.fontMetrics().boundingRect(count).width()
                 r = QRect(tr)
-                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
+                dr = 1 if widget is None else widget.devicePixelRatioF()
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - int(ceil(4 * dr)))
                 painter.drawText(r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count)
                 tr.setRight(r.left() - 1)
             else:
