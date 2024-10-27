@@ -136,10 +136,15 @@ def category_display_order(ordered_cats, all_cats):
     for key in all_cats:
         if key not in cat_ord and is_standard_category(key):
             cat_ord.append(key)
-    # Now add the non-standard cats (user cats and search)
+    # Now add the non-standard cats (user cats and search). As these are always
+    # hierarchical, only keep the prefix.
+    user_cat_prefixes = set()
     for key in all_cats:
         if not is_standard_category(key):
-            cat_ord.append(key)
+            prefix = key.partition('.')[0]
+            if prefix not in user_cat_prefixes:
+                cat_ord.append(prefix)
+                user_cat_prefixes.add(prefix)
     return cat_ord
 
 
