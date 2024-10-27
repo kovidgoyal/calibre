@@ -620,10 +620,15 @@ class TagsModel(QAbstractItemModel):  # {{{
             is_gst = category.is_gst
             if key not in data:
                 return
+
+            # Ensure we use the prefix for any user category. Non UCs can't have
+            # a period in the key so doing the partition without an if is safe
+            k = key.partition('.')[0]
             # Use old pref if new one doesn't exist
-            if key in self.db.prefs.get('tag_browser_dont_collapse',
+            if k in self.db.prefs.get('tag_browser_dont_collapse',
                                        self.prefs['tag_browser_dont_collapse']):
                 collapse_model = 'disable'
+
             cat_len = len(data[key])
             if cat_len <= 0:
                 return

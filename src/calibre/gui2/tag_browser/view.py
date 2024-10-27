@@ -861,8 +861,11 @@ class TagsView(QTreeView):  # {{{
                 # exists before offering to unhide it.
                 for col in sorted((c for c in self.hidden_categories if c in self.db.field_metadata),
                         key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
-                    ac = m.addAction(self.db.field_metadata[col]['name'],
-                        partial(self.context_menu_handler, action='show', category=col))
+                    # Get the prefix for any user categories. The UC name is the same as
+                    # the key but without the '@'
+                    name = self.db.field_metadata[col]['name']
+                    name = name.partition('.')[0] if col.startswith('@') else name
+                    ac = m.addAction(name, partial(self.context_menu_handler, action='show', category=col))
                     ic = self.model().category_custom_icons.get(col)
                     if ic:
                         ac.setIcon(QIcon.ic(ic))
@@ -1201,14 +1204,21 @@ class TagsView(QTreeView):  # {{{
         if gprefs['tags_browser_partition_method'] != 'disable' and key is not None:
             m = self.context_menu
             p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
-            if key in p:
-                a = m.addAction(_('Sub-categorize {}').format(category),
-                                partial(self.context_menu_handler, action='collapse_category',
-                                        category=category, key=key, extra=p))
+            # Use the prefix for a user category. The
+            if key.startswith('@'):
+                k = key.partition('.')[0]
+                cat = k[1:]
             else:
-                a = m.addAction(_("Don't sub-categorize {}").format(category),
+                k = key
+                cat = category
+            if k in p:
+                a = m.addAction(_('Sub-categorize {}').format(cat),
+                                partial(self.context_menu_handler, action='collapse_category',
+                                        category=cat, key=k, extra=p))
+            else:
+                a = m.addAction(_("Don't sub-categorize {}").format(cat),
                                 partial(self.context_menu_handler, action='dont_collapse_category',
-                                        category=category, key=key, extra=p))
+                                        category=cat, key=k, extra=p))
             a.setIcon(QIcon.ic('config.png'))
         # Set the partitioning scheme
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
