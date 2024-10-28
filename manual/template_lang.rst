@@ -614,7 +614,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
     has_note('authors', '')
 
-  returns a list of authors that have notes. or ``''`` if no author has a note.
+  returns a list of authors that have notes, or ``''`` if no author has a note.
 
   You can test if all the values in ``field_name`` have a note by comparing the list length of this function's return value against the list length of the values in ``field_name``. Example::
 

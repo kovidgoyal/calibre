@@ -2638,7 +2638,7 @@ class BuiltinHasNote(BuiltinFormatterFunction):
                       "is '' then return a list of values in field_name that have "
                       "a note. If no item in the field has a note, return ''. "
                       "Example: has_note('authors', '') returns a list of authors "
-                      "that have notes. or '' if no author has a note. The second "
+                      "that have notes, or '' if no author has a note. The second "
                       "variant is useful for showing column icons icons if any value "
                       "in the field has a note, rather than a specific value. "
                       "You can also test if all the values have a note by comparing "
