@@ -156,8 +156,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.find_aut_func = find_aut_func
         self.table.resizeColumnsToContents()
-        if self.table.columnWidth(2) < 200:
-            self.table.setColumnWidth(2, 200)
+        if self.table.columnWidth(LINK_COLUMN) < 200:
+            self.table.setColumnWidth(LINK_COLUMN, 200)
 
         # set up the cellChanged signal only after the table is filled
         self.ignore_cell_changed = False
@@ -236,6 +236,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.author_sort_order = 0
         self.link_order = 1
         self.notes_order = 1
+        self.count_order = 1
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table,
                                                       self.notes_utilities, self.get_item_id))
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
@@ -471,7 +472,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         m.exec(self.table.viewport().mapToGlobal(point))
 
     def undo_cell(self, old_value):
-        if self.context_item.column() == 3:
+        if self.context_item.column() == NOTES_COLUMN:
             self.notes_utilities.undo_note_edit(self.context_item)
         else:
             self.context_item.setText(old_value)
@@ -555,27 +556,33 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label_timer.start(1500)
 
     def do_sort(self, section):
-        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_link, self.do_sort_by_notes)[section]()
+        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_count,
+         self.do_sort_by_link, self.do_sort_by_notes)[section]()
 
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
         self.author_order = 1 - self.author_order
-        self.table.sortByColumn(0, Qt.SortOrder(self.author_order))
+        self.table.sortByColumn(AUTHOR_COLUMN, Qt.SortOrder(self.author_order))
 
     def do_sort_by_author_sort(self):
         self.last_sorted_by = 'sort'
         self.author_sort_order = 1 - self.author_sort_order
-        self.table.sortByColumn(1, Qt.SortOrder(self.author_sort_order))
+        self.table.sortByColumn(AUTHOR_SORT_COLUMN, Qt.SortOrder(self.author_sort_order))
+
+    def do_sort_by_count(self):
+        self.last_sorted_by = 'count'
+        self.count_order = 1 - self.count_order
+        self.table.sortByColumn(COUNTS_COLUMN, Qt.SortOrder(self.count_order))
 
     def do_sort_by_link(self):
         self.last_sorted_by = 'link'
         self.link_order = 1 - self.link_order
-        self.table.sortByColumn(2, Qt.SortOrder(self.link_order))
+        self.table.sortByColumn(LINK_COLUMN, Qt.SortOrder(self.link_order))
 
     def do_sort_by_notes(self):
         self.last_sorted_by = 'notes'
         self.notes_order = 1 - self.notes_order
-        self.table.sortByColumn(3, Qt.SortOrder(self.notes_order))
+        self.table.sortByColumn(NOTES_COLUMN, Qt.SortOrder(self.notes_order))
 
     def accepted(self):
         self.save_state()
