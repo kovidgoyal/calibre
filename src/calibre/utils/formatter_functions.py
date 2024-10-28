@@ -2630,23 +2630,40 @@ class BuiltinHasNote(BuiltinFormatterFunction):
     name = 'has_note'
     arg_count = 2
     category = 'Template database functions'
-    __doc__ = doc = _("has_note(field_name, field_value) -- return '1' "
-                      "if the value 'field_value' in the field 'field_name' "
-                      "has an attached note, '' otherwise. Example: "
-                      "has_note('tags', 'Fiction') returns '1' if the tag "
-                      "'fiction' has an attached note, '' otherwise.")
+    __doc__ = doc = _("has_note(field_name, field_value) -- if field_value is not "
+                      "'' (the empty string) , return '1' if the value 'field_value' "
+                      "in the field 'field_name' has an attached note, otherwise ''. "
+                      "Example: has_note('tags', 'Fiction') returns '1' if the tag "
+                      "'fiction' has a note, otherwise ''. If field_value "
+                      "is '' then return a list of values in field_name that have "
+                      "a note. If no item in the field has a note, return ''. "
+                      "Example: has_note('authors', '') returns a list of authors "
+                      "that have notes. or '' if no author has a note. The second "
+                      "variant is useful for showing column icons icons if any value "
+                      "in the field has a note, rather than a specific value. "
+                      "You can also test if all the values have a note by comparing "
+                      "the list length of this function's return value against "
+                      "the list length of the values in field_name.")
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
         db = self.get_database(mi).new_api
-        note = None
+        if field_value:
+            note = None
+            try:
+                item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
+                if item_id is not None:
+                    note = db.notes_data_for(field_name, item_id)
+            except Exception as e:
+                traceback.print_exc()
+                raise ValueError(str(e))
+            return '1' if note is not None else ''
         try:
-            item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
-            if item_id is not None:
-                note = db.notes_data_for(field_name, item_id)
+            notes_for_book = db.items_with_notes_in_book(mi.id)
+            values = [v for v in notes_for_book.get(field_name, {}).values()]
+            return db.field_metadata[field_name]['is_multiple'].get('list_to_ui', ', ').join(values)
         except Exception as e:
             traceback.print_exc()
-            raise ValueError(e)
-        return '1' if note is not None else ''
+            raise ValueError(str(e))
 
 
 class BuiltinIsDarkMode(BuiltinFormatterFunction):

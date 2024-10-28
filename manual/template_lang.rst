@@ -600,6 +600,27 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
 
 * ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
+* ``has_note(field_name, field_value)``. This function has two variants:
+
+ * if ``field_value`` is not ``''`` (the empty string) return ``'1'`` if the value ``field_value`` in the field ``field_name`` has a note, otherwise ``''``. Example:::
+
+     has_note('tags', 'Fiction')
+
+  returns ``'1'`` if the tag ``fiction`` has an attached note, otherwise ``''``.
+
+ * If ``field_value`` is ``''`` then return a list of values in ``field_name`` that have a note. If no item in the field has a note, return ``''``.  This variant is useful for showing column icons if any value in the field has a note, rather than a specific value.
+
+  Example::
+
+    has_note('authors', '')
+
+  returns a list of authors that have notes. or ``''`` if no author has a note.
+
+  You can test if all the values in ``field_name`` have a note by comparing the list length of this function's return value against the list length of the values in ``field_name``. Example::
+
+    list_count(has_note('authors', ''), '&') ==# list_count_field('authors')
+
+
 * ``has_extra_files([pattern])`` -- returns the count of extra files, otherwise '' (the empty string). If the optional parameter ``pattern`` (a regular expression) is supplied then the list is filtered to files that match ``pattern`` before the files are counted. The pattern match is case insensitive. See also the functions ``extra_file_names()``, ``extra_file_size()`` and ``extra_file_modtime()``. This function can be used only in the GUI.
 * ``identifier_in_list(val, id_name [, found_val, not_found_val])`` -- treat ``val`` as a list of identifiers separated by commas. An identifier has the format ``id_name:value``. The ``id_name`` parameter is the id_name text to search for, either ``id_name`` or ``id_name:regexp``. The first case matches if there is any identifier matching that id_name. The second case matches if id_name matches an identifier and the regexp matches the identifier's value. If ``found_val`` and ``not_found_val`` are provided then if there is a match then return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and ``not_found_val`` are not provided then if there is a match then return the ``identifier:value`` pair, otherwise the empty string (``''``).
 * ``is_dark_mode()`` -- returns ``'1'`` if calibre is running in dark mode, ``''`` (the empty string) otherwise. This function can be used in advanced color and icon rules to choose different colors/icons according to the mode. Example::
