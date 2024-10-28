@@ -72,8 +72,8 @@ RIGHT_FACTOR = 1.8
 CENTER_FACTOR = 0.15
 
 # How near does text right need to be to right margin
-# to be considered right aligned. 0.1 = 10%
-RIGHT_FLOAT_FACTOR = 0.1
+# to be considered right aligned. 0.05 = 5%
+RIGHT_FLOAT_FACTOR = 0.05
 
 #### Indents and line spacing
 # How near must pixel values be to appear the same
@@ -289,6 +289,18 @@ class Text(Element):
                     has_float = '<span style="float:right">'
                     has_gap = 1
                 #else leave has_gap
+            old_float = re.match('^(.*)(<span style="float:right">.*)</span>\s*$', self.raw)
+            if old_float:
+                # There is already a float as parts of a line are near the right.
+                # Remove the </span> and put it after this part
+                r1 = old_float.group(1)
+                r2 = old_float.group(2)
+                if not r1:
+                    r1 = ''
+                if not r2:
+                    r2 = ''
+                self.raw = r1 + r2
+                has_float = ' '  # Empty, but True
             # Insert multiple spaces
             while has_gap > 0:
                 self.text_as_string += ' '
@@ -967,17 +979,23 @@ class Page:
             # Can two lines be merged into one paragraph?
             # Some PDFs have a wandering left margin which is consistent on a page
             # but not within the whole document.  Hence use self.stats_left
-            # Try to avoid close double quote at end of one and open double quote at start of next
+            # Try to avoid close double quote at end of one and open double quote at start of next.
             #
+            # The left can wander by a few (SAME_INDENT) pixels.
             # "float:left" occurs where there is a multi-line character, so indentation is messed up
+            lchar = re.match('.*([^ ])\s*$', first_text.text_as_string)
+            last_char = ' '  # Nothing interesting
+            if lchar is not None:
+                last_char = lchar.group(1)  # Final non-space char
+            same_left = bool(first_text.last_left-SAME_INDENT <= second_text.left <= first_text.last_left+SAME_INDENT)
             if ((second_text.left < left + second_text.average_character_width \
-                and (second_text.left == first_text.last_left \
+                and (same_left \
                  or (second_text.left < first_text.last_left \
                   and (first_text.indented > 0 or '"float:left"' in first_text.raw)))) \
-               or (second_text.left == first_text.last_left \
+               or (same_left \
                 and first_text.indented == 0 \
                 and second_text.left >= indent) \
-               or (second_text.left == first_text.last_left \
+               or (same_left \
                 and first_text.indented == second_text.indented \
                 and second_text.indented > 1) \
                or (second_text.left >= first_text.last_left \
@@ -987,10 +1005,9 @@ class Page:
               and first_text.bottom + stats.line_space + (stats.line_space*LINE_FACTOR) \
                     >= second_text.bottom \
               and first_text.final_width > self.width*self.opts.unwrap_factor \
-              and not (re.match('.*[.!?].$', first_text.text_as_string) is not None \
-                   and ((first_text.text_as_string[-1] == '\u0022' and second_text.text_as_string[0] == '\u0022') \
-                     or (first_text.text_as_string[-1] == '\u2019' and second_text.text_as_string[0] == '\u2018') \
-                     or (first_text.text_as_string[-1] == '\u201d' and second_text.text_as_string[0] == '\u201c'))):
+              and not ( (last_char == '\u0022' and second_text.text_as_string[0] == '\u0022') \
+                     or (last_char == '\u2019' and second_text.text_as_string[0] == '\u2018') \
+                     or (last_char == '\u201d' and second_text.text_as_string[0] == '\u201c')):
                 # This has checked for single quotes (9...6), double quotes (99...66), and "..."
                 # at end of 1 line then start of next as a check for Don't merge
                 return True
