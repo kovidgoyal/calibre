@@ -630,8 +630,14 @@ class Boss(QObject):
         if not self.ensure_book(_('You must open a book before trying to edit the Table of Contents.')):
             return
         self.add_savepoint(_('Before: Edit Table of Contents'))
-        d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
-        if d.exec() != QDialog.DialogCode.Accepted:
+        self.__current_toc_editor = d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
+        d.finished.connect(self.toc_edit_finished)
+        # Using d.exec() causes showing the webview to hide the dialog
+        d.open()
+
+    def toc_edit_finished(self, retcode: int):
+        self.__current_toc_editor = None
+        if retcode != QDialog.DialogCode.Accepted:
             self.rewind_savepoint()
             return
         with BusyCursor():

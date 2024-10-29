@@ -1194,13 +1194,15 @@ class TOCEditor(QDialog):  # {{{
 
 
 def develop():
-    from calibre.utils.webengine import setup_fake_protocol
-    setup_fake_protocol()
     from calibre.gui2 import Application
     app = Application([])
+    from calibre.utils.webengine import setup_default_profile, setup_fake_protocol
+    setup_fake_protocol()
+    setup_default_profile()
     d = TOCEditor(sys.argv[-1])
     d.start()
-    d.exec()
+    d.open()
+    app.exec()
     del app
 
 
@@ -1234,9 +1236,10 @@ def main(shm_name=None):
         setup_default_profile()
         d = TOCEditor(path, title=title, write_result_to=path + '.result')
         d.start()
-        ok = 0
-        if d.exec() == QDialog.DialogCode.Accepted:
-            ok = 1
+        # Using d.exec() causes showing the webview to hide the dialog
+        d.open()
+        app.exec()
+        ok = 1 if d.result() == QDialog.DialogCode.Accepted else 0
         s = struct.pack('>II', 2, ok)
         shm.seek(0), shm.write(s), shm.flush()
 
@@ -1246,5 +1249,4 @@ def main(shm_name=None):
 
 
 if __name__ == '__main__':
-    main(path=sys.argv[-1], title='test')
-    os.remove(sys.argv[-1] + '.lock')
+    develop()
