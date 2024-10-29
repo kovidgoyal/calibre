@@ -27,6 +27,7 @@ class BusinessStandardPrint(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
+    browser_type = 'webengine'
 
     extra_css = '''
         img {display:block; margin:0 auto;}
