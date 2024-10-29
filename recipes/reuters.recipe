@@ -4,13 +4,13 @@ import json
 import time
 from datetime import datetime, timedelta
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def p_dt(x):
     dt = datetime.fromisoformat(x[:-1]) + timedelta(seconds=time.timezone)
     return dt.strftime('%b %d, %Y, %I:%M %p')
+
 
 class Reuters(BasicNewsRecipe):
     title = 'Reuters'
@@ -20,28 +20,35 @@ class Reuters(BasicNewsRecipe):
         'reaching billions of people worldwide every day. Reuters provides business, financial, national and international '
         'news to professionals via desktop terminals, the world’s media organizations, industry events and directly to consumers.'
     )
-    masthead_url = 'https://www.reutersagency.com/wp-content/uploads/2024/06/reuters-logo.png'
-    cover_url = 'https://yt3.googleusercontent.com/ytc/AIdro_mk43b9eQwN15ZBDyMPDaElxvw4V-oUS9XDUvVnYB3gA9yA=s1024' 
+    masthead_url = (
+        'https://upload.wikimedia.org/wikipedia/commons/9/9e/Reuters_logo_2024.svg'
+    )
+    cover_url = 'https://yt3.googleusercontent.com/ytc/AIdro_mk43b9eQwN15ZBDyMPDaElxvw4V-oUS9XDUvVnYB3gA9yA=s1024'
     language = 'en'
     encoding = 'utf-8'
-    oldest_article = 1.2 # days
+    oldest_article = 1.2  # days
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
     ignore_duplicate_articles = {'url', 'title'}
 
-    extra_css = '''
+    extra_css = """
         .label, .auth { font-size:small; color:#202020; }
         .figc { font-size:small; }
         img {display:block; margin:0 auto;}
-    '''
+    """
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 960, 1080, 1200',
+            'long': 'This is useful for non e-ink devices',
+            'default': '480'
         }
     }
 
@@ -54,11 +61,22 @@ class Reuters(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.reuters.com'
         today = datetime.now()
-        feed_api = index + '/arc/outboundfeeds/v3/mobile/section/{}/?from=0&size=50&outputType=json'
+        feed_api = (
+            index
+            + '/arc/outboundfeeds/v3/mobile/section/{}/?from=0&size=50&outputType=json'
+        )
         path_api = index + '/arc/outboundfeeds/v3/mobile{}?outputType=json'
         sections = [
-            'world', 'business', 'markets','sustainability', 'legal',
-            'breakingviews', 'technology', 'sports', 'science', 'lifestyle'
+            'world',
+            'business',
+            'markets',
+            'sustainability',
+            'legal',
+            'breakingviews',
+            'technology',
+            # 'sports',
+            'science',
+            # 'lifestyle',
         ]
 
         feeds = []
@@ -69,7 +87,9 @@ class Reuters(BasicNewsRecipe):
 
             articles = []
 
-            data = json.loads(self.index_to_soup(feed_api.format(sec), raw=True))['wireitems']
+            data = json.loads(self.index_to_soup(feed_api.format(sec), raw=True))[
+                'wireitems'
+            ]
 
             for x in data:
                 if x.get('wireitem_type', '') == 'story':
@@ -77,7 +97,9 @@ class Reuters(BasicNewsRecipe):
                         if y.get('type', '') == 'story':
                             title = y['story']['hed']
 
-                            date = datetime.fromisoformat(y['story']['updated_at'][:-1]) + timedelta(seconds=time.timezone)
+                            date = datetime.fromisoformat(
+                                y['story']['updated_at'][:-1]
+                            ) + timedelta(seconds=time.timezone)
                             if (today - date) > timedelta(self.oldest_article):
                                 continue
 
@@ -86,12 +108,18 @@ class Reuters(BasicNewsRecipe):
                             if path.get('type', '') == 'article':
                                 url = path_api.format(path['api_path_native'])
                                 self.log('            ', title, '\n\t', desc)
-                                articles.append({'title': title, 'description':desc, 'url': url})
+                                articles.append(
+                                    {'title': title, 'description': desc, 'url': url}
+                                )
             if articles:
                 feeds.append((section, articles))
         return feeds
 
     def preprocess_raw_html(self, raw, url):
+        res = '&width=480'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '&width=' + w
         js = json.loads(raw)
         data = js['wireitems']
         body = ''
@@ -103,19 +131,30 @@ class Reuters(BasicNewsRecipe):
                         break
                 for y in x['templates']:
                     if 'title' in y['cid']:
-                        body += '<h1 title="{}">'.format(js['share_url']) + y['content'] + '</h1>'
+                        body += (
+                            '<h1 title="{}">'.format(js['share_url'])
+                            + y['content']
+                            + '</h1>'
+                        )
                         break
                 for y in x['templates']:
                     if 'author' in y['cid']:
                         body += '<p>'
                         auths = [x for x in y.get('authors_names', [])]
                         if auths:
-                            body += '<div class="auth">' + 'By ' + ', '.join(auths) + '</div>'
+                            body += (
+                                '<div class="auth">' + 'By ' + ', '.join(auths) + '</div>'
+                            )
                             break
                 for y in x['templates']:
                     if 'datetime' in y['cid']:
-                        body += '<div class="auth">' + str(y['read_minutes']) \
-                                + ' minute read | ' + p_dt(y['display_time']) + '</div>'
+                        body += (
+                            '<div class="auth">'
+                            + str(y['read_minutes'])
+                            + ' minute read | '
+                            + p_dt(y['display_time'])
+                            + '</div>'
+                        )
                         body += '</p>'
                         break
                 for y in x['templates']:
@@ -126,7 +165,8 @@ class Reuters(BasicNewsRecipe):
                     if 'image' in y['cid']:
                         if 'renditions' in y['image']:
                             body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                y['image']['url'].split('&')[0] + '&width=480', y['image']['caption']
+                                y['image']['url'].split('&')[0] + res,
+                                y['image']['caption'],
                             )
                         else:
                             body += '<img src="{}"><div class="figc">{}</div>'.format(
@@ -136,7 +176,8 @@ class Reuters(BasicNewsRecipe):
                         for imgs in y['images']:
                             if 'renditions' in imgs:
                                 body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                    imgs['url'].split('&')[0] + '&width=480', imgs['caption']
+                                    imgs['url'].split('&')[0] + res,
+                                    imgs['caption'],
                                 )
                             else:
                                 body += '<img src="{}"><div class="figc">{}</div>'.format(
@@ -144,9 +185,10 @@ class Reuters(BasicNewsRecipe):
                                 )
                     if 'video' in y['cid']:
                         body += '<img src="{}"><div class="figc">{}</div>'.format(
-                            y['video']['thumbnail']['url'], y['video']['thumbnail']['caption']
+                            y['video']['thumbnail']['url'],
+                            y['video']['thumbnail']['caption'],
                         )
-        return BeautifulSoup('<html><body><div>' + body + '</div></body></html>').prettify()
+        return '<html><body><div>' + body + '</div></body></html>'
 
     def populate_article_metadata(self, article, soup, first):
         article.url = soup.find('h1')['title']

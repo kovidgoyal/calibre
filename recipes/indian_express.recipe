@@ -99,16 +99,22 @@ class IndianExpress(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        div = soup.find('div', attrs={'class':['nation', 'o-opin']})
-        for art in div.findAll(attrs={'class':['articles', 'o-opin-article']}):
+        div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation']})
+        for art in div.findAll(
+            attrs={'class': ['articles', 'o-opin-article', 'myie-articles']}
+        ):
             for a in art.findAll('a', href=True):
-                if not a.find('img') and not ('/profile/' in a['href'] or '/agency/' in a['href']):
+                if not a.find('img') and not any(
+                    x in a['href'] for x in ['/profile/', '/agency/', '/section/']
+                ):
                     url = a['href']
                     title = self.tag_to_string(a)
                     desc = ''
-                    if p:= art.find('p'):
+                    if p := art.find('p'):
                         desc = self.tag_to_string(p)
-                    if da := art.find('div', attrs={'class':['date', 'o-opin-date']}):
+                    if da := art.find(
+                        'div', attrs={'class': ['date', 'o-opin-date', 'my-time']}
+                    ):
                         date = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
                         today = datetime.now()
                         if (today - date) > timedelta(self.oldest_article):
