@@ -72,8 +72,8 @@ RIGHT_FACTOR = 1.8
 CENTER_FACTOR = 0.15
 
 # How near does text right need to be to right margin
-# to be considered right aligned. 0.1 = 10%
-RIGHT_FLOAT_FACTOR = 0.1
+# to be considered right aligned. 0.05 = 5%
+RIGHT_FLOAT_FACTOR = 0.05
 
 #### Indents and line spacing
 # How near must pixel values be to appear the same
@@ -243,17 +243,17 @@ class Text(Element):
         if self.font_size_em == other.font_size_em \
           and False \
           and self.font.id == other.font.id \
-          and re.match('<span style="font-size:', self.raw) is not None \
-          and re.match('<span style="font-size:', other.raw) is not None :
+          and re.match(r'<span style="font-size:', self.raw) is not None \
+          and re.match(r'<span style="font-size:', other.raw) is not None :
             # We have the same class, so merge
-            m_self = re.match('^(.+)</span>$', self.raw)
-            m_other = re.match('^<span style="font-size:.+em">(.+</span>)$', other.raw)
+            m_self = re.match(r'^(.+)</span>$', self.raw)
+            m_other = re.match(r'^<span style="font-size:.+em">(.+</span>)$', other.raw)
             if m_self and m_other:
                 self.raw = m_self.group(1)
                 other.raw = m_other.group(1)
         elif self.font_size_em != other.font_size_em \
           and self.font_size_em != 1.00 :
-            if re.match('<span', self.raw) is None :
+            if re.match(r'<span', self.raw) is None :
                 self.raw = '<span style="font-size:%sem">%s</span>'%(str(self.font_size_em),self.raw)
             # Try to allow for a very large initial character
             elif len(self.text_as_string) <= 2 \
@@ -263,7 +263,7 @@ class Text(Element):
                 # The line height gets set to the same as other parts of the file
                 # and the font size is reduced.
                 # These need to be fixed manually.
-                m_self = re.match('^(.+em">)(.+)$', self.raw)
+                m_self = re.match(r'^(.+em">)(.+)$', self.raw)
                 self.raw = m_self.group(1) \
                   + '<span style="float:left"><span style="line-height:0.5">' \
                   + m_self.group(2) + '</span></span>'
@@ -289,6 +289,18 @@ class Text(Element):
                     has_float = '<span style="float:right">'
                     has_gap = 1
                 #else leave has_gap
+            old_float = re.match(r'^(.*)(<span style="float:right">.*)</span>\s*$', self.raw)
+            if old_float:
+                # There is already a float as parts of a line are near the right.
+                # Remove the </span> and put it after this part
+                r1 = old_float.group(1)
+                r2 = old_float.group(2)
+                if not r1:
+                    r1 = ''
+                if not r2:
+                    r2 = ''
+                self.raw = r1 + r2
+                has_float = ' '  # Empty, but True
             # Insert multiple spaces
             while has_gap > 0:
                 self.text_as_string += ' '
@@ -310,7 +322,7 @@ class Text(Element):
         # Note that the 2 parts could have different font sizes
         matchObj = re.match(r'^([^<]*)(<span[^>]*>)*(<a href[^>]+>)(.*)</a>(</span>)*(\s*)$', self.raw)
         if matchObj is not None :
-            otherObj = re.match('^([^<]*)(<span[^>]*>)*(<a href[^>]+>)(.*)(</a>)(</span>)*(.*)$', other.raw)
+            otherObj = re.match(r'^([^<]*)(<span[^>]*>)*(<a href[^>]+>)(.*)(</a>)(</span>)*(.*)$', other.raw)
             # There is another href, but is it for the same place?
             if otherObj is not None  and  matchObj.group(3) == otherObj.group(3) :
                 m2 = matchObj.group(2)
@@ -967,17 +979,23 @@ class Page:
             # Can two lines be merged into one paragraph?
             # Some PDFs have a wandering left margin which is consistent on a page
             # but not within the whole document.  Hence use self.stats_left
-            # Try to avoid close double quote at end of one and open double quote at start of next
+            # Try to avoid close double quote at end of one and open double quote at start of next.
             #
+            # The left can wander by a few (SAME_INDENT) pixels.
             # "float:left" occurs where there is a multi-line character, so indentation is messed up
+            lchar = re.match(r'.*([^ ])\s*$', first_text.text_as_string)
+            last_char = ' '  # Nothing interesting
+            if lchar is not None:
+                last_char = lchar.group(1)  # Final non-space char
+            same_left = bool(first_text.last_left-SAME_INDENT <= second_text.left <= first_text.last_left+SAME_INDENT)
             if ((second_text.left < left + second_text.average_character_width \
-                and (second_text.left == first_text.last_left \
+                and (same_left \
                  or (second_text.left < first_text.last_left \
                   and (first_text.indented > 0 or '"float:left"' in first_text.raw)))) \
-               or (second_text.left == first_text.last_left \
+               or (same_left \
                 and first_text.indented == 0 \
                 and second_text.left >= indent) \
-               or (second_text.left == first_text.last_left \
+               or (same_left \
                 and first_text.indented == second_text.indented \
                 and second_text.indented > 1) \
                or (second_text.left >= first_text.last_left \
@@ -987,10 +1005,9 @@ class Page:
               and first_text.bottom + stats.line_space + (stats.line_space*LINE_FACTOR) \
                     >= second_text.bottom \
               and first_text.final_width > self.width*self.opts.unwrap_factor \
-              and not (re.match('.*[.!?].$', first_text.text_as_string) is not None \
-                   and ((first_text.text_as_string[-1] == '\u0022' and second_text.text_as_string[0] == '\u0022') \
-                     or (first_text.text_as_string[-1] == '\u2019' and second_text.text_as_string[0] == '\u2018') \
-                     or (first_text.text_as_string[-1] == '\u201d' and second_text.text_as_string[0] == '\u201c'))):
+              and not ( (last_char == '\u0022' and second_text.text_as_string[0] == '\u0022') \
+                     or (last_char == '\u2019' and second_text.text_as_string[0] == '\u2018') \
+                     or (last_char == '\u201d' and second_text.text_as_string[0] == '\u201c')):
                 # This has checked for single quotes (9...6), double quotes (99...66), and "..."
                 # at end of 1 line then start of next as a check for Don't merge
                 return True
@@ -1908,8 +1925,8 @@ class PDFDocument:
                         else:
                             merged_len = merged_text.right
                         # Allow where the last line ends with or next line starts with lower case.
-                        if re.match('.*[a-z, -]$', last_line.text_as_string) is not None \
-                          or re.match('^[a-z, -]', merged_text.text_as_string) is not None :
+                        if re.match(r'.*[a-z, -]$', last_line.text_as_string) is not None \
+                          or re.match(r'^[a-z, -]', merged_text.text_as_string) is not None :
                             merged_len = merged_text.right
 
                         # To use merged_len etc.
@@ -1919,8 +1936,8 @@ class PDFDocument:
                           and 'href=' not in merged_text.raw \
                           and merged_text.left < stats_left + merged_text.average_character_width \
                           and not last_spare > merged_len \
-                          and not (re.match('.*[.!?](\u201d|”)$', last_line.text_as_string) is not None
-                               and re.match('^(\u201c|“).*', merged_text.text_as_string) is not None):
+                          and not (re.match(r'.*[.!?](\u201d|”)$', last_line.text_as_string) is not None
+                               and re.match(r'^(\u201c|“).*', merged_text.text_as_string) is not None):
                             merge_done = True
                             # We don't want to merge partial pages
                             # i.e. if this is the last line, preserve its top/bottom till after merge
@@ -1953,7 +1970,7 @@ class PDFDocument:
                                 and (len(self.pages[pind+1].texts) == 0 \
                                  or self.pages[pind+1].texts[0].top > self.pages[pind+1].imgs[0].top)):
                                 page.page_break_after = True
-                    elif (re.match('.*[a-z, ]$', last_line.text_as_string) is not None \
+                    elif (re.match(r'.*[a-z, ]$', last_line.text_as_string) is not None \
                       or  last_line.final_width > page.width*self.opts.unwrap_factor):
                     #  or (last_line.right * 100.0 / page.right_margin) > LAST_LINE_PERCENT):
                         candidate = page
