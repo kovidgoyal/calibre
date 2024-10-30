@@ -858,6 +858,7 @@ class FormatList(_FormatList):
     restore_fmt = pyqtSignal(object)
     view_fmt = pyqtSignal(object)
     edit_fmt = pyqtSignal(object)
+    open_book_folder = pyqtSignal()
 
     def __init__(self, parent):
         _FormatList.__init__(self, parent)
@@ -873,28 +874,30 @@ class FormatList(_FormatList):
         originals = [self.item(x).ext.upper() for x in range(self.count())]
         originals = [x for x in originals if x.startswith('ORIGINAL_')]
 
-        if item or originals:
-            self.cm = cm = QMenu(self)
+        self.cm = cm = QMenu(self)
 
-            if item:
-                action = ViewAction(item, cm)
-                action.view_fmt.connect(self.view_fmt, type=Qt.ConnectionType.QueuedConnection)
+        if item:
+            action = ViewAction(item, cm)
+            action.view_fmt.connect(self.view_fmt, type=Qt.ConnectionType.QueuedConnection)
+            cm.addAction(action)
+
+            if item.ext.upper() in EDIT_SUPPORTED:
+                action = EditAction(item, cm)
+                action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
                 cm.addAction(action)
 
-                if item.ext.upper() in EDIT_SUPPORTED:
-                    action = EditAction(item, cm)
-                    action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
-                    cm.addAction(action)
+        if item and originals:
+            cm.addSeparator()
 
-            if item and originals:
-                cm.addSeparator()
-
-            for fmt in originals:
-                action = OrigAction(fmt, cm)
-                action.restore_fmt.connect(self.restore_fmt)
-                cm.addAction(action)
-            cm.popup(event.globalPos())
-            event.accept()
+        for fmt in originals:
+            action = OrigAction(fmt, cm)
+            action.restore_fmt.connect(self.restore_fmt)
+            cm.addAction(action)
+        ac = QAction(_('Open book folder'), cm)
+        ac.triggered.connect(self.open_book_folder)
+        cm.addAction(ac)
+        cm.popup(event.globalPos())
+        event.accept()
 
     def remove_format(self, fmt):
         for i in range(self.count()):
@@ -959,6 +962,7 @@ class FormatsManager(QWidget):
         self.formats.formats_dropped.connect(self.formats_dropped)
         self.formats.restore_fmt.connect(self.restore_fmt)
         self.formats.view_fmt.connect(self.show_format)
+        self.formats.open_book_folder.connect(self.open_book_folder)
         self.formats.edit_fmt.connect(self.edit_format)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
@@ -1092,6 +1096,9 @@ class FormatsManager(QWidget):
 
     def show_format(self, item, *args):
         self.dialog.do_view_format(item.path, item.ext)
+
+    def open_book_folder(self, *a):
+        self.dialog.do_open_book_folder()
 
     def edit_format(self, item, *args):
         from calibre.gui2.widgets import BusyCursor
