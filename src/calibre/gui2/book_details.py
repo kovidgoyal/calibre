@@ -859,6 +859,7 @@ class CoverView(QWidget):  # {{{
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
+        download = cm.addAction(QIcon.ic('download-metadata.png'), _('Download cover'))
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
         save = cm.addAction(QIcon.ic('save.png'), _('Save cover to disk'))
         remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
@@ -878,6 +879,7 @@ class CoverView(QWidget):  # {{{
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
         remove.triggered.connect(self.remove_cover)
+        download.triggered.connect(self.download_cover)
         gc.triggered.connect(self.generate_cover)
         save.triggered.connect(self.save_cover)
         create_open_cover_with_menu(self, cm)
@@ -940,6 +942,21 @@ class CoverView(QWidget):  # {{{
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
         if not pmap.isNull():
             self.update_cover(pmap)
+
+    def download_cover(self):
+        from calibre.ebooks.metadata.sources.update import update_sources
+        from calibre.gui2.ui import get_gui
+        update_sources()
+        from calibre.gui2.metadata.single_download import CoverFetch
+        book_id = self.data.get('id')
+        db = get_gui().current_db.new_api
+        title = db.field_for('title', book_id)
+        authors = db.field_for('authors', book_id)
+        identifiers = db.field_for('identifiers', book_id, default_value={})
+        d = CoverFetch(self.pixmap, self)
+        if d.start(title, authors, identifiers) == QDialog.DialogCode.Accepted:
+            if d.cover_pixmap is not None:
+                self.update_cover(d.cover_pixmap)
 
     def save_cover(self):
         from calibre.gui2.ui import get_gui
