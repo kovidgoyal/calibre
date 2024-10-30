@@ -82,8 +82,8 @@ static QPixmap styleCachePixmap(const QSize &size)
 }
 
 
-static void draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption *option, const QRect &rect, const QColor &color)
-{
+static void
+draw_arrow(Qt::ArrowType type, QPainter *painter, const QStyleOption *option, const QRect &rect, const QColor &color) {
     if (rect.isEmpty())
         return;
 
@@ -208,6 +208,74 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
                 return QProxyStyle::drawComplexControl(control, &opt, painter, widget);
             }
             break; /// }}}
+        case CC_ScrollBar: {
+            const QStyleOptionSlider *scroll_bar = qstyleoption_cast<const QStyleOptionSlider *>(option);
+            if (scroll_bar && is_color_dark(option->palette.color(QPalette::Window))) {
+                bool horizontal = scroll_bar->orientation == Qt::Horizontal;
+
+                QColor outline = option->palette.window().color().darker(140);
+                QColor alphaOutline = outline;
+                alphaOutline.setAlpha(180);
+
+                QRect scrollBarSubLine = subControlRect(control, scroll_bar, SC_ScrollBarSubLine, widget);
+                QRect scrollBarAddLine = subControlRect(control, scroll_bar, SC_ScrollBarAddLine, widget);
+                QRect scrollBarSlider = subControlRect(control, scroll_bar, SC_ScrollBarSlider, widget);
+                QRect scrollBarGroove = subControlRect(control, scroll_bar, SC_ScrollBarGroove, widget);
+
+                QRect rect = option->rect;
+
+                { // Paint groove
+                QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
+                if (!horizontal) gradient = QLinearGradient(rect.left(), rect.center().y(), rect.right(), rect.center().y());
+                QColor buttonColor = option->palette.color(QPalette::Button);
+                gradient.setColorAt(0, buttonColor.darker(107));
+                gradient.setColorAt(0.1, buttonColor.darker(105));
+                gradient.setColorAt(0.9, buttonColor.darker(105));
+                gradient.setColorAt(1, buttonColor.darker(107));
+                painter->save();
+                painter->setPen(Qt::NoPen);
+                painter->fillRect(rect, gradient);
+                if (horizontal) painter->drawLine(rect.topLeft(), rect.topRight());
+                else painter->drawLine(rect.topLeft(), rect.bottomLeft());
+                QColor subtleEdge = alphaOutline;
+                subtleEdge.setAlpha(40);
+                painter->setPen(subtleEdge);
+                painter->setBrush(Qt::NoBrush);
+                painter->drawRect(scrollBarGroove.adjusted(1, 0, -1, -1));
+                painter->restore();
+                }
+
+                { // Paint slider
+                QLinearGradient gradient(scrollBarSlider.center().x(), scrollBarSlider.top(), scrollBarSlider.center().x(), scrollBarSlider.bottom());
+                if (!horizontal) gradient = QLinearGradient(scrollBarSlider.left(), scrollBarSlider.center().y(), scrollBarSlider.right(), scrollBarSlider.center().y());
+                QColor m = option->palette.window().color().lighter(130);
+                if (option->state & State_MouseOver) {
+                    gradient.setColorAt(0, m.lighter()); gradient.setColorAt(1, m.lighter(175));
+                } else {
+                    gradient.setColorAt(0, m); gradient.setColorAt(1, m.lighter());
+                }
+                painter->save();
+                painter->setBrush(gradient); painter->setPen(alphaOutline);
+                painter->drawRoundedRect(QRectF(scrollBarSlider.adjusted(horizontal ? -1 : 0, horizontal ? 0 : -1, horizontal ? 0 : -1, horizontal ? -1 : 0)), 5., 5.);
+                painter->restore();
+                }
+
+                { // Paint arrows
+                QRect upRect = scrollBarSubLine.adjusted(horizontal ? 0 : 1, horizontal ? 1 : 0, horizontal ? -2 : -1, horizontal ? -1 : -2);
+                Qt::ArrowType arrowType = Qt::UpArrow;
+                if (horizontal) arrowType = option->direction == Qt::LeftToRight ? Qt::LeftArrow : Qt::RightArrow;
+                QColor arrowColor = option->palette.windowText().color();
+                draw_arrow(arrowType, painter, option, upRect, arrowColor);
+
+                QRect downRect = scrollBarAddLine.adjusted(1, 1, -1, -1);
+                arrowType = Qt::DownArrow;
+                if (horizontal) arrowType = option->direction == Qt::LeftToRight ? Qt::RightArrow : Qt::LeftArrow;
+                draw_arrow(arrowType, painter, option, downRect, arrowColor);
+
+                }
+
+                return;
+            }} break;
         default:
             break;
     }
