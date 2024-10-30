@@ -59,7 +59,7 @@ class Cover(CoverView):
     def build_context_menu(self):
         ans = CoverView.build_context_menu(self)
         create_open_cover_with_menu(self, ans)
-        download = ans.addAction(QIcon.ic('download-metadata.png'), _('Download cover'))
+        download = ans.addAction(QIcon.ic('download-metadata.png'), _('Download cover from internet'))
         download.triggered.connect(self.download_cover)
         return ans
 

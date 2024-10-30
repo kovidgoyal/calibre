@@ -873,7 +873,7 @@ class CoverView(QWidget):  # {{{
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
-        download = cm.addAction(QIcon.ic('download-metadata.png'), _('Download cover'))
+        download = cm.addAction(QIcon.ic('download-metadata.png'), _('Download cover from internet'))
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
         save = cm.addAction(QIcon.ic('save.png'), _('Save cover to disk'))
         remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
