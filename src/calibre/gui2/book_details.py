@@ -236,6 +236,20 @@ def init_find_in_tag_browser(menu, ac, field, value):
         menu.addAction(ac)
 
 
+def download_cover(parent, book_id, current_cover_pixmap):
+    from calibre.ebooks.metadata.sources.update import update_sources
+    from calibre.gui2.ui import get_gui
+    update_sources()
+    from calibre.gui2.metadata.single_download import CoverFetch
+    db = get_gui().current_db.new_api
+    title = db.field_for('title', book_id)
+    authors = db.field_for('authors', book_id)
+    identifiers = db.field_for('identifiers', book_id, default_value={})
+    d = CoverFetch(current_cover_pixmap, parent)
+    if d.start(title, authors, identifiers) == QDialog.DialogCode.Accepted:
+        return d.cover_pixmap
+
+
 def get_icon_path(f, prefix):
     from calibre.library.field_metadata import category_icon_map
     custom_icons = gprefs['tags_browser_category_icons']
@@ -944,19 +958,9 @@ class CoverView(QWidget):  # {{{
             self.update_cover(pmap)
 
     def download_cover(self):
-        from calibre.ebooks.metadata.sources.update import update_sources
-        from calibre.gui2.ui import get_gui
-        update_sources()
-        from calibre.gui2.metadata.single_download import CoverFetch
-        book_id = self.data.get('id')
-        db = get_gui().current_db.new_api
-        title = db.field_for('title', book_id)
-        authors = db.field_for('authors', book_id)
-        identifiers = db.field_for('identifiers', book_id, default_value={})
-        d = CoverFetch(self.pixmap, self)
-        if d.start(title, authors, identifiers) == QDialog.DialogCode.Accepted:
-            if d.cover_pixmap is not None:
-                self.update_cover(d.cover_pixmap)
+        pmap = download_cover(self, self.data.get('id'), self.pixmap)
+        if pmap is not None:
+            self.update_cover(pmap)
 
     def save_cover(self):
         from calibre.gui2.ui import get_gui

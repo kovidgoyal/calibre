@@ -48,6 +48,7 @@ class Cover(CoverView):
     open_with_requested = pyqtSignal(object)
     choose_open_with_requested = pyqtSignal()
     copy_to_clipboard_requested = pyqtSignal()
+    download_cover = pyqtSignal()
 
     def __init__(self, parent, show_size=False):
         CoverView.__init__(self, parent, show_size=show_size)
@@ -58,6 +59,8 @@ class Cover(CoverView):
     def build_context_menu(self):
         ans = CoverView.build_context_menu(self)
         create_open_cover_with_menu(self, ans)
+        download = ans.addAction(QIcon.ic('download-metadata.png'), _('Download cover'))
+        download.triggered.connect(self.download_cover)
         return ans
 
     def open_with(self, entry):
@@ -192,6 +195,7 @@ class BookInfo(QDialog, DropMixin):
 
         self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.copy_to_clipboard_requested.connect(self.copy_cover_to_clipboard)
+        self.cover.download_cover.connect(self.download_cover)
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
         self.cover.open_with_requested.connect(self.open_with)
@@ -425,6 +429,13 @@ class BookInfo(QDialog, DropMixin):
     def copy_cover_to_clipboard(self):
         if self.cover_pixmap is not None:
             QApplication.instance().clipboard().setPixmap(self.cover_pixmap)
+
+    def download_cover(self):
+        from calibre.gui2.book_details import download_cover
+        if self.current_row is not None:
+            book_id = self.view.model().id(self.current_row)
+            if pmap := download_cover(self, book_id, self.cover_pixmap):
+                self.cover_changed(pmap)
 
     def update_cover_tooltip(self):
         tt = ''
