@@ -821,6 +821,7 @@ class OrigAction(QAction):
     def __init__(self, fmt, parent):
         self.fmt = fmt.replace('ORIGINAL_', '')
         QAction.__init__(self, _('Restore %s from the original')%self.fmt, parent)
+        self.setIcon(QIcon.ic('edit-undo.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -834,6 +835,7 @@ class ViewAction(QAction):
     def __init__(self, item, parent):
         self.item = item
         QAction.__init__(self, _('&View {} format').format(item.ext.upper()), parent)
+        self.setIcon(QIcon.ic('view.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -847,6 +849,7 @@ class EditAction(QAction):
     def __init__(self, item, parent):
         self.item = item
         QAction.__init__(self, _('&Edit')+' '+item.ext.upper(), parent)
+        self.setIcon(QIcon.ic('edit_book.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -893,7 +896,7 @@ class FormatList(_FormatList):
             action = OrigAction(fmt, cm)
             action.restore_fmt.connect(self.restore_fmt)
             cm.addAction(action)
-        ac = QAction(_('Open book folder'), cm)
+        ac = QAction(QIcon.ic('document_open.png'), _('Open book folder'), cm)
         ac.triggered.connect(self.open_book_folder)
         cm.addAction(ac)
         cm.popup(event.globalPos())
