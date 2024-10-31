@@ -445,16 +445,17 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 
         populate_menu(m, connect_action, fmt)
         if len(m.actions()) == 0:
-            menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            menu.addAction(QIcon.ic('exec.png'), _('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
         else:
+            m.setIcon(QIcon.ic('exec.png'))
             m.addSeparator()
-            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            m.addAction(QIcon.ic('plus.png'), _('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
             m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, book_info))
             menu.addMenu(m)
             menu.ow = m
         if fmt.upper() in SUPPORTED:
             menu.addSeparator()
-            menu.addAction(_('Edit %s format') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
+            menu.addAction(QIcon.ic('edit_book.png'), _('Edit %s format') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
     path = data['path']
     if path:
         if data.get('fname'):
