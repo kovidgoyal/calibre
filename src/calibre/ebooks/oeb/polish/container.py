@@ -14,6 +14,7 @@ import uuid
 from collections import defaultdict
 from io import BytesIO
 from itertools import count
+from math import floor
 
 from css_parser import getUrls, replaceUrls
 
@@ -129,14 +130,14 @@ def href_to_name(href, root, base=None):
 
 
 def seconds_to_timestamp(duration: float) -> str:
-    seconds = int(duration)
+    seconds = int(floor(duration))
     float_part = int((duration - seconds) * 1000)
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
     ans = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
     if float_part:
-        ans += f'.{float_part}'
+        ans += f'.{float_part}'.rstrip('0')
     return ans
 
 

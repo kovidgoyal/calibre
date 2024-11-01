@@ -502,8 +502,8 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
     snum = 0
     size_of_audio_data = 0
     mmap = {container.href_to_name(item.get('href'), container.opf_name):item for item in container.manifest_items}
+    duration_map = {}
     for name, pfd in name_map.items():
-        duration_map = {}
         audio_map: dict[Sentence, tuple[bytes, float]] = {}
         for (lang, voice), sentences in pfd.key_map.items():
             texts = tuple(s.text for s in sentences)
