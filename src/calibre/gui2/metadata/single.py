@@ -11,6 +11,7 @@ from functools import partial
 
 from qt.core import (
     QAction,
+    QApplication,
     QDialog,
     QDialogButtonBox,
     QFrame,
@@ -124,14 +125,14 @@ class MetadataSingleDialogBase(QDialog):
         self.next_button = QPushButton(QIcon.ic('forward.png'), _('Next'),
                 self)
         self.next_action = ac = QAction(self)
-        ac.triggered.connect(self.next_clicked)
+        ac.triggered.connect(self.next_if_possible)
         self.addAction(ac)
         ac.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(self.next_clicked)
         self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'), self)
         self.prev_button.clicked.connect(self.prev_clicked)
         self.prev_action = ac = QAction(self)
-        ac.triggered.connect(self.prev_clicked)
+        ac.triggered.connect(self.prev_if_possible)
         ac.setShortcut(QKeySequence('Alt+Left'))
         self.addAction(ac)
         from calibre.gui2.actions.edit_metadata import DATA_FILES_ICON_NAME
@@ -735,6 +736,18 @@ class MetadataSingleDialogBase(QDialog):
         ret = self.exec()
         self.break_cycles()
         return ret
+
+    def next_if_possible(self):
+        if self.next_button.isEnabled():
+            self.next_clicked()
+        else:
+            QApplication.beep()
+
+    def prev_if_possible(self):
+        if self.prev_button.isEnabled():
+            self.prev_clicked()
+        else:
+            QApplication.beep()
 
     def next_clicked(self):
         fw = self.focusWidget()
