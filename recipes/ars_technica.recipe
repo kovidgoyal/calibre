@@ -70,19 +70,21 @@ class ArsTechnica(BasicNewsRecipe):
 
     # Feed are found here: http://arstechnica.com/rss-feeds/
     feeds = [
-        ('Ars Technica', 'http://feeds.arstechnica.com/arstechnica/index'),
-        ('Features', 'http://feeds.arstechnica.com/arstechnica/features'),
-        ('Technology Lab', 'http://feeds.arstechnica.com/arstechnica/technology-lab'),
-        ('Gear &amp; Gadgets', 'http://feeds.arstechnica.com/arstechnica/gadgets'),
-        ('Ministry of Innovation', 'http://feeds.arstechnica.com/arstechnica/business'),
-        ('Law &amp; Disorder', 'http://feeds.arstechnica.com/arstechnica/tech-policy'),
-        ('Infinite Loop', 'http://feeds.arstechnica.com/arstechnica/apple'),
-        ('Opposable Thumbs', 'http://feeds.arstechnica.com/arstechnica/gaming'),
-        ('Scientific Method', 'http://feeds.arstechnica.com/arstechnica/science'),
-        ('Cars Technica', 'http://feeds.arstechnica.com/arstechnica/cars'),
-        ('Staff', 'http://feeds.arstechnica.com/arstechnica/staff-blogs'),
-        ('Microsoft', 'http://feeds.arstechnica.com/arstechnica/microsoft'),
-        ('Others', 'https://feeds.arstechnica.com/arstechnica/index')
+            ('Ars Technica', 'https://arstechnica.com/feed/'),
+            ('Features', 'https://arstechnica.com/feautes/feed/'),
+            ('Technology Lab', 'https://arstechnica.com/information-technology/feed/'),
+            ('Gear &amp; Gadgets', 'https://arstechnica.com/gadgets/feed/'),
+            ('Culture', 'https://arstechnica.com/cuture/feed/'),
+            ('Health', 'https://arstechnica.com/health/feed/'),
+            ('Policy', 'https://arstechnica.com/tech-policy/feed/'),
+            ('Security', 'https://arstechnica.com/security/feed/'),
+            ('Infinite Loop', 'https://arstechnica.com/tag/apple/feed/'),
+            ('Opposable Thumbs', 'https://arstechnica.com/gaming/feed/'),
+            ('Scientific Method', 'https://arstechnica.com/science/feed/'),
+            ('Cars Technica', 'https://arstechnica.com/cars/feed/'),
+            ('Staff', 'https://arstechnica.com/staff/feed/'),
+            ('AI', 'https://arstechnica.com/staff/ai/feed/'),
+            ('Space', 'https://arstechnica.com/space/feed/'),
     ]
 
     recursions = 1
