@@ -1997,7 +1997,7 @@ class DB:
             copy_tree(os.path.abspath(spath), tpath, delete_source=True, transform_destination_filename=transform_format_filenames)
             parent = os.path.dirname(spath)
             with suppress(OSError):
-                os.rmdir(parent)  # remove empty parent directory
+                remove_dir_if_empty(parent, ignore_metadata_caches=True)
         else:
             os.makedirs(tpath)
         update_paths_in_db()

@@ -589,6 +589,24 @@ class WritingTest(BaseTest):
 
     def test_rename_items(self):  # {{{
         ' Test renaming of many-(many,one) items '
+        # Test renaming authors removes folders with junk in them
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        fmtpath = cache.format_abspath(1, 'FMT1')
+        bookpath = os.path.dirname(fmtpath)
+        authorpath = os.path.dirname(bookpath)
+        self.assertTrue(os.path.exists(authorpath))
+        author = cache.field_for('authors', 1)[0]
+        os.mkdir(os.path.join(authorpath, '.DS_Store'))
+        open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
+        amap = {v:k for k, v in cache.get_id_map('authors').items()}
+        cache.rename_items('authors', {amap[author]: 'renamed'})
+        try:
+            items = os.listdir(authorpath)
+        except FileNotFoundError:
+            items = []
+        self.assertFalse(items, 'Items in author folder: ' + ' '.join(items))
+
         cl = self.cloned_library
         cache = self.init_cache(cl)
         # Check that renaming authors updates author sort and path
@@ -681,6 +699,7 @@ class WritingTest(BaseTest):
             self.assertEqual(c.field_for('tags', 1), ('r', 'q', 'c'))
             self.assertEqual(c.field_for('tags', 2), ('X', 'y', 'z'))
             self.assertEqual(c.field_for('tags', 3), ('a', 'X', 'z'))
+
     # }}}
 
     def test_composite_cache(self):  # {{{
