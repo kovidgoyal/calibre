@@ -2252,7 +2252,6 @@ class Cache:
         :param change_index: When renaming in a series-like field also change the series_index values.
         :param restrict_to_book_ids: An optional set of book ids for which the rename is to be performed, defaults to all books.
         '''
-
         f = self.fields[field]
         affected_books = set()
         try:
@@ -2322,7 +2321,7 @@ class Cache:
             raise ValueError('Cannot rename items for one-one fields: %s' % field)
         moved_books = set()
         id_map = {}
-        for item_id, new_name in iteritems(item_id_to_new_name_map):
+        for item_id, new_name in item_id_to_new_name_map.items():
             new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
             books, new_id = func(item_id, new_names[0], self.backend)
             affected_books.update(books)
