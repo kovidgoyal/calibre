@@ -56,19 +56,22 @@ class ArsTechnica(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     keep_only_tags = [
-        dict(itemprop=['headline', 'description']),
-        classes('post-meta article-guts standalone'),
+        dict(itemprop=['article-header', 'article-body']),
+        classes('main post-meta article-guts standalone'),
     ]
 
     remove_tags = [
-        classes('site-header video corner-info article-expander left-column related-stories'),
+        classes('xf_thread_iframe_wrapper topnav-sections nav-previous nav-next ars-gallery-caption-credit'
+                ' ars-gallery-caption-text ars-gallery-caption-arrow font-impact sr-only author-mini-bio'
+                ' taboola-container comments site-header site-footer video corner-info article-expander'
+                ' left-column related-stories article-social text-settings-dropdown-story intro-image'),
         dict(name=['object', 'link', 'embed', 'iframe', 'meta']),
         dict(id=['social-left', 'article-footer-wrap']),
         dict(name='nav', attrs={'class': 'subheading'}),
     ]
     remove_attributes = ['lang', 'style']
 
-    # Feed are found here: http://arstechnica.com/rss-feeds/
+    # Feed are found here: [url]http://arstechnica.com/rss-feeds/[/url]
     feeds = [
             ('Ars Technica', 'https://arstechnica.com/feed/'),
             ('Features', 'https://arstechnica.com/feautes/feed/'),
