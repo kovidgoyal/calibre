@@ -255,6 +255,7 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
                     gradient.setColorAt(0, m); gradient.setColorAt(1, m.lighter());
                 }
                 painter->save();
+                painter->setRenderHint(QPainter::Antialiasing, true);
                 painter->setBrush(gradient); painter->setPen(alphaOutline);
                 painter->drawRoundedRect(QRectF(scrollBarSlider.adjusted(horizontal ? -1 : 0, horizontal ? 0 : -1, horizontal ? 0 : -1, horizontal ? -1 : 0)), 5., 5.);
                 painter->restore();
