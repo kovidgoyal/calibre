@@ -394,7 +394,12 @@ class EngineSpecificConfig(QWidget):
         output_module = self.output_module.currentData() or ''
         if metadata.has_multiple_output_modules:
             output_module = output_module or self.default_output_modules[self.engine_name]
-        all_voices = self.voice_data[self.engine_name][output_module]
+        try:
+            all_voices = self.voice_data[self.engine_name][output_module]
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            all_voices = []
         self.voices.set_voices(all_voices, s.voice_name, metadata, s.preferred_voices)
 
     def as_settings(self) -> EngineSpecificSettings:
