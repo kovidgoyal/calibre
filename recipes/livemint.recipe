@@ -6,7 +6,6 @@ from datetime import date
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
-is_saturday = date.today().weekday() == 5
 
 class LiveMint(BasicNewsRecipe):
     title = 'Live Mint'
@@ -25,12 +24,11 @@ class LiveMint(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
-    remove_empty_feeds =  True
+    remove_empty_feeds = True
     resolve_internal_links = True
-
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
@@ -42,157 +40,142 @@ class LiveMint(BasicNewsRecipe):
         today = date.today().strftime('%d/%m/%Y')
         today = today.replace('/', '%2F')
         raw = self.index_to_soup(
-            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate=' + today, raw=True
+            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate=' + today,
+            raw=True
         )
         for cov in json.loads(raw):
             if cov['NewsProPageTitle'].lower().startswith(('front', 'cover')):
                 return cov['HighResolution']
 
-    if is_saturday:
-        title = 'Mint Lounge'
-        masthead_url = 'https://lifestyle.livemint.com/mintlounge/static-images/lounge-logo.svg'
+    extra_css = """
+        img {margin:0 auto;}
+        .psTopLogoItem img, .ecologoStory { width:100; }
+        #img-cap {font-size:small; text-align:center;}
+        .summary, .highlights, .synopsis {
+            font-weight:normal !important; font-style:italic; color:#202020;
+        }
+        em, blockquote {color:#202020;}
+        .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag, .auth {font-size:small;}
+    """
 
-        oldest_article = 6.5 # days
+    keep_only_tags = [
+        dict(
+            name='article',
+            attrs={'id': lambda x: x and x.startswith(('article_', 'box_'))},
+        ),
+        dict(attrs={'class': lambda x: x and x.startswith('storyPage_storyBox__')}),
+        classes('contentSec'),
+    ]
 
-        extra_css = '''
-            #story-summary-0 {font-style:italic; color:#202020;}
-            .innerBanner, .storyImgSec {text-align:center; font-size:small;}
-            .author {font-size:small;}
-        '''
-
-        keep_only_tags = [
-            classes('storyPageHeading storyContent innerBanner author')
-        ]
-        remove_tags = [
-            dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
-            classes('hidden-article-url sidebarAdv similarStoriesClass moreFromSecClass linkStories publishDetail'),
-            dict(attrs={'id':['hidden-article-id-0', 'hidden-article-type-0']})
-        ]
-
-        feeds = [
-            ('Lounge News', 'https://lifestyle.livemint.com/rss/news'),
-            ('Food', 'https://lifestyle.livemint.com/rss/food'),
-            ('Fashion', 'https://lifestyle.livemint.com/rss/fashion'),
-            ('How to Lounge', 'https://lifestyle.livemint.com/rss/how-to-lounge'),
-            ('Smart Living', 'https://lifestyle.livemint.com/rss/smart-living'),
-            ('Health', 'https://lifestyle.livemint.com/rss/health'),
-            ('Relationships', 'https://lifestyle.livemint.com//rss/relationships')
-        ]
-
-        def preprocess_html(self, soup):
-            if h2 := soup.find('h2'):
-                h2.name = 'p'
-            for also in soup.findAll('h2'):
-                if self.tag_to_string(also).strip().startswith('Also'):
-                    also.extract()
-            for img in soup.findAll('img', attrs={'data-img': True}):
-                img['src'] = img['data-img']
-            return soup
-    else:
-
-        extra_css = '''
-            img {margin:0 auto;}
-            .psTopLogoItem img, .ecologoStory { width:100; }
-            #img-cap {font-size:small; text-align:center;}
-            .summary, .highlights, .synopsis {
-                font-weight:normal !important; font-style:italic; color:#202020;
-            }
-            em, blockquote {color:#202020;}
-            .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag, .auth {font-size:small;}
-        '''
-
-        keep_only_tags = [
-            dict(name='article', attrs={'id':lambda x: x and x.startswith(('article_', 'box_'))}),
-            dict(attrs={'class':lambda x: x and x.startswith('storyPage_storyBox__')}),
-            classes('contentSec')
-        ]
-        remove_tags = [
-            dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
-            dict(attrs={'class':lambda x: x and x.startswith(
-                ('storyPage_alsoRead__', 'storyPage_firstPublishDate__', 'storyPage_bcrumb__')
-            )}),
-            dict(attrs={'id':['faqSection', 'seoText', 'ellipsisId']}),
-            classes(
-                'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider ninSec'
-                ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo author-widget'
-                ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText checkCibilBtn trade'
-            )
-        ]
-
-        feeds = [
-            ('Companies', 'https://www.livemint.com/rss/companies'),
-            ('Opinion', 'https://www.livemint.com/rss/opinion'),
-            ('Money', 'https://www.livemint.com/rss/money'),
-            ('Economy', 'https://www.livemint.com/rss/economy'),
-            ('Politics', 'https://www.livemint.com/rss/politics'),
-            ('Science', 'https://www.livemint.com/rss/science'),
-            ('Industry', 'https://www.livemint.com/rss/industry'),
-            ('Education', 'https://www.livemint.com/rss/education'),
-            ('Sports', 'https://www.livemint.com/rss/sports'),
-            ('Technology', 'https://www.livemint.com/rss/technology'),
-            ('News', 'https://www.livemint.com/rss/news'),
-            ('Mutual Funds', 'https://www.livemint.com/rss/Mutual Funds'),
-            ('Markets', 'https://www.livemint.com/rss/markets'),
-            ('AI', 'https://www.livemint.com/rss/AI'),
-            ('Insurance', 'https://www.livemint.com/rss/insurance'),
-            ('Budget', 'https://www.livemint.com/rss/budget'),
-            ('Elections', 'https://www.livemint.com/rss/elections'),
-        ]
-
-        def preprocess_raw_html(self, raw, *a):
-            # remove empty p tags
-            raw = re.sub(
-                r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', '\g<2>', re.sub(
-                    r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
+    remove_tags = [
+        dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
+        dict(
+            attrs={
+                'class': lambda x: x
+                and x.startswith(
+                    (
+                        'storyPage_alsoRead__',
+                        'storyPage_firstPublishDate__',
+                        'storyPage_bcrumb__',
+                    )
                 )
+            }
+        ),
+        dict(attrs={'id': ['faqSection', 'seoText', 'ellipsisId', 'gift_redeemed_box ']}),
+        classes(
+            'trendingSimilarHeight moreNews mobAppDownload label msgError msgOk taboolaHeight gadgetSlider ninSec'
+            ' socialHolder imgbig disclamerText disqus-comment-count openinApp2 lastAdSlot bs_logo author-widget'
+            ' datePublish sepStory premiumSlider moreStory Joinus moreAbout milestone benefitText checkCibilBtn'
+            ' double_gift_box trade'
+        ),
+    ]
+
+    feeds = [
+        ('Companies', 'https://www.livemint.com/rss/companies'),
+        ('Opinion', 'https://www.livemint.com/rss/opinion'),
+        ('Money', 'https://www.livemint.com/rss/money'),
+        ('Economy', 'https://www.livemint.com/rss/economy'),
+        ('Politics', 'https://www.livemint.com/rss/politics'),
+        ('Science', 'https://www.livemint.com/rss/science'),
+        ('Industry', 'https://www.livemint.com/rss/industry'),
+        ('Education', 'https://www.livemint.com/rss/education'),
+        ('Sports', 'https://www.livemint.com/rss/sports'),
+        ('Technology', 'https://www.livemint.com/rss/technology'),
+        ('News', 'https://www.livemint.com/rss/news'),
+        ('Mutual Funds', 'https://www.livemint.com/rss/Mutual Funds'),
+        ('Markets', 'https://www.livemint.com/rss/markets'),
+        ('AI', 'https://www.livemint.com/rss/AI'),
+        ('Insurance', 'https://www.livemint.com/rss/insurance'),
+        ('Budget', 'https://www.livemint.com/rss/budget'),
+        ('Elections', 'https://www.livemint.com/rss/elections'),
+    ]
+
+    def preprocess_raw_html(self, raw, *a):
+        # remove empty p tags
+        raw = re.sub(
+            r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', r'\g<2>', re.sub(
+                r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
+            ),
+        )
+        if '<script>var wsjFlag=true;</script>' in raw:
+            m = re.search(
+                r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw
             )
-            if '<script>var wsjFlag=true;</script>' in raw:
-                m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
-                raw1 = raw[m.start():]
-                raw1 = raw1.split('>', 1)[1].strip()
-                data = json.JSONDecoder().raw_decode(raw1)[0]
-                value = data['hasPart']['value']
-                body = data['articleBody'] + '</p> <p>'\
-                        + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
-                body = '<div class="FirstEle"> <p>' +  body  + '</p> </div>'
-                raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
-                return raw2
-            return raw
+            raw1 = raw[m.start() :]
+            raw1 = raw1.split('>', 1)[1].strip()
+            data = json.JSONDecoder().raw_decode(raw1)[0]
+            value = data['hasPart']['value']
+            body = (
+                data['articleBody']
+                + '</p> <p>'
+                + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
+            )
+            body = '<div class="FirstEle"> <p>' + body + '</p> </div>'
+            raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
+            return raw2
+        return raw
 
-        def preprocess_html(self, soup):
-            for h2 in soup.findAll('h2'):
-                h2.name = 'h4'
-            auth = soup.find(attrs={'class':lambda x: x and x.startswith(('storyPage_authorInfo__', 'storyPage_authorSocial__'))})
-            if auth:
-                auth['class'] = 'auth'
-            summ = soup.find(attrs={'class':lambda x: x and x.startswith('storyPage_summary__')})
-            if summ:
-                summ['class'] = 'summary'
-            for strong in soup.findAll('strong'):
-                if strong.find('p'):
-                    strong.name = 'div'
-            for embed in soup.findAll('div', attrs={'class':'embed'}):
-                nos = embed.find('noscript')
-                if nos:
-                    nos.name = 'span'
-            for span in soup.findAll('figcaption'):
-                span['id'] = 'img-cap'
-            for auth in soup.findAll('span', attrs={'class':lambda x: x and 'articleInfo' in x.split()}):
-                auth.name = 'div'
-            for img in soup.findAll('img', attrs={'data-src': True}):
-                img['src'] = img['data-src']
-            for span in soup.findAll('span', attrs={'class':'exclusive'}):
-                span.extract()
-            for al in soup.findAll('a', attrs={'class':'manualbacklink'}):
-                pa = al.findParent(['p', 'h2', 'h3', 'h4'])
-                if pa:
-                    pa.extract()
-            wa = soup.find(**classes('autobacklink-topic'))
-            if wa:
-                p = wa.findParent('p')
-                if p:
-                    p.extract()
-            return soup
+    def preprocess_html(self, soup):
+        auth = soup.find(
+            attrs={
+                'class': lambda x: x
+                and x.startswith(('storyPage_authorInfo__', 'storyPage_authorSocial__'))
+            }
+        )
+        if auth:
+            auth['class'] = 'auth'
+        summ = soup.find(
+            attrs={'class': lambda x: x and x.startswith('storyPage_summary__')}
+        )
+        if summ:
+            summ['class'] = 'summary'
+        for strong in soup.findAll('strong'):
+            if strong.find('p'):
+                strong.name = 'div'
+        for embed in soup.findAll('div', attrs={'class': 'embed'}):
+            nos = embed.find('noscript')
+            if nos:
+                nos.name = 'span'
+        for span in soup.findAll('figcaption'):
+            span['id'] = 'img-cap'
+        for auth in soup.findAll(
+            'span', attrs={'class': lambda x: x and 'articleInfo' in x.split()}
+        ):
+            auth.name = 'div'
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        for span in soup.findAll('span', attrs={'class': 'exclusive'}):
+            span.extract()
+        for al in soup.findAll('a', attrs={'class': 'manualbacklink'}):
+            pa = al.findParent(['p', 'h2', 'h3', 'h4'])
+            if pa:
+                pa.extract()
+        wa = soup.find(**classes('autobacklink-topic'))
+        if wa:
+            p = wa.findParent('p')
+            if p:
+                p.extract()
+        return soup
 
-        def populate_article_metadata(self, article, soup, first):
-            article.title = article.title.replace('<span class="webrupee">₹</span>','₹')
+    def populate_article_metadata(self, article, soup, first):
+        article.title = article.title.replace('<span class="webrupee">₹</span>', '₹')
