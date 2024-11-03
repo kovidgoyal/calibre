@@ -131,13 +131,13 @@ def href_to_name(href, root, base=None):
 
 def seconds_to_timestamp(duration: float) -> str:
     seconds = int(floor(duration))
-    float_part = int((duration - seconds) * 1000)
+    float_part = duration - seconds
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
     ans = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
     if float_part:
-        ans += f'.{float_part}'.rstrip('0')
+        ans += f'{float_part}'.rstrip('0')[1:]
     return ans
 
 
