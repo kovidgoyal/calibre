@@ -460,6 +460,21 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
    If the workaround is not working for you make sure you Kindle firmware
    is at least version 5.12.5, released in April 2020.
 
+Covers for books sent to my Kindle ColorSoft dont show up in the book list?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Amazon deliberately broke this functionality in their ColorSoft in order to
+discourage you from reading non Amazon books on their devices. See `this form
+thread <https://www.mobileread.com/forums/showthread.php?t=364350>`__ for
+details. The only known workaround is to send the books as "Personal documents"
+to the Kindle which will fix the covers not showing up but break other features
+such as Whispersync and the books will show up under "Personal documents" not
+"Books" on the device. To enable this in calibre go to
+:guilabel:`Preferences->Output options->MOBI output` and enable the check box
+that says :guilabel:`Enable sharing of book content`. This will cause all
+future books sent to the Kindle by calibre to be marked as personal documents.
+
+
 The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
