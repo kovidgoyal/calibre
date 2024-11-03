@@ -916,7 +916,7 @@ class Page:
               and lmargin != ymargin \
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
               and lmargin <= rmargin + rmargin*CENTER_FACTOR \
-              and not '"float:right"' in t.raw:
+              and '"float:right"' not in t.raw:
                #and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
                #and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
@@ -989,7 +989,7 @@ class Page:
                or (second_text.left >= first_text.last_left \
                 and second_text.bottom <= first_text.bottom)) \
               and 'href=' not in second_text.raw \
-              and not '"float:right"' in first_text.raw \
+              and '"float:right"' not in first_text.raw \
               and first_text.bottom + stats.line_space + (stats.line_space*LINE_FACTOR) \
                     >= second_text.bottom \
               and first_text.final_width > self.width*self.opts.unwrap_factor \
