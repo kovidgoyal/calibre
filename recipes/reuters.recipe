@@ -76,7 +76,7 @@ class Reuters(BasicNewsRecipe):
             'technology',
             # 'sports',
             'science',
-            # 'lifestyle',
+            'lifestyle',
         ]
 
         feeds = []
