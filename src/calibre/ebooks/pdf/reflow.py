@@ -884,15 +884,9 @@ class Page:
         first = True
         # Assume not Contents
         self.contents = False
-        # Even or odd page?
-        if self.odd_even:
-            left = self.stats_left_odd
-            indent = self.stats_indent_odd
-            indent1 = self.stats_indent_odd1
-        else:
-            left = self.stats_left_even
-            indent = self.stats_indent_even
-            indent1 = self.stats_indent_even1
+        left = self.stats_left
+        indent = self.stats_indent
+        indent1 = self.stats_indent1
 
         m = len(self.texts)
         for i in range(m):
@@ -921,7 +915,8 @@ class Page:
               and lmargin != xmargin \
               and lmargin != ymargin \
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
-              and lmargin <= rmargin + rmargin*CENTER_FACTOR:
+              and lmargin <= rmargin + rmargin*CENTER_FACTOR \
+              and not '"float:right"' in t.raw:
                #and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
                #and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
@@ -964,16 +959,9 @@ class Page:
 
     def coalesce_paras(self, stats):
         # Join lines into paragraphs
-        # Even or odd page?
-        if self.odd_even:
-            left = self.stats_left_odd
-            indent = self.stats_indent_odd
-            indent1 = self.stats_indent_odd1
-        else:
-            left = self.stats_left_even
-            indent = self.stats_indent_even
-            indent1 = self.stats_indent_even1
-
+        left = self.stats_left
+        indent = self.stats_indent
+        indent1 = self.stats_indent1
 
         def can_merge(self, first_text, second_text, stats):
             # Can two lines be merged into one paragraph?
@@ -1001,7 +989,7 @@ class Page:
                or (second_text.left >= first_text.last_left \
                 and second_text.bottom <= first_text.bottom)) \
               and 'href=' not in second_text.raw \
-              and '"float:right"' not in first_text.raw \
+              and not '"float:right"' in first_text.raw \
               and first_text.bottom + stats.line_space + (stats.line_space*LINE_FACTOR) \
                     >= second_text.bottom \
               and first_text.final_width > self.width*self.opts.unwrap_factor \
@@ -1047,13 +1035,12 @@ class Page:
                         if frag.indented == 0 \
                           and frag.align != 'C' \
                           and frag.left > left + frag.average_character_width:
-                            #frag.indented = int((frag.left - self.stats_left) / frag.average_character_width)
                             # Is it approx self.stats_indent?
                             if indent <= frag.left <= indent1:
                                 frag.indented = 1  # 1em
                             else:  # Assume left margin of approx = number of chars
                                 # Should check for values approx the same, as with indents
-                                frag.margin_left = int(round((frag.left - left) / self.stats_margin_px)+0.5)
+                                frag.margin_left = int(round(((frag.left - left) / self.stats_margin_px)+0.5))
                         if last_frag is not None \
                           and frag.bottom - last_frag.bottom \
                               > stats.para_space*SECTION_FACTOR:
@@ -1299,15 +1286,16 @@ class Page:
     def second_pass(self, stats, opts):
 
         # If there are alternating pages, pick the left and indent for this one
-        self.stats_left_odd = stats.left_odd
-        self.stats_indent_odd = stats.indent_odd
-        self.stats_indent_odd1 = stats.indent_odd1
-        self.stats_left_even = stats.left_even
-        self.stats_indent_even = stats.indent_even
-        self.stats_indent_even1 = stats.indent_even1
-        self.stats_right = stats.right  # Needs work
-        self.stats_right_odd = stats.right
-        self.stats_right_even = stats.right
+        if self.odd_even:
+            self.stats_left = stats.left_odd
+            self.stats_indent = stats.indent_odd
+            self.stats_indent1 = stats.indent_odd1
+            self.stats_right = stats.right  # Needs work
+        else:
+            self.stats_left = stats.left_even
+            self.stats_indent = stats.indent_even
+            self.stats_indent1 = stats.indent_even1
+            self.stats_right = stats.right  # Needs work
         self.stats_margin_px = stats.margin_px
 
         # Join lines to form paragraphs
@@ -1902,10 +1890,7 @@ class PDFDocument:
             candidate = None    # Lines close enough to the bottom that it might merge
             while pind < len(self.pages):
                 page = self.pages[pind]
-                if page.odd_even:
-                    stats_left = page.stats_left_odd
-                else:
-                    stats_left = page.stats_left_even
+                stats_left = page.stats_left
                 # Do not merge if the next paragraph is indented
                 if page.texts:
                     if candidate \
@@ -1981,12 +1966,8 @@ class PDFDocument:
             if merge_done:
                 # We now need to skip to the next page number
                 # The text has been appended to this page, so coalesce the paragraph
-                if merged_page.odd_even:
-                    left_margin = merged_page.stats_left_odd
-                    right_margin = merged_page.stats_right_odd
-                else:
-                    left_margin = merged_page.stats_left_even
-                    right_margin = merged_page.stats_right_odd
+                left_margin = merged_page.stats_left
+                right_margin = merged_page.stats_right
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
                 merged_page.texts.remove(merged_text)
                 # Put back top/bottom after coalesce if final line
