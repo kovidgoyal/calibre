@@ -5,6 +5,7 @@ from qt.core import (
     QAbstractItemView,
     QCheckBox,
     QDialog,
+    QDialogButtonBox,
     QDoubleSpinBox,
     QFont,
     QFormLayout,
@@ -39,6 +40,8 @@ from calibre.gui2.tts.types import (
 )
 from calibre.gui2.widgets2 import Dialog, QComboBox
 
+embedding_engine_name = 'piper'
+
 
 class EngineChoice(QWidget):
 
@@ -62,6 +65,9 @@ class EngineChoice(QWidget):
         l.addRow(la)
         ec.currentIndexChanged.connect(self.current_changed)
         self.update_description()
+
+    def restore_defaults(self):
+        self.engine_choice.setCurrentIndex(0)
 
     @property
     def value(self) -> str:
@@ -347,23 +353,35 @@ class EngineSpecificConfig(QWidget):
         if self.engine_name and self.engine_name != engine_name:
             self.engine_specific_settings[self.engine_name] = self.as_settings()
         self.engine_name = engine_name
-        metadata = available_engines()[engine_name]
-        tts = create_tts_backend(force_engine=engine_name)
         if engine_name not in self.voice_data:
+            tts = create_tts_backend(force_engine=engine_name)
             self.voice_data[engine_name] = tts.available_voices
             if self.for_embedding:
                 self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name, TTS_EMBEDED_CONFIG)
             else:
                 self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name)
             self.default_output_modules[engine_name] = tts.default_output_module
+        return self.initialize_widgets_from_settings()
+
+    def restore_defaults(self):
+        if self.for_embedding:
+            self.engine_specific_settings[embedding_engine_name] = EngineSpecificSettings.create_from_config(embedding_engine_name, TTS_EMBEDED_CONFIG)
+        else:
+            for engine_name in available_engines():
+                self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_prefs(engine_name)
+        self.initialize_widgets_from_settings()
+
+    def initialize_widgets_from_settings(self):
+        tts = create_tts_backend(force_engine=self.engine_name)
+        metadata = available_engines()[self.engine_name]
         self.output_module.blockSignals(True)
         self.output_module.clear()
         if metadata.has_multiple_output_modules:
             self.layout().setRowVisible(self.output_module, True)
             self.output_module.addItem(_('System default (currently {})').format(tts.default_output_module), '')
-            for om in self.voice_data[engine_name]:
+            for om in self.voice_data[self.engine_name]:
                 self.output_module.addItem(om, om)
-            if (idx := self.output_module.findData(self.engine_specific_settings[engine_name].output_module)) > -1:
+            if (idx := self.output_module.findData(self.engine_specific_settings[self.engine_name].output_module)) > -1:
                 self.output_module.setCurrentIndex(idx)
         else:
             self.layout().setRowVisible(self.output_module, False)
@@ -394,7 +412,7 @@ class EngineSpecificConfig(QWidget):
             self.audio_device.addItem(_('System default (currently {})').format(self.default_audio_device.description), '')
             for ad in self.all_audio_devices:
                 self.audio_device.addItem(ad.description, ad.id.hex())
-            if cad := self.engine_specific_settings[engine_name].audio_device_id:
+            if cad := self.engine_specific_settings[self.engine_name].audio_device_id:
                 if (idx := self.audio_device.findData(cad.id.hex())):
                     self.audio_device.setCurrentIndex(idx)
             self.layout().setRowVisible(self.audio_device, True)
@@ -483,8 +501,15 @@ class ConfigDialog(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
+        self.restore_defaults_button = b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Restore all Read aloud settings ot their defaults'))
+        b.clicked.connect(self.restore_defaults)
         self.initial_engine_choice = ec.value
         self.set_engine(self.initial_engine_choice)
+
+    def restore_defaults(self):
+        self.engine_choice.restore_defaults()
+        self.engine_specific_config.restore_defaults()
 
     def set_engine(self, engine_name: str) -> None:
         metadata = self.engine_specific_config.set_engine(engine_name)
@@ -532,7 +557,7 @@ class EmbeddingConfig(QWidget):
         self.l = l = QVBoxLayout(self)
         self.engine_specific_config = esc = EngineSpecificConfig(self, for_embedding=True)
         l.addWidget(esc)
-        self.engine_specific_config.set_engine('piper')
+        self.engine_specific_config.set_engine(embedding_engine_name)
 
     def save_settings(self):
         s = self.engine_specific_config.as_settings()
@@ -571,4 +596,4 @@ def develop():
 
 
 if __name__ == '__main__':
-    develop()
+    develop_embedding()
