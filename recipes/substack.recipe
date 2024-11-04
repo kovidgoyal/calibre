@@ -15,11 +15,12 @@ __version__ = 'v0.1.1'
 __date__ = '2020-12-19'
 __author__ = 'topynate'
 
-import re
 import json
+import re
+
+from mechanize import Request
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from mechanize import Request
 
 
 class Substack(BasicNewsRecipe):
