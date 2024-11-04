@@ -137,7 +137,7 @@ def seconds_to_timestamp(duration: float) -> str:
     seconds = seconds % 60
     ans = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
     if float_part:
-        ans += f'{float_part}'.rstrip('0')[1:]
+        ans += f'{float_part:.20f}'.rstrip('0')[1:]
     return ans
 
 

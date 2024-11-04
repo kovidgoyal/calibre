@@ -110,7 +110,7 @@ class FloatSlider(QWidget):
         self.l = l = QHBoxLayout(self)
         self.slider = s = QSlider(self)
         l.addWidget(s, alignment=Qt.AlignmentFlag.AlignBottom)
-        self.label = la = QLabel('\xa0'.ljust(12, '\xa0'))
+        self.label = la = QLabel('\xa0'.ljust(4, '\xa0'))
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignVCenter)
         l.setContentsMargins(0, 0, 0, 0)
         self.factor = factor
@@ -125,8 +125,6 @@ class FloatSlider(QWidget):
             s.setTickInterval(s.maximum() - s.minimum())
         s.valueChanged.connect(self.update_label)
         self.update_label()
-        self.label.setMinimumWidth(self.label.width())
-        self.label.setMaximumWidth(self.label.width())
 
     def sizeHint(self) -> QSize:
         ans = super().sizeHint()
@@ -138,8 +136,8 @@ class FloatSlider(QWidget):
         den = self.slider.maximum() - m
         num = self.slider.value() - m
         p = 2 * (num / den)
-        text = _('normal') if p == 1 else f'{p:.0%}'
-        self.label.setText(text.ljust(12, '\xa0'))
+        text = f'{p:.0%}'
+        self.label.setText(text.ljust(4, '\xa0'))
 
     @property
     def val(self) -> float:
