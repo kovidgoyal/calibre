@@ -97,33 +97,51 @@ class SentenceDelay(QDoubleSpinBox):
         self.setValue(float(v))
 
 
-class FloatSlider(QSlider):
+class FloatSlider(QWidget):
 
     def __init__(self, minimum: float = -1, maximum: float = 1, factor: int = 10, parent=None):
         super().__init__(parent)
+        self.l = l = QHBoxLayout(self)
+        self.slider = s = QSlider(self)
+        l.addWidget(s, alignment=Qt.AlignmentFlag.AlignBottom)
+        self.label = la = QLabel('\xa0'.ljust(12, '\xa0'))
+        l.addWidget(la, alignment=Qt.AlignmentFlag.AlignVCenter)
+        l.setContentsMargins(0, 0, 0, 0)
         self.factor = factor
-        self.setRange(int(minimum * factor), int(maximum * factor))
-        self.setSingleStep(int((self.maximum() - self.minimum()) / (2 * factor)))
-        self.setPageStep(5 * self.singleStep())
-        self.setTickPosition(QSlider.TickPosition.TicksBelow)
-        self.setOrientation(Qt.Orientation.Horizontal)
+        s.setRange(int(minimum * factor), int(maximum * factor))
+        s.setSingleStep(int((s.maximum() - s.minimum()) / (2 * factor)))
+        s.setPageStep(5 * s.singleStep())
+        s.setTickPosition(QSlider.TickPosition.TicksBelow)
+        s.setOrientation(Qt.Orientation.Horizontal)
         if maximum - minimum >= 2:
-            self.setTickInterval((self.maximum() - self.minimum()) // 2)
+            s.setTickInterval((s.maximum() - s.minimum()) // 2)
         else:
-            self.setTickInterval(self.maximum() - self.minimum())
+            s.setTickInterval(s.maximum() - s.minimum())
+        s.valueChanged.connect(self.update_label)
+        self.update_label()
+        self.label.setMinimumWidth(self.label.width())
+        self.label.setMaximumWidth(self.label.width())
 
     def sizeHint(self) -> QSize:
         ans = super().sizeHint()
         ans.setWidth(ans.width() * 2)
         return ans
 
+    def update_label(self):
+        m = self.slider.minimum()
+        den = self.slider.maximum() - m
+        num = self.slider.value() - m
+        p = 2 * (num / den)
+        text = _('normal') if p == 1 else f'{p:.0%}'
+        self.label.setText(text.ljust(12, '\xa0'))
+
     @property
     def val(self) -> float:
-        return self.value() / self.factor
+        return self.slider.value() / self.factor
 
     @val.setter
     def val(self, v) -> None:
-        self.setValue(int(v * self.factor))
+        self.slider.setValue(int(v * self.factor))
 
 
 class Volume(QWidget):
@@ -553,4 +571,4 @@ def develop():
 
 
 if __name__ == '__main__':
-    develop_embedding()
+    develop()
