@@ -464,7 +464,7 @@ Covers for books sent to my Kindle ColorSoft dont show up in the book list?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Amazon deliberately broke this functionality in their ColorSoft in order to
-discourage you from reading non Amazon books on their devices. See `this form
+discourage you from reading non Amazon books on their devices. See `this forum
 thread <https://www.mobileread.com/forums/showthread.php?t=364350>`__ for
 details. The only known workaround is to send the books as "Personal documents"
 to the Kindle which will fix the covers not showing up but break other features
