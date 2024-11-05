@@ -135,7 +135,10 @@ class Client:
         self.onevent('pause')
 
     def speak(self, text):
-        self.current_utterance = None
+        ut, self.current_utterance = self.current_utterance, None
+        if ut:
+            ut.onstart = ut.onpause = ut.onend = ut.onerror = ut.onresume = None
+            ut.removeEventListener('boundary', self.utterance_boundary_reached)
         if text and text.length:
             self.current_utterance = self.create_utterance(text)
             window.speechSynthesis.speak(self.current_utterance)
