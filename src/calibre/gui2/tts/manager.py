@@ -69,6 +69,9 @@ class Tracker:
     def pop_first(self) -> bool:
         if self.queue:
             self.queue.popleft()
+            self.last_pos = 0
+            if self.queue:
+                self.last_pos = self.queue[0].index_in_positions
             return True
         return False
 

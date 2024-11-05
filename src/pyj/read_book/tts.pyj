@@ -52,6 +52,9 @@ class Tracker:
 
     def pop_first(self):
         self.queue.splice(0, 1)
+        self.last_pos = 0
+        if self.queue.length:
+            self.last_pos = self.queue[0].index_in_positions
 
     def current_text(self):
         if self.queue.length:
