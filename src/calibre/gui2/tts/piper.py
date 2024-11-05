@@ -234,8 +234,6 @@ class UtteranceAudioQueue(QIODevice):
         else:
             ans = self.current_audio_data.first(maxlen)
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
-            if len(self.current_audio_data):
-                self.readyRead.emit()
         debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
         return ans
 
@@ -420,14 +418,6 @@ class Piper(TTSBackend):
                 self._audio_sink = QAudioSink(fmt, self)
             if s.volume is not None:
                 self._audio_sink.setVolume(s.volume)
-            # On Windows, the buffer is zero causing data to be discarded.
-            # Ensure we have a nice large buffer on all platforms.
-            # However, on Linux and macOS changing the buffer size causes audio to not
-            # play on some systems or play with a large delay.
-            # See https://www.mobileread.com/forums/showthread.php?t=363881
-            # and https://www.mobileread.com/forums/showthread.php?t=364225
-            if iswindows:
-                self._audio_sink.setBufferSize(2 * 1024 * 1024)
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._process.start()
             self._audio_sink.start(self._utterances_being_spoken)
