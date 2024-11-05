@@ -1,6 +1,6 @@
 # Tell git what files are txt
 *.py  text diff=python
-*.pyj  text diff=python
+*.pyj  text diff=python linguist-language=python
 *.recipe  text diff=python linguist-language=python
 *.coffee  text
 *.js      text
