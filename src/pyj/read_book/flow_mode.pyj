@@ -87,12 +87,12 @@ def _check_for_scroll_end(func, obj, args, report):
         if last_change_spine_item_request.name is csi.name and now - last_change_spine_item_request.at < 2000:
             return False
         ## delay change on boundaries
-        if opts.scroll_stop_boundaries :
-            if last_change_spine_item_request.ignoreUntil is None :
-                last_change_spine_item_request.ignoreUntil = now + 500
-            if now < last_change_spine_item_request.ignoreUntil:
+        if opts.scroll_mouse_boundary_delay > 0 :
+            if last_change_spine_item_request.denied is None :
+                last_change_spine_item_request.denied = now
+            if now - last_change_spine_item_request.denied < opts.scroll_mouse_boundary_delay * 1000 :
                 return False
-            last_change_spine_item_request.ignoreUntil = None
+            last_change_spine_item_request.denied = None
         # perform change
         last_change_spine_item_request.name = csi.name
         last_change_spine_item_request.at = now
@@ -101,7 +101,7 @@ def _check_for_scroll_end(func, obj, args, report):
             go_to_previous_page = not go_to_previous_page
         get_boss().send_message('next_spine_item', previous=go_to_previous_page)
         return False
-    last_change_spine_item_request.ignoreUntil = None
+    last_change_spine_item_request.denied = None
     if report:
         report_human_scroll(scroll_viewport.block_pos() - before)
     return True

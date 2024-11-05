@@ -22,6 +22,9 @@ MAX_SCROLL_AUTO_DELAY = 50
 MIN_SCROLL_SPEED_SMOOTH = 5
 MAX_SCROLL_SPEED_SMOOTH = 80
 
+MIN_SCROLL_MOUSE_DELAY = 0
+MAX_SCROLL_MOUSE_DELAY = 5
+
 def restore_defaults():
     container = get_container()
     for control in container.querySelectorAll('input[name]'):
@@ -113,6 +116,14 @@ def create_scrolling_panel(container, apply_func, cancel_func):
                 step=0.25,
                 min=MIN_SCROLL_AUTO_DELAY,
                 max=MAX_SCROLL_AUTO_DELAY
+            ),
+            *spinner(
+                'scroll_mouse_boundary_delay',
+                _('Seconds to pause when mouse-scrolling past internal file boundaries'),
+                title=_('Set to zero to scroll past internal file boundaries without delay'),
+                step=0.25,
+                min=MIN_SCROLL_MOUSE_DELAY,
+                max=MAX_SCROLL_MOUSE_DELAY
             )
         )
     )

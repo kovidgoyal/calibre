@@ -55,6 +55,7 @@ all_settings = {
     'paged_pixel_scroll_threshold': {'default': 60, 'category': 'read_book'},
     'read_mode': {'default': 'paged', 'category': 'read_book', 'is_local': True},
     'scroll_auto_boundary_delay': {'default': 5, 'category': 'read_book', 'is_local': True},
+    'scroll_mouse_boundary_delay': {'default': 0, 'category': 'read_book', 'is_local': True},
     'scroll_stop_boundaries': {'default': False, 'category': 'read_book', 'is_local': True},
     'standalone_font_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
     'standalone_misc_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
