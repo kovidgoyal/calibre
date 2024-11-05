@@ -496,7 +496,7 @@ class Piper(TTSBackend):
             while len(u.left_to_write):
                 written = self.process.write(u.left_to_write)
                 if written < 0:
-                    self._set_error('Failed to write to piper process with error: {self.process.errorString()}')
+                    self._set_error(f'Failed to write to piper process with error: {self.process.errorString()}')
                     break
                 if not u.started and written:
                     u.started = True
