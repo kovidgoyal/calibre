@@ -500,7 +500,7 @@ class ConfigDialog(Dialog):
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
         self.restore_defaults_button = b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setToolTip(_('Restore all Read aloud settings ot their defaults'))
+        b.setToolTip(_('Restore all Read aloud settings to their defaults'))
         b.clicked.connect(self.restore_defaults)
         self.initial_engine_choice = ec.value
         self.set_engine(self.initial_engine_choice)
