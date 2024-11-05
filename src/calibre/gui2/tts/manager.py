@@ -15,6 +15,9 @@ if TYPE_CHECKING:
     from calibre.gui2.tts.types import TTSBackend
 
 
+MAX_UTTERANCE_LENGTH = 32 * 1024
+
+
 class Utterance(NamedTuple):
     text: str
     index_in_positions: int
@@ -37,7 +40,7 @@ class Tracker:
         self.last_pos = 0
         self.queue: deque[Utterance] = deque()
 
-    def parse_marked_text(self, marked_text, limit = 32 * 1024):
+    def parse_marked_text(self, marked_text, limit = MAX_UTTERANCE_LENGTH):
         self.clear()
         text = []
         text_len = chunk_len = index_in_positions = offset_in_text = 0
@@ -63,9 +66,11 @@ class Tracker:
         self.marked_text = marked_text
         return self.current_text()
 
-    def pop_first(self):
+    def pop_first(self) -> bool:
         if self.queue:
             self.queue.popleft()
+            return True
+        return False
 
     def current_text(self):
         if self.queue:
@@ -244,7 +249,10 @@ class TTSManager(QObject):
         elif state is QTextToSpeech.State.Ready:
             if prev_state in (QTextToSpeech.State.Paused, QTextToSpeech.State.Speaking):
                 if not self.speaking_simple_text:
-                    self.emit_state_event('end')
+                    if self.tracker.pop_first() and (text := self.tracker.current_text()):
+                        self.tts.say(text)
+                    else:
+                        self.emit_state_event('end')
         elif state is QTextToSpeech.State.Error:
             self.emit_state_event('cancel')
 
