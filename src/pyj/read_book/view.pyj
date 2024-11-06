@@ -1050,6 +1050,7 @@ class View:
             'lines_per_sec_auto': sd.get('lines_per_sec_auto'),
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
             'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
+            'scroll_mouse_boundary_delay': sd.get('scroll_mouse_boundary_delay'),
             'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
             'reverse_page_turn_zones': sd.get('reverse_page_turn_zones'),
             'gesture_overrides': sd.get('gesture_overrides'),
