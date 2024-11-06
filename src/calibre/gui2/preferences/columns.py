@@ -9,7 +9,7 @@ import copy
 import sys
 from contextlib import suppress
 
-from qt.core import QAbstractItemView, QIcon, Qt, QTableWidgetItem
+from qt.core import QAbstractItemView, QApplication, QIcon, Qt, QTableWidgetItem
 
 from calibre.gui2 import Application, error_dialog, gprefs, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -239,35 +239,51 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         title = self.opt_columns.item(row, 2).text()
         self.setup_row(row, title, row, force_checked_to=checked)
 
+    def get_move_count(self):
+        mods = QApplication.keyboardModifiers()
+        if mods == Qt.KeyboardModifier.ShiftModifier:
+            count = 5
+        elif mods == Qt.KeyboardModifier.ControlModifier:
+            count = 10
+        elif mods == (Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
+            count = self.opt_columns.rowCount()
+        else:
+            count = 1
+        return count
+
     def up_column(self):
-        self.opt_columns.setSortingEnabled(False)
-        row = self.opt_columns.currentRow()
-        if row > 0:
-            for i in range(0, self.opt_columns.columnCount()):
-                lower = self.opt_columns.takeItem(row-1, i)
-                upper = self.opt_columns.takeItem(row, i)
-                self.opt_columns.setItem(row, i, lower)
-                self.opt_columns.setItem(row-1, i, upper)
-            self.recreate_row(row-1)
-            self.recreate_row(row)
-            self.opt_columns.setCurrentCell(row-1, 1)
-            self.changed_signal.emit()
-        self.opt_columns.setSortingEnabled(True)
+        count = self.get_move_count()
+        for _ in range(0, count):
+            row = self.opt_columns.currentRow()
+            if row > 0:
+                self.opt_columns.setSortingEnabled(False)
+                for i in range(0, self.opt_columns.columnCount()):
+                    lower = self.opt_columns.takeItem(row-1, i)
+                    upper = self.opt_columns.takeItem(row, i)
+                    self.opt_columns.setItem(row, i, lower)
+                    self.opt_columns.setItem(row-1, i, upper)
+                self.recreate_row(row-1)
+                self.recreate_row(row)
+                self.opt_columns.setCurrentCell(row-1, 1)
+                self.changed_signal.emit()
+                self.opt_columns.setSortingEnabled(True)
 
     def down_column(self):
-        self.opt_columns.setSortingEnabled(False)
-        row = self.opt_columns.currentRow()
-        if row < self.opt_columns.rowCount()-1:
-            for i in range(0, self.opt_columns.columnCount()):
-                lower = self.opt_columns.takeItem(row, i)
-                upper = self.opt_columns.takeItem(row+1, i)
-                self.opt_columns.setItem(row+1, i, lower)
-                self.opt_columns.setItem(row, i, upper)
-            self.recreate_row(row+1)
-            self.recreate_row(row)
-            self.opt_columns.setCurrentCell(row+1, 1)
-            self.changed_signal.emit()
-        self.opt_columns.setSortingEnabled(True)
+        count = self.get_move_count()
+        for _ in range(0, count):
+            row = self.opt_columns.currentRow()
+            if row < self.opt_columns.rowCount()-1:
+                self.opt_columns.setSortingEnabled(False)
+                for i in range(0, self.opt_columns.columnCount()):
+                    lower = self.opt_columns.takeItem(row, i)
+                    upper = self.opt_columns.takeItem(row+1, i)
+                    self.opt_columns.setItem(row+1, i, lower)
+                    self.opt_columns.setItem(row, i, upper)
+                self.recreate_row(row+1)
+                self.recreate_row(row)
+                self.opt_columns.setCurrentCell(row+1, 1)
+                self.changed_signal.emit()
+                self.opt_columns.setSortingEnabled(True)
 
     def is_new_custom_column(self, cc):
         return 'colnum' in cc and cc['colnum'] >= self.initial_created_count
