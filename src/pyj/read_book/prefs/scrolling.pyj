@@ -119,7 +119,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
             ),
             *spinner(
                 'scroll_mouse_boundary_delay',
-                _('Seconds to pause when mouse-scrolling past internal file boundaries'),
+                _('Seconds to pause when mouse-scrolling past internal file boundaries:'),
                 title=_('Set to zero to scroll past internal file boundaries without delay'),
                 step=0.25,
                 min=MIN_SCROLL_MOUSE_DELAY,
