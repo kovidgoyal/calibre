@@ -82,7 +82,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
                 title=_('When using a touchpad or mouse wheel that produces scroll events in pixels, set the number of pixels before a page turn is triggered'),
                 step=5,
                 min=0,
-                max=1000
+                max=10000
             ),
     ))
 
