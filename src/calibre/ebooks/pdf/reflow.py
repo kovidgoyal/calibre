@@ -196,7 +196,7 @@ class Text(Element):
         )
 
     def set_av_char_width(self):
-        self.average_character_width = max(self.width/len(self.text_as_string),0.1)  # Ensure never zero
+        self.average_character_width = max(0.1, self.width/max(1, len(self.text_as_string)))  # Ensure never zero
 
     def coalesce(self, other, page_number, left_margin, right_margin):
         if self.opts.verbose > 2:
