@@ -229,7 +229,16 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
     category_nodes, recount_nodes = [], []
-    scats = category_display_order(db.pref('tag_browser_category_order', []), list(category_data.keys()))
+    # User categories are listed in category_display_order using their prefix.
+    # In other words, both @AAA.BB and @AAA.CC appear once as @AAA. We need to
+    # process the category list to get the "real" user categories.
+    scats_t = category_display_order(db.pref('tag_browser_category_order', ()), tuple(category_data.keys()))
+    scats = []
+    for category in scats_t:
+        if not category.startswith('@'):
+            scats.append(category)
+        else:
+            scats.extend(sorted(c for c in category_data.keys() if c == category or c.startswith(category+'.')))
 
     for category in scats:
         is_user_category = category.startswith('@')
