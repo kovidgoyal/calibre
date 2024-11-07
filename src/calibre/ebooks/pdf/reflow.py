@@ -179,7 +179,7 @@ class Text(Element):
         self.raw = text.text if text.text else ''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
-        self.average_character_width = self.width/len(self.text_as_string)
+        self.set_av_char_width()
 
     @property
     def is_empty(self):
@@ -194,6 +194,9 @@ class Text(Element):
           re.match(r'^\s*<i>\s*</i>\s*$', self.raw) is not None or
           re.match(r'^\s*<b>\s*</b>\s*$', self.raw) is not None
         )
+
+    def set_av_char_width(self):
+        self.average_character_width = max(self.width/len(self.text_as_string),0.1)  # Ensure never zero
 
     def coalesce(self, other, page_number, left_margin, right_margin):
         if self.opts.verbose > 2:
@@ -352,7 +355,7 @@ class Text(Element):
         self.raw += other.raw
         if has_float:
             self.raw += '</span>'
-        self.average_character_width = self.width/len(self.text_as_string)
+        self.set_av_char_width()
         #self.last_left = other.left
 
     def to_html(self):
@@ -390,7 +393,7 @@ class Paragraph(Text):
         self.raw = text.text if text.text else ''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
-        self.average_character_width = self.width/len(self.text_as_string)
+        self.set_av_char_width()
 
     def to_html(self):
         return self.raw
@@ -1832,7 +1835,8 @@ class PDFDocument:
         for i in range(LINE_SCAN_COUNT):
             if head_match[i] > pages_to_scan or head_match1[i] > pages_to_scan:
                 head_ind = i  # Remember the last matching line
-        if head_match[head_ind] > pages_to_scan or head_match1[head_ind] > pages_to_scan:
+        if self.pages[head_page].texts \
+          and (head_match[head_ind] > pages_to_scan or head_match1[head_ind] > pages_to_scan):
             t = self.pages[head_page].texts[head_ind]
             head_skip = t.top + t.height + 1
 
@@ -1840,7 +1844,8 @@ class PDFDocument:
         for i in range(LINE_SCAN_COUNT):
             if foot_match[i] > pages_to_scan or foot_match1[i] > pages_to_scan:
                 foot_ind = i  # Remember the last matching line
-        if foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan:
+        if self.pages[foot_page].texts \
+          and (foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan):
             t = self.pages[foot_page].texts[-foot_ind-1]
             foot_skip = t.top - 1
 
