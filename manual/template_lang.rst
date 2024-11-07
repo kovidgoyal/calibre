@@ -527,7 +527,9 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
 * ``first_non_empty(value [, value]*)`` -- returns the first ``value`` that is not empty. If all values are empty, then the empty string is returned. You can have as many values as you want.
 * ``floor(x)`` -- returns the largest integer less than or equal to ``x``. Throws an exception if ``x`` is not a number.
-* ``format_date(val, format_string)`` -- format the value, which must be a date string, using the format_string, returning a string. The formatting codes are:
+* ``format_date(val, format_string)`` -- format the value, which must be a date string, using the format_string, returning a string. It is best if the date is in ISO format as using other date formats often causes errors because the actual date value cannot be unambiguously determined. Note that the ``format_date_field()`` function is both faster and more reliable.
+
+  The formatting codes are:
 
   * ``d    :`` the day as number without a leading zero (1 to 31)
   * ``dd   :`` the day as number with a leading zero (01 to 31)
@@ -551,18 +553,12 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
   * ``to_number   :`` convert the date & time into a floating point number (a `timestamp`)
   * ``from_number :`` convert a floating point number (a `timestamp`) into an ``iso`` formatted date. If you want a different date format then add the desired formatting string after ``from_number`` and a colon (``:``). Example: ``from_number:MMM dd yyyy``
 
-  You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the date format tweaks to contain ``MMMM``. In this case, instead of using the ``field()`` function as in::
+  You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the date format to contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
 
-    format_date(field('pubdate'), 'yyyy')
+* ``format_date_field(field_name, format_string)`` -- format the value in the field ``field_name``, which must be the lookup name of date field, either standard or custom. See ``format_date()`` for the formatting codes. This function is much faster than format_date and should be used when you are formatting the value in a field (column). It is also more reliable because it works directly on the underlying date. It can't be used for computed dates or dates in string variables. Examples::
 
-  use the ``raw_field()`` function as in::
-
-   format_date(raw_field('pubdate'), 'yyyy')
-
-* ``field_format_date(field_name, format_string)`` -- format the value in the field ``field_name``, which must be the lookup name of date field, either standard or custom. See ``format_date()`` for the formatting codes. This function is much faster than format_date and should be used when you are formatting the value in a field (column). It can't be used for computed dates or dates in string variables. Alias: format_date_field. Examples::
-
-   field_format_date('pubdate', 'yyyy.MM.dd')
-   field_format_date('#date_read', 'MMM dd, yyyy')
+   format_date_field('pubdate', 'yyyy.MM.dd')
+   format_date_field('#date_read', 'MMM dd, yyyy')
 
 * ``formats_modtimes(date_format_string)`` -- return a comma-separated list of colon-separated items ``FMT:DATE`` representing modification times for the formats of a book. The ``date_format_string`` parameter specifies how the date is to be formatted. See the ``format_date()`` function for details. You can use the ``select`` function to get the modification time for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_paths()`` -- return a comma-separated list of colon-separated items ``FMT:PATH`` giving the full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
