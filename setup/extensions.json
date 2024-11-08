@@ -204,6 +204,16 @@
         "libraries": "Gdi32 User32",
         "cflags": "/X"
     },
+
+    {
+        "name": "wintoast",
+        "only": "windows",
+        "headers": "calibre/utils/cpp_binding.h calibre/utils/windows/common.h calibre/utils/windows/wintoastlib.h",
+        "sources": "calibre/utils/windows/wintoastlib.cpp calibre/utils/windows/wintoast.cpp",
+        "libraries": "shell32",
+        "cflags": "/X"
+    },
+
     {
         "name": "usbobserver",
         "only": "macos",

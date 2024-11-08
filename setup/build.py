@@ -322,7 +322,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
             splat = '.build-cache/xwin/root'
             cflags.append('-fcolor-diagnostics')
             cflags.append('-fansi-escape-codes')
-            for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include'.split():
+            for I in 'sdk/include/um sdk/include/cppwinrt sdk/include/shared sdk/include/ucrt crt/include sdk/include/winrt'.split():
                 cflags.append('/external:I')
                 cflags.append(f'{splat}/{I}')
             for L in 'sdk/lib/um crt/lib sdk/lib/ucrt'.split():

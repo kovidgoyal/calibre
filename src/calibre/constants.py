@@ -277,7 +277,7 @@ class ExtensionsImporter:
             'uchardet',
         )
         if iswindows:
-            extra = ('winutil', 'wpd', 'winfonts',)
+            extra = ('winutil', 'wpd', 'winfonts', 'wintoast')
         elif ismacos:
             extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
         elif isfreebsd or ishaiku or islinux:
