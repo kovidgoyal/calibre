@@ -23,6 +23,60 @@
 # - title by author
 # }}}
 
+{{{ 7.21.0 2024-11-08
+
+:: new features
+
+- [major] Edit book: A new tool to create an audio overlay in EPUB files for all text using the Read aloud facility
+
+  This allows readers of the book to listen to it with sentence tracking, even if they do not have a functioning text-to-speech system in the reading software. You can even assign different voices to different parts of the text for a more immersive experience. The tool is available from the Tools menu in the book editor.
+
+- Dark mode: make scrollbar more visible with higher contrast and rounded corners
+
+- E-book viewer: In flow mode when scrolling across internal file boundaries using the mouse wheel/touchpad have a short half second pause to ease the transition. Can be controlled via the Scrolling section of the Viewer preferences.
+
+- ebook-meta.exe: Add an option to disallow rendered cover of first page for EPUB
+
+- [2082075] Book details: Add an action to download the cover to the context menu when right clicking the cover
+
+- [2086609] Read aloud: Add a restore defaults button to the configuration dialog
+
+- [2086478] Auto adding: Allow excluding arbitrary file types not just known book file types
+
+- [2083583] Edit metadata dialog: Add an action to open the book's folder to the context menu of the formats list
+
+:: bug fixes
+
+- [2086571] Read aloud: Fix only first 32000 characters per chapter being read
+
+- [2086661] Content server: Read aloud: Fix clicking on a word to skip reading aloud to that word causing word highlighting to stop working
+
+- Linux: Handle speech dispatcher with dummy output module and no voices more gracefully
+
+- When renaming authors fix empty author folder not being removed if it contained file explorer metadata but was otherwise empty
+
+- [2086193] Edit metadata dialog: Fix keyboard shortcuts to edit prev/next raising an error when trying to go beyond the first/last book
+
+- [2085576] Linux: ToC Editor: Fix a regression in 7.17 that broke using the Create new entry button
+
+- [2085005] Content server: Fix changing the language of a book not working for non-English user interface language and for books that have no existing language
+
+- Linux: Read aloud with Piper: Fix audio not playing on some Linux systems
+
+- Notes browser: When searching books search over all currently selected categories not just the last selected one
+
+:: improved recipes
+- Substack
+- Live Mint
+- NYPost
+- Ars Technica
+- Indian Express
+- Reuters
+
+:: new recipes
+- Unz Review and Sonar21 by unkn0wn
+}}}
+
 {{{ 7.20.0 2024-10-18
 
 :: new features
