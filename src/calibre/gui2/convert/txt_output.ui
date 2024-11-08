@@ -19,7 +19,7 @@
      <property name="title">
       <string>General</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
@@ -71,7 +71,14 @@
      <property name="title">
       <string>Plain</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="opt_inline_toc">
+        <property name="text">
+         <string>&amp;Inline TOC</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -85,17 +92,10 @@
       <item row="1" column="1">
        <widget class="QSpinBox" name="opt_max_line_length"/>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="2" column="0">
        <widget class="QCheckBox" name="opt_force_max_line_length">
         <property name="text">
          <string>Force maximum line &amp;length</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QCheckBox" name="opt_inline_toc">
-        <property name="text">
-         <string>&amp;Inline TOC</string>
         </property>
        </widget>
       </item>
