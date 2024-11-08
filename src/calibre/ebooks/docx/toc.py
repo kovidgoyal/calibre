@@ -123,7 +123,7 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
                 if txt and href and p is not None:
                     ps = styles.resolve_paragraph(p)
                     try:
-                        ml = int(ps.margin_left[:-2])
+                        ml = float(ps.margin_left[:-2])
                     except (TypeError, ValueError, AttributeError):
                         ml = 0
                     if ps.text_align in {'center', 'right'}:
