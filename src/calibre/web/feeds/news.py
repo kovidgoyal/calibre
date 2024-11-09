@@ -366,11 +366,12 @@ class BasicNewsRecipe(Recipe):
     ignore_duplicate_articles = None
 
     # The following parameters control how the recipe attempts to minimize
-    # JPEG image sizes
+    # image sizes. Note that if compression is enabled PNG images are converted
+    # to JPEG.
 
     #: Set this to False to ignore all scaling and compression parameters and
     #: pass images through unmodified. If True and the other compression
-    #: parameters are left at their default values, JPEG images will be scaled to fit
+    #: parameters are left at their default values, images will be scaled to fit
     #: in the screen dimensions set by the output profile and compressed to size at
     #: most (w * h)/16 where w x h are the scaled image dimensions.
     compress_news_images = False
