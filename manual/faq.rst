@@ -460,7 +460,7 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
    If the workaround is not working for you make sure you Kindle firmware
    is at least version 5.12.5, released in April 2020.
 
-Covers for books sent to my Kindle ColorSoft dont show up in the book list?
+Covers for books sent to my Kindle ColorSoft do not show up in the book list?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Amazon deliberately broke this functionality in their ColorSoft in order to
