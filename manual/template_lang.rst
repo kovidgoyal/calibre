@@ -505,19 +505,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``extra_file_names(sep [, pattern])`` -- returns a ``sep``-separated list of extra files in the book's ``data/`` folder. If the optional parameter ``pattern``, a regular expression, is supplied then the list is filtered to files that match ``pattern``. The pattern match is case insensitive. See also the functions ``has_extra_files()``, ``extra_file_modtime()`` and ``extra_file_size()``. This function can be used only in the GUI.
 * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
 * ``field_exists(lookup_name)`` -- checks if a field (column) with the lookup name ``lookup_name`` exists, returning ``'1'`` if so and the empty string if not.
-* ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
-
-    program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
-
-  Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
-
-    program:
-      strcat(
-        re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
-           finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
-           field('title')
-      )
-
+* :ffdoc:`finish_formatting`
 * ``first_matching_cmp(val, [ cmp, result, ]* else_result)`` -- compares ``val < cmp`` in sequence, returning the associated result for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
 
     i = 10;
@@ -564,24 +552,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``formats_paths()`` -- return a comma-separated list of colon-separated items ``FMT:PATH`` giving the full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``formats_sizes()`` -- return a comma-separated list of colon-separated ``FMT:SIZE`` items giving the sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
 * ``fractional_part(x)`` -- returns the value after the decimal point. For example, ``fractional_part(3.14)`` returns ``0.14``. Throws an exception if ``x`` is not a number.
-* ``get_link(field_name, field_value)`` -- fetch the link for field ``field_name`` with value ``field_value``. If there is no attached link, return the empty string. Examples:
-
- * The following returns the link attached to the tag ``Fiction``::
-
-    get_link('tags', 'Fiction')
-
- * This template makes a list of the links for all the tags associated with a book in the form ``value:link, ...``::
-
-    program:
-     ans = '';
-     for t in $tags:
-         l = get_link('tags', t);
-         if l then
-             ans = list_join(', ', ans, ',', t & ':' & get_link('tags', t), ',')
-         fi
-     rof;
-     ans
-
+* :ffdoc:`get_link`
 * ``get_note(field_name, field_value, plain_text)`` -- fetch the note for field 'field_name' with value 'field_value'. If `plain_text` is empty, return the note's HTML including images. If `plain_text` is `1` (or `'1'`), return the note's plain text. If the note doesn't exist, return the empty string in both cases. Example:
 
  * Return the HTML of the note attached to the tag `Fiction`::
