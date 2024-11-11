@@ -94,7 +94,7 @@ class Substack(BasicNewsRecipe):
         u = self.recipe_specific_options.get('auths')
         if u and isinstance(u, str):
             for x in u.split():
-                ans.append('https://' + x.replace('@', ' ') + '.substack.com/feed')
+                ans.append('https://' + x.replace('@', '') + '.substack.com/feed')
         return ans
 
     def preprocess_html(self, soup):
