@@ -62,8 +62,8 @@ from calibre.utils.resources import get_path as P
 
 class DocViewer(Dialog):
 
-    def __init__(self, docs_dsl, builtins, function_type_string_method, parent=None):
-        self.docs_dsl = docs_dsl
+    def __init__(self, ffml, builtins, function_type_string_method, parent=None):
+        self.ffml = ffml
         self.builtins = builtins
         self.function_type_string = function_type_string_method
         self.last_operation = None
@@ -102,18 +102,18 @@ class DocViewer(Dialog):
     def header_line(self, name):
         return f'\n<h3>{name} ({self.function_type_string(name, longform=False)})</h3>\n'
 
-    def doc_from_class(self, cls):
-        return cls.raw_doc if self.english_cb.isChecked() and hasattr(cls, 'raw_doc') else cls.doc
+    def get_doc(self, func):
+        doc = func.doc if hasattr(func, 'doc') else ''
+        return doc.raw_text if self.english_cb.isChecked() and hasattr(doc, 'raw_text') else doc
 
-    def show_function(self, function_name):
-        self.last_operation = partial(self.show_function, function_name)
-        if function_name not in self.builtins or not self.builtins[function_name].doc:
-            self.set_html(self.header_line(function_name) +
-                          ('No documentation provided'))
+    def show_function(self, fname):
+        self.last_operation = partial(self.show_function, fname)
+        bif = self.builtins[fname]
+        if fname not in self.builtins or not bif.doc:
+            self.set_html(self.header_line(fname) + ('No documentation provided'))
         else:
-            self.set_html(self.header_line(function_name) +
-                          self.docs_dsl.document_to_html(
-                              self.doc_from_class(self.builtins[function_name]), function_name))
+            self.set_html(self.header_line(fname) +
+                          self.ffml.document_to_html(self.get_doc(bif), fname))
 
     def show_all_functions(self):
         self.last_operation = self.show_all_functions
@@ -122,11 +122,11 @@ class DocViewer(Dialog):
         for name in sorted(self.builtins):
             a(self.header_line(name))
             try:
-                doc = self.doc_from_class(cls = self.builtins[name])
+                doc = self.get_doc(self.builtins[name])
                 if not doc:
                     a(_('No documentation provided'))
                 else:
-                    a(self.docs_dsl.document_to_html(doc.strip(), name))
+                    a(self.ffml.document_to_html(doc.strip(), name))
             except Exception:
                 print('Exception in', name)
                 raise
@@ -441,7 +441,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())
 
-        self.docs_dsl = FFMLProcessor()
+        self.ffml = FFMLProcessor()
         self.dialog_number = dialog_number
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
@@ -603,7 +603,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def open_documentation_viewer(self):
         if self.doc_viewer is None:
-            dv = self.doc_viewer = DocViewer(self.docs_dsl, self.all_functions,
+            dv = self.doc_viewer = DocViewer(self.ffml, self.all_functions,
                                              self.function_type_string, parent=self)
             dv.finished.connect(self.doc_viewer_finished)
             dv.show()
@@ -1048,7 +1048,7 @@ def evaluate(book, context):
         self.func_type.clear()
         if name in self.all_functions:
             doc = self.all_functions[name].doc.strip()
-            self.documentation.setHtml(self.docs_dsl.document_to_html(doc, name))
+            self.documentation.setHtml(self.ffml.document_to_html(doc, name))
             if self.doc_viewer is not None:
                 self.doc_viewer.show_function(name)
             if name in self.builtins and name in self.builtin_source_dict:
