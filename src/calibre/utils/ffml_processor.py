@@ -43,7 +43,7 @@ class Node:
         return self._text
 
     def escaped_text(self):
-        return prepare_string_for_xml(self._text) #.replace('<', 'LESS_THAN') #.replace('>', '&gt;')
+        return prepare_string_for_xml(self._text)
 
 
 class DocumentNode(Node):
@@ -90,8 +90,14 @@ class UrlNode(Node):
     def label(self):
         return self._label
 
+    def escaped_label(self):
+        return prepare_string_for_xml(self._label)
+
     def url(self):
         return self._url
+
+    def escaped_url(self):
+        return prepare_string_for_xml(self._url)
 
 
 class ListNode(Node):
@@ -258,7 +264,7 @@ class FFMLProcessor:
         elif tree.node_kind() == NodeKinds.BLANK_LINE:
             result += '\n<br>\n<br>\n'
         elif tree.node_kind() == NodeKinds.URL:
-            result += f'<a href="{tree.url()}">{tree.label()}</a>'
+            result += f'<a href="{tree.escaped_url()}">{tree.escaped_label()}</a>'
         elif tree.node_kind() == NodeKinds.LIST:
             result += '\n<ul>\n'
             for child in tree.children():
@@ -335,19 +341,28 @@ class FFMLProcessor:
                 result = self.tree_to_rst(child, indent, result)
         return result
 
-    def document_to_rst(self, document, name):
+    def document_to_rst(self, document, name, indent=0, prefix=None):
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in RST (sphinx reStructuredText) format.
 
         :param document: the text in FFML.
-        :param name: the name of the document, used during error
-                     processing. It is usually the name of the function.
+        :param name:     the name of the document, used during error
+                         processing. It is usually the name of the function.
+        :param indent:   the indenting level of the items in the tree. This is
+                         usually zero, but can be greater than zero if you want
+                         the RST output indented.
+        :param prefix:   string. if supplied, this string replaces the indent
+                         on the first line of the output. This permits specifying
+                         an RST block, for example a bullet list
 
         :return: a string containing the RST text
 
         """
-        return self.tree_to_rst(self.parse_document(document, name), 0)
+        doc = self.tree_to_rst(self.parse_document(document, name), indent)
+        if prefix is not None:
+            doc = prefix + doc.lstrip(' ')
+        return doc
 
 # ============== Internal methods =================
 

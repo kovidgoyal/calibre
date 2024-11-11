@@ -60,8 +60,10 @@ from calibre.utils.resources import get_path as P
 
 class DocViewer(Dialog):
 
-    def __init__(self, docs_dsl, parent=None):
+    def __init__(self, docs_dsl, builtins, function_type_string_method, parent=None):
         self.docs_dsl = docs_dsl
+        self.builtins = builtins
+        self.function_type_string = function_type_string_method
         super().__init__(title=_('Template function documentation'), name='template_editor_doc_viewer_dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
 
@@ -69,7 +71,6 @@ class DocViewer(Dialog):
         return QSize(800, 600)
 
     def set_html(self, html):
-        print(html)
         self.doc_viewer_widget.setHtml(html)
 
     def setup_ui(self):
@@ -84,18 +85,28 @@ class DocViewer(Dialog):
         b.clicked.connect(self.show_all_functions)
         b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
 
-    def show_function(self):
-        self.set_html(
-            self.docs_dsl.document_to_html(self.all_functions[self.current_function_name].doc,
-                                            self.current_function_name))
+    def header_line(self, name):
+        return f'\n<h3>{name} ({self.function_type_string(name, longform=False)})</h3>\n'
+
+    def show_function(self, function_name):
+        if function_name not in self.builtins or not self.builtins[function_name].doc:
+            self.set_html(self.header_line(function_name) +
+                          ('No documentation provided'))
+        else:
+            self.set_html(self.header_line(function_name) +
+                          self.docs_dsl.document_to_html(self.builtins[function_name].doc, function_name))
+
     def show_all_functions(self):
-        funcs = formatter_functions().get_builtins()
         result = []
         a = result.append
-        for name in sorted(funcs):
-            a(f'\n<h2>{name}</h2>\n')
+        for name in sorted(self.builtins):
+            a(self.header_line(name))
             try:
-                a(self.docs_dsl.document_to_html(funcs[name].doc.strip(), name))
+                doc = self.builtins[name].doc
+                if not doc:
+                    a(_('No documentation provided'))
+                else:
+                    a(self.docs_dsl.document_to_html(self.builtins[name].doc.strip(), name))
             except Exception:
                 print('Exception in', name)
                 raise
@@ -572,7 +583,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def open_documentation_viewer(self):
         if self.doc_viewer is None:
-            dv = self.doc_viewer = DocViewer(self.docs_dsl, self)
+            dv = self.doc_viewer = DocViewer(self.docs_dsl, self.all_functions,
+                                             self.function_type_string, parent=self)
             dv.finished.connect(self.doc_viewer_finished)
             dv.show()
         if self.current_function_name is not None:
@@ -1018,7 +1030,7 @@ def evaluate(book, context):
             doc = self.all_functions[name].doc.strip()
             self.documentation.setHtml(self.docs_dsl.document_to_html(doc, name))
             if self.doc_viewer is not None:
-                self.doc_viewer_widget.setHtml(self.docs_dsl.document_to_html(self.all_functions[name].doc, name))
+                self.doc_viewer.show_function(name)
             if name in self.builtins and name in self.builtin_source_dict:
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:

@@ -747,7 +747,9 @@ you the value as well as all the local variables&lt;/p&gt;</string>
                 <string>&amp;Documentation</string>
                </property>
                <property name="toolTip">
-                <string>Click this button to open the documentation in a separate dialog</string>
+                <string>Click this button to open the documentation in a separate dialog.
+If no function is selected above then show all functions.
+Selecting a function will show only that function's documentation</string>
                </property>
               </widget>
              </item>
@@ -762,8 +764,8 @@ you the value as well as all the local variables&lt;/p&gt;</string>
                <property name="toolTip">
                  <string>&lt;p&gt;When using functions in a Single Function Mode template,
 for example {title:uppercase()}, the first parameter 'value' is omitted. It is automatically replaced
-by the value of the specified field.&lt;/p&gt; In all the other modes the value parameter
-must be supplied.</string>
+by the value of the specified field.&lt;/p&gt; &lt;p&gt;In all the other modes the value parameter
+must be supplied.&lt;/p&gt;</string>
                </property>
               </widget>
              </item>
