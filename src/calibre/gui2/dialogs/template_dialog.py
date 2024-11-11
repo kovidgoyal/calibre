@@ -24,11 +24,9 @@ from qt.core import (
     QFontDatabase,
     QFontInfo,
     QFontMetrics,
-    QHBoxLayout,
     QIcon,
     QLineEdit,
     QPalette,
-    QPushButton,
     QSize,
     QSyntaxHighlighter,
     Qt,
@@ -40,14 +38,14 @@ from qt.core import (
     QVBoxLayout,
     pyqtSignal,
 )
-from qt.webengine import QWebEngineView
 
 from calibre import sanitize_file_name
-from calibre.constants import config_dir
+from calibre.constants import config_dir, iswindows
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data, question_dialog
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data, question_dialog, safe_open_url
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
+from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
@@ -58,6 +56,50 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link, ngettext
 from calibre.utils.resources import get_path as P
+
+
+class DocViewer(Dialog):
+
+    def __init__(self, docs_dsl, parent=None):
+        self.docs_dsl = docs_dsl
+        super().__init__(title=_('Template function documentation'), name='template_editor_doc_viewer_dialog',
+                         default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
+
+    def sizeHint(self):
+        return QSize(800, 600)
+
+    def set_html(self, html):
+        print(html)
+        self.doc_viewer_widget.setHtml(html)
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        e = self.doc_viewer_widget = HTMLDisplay(self)
+        if iswindows:
+            e.setDefaultStyleSheet('pre { font-family: "Segoe UI Mono", "Consolas", monospace; }')
+        e.anchor_clicked.connect(safe_open_url)
+        l.addWidget(e)
+        l.addWidget(self.bb)
+        b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.clicked.connect(self.show_all_functions)
+        b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
+
+    def show_function(self):
+        self.set_html(
+            self.docs_dsl.document_to_html(self.all_functions[self.current_function_name].doc,
+                                            self.current_function_name))
+    def show_all_functions(self):
+        funcs = formatter_functions().get_builtins()
+        result = []
+        a = result.append
+        for name in sorted(funcs):
+            a(f'\n<h2>{name}</h2>\n')
+            try:
+                a(self.docs_dsl.document_to_html(funcs[name].doc.strip(), name))
+            except Exception:
+                print('Exception in', name)
+                raise
+        self.doc_viewer_widget.setHtml(''.join(result))
 
 
 class ParenPosition:
@@ -530,47 +572,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def open_documentation_viewer(self):
         if self.doc_viewer is None:
-            dv = self.doc_viewer = QDialog(self)
-            l = QVBoxLayout()
-            dv.setLayout(l)
-            e = self.doc_viewer_widget = QWebEngineView() #QTextBrowser()
-            # e.setOpenExternalLinks(True)
-            # e.setReadOnly(True)
-            l.addWidget(e)
-            b = QHBoxLayout()
-            b.addStretch(10)
-            pb = QPushButton(_('Show all functions'))
-            pb.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
-            pb.clicked.connect(self.doc_viewer_show_all)
-            b.addWidget(pb)
-
-            pb = QPushButton(_('Close'))
-            pb.clicked.connect(dv.close)
-            b.addWidget(pb)
-            l.addLayout(b)
-            e.setHtml('')
-            dv.restore_geometry(gprefs, 'template_editor_doc_viewer')
+            dv = self.doc_viewer = DocViewer(self.docs_dsl, self)
             dv.finished.connect(self.doc_viewer_finished)
             dv.show()
         if self.current_function_name is not None:
-            self.doc_viewer_widget.setHtml(
-                self.docs_dsl.document_to_html(self.all_functions[self.current_function_name].doc,
-                                               self.current_function_name))
-
-    def doc_viewer_show_all(self):
-        funcs = formatter_functions().get_builtins()
-        result = ''
-        for name in sorted(funcs):
-            result += f'\n<h2>{name}</h2>\n'
-            try:
-                result += self.docs_dsl.document_to_html(funcs[name].doc.strip(), name)
-            except Exception:
-                print('Exception in', name)
-                raise
-            self.doc_viewer_widget.setHtml(result)
+            self.doc_viewer.show_function(self.current_function_name)
+        else:
+            self.doc_viewer.show_all_functions()
 
     def doc_viewer_finished(self):
-        self.doc_viewer.save_geometry(gprefs, 'template_editor_doc_viewer')
         self.doc_viewer = None
 
     def geometry_string(self, txt):

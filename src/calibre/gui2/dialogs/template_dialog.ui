@@ -408,7 +408,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="11" column="1">
-          <layout class="BoxLayout" name="user_layout_1" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_1">
           </layout>
          </item>
          <item row="12" column="0">
@@ -425,7 +425,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="12" column="1">
-          <layout class="BoxLayout" name="user_layout_2" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_2">
           </layout>
          </item>
          <item row="13" column="0">
@@ -442,7 +442,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="13" column="1">
-          <layout class="BoxLayout" name="user_layout_3" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_3">
           </layout>
          </item>
          <item row="14" column="0">
@@ -459,7 +459,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="14" column="1">
-          <layout class="BoxLayout" name="user_layout_4" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_4">
           </layout>
          </item>
          <item row="15" column="0">
@@ -476,7 +476,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="15" column="1">
-          <layout class="BoxLayout" name="user_layout_5" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_5">
           </layout>
          </item>
          <item row="16" column="0">
@@ -493,7 +493,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="16" column="1">
-          <layout class="BoxLayout" name="user_layout_6" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_6">
           </layout>
          </item>
          <item row="17" column="0">
@@ -510,7 +510,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="17" column="1">
-          <layout class="BoxLayout" name="user_layout_7" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_7">
           </layout>
          </item>
          <item row="18" column="0">
@@ -527,7 +527,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="18" column="1">
-          <layout class="BoxLayout" name="user_layout_8" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_8">
           </layout>
          </item>
          <item row="19" column="0">
@@ -744,7 +744,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
              <item>
               <widget class="QPushButton" name="doc_button">
                <property name="text">
-                <string>&amp;Documentation:</string>
+                <string>&amp;Documentation</string>
                </property>
                <property name="toolTip">
                 <string>Click this button to open the documentation in a separate dialog</string>
