@@ -747,7 +747,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
                 <string>&amp;Documentation:</string>
                </property>
                <property name="toolTip">
-                <string>Click this button to open the documentation is a separate dialog</string>
+                <string>Click this button to open the documentation in a separate dialog</string>
                </property>
               </widget>
              </item>
