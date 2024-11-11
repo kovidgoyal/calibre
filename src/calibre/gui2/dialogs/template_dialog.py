@@ -15,6 +15,7 @@ from functools import partial
 from qt.core import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QColor,
     QComboBox,
     QCursor,
@@ -24,6 +25,7 @@ from qt.core import (
     QFontDatabase,
     QFontInfo,
     QFontMetrics,
+    QHBoxLayout,
     QIcon,
     QLineEdit,
     QPalette,
@@ -64,6 +66,7 @@ class DocViewer(Dialog):
         self.docs_dsl = docs_dsl
         self.builtins = builtins
         self.function_type_string = function_type_string_method
+        self.last_operation = None
         super().__init__(title=_('Template function documentation'), name='template_editor_doc_viewer_dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
 
@@ -80,33 +83,50 @@ class DocViewer(Dialog):
             e.setDefaultStyleSheet('pre { font-family: "Segoe UI Mono", "Consolas", monospace; }')
         e.anchor_clicked.connect(safe_open_url)
         l.addWidget(e)
-        l.addWidget(self.bb)
+        bl = QHBoxLayout()
+        l.addLayout(bl)
+        self.english_cb = cb = QCheckBox(_('Show documentation in original &English'))
+        cb.setChecked(gprefs.get('template_editor_docs_in_english', False))
+        cb.stateChanged.connect(self.english_cb_state_changed)
+        bl.addWidget(cb)
+        bl.addWidget(self.bb)
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.show_all_functions)
         b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
 
+    def english_cb_state_changed(self):
+        if self.last_operation is not None:
+            self.last_operation()
+        gprefs['template_editor_docs_in_english'] = self.english_cb.isChecked()
+
     def header_line(self, name):
         return f'\n<h3>{name} ({self.function_type_string(name, longform=False)})</h3>\n'
 
+    def doc_from_class(self, cls):
+        return cls.raw_doc if self.english_cb.isChecked() and hasattr(cls, 'raw_doc') else cls.doc
+
     def show_function(self, function_name):
+        self.last_operation = partial(self.show_function, function_name)
         if function_name not in self.builtins or not self.builtins[function_name].doc:
             self.set_html(self.header_line(function_name) +
                           ('No documentation provided'))
         else:
             self.set_html(self.header_line(function_name) +
-                          self.docs_dsl.document_to_html(self.builtins[function_name].doc, function_name))
+                          self.docs_dsl.document_to_html(
+                              self.doc_from_class(self.builtins[function_name]), function_name))
 
     def show_all_functions(self):
+        self.last_operation = self.show_all_functions
         result = []
         a = result.append
         for name in sorted(self.builtins):
             a(self.header_line(name))
             try:
-                doc = self.builtins[name].doc
+                doc = self.doc_from_class(cls = self.builtins[name])
                 if not doc:
                     a(_('No documentation provided'))
                 else:
-                    a(self.docs_dsl.document_to_html(self.builtins[name].doc.strip(), name))
+                    a(self.docs_dsl.document_to_html(doc.strip(), name))
             except Exception:
                 print('Exception in', name)
                 raise
