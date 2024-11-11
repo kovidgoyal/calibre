@@ -1791,7 +1791,7 @@ followed by the first letter of the genre, i.e. the genre "Fiction" becomes
 "Genre: F". The following will do that:
 [CODE]
 program:
-    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')
+    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \\1'),  ',')
 [/CODE]
 ''')
 
