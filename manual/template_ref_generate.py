@@ -77,6 +77,7 @@ def generate_template_language_help(language):
                 a(f'.. class:: {func.__class__.__name__}\n\n')
                 a(ffml.document_to_rst(func.doc, name))
             a('\n\n')
+        db.close()
         del db
 
     a(POSTAMBLE)

@@ -33,7 +33,12 @@ def formatter_funcs():
         ffml = FFMLProcessor()
         all_funcs = formatter_functions().get_builtins()
         for func_name, func in all_funcs.items():
-            ans[func_name] = ffml.document_to_rst(func.doc, func_name)
+            text = ffml.document_to_rst(func.doc, func_name)
+            # indent the text since :ffdoc: is used inside lists
+            # if we need no indent we can create a new role like
+            # :ffdoc-no-indent:
+            text = '\n  '.join(text.splitlines())
+            ans[func_name] = text.strip()
         db.close()
         del db
     return ans
