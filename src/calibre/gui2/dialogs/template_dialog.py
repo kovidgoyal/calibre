@@ -12,6 +12,8 @@ import sys
 import traceback
 from functools import partial
 
+from qt.webengine import QWebEngineView
+
 from qt.core import (
     QAbstractItemView,
     QApplication,
@@ -24,14 +26,17 @@ from qt.core import (
     QFontDatabase,
     QFontInfo,
     QFontMetrics,
+    QHBoxLayout,
     QIcon,
     QLineEdit,
     QPalette,
+    QPushButton,
     QSize,
     QSyntaxHighlighter,
     Qt,
     QTableWidget,
     QTableWidgetItem,
+    QTextBrowser,
     QTextCharFormat,
     QTextOption,
     QToolButton,
@@ -48,6 +53,7 @@ from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
+from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower
@@ -364,6 +370,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())
 
+        self.docs_dsl = FFMLProcessor()
         self.dialog_number = dialog_number
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
@@ -459,8 +466,11 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.textChanged.connect(self.textbox_changed)
         self.set_editor_font()
 
+        self.doc_viewer = None
+        self.current_function_name = None
         self.documentation.setReadOnly(True)
         self.source_code.setReadOnly(True)
+        self.doc_button.clicked.connect(self.open_documentation_viewer)
 
         if text is not None:
             if text_is_placeholder:
@@ -501,7 +511,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             '<a href="{}">{}</a>'.format(
                 localize_user_manual_link('https://manual.calibre-ebook.com/template_lang.html'), tt))
         tt = _('Template function reference')
-        self.template_func_reference.setText(
+        self.tf_ref.setText(
             '<a href="{}">{}</a>'.format(
                 localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/template_ref.html'), tt))
 
@@ -519,6 +529,51 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
         self.restore_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
+
+    def open_documentation_viewer(self):
+        if self.doc_viewer is None:
+            dv = self.doc_viewer = QDialog(self)
+            l = QVBoxLayout()
+            dv.setLayout(l)
+            e = self.doc_viewer_widget = QWebEngineView() #QTextBrowser()
+            # e.setOpenExternalLinks(True)
+            # e.setReadOnly(True)
+            l.addWidget(e)
+            b = QHBoxLayout()
+            b.addStretch(10)
+            pb = QPushButton(_('Show all functions'))
+            pb.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
+            pb.clicked.connect(self.doc_viewer_show_all)
+            b.addWidget(pb)
+
+            pb = QPushButton(_('Close'))
+            pb.clicked.connect(dv.close)
+            b.addWidget(pb)
+            l.addLayout(b)
+            e.setHtml('')
+            dv.restore_geometry(gprefs, 'template_editor_doc_viewer')
+            dv.finished.connect(self.doc_viewer_finished)
+            dv.show()
+        if self.current_function_name is not None:
+            self.doc_viewer_widget.setHtml(
+                self.docs_dsl.document_to_html(self.all_functions[self.current_function_name].doc,
+                                               self.current_function_name))
+
+    def doc_viewer_show_all(self):
+        funcs = formatter_functions().get_builtins()
+        result = ''
+        for name in sorted(funcs):
+            result += f'\n<h2>{name}</h2>\n'
+            try:
+                result += self.docs_dsl.document_to_html(funcs[name].doc.strip(), name)
+            except Exception:
+                print('Exception in', name)
+                raise
+            self.doc_viewer_widget.setHtml(result)
+
+    def doc_viewer_finished(self):
+        self.doc_viewer.save_geometry(gprefs, 'template_editor_doc_viewer')
+        self.doc_viewer = None
 
     def geometry_string(self, txt):
         if self.dialog_number is None or self.dialog_number == 0:
@@ -947,12 +1002,15 @@ def evaluate(book, context):
         return (_('Stored user defined GPM template') if longform else _('Stored template'))
 
     def function_changed(self, toWhat):
-        name = str(self.function.itemData(toWhat))
+        self.current_function_name = name = str(self.function.itemData(toWhat))
         self.source_code.clear()
         self.documentation.clear()
         self.func_type.clear()
         if name in self.all_functions:
-            self.documentation.setPlainText(self.all_functions[name].doc)
+            doc = self.all_functions[name].doc.strip()
+            self.documentation.setHtml(self.docs_dsl.document_to_html(doc, name))
+            if self.doc_viewer is not None:
+                self.doc_viewer_widget.setHtml(self.docs_dsl.document_to_html(self.all_functions[name].doc, name))
             if name in self.builtins and name in self.builtin_source_dict:
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
@@ -1009,6 +1067,8 @@ def evaluate(book, context):
         QDialog.accept(self)
         if self.dialog_number is not None:
             self.tester_closed.emit(txt, self.dialog_number)
+        if self.doc_viewer is not None:
+            self.doc_viewer.close()
 
     def reject(self):
         self.save_geometry()
@@ -1024,6 +1084,8 @@ def evaluate(book, context):
                     break
         if self.dialog_number is not None:
             self.tester_closed.emit(None, self.dialog_number)
+        if self.doc_viewer is not None:
+            self.doc_viewer.close()
 
 
 class BreakReporterItem(QTableWidgetItem):
