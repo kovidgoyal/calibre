@@ -173,7 +173,7 @@ In the function documentation below, the notation ``[something]*`` means that ``
 The functions intended for use in Single Function Mode are:
 
 
-* ``capitalize()`` -- returns the value with the first letter upper case and the rest lower case.
+* :ffdoc:`capitalize`
 * ``contains(pattern, text if match, text if not match)`` -- checks if the value is matched by the regular expression ``pattern``. Returns ``text if match`` if the pattern matches the value, otherwise returns ``text if no match``.
 * ``count(separator)`` -- interprets the value as a list of items separated by ``separator`` and returns the number of items in the list. Most lists use a comma as the separator, but ``authors`` uses an ampersand (&). Examples: ``{tags:count(,)}``, ``{authors:count(&)}``. Aliases: ``count()``, ``list_count()``
 * ``format_number(template)`` -- interprets the value as a number and formats that number using a Python formatting template such as ``{0:5.2f}`` or ``{0:,d}`` or ``${0:5,.2f}``. The formatting template must begin with ``{0:`` and end with ``}`` as in the above examples. Exception: you can leave off the leading "{0:" and trailing "}" if the format template contains only a format. See the template language and the `Python documentation <https://docs.python.org/3/library/string.html#formatstrings>`_ for more examples. Returns the empty string if formatting fails.

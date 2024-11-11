@@ -4,12 +4,14 @@
 
 import os
 import re
-from functools import partial
+from functools import lru_cache, partial
+from tempfile import TemporaryDirectory
 
-from calibre.linux import cli_index_strings, entry_points
 from epub import EPUBHelpBuilder
 from sphinx.util.console import bold
 from sphinx.util.logging import getLogger
+
+from calibre.linux import cli_index_strings, entry_points
 
 
 def info(*a):
@@ -19,10 +21,36 @@ def info(*a):
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
 
 
+@lru_cache(2)
+def formatter_funcs():
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.utils.ffml_processor import FFMLProcessor
+    from calibre.utils.formatter_functions import formatter_functions
+
+    ans = {}
+    with TemporaryDirectory() as tdir:
+        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        ffml = FFMLProcessor()
+        all_funcs = formatter_functions().get_builtins()
+        for func_name, func in all_funcs.items():
+            ans[func_name] = ffml.document_to_rst(func.doc, func_name)
+        db.close()
+        del db
+    return ans
+
+
+def ffdoc(m):
+    func_name = m.group(1)
+    return formatter_funcs()[func_name]
+
+
 def source_read_handler(app, docname, source):
     src = source[0]
-    if app.builder.name != 'gettext' and app.config.language != 'en':
-        src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
+    if app.builder.name != 'gettext':
+        if app.config.language != 'en':
+            src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
+        if docname == 'template_lang':
+            src = re.sub(r':ffdoc:`(.+?)`', ffdoc, src)
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         included_doc_name = m.group(1).lstrip('/')
