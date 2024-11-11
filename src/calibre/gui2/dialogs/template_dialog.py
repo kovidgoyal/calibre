@@ -12,8 +12,6 @@ import sys
 import traceback
 from functools import partial
 
-from qt.webengine import QWebEngineView
-
 from qt.core import (
     QAbstractItemView,
     QApplication,
@@ -36,13 +34,13 @@ from qt.core import (
     Qt,
     QTableWidget,
     QTableWidgetItem,
-    QTextBrowser,
     QTextCharFormat,
     QTextOption,
     QToolButton,
     QVBoxLayout,
     pyqtSignal,
 )
+from qt.webengine import QWebEngineView
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir

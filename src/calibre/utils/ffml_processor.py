@@ -6,7 +6,9 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from enum import IntEnum
+
 from calibre import prepare_string_for_xml
+
 
 class NodeKinds(IntEnum):
     DOCUMENT    = -1
@@ -413,7 +415,7 @@ class FFMLProcessor:
         self.move_pos(len('``'))
         end = self.find('``')
         if end < 0:
-            self.error(f'Missing closing "``" for CODE_TEXT')
+            self.error('Missing closing "``" for CODE_TEXT')
         node = CodeText(self.text_to(end))
         self.move_pos(end + len('``'))
         return node
@@ -422,7 +424,7 @@ class FFMLProcessor:
         self.move_pos(1)
         end = self.find('`')
         if end < 0:
-            self.error(f'Missing closing "`" for italics')
+            self.error('Missing closing "`" for italics')
         node = ItalicTextNode(self.text_to(end))
         self.move_pos(end + 1)
         return node
@@ -431,7 +433,7 @@ class FFMLProcessor:
         self.move_pos(len(':guilabel:`'))
         end = self.find('`')
         if end < 0:
-            self.error(f'Missing ` (backquote) for :guilabel:')
+            self.error('Missing ` (backquote) for :guilabel:')
         node = GuiLabelNode(self.text_to_no_newline(end, 'GUI_LABEL (:guilabel:`)'))
         self.move_pos(end + len('`'))
         return node
@@ -440,7 +442,7 @@ class FFMLProcessor:
         self.move_pos(len('[CODE]\n'))
         end = self.find('[/CODE]')
         if end < 0:
-            self.error(f'Missing [/CODE] for block')
+            self.error('Missing [/CODE] for block')
         node = CodeBlock(self.text_to(end))
         self.move_pos(end + len('[/CODE]'))
         if self.text_to(1) == '\n':
