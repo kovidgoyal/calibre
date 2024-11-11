@@ -1171,8 +1171,8 @@ probably is. Note that resulting format names are always uppercase, as in EPUB.
 The ``approximate_formats()`` function is much faster than the ``formats_...``
 functions.
 
-This function works only in the GUI. If you want to use these values in save-to-
-disk or send-to-device templates then you must make a custom "Column built from
+This function works only in the GUI. If you want to use these values in save-to-disk
+or send-to-device templates then you must make a custom "Column built from
 other columns", use the function in that column's template, and use that
 column's value in your save/send templates.
 ''')
@@ -1352,9 +1352,9 @@ class BuiltinSubitems(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _(
 '''
-``subitems(value, start_index, end_index)`` -- This function breaks apart lists of tag-
-like hierarchical items such as genres. It interprets the value as a comma-
-separated list of tag-like items, where each item is a period-separated list. It
+``subitems(value, start_index, end_index)`` -- This function breaks apart lists of
+tag-like hierarchical items such as genres. It interprets the value as a
+comma-separated list of tag-like items, where each item is a period-separated list. It
 returns a new list made by extracting from each item the components from
 ``start_index`` to ``end_index``, then merging the results back together.
 Duplicates are removed. The first subitem in a period-separated list has an
@@ -1636,8 +1636,8 @@ class BuiltinIsMarked(BuiltinFormatterFunction):
     __doc__ = doc = _(
 '''
 ``is_marked()`` -- check whether the book is `marked` in calibre. If it is then
-return the value of the mark, either ``'true'`` (lower case) or a comma-
-separated list of named marks. Returns ``''`` (the empty string) if the book is
+return the value of the mark, either ``'true'`` (lower case) or a comma-separated
+list of named marks. Returns ``''`` (the empty string) if the book is
 not marked. This function works only in the GUI.
 ''')
 
@@ -1769,8 +1769,8 @@ return a list made by joining the items in the source lists (``list1`` etc)
 using ``with_separator`` between the items in the result list. Items in each
 source ``list[123...]`` are separated by the associated ``separator[123...]``. A
 list can contain zero values. It can be a field like ``publisher`` that is
-single-valued, effectively a one-item list. Duplicates are removed using a case-
-insensitive comparison. Items are returned in the order they appear in the
+single-valued, effectively a one-item list. Duplicates are removed using a
+case-insensitive comparison. Items are returned in the order they appear in the
 source lists. If items on lists differ only in letter case then the last is
 used. All separators can be more than one character.
 
@@ -1818,8 +1818,8 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     __doc__ = doc = _(
 '''
 ``list_union(list1, list2, separator)`` -- return a list made by merging the
-items in ``list1`` and ``list2``, removing duplicate items using a case-
-insensitive comparison. If items differ in case, the one in ``list1`` is used.
+items in ``list1`` and ``list2``, removing duplicate items using a case-insensitive
+comparison. If items differ in case, the one in ``list1`` is used.
 The items in ``list1`` and ``list2`` are separated by ``separator``, as are the
 items in the returned list. Aliases: ``merge_lists()``, ``list_union()``
 ''')
