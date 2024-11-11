@@ -977,7 +977,7 @@ instance with the value returned by the corresponding template. In
 
 The following example looks for a series with more than one word and uppercases the first word:
 [CODE]
-program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
+program: re_group(field('series'), "(\\S* )(.*)", "{$:uppercase()}", "{$}")'}
 [/CODE]
 ''')
 
@@ -1321,9 +1321,9 @@ case, an end_index of zero is assumed to be the length of the list.
 
 Examples assuming that the tags column (which is comma-separated) contains "A, B ,C":
 [LIST]
-[*]``{tags:sublist(0,1,\,)}`` returns "A"
-[*]``{tags:sublist(-1,0,\,)}`` returns "C"
-[*]``{tags:sublist(0,-1,\,)}`` returns "A, B"
+[*]``{tags:sublist(0,1,\\,)}`` returns "A"
+[*]``{tags:sublist(-1,0,\\,)}`` returns "C"
+[*]``{tags:sublist(0,-1,\\,)}`` returns "A, B"
 [/LIST]
 ''')
 
@@ -2256,13 +2256,13 @@ program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
 [/CODE]
 Another example: for the template:
 [CODE]
-{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}
+{series:re(([^\\s])[^\\s]+(\\s|$),\\1)}{series_index:0>2s| - | - }{title}
 [/CODE]
 use:
 [CODE]
 program:
     strcat(
-        re(field('series'), '([^\s])[^\s]+(\s|$)', '\\1'),
+        re(field('series'), '([^\\s])[^\\s]+(\\s|$)', '\\1'),
         finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
         field('title')
     )
@@ -2646,7 +2646,7 @@ class BuiltinGlobals(BuiltinFormatterFunction):
 ``globals(id[=expression] [, id[=expression]]*)`` -- Retrieves "global variables"
 that can be passed into the formatter. The name ``id`` is the name of the global
 variable. It both declares and initializes local variables with the names of the
-global variables passed in (the ``id``s. If the corresponding variable is not
+global variables passed in (the ``id`` parameters. If the corresponding variable is not
 provided in the globals then it assigns that variable the provided default
 value. If there is no default value then the variable is set to the empty
 string.)
