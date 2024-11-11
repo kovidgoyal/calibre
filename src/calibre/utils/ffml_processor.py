@@ -361,7 +361,7 @@ class FFMLProcessor:
         """
         doc = self.tree_to_rst(self.parse_document(document, name), indent)
         if prefix is not None:
-            doc = prefix + doc.lstrip(' ')
+            doc = prefix + doc.lstrip('  ' * indent)
         return doc
 
 # ============== Internal methods =================
