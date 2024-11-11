@@ -57,7 +57,8 @@ def generate_template_language_help(language):
     from calibre.utils.ffml_processor import FFMLProcessor
     from calibre.utils.formatter_functions import formatter_functions
 
-    output = PREAMBLE.format(language)
+    output = [PREAMBLE.format(language)]
+    a = output.append
 
     with TemporaryDirectory() as tdir:
         db = LibraryDatabase(tdir) # needed to load formatter_funcs
@@ -68,17 +69,18 @@ def generate_template_language_help(language):
             category = func.category
             categories[category][name] = func
         for cat_name in sorted(categories):
-            output += cat_name + '\n'
-            output += ('-' * (4*len(cat_name))) + '\n\n'
+            a(cat_name + '\n')
+            a(('-' * (4*len(cat_name))) + '\n\n')
             for name in sorted(categories[cat_name]):
                 func = categories[cat_name][name]
-                output += f"\n\n.. _ff_{name}:\n\n{name}\n{'^'*len(name)}\n\n"
-                output += f'.. class:: {func.__class__.__name__}\n\n'
-                output += ffml.document_to_rst(func.doc, name)
-            output += '\n\n'
+                a(f"\n\n.. _ff_{name}:\n\n{name}\n{'^'*len(name)}\n\n")
+                a(f'.. class:: {func.__class__.__name__}\n\n')
+                a(ffml.document_to_rst(func.doc, name))
+            a('\n\n')
         del db
 
-    return output + POSTAMBLE
+    a(POSTAMBLE)
+    return ''.join(output)
 
 if __name__ == '__main__':
     generate_template_language_help()
