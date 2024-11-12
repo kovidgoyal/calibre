@@ -762,7 +762,7 @@ Selecting a function will show only that function's documentation</string>
                 <bool>true</bool>
                </property>
                <property name="toolTip">
-                 <string>&lt;p&gt;When using functions in a Single Function Mode template,
+                 <string>&lt;p&gt;When using functions in a Single function mode template,
 for example {title:uppercase()}, the first parameter 'value' is omitted. It is automatically replaced
 by the value of the specified field.&lt;/p&gt; &lt;p&gt;In all the other modes the value parameter
 must be supplied.&lt;/p&gt;</string>

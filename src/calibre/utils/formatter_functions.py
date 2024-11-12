@@ -43,14 +43,19 @@ from polyglot.builtins import iteritems, itervalues
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
 
-    def __new__(cls, txt):
-        instance = super().__new__(cls, xlated(txt))
-        instance.raw_text = txt
+    def __new__(cls, english, translated):
+        instance = super().__new__(cls, translated)
+        instance.raw_text = english
         return instance
+
+    def format(self, *args, **kw):
+        translated = super().format(*args, **kw)
+        english = self.raw_text.format(*args, **kw)
+        return TranslatedStringWithRaw(english, translated)
 
 
 def _(txt):
-    return TranslatedStringWithRaw(txt)
+    return TranslatedStringWithRaw(txt, xlated(txt))
 
 
 class StoredObjectType(Enum):
@@ -588,9 +593,9 @@ Example:
 [/CODE]
 is equivalent to:
 [CODE]
-    var_0 = 'one';
-    var_1 = 'two';
-    var_2 = 'foo
+    var_0 = 'one'
+    var_1 = 'two'
+    var_2 = 'foo'
 [/CODE]
 ''')
 
@@ -763,8 +768,8 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _(
 r'''
-``switch(value, [pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
-checks if the value matches the regular expression ``pattern`` and if so returns
+``switch([pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
+checks if the field matches the regular expression ``pattern`` and if so returns
 the associated ``value``. If no ``pattern`` matches, then ``else_value`` is
 returned. You can have as many ``pattern, value`` pairs as you wish. The first
 match is returned.
@@ -772,7 +777,7 @@ match is returned.
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if (len(args) % 2) != 1:
-            raise ValueError(_('switch requires an even number of arguments'))
+            raise ValueError(_('switch requires an odd number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
@@ -2181,13 +2186,13 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
     category = 'Get values from metadata'
     __doc__ = doc = _(
 r'''
-``language_strings(localize)`` -- return the
+``language_strings(lang_codes)`` -- return the
 language names for the language codes
 ([URL href="https://www.loc.gov/standards/iso639-2/php/code_list.php"]
 see here for names and codes[/URL])
-passed in as the value. Example: ``{languages:language_strings()}``.
+passed in ``lang_codes``. Example: ``{languages:language_strings()}``.
 If ``localize`` is zero, return the strings in English. If ``localize`` is not zero,
-return the strings in the language of the current locale. ``Lang_codes`` is a comma-separated list.
+return the strings in the language of the current locale. ``lang_codes`` is a comma-separated list.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, lang_codes, localize):
@@ -2211,7 +2216,7 @@ r'''
 ``language_codes(lang_strings)`` -- return the
 [URL href="https://www.loc.gov/standards/iso639-2/php/code_list.php"]language codes[/URL] for the language
 names passed in ``lang_strings``. The strings must be in the language of the
-current locale. ``Lang_strings`` is a comma-separated list.
+current locale. ``lang_strings`` is a comma-separated list.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, lang_strings):
@@ -2360,10 +2365,9 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``transliterate(value)`` -- Return a string in a latin alphabet formed by
-approximating the sound of the words in the source field. For example, if the
-source field is ``Фёдор Миха́йлович Достоевский`` this function returns ``Fiodor
-Mikhailovich Dostoievskii``.
-''')
+approximating the sound of the words in ``value``. For example, if ``value``
+is ``{0}`` this function returns ``{1}``.
+''').format('Фёдор Миха́йлович Достоевский', 'Fiodor Mikhailovich Dostoievskii')
 
     def evaluate(self, formatter, kwargs, mi, locals, source):
         from calibre.utils.filenames import ascii_text
@@ -2551,7 +2555,7 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
 r'''
 ``check_yes_no(field_name, is_undefined, is_false, is_true)`` -- checks if the
 value of the yes/no field named by the lookup name ``field_name`` is one of the
-values specified by the parameters, returning ``'yes'`` if a match is found
+values specified by the parameters, returning ``'Yes'`` if a match is found
 otherwise returning the empty string. Set the parameter ``is_undefined``,
 ``is_false``, or ``is_true`` to 1 (the number) to check that condition,
 otherwise set it to 0.
@@ -2587,10 +2591,10 @@ class BuiltinRatingToStars(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``rating_to_stars(value, use_half_stars)`` -- Returns the value as string of star
-(``★``) characters. The value must be a number between 0 and 5. Set
+(``{}``) characters. The value must be a number between 0 and 5. Set
 use_half_stars to 1 if you want half star characters for fractional numbers
 available with custom ratings columns.
-''')
+''').format('★')
 
     def evaluate(self, formatter, kwargs, mi, locals, value, use_half_stars):
         if not value:
