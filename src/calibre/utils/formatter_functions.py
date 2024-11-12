@@ -2970,7 +2970,7 @@ r'''
 ``extra_file_modtime(file_name, format_string)`` -- returns the modification
 time of the extra file ``file_name`` in the book's ``data/`` folder if it
 exists, otherwise ``-1``. The modtime is formatted according to
-``format_string`` (see :ref:`format_date()` for details). If ``format_string`` is
+``format_string`` (see :ref:`format_date` for details). If ``format_string`` is
 the empty string, returns the modtime as the floating point number of seconds
 since the epoch.  See also the functions :ref:`has_extra_files`,
 :ref:`extra_file_names` and :ref:`extra_file_size`. The epoch is OS dependent.
