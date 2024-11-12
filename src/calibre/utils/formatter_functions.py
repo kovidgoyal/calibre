@@ -773,10 +773,10 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _(
 r'''
-``switch(value, [pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
-checks if the value matches the regular expression ``pattern`` and if so returns
-the associated ``value``. If no ``pattern`` matches, then ``else_value`` is
-returned. You can have as many ``pattern, value`` pairs as you wish. The first
+``switch(value, [patternN, valueN,]+ else_value)`` -- for each ``patternN, valueN`` pair,
+checks if the ``value`` matches the regular expression ``patternN`` and if so returns
+the associated ``valueN``. If no ``patternN`` matches, then ``else_value`` is
+returned. You can have as many ``patternN, valueN`` pairs as you wish. The first
 match is returned.
 ''')
 
