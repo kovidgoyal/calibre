@@ -11,7 +11,7 @@ __all__ = [
     'gui',
     'git_version',
     'develop', 'install',
-    'kakasi', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
+    'rapydscript', 'cacerts', 'recent_uas', 'resources',
     'check', 'test', 'test_rs', 'upgrade_source_code',
     'sdist', 'bootstrap', 'extdev',
     'manual', 'tag_release',
@@ -90,10 +90,9 @@ from setup.test import Test, TestRS
 test = Test()
 test_rs = TestRS()
 
-from setup.resources import CACerts, Kakasi, RapydScript, RecentUAs, Resources
+from setup.resources import CACerts, RapydScript, RecentUAs, Resources
 
 resources = Resources()
-kakasi = Kakasi()
 cacerts = CACerts()
 recent_uas = RecentUAs()
 rapydscript = RapydScript()

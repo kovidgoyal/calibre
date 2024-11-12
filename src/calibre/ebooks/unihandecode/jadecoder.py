@@ -16,14 +16,47 @@ This functionality is owned by Kakasi Japanese processing engine.
 Copyright (c) 2010 Hiroshi Miura
 '''
 
+import pickle
 import re
+from importlib.resources import files
 
 from pykakasi import kakasi
+from pykakasi.kanji import Itaiji, Kanwa
+from pykakasi.properties import Configurations
+from pykakasi.scripts import Jisyo
 
 from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 
+
+# pykakasi uses paths for its dictionaries rather than using the
+# Traversable API of importlib.resources so we have to hack around it, sigh.
+def dictdata(dbfile: str):
+    t = files('pykakasi')
+    q = t.joinpath('data').joinpath(dbfile)
+    return q.read_bytes()
+
+
+def jisyo_init(self, dbname):
+    self._dict = pickle.loads(dictdata(dbname))
+
+
+def itaiji_init(self):
+    if self._itaijidict is None:
+        with self._lock:
+            if self._itaijidict is None:
+                self._itaijidict = pickle.loads(dictdata(Configurations.jisyo_itaiji))
+
+def kanwa_init(self):
+    if self._jisyo_table is None:
+        with self._lock:
+            if self._jisyo_table is None:
+                self._jisyo_table = pickle.loads(dictdata(Configurations.jisyo_kanwa))
+
+Jisyo.__init__ = jisyo_init
+Itaiji.__init__ = itaiji_init
+Kanwa.__init__ = kanwa_init
 
 class Jadecoder(Unidecoder):
 

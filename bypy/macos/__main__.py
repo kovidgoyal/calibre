@@ -614,12 +614,15 @@ class Freeze:
 
     @flush
     def add_package_dir(self, x, dest=None):
+        is_kakasi = 'pykakasi' in x
+        allowed_exts = ('', '.py', '.so')
+        if is_kakasi:
+            allowed_exts += ('.db',)
         def ignore(root, files):
             ans = []
             for y in files:
                 ext = os.path.splitext(y)[1]
-                if ext not in ('', '.py', '.so') or \
-                        (not ext and not os.path.isdir(join(root, y))):
+                if ext not in allowed_exts or (not ext and not os.path.isdir(join(root, y))):
                     ans.append(y)
 
             return ans

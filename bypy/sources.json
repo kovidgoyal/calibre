@@ -1044,6 +1044,24 @@
     },
 
     {
+        "name": "wrapt",
+        "unix": {
+            "filename": "wrapt-1.16.0-py3-none-any.whl",
+            "hash": "sha256:6906c4100a8fcbf2fa735f6059214bb13b97f75b1a61777fcf6432121ef12ef1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "deprecated",
+        "unix": {
+            "filename": "Deprecated-1.2.14-py2.py3-none-any.whl",
+            "hash": "sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "pykakasi",
         "unix": {
             "filename": "pykakasi-2.3.0-py3-none-any.whl",
