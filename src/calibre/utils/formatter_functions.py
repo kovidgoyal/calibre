@@ -768,8 +768,8 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _(
 r'''
-``switch([pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
-checks if the field matches the regular expression ``pattern`` and if so returns
+``switch(value, [pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
+checks if the value matches the regular expression ``pattern`` and if so returns
 the associated ``value``. If no ``pattern`` matches, then ``else_value`` is
 returned. You can have as many ``pattern, value`` pairs as you wish. The first
 match is returned.
@@ -777,7 +777,7 @@ match is returned.
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if (len(args) % 2) != 1:
-            raise ValueError(_('switch requires an odd number of arguments'))
+            raise ValueError(_('switch requires an even number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
