@@ -15,6 +15,7 @@ from functools import partial
 from qt.core import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QColor,
     QComboBox,
     QCursor,
@@ -24,6 +25,7 @@ from qt.core import (
     QFontDatabase,
     QFontInfo,
     QFontMetrics,
+    QHBoxLayout,
     QIcon,
     QLineEdit,
     QPalette,
@@ -60,8 +62,11 @@ from calibre.utils.resources import get_path as P
 
 class DocViewer(Dialog):
 
-    def __init__(self, docs_dsl, parent=None):
-        self.docs_dsl = docs_dsl
+    def __init__(self, ffml, builtins, function_type_string_method, parent=None):
+        self.ffml = ffml
+        self.builtins = builtins
+        self.function_type_string = function_type_string_method
+        self.last_operation = None
         super().__init__(title=_('Template function documentation'), name='template_editor_doc_viewer_dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
 
@@ -69,7 +74,6 @@ class DocViewer(Dialog):
         return QSize(800, 600)
 
     def set_html(self, html):
-        print(html)
         self.doc_viewer_widget.setHtml(html)
 
     def setup_ui(self):
@@ -79,23 +83,50 @@ class DocViewer(Dialog):
             e.setDefaultStyleSheet('pre { font-family: "Segoe UI Mono", "Consolas", monospace; }')
         e.anchor_clicked.connect(safe_open_url)
         l.addWidget(e)
-        l.addWidget(self.bb)
+        bl = QHBoxLayout()
+        l.addLayout(bl)
+        self.english_cb = cb = QCheckBox(_('Show documentation in original &English'))
+        cb.setChecked(gprefs.get('template_editor_docs_in_english', False))
+        cb.stateChanged.connect(self.english_cb_state_changed)
+        bl.addWidget(cb)
+        bl.addWidget(self.bb)
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.show_all_functions)
         b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
 
-    def show_function(self):
-        self.set_html(
-            self.docs_dsl.document_to_html(self.all_functions[self.current_function_name].doc,
-                                            self.current_function_name))
+    def english_cb_state_changed(self):
+        if self.last_operation is not None:
+            self.last_operation()
+        gprefs['template_editor_docs_in_english'] = self.english_cb.isChecked()
+
+    def header_line(self, name):
+        return f'\n<h3>{name} ({self.function_type_string(name, longform=False)})</h3>\n'
+
+    def get_doc(self, func):
+        doc = func.doc if hasattr(func, 'doc') else ''
+        return doc.raw_text if self.english_cb.isChecked() and hasattr(doc, 'raw_text') else doc
+
+    def show_function(self, fname):
+        self.last_operation = partial(self.show_function, fname)
+        bif = self.builtins[fname]
+        if fname not in self.builtins or not bif.doc:
+            self.set_html(self.header_line(fname) + ('No documentation provided'))
+        else:
+            self.set_html(self.header_line(fname) +
+                          self.ffml.document_to_html(self.get_doc(bif), fname))
+
     def show_all_functions(self):
-        funcs = formatter_functions().get_builtins()
+        self.last_operation = self.show_all_functions
         result = []
         a = result.append
-        for name in sorted(funcs):
-            a(f'\n<h2>{name}</h2>\n')
+        for name in sorted(self.builtins):
+            a(self.header_line(name))
             try:
-                a(self.docs_dsl.document_to_html(funcs[name].doc.strip(), name))
+                doc = self.get_doc(self.builtins[name])
+                if not doc:
+                    a(_('No documentation provided'))
+                else:
+                    a(self.ffml.document_to_html(doc.strip(), name))
             except Exception:
                 print('Exception in', name)
                 raise
@@ -410,7 +441,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())
 
-        self.docs_dsl = FFMLProcessor()
+        self.ffml = FFMLProcessor()
         self.dialog_number = dialog_number
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
@@ -572,7 +603,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def open_documentation_viewer(self):
         if self.doc_viewer is None:
-            dv = self.doc_viewer = DocViewer(self.docs_dsl, self)
+            dv = self.doc_viewer = DocViewer(self.ffml, self.all_functions,
+                                             self.function_type_string, parent=self)
             dv.finished.connect(self.doc_viewer_finished)
             dv.show()
         if self.current_function_name is not None:
@@ -1016,9 +1048,9 @@ def evaluate(book, context):
         self.func_type.clear()
         if name in self.all_functions:
             doc = self.all_functions[name].doc.strip()
-            self.documentation.setHtml(self.docs_dsl.document_to_html(doc, name))
+            self.documentation.setHtml(self.ffml.document_to_html(doc, name))
             if self.doc_viewer is not None:
-                self.doc_viewer_widget.setHtml(self.docs_dsl.document_to_html(self.all_functions[name].doc, name))
+                self.doc_viewer.show_function(name)
             if name in self.builtins and name in self.builtin_source_dict:
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
