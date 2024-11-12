@@ -43,19 +43,23 @@ from polyglot.builtins import iteritems, itervalues
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
 
-    def __new__(cls, english, translated):
-        instance = super().__new__(cls, translated)
-        instance.raw_text = english
+    def __new__(cls, raw_english, raw_other, formatted_english, formatted_other):
+        instance = super().__new__(cls, formatted_other)
+        instance.raw_english = raw_english
+        instance.raw_other = raw_other
+        instance.formatted_english = formatted_english
+        instance.formatted_other = formatted_other
         return instance
 
     def format(self, *args, **kw):
-        translated = super().format(*args, **kw)
-        english = self.raw_text.format(*args, **kw)
-        return TranslatedStringWithRaw(english, translated)
+        formatted_english = self.raw_english.format(*args, **kw)
+        formatted_other = self.raw_other.format(*args, **kw)
+        return TranslatedStringWithRaw(self.raw_english, self.raw_other,
+                                       formatted_english, formatted_other)
 
 
 def _(txt):
-    return TranslatedStringWithRaw(txt, xlated(txt))
+    return TranslatedStringWithRaw(txt, xlated(txt), txt, xlated(txt))
 
 
 class StoredObjectType(Enum):
@@ -369,11 +373,12 @@ class BuiltinAdd(BuiltinFormatterFunction):
     arg_count = -1
     category = 'Arithmetic'
     __doc__ = doc = _(
-r'''
+'''
 ``add(x [, y]*)`` -- returns the sum of its arguments. Throws an exception if an
 argument is not a number. In most cases you can use the ``+`` operator instead
 of this function.
 ''')
+# r'''No documentation provided''') # for debugging xlated text using French
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         res = 0
