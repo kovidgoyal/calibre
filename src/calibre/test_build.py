@@ -420,6 +420,10 @@ class BuildTest(unittest.TestCase):
             if display_env_var is not None:
                 os.environ['DISPLAY'] = display_env_var
 
+    def test_pykakasi(self):
+        from calibre.ebooks.unihandecode.jadecoder import Jadecoder
+        self.assertEqual(Jadecoder().decode("自転車生活の愉しみ"), 'Jitensha Seikatsu no Tanoshi mi')
+
     def test_imaging(self):
         from PIL import Image
         try:

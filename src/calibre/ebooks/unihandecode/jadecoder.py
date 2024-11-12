@@ -18,24 +18,30 @@ Copyright (c) 2010 Hiroshi Miura
 
 import re
 
+from pykakasi import kakasi
+
 from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
-from calibre.ebooks.unihandecode.pykakasi.kakasi import kakasi
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 
 
 class Jadecoder(Unidecoder):
-    kakasi = None
-    codepoints = {}
 
     def __init__(self):
-        self.codepoints = CODEPOINTS
+        self.codepoints = CODEPOINTS.copy()
         self.codepoints.update(JACODES)
         self.kakasi = kakasi()
+        self.kakasi.setMode("H","a") # Hiragana to ascii, default: no conversion
+        self.kakasi.setMode("K","a") # Katakana to ascii, default: no conversion
+        self.kakasi.setMode("J","a") # Japanese to ascii, default: no conversion
+        self.kakasi.setMode("r","Hepburn") # default: use Hepburn Roman table
+        self.kakasi.setMode("s", True) # add space, default: no separator
+        self.kakasi.setMode("C", True) # capitalize, default: no capitalize
+        self.conv = self.kakasi.getConverter()
 
     def decode(self, text):
         try:
-            result=self.kakasi.do(text)
-            return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
-        except:
-            return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
+            text = self.conv.do(text)
+        except Exception:
+            pass
+        return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
