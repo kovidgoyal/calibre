@@ -701,7 +701,7 @@ r'''
 ``lookup(value, [ pattern, key, ]* else_key)`` -- The patterns will be checked against
 the value in order. If a pattern matches then the value of the field named by
 ``key`` is returned. If no pattern matches then the value of the field named by
-``else_key`` is returned. See also the ``switch()`` function.
+``else_key`` is returned. See also the :ref:`switch` function.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
@@ -986,7 +986,8 @@ r'''
 ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by
 applying the regular expression pattern to ``value`` and replacing each matched
 instance with the value returned by the corresponding template. In
-`Template Program Mode`, like for the ``template`` and the
+[URL href="https://manual.calibre-ebook.com/template_lang.html#more-complex-programs-in-template-expressions-template-program-mode"]
+Template Program Mode[/URL], like for the ``template`` and the
 ``eval`` functions, you use ``[[`` for ``{`` and ``]]`` for ``}``.
 
 The following example looks for a series with more than one word and uppercases the first word:
@@ -1210,8 +1211,8 @@ r'''
 ``formats_modtimes(date_format_string)`` -- return a comma-separated list of
 colon-separated items ``FMT:DATE`` representing modification times for the
 formats of a book. The ``date_format_string`` parameter specifies how the date
-is to be formatted. See the ``format_date()`` function for details. You can use
-the ``select()`` function to get the modification time for a specific format. Note
+is to be formatted. See the :ref:`format_date` function for details. You can use
+the :ref:`select` function to get the modification time for a specific format. Note
 that format names are always uppercase, as in EPUB.
 ''')
 
@@ -1293,10 +1294,11 @@ r'''
 number using a Python formatting template such as ``{0:5.2f}`` or ``{0:,d}`` or
 ``${0:5,.2f}``. The formatting template must begin with ``{0:`` and end with
 ``}`` as in the above examples. Exception: you can leave off the leading "{0:"
-and trailing "}" if the format template contains only a format. See the template
-language and the [URL href="https://docs.python.org/3/library/string.html#formatstrings"]
-Python documentation[/URL]
-for more examples. Returns the empty string if formatting fails.
+and trailing "}" if the format template contains only a format. See the
+[URL href="https://manual.calibre-ebook.com/template_lang.html"]
+Template Language[/URL] and the
+[URL href="https://docs.python.org/3/library/string.html#formatstrings"]
+Python[/URL] documentation for more examples. Returns the empty string if formatting fails.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, template):
@@ -1490,7 +1492,7 @@ class BuiltinFormatDateField(BuiltinFormatterFunction):
 r'''
  ``format_date_field(field_name, format_string)`` -- format the value in the
  field ``field_name``, which must be the lookup name of a date field, either
- standard or custom. See ``format_date()`` for the formatting codes. This
+ standard or custom. See :ref:`format_date` for the formatting codes. This
  function is much faster than format_date() and should be used when you are
  formatting the value in a field (column). It is also more reliable because it
  works directly on the underlying date. It can't be used for computed dates or
@@ -2882,8 +2884,8 @@ r'''
 (the empty string). If the optional parameter ``pattern`` (a regular expression)
 is supplied then the list is filtered to files that match ``pattern`` before the
 files are counted. The pattern match is case insensitive. See also the functions
-``extra_file_names()``, ``extra_file_size()`` and ``extra_file_modtime()``. This
-function can be used only in the GUI.
+:ref:`extra_file_names`, :ref:`extra_file_size` and :ref:`extra_file_modtime`.
+This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -2913,8 +2915,8 @@ r'''
 extra files in the book's ``data/`` folder. If the optional parameter
 ``pattern``, a regular expression, is supplied then the list is filtered to
 files that match ``pattern``. The pattern match is case insensitive. See also
-the functions ``has_extra_files()``, ``extra_file_modtime()`` and
-``extra_file_size()``. This function can be used only in the GUI.
+the functions :ref:`has_extra_files`, :ref:`extra_file_modtime` and
+:ref:`extra_file_size`. This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, sep, *args):
@@ -2968,10 +2970,10 @@ r'''
 ``extra_file_modtime(file_name, format_string)`` -- returns the modification
 time of the extra file ``file_name`` in the book's ``data/`` folder if it
 exists, otherwise ``-1``. The modtime is formatted according to
-``format_string`` (see ``format_date()`` for details). If ``format_string`` is
+``format_string`` (see :ref:`format_date()` for details). If ``format_string`` is
 the empty string, returns the modtime as the floating point number of seconds
-since the epoch.  See also the functions ``has_extra_files()``,
-``extra_file_names()`` and ``extra_file_size()``. The epoch is OS dependent.
+since the epoch.  See also the functions :ref:`has_extra_files`,
+:ref:`extra_file_names` and :ref:`extra_file_size`. The epoch is OS dependent.
 This function can be used only in the GUI.
 ''')
 
