@@ -34,7 +34,8 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
 from calibre.utils.icu import capitalize, sort_key, strcmp
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import _ as xlated, calibre_langcode_to_name, canonicalize_lang
+from calibre.utils.localization import _ as xlated
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import iteritems, itervalues
 
