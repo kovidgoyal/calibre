@@ -345,7 +345,9 @@ class FFMLProcessor:
                 result += '\n'
             result += '\n'
         elif tree.node_kind() == NodeKinds.REF:
-            result += f':ref:`{tree.text()}() <ff_{tree.text()}>`'
+            if (rname := tree.text()).endswith('()'):
+                rname = rname[:-2]
+            result += f':ref:`{rname}() <ff_{rname}>`'
         elif tree.node_kind() == NodeKinds.TEXT:
             txt = tree.text()
             if not result:
