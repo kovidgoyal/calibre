@@ -18,6 +18,7 @@ Copyright (c) 2010 Hiroshi Miura
 
 import pickle
 import re
+import warnings
 from importlib.resources import files
 
 from pykakasi import kakasi
@@ -63,18 +64,25 @@ class Jadecoder(Unidecoder):
     def __init__(self):
         self.codepoints = CODEPOINTS.copy()
         self.codepoints.update(JACODES)
-        self.kakasi = kakasi()
-        self.kakasi.setMode("H","a") # Hiragana to ascii, default: no conversion
-        self.kakasi.setMode("K","a") # Katakana to ascii, default: no conversion
-        self.kakasi.setMode("J","a") # Japanese to ascii, default: no conversion
-        self.kakasi.setMode("r","Hepburn") # default: use Hepburn Roman table
-        self.kakasi.setMode("s", True) # add space, default: no separator
-        self.kakasi.setMode("C", True) # capitalize, default: no capitalize
-        self.conv = self.kakasi.getConverter()
+
+        # We have to use the deprecated API as the new API does not capitalize
+        # words. Sigh.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.kakasi = kakasi()
+            self.kakasi.setMode("H","a") # Hiragana to ascii, default: no conversion
+            self.kakasi.setMode("K","a") # Katakana to ascii, default: no conversion
+            self.kakasi.setMode("J","a") # Japanese to ascii, default: no conversion
+            self.kakasi.setMode("r","Hepburn") # default: use Hepburn Roman table
+            self.kakasi.setMode("s", True) # add space, default: no separator
+            self.kakasi.setMode("C", True) # capitalize, default: no capitalize
+            self.conv = self.kakasi.getConverter()
 
     def decode(self, text):
         try:
-            text = self.conv.do(text)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                text = self.conv.do(text)
         except Exception:
             pass
         return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
