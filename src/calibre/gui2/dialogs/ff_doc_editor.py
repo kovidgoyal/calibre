@@ -185,3 +185,15 @@ class FFDocEditor(Dialog):
     def functions_box_index_changed(self, idx):
         self.show_original_cb.setChecked(True)
         self.fill_in_top_row()
+
+if __name__ == '__main__':
+    from tempfile import TemporaryDirectory
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2 import Application
+
+    with TemporaryDirectory() as tdir:
+        app = Application([])
+        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        d = FFDocEditor(None)
+        d.exec()
+        del app
