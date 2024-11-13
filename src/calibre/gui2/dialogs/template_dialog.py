@@ -119,7 +119,7 @@ class DocViewer(Dialog):
         self.last_operation = self.show_all_functions
         result = []
         a = result.append
-        for name in sorted(self.builtins):
+        for name in sorted(self.builtins, key=sort_key):
             a(self.header_line(name))
             try:
                 doc = self.get_doc(self.builtins[name])

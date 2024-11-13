@@ -253,7 +253,7 @@ class FFMLProcessor:
         self.document_name = name
 
         node = DocumentNode()
-        return self._parse_document(node)
+        return self._parse_document(node) if doc else node
 
     def tree_to_html(self, tree, depth=0):
         """

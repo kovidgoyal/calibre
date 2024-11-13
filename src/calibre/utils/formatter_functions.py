@@ -49,13 +49,23 @@ class TranslatedStringWithRaw(str):
         instance.raw_other = raw_other
         instance.formatted_english = formatted_english
         instance.formatted_other = formatted_other
+        instance.did_format = False
         return instance
 
     def format(self, *args, **kw):
         formatted_english = self.raw_english.format(*args, **kw)
         formatted_other = self.raw_other.format(*args, **kw)
-        return TranslatedStringWithRaw(self.raw_english, self.raw_other,
+        v = TranslatedStringWithRaw(self.raw_english, self.raw_other,
                                        formatted_english, formatted_other)
+        v.saved_args = args
+        v.saved_kwargs = kw
+        v.did_format = True
+        return v
+
+    def format_again(self, txt):
+        if self.did_format:
+            return txt.format(*self.saved_args, **self.saved_kwargs)
+        return txt
 
 
 def _(txt):

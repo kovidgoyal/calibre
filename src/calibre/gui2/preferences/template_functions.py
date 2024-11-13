@@ -8,6 +8,7 @@ import traceback
 from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog, warning_dialog
+from calibre.gui2.dialogs.ff_doc_editor import FFDocEditor
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortInitialize, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
@@ -187,6 +188,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.program.textChanged.connect(self.enable_replace_button)
         self.create_button.clicked.connect(self.create_button_clicked)
         self.delete_button.clicked.connect(self.delete_button_clicked)
+        self.doc_edit_button.clicked.connect(self.doc_edit_button_clicked)
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
         self.replace_button.setEnabled(False)
@@ -206,9 +208,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_delete_button.setEnabled(False)
         self.st_replace_button.setEnabled(False)
         self.st_test_template_button.setEnabled(False)
+        self.st_doc_edit_button.setEnabled(False)
         self.st_clear_button.clicked.connect(self.st_clear_button_clicked)
         self.st_test_template_button.clicked.connect(self.st_test_template)
         self.st_replace_button.clicked.connect(self.st_replace_button_clicked)
+        self.st_doc_edit_button.clicked.connect(self.st_doc_edit_button_clicked)
 
         self.st_current_program_name = ''
         self.st_current_program_text = ''
@@ -238,6 +242,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def enable_replace_button(self):
         self.replace_button.setEnabled(self.delete_button.isEnabled())
+
+    def doc_edit_button_clicked(self):
+        d = FFDocEditor(can_copy_back=True, parent=self)
+        d.set_document_text(self.documentation.toPlainText())
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.documentation.setPlainText(d.document_text())
 
     def clear_button_clicked(self):
         self.build_function_names_box()
@@ -425,6 +435,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.template_editor.new_doc.clear()
         self.st_create_button.setEnabled(False)
         self.st_delete_button.setEnabled(False)
+        self.st_doc_edit_button.setEnabled(False)
 
     def st_build_function_names_box(self, scroll_to=''):
         self.te_name.blockSignals(True)
@@ -447,6 +458,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.st_create_button.setEnabled(True)
             self.st_delete_button.setEnabled(False)
+            self.st_doc_edit_button.setEnabled(False)
             self.st_build_function_names_box()
             self.te_textbox.setReadOnly(False)
             self.st_current_program_name = ''
@@ -483,6 +495,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_delete_button.setEnabled(b)
         self.st_test_template_button.setEnabled(b)
         self.te_textbox.setReadOnly(False)
+        self.st_doc_edit_button.setEnabled(True)
 
     def st_function_index_changed(self, idx):
         txt = self.te_name.currentText()
@@ -517,6 +530,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_current_program_text = self.te_textbox.toPlainText()
         self.st_delete_button_clicked()
         self.st_create_button_clicked(use_name=name)
+
+    def st_doc_edit_button_clicked(self):
+        d = FFDocEditor(can_copy_back=True, parent=self)
+        d.set_document_text(self.template_editor.new_doc.toPlainText())
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.template_editor.new_doc.setPlainText(d.document_text())
 
     def commit(self):
         pref_value = []
