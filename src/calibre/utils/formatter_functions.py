@@ -2186,7 +2186,7 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
     category = 'Get values from metadata'
     __doc__ = doc = _(
 r'''
-``language_strings(lang_codes)`` -- return the
+``language_strings(lang_codes, localize)`` -- return the
 language names for the language codes
 ([URL href="https://www.loc.gov/standards/iso639-2/php/code_list.php"]
 see here for names and codes[/URL])
