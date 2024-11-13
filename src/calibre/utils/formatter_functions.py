@@ -59,7 +59,8 @@ class TranslatedStringWithRaw(str):
 
 
 def _(txt):
-    return TranslatedStringWithRaw(txt, xlated(txt), txt, xlated(txt))
+    translated = xlated(txt)
+    return TranslatedStringWithRaw(txt, translated, txt, translated)
 
 
 class StoredObjectType(Enum):
