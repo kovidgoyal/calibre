@@ -1419,7 +1419,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (5, 3, 195056)
+    max_supported_fwversion         = (5, 4, 197982)
     # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -3695,10 +3695,10 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.SAGE_PRODUCT_ID
 
     def isShine5(self):
-        return self.device_model_id.endswith('691')
+        return self.device_model_id.endswith('691') or self.detected_device.idProduct in self.TOLINO_SHINE_5thGEN_PRODUCT_ID
 
     def isShineColor(self):
-        return self.device_model_id.endswith('693')
+        return self.device_model_id.endswith('693') or self.detected_device.idProduct in self.TOLINO_SHINE_COLOR_PRODUCT_ID
 
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
@@ -3707,7 +3707,7 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def isVisionColor(self):
-        return self.device_model_id.endswith('690')
+        return self.device_model_id.endswith('690') or self.detected_device.idProduct in self.TOLINO_VISION_COLOR_PRODUCT_ID
 
     def isTolinoDevice(self):
         return self.isShine5() or self.isShineColor() or self.isVisionColor()
