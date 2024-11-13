@@ -11,8 +11,7 @@ Created on 12 Nov 2024
 @author: chaley
 '''
 
-from qt.core import (QApplication, QCheckBox, QComboBox, QFrame, QLabel, QGridLayout,
-                     QHBoxLayout, QPlainTextEdit, QPushButton, QSize, QTimer)
+from qt.core import QApplication, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSize, QTimer
 
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs
@@ -186,8 +185,10 @@ class FFDocEditor(Dialog):
         self.show_original_cb.setChecked(True)
         self.fill_in_top_row()
 
-if __name__ == '__main__':
+
+def main():
     from tempfile import TemporaryDirectory
+
     from calibre.db.legacy import LibraryDatabase
     from calibre.gui2 import Application
 
@@ -196,4 +197,9 @@ if __name__ == '__main__':
         db = LibraryDatabase(tdir) # needed to load formatter_funcs
         d = FFDocEditor(None)
         d.exec()
+        del db
         del app
+
+
+if __name__ == '__main__':
+    main()
