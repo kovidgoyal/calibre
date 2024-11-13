@@ -43,19 +43,23 @@ from polyglot.builtins import iteritems, itervalues
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
 
-    def __new__(cls, english, translated):
-        instance = super().__new__(cls, translated)
-        instance.raw_text = english
+    def __new__(cls, raw_english, raw_other, formatted_english, formatted_other):
+        instance = super().__new__(cls, formatted_other)
+        instance.raw_english = raw_english
+        instance.raw_other = raw_other
+        instance.formatted_english = formatted_english
+        instance.formatted_other = formatted_other
         return instance
 
     def format(self, *args, **kw):
-        translated = super().format(*args, **kw)
-        english = self.raw_text.format(*args, **kw)
-        return TranslatedStringWithRaw(english, translated)
+        formatted_english = self.raw_english.format(*args, **kw)
+        formatted_other = self.raw_other.format(*args, **kw)
+        return TranslatedStringWithRaw(self.raw_english, self.raw_other,
+                                       formatted_english, formatted_other)
 
 
 def _(txt):
-    return TranslatedStringWithRaw(txt, xlated(txt))
+    return TranslatedStringWithRaw(txt, xlated(txt), txt, xlated(txt))
 
 
 class StoredObjectType(Enum):
@@ -369,11 +373,12 @@ class BuiltinAdd(BuiltinFormatterFunction):
     arg_count = -1
     category = 'Arithmetic'
     __doc__ = doc = _(
-r'''
+'''
 ``add(x [, y]*)`` -- returns the sum of its arguments. Throws an exception if an
 argument is not a number. In most cases you can use the ``+`` operator instead
 of this function.
 ''')
+# r'''No documentation provided''') # for debugging xlated text using French
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         res = 0
@@ -768,16 +773,16 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _(
 r'''
-``switch([pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair,
-checks if the field matches the regular expression ``pattern`` and if so returns
-the associated ``value``. If no ``pattern`` matches, then ``else_value`` is
-returned. You can have as many ``pattern, value`` pairs as you wish. The first
+``switch(value, [patternN, valueN,]+ else_value)`` -- for each ``patternN, valueN`` pair,
+checks if the ``value`` matches the regular expression ``patternN`` and if so returns
+the associated ``valueN``. If no ``patternN`` matches, then ``else_value`` is
+returned. You can have as many ``patternN, valueN`` pairs as you wish. The first
 match is returned.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
         if (len(args) % 2) != 1:
-            raise ValueError(_('switch requires an odd number of arguments'))
+            raise ValueError(_('switch requires an even number of arguments'))
         i = 0
         while i < len(args):
             if i + 1 >= len(args):
