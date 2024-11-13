@@ -33,6 +33,7 @@ from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 
 # pykakasi uses paths for its dictionaries rather than using the
 # Traversable API of importlib.resources so we have to hack around it, sigh.
+# https://codeberg.org/miurahr/pykakasi/pulls/174
 def dictdata(dbfile: str):
     t = files('pykakasi')
     q = t.joinpath('data').joinpath(dbfile)
@@ -67,6 +68,7 @@ class Jadecoder(Unidecoder):
 
         # We have to use the deprecated API as the new API does not capitalize
         # words. Sigh.
+        # https://codeberg.org/miurahr/pykakasi/issues/172
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.kakasi = kakasi()
