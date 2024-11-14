@@ -9,11 +9,12 @@ __license__   = 'GPL v3'
 @author: Charles Haley
 '''
 
-from qt.core import (QDialogButtonBox, QVBoxLayout)
+from qt.core import QDialogButtonBox, QVBoxLayout
 
 from calibre.constants import iswindows
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.utils.ffml_processor import FFMLProcessor
+
 
 class GeneralInformationDialog(Dialog):
 
@@ -61,26 +62,28 @@ document formatter functions. It is based on a combination of RST used by sphinx
 and BBCODE used by many bulletin board systems such as MobileRead. It provides a
 way to specify:
 [LIST]
-[*]Inline program code text: surround this text with \`\` as in \`\`foo\`\`. Tags inside the text are ignored.
-[*]Italic text: surround this text with \`. Example \`foo\` produces `foo`.
-[*]Text intended to reference a calibre GUI action. This uses RST syntax. Example: ``:guilabel:`Preferences->Advanced->Template functions``. For HTML the produced text is in a different font. as in :guilabel:`Some text`
+[*]Inline program code text: surround this text with \\`\\` as in \\`\\`foo\\`\\`. Tags inside the text are ignored.
+[*]Italic text: surround this text with \\`. Example \\`foo\\` produces `foo`.
+[*]Text intended to reference a calibre GUI action. This uses RST syntax.\
+  Example: \\:guilabel\\:\\`Preferences->Advanced->Template functions\\`. For HTML the produced text is in a different font, as in: :guilabel:`Some text`
 [*]Empty lines, indicated by two newlines in a row. A visible empty line in the FFMC will become an empty line in the output.
-[*]URLs. The syntax is similar to BBCODE: ``[URL href="http..."]Link text[/URL]``. Example: ``[URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]`` produces [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
+[*]URLs. The syntax is similar to BBCODE: ``[URL href="http..."]Link text[/URL]``.\
+  Example: ``[URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]`` produces [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
 [*]Internal function reference links. These are links to formatter function
 documentation. The syntax is the same as guilabel. Example: ``:ref:`get_note` ``.
 The characters '()' are automatically added to the function name when
 displayed. For HTML it generates the same as the inline program code text
-operator (\`\`) with no link. Example: ``:ref:`add` `` produces ``add()``.
+operator (\\`\\`) with no link. Example: ``:ref:`add` `` produces ``add()``.
 For RST it generates a ``:ref:`` reference that works only in an RST document
 containing formatter function documentation. Example: ``:ref:`get_note` ``
-generates ``:ref:`get_note() <ff_get_note>``
+generates \\:ref\\:\\`get_note() <ff_get_note>\\`
 [*]Example program code text blocks. Surround the code block with ``[CODE]``
 and ``[/CODE]`` tags. These tags must be first on a line. Example:
 
 [CODE]
-\[CODE]program:
+\\[CODE]program:
     get_note('authors', 'Isaac Asimov', 1)
-\[/CODE]
+\\[/CODE]
 [/CODE]
 produces
 [CODE]
@@ -94,21 +97,30 @@ elements.
 
 Example: a two bullet list containing CODE blocks
 [CODE]
-\[LIST]
+\\[LIST]
 [*]Return the HTML of the note attached to the tag `Fiction`:
-\[CODE]
+\\[CODE]
 program:
   get_note('tags', 'Fiction', '')
-\[/CODE]
+\\[/CODE]
 [*]Return the plain text of the note attached to the author `Isaac Asimov`:
-\[CODE]
+\\[CODE]
 program:
   get_note('authors', 'Isaac Asimov', 1)
-\[/CODE]
-\[/LIST]
+\\[/CODE]
+\\[/LIST]
 [/CODE]
 
 [*]HTML output contains no CSS and does not start with a tag such as <DIV> or <P>.
 [/LIST]
 [/LIST]
 '''
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    d = GeneralInformationDialog()
+    d.exec()
+    del d
+    del app
