@@ -760,7 +760,7 @@ Selecting a function will show only that function's documentation</string>
                </property>
                <property name="toolTip">
                  <string>Click this button to see general help about using template functions
- and how the are documented.</string>
+ and how they are documented.</string>
                </property>
               </widget>
              </item>
