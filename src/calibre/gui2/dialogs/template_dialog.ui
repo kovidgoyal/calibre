@@ -754,18 +754,13 @@ Selecting a function will show only that function's documentation</string>
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="some_label">
+              <widget class="QPushButton" name="general_info_button">
                <property name="text">
-                 <string>See tooltip for general information</string>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
+                 <string>General &amp;Information</string>
                </property>
                <property name="toolTip">
-                 <string>&lt;p&gt;When using functions in a Single function mode template,
-for example {title:uppercase()}, the first parameter 'value' is omitted. It is automatically replaced
-by the value of the specified field.&lt;/p&gt; &lt;p&gt;In all the other modes the value parameter
-must be supplied.&lt;/p&gt;</string>
+                 <string>Click this button to see general help about using template functions
+ and how the are documented.</string>
                </property>
               </widget>
              </item>

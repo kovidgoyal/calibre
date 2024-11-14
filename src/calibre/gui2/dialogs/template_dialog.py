@@ -47,6 +47,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data, question_dialog, safe_open_url
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
+from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
@@ -542,6 +543,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.documentation.setReadOnly(True)
         self.source_code.setReadOnly(True)
         self.doc_button.clicked.connect(self.open_documentation_viewer)
+        self.general_info_button.clicked.connect(self.open_general_info_dialog)
 
         if text is not None:
             if text_is_placeholder:
@@ -614,6 +616,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def doc_viewer_finished(self):
         self.doc_viewer = None
+
+    def open_general_info_dialog(self):
+        GeneralInformationDialog().exec()
 
     def geometry_string(self, txt):
         if self.dialog_number is None or self.dialog_number == 0:

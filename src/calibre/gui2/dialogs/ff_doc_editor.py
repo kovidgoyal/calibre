@@ -11,7 +11,8 @@ Created on 12 Nov 2024
 @author: chaley
 '''
 
-from qt.core import QApplication, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSize, QTimer
+from qt.core import (QApplication, QCheckBox, QComboBox, QFrame, QLabel, QGridLayout,
+                     QHBoxLayout, QPlainTextEdit, QPushButton, QSize, QTimer)
 
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs
@@ -139,12 +140,18 @@ class FFDocEditor(Dialog):
         name = self.functions_box.currentText()
         if name and self.doc_show_formatted_cb.isVisible() and self.doc_show_formatted_cb.isChecked():
             doc = self.builtins[name].doc
-            self.editable_text_result.setHtml(
-                self.ffml.document_to_html(doc.format_again(
-                    self.editable_text_widget.toPlainText()), 'edited text'))
+            try:
+                self.editable_text_result.setHtml(
+                    self.ffml.document_to_html(doc.format_again(
+                        self.editable_text_widget.toPlainText()), 'edited text'))
+            except Exception as e:
+                self.editable_text_result.setHtml(str(e))
         else:
-            self.editable_text_result.setHtml(
-                self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text'))
+            try:
+                self.editable_text_result.setHtml(
+                    self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text'))
+            except Exception as e:
+                self.editable_text_result.setHtml(str(e))
 
     def fill_in_top_row(self):
         to_show = self.show_original_cb.isChecked()

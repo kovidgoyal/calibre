@@ -41,10 +41,10 @@ class Node:
         return self._children
 
     def text(self):
-        return self._text
+        return self._text.replace('\\', '')
 
     def escaped_text(self):
-        return prepare_string_for_xml(self._text)
+        return prepare_string_for_xml(self.text())
 
 
 class BlankLineNode(Node):
@@ -248,6 +248,7 @@ class FFMLProcessor:
 
         :return:       a parse tree for the document
         """
+        self.input_line = 1
         self.input = doc
         self.input_pos = 0
         self.document_name = name
@@ -404,13 +405,16 @@ class FFMLProcessor:
         self.document = DocumentNode()
         self.input = None
         self.input_pos = 0
-        self.input_line = 1
 
     def error(self, message):
         raise ValueError(f'{message} on line {self.input_line} in "{self.document_name}"')
 
     def find(self, for_what):
         p = self.input.find(for_what, self.input_pos)
+        if p < 0:
+            return -1
+        while p > 0 and self.input[p-1] == '\\':
+            p = self.input.find(for_what, p+1)
         return -1 if p < 0 else p - self.input_pos
 
     def move_pos(self, to_where):
@@ -450,7 +454,9 @@ class FFMLProcessor:
         return len(self.input)
 
     def get_code_block(self):
-        self.move_pos(len('[CODE]\n'))
+        self.move_pos(len('[CODE]'))
+        if self.text_to(1) == '\n':
+            self.move_pos(1)
         end = self.find('[/CODE]')
         if end < 0:
             self.error('Missing [/CODE] for block')
@@ -467,6 +473,11 @@ class FFMLProcessor:
             self.error('Missing closing "``" for CODE_TEXT')
         node = CodeText(self.text_to(end))
         self.move_pos(end + len('``'))
+        return node
+
+    def get_escaped_char(self):
+        node = EscapedCharNode(self.text_to(1))
+        self.move_pos(1)
         return node
 
     def get_gui_label(self):

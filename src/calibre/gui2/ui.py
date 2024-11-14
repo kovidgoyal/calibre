@@ -43,6 +43,7 @@ from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
 from calibre.gui2.cover_flow import CoverFlowMixin
 from calibre.gui2.device import DeviceMixin
+from calibre.gui2.dialogs.ff_doc_editor import FFDocEditor
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.ebook_download import EbookDownloadMixin
 from calibre.gui2.email import EmailMixin
@@ -329,6 +330,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 action=self.alt_esc_action)
         self.alt_esc_action.triggered.connect(self.clear_additional_restriction)
 
+        self.ff_doc_editor_action = QAction(self)
+        self.addAction(self.ff_doc_editor_action)
+        self.keyboard.register_shortcut('open ff document editor',
+                _('Open the template documentation editor'), default_keys=(''),
+                action=self.ff_doc_editor_action)
+        self.ff_doc_editor_action.triggered.connect(self.open_ff_doc_editor)
+
         # ###################### Start spare job server ########################
         QTimer.singleShot(1000, self.create_spare_pool)
 
@@ -461,6 +469,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def esc(self, *args):
         self.search.clear()
+
+    def open_ff_doc_editor(self):
+        FFDocEditor(False).exec()
 
     def focus_current_view(self):
         view = self.current_view()
