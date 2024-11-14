@@ -786,11 +786,9 @@ class Enumeration(Base):
         w = MultipleWidget(parent, only_manage_items=True, widget=QComboBox, name=self.col_metadata['name'])
         w.get_editor_button().clicked.connect(self.edit)
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        self.set_to_undefined = w.clear
-        self.name_widget = w.edit_widget
+        self.editor = w.edit_widget
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, lambda parent: w)
-        self.editor = self.name_widget
         vals = self.col_metadata['display']['enum_values']
         self.editor.addItem('')
         for v in vals:
