@@ -144,7 +144,7 @@ class UrlNode(Node):
 
 
 class FFMLProcessor:
-    """
+    r"""
     This class is parser for the Formatter Function Markup Language (FFML). It
     provides output methods for RST and HTML.
 
@@ -509,7 +509,7 @@ class FFMLProcessor:
         return node
 
     def get_escaped_char(self):
-        node = EscapedCharNode(self.text_to(1))
+        node = self.text_to(1)
         self.move_pos(1)
         return node
 
