@@ -830,7 +830,6 @@ class Enumeration(Base):
         self.editor.setCurrentIndex(0)
 
     def connect_data_changed(self, slot):
-        print(1111111111, self.editor)
         self.editor.currentIndexChanged.connect(slot)
         self.signals_to_disconnect.append(self.editor.currentIndexChanged)
 
