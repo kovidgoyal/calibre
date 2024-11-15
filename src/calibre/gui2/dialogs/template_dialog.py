@@ -86,7 +86,7 @@ class DocViewer(Dialog):
         l.addWidget(e)
         bl = QHBoxLayout()
         l.addLayout(bl)
-        self.english_cb = cb = QCheckBox(_('Show documentation in original &English'))
+        self.english_cb = cb = QCheckBox(_('Show documentation as original &English'))
         cb.setChecked(gprefs.get('template_editor_docs_in_english', False))
         cb.stateChanged.connect(self.english_cb_state_changed)
         bl.addWidget(cb)
