@@ -208,7 +208,9 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
                 return QProxyStyle::drawComplexControl(control, &opt, painter, widget);
             }
             break; /// }}}
-        case CC_ScrollBar: {
+
+        case CC_ScrollBar: { // {{{
+            if (transient_scroller) break;
             const QStyleOptionSlider *scroll_bar = qstyleoption_cast<const QStyleOptionSlider *>(option);
             if (scroll_bar && is_color_dark(option->palette.color(QPalette::Window))) {
                 bool horizontal = scroll_bar->orientation == Qt::Horizontal;
@@ -276,7 +278,8 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
                 }
 
                 return;
-            }} break;
+            }} break; // }}}
+
         default:
             break;
     }
