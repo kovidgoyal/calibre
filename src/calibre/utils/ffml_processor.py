@@ -508,11 +508,6 @@ class FFMLProcessor:
         self.move_pos(end + len('``'))
         return node
 
-    def get_escaped_char(self):
-        node = self.text_to(1)
-        self.move_pos(1)
-        return node
-
     def get_gui_label(self):
         self.move_pos(len(':guilabel:`'))
         end = self.find('`')
