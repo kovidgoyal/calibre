@@ -11,8 +11,7 @@ Created on 12 Nov 2024
 @author: chaley
 '''
 
-from qt.core import (QApplication, QCheckBox, QComboBox, QFrame, QLabel, QGridLayout,
-                     QHBoxLayout, QPlainTextEdit, QPushButton, QSize, QTimer)
+from qt.core import QApplication, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSize, QTimer
 
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs
@@ -78,7 +77,7 @@ class FFDocEditor(Dialog):
         hl.addWidget(f)
         f.currentIndexChanged.connect(self.functions_box_index_changed)
 
-        so = self.show_in_english_cb = QCheckBox(_('Show original English'))
+        so = self.show_in_english_cb = QCheckBox(_('Show as &English'))
         so.stateChanged.connect(self.first_row_checkbox_changed)
         hl.addWidget(so)
 

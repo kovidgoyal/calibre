@@ -756,7 +756,7 @@ Selecting a function will show only that function's documentation</string>
              <item>
               <widget class="QPushButton" name="general_info_button">
                <property name="text">
-                 <string>General &amp;Information</string>
+                 <string>General &amp;information</string>
                </property>
                <property name="toolTip">
                  <string>Click this button to see general help about using template functions

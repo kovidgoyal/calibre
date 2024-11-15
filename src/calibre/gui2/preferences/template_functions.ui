@@ -84,7 +84,7 @@
          <item>
           <widget class="QPushButton" name="st_doc_edit_button">
            <property name="text">
-            <string>Doc Editor</string>
+            <string>Edit docs</string>
            </property>
            <property name="toolTip">
             <string>Open an editor for function documentation</string>
@@ -225,7 +225,7 @@ a new related user defined function.&lt;/p&gt;</string>
            <item>
             <widget class="QPushButton" name="doc_edit_button">
              <property name="text">
-              <string>Doc Editor</string>
+              <string>Edit docs</string>
              </property>
              <property name="toolTip">
               <string>Open an editor for function documentation</string>
