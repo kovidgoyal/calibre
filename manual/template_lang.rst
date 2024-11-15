@@ -166,31 +166,44 @@ Functions are evaluated before format specifications and the prefix/suffix. See 
 
 **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`Template Program Mode <template_mode>` and :ref:`General Program Mode <general_mode>`.
 
-Some functions require regular expressions. In the template language regular expression matching is case-insensitive.
+Notes on calling functions in Single Function Mode:
 
-In the function documentation below, the notation ``[something]*`` means that ``something`` can be repeated zero or more times. The notation ``[something]+`` means that the ``something`` is repeated one or more times (must exist at least one time).
+* When functions are used in Single Function Mode, the first parameter, ``value``, is automatically replaced by the content of the field specified in the template. For example, when the template ``{title:capitalize()}`` is processed, the content of the ``title`` field is passed as the parameter ``value`` to the capitalize function.
+* In the function documentation, the notation ``[something]*`` means that ``something`` can be repeated zero or more times. The notation ``[something]+`` means that the ``something`` is repeated one or more times (must exist at least one time).
+* Some functions use regular expressions. In the template language regular expression matching is case-insensitive.
 
-The functions intended for use in Single Function Mode are:
-
+The following functions can be used in Single Function Mode because their first parameter is ``value``.
 
 * :ffdoc:`capitalize`
+* :ffdoc:`ceiling`
+* :ffdoc:`cmp`
 * :ffdoc:`contains`
-* :ffdoc:`list_count`
+* :ffdoc:`date_arithmetic`
+* :ffdoc:`floor`
+* :ffdoc:`format_date`
 * :ffdoc:`format_number`
+* :ffdoc:`fractional_part`
 * :ffdoc:`human_readable`
 * :ffdoc:`ifempty`
-* :ffdoc:`list_contains`
 * :ffdoc:`language_strings`
+* :ffdoc:`list_contains`
+* :ffdoc:`list_count`
+* :ffdoc:`list_count_matching`
 * :ffdoc:`list_item`
+* :ffdoc:`list_sort`
 * :ffdoc:`lookup`
 * :ffdoc:`lowercase`
+* :ffdoc:`mod`
 * :ffdoc:`rating_to_stars`
 * :ffdoc:`re`
+* :ffdoc:`re_group`
+* :ffdoc:`round`
 * :ffdoc:`select`
 * :ffdoc:`shorten`
 * :ffdoc:`str_in_list`
 * :ffdoc:`subitems`
 * :ffdoc:`sublist`
+* :ffdoc:`substr`
 * :ffdoc:`swap_around_articles`
 * :ffdoc:`swap_around_comma`
 * :ffdoc:`switch`

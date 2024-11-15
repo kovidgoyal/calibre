@@ -300,18 +300,18 @@ class BuiltinCmp(BuiltinFormatterFunction):
     arg_count = 5
     __doc__ = doc = _(
 r'''
-``cmp(x, y, lt, eq, gt)`` -- compares ``x`` and ``y`` after converting both to
-numbers. Returns ``lt`` if ``x <# y``, ``eq`` if ``x ==# y``, otherwise ``gt``.
+``cmp(value, y, lt, eq, gt)`` -- compares ``value`` and ``y`` after converting both to
+numbers. Returns ``lt`` if ``value <# y``, ``eq`` if ``value ==# y``, otherwise ``gt``.
 This function can usually be replaced with one of the numeric compare operators
 (``==#``, ``<#``, ``>#``, etc).
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
-        x = float(x if x and x != 'None' else 0)
+    def evaluate(self, formatter, kwargs, mi, locals, value, y, lt, eq, gt):
+        value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        if x < y:
+        if value < y:
             return lt
-        if x == y:
+        if value == y:
             return eq
         return gt
 
@@ -458,13 +458,13 @@ class BuiltinCeiling(BuiltinFormatterFunction):
     category = 'Arithmetic'
     __doc__ = doc = _(
 r'''
-``ceiling(x)`` -- returns the smallest integer greater than or equal to ``x``.
-Throws an exception if ``x`` is not a number.
+``ceiling(value)`` -- returns the smallest integer greater than or equal to ``value``.
+Throws an exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x):
-        x = float(x if x and x != 'None' else 0)
-        return str(int(ceil(x)))
+    def evaluate(self, formatter, kwargs, mi, locals, value):
+        value = float(value if value and value != 'None' else 0)
+        return str(int(ceil(value)))
 
 
 class BuiltinFloor(BuiltinFormatterFunction):
@@ -473,13 +473,13 @@ class BuiltinFloor(BuiltinFormatterFunction):
     category = 'Arithmetic'
     __doc__ = doc = _(
 r'''
-``floor(x)`` -- returns the largest integer less than or equal to ``x``. Throws
-an exception if ``x`` is not a number.
+``floor(value)`` -- returns the largest integer less than or equal to ``value``. Throws
+an exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x):
-        x = float(x if x and x != 'None' else 0)
-        return str(int(floor(x)))
+    def evaluate(self, formatter, kwargs, mi, locals, value):
+        value = float(value if value and value != 'None' else 0)
+        return str(int(floor(value)))
 
 
 class BuiltinRound(BuiltinFormatterFunction):
@@ -488,13 +488,13 @@ class BuiltinRound(BuiltinFormatterFunction):
     category = 'Arithmetic'
     __doc__ = doc = _(
 r'''
-``round(x)`` -- returns the nearest integer to ``x``. Throws an exception if
-``x`` is not a number.
+``round(value)`` -- returns the nearest integer to ``value``. Throws an exception if
+``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x):
-        x = float(x if x and x != 'None' else 0)
-        return str(int(round(x)))
+    def evaluate(self, formatter, kwargs, mi, locals, value):
+        value = float(value if value and value != 'None' else 0)
+        return str(int(round(value)))
 
 
 class BuiltinMod(BuiltinFormatterFunction):
@@ -503,14 +503,14 @@ class BuiltinMod(BuiltinFormatterFunction):
     category = 'Arithmetic'
     __doc__ = doc = _(
 r'''
-``mod(x, y)`` -- returns the ``floor`` of the remainder of ``x / y``. Throws an
-exception if either ``x`` or ``y`` is not a number.
+``mod(value, y)`` -- returns the ``floor`` of the remainder of ``value / y``. Throws an
+exception if either ``value`` or ``y`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x and x != 'None' else 0)
+    def evaluate(self, formatter, kwargs, mi, locals, value, y):
+        value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
-        return str(int(x % y))
+        return str(int(value % y))
 
 
 class BuiltinFractionalPart(BuiltinFormatterFunction):
@@ -524,9 +524,9 @@ point. For example, ``fractional_part(3.14)`` returns ``0.14``. Throws an
 exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x):
-        x = float(x if x and x != 'None' else 0)
-        return str(modf(x)[0])
+    def evaluate(self, formatter, kwargs, mi, locals, value):
+        value = float(value if value and value != 'None' else 0)
+        return str(modf(value)[0])
 
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -701,16 +701,16 @@ class BuiltinSubstr(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _(
 r'''
-``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th
-characters of ``str``. The first character in ``str`` is the zero'th character.
+``substr(value, start, end)`` -- returns the ``start``'th through the ``end``'th
+characters of ``value``. The first character in ``value`` is the zero'th character.
 If ``end`` is negative then it indicates that many characters counting from the
 right. If ``end`` is zero, then it indicates the last character. For example,
 ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)``
 returns ``'234'``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):
-        return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]
+    def evaluate(self, formatter, kwargs, mi, locals, value, start_, end_):
+        return value[int(start_): len(value) if int(end_) == 0 else int(end_)]
 
 
 class BuiltinLookup(BuiltinFormatterFunction):
@@ -1130,16 +1130,16 @@ class BuiltinListCountMatching(BuiltinFormatterFunction):
 
     __doc__ = doc = _(
 r'''
-``list_count_matching(list, pattern, separator)`` -- interprets ``list`` as a
+``list_count_matching(value, pattern, separator)`` -- interprets ``value`` as a
 list of items separated by ``separator``, returning the number of items in the
 list that match the regular expression ``pattern``.
 
 Aliases: ``list_count_matching()``, ``count_matching()``
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list_, pattern, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, value, pattern, sep):
         res = 0
-        for v in [x.strip() for x in list_.split(sep) if x.strip()]:
+        for v in [x.strip() for x in value.split(sep) if x.strip()]:
             if re.search(pattern, v, flags=re.I):
                 res += 1
         return str(res)
@@ -1998,14 +1998,14 @@ class BuiltinListSort(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _(
 r'''
-``list_sort(list, direction, separator)`` -- return ``list`` sorted using a
+``list_sort(value, direction, separator)`` -- return ``value`` sorted using a
 case-insensitive lexical sort. If ``direction`` is zero (number or character),
-``list`` is sorted ascending, otherwise descending. The list items are separated
+``value`` is sorted ascending, otherwise descending. The list items are separated
 by ``separator``, as are the items in the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
-        res = [l.strip() for l in list1.split(separator) if l.strip()]
+    def evaluate(self, formatter, kwargs, mi, locals, value, direction, separator):
+        res = [l.strip() for l in value.split(separator) if l.strip()]
         if separator == ',':
             return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
         return separator.join(sorted(res, key=sort_key, reverse=direction != "0"))
@@ -2150,7 +2150,7 @@ class BuiltinDateArithmetic(BuiltinFormatterFunction):
     category = 'Date functions'
     __doc__ = doc = _(
 r'''
-``date_arithmetic(date, calc_spec, fmt)`` -- Calculate a new date from ``date``
+``date_arithmetic(value, calc_spec, fmt)`` -- Calculate a new date from ``value``
 using ``calc_spec``. Return the new date formatted according to optional
 ``fmt``: if not supplied then the result will be in ISO format. The calc_spec is
 a string formed by concatenating pairs of ``vW`` (``valueWhat``) where ``v`` is
@@ -2175,9 +2175,9 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
         'y': lambda v: timedelta(days=v * 365),
     }
 
-    def evaluate(self, formatter, kwargs, mi, locals, date, calc_spec, fmt=None):
+    def evaluate(self, formatter, kwargs, mi, locals, value, calc_spec, fmt=None):
         try:
-            d = parse_date(date)
+            d = parse_date(value)
             if d == UNDEFINED_DATE:
                 return ''
             while calc_spec:
@@ -2202,11 +2202,11 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
     category = 'Get values from metadata'
     __doc__ = doc = _(
 r'''
-``language_strings(lang_codes, localize)`` -- return the
+``language_strings(value, localize)`` -- return the
 language names for the language codes
 ([URL href="https://www.loc.gov/standards/iso639-2/php/code_list.php"]
 see here for names and codes[/URL])
-passed in ``lang_codes``. Example: ``{languages:language_strings()}``.
+passed in ``value``. Example: ``{languages:language_strings()}``.
 If ``localize`` is zero, return the strings in English. If ``localize`` is not zero,
 return the strings in the language of the current locale. ``lang_codes`` is a comma-separated list.
 ''')
