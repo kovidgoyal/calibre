@@ -50,11 +50,19 @@ def ffdoc(m):
 
 def source_read_handler(app, docname, source):
     src = source[0]
-    if app.builder.name != 'gettext':
+    if app.builder.name == 'gettext':
+        if docname == 'template_lang':
+            src = re.sub(r':ffdoc:`(.+?)`', ' ', src)  # ffdoc should not be translated
+    else:
         if app.config.language != 'en':
             src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
         if docname == 'template_lang':
-            src = re.sub(r':ffdoc:`(.+?)`', ffdoc, src)
+            try:
+                src = re.sub(r':ffdoc:`(.+?)`', ffdoc, src)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                raise
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         included_doc_name = m.group(1).lstrip('/')
