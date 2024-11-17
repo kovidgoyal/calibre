@@ -647,6 +647,7 @@ class BuiltinField(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
+The ``$`` prefix can be used instead of the function, as in ``$tags``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
@@ -3161,7 +3162,6 @@ the lookup name ``lookup_name``. The field must be multi-valued such as
 ``authors`` or ``tags``, otherwise the function raises an error. This function
 is much faster than ``list_count()`` because it operates directly on calibre
 data without converting it to a string first. Example: ``list_count_field('tags')``.
-The ``$`` prefix can be used instead of the function, as in ``$tags``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
