@@ -749,8 +749,8 @@ class BuiltinTest(BuiltinFormatterFunction):
     category = 'If-then-else'
     __doc__ = doc = _(
 r'''
-``test(value, text if not empty, text if empty)`` -- return ``text if not empty`` if
-the value is not empty, otherwise return ``text if empty``.
+``test(value, text_if_not_empty, text_if_empty)`` -- return ``text_if_not_empty`` if
+the value is not empty, otherwise return ``text_if_empty``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
@@ -766,9 +766,9 @@ class BuiltinContains(BuiltinFormatterFunction):
     category = 'If-then-else'
     __doc__ = doc = _(
 r'''
-``contains(value, pattern, text if match, text if not match)`` -- checks if the value
-is matched by the regular expression ``pattern``. Returns ``text if match`` if
-the pattern matches the value, otherwise returns ``text if no match``.
+``contains(value, pattern, text_if_match, text_if_not_match)`` -- checks if the value
+is matched by the regular expression ``pattern``. Returns ``text_if_match`` if
+the pattern matches the value, otherwise returns ``text_if_not_match``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals,
@@ -1059,8 +1059,8 @@ class BuiltinIfempty(BuiltinFormatterFunction):
     category = 'If-then-else'
     __doc__ = doc = _(
 r'''
-``ifempty(value, text if empty)`` -- if the value is not empty then return that value,
-otherwise return ``text if empty``.
+``ifempty(value, text_if_empty)`` -- if the value is not empty then return that value,
+otherwise return ``text_if_empty``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
@@ -1076,10 +1076,10 @@ class BuiltinShorten(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _(
 r'''
-``shorten(value, left chars, middle text, right chars)`` -- Return a shortened version
-of the value, consisting of ``left chars`` characters from the beginning of the
-value, followed by ``middle text``, followed by ``right chars`` characters from
-the end of the value. ``Left chars`` and ``right chars`` must be non-negative
+``shorten(value, left_chars, middle_text, right_chars)`` -- Return a shortened version
+of the value, consisting of ``left_chars`` characters from the beginning of the
+value, followed by ``middle_text``, followed by ``right_chars`` characters from
+the end of the value. ``left_chars`` and ``right_chars`` must be non-negative
 integers.
 
 Example: assume you want to display the title with a length of at most
