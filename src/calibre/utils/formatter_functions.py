@@ -323,8 +323,8 @@ class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``first_matching_cmp(val, [ cmp, result, ]* else_result)`` -- compares ``val < cmp``
-in sequence, returning the associated result for the first comparison that
-succeeds. Returns else_result if no comparison succeeds.
+in sequence, returning the associated ``result`` for the first comparison that
+succeeds. Returns ``else_result`` if no comparison succeeds.
 
 Example:
 [CODE]
@@ -686,7 +686,7 @@ class BuiltinRawList(BuiltinFormatterFunction):
 r'''
 ``raw_list(lookup_name, separator)`` -- returns the metadata list named by
 ``lookup_name`` without applying any formatting or sorting, with the items
-separated by separator.
+separated by ``separator``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, name, separator):
@@ -721,7 +721,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``lookup(value, [ pattern, key, ]* else_key)`` -- The patterns will be checked against
-the value in order. If a pattern matches then the value of the field named by
+the ``value`` in order. If a ``pattern`` matches then the value of the field named by
 ``key`` is returned. If no pattern matches then the value of the field named by
 ``else_key`` is returned. See also the :ref:`switch` function.
 ''')
@@ -875,7 +875,7 @@ class BuiltinInList(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``list_contains(value, separator, [ pattern, found_val, ]* not_found_val)`` -- interpret the
-value as a list of items separated by ``separator``, checking the ``pattern``
+``value`` as a list of items separated by ``separator``, checking the ``pattern``
 against each item in the list. If the ``pattern`` matches an item then return
 ``found_val``, otherwise return ``not_found_val``. The pair ``pattern`` and
 ``found_value`` can be repeated as many times as desired, permitting returning
@@ -911,7 +911,7 @@ class BuiltinStrInList(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``str_in_list(value, separator, [ string, found_val, ]+ not_found_val)`` -- interpret
-the value as a list of items separated by ``separator`` then compare ``string``
+the ``value`` as a list of items separated by ``separator`` then compare ``string``
 against each value in the list. The ``string`` is not a regular expression. If
 ``string`` is equal to any item (ignoring case) then return the corresponding
 ``found_val``. If ``string`` contains ``separators`` then it is also treated as
@@ -988,7 +988,7 @@ class BuiltinRe(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _(
 r'''
-``re(value, pattern, replacement)`` -- return the value after applying the regular
+``re(value, pattern, replacement)`` -- return the ``value`` after applying the regular
 expression. All instances of ``pattern`` in the value are replaced with
 ``replacement``. The template language uses case insensitive
 [URL href="https://docs.python.org/3/library/re.html"]Python regular
@@ -1006,7 +1006,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by
-applying the regular expression pattern to ``value`` and replacing each matched
+applying the regular expression ``pattern`` to ``value`` and replacing each matched
 instance with the value returned by the corresponding template. In
 [URL href="https://manual.calibre-ebook.com/template_lang.html#more-complex-programs-in-template-expressions-template-program-mode"]
 Template Program Mode[/URL], like for the ``template`` and the
@@ -1044,9 +1044,9 @@ class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _(
 r'''
-``swap_around_comma(value)`` -- given a value of the form ``B, A``, return ``A B``.
+``swap_around_comma(value)`` -- given a ``value`` of the form ``B, A``, return ``A B``.
 This is most useful for converting names in LN, FN format to FN LN. If there is
-no comma in the value then the function returns the value unchanged.
+no comma in the ``value`` then the function returns the value unchanged.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
@@ -1059,7 +1059,7 @@ class BuiltinIfempty(BuiltinFormatterFunction):
     category = 'If-then-else'
     __doc__ = doc = _(
 r'''
-``ifempty(value, text_if_empty)`` -- if the value is not empty then return that value,
+``ifempty(value, text_if_empty)`` -- if the ``value`` is not empty then return that ``value``,
 otherwise return ``text_if_empty``.
 ''')
 
@@ -1077,9 +1077,9 @@ class BuiltinShorten(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``shorten(value, left_chars, middle_text, right_chars)`` -- Return a shortened version
-of the value, consisting of ``left_chars`` characters from the beginning of the
-value, followed by ``middle_text``, followed by ``right_chars`` characters from
-the end of the value. ``left_chars`` and ``right_chars`` must be non-negative
+of the ``value``, consisting of ``left_chars`` characters from the beginning of the
+``value``, followed by ``middle_text``, followed by ``right_chars`` characters from
+the end of the ``value``. ``left_chars`` and ``right_chars`` must be non-negative
 integers.
 
 Example: assume you want to display the title with a length of at most
@@ -1152,7 +1152,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
     category = 'List lookup'
     __doc__ = doc = _(
 r'''
-``list_item(value, index, separator)`` -- interpret the value as a list of items
+``list_item(value, index, separator)`` -- interpret the ``value`` as a list of items
 separated by ``separator``, returning the 'index'th item. The first item is
 number zero. The last item has the index ``-1`` as in
 ``list_item(-1,separator)``. If the item is not in the list, then the empty
@@ -1177,10 +1177,10 @@ class BuiltinSelect(BuiltinFormatterFunction):
     category = 'List lookup'
     __doc__ = doc = _(
 r'''
-``select(value, key)`` -- interpret the value as a comma-separated list of items with
+``select(value, key)`` -- interpret the ``value`` as a comma-separated list of items with
 each item having the form ``id:value`` (the calibre ``identifier`` format). The
-function finds the first pair with the id equal to key and returns the
-corresponding value. If no id matches then the function returns the empty
+function finds the first pair with the id equal to ``key`` and returns the
+corresponding ``value``. If no id matches then the function returns the empty
 string.
 ''')
 
@@ -1295,7 +1295,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _(
 r'''
-``human_readable(value)`` -- expects the value to be a number and returns a string
+``human_readable(value)`` -- expects the ``value`` to be a number and returns a string
 representing that number in KB, MB, GB, etc.
 ''')
 
@@ -1312,7 +1312,7 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _(
 r'''
-``format_number(value, template)`` -- interprets the value as a number and formats that
+``format_number(value, template)`` -- interprets the ``value`` as a number and formats that
 number using a Python formatting template such as ``{0:5.2f}`` or ``{0:,d}`` or
 ``${0:5,.2f}``. The formatting template must begin with ``{0:`` and end with
 ``}`` as in the above examples. Exception: you can leave off the leading "{0:"
@@ -1351,7 +1351,7 @@ class BuiltinSublist(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _(
 r'''
-``sublist(value, start_index, end_index, separator)`` -- interpret the value as a
+``sublist(value, start_index, end_index, separator)`` -- interpret the ``value`` as a
 list of items separated by ``separator``, returning a new list made from the
 items from ``start_index`` to ``end_index``. The first item is number zero. If
 an index is negative, then it counts from the end of the list. As a special
@@ -1391,13 +1391,13 @@ class BuiltinSubitems(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``subitems(value, start_index, end_index)`` -- This function breaks apart lists of
-tag-like hierarchical items such as genres. It interprets the value as a comma-
+tag-like hierarchical items such as genres. It interprets the ``value`` as a comma-
 separated list of tag-like items, where each item is a period-separated list. It
 returns a new list made by extracting from each item the components from
 ``start_index`` to ``end_index``, then merging the results back together.
 Duplicates are removed. The first subitem in a period-separated list has an
 index of zero. If an index is negative then it counts from the end of the list.
-As a special case, an end_index of zero is assumed to be the length of the list.
+As a special case, an ``end_index`` of zero is assumed to be the length of the list.
 
 Examples:
 [LIST]
@@ -1448,8 +1448,8 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _(
 r'''
-``format_date(value, format_string)`` -- format the value, which must be a date
-string, using the format_string, returning a string. It is best if the date is
+``format_date(value, format_string)`` -- format the ``value``, which must be a date
+string, using the ``format_string``, returning a string. It is best if the date is
 in ISO format as using other date formats often causes errors because the actual
 date value cannot be unambiguously determined. Note that the
 ``format_date_field()`` function is both faster and more reliable.
@@ -1558,7 +1558,7 @@ class BuiltinUppercase(BuiltinFormatterFunction):
     category = 'String case changes'
     __doc__ = doc = _(
 r'''
-``uppercase(value)`` -- returns the value in upper case.
+``uppercase(value)`` -- returns the ``value`` in upper case.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
@@ -1571,7 +1571,7 @@ class BuiltinLowercase(BuiltinFormatterFunction):
     category = 'String case changes'
     __doc__ = doc = _(
 r'''
-``lowercase(value)`` -- returns the value in lower case.
+``lowercase(value)`` -- returns the ``value`` in lower case.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
@@ -1584,7 +1584,7 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
     category = 'String case changes'
     __doc__ = doc = _(
 r'''
-``titlecase(value)`` -- returns the value in title case.
+``titlecase(value)`` -- returns the ``value`` in title case.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
@@ -1597,7 +1597,7 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
     category = 'String case changes'
     __doc__ = doc = _(
 r'''
-``capitalize(value)`` -- returns the value with the first letter in upper case and the rest lower case.
+``capitalize(value)`` -- returns the ``value`` with the first letter in upper case and the rest lower case.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
@@ -1878,8 +1878,8 @@ class BuiltinRange(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``range(start, stop, step, limit)`` -- returns a list of numbers generated by
-looping over the range specified by the parameters start, stop, and step, with a
-maximum length of limit. The first value produced is 'start'. Subsequent values
+looping over the range specified by the parameters ``start``, ``stop``, and ``step``,
+with a maximum length of ``limit``. The first value produced is 'start'. Subsequent values
 ``next_v = current_v + step``. The loop continues while ``next_v < stop``
 assuming ``step`` is positive, otherwise while ``next_v > stop``. An empty list
 is produced if ``start`` fails the test: ``start >= stop`` if ``step`` is
@@ -1951,7 +1951,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
 r'''
 ``list_difference(list1, list2, separator)`` -- return a list made by removing
 from ``list1`` any item found in ``list2`` using a case-insensitive comparison.
-The items in ``list1`` and ``list2`` are separated by separator, as are the
+The items in ``list1`` and ``list2`` are separated by ``separator``, as are the
 items in the returned list.
 ''')
 
@@ -1976,7 +1976,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
 r'''
 ``list_intersection(list1, list2, separator)`` -- return a list made by removing
 from ``list1`` any item not found in ``list2``, using a case-insensitive
-comparison. The items in ``list1`` and ``list2`` are separated by separator, as
+comparison. The items in ``list1`` and ``list2`` are separated by ``separator``, as
 are the items in the returned list.
 ''')
 
@@ -2153,7 +2153,7 @@ class BuiltinDateArithmetic(BuiltinFormatterFunction):
 r'''
 ``date_arithmetic(value, calc_spec, fmt)`` -- Calculate a new date from ``value``
 using ``calc_spec``. Return the new date formatted according to optional
-``fmt``: if not supplied then the result will be in ISO format. The calc_spec is
+``fmt``: if not supplied then the result will be in ISO format. The ``calc_spec`` is
 a string formed by concatenating pairs of ``vW`` (``valueWhat``) where ``v`` is
 a possibly-negative number and W is one of the following letters:
 [LIST]
@@ -2283,8 +2283,8 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _(
 r'''
-``finish_formatting(val, format, prefix, suffix)`` -- apply the ``format``, ``prefix``, and
-``suffix`` to a value in the same way as done in a template like
+``finish_formatting(value, format, prefix, suffix)`` -- apply the ``format``, ``prefix``, and
+``suffix`` to the ``value`` in the same way as done in a template like
 ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of
 complex single-function- or template-program-mode templates to `GPM` Templates.
 For example, the following program produces the same output as the above
@@ -2607,9 +2607,9 @@ class BuiltinRatingToStars(BuiltinFormatterFunction):
     category = 'Formatting values'
     __doc__ = doc = _(
 r'''
-``rating_to_stars(value, use_half_stars)`` -- Returns the value as string of star
-(``{}``) characters. The value must be a number between 0 and 5. Set
-use_half_stars to 1 if you want half star characters for fractional numbers
+``rating_to_stars(value, use_half_stars)`` -- Returns the ``value`` as string of star
+(``{}``) characters. The value must be a number between ``0`` and ``5``. Set
+``use_half_stars`` to ``1`` if you want half star characters for fractional numbers
 available with custom ratings columns.
 ''').format('★')
 
@@ -2633,10 +2633,10 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _(
 r'''
-``swap_around_articles(value, separator)`` -- returns the value with articles moved to
-the end. The value can be a list, in which case each item in the list is
-processed. If the value is a list then you must provide the ``separator``. If no
-``separator`` is provided then the value is treated as being a single value, not
+``swap_around_articles(value, separator)`` -- returns the ``value`` with articles moved to
+the end. The ``value`` can be a list, in which case each item in the list is
+processed. If the ``value`` is a list then you must provide the ``separator``. If no
+``separator`` is provided then the ``value`` is treated as being a single value, not
 a list. The `articles` are those used by calibre to generate the ``title_sort``.
 ''')
 
@@ -2769,7 +2769,7 @@ r'''
 ``urls_from_identifiers(identifiers, sort_results)`` -- given a comma-separated
 list of ``identifiers``, where an ``identifier`` is a colon-separated pair of
 values (``id_name:id_value``), returns a comma-separated list of HTML URLs
-generated from the identifiers. The list not sorted if sort_results is ``0``
+generated from the identifiers. The list not sorted if ``sort_results`` is ``0``
 (character or number), otherwise it is sorted alphabetically by the identifier
 name. The URLs are generated in the same way as the built-in identifiers column
 when shown in Book Details.
@@ -3021,7 +3021,7 @@ class BuiltinGetNote(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``get_note(field_name, field_value, plain_text)`` -- fetch the note for field
-'field_name' with value 'field_value'. If ``plain_text`` is empty, return the
+``field_name`` with value ``field_value``. If ``plain_text`` is empty, return the
 note's HTML including images. If ``plain_text`` is ``1`` (or ``'1'``), return the
 note's plain text. If the note doesn't exist, return the empty string in both
 cases. Example:
