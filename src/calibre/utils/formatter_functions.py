@@ -352,7 +352,8 @@ class BuiltinStrcat(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``strcat(a [, b]*)`` -- can take any number of arguments. Returns a string
-formed by concatenating all the arguments.
+formed by concatenating all the arguments. In most cases you can use the ``&`` operator
+instead of this function.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -3159,8 +3160,8 @@ r'''
 the lookup name ``lookup_name``. The field must be multi-valued such as
 ``authors`` or ``tags``, otherwise the function raises an error. This function
 is much faster than ``list_count()`` because it operates directly on calibre
-data without converting it to a string first. Example:
-``list_count_field('tags')``
+data without converting it to a string first. Example: ``list_count_field('tags')``.
+The ``$`` prefix can be used instead of the function, as in ``$tags``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
