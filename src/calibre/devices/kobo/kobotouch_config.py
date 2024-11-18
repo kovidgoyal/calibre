@@ -245,7 +245,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
         self.setCheckable(True)
         self.setChecked(device.get_pref('manage_collections'))
-        self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
+        self.setToolTip(wrap_msg(_('Create new collections on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
         self.use_collections_columns_checkbox = create_checkbox(
                              _("Collections columns:"),
@@ -253,7 +253,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('use_collections_columns')
                              )
         self.collections_columns_edit = QLineEdit(self)
-        self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
+        self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports collections.'
                 ' These are created on the Kobo. '
                 'Specify a tags type column for automatic management.'))
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
@@ -273,12 +273,12 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
         self.create_collections_checkbox = create_checkbox(
                          _("Create collections"),
-                         _('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
+                         _('Create new collections on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
                          device.get_pref('create_collections')
                          )
         self.delete_empty_collections_checkbox = create_checkbox(
-                         _('Delete empty bookshelves'),
-                         _('Delete any empty bookshelves from the Kobo when syncing is finished. This is only for firmware V2.0.0 or later.'),
+                         _('Delete empty collections'),
+                         _('Delete any empty collections from the Kobo when syncing is finished. This is only for firmware V2.0.0 or later.'),
                          device.get_pref('delete_empty_collections')
                          )
 
