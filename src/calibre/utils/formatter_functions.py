@@ -1179,9 +1179,9 @@ class BuiltinSelect(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``select(value, key)`` -- interpret the ``value`` as a comma-separated list of items with
-each item having the form ``id:value`` (the calibre ``identifier`` format). The
+each item having the form ``id:id_value`` (the calibre ``identifier`` format). The
 function finds the first pair with the id equal to ``key`` and returns the
-corresponding ``value``. If no id matches then the function returns the empty
+corresponding ``id_value``. If no id matches then the function returns the empty
 string.
 ''')
 
