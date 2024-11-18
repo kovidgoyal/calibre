@@ -172,45 +172,55 @@ Notes on calling functions in Single Function Mode:
 * In the function documentation, the notation ``[something]*`` means that ``something`` can be repeated zero or more times. The notation ``[something]+`` means that the ``something`` is repeated one or more times (must exist at least one time).
 * Some functions use regular expressions. In the template language regular expression matching is case-insensitive.
 
-The following functions can be used in Single Function Mode because their first parameter is ``value``.
+Functions are documented in :ref:`template_functions_reference`. The documentation tells you what arguments the functions require and what the functions do. For example, here is the documentation of the :ref:`ff_ifempty` function.
 
-* :ffdoc:`capitalize`
-* :ffdoc:`ceiling`
-* :ffdoc:`cmp`
-* :ffdoc:`contains`
-* :ffdoc:`date_arithmetic`
-* :ffdoc:`floor`
-* :ffdoc:`format_date`
-* :ffdoc:`format_number`
-* :ffdoc:`fractional_part`
-* :ffdoc:`human_readable`
-* :ffdoc:`ifempty`
-* :ffdoc:`language_strings`
-* :ffdoc:`list_contains`
-* :ffdoc:`list_count`
-* :ffdoc:`list_count_matching`
-* :ffdoc:`list_item`
-* :ffdoc:`list_sort`
-* :ffdoc:`lookup`
-* :ffdoc:`lowercase`
-* :ffdoc:`mod`
-* :ffdoc:`rating_to_stars`
-* :ffdoc:`re`
-* :ffdoc:`re_group`
-* :ffdoc:`round`
-* :ffdoc:`select`
-* :ffdoc:`shorten`
-* :ffdoc:`str_in_list`
-* :ffdoc:`subitems`
-* :ffdoc:`sublist`
-* :ffdoc:`substr`
-* :ffdoc:`swap_around_articles`
-* :ffdoc:`swap_around_comma`
-* :ffdoc:`switch`
-* :ffdoc:`test`
-* :ffdoc:`titlecase`
-* :ffdoc:`transliterate`
-* :ffdoc:`uppercase`
+:ffdoc:`ifempty`
+
+You see that the function requires two arguments, ``value`` and ``text_if_empty``. However, because we are using Single Function Mode, we omit the ``value`` argument, passing only ``text_if_empty``. For example, this template::
+
+  {tags:ifempty(No tags on this book)}
+
+shows the tags for a book if it has any. If it has no tags then it show `No tags on this book`.
+
+The following functions are usable in Single Function Mode because their first parameter is ``value``.
+
+* :ref:`ff_capitalize`
+* :ref:`ff_ceiling`
+* :ref:`ff_cmp`
+* :ref:`ff_contains`
+* :ref:`ff_date_arithmetic`
+* :ref:`ff_floor`
+* :ref:`ff_format_date`
+* :ref:`ff_format_number`
+* :ref:`ff_fractional_part`
+* :ref:`ff_human_readable`
+* :ref:`ff_ifempty`
+* :ref:`ff_language_strings`
+* :ref:`ff_list_contains`
+* :ref:`ff_list_count`
+* :ref:`ff_list_count_matching`
+* :ref:`ff_list_item`
+* :ref:`ff_list_sort`
+* :ref:`ff_lookup`
+* :ref:`ff_lowercase`
+* :ref:`ff_mod`
+* :ref:`ff_rating_to_stars`
+* :ref:`ff_re`
+* :ref:`ff_re_group`
+* :ref:`ff_round`
+* :ref:`ff_select`
+* :ref:`ff_shorten`
+* :ref:`ff_str_in_list`
+* :ref:`ff_subitems`
+* :ref:`ff_sublist`
+* :ref:`ff_substr`
+* :ref:`ff_swap_around_articles`
+* :ref:`ff_swap_around_comma`
+* :ref:`ff_switch`
+* :ref:`ff_test`
+* :ref:`ff_titlecase`
+* :ref:`ff_transliterate`
+* :ref:`ff_uppercase`
 
 **Using functions and formatting in the same template**
 
@@ -302,7 +312,7 @@ The operator precedence (order of evaluation) from highest (evaluated first) to 
 
 **Field references**
 
-A ``field_reference`` evaluates to the value of the metadata field named by lookup name that follows the ``$`` or ``$$``. Using ``$`` is equivalent to using the ``field()`` function. Using ``$$`` is equivalent to using the ``raw_field`` function. Examples::
+A ``field_reference`` evaluates to the value of the metadata field named by lookup name that follows the ``$`` or ``$$``. Using ``$`` is equivalent to using the :ref:`field` function. Using ``$$`` is equivalent to using the :ref:`raw_field` function. Examples::
 
 * $authors ==> field('authors')
 * $#genre ==> field('#genre')
@@ -345,13 +355,13 @@ As said above, an ``if`` produces a value. This means that all the following are
     * program: if field('series') then a = 'foo' else a = 'bar' fi; a
     * program: a = if field('series') then 'foo' else 'bar' fi; a
 
-As a last example, this program returns the value of the ``series`` column if the book has a series, otherwise the value of the ``title`` column::
+For example, this program returns the value of the ``series`` column if the book has a series, otherwise the value of the ``title`` column::
 
     program: field(if field('series') then 'series' else 'title' fi)
 
 **For expressions**
 
-The ``for`` expression iterates over a list of values, processing them one at a time. The ``list_expression`` must evaluate either to a metadata field ``lookup name`` e.g., ``tags`` or ``#genre``, or to a list of values. The :ref:`range() function <range_function>` (see below) generates a list of numbers. If the result is a valid ``lookup name`` then the field's value is fetched and the separator specified for that field type is used. If the result isn't a valid lookup name then it is assumed to be a list of values. The list is assumed to be separated by commas unless the optional keyword ``separator`` is supplied, in which case the list values must be separated by the result of evaluating the ``separator_expr``. A separator cannot be used if the list is generated by ``range()``. Each value in the list is assigned to the specified variable then the ``expression_list`` is evaluated. You can use ``break`` to jump out of the loop, and ``continue`` to jump to the beginning of the loop for the next iteration.
+The ``for`` expression iterates over a list of values, processing them one at a time. The ``list_expression`` must evaluate either to a metadata field ``lookup name`` e.g., ``tags`` or ``#genre``, or to a list of values. The :ref:`ff_range_function` generates a list of numbers. If the result is a valid ``lookup name`` then the field's value is fetched and the separator specified for that field type is used. If the result isn't a valid lookup name then it is assumed to be a list of values. The list is assumed to be separated by commas unless the optional keyword ``separator`` is supplied, in which case the list values must be separated by the result of evaluating the ``separator_expr``. A separator cannot be used if the list is generated by ``range()``. Each value in the list is assigned to the specified variable then the ``expression_list`` is evaluated. You can use ``break`` to jump out of the loop, and ``continue`` to jump to the beginning of the loop for the next iteration.
 
 Example: This template removes the first hierarchical name for each value in Genre (``#genre``), constructing a list with the new names::
 
@@ -370,7 +380,7 @@ Note: the last line in the template, ``new_tags``, isn't strictly necessary in t
 
 **Function definition**
 
-If you have code in a template that repeats then you can put that code into a local function. The ``def`` keyword starts the definition. It is followed by the function name, the argument list, then the code in the function. The function definition ends with the ``fed`` keyword.
+If you have repeated code in a template then you can put that code into a local function. The ``def`` keyword starts the definition. It is followed by the function name, the argument list, then the code in the function. The function definition ends with the ``fed`` keyword.
 
 Arguments are positional. When a function is called the supplied arguments are matched left to right against the defined parameters, with the value of the argument assigned to the parameter. It is an error to provide more arguments than defined parameters. Parameters can have default values, such as ``a = 25``. If an argument is not supplied for that parameter then the default value is used, otherwise the parameter is set to the empty string.
 
@@ -422,115 +432,14 @@ Examples:
   * ``program: if 11 > 2 then 'yes' else 'no' fi`` returns ``'no'`` because the ``>`` operator does a lexical comparison.
   * ``program: if 11 ># 2 then 'yes' else 'no' fi`` returns ``'yes'`` because the ``>#`` operator does a numeric comparison.
 
-**Additional available functions**
+**Functions in General Program Mode**
 
-The following functions are available in addition to those described in :ref:`Single Function Mode <single_mode>`.
+See :ref:`template_functions_reference` for the list of functions built into the template language.
 
-In `GPM` the functions described in `Single Function Mode` all require an additional first parameter specifying the value to operate upon. All parameters are expression_lists (see the grammar above).
+Notes:
 
-* :ffdoc:`add`
-* :ffdoc:`and`
-* :ffdoc:`assign`
-* :ffdoc:`approximate_formats`
-* :ffdoc:`author_sorts`
-* :ffdoc:`book_count`
-
-  For example this template search uses this function and its companion to find all series with only one book:
-
-  1) Define a stored template (using :guilabel:`Preferences->Advanced->Template functions`) named ``series_only_one_book`` (the name is arbitrary). The template is::
-
-	program:
-	    vals = globals(vals='');
-	    if !vals then
-	        all_series = book_values('series', 'series:true', ',', 0);
-	        for series in all_series:
-	            if book_count('series:="' & series & '"', 0) == 1 then
-	                vals = list_join(',', vals, ',', series, ',')
-	            fi
-	        rof;
-	        set_globals(vals)
-	    fi;
-	    str_in_list(vals, ',', $series, 1, '')
-
-    The first time the template runs (the first book checked) it stores the results of the database lookups in a ``global`` template variable named ``vals``. These results are used to check subsequent books without redoing the lookups.
-
-  2) Use the stored template in a template search::
-
-      template:"program: series_only_one_book()#@#:n:1"
-
-  Using a stored template instead of putting the template into the search eliminates problems caused by the requirement to escape quotes in search expressions.
-* :ffdoc:`book_values`
-* :ffdoc:`booksize`
-* :ffdoc:`check_yes_no`
-* :ffdoc:`ceiling`
-* :ffdoc:`character`
-* :ffdoc:`cmp`
-* :ffdoc:`connected_device_name`
-* :ffdoc:`connected_device_uuid`
-* :ffdoc:`current_library_name`
-* :ffdoc:`current_library_path`
-* :ffdoc:`current_virtual_library_name`
-* :ffdoc:`date_arithmetic`
-* :ffdoc:`days_between`
-* :ffdoc:`divide`
-* :ffdoc:`eval`
-* :ffdoc:`extra_file_size`
-* :ffdoc:`extra_file_modtime`
-* :ffdoc:`extra_file_names`
-* :ffdoc:`field`
-* :ffdoc:`field_exists`
-* :ffdoc:`finish_formatting`
-* :ffdoc:`first_matching_cmp`
-* :ffdoc:`first_non_empty`
-* :ffdoc:`floor`
-* :ffdoc:`format_date`
-* :ffdoc:`formats_modtimes`
-* :ffdoc:`formats_paths`
-* :ffdoc:`formats_sizes`
-* :ffdoc:`fractional_part`
-* :ffdoc:`get_link`
-* :ffdoc:`get_note`
-* :ffdoc:`has_extra_files`
-* :ffdoc:`identifier_in_list`
-* :ffdoc:`is_dark_mode`
-* :ffdoc:`is_marked`
-* :ffdoc:`language_codes`
-* :ffdoc:`list_contains`
-* :ffdoc:`list_count`
-* :ffdoc:`list_count_field`
-* :ffdoc:`list_count_matching`
-* :ffdoc:`list_difference`
-* :ffdoc:`list_equals`
-* :ffdoc:`list_intersection`
-* :ffdoc:`list_join`
-* :ffdoc:`list_union`
-* :ffdoc:`mod`
-* :ffdoc:`multiply`
-* :ffdoc:`not`
-* :ffdoc:`ondevice`
-* :ffdoc:`or`
-* :ffdoc:`print`
-
-.. _range_function:
-
-* :ffdoc:`range`
-* :ffdoc:`raw_field`
-* :ffdoc:`raw_list`
-* :ffdoc:`re_group`
-* :ffdoc:`round`
-* :ffdoc:`series_sort`
-* :ffdoc:`strcat`
-* :ffdoc:`strcat_max`
-* :ffdoc:`strcmp`
-* :ffdoc:`strcmpcase`
-* :ffdoc:`strlen`
-* :ffdoc:`substr`
-* :ffdoc:`subtract`
-* :ffdoc:`switch_if`
-* :ffdoc:`today`
-* :ffdoc:`template`
-* :ffdoc:`to_hex`
-* :ffdoc:`urls_from_identifiers`
+* As opposed to :ref:`Single Function Mode <single_mode>`, in General Program Mode you must specify the first parameter ``value``.
+* All parameters are expression_lists (see the grammar above).
 
 .. _template_mode:
 
@@ -548,23 +457,19 @@ the value of a custom field #genre. You cannot do this in the :ref:`Single Funct
 The example shows several things:
 
 * `TPM` is used if the expression begins with ``:'`` and ends with ``'}``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
-* the variable ``$`` stands for the field named in the template: the expression is operating upon, ``#series`` in this case.
-* functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field.
+* Functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given the initial parameter ``value``.
+* The variable ``$`` is usable as the ``input`` argument and stands for the value of the field named in the template, ``#series`` in this case.
 * white space is ignored and can be used anywhere within the expression.
 * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
-All the functions listed under `Single Function Mode` and `General Program Mode` can be used in `TPM`.
-
 In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors or unexpected results because they confuse the template processor. It tries to treat them as template expression boundaries, not characters. In some but not all cases you can replace a ``{`` with ``[[`` and a ``}`` with `]]`. Generally, if your program contains ``{`` and ``}`` characters then you should use `General Program Mode`.
-
-As with `General Program Mode`, for functions documented under :ref:`Single Function Mode <single_mode>` you must supply the value the function is to act upon as the first parameter in addition to the documented parameters. In `TPM` you can use ``$`` to access the value specified by the ``lookup name`` for the template expression.
 
 .. _python_mode:
 
 Python Template Mode
 -----------------------------------
 
-Python Template Mode (PTM) lets you write templates using native python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in python using the calibre API.
+Python Template Mode (PTM) lets you write templates using native Python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in Python using the calibre API.
 
 A PTM template begins with:
 
@@ -718,7 +623,7 @@ Differences:
 User-defined Python template functions
 ------------------------------------------
 
-You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
+You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog. Note that you can use `Python Templates` for a similar purpose. As calling user-defined functions is faster than calling a Python template, user-defind functions might be more efficient depending on the complexity of what the function or template does.
 
 Special notes for save/send templates
 ---------------------------------------
@@ -749,7 +654,7 @@ Tips
 
 .. _template_functions_reference:
 
-Function reference
+Template function reference
 ---------------------------
 
 .. toctree::
