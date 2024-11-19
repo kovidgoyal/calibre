@@ -53,7 +53,8 @@ class IndianExpress(BasicNewsRecipe):
             ('India', 'https://indianexpress.com/section/india/'),
             # ('Express Network', 'https://indianexpress.com/print/express-network/'),
             ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/'),
-            ('Opinion', 'http://indianexpress.com/section/opinion/'),
+            ('Editorials', 'https://indianexpress.com/section/opinion/editorials/'),
+            ('Columns', 'https://indianexpress.com/section/opinion/columns/'),
             ('UPSC-CSE Key', 'https://indianexpress.com/section/upsc-current-affairs/'),
             ('Explained', 'https://indianexpress.com/section/explained/'),
             ('Business', 'https://indianexpress.com/section/business/'),
@@ -99,7 +100,7 @@ class IndianExpress(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation']})
+        div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation', 'opinion-more-wrapper']]})
         for art in div.findAll(
             attrs={'class': ['articles', 'o-opin-article', 'myie-articles']}
         ):
@@ -110,10 +111,10 @@ class IndianExpress(BasicNewsRecipe):
                     url = a['href']
                     title = self.tag_to_string(a)
                     desc = ''
-                    if p := art.find('p'):
+                    if p := (art.find('p') or art.find(attrs={'class':'opinion-news-para'})):
                         desc = self.tag_to_string(p)
                     if da := art.find(
-                        'div', attrs={'class': ['date', 'o-opin-date', 'my-time']}
+                        'div', attrs={'class': ['date', 'o-opin-date', 'opinion-date', 'my-time']}
                     ):
                         date = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
                         today = datetime.now()
