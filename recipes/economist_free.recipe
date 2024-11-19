@@ -263,7 +263,7 @@ class Economist(BasicNewsRecipe):
         for x in data:
             if ed_date in x['datePublished']:
                 return x['id']
-        raise ValueError(ed_date, ' not found.')
+        return None
 
     def parse_index(self):
         edition_date = self.recipe_specific_options.get('date')
@@ -276,13 +276,17 @@ class Economist(BasicNewsRecipe):
         }
         if edition_date and isinstance(edition_date, str):
             content_id = self.get_content_id(edition_date)
-            query = {
-                'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa
-                'operationName': 'SpecificWeeklyEditionQuery',
-                'variables': '{{"path":"{}"}}'.format(content_id),
-            }
+            if content_id:
+                query = {
+                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa
+                    'operationName': 'SpecificWeeklyEditionQuery',
+                    'variables': '{{"path":"{}"}}'.format(content_id),
+                }
         url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         try:
+            if edition_date and isinstance(edition_date, str):
+                if not content_id:
+                    raise ValueError(edition_date, ' not found, trying web edition')
             raw = self.index_to_soup(url, raw=True)
         except Exception:
             self.log('Fetching articles from web archive.')
