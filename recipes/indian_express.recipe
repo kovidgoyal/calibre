@@ -100,7 +100,7 @@ class IndianExpress(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation', 'opinion-more-wrapper']]})
+        div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation', 'opinion-more-wrapper']})
         for art in div.findAll(
             attrs={'class': ['articles', 'o-opin-article', 'myie-articles']}
         ):
