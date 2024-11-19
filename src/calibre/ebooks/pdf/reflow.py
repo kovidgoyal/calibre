@@ -1103,7 +1103,7 @@ class Page:
         # Do this before automatic actions
         self.remove_head_foot_regex(opts)
 
-    def find_margins(self, tops, indents_odd, indents_even, line_spaces, bottoms, rights):
+    def find_margins(self, tops, indents, line_spaces, bottoms, rights):
 
         #from collections import Counter
 
@@ -1138,10 +1138,7 @@ class Page:
 
             max_right = max(max_right, text.right)
 
-            if self.odd_even:
-                indents_odd[left] = indents_odd.get(left, 0) + 1
-            else:
-                indents_even[left] = indents_even.get(left, 0) + 1
+            indents[left] = indents.get(left, 0) + 1
 
         if max_bot > 0:
             bottoms[max_bot] = bottoms.get(max_bot, 0) + 1
@@ -1449,8 +1446,8 @@ class PDFDocument:
 
         # Work out document dimensions from page format
         for page in self.pages:
-            page.find_margins(self.tops, self.indents_odd, self.indents_even, \
-                             self.line_spaces, self.bottoms, self.rights)
+            page.find_margins(self.tops, self.indents_odd if page.odd_even else self.indents_even, \
+                              self.line_spaces, self.bottoms, self.rights)
 
         self.setup_stats()
 
@@ -1757,14 +1754,21 @@ class PDFDocument:
         head_text = [''] * LINE_SCAN_COUNT
         head_match = [0] * LINE_SCAN_COUNT
         head_match1 = [0] * LINE_SCAN_COUNT
+        head_match2 = [0] * LINE_SCAN_COUNT
         head_page = 0
         head_skip = 0
         foot_text = [''] * LINE_SCAN_COUNT
         foot_match = [0] * LINE_SCAN_COUNT
         foot_match1 = [0] * LINE_SCAN_COUNT
+        foot_match2 = [0] * LINE_SCAN_COUNT
         foot_page = 0
         foot_skip = 0
+        # xxx nn xxx nn  or nn xxx  or just roman numerals
         pagenum_text = r'(.*\d+\s+\w+\s+\d+.*)|(\s*\d+\s+.*)|(^\s*[ivxlcIVXLC]+\s*$)'
+        # For line ending nn, is the preceding text constant
+        fixed_text = r'(^.+[^0-9])\d+\s*$'
+        fixed_head = ''
+        fixed_foot = ''
 
         pages_to_scan = scan_count
         # Note that a line may be in more than 1 part
@@ -1790,11 +1794,21 @@ class PDFDocument:
                             head_match[head_ind] += 1
                             if head_page == 0:
                                 head_page = page.number
-                        else:	# Look for page count of format 'n xxx n'
-                            if re.match(pagenum_text, t) is not None:
-                                head_match1[head_ind] += 1
-                                if head_page == 0:
-                                    head_page = page.number
+                        elif re.match(pagenum_text, t) is not None:
+                            # Look for page count of format 'n xxx n'
+                            head_match1[head_ind] += 1
+                            if head_page == 0:
+                                head_page = page.number
+                        else:
+                            # Look for text of format 'constant nn'
+                            f = re.match(fixed_text, t)
+                            if f and f.group(1):
+                                if not fixed_head:
+                                    fixed_head = f.group(1)
+                                elif fixed_head == f.group(1):
+                                    head_match2[head_ind] += 1
+                                    if head_page == 0:
+                                        head_page = page.number
 
             if self.opts.pdf_footer_skip < 0 \
               and len(page.texts) > 0:
@@ -1813,11 +1827,21 @@ class PDFDocument:
                             foot_match[foot_ind] += 1
                             if foot_page == 0:
                                 foot_page = page.number
-                        else:	# Look for page count of format 'n xxx n'
-                            if re.match(pagenum_text, t) is not None:
-                                foot_match1[foot_ind] += 1
-                                if foot_page == 0:
-                                    foot_page = page.number
+                        elif re.match(pagenum_text, t) is not None:
+                            # Look for page count of format 'n xxx n'
+                            foot_match1[foot_ind] += 1
+                            if foot_page == 0:
+                                foot_page = page.number
+                        else:
+                            # Look for text of format 'constant nn'
+                            f = re.match(fixed_text, t)
+                            if f and f.group(1):
+                                if not fixed_foot:
+                                    fixed_foot = f.group(1)
+                                elif fixed_foot == f.group(1):
+                                    foot_match2[foot_ind] += 1
+                                    if foot_page == 0:
+                                        foot_page = page.number
 
             pages_to_scan -= 1
             if pages_to_scan < 1:
@@ -1833,19 +1857,27 @@ class PDFDocument:
 
         head_ind = 0
         for i in range(LINE_SCAN_COUNT):
-            if head_match[i] > pages_to_scan or head_match1[i] > pages_to_scan:
+            if head_match[i] > pages_to_scan \
+              or head_match1[i] > pages_to_scan \
+              or head_match2[i] > pages_to_scan:
                 head_ind = i  # Remember the last matching line
         if self.pages[head_page].texts \
-          and (head_match[head_ind] > pages_to_scan or head_match1[head_ind] > pages_to_scan):
+          and (head_match[head_ind] > pages_to_scan \
+            or head_match1[head_ind] > pages_to_scan \
+            or head_match2[head_ind] > pages_to_scan):
             t = self.pages[head_page].texts[head_ind]
             head_skip = t.top + t.height + 1
 
         foot_ind = 0
         for i in range(LINE_SCAN_COUNT):
-            if foot_match[i] > pages_to_scan or foot_match1[i] > pages_to_scan:
+            if foot_match[i] > pages_to_scan \
+              or foot_match1[i] > pages_to_scan \
+              or foot_match2[i] > pages_to_scan:
                 foot_ind = i  # Remember the last matching line
         if self.pages[foot_page].texts \
-          and (foot_match[foot_ind] > pages_to_scan or foot_match1[foot_ind] > pages_to_scan):
+          and (foot_match[foot_ind] > pages_to_scan \
+            or foot_match1[foot_ind] > pages_to_scan \
+            or foot_match2[foot_ind] > pages_to_scan):
             t = self.pages[foot_page].texts[-foot_ind-1]
             foot_skip = t.top - 1
 
@@ -1884,6 +1916,8 @@ class PDFDocument:
         save_bottom = 0
         # After merge, skip to this page
         pind = 0
+        # If a page is merged, and removed, may need to remember it
+        save_candidate = None
 
         # Now merge where bottom of one is within ORPHAN_LINES lines of max_bottom
         # and top of next is within a line of min_top
@@ -1892,7 +1926,8 @@ class PDFDocument:
         while merge_done:
             merge_done = False  # A merge was done
             merged_page = None  # Page merged into previous
-            candidate = None    # Lines close enough to the bottom that it might merge
+            candidate = save_candidate  # Lines close enough to the bottom that it might merge
+            save_candidate = None
             while pind < len(self.pages):
                 page = self.pages[pind]
                 stats_left = page.stats_left
@@ -1976,14 +2011,19 @@ class PDFDocument:
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
                 merged_page.texts.remove(merged_text)
                 # Put back top/bottom after coalesce if final line
-                if save_bottom != 0.0 :
+                if save_bottom:
                     # Ignore top as that can confuse things where the 1st para of a page
                     # was merged with a previous.  Keep the original top
                     candidate.texts[-1].bottom = save_bottom
-                #candidate.coalesce_paras()
+
                 # Have we removed everything from this page (well, all texts and images)
                 if merged_page.is_empty:
-                    candidate.texts[-1].blank_line_before = 1
+                    # Empty page does/may not actually mean blank line
+                    #candidate.texts[-1].blank_line_before = 1
+                    # If pages are merged, and the merged page gets removed (as here),
+                    # and the next page is short (forced page break),
+                    # then the merge would fail when this loop restarts.
+                    save_candidate = candidate
                     self.pages.remove(merged_page)
 
     def linearize(self):
