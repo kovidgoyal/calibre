@@ -45,7 +45,8 @@ from calibre import sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, pixmap_to_data, question_dialog, safe_open_url
+from calibre.gui2 import (choose_files, choose_save_file, error_dialog, gprefs, info_dialog,
+                          pixmap_to_data, question_dialog, safe_open_url)
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -68,6 +69,8 @@ class DocViewer(Dialog):
         self.builtins = builtins
         self.function_type_string = function_type_string_method
         self.last_operation = None
+        self.last_function = None
+        self.back_stack = []
         super().__init__(title=_('Template function documentation'), name='template_editor_doc_viewer_dialog',
                          default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
 
@@ -82,7 +85,7 @@ class DocViewer(Dialog):
         e = self.doc_viewer_widget = HTMLDisplay(self)
         if iswindows:
             e.setDefaultStyleSheet('pre { font-family: "Segoe UI Mono", "Consolas", monospace; }')
-        e.anchor_clicked.connect(safe_open_url)
+        e.anchor_clicked.connect(self.url_clicked)
         l.addWidget(e)
         bl = QHBoxLayout()
         l.addLayout(bl)
@@ -91,9 +94,33 @@ class DocViewer(Dialog):
         cb.stateChanged.connect(self.english_cb_state_changed)
         bl.addWidget(cb)
         bl.addWidget(self.bb)
+
+        b = self.back_button = self.bb.addButton(_('&Back'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.clicked.connect(self.back)
+        b.setToolTip((_('Displays the previously viewed function')))
+        b.setEnabled(False)
+
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.show_all_functions)
         b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
+
+    def back(self):
+        if not self.back_stack:
+            info_dialog(self, _('Go back'), _('No function to go back to'), show=True)
+        else:
+            name = self.back_stack.pop()
+            if not self.back_stack:
+                self.back_button.setEnabled(False)
+            self.show_function(name)
+
+    def url_clicked(self, qurl):
+        if qurl.scheme().startswith('http'):
+            safe_open_url(qurl)
+        else:
+            if self.last_function is not None:
+                self.back_stack.append(self.last_function)
+                self.back_button.setEnabled(True)
+            self.show_function(qurl.path())
 
     def english_cb_state_changed(self):
         if self.last_operation is not None:
@@ -113,10 +140,14 @@ class DocViewer(Dialog):
         if fname not in self.builtins or not bif.doc:
             self.set_html(self.header_line(fname) + ('No documentation provided'))
         else:
+            self.last_function = fname
             self.set_html(self.header_line(fname) +
                           self.ffml.document_to_html(self.get_doc(bif), fname))
 
     def show_all_functions(self):
+        self.back_button.setEnabled(False)
+        self.back_stack = []
+        self.last_function = None
         self.last_operation = self.show_all_functions
         result = []
         a = result.append
@@ -127,7 +158,10 @@ class DocViewer(Dialog):
                 if not doc:
                     a(_('No documentation provided'))
                 else:
-                    a(self.ffml.document_to_html(doc.strip(), name))
+                    html = self.ffml.document_to_html(doc.strip(), name)
+                    paren = html.find('(')
+                    html = f'<a href="ffdoc:{name}">{name}</a>{html[paren:]}'
+                    a(html)
             except Exception:
                 print('Exception in', name)
                 raise
@@ -541,6 +575,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.doc_viewer = None
         self.current_function_name = None
         self.documentation.setReadOnly(True)
+        self.documentation.setOpenLinks(False)
+        self.documentation.anchorClicked.connect(self.url_clicked)
         self.source_code.setReadOnly(True)
         self.doc_button.clicked.connect(self.open_documentation_viewer)
         self.general_info_button.clicked.connect(self.open_general_info_dialog)
@@ -569,7 +605,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         except:
             self.builtin_source_dict = {}
 
-        func_names = sorted(self.all_functions)
+        self.function_names = func_names = sorted(self.all_functions)
         self.function.clear()
         self.function.addItem('')
         for f in func_names:
@@ -602,6 +638,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
         self.restore_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
+
+    def url_clicked(self, qurl):
+        if qurl.scheme().startswith('http'):
+            safe_open_url(qurl)
+        elif qurl.scheme() == 'ffdoc':
+            name = qurl.path()
+            if name in self.function_names:
+                dex = self.function_names.index(name)
+                self.function.setCurrentIndex(dex+1)
 
     def open_documentation_viewer(self):
         if self.doc_viewer is None:
