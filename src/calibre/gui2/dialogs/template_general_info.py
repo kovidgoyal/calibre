@@ -116,6 +116,13 @@ program:
 \[/CODE]
 \[/LIST]
 [/CODE]
+[*]End of summary marker. A summary is generated from the first characters  of
+the documentation. The summary includes text up to a \[/] tag. There is no
+opening tag because the summary starts at the first character. If there is
+no \[/] tag then all the document is used for the summary. The \[/] tag
+is not replaced with white space or any other character.
+[*]Escaped character: precede the character with a backslash. This is useful
+to escape tags. For example to make the \[CODE] tag not a tag, use \\\[CODE].
 
 [*]HTML output contains no CSS and does not start with a tag such as <DIV> or <P>.
 [/LIST]
