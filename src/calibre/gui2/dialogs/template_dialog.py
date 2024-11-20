@@ -108,10 +108,14 @@ class DocViewer(Dialog):
         if not self.back_stack:
             info_dialog(self, _('Go back'), _('No function to go back to'), show=True)
         else:
-            name = self.back_stack.pop()
+            place = self.back_stack.pop()
             if not self.back_stack:
                 self.back_button.setEnabled(False)
-            self.show_function(name)
+            if isinstance(place, int):
+                self.show_all_functions()
+                self.doc_viewer_widget.verticalScrollBar().setSliderPosition(place)
+            else:
+                self.show_function(place)
 
     def url_clicked(self, qurl):
         if qurl.scheme().startswith('http'):
@@ -119,6 +123,9 @@ class DocViewer(Dialog):
         else:
             if self.last_function is not None:
                 self.back_stack.append(self.last_function)
+                self.back_button.setEnabled(True)
+            else:
+                self.back_stack.append(self.doc_viewer_widget.verticalScrollBar().sliderPosition())
                 self.back_button.setEnabled(True)
             self.show_function(qurl.path())
 
