@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IndianExpress(BasicNewsRecipe):
-    title = u'Indian Express'
+    title = 'Indian Express'
     language = 'en_IN'
     __author__ = 'unkn0wn'
     oldest_article = 1.15  # days
@@ -20,21 +20,25 @@ class IndianExpress(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     extra_css = '''
-        #img-cap, .ie-authorbox, .author-block, #storycenterbyline { font-size:small; }
+        .ie-custom-caption, .custom-caption, .ie-authorbox, .author-block, #storycenterbyline .top-opinion { font-size:small; }
         blockquote { color:#404040; }
-        em, #sub-d { color:#202020; font-style:italic; }
+        em, #sub-d, .top-description { color:#202020; font-style:italic; }
         img { display:block; margin:0 auto; }
     '''
 
     resolve_internal_links = True
     remove_empty_feeds = True
 
-    keep_only_tags = [classes('heading-part full-details')]
+    keep_only_tags = [
+        classes(
+            'heading-part full-details top-opinion article-main-head top-description top-image-part story_details'
+        )
+    ]
     remove_tags = [
         dict(name='div', attrs={'id': 'ie_story_comments'}),
         dict(name='div', attrs={'class': lambda x: x and 'related-widget' in x}),
-        dict(name='img', attrs={'src':lambda x: x and x.endswith('-button-300-ie.jpeg')}),
-        dict(name='a', attrs={'href':lambda x: x and x.endswith('/?utm_source=newbanner')}),
+        dict(name='img', attrs={'src': lambda x: x and x.endswith('-button-300-ie.jpeg')}),
+        dict(name='a', attrs={'href': lambda x: x and x.endswith('/?utm_source=newbanner')}),
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright '
             'storytags pdsc-related-modify news-guard premium-story append_social_share ie-int-campign-ad '
@@ -89,7 +93,7 @@ class IndianExpress(BasicNewsRecipe):
 
     def articles_from_page(self, soup):
         ans = []
-        for div in soup.findAll(attrs={'class':['northeast-topbox', 'explained-section-grid']}):
+        for div in soup.findAll(attrs={'class': ['northeast-topbox', 'explained-section-grid']}):
             for a in div.findAll('a', href=True):
                 if not a.find('img') and '/section/' not in a['href']:
                     url = a['href']
@@ -111,10 +115,10 @@ class IndianExpress(BasicNewsRecipe):
                     url = a['href']
                     title = self.tag_to_string(a)
                     desc = ''
-                    if p := (art.find('p') or art.find(attrs={'class':'opinion-news-para'})):
+                    if p := (art.find('p') or art.find(attrs={'class': 'opinion-news-para'})):
                         desc = self.tag_to_string(p)
                     if da := art.find(
-                        'div', attrs={'class': ['date', 'o-opin-date', 'opinion-date', 'my-time']}
+                        attrs={'class': ['date', 'o-opin-date', 'opinion-date', 'my-time']}
                     ):
                         date = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
                         today = datetime.now()
@@ -128,29 +132,20 @@ class IndianExpress(BasicNewsRecipe):
         soup = self.index_to_soup(
             'https://www.readwhere.com/newspaper/indian-express/Nagpur/38726'
         )
-        citem = soup.find('meta', attrs={'property':'og:image'})
+        citem = soup.find('meta', attrs={'property': 'og:image'})
         return citem['content'].replace('300', '600')
 
     def preprocess_html(self, soup):
-        if h2 := soup.find('h2'):
+        if h2 := soup.find(attrs={'itemprop': 'description'}):
             h2.name = 'p'
             h2['id'] = 'sub-d'
-        for span in soup.findAll(
-            'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
-        ):
-            span['id'] = 'img-cap'
-        for img in soup.findAll('img'):
-            noscript = img.findParent('noscript')
-            if noscript is not None:
-                lazy = noscript.findPreviousSibling('img')
-                if lazy is not None:
-                    lazy.extract()
-                noscript.name = 'div'
-        if span := soup.find('span', content=True, attrs={'itemprop':'dateModified'}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        if span := soup.find('span', content=True, attrs={'itemprop': 'dateModified'}):
             date = parse_date(span['content']).replace(tzinfo=None)
             today = datetime.now()
             if (today - date) > timedelta(self.oldest_article):
                 self.abort_article('Skipping old article')
-        for img in soup.findAll('img', attrs={'src':True}):
+        for img in soup.findAll('img', attrs={'src': True}):
             img['src'] = img['src'].split('?')[0] + '?w=600'
         return soup
