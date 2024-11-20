@@ -306,7 +306,8 @@ class Economist(BasicNewsRecipe):
                     raise ValueError(edition_date, ' not found.')
             raw = self.index_to_soup(url, raw=True)
         except ValueError:
-            raise ValueError('Try web edition.')
+            self.from_archive = True
+            return self.parse_web_index()
         else:
             raise ValueError('Server is not reachable, try again after some time.')
         ans = self.economist_parse_index(raw)
