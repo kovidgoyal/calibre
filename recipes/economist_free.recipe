@@ -207,14 +207,26 @@ class Economist(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
-            'long': 'For example, 2024-07-19\nThis seems to work only for a couple of past editions.'
+            'long': 'For example, 2024-07-19\nThis seems to work only for a couple of past editions.',
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
-            'default': '600'
-        }
+            'default': '600',
+        },
+        'archive': {
+            'short': 'Past Edition fails?',
+            'long': 'enter yes, this will fetch content from wayback machine.',
+            'default': 'No',
+        },
     }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        c = self.recipe_specific_options.get('archive')
+        if c and isinstance(c, str):
+            if c.lower() == 'yes':
+                self.from_archive = True
 
     needs_subscription = False
 
@@ -269,6 +281,8 @@ class Economist(BasicNewsRecipe):
         return None
 
     def parse_index(self):
+        if self.from_archive:
+            return self.parse_web_index()
         edition_date = self.recipe_specific_options.get('date')
         # return self.economist_test_article()
         # url = 'https://www.economist.com/weeklyedition/archive'
@@ -289,12 +303,13 @@ class Economist(BasicNewsRecipe):
         try:
             if edition_date and isinstance(edition_date, str):
                 if not content_id:
-                    raise ValueError(edition_date, ' not found, trying web edition')
+                    raise ValueError(edition_date, ' not found.')
             raw = self.index_to_soup(url, raw=True)
-        except Exception:
-            self.log('Fetching articles from web archive.')
+        except ValueError:
             self.from_archive = True
             return self.parse_web_index()
+        else:
+            raise ValueError('Server is not reachable, try again after some time.')
         ans = self.economist_parse_index(raw)
         return self.economist_return_index(ans)
 
@@ -480,27 +495,36 @@ class Economist(BasicNewsRecipe):
         if script_tag is not None:
             data = json.loads(script_tag.string)
             # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-            self.description = safe_dict(data, "props", "pageProps", "content", "image", "main", "headline")
+            self.description = safe_dict(data, "props", "pageProps", "content", "headline")
             self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "formattedIssueDate") + ']'
-            self.cover_url = safe_dict(data, "props", "pageProps", "content", "image", "main", "url", "canonical").replace(
+            self.cover_url = safe_dict(data, "props", "pageProps", "content", "cover", "url").replace(
                 'economist.com/', 'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/'
             )
             self.log('Got cover:', self.cover_url)
 
-            feeds_dict = defaultdict(list)
-            for part in safe_dict(data, "props", "pageProps", "content", "hasPart", "parts"):
-                section = safe_dict(part, "print", "section", "headline") or ''
-                title = safe_dict(part, "headline") or ''
-                url = safe_dict(part, "url", "canonical") or ''
-                if not section or not title or not url:
+            feeds = []
+
+            for part in safe_dict(data, "props", "pageProps", "content", "sections"):
+                section = safe_dict(part, "name") or ''
+                if not section:
                     continue
-                desc = safe_dict(part, "description") or ''
-                sub = safe_dict(part, "subheadline") or ''
-                if sub and section != sub:
-                    desc = sub + ' :: ' + desc
-                feeds_dict[section].append({"title": title, "url": url, "description": desc})
-                self.log(' ', title, url, '\n   ', desc)
-            return [(section, articles) for section, articles in feeds_dict.items()]
+                self.log(section)
+
+                articles = []
+
+                for ar in part['articles']:
+                    title = safe_dict(ar, "headline") or ''
+                    url = process_url(safe_dict(ar, "url") or '')
+                    if not title or not url:
+                        continue
+                    desc = safe_dict(ar, "rubric") or ''
+                    sub = safe_dict(ar, "flyTitle") or ''
+                    if sub and section != sub:
+                        desc = sub + ' :: ' + desc
+                    self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                    articles.append({'title': title, 'url': url, 'description': desc})
+                feeds.append((section, articles))
+            return feeds
         else:
             return []
 
