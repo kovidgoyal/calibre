@@ -623,7 +623,7 @@ Differences:
 User-defined Python template functions
 ------------------------------------------
 
-You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog. Note that you can use `Python Templates` for a similar purpose. As calling user-defined functions is faster than calling a Python template, user-defind functions might be more efficient depending on the complexity of what the function or template does.
+You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog. Note that you can use `Python Templates` for a similar purpose. As calling user-defined functions is faster than calling a Python template, user-defined functions might be more efficient depending on the complexity of what the function or template does.
 
 Special notes for save/send templates
 ---------------------------------------
