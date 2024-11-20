@@ -174,13 +174,13 @@ Notes on calling functions in Single Function Mode:
 
 Functions are documented in :ref:`template_functions_reference`. The documentation tells you what arguments the functions require and what the functions do. For example, here is the documentation of the :ref:`ff_ifempty` function.
 
-:ffdoc:`ifempty`
+* :ffdoc:`ifempty`
 
 You see that the function requires two arguments, ``value`` and ``text_if_empty``. However, because we are using Single Function Mode, we omit the ``value`` argument, passing only ``text_if_empty``. For example, this template::
 
   {tags:ifempty(No tags on this book)}
 
-shows the tags for a book if it has any. If it has no tags then it show `No tags on this book`.
+shows the tags for a book, if any. If it has no tags then it show `No tags on this book`.
 
 The following functions are usable in Single Function Mode because their first parameter is ``value``.
 
@@ -405,7 +405,7 @@ Example: This template computes an approximate duration in years, months, and da
 
 **Relational operators**
 
-Relational operators return ``'1'`` if the comparison is true, otherwise the empty string ('').
+Relational operators return ``'1'`` if the comparison is true, otherwise the empty string (``''``).
 
 There are two forms of relational operators: string comparisons and numeric comparisons.
 
@@ -418,17 +418,16 @@ The numeric comparison operators are ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, 
 
 Examples:
 
-  * ``program: field('series') == 'foo'`` returns ``'1'`` if the book's series is 'foo', otherwise ``''``.
+  * ``program: field('series') == 'foo'`` returns ``'1'`` if the book's series is `foo`, otherwise ``''``.
   * ``program: 'f.o' in field('series')`` returns ``'1'`` if the book's series matches the regular expression ``f.o`` (e.g., `foo`, `Off Onyx`, etc.), otherwise ``''``.
   * ``program: 'science' inlist $#genre`` returns ``'1'`` if any of the values retrieved from the book's genres match the regular expression ``science``, e.g., `Science`, `History of Science`, `Science Fiction` etc., otherwise ``''``.
   * ``program: '^science$' inlist $#genre`` returns ``'1'`` if any of the book's genres exactly match the regular expression ``^science$``, e.g., `Science`, otherwise ``''``. The genres `History of Science` and `Science Fiction` don't match.
   * ``program: 'asimov' inlist $authors`` returns ``'1'`` if any author matches the regular expression ``asimov``, e.g., `Asimov, Isaac` or `Isaac Asimov`, otherwise ``''``.
   * ``program: 'asimov' inlist_field 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov``, e.g., `Asimov, Isaac` or `Isaac Asimov`, otherwise ``''``.
   * ``program: 'asimov$' inlist_field 'authors'`` returns ``'1'`` if any author matches the regular expression ``asimov$``, e.g., `Isaac Asimov`, otherwise ``''``. It doesn't match `Asimov, Isaac` because of the ``$`` anchor in the regular expression.
-  * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not ``foo``. Otherwise it returns ``'mumble'``.
-  * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not ``foo``. Otherwise it returns ``'mumble'``.
-  * ``program: if field('series') == 'foo' || field('series') == '1632' then 'yes' else 'no' fi`` returns ``'yes'`` if series is either ``'foo'`` or ``'1632'``, otherwise ``'no'``.
-  * ``program: if '^(foo|1632)$' in field('series') then 'yes' else 'no' fi`` returns ``'yes'`` if series is either ``'foo'`` or ``'1632'``, otherwise ``'no'``.
+  * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns ``'bar'`` if the book's series is not `foo`. Otherwise it returns ``'mumble'``.
+  * ``program: if field('series') == 'foo' || field('series') == '1632' then 'yes' else 'no' fi`` returns ``'yes'`` if series is either `foo` or `1632`, otherwise ``'no'``.
+  * ``program: if '^(foo|1632)$' in field('series') then 'yes' else 'no' fi`` returns ``'yes'`` if series is either `foo` or `1632`, otherwise ``'no'``.
   * ``program: if 11 > 2 then 'yes' else 'no' fi`` returns ``'no'`` because the ``>`` operator does a lexical comparison.
   * ``program: if 11 ># 2 then 'yes' else 'no' fi`` returns ``'yes'`` because the ``>#`` operator does a numeric comparison.
 
@@ -452,13 +451,18 @@ More complex programs in template expressions - Template Program Mode
 Example: assume you want a template to show the series for a book if it has one, otherwise show
 the value of a custom field #genre. You cannot do this in the :ref:`Single Function Mode <single_mode>` because you cannot make reference to another metadata field within a template expression. In `TPM` you can, as the following expression demonstrates::
 
-    {#series:'ifempty($, field('#genre'))'}
+    {series_index:0>7.1f:'ifempty($, -5)'}
 
 The example shows several things:
 
 * `TPM` is used if the expression begins with ``:'`` and ends with ``'}``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
-* Functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given the initial parameter ``value``.
-* The variable ``$`` is usable as the ``input`` argument and stands for the value of the field named in the template, ``#series`` in this case.
+
+  If the template contains a prefix and suffix, the expression ends with ``'|`` where the ``|`` is the delimiter for the prefix. Example::
+
+    {series_index:0>7.1f:'ifempty($, -5)'|prefix | suffix}
+
+* Functions must be given all their arguments. For example, the standard built-in functions must be given the initial parameter ``value``.
+* The variable ``$`` is usable as the ``value`` argument and stands for the value of the field named in the template, ``series_index`` in this case.
 * white space is ignored and can be used anywhere within the expression.
 * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
