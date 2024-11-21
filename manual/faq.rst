@@ -812,7 +812,7 @@ There can be several causes for this:
       current screen using one of the techniques described `here <https://www.wikihow.com/Bring-an-Off-Screen-Window-Back-on-Windows>`__.
 
     * Some software has been known to interfere with calibre, try rebooting in
-      Safe mode and see if it works. A known culprit is the `sunshine
+      Safe mode and see if it works. A known culprit is the `Sunshine
       <https://github.com/LizardByte/Sunshine>`__ screen sharing software.
 
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
