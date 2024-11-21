@@ -217,7 +217,7 @@ class Economist(BasicNewsRecipe):
         'archive': {
             'short': 'Past Edition fails?',
             'long': 'enter yes, this will fetch content from wayback machine.',
-            'default': 'No',
+            'default': 'no',
         },
     }
 
@@ -303,12 +303,11 @@ class Economist(BasicNewsRecipe):
         try:
             if edition_date and isinstance(edition_date, str):
                 if not content_id:
-                    raise ValueError(edition_date, ' not found.')
+                    self.log(edition_date, ' not found, trying web edition.')
+                    self.from_archive = True
+                    return self.parse_web_index()
             raw = self.index_to_soup(url, raw=True)
-        except ValueError:
-            self.from_archive = True
-            return self.parse_web_index()
-        else:
+        except Exception:
             raise ValueError('Server is not reachable, try again after some time.')
         ans = self.economist_parse_index(raw)
         return self.economist_return_index(ans)
