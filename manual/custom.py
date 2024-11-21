@@ -27,7 +27,7 @@ def formatter_funcs():
     from calibre.utils.ffml_processor import FFMLProcessor
     from calibre.utils.formatter_functions import formatter_functions
 
-    ans = {}
+    ans = {'doc': {}, 'sum': {}}
     with TemporaryDirectory() as tdir:
         db = LibraryDatabase(tdir) # needed to load formatter_funcs
         ffml = FFMLProcessor()
@@ -37,7 +37,9 @@ def formatter_funcs():
             # if we need no indent we can create a new role like
             # :ffdoc-no-indent:
             text = ffml.document_to_rst(func.doc, func_name, indent=1)
-            ans[func_name] = text.strip()
+            ans['doc'][func_name] = text.strip()
+            text = ffml.document_to_summary_rst(func.doc, func_name, indent=1)
+            ans['sum'][func_name] = text.strip()
         db.close()
         del db
     return ans
@@ -45,7 +47,12 @@ def formatter_funcs():
 
 def ffdoc(m):
     func_name = m.group(1)
-    return formatter_funcs()[func_name]
+    return formatter_funcs()['doc'][func_name]
+
+
+def ffsum(m):
+    func_name = m.group(1)
+    return formatter_funcs()['sum'][func_name]
 
 
 def source_read_handler(app, docname, source):
@@ -59,6 +66,7 @@ def source_read_handler(app, docname, source):
         if docname == 'template_lang':
             try:
                 src = re.sub(r':ffdoc:`(.+?)`', ffdoc, src)
+                src = re.sub(r':ffsum:`(.+?)`', ffsum, src)
             except Exception:
                 import traceback
                 traceback.print_exc()
