@@ -165,91 +165,13 @@ class FFMLProcessor:
 
     FFML is a basic markup language used to document formatter functions. It is
     based on a combination of RST used by sphinx and BBCODE used by many
-    bulletin board systems such as MobileRead. It provides a way to specify:
-
-    - inline program code text: surround this text with `` as in ``foo``.
-
-    - bold text: surrond this text with [B] [/B], as in [B]foo[/B]. Note: bold
-      italics don't work in RST.
-
-    - italic text: surround this text with `, as in `foo`. Note: bold italics
-      don't work in RST.
-
-    - text intended to reference a calibre GUI action. This uses RST syntax.
-      Example: :guilabel:`Preferences->Advanced->Template functions`
-
-    - empty lines, indicated by two newlines in a row. A visible empty line
-      in the FFMC will become an empty line in the output.
-
-    - URLs. The syntax is similar to BBCODE: [URL href="http..."]Link text[/URL].
-      Example: [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
-
-    - Internal function reference links. These are links to some formatter function
-      documentation. The syntax is the same as guilabel. Example: :ref:`get_note`.
-      The characters '()' are automatically added to the function name when
-      displayed. For HTML it generates the same as the inline program code text
-      operator (``) with no link. Example: :ref:`add` produces <code>add()</code>.
-      For RST it generates a :ref: reference that works only in an RST document
-      containing formatter function documentation. Example: :ref:`get_note`
-      generates :ref:`get_note() <ff_get_note>`
-
-    - example program code text blocks. Surround the code block with [CODE]
-      and [/CODE] tags. These tags must be first on a line. Example:
-      [CODE]
-      program:
-          get_note('authors', 'Isaac Asimov', 1)
-      [/CODE]
-
-    - bulleted lists, using BBCODE tags. Surround the list with [LIST] and
-      [/LIST]. List items are indicated with [*]. All of the tags must be
-      first on a line. Bulleted lists can be nested and can contain other FFML
-      elements. Example: a two bullet list containing CODE blocks
-      [LIST]
-      [*]Return the HTML of the note attached to the tag `Fiction`:
-      [CODE]
-      program:
-          get_note('tags', 'Fiction', '')
-      [/CODE]
-      [*]Return the plain text of the note attached to the author `Isaac Asimov`:
-      [CODE]
-      program:
-          get_note('authors', 'Isaac Asimov', 1)
-      [/CODE]
-      [/LIST]
-
-    - end of summary marker. A summary is generated from the first characters  of
-      the documentation. The summary includes text up to a \[/] tag. There is no
-      opening tag because the summary starts at the first character. If there is
-      no \[/] tag then all the document is used for the summary. The \[/] tag
-      is not replaced with white space or any other character.
-
-    - escaped character: precede the character with a backslash. This is useful
-      to escape tags. For example to make the [CODE] tag not a tag, use \[CODE].
-
-    HTML output contains no CSS and does not start with a tag such as <DIV> or <P>.
-
-    API example: generate documents for all builtin formatter functions
-    --------------------
-    from calibre.utils.ffml_processor import FFMLProcessor
-    from calibre.utils.formatter_functions import formatter_functions
-    from calibre.db.legacy import LibraryDatabase
-
-    # We need this to load the formatter functions
-    db = LibraryDatabase('<path to some library>')
-
-    ffml = FFMLProcessor()
-    funcs = formatter_functions().get_builtins()
-
-    with open('all_docs.html', 'w') as w:
-        for name in sorted(funcs):
-            w.write(f'\n<h2>{name}</h2>\n')
-            w.write(ffml.document_to_html(funcs[name].doc, name))
-
-    with open('all_docs.rst', 'w') as w:
-        for name in sorted(funcs):
-            w.write(f"\n\n{name}\n{'^'*len(name)}\n\n")
-            w.write(ffml.document_to_rst(funcs[name].doc, name))
-    --------------------
+    bulletin board systems such as MobileRead. You can see the documentation
+    (in FFML) in the file gui2.dialogs.template_general_info.py. A formatted
+    version is available by:
+    - pushing the "General information" button in the Template tester
+    - pushing the "FFML documentation" button in the "Formatter function
+      documentation editor". How to access the editor is described in "General
+      information" dialog mentioned above.
     """
 
 # ====== API ======
@@ -581,7 +503,7 @@ class FFMLProcessor:
         end = self.find('[/CODE]')
         if end < 0:
             self.error('Missing [/CODE] for block')
-        node = CodeBlock(self.text_to(end))
+        node = CodeBlock(self.text_to(end).replace(r'[\/CODE]', '[/CODE]'))
         self.move_pos(end + len('[/CODE]'))
         if self.text_to(1) == '\n':
             self.move_pos(1)
@@ -592,7 +514,7 @@ class FFMLProcessor:
         end = self.find('``')
         if end < 0:
             self.error('Missing closing "``" for CODE_TEXT')
-        node = CodeText(self.text_to(end))
+        node = CodeText(self.text_to(end).rstrip(' '))
         self.move_pos(end + len('``'))
         return node
 

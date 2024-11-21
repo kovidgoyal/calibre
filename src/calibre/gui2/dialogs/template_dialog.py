@@ -669,7 +669,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.doc_viewer = None
 
     def open_general_info_dialog(self):
-        GeneralInformationDialog().exec()
+        GeneralInformationDialog(include_general_doc=True, include_ffml_doc=True).exec()
 
     def geometry_string(self, txt):
         if self.dialog_number is None or self.dialog_number == 0:
