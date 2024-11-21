@@ -45,8 +45,7 @@ from calibre import sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import (choose_files, choose_save_file, error_dialog, gprefs, info_dialog,
-                          pixmap_to_data, question_dialog, safe_open_url)
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, pixmap_to_data, question_dialog, safe_open_url
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
