@@ -59,7 +59,7 @@ def source_read_handler(app, docname, source):
     src = source[0]
     if app.builder.name == 'gettext':
         if docname == 'template_lang':
-            src = re.sub(r':ffdoc:`(.+?)`', ' ', src)  # ffdoc should not be translated
+            src = re.sub(r':(ffdoc|ffsum):`(.+?)`', ' ', src)  # ffdoc and ffsum should not be translated
     else:
         if app.config.language != 'en':
             src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
