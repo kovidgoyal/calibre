@@ -407,7 +407,6 @@ class BuiltinAdd(BuiltinFormatterFunction):
 argument is not a number. In most cases you can use the ``+`` operator instead
 of this function.
 ''')
-# r'''No documentation provided''') # for debugging xlated text using French
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         res = 0
