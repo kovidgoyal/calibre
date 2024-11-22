@@ -36,6 +36,7 @@ from qt.core import (
     QTableWidgetItem,
     QTextCharFormat,
     QTextOption,
+    QTimer,
     QToolButton,
     QVBoxLayout,
     pyqtSignal,
@@ -100,7 +101,7 @@ class DocViewer(Dialog):
         b.setEnabled(False)
 
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.clicked.connect(self.show_all_functions)
+        b.clicked.connect(self.show_all_functions_button_clicked)
         b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
 
     def back(self):
@@ -108,24 +109,26 @@ class DocViewer(Dialog):
             info_dialog(self, _('Go back'), _('No function to go back to'), show=True)
         else:
             place = self.back_stack.pop()
-            if not self.back_stack:
-                self.back_button.setEnabled(False)
+            self.back_button.setEnabled(bool(self.back_stack))
             if isinstance(place, int):
                 self.show_all_functions()
-                self.doc_viewer_widget.verticalScrollBar().setSliderPosition(place)
+                # For reasons known only to Qt, I can't set the scroll bar position
+                # until some time has passed.
+                QTimer.singleShot(10, lambda: self.doc_viewer_widget.verticalScrollBar().setValue(place))
             else:
-                self.show_function(place)
+                self._show_function(place)
+
+    def add_to_back_stack(self):
+        if self.last_function is not None:
+            self.back_stack.append(self.last_function)
+        elif self.last_operation is not None:
+            self.back_stack.append(self.doc_viewer_widget.verticalScrollBar().value())
+        self.back_button.setEnabled(bool(self.back_stack))
 
     def url_clicked(self, qurl):
         if qurl.scheme().startswith('http'):
             safe_open_url(qurl)
         else:
-            if self.last_function is not None:
-                self.back_stack.append(self.last_function)
-                self.back_button.setEnabled(True)
-            else:
-                self.back_stack.append(self.doc_viewer_widget.verticalScrollBar().sliderPosition())
-                self.back_button.setEnabled(True)
             self.show_function(qurl.path())
 
     def english_cb_state_changed(self):
@@ -146,6 +149,11 @@ class DocViewer(Dialog):
         return _('No documentation provided')
 
     def show_function(self, fname):
+        if fname in self.builtins and fname != self.last_function:
+            self.add_to_back_stack()
+            self._show_function(fname)
+
+    def _show_function(self, fname):
         self.last_operation = partial(self.show_function, fname)
         bif = self.builtins[fname]
         if fname not in self.builtins or not bif.doc:
@@ -155,9 +163,11 @@ class DocViewer(Dialog):
             self.set_html(self.header_line(fname) +
                           self.ffml.document_to_html(self.get_doc(bif), fname))
 
+    def show_all_functions_button_clicked(self):
+        self.add_to_back_stack()
+        self.show_all_functions()
+
     def show_all_functions(self):
-        self.back_button.setEnabled(False)
-        self.back_stack = []
         self.last_function = None
         self.last_operation = self.show_all_functions
         result = []
