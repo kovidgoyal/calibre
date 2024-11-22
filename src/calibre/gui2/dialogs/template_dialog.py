@@ -140,11 +140,16 @@ class DocViewer(Dialog):
         doc = func.doc if hasattr(func, 'doc') else ''
         return doc.raw_text if self.english_cb.isChecked() and hasattr(doc, 'raw_text') else doc
 
+    def no_doc_string(self):
+        if self.english_cb.isChecked():
+            return 'No documentation provided'
+        return _('No documentation provided')
+
     def show_function(self, fname):
         self.last_operation = partial(self.show_function, fname)
         bif = self.builtins[fname]
         if fname not in self.builtins or not bif.doc:
-            self.set_html(self.header_line(fname) + ('No documentation provided'))
+            self.set_html(self.header_line(fname) + self.no_doc_string())
         else:
             self.last_function = fname
             self.set_html(self.header_line(fname) +
@@ -162,11 +167,15 @@ class DocViewer(Dialog):
             try:
                 doc = self.get_doc(self.builtins[name])
                 if not doc:
-                    a(_('No documentation provided'))
+                    a(self.no_doc_string())
                 else:
                     html = self.ffml.document_to_html(doc.strip(), name)
-                    paren = html.find('(')
-                    html = f'<a href="ffdoc:{name}">{name}</a>{html[paren:]}'
+                    name_pos = html.find(name + '(')
+                    if name_pos < 0:
+                        rest_of_doc = ' -- ' + html
+                    else:
+                        rest_of_doc = html[name_pos + len(name):]
+                    html = f'<a href="ffdoc:{name}">{name}</a>{rest_of_doc}'
                     a(html)
             except Exception:
                 print('Exception in', name)
