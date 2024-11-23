@@ -2982,8 +2982,8 @@ class BuiltinExtraFileSize(BuiltinFormatterFunction):
 r'''
 ``extra_file_size(file_name)`` -- returns the size in bytes of the extra file
 ``file_name`` in the book's ``data/`` folder if it exists, otherwise ``-1``.[/] See
-also the functions ``has_extra_files()``, ``extra_file_names()`` and
-``extra_file_modtime()``. This function can be used only in the GUI.
+also the functions :ref:`has_extra_files`, :ref:`extra_file_names` and
+:ref:`extra_file_modtime`. This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name):
