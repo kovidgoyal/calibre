@@ -31,6 +31,10 @@ class SaturdayPaper(BasicNewsRecipe):
         classes('social-icons-article-top-container social-icons-article-bottom-container'
                 ' article-page__sidebar article-page__social__icons share-wrapper article-footer-container')
     ]
+    remove_tags_after = [
+        {"name": "div", "class": "end-matter"},
+    ]
+
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.thesaturdaypaper.com.au/editions/')
