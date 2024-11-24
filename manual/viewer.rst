@@ -134,10 +134,12 @@ Read aloud
 
 The viewer can read book text aloud. To use it you can simply click the
 :guilabel:`Read aloud` button in the viewer controls to start reading book text
-aloud. The word being currently read is highlighted. Speech is synthesized from
-the text using your operating system services for text-to-speech. You can
-change the voice being used by clicking the gear icon in the bar that is
-displayed while :guilabel:`Read aloud` is active.
+aloud. The word or sentence being currently read is highlighted. Speech is
+synthesized from the text using either the `Piper
+<https://github.com/rhasspy/piper>`__ neural text-to-speech engine or your
+operating system services for text-to-speech. You can change the backend and
+the voice being used by clicking the gear icon in the bar that is displayed
+while :guilabel:`Read aloud` is active.
 
 You can also read aloud highlighted passages by adding the :guilabel:`Read aloud` button to
 the selection bar in the viewer preferences under :guilabel:`Selection
@@ -147,17 +149,7 @@ behavior`.
 .. note:: Support for text-to-speech in browsers is very incomplete and
    bug-ridden so how well :guilabel:`Read aloud` will work in the in-browser
    viewer is dependent on how well the underlying browser supports
-   text-to-speech. In particular, highlighting of current word does not work,
-   and changing speed or voice will cause reading to start again from the
-   beginning.
-
-.. note:: On Linux, :guilabel:`Read aloud` requires `Speech Dispatcher
-   <https://freebsoft.org/speechd>`_ to be installed and working.
-
-.. note:: On Windows, not all installed voices may be visible to the SAPI
-   sub-system that is used for text-to-speech. There are `instructions to
-   make all voices visible
-   <https://www.mobileread.com/forums/showpost.php?p=4084051&postcount=108>`_.
+   text-to-speech.
 
 Searching the text
 --------------------------
