@@ -48,6 +48,7 @@ resources/viewer/hyphen* linguist-vendored=true
 resources/viewer/jquery* linguist-vendored=true
 resources/stylelint-bundle.min.js linguist-vendored=true
 src/hunspell linguist-vendored=true
+src/calibre/utils/windows/wintoastlib* linguist-vendored=true
 
 # Mark generated files
 resources/content-server/index-generated.html linguist-generated=true
