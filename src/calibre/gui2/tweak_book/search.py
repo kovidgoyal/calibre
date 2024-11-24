@@ -328,6 +328,8 @@ class SearchWidget(QWidget):
         self.rfb = rfb = PushButton(_('Replace a&nd Find'), 'replace-find', self)
         self.rb = rb = PushButton(_('Re&place'), 'replace', self)
         self.rab = rab = PushButton(_('Replace &all'), 'replace-all', self)
+        rab.setToolTip(_('Replace all occurrences, ignoring wrap and current position.'))
+
         l.addWidget(fb, 0, 2)
         l.addWidget(rfb, 0, 3)
         l.addWidget(rb, 1, 2)
@@ -1423,7 +1425,7 @@ def run_search(
     if isinstance(searches, dict):
         searches = [searches]
 
-    editor, where, files, do_all, marked = initialize_search_request(searches[0], action, current_editor, current_editor_name, searchable_names)
+    editor, where, files, do_all_, marked = initialize_search_request(searches[0], action, current_editor, current_editor_name, searchable_names)
     wrap = searches[0]['wrap']
 
     errfind = searches[0]['find']
