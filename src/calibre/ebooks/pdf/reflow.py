@@ -830,16 +830,22 @@ class Page:
           and len(self.imgs) == 0
 
     def find_match(self, frag):
+        # We have not yet worked out the stats, specifically line_spacing
+        # Approximate the line spacing for checking overlapped lines
+        line_height = frag.bottom - frag.top
         for t in self.texts:
             if t is not frag :
                 # Do the parts of a line overlap?
                 # Some files can have separate lines overlapping slightly
                 # BOTTOM_FACTOR allows for this
-                if (frag.top == t.top or frag.bottom == t.bottom) \
-                  or (frag.top < t.top and frag.bottom > t.top+BOTTOM_FACTOR) \
-                  or (frag.top < t.top and frag.bottom+BOTTOM_FACTOR > t.bottom) \
-                  or (t.top < frag.top and t.bottom > frag.top+BOTTOM_FACTOR) \
-                  or (t.top < frag.top and t.bottom+BOTTOM_FACTOR > frag.bottom):
+                top = min(frag.top, t.top)
+                bot = max(frag.bottom, t.bottom)
+                if bot - top < line_height * 1.5 \
+                  and ((frag.top == t.top or frag.bottom == t.bottom) \
+                    or (frag.top < t.top and frag.bottom > t.top+BOTTOM_FACTOR) \
+                    or (frag.top < t.top and frag.bottom+BOTTOM_FACTOR > t.bottom) \
+                    or (t.top < frag.top and t.bottom > frag.top+BOTTOM_FACTOR) \
+                    or (t.top < frag.top and t.bottom+BOTTOM_FACTOR > frag.bottom)):
                     return t	# Force match if same line
                     # Sorting can put parts of a line in the wrong order if there are small chars
                     if t.left < frag.left:
@@ -1045,8 +1051,8 @@ class Page:
                                 # Should check for values approx the same, as with indents
                                 frag.margin_left = int(round(((frag.left - left) / self.stats_margin_px)+0.5))
                         if last_frag is not None \
-                          and frag.bottom - last_frag.bottom \
-                              > stats.para_space*SECTION_FACTOR:
+                          and stats.para_space > 0 \
+                          and frag.bottom - last_frag.bottom > stats.para_space*SECTION_FACTOR:
                           #and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
                             frag.blank_line_before = 1
                 last_frag = frag
@@ -1112,6 +1118,7 @@ class Page:
         # The most used font will be treated as size 1em
         max_bot = 0
         max_right = 0
+        max_space = 0
         last_top = 0
         #last_bottom = 0
         first = True
@@ -1132,6 +1139,8 @@ class Page:
                 # Beware of multiple text on same line. These look like small spacing
                 if text.height <= space:
                     line_spaces[space] = line_spaces.get(space, 0) + 1
+                elif not max_space:
+                    max_space = space  # Remember first in case of short docs
 
             last_top = top
             max_bot = max(max_bot, text.bottom)
@@ -1144,6 +1153,9 @@ class Page:
             bottoms[max_bot] = bottoms.get(max_bot, 0) + 1
         if max_right > 0:
             rights[max_right] = rights.get(max_right, 0) + 1
+        if max_space > 0 and not line_spaces:
+            # Nothing has been set up, so create one to avoid empty array
+            line_spaces[max_space] = line_spaces.get(max_space, 0) + 1
 
         return
         #########################
@@ -1717,7 +1729,9 @@ class PDFDocument:
                 break
             count -= 1
 
-        # For safety, check in the right order
+        # For safety, check present and in the right order
+        if not para_k or para_k == line_k:
+            para_k = round(line_k * PARA_FACTOR)
         if line_k > para_k:
             x = para_k
             para_k = line_k
@@ -1726,7 +1740,7 @@ class PDFDocument:
         self.stats.line_space = line_k
         # Some docs have no great distinction for paragraphs
         # Limit the size of the gap, or section breaks not found
-        if para_k > line_k * PARA_FACTOR:
+        if para_k > round(line_k * PARA_FACTOR):
             self.stats.para_space = round(line_k * PARA_FACTOR)
         else:
             self.stats.para_space = para_k
