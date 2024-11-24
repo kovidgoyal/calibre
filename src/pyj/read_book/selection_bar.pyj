@@ -296,7 +296,7 @@ class SelectionBar:
         notes = self.annotations_manager.notes_for_highlight(annot_id)
         bar_container = self.bar
         clear(bar_container)
-        bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container.style.maxWidth = 'min(50rem, 90vw)'
         bar_container.style.backgroundColor = get_color("window-background")
         notes_container = E.div()
         notes_container.addEventListener('wheel', def(evt): evt.stopPropagation();, {'passive': False})
@@ -373,18 +373,11 @@ class SelectionBar:
         c = notes_container.lastChild
         notes_container.style.display = notes_container.previousSibling.style.display = 'block'
         c.style.overflow = 'auto'
-        if self.supports_css_min_max:
-            c.style.maxHeight = 'min(20ex, 40vh)'
-        else:
-            c.style.maxHeight = '20ex'
+        c.style.maxHeight = 'min(20ex, 40vh)'
         render_notes(notes, c, True)
     # }}}
 
     # accessors {{{
-    @property
-    def supports_css_min_max(self):
-        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
-
     @property
     def container(self):
         return document.getElementById('book-selection-bar-overlay')
@@ -1159,11 +1152,11 @@ class SelectionBar:
                 if runtime.is_standalone_viewer:
                     url = get_current_link_prefix() + "?open_at=" + cfi
                 else:
-                    url = get_current_link_prefix() + f"bookpos={cfi}" 
+                    url = get_current_link_prefix() + f"bookpos={cfi}"
                     for key, value in Object.entries(parse_url_params()):
                         if key != "bookpos":
                             url = url + f"&{key}={value}"
-                info = { "text" : data.highlighted_text, 
+                info = { "text" : data.highlighted_text,
                             "url": url,
                             "timestamp": data.timestamp,
                             "style_type": data.style.type,
@@ -1187,7 +1180,7 @@ class SelectionBar:
                             "url": url,
                         }
                 copy_info = get_session_data().get('cite_text_template').format(**info)
-  
+
             ui_operations.copy_selection(copy_info)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)

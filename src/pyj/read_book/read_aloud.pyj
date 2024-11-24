@@ -58,10 +58,6 @@ class ReadAloud:
         return document.getElementById('book-read-aloud-overlay')
 
     @property
-    def supports_css_min_max(self):
-        return True
-
-    @property
     def bar(self):
         return document.getElementById(self.bar_id)
 
@@ -109,7 +105,7 @@ class ReadAloud:
         else:
             bar_container.classList.remove('speaking')
         clear(bar_container)
-        bar_container.style.maxWidth = 'min(40rem, 80vw)' if self.supports_css_min_max else '40rem'
+        bar_container.style.maxWidth = 'min(40rem, 80vw)'
         bar_container.style.backgroundColor = get_color("window-background")
         for x in [
             E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
