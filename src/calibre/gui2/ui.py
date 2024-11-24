@@ -288,6 +288,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 QIcon.ic('eject.png'), _('&Eject connected device'))
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
+        self.system_tray_menu.addAction(self.iactions['Restart'].menuless_qaction)
         self.system_tray_menu.addAction(self.quit_action)
         self.keyboard.register_shortcut('quit calibre', _('Quit calibre'),
                 default_keys=('Ctrl+Q',), action=self.quit_action)
@@ -1176,6 +1177,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
             self.tb_widget.save_state()
+
+    def restart(self):
+        self.quit(restart=True)
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True, no_plugins_on_restart=False):
