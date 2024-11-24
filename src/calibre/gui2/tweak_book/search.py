@@ -1582,32 +1582,41 @@ def run_search(
         count_message(replace, count, show_diff=replace, count_map=count_map)
         return count
 
-    with BusyCursor():
-        if action == 'find':
-            return do_find()
-        if action == 'replace':
-            return do_replace()
-        if action == 'replace-find' and do_replace():
-            return do_find()
-        if action == 'replace-all':
-            if marked:
-                show_result_dialog = True
-                for p, repl in searches:
-                    if getattr(getattr(repl, 'func', None), 'suppress_result_dialog', False):
-                        show_result_dialog = False
-                        break
-                return count_message(True, sum(editor.all_in_marked(p, repl) for p, repl in searches), show_dialog=show_result_dialog)
-            add_savepoint(_('Before: Replace all'))
-            count = do_all()
-            if count == 0:
-                rewind_savepoint()
-            else:
-                set_modified()
-            return
-        if action == 'count':
-            if marked:
-                return count_message(False, sum(editor.all_in_marked(p) for p, __ in searches))
-            return do_all(replace=False)
+    post_search_action = None
+    try:
+        with BusyCursor():
+            if action == 'find':
+                return do_find()
+            if action == 'replace':
+                return do_replace()
+            if action == 'replace-find' and do_replace():
+                return do_find()
+            if action == 'replace-all':
+                if marked:
+                    show_result_dialog = True
+                    for p, repl in searches:
+                        if getattr(getattr(repl, 'func', None), 'suppress_result_dialog', False):
+                            show_result_dialog = False
+                            break
+                    res_count = sum(editor.all_in_marked(p, repl) for p, repl in searches)
+                    post_search_action = partial(count_message, True, res_count, show_dialog=show_result_dialog)
+                    return
+                add_savepoint(_('Before: Replace all'))
+                count = do_all()
+                if count == 0:
+                    rewind_savepoint()
+                else:
+                    set_modified()
+                return
+            if action == 'count':
+                if marked:
+                    res_count = sum(editor.all_in_marked(p) for p, __ in searches)
+                    post_search_action = partial(count_message, False, res_count)
+                    return
+                return do_all(replace=False)
+    finally:
+        if post_search_action is not None:
+            post_search_action()
 
 
 if __name__ == '__main__':
