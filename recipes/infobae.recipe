@@ -39,4 +39,4 @@ class Infobae(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    feeds = [(u'Ahora', u'https://www.infobae.com/feeds/rss/')]
+    feeds = [(u'Ahora', u'https://www.infobae.com/arc/outboundfeeds/rss/')]
