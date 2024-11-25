@@ -71,7 +71,7 @@ class Frontline(BasicNewsRecipe):
         soup = self.index_to_soup(issue_url)
             
         if cover := soup.find('div', attrs={'class':'magazine'}):
-            self.cover_url = cover.find(**classes('sptar-image')).img['data-original'].replace('_320', '_1200')
+            self.cover_url = cover.find(**classes('sptar-image')).img['data-original'].replace('SQUARE_80', 'FREE_615')
             self.log('Cover ', self.cover_url)
             if desc := cover.find(**classes('sub-text')):
                 self.description = self.tag_to_string(desc)
