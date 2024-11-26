@@ -190,6 +190,7 @@ class Client:
             ut = self.current_utterance
             self.current_utterance = None
             ut.onstart = ut.onpause = ut.onend = ut.onerror = ut.onresume = None
+            ut.removeEventListener('boundary', self.utterance_boundary_reached)
         window.speechSynthesis.cancel()
 
     def resume_after_configure(self):
@@ -313,12 +314,11 @@ class Client:
                     self.current_rate = rate
                     if bar_pos is not current_bar_pos:
                         sd.set('tts_bar_position', bar_pos)
-                    is_speaking = bool(window.speechSynthesis.speaking)
-                    if is_speaking:
-                        self.pause_for_configure()
-                    self.save_settings()
-                    if is_speaking:
-                        self.resume_after_configure()
-
+                is_speaking = bool(window.speechSynthesis.speaking)
+                if is_speaking:
+                    self.pause_for_configure()
+                self.save_settings()
+                if is_speaking:
+                    self.resume_after_configure()
                 self.onevent('configured')
         )
