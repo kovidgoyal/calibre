@@ -189,7 +189,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     (pathtoebook, tf))
             except WorkerError as e:
                 return error_dialog(self, _('Failed to generate preview'),
-                        err_msg, det_msg=e.orig_tb, show=True)
+                        err_msg, det_msg=str(e) + '\n\n' + e.orig_tb, show=True)
             except:
                 import traceback
                 return error_dialog(self, _('Failed to generate preview'),
