@@ -10,10 +10,8 @@ from html5_parser import parse
 from lxml import etree
 
 from calibre import replace_entities
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag
+from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.scraper.simple import read_url
-from calibre.utils.date import parse_only_date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -140,7 +138,7 @@ class EconomistNews(BasicNewsRecipe):
         #date { color: gray; font-size:small; }
     '''
 
-    self.cover_url = 'https://yt3.googleusercontent.com/UnUx7LD3mPISiPJo76CrN7vIUPAS4ATbVIBm3H76KWzCkNJeqMqJC0gpY6ArJfQBKQ2w7sQ5WQ=s0'
+    cover_url = 'https://yt3.googleusercontent.com/UnUx7LD3mPISiPJo76CrN7vIUPAS4ATbVIBm3H76KWzCkNJeqMqJC0gpY6ArJfQBKQ2w7sQ5WQ=s0'
     oldest_article = 7.0
     resolve_internal_links = True
     remove_tags = [
@@ -198,7 +196,8 @@ class EconomistNews(BasicNewsRecipe):
         query = {
             'query': 'query HomeQuery($homeId:String!$relatedId:String!$podcastsId:String!){canonical(ref:$homeId){hasPart{parts{id title:headline cta{text url __typename}type hasPart{parts{isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}...ArticleFragment hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}__typename}relatedTopStories:canonical(ref:$relatedId){id title:headline hasPart(size:2 sort:"datePublished:desc"){parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}podcasts:canonical(ref:$podcastsId){id title:headline hasPart(size:6 sort:"datePublished:desc"){parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa
             'operationName': 'HomeQuery',
-            'variables': '{"homeId":"/content/8mmm7h9v7arvfpvn4n20hakmg4ugatur","relatedId":"/content/c7kho74htgua3gif74fa4bnbjr64i1js","podcastsId":"/content/omi23dr8h15h8c33t2gkb2cju8ap758o"}',
+            'variables': '{"homeId":"/content/8mmm7h9v7arvfpvn4n20hakmg4ugatur",'
+                           '"relatedId":"/content/c7kho74htgua3gif74fa4bnbjr64i1js","podcastsId":"/content/omi23dr8h15h8c33t2gkb2cju8ap758o"}',
         }
         url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         try:
