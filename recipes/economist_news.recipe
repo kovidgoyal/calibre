@@ -139,7 +139,7 @@ class EconomistNews(BasicNewsRecipe):
     '''
 
     cover_url = 'https://yt3.googleusercontent.com/UnUx7LD3mPISiPJo76CrN7vIUPAS4ATbVIBm3H76KWzCkNJeqMqJC0gpY6ArJfQBKQ2w7sQ5WQ=s0'
-    oldest_article = 7.0
+    oldest_article = 15
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
@@ -174,6 +174,25 @@ class EconomistNews(BasicNewsRecipe):
     ignore_duplicate_articles = {'title'}
 
     needs_subscription = False
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article)
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
+            'default': '600',
+        },
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     def get_browser(self, *args, **kwargs):
         # Needed to bypass cloudflare
@@ -225,6 +244,10 @@ class EconomistNews(BasicNewsRecipe):
                 if sub and section != sub:
                     desc = sub + ' :: ' + desc
                 if not art.get('text'):
+                    continue
+                date_ = art['datePublished']
+                dt = datetime.fromisoformat(date_[:-1]) + timedelta(seconds=time.timezone)
+                if (datetime.now() - dt) > timedelta(self.oldest_article):
                     continue
                 pt = PersistentTemporaryFile('.html')
                 pt.write(json.dumps(art).encode('utf-8'))
