@@ -13,6 +13,7 @@ class TTS(QObject):
 
     event_received = pyqtSignal(object, object)
     settings_changed = pyqtSignal(object)
+    configured = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -25,6 +26,7 @@ class TTS(QObject):
             self._manager = TTSManager(self)
             self._manager.saying.connect(self.saying)
             self._manager.state_event.connect(self.state_event)
+            self._manager.configured.connect(self.configured)
         return self._manager
 
     def shutdown(self):

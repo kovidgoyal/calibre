@@ -80,6 +80,7 @@ all_settings = {
     'gesture_overrides': {'default': {}, 'category': 'read_book'},
     'cite_text_template': {'default': '[{text}]({url})', 'category': 'read_book'},
     'cite_hl_template': {'default': '[{text}]({url})', 'category': 'read_book'},
+    'tts_bar_position': {'default': 'float', 'category': 'read_book', 'is_local': False, 'disallowed_in_profile': False},
 }
 
 defaults = {}

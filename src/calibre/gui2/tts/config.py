@@ -481,6 +481,41 @@ class EngineSpecificConfig(QWidget):
         return tts.is_voice_downloaded(v)
 
 
+class BarPosition(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QFormLayout(self)
+        self.choices = c = QComboBox(self)
+        l.addRow(_('Position of control bar:'), c)
+        c.addItem(_('Floating with help text'), 'float')
+        c.addItem(_('Top'), 'top')
+        c.addItem(_('Bottom'), 'bottom')
+        c.addItem(_('Top right'), 'top-right')
+        c.addItem(_('Top left'), 'top-left')
+        c.addItem(_('Bottom right'), 'bottom-right')
+        c.addItem(_('Bottom left'), 'bottom-left')
+        from calibre.gui2.viewer.config import get_session_pref
+        self.val = get_session_pref('tts_bar_position', 'float', None)
+
+    @property
+    def val(self):
+        return self.choices.currentData()
+
+    @val.setter
+    def val(self, x):
+        idx = self.choices.findData(x)
+        if idx > -1:
+            self.choices.setCurrentIndex(idx)
+
+    def commit(self):
+        from calibre.gui2.viewer.config import set_session_pref
+        set_session_pref('tts_bar_position', self.val, None)
+
+    def restore_defaults(self):
+        self.val = 'float'
+
+
 class ConfigDialog(Dialog):
 
     def __init__(self, parent=None):
@@ -496,6 +531,8 @@ class ConfigDialog(Dialog):
         l.addWidget(esc)
         self.voice_button = b = QPushButton(self)
         b.clicked.connect(self.voice_action)
+        self.bar_position = bp = BarPosition(self)
+        l.addWidget(bp)
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
@@ -508,6 +545,7 @@ class ConfigDialog(Dialog):
     def restore_defaults(self):
         self.engine_choice.restore_defaults()
         self.engine_specific_config.restore_defaults()
+        self.bar_position.restore_defaults()
 
     def set_engine(self, engine_name: str) -> None:
         metadata = self.engine_specific_config.set_engine(engine_name)
@@ -545,6 +583,7 @@ class ConfigDialog(Dialog):
             else:
                 prefs.pop('engine', None)
             s.save_to_config(prefs)
+        self.bar_position.commit()
         super().accept()
 
 

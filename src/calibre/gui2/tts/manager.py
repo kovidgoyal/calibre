@@ -121,6 +121,7 @@ class TTSManager(QObject):
 
     state_event = pyqtSignal(str)
     saying = pyqtSignal(int, int)
+    configured = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -228,7 +229,9 @@ class TTSManager(QObject):
         from calibre.gui2.tts.types import widget_parent
         with self.resume_after() as rd:
             d = ConfigDialog(parent=widget_parent(self))
-            if d.exec() == QDialog.DialogCode.Accepted and self._tts is not None:
+            if d.exec() != QDialog.DialogCode.Accepted:
+                return
+            if self._tts is not None:
                 rd.needs_full_resume = True
                 if d.engine_changed:
                     if rd.is_speaking:
@@ -236,6 +239,7 @@ class TTSManager(QObject):
                     self._tts = None
                 else:
                     self.tts.reload_after_configure()
+            self.configured.emit()
 
     def _state_changed(self, state: QTextToSpeech.State) -> None:
         prev_state, self.state = self.state, state

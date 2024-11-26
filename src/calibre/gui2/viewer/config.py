@@ -28,6 +28,16 @@ def get_session_pref(name, default=None, group='standalone_misc_settings'):
     return g.get(name, default)
 
 
+def set_session_pref(name, val=None, group='standalone_misc_settings'):
+    sd = vprefs['session_data']
+    g = sd.get(group, {}) if group else sd
+    if val is None:
+        g.pop(name, None)
+    else:
+        g[name] = val
+    vprefs['session_data'] = sd
+
+
 def get_pref_group(name):
     sd = vprefs['session_data']
     return sd.get(name) or {}

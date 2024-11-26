@@ -12,6 +12,7 @@ from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
+from book_list.globals import get_session_data
 
 HIDDEN = 0
 WAITING_FOR_PLAY_TO_START = 1
@@ -26,6 +27,13 @@ def is_flow_mode():
     return mode is 'flow'
 
 
+def bar_class_and_position():
+    sd = get_session_data()
+    bp = sd.get('tts_bar_position')
+    iclass = 'floating' if 'float' in bp else 'docked'
+    return iclass, bp
+
+
 class ReadAloud:
 
     dont_hide_on_content_loaded = True
@@ -38,14 +46,13 @@ class ReadAloud:
         container = self.container
         container.setAttribute('tabindex', '0')
         container.style.overflow = 'hidden'
-        container.style.justifyContent = 'flex-end'
-        container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
-        container.appendChild(E.div(
-            id=self.bar_id,
-            style='border: solid 1px currentColor; border-radius: 5px;'
-            'display: flex; flex-direction: column; margin: 1rem;'
-        ))
+        container.appendChild(E.div(id=self.bar_id))
         container.appendChild(E.style(
+            f'#{self.bar_id}.floating'+'{ border: solid 1px currentColor; border-radius: 5px; display: flex;' +
+            ' flex-direction: column; margin: 1rem; }\n\n',
+
+            f'#{self.bar_id}.docked'+'{ border-radius: 1em; height: 2em; padding:0.5em; display: flex; justify-content: center; align-items: center; }\n\n',
+
             f'#{self.bar_id}.speaking '+'{ opacity: 0.5 }\n\n',
             f'#{self.bar_id}.speaking:hover '+'{ opacity: 1.0 }\n\n',
         ))
@@ -95,31 +102,13 @@ class ReadAloud:
     def focus(self):
         self.container.focus()
 
-    def build_bar(self, annot_id):
-        if self.state is HIDDEN:
-            return
-        self.container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
-        bar_container = self.bar
-        if self.state is PLAYING:
-            bar_container.classList.add('speaking')
-        else:
-            bar_container.classList.remove('speaking')
-        clear(bar_container)
-        bar_container.style.maxWidth = 'min(40rem, 80vw)'
-        bar_container.style.backgroundColor = get_color("window-background")
-        for x in [
-            E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
+    def build_docked_bar(self, bar_container, bar_position):
+        container = self.container
+        container.style.alignItems = 'flex-end' if 'bottom' in bar_position else 'flex-start'
+        container.style.justifyContent = 'flex-end' if 'right' in bar_position else ('flex-start' if 'left' in bar_position else 'center')
+        self.create_buttons(bar_container)
 
-            E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
-
-            E.div(
-                style='display: none; padding: 5px; font-size: smaller',
-                E.div()
-            )
-        ]:
-            bar_container.appendChild(x)
-        bar = bar_container.firstChild
-
+    def create_buttons(self, bar):
         def cb(name, icon, text):
             ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
             if name:
@@ -142,6 +131,42 @@ class ReadAloud:
         bar.appendChild(cb('faster', 'faster', _('Speed up speech')))
         bar.appendChild(cb('configure', 'cogs', _('Configure Read aloud')))
         bar.appendChild(cb('hide', 'off', _('Close Read aloud')))
+
+    def build_bar(self):
+        if self.state is HIDDEN:
+            return
+        bar_container = self.bar
+        bar_container.classList.remove('floating')
+        bar_container.classList.remove('docked')
+        iclass, bp = bar_class_and_position()
+        bar_container.classList.add(iclass)
+        bar_container.style.maxWidth = 'min(40rem, 80vw)'
+        bar_container.style.backgroundColor = get_color("window-background")
+        if self.state is PLAYING:
+            bar_container.classList.add('speaking')
+        else:
+            bar_container.classList.remove('speaking')
+        clear(bar_container)
+
+        if iclass is not 'floating':
+            return self.build_docked_bar(bar_container, bp)
+
+        container = self.container
+        container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
+        container.style.justifyContent = 'flex-end'
+        for x in [
+            E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
+
+            E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
+
+            E.div(
+                style='display: none; padding: 5px; font-size: smaller',
+                E.div()
+            )
+        ]:
+            bar_container.appendChild(x)
+        self.create_buttons(bar_container.firstChild)
+
         if self.state is not WAITING_FOR_PLAY_TO_START:
             notes_container = bar_container.lastChild
             notes_container.style.display = notes_container.previousSibling.style.display = 'block'
