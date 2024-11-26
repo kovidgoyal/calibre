@@ -1,0 +1,320 @@
+#!/usr/bin/env  python
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+import json
+import time
+from datetime import datetime, timedelta
+from urllib.parse import quote, urlencode
+
+from html5_parser import parse
+from lxml import etree
+
+from calibre import replace_entities
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.scraper.simple import read_url
+from calibre.utils.date import parse_only_date
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def E(parent, name, text='', **attrs):
+    ans = parent.makeelement(name, **attrs)
+    ans.text = text
+    parent.append(ans)
+    return ans
+
+
+def process_node(node, html_parent):
+    ntype = node.get('type')
+    if ntype == 'tag':
+        c = html_parent.makeelement(node['name'])
+        c.attrib.update({k: v or '' for k, v in node.get('attribs', {}).items()})
+        html_parent.append(c)
+        for nc in node.get('children', ()):
+            process_node(nc, c)
+    elif ntype == 'text':
+        text = node.get('data')
+        if text:
+            text = replace_entities(text)
+            if len(html_parent):
+                t = html_parent[-1]
+                t.tail = (t.tail or '') + text
+            else:
+                html_parent.text = (html_parent.text or '') + text
+
+
+def safe_dict(data, *names):
+    ans = data
+    for x in names:
+        ans = ans.get(x) or {}
+    return ans
+
+
+class JSONHasNoContent(ValueError):
+    pass
+
+
+def load_article_from_json(raw, root):
+    # open('/t/raw.json', 'w').write(raw)
+    data = json.loads(raw)
+    body = root.xpath('//body')[0]
+    article = E(body, 'article')
+    E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
+    E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+    E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
+    try:
+        date = data['dateModified']
+    except Exception:
+        date = data['datePublished']
+    dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
+    dt = dt.strftime('%b %d, %Y %I:%M %p')
+    if data['dateline'] is None:
+        E(article, 'p', dt, style='color: gray; font-size:small;')
+    else:
+        E(article, 'p', dt + ' | ' + (data['dateline']), style='color: gray; font-size:small;')
+    main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
+    if main_image_url:
+        div = E(article, 'div')
+        try:
+            E(div, 'img', src=main_image_url)
+        except Exception:
+            pass
+    for node in data.get('text') or ():
+        process_node(node, article)
+
+
+def cleanup_html_article(root):
+    main = root.xpath('//main')[0]
+    body = root.xpath('//body')[0]
+    for child in tuple(body):
+        body.remove(child)
+    body.append(main)
+    main.set('id', '')
+    main.tag = 'article'
+    for x in root.xpath('//*[@style]'):
+        x.set('style', '')
+    for x in root.xpath('//button'):
+        x.getparent().remove(x)
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
+class NoArticles(Exception):
+    pass
+
+
+def process_url(url):
+    if url.startswith('/'):
+        url = 'https://www.economist.com' + url
+    return url
+
+
+class EconomistNews(BasicNewsRecipe):
+    title = 'The Economist News'
+    language = 'en'
+    encoding = 'utf-8'
+    masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
+
+    __author__ = "Kovid Goyal"
+    description = (
+        'Global news and current affairs from a European'
+        ' perspective. Get the latest articles here.'
+    )
+    extra_css = '''
+        em { color:#202020; }
+        img {display:block; margin:0 auto;}
+        .sub { font-size:small; }
+        #subhead { color: #404040; font-size:small; font-weight:bold; }'
+        #descrip { font-style: italic; color:#202020; }
+        #date { color: gray; font-size:small; }
+    '''
+
+    self.cover_url = 'https://yt3.googleusercontent.com/UnUx7LD3mPISiPJo76CrN7vIUPAS4ATbVIBm3H76KWzCkNJeqMqJC0gpY6ArJfQBKQ2w7sQ5WQ=s0'
+    oldest_article = 7.0
+    resolve_internal_links = True
+    remove_tags = [
+        dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
+        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'id': 'player'}),
+        dict(attrs={
+                'class': [
+                    'dblClkTrk', 'ec-article-info', 'share_inline_header',
+                    'related-items', 'main-content-container', 'ec-topic-widget',
+                    'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
+                    'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
+                    'newsletter-form', 'share-links-header', 'teaser--wrapped', 'latest-updates-panel__container',
+                    'latest-updates-panel__article-link', 'blog-post__section'
+                ]
+            }
+        ),
+        dict(attrs={
+                'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
+        dict(attrs={'id': lambda x: x and 'gpt-ad-slot' in x}),
+        classes(
+            'share-links-header teaser--wrapped latest-updates-panel__container'
+            ' latest-updates-panel__article-link blog-post__section newsletter-form blog-post__bottom-panel'
+        )
+    ]
+    keep_only_tags = [dict(name='article', id=lambda x: not x)]
+    no_stylesheets = True
+    remove_attributes = ['data-reactid', 'width', 'height']
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 3
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title'}
+
+    needs_subscription = False
+
+    def get_browser(self, *args, **kwargs):
+        # Needed to bypass cloudflare
+        kwargs['user_agent'] = 'common_words/based'
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+        return br
+
+    def economist_return_index(self, ans):
+        if not ans:
+            raise NoArticles(
+                'Could not find any articles, either the '
+                'economist.com server is having trouble and you should '
+                'try later or the website format has changed and the '
+                'recipe needs to be updated.'
+            )
+        return ans
+
+    def parse_index(self):
+        query = {
+            'query': 'query HomeQuery($homeId:String!$relatedId:String!$podcastsId:String!){canonical(ref:$homeId){hasPart{parts{id title:headline cta{text url __typename}type hasPart{parts{isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}...ArticleFragment hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}__typename}relatedTopStories:canonical(ref:$relatedId){id title:headline hasPart(size:2 sort:"datePublished:desc"){parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}podcasts:canonical(ref:$podcastsId){id title:headline hasPart(size:6 sort:"datePublished:desc"){parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa
+            'operationName': 'HomeQuery',
+            'variables': '{"homeId":"/content/8mmm7h9v7arvfpvn4n20hakmg4ugatur","relatedId":"/content/c7kho74htgua3gif74fa4bnbjr64i1js","podcastsId":"/content/omi23dr8h15h8c33t2gkb2cju8ap758o"}',
+        }
+        url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
+        try:
+            raw = self.index_to_soup(url, raw=True)
+        except Exception:
+            raise ValueError('Server is not reachable, try again after some time.')
+        ans = self.economist_parse_index(raw)
+        return self.economist_return_index(ans)
+
+    def economist_parse_index(self, raw):
+        data = json.loads(raw)['data']['canonical']['hasPart']['parts']
+
+        feeds = []
+
+        for part in data:
+            section = part.get('title', 'Articles')
+            self.log(section)
+
+            articles = []
+
+            for art in part['hasPart']['parts']:
+                title = safe_dict(art, "title")
+                desc = safe_dict(art, "rubric") or ''
+                sub = safe_dict(art, "flyTitle") or ''
+                if sub and section != sub:
+                    desc = sub + ' :: ' + desc
+                if not art.get('text'):
+                    continue
+                pt = PersistentTemporaryFile('.html')
+                pt.write(json.dumps(art).encode('utf-8'))
+                pt.close()
+                url = 'file:///' + pt.name
+                articles.append({"title": title, "url": url, "description": desc})
+                self.log('\t', title, '\n\t\t', desc)
+            if articles:
+                feeds.append((section, articles))
+        return feeds
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = soup.find('h1')['title']
+
+    def preprocess_html(self, soup):
+        width = '600'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            width = w
+        for img in soup.findAll('img', src=True):
+            qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
+            img['src'] = img['src'].replace('economist.com/', qua)
+        return soup
+
+    def preprocess_raw_html(self, raw, url):
+        # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
+
+        body = '<html><body><article></article></body></html>'
+        root = parse(body)
+        load_article_from_json(raw, root)
+
+        if '/interactive/' in url:
+            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
+                        + 'This article is supposed to be read in a browser' \
+                            + '</em></article></body></html>'
+
+        for div in root.xpath('//div[@class="lazy-image"]'):
+            noscript = list(div.iter('noscript'))
+            if noscript and noscript[0].text:
+                img = list(parse(noscript[0].text).iter('img'))
+                if img:
+                    p = noscript[0].getparent()
+                    idx = p.index(noscript[0])
+                    p.insert(idx, p.makeelement('img', src=img[0].get('src')))
+                    p.remove(noscript[0])
+        for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
+            x.getparent().remove(x)
+        # the economist uses <small> for small caps with a custom font
+        for init in root.xpath('//span[@data-caps="initial"]'):
+            init.set('style', 'font-weight:bold;')
+        for x in root.xpath('//small'):
+            if x.text and len(x) == 0:
+                x.text = x.text.upper()
+                x.tag = 'span'
+                x.set('style', 'font-variant: small-caps')
+        for h2 in root.xpath('//h2'):
+            h2.tag = 'h4'
+        for x in root.xpath('//figcaption'):
+            x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
+        raw = etree.tostring(root, encoding='unicode')
+        return raw
+
+    def eco_find_image_tables(self, soup):
+        for x in soup.findAll('table', align=['right', 'center']):
+            if len(x.findAll('font')) in (1, 2) and len(x.findAll('img')) == 1:
+                yield x
+
+    def postprocess_html(self, soup, first):
+        for img in soup.findAll('img', srcset=True):
+            del img['srcset']
+        for table in list(self.eco_find_image_tables(soup)):
+            caption = table.find('font')
+            img = table.find('img')
+            div = new_tag(soup, 'div')
+            div['style'] = 'text-align:left;font-size:70%'
+            ns = NavigableString(self.tag_to_string(caption))
+            div.insert(0, ns)
+            div.insert(1, new_tag(soup, 'br'))
+            del img['width']
+            del img['height']
+            img.extract()
+            div.insert(2, img)
+            table.replaceWith(div)
+        return soup
+
+    def canonicalize_internal_url(self, url, is_link=True):
+        if url.endswith('/print'):
+            url = url.rpartition('/')[0]
+        return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
