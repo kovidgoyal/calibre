@@ -7,6 +7,7 @@ from elementmaker import E
 from dom import unique_id
 from gettext import gettext as _
 from book_list.globals import get_session_data
+from session import session_defaults
 from modals import create_custom_dialog, error_dialog
 from widgets import create_button
 
@@ -242,14 +243,33 @@ class Client:
     def configure(self):
         voice_id = unique_id()
         rate_id = unique_id()
+        select_id = unique_id()
         default_voice = None
+        sd = get_session_data()
+        current_bar_pos = sd.get('tts_bar_position')
 
         def restore_defaults():
             document.getElementById(voice_id).selectedIndex = -1
             document.getElementById(rate_id).value = 10
+            document.getElementById(select_id).value = session_defaults().tts_bar_position
 
         create_custom_dialog(_('Configure Text-to-Speech'), def (parent_div, close_modal):
                 nonlocal default_voice
+                pos_select = E.select(id=select_id)
+
+                def apos(text, name):
+                    option = E.option(text, value=name)
+                    if name is current_bar_pos:
+                        option.setAttribute('selected', 'selected')
+                    pos_select.appendChild(option)
+                apos(_('Floating with help text'), 'float')
+                apos(_('Top'), 'top')
+                apos(_('Bottom'), 'bottom')
+                apos(_('Top right'), 'top-right')
+                apos(_('Top left'), 'top-left')
+                apos(_('Bottom right'), 'bottom-right')
+                apos(_('Bottom left'), 'bottom-left')
+
                 select = E.select(size='5', id=voice_id)
                 voices = window.speechSynthesis.getVoices()
                 voices.sort(def (a, b):
@@ -272,6 +292,7 @@ class Client:
                 parent_div.appendChild(select)
                 if select.options.selectedIndex? and select.options[select.options.selectedIndex]:
                     select.options[select.options.selectedIndex].scrollIntoView()
+                parent_div.appendChild(E.div(_('Position of control bar:') + '\xa0', pos_select, style='margin-top: 1rem'))
                 parent_div.appendChild(E.div(
                         style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
                         create_button(_('Restore defaults'), action=restore_defaults),
@@ -280,15 +301,18 @@ class Client:
 
             , on_close=def():
                 voice = document.getElementById(voice_id).value
+                bar_pos = document.getElementById(select_id).value
                 rate = int(document.getElementById(rate_id).value) / 10
                 if rate is 1:
                     rate = None
                 if voice is default_voice:
                     voice = ''
-                changed = voice is not self.current_voice_uri or rate is not self.current_rate
+                changed = voice is not self.current_voice_uri or rate is not self.current_rate or bar_pos is not current_bar_pos
                 if changed:
                     self.current_voice_uri = voice
                     self.current_rate = rate
+                    if bar_pos is not current_bar_pos:
+                        sd.set('tts_bar_position', bar_pos)
                     is_speaking = bool(window.speechSynthesis.speaking)
                     if is_speaking:
                         self.pause_for_configure()
