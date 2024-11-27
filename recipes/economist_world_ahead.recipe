@@ -43,8 +43,11 @@ def process_node(node):
         if node.get('textHtml'):
             return f'<blockquote>{node.get("textHtml")}</blockquote>'
         return f'<blockquote>{node.get("text", "")}</blockquote>'
+    elif ntype == 'DIVIDER':
+        return '<br>'
     elif ntype:
         print('** ', ntype)
+        return ''
 
 def safe_dict(data, *names):
     ans = data
