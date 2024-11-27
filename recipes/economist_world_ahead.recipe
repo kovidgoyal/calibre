@@ -3,19 +3,17 @@
 
 import json
 import time
-from collections import defaultdict
 from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode
 
 from html5_parser import parse
 from lxml import etree
 
+from calibre import browser
 from calibre import replace_entities
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
-use_archive = True
 
 def E(parent, name, text='', **attrs):
     ans = parent.makeelement(name, **attrs)
@@ -24,24 +22,29 @@ def E(parent, name, text='', **attrs):
     return ans
 
 
-def process_node(node, html_parent):
-    ntype = node.get('type')
-    if ntype == 'tag':
-        c = html_parent.makeelement(node['name'])
-        c.attrib.update({k: v or '' for k, v in node.get('attribs', {}).items()})
-        html_parent.append(c)
-        for nc in node.get('children', ()):
-            process_node(nc, c)
-    elif ntype == 'text':
-        text = node.get('data')
-        if text:
-            text = replace_entities(text)
-            if len(html_parent):
-                t = html_parent[-1]
-                t.tail = (t.tail or '') + text
-            else:
-                html_parent.text = (html_parent.text or '') + text
-
+def process_node(node):
+    ntype = node.get('type', '')
+    if ntype == 'CROSSHEAD':
+        if node.get('textHtml'):
+            return f'<h4>{node.get("textHtml")}</h4>'
+        return f'<h4>{node.get("tex", "")}</h4>'
+    if ntype == 'PARAGRAPH':
+        if node.get('textHtml'):
+            return f'<p>{node.get("textHtml")}</p>'
+        return f'<p>{node.get("tex", "")}</p>'
+    elif ntype == 'IMAGE':
+        alt = "" if node.get("altText") is None else node.get("altText")
+        cap = ""
+        if node.get('caption'):
+            if node['caption'].get('textHtml') is not None:
+                cap = node['caption']['textHtml']
+        return f'<div><img src="{node["url"]}" title="{alt}"></div><div style="text-align:center; font-size:small;">{cap}</div>'
+    elif ntype == 'PULL_QUOTE':
+        if node.get('textHtml'):
+            return f'<blockquote>{node.get("textHtml")}</blockquote>'
+        return f'<blockquote>{node.get("text", "")}</blockquote>'
+    elif ntype:
+        print('** ', ntype)
 
 def safe_dict(data, *names):
     ans = data
@@ -54,63 +57,29 @@ class JSONHasNoContent(ValueError):
     pass
 
 
-if use_archive:
-    def load_article_from_json(raw, root):
-        # open('/t/raw.json', 'w').write(raw)
-        data = json.loads(raw)
-        body = root.xpath('//body')[0]
-        article = E(body, 'article')
-        E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
-        E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
-        E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
-        try:
-            date = data['dateModified']
-        except Exception:
-            date = data['datePublished']
-        dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
-        dt = dt.strftime('%b %d, %Y, %I:%M %p')
-        if data['dateline'] is None:
-            E(article, 'p', dt, style='color: gray; font-size:small;')
-        else:
-            E(article, 'p', dt + ' | ' + (data['dateline']), style='color: gray; font-size:small;')
-        main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
-        if main_image_url:
-            div = E(article, 'div')
-            try:
-                E(div, 'img', src=main_image_url)
-            except Exception:
-                pass
-        for node in data.get('text') or ():
-            process_node(node, article)
-else:
-    def load_article_from_json(raw, root):
-        # open('/t/raw.json', 'w').write(raw)
-        try:
-            data = json.loads(raw)['props']['pageProps']['content']
-        except KeyError as e:
-            raise JSONHasNoContent(e)
-        if isinstance(data, list):
-            data = data[0]
-        body = root.xpath('//body')[0]
-        for child in tuple(body):
-            body.remove(child)
-        article = E(body, 'article')
-        E(article, 'div', replace_entities(data['subheadline']) , style='color: red; font-size:small; font-weight:bold;')
-        E(article, 'h1', replace_entities(data['headline']))
-        E(article, 'div', replace_entities(data['description']), style='font-style: italic; color:#202020;')
-        if data['dateline'] is None:
-            E(article, 'p', (data['datePublishedString'] or ''), style='color: gray; font-size:small;')
-        else:
-            E(article, 'p', (data['datePublishedString'] or '') + ' | ' + (data['dateline']), style='color: gray; font-size:small;')
-        main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
-        if main_image_url:
-            div = E(article, 'div')
-            try:
-                E(div, 'img', src=main_image_url)
-            except Exception:
-                pass
-        for node in data.get('text') or ():
-            process_node(node, article)
+def load_article_from_json(raw):
+    # open('/t/raw.json', 'w').write(raw)
+    body = ''
+    data = json.loads(raw)['props']['pageProps']['cp2Content']
+    body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
+    body += f'<h1>{data["headline"]}</h1>'
+    body += f'<div style="font-style: italic; color:#202020;">{data.get("rubric", "")}</div>'
+    try:
+        date = data['dateModified']
+    except Exception:
+        date = data['datePublished']
+    dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
+    dt = dt.strftime('%b %d, %Y %I:%M %p')
+    if data.get('dateline') is None:
+        body += f'<p style="color: gray; font-size: small;">{dt}</p>'
+    else:
+        body += f'<p style="color: gray; font-size: small;">{dt + " | " + (data["dateline"])}</p>'
+    main_image_url = safe_dict(data, 'leadComponent') or ''
+    if main_image_url:
+        body += process_node(data['leadComponent'])
+    for node in data.get('body'):
+        body += process_node(node)
+    return '<html><body><article>' + body + '</article></body></html>'
 
 
 def cleanup_html_article(root):
@@ -150,14 +119,13 @@ def process_url(url):
     return url
 
 
-class Economist(BasicNewsRecipe):
-
+class EconomistWorld(BasicNewsRecipe):
     title = 'The Economist World Ahead'
     language = 'en'
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
-    __author__ = "Kovid Goyal"
+    __author__ = "unkn0wn"
     description = (
         'The World Ahead is The Economist’s future-gazing publication. It prepares audiences for what is to '
         'come with mind-stretching insights and expert analysis—all in The Economist’s clear, elegant style.'
@@ -166,25 +134,31 @@ class Economist(BasicNewsRecipe):
     extra_css = '''
         em { color:#202020; }
         img {display:block; margin:0 auto;}
+        .sub { font-size:small; }
+        #subhead { color: #404040; font-size:small; font-weight:bold; }'
+        #descrip { font-style: italic; color:#202020; }
+        #date { color: gray; font-size:small; }
     '''
-    oldest_article = 7.0
+
     resolve_internal_links = True
     remove_tags = [
-        dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer']),
+        dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
         dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'id': 'player'}),
         dict(attrs={
                 'class': [
                     'dblClkTrk', 'ec-article-info', 'share_inline_header',
                     'related-items', 'main-content-container', 'ec-topic-widget',
                     'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
                     'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
-                    'newsletter-form','share-links-header','teaser--wrapped', 'latest-updates-panel__container',
-                    'latest-updates-panel__article-link','blog-post__section'
+                    'newsletter-form', 'share-links-header', 'teaser--wrapped', 'latest-updates-panel__container',
+                    'latest-updates-panel__article-link', 'blog-post__section'
                 ]
             }
         ),
         dict(attrs={
                 'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
+        dict(attrs={'id': lambda x: x and 'gpt-ad-slot' in x}),
         classes(
             'share-links-header teaser--wrapped latest-updates-panel__container'
             ' latest-updates-panel__article-link blog-post__section newsletter-form blog-post__bottom-panel'
@@ -195,28 +169,32 @@ class Economist(BasicNewsRecipe):
     remove_attributes = ['data-reactid', 'width', 'height']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
-    delay = 2
+    delay = 3
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title'}
+
+    needs_subscription = False
 
     recipe_specific_options = {
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
-            'default': '600'
-        }
+            'default': '600',
+        },
     }
 
-    needs_subscription = False
-
     def get_browser(self, *args, **kwargs):
-        # Needed to bypass cloudflare
-        kwargs['user_agent'] = 'common_words/based'
+        kwargs['user_agent'] = 'Mozilla/5.0 (Linux; Android 14; 330333QCG Build/AP1A.140705.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.6422.165 Mobile Safari/537.36 Lamarr/3.37.0-3037003 (android)' # noqa
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+        br.addheaders += [
+            ('x-requested-with', 'com.economist.lamarr')
+        ]
         return br
 
     def economist_test_article(self):
+        self.cover_url = None
         return [('Articles', [{'title':'test',
-            'url':'https://www.economist.com/the-americas/2024/04/14/elon-musk-is-feuding-with-brazils-powerful-supreme-court'
+            'url':'https://www.economist.com/the-world-ahead/2024/11/20/what-the-superforecasters-predict-for-major-events-in-2025'
         }])]
 
     def economist_return_index(self, ans):
@@ -229,152 +207,62 @@ class Economist(BasicNewsRecipe):
             )
         return ans
 
-    if use_archive:
-        def parse_index(self):
-            # return self.economist_test_article()
-            soup = self.index_to_soup('https://www.economist.com/the-world-ahead')
-            script_tag = soup.find("script", id="__NEXT_DATA__")
-            if script_tag is None:
-                raise ValueError('No script tag with JSON data found in the weeklyedition archive')
+    def parse_index(self):
+        # return self.economist_test_article()
+        raw = self.index_to_soup('https://www.economist.com/the-world-ahead')
+        ans = self.economist_parse_index(raw)
+        return self.economist_return_index(ans)
+
+    def economist_parse_index(self, soup):
+        script_tag = soup.find("script", id="__NEXT_DATA__")
+        if script_tag is not None:
             data = json.loads(script_tag.string)
-            content_id = data['props']['pageProps']['content']['tegID'].split('/')[-1]
-            query = {
-                'query': 'query HubsDataQuery($id:String!$size:Int!){canonical(ref:$id){id headline description url{canonical __typename}image{ident{url{canonical __typename}width height __typename}__typename}text(mode:"hub" format:"json")hasPart(size:$size){parts{id title:headline isPartOf{context{title:headline __typename}__typename}hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}__typename}}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa
-                'operationName': 'HubsDataQuery',
-                'variables': '{{"id":"/content/{}","size":40}}'.format(content_id),
-            }
-            url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
-            try:
-                raw = self.index_to_soup(url, raw=True)
-            except Exception:
-                raise ValueError('Server is not reachable, try again some other time.')
-            ans = self.economist_parse_index(raw)
-            return self.economist_return_index(ans)
+            # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+            self.title = safe_dict(data, "props", "pageProps", "content", "headline")
+            self.cover_url = 'https://mma.prnewswire.com/media/2561745/The_Economist_World_Ahead_2025_cover.jpg?w=600'
 
-        def economist_parse_index(self, raw):
-            data = json.loads(raw)['data']['canonical']
-            self.description = data['description']
+            feeds = []
 
-            feeds_dict = defaultdict(list)
-            for part in safe_dict(data, "hasPart", "parts"):
-                section = part['title']
+            for coll in safe_dict(data, "props", "pageProps", "content", "components"):
+                section = safe_dict(coll, "headline") or ''
                 self.log(section)
-                for art in safe_dict(part, "hasPart", "parts"):
-                    title = safe_dict(art, "title")
-                    desc = safe_dict(art, "rubric") or ''
-                    sub = safe_dict(art, "flyTitle") or ''
+                articles = []
+                for part in safe_dict(coll, "items"):
+                    title = safe_dict(part, "headline") or ''
+                    url = process_url(safe_dict(part, "url") or '')
+                    desc = safe_dict(part, "rubric") or ''
+                    sub = safe_dict(part, "flyTitle") or ''
                     if sub and section != sub:
                         desc = sub + ' :: ' + desc
-                    pt = PersistentTemporaryFile('.html')
-                    pt.write(json.dumps(art).encode('utf-8'))
-                    pt.close()
-                    url = 'file:///' + pt.name
-                    feeds_dict[section].append({"title": title, "url": url, "description": desc})
-                    self.log('\t', title, '\n\t\t', desc)
-            return [(section, articles) for section, articles in feeds_dict.items()]
+                    self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                    articles.append({'title': title, 'description':desc, 'url': url})
+                if articles:
+                    feeds.append((section, articles))
+            return feeds
 
-        def populate_article_metadata(self, article, soup, first):
-            article.url = soup.find('h1')['title']
-
-        def preprocess_html(self, soup):
-            width = '600'
-            w = self.recipe_specific_options.get('res')
-            if w and isinstance(w, str):
-                width =  w
-            for img in soup.findAll('img', src=True):
-                qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
-                img['src'] = img['src'].replace('economist.com/', qua)
-            return soup
-
-    else: # Load articles from individual article pages {{{
-
-        def __init__(self, *args, **kwargs):
-            BasicNewsRecipe.__init__(self, *args, **kwargs)
-            if self.output_profile.short_name.startswith('kindle'):
-                # Reduce image sizes to get file size below amazon's email
-                # sending threshold
-                self.web2disk_options.compress_news_images = True
-                self.web2disk_options.compress_news_images_auto_size = 5
-                self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
-
-        def parse_index(self):
-            # return [('Articles', [{'title':'test',
-            #     'url':'https://www.economist.com/interactive/briefing/2022/06/11/huge-foundation-models-are-turbo-charging-ai-progress'
-            # }])]
-            url = 'https://www.economist.com/the-world-ahead'
-            # raw = open('/t/raw.html').read()
-            raw = self.index_to_soup(url, raw=True)
-            # with open('/t/raw.html', 'wb') as f:
-            #     f.write(raw)
-            soup = self.index_to_soup(raw)
-            # nav = soup.find(attrs={'class':'navigation__wrapper'})
-            # if nav is not None:
-            #     a = nav.find('a', href=lambda x: x and '/printedition/' in x)
-            #     if a is not None:
-            #         self.log('Following nav link to current edition', a['href'])
-            #         soup = self.index_to_soup(process_url(a['href']))
-            ans = self.economist_parse_index(soup)
-            if not ans:
-                raise NoArticles(
-                    'Could not find any articles, either the '
-                    'economist.com server is having trouble and you should '
-                    'try later or the website format has changed and the '
-                    'recipe needs to be updated.'
-                )
-            return ans
-
-        def economist_parse_index(self, soup):
-            script_tag = soup.find("script", id="__NEXT_DATA__")
-            if script_tag is not None:
-                data = json.loads(script_tag.string)
-                # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-                self.title = safe_dict(data, "props", "pageProps", "content", "headline")
-                # self.cover_url = 'https://mma.prnewswire.com/media/2275620/The_Economist_The_World_Ahead_2024.jpg?w=600'
-
-                feeds = []
-
-                for coll in safe_dict(data, "props", "pageProps", "content", "collections"):
-                    section = safe_dict(coll, "headline") or ''
-                    self.log(section)
-                    articles = []
-                    for part in safe_dict(coll, "hasPart", "parts"):
-                        title = safe_dict(part, "headline") or ''
-                        url = safe_dict(part, "url", "canonical") or ''
-                        if not title or not url:
-                            continue
-                        desc = safe_dict(part, "description") or ''
-                        sub = safe_dict(part, "subheadline") or ''
-                        if sub:
-                            desc = sub + ' :: ' + desc
-                        self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                        articles.append({'title': title, 'description':desc, 'url': url})
-                    if articles:
-                        feeds.append((section, articles))
-                return feeds
-
-        # }}}
-
+    def preprocess_html(self, soup):
+        width = '600'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            width = w
+        for img in soup.findAll('img', src=True):
+            qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
+            img['src'] = img['src'].replace('economist.com/', qua)
+        return soup
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
-        if use_archive:
-            body = '<html><body><article></article></body></html>'
-            root = parse(body)
-            load_article_from_json(raw, root)
-        else:
-            root = parse(raw)
-            script = root.xpath('//script[@id="__NEXT_DATA__"]')
-            if script:
-                try:
-                    load_article_from_json(script[0].text, root)
-                except JSONHasNoContent:
-                    cleanup_html_article(root)
-
+        root_ = parse(raw)
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
+            return '<html><body><article><h1>' + root_.xpath('//h1')[0].text + '</h1><em>' \
                         + 'This article is supposed to be read in a browser' \
                             + '</em></article></body></html>'
 
+        script = root_.xpath('//script[@id="__NEXT_DATA__"]')
+
+        html = load_article_from_json(script[0].text)
+
+        root = parse(html)
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))
             if noscript and noscript[0].text:
@@ -431,12 +319,3 @@ class Economist(BasicNewsRecipe):
         if url.endswith('/print'):
             url = url.rpartition('/')[0]
         return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
-
-
-def get_login_cookies(username, password):
-    print(33333333333, username, password)
-
-
-if __name__ == '__main__':
-    import sys
-    get_login_cookies(sys.argv[-2], sys.argv[-1])
