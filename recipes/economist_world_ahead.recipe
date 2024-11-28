@@ -49,6 +49,7 @@ def process_node(node):
         print('** ', ntype)
         return ''
 
+
 def safe_dict(data, *names):
     ans = data
     for x in names:
@@ -187,15 +188,14 @@ class EconomistWorld(BasicNewsRecipe):
     }
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'Mozilla/5.0 (Linux; Android 14; 330333QCG Build/AP1A.140705.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.6422.165 Mobile Safari/537.36 Lamarr/3.37.0-3037003 (android)' # noqa
+        kwargs['user_agent'] = (
+            'Mozilla/5.0 (Linux; Android 14; 330333QCG Build/AP1A.140705.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.6422.165 Mobile Safari/537.36 Lamarr/3.37.0-3037003 (android)' # noqa
+        )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('x-requested-with', 'com.economist.lamarr')
-        ]
+        br.addheaders += [('x-requested-with', 'com.economist.lamarr')]
         return br
 
     def economist_test_article(self):
-        self.cover_url = None
         return [('Articles', [{'title':'test',
             'url':'https://www.economist.com/the-world-ahead/2024/11/20/ten-business-trends-for-2025-and-forecasts-for-15-industries'
         }])]
@@ -257,9 +257,12 @@ class EconomistWorld(BasicNewsRecipe):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root_ = parse(raw)
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root_.xpath('//h1')[0].text + '</h1><em>' \
-                        + 'This article is supposed to be read in a browser' \
-                            + '</em></article></body></html>'
+            return (
+                '<html><body><article><h1>'
+                + root_.xpath('//h1')[0].text + '</h1><em>'
+                + 'This article is supposed to be read in a browser'
+                + '</em></article></body></html>'
+            )
 
         script = root_.xpath('//script[@id="__NEXT_DATA__"]')
 
