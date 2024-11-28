@@ -24,7 +24,7 @@ def process_node(node):
     if ntype == 'CROSSHEAD':
         if node.get('textHtml'):
             return f'<h4>{node.get("textHtml")}</h4>'
-        return f'<h4>{node.get("tex", "")}</h4>'
+        return f'<h4>{node.get("text", "")}</h4>'
     if ntype == 'PARAGRAPH':
         if node.get('textHtml'):
             return f'<p>{node.get("textHtml")}</p>'
@@ -41,7 +41,10 @@ def process_node(node):
             return f'<blockquote>{node.get("textHtml")}</blockquote>'
         return f'<blockquote>{node.get("text", "")}</blockquote>'
     elif ntype == 'DIVIDER':
-        return '<br>'
+        return '<hr>'
+    elif ntype == 'INFOBOX':
+        for x in safe_dict(node, 'components'):
+            return f'<blockquote>{process_node(x)}</blockquote>'
     elif ntype:
         print('** ', ntype)
         return ''
@@ -194,7 +197,7 @@ class EconomistWorld(BasicNewsRecipe):
     def economist_test_article(self):
         self.cover_url = None
         return [('Articles', [{'title':'test',
-            'url':'https://www.economist.com/the-world-ahead/2024/11/20/what-the-superforecasters-predict-for-major-events-in-2025'
+            'url':'https://www.economist.com/the-world-ahead/2024/11/20/ten-business-trends-for-2025-and-forecasts-for-15-industries'
         }])]
 
     def economist_return_index(self, ans):
