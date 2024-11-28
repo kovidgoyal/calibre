@@ -28,7 +28,7 @@ def process_node(node):
     if ntype == 'PARAGRAPH':
         if node.get('textHtml'):
             return f'<p>{node.get("textHtml")}</p>'
-        return f'<p>{node.get("tex", "")}</p>'
+        return f'<p>{node.get("text", "")}</p>'
     elif ntype == 'IMAGE':
         alt = "" if node.get("altText") is None else node.get("altText")
         cap = ""
