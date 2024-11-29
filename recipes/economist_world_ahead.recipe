@@ -12,20 +12,13 @@ from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-def E(parent, name, text='', **attrs):
-    ans = parent.makeelement(name, **attrs)
-    ans.text = text
-    parent.append(ans)
-    return ans
-
-
 def process_node(node):
     ntype = node.get('type', '')
     if ntype == 'CROSSHEAD':
         if node.get('textHtml'):
             return f'<h4>{node.get("textHtml")}</h4>'
         return f'<h4>{node.get("text", "")}</h4>'
-    if ntype == 'PARAGRAPH':
+    elif ntype == 'PARAGRAPH':
         if node.get('textHtml'):
             return f'<p>{node.get("textHtml")}</p>'
         return f'<p>{node.get("text", "")}</p>'
