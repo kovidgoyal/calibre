@@ -57,6 +57,7 @@ def ffdoc(language, m):
         if language in ('en', 'eng'):
             raise
         warn(f'Failed to process template language docs for in the {language} language with error: {e}')
+        return 'INVALID TRANSLATION'
 
 
 def ffsum(language, m):
@@ -67,6 +68,7 @@ def ffsum(language, m):
         if language in ('en', 'eng'):
             raise
         warn(f'Failed to process template language summary docs for in the {language} language with error: {e}')
+        return 'INVALID TRANSLATION'
 
 
 def source_read_handler(app, docname, source):
