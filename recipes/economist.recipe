@@ -85,33 +85,60 @@ def load_article_from_json(raw, root):
         process_node(node, article)
 
 
-def load_article_from_web_json(raw, root):
+def process_web_node(node):
+    ntype = node.get('type', '')
+    if ntype == 'CROSSHEAD':
+        if node.get('textHtml'):
+            return f'<h4>{node.get("textHtml")}</h4>'
+        return f'<h4>{node.get("text", "")}</h4>'
+    elif ntype == 'PARAGRAPH':
+        if node.get('textHtml'):
+            return f'<p>{node.get("textHtml")}</p>'
+        return f'<p>{node.get("text", "")}</p>'
+    elif ntype == 'IMAGE':
+        alt = "" if node.get("altText") is None else node.get("altText")
+        cap = ""
+        if node.get('caption'):
+            if node['caption'].get('textHtml') is not None:
+                cap = node['caption']['textHtml']
+        return f'<div><img src="{node["url"]}" title="{alt}"></div><div style="text-align:center; font-size:small;">{cap}</div>'
+    elif ntype == 'PULL_QUOTE':
+        if node.get('textHtml'):
+            return f'<blockquote>{node.get("textHtml")}</blockquote>'
+        return f'<blockquote>{node.get("text", "")}</blockquote>'
+    elif ntype == 'DIVIDER':
+        return '<hr>'
+    elif ntype == 'INFOBOX':
+        for x in safe_dict(node, 'components'):
+            return f'<blockquote>{process_web_node(x)}</blockquote>'
+    elif ntype:
+        print('** ', ntype)
+        return ''
+
+
+def load_article_from_web_json(raw):
     # open('/t/raw.json', 'w').write(raw)
+    body = ''
+    data = json.loads(raw)['props']['pageProps']['cp2Content']
+    body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
+    body += f'<h1>{data["headline"]}</h1>'
+    body += f'<div style="font-style: italic; color:#202020;">{data.get("rubric", "")}</div>'
     try:
-        data = json.loads(raw)['props']['pageProps']['content']
-    except KeyError as e:
-        raise JSONHasNoContent(e)
-    if isinstance(data, list):
-        data = data[0]
-    body = root.xpath('//body')[0]
-    for child in tuple(body):
-        body.remove(child)
-    article = E(body, 'article')
-    E(article, 'div', data['subheadline'], id='subhead')
-    E(article, 'h1', data['headline'])
-    E(article, 'p', data['description'], id='desc')
-    if data['dateline'] is None:
-        E(article, 'p', (data['datePublishedString'] or ''), id='date')
+        date = data['dateModified']
+    except Exception:
+        date = data['datePublished']
+    dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
+    dt = dt.strftime('%b %d, %Y %I:%M %p')
+    if data.get('dateline') is None:
+        body += f'<p style="color: gray; font-size: small;">{dt}</p>'
     else:
-        E(article, 'p', (data['datePublishedString'] or '') + ' | ' + (data['dateline']), id='date')
-    main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
+        body += f'<p style="color: gray; font-size: small;">{dt + " | " + (data["dateline"])}</p>'
+    main_image_url = safe_dict(data, 'leadComponent') or ''
     if main_image_url:
-        div = E(article, 'div')
-        try:
-            E(div, 'img', src=main_image_url)
-        except Exception:
-            pass
-    E(article, 'section', id='body')
+        body += process_web_node(data['leadComponent'])
+    for node in data.get('body'):
+        body += process_web_node(node)
+    return '<html><body><article>' + body + '</article></body></html>'
 
 
 def cleanup_html_article(root):
@@ -214,27 +241,28 @@ class Economist(BasicNewsRecipe):
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
             'default': '600',
         },
-        'archive': {
-            'short': 'Past Edition fails?',
-            'long': 'enter yes, this will fetch content from wayback machine.',
-            'default': 'no',
-        },
     }
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
-        c = self.recipe_specific_options.get('archive')
+        c = self.recipe_specific_options.get('date')
         if c and isinstance(c, str):
-            if c.lower() == 'yes':
-                self.from_archive = True
+            self.from_archive = True
 
     needs_subscription = False
 
     def get_browser(self, *args, **kwargs):
-        # Needed to bypass cloudflare
-        kwargs['user_agent'] = 'common_words/based'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+        if self.from_archive:
+            kwargs['user_agent'] = (
+                'Mozilla/5.0 (Linux; Android 14; 330333QCG Build/AP1A.140705.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.6422.165 Mobile Safari/537.36 Lamarr/3.37.0-3037003 (android)' # noqa
+            )
+            br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+            br.addheaders += [('x-requested-with', 'com.economist.lamarr')]
+        else:
+            # Needed to bypass cloudflare
+            kwargs['user_agent'] = 'common_words/based'
+            br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+            br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
         return br
 
     def publication_date(self):
@@ -313,11 +341,12 @@ class Economist(BasicNewsRecipe):
         return self.economist_return_index(ans)
 
     def economist_parse_index(self, raw):
-        edition_date = self.recipe_specific_options.get('date')
-        if edition_date and isinstance(edition_date, str):
-            data = json.loads(raw)['data']['section']
-        else:
-            data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        # edition_date = self.recipe_specific_options.get('date')
+        # if edition_date and isinstance(edition_date, str):
+            # data = json.loads(raw)['data']['section']
+        # else:
+            # data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')
         self.timefmt = ' [' + dt + ']'
@@ -364,8 +393,6 @@ class Economist(BasicNewsRecipe):
             article.url = soup.find('h1')['title']
 
     def preprocess_html(self, soup):
-        if self.from_archive:
-            return self.preprocess_web_html(soup)
         width = '600'
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
@@ -529,17 +556,20 @@ class Economist(BasicNewsRecipe):
 
     def preprocess_raw_web_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
-        root = parse(raw)
+        root_ = parse(raw)
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
-                        + 'This article is supposed to be read in a browser' \
-                            + '</em></article></body></html>'
-        script = root.xpath('//script[@id="__NEXT_DATA__"]')
-        if script:
-            try:
-                load_article_from_web_json(script[0].text, root)
-            except JSONHasNoContent:
-                cleanup_html_article(root)
+            return (
+                '<html><body><article><h1>'
+                + root_.xpath('//h1')[0].text + '</h1><em>'
+                + 'This article is supposed to be read in a browser'
+                + '</em></article></body></html>'
+            )
+
+        script = root_.xpath('//script[@id="__NEXT_DATA__"]')
+
+        html = load_article_from_web_json(script[0].text)
+
+        root = parse(html)
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))
             if noscript and noscript[0].text:
@@ -551,7 +581,23 @@ class Economist(BasicNewsRecipe):
                     p.remove(noscript[0])
         for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
             x.getparent().remove(x)
+        # the economist uses <small> for small caps with a custom font
+        for init in root.xpath('//span[@data-caps="initial"]'):
+            init.set('style', 'font-weight:bold;')
+        for x in root.xpath('//small'):
+            if x.text and len(x) == 0:
+                x.text = x.text.upper()
+                x.tag = 'span'
+                x.set('style', 'font-variant: small-caps')
+        for h2 in root.xpath('//h2'):
+            h2.tag = 'h4'
+        for x in root.xpath('//figcaption'):
+            x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
+        return raw
 
         raw_ar = read_url([], 'https://archive.is/latest/' + url)
         archive = BeautifulSoup(str(raw_ar))
