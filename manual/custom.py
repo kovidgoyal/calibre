@@ -18,6 +18,10 @@ def info(*a):
     getLogger(__name__).info(*a)
 
 
+def warn(*a):
+    getLogger(__name__).warn(*a)
+
+
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
 
 
@@ -45,14 +49,24 @@ def formatter_funcs():
     return ans
 
 
-def ffdoc(m):
+def ffdoc(language, m):
     func_name = m.group(1)
-    return formatter_funcs()['doc'][func_name]
+    try:
+        return formatter_funcs()['doc'][func_name]
+    except Exception as e:
+        if language in ('en', 'eng'):
+            raise
+        warn(f'Failed to process template language docs for in the {language} language with error: {e}')
 
 
-def ffsum(m):
+def ffsum(language, m):
     func_name = m.group(1)
-    return formatter_funcs()['sum'][func_name]
+    try:
+        return formatter_funcs()['sum'][func_name]
+    except Exception as e:
+        if language in ('en', 'eng'):
+            raise
+        warn(f'Failed to process template language summary docs for in the {language} language with error: {e}')
 
 
 def source_read_handler(app, docname, source):
@@ -65,8 +79,8 @@ def source_read_handler(app, docname, source):
             src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
         if docname == 'template_lang':
             try:
-                src = re.sub(r':ffdoc:`(.+?)`', ffdoc, src)
-                src = re.sub(r':ffsum:`(.+?)`', ffsum, src)
+                src = re.sub(r':ffdoc:`(.+?)`', partial(ffdoc, app.config.language), src)
+                src = re.sub(r':ffsum:`(.+?)`', partial(ffsum, app.config.language), src)
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -360,7 +374,7 @@ def generate_docs(language):
 
 def template_docs(language):
     from template_ref_generate import generate_template_language_help
-    raw = generate_template_language_help(language)
+    raw = generate_template_language_help(language, getLogger(__name__))
     update_cli_doc('template_ref', raw, language)
 
 

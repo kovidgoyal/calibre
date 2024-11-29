@@ -50,7 +50,7 @@ functions.
 '''
 
 
-def generate_template_language_help(language):
+def generate_template_language_help(language, log):
     from tempfile import TemporaryDirectory
 
     from calibre.db.legacy import LibraryDatabase
@@ -75,7 +75,13 @@ def generate_template_language_help(language):
                 func = categories[cat_name][name]
                 a(f"\n\n.. _ff_{name}:\n\n{name}\n{'^'*len(name)}\n\n")
                 a(f'.. class:: {func.__class__.__name__}\n\n')
-                a(ffml.document_to_rst(func.doc, name))
+                try:
+                    a(ffml.document_to_rst(func.doc, name))
+                except Exception as e:
+                    if language in ('en', 'eng'):
+                        raise
+                    log.warn(f'Failed to process template language docs for {name} in the {language} language with error: {e}')
+                    a('  TRANSLATION INVALID')
             a('\n\n')
         db.close()
         del db
