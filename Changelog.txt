@@ -23,6 +23,43 @@
 # - title by author
 # }}}
 
+{{{ 7.22.0 2024-11-29
+
+:: new features
+
+- E-book viewer: Read Aloud: Add an option to control the position of the popup control bar. It can now be placed along the top or bottom edges so as to overlap less with text.
+
+- [2087754] System tray menu: Add action to restart calibre
+
+- Tolino driver: Support new firmware
+
+:: bug fixes
+
+- Windows: Enable popup OS notifications even when system tray icon is disabled to match behavior on other platforms. Notifications can be disabled via Preferences->Look & feel->Disable notifications on job completion
+
+- [2087850] Fix a regression that caused incorrect English transliteration of Japanese text even when the UI language is set to Japanese
+
+- [2088153] macOS: Dark mode: Fix a regression that caused the scrollbar to no longer be transient
+
+- [2089433] DOCX Input: When some text has multiple footnotes insert a space between the consecutive foot note numbers so that they are distinct
+
+- DOCX Input: Fix ToC nesting not working if the styles for the ToC levels dont use integer margins
+
+- E-book viewer: Fix spurious chapter transition after configuring Read aloud
+
+- [2089436] PDF Input: Fix reflow of lines in files with little text not working
+
+:: improved recipes
+- Economist
+- Indian Express
+- Economist World Ahead
+- Frontline
+- Infobae
+
+:: new recipes
+- Economist News by unkn0wn
+}}}
+
 {{{ 7.21.0 2024-11-08
 
 :: new features
