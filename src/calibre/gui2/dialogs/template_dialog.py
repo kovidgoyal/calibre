@@ -141,7 +141,7 @@ class DocViewer(Dialog):
 
     def get_doc(self, func):
         doc = func.doc if hasattr(func, 'doc') else ''
-        return doc.raw_text if self.english_cb.isChecked() and hasattr(doc, 'raw_text') else doc
+        return getattr(doc, 'formatted_english', doc) if self.english_cb.isChecked() else doc
 
     def no_doc_string(self):
         if self.english_cb.isChecked():
