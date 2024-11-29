@@ -82,7 +82,7 @@ def safe_get_doc_html(ffml, func, fname, original_doc):
         error_msg = build_error_msg(str(ex))
 
     # return raw doc
-    return error_msg+'<br>'+doc.strip()
+    return error_msg+'<br>'+doc.strip().replace('\n', '<br>')
 
 
 class DocViewer(Dialog):
