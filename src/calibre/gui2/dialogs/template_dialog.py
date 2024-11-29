@@ -154,7 +154,7 @@ class DocViewer(Dialog):
             self._show_function(fname)
 
     def _show_function(self, fname):
-        self.last_operation = partial(self.show_function, fname)
+        self.last_operation = partial(self._show_function, fname)
         bif = self.builtins[fname]
         if fname not in self.builtins or not bif.doc:
             self.set_html(self.header_line(fname) + self.no_doc_string())
