@@ -141,7 +141,7 @@ class DocViewer(Dialog):
 
     def get_doc(self, func):
         doc = func.doc if hasattr(func, 'doc') else ''
-        return doc.raw_text if self.english_cb.isChecked() and hasattr(doc, 'raw_text') else doc
+        return getattr(doc, 'formatted_english', doc) if self.english_cb.isChecked() else doc
 
     def no_doc_string(self):
         if self.english_cb.isChecked():
@@ -154,7 +154,7 @@ class DocViewer(Dialog):
             self._show_function(fname)
 
     def _show_function(self, fname):
-        self.last_operation = partial(self.show_function, fname)
+        self.last_operation = partial(self._show_function, fname)
         bif = self.builtins[fname]
         if fname not in self.builtins or not bif.doc:
             self.set_html(self.header_line(fname) + self.no_doc_string())
