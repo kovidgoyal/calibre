@@ -131,10 +131,6 @@ class EconomistWorld(BasicNewsRecipe):
     extra_css = '''
         em { color:#202020; }
         img {display:block; margin:0 auto;}
-        .sub { font-size:small; }
-        #subhead { color: #404040; font-size:small; font-weight:bold; }'
-        #descrip { font-style: italic; color:#202020; }
-        #date { color: gray; font-size:small; }
     '''
 
     resolve_internal_links = True
