@@ -43,7 +43,7 @@
 
 - [2089433] DOCX Input: When some text has multiple footnotes insert a space between the consecutive foot note numbers so that they are distinct
 
-- DOCX Input: Fix ToC nesting not working if the styles for the ToC levels dont use integer margins
+- DOCX Input: Fix ToC nesting not working if the styles for the ToC levels do not use integer margins
 
 - E-book viewer: Fix spurious chapter transition after configuring Read aloud
 
