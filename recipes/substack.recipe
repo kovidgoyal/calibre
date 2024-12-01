@@ -41,8 +41,8 @@ class Substack(BasicNewsRecipe):
     recipe_specific_options = {
         'auths': {
             'short': 'enter the @handles you subscribe to:\nseperated by a space',
-            'long': 'julianmacfarlane ianleslie .... ....',
-            'default': 'julianmacfarlane ianleslie thesalvo',
+            'long': '@julianmacfarlane @simplicius76 .... ....',
+            'default': '@julianmacfarlane @simplicius76 @caitlinjohnstone @michaelmoore @seymourhersh @robertreich',
         },
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
@@ -93,8 +93,8 @@ class Substack(BasicNewsRecipe):
         ans = []
         u = self.recipe_specific_options.get('auths')
         if u and isinstance(u, str):
-            for x in u.split():
-                ans.append('https://' + x.replace('@', '') + '.substack.com/feed')
+            for x in u.replace('@', ' ').split():
+                ans.append('https://' + x + '.substack.com/feed')
         return ans
 
     def preprocess_html(self, soup):

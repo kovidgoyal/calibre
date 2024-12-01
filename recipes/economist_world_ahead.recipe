@@ -178,10 +178,9 @@ class EconomistWorld(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = (
-            'Mozilla/5.0 (Linux; Android 14; 330333QCG Build/AP1A.140705.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.6422.165 Mobile Safari/537.36 Lamarr/3.37.0-3037003 (android)' # noqa
+            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Lamarr' # noqa
         )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [('x-requested-with', 'com.economist.lamarr')]
         return br
 
     def economist_test_article(self):
