@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 import json
-import time
-from datetime import datetime, timedelta
 from itertools import zip_longest
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -93,6 +91,7 @@ class WSJ(BasicNewsRecipe):
             byl.insert(0, read)
         url = soup.find('p', attrs={'id':'share-link'})
         if url:
+            url.name = 'div'
             url['title'] = self.tag_to_string(url).strip()
             url.string = ''
         panel = soup.find('panel', attrs={'id':'metadata'})
@@ -106,6 +105,11 @@ class WSJ(BasicNewsRecipe):
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
                         x.insert_after(BeautifulSoup(y, 'html.parser'))
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for pan in soup.findAll('panel'):
+            pan.name = 'div'
         return soup
 
     def get_browser(self, *args, **kw):
@@ -122,23 +126,16 @@ class WSJ(BasicNewsRecipe):
         index = 'https://bartender.mobile.dowjones.io'
         catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
         for itm in catalog['items']:
-            if itm['type'] == 'MAG':
-                date = itm['date']
+            if itm['type'] == 'ITP':
                 manifest = itm['manifest']
-                self.title = 'WSJ. Magazine: ' + itm['label']
-
-        dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
-        dt = dt.strftime('%b, %Y')
-        self.log('Downloading ', dt)
-        self.timefmt = ' [' + dt + ']'
+                date = itm['date']
+                break
 
         feeds = []
 
         manif = json.loads(self.index_to_soup(index + manifest, raw=True))
         for itm in manif['items']:
             for k, v in itm.items():
-                if 'WSJMAG_PP' in k:
-                    self.cover_url = v
                 if '-pages_' in k:
                     section = k.split('-pages_')[0].replace('_', ' ')
                     if 'MAGAZINE' not in section:
@@ -155,13 +152,6 @@ class WSJ(BasicNewsRecipe):
                         url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
                         articles.append({'title': title, 'description':desc, 'url': url})
-                    data = sec_parse['decos']
-                    for art in data:
-                        title = data[art]['headline']
-                        desc = data[art]['summary']
-                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
-                        self.log('          ', title, '\n\t', desc)
-                        articles.append({'title': title, 'description':desc, 'url': url})
                     feeds.append((section, articles))
         return feeds
 
@@ -169,6 +159,6 @@ class WSJ(BasicNewsRecipe):
         return BeautifulSoup(raw).prettify()
 
     def populate_article_metadata(self, article, soup, first):
-        lnk = soup.find('p', attrs={'id':'share-link'})
+        lnk = soup.find('div', attrs={'id':'share-link'})
         if lnk:
             article.url = lnk['title']
