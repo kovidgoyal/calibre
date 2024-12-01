@@ -128,7 +128,6 @@ class WSJ(BasicNewsRecipe):
         for itm in catalog['items']:
             if itm['type'] == 'ITP':
                 manifest = itm['manifest']
-                date = itm['date']
                 break
 
         feeds = []
