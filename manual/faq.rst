@@ -1084,6 +1084,10 @@ For many reasons:
   * There are third party automatic updaters for calibre made by calibre users
     in the `calibre forum <https://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
 
+  * Additionally, some third-party updaters such as Norton or Avast may update 
+    software behind the user's back. If you find calibre has updated unexpectedly, 
+    check for the presence of one. 
+
 How is calibre licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 calibre is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute calibre as long as you make the source code available. So if you want to put calibre on a CD with your product, you must also put the calibre source code on the CD. The source code is available `for download <https://download.calibre-ebook.com>`_. You are free to use the results of conversions from calibre however you want. You cannot use either code or libraries from calibre in your software without making your software open source. For details, see `The GNU GPL v3 <https://www.gnu.org/licenses/gpl.html>`_.
