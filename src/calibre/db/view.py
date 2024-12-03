@@ -232,7 +232,7 @@ class View:
         try:
             return self._real_map_filtered_id_to_row[book_id]
         except KeyError:
-            raise ValueError(f'No such book_id {book_id}')
+            raise ValueError(f'No such book_id {book_id} in current view')
     row = index_to_id
 
     def index(self, book_id, cache=False):
