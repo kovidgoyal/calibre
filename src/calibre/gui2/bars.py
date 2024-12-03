@@ -820,7 +820,7 @@ class BarsManager(QObject):
 
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
-        sz = {'off':0, 'small':24, 'medium':48, 'large':64}[sz]
+        sz = {'off':0, 'small':24, 'mid-small':30, 'medium':48, 'large':64}[sz]
         style = Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         if sz > 0 and gprefs['toolbar_text'] == 'never':
             style = Qt.ToolButtonStyle.ToolButtonIconOnly
