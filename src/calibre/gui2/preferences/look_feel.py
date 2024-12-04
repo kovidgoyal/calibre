@@ -714,7 +714,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cb_double_click_to_activate', gprefs)
 
         choices = [(_('Off'), 'off'), (_('Small'), 'small'),
-            (_('Mid-small'), 'mid-small'), (_('Medium'), 'medium'), (_('Large'), 'large')]
+            (_('Medium-small'), 'mid-small'), (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
         choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
