@@ -1844,11 +1844,12 @@ You can use expressions to generate a list. For example, assume you want items
 for ``authors`` and ``#genre``, but with the genre changed to the word "Genre: "
 followed by the first letter of the genre, i.e. the genre "Fiction" becomes
 "Genre: F". The following will do that:
+{}''').format('''\
 [CODE]
 program:
     list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')
 [/CODE]
-''')
+''')  # not translated as \1 gets mistranslated as a control char in transifex for some reason
 
     def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
         if len(args) % 2 != 0:
