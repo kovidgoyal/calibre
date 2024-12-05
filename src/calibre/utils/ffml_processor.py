@@ -5,27 +5,37 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from enum import IntEnum
+from enum import IntEnum, auto, unique
 
 from calibre import prepare_string_for_xml
 
 
+# This must be something that will never naturally occur in documentation
+MARKUP_ERROR = '*' + _('Template documentation markup error') + '*:'
+
+@unique
 class NodeKinds(IntEnum):
-    DOCUMENT    = -1
-    BLANK_LINE  = -2
-    BOLD_TEXT   = -3
-    CHARACTER   = -4
-    CODE_TEXT   = -5
-    CODE_BLOCK  = -6
-    END_LIST    = -7
-    GUI_LABEL   = -8
-    ITALIC_TEXT = -9
-    LIST        = -10
-    LIST_ITEM   = -11
-    REF         = -12
-    END_SUMMARY = -13
-    TEXT        = -14
-    URL         = -15
+
+    @staticmethod
+    def _generate_next_value_(name, start, count, last_values):
+        return -(count + 1)
+
+    DOCUMENT    = auto()
+    BLANK_LINE  = auto()
+    BOLD_TEXT   = auto()
+    CHARACTER   = auto()
+    CODE_TEXT   = auto()
+    CODE_BLOCK  = auto()
+    END_LIST    = auto()
+    ERROR_TEXT  = auto()
+    GUI_LABEL   = auto()
+    ITALIC_TEXT = auto()
+    LIST        = auto()
+    LIST_ITEM   = auto()
+    REF         = auto()
+    END_SUMMARY = auto()
+    TEXT        = auto()
+    URL         = auto()
 
 
 class Node:
@@ -95,6 +105,16 @@ class EndSummaryNode(Node):
 
     def __init__(self):
         super().__init__(NodeKinds.END_SUMMARY)
+
+
+class ErrorTextNode(Node):
+    '''
+    This is for internal use only. There is no FFML support to generate this node.
+    '''
+
+    def __init__(self, text):
+        super().__init__(NodeKinds.ERROR_TEXT)
+        self._text = text
 
 
 class GuiLabelNode(Node):
@@ -195,7 +215,7 @@ class FFMLProcessor:
         for n in node.children():
             self.print_node_tree(n, indent+1)
 
-    def parse_document(self, doc, name):
+    def parse_document(self, doc, name, safe=True):
         """
         Given a Formatter Function Markup Language (FFML) document, return
         a parse tree for that document.
@@ -203,16 +223,55 @@ class FFMLProcessor:
         :param doc:   the document in FFML.
         :param name:  the name of the document, used for generating errors. This
                       is usually the name of the function.
+        :param safe:  if true, do not propagate exceptions. Instead attempt to
+                      recover using the Engiish version as well as display an error.
 
         :return:       a parse tree for the document
         """
-        self.input_line = 1
-        self.input = doc
-        self.input_pos = 0
-        self.document_name = name
+        def initialize(txt):
+            self.input_line = 1
+            self.input = txt
+            self.input_pos = 0
+            self.document_name = name
+            return DocumentNode()
 
-        node = DocumentNode()
-        return self._parse_document(node) if doc else node
+        def add_exception_text(node, exc, orig_txt=None):
+            if node.children():
+                node.add_child(BlankLineNode())
+            if orig_txt is None:
+                node.add_child(ErrorTextNode(
+                    _('Showing the documentation in English because of the {} error:').format('FFML')))
+                node.add_child(TextNode(' ' + str(exc)))
+            else:
+                node.add_child(ErrorTextNode(MARKUP_ERROR))
+                node.add_child(TextNode(' ' + str(exc)))
+                node.add_child(BlankLineNode())
+                node.add_child(ErrorTextNode(_('Documentation containing the error:')))
+                node.add_child(TextNode(orig_txt))
+            return node
+
+        if not doc:
+            return DocumentNode()
+
+        node = initialize(doc)
+        if not safe:
+            return self._parse_document(node)
+        try:
+            return self._parse_document(node)
+        except ValueError as e:
+            # Syntax error. Try the English doc if it exists
+            if hasattr(doc, 'formatted_english'):
+                node = initialize(doc.formatted_english)
+                try:
+                    tree = self._parse_document(node)
+                    # No exception. Add a text node with the error to the
+                    # English documentation.
+                    return add_exception_text(tree, e)
+                except ValueError:
+                    pass
+            # Either no English text or a syntax error in both cases. Return a
+            # node with the error message and the offending text
+            return add_exception_text(DocumentNode(), e, doc)
 
     def tree_to_html(self, tree, depth=0):
         """
@@ -239,6 +298,8 @@ class FFMLProcessor:
             result += f'<pre style="margin-left:2em"><code>{tree.escaped_text().rstrip()}</code></pre>'
         elif tree.node_kind() == NodeKinds.END_SUMMARY:
             pass
+        elif tree.node_kind() == NodeKinds.ERROR_TEXT:
+            result += f'<span style="color:red"><strong>{tree.escaped_text()}</strong></span>'
         elif tree.node_kind() == NodeKinds.GUI_LABEL:
             result += f'<span style="font-family: Sans-Serif">{tree.escaped_text()}</span>'
         elif tree.node_kind() == NodeKinds.ITALIC_TEXT:
@@ -259,7 +320,7 @@ class FFMLProcessor:
                 result += self.tree_to_html(child, depth=depth+1)
         return result
 
-    def document_to_html(self, document, name):
+    def document_to_html(self, document, name, safe=True):
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in HTML format.
@@ -267,14 +328,16 @@ class FFMLProcessor:
         :param document: the text in FFML.
         :param name: the name of the document, used during error
                      processing. It is usually the name of the function.
+        :param safe: if true, do not propagate exceptions. Instead attempt to
+                     recover using the English version as well as display an error.
 
         :return: a string containing the HTML
 
         """
-        tree = self.parse_document(document, name)
+        tree = self.parse_document(document, name, safe=safe)
         return self.tree_to_html(tree, 0)
 
-    def document_to_summary_html(self, document, name):
+    def document_to_summary_html(self, document, name, safe=True):
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in HTML format.
@@ -282,6 +345,8 @@ class FFMLProcessor:
         :param document: the text in FFML.
         :param name: the name of the document, used during error
                      processing. It is usually the name of the function.
+        :param safe: if true, do not propagate exceptions. Instead attempt to
+                     recover using the English version as well as display an error.
 
         :return: a string containing the HTML
 
@@ -291,7 +356,7 @@ class FFMLProcessor:
         if sum_tag > 0:
             document = document[0:sum_tag]
         fname = document[0:document.find('(')].lstrip('`')
-        tree = self.parse_document(document, name)
+        tree = self.parse_document(document, name, safe=safe)
         result = self.tree_to_html(tree, depth=0)
         paren = result.find('(')
         result = f'<a href="ffdoc:{fname}">{fname}</a>{result[paren:]}'
@@ -337,6 +402,8 @@ class FFMLProcessor:
             indent_text(f'``{tree.text()}``')
         elif tree.node_kind() == NodeKinds.END_SUMMARY:
             pass
+        elif tree.node_kind() == NodeKinds.ERROR_TEXT:
+            indent_text(f'**{tree.text()}**')
         elif tree.node_kind() == NodeKinds.GUI_LABEL:
             indent_text(f':guilabel:`{tree.text()}`')
         elif tree.node_kind() == NodeKinds.ITALIC_TEXT:
@@ -361,7 +428,7 @@ class FFMLProcessor:
                 result = self.tree_to_rst(child, indent, result=result)
         return result
 
-    def document_to_rst(self, document, name, indent=0, prefix=None):
+    def document_to_rst(self, document, name, indent=0, prefix=None, safe=True):
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in RST (sphinx reStructuredText) format.
@@ -375,16 +442,18 @@ class FFMLProcessor:
         :param prefix:   string. if supplied, this string replaces the indent
                          on the first line of the output. This permits specifying
                          an RST block, for example a bullet list
+        :param safe:     if true, do not propagate exceptions. Instead attempt to
+                         recover using the English version as well as display an error.
 
         :return: a string containing the RST text
 
         """
-        doc = self.tree_to_rst(self.parse_document(document, name), indent)
+        doc = self.tree_to_rst(self.parse_document(document, name, safe=safe), indent)
         if prefix is not None:
             doc = prefix + doc.lstrip('  ' * indent)
         return doc
 
-    def document_to_summary_rst(self, document, name, indent=0, prefix=None):
+    def document_to_summary_rst(self, document, name, indent=0, prefix=None, safe=True):
         """
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in RST (sphinx reStructuredText) format.
@@ -398,6 +467,8 @@ class FFMLProcessor:
         :param prefix:   string. if supplied, this string replaces the indent
                          on the first line of the output. This permits specifying
                          an RST block, for example a bullet list
+        :param safe:     if true, do not propagate exceptions. Instead attempt to
+                         recover using the English version as well as display an error.
 
         :return: a string containing the RST text
 
@@ -407,7 +478,7 @@ class FFMLProcessor:
         if sum_tag > 0:
             document = document[0:sum_tag]
         fname = document[0:document.find('(')].lstrip('`')
-        doc = self.tree_to_rst(self.parse_document(document, name), indent)
+        doc = self.tree_to_rst(self.parse_document(document, name, safe=safe), indent)
         lparen = doc.find('(')
         doc = f':ref:`ff_{fname}`\\ ``{doc[lparen:]}'
         if prefix is not None:

@@ -53,36 +53,13 @@ from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
-from calibre.utils.ffml_processor import FFMLProcessor
+from calibre.utils.ffml_processor import FFMLProcessor, MARKUP_ERROR
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import localize_user_manual_link, ngettext
 from calibre.utils.resources import get_path as P
-
-
-def safe_get_doc_html(ffml, func, fname, original_doc):
-    def build_error_msg(msg):
-        return '<span style="color:red"><strong>MalformedDoc:</strong> '+msg+'</span>'
-
-    # try with the original doc
-    try:
-        return ffml.document_to_html(original_doc, fname).strip()
-    except Exception as ex:
-        error_msg = build_error_msg(str(ex))
-
-    # try with english doc
-    doc = getattr(func, 'doc', '')
-    doc = getattr(doc, 'formatted_english', doc)
-    try:
-        rslt = ffml.document_to_html(doc, fname).strip()
-        return error_msg+'<br>'+ rslt
-    except Exception as ex:
-        error_msg = build_error_msg(str(ex))
-
-    # return raw doc
-    return error_msg+'<br>'+doc.strip().replace('\n', '<br>')
 
 
 class DocViewer(Dialog):
@@ -163,12 +140,8 @@ class DocViewer(Dialog):
         return f'\n<h3>{name} ({self.function_type_string(name, longform=False)})</h3>\n'
 
     def get_doc(self, func):
-        doc = getattr(func, 'doc', '')
+        doc = func.doc if hasattr(func, 'doc') else ''
         return getattr(doc, 'formatted_english', doc) if self.english_cb.isChecked() else doc
-
-    def get_doc_html(self, func, fname):
-        doc = self.get_doc(func)
-        return safe_get_doc_html(self.ffml, func, fname, doc)
 
     def no_doc_string(self):
         if self.english_cb.isChecked():
@@ -188,7 +161,7 @@ class DocViewer(Dialog):
         else:
             self.last_function = fname
             self.set_html(self.header_line(fname) +
-                          self.get_doc_html(bif, fname))
+                          self.ffml.document_to_html(self.get_doc(bif), fname))
 
     def show_all_functions_button_clicked(self):
         self.add_to_back_stack()
@@ -206,13 +179,14 @@ class DocViewer(Dialog):
                 if not doc:
                     a(self.no_doc_string())
                 else:
-                    html = self.get_doc_html(self.builtins[name], name)
-                    name_pos = html.find(name + '(')
-                    if name_pos < 0:
-                        rest_of_doc = ' -- ' + html
-                    else:
-                        rest_of_doc = html[name_pos + len(name):]
-                    html = f'<a href="ffdoc:{name}">{name}</a>{rest_of_doc}'
+                    html = self.ffml.document_to_html(doc, name)
+                    if not MARKUP_ERROR in html:
+                        name_pos = html.find(name + '(')
+                        if name_pos < 0:
+                            rest_of_doc = ' -- ' + html
+                        else:
+                            rest_of_doc = html[name_pos + len(name):]
+                        html = f'<a href="ffdoc:{name}">{name}</a>{rest_of_doc}'
                     a(html)
             except Exception:
                 print('Exception in', name)
@@ -1143,17 +1117,14 @@ def evaluate(book, context):
             return (_('Stored user defined Python template') if longform else _('Stored template'))
         return (_('Stored user defined GPM template') if longform else _('Stored template'))
 
-    def get_doc_html(self, func, fname):
-        doc = getattr(func, 'doc', '')
-        return safe_get_doc_html(self.ffml, func, fname, doc)
-
     def function_changed(self, toWhat):
         self.current_function_name = name = str(self.function.itemData(toWhat))
         self.source_code.clear()
         self.documentation.clear()
         self.func_type.clear()
         if name in self.all_functions:
-            self.documentation.setHtml(self.get_doc_html(self.all_functions[name], name))
+            doc = self.all_functions[name].doc
+            self.documentation.setHtml(self.ffml.document_to_html(doc, name))
             if self.doc_viewer is not None:
                 self.doc_viewer.show_function(name)
             if name in self.builtins and name in self.builtin_source_dict:
