@@ -1847,9 +1847,10 @@ followed by the first letter of the genre, i.e. the genre "Fiction" becomes
 {}''').format('''\
 [CODE]
 program:
-    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \1'),  ',')
+    list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \\1'),  ',')
 [/CODE]
-''')  # not translated as \1 gets mistranslated as a control char in transifex for some reason
+''')  # not translated as \1 gets mistranslated as a control char in transifex
+      # for some reason. And yes, the double backslash is required, for some reason.
 
     def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
         if len(args) % 2 != 0:
