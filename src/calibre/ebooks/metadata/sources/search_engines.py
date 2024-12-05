@@ -238,7 +238,10 @@ def resolve_bing_wrapper_page(url, br, log):
     return m.group(1)
 
 
-def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60, show_user_agent=False, result_url_is_ok=lambda x: True):
+def bing_search(
+    terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60,
+    show_user_agent=False, result_url_is_ok=lambda x: True
+):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
     terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
@@ -261,7 +264,11 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
 
     root = query(br, url, 'bing', dump_raw, timeout=timeout)
     ans = []
-    for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
+    result_items = root.xpath('//*[@id="b_results"]/li[@class="b_algo"]')
+    if not result_items:
+        log('Bing returned no results')
+        return ans, url
+    for li in result_items:
         a = li.xpath('descendant::h2/a[@href]') or li.xpath('descendant::div[@class="b_algoheader"]/a[@href]')
         a = a[0]
         title = tostring(a)
