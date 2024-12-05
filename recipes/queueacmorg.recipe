@@ -23,3 +23,16 @@ class QueueAcmOrg(BasicNewsRecipe):
     feeds = [
         ("All Queue Content", "https://queue.acm.org/rss/feeds/queuecontent.xml"),
     ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://queue.acm.org/')
+        imgs = soup.find_all(
+            'img',
+            attrs={
+                'src': lambda x: x
+                and x.startswith('/app/')
+            },
+        )
+        if len(imgs) > 0:
+            self.cover_url = 'https://queue.acm.org/' + imgs[0]['src']
+        return getattr(self, 'cover_url', self.cover_url)
