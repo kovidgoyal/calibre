@@ -53,7 +53,7 @@ from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import DEFAULT_DATE
-from calibre.utils.ffml_processor import FFMLProcessor, MARKUP_ERROR
+from calibre.utils.ffml_processor import MARKUP_ERROR, FFMLProcessor
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower
@@ -180,7 +180,7 @@ class DocViewer(Dialog):
                     a(self.no_doc_string())
                 else:
                     html = self.ffml.document_to_html(doc, name)
-                    if not MARKUP_ERROR in html:
+                    if MARKUP_ERROR not in html:
                         name_pos = html.find(name + '(')
                         if name_pos < 0:
                             rest_of_doc = ' -- ' + html

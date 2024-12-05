@@ -9,7 +9,6 @@ from enum import IntEnum, auto, unique
 
 from calibre import prepare_string_for_xml
 
-
 # This must be something that will never naturally occur in documentation
 MARKUP_ERROR = '*' + _('Template documentation markup error') + '*:'
 
