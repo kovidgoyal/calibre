@@ -149,13 +149,13 @@ class FFDocEditor(Dialog):
             try:
                 self.editable_text_result.setHtml(
                     self.ffml.document_to_html(doc.format_again(
-                        self.editable_text_widget.toPlainText()), 'edited text'))
+                        self.editable_text_widget.toPlainText()), 'edited text', safe=False))
             except Exception as e:
                 self.editable_text_result.setHtml(str(e))
         else:
             try:
                 self.editable_text_result.setHtml(
-                    self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text'))
+                    self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text', safe=False))
             except Exception as e:
                 self.editable_text_result.setHtml(str(e))
 
