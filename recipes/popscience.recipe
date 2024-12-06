@@ -23,20 +23,26 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     no_stylesheets = True
     keep_only_tags = [
-        classes('Article-header Article-excerpt Article-author Article-thumbnail Article-bodyText'),
+        classes('Article-header Article-excerpt Article-author Article-thumbnail Article-bodyText article-title article-dek article-paragraph articlebody'),
+    ]
+    remove_tags = [
+        dict(name='section',   attrs={'class': ['recurrent-share']})
     ]
 
     def parse_section_index(self, slug):
         url = 'https://www.popsci.com/{}/'.format(slug)
         self.log('Section:', url)
         soup = self.index_to_soup(url)
-        main = soup.find(**classes('PostsContainer'))
-        for div in main.findAll(**classes('PostItem')):
-            a = div.find('a', href=True, **classes('PostItem-link'))
+        main = soup.find(**classes('category-content-wrapper lg:pb-12'))
+        if main is None:
+            return
+        for div in main.findAll(**classes('card-post')):
+            a = div.find('a', href=True, **classes('card-post-image-link'))
             url = a['href']
-            title = self.tag_to_string(div.find(**classes('PostItem-title')))
+            tdiv = div.find(**classes('card-post-title')).find(**classes('mobile'))
+            title = self.tag_to_string(tdiv)
             desc = ''
-            dek = div.find(**classes('PostItem-excerpt'))
+            dek = div.find(**classes('card-post-excerpt'))
             if dek is not None:
                 desc = self.tag_to_string(dek)
             self.log(' ', title, url)
@@ -50,6 +56,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
             'diy': 'DIY',
             'reviews': 'Reviews',
         }.items():
+            self.log('slug:', slug)
             articles = list(self.parse_section_index(slug))
             if articles:
                 sections.append((title, articles))
