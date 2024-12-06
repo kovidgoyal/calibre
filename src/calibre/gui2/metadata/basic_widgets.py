@@ -1808,6 +1808,18 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                     return True
             except Exception:
                 pass
+        for (key, prefix) in (
+            ('doi', 'https://dx.doi.org/'),
+            ('doi', 'https://doi.org/'),
+            ('arxiv', 'https://arxiv.org/abs/'),
+            ('oclc', 'https://www.worldcat.org/oclc/'),
+            ('issn', 'https://www.worldcat.org/issn/'),
+        ):
+            if text.startswith(prefix):
+                vals = self.current_val
+                vals[key] = text[len(prefix):].strip()
+                self.current_val = vals
+                return True
 
         return False
 # }}}
