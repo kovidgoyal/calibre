@@ -1854,7 +1854,7 @@ class ISBNDialog(QDialog):  # {{{
         isbn = str(txt)
         ok = None
         if not isbn:
-            pass
+            extra = ''
         elif check_isbn(isbn) is not None:
             extra = _('This ISBN is valid')
             ok = True
