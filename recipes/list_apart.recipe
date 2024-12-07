@@ -21,6 +21,12 @@ class AListApart (BasicNewsRecipe):
     encoding = 'utf8'
     cover_url = u'https://alistapart.com/wp-content/uploads/2019/03/cropped-icon_navigation-laurel-512.jpg'
 
+	def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
     def get_extra_css(self):
         if not self.extra_css:
             br = self.get_browser()
