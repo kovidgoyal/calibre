@@ -230,7 +230,7 @@ class Economist(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
-            'long': 'For example, 2024-07-19\nThis seems to work only for a couple of past editions.',
+            'long': 'For example, 2024-07-19',
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
