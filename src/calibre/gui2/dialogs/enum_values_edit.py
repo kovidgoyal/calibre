@@ -18,6 +18,19 @@ from qt.core import (
 )
 
 from calibre.gui2 import error_dialog, gprefs
+from calibre.utils.localization import ngettext
+
+
+class CountTableWidgetItem(QTableWidgetItem):
+
+    def __init__(self, count):
+        QTableWidgetItem.__init__(self, str(count) if count is not None else '0')
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+        self._count = count
+
+    def set_count(self, count):
+        self.setText(str(count) if count is not None else '0')
 
 
 class EnumValuesEdit(QDialog):
@@ -33,7 +46,8 @@ class EnumValuesEdit(QDialog):
         bbox.addStretch(10)
         self.del_button = QToolButton()
         self.del_button.setIcon(QIcon.ic('trash.png'))
-        self.del_button.setToolTip(_('Remove the currently selected value'))
+        self.del_button.setToolTip(_('Remove the currently selected value. Only '
+                                     'values with a count of zero can be removed'))
         self.ins_button = QToolButton()
         self.ins_button.setIcon(QIcon.ic('plus.png'))
         self.ins_button.setToolTip(_('Add a new permissible value'))
@@ -58,11 +72,14 @@ class EnumValuesEdit(QDialog):
         tl = QVBoxLayout()
         l.addItem(tl, 0, 1)
         self.table = t = QTableWidget(parent)
-        t.setColumnCount(2)
+        t.setColumnCount(3)
         t.setRowCount(1)
-        t.setHorizontalHeaderLabels([_('Value'), _('Color')])
+        t.setHorizontalHeaderLabels([_('Value'), _('Color'), _('Count')])
         t.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         tl.addWidget(t)
+
+        counts = self.db.new_api.get_usage_count_by_id(key)
+        self.name_to_count = {self.db.new_api.get_item_name(key, item_id):count for item_id,count in counts.items()}
 
         self.key = key
         self.fm = fm = db.field_metadata[key]
@@ -76,6 +93,7 @@ class EnumValuesEdit(QDialog):
                 c.setCurrentIndex(c.findText(colors[i]))
             else:
                 c.setCurrentIndex(0)
+            self.make_count_item(i, v)
 
         t.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
@@ -86,10 +104,18 @@ class EnumValuesEdit(QDialog):
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 1, 0, 1, 2)
 
+        self.table.cellChanged.connect(self.cell_changed)
         self.ins_button.clicked.connect(self.ins_button_clicked)
         self.move_down_button.clicked.connect(self.move_down_clicked)
         self.move_up_button.clicked.connect(self.move_up_clicked)
         self.restore_geometry(gprefs, 'enum-values-edit-geometry')
+
+    def cell_changed(self, row, col):
+        if col == 0:
+            item = self.table.item(row, 2)
+            if item is not None and self.table.item(row, 0) is not None:
+                count = self.name_to_count.get(self.table.item(row, 0).text())
+                item.set_count(count)
 
     def sizeHint(self):
         sz = QDialog.sizeHint(self)
@@ -115,6 +141,10 @@ class EnumValuesEdit(QDialog):
             c.setCurrentIndex(dex)
         return c
 
+    def make_count_item(self, row, txt):
+        it = CountTableWidgetItem(self.name_to_count.get(txt))
+        self.table.setItem(row, 2, it)
+
     def move_up_clicked(self):
         row = self.table.currentRow()
         if row < 0:
@@ -128,11 +158,13 @@ class EnumValuesEdit(QDialog):
     def move_row(self, row, direction):
         t = self.table.takeItem(row, 0)
         c = self.table.cellWidget(row, 1).currentIndex()
+        count = self.table.takeItem(row, 2)
         self.table.removeRow(row)
         row += direction
         self.table.insertRow(row)
         self.table.setItem(row, 0, t)
         self.make_color_combobox(row, c)
+        self.table.setItem(row, 2, count)
         self.table.setCurrentCell(row, 0)
 
     def move_down_clicked(self):
@@ -146,7 +178,18 @@ class EnumValuesEdit(QDialog):
         self.move_row(row, 1)
 
     def del_line(self):
-        if self.table.currentRow() >= 0:
+        row = self.table.currentRow()
+        if row >= 0:
+            txt = self.table.item(row, 0).text()
+            count = self.name_to_count.get(txt, 0)
+            if count > 0:
+                error_dialog(self,
+                    _('Cannot remove value "{}"').format(txt),
+                    ngettext('The value "{0}" is used in {1} book and cannot be removed.',
+                             'The value "{0}" is used in {1} books and cannot be removed.',
+                             count).format(txt, count),
+                    show=True)
+                return
             self.table.removeRow(self.table.currentRow())
 
     def ins_button_clicked(self):
@@ -158,6 +201,7 @@ class EnumValuesEdit(QDialog):
         self.table.insertRow(row)
         self.make_name_item(row, '')
         self.make_color_combobox(row, -1)
+        self.make_count_item(row, '')
 
     def save_geometry(self):
         super().save_geometry(gprefs, 'enum-values-edit-geometry')
