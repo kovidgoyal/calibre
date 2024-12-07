@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from datetime import date
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -8,9 +7,10 @@ def absurl(url):
     if url.startswith('/'):
         return 'https://www.irishtimes.com' + url
 
+
 class IrishTimes(BasicNewsRecipe):
-    title          = 'The Irish Times (free)'
-    __author__    = 'unkn0wn'
+    title = 'The Irish Times (free)'
+    __author__ = 'unkn0wn'
     description = 'Daily news from The Irish Times'
     language = 'en_IE'
 
@@ -20,44 +20,41 @@ class IrishTimes(BasicNewsRecipe):
     max_articles_per_feed = 50
     remove_empty_feeds = True
     no_stylesheets = True
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        em, blockquote { color:#202020; }
+        .b-it-subheadline { font-style:italic; }
+        .calibre-nuked-tag-figcaption, .b-it-byline-block {font-size:small;}
+    '''
 
     keep_only_tags = [
-        classes('custom-headline custom-subheadline lead-art-wrapper article-body-wrapper byline-text'),
+        classes(
+            'b-it-headline b-it-subheadline b-it-byline-block__text '
+            'b-it-lead-art__wrapper b-it-article-body'
+        ),
     ]
+
+    remove_tags_after = [
+        classes('b-it-article-body'),
+    ]
+
     remove_tags = [
         dict(name=['button', 'svg']),
-        classes('sm-promo-headline top-table-list-container single-divider interstitial-link'),
+        classes(
+            'b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'
+        ),
     ]
 
-    remove_attributes = ['width', 'height']
+    remove_attributes = ['width', 'height', 'style']
     ignore_duplicate_articles = {'title', 'url'}
-    resolve_internal_links  = True
+    resolve_internal_links = True
 
     def get_cover_url(self):
-        from datetime import date
-        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/ie/irish_times.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
-        try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/ie/np/irish_times.html'
-            soup = self.index_to_soup(index)
-            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
-                if image['src'].startswith('/'):
-                    return 'https:' + image['src']
-                return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
-
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        if self.output_profile.short_name.startswith('kindle'):
-            # Reduce image sizes to get file size below amazon's email
-            # sending threshold
-            self.web2disk_options.compress_news_images = True
-            self.web2disk_options.compress_news_images_auto_size = 5
-            self.log.warn('Kindle Output profile being used, reducing image quality to keep file size below amazon email threshold')
+        soup = self.index_to_soup('https://www.frontpages.com/the-irish-times/')
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
 
     feeds = []
 
@@ -74,7 +71,9 @@ class IrishTimes(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll(
+                'a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}
+            ):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue
@@ -86,3 +85,11 @@ class IrishTimes(BasicNewsRecipe):
             if articles:
                 feeds.append((section, articles))
         return feeds
+
+    def preprocess_html(self, soup):
+        h2 = soup.find(**classes('b-it-subheadline'))
+        if h2:
+            h2.name = 'p'
+        for img in soup.findAll('img', attrs={'srcset': True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup
