@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __license__  = 'GPL v3'
 __copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns, 2013 Tom Scholl, 2016 by leo738"
 '''
@@ -18,7 +19,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
-    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns, Tom Scholl"
+    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan, Phil Burns, Tom Scholl, unkn0wn"
     description = 'Daily news from The Irish Times'
     needs_subscription = True
 
@@ -33,31 +34,35 @@ class IrishTimes(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     temp_files = []
+
     keep_only_tags = [
-        classes('custom-headline custom-subheadline lead-art-wrapper article-body-wrapper byline-text'),
+        classes(
+            'b-it-headline b-it-subheadline b-it-byline-block__text '
+            'b-it-lead-art__wrapper b-it-article-body'
+        ),
     ]
+
+    remove_tags_after = [
+        classes('b-it-article-body'),
+    ]
+
     remove_tags = [
-        dict(name='button'),
-        classes('sm-promo-headline top-table-list-container single-divider interstitial-link'),
+        dict(name=['button', 'svg']),
+        classes(
+            'b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'
+        ),
     ]
-    remove_attributes = ['width', 'height']
-    
+
+    remove_attributes = ['width', 'height', 'style']
+    ignore_duplicate_articles = {'title', 'url'}
+    resolve_internal_links = True
+
     def get_cover_url(self):
-        from datetime import date
-        cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/ie/irish_times.750.jpg'
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False) 
-        try:
-            br.open(cover)
-        except:
-            index = 'https://en.kiosko.net/ie/np/irish_times.html'
-            soup = self.index_to_soup(index)
-            for image in soup.find('img', attrs={'src': lambda x: x and x.endswith('750.jpg')}):
-                if image['src'].startswith('/'):
-                    return 'https:' + image['src']
-                return image['src']
-            self.log("\nCover unavailable")
-            cover = None
-        return cover
+        soup = self.index_to_soup('https://www.frontpages.com/the-irish-times/')
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.irishtimes.com/')
@@ -131,3 +136,11 @@ class IrishTimes(BasicNewsRecipe):
 
         # br.set_debug_http(False)
         return br
+
+    def preprocess_html(self, soup):
+        h2 = soup.find(**classes('b-it-subheadline'))
+        if h2:
+            h2.name = 'p'
+        for img in soup.findAll('img', attrs={'srcset': True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup
