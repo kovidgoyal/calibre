@@ -28,8 +28,8 @@ class LWN(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
             br.select_form(name='loginform')
-            br['Username'] = self.username
-            br['Password'] = self.password
+            br['uname'] = self.username
+            br['pword'] = self.password
             br.submit()
         return br
 
