@@ -94,3 +94,8 @@ class IrishTimes(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split()[0]
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        desc = soup.find(**classes('b-it-subheadline'))
+        if desc:
+            article.summary = article.text_summary = self.tag_to_string(desc)

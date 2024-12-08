@@ -1,8 +1,11 @@
+#!/usr/bin/env python
 from __future__ import with_statement
 
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
+
+from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,76 +16,59 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-def absolutize(x):
-    x = x.lstrip('/')
-    if not x.startswith('https:'):
-        x = 'https://www.chicagotribune.com/' + x
-    return x
-
-
 class ChicagoTribune(BasicNewsRecipe):
 
     title = 'Chicago Tribune'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'unkn0wn'
     description = 'Politics, local and business news from Chicago'
-    language = 'en'
+    language = 'en_US'
+    masthead_url = 'https://www.chicagotribune.com/wp-content/uploads/2023/12/2560px-Chicago_Tribune_Logo.svg-1.png'
     use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
-    compress_news_images = True
-    compress_news_images_auto_size = 5
+    remove_attributes = ['width', 'height', 'style']
+    ignore_duplicate_articles = {'title', 'url'}
+    resolve_internal_links = True
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        em, blockquote { color:#202020; }
+        .coauthor-avatar-container, .calibre-nuked-tag-figcaption {font-size:small;}
+    '''
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/chicago-tribune/')
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
 
     keep_only_tags = [
-        dict(name='h1'),
-        classes('byline-container pb-f-utilities-lead-art pb-f-article-gallery'),
-        dict(attrs={'data-type': 'text'}),
+        classes('headlines header-features coauthor-avatar-container article-body'),
     ]
-
     remove_tags = [
-        classes('trb_ar_cont trb_ar_main_ad trb_em_r_cc'),
+        dict(name=['aside', 'svg']),
+        classes('wp-remixd-voice-wrapper wp-embedded-content div-gpt-ad-cube_article entry-section'),
     ]
-
-    def ct_articles(self, slug):
-        url = absolutize(slug)
-        soup = self.index_to_soup(url)
-        for div in soup.findAll(**classes('pb-f-homepage-story pb-f-homepage-story-feed')):
-            h = div.find(('h1', 'h2', 'h3', 'h4', 'h5', 'h6'))
-            a = h.find('a', href=True)
-            title = self.tag_to_string(a)
-            url = absolutize(a['href'])
-            self.log('\t', title, url)
-            desc = ''
-            p = div.find(**classes('preview-text'))
-            if p:
-                desc = self.tag_to_string(p)
-            self.log('\t\t', desc)
-            yield {'title': title, 'description': desc, 'url': url}
 
     def parse_index(self):
-        feed = []
-        for slug, title in (
-                ('news/breaking', 'Breaking News'),
-                ('sports', 'Sports'),
-                ('business', 'Business'),
-                ('entertainment', 'Entertainment'),
-                ('dining', 'Chicago Dining'),
-                ('columns', 'Tribune Voices'),
-        ):
-            self.log('Found section:', title)
-            articles = list(self.ct_articles(slug))
-            if articles:
-                feed.append((title, articles))
-        return feed
+        index = 'https://www.chicagotribune.com/'
+        soup = self.index_to_soup(index)
+        feeds = []
+        tdy = date.today().strftime('/%Y/%m/%d/')
+        yest = (date.today() - timedelta(days=1)).strftime('/%Y/%m/%d/')
+        for a in soup.findAll('a', attrs={'href': lambda x: x and (tdy in x or yest in x)}):
+            if a.find('img'):
+                continue
+            url = a['href'].split('?')[0]
+            title = self.tag_to_string(a)
+            if not title:
+                continue
+            self.log(title, url)
+            feeds.append({'title': title, 'url': url})
+        return [('Articles', feeds)]
+
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-baseurl': True}):
-            img['src'] = img['data-baseurl']
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
-
-    def skip_ad_pages(self, soup):
-        text = soup.find(text='click here to continue to article')
-        if text:
-            a = text.parent
-            url = a.get('href')
-            if url:
-                return self.index_to_soup(url, raw=True)
