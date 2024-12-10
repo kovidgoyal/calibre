@@ -460,15 +460,16 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
    If the workaround is not working for you make sure you Kindle firmware
    is at least version 5.12.5, released in April 2020.
 
-Covers for books sent to my Kindle ColorSoft do not show up in the book list?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Covers for books sent to my Kindle ColorSoft and newer do not show up in the book list?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Amazon deliberately broke this functionality in their ColorSoft in order to
-discourage you from reading non Amazon books on their devices. See `this forum
-thread <https://www.mobileread.com/forums/showthread.php?t=364350>`__ for
-details. The only known workaround is to send the books as "Personal documents"
-to the Kindle which will fix the covers not showing up but break other features
-such as Whispersync and the books will show up under "Personal documents" not
+Amazon deliberately broke this functionality in their ColorSoft and newer
+devices in order to discourage you from reading non Amazon books on their
+devices. See `this forum thread
+<https://www.mobileread.com/forums/showthread.php?t=364350>`__ for details. The
+only known workaround is to send the books as "Personal documents" to the
+Kindle which will fix the covers not showing up but break other features such
+as Whispersync and the books will show up under "Personal documents" not
 "Books" on the device. To enable this in calibre go to
 :guilabel:`Preferences->Output options->MOBI output` and enable the check box
 that says :guilabel:`Enable sharing of book content`. This will cause all
@@ -1084,9 +1085,9 @@ For many reasons:
   * There are third party automatic updaters for calibre made by calibre users
     in the `calibre forum <https://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
 
-  * Additionally, some third-party updaters such as Norton or Avast may update 
-    software behind the user's back. If you find calibre has updated unexpectedly, 
-    check for the presence of one. 
+  * Additionally, some third-party updaters such as Norton or Avast may update
+    software behind the user's back. If you find calibre has updated unexpectedly,
+    check for the presence of one.
 
 How is calibre licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
