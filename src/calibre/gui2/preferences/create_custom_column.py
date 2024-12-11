@@ -517,7 +517,10 @@ class CreateCustomColumn(QDialog):
              "evaluating this column's template will be stored in the backup OPF "
              'stored in the library. The same is true when sending to a device, '
              'assuming the format has an OPF. One reason to uncheck this box is '
-             'that the column contains large images.') + '</p>')
+             'that the column contains large images.') + '</p>' + '<p>' +
+             _('Note that some background functions require data for a column to '
+               'be in the OPF, for example book jackets. If you uncheck this box '
+               'and some function stops working then check the box.') + '</p>')
         l.addWidget(cmc)
         l.addStretch()
         add_row(None, l)
