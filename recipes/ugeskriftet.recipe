@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Ugeskriftet(BasicNewsRecipe):
     title          = 'Ugeskriftet'
     description = 'Ugeskriftet for læger'
-    language               = 'dan'
+    language               = 'da'
     __author__ = 'https://github.com/morusn'
     oldest_article = 7
     publication_type = 'magazine'
