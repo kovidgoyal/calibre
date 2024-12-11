@@ -525,7 +525,9 @@ class Economist(BasicNewsRecipe):
 
             feeds = []
 
-            for part in safe_dict(data, "props", "pageProps", "content", "sections"):
+            for part in safe_dict(
+                data, "props", "pageProps", "content", "headerSections"
+            ) + safe_dict(data, "props", "pageProps", "content", "sections"):
                 section = safe_dict(part, "name") or ''
                 if not section:
                     continue
