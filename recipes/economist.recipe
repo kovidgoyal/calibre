@@ -4,6 +4,7 @@
 import json
 import re
 import time
+from uuid import uuid4
 from collections import defaultdict
 from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode
@@ -254,10 +255,9 @@ class Economist(BasicNewsRecipe):
             )
             br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         else:
-            # Needed to bypass cloudflare
-            kwargs['user_agent'] = 'common_words/based'
+            kwargs['user_agent'] = 'TheEconomist-Lamarr-android'
             br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-            br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+            br.addheaders += [('x-request-id', str(uuid4()))]
         return br
 
     def publication_date(self):
