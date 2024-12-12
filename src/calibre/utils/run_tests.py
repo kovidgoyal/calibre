@@ -226,6 +226,8 @@ def find_tests(which_tests=None, exclude_tests=None):
     if ok('polish'):
         from calibre.ebooks.oeb.polish.tests.main import find_tests
         a(find_tests())
+        from calibre.ebooks.oeb.polish.tests.structure import find_tests
+        a(find_tests())
     if ok('opf'):
         from calibre.ebooks.metadata.opf2 import suite
         a(suite())
