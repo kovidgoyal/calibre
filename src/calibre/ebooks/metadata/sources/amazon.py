@@ -1090,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 10)
+    version = (1, 3, 11)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1443,9 +1443,10 @@ class Amazon(Source):
             return True
 
         for query in (
-                '//div[contains(@class, "s-result-list")]//h2/a[@href]',
-                '//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]',
-                r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]',
+            '//div[contains(@class, "s-result-list")]//h2/a[@href]',
+            '//div[contains(@class, "s-result-list")]//div[@data-index]//h5//a[@href]',
+            r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]',
+            '//div[@data-cy="title-recipe"]/a[@href]',
         ):
             result_links = root.xpath(query)
             if result_links:
@@ -1810,6 +1811,11 @@ def manual_tests(domain, **kw):  # {{{
             [title_test('Expert C#'),
              authors_test(['Rockford Lhotka'])
              ]
+        ),
+
+        (   # New search results page markup (Dec 2024)
+            {'title': 'Come si scrive un articolo medico-scientifico'},
+            [title_test('Come si scrive un articolo medico-scientifico', exact=True)]
         ),
 
         (  # No specific problems
