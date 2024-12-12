@@ -625,6 +625,7 @@ class CreateCustomColumn(QDialog):
             getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
         self.composite_heading_position.setEnabled(False)
         self.store_template_value_in_opf.setVisible(col_type == 'composite')
+        self.store_template_value_in_opf.setChecked(True)
 
         for x in ('box', 'default_label',  'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
