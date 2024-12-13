@@ -4,10 +4,10 @@
 import json
 import re
 import time
-from uuid import uuid4
 from collections import defaultdict
 from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode
+from uuid import uuid4
 
 from html5_parser import parse
 from lxml import etree
