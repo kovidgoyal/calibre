@@ -33,7 +33,7 @@ class HTMLZInput(InputFormatPlugin):
         # Find the HTML file in the archive. It needs to be
         # top level.
         index = ''
-        multiple_html = False
+        multiple_html = []
         # Get a list of all top level files in the archive.
         for x in os.listdir('.'):
             if os.path.isfile(x):
@@ -51,14 +51,16 @@ class HTMLZInput(InputFormatPlugin):
                 # called index.
                 if not index:
                     index = x
-                else:
-                    multiple_html = True
+                elif x != index:
+                    if not multiple_html:
+                        multiple_html = [index]
+                    multiple_html.append(x)
         # Warn the user if there multiple HTML file in the archive. HTMLZ
         # supports a single HTML file. A conversion with a multiple HTML file
         # HTMLZ archive probably won't turn out as the user expects. With
         # Multiple HTML files ZIP input should be used in place of HTMLZ.
         if multiple_html:
-            log.warn(_('Multiple HTML files found in the archive. Only %s will be used.') % index)
+            log.warn(_('Multiple HTML files found in the archive {0}. Only {1} will be used.').format(', '.join(multiple_html), index))
 
         if index:
             with open(index, 'rb') as tf:
@@ -113,8 +115,9 @@ class HTMLZInput(InputFormatPlugin):
                 opf = x
                 break
         if opf:
-            opf = OPF(opf, basedir=os.getcwd())
-            cover_path = opf.raster_cover or opf.cover
+            opf_parsed = OPF(opf, basedir=os.getcwd())
+            cover_path = opf_parsed.raster_cover or opf_parsed.cover
+            os.remove(opf)  # dont confuse code that searches for OPF files later on the oeb object will create its own OPF
         # Set the cover.
         if cover_path:
             cdata = None
