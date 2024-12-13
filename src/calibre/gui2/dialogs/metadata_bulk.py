@@ -37,7 +37,7 @@ from calibre.gui2 import UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, 
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.widgets import LineEditECM, setup_status_actions, update_status_actions
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
@@ -749,8 +749,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
-        self.s_r_template.setLineEdit(TemplateLineEditor(self.s_r_template))
         self.s_r_template.initialize('bulk_edit_template')
+        self.s_r_template.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.s_r_edit_template_button.setIcon(QIcon.ic('edit_input.png'))
+        self.s_r_edit_template_button.clicked.connect(self.s_r_edit_template_button_clicked)
         self.test_text.initialize('bulk_edit_test_test')
         self.all_fields = ['']
         self.writable_fields = ['']
@@ -858,7 +860,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged.connect(self.s_r_identifier_type_changed)
         self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
-        self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
         self.search_for.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
@@ -934,8 +935,20 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_display_bounds_changed(self, i):
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
-    def s_r_template_changed(self):
-        self.s_r_search_field_changed(self.search_field.currentIndex())
+    def s_r_edit_template_button_clicked(self):
+        try:
+            mi = []
+            for c,_id in enumerate(self.ids):
+                if c >= self.s_r_number_of_books:
+                    break
+                mi.append(self.db.new_api.get_proxy_metadata(_id))
+        except Exception as e:
+            prints(f'TemplateLineEditor: exception fetching metadata: {str(e)}')
+            mi = None
+        t = TemplateDialog(self, self.s_r_template.text(), mi=mi)
+        t.setWindowTitle(_('Edit search/replace template'))
+        if t.exec():
+            self.s_r_template.setText(t.rule[1])
 
     def s_r_identifier_type_changed(self, idx):
         self.s_r_search_field_changed(self.search_field.currentIndex())
@@ -943,12 +956,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_search_field_changed(self, idx):
         self.s_r_template.setVisible(False)
+        self.s_r_edit_template_button.setVisible(False)
         self.template_label.setVisible(False)
         self.s_r_src_ident_label.setVisible(False)
         self.s_r_src_ident.setVisible(False)
         if idx == 1:  # Template
             self.s_r_template.setVisible(True)
             self.template_label.setVisible(True)
+            self.s_r_edit_template_button.setVisible(True)
         elif self.s_r_sf_itemdata(idx) == 'identifiers':
             self.s_r_src_ident_label.setVisible(True)
             self.s_r_src_ident.setVisible(True)
@@ -1522,8 +1537,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         set_index(self.search_mode, 'search_mode')
         set_index(self.search_field, 'search_field')
         set_text(self.s_r_template, 's_r_template')
-
-        self.s_r_template_changed()  # simulate gain/loss of focus
 
         set_index(self.s_r_src_ident, 's_r_src_ident')
         set_text(self.s_r_dst_ident, 's_r_dst_ident')
