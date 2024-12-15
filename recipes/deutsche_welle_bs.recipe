@@ -16,10 +16,10 @@ class DeutscheWelle_bs(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     masthead_url = 'http://www.dw-world.de/skins/std/channel1/pics/dw_logo1024.gif'
-    
+
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']
-    
+
     keep_only_tags = [
         dict(name='article')
     ]

@@ -4,25 +4,35 @@ requires-python = ">=3.8"
 [tool.ruff]
 line-length = 160
 target-version = 'py38'
-builtins = ['_']
-
-[tool.ruff.lint]
-ignore = ['E741', 'E402', 'E722', 'E401']
-select = ['E', 'F', 'I']
-
-[tool.ruff.lint.per-file-ignores]
-"src/calibre/ebooks/unihandecode/unicodepoints.py" = ["E501"]
-"src/qt/*.py" = ['I']
-"src/qt/*.pyi" = ['I']
+builtins = ['_', 'I', 'P']
+include = ['*.py', '*.recipe']
+exclude = [
+    "*_ui.py",
+    "bypy/*",
+    "setup/*",
+    "src/css_selectors/*",
+    "src/polyglot/*",
+    "src/templite/*",
+    "src/tinycss/*",
+]
 
 [tool.ruff.format]
 quote-style = 'single'
 
+[tool.ruff.lint]
+ignore = ['E402', 'E722', 'E741', 'E401']
+select = ['E', 'F', 'I', 'W']
+
+[tool.ruff.lint.per-file-ignores]
+"src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501', 'W191']
+"src/qt/*.py" = ['I']
+"src/qt/*.pyi" = ['I']
+
 [tool.ruff.lint.isort]
 detect-same-package = true
-extra-standard-library = ['aes', 'elementmaker', 'encodings']
-known-first-party = ["calibre_extensions", 'polyglot']
-known-third-party = ["qt"]
+extra-standard-library = ["aes", "elementmaker", "encodings"]
+known-first-party = ["calibre_extensions", "calibre_plugins", "polyglot"]
+known-third-party = ["odf", "qt", "templite", "tinycss", "css_selectors"]
 relative-imports-order = "closest-to-furthest"
 split-on-trailing-comma = false
 section-order = ['__python__', "future", "standard-library", "third-party", "first-party", "local-folder"]

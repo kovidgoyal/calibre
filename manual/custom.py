@@ -299,7 +299,7 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
 
 
 def mark_options(raw):
-    raw = re.sub(r'(\s+)--(\s+)', u'\\1``--``\\2', raw)
+    raw = re.sub(r'(\s+)--(\s+)', r'\1``--``\2', raw)
 
     def sub(m):
         opt = m.group()

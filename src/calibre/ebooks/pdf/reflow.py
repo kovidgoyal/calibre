@@ -16,8 +16,8 @@ from lxml import etree
 #### Pages/lines
 
 # How many pages/lines to scan when finding header/footer automatically
-PAGE_SCAN_COUNT = 20		# Arbitrary
-LINE_SCAN_COUNT = 2		# Arbitrary
+PAGE_SCAN_COUNT = 20    # Arbitrary
+LINE_SCAN_COUNT = 2     # Arbitrary
 
 # Number of character widths that two strings have to be apart,
 # for them to be considered part of the same text fragment
@@ -211,7 +211,7 @@ class Text(Element):
           and abs(other.left - self.right) < 2.0:
           #and abs(other.left - self.right) < self.average_character_width / 3.0:
             has_gap = 0
-        else:	# Insert n spaces to fill gap.  Use TAB?  Columns?
+        else:  # Insert n spaces to fill gap.  Use TAB?  Columns?
             if other.left < self.right:
                 has_gap = 1  # Coalescing different lines. 1 space
             else:    # Multiple texts on same line
@@ -275,7 +275,7 @@ class Text(Element):
         self.font_size_em = max(self.font_size_em, other.font_size_em)
         self.font = other.font if self.font_size == other.font_size else other.font
         if has_gap > 0:
-            if has_gap < 3:	# Small number of spaces = 1 space
+            if has_gap < 3:  # Small number of spaces = 1 space
                 if not (self.text_as_string.endswith(' ') \
                      or self.text_as_string.endswith('-') \
                      or other.text_as_string.startswith(' ') \
@@ -766,11 +766,11 @@ class Page:
                 while s < len(text.text_as_string) \
                   and text.text_as_string[s] == ' ':
                     s += 1
-                if s > 2:	# Allow two leading spaces
+                if s > 2:  # Allow two leading spaces
                     # Assume this is a standard indent
                     # Normally text.indented gets set later
                     text.indented = 1
-                    w = round(s * text.average_character_width/2.0)	# Spaces < avg width
+                    w = round(s * text.average_character_width/2.0)  # Spaces < avg width
                     matchObj = re.match(r'^\s*(<[^>]+>)?\s*(.*)$', text.raw)
                     t1 = matchObj.group(1)
                     t2 = matchObj.group(2)
@@ -780,9 +780,9 @@ class Page:
                         t2 = ''
                     text.raw = t1 + t2
                     text.text_as_string = text.text_as_string[s:]
-                    text.left += w	# Add indent
+                    text.left += w  # Add indent
                     text.last_left += w
-                    text.width -= w	# Reduce width
+                    text.width -= w  # Reduce width
                     text.final_width -= w
                 self.left_margin = min(text.left, self.left_margin)
                 self.right_margin = max(text.right, self.right_margin)
@@ -846,7 +846,7 @@ class Page:
                     or (frag.top < t.top and frag.bottom+BOTTOM_FACTOR > t.bottom) \
                     or (t.top < frag.top and t.bottom > frag.top+BOTTOM_FACTOR) \
                     or (t.top < frag.top and t.bottom+BOTTOM_FACTOR > frag.bottom)):
-                    return t	# Force match if same line
+                    return t  # Force match if same line
                     # Sorting can put parts of a line in the wrong order if there are small chars
                     if t.left < frag.left:
                         hdelta = frag.left - t.right
@@ -916,7 +916,7 @@ class Page:
             # NB Doesn't work where Contents goes to another page
             if re.match(r'(?i)^\s*(table of )?contents\s*$', t.text_as_string) is not None:
                 self.contents = True
-                t.tag = 'h2'	# It won't get set later
+                t.tag = 'h2'  # It won't get set later
             # Centered if left and right margins are within FACTOR%
             # Because indents can waver a bit, use between indent and indent1 as == indent
             if (lmargin < indent or lmargin > indent1) \
@@ -1407,9 +1407,9 @@ class PDFDocument:
 
         # Check for a testable value
         if self.opts.pdf_header_regex is None:
-            self.opts.pdf_header_regex = ''	# Do nothing
+            self.opts.pdf_header_regex = ''  # Do nothing
         if self.opts.pdf_footer_regex is None:
-            self.opts.pdf_footer_regex = ''	# Do nothing
+            self.opts.pdf_footer_regex = ''  # Do nothing
 
         parser = etree.XMLParser(recover=True)
         self.root = etree.fromstring(xml, parser=parser)
@@ -1863,11 +1863,11 @@ class PDFDocument:
 
         if pages_to_scan > 0:
             # Doc is shorter than scan_count
-            pages_to_scan = scan_count - pages_to_scan	# Number scanned
+            pages_to_scan = scan_count - pages_to_scan  # Number scanned
         else:
             # All required pages scanned
             pages_to_scan = scan_count
-        pages_to_scan /= 2	# Are at least half matching?
+        pages_to_scan /= 2  # Are at least half matching?
 
         head_ind = 0
         for i in range(LINE_SCAN_COUNT):

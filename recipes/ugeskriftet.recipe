@@ -29,9 +29,8 @@ class Ugeskriftet(BasicNewsRecipe):
         h2{font-weight: bold; font-size: large;}
         h3{font-weight: bold; font-size: large;}
         h4{font-weight: bold; font-size: large;}
-	"""
+    """
 
     feeds          = [
         ('Ugeskriftet for læger', 'https://ugeskriftet.dk/rss/forside'),
     ]
-    

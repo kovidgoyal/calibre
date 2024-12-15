@@ -22,7 +22,7 @@ class germant3n(BasicNewsRecipe):
     # remove the rubbish (in ebook)
     auto_cleanup = True
     # now the content description and URL follows
-    # feel free to add, wipe out what you need	 							---- can be edit by user
+    # feel free to add, wipe out what you need                              ---- can be edit by user
     #
     # some of this are double
     #

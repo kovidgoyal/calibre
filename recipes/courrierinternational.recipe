@@ -58,14 +58,14 @@ class CourrierInternational(BasicNewsRecipe):
 
         .info-date, .info-reserved {
             font-style: italic;
-            font-size: 0.9em; 
+            font-size: 0.9em;
             display: block;
         }
 
         .strapline {
             font-size: 1.17em;
             font-weight: bold;
-            margin: 0.67em 0; 
+            margin: 0.67em 0;
             line-height: 1.2;
         }
     '''

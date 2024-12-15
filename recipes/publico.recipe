@@ -9,7 +9,6 @@ publico.pt
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-
 from polyglot.urllib import urlencode
 
 

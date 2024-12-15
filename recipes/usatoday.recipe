@@ -69,7 +69,7 @@ class USAToday(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.usatoday.com/'
         sections = [
-            'news', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations', 
+            'news', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations',
         ]
         feeds = []
         soup = self.index_to_soup(index)
@@ -87,7 +87,6 @@ class USAToday(BasicNewsRecipe):
             if articles:
                 feeds.append((section, articles))
         return feeds
-            
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):

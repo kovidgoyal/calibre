@@ -23,8 +23,9 @@ from setup import __appname__, __version__
 
 sys.path.append(base)
 
-import calibre.utils.img as cimg
 import custom
+
+import calibre.utils.img as cimg
 from calibre.utils.localization import localize_website_link
 
 del sys.path[0]

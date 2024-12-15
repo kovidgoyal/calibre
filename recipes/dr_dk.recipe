@@ -39,7 +39,7 @@ class DRNyheder(BasicNewsRecipe):
     publisher                   = 'DR Nyheder'
     description                 = 'Her finder du nyheder fra DR.'
     category                    = 'news, politics, money, culture, sport, science, Denmark'
-    publication_type 	        = 'newspaper'
+    publication_type            = 'newspaper'
     encoding                    = 'utf8'
     language                    = 'da'
     oldest_article              = 4 # 2 might be best
@@ -47,7 +47,7 @@ class DRNyheder(BasicNewsRecipe):
     no_stylesheets              = True
     use_embedded_content        = False
     auto_cleanup                = False
-    remove_empty_feeds 	        = True
+    remove_empty_feeds          = True
     ignore_duplicate_articles   = {'title', 'url'}
     simultaneous_downloads      = 20
     compress_news_images        = True

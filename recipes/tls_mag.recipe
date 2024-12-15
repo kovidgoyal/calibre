@@ -16,7 +16,7 @@ def re_html(y):
 
 def get_id(url):
     rq = browser().open(url)
-    return re.search('\?p=(\S+)>', str(rq.info())).group(1)
+    return re.search(r'\?p=(\S+)>', str(rq.info())).group(1)
 
 
 class TLS(BasicNewsRecipe):

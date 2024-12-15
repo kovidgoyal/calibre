@@ -5,8 +5,9 @@ www.esquire.com
 '''
 from collections import defaultdict
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def absolutize(url):

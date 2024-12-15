@@ -19,7 +19,7 @@ class DeutscheWelle_pt(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']
- 
+
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',

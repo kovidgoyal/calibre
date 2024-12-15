@@ -5,9 +5,10 @@ import re
 from collections import OrderedDict
 from urllib.parse import urlencode, urljoin
 
+from mechanize import Request
+
 from calibre import browser, random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from mechanize import Request
 
 
 class HBR(BasicNewsRecipe):

@@ -46,7 +46,7 @@ class StraitsTimes(BasicNewsRecipe):
         ,(u'Opinion'         , u'https://www.straitstimes.com/news/opinion/rss.xml')
         ,(u'Life'            , u'https://www.straitstimes.com/news/life/rss.xml')
         ,(u'Singapore'       , u'https://www.straitstimes.com/news/singapore/rss.xml')
-        ,(u'Asia'     	     , u'https://www.straitstimes.com/news/asia/rss.xml')
+        ,(u'Asia'            , u'https://www.straitstimes.com/news/asia/rss.xml')
         ,(u'Multimedia'      , u'https://www.straitstimes.com/news/multimedia/rss.xml')
         ,(u'Sport'           , u'https://www.straitstimes.com/news/sport/rss.xml')
     ]

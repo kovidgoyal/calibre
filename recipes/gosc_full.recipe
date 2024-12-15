@@ -8,8 +8,9 @@ __copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
 import re
 import time
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from lxml import html
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GN(BasicNewsRecipe):

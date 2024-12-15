@@ -33,7 +33,7 @@ class PhilosophyNow(BasicNewsRecipe):
         .articleImageCaption { font-size:small; text-align:center; }
         em, blockquote { color:#202020; }
     '''
-    
+
     recipe_specific_options = {
         'issue': {
             'short': 'Enter the Issue Number you want to download ',

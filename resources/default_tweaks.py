@@ -216,14 +216,14 @@ save_template_title_series_sorting = 'library_order'
 # (present only for legacy reasons).
 per_language_title_sort_articles = {
         # English
-        'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
+        'eng': (r'A\s+', r'The\s+', r'An\s+'),
         # Esperanto
         'epo': (r'La\s+', r"L'", 'L´'),
         # Spanish
-        'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
+        'spa': (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
-        'fra'  : (r'Le\s+', r'La\s+', r"L'", u'L´', u'L’', r'Les\s+', r'Un\s+', r'Une\s+',
+        'fra': (r'Le\s+', r'La\s+', r"L'", r'L´', r'L’', r'Les\s+', r'Un\s+', r'Une\s+',
                   r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", r'D´', r'D’'),
         # Polish
         'pol': (),
@@ -233,32 +233,32 @@ per_language_title_sort_articles = {
                 'Un´', 'Dei\\s+', 'Degli\\s+', 'Delle\\s+', 'Del\\s+',
                 'Della\\s+', 'Dello\\s+', "Dell'", 'Dell´'),
         # Portuguese
-        'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
+        'por': (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
                   r'Uma\s+', r'Umas\s+', ),
         # Romanian
-        'ron'  : (r'Un\s+', r'O\s+', r'Nişte\s+', ),
+        'ron': (r'Un\s+', r'O\s+', r'Nişte\s+', ),
         # German
-        'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
+        'deu': (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
                   r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
                   r'Eines\s+'),
         # Dutch
-        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
+        'nld': (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
                   r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
                   r"'t\s+"),
         # Swedish
-        'swe'  : (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
+        'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
         # Turkish
-        'tur'  : (r'Bir\s+', ),
+        'tur': (r'Bir\s+', ),
         # Afrikaans
-        'afr'  : (r"'n\s+", r'Die\s+', ),
+        'afr': (r"'n\s+", r'Die\s+', ),
         # Greek
-        'ell'  : (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
+        'ell': (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
                   r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
         # Hungarian
-        'hun'  : (r'A\s+', r'Az\s+', r'Egy\s+',),
+        'hun': (r'A\s+', r'Az\s+', r'Egy\s+',),
 }
 default_language_for_title_sort = None
-title_sort_articles=r'^(A|The|An)\s+'
+title_sort_articles = r'^(A|The|An)\s+'
 
 #: Specify a folder calibre should connect to at startup
 # Specify a folder that calibre should connect to at startup using
@@ -331,8 +331,8 @@ auto_connect_to_folder = ''
 # The resulting two tweaks are:
 #    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
 #    sony_collection_name_template='{category:||: }{value}'
-sony_collection_renaming_rules={}
-sony_collection_name_template='{value}{category:| (|)}'
+sony_collection_renaming_rules = {}
+sony_collection_name_template = '{value}{category:| (|)}'
 
 #: Specify how SONY collections are sorted
 # Specify how SONY collections are sorted. This tweak is only applicable if
@@ -402,7 +402,7 @@ vertical_scrolling_per_row = False
 # Default: locale_for_sorting = '' -- use the language calibre displays in
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
-locale_for_sorting =  ''
+locale_for_sorting = ''
 
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a

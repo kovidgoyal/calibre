@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BeforeWeGo(BasicNewsRecipe):
-    title          	  = 'Before We Go'
+    title                 = 'Before We Go'
     __author__            = 'bugmen00t'
     description           = 'Before We Go Blog is a collective of Fantasy, Sci-Fi and Graphic Novel fans from around the world, passionate about providing awesome, enjoyable reviews for anyone who loves a good book!'  # noqa
     publisher             = 'BEFOREWEGOBLOG'

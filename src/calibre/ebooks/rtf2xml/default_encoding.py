@@ -6,54 +6,54 @@
 
 '''
 Codepages as to RTF 1.9.1:
-    437	United States IBM
-    708	Arabic (ASMO 708)
-    709	Arabic (ASMO 449+, BCON V4)
-    710	Arabic (transparent Arabic)
-    711	Arabic (Nafitha Enhanced)
-    720	Arabic (transparent ASMO)
-    819	Windows 3.1 (United States and Western Europe)
-    850	IBM multilingual
-    852	Eastern European
-    860	Portuguese
-    862	Hebrew
-    863	French Canadian
-    864	Arabic
-    865	Norwegian
-    866	Soviet Union
-    874	Thai
-    932	Japanese
-    936	Simplified Chinese
-    949	Korean
-    950	Traditional Chinese
-    1250	Eastern European
-    1251	Cyrillic
-    1252	Western European
-    1253	Greek
-    1254	Turkish
-    1255	Hebrew
-    1256	Arabic
-    1257	Baltic
-    1258	Vietnamese
-    1361	Johab
-    10000	MAC Roman
-    10001	MAC Japan
-    10004	MAC Arabic
-    10005	MAC Hebrew
-    10006	MAC Greek
-    10007	MAC Cyrillic
-    10029	MAC Latin2
-    10081	MAC Turkish
-    57002	Devanagari
-    57003	Bengali
-    57004	Tamil
-    57005	Telugu
-    57006	Assamese
-    57007	Oriya
-    57008	Kannada
-    57009	Malayalam
-    57010	Gujarati
-    57011	Punjabi
+    437     United States IBM
+    708     Arabic (ASMO 708)
+    709     Arabic (ASMO 449+, BCON V4)
+    710     Arabic (transparent Arabic)
+    711     Arabic (Nafitha Enhanced)
+    720     Arabic (transparent ASMO)
+    819     Windows 3.1 (United States and Western Europe)
+    850     IBM multilingual
+    852     Eastern European
+    860     Portuguese
+    862     Hebrew
+    863     French Canadian
+    864     Arabic
+    865     Norwegian
+    866     Soviet Union
+    874     Thai
+    932     Japanese
+    936     Simplified Chinese
+    949     Korean
+    950     Traditional Chinese
+    1250    Eastern European
+    1251    Cyrillic
+    1252    Western European
+    1253    Greek
+    1254    Turkish
+    1255    Hebrew
+    1256    Arabic
+    1257    Baltic
+    1258    Vietnamese
+    1361    Johab
+    10000   MAC Roman
+    10001   MAC Japan
+    10004   MAC Arabic
+    10005   MAC Hebrew
+    10006   MAC Greek
+    10007   MAC Cyrillic
+    10029   MAC Latin2
+    10081   MAC Turkish
+    57002   Devanagari
+    57003   Bengali
+    57004   Tamil
+    57005   Telugu
+    57006   Assamese
+    57007   Oriya
+    57008   Kannada
+    57009   Malayalam
+    57010   Gujarati
+    57011   Punjabi
 '''
 import re
 

@@ -11,7 +11,7 @@ from calibre.devices.kindle.apnx_page_generator.page_number_type import PageNumb
 
 class Pages:
     def __init__(self, page_locations: Optional[List[int]] = None):
-        if page_locations.__class__ == list:
+        if page_locations.__class__ is list:
             self.__pages_groups: List[PageGroup] = [PageGroup(page_locations, PageNumberTypes.Arabic, 1)]
         else:
             self.__pages_groups: List[PageGroup] = []

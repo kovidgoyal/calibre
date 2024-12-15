@@ -53,7 +53,7 @@ class JSONHasNoContent(ValueError):
 
 
 def load_article_from_json(raw, root):
-	# open('/t/raw.json', 'w').write(raw)
+    # open('/t/raw.json', 'w').write(raw)
     data = json.loads(raw)
     body = root.xpath('//body')[0]
     article = E(body, 'article')

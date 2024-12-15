@@ -37,7 +37,7 @@ class horizons(BasicNewsRecipe):
             'long': 'For example, https://www.cirsd.org/en/horizons/horizons-winter-2024--issue-no-25',
         }
     }
-    
+
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
 
