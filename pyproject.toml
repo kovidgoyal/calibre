@@ -12,7 +12,8 @@ select = ['E', 'F', 'I']
 
 [tool.ruff.lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/unicodepoints.py" = ["E501"]
-"src/qt/__init__.py" = ["E501"]
+"src/qt/*.py" = ['I']
+"src/qt/*.pyi" = ['I']
 
 [tool.ruff.format]
 quote-style = 'single'
