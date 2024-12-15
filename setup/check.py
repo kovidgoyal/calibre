@@ -108,7 +108,10 @@ class Check(Command):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    edit_file(f)
+                    try:
+                        edit_file(f)
+                    except FileNotFoundError:
+                        pass  # continue if the configured editor fail to be open
                     if self.file_has_errors(f):
                         raise SystemExit(1)
                 cache[f] = self.file_hash(f)
