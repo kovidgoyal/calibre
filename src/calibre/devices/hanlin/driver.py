@@ -97,8 +97,8 @@ class HANLINV5(HANLINV3):
     gui_name       = 'Hanlin V5'
     description    = _('Communicate with Hanlin V5 e-book readers.')
 
-    VENDOR_ID	= [0x0492]
-    PRODUCT_ID	= [0x8813]
+    VENDOR_ID   = [0x0492]
+    PRODUCT_ID  = [0x8813]
     BCD         = [0x319]
 
     OSX_MAIN_MEM = 'Hanlin V5 Internal Memory'

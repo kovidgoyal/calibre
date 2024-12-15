@@ -84,7 +84,7 @@ class NewScientist(BasicNewsRecipe):
         d = self.recipe_specific_options.get('issue')
         if d and isinstance(d, str):
             issue_url = 'https://www.newscientist.com/issue/' + d
-        
+
         soup = self.index_to_soup(issue_url)
         div = soup.find('div', attrs={'class':'ThisWeeksMagazineHero__CoverInfo'})
         tme = div.find(**classes('ThisWeeksMagazineHero__MagInfoHeading'))

@@ -7,8 +7,9 @@ __copyright__ = '2017, John Hutson <jfhutson at gmail.com>'
 firstthings.com
 '''
 import html5lib
-from calibre.web.feeds.news import BasicNewsRecipe
 from lxml import html
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FirstThings(BasicNewsRecipe):

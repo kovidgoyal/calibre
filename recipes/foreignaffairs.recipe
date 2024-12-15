@@ -4,8 +4,9 @@ import re
 
 import html5lib
 import mechanize
-from calibre.web.feeds.news import BasicNewsRecipe, classes
 from lxml import html
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 def as_article(source, log):

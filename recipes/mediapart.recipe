@@ -111,15 +111,16 @@ class Mediapart(BasicNewsRecipe):
             br['email'] = self.username
             br['password'] = self.password
             br.submit()
-            
+
         return br
 
     def default_cover(self, cover_file):
         '''
         Create a generic cover for recipes that don't have a cover
         '''
-        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
         from qt.core import QFont, QImage, QPainter, QPen, QRect, Qt
+
+        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
 
         def init_environment():
             ensure_app()

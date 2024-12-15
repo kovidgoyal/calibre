@@ -40,7 +40,7 @@ class spectator(BasicNewsRecipe):
         dict(name = ['svg', 'button']),
         classes(
             'entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content '
-            'subscription-banner ' 
+            'subscription-banner '
         )
     ]
 
@@ -48,7 +48,7 @@ class spectator(BasicNewsRecipe):
         for fc in soup.findAll('figcaption'):
             fc['id'] = 'fig-c'
         return soup
-    
+
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)

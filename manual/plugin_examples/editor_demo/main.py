@@ -7,14 +7,15 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
+from css_parser.css import CSSRule
+from qt.core import QAction, QInputDialog
+
 from calibre import force_unicode
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, serialize
 from calibre.gui2 import error_dialog
 
 # The base class that all tools must inherit from
 from calibre.gui2.tweak_book.plugin import Tool
-from css_parser.css import CSSRule
-from qt.core import QAction, QInputDialog
 
 
 class DemoTool(Tool):

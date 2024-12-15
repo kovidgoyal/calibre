@@ -10,27 +10,27 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     title          = u'Pro Physik'
-    __author__  = 'schuster, Armin Geller' 
+    __author__  = 'schuster, Armin Geller'
     # AGE Upd. 2012-11-28, 2019-02-09,
     #     2019-02-18, 2024-02-11
     # https://www.mobileread.com/forums/showthread.php?t=133184
-    
+
     oldest_article        = 7
     max_articles_per_feed = 100
 
     no_stylesheets        = True
     remove_javascript     = True
     remove_empty_feeds    = True
-    language              = 'de_DE'     
-    
+    language              = 'de_DE'
+
     # In case you want to assign a cover picture to this recipe.
     # Copy the file Pro_Physik.png to:
     # c:/Users/YOUR_USERNAME/AppData/Roaming/calibre/resources/images/news_covers/
     # where YOUR_USERNAME needs to be replaced with your username.
     # Then remove # in front of cover_url and replace YOUR_USERNAME with your username as well
-    
+
     # cover_url = file:///c:/Users/YOUR_USERNAME/AppData/Roaming/calibre/resources/images/news_covers/Pro_Physik.png
-    
+
     extra_css      =  '''
                         h1 {font-size: 1.6em; text-align: left}
                         h2, h3 {font-size: 1.3em;text-align: left}
@@ -43,7 +43,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
                           dict(name='article', attrs={'id':['story']}),
                           dict(name='div', attrs={'class':['event-item view-mode-default']})
                         ]
-                        
+
     remove_tags = [
                        dict(name='ul', attrs={'class':["wj-share-buttons"]}),  #Block social media
                   ]

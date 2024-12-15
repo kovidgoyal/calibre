@@ -3,8 +3,9 @@
 import json
 from datetime import datetime
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from html5_parser import parse
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BusinessStandard(BasicNewsRecipe):
@@ -97,9 +98,9 @@ class BusinessStandard(BasicNewsRecipe):
         date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
 
         authors = []
-        if 'articleMappedMultipleAuthors' in data:	
+        if 'articleMappedMultipleAuthors' in data:
             for aut in data['articleMappedMultipleAuthors']:
-                authors.append(data['articleMappedMultipleAuthors'][str(aut)]) 
+                authors.append(data['articleMappedMultipleAuthors'][str(aut)])
         auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
 
         if 'featuredImageObj' in data:

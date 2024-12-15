@@ -121,7 +121,7 @@ class Table:
             Look for  'mi<mk<pard-start', which marks the beginning of a row. Start
             a row and start a cell.
         """
-        # 'cell'               :	('tb', 'cell______', self.default_func),
+        # 'cell'               : ('tb', 'cell______', self.default_func),
         if self.__token_info == 'mi<mk<not-in-tbl' or\
             self.__token_info == 'mi<mk<sect-start' or\
             self.__token_info == 'mi<mk<sect-close' or\

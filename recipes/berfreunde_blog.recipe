@@ -14,7 +14,7 @@ class bergfreunde_blog(BasicNewsRecipe):
     max_articles_per_feed = 100
     # clean up the mess
     auto_cleanup   = True
-    # what's this? 
+    # what's this?
     description = 'Blog der Bergfreunde Seite (Online Händler für Bergsport)'
     publisher = 'https://www.bergfreunde.de/ueber-die-bergfreunde/'
     language = 'de'

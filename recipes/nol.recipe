@@ -1,7 +1,7 @@
 ##########################################################################
-# Description:	  http://nol.hu/ RSS channel
-# Author: 	  Bigpapa (bigpapabig@hotmail.com)
-# Date:	  2011.12.18. - V1.1
+# Description:    http://nol.hu/ RSS channel
+# Author:     Bigpapa (bigpapabig@hotmail.com)
+# Date:   2011.12.18. - V1.1
 ##########################################################################
 
 from calibre.web.feeds.recipes import BasicNewsRecipe

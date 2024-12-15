@@ -8,8 +8,9 @@ import json
 from contextlib import closing
 from time import sleep
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from mechanize import Request
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def absolutize(url):

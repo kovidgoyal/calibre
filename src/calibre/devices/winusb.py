@@ -307,27 +307,27 @@ SPDRP_LOCATION_PATHS = DWORD(0x00000023)
 
 CR_CODES, CR_CODE_NAMES = {}, {}
 for line in '''\
-#define CR_SUCCESS                  			0x00000000
+#define CR_SUCCESS                        0x00000000
 #define CR_DEFAULT                        0x00000001
 #define CR_OUT_OF_MEMORY                  0x00000002
 #define CR_INVALID_POINTER                0x00000003
 #define CR_INVALID_FLAG                   0x00000004
 #define CR_INVALID_DEVNODE                0x00000005
-#define CR_INVALID_DEVINST          			CR_INVALID_DEVNODE
+#define CR_INVALID_DEVINST                CR_INVALID_DEVNODE
 #define CR_INVALID_RES_DES                0x00000006
 #define CR_INVALID_LOG_CONF               0x00000007
 #define CR_INVALID_ARBITRATOR             0x00000008
 #define CR_INVALID_NODELIST               0x00000009
 #define CR_DEVNODE_HAS_REQS               0x0000000A
-#define CR_DEVINST_HAS_REQS         			CR_DEVNODE_HAS_REQS
+#define CR_DEVINST_HAS_REQS               CR_DEVNODE_HAS_REQS
 #define CR_INVALID_RESOURCEID             0x0000000B
 #define CR_DLVXD_NOT_FOUND                0x0000000C
 #define CR_NO_SUCH_DEVNODE                0x0000000D
-#define CR_NO_SUCH_DEVINST          			CR_NO_SUCH_DEVNODE
+#define CR_NO_SUCH_DEVINST                CR_NO_SUCH_DEVNODE
 #define CR_NO_MORE_LOG_CONF               0x0000000E
 #define CR_NO_MORE_RES_DES                0x0000000F
 #define CR_ALREADY_SUCH_DEVNODE           0x00000010
-#define CR_ALREADY_SUCH_DEVINST     			CR_ALREADY_SUCH_DEVNODE
+#define CR_ALREADY_SUCH_DEVINST           CR_ALREADY_SUCH_DEVNODE
 #define CR_INVALID_RANGE_LIST             0x00000011
 #define CR_INVALID_RANGE                  0x00000012
 #define CR_FAILURE                        0x00000013

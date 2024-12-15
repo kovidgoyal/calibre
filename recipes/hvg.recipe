@@ -1,7 +1,7 @@
 ##########################################################################
-# Description:	  http://hvg.hu/ RSS channel
-# Author: 	  Bigpapa (bigpapabig@hotmail.com)
-# Date:	  2011.12.20. - V1.1
+# Description:    http://hvg.hu/ RSS channel
+# Author:     Bigpapa (bigpapabig@hotmail.com)
+# Date:   2011.12.20. - V1.1
 ##########################################################################
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -11,7 +11,7 @@ class hvg(BasicNewsRecipe):
     title = u'HVG'
     __author__ = 'Bigpapa'
     language = 'hu'
-    oldest_article = 5		# Hany napos legyen a legregebbi cikk amit leszedjen.
+    oldest_article = 5      # Hany napos legyen a legregebbi cikk amit leszedjen.
     # Az adott e-bookban tarolt cikkek feedenkenti maximalis szamat adja meg.
     max_articles_per_feed = 5
     no_stylesheets = True

@@ -8,13 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
+from sphinx.builders.epub3 import Epub3Builder as EpubBuilder
+
 from calibre.ebooks.oeb.base import OPF
 from calibre.ebooks.oeb.polish.check.links import UnreferencedResource, check_links
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, get_container
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
 from calibre.utils.imghdr import identify
-from sphinx.builders.epub3 import Epub3Builder as EpubBuilder
-
 from polyglot.builtins import iteritems
 
 

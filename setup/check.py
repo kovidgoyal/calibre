@@ -41,6 +41,10 @@ class Check(Command):
 
     CACHE = 'check.json'
 
+    def add_options(self, parser):
+        parser.add_option('--fix', '--auto-fix', default=False, action='store_true',
+                help='Try to automatically fix some of the smallest errors')
+
     def get_files(self):
         yield from checkable_python_files(self.SRC)
 
@@ -91,6 +95,10 @@ class Check(Command):
             p = subprocess.Popen(['python', self.j(self.wn_path, 'whats_new.py'), f])
             return p.wait() != 0
 
+    def perform_auto_fix(self):
+        p = subprocess.Popen(['ruff', 'check', '--fix-only'], text=True, stdout=subprocess.PIPE)
+        return p.stdout.read()
+
     def run(self, opts):
         self.fhash_cache = {}
         cache = {}
@@ -102,13 +110,20 @@ class Check(Command):
         except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
+        if opts.fix:
+            self.info('\tAuto-fixing')
+            msg = self.perform_auto_fix()
+            self.info(msg)
         dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
         try:
             for i, f in enumerate(dirty_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    edit_file(f)
+                    try:
+                        edit_file(f)
+                    except FileNotFoundError:
+                        pass  # continue if the configured editor fail to be open
                     if self.file_has_errors(f):
                         raise SystemExit(1)
                 cache[f] = self.file_hash(f)

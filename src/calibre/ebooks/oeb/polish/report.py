@@ -11,6 +11,8 @@ import types
 from collections import defaultdict, namedtuple
 from itertools import chain
 
+from css_selectors import Select, SelectorError
+
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
@@ -18,7 +20,6 @@ from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
-from css_selectors import Select, SelectorError
 from polyglot.builtins import iteritems
 
 File = namedtuple('File', 'name dir basename size category word_count')

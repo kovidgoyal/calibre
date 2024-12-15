@@ -7,8 +7,9 @@ odb.org
 
 import uuid
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from lxml import html
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class OurDailyBread(BasicNewsRecipe):

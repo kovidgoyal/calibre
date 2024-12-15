@@ -5,11 +5,11 @@ from contextlib import suppress
 from typing import List, NamedTuple, Optional, Tuple
 
 from css_parser.css import CSSRule
+from css_selectors import Select, SelectorError
 
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.parsing import parse
-from css_selectors import Select, SelectorError
 
 
 class NoMatchingTagFound(KeyError):

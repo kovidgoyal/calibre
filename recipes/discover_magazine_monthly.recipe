@@ -16,6 +16,7 @@ try:
 except ImportError:
     from cookielib import Cookie
 import mechanize
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 

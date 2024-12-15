@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class EchoMsk(BasicNewsRecipe):
-    title          	  = '\u042D\u0425\u041E'
+    title             = '\u042D\u0425\u041E'
     __author__            = 'bugmen00t'
     description           = ('\u042D\u0425\u041E - \u043A\u0430\u043A \u043D\u0430 \u0441\u0442\u0430\u0440\u043E\u043C'
                              ' \u0434\u043E\u0431\u0440\u043E\u043C \u0440\u0430\u0434\u0438\u043E')

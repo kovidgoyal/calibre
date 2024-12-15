@@ -4,9 +4,10 @@ import json
 import re
 from urllib.parse import quote
 
+from html5_parser import parse
+
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe, classes
-from html5_parser import parse
 
 
 class ft(BasicNewsRecipe):

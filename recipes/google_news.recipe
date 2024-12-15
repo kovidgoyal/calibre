@@ -20,9 +20,9 @@ class google_news_de(BasicNewsRecipe):
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Google_News_icon.svg/500px-Google_News_icon.svg.png'
     # Author
     __author__ = 'Volker Heggemann, VoHe, unkn0wn'
-    # oldest article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days)                                  ---- can be edit by user
     oldest_article = 1.25
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     max_articles_per_feed = 200
     # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
@@ -31,7 +31,7 @@ class google_news_de(BasicNewsRecipe):
     description = u'Google News filter by your own recipe. Please read it in calibre software!'
     # What is the content of?
     category = u'NEWS'
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
     remove_javascript = True
     # Removes empty feeds - why keep them!?
@@ -39,7 +39,7 @@ class google_news_de(BasicNewsRecipe):
 
     # remove the rubbish (in ebook)
     auto_cleanup = True
-    
+
     articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
@@ -65,7 +65,7 @@ class google_news_de(BasicNewsRecipe):
         return pt.name
 
     # now the content description and URL follows
-    # feel free to add, wipe out what you need	 							---- can be edit by user
+    # feel free to add, wipe out what you need                              ---- can be edit by user
     #
     def get_feeds(self):
         url = "https://geolocation-db.com/json"
