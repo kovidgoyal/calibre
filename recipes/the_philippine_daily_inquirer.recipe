@@ -51,7 +51,7 @@ class PhilippineDailyInquirer(BasicNewsRecipe):
 
     feeds = [
 
-    ('Headlines'             'http://newsinfo.inquirer.net/category/inquirer-headlines/feed'),
+    ('Headlines',             'http://newsinfo.inquirer.net/category/inquirer-headlines/feed'),
     ('Latest Stories'      , 'http://newsinfo.inquirer.net/category/latest-stories/feed'),
     ('Nation'           , 'http://newsinfo.inquirer.net/category/nation/feed'),
     ('Nation - Latest Stories'          , 'http://newsinfo.inquirer.net/category/latest-stories/nation-latest-stories/feed'),
