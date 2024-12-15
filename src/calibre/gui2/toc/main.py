@@ -532,102 +532,227 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setCurrentItem(item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.scrollToItem(item)
 
-    def check_multi_selection(self):
-        if len(self.selectedItems()) > 1:
-            info_dialog(self, _('Multiple items selected'), _(
-                'You are trying to move multiple items at once, this is not supported. Instead use'
-                ' Drag and Drop to move multiple items'), show=True)
-            return False
-        return True
+    def _sort_items_by_index(self, items, reverse=False):
+        def get_index(item):
+            result = []
+
+            parent = item.parent()
+            while parent is not None:
+                result.append(parent.indexOfChild(item))
+                item, parent = parent, parent.parent()
+
+            result.reverse()
+            return result
+
+        items.sort(key=get_index, reverse=reverse)
+
+    def _get_root_items(self, items):
+        items_ = []
+        for item in items:
+            if item is None:
+                continue
+
+            parent = item
+            while (parent := parent.parent()) is not None:
+                if parent in items:
+                    break
+            else:
+                items_.append(item)
+
+        return items_
+
+    def _move_indent_left(self, items):
+        self._sort_items_by_index(items)
+
+        for item in items:
+            old_parent = item.parent()
+            if old_parent is None:
+                return
+
+            old_index = old_parent.indexOfChild(item)
+            was_expanded = item.isExpanded() or item.childCount() == 0
+
+            new_parent = old_parent.parent() or self.invisibleRootItem()
+            new_index = new_parent.indexOfChild(old_parent) + 1
+
+            # all former lower siblings become children of indented item
+            for _ in range(old_parent.childCount() - old_index - 1):
+                lower_sibling = old_parent.child(old_index+1)
+                old_parent.removeChild(lower_sibling)
+                item.addChild(lower_sibling)
+
+                if lower_sibling not in items:
+                    was_expanded = True
+
+            old_parent.removeChild(item)
+            new_parent.insertChild(new_index, item)
+
+            self.expandItem(new_parent)
+            if was_expanded:
+                self.expandItem(item)
+
+    def _move_indent_right(self, items):
+        self._sort_items_by_index(items)
+
+        failed_parent = None
+        for item in items:
+            # indent right == become child of upper sibling
+            old_parent = item.parent() or self.invisibleRootItem()
+            old_idx = old_parent.indexOfChild(item)
+            was_expanded = item.isExpanded()
+
+            if old_idx <= 0:
+                # no upper sibling exists; cannot become child
+                failed_parent = old_parent
+                continue
+            elif failed_parent and old_parent is failed_parent:
+                # this prevents siblings at the same level from
+                # nesting into each other forming a "staircase"
+                continue
+            else:
+                failed_parent = None
+
+            new_parent = old_parent.child(old_idx-1)
+            old_parent.removeChild(item)
+            new_parent.addChild(item)
+
+            self.expandItem(new_parent)
+            if was_expanded:
+                self.expandItem(item)
+
+    def _move_indent(self, items, indent):
+        if not items or indent == 0:
+            return
+
+        # indent offsets are absolute (as opposed to relative to parent)
+        # child indented with parent automatically, no need for manual
+        items_ = self._get_root_items(items)
+        if len(items_) <= 0 or indent == 0:
+            return
+
+        focus_item = self.currentItem()
+
+        self.push_history()
+        if indent < 0:
+            self._move_indent_left(items_)
+        elif indent > 0:
+            self._move_indent_right(items_)
+
+        # restore previous focused item
+        if focus_item is None and items_:
+            focus_item = items_[0]
+
+        if focus_item:
+            self.setCurrentItem(
+                focus_item,
+                0,
+                QItemSelectionModel.SelectionFlag.ClearAndSelect
+            )
+
+        for item in items:
+            item.setSelected(True)
 
     def move_left(self):
-        if not self.check_multi_selection():
+        selected_items = self.selectedItems()
+        if len(selected_items) <= 0:
             return
-        self.push_history()
-        item = self.currentItem()
-        if item is not None:
-            parent = item.parent()
-            if parent is not None:
-                is_expanded = item.isExpanded() or item.childCount() == 0
-                gp = parent.parent() or self.invisibleRootItem()
-                idx = gp.indexOfChild(parent)
-                for gc in [parent.child(i) for i in range(parent.indexOfChild(item)+1, parent.childCount())]:
-                    parent.removeChild(gc)
-                    item.addChild(gc)
-                parent.removeChild(item)
-                gp.insertChild(idx+1, item)
-                if is_expanded:
-                    self.expandItem(item)
-                self.highlight_item(item)
+
+        self._move_indent(selected_items, -1)
 
     def move_right(self):
-        if not self.check_multi_selection():
+        selected_items = self.selectedItems()
+        if len(selected_items) <= 0:
             return
-        self.push_history()
-        item = self.currentItem()
-        if item is not None:
-            parent = item.parent() or self.invisibleRootItem()
-            idx = parent.indexOfChild(item)
-            if idx > 0:
-                is_expanded = item.isExpanded()
-                np = parent.child(idx-1)
-                parent.removeChild(item)
-                np.addChild(item)
-                if is_expanded:
-                    self.expandItem(item)
-                self.highlight_item(item)
+
+        self._move_indent(selected_items, 1)
 
     def move_down(self):
-        if not self.check_multi_selection():
+        selected_items = self.selectedItems()
+        if len(selected_items) <= 0:
             return
+
         self.push_history()
-        item = self.currentItem()
-        if item is None:
-            if self.root.childCount() == 0:
-                return
-            item = self.root.child(0)
-            self.highlight_item(item)
-            return
-        parent = item.parent() or self.root
-        idx = parent.indexOfChild(item)
-        if idx == parent.childCount() - 1:
-            # At end of parent, need to become sibling of parent
-            if parent is self.root:
-                return
-            gp = parent.parent() or self.root
-            parent.removeChild(item)
-            gp.insertChild(gp.indexOfChild(parent)+1, item)
-        else:
-            sibling = parent.child(idx+1)
-            parent.removeChild(item)
-            sibling.insertChild(0, item)
-        self.highlight_item(item)
+
+        items_ = self._get_root_items(selected_items)
+        self._sort_items_by_index(items_)
+
+        focus_item = self.currentItem()
+
+        for item in reversed(items_):
+            old_parent = item.parent() or self.invisibleRootItem()
+            old_index = old_parent.indexOfChild(item)
+            was_expanded = item.isExpanded() or item.childCount() == 0
+
+            new_parent = None
+            if old_index + 1 < old_parent.childCount():
+                # there is still space in parent; move down in same parent
+                old_parent.removeChild(item)
+                old_parent.insertChild(old_index + 1, item)
+            elif old_parent is not self.invisibleRootItem():
+                # move down past bottom of parent, become child of grandparent
+                new_parent = old_parent.parent() or self.invisibleRootItem()
+                old_parent.removeChild(item)
+                new_index = new_parent.indexOfChild(old_parent) + 1
+                new_parent.insertChild(new_index, item)
+                self.expandItem(new_parent)
+
+            self.expandItem(new_parent or old_parent)
+            if was_expanded:
+                self.expandItem(item)
+
+        if focus_item:
+            self.setCurrentItem(
+                focus_item,
+                0,
+                QItemSelectionModel.SelectionFlag.ClearAndSelect
+            )
+
+        for item in selected_items:
+            item.setSelected(True)
 
     def move_up(self):
-        if not self.check_multi_selection():
+        selected_items = self.selectedItems()
+        if len(selected_items) <= 0:
             return
+
         self.push_history()
-        item = self.currentItem()
-        if item is None:
-            if self.root.childCount() == 0:
-                return
-            item = self.root.child(self.root.childCount()-1)
-            self.highlight_item(item)
-            return
-        parent = item.parent() or self.root
-        idx = parent.indexOfChild(item)
-        if idx == 0:
-            # At end of parent, need to become sibling of parent
-            if parent is self.root:
-                return
-            gp = parent.parent() or self.root
-            parent.removeChild(item)
-            gp.insertChild(gp.indexOfChild(parent), item)
-        else:
-            sibling = parent.child(idx-1)
-            parent.removeChild(item)
-            sibling.addChild(item)
-        self.highlight_item(item)
+
+        items_ = self._get_root_items(selected_items)
+        self._sort_items_by_index(items_)
+
+        focus_item = self.currentItem()
+
+        for item in items_:
+            old_parent = item.parent() or self.invisibleRootItem()
+            old_index = old_parent.indexOfChild(item)
+            was_expanded = item.isExpanded() or item.childCount() == 0
+
+            new_parent = None
+            if old_index - 1 >= 0:
+                # there is still space in parent; move up within parent
+                old_parent.removeChild(item)
+                old_parent.insertChild(old_index - 1, item)
+            elif old_parent is not self.invisibleRootItem():
+                # move up past top of parent, become upper sibling of parent
+                new_parent = old_parent.parent() or self.invisibleRootItem()
+                old_parent.removeChild(item)
+                new_index = new_parent.indexOfChild(old_parent)
+                new_parent.insertChild(new_index, item)
+                self.expandItem(new_parent)
+
+            self.expandItem(new_parent or old_parent)
+            if was_expanded:
+                self.expandItem(item)
+
+        if focus_item:
+            self.setCurrentItem(
+                focus_item,
+                0,
+                QItemSelectionModel.SelectionFlag.ClearAndSelect
+            )
+
+        for item in selected_items:
+            item.setSelected(True)
 
     def del_items(self):
         self.push_history()
