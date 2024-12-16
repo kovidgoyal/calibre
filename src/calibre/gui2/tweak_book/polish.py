@@ -204,7 +204,7 @@ class LossyCompression(QWidget):
         image_type = image_type.upper()
         self.enable_lossy = el = QCheckBox(_('Enable &lossy compression of {} images').format(image_type))
         el.setToolTip(_('This allows you to change the quality factor used for {} images.\nBy lowering'
-                        ' the quality you can greatly reduce file size, at the expense of the image looking blurred.'.format(image_type)))
+                        ' the quality you can greatly reduce file size, at the expense of the image looking blurred.').format(image_type))
         l.addWidget(el)
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)

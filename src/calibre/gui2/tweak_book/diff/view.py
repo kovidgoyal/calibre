@@ -272,7 +272,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             break
         else:
             info_dialog(self, _('No matches found'), _(
-                'No matches found for query: %s' % query), show=True)
+                'No matches found for query: {}').format(query), show=True)
 
     def clear(self):
         PlainTextEdit.clear(self)

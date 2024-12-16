@@ -240,7 +240,7 @@ class Adder(QObject):
                     else:
                         a = self.report.append
                         for f in unreadable_files:
-                            a(_('Could not add %s as you do not have permission to read the file' % f))
+                            a(_('Could not add {} as you do not have permission to read the file').format(f))
                             a('')
         except Exception:
             self.scan_error = traceback.format_exc()
