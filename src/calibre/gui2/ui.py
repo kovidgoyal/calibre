@@ -983,6 +983,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                             return
                     else:
                         return
+            self._save_tb_state(gprefs)
             for action in self.iactions.values():
                 try:
                     action.library_about_to_change(olddb, db)
@@ -1009,6 +1010,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if db.new_api.pref('virtual_lib_on_startup'):
                 self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
             self.rebuild_vl_tabs()
+            self._restore_tb_expansion_state() # Do this before plugins library_changed()
             for action in self.iactions.values():
                 try:
                     action.library_changed(db)
@@ -1167,16 +1169,29 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     _('<b>Failed</b>')+': '+str(job.description),
                     det_msg=job.details, retry_func=retry_func)
 
+    def _save_tb_state(self, gprefs):
+        self.tb_widget.save_state(gprefs)
+        if gprefs['tag_browser_restore_tree_expansion']:
+            tv_saved_expansions = gprefs.get('tags_view_saved_expansions', {})
+            tv_saved_expansions.update({self.current_db.library_id: self.tb_widget.get_expansion_state()})
+            gprefs['tags_view_saved_expansions'] = tv_saved_expansions
+
+    def _restore_tb_expansion_state(self):
+        if gprefs['tag_browser_restore_tree_expansion']:
+            tv_saved_expansions = gprefs.get('tags_view_saved_expansions', {})
+            self.tb_widget.restore_expansion_state(tv_saved_expansions.get(self.current_db.library_id))
+
     def read_settings(self):
         self.restore_geometry(gprefs, 'calibre_main_window_geometry', get_legacy_saved_geometry=lambda: config['main_window_geometry'])
         self.read_layout_settings()
+        self._restore_tb_expansion_state()
 
     def write_settings(self):
         with gprefs:  # Only write to gprefs once
             self.save_geometry(gprefs, 'calibre_main_window_geometry')
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
-            self.tb_widget.save_state()
+            self._save_tb_state(gprefs)
 
     def restart(self):
         self.quit(restart=True)

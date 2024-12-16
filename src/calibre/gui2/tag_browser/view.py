@@ -289,6 +289,7 @@ class TagsView(QTreeView):  # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
+        self.current_expansion = None
         self.search_icon = QIcon.ic('search.png')
         self.search_copy_icon = QIcon.ic("search_copy_saved.png")
         self.user_category_icon = QIcon.ic('tb_folder.png')
@@ -426,6 +427,7 @@ class TagsView(QTreeView):  # {{{
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
         self.expanded.connect(self.item_expanded)
+        self.collapsed.connect(self.item_collapsed)
         self.collapsed.connect(self.collapse_node_and_children)
         db.data.add_marked_listener(self.marked_change_listener)
 
@@ -1434,6 +1436,7 @@ class TagsView(QTreeView):  # {{{
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
+        item_is_expanded = True if ci.isValid() and self.isExpanded(ci) else False
         use_pos = self._model.use_position_based_index_on_next_recount
         self._model.use_position_based_index_on_next_recount = False
         if use_pos:
@@ -1454,6 +1457,10 @@ class TagsView(QTreeView):  # {{{
                 index = self._model.index_for_named_path(path)
                 if index.isValid():
                     self.show_item_at_index(index)
+                    if not item_is_expanded:
+                        # show_item_at_index() will expand the target node.
+                        # Collapse it if it wasn't expanded before the recount.
+                        self.collapse(index)
         self.blockSignals(False)
 
     def show_item_at_path(self, path, box=False,
@@ -1490,5 +1497,26 @@ class TagsView(QTreeView):  # {{{
         Called by the expanded signal
         '''
         self.setCurrentIndex(idx)
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+
+    def item_collapsed(self, idx):
+        '''
+        Called by the collapsed signal
+        '''
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+
+    def currentChanged(self, idx, prev_idx):
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+        super().currentChanged(idx, prev_idx)
+
+    def restore_expansion(self, expansion):
+        self.current_expansion = None
+        if expansion is not None and len(expansion) == 2:
+            idx = self._model.index_for_named_path(expansion[1])
+            if idx.isValid():
+                self.show_item_at_index(idx)
+                if not expansion[0]:
+                    self.collapse(idx)
+
 
     # }}}
