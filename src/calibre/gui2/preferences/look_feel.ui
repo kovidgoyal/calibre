@@ -1426,6 +1426,18 @@ also checked then only categories containing a matched item will be shown.&lt;/p
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="opt_tag_browser_restore_tree_expansion">
+            <property name="toolTip">
+             <string>&lt;p&gt;When checked, when a library is opened the Tag browser
+will expand the tree so that the last used item is visible. An item is "used" when
+it is expanded, collapsed, or clicked.&lt;/p&gt;</string>
+            </property>
+            <property name="text">
+             <string>Expand tr&amp;ee to show last used item</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item row="8" column="0" colspan="3">

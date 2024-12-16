@@ -636,6 +636,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
         r('tag_browser_always_autocollapse', gprefs)
+        r('tag_browser_restore_tree_expansion', gprefs)
         r('tag_browser_show_tooltips', gprefs)
         r('tag_browser_allow_keyboard_focus', gprefs)
         r('bd_show_cover', gprefs)
