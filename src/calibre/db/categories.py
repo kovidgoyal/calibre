@@ -193,7 +193,7 @@ category_sort_keys[False]['name'] = sort_key_for_name
 # dict being in the default display order: standard fields, custom in alpha order,
 # user categories, then saved searches. This works because the backend adds
 # custom columns to field metadata in the right order.
-def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
+def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False, uncollapsed_categories=None):
     if sort not in CATEGORY_SORTS:
         raise ValueError('sort ' + sort + ' not a valid value')
 
@@ -213,9 +213,10 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
         return ans
 
     bids = None
-    first_letter_sort = bool(first_letter_sort)
+    uncollapsed_categories = () if uncollapsed_categories is None else uncollapsed_categories
 
     for category, is_multiple, is_composite in find_categories(fm):
+        fl_sort = False if category in uncollapsed_categories else bool(first_letter_sort)
         tag_class = create_tag_class(category, fm)
         sort_on, reverse = sort, False
         if is_composite:
@@ -240,7 +241,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        cats.sort(key=partial(category_sort_keys[first_letter_sort][sort_on],
+        cats.sort(key=partial(category_sort_keys[fl_sort][sort_on],
                               hierarchical_categories=hierarchical_categories),
                   reverse=reverse)
         categories[category] = cats
