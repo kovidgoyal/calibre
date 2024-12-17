@@ -11,7 +11,7 @@ import json
 import os
 import subprocess
 
-from setup import Command, build_cache_dir, dump_json, edit_file
+from setup import Command, build_cache_dir, dump_json, edit_file, require_clean_git, require_git_master
 
 
 class Message:
@@ -98,23 +98,16 @@ class Check(Command):
             return p.wait() != 0
 
     def perform_auto_fix(self):
-        p = subprocess.Popen(['ruff', 'check', '--fix-only'], text=True, stdout=subprocess.PIPE)
-        msg = p.stdout.read().strip()
-        if not msg:
-            msg = 'Fixed 0 error.'
-        return msg
+        cp = subprocess.run(['ruff', 'check', '--fix-only'], stdout=subprocess.PIPE)
+        if cp.returncode != 0:
+            raise SystemExit('ruff fixing failed')
+        return cp.stdout.decode('utf-8') or 'Fixed 0 errors.'
 
     def perform_pep8_git_commit(self):
-        p = subprocess.Popen(['git', 'commit', '--all', '-m pep8'])
-        return p.wait() != 0
-
-    def check_working_tree(self):
-        p = subprocess.Popen(['git', 'status', '--short'], text=True, stdout=subprocess.PIPE)
-        return bool(p.stdout.read().strip())
+        return subprocess.run(['git', 'commit', '--all', '-m pep8']).returncode != 0
 
     def check_errors_remain(self):
-        p = subprocess.Popen(['ruff', 'check', '--statistics'], stdout=subprocess.PIPE)
-        return p.wait() != 0
+        return subprocess.run(['ruff', 'check', '--statistics']).returncode != 0
 
     def run(self, opts):
         if opts.fix and opts.pep8:
@@ -159,16 +152,15 @@ class Check(Command):
             self.save_cache(cache)
 
     def run_pep8_commit(self):
-        if self.check_working_tree():
-            self.info('Their is pending change into the working tree. Abort.')
-            raise SystemExit(1)
+        require_git_master()
+        require_clean_git()
         msg = self.perform_auto_fix()
         self.info(msg+'\n')
         self.info('Commit the pep8 change...')
         self.perform_pep8_git_commit()
         self.info()
         if self.check_errors_remain():
-            self.info('Their is remaing errors. Execute "setup.py check" without option to locate them.')
+            self.info('There are remaining errors. Execute "setup.py check" without options to locate them.')
 
     def report_errors(self, errors):
         for err in errors:
