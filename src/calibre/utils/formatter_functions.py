@@ -2533,8 +2533,7 @@ on a device has its own device name. The ``storage_location_key`` names are
             try:
                 if storage_location not in {'main', 'carda', 'cardb'}:
                     raise ValueError(
-                         _('connected_device_name: invalid storage location "{}"'
-                                    .format(storage_location)))
+                         _('connected_device_name: invalid storage location "{}"').format(storage_location))
                 info = info['info'][4]
                 if storage_location not in info:
                     return ''
@@ -2571,8 +2570,7 @@ only in the GUI.
             try:
                 if storage_location not in {'main', 'carda', 'cardb'}:
                     raise ValueError(
-                         _('connected_device_name: invalid storage location "{}"'
-                                    .format(storage_location)))
+                         _('connected_device_name: invalid storage location "{}"').format(storage_location))
                 info = info['info'][4]
                 if storage_location not in info:
                     return ''

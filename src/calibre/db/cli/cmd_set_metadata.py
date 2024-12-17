@@ -160,7 +160,7 @@ def main(opts, args, dbctx):
             if field == 'sort':
                 field = 'title_sort'
             if field not in fields:
-                raise SystemExit(_('%s is not a known field' % field))
+                raise SystemExit(_('{} is not a known field'))
             if field == 'cover':
                 val = dbctx.path(os.path.abspath(os.path.expanduser(val)))
             else:
