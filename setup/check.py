@@ -97,7 +97,10 @@ class Check(Command):
 
     def perform_auto_fix(self):
         p = subprocess.Popen(['ruff', 'check', '--fix-only'], text=True, stdout=subprocess.PIPE)
-        return p.stdout.read()
+        msg = p.stdout.read().strip()
+        if not msg:
+            msg = 'Fixed 0 error.'
+        return msg
 
     def run(self, opts):
         self.fhash_cache = {}
@@ -113,7 +116,7 @@ class Check(Command):
         if opts.fix:
             self.info('\tAuto-fixing')
             msg = self.perform_auto_fix()
-            self.info(msg)
+            self.info(msg+'\n')
         dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
         try:
             for i, f in enumerate(dirty_files):
