@@ -1274,6 +1274,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.row_map = []
         self.categories = OrderedDict()
 
+        # We need to pass this to get_categories so it can adjust how it sorts
+        # the values. The "first_letter_sort" argument is the default. It is
+        # changed to False by get_categories() if the category is not collapsed
+        uncollapsed_categories = self.db.prefs.get('tag_browser_dont_collapse',
+                                                   self.prefs['tag_browser_dont_collapse'])
+
         # Get the categories
         try:
             # We must disable the in_tag_browser ids because we want all the
@@ -1283,12 +1289,14 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.db.data.set_in_tag_browser(None)
             data = self.db.new_api.get_categories(sort=sort,
                     book_ids=self.get_book_ids_to_use(),
-                    first_letter_sort=self.collapse_model == 'first letter')
+                    first_letter_sort=(self.collapse_model == 'first letter'),
+                    uncollapsed_categories=uncollapsed_categories)
             self.db.data.set_in_tag_browser(old_in_tb)
         except Exception as e:
             traceback.print_exc()
             data = self.db.new_api.get_categories(sort=sort,
-                    first_letter_sort=self.collapse_model == 'first letter')
+                    first_letter_sort=(self.collapse_model == 'first letter'),
+                    uncollapsed_categories=uncollapsed_categories)
             self.restriction_error.emit(str(e))
 
         if self.filter_categories_by:

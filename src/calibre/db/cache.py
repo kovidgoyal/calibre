@@ -1542,12 +1542,13 @@ class Cache:
 
     @api
     def get_categories(self, sort='name', book_ids=None, already_fixed=None,
-                       first_letter_sort=False):
+                       first_letter_sort=False, uncollapsed_categories=None):
         ' Used internally to implement the Tag Browser '
         try:
             with self.safe_read_lock:
                 return get_categories(self, sort=sort, book_ids=book_ids,
-                                      first_letter_sort=first_letter_sort)
+                                      first_letter_sort=first_letter_sort,
+                                      uncollapsed_categories=uncollapsed_categories)
         except InvalidLinkTable as err:
             bad_field = err.field_name
             if bad_field == already_fixed:
