@@ -44,6 +44,8 @@ class Check(Command):
     def add_options(self, parser):
         parser.add_option('--fix', '--auto-fix', default=False, action='store_true',
                 help='Try to automatically fix some of the smallest errors')
+        parser.add_option('--pep8', '--pep8-commit', default=False, action='store_true',
+                help='Try to automatically fix some of the smallest errors, then perform a pep8 commit')
 
     def get_files(self):
         yield from checkable_python_files(self.SRC)
@@ -102,18 +104,41 @@ class Check(Command):
             msg = 'Fixed 0 error.'
         return msg
 
+    def perform_pep8_git_commit(self):
+        p = subprocess.Popen(['git', 'commit', '--all', '-m pep8'])
+        return p.wait() != 0
+
+    def check_working_tree(self):
+        p = subprocess.Popen(['git', 'status', '--short'], text=True, stdout=subprocess.PIPE)
+        return bool(p.stdout.read().strip())
+
+    def check_errors_remain(self):
+        p = subprocess.Popen(['ruff', 'check', '--statistics'], stdout=subprocess.PIPE)
+        return p.wait() != 0
+
     def run(self, opts):
+        if opts.fix and opts.pep8:
+            self.info('setup.py check: error: options --fix and --pep8 are mutually exclusive')
+            raise SystemExit(2)
+
         self.fhash_cache = {}
-        cache = {}
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
+        self.auto_fix = opts.fix
+        if opts.pep8:
+            self.run_pep8_commit()
+        else:
+            self.run_check_files()
+
+    def run_check_files(self):
+        cache = {}
         try:
             with open(self.cache_file, 'rb') as f:
                 cache = json.load(f)
         except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
-        if opts.fix:
+        if self.auto_fix:
             self.info('\tAuto-fixing')
             msg = self.perform_auto_fix()
             self.info(msg+'\n')
@@ -132,6 +157,18 @@ class Check(Command):
                 cache[f] = self.file_hash(f)
         finally:
             self.save_cache(cache)
+
+    def run_pep8_commit(self):
+        if self.check_working_tree():
+            self.info('Their is pending change into the working tree. Abort.')
+            raise SystemExit(1)
+        msg = self.perform_auto_fix()
+        self.info(msg+'\n')
+        self.info('Commit the pep8 change...')
+        self.perform_pep8_git_commit()
+        self.info()
+        if self.check_errors_remain():
+            self.info('Their is remaing errors. Execute "setup.py check" without option to locate them.')
 
     def report_errors(self, errors):
         for err in errors:
