@@ -7,7 +7,7 @@ import traceback
 
 from qt.core import QDialog, QDialogButtonBox
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog, warning_dialog
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, question_dialog, warning_dialog
 from calibre.gui2.dialogs.ff_doc_editor import FFDocEditor
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortInitialize, ConfigWidgetBase, test_widget
@@ -204,6 +204,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_name.editTextChanged.connect(self.st_template_name_edited)
         self.st_create_button.clicked.connect(self.st_create_button_clicked)
         self.st_delete_button.clicked.connect(self.st_delete_button_clicked)
+        self.st_import_button.clicked.connect(self.st_import_button_clicked)
+        self.st_export_button.clicked.connect(self.st_export_button_clicked)
         self.st_create_button.setEnabled(False)
         self.st_delete_button.setEnabled(False)
         self.st_replace_button.setEnabled(False)
@@ -436,6 +438,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_create_button.setEnabled(False)
         self.st_delete_button.setEnabled(False)
         self.st_doc_edit_button.setEnabled(False)
+        self.st_replace_button.setEnabled(False)
+        self.st_current_program_name = ''
 
     def st_build_function_names_box(self, scroll_to=''):
         self.te_name.blockSignals(True)
@@ -450,6 +454,56 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             idx = self.te_name.findText(scroll_to)
             if idx >= 0:
                 self.te_name.setCurrentIndex(idx)
+
+    def st_import_button_clicked(self):
+        if self.st_replace_button.isEnabled():
+            error_dialog(self, _('Import stored template'),
+                         _('You are currently editing a stored template. Save or clear it'), show=True)
+            return
+        filename = choose_files(self, 'st_import_export_stored_template',
+                _('Import template from file'),
+                filters=[(_('Saved stored template'), ['stjson'])],
+                select_only_single_file=True)
+        if filename:
+            self.st_clear_button_clicked()
+            try:
+                with open(filename[0]) as f:
+                    fields = json.load(f)
+                    name = fields['name']
+                    if name in self.st_funcs:
+                        if not question_dialog(self, _('Import stored template'),
+                                               _('A template with the name "{}" already exists. '
+                                                 'Do you want to overwrite it?').format(name),
+                                               show_copy_button=False):
+                            return
+                self.te_name.setCurrentText(name)
+                self.te_textbox.setPlainText(fields['template'])
+                self.template_editor.new_doc.setPlainText(fields['doc'])
+            except Exception as err:
+                traceback.print_exc()
+                error_dialog(self, _('Import template'),
+                             _('<p>Could not import the template. Error:<br>%s')%err, show=True)
+
+    def st_export_button_clicked(self):
+        if not self.te_name.currentText() or not self.te_textbox.toPlainText():
+            error_dialog(self, _('Export stored template'),
+                         _('No template has been selected for export'), show_copy_button=False, show=True)
+            return
+        filename = choose_save_file(self, 'st_import_export_stored_template',
+                _('Export template to file'),
+                filters=[(_('Saved stored template'), ['stjson'])],
+                initial_filename=self.te_name.currentText())
+        if filename:
+            try:
+                with open(filename, 'w') as f:
+                    json.dump({'name': self.te_name.currentText(),
+                               'template': self.te_textbox.toPlainText(),
+                               'doc': self.template_editor.new_doc.toPlainText()},
+                               f, indent=1)
+            except Exception as err:
+                traceback.print_exc()
+                error_dialog(self, _('Export template'),
+                             _('<p>Could not export the template. Error:<br>%s')%err, show=True)
 
     def st_delete_button_clicked(self):
         name = str(self.te_name.currentText())
