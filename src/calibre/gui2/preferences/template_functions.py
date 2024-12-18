@@ -462,7 +462,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         filename = choose_files(self, 'st_import_export_stored_template',
                 _('Import template from file'),
-                filters=[(_('Saved stored template'), ['stjson'])],
+                filters=[(_('Saved stored template'), ['txt'])],
                 select_only_single_file=True)
         if filename:
             self.st_clear_button_clicked()
@@ -491,7 +491,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         filename = choose_save_file(self, 'st_import_export_stored_template',
                 _('Export template to file'),
-                filters=[(_('Saved stored template'), ['stjson'])],
+                filters=[(_('Saved stored template'), ['txt'])],
                 initial_filename=self.te_name.currentText())
         if filename:
             try:
