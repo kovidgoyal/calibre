@@ -1228,6 +1228,20 @@ class Cover(ImageView):  # {{{
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred,
             QSizePolicy.Policy.Preferred))
 
+    def build_context_menu(self):
+        m = super().build_context_menu()
+        m.addSeparator()
+        m.addAction(QIcon.ic('view-image'), _('View image in popup window'), self.view_image)
+        return m
+
+    def view_image(self):
+        from calibre.gui2.image_popup import ImageView
+        d = ImageView(self, self.pixmap(), 'cover.jpg')
+        d(use_exec=True)
+        if d.transformed:
+            from calibre.utils.img import image_to_data
+            self.current_val = image_to_data(d.current_img.toImage(), fmt='png')
+
     def undo_trim(self):
         if self.cdata_before_trim:
             self.current_val = self.cdata_before_trim
