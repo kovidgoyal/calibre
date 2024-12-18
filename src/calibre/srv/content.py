@@ -16,7 +16,7 @@ from threading import Lock
 
 from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
-from calibre.db.constants import RESOURCE_URL_SCHEME
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, RESOURCE_URL_SCHEME
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover, set_use_roman
 from calibre.ebooks.metadata import authors_to_string
@@ -24,6 +24,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPNotFound
+from calibre.srv.metadata import encode_stat_result
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, http_date
 from calibre.utils.config_base import tweaks
@@ -34,7 +35,8 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
-from polyglot.binary import as_hex_unicode
+from calibre.utils.speedups import ReadOnlyFileBuffer
+from polyglot.binary import as_hex_unicode, from_base64_bytes
 from polyglot.urllib import quote
 
 plugboard_content_server_value = 'content_server'
@@ -518,3 +520,72 @@ def set_note(ctx, rd, field, item_id, library_id):
     db.set_notes_for(field, item_id, db_html, searchable_text, resources)
     rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
     return srv_html
+
+
+def data_file(rd, fname, path, stat_result):
+    cd = rd.query.get('content_disposition', 'attachment')
+    rd.outheaders['Content-Disposition'] = '''{}; filename="{}"; filename*=utf-8''{}'''.format(
+        cd, fname_for_content_disposition(fname), fname_for_content_disposition(fname, as_encoded_unicode=True))
+    return rd.filesystem_file_with_custom_etag(share_open(path, 'rb'), stat_result.st_dev, stat_result.st_ino, stat_result.st_size, stat_result.st_mtime)
+
+
+
+@endpoint('/data-files/get/{book_id}/{relpath}/{library_id=None}', types={'book_id': int})
+def get_data_file(ctx, rd, book_id, relpath, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN):
+        if ef.relpath == relpath:
+            return data_file(rd, relpath.rpartition('/')[2], ef.file_path, ef.stat_result)
+    raise HTTPNotFound(f'No data file {relpath} in book {book_id} in library {library_id}')
+
+
+def strerr(e: Exception):
+    # Dont leak the filepath in the error response
+    if isinstance(e, OSError):
+        return e.strerror or str(e)
+    return str(e)
+
+
+@endpoint('/data-files/upload/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
+def upload_data_files(ctx, rd, book_id, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    files = {}
+    try:
+        recvd = load_json_file(rd.request_body_file)
+        for x in recvd:
+            data = from_base64_bytes(x['data_url'].split(',', 1)[-1])
+            relpath = f'{DATA_DIR_NAME}/{x["name"]}'
+            files[relpath] = ReadOnlyFileBuffer(data, x['name'])
+    except Exception as err:
+        raise HTTPBadRequest(f'Invalid query: {err}')
+    err = ''
+    try:
+        db.add_extra_files(book_id, files)
+    except Exception as e:
+        err = strerr(e)
+    data_files = db.list_extra_files(book_id, use_cache=False, pattern=DATA_FILE_PATTERN)
+    return {'error': err, 'data_files': {e.relpath: encode_stat_result(e.stat_result) for e in data_files}}
+
+
+@endpoint('/data-files/remove/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
+def remove_data_files(ctx, rd, book_id, library_id):
+    db = get_db(ctx, rd, library_id)
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id} not found')
+    try:
+        relpaths = load_json_file(rd.request_body_file)
+        if not isinstance(relpaths, list):
+            raise Exception('files to remove must be a list')
+    except Exception as err:
+        raise HTTPBadRequest(f'Invalid query: {err}')
+
+    errors = db.remove_extra_files(book_id, relpaths, permanent=True)
+    data_files = db.list_extra_files(book_id, use_cache=False, pattern=DATA_FILE_PATTERN)
+    ans = {'data_files': {e.relpath: encode_stat_result(e.stat_result) for e in data_files}}
+    if errors:
+        ans['errors'] = {k: strerr(v) for k, v in errors.items() if v is not None}
+    return ans

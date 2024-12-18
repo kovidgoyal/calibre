@@ -224,6 +224,15 @@ def download_url(book_id, fmt, content_disposition):
     return ans
 
 
+def download_data_file_url(book_id, relpath, content_disposition):
+    lid = current_library_id()
+    rpath = encodeURIComponent(relpath)
+    ans = absolute_path(f'data-files/get/{book_id}/{rpath}/{lid}')
+    if content_disposition:
+        ans += f'?content_disposition={content_disposition}'
+    return ans
+
+
 def book_metadata(book_id):
     return library_data.metadata[book_id]
 

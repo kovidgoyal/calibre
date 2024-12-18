@@ -8,11 +8,11 @@ import traceback
 from ajax import ajax, ajax_send, encode_query_component
 from book_list.delete_book import refresh_after_delete, start_delete_book
 from book_list.globals import get_session_data
-from book_list.item_list import create_item, create_item_list
+from book_list.item_list import create_item, create_item_list, create_side_action
 from book_list.library_data import (
     all_libraries, book_after, book_metadata, cover_url, current_library_id,
     current_virtual_library, download_url, library_data, load_status,
-    set_book_metadata
+    set_book_metadata, download_data_file_url
 )
 from book_list.router import back, home, open_book, report_a_load_failure, show_note
 from book_list.theme import (
@@ -23,8 +23,9 @@ from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
+from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
 from gettext import gettext as _
-from modals import create_custom_dialog, error_dialog, warning_dialog
+from modals import create_custom_dialog, error_dialog, warning_dialog, question_dialog
 from read_book.touch import (
     copy_touch, install_handlers, interpret_single_gesture, touch_id, update_touch
 )
@@ -40,6 +41,7 @@ bd_counter = 0
 CLASS_NAME = 'book-details-panel'
 SEARCH_INTERNET_CLASS = 'book-details-search-internet'
 COPY_TO_LIBRARY_CLASS = 'book-details-copy-to-library'
+DATA_FILES_CLASS = 'book-details-data-files'
 FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
@@ -469,6 +471,9 @@ add_extra_css(def():
 
     sel = '.' + COPY_TO_LIBRARY_CLASS
     style += build_rule(sel, margin='1ex 1em')
+
+    sel = '.' + DATA_FILES_CLASS
+    style += build_rule(sel, margin='1ex 1em')
     return style
 )
 
@@ -827,6 +832,11 @@ def create_more_actions_panel(container_id):
                     action=def():
                         show_subsequent_panel('copy_to_library', replace=True)
         ),
+        create_item(_('Manage data files'), subtitle=_('Upload or download additional data files to this book'),
+                    action=def():
+                        show_subsequent_panel('data_files', replace=True)
+        ),
+
     ]
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
@@ -847,6 +857,196 @@ def url_for(template, data):
     def eqc(x):
         return encode_query_component(x).replace(/%20/g, '+')
     return template.format(title=eqc(data.title), author=eqc(data.author))
+
+
+EXTENSIONS_TO_OPEN_IN_BROWSER = {
+    'pdf': True,
+    'jpeg': True,
+    'jpg': True,
+    'png': True,
+    'gif': True,
+    'webp': True,
+    'txt': True,
+    'html': True,
+    'htm': True,
+    'xhtml': True,
+}
+
+def download_data_file(book_id, relpath):
+    ext = relpath.toLowerCase().rpartition('.')[2]
+    open_inline = bool(EXTENSIONS_TO_OPEN_IN_BROWSER[ext])
+    cd = 'inline' if open_inline else 'attachment'
+    url = download_data_file_url(book_id, relpath, cd)
+    if open_inline:
+        window.open(url)
+    else:
+        window.location = url
+
+
+def on_progress(container_id, book_id, loaded, total, xhr):
+    container = document.getElementById(container_id)
+    if container and total:
+        update_status_widget(container, loaded, total)
+
+
+def data_files_submitted(container_id, book_id, end_type, xhr, ev):
+    if end_type is 'abort':
+        back()
+        return
+    if end_type is not 'load':
+        error_dialog(_('Failed to upload files to server'), _(
+            'Uploading data files for book: {} failed.').format(book_id), xhr.error_html)
+        return
+    try:
+        res = JSON.parse(xhr.responseText)
+    except Exception as err:
+        error_dialog(_('Could not upload data files for book'), _('Server returned an invalid response'), err.toString())
+        return
+    mi = book_metadata(book_id)
+    if mi:
+        mi.data_files = res.data_files
+    if res.error:
+        error_dialog(_('Could not upload data files for book'), _('There was an error: ') + res.error)
+    else:
+        back()
+
+
+def submit_data_files(top_container_id, container_id, book_id, added):
+    c = document.getElementById(container_id)
+    clear(c)
+    c.appendChild(E.div(style='margin: 1ex 1rem', _('Uploading changes to server, please wait...')))
+    w = upload_status_widget()
+    c.appendChild(w)
+    ajax_send(
+        f'data-files/upload/{book_id}/{current_library_id()}', added,
+        data_files_submitted.bind(None, container_id, book_id), on_progress.bind(None, container_id, book_id))
+
+
+def files_added(check_existing, top_container_id, book_id, container_id, files):
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not container or not mi or not files[0]:
+        return
+    added = v'[]'
+
+    def exists(fname):
+        for relpath in mi.data_files:
+            q = relpath.partition('/')[2]
+            if q is fname:
+                return True
+        return False
+
+    if check_existing:
+        existing = [file.name for file in files if exists(file.name)]
+        if existing.length:
+            return question_dialog(_('Replace existing data files?'), _('The following data files already exist, are you sure you want to replace them?') + ' ' + existing.join(', '), def (yes):
+                if yes:
+                    files_added(False, top_container_id, book_id, container_id, files)
+                else:
+                    back()
+            )
+
+    for file in files:
+        data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None}
+        added.push(data)
+        r = FileReader()
+        r.onload = def(evt):
+            data.data_url = evt.target.result
+            for entry in added:
+                if not entry.data_url:
+                    return
+            submit_data_files(top_container_id, container_id, book_id, added)
+        r.readAsDataURL(file)
+
+
+def upload_data_file(container_id):
+    if not render_book.book_id or not book_metadata(render_book.book_id):
+        return return_to_book_details()
+    book_id = render_book.book_id
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Upload data files'), action=back, icon='close')
+    div = E.div(id=unique_id())
+    container.appendChild(div)
+    upload_files_widget(div, files_added.bind(None, True, container_id, book_id), _(
+        'Upload files by <a>selecting the files</a> or drag and drop of the files here.'),
+        single_file=False)
+
+
+def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
+
+    def delete_data_file(relpath, fname, ev):
+        question_dialog(_('Are you sure?'), _('Do you want to permanently delete the data file {0} from the book {1}?').format(
+            fname, mi.title), def(yes):
+                if yes:
+                    data = v'[relpath]'
+                    ajax_send(f'data-files/remove/{book_id}/{current_library_id()}',
+                        data, data_file_deleted.bind(None, container_id, book_id, relpath))
+                    rebuild_data_files_list(container_id, book_id, relpath_being_deleted)
+        )
+
+    def ddf(relpath, fname, ev):
+        download_data_file(book_id, relpath)
+
+    def upload_data_file(ev):
+        show_subsequent_panel('upload_data_file', replace=False)
+
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not container or not mi:
+        return
+    container = container.querySelector('[data-component=data-files-list-container]')
+    clear(container)
+    items = [create_item(_('Upload new data file'), icon='plus', action=upload_data_file)]
+    if mi.data_files:
+        fname_map = {relpath: relpath.partition('/')[2] for relpath in mi.data_files}
+        df = sorted(Object.keys(fname_map), key=def(x): return fname_map[x].toLowerCase();)
+        for relpath in df:
+            fname = fname_map[relpath]
+            being_deleted = relpath is relpath_being_deleted
+            subtitle = None
+            side_actions = []
+            if being_deleted:
+                subtitle = _('This file is being deleted')
+            else:
+                side_actions.push(create_side_action(
+                    'trash', tooltip=_('Delete the file: {}').format(fname), action=delete_data_file.bind(None, relpath, fname)
+                ))
+            items.push(create_item(fname, icon='cloud-download', subtitle=subtitle, side_actions=side_actions, action=ddf.bind(None, relpath, fname)))
+    create_item_list(container, items)
+
+
+def data_file_deleted(container_id, book_id, relpath, end_type, xhr, ev):
+    if end_type is 'abort':
+        back()
+        return
+    if end_type is not 'load':
+        error_dialog(_('Failed to delete data file from server'), _(
+            'Deleting data file for book: {} failed.').format(book_id), xhr.error_html)
+        return
+    try:
+        res = JSON.parse(xhr.responseText)
+    except Exception as err:
+        error_dialog(_('Could not delete data file for book'), _('Server returned an invalid response'), err.toString())
+        return
+    mi = book_metadata(book_id)
+    if mi:
+        mi.data_files = res.data_files
+    if res.errors:
+        error_dialog(_('Failed to delete data file'), _('Failed to delete data file: {}').format(relpath), res.errors[relpath])
+    rebuild_data_files_list(container_id, book_id)
+
+
+def data_files(container_id):
+    if not render_book.book_id or not book_metadata(render_book.book_id):
+        return return_to_book_details()
+    book_id = render_book.book_id
+
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Manage data files'), action=back, icon='close')
+    container.appendChild(E.div(class_=DATA_FILES_CLASS))
+    container = container.lastChild
+    container.appendChild(E.div(data_component='data-files-list-container'))
+    rebuild_data_files_list(container_id, book_id)
 
 
 def search_internet(container_id):
@@ -1013,3 +1213,5 @@ set_panel_handler('book_details', init)
 set_panel_handler('book_details^more_actions', create_more_actions_panel)
 set_panel_handler('book_details^search_internet', search_internet)
 set_panel_handler('book_details^copy_to_library', copy_to_library)
+set_panel_handler('book_details^data_files', data_files)
+set_panel_handler('book_details^upload_data_file', upload_data_file)

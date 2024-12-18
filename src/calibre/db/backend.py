@@ -2058,6 +2058,33 @@ class DB:
                         with src:
                             yield relpath, src, stat_result
 
+    def remove_extra_files(self, book_path, relpaths, permanent):
+        bookdir = os.path.join(self.library_path, book_path)
+        errors = {}
+        for relpath in relpaths:
+            path = os.path.abspath(os.path.join(bookdir, relpath))
+            if not self.normpath(path).startswith(self.normpath(bookdir)):
+                continue
+            try:
+                if permanent:
+                    try:
+                        os.remove(make_long_path_useable(path))
+                    except FileNotFoundError:
+                        pass
+                    except Exception:
+                        if not iswindows:
+                            raise
+                        time.sleep(1)
+                        os.remove(make_long_path_useable(path))
+                else:
+                    from calibre.utils.recycle_bin import recycle
+                    recycle(make_long_path_useable(path))
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                errors[relpath] = e
+        return errors
+
     def rename_extra_file(self, relpath, newrelpath, book_path, replace=True):
         bookdir = os.path.join(self.library_path, book_path)
         src = os.path.abspath(os.path.join(bookdir, relpath))
@@ -2077,6 +2104,8 @@ class DB:
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)
         dest = os.path.abspath(os.path.join(bookdir, relpath))
+        if not self.normpath(dest).startswith(self.normpath(bookdir)):
+            return None
         if not replace and os.path.exists(make_long_path_useable(dest)):
             if not auto_rename:
                 return None
