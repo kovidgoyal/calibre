@@ -4,6 +4,7 @@
 
 import os
 import sys
+import hashlib
 from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
 
@@ -154,7 +155,8 @@ def format_group(db, notify_changes, is_remote, args):
         if is_remote:
             paths = []
             for name, data in formats:
-                with open(os.path.join(tdir, os.path.basename(name)), 'wb') as f:
+                hname = hashlib.sha256(name.encode()).hexdigest() + os.path.splitext(name)[1]
+                with open(os.path.join(tdir, str(hname)), 'wb') as f:
                     f.write(data)
                 paths.append(f.name)
         else:
