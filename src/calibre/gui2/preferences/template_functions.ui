@@ -45,12 +45,19 @@
            <property name="text">
             <string>&amp;Clear</string>
            </property>
+           <property name="toolTip">
+            <string>Clear the name, template, and documentation boxes</string>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="st_delete_button">
            <property name="text">
             <string>D&amp;elete</string>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;Delete the current stored template. The name is cleared. The template
+and documentation are not cleared to make it easier to store the template under a new name&lt;/p&gt;</string>
            </property>
           </widget>
          </item>
@@ -59,12 +66,19 @@
            <property name="text">
             <string>&amp;Replace</string>
            </property>
+           <property name="toolTip">
+            <string>Replace the template and documentation for the template with the given name.</string>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="st_create_button">
            <property name="text">
             <string>C&amp;reate</string>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;Create a new stored template with the given name. You must enter the template
+text before pushing this button.&lt;/p&gt;</string>
            </property>
           </widget>
          </item>
@@ -73,6 +87,13 @@
            <property name="text">
             <string>Im&amp;port</string>
            </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;Import a stored template from a file created by the Export
+function. The import includes the name, the template, and the documentation.&lt;/p&gt;&lt;p&gt;
+If a stored template with the imported name already exists then you are asked if you want to replace its
+program and documentation with what is in the file.&lt;/p&gt;&lt;p&gt;
+After the import, press the Create or Replace button as appropriate to save the changes.&lt;/p&gt;</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -80,20 +101,11 @@
            <property name="text">
             <string>E&amp;xport</string>
            </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;Export the current stored template to a file. The file contains
+the name, the template, and the documentation.&lt;/p&gt;</string>
+           </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item>
           <widget class="QPushButton" name="st_doc_edit_button">
@@ -104,19 +116,6 @@
             <string>Open an editor for function documentation</string>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_22">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item>
           <widget class="QPushButton" name="st_test_template_button">
@@ -136,7 +135,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>0</height>
+             <height>10</height>
             </size>
            </property>
           </spacer>

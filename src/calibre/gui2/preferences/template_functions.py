@@ -221,7 +221,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_previous_text = ''
         self.st_first_time = False
 
-        self.st_button_layout.insertSpacing(0, 90)
+        # Attempt to properly align the buttons with the template edit widget
+        self.st_button_layout.insertSpacing(0, 70)
+        self.st_button_layout.insertSpacing(self.st_button_layout.indexOf(self.st_doc_edit_button), 60)
+        self.st_button_layout.insertSpacing(self.st_button_layout.indexOf(self.st_test_template_button), 50)
         self.template_editor.new_doc.setFixedHeight(50)
 
         # get field metadata and selected books
