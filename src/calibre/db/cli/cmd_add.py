@@ -154,7 +154,7 @@ def format_group(db, notify_changes, is_remote, args):
         if is_remote:
             paths = []
             for name, data in formats:
-                with open(os.path.join(tdir, os.path.basename(name)), 'wb') as f:
+                with open(os.path.join(tdir, os.path.basename(name.replace('\\', os.sep))), 'wb') as f:
                     f.write(data)
                 paths.append(f.name)
         else:
