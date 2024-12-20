@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class Unz(BasicNewsRecipe):
+    title = 'The Unz Review'
+    description = (
+        'A Collection of Interesting, Important, and Controversial Perspectives '
+        'Largely Excluded from the American Mainstream Media.'
+    )
+    __author__ = 'unkn0wn'
+    oldest_article = 7
+    language = 'en_US'
+    max_articles_per_feed = 100
+    use_embedded_content = False
+    cover_url = 'https://www.unz.com/wp-content/themes/unzSite/IMAGES/unz_large_logo.png'
+    encoding = 'utf-8'
+    # browser_type = 'webengine'
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+    extra_css = '.byline, .caption { font-size: small; }'
+
+    keep_only_tags = [
+        dict(
+            name='div',
+            attrs={'class': ['head', 'byline', 'page-thumb', 'section-holder']},
+        ),
+    ]
+
+    remove_tags = [
+        dict(name=['audio', 'iframe', 'svg']),
+        classes('commentlink replylink'),
+    ]
+
+    remove_tags_after = [dict(name='div', attrs={'class': 'section-holder'})]
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article),
+        },
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    feeds = ['https://www.unz.com/feed']
+
+    def preprocess_html(self, soup):
+        head = soup.find(**classes('head'))
+        if head:
+            head.name = 'h1'
+        return soup

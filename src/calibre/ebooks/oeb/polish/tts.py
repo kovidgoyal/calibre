@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.base import EPUB, EPUB_NS, SMIL_NS, barename
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, seconds_to_timestamp
 from calibre.ebooks.oeb.polish.errors import UnsupportedContainerType
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
-from calibre.spell.break_iterator import sentence_positions
+from calibre.spell.break_iterator import split_into_sentences_for_tts_embed
 from calibre.utils.localization import canonicalize_lang, get_lang
 
 
@@ -60,6 +60,8 @@ ignored_tag_names = frozenset({
     'img', 'object', 'script', 'style', 'head', 'title', 'form', 'input', 'br', 'hr', 'map', 'textarea', 'svg', 'math', 'rp', 'rt', 'rtc',
 })
 id_prefix = 'cttsw-'
+data_name = 'data-calibre-tts'
+skip_name = '__skip__'
 
 
 def unmark_sentences_in_html(root):
@@ -84,7 +86,8 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.tag_name = tag_name
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
             self.parent_lang = parent_lang
-            q = elem.get('data-calibre-tts', '')
+            self.parent_voice = parent_voice
+            q = elem.get(data_name, '')
             self.voice = parent_voice
             if q.startswith('{'):  # }
                 with suppress(Exception):
@@ -113,20 +116,25 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             if self.texts:
                 text = ''.join(c.text for c in self.texts)
                 self.pos = 0
-                for start, length in sentence_positions(text, self.lang):
-                    elem_id = self.wrap_sentence(start, length)
-                    ans.append(Sentence(elem_id, text[start:start+length], self.lang, self.voice))
+                for start, length in split_into_sentences_for_tts_embed(text, self.lang):
+                    stext = text[start:start+length]
+                    if stext.strip() and self.voice != '__skip__':
+                        elem_id = self.wrap_sentence(start, length)
+                        ans.append(Sentence(elem_id, stext, self.lang, self.voice))
             if self.has_tail:
                 p = self.elem.getparent()
                 spans = []
                 before = after = None
-                for start, length in sentence_positions(self.elem.tail, self.parent_lang):
+                for start, length in split_into_sentences_for_tts_embed(self.elem.tail, self.parent_lang):
                     end = start + length
                     text = self.elem.tail[start:end]
+                    if not text.strip() or self.parent_voice == '__skip__':
+                        continue
                     if before is None:
                         before = self.elem.tail[:start]
                     span = self.make_wrapper(text, p)
                     spans.append(span)
+                    ans.append(Sentence(span.get('id'), text, self.parent_lang, self.parent_voice))
                     after = self.elem.tail[end:]
                 self.elem.tail = before
                 if after and spans:
@@ -171,10 +179,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     w.append(c)
                     first_child = c
                 if in_range:
-                    if last_child is not first_child:
-                        w.append(last_child)
                     if c is last_child:
+                        if last_child is not first_child:
+                            w.append(c)
                         break
+                    else:
+                        w.append(c)
             self.replace_reference_to_child(last_child, w)
             return w
 
@@ -346,7 +356,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
         simple_allowed = True
         children_to_process = []
         for child in p.children:
-            child_voice = child.get('data-calibre-tts', '')
+            child_voice = child.get(data_name, '')
             child_lang = lang_for_elem(child, p.lang)
             child_tag_name = barename(child.tag).lower() if isinstance(child.tag, str) else ''
             if simple_allowed and child_lang == p.lang and child_voice == p.voice and child_tag_name in continued_tag_names and len(child) == 0:
@@ -417,7 +427,7 @@ def remove_embedded_tts(container):
     container.set_media_overlay_durations({})
     media_files = set()
     for item in manifest_items:
-        smil_id = item.get('media-overlay')
+        smil_id = item.attrib.pop('media-overlay', '')
         href = item.get('href')
         if href and smil_id:
             name = container.href_to_name(href, container.opf_name)
@@ -425,17 +435,19 @@ def remove_embedded_tts(container):
             unmark_sentences_in_html(root)
             container.dirty(name)
             smil_item = id_map.get(smil_id)
-            if smil_item:
+            if smil_item is not None:
                 smil_href = smil_item.get('href')
                 if smil_href:
-                    smil_name = container.href_to_name(smil_item.get('href'))
+                    smil_name = container.href_to_name(smil_item.get('href'), container.opf_name)
+                    media_files.add(smil_name)
                     smil_root = container.parsed(smil_name)
-                    for ahref in smil_root.xpath('//@src'):
+                    for ahref in smil_root.xpath('//*[local-name() = "audio"]/@src'):
                         aname = container.href_to_name(ahref, smil_name)
                         media_files.add(aname)
                     container.remove_from_xml(smil_item)
     for aname in media_files:
         container.remove_item(aname)
+    container.dirty(container.opf_name)
 
 
 def embed_tts(container, report_progress=None, callback_to_download_voices=None):
@@ -462,17 +474,23 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         return False
     all_voices = set()
     total_num_sentences = 0
+    files_with_no_sentences = set()
     for i, (name, pfd) in enumerate(name_map.items()):
         pfd.root = container.parsed(name)
         pfd.sentences = mark_sentences_in_html(pfd.root, lang=language)
-        total_num_sentences += len(pfd.sentences)
-        for s in pfd.sentences:
-            key = s.lang, s.voice
-            pfd.key_map[key].append(s)
-            all_voices.add(key)
-        container.dirty(name)
+        if not pfd.sentences:
+            files_with_no_sentences.add(name)
+        else:
+            total_num_sentences += len(pfd.sentences)
+            for s in pfd.sentences:
+                key = s.lang, s.voice
+                pfd.key_map[key].append(s)
+                all_voices.add(key)
+            container.dirty(name)
         if report_progress(stage, name, i+1, len(name_map)):
             return False
+    for rname in files_with_no_sentences:
+        name_map.pop(rname)
     if callback_to_download_voices is None:
         piper.ensure_voices_downloaded(iter(all_voices))
     else:
@@ -494,10 +512,21 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
                 audio_map[s] = audio_data, duration
                 size_of_audio_data += len(audio_data)
                 snum += 1
-                if report_progress(stage, _('Sentence number: {}').format(snum), snum, total_num_sentences):
+                if report_progress(stage, _('Sentence: {0} of {1}').format(snum, total_num_sentences), snum, total_num_sentences):
                     return False
         wav = io.BytesIO()
         wav.write(wav_header_for_pcm_data(size_of_audio_data, HIGH_QUALITY_SAMPLE_RATE))
+        durations = []
+        file_duration = 0
+        for i, s in enumerate(pfd.sentences):
+            audio_data, duration = audio_map[s]
+            if duration > 0:
+                wav.write(audio_data)
+                durations.append((s.elem_id, file_duration, duration))
+                file_duration += duration
+        if not file_duration:
+            continue
+
         afitem = container.generate_item(name + '.m4a', id_prefix='tts-')
         pfd.audio_file_name = container.href_to_name(afitem.get('href'), container.opf_name)
         smilitem = container.generate_item(name + '.smil', id_prefix='smil-')
@@ -516,12 +545,8 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         seq.text = seq.text[:seq.text.find('X')]
         audio_href = container.name_to_href(pfd.audio_file_name, pfd.smil_file_name)
         html_href = container.name_to_href(pfd.name, pfd.smil_file_name)
-        file_duration = 0
-        for i, s in enumerate(pfd.sentences):
-            audio_data, duration = audio_map[s]
-            wav.write(audio_data)
-            make_par(container, seq, html_href, audio_href, s.elem_id, file_duration, duration)
-            file_duration += duration
+        for elem_id, clip_start, duration in durations:
+            make_par(container, seq, html_href, audio_href, elem_id, clip_start, duration)
         if len(seq):
             seq[-1].tail = seq.text[:-2]
         wav.seek(0)
@@ -534,6 +559,7 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         html_item.set('media-overlay', smilitem.get('id'))
         duration_map[smilitem.get('id')] = file_duration
     container.set_media_overlay_durations(duration_map)
+    return True
 
 
 def develop():

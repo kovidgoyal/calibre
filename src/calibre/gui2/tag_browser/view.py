@@ -11,6 +11,7 @@ import traceback
 from collections import defaultdict
 from contextlib import suppress
 from functools import partial
+from math import ceil
 
 from qt.core import (
     QAbstractItemView,
@@ -89,17 +90,10 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
-    def paint_text(self, painter, rect, flags, text, hover, option):
-        painter.save()
-        pen = painter.pen()
-        if QApplication.instance().is_dark_theme:
-            if hover:
-                pen.setColor(QColor(Qt.GlobalColor.black))
-            else:
-                pen.setColor(option.palette.color(QPalette.ColorRole.WindowText))
-        painter.setPen(pen)
-        painter.drawText(rect, flags, text)
-        painter.restore()
+    def text_color(self, hover, palette) -> QColor:
+        if QApplication.instance().is_dark_theme and hover:
+                return QColor(Qt.GlobalColor.black)
+        return palette.color(QPalette.ColorRole.WindowText)
 
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
@@ -111,14 +105,18 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         hover = option.state & QStyle.StateFlag.State_MouseOver
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
+        pen = painter.pen()
+        pen.setColor(self.text_color(hover, option.palette))
+        painter.setPen(pen)
 
         def render_count():
             if not is_search and (hover or gprefs['tag_browser_show_counts']):
                 count = str(index.data(COUNT_ROLE))
                 width = painter.fontMetrics().boundingRect(count).width()
                 r = QRect(tr)
-                r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-                self.paint_text(painter, r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count, hover, option)
+                dr = 1 if widget is None else widget.devicePixelRatioF()
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - int(ceil(4 * dr)))
+                painter.drawText(r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count)
                 tr.setRight(r.left() - 1)
             else:
                 tr.setRight(tr.right() - 1)
@@ -185,7 +183,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.setFont(self.rating_font)
         if text_rec.width() > tr.width():
             g = QLinearGradient(QPointF(tr.topLeft()), QPointF(tr.topRight()))
-            c = option.palette.color(QPalette.ColorRole.WindowText)
+            c = pen.color()
             g.setColorAt(0, c), g.setColorAt(0.8, c)
             c = QColor(c)
             c.setAlpha(0)
@@ -193,7 +191,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             pen = QPen()
             pen.setBrush(QBrush(g))
             painter.setPen(pen)
-        self.paint_text(painter, tr, flags, text, hover, option)
+        painter.drawText(tr, flags, text)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -291,6 +289,7 @@ class TagsView(QTreeView):  # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
+        self.current_expansion = None
         self.search_icon = QIcon.ic('search.png')
         self.search_copy_icon = QIcon.ic("search_copy_saved.png")
         self.user_category_icon = QIcon.ic('tb_folder.png')
@@ -428,6 +427,7 @@ class TagsView(QTreeView):  # {{{
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
         self.expanded.connect(self.item_expanded)
+        self.collapsed.connect(self.item_collapsed)
         self.collapsed.connect(self.collapse_node_and_children)
         db.data.add_marked_listener(self.marked_change_listener)
 
@@ -865,8 +865,11 @@ class TagsView(QTreeView):  # {{{
                 # exists before offering to unhide it.
                 for col in sorted((c for c in self.hidden_categories if c in self.db.field_metadata),
                         key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
-                    ac = m.addAction(self.db.field_metadata[col]['name'],
-                        partial(self.context_menu_handler, action='show', category=col))
+                    # Get the prefix for any user categories. The UC name is the same as
+                    # the key but without the '@'
+                    name = self.db.field_metadata[col]['name']
+                    name = name.partition('.')[0] if col.startswith('@') else name
+                    ac = m.addAction(name, partial(self.context_menu_handler, action='show', category=col))
                     ic = self.model().category_custom_icons.get(col)
                     if ic:
                         ac.setIcon(QIcon.ic(ic))
@@ -1205,14 +1208,21 @@ class TagsView(QTreeView):  # {{{
         if gprefs['tags_browser_partition_method'] != 'disable' and key is not None:
             m = self.context_menu
             p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
-            if key in p:
-                a = m.addAction(_('Sub-categorize {}').format(category),
-                                partial(self.context_menu_handler, action='collapse_category',
-                                        category=category, key=key, extra=p))
+            # Use the prefix for a user category. The
+            if key.startswith('@'):
+                k = key.partition('.')[0]
+                cat = k[1:]
             else:
-                a = m.addAction(_("Don't sub-categorize {}").format(category),
+                k = key
+                cat = category
+            if k in p:
+                a = m.addAction(_('Sub-categorize {}').format(cat),
+                                partial(self.context_menu_handler, action='collapse_category',
+                                        category=cat, key=k, extra=p))
+            else:
+                a = m.addAction(_("Don't sub-categorize {}").format(cat),
                                 partial(self.context_menu_handler, action='dont_collapse_category',
-                                        category=category, key=key, extra=p))
+                                        category=cat, key=k, extra=p))
             a.setIcon(QIcon.ic('config.png'))
         # Set the partitioning scheme
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
@@ -1426,6 +1436,7 @@ class TagsView(QTreeView):  # {{{
         ci = self.currentIndex()
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
+        item_is_expanded = True if ci.isValid() and self.isExpanded(ci) else False
         use_pos = self._model.use_position_based_index_on_next_recount
         self._model.use_position_based_index_on_next_recount = False
         if use_pos:
@@ -1446,6 +1457,10 @@ class TagsView(QTreeView):  # {{{
                 index = self._model.index_for_named_path(path)
                 if index.isValid():
                     self.show_item_at_index(index)
+                    if not item_is_expanded:
+                        # show_item_at_index() will expand the target node.
+                        # Collapse it if it wasn't expanded before the recount.
+                        self.collapse(index)
         self.blockSignals(False)
 
     def show_item_at_path(self, path, box=False,
@@ -1482,5 +1497,26 @@ class TagsView(QTreeView):  # {{{
         Called by the expanded signal
         '''
         self.setCurrentIndex(idx)
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+
+    def item_collapsed(self, idx):
+        '''
+        Called by the collapsed signal
+        '''
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+
+    def currentChanged(self, idx, prev_idx):
+        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
+        super().currentChanged(idx, prev_idx)
+
+    def restore_expansion(self, expansion):
+        self.current_expansion = None
+        if expansion is not None and len(expansion) == 2:
+            idx = self._model.index_for_named_path(expansion[1])
+            if idx.isValid():
+                self.show_item_at_index(idx)
+                if not expansion[0]:
+                    self.collapse(idx)
+
 
     # }}}

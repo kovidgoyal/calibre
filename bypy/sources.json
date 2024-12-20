@@ -1035,6 +1035,42 @@
     },
 
     {
+        "name": "jaconv",
+        "unix": {
+            "filename": "jaconv-0.40.tar.gz",
+            "hash": "sha256:32da74b247f276e09a52d6b35c153df2387965cb85a6f034cc8af21d446f8161",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "wrapt",
+        "unix": {
+            "filename": "wrapt-1.16.0-py3-none-any.whl",
+            "hash": "sha256:6906c4100a8fcbf2fa735f6059214bb13b97f75b1a61777fcf6432121ef12ef1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "deprecated",
+        "unix": {
+            "filename": "Deprecated-1.2.14-py2.py3-none-any.whl",
+            "hash": "sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pykakasi",
+        "unix": {
+            "filename": "pykakasi-2.3.0-py3-none-any.whl",
+            "hash": "sha256:26d21b090048ff45c6a4d8e962426b7951767216008ec30358e8a9d74af77f29",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "poetry_core",
         "comment": "Needed for building zeroconf",
         "unix": {

@@ -41,7 +41,7 @@ class Hurriyet(BasicNewsRecipe):
     keep_only_tags = [
         # title
         {'class': 'news-detail-title'},
-        # date 
+        # date
         {'class': 'news-detail-text'},
         # media
         {'class': 'news-media'},

@@ -41,7 +41,7 @@ from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
-from calibre.gui2.viewer.config import load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
+from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
@@ -299,6 +299,7 @@ class ViewerBridge(Bridge):
 
     create_view = to_js()
     start_book_load = to_js()
+    redraw_tts_bar = to_js()
     goto_toc_node = to_js()
     goto_cfi = to_js()
     full_screen_state_changed = to_js()
@@ -514,6 +515,7 @@ class WebView(RestartingWebEngineView):
         self.tts = TTS(self)
         self.tts.settings_changed.connect(self.tts_settings_changed)
         self.tts.event_received.connect(self.tts_event_received)
+        self.tts.configured.connect(self.redraw_tts_bar)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
         w = self.screen().availableSize().width()
@@ -768,6 +770,9 @@ class WebView(RestartingWebEngineView):
 
     def show_home_page(self):
         self.execute_when_ready('show_home_page')
+
+    def redraw_tts_bar(self):
+        self.execute_when_ready('redraw_tts_bar', get_session_pref('tts_bar_position', 'float', None))
 
     def change_background_image(self, img_id):
         files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg', 'webp'])

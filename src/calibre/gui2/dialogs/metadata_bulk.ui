@@ -984,6 +984,13 @@ as that of the first selected book.</string>
           </property>
          </widget>
         </item>
+        <item row="6" column="2">
+         <widget class="QToolButton" name="s_r_edit_template_button">
+          <property name="toolTip">
+           <string>Click to open the template tester</string>
+          </property>
+         </widget>
+        </item>
         <item row="7" column="0">
          <widget class="QLabel" name="xlabel_2">
           <property name="text">

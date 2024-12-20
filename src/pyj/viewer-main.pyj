@@ -284,6 +284,14 @@ def show_home_page():
 
 
 @from_python
+def redraw_tts_bar(pos):
+    sd = get_session_data()
+    sd.set('tts_bar_position', pos)
+    if view:
+        view.read_aloud.build_bar()
+
+
+@from_python
 def start_book_load(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url):
     xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url), ok_code=0)
     xhr.responseType = 'json'
@@ -503,7 +511,6 @@ if window is window.top:
         to_python.on_iframe_ready()
     ui_operations.update_reading_rates = def(rates):
         to_python.update_reading_rates(rates)
-
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

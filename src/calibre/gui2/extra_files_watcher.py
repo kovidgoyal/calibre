@@ -5,7 +5,7 @@
 from time import monotonic
 from typing import NamedTuple, Tuple
 
-from qt.core import QObject, QTimer
+from qt.core import QObject, QTimer, pyqtSignal
 
 from calibre.db.constants import DATA_FILE_PATTERN
 
@@ -23,6 +23,7 @@ class ExtraFiles(NamedTuple):
 
 class ExtraFilesWatcher(QObject):
 
+    books_changed = pyqtSignal(object)
     WATCH_FOR = 300  # seconds
     TICK_INTERVAL = 1 # seconds
 
@@ -86,4 +87,6 @@ class ExtraFilesWatcher(QObject):
 
     def refresh_gui(self, book_ids):
         lv = self.gui.library_view
-        lv.model().refresh_ids(frozenset(book_ids), current_row=lv.currentIndex().row())
+        book_ids = frozenset(book_ids)
+        lv.model().refresh_ids(book_ids, current_row=lv.currentIndex().row())
+        self.books_changed.emit(book_ids)

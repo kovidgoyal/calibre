@@ -9,9 +9,9 @@ class MyDealzDE(BasicNewsRecipe):
     title = 'MyDealz'
     # Author
     __author__ = 'Volker Heggemann, VoHe'
-    # oldest article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days)                                  ---- can be edit by user
     oldest_article = 5
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     max_articles_per_feed = 100
     # Cover Picture
     cover_url = 'https://pbs.twimg.com/profile_images/817053687545741313/0wFqvfqC_400x400.jpg'
@@ -24,9 +24,9 @@ class MyDealzDE(BasicNewsRecipe):
     publisher = u'https://www.mydealz.de'
     # What is the content of?
     category = u'Shopping'
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     language = 'de'
     # encoding of content. e.g. utf-8, None, ...
     # ---- can be edit by user
@@ -39,7 +39,7 @@ class MyDealzDE(BasicNewsRecipe):
     # remove the rubbish (in ebook)
     auto_cleanup = True
     # now the content description and URL follows
-    # feel free to add, wipe out what you need	 							---- can be edit by user
+    # feel free to add, wipe out what you need                              ---- can be edit by user
     #
     # some of this are double
     #

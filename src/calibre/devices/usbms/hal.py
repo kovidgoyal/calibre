@@ -106,19 +106,19 @@ class HAL:
             # Mount Point becomes Mount Path
             mp += '/'
             if DEBUG:
-                print("FBSD:	  mounted", vol['label'], "on", mp)
+                print("FBSD:\tmounted", vol['label'], "on", mp)
             if mtd == 0:
                 ans['_main_prefix'], ans['_main_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:	main = ", mp)
+                    print("FBSD:\tmain = ", mp)
             elif mtd == 1:
                 ans['_card_a_prefix'], ans['_card_a_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:	card a = ", mp)
+                    print("FBSD:\tcard a = ", mp)
             elif mtd == 2:
                 ans['_card_b_prefix'], ans['_card_b_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:	card b = ", mp)
+                    print("FBSD:\tcard b = ", mp)
                 break
             mtd += 1
 

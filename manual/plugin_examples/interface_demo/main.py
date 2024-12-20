@@ -12,8 +12,9 @@ if False:
     # You do not need this code in your plugins
     get_icons = get_resources = None
 
-from calibre_plugins.interface_demo.config import prefs
 from qt.core import QDialog, QLabel, QMessageBox, QPushButton, QVBoxLayout
+
+from calibre_plugins.interface_demo.config import prefs
 
 
 class DemoDialog(QDialog):

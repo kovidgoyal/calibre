@@ -821,6 +821,7 @@ class OrigAction(QAction):
     def __init__(self, fmt, parent):
         self.fmt = fmt.replace('ORIGINAL_', '')
         QAction.__init__(self, _('Restore %s from the original')%self.fmt, parent)
+        self.setIcon(QIcon.ic('edit-undo.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -834,6 +835,7 @@ class ViewAction(QAction):
     def __init__(self, item, parent):
         self.item = item
         QAction.__init__(self, _('&View {} format').format(item.ext.upper()), parent)
+        self.setIcon(QIcon.ic('view.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -847,6 +849,7 @@ class EditAction(QAction):
     def __init__(self, item, parent):
         self.item = item
         QAction.__init__(self, _('&Edit')+' '+item.ext.upper(), parent)
+        self.setIcon(QIcon.ic('edit_book.png'))
         self.triggered.connect(self._triggered)
 
     def _triggered(self):
@@ -858,6 +861,7 @@ class FormatList(_FormatList):
     restore_fmt = pyqtSignal(object)
     view_fmt = pyqtSignal(object)
     edit_fmt = pyqtSignal(object)
+    open_book_folder = pyqtSignal()
 
     def __init__(self, parent):
         _FormatList.__init__(self, parent)
@@ -873,28 +877,30 @@ class FormatList(_FormatList):
         originals = [self.item(x).ext.upper() for x in range(self.count())]
         originals = [x for x in originals if x.startswith('ORIGINAL_')]
 
-        if item or originals:
-            self.cm = cm = QMenu(self)
+        self.cm = cm = QMenu(self)
 
-            if item:
-                action = ViewAction(item, cm)
-                action.view_fmt.connect(self.view_fmt, type=Qt.ConnectionType.QueuedConnection)
+        if item:
+            action = ViewAction(item, cm)
+            action.view_fmt.connect(self.view_fmt, type=Qt.ConnectionType.QueuedConnection)
+            cm.addAction(action)
+
+            if item.ext.upper() in EDIT_SUPPORTED:
+                action = EditAction(item, cm)
+                action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
                 cm.addAction(action)
 
-                if item.ext.upper() in EDIT_SUPPORTED:
-                    action = EditAction(item, cm)
-                    action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
-                    cm.addAction(action)
+        if item and originals:
+            cm.addSeparator()
 
-            if item and originals:
-                cm.addSeparator()
-
-            for fmt in originals:
-                action = OrigAction(fmt, cm)
-                action.restore_fmt.connect(self.restore_fmt)
-                cm.addAction(action)
-            cm.popup(event.globalPos())
-            event.accept()
+        for fmt in originals:
+            action = OrigAction(fmt, cm)
+            action.restore_fmt.connect(self.restore_fmt)
+            cm.addAction(action)
+        ac = QAction(QIcon.ic('document_open.png'), _('Open book folder'), cm)
+        ac.triggered.connect(self.open_book_folder)
+        cm.addAction(ac)
+        cm.popup(event.globalPos())
+        event.accept()
 
     def remove_format(self, fmt):
         for i in range(self.count()):
@@ -959,6 +965,7 @@ class FormatsManager(QWidget):
         self.formats.formats_dropped.connect(self.formats_dropped)
         self.formats.restore_fmt.connect(self.restore_fmt)
         self.formats.view_fmt.connect(self.show_format)
+        self.formats.open_book_folder.connect(self.open_book_folder)
         self.formats.edit_fmt.connect(self.edit_format)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
@@ -1093,6 +1100,9 @@ class FormatsManager(QWidget):
     def show_format(self, item, *args):
         self.dialog.do_view_format(item.path, item.ext)
 
+    def open_book_folder(self, *a):
+        self.dialog.do_open_book_folder()
+
     def edit_format(self, item, *args):
         from calibre.gui2.widgets import BusyCursor
         with BusyCursor():
@@ -1217,6 +1227,27 @@ class Cover(ImageView):  # {{{
         self.frame_size = (300, 400)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred,
             QSizePolicy.Policy.Preferred))
+
+    def build_context_menu(self):
+        m = super().build_context_menu()
+        m.addSeparator()
+        m.addAction(QIcon.ic('view-image'), _('View image in popup window'), self.view_image)
+        return m
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            event.accept()
+            self.view_image()
+        else:
+            super().mouseDoubleClickEvent(event)
+
+    def view_image(self):
+        from calibre.gui2.image_popup import ImageView
+        d = ImageView(self, self.pixmap(), 'cover.jpg')
+        d(use_exec=True)
+        if d.transformed:
+            from calibre.utils.img import image_to_data
+            self.current_val = image_to_data(d.current_img.toImage(), fmt='png')
 
     def undo_trim(self):
         if self.cdata_before_trim:
@@ -1798,6 +1829,18 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                     return True
             except Exception:
                 pass
+        for (key, prefix) in (
+            ('doi', 'https://dx.doi.org/'),
+            ('doi', 'https://doi.org/'),
+            ('arxiv', 'https://arxiv.org/abs/'),
+            ('oclc', 'https://www.worldcat.org/oclc/'),
+            ('issn', 'https://www.worldcat.org/issn/'),
+        ):
+            if text.startswith(prefix):
+                vals = self.current_val
+                vals[key] = text[len(prefix):].strip()
+                self.current_val = vals
+                return True
 
         return False
 # }}}
@@ -1844,7 +1887,7 @@ class ISBNDialog(QDialog):  # {{{
         isbn = str(txt)
         ok = None
         if not isbn:
-            pass
+            extra = ''
         elif check_isbn(isbn) is not None:
             extra = _('This ISBN is valid')
             ok = True

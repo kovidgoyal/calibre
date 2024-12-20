@@ -4,8 +4,9 @@ __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 spectator.org
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheAmericanSpectator(BasicNewsRecipe):

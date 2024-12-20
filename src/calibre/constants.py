@@ -11,7 +11,7 @@ from functools import lru_cache
 from polyglot.builtins import environ_item, hasenv
 
 __appname__   = 'calibre'
-numeric_version = (7, 19, 101)
+numeric_version = (7, 23, 0)
 __version__   = '.'.join(map(str, numeric_version))
 git_version   = None
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
@@ -277,7 +277,7 @@ class ExtensionsImporter:
             'uchardet',
         )
         if iswindows:
-            extra = ('winutil', 'wpd', 'winfonts',)
+            extra = ('winutil', 'wpd', 'winfonts', 'wintoast')
         elif ismacos:
             extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
         elif isfreebsd or ishaiku or islinux:

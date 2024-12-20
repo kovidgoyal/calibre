@@ -289,11 +289,11 @@ class ZshCompleter:  # {{{
                 elif opt.choices:
                     arg += "(%s)"%'|'.join(opt.choices)
                 elif set(file_map).intersection(set(opt._long_opts)):
-                    k = set(file_map).intersection(set(opt._long_opts))
-                    exts = file_map[tuple(k)[0]]
+                    k = tuple(set(file_map).intersection(set(opt._long_opts)))
+                    exts = file_map[k[0]]
                     if exts:
-                        arg += "'_files -g \"%s\"'"%(' '.join('*.%s'%x for x in
-                                tuple(exts) + tuple(x.upper() for x in exts)))
+                        exts = ('*.%s'%x for x in sorted(exts + [x.upper() for x in exts]))
+                        arg += "'_files -g \"%s\"'" % ' '.join(exts)
                     else:
                         arg += "_files"
                 elif (opt.dest in {'pidfile', 'attachment'}):
@@ -301,8 +301,8 @@ class ZshCompleter:  # {{{
                 elif set(opf_opts).intersection(set(opt._long_opts)):
                     arg += "'_files -g \"*.opf\"'"
                 elif set(cover_opts).intersection(set(opt._long_opts)):
-                    arg += "'_files -g \"%s\"'"%(' '.join('*.%s'%x for x in
-                                tuple(pics) + tuple(x.upper() for x in pics)))
+                    exts = ('*.%s'%x for x in sorted(pics + [x.upper() for x in pics]))
+                    arg += "'_files -g \"%s\"'" % ' '.join(exts)
 
             help_txt = '"[%s]"'%h
             yield '%s%s%s%s '%(exclude, ostrings, help_txt, arg)
@@ -332,10 +332,10 @@ class ZshCompleter:  # {{{
         from calibre.ebooks.conversion.plumber import supported_input_formats
         from calibre.utils.logging import DevNull
         from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
-        input_fmts = set(supported_input_formats())
-        output_fmts = set(available_output_formats())
-        iexts = {x.upper() for x in input_fmts}.union(input_fmts)
-        oexts = {x.upper() for x in output_fmts}.union(output_fmts)
+        input_fmts = sorted(set(supported_input_formats()))
+        output_fmts = sorted(set(available_output_formats()))
+        iexts = sorted({x.upper() for x in input_fmts}.union(input_fmts))
+        oexts = sorted({x.upper() for x in output_fmts}.union(output_fmts))
         w = polyglot_write(f)
         # Arg 1
         w('\n_ebc_input_args() {')
@@ -425,7 +425,7 @@ class ZshCompleter:  # {{{
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.gui2.tweak_book.main import option_parser
-        tweakable_fmts = SUPPORTED | IMPORTABLE
+        tweakable_fmts = sorted(SUPPORTED | IMPORTABLE)
         parser = option_parser()
         opt_lines = []
         for opt in parser.option_list:
@@ -499,7 +499,7 @@ _ebook_edit() {{
                 exts = [x.lower() for x in available_catalog_formats()]
             elif command == 'set_metadata':
                 exts = ['opf']
-            exts = set(exts).union(x.upper() for x in exts)
+            exts = sorted(set(exts).union(x.upper() for x in exts))
             pats = ('*.%s'%x for x in exts)
             extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),) if exts else ()
             if command in {'add', 'add_format'}:
@@ -917,6 +917,7 @@ class PostInstall:
             if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
                 mimetypes.add(mt)
         mimetypes.discard('application/octet-stream')
+        mimetypes = sorted(mimetypes)
 
         def write_mimetypes(f, extra=''):
             line = 'MimeType={};'.format(';'.join(mimetypes))
@@ -934,6 +935,7 @@ class PostInstall:
         with open('calibre-ebook-edit.desktop', 'wb') as f:
             f.write(ETWEAK.encode('utf-8'))
             mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
+            mt = sorted(mt)
             f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
         with open('calibre-gui.desktop', 'wb') as f:
             f.write(GUI.encode('utf-8'))
@@ -1032,8 +1034,7 @@ def opts_and_words(name, op, words, takes_files=False):
 complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
-pics = list(sorted(pics))  # for reproducibility
+pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
 
 
 def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),

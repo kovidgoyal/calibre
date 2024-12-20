@@ -4,8 +4,9 @@ import json
 import re
 from contextlib import closing
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from mechanize import Request
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class NRC(BasicNewsRecipe):

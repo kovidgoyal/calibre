@@ -55,6 +55,7 @@ all_settings = {
     'paged_pixel_scroll_threshold': {'default': 60, 'category': 'read_book'},
     'read_mode': {'default': 'paged', 'category': 'read_book', 'is_local': True},
     'scroll_auto_boundary_delay': {'default': 5, 'category': 'read_book', 'is_local': True},
+    'scroll_mouse_boundary_delay': {'default': 0.5, 'category': 'read_book', 'is_local': True},
     'scroll_stop_boundaries': {'default': False, 'category': 'read_book', 'is_local': True},
     'standalone_font_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
     'standalone_misc_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
@@ -79,6 +80,7 @@ all_settings = {
     'gesture_overrides': {'default': {}, 'category': 'read_book'},
     'cite_text_template': {'default': '[{text}]({url})', 'category': 'read_book'},
     'cite_hl_template': {'default': '[{text}]({url})', 'category': 'read_book'},
+    'tts_bar_position': {'default': 'float', 'category': 'read_book', 'is_local': False, 'disallowed_in_profile': False},
 }
 
 defaults = {}

@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TInvariant(BasicNewsRecipe):
-    title          	  = 'T-Invariant'
+    title                 = 'T-Invariant'
     __author__            = 'bugmen00t'
     description           = '\u041C\u0443\u043B\u044C\u0442\u0438\u043C\u0435\u0434\u0438\u0439\u043D\u044B\u0439 \u043F\u0440\u043E\u0435\u043A\u0442 \u0443\u0447\u0435\u043D\u044B\u0445 \u0438 \u043D\u0430\u0443\u0447\u043D\u044B\u0445 \u0436\u0443\u0440\u043D\u0430\u043B\u0438\u0441\u0442\u043E\u0432.'  # noqa
     publisher             = '\u0422-\u0438\u043D\u0432\u0430\u0440\u0438\u0430\u043D\u0442 / T-invariant'

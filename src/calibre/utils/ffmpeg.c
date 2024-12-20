@@ -131,13 +131,13 @@ write_packet(void *opaque, uint8_t *buf, int buf_size) {
 static int64_t
 size_packet(PyObject *seek_func, const char *which) {
     PyObject *pos = NULL, *end_pos = NULL, *ret = NULL, *set = NULL;
-    int64_t ans = AVERROR_EXTERNAL;
+    long long ans = AVERROR_EXTERNAL;
     if (!(pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_CUR))) goto cleanup;
     if (!(end_pos = PyObject_CallFunction(seek_func, "ii", 0, SEEK_END))) goto cleanup;
     if (!(set = PyLong_FromLong(SEEK_SET))) goto cleanup;
     if (!(ret = PyObject_CallFunctionObjArgs(seek_func, pos, set, NULL))) goto cleanup;
     ans = PyLong_AsLongLong(end_pos);
-    if (debug_io) printf("size %s: %ld\n", which, ans);
+    if (debug_io) printf("size %s: %lld\n", which, ans);
 cleanup:
     Py_XDECREF(pos); Py_XDECREF(end_pos); Py_XDECREF(ret); Py_XDECREF(set);
     return ans;
@@ -149,7 +149,7 @@ seek_packet(PyObject *seek_func, int64_t offset, int whence, const char *which) 
     PyObject *ret = PyObject_CallFunction(seek_func, "Li", (long long)offset, whence);
     if (!ret) return AVERROR_EXTERNAL;
     long long ans = PyLong_AsLongLong(ret);
-    if (debug_io) printf("seek %s offset=%ld whence: %d: %lld\n", which, offset, whence, ans);
+    if (debug_io) printf("seek %s offset=%lld whence: %d: %lld\n", which, (long long)offset, whence, ans);
     Py_DECREF(ret);
     return ans;
 }
@@ -239,7 +239,14 @@ open_output_file(Transcoder *t) {
     // Setup encoding parameters
     av_channel_layout_default(&t->enc_ctx->ch_layout, t->dec_ctx->ch_layout.nb_channels);
     t->enc_ctx->sample_rate = t->dec_ctx->sample_rate;
+    int ret;
+#if LIBAVCODEC_VERSION_MAJOR >= 61
+    const enum AVSampleFormat *sample_fmts = NULL;
+    ret = avcodec_get_supported_config(t->dec_ctx, output_codec, AV_CODEC_CONFIG_SAMPLE_FORMAT, 0, (const void**)&sample_fmts, NULL);
+    t->enc_ctx->sample_fmt = (ret >= 0 && sample_fmts) ? sample_fmts[0] : t->dec_ctx->sample_fmt;
+#else
     t->enc_ctx->sample_fmt = output_codec->sample_fmts[0];
+#endif
     t->enc_ctx->bit_rate = t->output_bitrate;
     if (!t->enc_ctx->bit_rate) {
         switch (output_codec->id) {
@@ -252,7 +259,6 @@ open_output_file(Transcoder *t) {
     stream->time_base.den = t->dec_ctx->sample_rate;
     stream->time_base.num = 1;
     if (t->ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER) t->enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-    int ret;
     check_call(avcodec_open2, t->enc_ctx, output_codec, NULL);
     check_call(avcodec_parameters_from_context, stream->codecpar, t->enc_ctx);
     return Py_True;

@@ -20,7 +20,7 @@ BANNER = ('Welcome to the interactive calibre shell!\n')
 def setup_pyreadline():
     config = '''
 #Bind keys for exit (keys only work on empty lines
-#disable_readline(True)		#Disable pyreadline completely.
+#disable_readline(True)         #Disable pyreadline completely.
 debug_output("off")             #"on" saves log info to./pyreadline_debug_log.txt
                                 #"on_nologfile" only enables print warning messages
 bind_exit_key("Control-d")

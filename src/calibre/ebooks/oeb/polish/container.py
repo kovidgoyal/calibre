@@ -14,6 +14,7 @@ import uuid
 from collections import defaultdict
 from io import BytesIO
 from itertools import count
+from math import floor
 
 from css_parser import getUrls, replaceUrls
 
@@ -129,14 +130,14 @@ def href_to_name(href, root, base=None):
 
 
 def seconds_to_timestamp(duration: float) -> str:
-    seconds = int(duration)
-    float_part = int((duration - seconds) * 1000)
+    seconds = int(floor(duration))
+    float_part = duration - seconds
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
     ans = f'{hours:02d}:{minutes:02d}:{seconds:02d}'
     if float_part:
-        ans += f'.{float_part}'
+        ans += f'{float_part:.20f}'.rstrip('0')[1:]
     return ans
 
 
@@ -903,20 +904,21 @@ class Container(ContainerBase):  # {{{
         self.parsed_cache.pop(name, None)
         self.dirtied.discard(name)
 
-    def set_media_overlay_durations(self, duration_map):
+    def set_media_overlay_durations(self, duration_map=None):
         self.dirty(self.opf_name)
         for meta in self.opf_xpath('//opf:meta[@property="media:duration"]'):
             self.remove_from_xml(meta)
         metadata = self.opf_xpath('//opf:metadata')[0]
         total_duration = 0
-        for item_id, duration in duration_map.items():
+        for item_id, duration in (duration_map or {}).items():
             meta = metadata.makeelement(OPF('meta'), property="media:duration", refines="#" + item_id)
             meta.text = seconds_to_timestamp(duration)
             self.insert_into_xml(metadata, meta)
             total_duration += duration
-        meta = metadata.makeelement(OPF('meta'), property="media:duration")
-        meta.text = seconds_to_timestamp(total_duration)
-        self.insert_into_xml(metadata, meta)
+        if duration_map:
+            meta = metadata.makeelement(OPF('meta'), property="media:duration")
+            meta.text = seconds_to_timestamp(total_duration)
+            self.insert_into_xml(metadata, meta)
 
     def dirty(self, name):
         ''' Mark the parsed object corresponding to name as dirty. See also: :meth:`parsed`. '''

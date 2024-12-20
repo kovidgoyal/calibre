@@ -686,6 +686,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             d.timer.stop()
 
     def show_details(self, *args):
+        self.jobs_view.setFocus()
         index = self.jobs_view.currentIndex()
         if index.isValid():
             self.show_job_details(index)

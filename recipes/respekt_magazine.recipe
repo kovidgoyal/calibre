@@ -10,9 +10,10 @@ import re
 
 # This imports the version bundled with Calibre
 import lxml
+from lxml.builder import E
+
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from lxml.builder import E
 
 respekt_url = 'https://www.respekt.cz'
 

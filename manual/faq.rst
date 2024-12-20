@@ -178,8 +178,8 @@ Follow these steps to find the problem:
       no longer allows third party software to connect to their devices using a
       USB cable. Instead use a wireless connection, via the calibre Content
       server.
-    * If you are connecting a Kindle Fire or other Android device, read the note
-      under :ref:`android_usb`.
+    * If you are connecting a 2024 Kindle or newer or an Android device, and are on macOS or Linux,
+      read the note under :ref:`android_usb`.
     * On macOS if you get permission errors when connecting a device to calibre, you can
       fix that by looking under :guilabel:`System Preferences > Security and
       Privacy > Privacy > Files and Folders`.
@@ -459,6 +459,22 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
 
    If the workaround is not working for you make sure you Kindle firmware
    is at least version 5.12.5, released in April 2020.
+
+Covers for books sent to my Kindle ColorSoft and newer do not show up in the book list?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Amazon deliberately broke this functionality in their ColorSoft and newer
+devices in order to discourage you from reading non Amazon books on their
+devices. See `this forum thread
+<https://www.mobileread.com/forums/showthread.php?t=364350>`__ for details. The
+only known workaround is to send the books as "Personal documents" to the
+Kindle which will fix the covers not showing up but break other features such
+as Whispersync and the books will show up under "Personal documents" not
+"Books" on the device. To enable this in calibre go to
+:guilabel:`Preferences->Output options->MOBI output` and enable the check box
+that says :guilabel:`Enable sharing of book content`. This will cause all
+future books sent to the Kindle by calibre to be marked as personal documents.
+
 
 The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -796,6 +812,10 @@ There can be several causes for this:
       probably just appeared off screen. You can gather all windows onto the
       current screen using one of the techniques described `here <https://www.wikihow.com/Bring-an-Off-Screen-Window-Back-on-Windows>`__.
 
+    * Some software has been known to interfere with calibre, try rebooting in
+      Safe mode and see if it works. A known culprit is the `Sunshine
+      <https://github.com/LizardByte/Sunshine>`__ screen sharing software.
+
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
 
        * Uninstall calibre
@@ -1064,6 +1084,10 @@ For many reasons:
 
   * There are third party automatic updaters for calibre made by calibre users
     in the `calibre forum <https://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
+
+  * Additionally, some third-party updaters such as Norton or Avast may update
+    software behind the user's back. If you find calibre has updated unexpectedly,
+    check for the presence of one.
 
 How is calibre licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

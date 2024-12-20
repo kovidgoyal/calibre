@@ -15,10 +15,10 @@ class hindutamil(BasicNewsRecipe):
     language = 'ta'
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://static.hindutamil.in/hindu/static/store/images/logo.png'
-    
+
     def get_browser(self):
-        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based') 
-    
+        return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
+
     keep_only_tags = [
         classes('main-article')
     ]

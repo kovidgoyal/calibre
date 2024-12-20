@@ -182,7 +182,7 @@ class Cell:
                 else:
                     top += ls
                     bottom += ls
-                left = parindent if int == 1 else 0
+                left = 0
                 continue
             if isinstance(token, Plot):
                 width, height = self.pts_to_pixels(token.xsize), self.pts_to_pixels(token.ysize)

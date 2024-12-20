@@ -3,8 +3,9 @@
 import json
 from urllib.parse import quote, urlparse
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from mechanize import Request
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def absurl(x):

@@ -69,7 +69,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             article['author'] = author
         return article
 
-    edition_re = re.compile('(?:-front-cover-)(\d+)-')
+    edition_re = re.compile(r'(?:-front-cover-)(\d+)-')
 
     # Identify the cover image and extract the edition# from the url
     def get_cover_url(self):
@@ -242,8 +242,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'a', 'class': "view-full-screen"},
         {'name': 'div', 'class': "image-counter"},
         {'name': 'h2', 'string': "Find out more about The Oldie"},
-        {'name': 'a', 'href': re.compile("^https?:\/\/issuu.com\/")},
-        {'name': 'img', 'src': re.compile("\/assets\/images\/icons\/icon-")},
+        {'name': 'a', 'href': re.compile(r"^https?:\/\/issuu.com\/")},
+        {'name': 'img', 'src': re.compile(r"\/assets\/images\/icons\/icon-")},
     ]
 
     # The following extra css is to tweak the formatting of various elements of various article pages.

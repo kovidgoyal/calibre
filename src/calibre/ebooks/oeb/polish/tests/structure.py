@@ -248,18 +248,24 @@ class Structure(BaseTest):
 
             '<p>One</p> Two. Three <p>Four':
             '<body><p><span id="1">One</span></p><span id="2"> Two. </span><span id="3">Three </span><p><span id="4">Four</span></p>',
+
+            '<p>Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.':
+            '<body><p><span id="1">Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.</span></p>',
+
+            '<p>A sentence wrapped\nonto multiple lines.':
+            '<body><p><span id="1">A sentence wrapped\nonto multiple lines.</span></p>',
         }.items()):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
-            mark_sentences_in_html(root)
+            sentences = mark_sentences_in_html(root)
+            ids = tuple(int(s.elem_id[len(id_prefix):]) for s in sentences)
+            self.assertEqual(len(ids), ids[-1])
             marked = normalize_markup(root)
             self.assertEqual(expected, marked)
             unmark_sentences_in_html(root)
             self.assertEqual(orig, normalize_markup(root), f'Unmarking failed for {marked}')
         sentences = mark_sentences_in_html(parse('<p lang="en">Hello, <span lang="fr">world!'))
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
-
-
 
 
 def find_tests():

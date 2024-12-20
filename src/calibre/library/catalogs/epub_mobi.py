@@ -200,8 +200,8 @@ class EPUB_MOBI(CatalogPlugin):
             available_presets = JSONConfig("catalog_presets")
             if opts.preset not in available_presets:
                 if available_presets:
-                    print(_('Error: Preset "%s" not found.' % opts.preset))
-                    print(_('Stored presets: %s' % ', '.join([p for p in sorted(available_presets.keys())])))
+                    print(_('Error: Preset "{}" not found.').format(opts.preset))
+                    print(_('Stored presets: {}').format(', '.join([p for p in sorted(available_presets.keys())])))
                 else:
                     print(_('Error: No stored presets.'))
                 return 1

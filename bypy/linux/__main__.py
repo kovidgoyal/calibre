@@ -85,11 +85,12 @@ def ignore_in_lib(base, items, ignored_dirs=None):
         ignored_dirs = {'.svn', '.bzr', '.git', 'test', 'tests', 'testing'}
     for name in items:
         path = j(base, name)
+        is_kakasi = 'pykakasi' in path
         if os.path.isdir(path):
-            if name != 'plugins' and (name in ignored_dirs or not is_package_dir(path)):
+            if name != 'plugins' and (name in ignored_dirs or not is_package_dir(path)) and not (is_kakasi and name == 'data'):
                 ans.append(name)
         else:
-            if name.rpartition('.')[-1] not in ('so', 'py'):
+            if name.rpartition('.')[-1] not in ('so', 'py') and not (is_kakasi and name.endswith('.db')):
                 ans.append(name)
     return ans
 

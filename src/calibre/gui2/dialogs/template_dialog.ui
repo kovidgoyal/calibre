@@ -408,7 +408,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="11" column="1">
-          <layout class="BoxLayout" name="user_layout_1" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_1">
           </layout>
          </item>
          <item row="12" column="0">
@@ -425,7 +425,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="12" column="1">
-          <layout class="BoxLayout" name="user_layout_2" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_2">
           </layout>
          </item>
          <item row="13" column="0">
@@ -442,7 +442,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="13" column="1">
-          <layout class="BoxLayout" name="user_layout_3" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_3">
           </layout>
          </item>
          <item row="14" column="0">
@@ -459,7 +459,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="14" column="1">
-          <layout class="BoxLayout" name="user_layout_4" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_4">
           </layout>
          </item>
          <item row="15" column="0">
@@ -476,7 +476,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="15" column="1">
-          <layout class="BoxLayout" name="user_layout_5" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_5">
           </layout>
          </item>
          <item row="16" column="0">
@@ -493,7 +493,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="16" column="1">
-          <layout class="BoxLayout" name="user_layout_6" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_6">
           </layout>
          </item>
          <item row="17" column="0">
@@ -510,7 +510,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="17" column="1">
-          <layout class="BoxLayout" name="user_layout_7" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_7">
           </layout>
          </item>
          <item row="18" column="0">
@@ -527,7 +527,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="18" column="1">
-          <layout class="BoxLayout" name="user_layout_8" dir="TopToBottom">
+          <layout class="QVBoxLayout" name="user_layout_8">
           </layout>
          </item>
          <item row="19" column="0">
@@ -660,11 +660,51 @@ you the value as well as all the local variables&lt;/p&gt;</string>
          <item row="30" column="0" colspan="3">
           <layout class="QGridLayout">
            <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Template Function Reference</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout">
+             <item>
+              <spacer>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="tf_ref">
+               <property name="text">
+                <string>Template Function Reference</string>
+               </property>
+               <property name="openExternalLinks">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="template_tutorial">
+               <property name="openExternalLinks">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label">
@@ -700,20 +740,34 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>&amp;Documentation:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <property name="buddy">
-              <cstring>documentation</cstring>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="lo_34">
+             <item>
+              <widget class="QPushButton" name="doc_button">
+               <property name="text">
+                <string>&amp;Documentation</string>
+               </property>
+               <property name="toolTip">
+                <string>Click this button to open the documentation in a separate dialog.
+If no function is selected above then show all functions.
+Selecting a function will show only that function's documentation</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="general_info_button">
+               <property name="text">
+                 <string>General &amp;information</string>
+               </property>
+               <property name="toolTip">
+                 <string>Click this button to see general help about using template functions
+ and how they are documented.</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="3" column="1">
-            <widget class="QPlainTextEdit" name="documentation">
+            <widget class="QTextBrowser" name="documentation">
              <property name="maximumSize">
               <size>
                <width>16777215</width>
@@ -746,20 +800,6 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="27" column="1">
-          <widget class="QLabel" name="template_tutorial">
-           <property name="openExternalLinks">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="28" column="1">
-          <widget class="QLabel" name="template_func_reference">
-           <property name="openExternalLinks">
-            <bool>true</bool>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>

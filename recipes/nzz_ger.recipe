@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from mechanize import Request
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Nzz(BasicNewsRecipe):

@@ -10,7 +10,7 @@ import sys
 from contextlib import suppress
 from functools import lru_cache
 
-from calibre.constants import DEBUG, __appname__, get_osx_version, islinux, ismacos
+from calibre.constants import DEBUG, MAIN_APP_UID, __appname__, get_osx_version, islinux, ismacos, iswindows
 from calibre.utils.resources import get_image_path as I
 
 
@@ -177,6 +177,40 @@ class QtNotifier(Notifier):
                 pass
 
 
+class WinToastNotifier:
+
+    def __init__(self):
+        try:
+            from calibre_extensions.wintoast import initialize_toast
+        except ImportError:
+            self.ok = False
+        else:
+            from qt.core import QApplication
+            app = QApplication.instance()
+            auid = getattr(app, 'windows_app_uid', MAIN_APP_UID)
+            appname = __appname__
+            if app is not None:
+                appname = app.applicationName() or appname
+            try:
+                initialize_toast(appname, auid)
+            except Exception as err:
+                self.ok = False
+                print('Failed to initialize_toast with error:', err, file=sys.stderr)
+            else:
+                self.ok = True
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        if summary:
+            title, message = summary, body
+        else:
+            title, message = '', body
+        from calibre_extensions.wintoast import notify
+        try:
+            notify(title, message, icon())
+        except Exception as err:
+            print('Failed to send toast notification with error:', err, file=sys.stderr)
+
+
 class DummyNotifier(Notifier):
 
     ok = True
@@ -222,6 +256,10 @@ def get_notifier(systray=None):
             # We dont use Qt's systray based notifier as it uses Growl and is
             # broken with different versions of Growl
             ans = DummyNotifier()
+    elif iswindows:
+        ans = WinToastNotifier()
+        if not ans.ok:
+            ans = None
     if ans is None:
         ans = QtNotifier(systray)
         if not ans.ok:
@@ -233,6 +271,11 @@ def hello():
     n = get_notifier()
     n('hello')
 
+
+def develop_win():
+    from calibre_extensions.wintoast import initialize_toast, notify
+    initialize_toast(__appname__, MAIN_APP_UID)
+    notify("calibre notification", "hello world", icon())
 
 if __name__ == '__main__':
     hello()

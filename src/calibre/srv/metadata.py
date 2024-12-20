@@ -11,6 +11,7 @@ from threading import Lock
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
+from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
@@ -64,6 +65,12 @@ def add_field(field, db, book_id, ans, field_metadata):
             ans[field] = val
 
 
+def encode_stat_result(s: os.stat_result) -> dict[str, int]:
+    return {
+        'size': s.st_size, 'mtime_ns': s.st_mtime_ns,
+    }
+
+
 def book_as_json(db, book_id):
     db = db.new_api
     with db.safe_read_lock:
@@ -94,6 +101,9 @@ def book_as_json(db, book_id):
         x = db.items_with_notes_in_book(book_id)
         if x:
             ans['items_with_notes'] = {field: {v: k for k, v in items.items()} for field, items in x.items()}
+        data_files = db.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
+        if data_files:
+            ans['data_files'] = {e.relpath: encode_stat_result(e.stat_result) for e in data_files}
     return ans
 
 
@@ -229,7 +239,16 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
     category_nodes, recount_nodes = [], []
-    scats = category_display_order(db.pref('tag_browser_category_order', []), list(category_data.keys()))
+    # User categories are listed in category_display_order using their prefix.
+    # In other words, both @AAA.BB and @AAA.CC appear once as @AAA. We need to
+    # process the category list to get the "real" user categories.
+    scats_t = category_display_order(db.pref('tag_browser_category_order', ()), tuple(category_data.keys()))
+    scats = []
+    for category in scats_t:
+        if not category.startswith('@'):
+            scats.append(category)
+        else:
+            scats.extend(sorted(c for c in category_data.keys() if c == category or c.startswith(category+'.')))
 
     for category in scats:
         is_user_category = category.startswith('@')

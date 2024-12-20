@@ -673,7 +673,7 @@ class Device(DeviceConfig, DevicePlugin):
         hal = get_hal()
         vols = hal.get_volumes(d)
         if verbose:
-            print("FBSD:	", vols)
+            print("FBSD:\t", vols)
 
         ok, mv = hal.mount_volumes(vols)
         if not ok:

@@ -236,6 +236,20 @@ def init_find_in_tag_browser(menu, ac, field, value):
         menu.addAction(ac)
 
 
+def download_cover(parent, book_id, current_cover_pixmap):
+    from calibre.ebooks.metadata.sources.update import update_sources
+    from calibre.gui2.ui import get_gui
+    update_sources()
+    from calibre.gui2.metadata.single_download import CoverFetch
+    db = get_gui().current_db.new_api
+    title = db.field_for('title', book_id)
+    authors = db.field_for('authors', book_id)
+    identifiers = db.field_for('identifiers', book_id, default_value={})
+    d = CoverFetch(current_cover_pixmap, parent)
+    if d.start(title, authors, identifiers) == QDialog.DialogCode.Accepted:
+        return d.cover_pixmap
+
+
 def get_icon_path(f, prefix):
     from calibre.library.field_metadata import category_icon_map
     custom_icons = gprefs['tags_browser_category_icons']
@@ -431,16 +445,17 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 
         populate_menu(m, connect_action, fmt)
         if len(m.actions()) == 0:
-            menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            menu.addAction(QIcon.ic('exec.png'), _('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
         else:
+            m.setIcon(QIcon.ic('exec.png'))
             m.addSeparator()
-            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            m.addAction(QIcon.ic('plus.png'), _('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
             m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, book_info))
             menu.addMenu(m)
             menu.ow = m
         if fmt.upper() in SUPPORTED:
             menu.addSeparator()
-            menu.addAction(_('Edit %s format') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
+            menu.addAction(QIcon.ic('edit_book.png'), _('Edit %s format') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
     path = data['path']
     if path:
         if data.get('fname'):
@@ -859,6 +874,7 @@ class CoverView(QWidget):  # {{{
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
+        download = cm.addAction(QIcon.ic('download-metadata.png'), _('Download cover from internet'))
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
         save = cm.addAction(QIcon.ic('save.png'), _('Save cover to disk'))
         remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
@@ -878,6 +894,7 @@ class CoverView(QWidget):  # {{{
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
         remove.triggered.connect(self.remove_cover)
+        download.triggered.connect(self.download_cover)
         gc.triggered.connect(self.generate_cover)
         save.triggered.connect(self.save_cover)
         create_open_cover_with_menu(self, cm)
@@ -939,6 +956,11 @@ class CoverView(QWidget):  # {{{
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
         if not pmap.isNull():
+            self.update_cover(pmap)
+
+    def download_cover(self):
+        pmap = download_cover(self, self.data.get('id'), self.pixmap)
+        if pmap is not None:
             self.update_cover(pmap)
 
     def save_cover(self):

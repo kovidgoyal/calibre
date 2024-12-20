@@ -23,8 +23,9 @@ from setup import __appname__, __version__
 
 sys.path.append(base)
 
-import calibre.utils.img as cimg
 import custom
+
+import calibre.utils.img as cimg
 from calibre.utils.localization import localize_website_link
 
 del sys.path[0]
@@ -43,7 +44,7 @@ extensions = ['sphinx.ext.autodoc', 'custom', 'sidebar_toc', 'sphinx.ext.viewcod
 templates_path = ['templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The master toctree document.
 master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa

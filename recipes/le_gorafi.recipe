@@ -26,7 +26,7 @@ class LeGorafi(BasicNewsRecipe):
         height: auto !important;
     }
     '''
-    
+
     keep_only_tags = [
         dict(name='h1'),
         dict(name='img', attrs={'class': 'attachment- size- wp-post-image'}),
@@ -36,16 +36,16 @@ class LeGorafi(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'heateor_sss_sharing_container'}),
     ]
     feeds = ['http://www.legorafi.fr/feed/']
-    
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
             if 'svg' in img['src']:
                 img.decompose()  # Removes the tag entirely
         return soup
-    
+
     def is_cover(article):
         return 'gorafi-magazine' in article.url
-    
+
     def get_cover_url(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
@@ -55,8 +55,8 @@ class LeGorafi(BasicNewsRecipe):
                     img = soup.select_one('#mvp-post-feat-img img')
                     return img['data-lazy-src']
         print("No cover found")
-        return None 
-    
+        return None
+
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:

@@ -12,9 +12,9 @@ class PressePortalDE(BasicNewsRecipe):
     title = 'Presseportal DE'
     # Author
     __author__ = 'Volker Heggemann, VoHe'
-    # oldest article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days)                                  ---- can be edit by user
     oldest_article = 1
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     max_articles_per_feed = 100
     # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
@@ -29,9 +29,9 @@ class PressePortalDE(BasicNewsRecipe):
     publisher = u'Presseportal.de'
     # What is the content of?
     category = u'latest news, national Police, Germany'
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     language = 'de'
     # encoding of content. e.g. utf-8, None, ...
     # ---- can be edit by user
@@ -44,7 +44,7 @@ class PressePortalDE(BasicNewsRecipe):
     # remove the rubbish (in ebook)
     auto_cleanup = True
     # now the content description and URL follows
-    # feel free to add, wipe out what you need	 							---- can be edit by user
+    # feel free to add, wipe out what you need                              ---- can be edit by user
     #
     # some of this are double
     # so if you load "Alle Ressort" you don't need "Wirtschaft, Finanzen, Politik, Vermischtes..." at all.

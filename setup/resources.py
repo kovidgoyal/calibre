@@ -9,13 +9,11 @@ import errno
 import glob
 import json
 import os
-import re
 import shutil
 import zipfile
-from zlib import compress
 
-from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, only_unicode_recursive
-from setup import Command, __appname__, basenames, download_securely, dump_json
+from polyglot.builtins import iteritems, itervalues, only_unicode_recursive
+from setup import Command, basenames, download_securely, dump_json
 
 
 def get_opts_from_parser(parser):
@@ -27,113 +25,6 @@ def get_opts_from_parser(parser):
     for g in parser.option_groups:
         for o in g.option_list:
             yield from do_opt(o)
-
-
-class Kakasi(Command):  # {{{
-
-    description = 'Compile resources for unihandecode'
-
-    KAKASI_PATH = os.path.join(Command.SRC,  __appname__,
-            'ebooks', 'unihandecode', 'pykakasi')
-
-    def run(self, opts):
-        self.records = {}
-        src = self.j(self.KAKASI_PATH, 'kakasidict.utf8')
-        dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','kanwadict2.calibre_msgpack')
-        base = os.path.dirname(dest)
-        if not os.path.exists(base):
-            os.makedirs(base)
-
-        if self.newer(dest, src):
-            self.info('\tGenerating Kanwadict')
-
-            for line in open(src, "rb"):
-                self.parsekdict(line)
-            self.kanwaout(dest)
-
-        src = self.j(self.KAKASI_PATH, 'itaijidict.utf8')
-        dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','itaijidict2.calibre_msgpack')
-
-        if self.newer(dest, src):
-            self.info('\tGenerating Itaijidict')
-            self.mkitaiji(src, dest)
-
-        src = self.j(self.KAKASI_PATH, 'kanadict.utf8')
-        dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','kanadict2.calibre_msgpack')
-
-        if self.newer(dest, src):
-            self.info('\tGenerating kanadict')
-            self.mkkanadict(src, dest)
-
-    def mkitaiji(self, src, dst):
-        dic = {}
-        for line in open(src, "rb"):
-            line = line.decode('utf-8').strip()
-            if line.startswith(';;'):  # skip comment
-                continue
-            if re.match(r"^$",line):
-                continue
-            pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:codepoint_to_chr(int(x.group(1),16)), line)
-            dic[pair[0]] = pair[1]
-        from calibre.utils.serialize import msgpack_dumps
-        with open(dst, 'wb') as f:
-            f.write(msgpack_dumps(dic))
-
-    def mkkanadict(self, src, dst):
-        dic = {}
-        for line in open(src, "rb"):
-            line = line.decode('utf-8').strip()
-            if line.startswith(';;'):  # skip comment
-                continue
-            if re.match(r"^$",line):
-                continue
-            (alpha, kana) = line.split(' ')
-            dic[kana] = alpha
-        from calibre.utils.serialize import msgpack_dumps
-        with open(dst, 'wb') as f:
-            f.write(msgpack_dumps(dic))
-
-    def parsekdict(self, line):
-        line = line.decode('utf-8').strip()
-        if line.startswith(';;'):  # skip comment
-            return
-        (yomi, kanji) = line.split(' ')
-        if ord(yomi[-1:]) <= ord('z'):
-            tail = yomi[-1:]
-            yomi = yomi[:-1]
-        else:
-            tail = ''
-        self.updaterec(kanji, yomi, tail)
-
-    def updaterec(self, kanji, yomi, tail):
-        key = "%04x"%ord(kanji[0])
-        if key in self.records:
-            if kanji in self.records[key]:
-                rec = self.records[key][kanji]
-                rec.append((yomi,tail))
-                self.records[key].update({kanji: rec})
-            else:
-                self.records[key][kanji]=[(yomi, tail)]
-        else:
-            self.records[key] = {}
-            self.records[key][kanji]=[(yomi, tail)]
-
-    def kanwaout(self, out):
-        from calibre.utils.serialize import msgpack_dumps
-        with open(out, 'wb') as f:
-            dic = {}
-            for k, v in iteritems(self.records):
-                dic[k] = compress(msgpack_dumps(v))
-            f.write(msgpack_dumps(dic))
-
-    def clean(self):
-        kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')
-        if os.path.exists(kakasi):
-            shutil.rmtree(kakasi)
-# }}}
 
 
 class CACerts(Command):  # {{{
@@ -213,7 +104,7 @@ class RapydScript(Command):  # {{{
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi', 'liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation', 'piper_voices']
+    sub_commands = ['liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation', 'piper_voices']
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps
@@ -337,8 +228,6 @@ class Resources(Command):  # {{{
             x = self.j(self.RESOURCES, x+'.pickle')
             if os.path.exists(x):
                 os.remove(x)
-        from setup.commands import kakasi
-        kakasi.clean()
         for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
                 'template-functions.json', 'user-manual-translation-stats.json'):
             x = self.j(self.RESOURCES, x)

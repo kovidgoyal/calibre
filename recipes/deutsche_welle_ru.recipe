@@ -16,7 +16,7 @@ class DeutscheWelle(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']
- 
+
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
@@ -30,7 +30,7 @@ class DeutscheWelle(BasicNewsRecipe):
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
             self.oldest_article = float(d)
-   
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
             img['src'] = img['srcset'].split()[6]
@@ -39,7 +39,7 @@ class DeutscheWelle(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='article')
     ]
-    
+
     remove_tags = [
         dict(name=['footer', 'source']),
         dict(attrs={'data-tracking-name':'sharing-icons-inline'}),

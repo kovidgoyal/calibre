@@ -10,7 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import io
 import os
 import posixpath
-from contextlib import closing, suppress
+from contextlib import closing, contextmanager, suppress
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
@@ -230,6 +230,20 @@ def render_cover(cpage, zf, reader=None):
             return render_html_svg_workaround(cpage, default_log, root=tdir)
 
 
+epub_allow_rendered_cover = True
+
+
+@contextmanager
+def epub_metadata_settings(allow_rendered_cover=epub_allow_rendered_cover):
+    global epub_allow_rendered_cover
+    oarc = epub_allow_rendered_cover
+    epub_allow_rendered_cover = allow_rendered_cover
+    try:
+        yield
+    finally:
+        epub_allow_rendered_cover = oarc
+
+
 def get_cover(raster_cover, first_spine_item, reader):
     zf = reader.archive
 
@@ -241,7 +255,8 @@ def get_cover(raster_cover, first_spine_item, reader):
         except Exception:
             pass
 
-    return render_cover(first_spine_item, zf, reader=reader)
+    if epub_allow_rendered_cover:
+        return render_cover(first_spine_item, zf, reader=reader)
 
 
 def get_metadata(stream, extract_cover=True):

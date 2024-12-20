@@ -420,6 +420,10 @@ class BuildTest(unittest.TestCase):
             if display_env_var is not None:
                 os.environ['DISPLAY'] = display_env_var
 
+    def test_pykakasi(self):
+        from calibre.ebooks.unihandecode.jadecoder import Jadecoder
+        self.assertEqual(Jadecoder().decode("自転車生活の愉しみ"), 'Jitensha Seikatsu no Tanoshi mi')
+
     def test_imaging(self):
         from PIL import Image
         try:
@@ -436,16 +440,14 @@ class BuildTest(unittest.TestCase):
         out = StringIO()
         features.pilinfo(out=out, supported_formats=False)
         out = out.getvalue()
-        for line in '''\
+        lines = '''\
         --- PIL CORE support ok
         --- FREETYPE2 support ok
         --- WEBP support ok
-        --- WEBP Transparency support ok
-        --- WEBPMUX support ok
-        --- WEBP Animation support ok
         --- JPEG support ok
         --- ZLIB (PNG/ZIP) support ok
-        '''.splitlines():
+        '''.splitlines()
+        for line in lines:
             self.assertIn(line.strip(), out)
         with Image.open(I('lt.png', allow_user_override=False)) as i:
             self.assertGreaterEqual(i.size, (20, 20))

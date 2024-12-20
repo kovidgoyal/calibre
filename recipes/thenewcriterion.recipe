@@ -15,10 +15,11 @@ except ImportError:
     from urllib import urlencode
 import re
 
+from mechanize import Request
+
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-from mechanize import Request
 
 
 class TheNewCriterion(BasicNewsRecipe):

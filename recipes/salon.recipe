@@ -5,6 +5,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 class Salon_com(BasicNewsRecipe):
 
     title = 'Salon.com'
@@ -14,19 +19,43 @@ class Salon_com(BasicNewsRecipe):
     language = 'en'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup = True
+    no_stylesheets = True
+    #auto_cleanup = True
+    #auto_cleanup_keep = '//div[@id="image-id"]'
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
 
+    keep_only_tags = [
+        dict(itemprop=['headline', 'description']),
+        classes('article-content title-container article_rail_wrapper cover-wrapper article_img_desc'),
+    ]
+
+    remove_tags = [
+        classes('social_comments_app_wrapper related_article layout_template_wrapper writer-container right-rail topic_explore_box'),
+        dict(name=['object', 'link', 'embed', 'iframe', 'meta']),
+        dict(id=['social-left', 'article-footer-wrap']),
+        dict(name='nav', attrs={'class': 'subheading'}),
+    ]
+    remove_attributes = ['lang', 'style']
+
     feeds = [
-        ('News', 'http://www.salon.com/category/news/feed/rss/'),
-        ('Politics', 'http://www.salon.com/category/politics/feed/rss/'),
-        ('Business', 'http://www.salon.com/category/business/feed/rss/'),
-        ('Technology', 'http://www.salon.com/category/technology/feed/rss/'),
-        ('Innovation', 'http://www.salon.com/category/innovation/feed/rss/'),
-        ('Sustainability', 'http://www.salon.com/category/sustainability/feed/rss/'),
-        ('Entertainment', 'http://www.salon.com/category/entertainment/feed/rss/'),
-        ('Life', 'http://www.salon.com/category/life/feed/rss/'),
+        #('News', 'http://www.salon.com/category/news/feed/rss/'),
+        #('Politics', 'http://www.salon.com/category/politics/feed/rss/'),
+        #('Business', 'http://www.salon.com/category/business/feed/rss/'),
+        #('Technology', 'http://www.salon.com/category/technology/feed/rss/'),
+        #('Innovation', 'http://www.salon.com/category/innovation/feed/rss/'),
+        #('Sustainability', 'http://www.salon.com/category/sustainability/feed/rss/'),
+        #('Entertainment', 'http://www.salon.com/category/entertainment/feed/rss/'),
+        #('Life', 'http://www.salon.com/category/life/feed/rss/'),
+        #
+        ('News and Politics', 'https://www.salon.com/category/news-and-politics/feed'),
+        ('Culture', 'http://www.salon.com/category/culture/feed/'),
+        ('Science &amp; Health', 'https://www.salon.com/category/science-and-health/feed/'),
+        ('Food', 'https://www.salon.com/category/food/feed/'),
+        ('Money', 'https://www.salon.com/category/money/feed/'),
+        ('Life Stories', 'https://www.salon.com/category/life-stories/feed/'),
+        ('Reviews', 'https://www.salon.com/category/reviews/feed/'),
+        ('Top', 'http://www.salon.com/feed/'),
     ]
 
     def get_browser(self, *args, **kwargs):

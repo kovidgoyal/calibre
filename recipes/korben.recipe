@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -7,6 +7,7 @@ class BasicUserRecipe1318619728(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
+    language = 'fr'
 
     feeds = [(u'Korben', u'http://feeds2.feedburner.com/KorbensBlog-UpgradeYourMind')]
 

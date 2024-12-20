@@ -20,6 +20,7 @@ from qt.core import (
     QIcon,
     QItemSelectionModel,
     QKeyCombination,
+    QKeyEvent,
     QKeySequence,
     QLabel,
     QMenu,
@@ -519,7 +520,7 @@ class Editor(QFrame):  # {{{
             if t == QEvent.Type.ShortcutOverride:
                 event.accept()
                 return True
-            if t == QEvent.Type.KeyPress:
+            if t == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
                 self.key_press_event(event, 1 if obj is self.button1 else 2)
                 return True
         return QFrame.eventFilter(self, obj, event)

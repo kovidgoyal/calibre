@@ -292,6 +292,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
                 pass
             if field == 'path':
                 name = _('Folders/path')
+            name = field.partition('.')[0][1:] if field.startswith('@') else name
             if not name:
                 return field
             return f'{name} ({field})'
@@ -445,9 +446,22 @@ class TBPartitionedFields(DisplayedFields):  # {{{
         from calibre.gui2.ui import get_gui
         self.gui = get_gui()
 
+    def filter_user_categories(self, tv):
+        cats = tv.model().categories
+        answer = {}
+        filtered = set()
+        for key,name in cats.items():
+            if key.startswith('@'):
+                key = key.partition('.')[0]
+                name = key[1:]
+            if key not in filtered:
+                answer[key] = name
+                filtered.add(key)
+        return answer
+
     def initialize(self, use_defaults=False, pref_data_override=None):
         tv = self.gui.tags_view
-        cats = tv.model().categories
+        cats = self.filter_user_categories(tv)
         ans = []
         if use_defaults:
             ans = [[k, True] for k in cats.keys()]
@@ -486,7 +500,8 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         tv = self.gui.tags_view
-        cats = [k for k in tv.model().categories.keys() if k not in self.cant_make_hierarical]
+        cats = [k for k in tv.model().categories.keys() if (not k.startswith('@') and
+                                                            k not in self.cant_make_hierarical)]
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]
@@ -621,6 +636,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
         r('tag_browser_always_autocollapse', gprefs)
+        r('tag_browser_restore_tree_expansion', gprefs)
         r('tag_browser_show_tooltips', gprefs)
         r('tag_browser_allow_keyboard_focus', gprefs)
         r('bd_show_cover', gprefs)
@@ -699,7 +715,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cb_double_click_to_activate', gprefs)
 
         choices = [(_('Off'), 'off'), (_('Small'), 'small'),
-            (_('Medium'), 'medium'), (_('Large'), 'large')]
+            (_('Medium-small'), 'mid-small'), (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
         choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),

@@ -947,8 +947,26 @@ class TagBrowserWidget(QFrame):  # {{{
         self.tags_view.model().prefs['tag_browser_hide_empty_categories'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def save_state(self):
-        gprefs.set('tag browser search box visible', self.toggle_search_button.isChecked())
+    def save_state(self, gprefs_local=None):
+        if gprefs_local is None:
+            gprefs_local = gprefs
+        gprefs_local.set('tag browser search box visible', self.toggle_search_button.isChecked())
+
+    def restore_expansion_state(self, state):
+        '''
+        Expands the tag browser tree so that the node specified in state is
+        visible. Use get_expansion_state() to get the state. The intent is that
+        a plugin could restore the state in the library_changed() method.
+        '''
+        if state is not None:
+            self.tags_view.restore_expansion(state)
+
+    def get_expansion_state(self):
+        '''
+        Returns the currently expanded node in the tag browser as a string
+        suitable for restoring using restore_expansion_state.
+        '''
+        return self.tags_view.current_expansion
 
     def toggle_item(self):
         self.tags_view.toggle_current_index()

@@ -133,7 +133,8 @@ class EngineSpecificSettings(NamedTuple):
     preferred_voices: dict[str, str] | None = None
 
     @classmethod
-    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object]) -> 'EngineSpecificSettings':
+    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object] | None = None) -> 'EngineSpecificSettings':
+        prefs = prefs or {}
         adev = prefs.get('audio_device_id')
         audio_device_id = None
         if adev:

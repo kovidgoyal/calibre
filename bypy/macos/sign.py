@@ -102,4 +102,4 @@ def sign_app(appdir, notarize):
     with make_certificate_useable():
         do_sign_app(appdir)
         if notarize:
-            notarize_app(appdir)
+            notarize_app(appdir, 'calibre')

@@ -139,6 +139,7 @@ class ImageView(QDialog):
         self.avail_geom = self.screen().availableGeometry()
         self.current_img = current_img
         self.current_url = current_url
+        self.transformed = False
         self.factor = 1.0
         self.geom_name = geom_name
         self.zoom_in_action = ac = QAction(QIcon.ic('plus.png'), _('Zoom &in'), self)
@@ -327,18 +328,12 @@ class ImageView(QDialog):
         t = QTransform()
         t.rotate(90)
         pm = self.current_img = pm.transformed(t)
+        self.transformed = True
         self.label.setPixmap(pm)
-        self.label.adjustSize()
-        if self.fit_image.isChecked():
-            self.set_to_viewport_size()
-        else:
-            self.factor = 1
-            self.prefs.set('image_popup_zoom_factor', self.factor)
-            for sb in (self.scrollarea.horizontalScrollBar(),
-                    self.scrollarea.verticalScrollBar()):
-                sb.setValue(0)
+        self.adjust_image(self.factor)
 
     def __call__(self, use_exec=False):
+        self.transformed = False
         geom = self.avail_geom
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
@@ -350,8 +345,7 @@ class ImageView(QDialog):
             self.current_image_name = self.current_url
         reso = ''
         if self.current_img and not self.current_img.isNull():
-            if self.factor != 1:
-                self.adjust_image(self.factor)
+            self.adjust_image(self.factor)
             reso = f'[{self.current_img.width()}x{self.current_img.height()}]'
         title = _('Image: {name} {resolution}').format(name=self.current_image_name, resolution=reso)
         self.setWindowTitle(title)

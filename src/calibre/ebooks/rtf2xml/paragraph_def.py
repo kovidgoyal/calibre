@@ -129,7 +129,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'list-simpi'    : 'list-simple',
         'list-conti'    : 'list-continue',
         'list-hang_'    : 'list-hang',
-        # 'list-tebef'    :	'list-text-before',
+        # 'list-tebef'    : 'list-text-before',
         # 'list-level'    : 'level',
         'list-id___'    : 'list-id',
         'list-start'    : 'list-start',

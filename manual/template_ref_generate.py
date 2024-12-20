@@ -5,7 +5,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
 from collections import defaultdict
 
 PREAMBLE = '''\
@@ -24,20 +23,6 @@ insufficient. The functions are arranged in logical groups by type.
     :local:
 
 .. module:: calibre.utils.formatter_functions
-
-'''
-
-CATEGORY_TEMPLATE = '''\
-{category}
-{dashes}
-
-'''
-
-FUNCTION_TEMPLATE = '''\
-{fs}
-{hats}
-
-.. autoclass:: {cn}
 
 '''
 
@@ -65,34 +50,44 @@ functions.
 '''
 
 
-def generate_template_language_help(language):
+def generate_template_language_help(language, log):
+    from tempfile import TemporaryDirectory
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.utils.ffml_processor import FFMLProcessor
     from calibre.utils.formatter_functions import formatter_functions
-    pat = re.compile(r'\)`{0,2}\s*-{1,2}')
 
-    funcs = defaultdict(dict)
+    output = [PREAMBLE.format(language)]
+    a = output.append
 
-    for func in formatter_functions().get_builtins().values():
-        class_name = func.__class__.__name__
-        func_sig = getattr(func, 'doc')
-        m = pat.search(func_sig)
-        if m is None:
-            print('No signature for template function ', class_name)
-            continue
-        func_sig = func_sig[:m.start()+1].strip('`')
-        func_cat = getattr(func, 'category')
-        funcs[func_cat][func_sig] = class_name
+    with TemporaryDirectory() as tdir:
+        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        ffml = FFMLProcessor()
+        all_funcs = formatter_functions().get_builtins()
+        categories = defaultdict(dict)
+        for name, func in all_funcs.items():
+            category = func.category
+            categories[category][name] = func
+        for cat_name in sorted(categories):
+            a(cat_name + '\n')
+            a(('-' * (4*len(cat_name))) + '\n\n')
+            for name in sorted(categories[cat_name]):
+                func = categories[cat_name][name]
+                a(f"\n\n.. _ff_{name}:\n\n{name}\n{'^'*len(name)}\n\n")
+                a(f'.. class:: {func.__class__.__name__}\n\n')
+                try:
+                    a(ffml.document_to_rst(func.doc, name))
+                except Exception as e:
+                    if language in ('en', 'eng'):
+                        raise
+                    log.warn(f'Failed to process template language docs for {name} in the {language} language with error: {e}')
+                    a('  TRANSLATION INVALID')
+            a('\n\n')
+        db.close()
+        del db
 
-    output = PREAMBLE.format(language)
-    cats = sorted(funcs.keys())
-    for cat in cats:
-        output += CATEGORY_TEMPLATE.format(category=cat, dashes='-'*len(cat))
-        entries = [k for k in sorted(funcs[cat].keys())]
-        for entry in entries:
-            output += FUNCTION_TEMPLATE.format(fs=entry, cn=funcs[cat][entry],
-                                               hats='^'*len(entry))
-
-    output += POSTAMBLE
-    return output
+    a(POSTAMBLE)
+    return ''.join(output)
 
 if __name__ == '__main__':
     generate_template_language_help()

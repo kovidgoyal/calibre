@@ -10,10 +10,11 @@ import time
 from base64 import standard_b64encode
 from datetime import date, timedelta
 
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 from mechanize import Request
+
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
 
 try:
     import urllib.parse as urlparse

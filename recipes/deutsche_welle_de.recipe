@@ -40,7 +40,7 @@ class DeutscheWelle(BasicNewsRecipe):
         dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
         classes('kicker advertisement vjs-wrapper')
     ]
-    
+
     # watch out https://www.dw.com/de/service/rss/s-9773 for description of possible rss feeds
     feeds = [
         ('Nachrichten', 'http://rss.dw.com/xml/rss-de-news'),
@@ -53,7 +53,7 @@ class DeutscheWelle(BasicNewsRecipe):
         ('Kultur und Leben', 'http://rss.dw.com/xml/rss-de-cul'),
         ('Thema des Tages', 'http://rss.dw.com/xml/rss-de-top'),
     ]
-    
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
             img['src'] = img['srcset'].split()[6]

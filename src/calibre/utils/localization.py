@@ -505,6 +505,13 @@ def lang_map_for_ui():
     return ans
 
 
+def reverse_lang_map_for_ui():
+    ans = getattr(reverse_lang_map_for_ui, 'ans', None)
+    if ans is None:
+        ans = reverse_lang_map_for_ui.ans = {v: k for k, v in lang_map_for_ui().items()}
+    return ans
+
+
 def langnames_to_langcodes(names):
     '''
     Given a list of localized language names return a mapping of the names to 3

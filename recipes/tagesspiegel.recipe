@@ -48,7 +48,7 @@ class TagesspiegelRss(BasicNewsRecipe):
         from datetime import date
         cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/de/tagesspiegel.750.jpg'
         return cover
-    
+
     keep_only_tags = [
         dict(name = 'header', attrs={'class':'Bo'}),
         dict(name = 'div', attrs={'id':'story-elements'})

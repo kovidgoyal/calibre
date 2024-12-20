@@ -29,6 +29,7 @@ def update_settings(settings):
     opts.paged_wheel_section_jumps = v'!!settings.paged_wheel_section_jumps'
     opts.paged_pixel_scroll_threshold = settings.paged_pixel_scroll_threshold
     opts.scroll_auto_boundary_delay = settings.scroll_auto_boundary_delay
+    opts.scroll_mouse_boundary_delay = settings.scroll_mouse_boundary_delay
     opts.scroll_stop_boundaries = v'!!settings.scroll_stop_boundaries'
     opts.reverse_page_turn_zones = v'!!settings.reverse_page_turn_zones'
     opts.user_stylesheet = settings.user_stylesheet

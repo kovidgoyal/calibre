@@ -74,7 +74,7 @@ class MitTechnologyReview(BasicNewsRecipe):
     }
 
     def parse_index(self):
-        # for past editions, change the issue link below 
+        # for past editions, change the issue link below
         issue = 'http://www.technologyreview.com/magazine/'
         d = self.recipe_specific_options.get('issue_url')
         if d and isinstance(d, str):

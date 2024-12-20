@@ -5,6 +5,7 @@ from qt.core import (
     QAbstractItemView,
     QCheckBox,
     QDialog,
+    QDialogButtonBox,
     QDoubleSpinBox,
     QFont,
     QFormLayout,
@@ -39,6 +40,8 @@ from calibre.gui2.tts.types import (
 )
 from calibre.gui2.widgets2 import Dialog, QComboBox
 
+embedding_engine_name = 'piper'
+
 
 class EngineChoice(QWidget):
 
@@ -62,6 +65,9 @@ class EngineChoice(QWidget):
         l.addRow(la)
         ec.currentIndexChanged.connect(self.current_changed)
         self.update_description()
+
+    def restore_defaults(self):
+        self.engine_choice.setCurrentIndex(0)
 
     @property
     def value(self) -> str:
@@ -97,33 +103,49 @@ class SentenceDelay(QDoubleSpinBox):
         self.setValue(float(v))
 
 
-class FloatSlider(QSlider):
+class FloatSlider(QWidget):
 
     def __init__(self, minimum: float = -1, maximum: float = 1, factor: int = 10, parent=None):
         super().__init__(parent)
+        self.l = l = QHBoxLayout(self)
+        self.slider = s = QSlider(self)
+        l.addWidget(s, alignment=Qt.AlignmentFlag.AlignBottom)
+        self.label = la = QLabel('\xa0'.ljust(4, '\xa0'))
+        l.addWidget(la, alignment=Qt.AlignmentFlag.AlignVCenter)
+        l.setContentsMargins(0, 0, 0, 0)
         self.factor = factor
-        self.setRange(int(minimum * factor), int(maximum * factor))
-        self.setSingleStep(int((self.maximum() - self.minimum()) / (2 * factor)))
-        self.setPageStep(5 * self.singleStep())
-        self.setTickPosition(QSlider.TickPosition.TicksBelow)
-        self.setOrientation(Qt.Orientation.Horizontal)
+        s.setRange(int(minimum * factor), int(maximum * factor))
+        s.setSingleStep(int((s.maximum() - s.minimum()) / (2 * factor)))
+        s.setPageStep(5 * s.singleStep())
+        s.setTickPosition(QSlider.TickPosition.TicksBelow)
+        s.setOrientation(Qt.Orientation.Horizontal)
         if maximum - minimum >= 2:
-            self.setTickInterval((self.maximum() - self.minimum()) // 2)
+            s.setTickInterval((s.maximum() - s.minimum()) // 2)
         else:
-            self.setTickInterval(self.maximum() - self.minimum())
+            s.setTickInterval(s.maximum() - s.minimum())
+        s.valueChanged.connect(self.update_label)
+        self.update_label()
 
     def sizeHint(self) -> QSize:
         ans = super().sizeHint()
         ans.setWidth(ans.width() * 2)
         return ans
 
+    def update_label(self):
+        m = self.slider.minimum()
+        den = self.slider.maximum() - m
+        num = self.slider.value() - m
+        p = 2 * (num / den)
+        text = f'{p:.0%}'
+        self.label.setText(text.ljust(4, '\xa0'))
+
     @property
     def val(self) -> float:
-        return self.value() / self.factor
+        return self.slider.value() / self.factor
 
     @val.setter
     def val(self, v) -> None:
-        self.setValue(int(v * self.factor))
+        self.slider.setValue(int(v * self.factor))
 
 
 class Volume(QWidget):
@@ -329,23 +351,35 @@ class EngineSpecificConfig(QWidget):
         if self.engine_name and self.engine_name != engine_name:
             self.engine_specific_settings[self.engine_name] = self.as_settings()
         self.engine_name = engine_name
-        metadata = available_engines()[engine_name]
-        tts = create_tts_backend(force_engine=engine_name)
         if engine_name not in self.voice_data:
+            tts = create_tts_backend(force_engine=engine_name)
             self.voice_data[engine_name] = tts.available_voices
             if self.for_embedding:
                 self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name, TTS_EMBEDED_CONFIG)
             else:
                 self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_config(engine_name)
             self.default_output_modules[engine_name] = tts.default_output_module
+        return self.initialize_widgets_from_settings()
+
+    def restore_defaults(self):
+        if self.for_embedding:
+            self.engine_specific_settings[embedding_engine_name] = EngineSpecificSettings.create_from_config(embedding_engine_name, TTS_EMBEDED_CONFIG)
+        else:
+            for engine_name in available_engines():
+                self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_prefs(engine_name)
+        self.initialize_widgets_from_settings()
+
+    def initialize_widgets_from_settings(self):
+        tts = create_tts_backend(force_engine=self.engine_name)
+        metadata = available_engines()[self.engine_name]
         self.output_module.blockSignals(True)
         self.output_module.clear()
         if metadata.has_multiple_output_modules:
             self.layout().setRowVisible(self.output_module, True)
             self.output_module.addItem(_('System default (currently {})').format(tts.default_output_module), '')
-            for om in self.voice_data[engine_name]:
+            for om in self.voice_data[self.engine_name]:
                 self.output_module.addItem(om, om)
-            if (idx := self.output_module.findData(self.engine_specific_settings[engine_name].output_module)) > -1:
+            if (idx := self.output_module.findData(self.engine_specific_settings[self.engine_name].output_module)) > -1:
                 self.output_module.setCurrentIndex(idx)
         else:
             self.layout().setRowVisible(self.output_module, False)
@@ -376,7 +410,7 @@ class EngineSpecificConfig(QWidget):
             self.audio_device.addItem(_('System default (currently {})').format(self.default_audio_device.description), '')
             for ad in self.all_audio_devices:
                 self.audio_device.addItem(ad.description, ad.id.hex())
-            if cad := self.engine_specific_settings[engine_name].audio_device_id:
+            if cad := self.engine_specific_settings[self.engine_name].audio_device_id:
                 if (idx := self.audio_device.findData(cad.id.hex())):
                     self.audio_device.setCurrentIndex(idx)
             self.layout().setRowVisible(self.audio_device, True)
@@ -394,7 +428,12 @@ class EngineSpecificConfig(QWidget):
         output_module = self.output_module.currentData() or ''
         if metadata.has_multiple_output_modules:
             output_module = output_module or self.default_output_modules[self.engine_name]
-        all_voices = self.voice_data[self.engine_name][output_module]
+        try:
+            all_voices = self.voice_data[self.engine_name][output_module]
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            all_voices = []
         self.voices.set_voices(all_voices, s.voice_name, metadata, s.preferred_voices)
 
     def as_settings(self) -> EngineSpecificSettings:
@@ -442,6 +481,41 @@ class EngineSpecificConfig(QWidget):
         return tts.is_voice_downloaded(v)
 
 
+class BarPosition(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QFormLayout(self)
+        self.choices = c = QComboBox(self)
+        l.addRow(_('Position of control bar:'), c)
+        c.addItem(_('Floating with help text'), 'float')
+        c.addItem(_('Top'), 'top')
+        c.addItem(_('Bottom'), 'bottom')
+        c.addItem(_('Top right'), 'top-right')
+        c.addItem(_('Top left'), 'top-left')
+        c.addItem(_('Bottom right'), 'bottom-right')
+        c.addItem(_('Bottom left'), 'bottom-left')
+        from calibre.gui2.viewer.config import get_session_pref
+        self.val = get_session_pref('tts_bar_position', 'float', None)
+
+    @property
+    def val(self):
+        return self.choices.currentData()
+
+    @val.setter
+    def val(self, x):
+        idx = self.choices.findData(x)
+        if idx > -1:
+            self.choices.setCurrentIndex(idx)
+
+    def commit(self):
+        from calibre.gui2.viewer.config import set_session_pref
+        set_session_pref('tts_bar_position', self.val, None)
+
+    def restore_defaults(self):
+        self.val = 'float'
+
+
 class ConfigDialog(Dialog):
 
     def __init__(self, parent=None):
@@ -457,11 +531,21 @@ class ConfigDialog(Dialog):
         l.addWidget(esc)
         self.voice_button = b = QPushButton(self)
         b.clicked.connect(self.voice_action)
+        self.bar_position = bp = BarPosition(self)
+        l.addWidget(bp)
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
+        self.restore_defaults_button = b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Restore all Read aloud settings to their defaults'))
+        b.clicked.connect(self.restore_defaults)
         self.initial_engine_choice = ec.value
         self.set_engine(self.initial_engine_choice)
+
+    def restore_defaults(self):
+        self.engine_choice.restore_defaults()
+        self.engine_specific_config.restore_defaults()
+        self.bar_position.restore_defaults()
 
     def set_engine(self, engine_name: str) -> None:
         metadata = self.engine_specific_config.set_engine(engine_name)
@@ -499,6 +583,7 @@ class ConfigDialog(Dialog):
             else:
                 prefs.pop('engine', None)
             s.save_to_config(prefs)
+        self.bar_position.commit()
         super().accept()
 
 
@@ -509,7 +594,7 @@ class EmbeddingConfig(QWidget):
         self.l = l = QVBoxLayout(self)
         self.engine_specific_config = esc = EngineSpecificConfig(self, for_embedding=True)
         l.addWidget(esc)
-        self.engine_specific_config.set_engine('piper')
+        self.engine_specific_config.set_engine(embedding_engine_name)
 
     def save_settings(self):
         s = self.engine_specific_config.as_settings()

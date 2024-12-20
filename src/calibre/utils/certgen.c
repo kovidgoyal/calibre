@@ -125,7 +125,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
     if (!KeyPair) return PyErr_Format(PyExc_TypeError, "The key capsule is NULL");
     Cert = X509_REQ_new();
     if (!Cert) return set_error("X509_REQ_new");
-    if (!X509_REQ_set_version(Cert, 1)) { set_error("X509_REQ_set_version"); goto error; }
+    if (!X509_REQ_set_version(Cert, X509_REQ_VERSION_1)) { set_error("X509_REQ_set_version"); goto error; }
     Name = X509_REQ_get_subject_name(Cert);
     if (!Name) { set_error("X509_REQ_get_subject_name"); goto error; }
     if (!add_entry(Name, "C", country)) goto error;

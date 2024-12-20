@@ -31,7 +31,7 @@ def _import_readers():
     }
 
 
-ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
+ALL_FORMAT_WRITERS = 'doc', 'ereader', 'ztxt'  # keep sorted alphabetically
 FORMAT_WRITERS = None
 
 

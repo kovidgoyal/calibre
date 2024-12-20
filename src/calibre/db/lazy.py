@@ -10,6 +10,7 @@ from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
 from functools import wraps
 
+from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book.base import ALL_METADATA_FIELDS, NULL_VALUES, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
@@ -387,7 +388,7 @@ class ProxyMetadata(Metadata):
                                    "Use the explicit methods such as all_field_keys()")
 
     def has_key(self, key):
-        return key in self.all_field_keys()
+        return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
 
     def deepcopy(self, **kwargs):
         self._unimplemented_exception('deepcopy', add_txt=False)

@@ -367,7 +367,8 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     )
     val = (resolved_metadata(mi, field) or v'[]')
     if field is 'languages':
-        val = [mi.lang_names[l] or l for l in val]
+        ln = mi.lang_names or {}
+        val = [ln[l] or l for l in val]
     if list_to_ui:
         val = val.join(list_to_ui)
     le.value = val
@@ -852,7 +853,9 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
             table.appendChild(E.tr(onclick=current_edit_action, E.td(name), E.td()))
             td = table.lastChild.lastChild
             for k in val:
-                lang = mi.lang_names[k] or k
+                lang = k
+                if mi.lang_names and mi.lang_names[k]:
+                    lang = mi.lang_names[k]
                 td.appendChild(document.createTextNode(lang))
                 if k is not val[-1]:
                     td.appendChild(document.createTextNode(', '))

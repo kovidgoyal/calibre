@@ -18,7 +18,6 @@ class herald(BasicNewsRecipe):
     keep_only_tags = [
         classes('article-title article-author__name'),
         dict(name='div', attrs={'id':'main-content'})
-        
     ]
 
     remove_tags = [

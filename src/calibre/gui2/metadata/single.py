@@ -11,6 +11,7 @@ from functools import partial
 
 from qt.core import (
     QAction,
+    QApplication,
     QDialog,
     QDialogButtonBox,
     QFrame,
@@ -124,14 +125,14 @@ class MetadataSingleDialogBase(QDialog):
         self.next_button = QPushButton(QIcon.ic('forward.png'), _('Next'),
                 self)
         self.next_action = ac = QAction(self)
-        ac.triggered.connect(self.next_clicked)
+        ac.triggered.connect(self.next_if_possible)
         self.addAction(ac)
         ac.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(self.next_clicked)
         self.prev_button = QPushButton(QIcon.ic('back.png'), _('Previous'), self)
         self.prev_button.clicked.connect(self.prev_clicked)
         self.prev_action = ac = QAction(self)
-        ac.triggered.connect(self.prev_clicked)
+        ac.triggered.connect(self.prev_if_possible)
         ac.setShortcut(QKeySequence('Alt+Left'))
         self.addAction(ac)
         from calibre.gui2.actions.edit_metadata import DATA_FILES_ICON_NAME
@@ -398,6 +399,10 @@ class MetadataSingleDialogBase(QDialog):
             self.view_format.emit(None, path)
         else:
             self.view_format.emit(self.book_id, fmt)
+
+    def do_open_book_folder(self):
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['View'].view_folder_for_id(self.book_id)
 
     def do_edit_format(self, path, fmt):
         if self.was_data_edited:
@@ -731,6 +736,18 @@ class MetadataSingleDialogBase(QDialog):
         ret = self.exec()
         self.break_cycles()
         return ret
+
+    def next_if_possible(self):
+        if self.next_button.isEnabled():
+            self.next_clicked()
+        else:
+            QApplication.beep()
+
+    def prev_if_possible(self):
+        if self.prev_button.isEnabled():
+            self.prev_clicked()
+        else:
+            QApplication.beep()
 
     def next_clicked(self):
         fw = self.focusWidget()
@@ -1330,11 +1347,15 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None, edit_s
     if cls not in editors:
         cls = 'default'
     d = editors[cls](db, parent, editing_multiple=editing_multiple)
+    if hasattr(parent, 'extra_files_watcher'):
+        conn = parent.extra_files_watcher.books_changed.connect(d.update_data_files_button)
     try:
         d.start(row_list, current_row, view_slot=view_slot, edit_slot=edit_slot,
                 set_current_callback=set_current_callback)
         return d.changed, d.rows_to_refresh
     finally:
+        if hasattr(parent, 'extra_files_watcher'):
+            parent.extra_files_watcher.disconnect(conn)
         # possible workaround for bug reports of occasional ghost edit metadata dialog on windows
         d.deleteLater()
 

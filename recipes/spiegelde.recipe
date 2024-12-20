@@ -19,10 +19,10 @@ class Spiegel_DE_all(BasicNewsRecipe):
     title = u'Spiegel Online RSS - German alle Themen'
     # Author
     __author__ = u'Volker Heggemann, VoHe'
-    # oldest article to download (in days) 									---- can be edit by user
+    # oldest article to download (in days)                                  ---- can be edit by user
     # be careful, if there is a lot of news, the file size exceeds!
     oldest_article = 7
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     max_articles_per_feed = 100
     # speed up the download on fast computers be careful (I test max.20)
     # ---- can be edit by user
@@ -40,11 +40,11 @@ class Spiegel_DE_all(BasicNewsRecipe):
     cover_url = 'https://de.m.wikipedia.org/wiki/Datei:Spiegel_Online_logo.svg'
     # What is the content of?
     category = 'SPIEGEL ONLINE RSS'
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     language = 'de'
     lang = 'de-DE'
     no_stylesheets = True
-    # describes itself, 						 							---- can be edit by user
+    # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
     # encoding of content. e.g. utf-8, None, ...
     # ---- can be edit by user
@@ -57,7 +57,7 @@ class Spiegel_DE_all(BasicNewsRecipe):
     # remove the rubbish (in ebook)
     auto_cleanup = True
     # now the content description and URL follows
-    # feel free to add, wipe out what you need	 							---- can be edit by user
+    # feel free to add, wipe out what you need                              ---- can be edit by user
     #
     # Make some tests, may you first comment all of them out, and step by step you add what you'll need?
     #

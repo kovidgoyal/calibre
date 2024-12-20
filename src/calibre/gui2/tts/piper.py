@@ -36,6 +36,7 @@ from calibre.constants import cache_dir, is_debugging, iswindows, piper_cmdline
 from calibre.gui2 import error_dialog
 from calibre.gui2.tts.types import TTS_EMBEDED_CONFIG, EngineSpecificSettings, Quality, TTSBackend, Voice, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
+from calibre.utils.filenames import ascii_text
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 
@@ -85,11 +86,12 @@ def paths_for_voice(voice: Voice) -> tuple[str, str]:
     return model_path, config_path
 
 
-def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str, Voice]]:
+def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str, Voice], dict[str, Voice]]:
     d = json.loads(P('piper-voices.json', data=True))
     ans = []
     lang_voices_map = {}
     _voice_name_map = {}
+    human_voice_name_map = {}
     downloaded = set()
     with suppress(OSError):
         downloaded = set(os.listdir(piper_cache_dir()))
@@ -103,14 +105,14 @@ def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str
                 q = Quality.from_piper_quality(qual)
                 if best_qual is None or q.value < best_qual.value:
                     best_qual = q
-                    mf = f'{bcp_code}-{voice_name}-{qual}.onnx'
+                    mf = f'{bcp_code}-{ascii_text(voice_name)}-{qual}.onnx'
                     voice = Voice(bcp_code + ':' + voice_name, lang, country, human_name=voice_name, quality=q, engine_data={
                         'model_url': e['model'], 'config_url': e['config'],
                         'model_filename': mf, 'is_downloaded': mf in downloaded,
                     })
             if voice:
                 ans.append(voice)
-                _voice_name_map[voice.name] = voice
+                _voice_name_map[voice.name] = human_voice_name_map[voice.human_name] = voice
                 voices_for_lang.append(voice)
     _voices = tuple(ans)
     _voice_for_lang = {}
@@ -122,7 +124,7 @@ def load_voice_metadata() -> tuple[dict[str, Voice], tuple[Voice, ...], dict[str
                 if v.human_name == 'libritts':
                     _voice_for_lang[lang] = v
                     break
-    return _voice_name_map, _voices, _voice_for_lang
+    return _voice_name_map, _voices, _voice_for_lang, human_voice_name_map
 
 
 def download_voice(voice: Voice, download_even_if_exists: bool = False, parent: QObject | None = None, headless: bool = False) -> tuple[str, str]:
@@ -232,8 +234,6 @@ class UtteranceAudioQueue(QIODevice):
         else:
             ans = self.current_audio_data.first(maxlen)
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
-            if len(self.current_audio_data):
-                self.readyRead.emit()
         debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
         return ans
 
@@ -418,9 +418,6 @@ class Piper(TTSBackend):
                 self._audio_sink = QAudioSink(fmt, self)
             if s.volume is not None:
                 self._audio_sink.setVolume(s.volume)
-            # On Windows, the buffer is zero causing data to be discarded.
-            # Ensure we have a nice large buffer on all platforms.
-            self._audio_sink.setBufferSize(2 * 1024 * 1024)
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._process.start()
             self._audio_sink.start(self._utterances_being_spoken)
@@ -489,7 +486,7 @@ class Piper(TTSBackend):
             while len(u.left_to_write):
                 written = self.process.write(u.left_to_write)
                 if written < 0:
-                    self._set_error('Failed to write to piper process with error: {self.process.errorString()}')
+                    self._set_error(f'Failed to write to piper process with error: {self.process.errorString()}')
                     break
                 if not u.started and written:
                     u.started = True
@@ -502,7 +499,7 @@ class Piper(TTSBackend):
     def _load_voice_metadata(self) -> None:
         if self._voices is not None:
             return
-        self._voice_name_map, self._voices, self._voice_for_lang = load_voice_metadata()
+        self._voice_name_map, self._voices, self._voice_for_lang, self.human_voice_name_map = load_voice_metadata()
 
     @property
     def _default_voice(self) -> Voice:
@@ -562,7 +559,7 @@ class PiperEmbedded:
 
     def __init__(self):
         self._embedded_settings = EngineSpecificSettings.create_from_config('piper', TTS_EMBEDED_CONFIG)
-        self._voice_name_map, self._voices, self._voice_for_lang = load_voice_metadata()
+        self._voice_name_map, self._voices, self._voice_for_lang, self.human_voice_name_map = load_voice_metadata()
         lang = get_lang()
         lang = canonicalize_lang(lang) or lang
         self._default_voice = self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
@@ -573,10 +570,10 @@ class PiperEmbedded:
         from calibre.utils.localization import canonicalize_lang, get_lang
         lang = canonicalize_lang(lang or get_lang() or 'en')
         pv = self._embedded_settings.preferred_voices or {}
-        if voice_name and voice_name in self._voice_name_map:
-            voice = self._voice_name_map[voice_name]
-        elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
-            voice = self._voice_name_map[voice_name]
+        if voice_name and voice_name in self.human_voice_name_map:
+            voice = self.human_voice_name_map[voice_name]
+        elif (voice_name := pv.get(lang, '')) and voice_name in self.human_voice_name_map:
+            voice = self.human_voice_name_map[voice_name]
         else:
             voice = self._voice_for_lang.get(lang) or self._default_voice
         return voice

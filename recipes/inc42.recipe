@@ -12,18 +12,18 @@ class inc42(BasicNewsRecipe):
     language = 'en_IN'
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://omcdn.inc42.com/users/d0ffd8ffa0d2/images/4477fc48bee71659696918-color-black-1-e1576150264134.png?width=224'
-    
+
     keep_only_tags = [
         classes('entry-header entry-content'),
     ]
-    
+
     remove_tags = [
         dict(name='button'),
         classes('also-read slick-list slides-three common-card'),
     ]
 
     ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds = True    
+    remove_empty_feeds = True
 
     def parse_index(self):
         index = 'https://inc42.com/'

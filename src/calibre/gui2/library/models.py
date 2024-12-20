@@ -44,10 +44,13 @@ ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.A
         Qt.AlignmentFlag.AlignHCenter}
 
 
-def render_pin(color='green', save_to=None):
+def render_pin(color=None, save_to=None):
+    app = QApplication.instance()
+    if color is None:
+        color = '#00b000' if app.is_dark_theme else 'green'
     svg = P('pin-template.svg', data=True).replace(b'fill:#f39509', ('fill:' + color).encode('utf-8'))
     pm = QPixmap()
-    dpr = QApplication.instance().devicePixelRatio()
+    dpr = app.devicePixelRatio()
     pm.setDevicePixelRatio(dpr)
     pm.loadFromData(svg, 'svg')
     if save_to:
