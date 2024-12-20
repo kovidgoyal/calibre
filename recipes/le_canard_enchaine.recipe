@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LeCanardEnchaine(BasicNewsRecipe):
+    title = 'Le Canard Enchaîné'
+    author = 'Kabonix'
+    description = 'Articles du Canard Enchaîné'
+    language = 'fr'
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': ['editorial', 'article__core']}),
+        dict(name='div', attrs={'class': ['non-paywall', 'paywall']})
+    ]
+
+    remove_tags = [
+        dict(name=['script', 'style', 'nav', 'header', 'footer']),
+        dict(name='div', attrs={'class': ['social-share', 'comments', 'share-mobile', 'article__author', 'article__tags']})
+    ]
+
+    # URL de la couverture
+    cover_url = 'https://docimg-cdn.immanens.com/phnxc1/getcover/logistic-code/PVN1/l-pub-id/2410/l-doc-id/536798/doc-version/5/profile/cover-large.jpg'
+
+    SECTIONS = {
+        'Politique': '/politique/',
+        'Économie': '/economie/',
+        'International': '/international/',
+        'Défense': '/defense/',
+        'Société': '/societe/',
+        'Police-Justice': '/police-justice/',
+        'Santé': '/sante/',
+        'Éducation': '/education/',
+        'Environnement': '/environnement/',
+        'Technologie-Sciences': '/technologie-sciences/',
+        'Culture-Idées': '/culture-idees/',
+        'Médias': '/medias/',
+        'Sport': '/sport/',
+        'Social': '/social/',
+        'Brèves': '/breves/'
+    }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_handle_robots(False)
+
+        br.open('https://www.lecanardenchaine.fr/coin/identification?u=/')
+        br.select_form(nr=13)
+        br['_username'] = 'email'
+        br['_password'] = 'password'
+        br.submit()
+
+        return br
+
+    def parse_index(self):
+        br = self.get_browser()
+        feeds = []
+
+        for section_title, section_url in self.SECTIONS.items():
+            print(f"Exploration de la rubrique : {section_title}")
+            articles = []
+            try:
+                url = 'https://www.lecanardenchaine.fr' + section_url
+                raw = br.open(url).read()
+                soup = self.index_to_soup(raw)
+
+                for link in soup.findAll('a', href=True):
+                    href = link.get('href', '')
+                    if section_url[1:-1] in href and href.count('/') == 2:
+                        title = link.get_text().strip()
+                        if title:
+                            if not href.startswith('http'):
+                                href = 'https://www.lecanardenchaine.fr' + href
+                            articles.append({
+                                'title': title,
+                                'url': href,
+                                'description': ''
+                            })
+
+                seen_urls = set()
+                unique_articles = []
+                for article in articles:
+                    if article['url'] not in seen_urls:
+                        seen_urls.add(article['url'])
+                        unique_articles.append(article)
+
+                if unique_articles:
+                    feeds.append((section_title, unique_articles))
+                    print(f"  {len(unique_articles)} articles trouvés")
+
+            except Exception as e:
+                print(f"Erreur sur {section_title}: {str(e)}")
+
+        return feeds
+
+    def preprocess_html(self, soup):
+        # S'assure que le contenu paywall est visible
+        for div in soup.findAll('div', attrs={'class': ['unlocked', 'paywall']}):
+            div['class'] = ''
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for tag in soup.findAll(True):
+            for attr in list(tag.attrs):
+                if attr not in ['href', 'src']:
+                    del tag[attr]
+        return soup
