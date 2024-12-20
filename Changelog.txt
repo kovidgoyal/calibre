@@ -23,6 +23,41 @@
 # - title by author
 # }}}
 
+{{{ 7.23.0 2024-12-20
+
+:: new features
+
+- 🎄 Happy holidays to everyone!
+
+- [2091646] Content server: Allow managing the data files associated with a book by clicking the three dots in the top right corner of the book's page and choosing "Manage data files"
+
+- [2091216] Edit metadata dialog: Allow right clicking on the cover to view it in a popup window at larger size
+
+- Add an option to expand the Tag browser tree to show the item that was current when the library was closed
+
+- Add import and export stored template to Preferences / template functions
+
+- Various Quality-of-Life improvements to the dialog used to edit columns with fixed sets of values
+
+- [2091152] Resolve doi.org links when pasting identifiers
+
+:: bug fixes
+
+- [2091451] Viewer: Fix some HTMLZ files not opening on some systems
+
+- [2091542] Amazon metadata plugin: Update for changed markup for some books on amazon search results page
+
+:: improved recipes
+- Economist
+- Irish Times
+- Popular Science
+- ACM Queue
+
+:: new recipes
+- Le Canard Enchaine by Kabonix
+
+}}}
+
 {{{ 7.22.0 2024-11-29
 
 :: new features
