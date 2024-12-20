@@ -1234,6 +1234,13 @@ class Cover(ImageView):  # {{{
         m.addAction(QIcon.ic('view-image'), _('View image in popup window'), self.view_image)
         return m
 
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            event.accept()
+            self.view_image()
+        else:
+            super().mouseDoubleClickEvent(event)
+
     def view_image(self):
         from calibre.gui2.image_popup import ImageView
         d = ImageView(self, self.pixmap(), 'cover.jpg')
