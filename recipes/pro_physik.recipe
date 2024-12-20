@@ -21,7 +21,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     remove_empty_feeds    = True
-    language              = 'de_DE'
+    language              = 'de'
 
     # In case you want to assign a cover picture to this recipe.
     # Copy the file Pro_Physik.png to:
