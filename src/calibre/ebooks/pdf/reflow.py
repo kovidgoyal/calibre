@@ -32,6 +32,10 @@ COALESCE_FACTOR = 20.0
 # Pixels from the PDF file
 BOTTOM_FACTOR = 2.0
 
+# Where lines overlap, top of one to bottom of next should exceed
+# the line height by this factor for them to be considered diferent.
+HEIGHT_FACTOR = 1.5
+
 # Fraction of text height that two strings' bottoms can differ by
 # for them to be considered to be part of the same text fragment
 LINE_FACTOR = 0.2
@@ -81,6 +85,25 @@ SAME_SPACE = 3.0
 SAME_INDENT = 2.0
 
 
+def adjacent_quotes(first_string, second_string):
+    ''' Does one string end with a closing quote and the next start with an opening quote? '''
+
+    # Find last non-space char in first string
+    lchar = re.match(r'.*([^ ])\s*$', first_string)
+    last_char = ' '  # Nothing interesting
+    if lchar is not None:
+        last_char = lchar.group(1)  # Final non-space char
+
+    # Find first non-space char in second string
+    fchar = re.match(r'\s*([^ ])', second_string)
+    first_char = ' '  # Nothing interesting
+    if fchar is not None:
+        first_char = fchar.group(1)  # First non-space char
+
+    return bool((last_char == '\u0022' and first_char == '\u0022') \
+             or (last_char == '\u2019' and first_char == '\u2018') \
+             or (last_char == '\u201d' and first_char == '\u201c'))
+
 class Font:
 
     def __init__(self, spec):
@@ -105,8 +128,8 @@ class Element:
 class DocStats:
 
     def __init__(self):
-        self.top = self.bottom = self.left_odd = self.left_even = self.right \
-          = self.line_space = self.para_space = self.indent_odd = self.indent_even = 0
+        self.top = self.bottom = self.left_min_odd = self.left_min_even = self.right \
+          = self.line_space = self.para_space = self.indent_min_odd = self.indent_min_even = 0
         self.font_size = 0
 
 class Image(Element):
@@ -238,7 +261,7 @@ class Text(Element):
         self.left = min(self.left, other.left)
         self.right = max(self.right, other.right)
         self.width +=  other.width
-        self.final_width +=  other.final_width
+        self.final_width =  other.left + other.width
         self.height = self.bottom - self.top
         # Need to check for </span> <span... as well
         # This test does not work in its present form
@@ -710,7 +733,7 @@ class Page:
             # Compare 2 text objects.
             # Order by line (top/bottom) then left
             if (frst.top <= secnd.top and frst.bottom >= secnd.bottom-BOTTOM_FACTOR) \
-              or (secnd.top <= frst.top and secnd.bottom >= frst.bottom-BOTTOM_FACTOR) :
+              or (secnd.top <= frst.top and secnd.bottom >= frst.bottom-BOTTOM_FACTOR):
                 # Overlap = same line
                 if frst.left < secnd.left :
                     return -1
@@ -840,7 +863,7 @@ class Page:
                 # BOTTOM_FACTOR allows for this
                 top = min(frag.top, t.top)
                 bot = max(frag.bottom, t.bottom)
-                if bot - top < line_height * 1.5 \
+                if bot - top < line_height * HEIGHT_FACTOR \
                   and ((frag.top == t.top or frag.bottom == t.bottom) \
                     or (frag.top < t.top and frag.bottom > t.top+BOTTOM_FACTOR) \
                     or (frag.top < t.top and frag.bottom+BOTTOM_FACTOR > t.bottom) \
@@ -876,6 +899,12 @@ class Page:
                         x = frag
                         frag = match
                         match = x
+                    if match.left < frag.right:
+                        # Text overlaps. Do we have a blurred character?
+                        if len(match.text_as_string) == 1 \
+                          and match.left + match.width > frag.right \
+                          and frag.text_as_string[-1] == match.text_as_string[0]:
+                            break  # Overlapping same character, so ignore it
                     frag.coalesce(match, self.number, self.left_margin, self.right_margin)
                     break    # Leave tind
                 tind += 1
@@ -893,9 +922,9 @@ class Page:
         first = True
         # Assume not Contents
         self.contents = False
-        left = self.stats_left
-        indent = self.stats_indent
-        indent1 = self.stats_indent1
+        left_max = self.stats_left_max
+        indent_min = self.stats_indent_min
+        indent_max = self.stats_indent_max
 
         m = len(self.texts)
         for i in range(m):
@@ -918,9 +947,9 @@ class Page:
                 self.contents = True
                 t.tag = 'h2'  # It won't get set later
             # Centered if left and right margins are within FACTOR%
-            # Because indents can waver a bit, use between indent and indent1 as == indent
-            if (lmargin < indent or lmargin > indent1) \
-              and lmargin > left \
+            # Because indents can waver a bit, use between indent_min and indent_max as == indent
+            if (lmargin < indent_min or lmargin > indent_max) \
+              and lmargin > left_max \
               and lmargin != xmargin \
               and lmargin != ymargin \
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
@@ -930,7 +959,7 @@ class Page:
                #and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
             # Right aligned if left > FACTOR% of right
-            elif lmargin > indent \
+            elif lmargin > indent_max \
               and lmargin > rmargin*RIGHT_FACTOR:
               #and t.right >= self.width - t.average_character_width:
                 # What about right-aligned but indented on right?
@@ -960,17 +989,18 @@ class Page:
         for i in self.imgs:
             lmargin = i.left
             rmargin = self.width - i.right
-            if lmargin > left \
-              and lmargin != indent \
+            if lmargin > left_max \
+              and lmargin != indent_min \
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
               and lmargin <= rmargin + rmargin*CENTER_FACTOR:
                 i.align = 'C'
 
     def coalesce_paras(self, stats):
         # Join lines into paragraphs
-        left = self.stats_left
-        indent = self.stats_indent
-        indent1 = self.stats_indent1
+        left_min = self.stats_left_min
+        left_max = self.stats_left_max
+        indent_min = self.stats_indent_min
+        indent_max = self.stats_indent_max
 
         def can_merge(self, first_text, second_text, stats):
             # Can two lines be merged into one paragraph?
@@ -980,18 +1010,14 @@ class Page:
             #
             # The left can wander by a few (SAME_INDENT) pixels.
             # "float:left" occurs where there is a multi-line character, so indentation is messed up
-            lchar = re.match(r'.*([^ ])\s*$', first_text.text_as_string)
-            last_char = ' '  # Nothing interesting
-            if lchar is not None:
-                last_char = lchar.group(1)  # Final non-space char
             same_left = bool(first_text.last_left-SAME_INDENT <= second_text.left <= first_text.last_left+SAME_INDENT)
-            if ((second_text.left < left + second_text.average_character_width \
+            if ((second_text.left < left_min + second_text.average_character_width \
                 and (same_left \
                  or (second_text.left < first_text.last_left \
                   and (first_text.indented > 0 or '"float:left"' in first_text.raw)))) \
                or (same_left \
                 and first_text.indented == 0 \
-                and second_text.left >= indent) \
+                and second_text.left >= indent_min) \
                or (same_left \
                 and first_text.indented == second_text.indented \
                 and second_text.indented > 1) \
@@ -1002,9 +1028,7 @@ class Page:
               and first_text.bottom + stats.line_space + (stats.line_space*LINE_FACTOR) \
                     >= second_text.bottom \
               and first_text.final_width > self.width*self.opts.unwrap_factor \
-              and not ( (last_char == '\u0022' and second_text.text_as_string[0] == '\u0022') \
-                     or (last_char == '\u2019' and second_text.text_as_string[0] == '\u2018') \
-                     or (last_char == '\u201d' and second_text.text_as_string[0] == '\u201c')):
+              and not adjacent_quotes(first_text.text_as_string, second_text.text_as_string):
                 # This has checked for single quotes (9...6), double quotes (99...66), and "..."
                 # at end of 1 line then start of next as a check for Don't merge
                 return True
@@ -1043,13 +1067,13 @@ class Page:
                     if frag.tag == 'p':
                         if frag.indented == 0 \
                           and frag.align != 'C' \
-                          and frag.left > left + frag.average_character_width:
+                          and frag.left > left_max + frag.average_character_width:
                             # Is it approx self.stats_indent?
-                            if indent <= frag.left <= indent1:
+                            if indent_min <= frag.left <= indent_max:
                                 frag.indented = 1  # 1em
                             else:  # Assume left margin of approx = number of chars
                                 # Should check for values approx the same, as with indents
-                                frag.margin_left = int(round(((frag.left - left) / self.stats_margin_px)+0.5))
+                                frag.margin_left = int(round(((frag.left - left_min) / self.stats_margin_px)+0.5))
                         if last_frag is not None \
                           and stats.para_space > 0 \
                           and frag.bottom - last_frag.bottom > stats.para_space*SECTION_FACTOR:
@@ -1299,14 +1323,16 @@ class Page:
 
         # If there are alternating pages, pick the left and indent for this one
         if self.odd_even:
-            self.stats_left = stats.left_odd
-            self.stats_indent = stats.indent_odd
-            self.stats_indent1 = stats.indent_odd1
+            self.stats_left_min = stats.left_min_odd
+            self.stats_left_max = stats.left_max_odd
+            self.stats_indent_min = stats.indent_min_odd
+            self.stats_indent_max = stats.indent_max_odd
             self.stats_right = stats.right  # Needs work
         else:
-            self.stats_left = stats.left_even
-            self.stats_indent = stats.indent_even
-            self.stats_indent1 = stats.indent_even1
+            self.stats_left_min = stats.left_min_even
+            self.stats_left_max = stats.left_max_even
+            self.stats_indent_min = stats.indent_min_even
+            self.stats_indent_max = stats.indent_max_even
             self.stats_right = stats.right  # Needs work
         self.stats_margin_px = stats.margin_px
 
@@ -1526,135 +1552,111 @@ class PDFDocument:
             return scount, soffset
 
         # Find (next) most popular indent
-        def find_indent(indents, skip):
+        def find_indent(indents):
             icount, ioffset = 0, 0
             for i in indents:
-                if icount <= indents[i] \
-                and (skip <= 0 or indents[i] < skip):
-                    icount = indents[i]
+                ii = indents[i]
+                if ii > 0 \
+                and icount <= ii:
+                    icount = ii
                     ioffset = i
-            return icount, ioffset
+            return ioffset
 
         def set_indents(indents, odd_even):
             # Find most popular left so that will be treated as left of page
-            indent_c = 0
-            indent_k = indent_k1 = 0
-            count = len(indents)
-            while count > 0:
-                c, k = find_indent(indents, indent_c)
-                if indent_c <= 0:
-                    indent_c = c
-                if indent_k <= 0:
-                    indent_k = k
-                elif abs(indent_k - k) <= SAME_INDENT:
-                    indent_k = min(indent_k, k)
-                    indent_k1 = max(indent_k1, k)
-                    indent_c = min(indent_c, c)
-                else:
-                    break
-                count -= 1
-
-            save_left = indent_k
-            if odd_even:
-                self.stats.left_odd = indent_k    # Min left value
-                # Max left value
-                if indent_k1:
-                    self.stats.left_odd1 = indent_k1
-                else:
-                    self.stats.left_odd1 = indent_k
-            else:
-                self.stats.left_even = indent_k    # Min left value
-                # Max left value
-                if indent_k1:
-                    self.stats.left_even1 = indent_k1
-                else:
-                    self.stats.left_even1 = indent_k
+            left_k1 = left_c = 0
+            left_k = find_indent(indents)
+            # Find any adjacent indents and hide them
+            for k in indents.keys():
+                kc = indents[k]
+                if kc > 0 \
+                  and abs(left_k - k) <= SAME_INDENT:
+                    left_k = min(left_k, k)
+                    left_k1 = max(left_k1, k)
+                    left_c += kc
+                    indents[k] = -kc  # Ensure not found again
 
             # Find second most popular left so that will be treated as indent
-            indent_c -= 1
-            total_c = 0
-            indent_k = indent_k1 = 0
-            count = len(indents)
-            while count > 0:
-                c, k = find_indent(indents, indent_c)
-                if indent_c <= 0:
-                    indent_c = c
-                if indent_k <= 0:
-                    indent_k = k
-                elif abs(indent_k - k) <= SAME_INDENT:
+            indent_k1 = indent_c = 0
+            indent_k = find_indent(indents)
+            # Find any adjacent indents and hide them
+            for k in indents.keys():
+                kc = indents[k]
+                if kc > 0 \
+                  and abs(indent_k - k) <= SAME_INDENT:
                     indent_k = min(indent_k, k)
                     indent_k1 = max(indent_k1, k)
-                    indent_c = min(indent_c, c)
-                else:
-                    break
-                total_c += c
-                count -= 1
+                    indent_c += kc
+                    indents[k] = -kc  # Ensure not found again
 
             # Find third most popular left as that might actually be the indent
             # if between left and current and occurs a reasonable number of times.
-            save_k = indent_k
-            save_k1 = indent_k1
-            save_count = total_c
-            indent_c -= 1
-            total_c = 0
-            indent_k = indent_k1 = 0
-            count = len(indents)
-            while count > 0:
-                c, k = find_indent(indents, indent_c)
-                if indent_c <= 0:
-                    indent_c = c
-                if indent_k <= 0:
-                    indent_k = k
-                elif abs(indent_k - k) <= SAME_INDENT:
-                    indent_k = min(indent_k, k)
-                    indent_k1 = max(indent_k1, k)
-                    indent_c = min(indent_c, c)
-                else:
-                    break
-                total_c += c
-                count -= 1
-            # Is this to be used?
-            if (save_k < indent_k \
-               and save_k > save_left) \
-              or total_c < save_count / 2:
-                # The usual case. The first ones found are to be used
-                indent_k = save_k
-                indent_k1 = save_k1
+            third_k1 = third_c = 0
+            third_k = find_indent(indents)
+            # Find any adjacent indents and hide them
+            for k in indents.keys():
+                kc = indents[k]
+                if kc > 0 \
+                  and abs(third_k - k) <= SAME_INDENT:
+                    third_k = min(third_k, k)
+                    third_k1 = max(third_k1, k)
+                    third_c += kc
+                    indents[k] = -kc  # Ensure not found again
 
-            if odd_even:
-                self.stats.indent_odd = indent_k    # Min indent value
-                # Max indent value
-                if indent_k1:
-                    self.stats.indent_odd1 = indent_k1
-                else:
-                    self.stats.indent_odd1 = indent_k
-            else:
-                self.stats.indent_even = indent_k    # Min indent value
-                # Max indent value
-                if indent_k1:
-                    self.stats.indent_even1 = indent_k1
-                else:
-                    self.stats.indent_even1 = indent_k
+            # Is this to be used?
+            if third_k > 0 \
+              and third_k < indent_k \
+              and third_k > left_k \
+              and third_c > indent_c / 2:
+                # The unusual case. The third ones found are to be used
+                indent_k = third_k
+                indent_k1 = third_k1
+
+            # Check that we have data in variables
+            if not indent_k:
+                # Nothing for indent, so make it beyond left
+                # otherwise left will appear to be the indent
+                indent_k = indent_k1 = left_k1 + SAME_INDENT + 1
 
             # For safety, check left and indent are in the right order
+            if left_k > indent_k:
+                l = left_k
+                l1 = left_k1
+                left_k = indent_k
+                left_k1 = indent_k1
+                indent_k = l
+                indent_k1 = l1
+
             if odd_even:
-                if self.stats.indent_odd != 0 \
-                  and self.stats.left_odd > self.stats.indent_odd:
-                    l = self.stats.left_odd
-                    l1 = self.stats.left_odd1
-                    self.stats.left_odd = self.stats.indent_odd
-                    self.stats.left_odd1 = self.stats.indent_odd1
-                    self.stats.indent_odd = l
-                    self.stats.indent_odd1 = l1
+                # Min left value
+                self.stats.left_min_odd = left_k
+                # Max left value
+                if left_k1:
+                    self.stats.left_max_odd = left_k1
+                else:
+                    self.stats.left_max_odd = left_k
+                # Min indent value
+                self.stats.indent_min_odd = indent_k
+                # Max indent value
+                if indent_k1:
+                    self.stats.indent_max_odd = indent_k1
+                else:
+                    self.stats.indent_max_odd = indent_k
             else:
-                if self.stats.indent_even != 0 \
-                  and self.stats.left_even > self.stats.indent_even:
-                    l = self.stats.left_even
-                    l1 = self.stats.left_even1
-                    self.stats.left_even = self.stats.indent_even
-                    self.stats.left_even1 = self.stats.indent_even1
-                    self.stats.indent_even = l
-                    self.stats.indent_even1 = l1
+                # Min left value
+                self.stats.left_min_even = left_k
+                # Max left value
+                if left_k1:
+                    self.stats.left_max_even = left_k1
+                else:
+                    self.stats.left_max_even = left_k
+                # Min indent value
+                self.stats.indent_min_even = indent_k
+                # Max indent value
+                if indent_k1:
+                    self.stats.indent_max_even = indent_k1
+                else:
+                    self.stats.indent_max_even = indent_k
 
         # Find most popular top so that will be treated as top of page
         tcount = 0
@@ -1687,10 +1689,10 @@ class PDFDocument:
         # In this case, any value for indent is random.
         # Assume that at least 20% of lines would be indented
         # or that indent offset will be < 10% of line width
-        if self.stats.indent_odd - self.stats.left_odd > (self.stats.right - self.stats.left_odd) * 0.10:    # 10%
-            self.stats.indent_odd = self.stats.indent_odd1 = self.stats.left_odd
-            # Assume for both if self.stats.indent_even - self.stats.left_even > (self.stats.right - self.stats.left_even) * 0.10:    # 10%
-            self.stats.indent_even = self.stats.indent_even1 = self.stats.left_even
+        if self.stats.indent_min_odd - self.stats.left_min_odd > (self.stats.right - self.stats.left_min_odd) * 0.10:    # 10%
+            self.stats.indent_min_odd = self.stats.indent_max_odd = self.stats.left_min_odd
+            # Assume for both if self.stats.indent_min_even - self.stats.left_min_even > (self.stats.right - self.stats.left_min_even) * 0.10:    # 10%
+            self.stats.indent_min_even = self.stats.indent_max_even = self.stats.left_min_even
 
         # Sort spaces into ascending order then loop through.
         # Lowest value(s) are line spacing, next are para
@@ -1944,28 +1946,30 @@ class PDFDocument:
             save_candidate = None
             while pind < len(self.pages):
                 page = self.pages[pind]
-                stats_left = page.stats_left
+                stats_left_min = page.stats_left_min
                 # Do not merge if the next paragraph is indented
                 if page.texts:
+                    if candidate:
+                       last_line = candidate.texts[-1]
                     if candidate \
+                      and last_line.bottom > orphan_space \
                       and page.texts[0].indented == 0:
-                        last_line = candidate.texts[-1]
                         merged_text = page.texts[0]
                         top = merged_text.top
                         # How much space in pixels was at the end of the last line?
                         # If the book is justified text, any space could mean end-of-para
                         # So, how to check for a justified book/page?
-                        last_spare = candidate.right_margin - last_line.final_width    # Pixels
+                        last_spare = candidate.textwidth - last_line.final_width    # Pixels
                         # How big is the first word on the next line?
                         merged_first = re.match(r'^([^ ]+)\s', merged_text.text_as_string)
                         if merged_first is not None:
                             # First word number of chars as pixels
                             merged_len = len(merged_first.group(1)) * merged_text.average_character_width
                         else:
-                            merged_len = merged_text.right
+                            merged_len = 0  # No merge
                         # Allow where the last line ends with or next line starts with lower case.
-                        if re.match(r'.*[a-z, -]$', last_line.text_as_string) is not None \
-                          or re.match(r'^[a-z, -]', merged_text.text_as_string) is not None :
+                        if re.match(r'.*[a-z,-]\s*$', last_line.text_as_string) is not None \
+                          or re.match(r'^\s*[a-z,-]', merged_text.text_as_string) is not None :
                             merged_len = merged_text.right
 
                         # To use merged_len etc.
@@ -1973,10 +1977,10 @@ class PDFDocument:
                         if top <= min_top + page.average_text_height \
                           and merged_text.tag == 'p' \
                           and 'href=' not in merged_text.raw \
-                          and merged_text.left < stats_left + merged_text.average_character_width \
+                          and merged_text.left < stats_left_min + merged_text.average_character_width \
                           and not last_spare > merged_len \
-                          and not (re.match(r'.*[.!?](\u201d|”)$', last_line.text_as_string) is not None
-                               and re.match(r'^(\u201c|“).*', merged_text.text_as_string) is not None):
+                          and not ('"float:right"' in last_line.raw and '"float:right"' in merged_text.raw) \
+                          and not adjacent_quotes(last_line.text_as_string, merged_text.text_as_string):
                             merge_done = True
                             # We don't want to merge partial pages
                             # i.e. if this is the last line, preserve its top/bottom till after merge
@@ -1994,11 +1998,11 @@ class PDFDocument:
                         if page.texts[0].top > self.stats.top + self.stats.line_space:
                             page.texts[0].blank_line_after = 1
                         candidate = None
-                    last_line = page.texts[-1]
-                    bottom = last_line.bottom
                     # Decide on whether merging is a good idea
                     # Non-indented paragraphs are a problem
                     # Do we have a short page?
+                    last_line = page.texts[-1]
+                    bottom = last_line.bottom
                     if bottom < orphan_space \
                       and (len(page.imgs) == 0 or page.imgs[-1].bottom < orphan_space):
                         # Force a new page.
@@ -2011,7 +2015,6 @@ class PDFDocument:
                                 page.page_break_after = True
                     elif (re.match(r'.*[a-z, ]$', last_line.text_as_string) is not None \
                       or  last_line.final_width > page.width*self.opts.unwrap_factor):
-                    #  or (last_line.right * 100.0 / page.right_margin) > LAST_LINE_PERCENT):
                         candidate = page
                 else:
                     candidate = None
@@ -2020,7 +2023,7 @@ class PDFDocument:
             if merge_done:
                 # We now need to skip to the next page number
                 # The text has been appended to this page, so coalesce the paragraph
-                left_margin = merged_page.stats_left
+                left_margin = merged_page.stats_left_min
                 right_margin = merged_page.stats_right
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
                 merged_page.texts.remove(merged_text)
@@ -2029,6 +2032,10 @@ class PDFDocument:
                     # Ignore top as that can confuse things where the 1st para of a page
                     # was merged with a previous.  Keep the original top
                     candidate.texts[-1].bottom = save_bottom
+                    if merged_page.is_empty and save_bottom < orphan_space:
+                        # This is a short page, so do not merge
+                        candidate.page_break_after = True
+                        candidate = None
 
                 # Have we removed everything from this page (well, all texts and images)
                 if merged_page.is_empty:
