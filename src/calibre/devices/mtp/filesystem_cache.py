@@ -95,6 +95,17 @@ class FileOrFolder:
         self.is_ebook = (not self.is_folder and not self.is_storage and
                 self.name.rpartition('.')[-1].lower() in bexts and not self.name.startswith('._'))
 
+        # prevent supplemental KFX files from being treated as individual books
+        if self.is_ebook and self.name.lower().endswith('.kfx') and 'assets' in self.full_path:
+            self.is_ebook = False
+
+        # allow Scribe notebooks to be imported
+        if self.name == 'nbk' and not (self.is_folder or self.is_storage):
+            full_path = self.full_path
+            if len(full_path) >= 3 and full_path[-3] == '.notebooks':
+                self.name = 'Notebook %s.kfx' % full_path[-2]   # preserve notebook name
+                self.is_ebook = True
+
     def __repr__(self):
         if self.is_storage:
             name = 'Storage'

@@ -96,8 +96,6 @@ class MTP_DEVICE(BASE):
         if storage_id in ignored_folders:
             # Use the users ignored folders settings
             return '/'.join(lpath) in {icu_lower(x) for x in ignored_folders[storage_id]}
-        if self.is_kindle and lpath and lpath[-1].endswith('.sdr'):
-            return True
 
         # Implement the default ignore policy
 
@@ -107,8 +105,9 @@ class MTP_DEVICE(BASE):
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
-        if lpath[0].startswith('.') and lpath[0] != '.tolino':
+        if lpath[0].startswith('.') and lpath[0] not in {'.tolino', '.notebooks'}:
             # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
+            # Kindle Scribe stores user notebooks in subfolders of '.notebooks'
             return True
         if lpath[0] == 'system' and not self.is_kindle:
             # on Kindles we need the system folder for the amazon cover bug workaround
@@ -339,6 +338,16 @@ class MTP_DEVICE(BASE):
         from calibre.customize.ui import quick_metadata
         from calibre.ebooks.metadata.meta import get_metadata
         ext = mtp_file.name.rpartition('.')[-1].lower()
+
+        if self.is_kindle and ext == 'kfx' and mtp_file.name != 'metadata.kfx':
+            # locate the actual file containing KFX book metadata
+            metadata_file = mtp_file.parent.find_path((mtp_file.name[:-4] + '.sdr', 'assets', 'metadata.kfx'))
+            if metadata_file is not None:
+                metadata = self.read_file_metadata(metadata_file)
+                # failure to process metadata.kfx will result in a title of 'metadata'
+                if metadata.title != 'metadata':
+                    return metadata
+
         stream = self.get_mtp_file(mtp_file)
         with quick_metadata:
             return get_metadata(stream, stream_type=ext,
@@ -399,6 +408,36 @@ class MTP_DEVICE(BASE):
                     ans.append((path, e, traceback.format_exc()))
                 else:
                     ans.append(out.name)
+
+        # copy additional files needed for KFX books found in the associated .sdr folder
+        if self.is_kindle:
+            for path, new_path in zip(paths, ans):
+                if path.endswith('.kfx') and isinstance(new_path, str):
+                    try:
+                        mtp_file = self.filesystem_cache.resolve_mtp_id_path(path)
+                        sdr_folder_name = mtp_file.name[:-4] + '.sdr'
+                        sdr_folder = mtp_file.parent.folder_named(sdr_folder_name)
+
+                        if sdr_folder is not None:
+                            new_base = os.path.join(os.path.split(new_path)[0], sdr_folder_name)
+                            os.mkdir(new_base)
+
+                            def scan_for_kfx(mtp_folder):
+                                for f in mtp_folder.files:
+                                    if f.full_path:
+                                        fn = f.full_path[-1].lower()
+                                        if fn.endswith('.kfx') or fn == 'voucher':
+                                            name = ''.join(shorten_components_to(245 - len(new_base), [f.name])) if iswindows else f.name
+                                            with open(os.path.join(new_base, name), 'wb') as out:
+                                                self.get_mtp_file(f, out)
+
+                                for folder in mtp_folder.folders:
+                                    scan_for_kfx(folder)
+
+                            scan_for_kfx(sdr_folder)
+                    except Exception:
+                        traceback.print_exc()
+
         return ans
     # }}}
 
