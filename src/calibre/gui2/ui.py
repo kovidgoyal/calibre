@@ -1171,13 +1171,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def _save_tb_state(self, gprefs):
         self.tb_widget.save_state(gprefs)
-        if gprefs['tag_browser_restore_tree_expansion']:
+        if gprefs['tag_browser_restore_tree_expansion'] and self.current_db is not None:
             tv_saved_expansions = gprefs.get('tags_view_saved_expansions', {})
             tv_saved_expansions.update({self.current_db.library_id: self.tb_widget.get_expansion_state()})
             gprefs['tags_view_saved_expansions'] = tv_saved_expansions
 
     def _restore_tb_expansion_state(self):
-        if gprefs['tag_browser_restore_tree_expansion']:
+        if gprefs['tag_browser_restore_tree_expansion'] and self.current_db is not None:
             tv_saved_expansions = gprefs.get('tags_view_saved_expansions', {})
             self.tb_widget.restore_expansion_state(tv_saved_expansions.get(self.current_db.library_id))
 
