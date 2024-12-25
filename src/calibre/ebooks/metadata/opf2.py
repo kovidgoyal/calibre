@@ -566,6 +566,13 @@ def dump_dict(cats):
     return json.dumps(object_to_unicode(cats), ensure_ascii=False,
             skipkeys=True)
 
+XPATH_NS = {
+    'dc': "http://purl.org/dc/elements/1.1/",
+    'opf': "http://www.idpf.org/2007/opf",
+    're' : 'http://exslt.org/regular-expressions'
+}
+XPath = functools.partial(etree.XPath, namespaces=XPATH_NS)
+
 
 class OPF:  # {{{
 
@@ -576,10 +583,6 @@ class OPF:  # {{{
                         'opf': "http://www.idpf.org/2007/opf",
                        }
     META             = '{%s}meta' % NAMESPACES['opf']
-    xpn = NAMESPACES.copy()
-    xpn.pop(None)
-    xpn['re'] = 'http://exslt.org/regular-expressions'
-    XPath = functools.partial(etree.XPath, namespaces=xpn)
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
     TEXT             = XPath('string()')
 
@@ -729,7 +732,7 @@ class OPF:  # {{{
     def find_toc(self):
         self.toc = None
         try:
-            spine = self.XPath('descendant::*[re:match(name(), "spine", "i")]')(self.root)
+            spine = XPath('descendant::*[re:match(name(), "spine", "i")]')(self.root)
             toc = None
             if spine:
                 spine = spine[0]
@@ -830,7 +833,7 @@ class OPF:  # {{{
 
     def replace_spine_items_by_idref(self, idref, new_idrefs):
         items = list(map(self.create_spine_item, new_idrefs))
-        spine = self.XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.root)[0]
+        spine = XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.root)[0]
         old = [i for i in self.iterspine() if i.get('idref', None) == idref]
         for x in old:
             i = spine.index(x)
@@ -1025,7 +1028,7 @@ class OPF:  # {{{
     def get_identifiers(self):
         identifiers = {}
         schemeless = []
-        for x in self.XPath(
+        for x in XPath(
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
             found_scheme = False
@@ -1066,7 +1069,7 @@ class OPF:  # {{{
                 uuid_id = self.root.attrib[attr]
                 break
 
-        for x in self.XPath(
+        for x in XPath(
             'descendant::*[local-name() = "identifier"]')(
                     self.metadata):
             xid = x.get('id', None)
@@ -1204,7 +1207,7 @@ class OPF:  # {{{
 
     @property
     def page_progression_direction(self):
-        spine = self.XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
+        spine = XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
         if spine:
             for k, v in iteritems(spine[0].attrib):
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
@@ -1212,7 +1215,7 @@ class OPF:  # {{{
 
     @property
     def primary_writing_mode(self):
-        for m in self.XPath('//*[local-name()="meta" and @name="primary-writing-mode" and @content]')(self.root):
+        for m in XPath('//*[local-name()="meta" and @name="primary-writing-mode" and @content]')(self.root):
             return m.get('content')
 
     @property
