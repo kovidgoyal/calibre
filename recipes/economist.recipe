@@ -519,8 +519,7 @@ class Economist(BasicNewsRecipe):
             self.description = safe_dict(data, "props", "pageProps", "content", "headline")
             self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "formattedIssueDate") + ']'
             self.cover_url = safe_dict(data, "props", "pageProps", "content", "cover", "url").replace(
-                'economist.com/', 'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/'
-            )
+                'economist.com/', 'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/').replace('SQ_', '')
             self.log('Got cover:', self.cover_url)
 
             feeds = []
