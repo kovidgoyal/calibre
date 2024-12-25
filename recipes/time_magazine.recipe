@@ -38,7 +38,7 @@ class TimeMagazine(BasicNewsRecipe):
             title = article.get('friendly_title') or article.get('short_title')
             if title == 'In the Latest Issue' or 'content' not in article:
                 continue
-            url = article['shortlink']
+            url = article['shortlink'].replace('?p=', '')
             desc = article.get('excerpt') or ''
             self.log(title, ' at ', url)
             self.log('\t', desc)
