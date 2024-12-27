@@ -1090,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 11)
+    version = (1, 3, 12)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1588,12 +1588,10 @@ class Amazon(Source):
 
             purl = urlparse(result.url)
             if '/dp/' in purl.path and site in purl.netloc:
-                url = result.cached_url
-                if url is None:
-                    url = se.get_cached_url(result.url, br, timeout=timeout)
-                if url is None:
-                    log('Failed to find cached page for:', result.url)
-                    continue
+                # We cannot use cached URL as wayback machine no longer caches
+                # amazon and Google and Bing web caches are no longer
+                # accessible.
+                url = result.url
                 if url not in matches:
                     matches.append(url)
                 if len(matches) >= 3:
@@ -1778,6 +1776,14 @@ def manual_tests(domain, **kw):  # {{{
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
     all_tests = {}
     all_tests['com'] = [  # {{{
+        (  # # in title
+            {'title': 'Expert C# 2008 Business Objects',
+             'authors': ['Lhotka']},
+            [title_test('Expert C#'),
+             authors_test(['Rockford Lhotka'])
+             ]
+        ),
+
         (   # Paperback with series
             {'identifiers': {'amazon': '1423146786'}},
             [title_test('Heroes of Olympus', exact=False), series_test('The Heroes of Olympus', 5)]
@@ -1802,14 +1808,6 @@ def manual_tests(domain, **kw):  # {{{
                 "Griffin's Destiny",
                 exact=True),
              comments_test('Jelena'), comments_test('Ashinji'),
-             ]
-        ),
-
-        (  # # in title
-            {'title': 'Expert C# 2008 Business Objects',
-             'authors': ['Lhotka']},
-            [title_test('Expert C#'),
-             authors_test(['Rockford Lhotka'])
              ]
         ),
 
