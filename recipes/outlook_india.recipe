@@ -24,6 +24,7 @@ class outlook(BasicNewsRecipe):
         .main-img-div, .sb-image {font-size:small; text-align:center;}
         em { color:#202020; }
     '''
+    browser_type = 'webengine'
 
     keep_only_tags = [
         # classes('story-slug story-title subcap-story article-name-date main-img-div sb-article')
