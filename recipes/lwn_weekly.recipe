@@ -49,6 +49,13 @@ class WeeklyLWN(BasicNewsRecipe):
     oldest_article = 7.0
     needs_subscription = 'optional'
 
+    recipe_specific_options = {
+        'issue': {
+            'short': 'The ID of the edition to download',
+            'long': 'For example, 998950\nHint: The ID can be found within the edition URL'
+        }
+    }
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
@@ -76,7 +83,10 @@ class WeeklyLWN(BasicNewsRecipe):
         return url
 
     def parse_index(self):
-        if self.username is not None and self.password is not None:
+        past_edition = self.recipe_specific_options.get('issue')
+        if past_edition and isinstance(past_edition, str):
+            index_url = self.print_version(f'/Articles/{past_edition}/bigpage')
+        elif self.username is not None and self.password is not None:
             index_url = self.print_version('/current/bigpage')
         else:
             index_url = self.print_version('/free/bigpage')
