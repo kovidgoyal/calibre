@@ -326,6 +326,10 @@ class ViewAction(InterfaceAction):
     def view_specific_book(self, index):
         self._view_books([index])
 
+    def view_specific_calibre_book(self, index):
+        ids = [self.gui.library_view.model().id(index)]
+        self._view_calibre_books(ids)
+
     def view_random(self, *args):
         self.gui.iactions['Pick Random Book'].pick_random()
         self._view_books([self.gui.library_view.currentIndex()])

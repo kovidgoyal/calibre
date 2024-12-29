@@ -375,7 +375,7 @@ class CoverFlowMixin:
         self.library_view.selectionModel().currentRowChanged.connect(self.sync_cf_to_listview)
         self.db_images = DatabaseImages(self.library_view.model(), self.is_cover_browser_visible)
         self.cover_flow.setImages(self.db_images)
-        self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
+        self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_calibre_book)
         self.update_cover_flow_subtitle_font()
         button = self.cb_button
         if self.separate_cover_browser:
