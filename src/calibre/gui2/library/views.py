@@ -1658,8 +1658,6 @@ class BooksView(QTableView):  # {{{
                     if index.isValid():
                         self.setCurrentIndex(index)
                         self.edit(index)
-                        # This is needed for https://bugs.launchpad.net/calibre/+bug/2092643
-                        self._model.current_changed(index, None)
                 QTimer.singleShot(0, edit)
         return ans
 

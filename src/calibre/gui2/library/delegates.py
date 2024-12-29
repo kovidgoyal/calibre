@@ -202,6 +202,19 @@ def get_val_for_textlike_columns(index_):
 # }}}
 
 
+# When closing an editor and opening another, Qt sometimes picks what appears to
+# be a random line and column for the second editor. This function checks that
+# the row of a new editor is the same as the current row in the view. If it
+# isn't then the caller shouldn't open the editor.
+def check_index_of_editor(delegate, index):
+    ans = delegate.table_widget.currentIndex().row() == index.row()
+    if not ans:
+        print(f'check_index_of_editor False. delegate: {delegate.__class__.__name__}.'
+              f'current row: {delegate.table_widget.currentIndex().row()}, '
+              f'specified row: {index.row()}, specified column:{index.column()}')
+    return ans
+
+
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -222,6 +235,8 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return rating_to_stars(value, self.is_half_star)
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         return RatingEditor(parent, is_half_star=self.is_half_star)
 
     def setEditorData(self, editor, index):
@@ -266,6 +281,8 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
@@ -300,6 +317,8 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
@@ -335,6 +354,8 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDelega
         self.auto_complete_function = f
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         if self.auto_complete_function:
             if self.use_title_sort:
                 editor = EditWithComplete(parent, sort_func=title_sort)
@@ -381,6 +402,8 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDe
         self.db = db
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         if self.db and hasattr(self.db, self.items_func_name):
             m = index.model()
             col = m.column_map[index.column()]
@@ -425,6 +448,8 @@ class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         self.table_widget = parent
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         editor = LanguagesEdit(parent=parent)
         editor.init_langs(index.model().db)
         return editor
@@ -466,6 +491,8 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
@@ -502,6 +529,8 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry, EditableTextDele
         self.table_widget = parent
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         key = m.db.field_metadata.key_to_label(col)
@@ -547,9 +576,12 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
+        self.table_widget = parent
         self.document = QTextDocument()
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
@@ -574,6 +606,7 @@ class CcMarkdownDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.table_widget = parent
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
@@ -599,6 +632,8 @@ class CcMarkdownDelegate(QStyledItemDelegate):  # {{{
         painter.restore()
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
@@ -630,6 +665,8 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         self.table_widget = parent
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         if m.custom_columns[col]['datatype'] == 'int':
@@ -682,6 +719,8 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         self.longest_text = ''
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         editor = DelegateCB(parent)
@@ -726,6 +765,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
+        self.table_widget = parent
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
@@ -751,6 +791,8 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         painter.restore()
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         m = index.model()
         col = m.column_map[index.column()]
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
@@ -791,6 +833,8 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         self.table_widget = parent
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         editor = DelegateCB(parent)
         items = [_('Yes'), _('No'), _('Undefined')]
         icons = ['ok.png', 'list_remove.png', 'blank.png']
@@ -851,9 +895,12 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         Delegate for composite custom_columns.
         '''
         QStyledItemDelegate.__init__(self, parent)
+        self.table_widget = parent
         self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
 
     def createEditor(self, parent, option, index):
+        if not check_index_of_editor(self, index):
+            return None
         if self.disallow_edit:
             editor = QLineEdit(parent)
             editor.setText(_('Template editing disabled'))
