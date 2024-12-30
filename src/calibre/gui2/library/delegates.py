@@ -202,10 +202,6 @@ def get_val_for_textlike_columns(index_):
 # }}}
 
 
-def check_index_of_editor(delegate, index):
-    return ans
-
-
 class StyledItemDelegate(QStyledItemDelegate):
 
     '''
