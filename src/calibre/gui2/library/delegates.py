@@ -218,12 +218,15 @@ class StyledItemDelegate(QStyledItemDelegate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.table_widget = args[0]
+        # Set this to True here. It is up the the subclasses to set it to False if needed.
+        self.is_editable_with_tab = True
 
     def createEditor(self, parent, option, index):
-        if self.table_widget.currentIndex().row() != index.row():
-            print(f'createEditor row error: delegate: {self.__class__.__name__}. '
-                  f'row: {self.table_widget.currentIndex().row()}, '
-                  f'index row: {index.row()}, index column:{index.column()}')
+        if self.table_widget.currentIndex() != index:
+            idx = self.table_widget.currentIndex()
+            print(f'createEditor idx err: delegate={self.__class__.__name__}. '
+                  f'cur idx=({idx.row()}, {idx.column()}), '
+                  f'given idx=({index.row()}, {index.column()})')
             return None
         return self.create_editor(parent, option, index)
 
@@ -579,6 +582,7 @@ class CcLongTextDelegate(StyledItemDelegate):  # {{{
         StyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
         self.document = QTextDocument()
+        self.is_editable_with_tab = False
 
     def create_editor(self, parent, option, index):
         m = index.model()
@@ -607,6 +611,7 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
         super().__init__(parent)
         self.table_widget = parent
         self.document = QTextDocument()
+        self.is_editable_with_tab = False
 
     def paint(self, painter, option, index):
         self.initStyleOption(option, index)
@@ -760,6 +765,7 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         StyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
         self.document = QTextDocument()
+        self.is_editable_with_tab = False
 
     def paint(self, painter, option, index):
         self.initStyleOption(option, index)
@@ -886,6 +892,7 @@ class CcTemplateDelegate(StyledItemDelegate):  # {{{
         StyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
         self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
+        self.is_editable_with_tab = False
 
     def create_editor(self, parent, option, index):
         if self.disallow_edit:
