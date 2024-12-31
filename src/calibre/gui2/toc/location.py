@@ -397,6 +397,8 @@ class ItemEdit(QWidget):
         name = self.current_name = str(item.data(Qt.ItemDataRole.DisplayRole) or '')
         # Ensure encoding map is populated
         root = self.container.parsed(name)
+        if not hasattr(root, 'xpath'):
+            return error_dialog(self, _('Not an HTML file'), _('The file {} is not marked as an HTML file in the OPF and cannot be displayed').format(name))
         nasty = root.xpath('//*[local-name()="head"]/*[local-name()="p"]')
         if nasty:
             body = root.xpath('//*[local-name()="body"]')

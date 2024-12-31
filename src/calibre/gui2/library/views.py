@@ -1652,14 +1652,27 @@ class BooksView(QTableView):  # {{{
             hint = QAbstractItemDelegate.EndEditHint.NoHint
         ans = super().closeEditor(editor, hint)
         if move_by is not None and self.currentIndex() == orig and self.state() is not QAbstractItemView.State.EditingState:
-            index = self.moveCursor(move_by, Qt.KeyboardModifier.NoModifier)
+            # Skip over columns that aren't editable or are implemented by a dialog
+            while True:
+                index = self.moveCursor(move_by, Qt.KeyboardModifier.NoModifier)
+                if not index.isValid():
+                    break
+                self.setCurrentIndex(index)
+                m = self._model
+                col = m.column_map[index.column()]
+                if m.is_custom_column(col):
+                    # Don't try to open editors implemented by dialogs such as
+                    # markdown, composites and comments
+                    if self.itemDelegateForIndex(index).is_editable_with_tab:
+                        break
+                elif m.flags(index) & Qt.ItemFlag.ItemIsEditable:
+                    # Standard editable column
+                    break
             if index.isValid():
                 def edit():
                     if index.isValid():
                         self.setCurrentIndex(index)
                         self.edit(index)
-                        # This is needed for https://bugs.launchpad.net/calibre/+bug/2092643
-                        self._model.current_changed(index, None)
                 QTimer.singleShot(0, edit)
         return ans
 
