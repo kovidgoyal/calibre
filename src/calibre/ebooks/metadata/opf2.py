@@ -1594,6 +1594,8 @@ class OPFCreator(Metadata):
             spine.set('toc', 'ncx')
         if self.page_progression_direction is not None:
             spine.set('page-progression-direction', self.page_progression_direction)
+        elif langs[0][:2].lower() in {'he', 'ar'}:
+             spine.set('page-progression-direction', "rtl")
         if self.spine is not None:
             for ref in self.spine:
                 if ref.id is not None:
