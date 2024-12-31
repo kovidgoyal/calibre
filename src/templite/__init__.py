@@ -32,7 +32,7 @@ from polyglot.builtins import unicode_type
 
 
 class Templite:
-    auto_emit = re.compile(r'''(^['"])|(^[a-zA-Z0-9_\[\]'"]+$)''')
+    auto_emit = re.compile(r'''(^['"])|(^[a-zA-Z0-9_[\]'"]+$)''')
 
     def __init__(self, template, start='${', end='}$'):
         if len(start) != 2 or len(end) != 2:
