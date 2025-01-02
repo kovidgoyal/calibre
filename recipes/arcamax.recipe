@@ -29,11 +29,28 @@ class Arcamax(BasicNewsRecipe):
     # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED
     # STRIPS
 
+    recipe_specific_options = {
+        'days': {
+            'short': 'NUMBER OF COMICS TO RETRIEVE',
+            'default': str(num_comics_to_get)
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.num_comics_to_get = float(d)
+
     conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'language': language
                           }
 
     keep_only_tags = [
-        dict(name='header', attrs={'class': 'fn-content-header bluelabel'}),
+        dict(name='header', attrs={'class': 'fn-content-header bluelabel', 'style': False}),
+        dict(name='figure', attrs={'class': ['comic']}),
+    ]
+
+    remove_tags_after = [
         dict(name='figure', attrs={'class': ['comic']}),
     ]
 
@@ -41,6 +58,9 @@ class Arcamax(BasicNewsRecipe):
         feeds = []
         self.panel_tdir = PersistentTemporaryDirectory('arcamax')
         self.panel_counter = 0
+
+        # https://www.arcamax.com/comics
+
         for title, url in [
                 # ####### COMICS - GENERAL ########
                 # (u"9 Chickweed Lane", u"https://www.arcamax.com/thefunnies/ninechickweedlane"),
@@ -53,7 +73,6 @@ class Arcamax(BasicNewsRecipe):
                 # u"Boondocks", u"https://www.arcamax.com/thefunnies/boondocks"),
                 # (u"Cathy", u"https://www.arcamax.com/thefunnies/cathy"),
                 # (u"Daddys Home", u"https://www.arcamax.com/thefunnies/daddyshome"),
-                (u"Dilbert", u"https://www.arcamax.com/thefunnies/dilbert"),
                 # (u"Dinette Set", u"https://www.arcamax.com/thefunnies/thedinetteset"),
                 (u"Dog Eat Doug", u"https://www.arcamax.com/thefunnies/dogeatdoug"),
                 # (u"Doonesbury", u"https://www.arcamax.com/thefunnies/doonesbury"),
@@ -123,5 +142,5 @@ class Arcamax(BasicNewsRecipe):
         return soup
 
     extra_css = '''
-        img {max-width:100%; min-width:100%;}
+        img { display:block; margin:0 auto; }
     '''
