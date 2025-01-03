@@ -467,6 +467,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 else:
                     ca = m.addAction(_('Copy to author'))
                     ca.triggered.connect(self.copy_aus_to_au)
+                    ca = m.addAction(_('Recalculate sort from author'))
+                    ca.triggered.connect(self.do_recalc_one_author_sort)
                 m.addSeparator()
                 m.addMenu(case_menu)
         m.exec(self.table.viewport().mapToGlobal(point))
@@ -609,6 +611,12 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.authors[id_]['sort'] = aus
                 self.set_icon(item_aus, id_)
             self.table.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def do_recalc_one_author_sort(self):
+        row = self.context_item.row()
+        aut = str(self.table.item(row, AUTHOR_COLUMN).text()).strip()
+        dest = self.table.item(row, AUTHOR_SORT_COLUMN)
+        dest.setText(str(author_to_author_sort(aut)).rstrip(','))
 
     def do_auth_sort_to_author(self):
         with self.no_cell_changed():
