@@ -1672,6 +1672,11 @@ class BooksView(QTableView):  # {{{
                 def edit():
                     if index.isValid():
                         self.setCurrentIndex(index)
+                        # Tell the delegate to ignore keyboard modifiers in case
+                        # Shift-Tab is being used to move the cell.
+                        d = self.itemDelegateForIndex(index)
+                        if d is not None:
+                            d.ignore_kb_mods_on_edit = True
                         self.edit(index)
                 QTimer.singleShot(0, edit)
         return ans

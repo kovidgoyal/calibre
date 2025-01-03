@@ -136,7 +136,7 @@ class UpdateEditorGeometry:
 
 class EditableTextDelegate:
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         n = editor.metaObject().userProperty().name()
         editor.setProperty(n, get_val_for_textlike_columns(index))
 
@@ -207,8 +207,13 @@ class StyledItemDelegate(QStyledItemDelegate):
     '''
     When closing an editor and opening another, Qt sometimes picks what appears
     to be a random line and column for the second editor. This function checks
-    that the row of a new editor is the same as the current row in the view. If
-    it isn't then the caller shouldn't open the editor.
+    that the current index for a new editor is the same as the current view. If
+    it isn't then the editor shouldn't be opened.
+
+    Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
+    want keyboard modifiers taken into account, for example when using Shift-Tab
+    as a backtab when editing cells. This prevents opening dialogs by mistake.
+    See giu2.library.views.closeEditor() for an example.
     '''
 
     def __init__(self, *args, **kwargs):
@@ -216,6 +221,7 @@ class StyledItemDelegate(QStyledItemDelegate):
         self.table_widget = args[0]
         # Set this to True here. It is up the the subclasses to set it to False if needed.
         self.is_editable_with_tab = True
+        self.ignore_kb_mods_on_edit = False
 
     def createEditor(self, parent, option, index):
         if self.table_widget.currentIndex() != index:
@@ -224,7 +230,20 @@ class StyledItemDelegate(QStyledItemDelegate):
                   f'cur idx=({idx.row()}, {idx.column()}), '
                   f'given idx=({index.row()}, {index.column()})')
             return None
-        return self.create_editor(parent, option, index)
+        e = self.create_editor(parent, option, index)
+        return e
+
+    def setEditorData(self, editor, index):
+        # This method exists because of the ignore_kb_mods_on_edit flag. The
+        # flag is cleared after the editor data is set, in set_editor_data. It
+        # is possible that the subclass doesn't implement set_editor_data(). I
+        # can't find a case where this is true, but just in case call the
+        # default.
+        if hasattr(self, 'set_editor_data'):
+            self.set_editor_data(editor, index)
+        else:
+            super().setEditorData(editor, index)
+        self.ignore_kb_mods_on_edit = False
 
     def create_editor(self, parent, option, index):
         # Must be overridden by the "real" createEditor
@@ -253,7 +272,7 @@ class RatingDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
     def create_editor(self, parent, option, index):
         return RatingEditor(parent, is_half_star=self.is_half_star)
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             val = 0
         else:
@@ -297,10 +316,10 @@ class DateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
     def create_editor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif check_key_modifier(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
+        elif not self.ignore_kb_mods_on_edit and check_key_modifier(Qt.KeyboardModifier.ShiftModifier):
             val = now()
         else:
             val = index.data(Qt.ItemDataRole.EditRole)
@@ -331,11 +350,11 @@ class PubDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
     def create_editor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         val = index.data(Qt.ItemDataRole.EditRole)
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif check_key_modifier(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
+        elif not self.ignore_kb_mods_on_edit and check_key_modifier(Qt.KeyboardModifier.ShiftModifier):
             val = now()
         elif is_date_undefined(val):
             val = QDate.currentDate()
@@ -414,7 +433,7 @@ class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDel
             m = index.model()
             col = m.column_map[index.column()]
             # If shifted, bring up the tag editor instead of the line editor.
-            if check_key_modifier(Qt.KeyboardModifier.ShiftModifier) and col != 'authors':
+            if not self.ignore_kb_mods_on_edit and check_key_modifier(Qt.KeyboardModifier.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
                 d = TagEditor(parent, self.db, m.id(index.row()), key=key)
                 if d.exec() == QDialog.DialogCode.Accepted:
@@ -458,7 +477,7 @@ class LanguagesDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         editor.init_langs(index.model().db)
         return editor
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         editor.show_initial_value(get_val_for_textlike_columns(index))
 
     def setModelData(self, editor, model, index):
@@ -497,10 +516,10 @@ class CcDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
     def create_editor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif check_key_modifier(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
+        elif not self.ignore_kb_mods_on_edit and check_key_modifier(Qt.KeyboardModifier.ShiftModifier):
             val = now()
         else:
             val = index.data(Qt.ItemDataRole.EditRole)
@@ -684,7 +703,7 @@ class CcNumberDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         model.setData(index, (val), Qt.ItemDataRole.EditRole)
         editor.adjustSize()
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
@@ -738,7 +757,7 @@ class CcEnumDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
                                    self.longest_text + 'M')
         return srect.width()
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if val is None or check_key_modifier(Qt.KeyboardModifier.ControlModifier):
@@ -848,7 +867,7 @@ class CcBoolDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         val = {0:True, 1:False, 2:None}[editor.currentIndex()]
         model.setData(index, val, Qt.ItemDataRole.EditRole)
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if not m.db.new_api.pref('bools_are_tristate'):
@@ -912,7 +931,7 @@ class CcTemplateDelegate(StyledItemDelegate):  # {{{
             m.setData(index, (editor.rule[1]), Qt.ItemDataRole.EditRole)
         return None
 
-    def setEditorData(self, editor, index):
+    def set_editor_data(self, editor, index):
         editor.setText('editing templates disabled')
         editor.setReadOnly(True)
 
