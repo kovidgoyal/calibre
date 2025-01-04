@@ -5,7 +5,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'The TMZ'
     __author__ = 'Tony Stegall'
     description = 'Celeb Gossip and News'
-    language = 'en'
+    language = 'en_US'
     publisher = 'The TMZ'
     category = 'news, celebrity, USA'
     oldest_article = 1

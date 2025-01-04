@@ -19,7 +19,7 @@ class dailyreckoning_us(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
-    language = 'en'
+    language = 'en_US'
     extra_css = ' #BlogTitle{font-size: x-large; font-weight: bold} #BlogDate{font-size: small} '
 
     conversion_options = {

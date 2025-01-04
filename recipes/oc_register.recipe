@@ -18,7 +18,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
     auto_cleanup = True
     extra_css = 'div.metaAuthor { display:none;}\n'
     encoding = 'utf8'
-    language = 'en'
+    language = 'en_US'
     needs_subscription = False
     no_stylesheets = True
     oldest_article = 7

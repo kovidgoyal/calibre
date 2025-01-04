@@ -123,7 +123,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     title = "Boston Globe"
     __author__ = 'Kovid Goyal'
     description = 'The Boston Globe'
-    language = 'en'
+    language = 'en_US'
     timefmt = ' [%a, %d %b, %Y]'
     keep_only_tags = [
         class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |', 'comic-debug'),

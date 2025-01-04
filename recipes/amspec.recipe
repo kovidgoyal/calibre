@@ -17,7 +17,7 @@ class TheAmericanSpectator(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    language = 'en'
+    language = 'en_US'
     auto_cleanup = True
     encoding = 'utf-8'
 
