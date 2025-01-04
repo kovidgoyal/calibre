@@ -28,7 +28,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
 
     title = u'New York Review of Books (no subscription)'
     description = u'Book reviews'
-    language = 'en'
+    language = 'en_US'
 
     __author__ = 'Kovid Goyal'
 

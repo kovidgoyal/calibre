@@ -13,7 +13,7 @@ class BaltimoreSun(BasicNewsRecipe):
     title = 'The Baltimore Sun'
     __author__ = 'Kovid Goyal'
     description = 'Complete local news and blogs from Baltimore'
-    language = 'en'
+    language = 'en_US'
     version = 2.5
     compress_news_images = True
     compress_news_images_auto_size = 8

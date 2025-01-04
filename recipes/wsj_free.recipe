@@ -35,8 +35,8 @@ class WSJ(BasicNewsRecipe):
     else:
         title = 'The Wall Street Journal (free)'
     __author__ = 'Kovid Goyal'
-    description = 'News and current affairs'
-    language = 'en'
+    description = 'Old code. Use WSJ recipes by unkn0wn'
+    language = 'en_US'
     masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
 
     compress_news_images = True

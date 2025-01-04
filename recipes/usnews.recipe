@@ -19,7 +19,7 @@ class LaPrensa(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
-    language = 'en'
+    language = 'en_US'
     auto_cleanup = True
 
     feeds = [

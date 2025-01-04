@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1234144423(BasicNewsRecipe):
     title = u'Cincinnati Enquirer'
     oldest_article = 7
-    language = 'en'
+    language = 'en_US'
 
     __author__ = 'Joseph Kitzmiller and Sujata Raman'
     max_articles_per_feed = 100

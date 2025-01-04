@@ -10,7 +10,7 @@ class AmericanProspect(BasicNewsRecipe):
     title = 'American Prospect'
     __author__ = 'Kovid Goyal'
     oldest_article = 300
-    language = 'en'
+    language = 'en_US'
     max_articles_per_feed = 100
     recursions = 0
     no_stylesheets = True

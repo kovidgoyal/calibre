@@ -23,7 +23,7 @@ class FoxNews(BasicNewsRecipe):
     encoding = 'utf8'
     use_embedded_content = False
 
-    language = 'en'
+    language = 'en_US'
     remove_empty_feeds = True
     extra_css = """
         body{font-family: Arial,sans-serif }

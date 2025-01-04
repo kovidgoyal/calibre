@@ -19,7 +19,7 @@ class AmericanThinker(BasicNewsRecipe):
     oldest_article = 7  # days
     max_articles_per_feed = 50
     summary_length = 150
-    language = 'en'
+    language = 'en_US'
     ignore_duplicate_articles = {'title', 'url'}
 
     remove_javascript = True
