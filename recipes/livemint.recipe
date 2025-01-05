@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 import json
 import re
-from datetime import date
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
