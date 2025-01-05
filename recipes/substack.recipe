@@ -20,7 +20,7 @@ import re
 
 from mechanize import Request
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Substack(BasicNewsRecipe):
@@ -30,13 +30,23 @@ class Substack(BasicNewsRecipe):
     oldest_article = 7
     language = 'en'
     max_articles_per_feed = 100
-    auto_cleanup = True
-    auto_cleanup_keep = '//*[@class="subtitle"]'
     needs_subscription = 'optional'
     use_embedded_content = False
     masthead_url = 'https://substack.com/img/substack_wordmark.png'
     cover_url = 'https://substack.com/img/substack.png'
-    extra_css = '.captioned-image-container, .image-container {font-size: small;}'
+    extra_css = '.captioned-image-container, .image-container, .image-caption {font-size: small;}'
+    remove_empty_feeds = True
+    remove_attributes = ['style', 'height', 'width']
+    no_stylesheets = True
+
+    keep_only_tags = [
+        classes('post-title post-subtitle subtitle available-content')
+    ]
+
+    remove_tags = [
+        dict(name=['svg', 'source']),
+        classes('subscribe-widget button-wrapper')
+    ]
 
     recipe_specific_options = {
         'auths': {
@@ -113,8 +123,4 @@ class Substack(BasicNewsRecipe):
             res = w
         for img in soup.findAll('img', attrs={'src': True}):
             img['src'] = re.sub(r'w_\d+', 'w_' + res, img['src'])
-        for src in soup.findAll(['source', 'svg']):
-            src.extract()
-        for but in soup.findAll(attrs={'class': ['button-wrapper']}):
-            but.extract()
         return soup
