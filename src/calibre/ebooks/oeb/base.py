@@ -27,7 +27,7 @@ from calibre.translations.dynamic import translate
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.icu import title_case as icu_title
-from calibre.utils.localization import __
+from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes
@@ -1822,6 +1822,16 @@ class OEBBook:
         self.pages = PageList()
         self.auto_generated_toc = True
         self._temp_files = []
+
+    def set_page_progression_direction_if_needed(self):
+        if not self.spine.page_progression_direction:
+            try:
+                lang = self.metadata.language[0].value
+                if is_rtl_lang(lang):
+                    self.spine.page_progression_direction = 'rtl'
+            except Exception:
+                raise
+                pass
 
     def clean_temp_files(self):
         for path in self._temp_files:

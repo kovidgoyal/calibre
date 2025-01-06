@@ -205,6 +205,7 @@ class EPUBOutput(OutputFormatPlugin):
             from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
             UniqueFilenames()(oeb, opts)
 
+        self.oeb.set_page_progression_direction_if_needed()
         self.workaround_ade_quirks()
         self.workaround_webkit_quirks()
         self.upshift_markup()
