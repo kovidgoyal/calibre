@@ -206,6 +206,14 @@ class EPUBOutput(OutputFormatPlugin):
         except IndexError:
             pass
 
+        try:
+            lang = self.oeb.metadata.language[0]
+        except IndexError:
+            lang = 'en'
+        lang = lang.replace('_', '-')
+        if lang[:2].lower() in {'he', 'ar'} and self.oeb.spine.page_progression_direction is None:
+            self.oeb.spine.page_progression_direction = "rtl"
+
         if self.opts.epub_flatten:
             from calibre.ebooks.oeb.transforms.filenames import FlatFilenames
             FlatFilenames()(oeb, opts)

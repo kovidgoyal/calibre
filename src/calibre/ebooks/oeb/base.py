@@ -1985,6 +1985,14 @@ class OEBBook:
             results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
         if self.spine.page_progression_direction in {'ltr', 'rtl'}:
             spine.attrib['page-progression-direction'] = self.spine.page_progression_direction
+        else:
+            try:
+                lang = str(self.metadata.language[0])
+            except IndexError:
+                lang = 'en'
+            lang = lang.replace('_', '-')
+            if lang[:2].lower() in {'he', 'ar'}:
+                spine.attrib['page-progression-direction'] = "rtl"
         return results
 
 
