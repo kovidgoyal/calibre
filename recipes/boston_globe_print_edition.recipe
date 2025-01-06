@@ -36,7 +36,7 @@ class BostonGlobePrint(BasicNewsRecipe):
     title = "Boston Globe | Print Edition"
     __author__ = 'Kovid Goyal, unkn0wn'
     description = 'The Boston Globe - Today\'s Paper'
-    language = 'en'
+    language = 'en_US'
 
     keep_only_tags = [
         class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |', 'comic-debug'),

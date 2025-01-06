@@ -15,7 +15,7 @@ def classes(classes):
 
 class DenverPost(BasicNewsRecipe):
     title = u'Denver Post'
-    language = 'en'
+    language = 'en_US'
     __author__ = 'Kovid Goyal'
     oldest_article = 1  # days
     max_articles_per_feed = 20

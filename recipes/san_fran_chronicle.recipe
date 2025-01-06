@@ -13,7 +13,7 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     title = u'San Francisco Chronicle'
     __author__ = u'Darko Miletic and Sujata Raman'
     description = u'San Francisco news'
-    language = 'en'
+    language = 'en_US'
 
     oldest_article = 7
     max_articles_per_feed = 100

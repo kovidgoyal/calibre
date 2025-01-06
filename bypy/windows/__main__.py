@@ -330,6 +330,7 @@ def build_portable(env):
     src = j(root, 'portable.cpp')
     obj = j(env.obj_dir, b(src) + '.obj')
     cflags = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE /DUNICODE'.split()
+    launchers = []
 
     for exe_name in ('calibre.exe', 'ebook-viewer.exe', 'ebook-edit.exe'):
         exe = j(base, exe_name.replace('.exe', '-portable.exe'))
@@ -350,6 +351,8 @@ def build_portable(env):
             '/OUT:' + exe, embed_resources(env, exe, desc=desc, product_description=desc),
             obj, 'User32.lib', 'Shell32.lib']
         run(*cmd)
+        launchers.append(exe)
+        sign_files(env, launchers)
 
     printf('Creating portable installer')
     shutil.copytree(env.base, j(base, 'Calibre'))

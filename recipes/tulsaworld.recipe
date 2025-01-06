@@ -20,7 +20,7 @@ class TulsaWorld(BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
-    language = 'en'
+    language = 'en_US'
     country = 'US'
     auto_cleanup=True
     remove_empty_feeds = True

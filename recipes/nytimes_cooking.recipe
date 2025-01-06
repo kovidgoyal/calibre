@@ -7,7 +7,7 @@ class NYTCooking(BasicNewsRecipe):
     title          = 'NY Times Cooking'
     description = 'NY Times Cooking Magazine'
     __author__ = 'gourav'
-    language = 'en'
+    language = 'en_US'
     encoding = 'utf-8'
     oldest_article = 2
     max_articles_per_feed = 30

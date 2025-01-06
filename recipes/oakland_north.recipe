@@ -8,7 +8,7 @@ class AdvancedUserRecipe1299640653(BasicNewsRecipe):
     oldest_article = 30
     max_articles_per_feed = 100
 
-    language = 'en'
+    language = 'en_US'
     __author__ = 'noah'
     description = 'Oakland North'
     category = 'news'

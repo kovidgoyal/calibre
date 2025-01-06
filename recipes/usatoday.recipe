@@ -24,7 +24,7 @@ class USAToday(BasicNewsRecipe):
     __author__ = 'Kovid Goyal, unkn0wn'
     description = 'newspaper'
     encoding = 'utf-8'
-    language = 'en'
+    language = 'en_US'
 
     use_embedded_content = False
     timefmt = ' [%d %b %Y]'

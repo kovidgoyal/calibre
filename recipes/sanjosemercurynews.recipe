@@ -21,7 +21,7 @@ class MercuryNews(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
-    language = 'en'
+    language = 'en_US'
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

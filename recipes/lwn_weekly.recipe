@@ -11,8 +11,8 @@ lwn.net
 import re
 import sys
 
-from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.date import now as nowf
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class WeeklyLWN(BasicNewsRecipe):
@@ -85,9 +85,9 @@ class WeeklyLWN(BasicNewsRecipe):
 
     def publication_date(self):
         return self.pub_date
-    
+
     def parse_publication_date(self, soup):
-        from dateutil.parser import parse, ParserError
+        from dateutil.parser import ParserError, parse
         try:
             date_match = re.match(r'.* +for +([^\[]*)', self.tag_to_string(soup.head.title.string))
             # dateutil.parser.parse() is considered thread-safe

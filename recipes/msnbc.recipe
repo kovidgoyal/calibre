@@ -23,7 +23,7 @@ class MsNBC(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf8'
     publisher = 'msnbc.com'
-    language = 'en'
+    language = 'en_US'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [

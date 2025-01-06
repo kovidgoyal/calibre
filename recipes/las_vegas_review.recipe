@@ -5,7 +5,7 @@ class AdvancedUserRecipe1274742400(BasicNewsRecipe):
 
     title = u'Las Vegas Review Journal'
     __author__ = 'Kovid Goyal'
-    language = 'en'
+    language = 'en_US'
 
     oldest_article = 7
 

@@ -21,7 +21,7 @@ class TheMiamiHerald(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
     publisher = u'The Miami Herald'
-    language = 'en'
+    language = 'en_US'
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
