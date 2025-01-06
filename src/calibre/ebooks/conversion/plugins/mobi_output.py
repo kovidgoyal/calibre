@@ -183,6 +183,14 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.ebooks.mobi.writer2.resources import Resources
         self.log, self.opts, self.oeb = log, opts, oeb
 
+        try:
+            lang = self.oeb.metadata.language[0]
+            lang = lang.value
+            if lang[:2].lower() in {'he', 'ar'} and self.oeb.spine.page_progression_direction is None:
+               self.oeb.spine.page_progression_direction = "rtl"
+        except IndexError:
+            pass
+
         mobi_type = opts.mobi_file_type
         if self.is_periodical:
             mobi_type = 'old'  # Amazon does not support KF8 periodicals
@@ -311,6 +319,15 @@ class AZW3Output(OutputFormatPlugin):
         from calibre.ebooks.mobi.writer8.main import create_kf8_book
 
         self.oeb, self.opts, self.log = oeb, opts, log
+        
+        try:
+            lang = self.oeb.metadata.language[0]
+            lang = lang.value
+            if lang[:2].lower() in {'he', 'ar'} and self.oeb.spine.page_progression_direction is None:
+               self.oeb.spine.page_progression_direction = "rtl"
+        except IndexError:
+            pass
+
         opts.mobi_periodical = self.is_periodical
         passthrough = getattr(opts, 'mobi_passthrough', False)
         remove_duplicate_anchors(oeb)

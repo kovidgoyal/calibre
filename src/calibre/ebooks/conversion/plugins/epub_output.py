@@ -197,6 +197,14 @@ class EPUBOutput(OutputFormatPlugin):
             opts.mobi_passthrough = False
             opts.no_inline_toc = False
             TOCAdder(oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=True)
+        
+        try:
+            lang = self.oeb.metadata.language[0]
+            lang = lang.value
+            if lang[:2].lower() in {'he', 'ar'} and self.oeb.spine.page_progression_direction is None:
+               self.oeb.spine.page_progression_direction = "rtl"
+        except IndexError:
+            pass
 
         if self.opts.epub_flatten:
             from calibre.ebooks.oeb.transforms.filenames import FlatFilenames

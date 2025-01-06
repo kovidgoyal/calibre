@@ -31,7 +31,7 @@ from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.icu import title_case as icu_title
 from calibre.utils.icu import upper as icu_upper
-from calibre.utils.localization import _, get_lang, lang_as_iso639_1, ngettext
+from calibre.utils.localization import _, get_lang, lang_as_iso639_1, ngettext, is_rtl
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -3641,14 +3641,15 @@ class CatalogBuilder:
         <meta name="calibre:publication_type" content="{pt}"/>
     </metadata>
     <manifest></manifest>
-    <spine toc="ncx"></spine>
+    <spine toc="ncx"{page_progression_direction}></spine>
     <guide></guide>
 </package>
             '''.format(
                 title=prepare_string_for_xml(self.opts.catalog_title),
                 creator=prepare_string_for_xml(self.opts.creator),
                 lang=prepare_string_for_xml(lang),
-                pt="periodical:default" if self.generate_for_kindle_mobi else ""
+                pt="periodical:default" if self.generate_for_kindle_mobi else "",
+                page_progression_direction = ' page-progression-direction="rtl"' if is_rtl() else ""
         )
         root = safe_xml_fromstring(header)
         manifest = root.xpath('//*[local-name()="manifest"]')[0]
