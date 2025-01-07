@@ -27,12 +27,20 @@ class Formats(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return ('%s [%d]'%(fmt.upper(), count))
+            if fmt == '..cover..':
+                fmt = _('Book cover')
+            else:
+                fmt = fmt.upper()
+            return f'{fmt} [{count}]'
         if role == Qt.ItemDataRole.DecorationRole:
             return (self.fi.icon_from_ext(self.fmts[row].lower()))
         if role == Qt.ItemDataRole.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
+            if fmt == '..cover..':
+                if count == 1:
+                    return _('There is only one book with a cover')
+                return _('There are {} books with a cover').format(count)
             return _('There is one book with the {} format').format(fmt.upper()) if count == 1 else _(
                 'There are {count} books with the {fmt} format').format(
                                 count=count, fmt=fmt.upper())

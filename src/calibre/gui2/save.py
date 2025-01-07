@@ -213,11 +213,14 @@ class Saver(QObject):
         base_path = os.path.join(self.root, *components)
         base_dir = os.path.dirname(base_path)
         if self.opts.formats and self.opts.formats != 'all':
-            asked_formats = {x.lower().strip() for x in self.opts.formats.split(',')}
-            fmts = asked_formats.intersection(fmts)
-            if not fmts:
-                self.errors[book_id].append(('critical', _('Requested formats not available')))
-                return
+            if self.opts.formats == '..cover..':
+                fmts = set()
+            else:
+                asked_formats = {x.lower().strip() for x in self.opts.formats.split(',')}
+                fmts = asked_formats.intersection(fmts)
+                if not fmts:
+                    self.errors[book_id].append(('critical', _('Requested formats not available')))
+                    return
 
         extra_files = {}
         if self.opts.save_extra_files:

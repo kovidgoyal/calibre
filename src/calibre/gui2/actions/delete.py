@@ -121,15 +121,17 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def _get_selected_formats(self, msg, ids, exclude=False, single=False):
+    def _get_selected_formats(self, msg, ids, exclude=False, single=False, add_cover=False):
         from calibre.gui2.dialogs.select_formats import SelectFormats
         c = Counter()
         db = self.gui.library_view.model().db
-        for x in ids:
-            fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
+        for book_id in ids:
+            fmts_ = db.formats(book_id, index_is_id=True, verify_formats=False)
             if fmts_:
                 for x in frozenset(x.lower() for x in fmts_.split(',')):
                     c[x] += 1
+            if add_cover and db.new_api.field_for('cover', book_id, default_value=False):
+                c['..cover..'] += 1
         d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
                 single=single)
         if d.exec() != QDialog.DialogCode.Accepted:
