@@ -1160,7 +1160,7 @@ class SpellCheck(Dialog):
         b.clicked.connect(self.change_excluded_files)
         self.update_exclude_button()
         b = self.save_words_button = self.bb.addButton(_('&Save words'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setToolTip('<p>' + _('Save the curretly displayed list of words in a CSV file'))
+        b.setToolTip('<p>' + _('Save the currently displayed list of words in a CSV file'))
         b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.save_words)
 
