@@ -33,7 +33,10 @@ class Formats(QAbstractListModel):
                 fmt = fmt.upper()
             return f'{fmt} [{count}]'
         if role == Qt.ItemDataRole.DecorationRole:
-            return (self.fi.icon_from_ext(self.fmts[row].lower()))
+            fmt = self.fmts[row]
+            if fmt == '..cover..':
+                fmt = 'jpg'
+            return (self.fi.icon_from_ext(fmt.lower()))
         if role == Qt.ItemDataRole.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
