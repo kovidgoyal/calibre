@@ -339,7 +339,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_widget.addTab(search_config_widget, _('Configure s&earch'))
 
         # Restore dialog state.
-        self.restore_geometry(self.config, 'config_dialog_geometry')
+        d.restore_geometry(self.config, 'config_dialog_geometry')
         tab_index = self.config.get('config_dialog_tab_index', 0)
         tab_index = min(tab_index, tab_widget.count() - 1)
         tab_widget.setCurrentIndex(tab_index)
@@ -347,7 +347,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         d.exec()
 
         # Save dialog state.
-        self.save_geometry(self.config, 'config_dialog_geometry')
+        d.save_geometry(self.config, 'config_dialog_geometry')
         self.config['config_dialog_tab_index'] = tab_widget.currentIndex()
 
         search_config_widget.save_settings()
