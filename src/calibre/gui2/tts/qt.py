@@ -53,9 +53,11 @@ class QtTTSBackend(TTSBackend):
     def say(self, text: str) -> None:
         self.last_word_offset = 0
         self.last_spoken_word = None
-        self.speaking_text = text
         if self.tts.engine() == 'sapi':
+            # https://bugs.launchpad.net/bugs/2092948
+            text = text.replace('<3', ' 3')
             self.ignore_tracking_until_state_changes_to_speaking = True
+        self.speaking_text = text
         self.tts.say(text)
 
     def error_message(self) -> str:

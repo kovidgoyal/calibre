@@ -11,7 +11,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.tts.manager import TTSManager
 
 TEXT = '''\
-Demonstration 🐈 of DOCX support in calibre
+Demonstration 🐈 of DOCX <3 support in calibre
 
 This document demonstrates the ability of the calibre DOCX Input plugin to convert the various typographic features in a Microsoft Word
 (2007 and newer) document. Convert this document to a modern ebook format, such as AZW3 for Kindles or EPUB for other ebook readers,
