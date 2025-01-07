@@ -342,11 +342,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
         self.select_default_button.clicked.connect(self.changed_signal)
         self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
-        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
+        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = self.series_map_rules = None
         m = QMenu(self)
         m.addAction(_('Tags')).triggered.connect(self.change_tag_map_rules)
         m.addAction(_('Authors')).triggered.connect(self.change_author_map_rules)
         m.addAction(_('Publisher')).triggered.connect(self.change_publisher_map_rules)
+        m.addAction(_('Series')).triggered.connect(self.change_series_map_rules)
         self.map_rules_button.setMenu(m)
         l = self.page.layout()
         l.setStretch(0, 1)
@@ -399,6 +400,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             d.rules = list(msprefs['publisher_map_rules'])
         if d.exec() == QDialog.DialogCode.Accepted:
             self.publisher_map_rules = d.rules
+            self.changed_signal.emit()
+
+    def change_series_map_rules(self):
+        from calibre.gui2.series_mapper import RulesDialog
+        d = RulesDialog(self)
+        if msprefs.get('series_map_rules'):
+            d.rules = list(msprefs['series_map_rules'])
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.series_map_rules = d.rules
             self.changed_signal.emit()
 
     def change_author_map_rules(self):

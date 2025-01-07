@@ -502,7 +502,8 @@ def identify(log, abort,  # {{{
             (len(results), time.time() - start_time))
     tm_rules = msprefs['tag_map_rules']
     pm_rules = msprefs['publisher_map_rules']
-    if tm_rules or pm_rules:
+    s_rules = msprefs['series_map_rules']
+    if tm_rules or pm_rules or s_rules:
         from calibre.ebooks.metadata.tag_mapper import map_tags
     am_rules = msprefs['author_map_rules']
     if am_rules:
@@ -535,6 +536,9 @@ def identify(log, abort,  # {{{
         if pm_rules and r.publisher:
             pubs = map_tags([r.publisher], pm_rules)
             r.publisher = pubs[0] if pubs else ''
+        if s_rules and r.series:
+            ss = map_tags([r.series], s_rules)
+            r.series = ss[0] if ss else ''
 
     if msprefs['swap_author_names']:
         for r in results:

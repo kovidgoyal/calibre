@@ -54,7 +54,7 @@ Settings = namedtuple('Settings',
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
     'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality '
-    'tag_map_rules author_map_rules publisher_map_rules'
+    'tag_map_rules author_map_rules publisher_map_rules series_map_rules'
 )
 
 null = object()
@@ -110,6 +110,8 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.author_map_rules:
             self.selected_options += 1
         if args.publisher_map_rules:
+            self.selected_options += 1
+        if args.series_map_rules:
             self.selected_options += 1
         if DEBUG:
             print("Number of steps for bulk metadata: %d" % self.selected_options)
@@ -425,6 +427,19 @@ class MyBlockingBusy(QDialog):  # {{{
             cache.set_field('publisher', changed)
             self.progress_finished_cur_step.emit()
 
+        if args.series_map_rules:
+            self.progress_next_step_range.emit(0)
+            from calibre.ebooks.metadata.tag_mapper import map_tags
+            series_map = cache.all_field_for('series', self.ids)
+            changed = {}
+            for book_id, series in series_map.items():
+                new_series = map_tags([series], args.series_map_rules)
+                new_series = new_series[0] if new_series else ''
+                if new_series != series:
+                    changed[book_id] = new_series
+            cache.set_field('series', changed)
+            self.progress_finished_cur_step.emit()
+
         if args.clear_series:
             self.progress_next_step_range.emit(0)
             cache.set_field('series', {bid: '' for bid in self.ids})
@@ -643,7 +658,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.button_transform_tags.clicked.connect(self.transform_tags)
         self.button_transform_authors.clicked.connect(self.transform_authors)
         self.button_transform_publishers.clicked.connect(self.transform_publishers)
-        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = ()
+        self.button_transform_series.clicked.connect(self.transform_series)
+        self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = self.series_map_rules = ()
         tuple(map(lambda b: (b.clicked.connect(self.clear_transform_rules_for), b.setIcon(QIcon.ic('clear_left.png')), b.setToolTip(_(
             'Clear the rules'))),
             (self.button_clear_tags_rules, self.button_clear_authors_rules, self.button_clear_publishers_rules)
@@ -663,9 +679,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         f(self.label_transform_tags, len(self.tag_map_rules))
         f(self.label_transform_authors, len(self.author_map_rules))
         f(self.label_transform_publishers, len(self.publisher_map_rules))
+        f(self.label_transform_series, len(self.series_map_rules))
         self.button_clear_tags_rules.setVisible(bool(self.tag_map_rules))
         self.button_clear_authors_rules.setVisible(bool(self.author_map_rules))
         self.button_clear_publishers_rules.setVisible(bool(self.publisher_map_rules))
+        self.button_clear_series_rules.setVisible(bool(self.series_map_rules))
 
     def clear_transform_rules_for(self):
         n = self.sender().objectName()
@@ -675,6 +693,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.author_map_rules = ()
         elif 'publisher' in n:
             self.publisher_map_rules = ()
+        elif 'series' in n:
+            self.series_map_rules = ()
         self.update_transform_labels()
 
     def _change_transform_rules(self, RulesDialog, which):
@@ -699,6 +719,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def transform_publishers(self):
         from calibre.gui2.publisher_mapper import RulesDialog
         self._change_transform_rules(RulesDialog, 'publisher')
+
+    def transform_series(self):
+        from calibre.gui2.series_mapper import RulesDialog
+        self._change_transform_rules(RulesDialog, 'series')
 
     def sizeHint(self):
         geom = self.screen().availableSize()
@@ -1378,7 +1402,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             restore_original, self.comments, self.generate_cover_settings,
             read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()],
             do_compress_cover, compress_cover_quality, self.tag_map_rules, self.author_map_rules,
-            self.publisher_map_rules
+            self.publisher_map_rules, self.series_map_rules,
         )
         if DEBUG:
             print('Running bulk metadata operation with settings:')

@@ -783,7 +783,7 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>729</width>
+         <width>719</width>
          <height>429</height>
         </rect>
        </property>
@@ -1271,7 +1271,7 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>187</width>
+             <width>687</width>
              <height>72</height>
             </rect>
            </property>
@@ -1430,6 +1430,40 @@ not multiple and the destination field is multiple</string>
          </item>
          <item>
           <spacer name="horizontalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QPushButton" name="button_transform_series">
+           <property name="text">
+            <string>Transform &amp;series</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_transform_series"/>
+         </item>
+         <item>
+          <widget class="QToolButton" name="button_clear_series_rules">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_10">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
