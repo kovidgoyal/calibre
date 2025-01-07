@@ -54,7 +54,7 @@ from qt.core import (
 from calibre.constants import __appname__
 from calibre.ebooks.oeb.base import NCX_MIME, OEB_DOCS, OPF_MIME
 from calibre.ebooks.oeb.polish.spell import get_all_words, get_checkable_file_names, merge_locations, replace_word, undo_replace_word
-from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -739,6 +739,18 @@ class WordsModel(QAbstractTableModel):
         self.camel_case_pat = regex.compile(r'[a-z][A-Z]', flags=regex.UNICODE)
         self.snake_case_pat = regex.compile(r'\w_\w', flags=regex.UNICODE)
 
+    def to_csv(self):
+        from csv import writer as csv_writer
+        from io import StringIO
+        buf = StringIO(newline='')
+        w = csv_writer(buf)
+        w.writerow(self.headers)
+        cols = self.columnCount()
+        for r in range(self.rowCount()):
+            items = [self.index(r, c).data(Qt.ItemDataRole.DisplayRole) for c in range(cols)]
+            w.writerow(items)
+        return buf.getvalue()
+
     def rowCount(self, parent=QModelIndex()):
         return len(self.items)
 
@@ -1147,6 +1159,10 @@ class SpellCheck(Dialog):
         b.setIcon(QIcon.ic('chapters.png'))
         b.clicked.connect(self.change_excluded_files)
         self.update_exclude_button()
+        b = self.save_words_button = self.bb.addButton(_('&Save words'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip('<p>' + _('Save the curretly displayed list of words in a CSV file'))
+        b.setIcon(QIcon.ic('save.png'))
+        b.clicked.connect(self.save_words)
 
         self.progress = p = QWidget(self)
         s.addWidget(p)
@@ -1311,6 +1327,14 @@ class SpellCheck(Dialog):
             ev.accept()
             return
         return Dialog.keyPressEvent(self, ev)
+
+    def save_words(self):
+        dest = choose_save_file(self, 'spellcheck-csv-export', _('CSV file'), filters=[(_('CSV file'), ['csv'])],
+                               all_files=False, initial_filename=_('Words') + '.csv')
+        if dest:
+            csv = self.words_view.model().to_csv()
+            with open(dest, 'wb') as f:
+                f.write(csv.encode())
 
     def change_excluded_files(self):
         d = ManageExcludedFiles(self, self.excluded_files)
