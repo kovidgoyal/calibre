@@ -76,15 +76,18 @@ def open_book(book_id, fmt, library_id=None, replace=False, extra_query=None):
     push_state(q, replace=replace, mode=read_book_mode)
 
 
-def open_book_url(book_id, fmt, extra_query):
-    lid = current_library_id()
+def open_book_url_in_library(library_id, book_id, fmt, extra_query):
     ans = absolute_path('')
     q = {'book_id':book_id, 'fmt':fmt, 'mode': read_book_mode}
-    if lid:
-        q.library_id = lid
+    if library_id:
+        q.library_id = library_id
     if extra_query:
         Object.assign(q, extra_query)
     return ans + encode_query(q, '#')
+
+
+def open_book_url(book_id, fmt, extra_query):
+    return open_book_url_in_library(current_library_id(), book_id, fmt, extra_query)
 
 
 def show_note(field, item_id, item_value, replace=False, library_id=None, close_action='back', panel='show_note'):
