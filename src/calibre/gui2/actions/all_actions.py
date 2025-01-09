@@ -135,11 +135,11 @@ class AllGUIActions(InterfaceAction):
             ma.setEnabled(act.qaction.isEnabled())
 
         # Finally the real work, building the action menu. Partition long lists
-        # of actions into sublists of some arbitrary length.
+        # of actions into mostly-equal-length sublists of some arbitrary length.
         def partition(names):
-            count_in_partition = 10 # arbitrary
-            if len(names) >= count_in_partition:
-                partition_count = len(names) // (count_in_partition - 1)
+            max_in_partition = 10 # arbitrary
+            if len(names) >= max_in_partition:
+                partition_count = ceil(len(names) / max_in_partition)
                 step = int(ceil(len(names) / partition_count))
                 for first in range(0, len(names), step):
                     last = min(first + step - 1, len(names) - 1)
