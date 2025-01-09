@@ -613,4 +613,5 @@ def localize_website_link(url):
 
 
 def is_rtl_lang(lang):
-    return lang[:2].lower() in ('ar', 'he')
+    lang = canonicalize_lang(lang)
+    return lang and lang in ('ara', 'heb')
