@@ -14,7 +14,7 @@ from calibre.utils.icu import sort_key
 class AllGUIActions(InterfaceAction):
 
     name = 'All GUI actions'
-    action_spec = (_('All GUI actions'), 'wizard.png',
+    action_spec = (_('GUI actions'), 'wizard.png',
                    _("Show a menu of all available GUI and plugin actions.\nThis menu "
                      "is not available when looking at books on a device"), None)
 
@@ -33,10 +33,9 @@ class AllGUIActions(InterfaceAction):
         self.shortcut_action = self.create_menu_action(
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
-                        shortcut=None,
-                        text=_("Save and restore layout item sizes, and add/remove/toggle "
-                               "layout items such as the search bar, tag browser, etc. "),
-                        icon='layout.png',
+                        shortcut='Ctrl+Shift+Alt+G',
+                        text=_("Show a menu of all available GUI and plugin actions."),
+                        icon='wizard.png',
                         triggered=self.show_menu)
 
     # We want to show the menu when a shortcut is used. Apparently the only way
@@ -58,9 +57,6 @@ class AllGUIActions(InterfaceAction):
 
     def about_to_show_menu(self):
         self.populate_menu()
-
-    def location_selected(self, loc):
-        self.qaction.setEnabled(loc == 'library')
 
     def populate_menu(self):
         # Need to do this on every invocation because shortcuts can change
@@ -127,13 +123,16 @@ class AllGUIActions(InterfaceAction):
             if act.popup_type == QToolButton.ToolButtonPopupMode.MenuButtonPopup:
                 if getattr(act, 'action_add_menu', None) or (getattr(act, 'qaction', None) and act.qaction.menu() and act.qaction.menu().children()):
                     # The action offers both a 'click' and a menu. Use the menu.
-                    menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
+                    ma = menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
                 else:
                     # The action is a dialog.
-                    menu.addAction(act.qaction.icon(), menu_text, partial(self._do_action, act))
+                    ma = menu.addAction(act.qaction.icon(), menu_text, partial(self._do_action, act))
             else:
                 # The action is a menu.
-                menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
+                ma = menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
+            # Disable the menu line if the underlying qaction is disabled. This
+            # happens when devices are connected and in some other contexts.
+            ma.setEnabled(act.qaction.isEnabled())
 
         # Finally the real work, building the action menu. Partition long lists
         # of actions into sublists of some arbitrary length.
@@ -166,6 +165,7 @@ class AllGUIActions(InterfaceAction):
             partition(builtin_actions)
         # Add access to the toolbars and keyboard shortcuts preferences dialogs
         m.addSection(_('Preferences') + ' ')
+        m.addAction(QIcon.ic('wizard.png'), _('Main dialog'), self.gui.iactions['Preferences'].qaction.trigger)
         m.addAction(QIcon.ic('wizard.png'), _('Toolbars'), self._do_pref_toolbar)
         m.addAction(QIcon.ic('keyboard-prefs.png'), _('Keyboard shortcuts'), self._do_pref_shortcuts)
 

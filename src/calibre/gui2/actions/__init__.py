@@ -68,6 +68,13 @@ def show_menu_under_widget(gui, menu, action, name):
                 return
             except Exception:
                 continue
+    # Is it one of the status bar buttons?
+    for button in gui.status_bar_extra_buttons:
+        if name == button.action_name and button.isVisible():
+            r = button.geometry()
+            p = gui.status_bar
+            menu.exec(p.mapToGlobal(QPoint(r.x()+2, r.height()-2)))
+            return
     # No visible button found. Fall back to displaying in upper left corner
     # of the library view.
     menu.exec(gui.library_view.mapToGlobal(QPoint(10, 10)))

@@ -487,6 +487,29 @@ class VLTabs(QTabBar):  # {{{
 
 # }}}
 
+class StatusBarButton(QToolButton):
+
+    def __init__(self, parent, action_name, pref_name, on_click):
+        super().__init__(parent=parent)
+        act = parent.iactions[action_name]
+        self.action_name = action_name
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.setAutoRaise(True)
+        self.setIcon(QIcon.ic(act.action_spec[1]))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.setText(act.action_spec[0])
+        self.setToolTip(act.action_spec[2])
+        self.setVisible(gprefs[pref_name])
+        parent.status_bar.addPermanentWidget(self)
+        if on_click == 'menu':
+            self.setMenu(act.qaction.menu())
+        elif on_click == 'trigger':
+            self.clicked.connect(act.qaction.trigger)
+        else:
+            raise ValueError(f'make_status_line_action_button: invalid on_click ({on_click}')
+
+
 class LayoutMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -573,6 +596,15 @@ class LayoutMixin:  # {{{
         b.setToolTip(_(
             'Show and hide various parts of the calibre main window'))
         self.status_bar.addPermanentWidget(b)
+
+        # These must be after the layout button because it can be expanded into
+        # the component buttons. Order: last is right-most.
+        # The preferences status bar button isn't (yet) allowed on the status bar
+        # self.sb_preferences_button = StatusBarButton(self, 'Preferences', 'show_sb_preference_button', 'trigger')
+        self.sb_all_gui_actions_button = StatusBarButton(self, 'All GUI actions',
+                                                         'show_sb_all_actions_button', 'menu')
+        self.status_bar_extra_buttons = (self.sb_all_gui_actions_button,)
+
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)

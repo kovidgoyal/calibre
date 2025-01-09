@@ -632,6 +632,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
         r('show_layout_buttons', gprefs)
+        r('show_sb_all_actions_button', gprefs)
+        # r('show_sb_preference_button', gprefs)
         r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs)
         r('tag_browser_hide_empty_categories', gprefs)
@@ -1277,6 +1279,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         qv = get_quickview_action_plugin()
         if qv:
             qv.refill_quickview()
+        gui.sb_all_gui_actions_button.setVisible(gprefs['show_sb_all_actions_button'])
+        # gui.sb_preferences_button.setVisible(gprefs['show_sb_preference_button'])
 
 
 if __name__ == '__main__':

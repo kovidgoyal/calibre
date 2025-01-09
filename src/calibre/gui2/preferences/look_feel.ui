@@ -41,6 +41,23 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="opt_ui_style"/>
        </item>
+       <item row="0" column="2">
+        <layout class="QHBoxLayout">
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
        <item row="1" column="0">
         <widget class="QLabel" name="icon_theme">
          <property name="text">
@@ -190,13 +207,6 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QCheckBox" name="opt_show_layout_buttons">
-         <property name="text">
-          <string>Show &amp;layout buttons in the status bar</string>
-         </property>
-        </widget>
-       </item>
        <item row="9" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -263,6 +273,42 @@
              <string>Use t&amp;wo lines for the text under the icons (needs restart)</string>
             </property>
            </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QGroupBox">
+         <property name="title">
+          <string>Status bar buttons</string>
+         </property>
+         <layout class="QVBoxLayout">
+          <item>
+           <widget class="QCheckBox" name="opt_show_layout_buttons">
+            <property name="text">
+             <string>Show &amp;layout buttons</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="opt_show_sb_all_actions_button">
+            <property name="text">
+             <string>S&amp;how GUI actions button</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
