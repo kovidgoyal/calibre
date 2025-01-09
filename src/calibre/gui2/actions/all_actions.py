@@ -33,7 +33,7 @@ class AllGUIActions(InterfaceAction):
         self.shortcut_action = self.create_menu_action(
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
-                        shortcut='Ctrl+Shift+Alt+G',
+                        shortcut='Ctrl+F1',
                         text=_("Show a menu of all available GUI and plugin actions."),
                         icon='wizard.png',
                         triggered=self.show_menu)
