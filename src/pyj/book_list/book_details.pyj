@@ -195,9 +195,9 @@ def replace_calibre_links_to_books(html):
             link.href = new_href
             changed = True
     )
-    if not changed:
-        return html
-    return v'new XMLSerializer().serializeToString(dom);'
+    if changed:
+        return v'new XMLSerializer().serializeToString(dom);'
+    return html
 
 
 def adjusting_sandboxed_html(html, extra_css):
