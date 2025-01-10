@@ -415,6 +415,8 @@ def create_defs():
     defs['tag_browser_allow_keyboard_focus'] = False
     defs['book_list_tooltips'] = True
     defs['show_layout_buttons'] = False
+    # defs['show_sb_preference_button'] = False
+    defs['show_sb_all_actions_button'] = False
     defs['bd_show_cover'] = True
     defs['bd_overlay_cover_size'] = False
     defs['tags_browser_category_icons'] = {}
