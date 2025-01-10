@@ -1203,90 +1203,64 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
             add_show_hidden_categories()
 
-        # partitioning. If partitioning is active, provide a way to turn it on or
-        # off for this category.
-        if gprefs['tags_browser_partition_method'] != 'disable' and key is not None:
-            m = self.context_menu
-            p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
-            # Use the prefix for a user category. The
-            if key.startswith('@'):
-                k = key.partition('.')[0]
-                cat = k[1:]
+        if key is not None:
+            # partitioning. If partitioning is active, provide a way to turn it on or
+            # off for this category.
+            if gprefs['tags_browser_partition_method'] != 'disable':
+                m = self.context_menu
+                p = self.db.prefs.get('tag_browser_dont_collapse', gprefs['tag_browser_dont_collapse'])
+                # Use the prefix for a user category. The
+                if key.startswith('@'):
+                    k = key.partition('.')[0]
+                    cat = k[1:]
+                else:
+                    k = key
+                    cat = category
+                if k in p:
+                    a = m.addAction(_('Sub-categorize {}').format(cat),
+                                    partial(self.context_menu_handler, action='collapse_category',
+                                            category=cat, key=k, extra=p))
+                else:
+                    a = m.addAction(_("Don't sub-categorize {}").format(cat),
+                                    partial(self.context_menu_handler, action='dont_collapse_category',
+                                            category=cat, key=k, extra=p))
+                a.setIcon(QIcon.ic('config.png'))
+
+            # Add expand menu items
+            self.context_menu.addSeparator()
+            m = self.context_menu.addMenu(_('Expand or collapse'))
+            try:
+                node_name = self._model.get_node(index).tag.name
+            except AttributeError:
+                pass
             else:
-                k = key
-                cat = category
-            if k in p:
-                a = m.addAction(_('Sub-categorize {}').format(cat),
-                                partial(self.context_menu_handler, action='collapse_category',
-                                        category=cat, key=k, extra=p))
-            else:
-                a = m.addAction(_("Don't sub-categorize {}").format(cat),
-                                partial(self.context_menu_handler, action='dont_collapse_category',
-                                        category=cat, key=k, extra=p))
-            a.setIcon(QIcon.ic('config.png'))
-        # Set the partitioning scheme
-        m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
-        m.setIcon(QIcon.ic('config.png'))
-        da = m.addAction(_('Disable'),
-            partial(self.context_menu_handler, action='categorization', category='disable'))
-        fla = m.addAction(_('By first letter'),
-            partial(self.context_menu_handler, action='categorization', category='first letter'))
-        pa = m.addAction(_('Partition'),
-            partial(self.context_menu_handler, action='categorization', category='partition'))
-        if self.collapse_model == 'disable':
-            da.setCheckable(True)
-            da.setChecked(True)
-        elif self.collapse_model == 'first letter':
-            fla.setCheckable(True)
-            fla.setChecked(True)
-        else:
-            pa.setCheckable(True)
-            pa.setChecked(True)
+                if self.has_children(index) and not self.isExpanded(index):
+                    m.addAction(self.plus_icon,
+                                _('Expand {0}').format(node_name), partial(self.expand, index))
+                if self.has_unexpanded_children(index):
+                    m.addAction(self.plus_icon,
+                                _('Expand {0} and its children').format(node_name),
+                                                partial(self.expand_node_and_children, index))
 
-        if config['sort_tags_by'] != "name":
-            fla.setEnabled(False)
-            m.hovered.connect(self.collapse_menu_hovered)
-            fla.setToolTip(_('First letter is usable only when sorting by name'))
-            # Apparently one cannot set a tooltip to empty, so use a star and
-            # deal with it in the hover method
-            da.setToolTip('*')
-            pa.setToolTip('*')
-
-        # Add expand menu items
-        self.context_menu.addSeparator()
-        m = self.context_menu.addMenu(_('Expand or collapse'))
-        try:
-            node_name = self._model.get_node(index).tag.name
-        except AttributeError:
-            pass
-        else:
-            if self.has_children(index) and not self.isExpanded(index):
-                m.addAction(self.plus_icon,
-                            _('Expand {0}').format(node_name), partial(self.expand, index))
-            if self.has_unexpanded_children(index):
-                m.addAction(self.plus_icon,
-                            _('Expand {0} and its children').format(node_name),
-                                            partial(self.expand_node_and_children, index))
-
-        # Add menu items to collapse parent nodes
-        idx = index
-        paths = []
-        while True:
-            # First walk up the node tree getting the displayed names of
-            # expanded parent nodes
-            node = self._model.get_node(idx)
-            if node.type == TagTreeItem.ROOT:
-                break
-            if self.has_children(idx) and self.isExpanded(idx):
-                # leaf nodes don't have children so can't be expanded.
-                # Also the leaf node might be collapsed
-                paths.append((node.tag.name, idx))
-            idx = self._model.parent(idx)
-        for p in paths:
-            # Now add the menu items
-            m.addAction(self.minus_icon,
-                        _("Collapse {0}").format(p[0]), partial(self.collapse_node, p[1]))
-        m.addAction(self.minus_icon, _('Collapse all'), self.collapseAll)
+            # Add menu items to collapse parent nodes
+            idx = index
+            paths = []
+            while True:
+                # First walk up the node tree getting the displayed names of
+                # expanded parent nodes
+                node = self._model.get_node(idx)
+                if node.type == TagTreeItem.ROOT:
+                    break
+                if self.has_children(idx) and self.isExpanded(idx):
+                    # leaf nodes don't have children so can't be expanded.
+                    # Also the leaf node might be collapsed
+                    paths.append((node.tag.name, idx))
+                idx = self._model.parent(idx)
+            for p in paths:
+                # Now add the menu items
+                m.addAction(self.minus_icon,
+                            _("Collapse {0}").format(p[0]), partial(self.collapse_node, p[1]))
+            m.addAction(self.minus_icon, _('Collapse all'), self.collapseAll)
 
         # Ask plugins if they have any actions to add to the context menu
         from calibre.gui2.ui import get_gui
