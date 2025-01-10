@@ -286,7 +286,7 @@
           <item>
            <widget class="QCheckBox" name="opt_show_layout_buttons">
             <property name="toolTip">
-             <string>Show individual buttons to control the layout of th einterface rather than a single button with a popup.</string>
+             <string>Show individual buttons to control the layout of the interface rather than a single button with a popup.</string>
             </property>
             <property name="text">
              <string>Show &amp;layout buttons</string>
