@@ -1003,18 +1003,22 @@ A value of zero means calculate automatically.</string>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="opt_book_details_note_link_icon_width">
+          <widget class="QDoubleSpinBox" name="opt_book_details_note_link_icon_width">
            <property name="toolTip">
-            <string>Specify the size (width and height) of the links and notes icons</string>
+            <string>Increase or decrease the size of the links and notes icons by this number. Larger
+than one increases the icon size while smaller than one decreases it.</string>
            </property>
-           <property name="suffix">
-            <string> pixels</string>
-           </property>
-           <property name="maximum">
-            <number>48</number>
+           <property name="decimals">
+            <number>1</number>
            </property>
            <property name="minimum">
-            <number>12</number>
+            <double>0.5</double>
+           </property>
+           <property name="maximum">
+            <double>4.0</double>
+           </property>
+           <property name="singleStep">
+            <double>0.1</double>
            </property>
           </widget>
          </item>

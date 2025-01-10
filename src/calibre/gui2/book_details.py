@@ -15,6 +15,7 @@ from qt.core import (
     QColor,
     QDialog,
     QEasingCurve,
+    QFontMetrics,
     QIcon,
     QKeySequence,
     QMenu,
@@ -394,12 +395,15 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
                 if db.notes_for(field, item_id):
                     return item_id
 
+    # Compute the size of the link and note icons by scaling the current font
+    # height by the option specified in Preferences / L&F / Book details.
+    icon_size = int(QFontMetrics(QApplication.font()).height() * gprefs['book_details_note_link_icon_width'])
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
         comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True,
         vertical_fields=vertical_fields, show_links=show_links, item_id_if_has_note=item_id_if_has_note,
-        link_note_icon_size=gprefs['book_details_note_link_icon_width']
+        link_note_icon_size=icon_size
     )
 
 # }}}
