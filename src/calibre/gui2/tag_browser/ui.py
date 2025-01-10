@@ -880,7 +880,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.triggered.connect(self.filter_book_list)
 
         l.m.addSeparator()
-        ac = l.m.addAction(QIcon.ic('config.png'), _('Preferences / Look & feel / Tag browser'))
+        ac = l.m.addAction(QIcon.ic('config.png'), _('Show all Tag browser se&ttings'))
         ac.triggered.connect(self.show_tag_browser_preferences)
 
         ac = QAction(parent)
