@@ -179,6 +179,8 @@ def replace_calibre_links_to_books(html):
                 lib = lib[6:]
                 v'const uint8Array = new Uint8Array(lib.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));'
                 v'lib = new TextDecoder("utf-8").decode(uint8Array);'
+            elif lib is '_':
+                lib = current_library_id()
             if url.hostname is 'show-book':
                 new_href = query_as_href({'book_id': book_id + '', 'library_id': lib}, 'book_details')
             else:
