@@ -957,7 +957,7 @@ A value of zero means calculate automatically.</string>
          </item>
         </layout>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="1" column="0" colspan="3">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLabel" name="label_25">
@@ -978,6 +978,62 @@ A value of zero means calculate automatically.</string>
             </sizepolicy>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd13">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_1022">
+           <property name="text">
+            <string>Link and note icon si&amp;ze:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_book_details_note_link_icon_width</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_book_details_note_link_icon_width">
+           <property name="toolTip">
+            <string>Increase or decrease the size of the links and notes icons by this number. Larger
+than one increases the icon size while smaller than one decreases it.</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>0.5</double>
+           </property>
+           <property name="maximum">
+            <double>4.0</double>
+           </property>
+           <property name="singleStep">
+            <double>0.1</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd13">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>

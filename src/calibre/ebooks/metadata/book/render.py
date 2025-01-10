@@ -107,13 +107,15 @@ def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
         rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
-        for_qt=False, vertical_fields=(), show_links=True, item_id_if_has_note=None
+        for_qt=False, vertical_fields=(), show_links=True, item_id_if_has_note=None,
+        link_note_icon_size=16
     ):
 
     link_markup =  '↗️'
     if for_qt:
-        link_markup = '<img valign="bottom" src="calibre-icon:///external-link.png" width=16 height=16>'
-        note_markup = '<img valign="bottom" src="calibre-icon:///notes.png" width=16 height=16>'
+        s = link_note_icon_size
+        link_markup = f'<img valign="bottom" src="calibre-icon:///external-link.png" width={s} height={s}>'
+        note_markup = f'<img valign="bottom" src="calibre-icon:///notes.png" width={s} height={s}>'
     def get_link_map(column):
         try:
             return mi.link_maps[column]
