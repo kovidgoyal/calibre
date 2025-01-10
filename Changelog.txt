@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 7.x.0 2024-xx-xx
+# {{{ 7.x.0 2025-xx-xx
 #
 # :: new features
 #
@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 7.24.0 2024-01-10
+{{{ 7.24.0 2025-01-10
 
 :: new features
 
