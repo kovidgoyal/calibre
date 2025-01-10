@@ -278,13 +278,16 @@
         </widget>
        </item>
        <item row="10" column="1">
-        <widget class="QGroupBox">
+        <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Status bar buttons</string>
          </property>
          <layout class="QVBoxLayout">
           <item>
            <widget class="QCheckBox" name="opt_show_layout_buttons">
+            <property name="toolTip">
+             <string>Show individual buttons to control the layout of th einterface rather than a single button with a popup.</string>
+            </property>
             <property name="text">
              <string>Show &amp;layout buttons</string>
             </property>
@@ -292,8 +295,11 @@
           </item>
           <item>
            <widget class="QCheckBox" name="opt_show_sb_all_actions_button">
+            <property name="toolTip">
+             <string>Show a button that gives quick access to all available actions with a single click.</string>
+            </property>
             <property name="text">
-             <string>S&amp;how GUI actions button</string>
+             <string>S&amp;how actions button</string>
             </property>
            </widget>
           </item>
@@ -1475,8 +1481,8 @@ also checked then only categories containing a matched item will be shown.&lt;/p
           <item row="3" column="0">
            <widget class="QCheckBox" name="opt_tag_browser_restore_tree_expansion">
             <property name="toolTip">
-             <string>&lt;p&gt;Ensure the last "used" item in the Tag browser is visible when opening a library.
-An item is "used" when it is expanded, collapsed, or clicked.&lt;/p&gt;</string>
+             <string>&lt;p&gt;Ensure the last &quot;used&quot; item in the Tag browser is visible when opening a library.
+An item is &quot;used&quot; when it is expanded, collapsed, or clicked.&lt;/p&gt;</string>
             </property>
             <property name="text">
              <string>Expand tr&amp;ee to show last used item</string>

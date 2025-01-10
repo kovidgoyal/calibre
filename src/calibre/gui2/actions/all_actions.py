@@ -14,8 +14,8 @@ from calibre.utils.icu import sort_key
 class AllGUIActions(InterfaceAction):
 
     name = 'All GUI actions'
-    action_spec = (_('GUI actions'), 'wizard.png',
-                   _("Show a menu of all available GUI and plugin actions.\nThis menu "
+    action_spec = (_('All actions'), 'wizard.png',
+                   _("Show a menu of all available actions, including from third party plugins.\nThis menu "
                      "is not available when looking at books on a device"), None)
 
     action_type = 'current'
@@ -34,7 +34,7 @@ class AllGUIActions(InterfaceAction):
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
                         shortcut='Ctrl+F1',
-                        text=_("Show a menu of all available GUI and plugin actions."),
+                        text=_("Show a menu of all available actions."),
                         icon='wizard.png',
                         triggered=self.show_menu)
 
