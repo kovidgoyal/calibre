@@ -23,6 +23,41 @@
 # - title by author
 # }}}
 
+{{{ 7.24.0 2024-01-10
+
+:: new features
+
+- [2091268] Allow creating rules to transform series names in the Bulk metadata editor and Preferences->Metadata download
+
+- Conversion: Automatically set the page progression direction for books that do not have it set and have their primary language either Arabic or Hebrew
+
+- Content server: Book details view: Make calibre://show-book and calibre://view-book URLs in the comments work
+
+- [2092496] Edit book: Spell check: Add a button to export the currently displayed list of words as a CSV file
+
+- [2092483] Add from ISBN: Add a checkbox to automatically convert obsolete ISBN 10 to ISBN 13
+
+- [2092395] Save single format to disk: Allow choosing the book cover as the format to save
+
+- Option to show a button to access all available actions from the status bar in Preferences->Look & feel->Main interface
+
+:: bug fixes
+
+- [2092948] Read aloud: Fix no audio produced when text contains <3 and using the Windows legacy speech engine
+
+- [2092643] Fix Tabbing while editing cells in the book list not always working
+
+- Windows build: Also sign the portable launcher exes
+
+- [2092630] Fix viewing books via the Cover browser not working when in device view
+
+:: improved recipes
+- LWN Weekly
+- Outlook India
+- Livemint
+
+}}}
+
 {{{ 7.23.0 2024-12-20
 
 :: new features
