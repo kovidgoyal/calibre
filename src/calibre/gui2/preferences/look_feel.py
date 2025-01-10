@@ -678,6 +678,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('booklist_grid', gprefs)
         r('book_details_comments_heading_pos', gprefs, choices=[
             (_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')])
+        r('book_details_note_link_icon_width', gprefs)
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
