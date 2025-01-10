@@ -131,13 +131,16 @@ class BusinessStandardPrint(BasicNewsRecipe):
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
 
-        body = data['htmlContent'].replace('<br />\r\n\t\t&nbsp;', '<br>')
+        body = data['htmlContent']
 
         return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><br>' + body + '</div></body></html>'
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
             img.attrs = {'src': img.get('src', '')}
-        for x in soup.findAll('div'):
+        for x in soup.findAll('div', 'p'):
             x.attrs = {'class': x.get('class', '')}
+        for attr in self.remove_attributes:
+            for x in soup.findAll(attrs={attr: True}):
+                del x[attr]
         return soup
