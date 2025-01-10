@@ -162,38 +162,37 @@ def replace_calibre_links_to_books(html):
     changed = False
     dom.body.querySelectorAll('a[href]').forEach(def (link):
         nonlocal changed
-        if not link.href:
+        if not link.href or not link.href.startswith('calibre://'):
             return
-        if link.href.startswith('calibre://'):
-            url = v'new URL(link.href, window.location.origin)'
-            if url.hostname is not 'show-book' and url.hostname is not 'view-book':
-                return
-            path = url.pathname
-            parts = str.split(path, '/')
-            lib, book_id = parts[1], parts[2]
-            try:
-                book_id = int(book_id)
-            except:
-                return
-            if lib.startswith('_hex_-'):
-                lib = lib[6:]
-                v'const uint8Array = new Uint8Array(lib.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));'
-                v'lib = new TextDecoder("utf-8").decode(uint8Array);'
-            elif lib is '_':
-                lib = current_library_id()
-            if url.hostname is 'show-book':
-                new_href = query_as_href({'book_id': book_id + '', 'library_id': lib}, 'book_details')
-            else:
-                fmt = parts[3]
-                extra_query = {}
-                url.searchParams.forEach(def(val, key):
-                    extra_query[key] = val
-                )
-                new_href = open_book_url_in_library(lib, book_id, fmt, extra_query)
-                if url.search:
-                    new_href
-            link.href = new_href
-            changed = True
+        url = v'new URL(link.href, window.location.origin)'
+        if url.hostname is not 'show-book' and url.hostname is not 'view-book':
+            return
+        path = url.pathname
+        parts = str.split(path, '/')
+        lib, book_id = parts[1], parts[2]
+        try:
+            book_id = int(book_id)
+        except:
+            return
+        if lib.startswith('_hex_-'):
+            lib = lib[6:]
+            v'const uint8Array = new Uint8Array(lib.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));'
+            v'lib = new TextDecoder("utf-8").decode(uint8Array);'
+        elif lib is '_':
+            lib = current_library_id()
+        if url.hostname is 'show-book':
+            new_href = query_as_href({'book_id': book_id + '', 'library_id': lib}, 'book_details')
+        else:
+            fmt = parts[3]
+            extra_query = {}
+            url.searchParams.forEach(def(val, key):
+                extra_query[key] = val
+            )
+            new_href = open_book_url_in_library(lib, book_id, fmt, extra_query)
+            if url.search:
+                new_href
+        link.href = new_href
+        changed = True
     )
     if changed:
         return v'new XMLSerializer().serializeToString(dom);'
