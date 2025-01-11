@@ -614,4 +614,5 @@ def localize_website_link(url):
 
 def is_rtl_lang(lang):
     lang = canonicalize_lang(lang)
-    return lang and lang in ('ara', 'heb')
+    # Aramaic, Arabic, Azeri, Hebrew, Dhivehi, Sorani, Urdu, Farsi
+    return lang and lang in ('ara', 'heb', 'aze', 'div', 'arc', 'syc', 'myz', 'ckb', 'urd', 'fas')
