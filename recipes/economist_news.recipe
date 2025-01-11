@@ -135,7 +135,7 @@ class EconomistNews(BasicNewsRecipe):
         img {display:block; margin:0 auto;}
     '''
 
-    cover_url = 'https://yt3.googleusercontent.com/UnUx7LD3mPISiPJo76CrN7vIUPAS4ATbVIBm3H76KWzCkNJeqMqJC0gpY6ArJfQBKQ2w7sQ5WQ=s0'
+    cover_url = 'https://m.media-amazon.com/images/M/MV5BNzJiZGYzNzgtNWY5Yi00NWYyLThmZGUtODQyM2ZkOWVlMDI1XkEyXkFqcGc@.jpg'
     oldest_article = 15
     resolve_internal_links = True
     remove_tags = [
