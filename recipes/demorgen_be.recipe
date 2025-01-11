@@ -1,40 +1,64 @@
 #!/usr/bin/env python
 
-__license__ = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
-'''
+"""
 demorgen.be
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DeMorganBe(BasicNewsRecipe):
-    title = u'De Morgen'
-    __author__ = u'Darko Miletic'
-    description = u'News from Belgium in Dutch'
-    oldest_article = 7
+    title = 'De Morgen'
+    __author__ = 'Darko Miletic'
+    description = 'News from Belgium in Dutch'
+    oldest_article = 1
     language = 'nl_BE'
-
+    encoding = "utf-8"
     max_articles_per_feed = 100
     no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
     use_embedded_content = False
+    remove_javascript = True
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.demorgen.be/_next/static/media/demorgen_logo.dce579e2.svg'
+    cover_url = 'https://usercontent.one/wp/www.insidejazz.be/wp-content/uploads/2018/11/pic0143.png'
+ 
+    extra_css = """
+        time, [data-test-id:"article-label"], [data-test-id:"article-sublabel"], [[data-test-id:"article-author"]] { font-size:small; }
+        [data-test-id:"header-intro"] { font-style: italic; }
+    """
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'art_box2'}), dict(name='h1'),
-        dict(name='p', attrs={'class': 'article__subtitle'}),
-        dict(name='p', attrs={'class': 'article__intro fjs-article__intro'}),
-        dict(name='div', attrs={'class': 'article__body__container first'}),
-        dict(name='h4'), dict(name='p', attrs={'class': 'article__body__paragraph'})
+        dict(name='article', attrs={'id': 'article-content'}),
+    ]
+
+    remove_tags = [dict(name=['iframe', 'aside'])]
+
+    remove_tags_after = [
+        dict(name='div', attrs={'class': 'paywall'}),
     ]
 
     feeds = [
-        (u'Nieuws', u'http://www.demorgen.be/nieuws/rss.xml'),
-        (u'De Gedachte', u'http://www.demorgen.be/degedachte/rss.xml'),
-        (u'Financiele morgen', u'http://www.demorgen.be/financielemorgen/rss.xml'),
-        (u'Financiele morgen', u'http://www.demorgen.be/financielemorgen/rss.xml'),
-        (u'Sport', u'http://www.demorgen.be/sport/rss.xml'),
-        (u'Bis', u'http://www.demorgen.be/bis/rss.xml'),
-        (u'Magazine', u'http://www.demorgen.be/magazine/rss.xml'),
-        (u'De stand der dingen', u'http://www.demorgen.be/standderdingen/rss.xml')
+        ('In het nieuws', 'https://www.demorgen.be/in-het-nieuws/rss.xml'),
+        ('Niet te missen', 'https://www.demorgen.be/niet-te-missen/rss.xml'),
+        ('Beter leven', 'http://www.demorgen.be/beter-leven/rss.xml'),
+        ('Crisis Midden-Oosten', 'http://www.demorgen.be/aanval-op-israel/rss.xml'),
+        ('Koken met de Morgen', 'http://www.demorgen.be/koken-met-de-morgen/rss.xml'),
+        ('Meningen', 'http://www.demorgen.be/meningen/rss.xml'),
+        ('Politiek', 'http://www.demorgen.be/politiek/rss.xml'),
+        ('TV & Cultuur', 'http://www.demorgen.be/tv-cultuur/rss.xml'),
+        ('Oorlog in Oekraine', 'http://www.demorgen.be/oorlog-in-oekraine/rss.xml'),
+        ('Tech & Wetenschap', 'http://www.demorgen.be/tech-wetenschap/rss.xml'),
+        ('Sport', 'http://www.demorgen.be/sport/rss.xml'),
+        ('Podcasts', 'http://www.demorgen.be/podcasts/rss.xml'),
+        ('Puzzels', 'http://www.demorgen.be/puzzels/rss.xml'),
+        ('Cartoons', 'http://www.demorgen.be/puzzels-cartoons/rss.xml'),
+        ('Achter de schermen', 'http://www.demorgen.be/achter-de-schermen/rss.xml'),
+        ('Best gelezen', 'http://www.demorgen.be/popular/rss.xml'),
+        ('Nieuws', 'http://www.demorgen.be/nieuws/rss.xml'),
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'srcset': True}):
+            img['src'] = img['srcset'].split()[0]
+        return soup
