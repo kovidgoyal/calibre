@@ -22,7 +22,7 @@ class DeMorganBe(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.demorgen.be/_next/static/media/demorgen_logo.dce579e2.svg'
     cover_url = 'https://usercontent.one/wp/www.insidejazz.be/wp-content/uploads/2018/11/pic0143.png'
- 
+
     extra_css = """
         time, [data-test-id:"article-label"], [data-test-id:"article-sublabel"], [[data-test-id:"article-author"]] { font-size:small; }
         [data-test-id:"header-intro"] { font-style: italic; }

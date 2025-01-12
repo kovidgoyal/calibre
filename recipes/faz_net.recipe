@@ -1,0 +1,275 @@
+﻿import json
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+
+
+def format_tickaroo_liveblog(soup):
+    for img in soup.findAll('img', attrs={'class':'tik4-media-image__img','srcset':True}):
+        sources = img['srcset'].split()
+        i=0
+        for x in sources:
+            if x == '960w,' or x == '960w':
+                img['src'] = sources[i-1]
+                break
+            i = i + 1
+        if not img.has_attr('src'):
+            img['src'] = sources[0]
+    for div in soup.findAll('div', attrs={'class':'tik4-content-block tik4-content-block--rich-text tik4-content-block--position-2'}):
+        div.insert_before(soup.new_tag('br'))
+
+
+    #format liveblogs
+    for tag in soup.findAll('time'):
+        ntag = soup.new_tag("br")
+        tag.insert_before(ntag)
+
+    for tag in soup.findAll(class_ = 'tik4-author__wrapper'):
+        ntag = tag.find(class_ = 'tik4-author__name')
+        if ntag:
+            temp = ntag.extract()
+            temp['class'] = 'tik4-media-body__title'
+        ntag = tag.find(class_ = 'tik4-author__thumb')
+        if ntag and temp:
+            ntag.insert_after(temp)
+
+    # process run of images
+def bilderstrecke(soup,tag):
+    flag = False
+    try:
+        struct = json.loads(str(tag.contents[0]))
+    except Exception:
+        return
+
+    if struct and isinstance(struct, list):
+        for v in struct:
+            if isinstance(v, dict) and 'caption' in v:
+                flag = True
+                break
+    if not flag:
+        return
+
+    temp=soup.findAll(class_='header-teaser')
+    if len(temp) > 1:
+        temp[0].extract()
+    collect = soup.new_tag('div')
+
+    for v in struct:
+        if isinstance(v, dict) and 'caption' in v and 'defaultUrl' in v:
+#            if type(struct[i-1])== str:
+#                head = soup.new_tag("h4")
+#                head.append(struct[i-1])
+            cap = soup.new_tag('p')
+            cap.append(struct[int(v['caption'])])
+            cap['class'] = "body-elements__image-figcaption"
+            if 'source' in v.keys():
+                cred = soup.new_tag('span')
+                cred.append(struct[int(v['source'])])
+                cred['class'] = "body-elements__image-figcaption--source"
+                cap.append(cred)
+            if 'defaultUrl' in v.keys():
+                fig = soup.new_tag("figure")
+                img = soup.new_tag('img')
+                img['src'] = struct[int(v['defaultUrl'])]
+                fig.append(img)
+                fig.append(cap)
+                collect.append(fig)
+    soup.find(class_='header-teaser').insert_after(collect)
+
+
+    for tag in soup.findAll(class_='header-teaser__image--default'):
+        tag.extract()
+
+def story(soup,tag):
+    first_image = soup.find('img',attrs={'loading':'lazy'})
+    first_caption = soup.find('figcaption',attrs={'class':'caption'})
+    if first_image and first_caption:
+        first_image.insert_after(first_caption.extract())
+
+
+class FazNet(BasicNewsRecipe):
+    # Version 9.1m
+    # Update 2024-05
+    # original by Armin Geller
+    # overhaul to deal with changes in the faz.net websites
+
+    title                 =             'FAZ.NET'
+    __author__            =             'Unknown'
+    description           =             'Frankfurter Allgemeine Zeitung'
+    publisher             =             'Frankfurter Allgemeine Zeitung GmbH'
+    category              =             'news, politics, Germany'
+    cover_url             =             'https://upload.wikimedia.org/wikipedia/commons/7/72/Frankfurter_Allgemeine_logo.svg'
+    encoding              =             'utf-8'
+    language              =             'de'
+    ignore_duplicate_articles   =       {'title', 'url'}
+    max_articles_per_feed =             30
+    no_stylesheets        =             True
+    remove_javascript     =             True
+    scale_news_images = (10,100)
+    delay                 =      1
+
+    test_article = 'https://www.faz.net/rss/aktuell/feuilleton/kunst-und-architektur/berlinische-galerie-zeigt-edvard-munch-die-ganze-gefuehlsskala-des-lebens-19180631.html?printPagedArticle=true#pageIndex_2'
+    test_article = None
+
+    extra_css      =  '''
+        .header-title,.scrolly-title {font-size: 1.5em; font-weight:bold; text-align:left;}
+        .quote {font-size: 1.5em; font-weight:bold; text-align:center;}
+        .author {font-size: 0.7em; font-weight:bold; text-align:center; display:block;
+            margin-bottom: 0.95 em; color:grey;}
+        .header-label__content {font-size: 0.7em; font-weight:bold; text-align:left; display:block;
+            margin-bottom: 0.95 em; color:grey;}
+        h3 {font-size:1.3em;text-align:left;}
+        .caption,.body-elements__image-figcaption,.header-teaser__image-details,.tik4-media-body__title,.scrolly-text {
+                margin-top:0.05em;margin-bottom:1em; font-size: 0.85em; text-align:left;}
+        .body-elements__image-figcaption--source,.header-teaser__image-details--source,.tik4-media-body__credit {
+                font-size: 0.65em; font-style:italic; text-align:left;margin-left:0.4em;}
+        .header-detail--bold {font-size:0.6em; font-weight:bold; margin-bottom:0.75em;text-align:left;}
+        time {font-size:0.6em; font-weight: normal; margin-bottom:0.75em; text-align:left; display:block;}
+        .header-teaser,.scrolly-intro {font-size:1em; font-style:italic; font-weight:bold;margin-bottom:1em;}
+        .tik4-media-image {margin-bottom:1em;margin-top:1em;}
+        '''
+
+    keep_only_tags = [dict(name='article', attrs={'class':['article','storytelling']}),
+                      dict(name='body'),
+                      dict(name='div', attrs={'class':['imageGallery','image_only']}),
+                      dict(name = 'div', attrs ={'class':'tik4-live__container'}),
+                      dict(name = 'script', attrs = {'id':'__NUXT_DATA__'}),
+                      ]
+
+
+    remove_tags = [
+                   dict(name='div', attrs={'class':[
+                       'related-articles','consent-placeholder',
+                       'article-footer content-container',
+                       'tik4-sharing','tik4-load-more-bottom',
+                       'tik4-by','header-detail__image','mm-adbox','upper-toolbar content-container'
+                   ]}),
+  #                 dict(name ='script'),
+                   dict(name = "style"),
+                   dict(name='svg'),
+                   dict(name='div', attrs={'data-module':'teaser'}),
+
+                  ]
+
+    remove_attributes = ['onclick']
+
+
+    test_article = False
+    if not test_article:
+        feeds = [
+                 ('FAZ.NET Aktuell', 'https://www.faz.net/rss/aktuell/'),
+                 ('Politik', 'https://www.faz.net/rss/aktuell/politik/'),
+                 ('Wirtschaft', 'https://www.faz.net/rss/aktuell/wirtschaft/'),
+                 ('Feuilleton', 'https://www.faz.net/rss/aktuell/feuilleton/'),
+                 ('Sport', 'https://www.faz.net/rss/aktuell/sport/'),
+                 ('Lebensstil', 'https://www.faz.net/rss/aktuell/lebensstil/'),
+                 ('Gesellschaft', 'https://www.faz.net/rss/aktuell/gesellschaft/'),
+                 ('Finanzen', 'https://www.faz.net/rss/aktuell/finanzen/'),
+                 ('Technik & Motor', 'https://www.faz.net/rss/aktuell/technik-motor/'),
+                 ('Wissen', 'https://www.faz.net/rss/aktuell/wissen/'),
+                 ('Reise', 'https://www.faz.net/rss/aktuell/reise/'),
+                 ('Karriere & Hochschule', 'https://www.faz.net/rss/aktuell/karriere-hochschule/'),
+                 ('Rhein-Main', 'https://www.faz.net/rss/aktuell/rhein-main/')
+                ]
+    else:
+        def parse_index(self):
+            test_article = 'https://www.faz.net/aktuell/stil/mode-im-em-jahr-wir-zeigen-wie-fussball-und-mode-zusammengehoeren-19766969.html'
+#            test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/film-eruption-ein-thriller-aus-dem-nachlass-von-michael-crichton-19770491.html'
+#            test_article = 'https://www.faz.net/aktuell/stil/mode-design/leonie-benesch-sandra-hueller-ist-eine-meiner-heldinnen-19671638.html'
+#            test_article = 'https://www.faz.net/aktuell/feuilleton/medien/sabine-postel-zum-siebzigsten-die-briten-nannten-sie-german-traktor-19708409.html'
+#            test_article = 'https://www.faz.net/aktuell/stil/mode-design/von-richert-beil-bis-william-fan-wer-kauft-denn-das-19666592.html'
+ #           test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/rezensionen/sachbuch/tom-mustills-buch-die-sprache-der-wale-19657782.html'
+            if test_article:
+                return [('Articles', [{'title': 'Test article', 'url': test_article}])]
+            soup = self.index_to_soup(self.INDEX)
+            img = soup.find(**prefixed_classes('IssueDescription_cover__'))
+            if img is not None:
+                self.cover_url = img['src']
+            current_section, current_articles = 'Cover Story', []
+            feeds = []
+            for x in soup.findAll(**prefixed_classes('TocFeaturedSection_heading__ TocSection_heading__ TocHeroGridItem_hedLink___ TocGridItem_hedLink__')):
+                cls = x['class']
+                if not isinstance(cls, str):
+                    cls = ' '.join(cls)
+                title = self.tag_to_string(x).strip()
+                if 'Section' in cls:
+                    if current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_section, current_articles = title, []
+                    self.log(current_section)
+                    continue
+                url = x['href']
+                current_articles.append({'title': title, 'url': url})
+                self.log('\t', title, url)
+            if current_articles:
+                feeds.append((current_section, current_articles))
+            return feeds
+
+    def preprocess_html(self, soup):
+        # Format story-type article
+        tag = soup.find(class_='storyContainer')
+        if tag:
+            story(soup,tag)
+
+        #Extract images and text from image galleries
+        for par in soup.findAll('p'):
+            if len(par.contents) == 1:
+                cont = str(par.contents[0])
+                if re.search(r"^[1-9]\d* Bilder$",cont):
+#                    print(cont)
+                    for tag in soup.findAll('script',attrs={'id':"__NUXT_DATA__",'type':'application/json'}):
+                        bilderstrecke(soup,tag)
+                        break
+                    break
+
+        # unwrap buttons
+        for tag in soup.findAll('button'):
+            tag.unwrap()
+
+        # remove ":""
+        tag = soup.find(class_ ="header-label__content")
+        if tag:
+            colon=tag.find(class_ ="sr-only")
+            if colon:
+                colon.extract()
+
+        # Skip articles behind paywall
+        if soup.find(id = "faz-paywall"):
+            self.abort_article()
+
+        # Remove F.A.Z. ad
+        for tag in soup.findAll(attrs={'class': 'body-elements__paragraph'}):
+            if tag.contents[0] and 'F.A.Z.-Newsletter' in tag.contents[0]:
+                tag.extract()
+
+#         format liveblog
+        if soup.find(attrs={'class':'tik4-live__container'}):
+                    format_tickaroo_liveblog(soup)
+
+# remove sizes and calc attributes in images
+        for tag in soup.findAll('img'):
+            if tag.has_attr('src'):
+                new_img = soup.new_tag('img')
+                new_img['src'] = tag['src']
+                if tag.has_attr('alt'):
+                    new_img['alt'] = tag['alt']
+                if tag.has_attr('title'):
+                    new_img['title'] = tag['title']
+                tag.replace_with(new_img)
+        return soup
+
+    # Some last cleanup
+
+    def postprocess_html(self, soup, first_fetch):
+
+        #Position point between figure caption and figure credit, where needed
+        for tag in soup.findAll(attrs={'class':['body-elements__image-figcaption','header-teaser__image-details']}):
+            if tag.string is None:
+                if tag.contents[0].string:
+                    tag=tag.contents[0]
+            if tag.string:
+                text = str(tag.string)
+                text = text.strip()
+                if text != '' and text[-1] not in ['.','?','!',':']:
+                    tag.string.replace_with(text + ".")
+        return self.adeify_images(soup)
