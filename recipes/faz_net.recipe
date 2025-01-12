@@ -235,7 +235,7 @@ class FazNet(BasicNewsRecipe):
 
         # Skip articles behind paywall
         if soup.find(id = "faz-paywall"):
-            self.abort_article()
+            self.abort_article('Skipping paywalled article')
 
         # Remove F.A.Z. ad
         for tag in soup.findAll(attrs={'class': 'body-elements__paragraph'}):
