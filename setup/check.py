@@ -30,13 +30,19 @@ def get_ruff_config(is_strict_check):
         return []
 
 
+def files_walker(root_path, ext):
+    for x in os.walk(root_path):
+        for f in x[-1]:
+            y = os.path.join(x[0], f)
+            if f.endswith(ext):
+                yield y
+
+
 def checkable_python_files(SRC):
     for dname in ('odf', 'calibre'):
-        for x in os.walk(os.path.join(SRC, dname)):
-            for f in x[-1]:
-                y = os.path.join(x[0], f)
-                if f.endswith('.py') and not f.endswith('_ui.py'):
-                    yield y
+        for f in files_walker(os.path.join(SRC, dname), '.py'):
+            if not f.endswith('_ui.py'):
+                yield f
 
 
 class Check(Command):
@@ -57,17 +63,10 @@ class Check(Command):
     def get_files(self):
         yield from checkable_python_files(self.SRC)
 
-        for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
-            for f in x[-1]:
-                f = self.j(x[0], f)
-                if f.endswith('.recipe'):
-                    yield f
+        yield from files_walker(self.j(self.d(self.SRC), 'recipes'), '.recipe')
 
-        for x in os.walk(self.j(self.SRC, 'pyj')):
-            for f in x[-1]:
-                f = self.j(x[0], f)
-                if f.endswith('.pyj'):
-                    yield f
+        yield from files_walker(self.j(self.SRC, 'pyj'), '.pyj')
+
         if self.has_changelog_check:
             yield self.j(self.d(self.SRC), 'Changelog.txt')
 
