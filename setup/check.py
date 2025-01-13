@@ -23,15 +23,19 @@ class Message:
         return f'{self.filename}:{self.lineno}: {self.msg}'
 
 
+def get_ruff_config(is_strict_check):
+    if is_strict_check:
+        return ['--config=ruff-strict-pep8.toml']
+    else:
+        return []
+
+
 def checkable_python_files(SRC):
     for dname in ('odf', 'calibre'):
         for x in os.walk(os.path.join(SRC, dname)):
             for f in x[-1]:
                 y = os.path.join(x[0], f)
-                if (f.endswith('.py') and f not in (
-                        'dict_data.py', 'unicodepoints.py', 'krcodepoints.py',
-                        'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
-                        'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
+                if f.endswith('.py') and not f.endswith('_ui.py'):
                     yield y
 
 
@@ -40,12 +44,15 @@ class Check(Command):
     description = 'Check for errors in the calibre source code'
 
     CACHE = 'check.json'
+    CACHE_STRICT = 'check-strict.json'
 
     def add_options(self, parser):
         parser.add_option('--fix', '--auto-fix', default=False, action='store_true',
                 help='Try to automatically fix some of the smallest errors')
         parser.add_option('--pep8', '--pep8-commit', default=False, action='store_true',
                 help='Try to automatically fix some of the smallest errors, then perform a pep8 commit')
+        parser.add_option('--strict', '--strict-pep8', default=False, action='store_true',
+                help='Perform the checking more strictely. See the file "strict-pep8.toml"')
 
     def get_files(self):
         yield from checkable_python_files(self.SRC)
@@ -80,7 +87,7 @@ class Check(Command):
 
     @property
     def cache_file(self):
-        return self.j(build_cache_dir(), self.CACHE)
+        return self.j(build_cache_dir(), self.CACHE_STRICT if self.is_strict_check else self.CACHE)
 
     def save_cache(self, cache):
         dump_json(cache, self.cache_file)
@@ -88,8 +95,8 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p2 = subprocess.Popen(['ruff', 'check', f])
-            return p2.wait() != 0
+            p = subprocess.Popen(['ruff', 'check', f] + get_ruff_config(self.is_strict_check))
+            return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
             return p.wait() != 0
@@ -113,11 +120,15 @@ class Check(Command):
         if opts.fix and opts.pep8:
             self.info('setup.py check: error: options --fix and --pep8 are mutually exclusive')
             raise SystemExit(2)
+        if opts.strict and opts.pep8:
+            self.info('setup.py check: error: options --strict and --pep8 are mutually exclusive')
+            raise SystemExit(2)
 
         self.fhash_cache = {}
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         self.auto_fix = opts.fix
+        self.is_strict_check = opts.strict
         if opts.pep8:
             self.run_pep8_commit()
         else:
@@ -167,11 +178,12 @@ class Check(Command):
             self.info('\t\t', str(err))
 
     def clean(self):
-        try:
-            os.remove(self.cache_file)
-        except OSError as err:
-            if err.errno != errno.ENOENT:
-                raise
+        for cache_file in [self.j(build_cache_dir(), self.CACHE), self.j(build_cache_dir(), self.CACHE_STRICT)]:
+            try:
+                os.remove(cache_file)
+            except OSError as err:
+                if err.errno != errno.ENOENT:
+                    raise
 
 
 class UpgradeSourceCode(Command):
