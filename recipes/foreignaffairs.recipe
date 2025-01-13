@@ -127,7 +127,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Foreign_Affairs_Logo.svg/500px-Foreign_Affairs_Logo.svg.png'
     extra_css = '''
-        .topper__issue, .topper__date, .topper__byline, figure__caption, .calibre-nuked-tag-figcaption { font-size: small; }
+        .topper__date, .topper__byline, .figure__caption, .calibre-nuked-tag-figcaption, .font-style-italic { font-size: small; }
         .topper__subtitle { font-style: italic; color: #202020; }
         em, blockquote { color: #202020; }
         img {display:block; margin:0 auto;}
@@ -148,7 +148,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['svg', 'meta']),
-        classes('article-newsletter-signup--container dfp-tag-wrapper')
+        classes('topper__issue article-newsletter-signup--container dfp-tag-wrapper')
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
@@ -165,7 +165,6 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         # get dates
         date = re.split(r'\s\|\s', self.tag_to_string(
             soup.head.title.string))[0]
-        self.title = "Foreign Affairs ({})".format(date)
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
@@ -186,7 +185,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for h2 in soup.findAll(**classes('topper__subtitle')):
             h2.name = 'p'
-        for by in soup.findAll(**classes('topper__byline topper__issue topper__date')):
+        for by in soup.findAll(**classes('topper__byline topper__date font-style-italic')):
             by.name = 'div'
         for img in soup.find_all('img', attrs={'srcset': True}):
             img['src'] = re.sub(r"_webp_small_\dx", "_webp_large_1x",img['srcset'].split()[0])
