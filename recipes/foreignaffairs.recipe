@@ -169,11 +169,13 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        self.cover_url = re.sub(
-            r"_webp_issue_small_\dx",
-            "_webp_issue_large_2x",
-            soup.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})["srcset"].split()[0]
-        )
+        cov = soup.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})
+        if cov:
+            self.cover_url = re.sub(
+                r"_webp_issue_small_\dx",
+                "_webp_issue_large_2x",
+                cov["srcset"].split()[0]
+            )
 
         cls = soup.find('link', attrs={'rel':'shortlink'})['href']
         node_id = re.search(r'https://www.foreignaffairs.com/node/(\d+)', cls).group(1)
