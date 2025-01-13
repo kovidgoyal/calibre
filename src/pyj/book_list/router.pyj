@@ -86,6 +86,18 @@ def open_book_url_in_library(library_id, book_id, fmt, extra_query):
     return ans + encode_query(q, '#')
 
 
+def search_url_in_library(library_id, search, vl, sort):
+    ans = absolute_path('')
+    q = {'mode': 'book_list', 'search': search, 'panel': 'book_list'}
+    if library_id:
+        q.library_id = library_id
+    if vl:
+        q.vl = vl
+    if sort:
+        q.sort = sort
+    return ans + encode_query(q, '#')
+
+
 def open_book_url(book_id, fmt, extra_query):
     return open_book_url_in_library(current_library_id(), book_id, fmt, extra_query)
 
