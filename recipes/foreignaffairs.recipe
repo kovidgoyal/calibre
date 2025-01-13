@@ -2,7 +2,6 @@
 import json
 import re
 
-import html5lib
 import mechanize
 from lxml import html
 
@@ -86,7 +85,7 @@ def get_issue_data(br, log, node_id='1126213', year='2020', volnum='99', issue_v
     ))[0]['_source']
 
     if 'field_issue_sspecial_articles__nid' in issue_data:
-        main_sec_title = issue_data['title'][0]
+        main_sec_title = issue_data['field_issue_sspecial_header'][0]
         main_sec_nids = issue_data['field_issue_sspecial_articles__nid']
         articles_data = get_data(make_query(nid=main_sec_nids, filter=True, size=len(main_sec_nids)))
         articles = []
@@ -121,10 +120,18 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     publisher = u'Council on Foreign Relations'
     category = u'USA, Foreign Affairs'
     description = u'The leading forum for serious discussion of American foreign policy and international affairs.'
-
+    encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True
     needs_subscription = 'optional'
+    remove_attributes = ['style', 'height', 'width']
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Foreign_Affairs_Logo.svg/500px-Foreign_Affairs_Logo.svg.png'
+    extra_css = '''
+        .topper__issue, .topper__date, .topper__byline, figure__caption, .calibre-nuked-tag-figcaption { font-size: small; }
+        .topper__subtitle { font-style: italic; color: #202020; }
+        em, blockquote { color: #202020; }
+        img {display:block; margin:0 auto;}
+    '''
 
     INDEX = 'https://www.foreignaffairs.com/magazine'
 
@@ -136,10 +143,12 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-        classes('article-header article-body article-lead-image article-body-text'),
+        classes('topper__heading-container topper__image-container paywall-content'),
     ]
+
     remove_tags = [
-        classes('loading-indicator paywall article-footer article-tools')
+        dict(name=['svg', 'meta']),
+        classes('article-newsletter-signup--container dfp-tag-wrapper')
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
@@ -163,36 +172,22 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.cover_url = re.sub(
             r"_webp_issue_small_\dx",
             "_webp_issue_large_2x",
-            soup.find(class_="subscribe-callout-image")["srcset"]
-            .split(",")[0]
-            .strip()
-            .split(" ")[0],
+            soup.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})["srcset"].split()[0]
         )
 
-        cls = soup.find('body')['class']
-        if isinstance(cls, (list, tuple)):
-            cls = ' '.join(cls)
-        node_id = re.search(r'\bpage-node-(\d+)\b', cls).group(1)
+        cls = soup.find('link', attrs={'rel':'shortlink'})['href']
+        node_id = re.search(r'https://www.foreignaffairs.com/node/(\d+)', cls).group(1)
         br = self.cloned_browser
         feeds = get_issue_data(br, self.log, node_id, year, volnum, issue_vol)
         return feeds
 
-    def clean_fa_html(self, root):
-        for svg in tuple(root.iter('{*}svg')):
-            svg.getparent().remove(svg)
-        for meta in tuple(root.iter('{*}meta')):
-            meta.getparent().remove(meta)
-        return root
-
-    def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(raw_html, treebuilder='lxml',
-                              namespaceHTMLElements=False).getroot()
-        self.clean_fa_html(root)
-        return html.tostring(root, encoding='unicode')
-
     def preprocess_html(self, soup):
+        for h2 in soup.findAll(**classes('topper__subtitle')):
+            h2.name = 'p'
+        for by in soup.findAll(**classes('topper__byline topper__issue topper__date')):
+            by.name = 'div'
         for img in soup.find_all('img', attrs={'srcset': True}):
-            img['src'] = img['srcset'].split(',')[-1].strip().split(' ')[0].strip()
+            img['src'] = re.sub(r"_webp_small_\dx", "_webp_large_1x",img['srcset'].split()[0])
         return soup
 
     def get_browser(self):
