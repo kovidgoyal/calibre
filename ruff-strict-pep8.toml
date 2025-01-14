@@ -1,0 +1,81 @@
+line-length = 160
+target-version = 'py38'
+builtins = ['_', 'I', 'P']
+include = ['*.py', '*.recipe']
+exclude = [
+    "*_ui.py",
+    "bypy/*",
+    "setup/polib.py",
+    "setup/linux-installer.py",
+    "src/css_selectors/*",
+    "src/polyglot/*",
+    "src/templite/*",
+    "src/tinycss/*",
+]
+
+preview = true
+
+[format]
+quote-style = 'single'
+
+[lint]
+explicit-preview-rules = true
+ignore = [
+    'E402', 'E722', 'E741',
+    'UP012', 'UP030', 'UP031', 'UP032', 'C413', 'C420', 'PIE790', 'ISC003',
+    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF100',
+    'F841',  # because in preview, unused tuple unpacking variable that not use dummy syntax (prefix '_' underscore)
+             # raise error 'unused-variable', sigh (https://github.com/astral-sh/ruff/issues/8884)
+]
+select = [
+    'E', 'F', 'I', 'W', 'INT',
+    'UP', 'YTT', 'TID', 'Q', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
+    'RUF',  # nota: RUF can flag many unsolicited errors
+    # preview rules
+    'RUF051', 'RUF056',
+    'RUF039', 'RUF055',  # always use raw-string for regex
+    'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
+    'E111', 'E112', 'E113', 'E117',  # code indentation
+    'E114', 'E115', 'E116', 'E261', 'E262', 'E265',  # comment formating
+    'E201', 'E202', 'E211', 'E251', 'E275', # + partial: 'E203', 'E222', 'E241', 'E271', 'E272' # various whitespace
+]
+unfixable = ['ISC001']
+
+
+[lint.per-file-ignores]
+"recipes/*" = ['UP']
+"manual/plugin_examples/*" = ['UP']
+"src/calibre/customize/__init__.py" = ['RET501']
+"src/calibre/devices/interface.py" = ['RET501']
+"src/calibre/devices/kobo/driver.py" = ['E116']
+"src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
+"src/calibre/ebooks/metadata/sources/*" = ['UP']
+"src/calibre/ebooks/metadata/sources/base.py" = ['RET501']
+"src/calibre/ebooks/pdf/reflow.py" = ['E114']
+"src/calibre/gui2/store/stores/*" = ['UP']
+"src/calibre/utils/copy_files.py" = ['UP037']
+"src/calibre/utils/smartypants.py" = ['RUF039', 'RUF055']
+"src/calibre/web/feeds/news.py" = ['RET501']
+"src/qt/*.py" = ['I', 'E302']
+"src/qt/*.pyi" = ['I']
+
+[lint.isort]
+detect-same-package = true
+extra-standard-library = ["aes", "elementmaker", "encodings"]
+known-first-party = ["calibre_extensions", "calibre_plugins", "polyglot"]
+known-third-party = ["odf", "qt", "templite", "tinycss", "css_selectors"]
+relative-imports-order = "closest-to-furthest"
+split-on-trailing-comma = false
+section-order = ['__python__', "future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[lint.isort.sections]
+'__python__' = ['__python__']
+
+[lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
+
+[lint.flake8-quotes]
+avoid-escape = true
+docstring-quotes = 'single'
+inline-quotes = 'single'
+multiline-quotes = 'single'

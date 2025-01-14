@@ -9,7 +9,8 @@ include = ['*.py', '*.recipe']
 exclude = [
     "*_ui.py",
     "bypy/*",
-    "setup/*",
+    "setup/polib.py",
+    "setup/linux-installer.py",
     "src/css_selectors/*",
     "src/polyglot/*",
     "src/templite/*",
@@ -20,7 +21,7 @@ exclude = [
 quote-style = 'single'
 
 [tool.ruff.lint]
-ignore = ['E402', 'E722', 'E741', 'E401']
+ignore = ['E402', 'E722', 'E741']
 select = ['E', 'F', 'I', 'W', 'INT']
 
 [tool.ruff.lint.per-file-ignores]
