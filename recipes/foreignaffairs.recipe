@@ -168,7 +168,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='canonical', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        cov = soup.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})
+        main = soup.find('main', attrs={'id': 'content'})
+        cov = main.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})
         if cov:
             self.cover_url = re.sub(
                 r"_webp_issue_small_\dx",
