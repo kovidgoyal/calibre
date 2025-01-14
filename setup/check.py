@@ -110,7 +110,7 @@ class Check(Command):
         return cp.stdout.decode('utf-8') or 'Fixed 0 errors.'
 
     def perform_pep8_git_commit(self):
-        return subprocess.run(['git', 'commit', '--all', '-m pep8']).returncode != 0
+        return subprocess.run(['git', 'commit', '--all', '-m', 'pep8']).returncode != 0
 
     def check_errors_remain(self):
         return subprocess.run(['ruff', 'check', '--statistics']).returncode != 0
