@@ -48,7 +48,8 @@ from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
-from calibre.gui2.tag_browser.model import COUNT_ROLE, DRAG_IMAGE_ROLE, TAG_SEARCH_STATES, TagsModel, TagTreeItem, rename_only_in_vl_question
+from calibre.gui2.tag_browser.model import COUNT_ROLE, DRAG_IMAGE_ROLE, TAG_SEARCH_STATES, TEMPLATE_ICON_INDICATOR
+from calibre.gui2.tag_browser.model import TagsModel, TagTreeItem, rename_only_in_vl_question
 from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
@@ -634,6 +635,12 @@ class TagsView(QTreeView):  # {{{
                              key=None, index=None, search_state=None,
                              is_first_letter=False, ignore_vl=False,
                              extra=None):
+        '''
+        action: a string specifying the operation
+        category: the human readable label for the category
+        key: the lookup name for the category
+        index: the index of the item, if there is one.
+        '''
         if not action:
             return
         from calibre.gui2.ui import get_gui
@@ -654,28 +661,79 @@ class TagsView(QTreeView):  # {{{
                 self.db.prefs.set('tag_browser_dont_collapse', extra)
                 self.recount()
                 return
+
+            # category is None if the user asked to specify a template
+            # index is None if the user clicked on a category (top level) node
+            # extra is a tuple: (icon_file_name: string or None, children: True or False)
+            def make_icon_name(key, index):
+                icon_file_name = 'icon_' + sanitize_file_name(key)
+                if index is not None:
+                    item_val = self._model.get_node(index).tag.original_name
+                    icon_file_name = icon_file_name + '@@' + sanitize_file_name(item_val)
+                else:
+                    item_val = None
+                icon_file_name += '.png'
+                return item_val, icon_file_name
+
             if action == 'set_icon':
-                try:
-                    path = choose_files(self, 'choose_category_icon',
-                                _('Change icon for: %s')%key, filters=[
-                                ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
-                            all_files=False, select_only_single_file=True)
-                    if path:
-                        path = path[0]
-                        p = QIcon(path).pixmap(QSize(128, 128))
-                        d = os.path.join(config_dir, 'tb_icons')
-                        if not os.path.exists(d):
-                            os.makedirs(d)
-                        with open(os.path.join(d, 'icon_' + sanitize_file_name(key)+'.png'), 'wb') as f:
-                            f.write(pixmap_to_data(p, format='PNG'))
-                            path = os.path.basename(f.name)
-                        self._model.set_custom_category_icon(key, str(path))
+                if category is None:
+                    if index is not None:
+                        current_item = self._model.get_node(index).tag.original_name
+                    else:
+                        current_item = _('No value available')
+                    template = self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR, ('', False))[0]
+                    from calibre.gui2.dialogs.template_dialog import TemplateDialog
+                    from calibre.utils.formatter import EvalFormatter
+                    d = TemplateDialog(parent=self, text=template,
+                                       mi={'title': key, 'category': key, 'value': current_item},
+                                       doing_emblem=True,
+                                       # fm=None, color_field=None, icon_field_key=None,
+                                       # icon_rule_kind=None,  text_is_placeholder=False,
+                                       # dialog_is_st_editor=False,
+                                       # global_vars=None, all_functions=None, builtin_functions=None,
+                                       # python_context_object=None, dialog_number=None,
+                                       formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
+                    if d.exec():
+                        self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[2], False)
                         self.recount()
-                except:
-                    traceback.print_exc()
+                    return
+                (icon_file_name, for_children) = extra
+                item_val, desired_file_name = make_icon_name(key, index)
+                if icon_file_name is None:
+                    # User wants to specify a specific icon
+                    try:
+                        icon_file_name = desired_file_name
+                        path = choose_files(self, 'choose_category_icon',
+                                    _('Change icon for: %s')%key, filters=[
+                                    ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                                all_files=False, select_only_single_file=True)
+                        if path:
+                            path = path[0]
+                            p = QIcon(path).pixmap(QSize(128, 128))
+                            d = os.path.join(config_dir, 'tb_icons')
+                            if not os.path.exists(d):
+                                os.makedirs(d)
+                            with open(os.path.join(d, icon_file_name), 'wb') as f:
+                                f.write(pixmap_to_data(p, format='PNG'))
+                    except:
+                        traceback.print_exc()
+                else:
+                    # Already have an icon. User wants to change whether it applies to children
+                    icon_file_name = desired_file_name
+                if index is None: # category icon
+                    self._model.set_custom_category_icon(key, str(icon_file_name))
+                    self.recount()
+                else: # value icon
+                    self._model.set_value_icon(key, item_val, icon_file_name, bool(for_children))
+                    self.recount()
                 return
             if action == 'clear_icon':
-                self._model.set_custom_category_icon(key, None)
+                if index is not None:
+                    val, icon_name = make_icon_name(key, index)
+                    self._model.remove_value_icon(key, val, icon_name)
+                else:
+                    self._model.set_custom_category_icon(key, None)
+                    self._model.remove_value_icon(key, TEMPLATE_ICON_INDICATOR, None)
                 self.recount()
                 return
 
@@ -1163,9 +1221,9 @@ class TagsView(QTreeView):  # {{{
                             category=key)).setIcon(QIcon.ic('minus.png'))
                 add_show_hidden_categories()
 
+                cm = self.context_menu
+                cm.addSeparator()
                 if tag is None:
-                    cm = self.context_menu
-                    cm.addSeparator()
                     acategory = category.replace('&', '&&')
                     sm = cm.addAction(_('Change {} category icon').format(acategory),
                                       partial(self.context_menu_handler, action='set_icon',
@@ -1178,13 +1236,56 @@ class TagsView(QTreeView):  # {{{
                     if key == 'search' and 'search' in self.db.new_api.pref('categories_using_hierarchy', ()):
                         sm = cm.addAction(_('Change Saved searches folder icon'),
                                           partial(self.context_menu_handler, action='set_icon',
-                                                  key='search_folder:', category=_('Saved searches folder')))
+                                                  key='search_folder', category=_('Saved searches folder')))
                         sm.setIcon(QIcon.ic('icon_choose.png'))
                         sm = cm.addAction(_('Restore Saved searches folder default icon'),
                              partial(self.context_menu_handler, action='clear_icon',
-                                     key='search_folder:', category=_('Saved searches folder')))
+                                     key='search_folder', category=_('Saved searches folder')))
                         sm.setIcon(QIcon.ic('edit-clear.png'))
+                if key not in ('search', 'formats') and not key.startswith('@'):
+                    im = cm.addMenu(_('Manage value icons'))
+                    def get_rule_data(tag, key):
+                        if tag is None:
+                            return (None, None, None)
+                        name = tag.original_name
+                        cat_rules = self._model.value_icons.get(key, {})
+                        icon_name, for_child = cat_rules.get(name, (None, None))
+                        return (name, icon_name, for_child)
 
+                    name,icon_name,for_child = get_rule_data(tag, key)
+                    if name is not None:
+                        im.addSection(_('Current value: {}').format(name))
+                    else:
+                        im.addSection(_('No value available'))
+                    im.addSeparator
+                    ma = im.addAction(_('Choose an icon for this value but not its children'),
+                                    partial(self.context_menu_handler, action='set_icon',
+                                            key=key, index=index, category=category, extra=(None, False)))
+                    ma.setEnabled(name is not None)
+                    ma = im.addAction(_('Choose an icon for this value and children'),
+                                    partial(self.context_menu_handler, action='set_icon',
+                                            key=key, index=index, category=category, extra=(None, True)))
+                    ma.setEnabled(name is not None)
+                    im.addSeparator()
+                    ma = im.addAction(_('Use the existing icon for this value but not its children'),
+                                        partial(self.context_menu_handler, action='set_icon',
+                                                key=key, index=index, category=category, extra=(icon_name, False)))
+                    ma.setEnabled(icon_name is not None and for_child)
+                    ma = im.addAction(_('Use the existing icon for this value and its children'),
+                                        partial(self.context_menu_handler, action='set_icon',
+                                                key=key, index=index, category=category, extra=(icon_name, True)))
+                    ma.setEnabled(icon_name is not None and not for_child)
+                    im.addAction(_('Use the default icon for this value'),
+                                 partial(self.context_menu_handler, action='clear_icon',
+                                         key=key, index=index, category=category))
+                    im.addSection(_('Defaults'))
+                    im.addAction(_('Use a template to choose the default value icon'),
+                                      partial(self.context_menu_handler, action='set_icon',
+                                              key=key, index=index, category=None, extra=(None, None)))
+                    im.addAction(_('Use the category icon for the default value icon'),
+                                 partial(self.context_menu_handler, action='clear_icon',
+                                         key=key, index=None, category=category))
+                    im.addSeparator()
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
