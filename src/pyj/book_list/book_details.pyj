@@ -212,6 +212,8 @@ def replace_calibre_links_to_books(html):
                 fmt = parts[3]
                 extra_query = {}
                 url.searchParams.forEach(def(val, key):
+                    if key is 'open_at':
+                        key = 'bookpos'
                     extra_query[key] = val
                 )
                 new_href = open_book_url_in_library(lib, book_id, fmt, extra_query)
