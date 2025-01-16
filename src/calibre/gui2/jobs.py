@@ -24,6 +24,7 @@ from qt.core import (
     QHBoxLayout,
     QIcon,
     QItemSelectionModel,
+    QKeySequence,
     QLabel,
     QModelIndex,
     QPlainTextEdit,
@@ -526,12 +527,18 @@ class JobsButton(QWidget):  # {{{
         self._jobs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         b = _('Click to see list of jobs')
-        self.setToolTip(b + _(' [Alt+Shift+J]'))
         self.action_toggle = QAction(b, parent)
         parent.addAction(self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
+        self.action_toggle.changed.connect(self.update_tooltip)
         if hasattr(parent, 'keyboard'):
             parent.keyboard.register_shortcut('toggle jobs list', _('Show/hide the Jobs List'), default_keys=(self.shortcut,), action=self.action_toggle)
+        self.update_tooltip()
+
+    def update_tooltip(self):
+        sc = ', '.join(sc.toString(QKeySequence.SequenceFormat.NativeText) for sc in self.action_toggle.shortcuts())
+        self.shortcut = sc or ''
+        self.setToolTip(_('Click to see list of jobs [{}]').format(self.shortcut))
 
     def update_label(self):
         n = self.jobs()
