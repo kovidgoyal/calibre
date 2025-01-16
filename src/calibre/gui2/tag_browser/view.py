@@ -1250,39 +1250,39 @@ class TagsView(QTreeView):  # {{{
                                      key='search_folder', category=_('Saved searches folder')))
                         sm.setIcon(QIcon.ic('edit-clear.png'))
                 if key not in ('search', 'formats') and not key.startswith('@'):
-                    im = cm.addMenu(_('Manage value icons'))
                     def get_rule_data(tag, key):
                         if tag is None:
                             return (None, None, None)
                         name = tag.original_name
                         cat_rules = self._model.value_icons.get(key, {})
                         icon_name, for_child = cat_rules.get(name, (None, None))
-                        return (name, icon_name, for_child)
+                        return name, icon_name, for_child
 
-                    name,icon_name,for_child = get_rule_data(tag, key)
+                    name, icon_name, for_child = get_rule_data(tag, key)
+                    for_name = name or _('this value')
+                    im = cm.addMenu(_('Manage icon for {}').format(for_name))
                     if name is not None:
                         im.addSection(_('Current value: {}').format(name))
                     else:
                         im.addSection(_('No value available'))
-                    im.addSeparator
-                    ma = im.addAction(_('Choose an icon for this value but not its children'),
+                    ma = im.addAction(_('Choose an icon for {} but not its children').format(for_name),
                                     partial(self.context_menu_handler, action='set_icon',
                                             key=key, index=index, category=category, extra=(None, False)))
                     ma.setEnabled(name is not None)
-                    ma = im.addAction(_('Choose an icon for this value and children'),
+                    ma = im.addAction(_('Choose an icon for {} and its children').format(for_name),
                                     partial(self.context_menu_handler, action='set_icon',
                                             key=key, index=index, category=category, extra=(None, True)))
                     ma.setEnabled(name is not None)
                     im.addSeparator()
-                    ma = im.addAction(_('Use the existing icon for this value but not its children'),
+                    ma = im.addAction(_('Use the existing icon for {} but not its children').format(for_name),
                                         partial(self.context_menu_handler, action='set_icon',
                                                 key=key, index=index, category=category, extra=(icon_name, False)))
                     ma.setEnabled(icon_name is not None and for_child)
-                    ma = im.addAction(_('Use the existing icon for this value and its children'),
+                    ma = im.addAction(_('Use the existing icon for {} and its children').format(for_name),
                                         partial(self.context_menu_handler, action='set_icon',
                                                 key=key, index=index, category=category, extra=(icon_name, True)))
                     ma.setEnabled(icon_name is not None and not for_child)
-                    im.addAction(_('Use the default icon for this value'),
+                    im.addAction(_('Use the default icon for {}').format(for_name),
                                  partial(self.context_menu_handler, action='clear_icon',
                                          key=key, index=index, category=category))
                     im.addSection(_('Defaults'))
