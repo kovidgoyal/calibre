@@ -197,6 +197,8 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
         if t:
             # Use POSIX path separator
             val_icon = 'template_icons/' + t
+        else:
+            val_icon = None
     if val_icon:
         node['value_icon'] = val_icon
 
