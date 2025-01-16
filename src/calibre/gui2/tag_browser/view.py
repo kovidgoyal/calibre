@@ -1282,10 +1282,10 @@ class TagsView(QTreeView):  # {{{
                                         partial(self.context_menu_handler, action='set_icon',
                                                 key=key, index=index, category=category, extra=(icon_name, True)))
                     ma.setEnabled(icon_name is not None and not for_child)
-                    im.addAction(_('Use the default icon for {}').format(for_name),
+                    ma = im.addAction(_('Use the default icon for {}').format(for_name),
                                  partial(self.context_menu_handler, action='clear_icon',
                                          key=key, index=index, category=category))
-                    ma.setEnabled(icon_name is not None)
+                    ma.setEnabled(name is not None and icon_name is not None)
                     im.addSection(_('Defaults'))
                     im.addAction(_('Use/edit a template to choose the default value icon'),
                                       partial(self.context_menu_handler, action='set_icon',
