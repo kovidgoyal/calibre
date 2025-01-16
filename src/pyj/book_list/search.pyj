@@ -109,8 +109,6 @@ def ask_about_smart_quotes(text):
     )
 
 
-
-
 def execute_search_interactive(text):
     if not text:
         container = document.getElementById(state.container_id)
