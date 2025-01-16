@@ -48,8 +48,15 @@ from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
-from calibre.gui2.tag_browser.model import COUNT_ROLE, DRAG_IMAGE_ROLE, TAG_SEARCH_STATES, TEMPLATE_ICON_INDICATOR
-from calibre.gui2.tag_browser.model import TagsModel, TagTreeItem, rename_only_in_vl_question
+from calibre.gui2.tag_browser.model import (
+    COUNT_ROLE,
+    DRAG_IMAGE_ROLE,
+    TAG_SEARCH_STATES,
+    TEMPLATE_ICON_INDICATOR,
+    TagsModel,
+    TagTreeItem,
+    rename_only_in_vl_question,
+)
 from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
