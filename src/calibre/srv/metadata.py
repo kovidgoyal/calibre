@@ -11,7 +11,7 @@ from threading import Lock
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
-from calibre.db.constants import DATA_FILE_PATTERN
+from calibre.db.constants import DATA_FILE_PATTERN, TEMPLATE_ICON_INDICATOR
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
@@ -157,48 +157,48 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
-# don't want to import from the GUI so use the value of TEMPLATE_ICON_INDICATOR
-TEMPLATE_ICON_INDICATOR = ' template '
+
+def get_gpref(name: str, defval = None):
+    gprefs = getattr(get_gpref, 'gprefs', None)
+    if gprefs is None:
+        from calibre.utils.config import JSONConfig
+        gprefs = get_gpref.gprefs = JSONConfig('gui')
+    return gprefs.get(name, defval)
 
 
 def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
-    try:
-        category = node['category']
-        if category in ('search', 'formats') or category.startswith('@'):
-            node['value_icon'] = None
-            return
+    category = node['category']
+    if category in ('search', 'formats') or category.startswith('@'):
+        return
 
-        def name_for_icon(node):
-            return node.get('original_name', node.get('name'))
+    def name_for_icon(node):
+        return node.get('original_name', node.get('name'))
 
-        from calibre.gui2 import gprefs
-        value_icons = gprefs['tags_browser_value_icons']
-        val_icon,for_children = value_icons.get(category, {}).get(name_for_icon(node), (None, False))
-        if val_icon is None:
-            # No specific icon. Walk up the hierarchy checking parents.
-            par = parent
-            while True:
-                pid = str(par['id'])
-                if not pid.startswith('n'):
-                    # 'Real' nodes (tag nodes) start with 'n'
-                    break
-                pt = node_to_tag_map[pid]
-                pd = tag_map[id(pt)][1]
-                val_icon,for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
-                if val_icon is not None and for_children:
-                    break
-                par = pd
-        if val_icon is None and TEMPLATE_ICON_INDICATOR in value_icons.get(category, {}):
-            t = eval_formatter.safe_format(value_icons[category][TEMPLATE_ICON_INDICATOR][0],
-                                                {'category': category, 'value': name_for_icon(node)},
-                                                'VALUE_ICON_TEMPLATE_ERROR', None)
-            if t:
-                # Use linux path separator
-                val_icon = 'template_icons/' + t
+    value_icons = get_gpref('tags_browser_value_icons')
+    val_icon, for_children = value_icons.get(category, {}).get(name_for_icon(node), (None, False))
+    if val_icon is None:
+        # No specific icon. Walk up the hierarchy checking parents.
+        par = parent
+        while True:
+            pid = str(par['id'])
+            if not pid.startswith('n'):
+                # 'Real' nodes (tag nodes) start with 'n'
+                break
+            pt = node_to_tag_map[pid]
+            pd = tag_map[id(pt)][1]
+            val_icon,for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
+            if val_icon is not None and for_children:
+                break
+            par = pd
+    if val_icon is None and TEMPLATE_ICON_INDICATOR in value_icons.get(category, {}):
+        t = eval_formatter.safe_format(
+            value_icons[category][TEMPLATE_ICON_INDICATOR][0], {'category': category, 'value': name_for_icon(node)},
+            'VALUE_ICON_TEMPLATE_ERROR', None)
+        if t:
+            # Use POSIX path separator
+            val_icon = 'template_icons/' + t
+    if val_icon:
         node['value_icon'] = val_icon
-    except:
-        import traceback
-        traceback.print_exc()
 
 
 CategoriesSettings = namedtuple(
@@ -466,7 +466,11 @@ def process_category_node(
             node_id, node_data = node_data
         node = {'id':node_id, 'children':[]}
         parent['children'].append(node)
-        get_icon_for_node(node_data, parent, node_to_tag_map, tag_map, eval_formatter)
+        try:
+            get_icon_for_node(node_data, parent, node_to_tag_map, tag_map, eval_formatter)
+        except Exception:
+            import traceback
+            traceback.print_exc()
         return node, node_data
 
     for idx, tag in enumerate(category_items):

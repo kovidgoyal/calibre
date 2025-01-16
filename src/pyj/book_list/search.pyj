@@ -68,6 +68,9 @@ def icon_for_node(node):
         fallback = interface_data.icon_map[node.data.category]
     else:
         ans = interface_data.icon_map[node.data.category] or 'column.png'
+        if node.data.value_icon:
+            fallback = ans
+            ans = '_' + node.data.value_icon
     if fallback:
         fallback = absolute_path(interface_data.icon_path + '/' + fallback)
     return absolute_path(interface_data.icon_path + '/' + ans), fallback

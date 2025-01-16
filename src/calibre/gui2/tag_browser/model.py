@@ -14,6 +14,7 @@ from qt.core import QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QO
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
+from calibre.db.constants import TEMPLATE_ICON_INDICATOR
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -30,7 +31,6 @@ TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
 DRAG_IMAGE_ROLE = Qt.ItemDataRole.UserRole + 1000
 COUNT_ROLE = DRAG_IMAGE_ROLE + 1
-TEMPLATE_ICON_INDICATOR = ' template ' # Item values cannot start or end with space
 
 _bf = None
 
