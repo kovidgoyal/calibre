@@ -38,6 +38,17 @@ def same_thread(func):
     return check_thread
 
 
+def sorted_storage(storage):
+    storage = sorted(storage, key=lambda x:x.get('id', 'zzzzz'))
+    if len(storage) > 1 and 'removable' in storage[0].get('type', ''):
+        for i in range(1, len(storage)):
+            x = storage[i]
+            if 'fixed' in x.get('type', ''):
+                storage[0], storage[i] = storage[i], storage[0]
+                break
+    return storage
+
+
 class MTP_DEVICE(MTPDeviceBase):
 
     supported_platforms = ['windows']
@@ -332,7 +343,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise BlacklistedDevice(
                 'The %s device has been blacklisted by the user'%(connected_device,))
 
-        storage.sort(key=lambda x:x.get('id', 'zzzzz'))
+        storage = sorted_storage(storage)
 
         self._main_id = storage[0]['id']
         if len(storage) > 1:

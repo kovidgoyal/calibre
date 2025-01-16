@@ -30,6 +30,17 @@ def fingerprint(d):
             d.serial, d.manufacturer, d.product)
 
 
+def sorted_storage(storage_info):
+    storage = sorted(storage_info, key=operator.itemgetter('id'))
+    if len(storage) > 1 and storage[0].get('removable', False):
+        for i in range(1, len(storage)):
+            x = storage[i]
+            if not x.get('removable', False):
+                storage[0], storage[i] = storage[i], storage[0]
+                break
+    return storage
+
+
 APPLE = 0x05ac
 
 
@@ -222,7 +233,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     connected_device, as_unicode(e)))
 
         try:
-            storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+            storage = sorted_storage(self.dev.storage_info)
         except self.libmtp.MTPError as e:
             if "The device has no storage information." in str(e):
                 # This happens on newer Android devices while waiting for
@@ -277,7 +288,7 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += '\nids: %s'%(self.dev.ids,)
         ans += '\nDevice version: %s'%self.dev.device_version
         ans += '\nStorage:\n'
-        storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
+        storage = sorted_storage(self.dev.storage_info)
         ans += pprint.pformat(storage)
         return ans
 
