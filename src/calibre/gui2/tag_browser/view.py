@@ -704,7 +704,7 @@ class TagsView(QTreeView):  # {{{
                         self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[2], False)
                         self.recount()
                     return
-                (icon_file_name, for_children) = extra
+                (icon_file_name, for_children) = extra if extra is not None else (None, None)
                 item_val, desired_file_name = make_icon_name(key, index)
                 if icon_file_name is None:
                     # User wants to specify a specific icon
