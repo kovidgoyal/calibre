@@ -157,6 +157,50 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
+# don't want to import from the GUI so use the value of TEMPLATE_ICON_INDICATOR
+TEMPLATE_ICON_INDICATOR = ' template '
+
+
+def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
+    try:
+        category = node['category']
+        if category in ('search', 'formats') or category.startswith('@'):
+            node['value_icon'] = None
+            return
+
+        def name_for_icon(node):
+            return node.get('original_name', node.get('name'))
+
+        from calibre.gui2 import gprefs
+        value_icons = gprefs['tags_browser_value_icons']
+        val_icon,for_children = value_icons.get(category, {}).get(name_for_icon(node), (None, False))
+        if val_icon is None:
+            # No specific icon. Walk up the hierarchy checking parents.
+            par = parent
+            while True:
+                pid = str(par['id'])
+                if not pid.startswith('n'):
+                    # 'Real' nodes (tag nodes) start with 'n'
+                    break
+                pt = node_to_tag_map[pid]
+                pd = tag_map[id(pt)][1]
+                val_icon,for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
+                if val_icon is not None and for_children:
+                    break
+                par = pd
+        if val_icon is None and TEMPLATE_ICON_INDICATOR in value_icons.get(category, {}):
+            t = eval_formatter.safe_format(value_icons[category][TEMPLATE_ICON_INDICATOR][0],
+                                                {'category': category, 'value': name_for_icon(node)},
+                                                'VALUE_ICON_TEMPLATE_ERROR', None)
+            if t:
+                # Use linux path separator
+                val_icon = 'template_icons/' + t
+        node['value_icon'] = val_icon
+    except:
+        import traceback
+        traceback.print_exc()
+
+
 CategoriesSettings = namedtuple(
     'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by'
     ' template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories')
@@ -422,6 +466,7 @@ def process_category_node(
             node_id, node_data = node_data
         node = {'id':node_id, 'children':[]}
         parent['children'].append(node)
+        get_icon_for_node(node_data, parent, node_to_tag_map, tag_map, eval_formatter)
         return node, node_data
 
     for idx, tag in enumerate(category_items):
