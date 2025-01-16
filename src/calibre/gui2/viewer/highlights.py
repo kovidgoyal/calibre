@@ -356,7 +356,7 @@ class Highlights(QTreeWidget):
                 for key in keys:
                     section = smap[key]
                     if section['tfam']:
-                        section['title'] = ' ➤ '.join(tfam)
+                        section['title'] = ' ➤ '.join(section['tfam'])
                     elif section['tsec'] and section['lsec']:
                         section['title'] = ' ➤ '.join((section['tsec'], section['lsec']))
 
