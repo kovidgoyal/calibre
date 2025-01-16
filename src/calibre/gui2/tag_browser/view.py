@@ -1259,7 +1259,7 @@ class TagsView(QTreeView):  # {{{
                         return name, icon_name, for_child
 
                     name, icon_name, for_child = get_rule_data(tag, key)
-                    for_name = name or _('this value')
+                    for_name = (name or _('this value')).replace('&', '&&')
                     im = cm.addMenu(_('Manage icon for {}').format(for_name))
                     if name is not None:
                         im.addSection(_('Current value: {}').format(name))
