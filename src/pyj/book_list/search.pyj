@@ -59,8 +59,18 @@ def component(container, name):
 
 def icon_for_node(node):
     interface_data = get_interface_data()
-    ans = interface_data.icon_map[node.data.category] or 'column.png'
-    return absolute_path(interface_data.icon_path + '/' + ans)
+    fallback = ''
+    if node.data.category is 'formats' and not node.data.is_category:
+        fmt = node.data.name.lower()
+        if fmt.startswith('original_'):
+            fmt = fmt.partition('_')[2]
+        ans = f'mimetypes/{fmt}.png'
+        fallback = interface_data.icon_map[node.data.category]
+    else:
+        ans = interface_data.icon_map[node.data.category] or 'column.png'
+    if fallback:
+        fallback = absolute_path(interface_data.icon_path + '/' + fallback)
+    return absolute_path(interface_data.icon_path + '/' + ans), fallback
 
 
 def node_for_path(path):
@@ -216,15 +226,22 @@ def render_search_expression():
     search_control.value = parts.join(' ')
 
 
+def show_fallback(fallback, ev):
+    if fallback:
+        if ev.target.src is not fallback:
+            ev.target.src = fallback
+
+
 def menu_clicked(i):
 
     def create_details(container, hide_modal):
         node = node_for_path().children[i]
         data = node.data
         name = data.original_name or data.name or data.sort
+        icon, fallback = icon_for_node(node)
         title = E.h2(
             style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
-            E.img(src=icon_for_node(node), style='height:2ex; margin-right: 0.5rem'),
+            E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='height:2ex; margin-right: 0.5rem'),
             E.span(name)
         )
         def edit_note(field, item_name):
@@ -305,12 +322,13 @@ def render_children(container, children):
             tooltip += '\n' + _('Number of books in this category: {}').format(data.count)
         if data.avg_rating is not undefined:
             tooltip += '\n' + _('Average rating for books in this category: {:.1f}').format(data.avg_rating)
+        icon, fallback = icon_for_node(node)
         div = E.div(
                 title=tooltip.lstrip(),
                 style="display:flex; align-items: stretch",
                 E.div(class_='tag-name',
                     style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
-                    E.img(src=icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
+                    E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='display:inline-block; max-height:2.5ex'),
                     E.span(data.name),
                 ),
                 E.div(class_='tag-menu',
