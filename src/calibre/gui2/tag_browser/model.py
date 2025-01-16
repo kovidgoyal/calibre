@@ -30,6 +30,7 @@ TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
 DRAG_IMAGE_ROLE = Qt.ItemDataRole.UserRole + 1000
 COUNT_ROLE = DRAG_IMAGE_ROLE + 1
+TEMPLATE_ICON_INDICATOR = ' template ' # Item values cannot start or end with space
 
 _bf = None
 
@@ -49,7 +50,11 @@ class TagTreeItem:  # {{{
     TAG      = 1
     ROOT     = 2
     category_custom_icons = {}
+    value_icons = {}
+    value_icon_cache = {}
+    icon_config_dir = {}
     file_icon_provider = None
+    eval_formatter = EvalFormatter()
 
     def __init__(self, data=None, is_category=False, icon_map=None,
                  parent=None, tooltip=None, category_key=None, temporary=False,
@@ -60,6 +65,7 @@ class TagTreeItem:  # {{{
         self.children = []
         self.blank = QIcon()
         self.is_gst = is_gst
+        self.icon = None
         self.boxed = False
         self.temporary = False
         self.can_be_edited = False
@@ -117,9 +123,40 @@ class TagTreeItem:  # {{{
                 if self.is_gst:
                     cc = self.category_custom_icons.get(self.root_node().category_key, None)
                 elif self.tag.category == 'search' and not self.tag.is_searchable:
-                    cc = self.category_custom_icons.get('search_folder:', None)
+                    cc = self.category_custom_icons.get('search_folder', None)
                 else:
-                    cc = self.category_custom_icons.get(self.tag.category, None)
+                    if self.icon is None:
+                        node = self
+                        val_icon = None
+                        category = node.tag.category
+                        if category in self.value_icons:
+                            while True:
+                                val_icon = self.value_icons.get(category, {}).get(node.tag.original_name)
+                                if val_icon is not None:
+                                    # Have an icon. Use it if value exact match or
+                                    # it applies to children
+                                    if node != self and not val_icon[1]:
+                                        val_icon = None
+                                    break
+                                node = node.parent
+                                if node.type != self.TAG or node.type == self.ROOT:
+                                    break
+                            if val_icon is None and TEMPLATE_ICON_INDICATOR in self.value_icons[category]:
+                                t = self.eval_formatter.safe_format(self.value_icons[category][TEMPLATE_ICON_INDICATOR][0],
+                                                                    {'category': category, 'value': node.tag.original_name},
+                                                                    'VALUE_ICON_TEMPLATE_ERROR', None)
+                                if t:
+                                    val_icon = (os.path.join('template_icons', t), False)
+                        if val_icon is not None:
+                            cc = self.value_icon_cache.get(val_icon[0])
+                            if cc is None:
+                                cc = QIcon.ic(os.path.join(self.icon_config_dir, val_icon[0]))
+                                self.value_icon_cache[val_icon[0]] = cc
+                            self.icon = cc
+                        else:
+                            cc = self.category_custom_icons.get(self.tag.category, None)
+                    else:
+                        cc = self.icon
         elif self.type == self.CATEGORY:
             cc = self.category_custom_icons.get(self.category_key, None)
         self.icon_state_map[0] = cc or QIcon()
@@ -350,8 +387,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.node_map = {}
         self.category_nodes = []
         self.category_custom_icons = {}
+        self.value_icons = {}
+        self.value_icon_cache = {}
+        self.icon_config_dir = os.path.join(config_dir, 'tb_icons')
         for k, v in iteritems(self.prefs['tags_browser_category_icons']):
-            icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
+            icon = QIcon(os.path.join(self.icon_config_dir, v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
@@ -387,8 +427,43 @@ class TagsModel(QAbstractItemModel):  # {{{
             new_icon = new_key + ext
             new_path = os.path.join(config_dir, 'tb_icons', new_icon)
             os.replace(old_path, new_path)
-            self.set_custom_category_icon(new_key, new_path)
+            self.set_custom_category_icon(new_key, new_icon)
             self.set_custom_category_icon(old_key, None)
+
+    def set_value_icon(self, key, value, file_name, children):
+        '''
+        Add a 'rule' for an icon for a value in the tag browser as a dict entry:
+            value_icons[key] = {value: (file_name, children)}
+
+        :param key: the lookup name for the tag browser category
+        :param value: the item value in the category. If the value is
+                      TEMPLATE_ICON_INDICATOR then the rule applies to all items
+                      that don't have a specific rule.
+        :param file_name: the name of the icon file to use for this value. If
+                          this is a template rule then this is the text of the template.
+        :param children: for specific (non-template) rules: if True then the rule
+                         is to be used for any children of the item that don't have
+                         a specific rule. If False then this rule is used only for
+                         the specified item.
+        '''
+        v = self.value_icons = self.prefs['tags_browser_value_icons']
+        if key not in v:
+            self.value_icons[key] = {value: (file_name, children)}
+        else:
+            self.value_icons[key].update({value: (file_name, children)})
+        self.value_icon_cache.pop(file_name, None)
+        self.prefs['tags_browser_value_icons'] = self.value_icons
+
+    def remove_value_icon(self, key, value, file_name):
+        self.value_icons = self.prefs['tags_browser_value_icons']
+        self.value_icons.get(key).pop(value, None)
+        self.prefs['tags_browser_value_icons'] =self.value_icons
+        if file_name is not None:
+            path = os.path.join(config_dir, 'tb_icons', file_name)
+            try:
+                os.remove(path)
+            except:
+                pass
 
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
@@ -403,8 +478,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                     os.remove(path)
                 except:
                     pass
-            del d[key]
-            del self.category_custom_icons[key]
+            d.pop(key, None)
+            self.category_custom_icons.pop(key, None)
         self.prefs['tags_browser_category_icons'] = d
 
     def reread_collapse_model(self, state_map, rebuild=True):
@@ -417,6 +492,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def set_database(self, db, hidden_categories=None):
         self.beginResetModel()
+        self.value_icons = self.prefs['tags_browser_value_icons']
         hidden_cats = db.new_api.pref('tag_browser_hidden_categories', None)
         # migrate from config to db prefs
         if hidden_cats is None:
@@ -514,8 +590,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         data = self._get_category_nodes(config['sort_tags_by'])
         gst = self.db.new_api.pref('grouped_search_terms', {})
 
-        if self.category_custom_icons.get('search_folder:', None) is None:
-            self.category_custom_icons['search_folder:'] = QIcon.ic('folder_saved_search')
+        if self.category_custom_icons.get('search_folder', None) is None:
+            self.category_custom_icons['search_folder'] = QIcon.ic('folder_saved_search')
         last_category_node = None
         category_node_map = {}
         self.user_category_node_tree = {}
@@ -1393,6 +1469,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         node = TagTreeItem(*args, **kwargs)
         self.node_map[id(node)] = node
         node.category_custom_icons = self.category_custom_icons
+        node.value_icons = self.value_icons
+        node.value_icon_cache = self.value_icon_cache
+        node.icon_config_dir = self.icon_config_dir
         return node
 
     def get_node(self, idx):

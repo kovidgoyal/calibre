@@ -488,11 +488,16 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
                  global_vars=None, all_functions=None, builtin_functions=None,
-                 python_context_object=None, dialog_number=None):
+                 python_context_object=None, dialog_number=None,
+                 formatter=SafeFormat, icon_dir='cc_icons'):
         # If dialog_number isn't None then we want separate non-modal windows
         # that don't stay on top of the main dialog. This lets Alt-Tab work to
         # switch between them. dialog_number must be set only by the template
         # tester, not the rules dialogs etc that depend on modality.
+
+        # doing_emblem is also used for tag browser value icon rules in order to
+        # show the icon selection widgets.
+
         if dialog_number is None:
             QDialog.__init__(self, parent, flags=Qt.WindowType.Dialog)
         else:
@@ -502,6 +507,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.setupUi(self)
         self.setWindowIcon(self.windowIcon())
 
+        self.formatter = formatter
+        self.icon_dir = icon_dir
         self.ffml = FFMLProcessor()
         self.dialog_number = dialog_number
         self.coloring = color_field is not None
@@ -544,7 +551,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             for n1, k1 in cols:
                 self.icon_field.addItem(f'{n1} ({k1})', k1)
             self.icon_file_names = []
-            d = os.path.join(config_dir, 'cc_icons')
+            d = os.path.join(config_dir, icon_dir)
             if os.path.exists(d):
                 for icon_file in os.listdir(d):
                     icon_file = icu_lower(icon_file)
@@ -766,7 +773,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         for r in range(0, len(mi)):
             w = QLineEdit(tv)
             w.setReadOnly(True)
-            w.setText(mi[r].title)
+            w.setText(mi[r].get('title', _('No title provided')))
             tv.setCellWidget(r, 0, w)
             tb = QToolButton()
             tb.setContentsMargins(0, 0, 0, 0)
@@ -992,7 +999,7 @@ def evaluate(book, context):
                     self.update_filename_box()
                     try:
                         p = QIcon(icon_path).pixmap(QSize(128, 128))
-                        d = os.path.join(config_dir, 'cc_icons')
+                        d = os.path.join(config_dir, self.icon_dir)
                         if not os.path.exists(os.path.join(d, icon_name)):
                             if not os.path.exists(d):
                                 os.makedirs(d)
@@ -1012,7 +1019,7 @@ def evaluate(book, context):
         self.icon_files.addItem('')
         self.icon_files.addItems(self.icon_file_names)
         for i,filename in enumerate(self.icon_file_names):
-            icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
+            icon = QIcon(os.path.join(config_dir, self.icon_dir, filename))
             self.icon_files.setItemIcon(i+1, icon)
 
     def color_to_clipboard(self):
@@ -1078,14 +1085,14 @@ def evaluate(book, context):
         break_on_mi = 0 if len(l) == 0 else l[0].row()
         for r,mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
-            w.setText(mi.title)
+            w.setText(mi.get('title', _('No title provided')))
             w.setCursorPosition(0)
             if self.break_box.isChecked() and r == break_on_mi and self.is_python:
                 sys.settrace(self.trace_calls)
             else:
                 sys.settrace(None)
             try:
-                v = SafeFormat().safe_format(txt, mi, _('EXCEPTION:'),
+                v = self.formatter().safe_format(txt, mi, _('EXCEPTION:'),
                                  mi, global_vars=self.global_vars,
                                  template_functions=self.all_functions,
                                  break_reporter=self.break_reporter if r == break_on_mi else None,
