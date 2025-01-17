@@ -424,10 +424,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         '''
         old_icon = self.prefs['tags_browser_category_icons'].get(old_key, None)
         if old_icon is not None:
-            old_path = os.path.join(config_dir, 'tb_icons', old_icon)
+            old_path = os.path.join(self.icon_config_dir, old_icon)
             _, ext = os.path.splitext(old_path)
             new_icon = new_key + ext
-            new_path = os.path.join(config_dir, 'tb_icons', new_icon)
+            new_path = os.path.join(self.icon_config_dir, new_icon)
             os.replace(old_path, new_path)
             self.set_custom_category_icon(new_key, new_icon)
             self.set_custom_category_icon(old_key, None)
@@ -456,31 +456,27 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.value_icon_cache.pop(file_name, None)
         self.prefs['tags_browser_value_icons'] = self.value_icons
 
-    def remove_value_icon(self, key, value, file_name):
-        self.value_icons = self.prefs['tags_browser_value_icons']
-        self.value_icons.get(key, {}).pop(value, None)
-        self.prefs['tags_browser_value_icons'] =self.value_icons
+    def _remove_icon_file(self, file_name):
         if file_name is not None:
-            path = os.path.join(config_dir, 'tb_icons', file_name)
+            path = os.path.join(self.icon_config_dir, file_name)
             try:
                 os.remove(path)
             except:
                 pass
 
+    def remove_value_icon(self, key, value, file_name):
+        self.value_icons = self.prefs['tags_browser_value_icons']
+        self.value_icons.get(key, {}).pop(value, None)
+        self.prefs['tags_browser_value_icons'] =self.value_icons
+        self._remove_icon_file(file_name)
+
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
         if path:
             d[key] = path
-            self.category_custom_icons[key] = QIcon(os.path.join(config_dir,
-                                                            'tb_icons', path))
+            self.category_custom_icons[key] = QIcon(os.path.join(self.icon_config_dir, path))
         else:
-            if key in d:
-                path = os.path.join(config_dir, 'tb_icons', d[key])
-                try:
-                    os.remove(path)
-                except:
-                    pass
-            d.pop(key, None)
+            self._remove_icon_file(d.pop(key, None))
             self.category_custom_icons.pop(key, None)
         self.prefs['tags_browser_category_icons'] = d
 
