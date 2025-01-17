@@ -470,6 +470,15 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.prefs['tags_browser_value_icons'] =self.value_icons
         self._remove_icon_file(file_name)
 
+    def remove_all_value_icons(self, key):
+        self.value_icons = self.prefs['tags_browser_value_icons']
+        values = self.value_icons.pop(key, {})
+        self.value_icons[key] = {}
+        self.prefs['tags_browser_value_icons'] = self.value_icons
+        values.pop(TEMPLATE_ICON_INDICATOR, None)
+        for file_name,child in values.values():
+            self._remove_icon_file(file_name)
+
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
         if path:

@@ -734,13 +734,17 @@ class TagsView(QTreeView):  # {{{
                     self._model.set_value_icon(key, item_val, icon_file_name, bool(for_children))
                     self.recount()
                 return
-            if action == 'clear_icon':
+            if action == 'clear_icon_value':
                 if index is not None:
                     val, icon_name = make_icon_name(key, index)
                     self._model.remove_value_icon(key, val, icon_name)
                 else:
-                    self._model.set_custom_category_icon(key, None)
                     self._model.remove_value_icon(key, TEMPLATE_ICON_INDICATOR, None)
+                self.recount()
+                return
+            if action == 'clear_icon':
+                self._model.set_custom_category_icon(key, None)
+                self._model.remove_all_value_icons(key)
                 self.recount()
                 return
 
@@ -1283,7 +1287,7 @@ class TagsView(QTreeView):  # {{{
                                                 key=key, index=index, category=category, extra=(icon_name, True)))
                     ma.setEnabled(icon_name is not None and not for_child)
                     ma = im.addAction(_('Use the default icon for {}').format(for_name),
-                                 partial(self.context_menu_handler, action='clear_icon',
+                                 partial(self.context_menu_handler, action='clear_icon_value',
                                          key=key, index=index, category=category))
                     ma.setEnabled(name is not None and icon_name is not None)
                     im.addSection(_('Defaults'))
@@ -1291,7 +1295,7 @@ class TagsView(QTreeView):  # {{{
                                       partial(self.context_menu_handler, action='set_icon',
                                               key=key, index=index, category=None, extra=(None, None)))
                     ma = im.addAction(_('Use the category icon for the default value icon'),
-                                 partial(self.context_menu_handler, action='clear_icon',
+                                 partial(self.context_menu_handler, action='clear_icon_value',
                                          key=key, index=None, category=category))
                     ma.setEnabled(self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR) is not None)
                     im.addSeparator()
