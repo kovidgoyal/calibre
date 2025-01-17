@@ -193,7 +193,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
     if val_icon is None and TEMPLATE_ICON_INDICATOR in value_icons.get(category, {}):
         t = eval_formatter.safe_format(
             value_icons[category][TEMPLATE_ICON_INDICATOR][0], {'category': category, 'value': name_for_icon(node)},
-            'VALUE_ICON_TEMPLATE_ERROR', None)
+            'VALUE_ICON_TEMPLATE_ERROR', {})
         if t:
             # Use POSIX path separator
             val_icon = 'template_icons/' + t
