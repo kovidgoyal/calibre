@@ -144,7 +144,7 @@ class TagTreeItem:  # {{{
                             if val_icon is None and TEMPLATE_ICON_INDICATOR in self.value_icons[category]:
                                 t = self.eval_formatter.safe_format(self.value_icons[category][TEMPLATE_ICON_INDICATOR][0],
                                                                     {'category': category, 'value': self.tag.original_name},
-                                                                    'VALUE_ICON_TEMPLATE_ERROR', None)
+                                                                    'VALUE_ICON_TEMPLATE_ERROR', {})
                                 if t:
                                     val_icon = (os.path.join('template_icons', t), False)
                                 else:
