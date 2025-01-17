@@ -458,7 +458,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def remove_value_icon(self, key, value, file_name):
         self.value_icons = self.prefs['tags_browser_value_icons']
-        self.value_icons.get(key).pop(value, None)
+        self.value_icons.get(key, {}).pop(value, None)
         self.prefs['tags_browser_value_icons'] =self.value_icons
         if file_name is not None:
             path = os.path.join(config_dir, 'tb_icons', file_name)
