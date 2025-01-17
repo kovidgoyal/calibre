@@ -733,9 +733,9 @@ To choose icons for values in categories, right-click on a value then choose `Ma
 * `Choose an icon for this value but not its children`. A dialog will open where you choose an icon for the value. Children of that value will not inherit that icon.
 * `Choose an icon for this value and its children`. A dialog will open where you choose an icon for the value. Any children that don't have their own specified icon will inherit this icon.
 * `Choose an existing icon for this value but not its children`. This option is offered if the value already has an icon that is inherited by the value's children. Selecting it will make the icon apply to the value but not its children.
-* `Choose and existing icon for this value and its children`. This option is offered if the value already has an icon that is not inherited by the value's children. Selecting it will make the icon apply to the value and its children.
+* `Choose an existing icon for this value and its children`. This option is offered if the value already has an icon that is not inherited by the value's children. Selecting it will make the icon apply to the value and its children.
 * `Use the default icon for this value`. This option is offered if the item has an icon. It removes the icon from the value and any children inheriting the icon. The default icon is what is specified below.
-* `Use/edit a template to choose the default value icon`. This option permits you to provide a calibre template that returns the name of an icon file to be uses as a default icon. The template can use two variables:
+* `Use/edit a template to choose the default value icon`. This option permits you to provide a calibre template that returns the name of an icon file to be used as a default icon. The template can use two variables:
 
   * ``category``: the lookup name of the category, for example ``authors``, ``series``, ``#mycolumn``.
   * ``value``: the value of the item within the category.
