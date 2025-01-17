@@ -638,6 +638,10 @@ class TagsView(QTreeView):  # {{{
         if search_string != self.search_string:
             self.clear()
 
+    def reset_value_icons(self):
+        self._model.reset_value_icons()
+        self.recount()
+
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None, search_state=None,
                              is_first_letter=False, ignore_vl=False,

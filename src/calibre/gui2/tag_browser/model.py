@@ -467,6 +467,9 @@ class TagsModel(QAbstractItemModel):  # {{{
             except:
                 pass
 
+    def reset_value_icons(self):
+        self.value_icons = self.prefs['tags_browser_value_icons']
+
     def set_custom_category_icon(self, key, path):
         d = self.prefs['tags_browser_category_icons']
         if path:

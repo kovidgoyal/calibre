@@ -882,6 +882,8 @@ class TagBrowserWidget(QFrame):  # {{{
         l.m.addSeparator()
         ac = l.m.addAction(QIcon.ic('config.png'), _('Show all Tag browser se&ttings'))
         ac.triggered.connect(self.show_tag_browser_preferences)
+        ac = l.m.addAction(QIcon.ic('icon_choose.png'), _('Show tag browser value icon rules'))
+        ac.triggered.connect(self.show_tag_browser_rules_display)
 
         ac = QAction(parent)
         parent.addAction(ac)
@@ -900,6 +902,11 @@ class TagBrowserWidget(QFrame):  # {{{
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
+
+    def show_tag_browser_rules_display(self):
+        from calibre.gui2.dialogs.tag_browser_rules_display import TagBrowserRulesDisplay
+        t = TagBrowserRulesDisplay(self)
+        t.exec()
 
     def show_tag_browser_preferences(self):
         from calibre.gui2.ui import get_gui
