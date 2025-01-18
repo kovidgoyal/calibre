@@ -729,10 +729,9 @@ class TagsView(QTreeView):  # {{{
                     icon_file_name = desired_file_name
                 if index is None: # category icon
                     self._model.set_custom_category_icon(key, str(icon_file_name))
-                    self.recount()
                 else: # value icon
                     self._model.set_value_icon(key, item_val, icon_file_name, bool(for_children))
-                    self.recount()
+                self.recount()
                 return
             if action == 'clear_icon_value':
                 if index is not None:
