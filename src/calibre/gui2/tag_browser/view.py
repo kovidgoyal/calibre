@@ -735,7 +735,7 @@ class TagsView(QTreeView):  # {{{
                 return
             if action == 'clear_icon':
                 if extra == 'all':
-                    self._model.remove_all_value_icons(key)
+                    self._model.remove_all_value_icons(key, keep_template=True)
                 elif extra == 'value':
                     if index is not None:
                         val, icon_name = make_icon_name(key, index)
@@ -1298,7 +1298,7 @@ class TagsView(QTreeView):  # {{{
                                          key=key, index=None, category=category, extra='value'))
                     ma.setEnabled(self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR) is not None)
                     im.addSection(_('All values'))
-                    ma = im.addAction(_('Reset all value icons to category icon'),
+                    ma = im.addAction(_('Reset all value icons to the default icon'),
                                  partial(self.context_menu_handler, action='clear_icon',
                                          key=key, index=None, category=category, extra='all'))
                     im.addSeparator()
