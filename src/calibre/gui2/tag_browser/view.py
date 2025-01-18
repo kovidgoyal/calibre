@@ -1310,6 +1310,10 @@ class TagsView(QTreeView):  # {{{
                                  partial(self.context_menu_handler, action='clear_icon',
                                          key=key, index=index, category=category, extra='value'))
                     ma.setEnabled(name is not None and icon_name is not None)
+                    im.addSeparator()
+                    ma = im.addAction(_('Reset all value icons to the default icon'),
+                                 partial(self.context_menu_handler, action='clear_icon',
+                                         key=key, index=None, category=category, extra='all'))
                     im.addSection(_('Defaults'))
                     im.addAction(_('Use/edit a template to choose the default value icon'),
                                       partial(self.context_menu_handler, action='set_icon',
@@ -1318,10 +1322,6 @@ class TagsView(QTreeView):  # {{{
                                  partial(self.context_menu_handler, action='clear_icon',
                                          key=key, index=None, category=category, extra='value'))
                     ma.setEnabled(self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR) is not None)
-                    im.addSection(_('All values'))
-                    ma = im.addAction(_('Reset all value icons to the default icon'),
-                                 partial(self.context_menu_handler, action='clear_icon',
-                                         key=key, index=None, category=category, extra='all'))
                     im.addSeparator()
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
