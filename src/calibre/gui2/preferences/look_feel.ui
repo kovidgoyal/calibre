@@ -832,7 +832,7 @@ A value of zero means calculate automatically.</string>
         </widget>
        </item>
        <item row="6" column="2">
-        <widget class="QGroupBox" name="groupBox3">
+        <widget class="QGroupBox" name="categories_on_separate_lines_group_box">
          <property name="toolTip">
           <string>&lt;p&gt;Check the box if you want the category's values displayed on separate lines instead of separated by commas&lt;/p&gt;</string>
          </property>
