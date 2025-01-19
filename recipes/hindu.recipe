@@ -98,13 +98,13 @@ class TheHindu(BasicNewsRecipe):
         raw = self.index_to_soup(url, raw=True)
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
-        cover = soup.find(attrs={'class':'hindu-ad'})
-        if cover:
-            self.cover_url = cover.img['src']
         if not ans:
             raise ValueError(
                     'The Hindu Newspaper is not published Today.'
                 )
+        cover = soup.find(attrs={'class':'hindu-ad'})
+        if cover:
+            self.cover_url = cover.img['src']
         if mag_url:
             self.log('\nFetching Magazine')
             soup = self.index_to_soup(mag_url)
