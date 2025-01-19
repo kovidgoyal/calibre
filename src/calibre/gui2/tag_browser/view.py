@@ -47,6 +47,7 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.tag_browser.model import (
     COUNT_ROLE,
@@ -729,18 +730,41 @@ class TagsView(QTreeView):  # {{{
                     icon_file_name = desired_file_name
                 if index is None: # category icon
                     self._model.set_custom_category_icon(key, str(icon_file_name))
-                    self.recount()
                 else: # value icon
                     self._model.set_value_icon(key, item_val, icon_file_name, bool(for_children))
-                    self.recount()
+                self.recount()
                 return
             if action == 'clear_icon':
-                if index is not None:
-                    val, icon_name = make_icon_name(key, index)
-                    self._model.remove_value_icon(key, val, icon_name)
+                if extra == 'all':
+                    if not confirm(
+                        _('<b>All</b> the value icons for the category "{}" '
+                        'will be <b>permanently deleted</b>. Are you sure?').format(category),
+                        'clear_category_all_value_icons', parent=get_gui()):
+                        return
+                    self._model.remove_all_value_icons(key, keep_template=True)
+                elif extra == 'value':
+                    if index is not None:
+                        val, icon_name = make_icon_name(key, index)
+                        if not confirm(
+                            _('The icon for the value "{0}" of the "{1}" category '
+                            'will be <b>permanently deleted</b>. Are you sure?').format(val, category),
+                            'clear_category_value_icon_single', parent=get_gui()):
+                            return
+                        self._model.remove_value_icon(key, val, icon_name)
+                    else:
+                        if not confirm(
+                            _('The template to choose the default value icons for the category "{}" '
+                            'will be <b>permanently deleted</b>. Are you sure?').format(category),
+                            'clear_category_value_icon_template', parent=get_gui()):
+                            return
+                        self._model.remove_value_icon(key, TEMPLATE_ICON_INDICATOR, None)
                 else:
+                    if not confirm(
+                        _('The icon for the category "{}" '
+                        'will be <b>permanently deleted</b>. Are you sure?').format(category),
+                        'clear_category_icon', parent=get_gui()):
+                        return
                     self._model.set_custom_category_icon(key, None)
-                    self._model.remove_value_icon(key, TEMPLATE_ICON_INDICATOR, None)
                 self.recount()
                 return
 
@@ -1284,15 +1308,19 @@ class TagsView(QTreeView):  # {{{
                     ma.setEnabled(icon_name is not None and not for_child)
                     ma = im.addAction(_('Use the default icon for {}').format(for_name),
                                  partial(self.context_menu_handler, action='clear_icon',
-                                         key=key, index=index, category=category))
+                                         key=key, index=index, category=category, extra='value'))
                     ma.setEnabled(name is not None and icon_name is not None)
+                    im.addSeparator()
+                    ma = im.addAction(_('Reset all value icons to the default icon'),
+                                 partial(self.context_menu_handler, action='clear_icon',
+                                         key=key, index=None, category=category, extra='all'))
                     im.addSection(_('Defaults'))
                     im.addAction(_('Use/edit a template to choose the default value icon'),
                                       partial(self.context_menu_handler, action='set_icon',
                                               key=key, index=index, category=None, extra=(None, None)))
                     ma = im.addAction(_('Use the category icon for the default value icon'),
                                  partial(self.context_menu_handler, action='clear_icon',
-                                         key=key, index=None, category=category))
+                                         key=key, index=None, category=category, extra='value'))
                     ma.setEnabled(self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR) is not None)
                     im.addSeparator()
                 # Always show the User categories editor
