@@ -751,6 +751,14 @@ To choose icons for values in categories, right-click on a value then choose `Ma
   returns a file name that doesn't exist then no icon is displayed.
 
 * `Use the category icon as the default`. This option specifies that the icon used for the category should be used for any value that doesn't otherwise have an icon. Selecting this option removes any template icon specification.
+* `Reset all value icons to the default icon`. This option removes all item value icons for the category. It does not remove a template if one exists. There is no undo.
+
+The icon is chosen using the following hierarchy:
+
+#. The icon specified for the value, if it exists.
+#. The icon specified for a parent node found by walking up the tree, if one exists.
+#. The icon from a template, if a template exists and it returns a non-empty string.
+#. The default category icon, which always exists.
 
 Icons for item values are stored in the :file:`tb_icons` subfolder in the calibre configuration folder. Icons used by templates are in the :file:`template_icons` subfolder of :file:`tb_icons`.
 
