@@ -115,7 +115,8 @@ class TagTreeItem:  # {{{
     def ensure_icon(self):
         if self.icon_state_map[0] is not None:
             return
-        if self.type == self.TAG:
+        cc = None
+        if self.type == self.TAG  and gprefs['tag_browser_show_value_icons']:
             if self.tag.category == 'formats':
                 fmt = self.tag.original_name.replace('ORIGINAL_', '')
                 cc = self.file_icon_provider(fmt)
@@ -159,7 +160,7 @@ class TagTreeItem:  # {{{
                             cc = self.category_custom_icons.get(self.tag.category, None)
                     else:
                         cc = self.icon
-        elif self.type == self.CATEGORY:
+        elif self.type == self.CATEGORY and gprefs['tag_browser_show_category_icons']:
             cc = self.category_custom_icons.get(self.category_key, None)
         self.icon_state_map[0] = cc or QIcon()
 
@@ -521,6 +522,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def reset_tag_browser(self):
         self.beginResetModel()
+        self.value_icons = self.prefs['tags_browser_value_icons']
         hidden_cats = self.db.new_api.pref('tag_browser_hidden_categories', {})
         self.hidden_categories = set()
         # strip out any non-existent field keys

@@ -20,6 +20,7 @@ from qt.core import (
     QListView,
     QListWidget,
     Qt,
+    QTabWidget,
     QTableWidget,
     QVBoxLayout,
     QWidget,
@@ -112,6 +113,11 @@ class ConfigWidgetInterface:
         '''
         pass
 
+    def do_on_child_tabs(self, method, *args):
+        r = False
+        for t in self.child_tabs:
+            r = r | bool(getattr(t, method)(*args))
+        return r
 
 def set_help_tips(gui_obj, tt):
     if tt:
@@ -285,6 +291,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         if hasattr(self, 'setupUi'):
             self.setupUi(self)
         self.settings = {}
+        self.child_tabs = []
 
     def register(self, name, config_obj, gui_name=None, choices=None,
             restart_required=False, empty_string_is_None=True, setting=Setting):
@@ -328,6 +335,9 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         for setting in self.settings.values():
             setting.restore_defaults()
 
+    def register_child_tab(self, tab):
+        self.child_tabs.append(tab)
+
 
 def get_plugin(category, name):
     for plugin in preferences_plugins():
@@ -336,6 +346,16 @@ def get_plugin(category, name):
     raise ValueError(
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
+
+
+class ConfigTabWidget(ConfigWidgetBase):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        super().register_child_tab(self)
+
+    def set_changed_signal(self, changed_signal):
+        self.changed_signal.connect(changed_signal)
 
 
 class ConfigDialog(QDialog):
@@ -411,7 +431,9 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
         gui = init_gui()
         mygui = True
     w.genesis(gui)
+    w.do_on_child_tabs('genesis', gui)
     w.initialize()
+    w.do_on_child_tabs('initialize')
     d.restore_geometry(gprefs, conf_name)
     d.exec()
     d.save_geometry(gprefs, conf_name)

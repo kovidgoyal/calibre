@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1035</width>
+    <height>547</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout">
+   <item>
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QCheckBox" name="opt_tag_browser_show_category_icons">
+       <property name="text">
+        <string>Show icons on &amp;categories in the Tag browser</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="opt_tag_browser_show_value_icons">
+       <property name="text">
+        <string>Show icons on &amp;values in the Tag browser</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="tb_icon_rules_groupbox">
+     <property name="title">
+      <string>Icon value rules</string>
+     </property>
+     <layout class="QVBoxLayout">
+      <item>
+       <widget class="QLabel" name="l12345">
+        <property name="text">
+         <string>&lt;p&gt;View all the defined value icon rules, including template rules.
+Rules are defined and edited in the Tag browser context menus. Rules can be deleted in
+this dialog using the context menu.&lt;/p&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="rules_table"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+</ui>
