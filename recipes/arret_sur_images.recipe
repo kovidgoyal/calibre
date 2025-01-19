@@ -1,55 +1,196 @@
-from __future__ import unicode_literals
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 
-__license__ = 'WTFPL'
-__author__ = '2013, François D. <franek at chicour.net>'
-__description__ = 'Get some fresh news from Arrêt sur images'
+import json
+from datetime import datetime
+
+import mechanize
+from zoneinfo import ZoneInfo
+
+from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
-
-
-class Asi(BasicNewsRecipe):
-
-    title = 'Arrêt sur images'
-    __author__ = 'François D. (aka franek)'
-    description = 'Global news in french from news site "Arrêt sur images"'
-
-    oldest_article = 7.0
+class ArretSurImages(BasicNewsRecipe):
+    title = 'Arrêt sur Images'
+    description = 'Site français d\'analyse des médias'
     language = 'fr'
+    encoding = 'utf-8'
     needs_subscription = True
+    oldest_article = 7
     max_articles_per_feed = 100
-
-    simultaneous_downloads = 1
-    timefmt = '[%a, %d %b %Y %I:%M +0200]'
-    cover_url = 'http://www.arretsurimages.net/images/header/menu/menu_1.png'
-
-    use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
 
     feeds = [
-        ('vite dit et gratuit', 'http://www.arretsurimages.net/vite-dit.rss'),
-        ('Toutes les chroniques', 'http://www.arretsurimages.net/chroniques.rss'),
-        ('Contenus et dossiers', 'http://www.arretsurimages.net/dossiers.rss'),
+        ('Arrêt sur images', 'https://api.arretsurimages.net/api/public/rss/all-content')
     ]
 
-    conversion_options = {'smarten_punctuation': True}
+    def default_cover(self, cover_file):
+        """
+        Crée une couverture personnalisée avec le logo ASI
+        """
+        from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
-    remove_tags = [dict(id='vite-titre'), dict(id='header'), dict(id='wrap-connexion'), dict(id='col_right'),
-                   dict(name='div', attrs={'class': 'bloc-chroniqueur-2'}), dict(id='footercontainer')]
+        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+        try:
+            ensure_app()
+            load_builtin_fonts()
 
-    def print_version(self, url):
-        return url.replace('contenu.php', 'contenu-imprimable.php')
+            today = datetime.now(ZoneInfo('Europe/Paris'))
+            wkd = today.weekday()
+            french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
+            french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
+                          7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+
+            weekday = french_weekday[wkd]
+            month = french_month[today.month]
+            date_str = f"{weekday} {today.day} {month} {today.year}"
+            edition = today.strftime('Édition de %Hh')
+
+            img = QImage(1400, 1920, QImage.Format_RGB888)
+            img.fill(QColor('white'))
+
+            # Dessiner la bordure rouge
+            border_painter = QPainter(img)
+            border_pen = QPen(QColor('red'))
+            border_pen.setWidth(120)  # Épaisseur de la bordure
+            border_painter.setPen(border_pen)
+            border_painter.drawRect(10, 10, img.width()-20, img.height()-20)  # Marge de 10 pixels
+            border_painter.end()
+
+            logo_url = 'https://www.arretsurimages.net/assets/img/front/logo-asi-grand.png'
+            logo_data = browser().open(logo_url).read()
+            logo = QImage()
+            logo.loadFromData(logo_data)
+
+            logo_width = 800
+            scaled_logo = logo.scaledToWidth(logo_width, Qt.SmoothTransformation)
+
+            x = (img.width() - scaled_logo.width()) // 2
+            y = (img.height() - scaled_logo.height()) // 2 - 100
+
+            p = QPainter(img)
+            p.drawImage(x, y, scaled_logo)
+            p.end()
+
+            p = QPainter(img)
+            p.setPen(QPen(QColor('black')))
+
+            font = QFont('Liberation Sans', 36)
+            p.setFont(font)
+
+            r = QRect(0, y + scaled_logo.height() + 50, img.width(), 100)
+            p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, date_str)
+
+            font.setItalic(True)
+            font.setPointSize(32)
+            p.setFont(font)
+
+            r = QRect(0, y + scaled_logo.height() + 150, img.width(), 100)
+            p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, edition)
+
+            p.end()
+
+            img_data = pixmap_to_data(img)
+            cover_file.write(img_data)
+            cover_file.flush()
+            return True
+
+        except Exception as e:
+            print(f'Erreur lors de la création de la couverture: {e}')
+            return False
 
     def get_browser(self):
-        # Need to use robust HTML parser
-        br = BasicNewsRecipe.get_browser(self, use_robust_parser=True)
-        if self.username is not None and self.password is not None:
-            br.open('http://www.arretsurimages.net/index.php')
-            br.select_form(nr=0)
-            br.form.set_all_readonly(False)
-            br['redir'] = 'forum/login.php'
-            br['username'] = self.username
-            br['password'] = self.password
-            br.submit()
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            auth_data = {
+                'client_id': '1_1e3dazertyukilygfos7ldzertyuof7pfd',
+                'client_secret': '2r8yd4a8un0fn45d93acfr3efrgthzdheifhrehihidg4dk5kds7ds23',
+                'username': self.username,
+                'password': self.password,
+                'grant_type': 'password'
+            }
+            request = mechanize.Request(
+                'https://api.arretsurimages.net/oauth/v2/token',
+                data=json.dumps(auth_data).encode('utf-8'),
+                headers={'Content-Type': 'application/json', 'Accept': 'application/json'}
+            )
+            try:
+                response = br.open(request)
+                auth_response = json.loads(response.read().decode('utf-8'))
+                if 'access_token' in auth_response:
+                    br.addheaders += [('Authorization', f'Bearer {auth_response["access_token"]}')]
+                    print('Authentification réussie')
+                else:
+                    print('Échec de l\'authentification - Vérifiez vos identifiants')
+            except Exception as e:
+                print(f'Erreur lors de l\'authentification: {str(e)}')
         return br
+
+    def get_article_url(self, article):
+        url = article.get('link', article.get('guid'))
+        if url:
+            return url.replace('www.arretsurimages.net/', 'api.arretsurimages.net/api/public/contents/')
+        return None
+
+    def preprocess_raw_html(self, raw_html, url):
+        try:
+            article_data = json.loads(raw_html)
+            authors = ', '.join([a.get('name', '') for a in article_data.get('authors', [])])
+            cover_html = ''
+            if article_data.get('cover') and article_data['cover'].get('formats', {}).get('article_header'):
+                cover_slug = article_data['cover']['slug']
+                cover_url = f'https://api.arretsurimages.net/api/public/media/{cover_slug}/action/show?format=article_header'
+                cover_html = f'<img src="{cover_url}" alt="{article_data.get("title", "")}">'
+            return f'''
+                <html>
+                <head><title>{article_data.get('title', 'Article sans titre')}</title></head>
+                <body>
+                    <article>
+                        <h1>{article_data.get('title', 'Article sans titre')}</h1>
+                        <div class="article-meta">
+                            <p>Par {authors or "Auteur inconnu"}</p>
+                        </div>
+                        {cover_html}
+                        <div class="article-content">
+                            <p><strong>{article_data.get('lead', '')}</strong></p>
+                            {article_data.get('content', '')}
+                        </div>
+                    </article>
+                </body>
+                </html>
+            '''
+        except Exception as e:
+            print(f'Erreur preprocessing HTML: {str(e)}')
+            return raw_html
+
+    def preprocess_html(self, soup):
+        try:
+            for tag in soup.find_all(['asi-html', 'asi-image', 'asi-video']):
+                if tag.name == 'asi-html' and tag.get('data-html'):
+                    tag.replace_with(soup.new_tag('div', attrs={'class': 'asi-content'}).append(tag['data-html']))
+                elif tag.name == 'asi-image':
+                    img_data = tag.get('data-image', {})
+                    if img_data:
+                        try:
+                            img_data = json.loads(img_data)
+                            if img_data.get('slug'):
+                                img_url = f'https://api.arretsurimages.net/api/public/media/{img_data["slug"]}/action/show?format=article_body'
+                                img_tag = soup.new_tag('img', src=img_url)
+                                if img_data.get('caption'):
+                                    caption_div = soup.new_tag('div', attrs={'class': 'image-caption'})
+                                    caption_div.string = img_data['caption']
+                                    tag.replace_with(img_tag)
+                                    img_tag.insert_after(caption_div)
+                                else:
+                                    tag.replace_with(img_tag)
+                        except Exception as e:
+                            print(f'Erreur processing image: {str(e)}')
+                            tag.decompose()
+                else:
+                    tag.decompose()
+            return soup
+        except Exception as e:
+            print(f'Erreur preprocessing HTML: {str(e)}')
+            return soup
