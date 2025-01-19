@@ -693,6 +693,8 @@ class MTP_DEVICE(BASE):
 
 def main():
     import io
+    from pprint import pprint
+    io
     dev = MTP_DEVICE(None)
     dev.startup()
     try:
@@ -706,17 +708,17 @@ def main():
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
         dev.filesystem_cache.dump()
-        print('Prefix for main mem:', dev.prefix_for_location(None), flush=True)
-        raw = os.urandom(32 * 1024)
-        folder = dev.create_folder(dev.filesystem_cache.entries[0], 'developing-mtp-driver')
-        f = dev.put_file(folder, 'developing-mtp-driver.bin', io.BytesIO(raw), len(raw))
-        print('Put file:', f, flush=True)
-        buf = io.BytesIO()
-        dev.get_file(f.mtp_id_path, buf)
-        if buf.getvalue() != raw:
-            raise ValueError('Getting previously put file did not return expected data')
-        print('Successfully got previously put file', flush=True)
-        dev.recursive_delete(f)
+        docs = dev.prefix_for_location(None)
+        print('Prefix for main mem:', docs, flush=True)
+        entries = dev.list_mtp_folder_by_name(dev.filesystem_cache.entries[0], docs)
+        pprint(entries)
+        pprint(dev.get_mtp_metadata_by_name(dev.filesystem_cache.entries[0], docs, entries[0]['name']))
+        files = [x for x in entries if not x['is_folder']]
+        with dev.get_mtp_file_by_name(dev.filesystem_cache.entries[0], docs, files[0]['name']) as f:
+            print('Got', files[0]['name'], 'of size:', len(f.read()))
+    except Exception:
+        import traceback
+        traceback.print_exc()
     finally:
         dev.shutdown()
 

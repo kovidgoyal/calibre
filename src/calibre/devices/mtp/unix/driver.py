@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 
 import operator
 import pprint
-import sys
 import time
 import traceback
 from collections import namedtuple
@@ -431,6 +430,48 @@ class MTP_DEVICE(MTPDeviceBase):
         return stream
 
     @synchronous
+    def list_mtp_folder_by_name(self, parent, *names: str):
+        if not parent.is_folder:
+            raise ValueError(f'{parent.full_path} is not a folder')
+        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        x = self.dev.list_folder_by_name(parent.storage_id, parent_id, names)
+        if x is None:
+            raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
+        return x
+
+    @synchronous
+    def get_mtp_metadata_by_name(self, parent, *names: str):
+        if not parent.is_folder:
+            raise ValueError(f'{parent.full_path} is not a folder')
+        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        x = self.dev.get_metadata_by_name(parent.storage_id, parent_id, names)
+        if x is None:
+            raise DeviceError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
+        m, errs = x
+        if not m:
+            raise DeviceError(f'Failed to get metadata for: {"/".join(names)} in {parent.full_path} with errors: {self.format_errorstack(errs)}')
+        return m
+
+    @synchronous
+    def get_mtp_file_by_name(self, parent, *names: str, stream=None, callback=None):
+        if not parent.is_folder:
+            raise ValueError(f'{parent.full_path} is not a folder')
+        set_name = stream is None
+        if stream is None:
+            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        x = self.dev.get_file_by_name(parent.storage_id, parent_id, names, stream, callback)
+        if x is None:
+            raise DeviceError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
+        ok, errs = x
+        if not ok:
+            raise DeviceError(f'Failed to get file: {"/".join(names)} in {parent.full_path} with errors: {self.format_errorstack(errs)}')
+        stream.seek(0)
+        if set_name:
+            stream.name = '/'.join(names)
+        return stream
+
+    @synchronous
     def delete_file_or_folder(self, obj):
         if obj.deleted:
             return
@@ -450,32 +491,3 @@ class MTP_DEVICE(MTPDeviceBase):
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
         return parent
-
-
-def develop():
-    from calibre.devices.scanner import DeviceScanner
-    scanner = DeviceScanner()
-    scanner.scan()
-    dev = MTP_DEVICE(None)
-    dev.startup()
-    try:
-        cd = dev.detect_managed_devices(scanner.devices)
-        if cd is None:
-            raise RuntimeError('No MTP device found')
-        dev.open(cd, 'develop')
-        pprint.pprint(dev.dev.storage_info)
-        dev.filesystem_cache
-    finally:
-        dev.shutdown()
-
-
-if __name__ == '__main__':
-    dev = MTP_DEVICE(None)
-    dev.startup()
-    from calibre.devices.scanner import DeviceScanner
-    scanner = DeviceScanner()
-    scanner.scan()
-    devs = scanner.devices
-    dev.debug_managed_device_detection(devs, sys.stdout)
-    dev.set_debug_level(dev.LIBMTP_DEBUG_ALL)
-    dev.shutdown()

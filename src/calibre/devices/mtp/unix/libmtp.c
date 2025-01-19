@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <libmtp.h>
 
 #include "devices.h"
@@ -418,7 +419,7 @@ Device_get_filesystem(Device *self, PyObject *args) {
     if (errs == NULL || ans == NULL) { PyErr_NoMemory(); return NULL; }
 
     LIBMTP_Clear_Errorstack(self->device);
-    ok = recursive_get_files(self->device, (uint32_t)storage_id, 0xFFFFFFFF, ans, errs, callback, 0);
+    ok = recursive_get_files(self->device, (uint32_t)storage_id, LIBMTP_FILES_AND_FOLDERS_ROOT, ans, errs, callback, 0);
     dump_errorstack(self->device, errs);
     if (!ok) {
         Py_DECREF(ans);
@@ -431,21 +432,13 @@ Device_get_filesystem(Device *self, PyObject *args) {
 } // }}}
 
 // Device.get_file {{{
-static PyObject *
-Device_get_file(Device *self, PyObject *args) {
-    PyObject *stream, *callback = NULL, *errs;
-    ProgressCallback cb;
-    unsigned long fileid;
+static PyObject*
+get_file_impl(Device *self, PyObject *stream, PyObject *callback, unsigned long fileid) {
     int ret;
-
-    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
-
-
-    if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL;
-    errs = PyList_New(0);
+    PyObject *errs = PyList_New(0);
     if (errs == NULL) { PyErr_NoMemory(); return NULL; }
-    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
 
+    ProgressCallback cb = {0};
     cb.obj = callback; cb.extra = stream;
     Py_XINCREF(callback); Py_INCREF(stream);
     cb.state = PyEval_SaveThread();
@@ -456,9 +449,146 @@ Device_get_file(Device *self, PyObject *args) {
     if (ret != 0) {
         dump_errorstack(self->device, errs);
     }
-    Py_XDECREF(PyObject_CallMethod(stream, "flush", NULL));
+    PyObject *pret = PyObject_CallMethod(stream, "flush", NULL);
+    if (pret == NULL) PyErr_Clear();
+    else Py_DECREF(pret);
     return Py_BuildValue("ON", (ret == 0) ? Py_True : Py_False, errs);
+}
 
+static PyObject *
+Device_get_file(Device *self, PyObject *args) {
+    PyObject *stream, *callback = NULL;
+    unsigned long fileid;
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    if (!PyArg_ParseTuple(args, "kO|O", &fileid, &stream, &callback)) return NULL;
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
+    return get_file_impl(self, stream, callback, fileid);
+}
+
+static bool
+find_in_parent(Device *self, unsigned long storage_id, unsigned long parent_id, PyObject *name, unsigned long *fileid) {
+    LIBMTP_file_t *f, *files;
+    *fileid = 0;
+    bool found = false;
+    Py_BEGIN_ALLOW_THREADS;
+    files = LIBMTP_Get_Files_And_Folders(self->device, storage_id, parent_id);
+    Py_END_ALLOW_THREADS;
+
+    for (f = files; f != NULL; f = f->next) {
+        if (!f->filename) continue;
+        PyObject *k = PyUnicode_FromString(f->filename);
+        if (!k) { PyErr_Clear(); continue; }
+        PyObject *l = PyObject_CallMethod(k, "lower", NULL);
+        Py_DECREF(k); if (!l) break;
+        bool matches = PyUnicode_Compare(l, name) == 0;
+        Py_DECREF(l);
+        if (matches) {
+            *fileid = f->item_id;
+            found = true;
+            break;
+        }
+    }
+    for (f = files; f != NULL; f = f->next) LIBMTP_destroy_file_t(f);
+    return found;
+}
+
+static PyObject *
+Device_get_file_by_name(Device *self, PyObject *args) {
+    PyObject *stream, *callback = NULL, *names;
+    unsigned long fileid = 0, storageid, parentid;
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+    if (!PyArg_ParseTuple(args, "kkO!O|O", &storageid, &parentid, &PyTuple_Type, &names, &stream, &callback)) return NULL;
+    if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
+    if (!PyTuple_GET_SIZE(names)) Py_RETURN_NONE;
+
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
+        PyObject *k = PyTuple_GET_ITEM(names, i);
+        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        PyObject *l = PyObject_CallMethod(k, "lower", NULL);
+        if (!l) return NULL;
+        bool found = find_in_parent(self, storageid, parentid, l, &fileid);
+        Py_DECREF(l);
+        if (!found) {
+            if (PyErr_Occurred()) return NULL;
+            Py_RETURN_NONE;
+        }
+        parentid = fileid;
+    }
+    return get_file_impl(self, stream, callback, fileid);
+}
+
+// }}}
+
+// Device.get_metadata_by_name {{{
+static PyObject *
+Device_get_metadata_by_name(Device *self, PyObject *args) {
+    unsigned long parent_id, storage_id, folder_id = 0; PyObject *names;
+    bool found = false;
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    if (!PyArg_ParseTuple(args, "kkO!", &storage_id, &parent_id, &PyTuple_Type, &names)) return NULL;
+
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
+        PyObject *k = PyTuple_GET_ITEM(names, i);
+        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        PyObject *l = PyObject_CallMethod(k, "lower", NULL);
+        if (!l) return NULL;
+        found = find_in_parent(self, storage_id, parent_id, l, &folder_id);
+        Py_DECREF(l);
+        if (!found) {
+            if (PyErr_Occurred()) return NULL;
+            Py_RETURN_NONE;
+        }
+        parent_id = folder_id;
+    }
+    if (!found) Py_RETURN_NONE;
+    PyObject *errs = PyList_New(0);
+    if (!errs) return NULL;
+    PyObject *ans = file_metadata(self->device, errs, folder_id, storage_id);
+    if (ans == NULL) { ans = Py_None; Py_INCREF(ans); }
+    return Py_BuildValue("NN", ans, errs);
+} // }}}
+
+// Device.list_folder_by_name {{{
+static PyObject *
+Device_list_folder_by_name(Device *self, PyObject *args) {
+    unsigned long parent_id, storage_id, folder_id = 0; PyObject *names;
+    bool found = false;
+    ENSURE_DEV(NULL); ENSURE_STORAGE(NULL);
+
+    if (!PyArg_ParseTuple(args, "kkO!", &storage_id, &parent_id, &PyTuple_Type, &names)) return NULL;
+
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
+        PyObject *k = PyTuple_GET_ITEM(names, i);
+        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        PyObject *l = PyObject_CallMethod(k, "lower", NULL);
+        if (!l) return NULL;
+        found = find_in_parent(self, storage_id, parent_id, l, &folder_id);
+        Py_DECREF(l);
+        if (!found) {
+            if (PyErr_Occurred()) return NULL;
+            Py_RETURN_NONE;
+        }
+        parent_id = folder_id;
+    }
+    if (!found) Py_RETURN_NONE;
+    LIBMTP_file_t *f, *files;
+    PyObject *entry;
+    Py_BEGIN_ALLOW_THREADS;
+    files = LIBMTP_Get_Files_And_Folders(self->device, storage_id, folder_id);
+    Py_END_ALLOW_THREADS;
+    if (files == NULL) Py_RETURN_NONE;
+    PyObject *ans = PyList_New(0);
+    if (!ans) return NULL;
+    for (f = files; f != NULL; f = f->next) {
+        entry = build_file_metadata(f, storage_id);
+        if (entry == NULL) { Py_CLEAR(ans); break; }
+        bool appended = PyList_Append(ans, entry) == 0;
+        Py_DECREF(entry);
+        if (!appended) { Py_CLEAR(ans); break; }
+    }
+    for (f = files; f != NULL; f = f->next) LIBMTP_destroy_file_t(f);
+    return ans;
 } // }}}
 
 // Device.put_file {{{
@@ -552,6 +682,18 @@ static PyMethodDef Device_methods[] = {
 
     {"get_file", (PyCFunction)Device_get_file, METH_VARARGS,
      "get_file(fileid, stream, callback=None) -> Get the file specified by fileid from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns ok, errs, where errs is a list of errors (if any)."
+    },
+
+    {"get_file_by_name", (PyCFunction)Device_get_file_by_name, METH_VARARGS,
+     "get_file_by_name(storage_id, parent_id, names, stream, callback=None) -> Get the file specified by names (a tuple of name components) relative to parent_id from the device. stream must be a file-like object. The file will be written to it. callback works the same as in get_filelist(). Returns None or (ok, errs), where errs is a list of errors (if any)."
+    },
+
+    {"list_folder_by_name", (PyCFunction)Device_list_folder_by_name, METH_VARARGS,
+     "list_folder_by_name(storage_id, parent_id, names) -> List the folder specified by names (a tuple of name components) relative to parent_id from the device. Return None or a list of entries."
+    },
+
+    {"get_metadata_by_name", (PyCFunction)Device_get_metadata_by_name, METH_VARARGS,
+     "get_metadata_by_name(storage_id, parent_id, names) -> Return metadata for specified name (a tuple of name components) relative to parent from the device. Return (metadata, errs)."
     },
 
     {"put_file", (PyCFunction)Device_put_file, METH_VARARGS,
@@ -749,6 +891,7 @@ exec_module(PyObject *m) {
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_USB);
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_DATA);
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_ALL);
+    PyModule_AddIntMacro(m, LIBMTP_FILES_AND_FOLDERS_ROOT);
 
 	return 0;
 }
