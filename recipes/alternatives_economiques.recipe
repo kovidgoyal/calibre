@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AlternativesEconomiques(BasicNewsRecipe):
+    title = 'Alternatives Économiques'
+    __author__ = 'Kabonix'
+    description = 'Articles de toutes les rubriques (10 articles max par rubrique)'
+    publisher = 'Alternatives Économiques'
+    language = 'fr'
+
+    oldest_article = 90
+    max_articles_per_feed = 10
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+    auto_cleanup = False
+    remove_empty_feeds = True
+    remove_images = False
+
+    def get_cover_url(self):
+        """Récupère dynamiquement l'URL de la dernière une depuis MLP"""
+        br = self.get_browser()
+        try:
+            # Accéder à la page du magazine sur MLP
+            soup = self.index_to_soup(br.open('https://catalogueproduits.mlp.fr/produit.aspx?tit_code=1BMwusijpg0%3D').read())
+
+            # Chercher la div qui contient les images
+            gallery = soup.find('div', id='gallery')
+            if gallery:
+                img = gallery.find('img', id='couverture_1')
+                if img and img.get('src'):
+                    cover_url = img['src']
+                    if not cover_url.startswith('http'):
+                        cover_url = 'https://catalogueproduits.mlp.fr/' + cover_url
+                    self.log('Cover URL found:', cover_url)
+                    return cover_url
+
+            self.log('Aucune couverture trouvée, utilisation de l\'image par défaut')
+            return 'https://www.alternatives-economiques.fr/sites/all/themes/alternatives-economiques-main/assets/logo-alternatives-economiques.svg'
+
+        except Exception as e:
+            self.log.error('Erreur lors de la récupération de la couverture:', str(e))
+            return 'https://www.alternatives-economiques.fr/sites/all/themes/alternatives-economiques-main/assets/logo-alternatives-economiques.svg'
+
+    def is_article_url(self, url):
+        article_pattern = re.compile(r'/[^/]+/00\d{6}$')
+        return bool(article_pattern.search(url))
+
+    def parse_index(self):
+        articles = []
+        base_url = 'https://www.alternatives-economiques.fr'
+
+        thematiques = [
+            'biodiversite', 'ideesdebats', 'entreprise', 'europe', 'direct-de-recherche',
+            'asie', 'a-la-carte', 'chine', 'culture', 'des-idees-pour-sortir-de-la-crise',
+            'amerique-du-sud', 'idees-0', 'transport', 'services-publics', 'allemagne',
+            'face-a-face', 'politique-monetaire', 'logement', 'climat', 'innovation',
+            'agir', 'economie-sociale-et-solidaire', 'societe', 'theorie', 'revenus',
+            'tribune', 'conditions-de-travail', 'familles', 'politique', 'numerique',
+            'histoire', 'sociorama', 'mondialisation', 'opinions', 'consommation',
+            'dette', 'assurance-chomage', 'finance', 'temps-de-travail', 'emploi',
+            'protection-sociale', 'refugies', 'royaume-uni', 'conjoncture', 'population',
+            'libertes', 'jeunes', 'droit-du-travail', 'responsabilite-sociale', 'industrie',
+            'economie', 'ukraine', 'immigration', 'travail', 'etats-unis',
+            'inflation', 'relations-sociales', 'inegalites', 'management', 'energie',
+            'environnement', 'fiscalite', 'social', 'elections-europeennes', 'retraites',
+            'international', 'commerce-exterieur', 'sante', 'gestion', 'salaires',
+            'education', 'lanceurs-dalerte', 'japon', 'geopolitique', 'afrique',
+            'commerce', 'politiques-publiques', 'budget', 'grece', 'genre',
+            'services', 'pollution', 'agriculture', 'legislatives', 'chomage',
+            'graphorama', 'formation', 'budget-2025', 'territoires', 'espagne'
+        ]
+
+        special_sections = {
+            'grands-formats': '/grands-formats',
+            'dessin': '/dessin'
+        }
+
+        sections = {t: f'/thematiques/{t}' for t in thematiques}
+        sections.update(special_sections)
+
+        for section_name, section_path in sections.items():
+            url = f'{base_url}{section_path}'
+            self.log('Analyzing section:', url)
+            try:
+                soup = self.index_to_soup(url)
+                feed_articles = self.extract_articles(soup, base_url)
+                if feed_articles:
+                    display_name = section_name.replace('-', ' ').title()
+                    articles.append((display_name, feed_articles[:self.max_articles_per_feed]))
+            except Exception as e:
+                self.log.error(f'Error processing {section_name}: {str(e)}')
+                continue
+
+        return articles
+
+    def extract_articles(self, soup, base_url):
+        feed_articles = []
+        processed_urls = set()
+
+        for link in soup.find_all('a', href=True):
+            article_url = link['href']
+            if self.is_article_url(article_url):
+                if not article_url.startswith('http'):
+                    article_url = base_url + article_url
+
+                if article_url in processed_urls:
+                    continue
+                processed_urls.add(article_url)
+
+                try:
+                    article_soup = self.index_to_soup(article_url)
+                    h1_title = article_soup.find('h1', class_='o-head__title')
+
+                    if h1_title:
+                        title = h1_title.get_text().strip()
+                    else:
+                        title_elem = link.find('h2')
+                        if title_elem:
+                            title = title_elem.get_text().strip()
+                        else:
+                            title = link.get_text().strip()
+                            if not title:
+                                title = article_url.split('/')[-2].replace('-', ' ').title()
+
+                    if title:
+                        feed_articles.append({
+                            'title': title,
+                            'url': article_url,
+                            'description': ''
+                        })
+                except Exception as e:
+                    self.log.error(f'Error getting H1 title for {article_url}: {str(e)}')
+                    continue
+
+        return feed_articles
+
+    keep_only_tags = [
+        dict(name='h1', class_='o-head__title'),
+        dict(name='div', class_='chapo'),
+        dict(name='time', class_='o-infos__date-full'),
+        dict(name='div', class_='o-page__content__who'),
+        dict(name='div', class_='field-item even'),
+        dict(name='div', attrs={'property': 'content:encoded'})
+    ]
+
+    remove_tags = [
+        dict(name=['script', 'style', 'iframe', 'svg', 'audio', 'video', 'button', 'form', 'input']),
+        dict(name='div', class_=[
+            'c-article__social', 'social-buttons', 'social-sharing', 'social-media',
+            'share-buttons', 'share-links', 'social-links', 'social-icons',
+            'embedded-content', 'embed-container', 'embed-wrapper', 'media-embed',
+            'twitter-embed', 'facebook-embed', 'social-embed',
+            'c-kiosk--single', 'c-comments', 'c-article__toolbar',
+            'c-article__related', 'c-epigraph', 'newsletter-signup',
+            'twitter-tweet', 'twitter-timeline', 'twitter-follow-button',
+            'c-footer__promo', 'o-page__block--offset--invert',
+            'newsletter-form', 'newsletter-block', 'newsletter',
+            'c-kiosk--single__content', 'c-kiosk--single__figure',
+            'c-kiosk--single__body', 'c-kiosk--single__cta',
+            'field-name-field-issue-cover'
+        ])
+    ]
+
+    extra_css = '''
+        body { line-height: 1.6; margin: 1em; }
+        h1 { font-size: 1.8em; margin-bottom: 0.5em; font-weight: bold; }
+        .chapo { font-style: italic; margin: 1em 0; font-size: 1.2em; }
+        .o-infos__date-full { color: #666; margin: 0.5em 0; font-size: 0.9em; }
+        .o-page__content__who { color: #333; margin: 0.5em 0; font-weight: bold; }
+        p { margin: 0.8em 0; }
+
+        a {
+            text-decoration: none !important;
+            color: inherit !important;
+        }
+
+        .o-page__figure-full {
+            break-inside: avoid;
+            margin: 1em 0;
+            page-break-inside: avoid;
+        }
+        .o-page__figure-full figcaption {
+            font-style: italic;
+            text-align: center;
+            margin-top: 0.5em;
+            font-size: 0.9em;
+            color: #666;
+        }
+    '''
+
+    def preprocess_html(self, soup):
+        # Remove unwanted tags
+        for tag in soup.find_all(['script', 'style', 'iframe', 'svg', 'audio', 'video']):
+            tag.decompose()
+
+        # Clean attributes
+        for tag in soup.find_all(True):
+            if tag.name not in ['a', 'img']:
+                allowed_attrs = {'src', 'href', 'alt', 'title'}
+                tag.attrs = {k: v for k, v in tag.attrs.items() if k in allowed_attrs}
+
+        return soup
