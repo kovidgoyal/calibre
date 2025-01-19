@@ -10,6 +10,25 @@ class LeCanardEnchaine(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
+    # Ajout des préférences pour les identifiants
+    needs_subscription = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_handle_robots(False)
+
+        if self.username and self.password:
+            br.open('https://www.lecanardenchaine.fr/coin/identification?u=/')
+            br.select_form(nr=13)
+            br['_username'] = self.username
+            br['_password'] = self.password
+            br.submit()
+        else:
+            raise Exception('Les identifiants de connexion sont requis. Veuillez les configurer dans les préférences de la recette.')
+
+        return br
+
+    # Le reste du code reste identique
     keep_only_tags = [
         dict(name='div', attrs={'class': ['editorial', 'article__core']}),
         dict(name='div', attrs={'class': ['non-paywall', 'paywall']})
@@ -20,8 +39,33 @@ class LeCanardEnchaine(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['social-share', 'comments', 'share-mobile', 'article__author', 'article__tags']})
     ]
 
-    # URL de la couverture
-    cover_url = 'https://docimg-cdn.immanens.com/phnxc1/getcover/logistic-code/PVN1/l-pub-id/2410/l-doc-id/536798/doc-version/5/profile/cover-large.jpg'
+    extra_css = '''
+    body, p, div, h1, h2, h3,
+    .article__subtitle, .article__chapeau, .chapeau {
+        font-size: 1em !important;
+        line-height: 1.5 !important;
+    }
+    '''
+
+    def get_cover_url(self):
+        """Récupère dynamiquement l'URL de la dernière une"""
+        br = self.get_browser()
+        try:
+            soup = self.index_to_soup(br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read())
+
+            list_item = soup.find('li', {'class': 'list-item'})
+            if list_item:
+                img = list_item.find('img')
+                if img and img.get('srcset'):
+                    return 'https://boutique.lecanardenchaine.fr' + img['srcset'].split()[0]
+                elif img and img.get('src'):
+                    return 'https://boutique.lecanardenchaine.fr' + img['src']
+
+            self.log.info('Aucune couverture trouvée, utilisation de l\'image par défaut')
+            return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
+        except Exception:
+            self.log.exception('Erreur lors de la récupération de la couverture')
+            return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
 
     SECTIONS = {
         'Politique': '/politique/',
@@ -40,18 +84,6 @@ class LeCanardEnchaine(BasicNewsRecipe):
         'Social': '/social/',
         'Brèves': '/breves/'
     }
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.set_handle_robots(False)
-
-        br.open('https://www.lecanardenchaine.fr/coin/identification?u=/')
-        br.select_form(nr=13)
-        br['_username'] = 'email'
-        br['_password'] = 'password'
-        br.submit()
-
-        return br
 
     def parse_index(self):
         br = self.get_browser()
@@ -95,7 +127,6 @@ class LeCanardEnchaine(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        # S'assure que le contenu paywall est visible
         for div in soup.findAll('div', attrs={'class': ['unlocked', 'paywall']}):
             div['class'] = ''
         return soup
@@ -103,6 +134,6 @@ class LeCanardEnchaine(BasicNewsRecipe):
     def postprocess_html(self, soup, first_fetch):
         for tag in soup.findAll(True):
             for attr in list(tag.attrs):
-                if attr not in ['href', 'src']:
+                if attr not in ['href', 'src', 'class']:
                     del tag[attr]
         return soup
