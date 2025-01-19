@@ -1,0 +1,165 @@
+#!/usr/bin/env python
+
+'''
+contretemps.eu
+'''
+
+from datetime import datetime
+
+from zoneinfo import ZoneInfo
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ContretempsRecipe(BasicNewsRecipe):
+    title = 'Contretemps'
+    __author__ = 'Kabonix'
+    description = 'Revue de critique communiste'
+    publisher = 'Contretemps'
+    category = 'politique, théorie, stratégie'
+    language = 'fr'
+    encoding = 'utf-8'
+    oldest_article = 60
+    max_articles_per_feed = 30
+    publication_type = 'magazine'
+
+    no_stylesheets = True
+    remove_javascript = True
+    auto_cleanup = False
+
+    feeds = [
+        ('Théorie', 'https://www.contretemps.eu/category/theorie/feed/'),
+        ('Stratégie', 'https://www.contretemps.eu/category/strategie/feed/'),
+        ('Conjoncture', 'https://www.contretemps.eu/category/conjoncture/feed/')
+    ]
+
+    def get_cover_url(self):
+        return None
+
+    def default_cover(self, cover_file):
+        """
+        Crée une couverture personnalisée pour Contretemps
+        """
+        from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
+
+        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+        try:
+            # Préparation de l'environnement Qt
+            ensure_app()
+            load_builtin_fonts()
+
+            # Date en français
+            today = datetime.now(ZoneInfo('Europe/Paris'))
+            wkd = today.weekday()
+            french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
+            french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
+                          7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+
+            weekday = french_weekday[wkd]
+            month = french_month[today.month]
+            date_str = f"{weekday} {today.day} {month} {today.year}"
+            edition = today.strftime('Édition de %Hh%M')
+
+            # Création de l'image de base (ratio ~1.6 pour format livre)
+            img = QImage(1200, 1920, QImage.Format_RGB888)
+            img.fill(QColor('white'))
+
+            # Téléchargement et ajout du logo
+            br = self.get_browser()
+            logo_data = br.open_novisit('https://www.contretemps.eu/wp-content/uploads/ct14-1-512x241.jpg').read()
+            logo_img = QImage()
+            logo_img.loadFromData(logo_data)
+
+            # Position du logo (centré)
+            x = (img.width() - logo_img.width()) // 2
+            y = (img.height() - logo_img.height()) // 2 - 200  # Un peu plus haut que le centre
+
+            # Dessiner le logo
+            p = QPainter(img)
+            p.drawImage(x, y, logo_img)
+            p.end()
+
+            # Ajout des textes
+            painters = [
+                (36, 'Liberation Serif', False, False, date_str, (0, y + logo_img.height() + 100, 1200, 100)),
+                (32, 'Liberation Serif', True, True, edition, (0, y + logo_img.height() + 200, 1200, 100))
+            ]
+
+            for font_size, font_family, is_bold, is_italic, text, rect in painters:
+                p = QPainter(img)
+                pen = QPen(QColor('black'))
+                p.setPen(pen)
+
+                font = QFont()
+                font.setFamily(font_family)
+                font.setPointSize(font_size)
+                font.setBold(is_bold)
+                font.setItalic(is_italic)
+                p.setFont(font)
+
+                r = QRect(*rect)
+                p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, text)
+                p.end()
+
+            # Sauvegarde de l'image
+            img_data = pixmap_to_data(img)
+            cover_file.write(img_data)
+            cover_file.flush()
+            return True
+
+        except Exception as e:
+            self.log.error(f'Erreur lors de la création de la couverture: {e}')
+            return False
+
+    keep_only_tags = [
+        dict(name='article', attrs={'class': 'post'})
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class': ['tags', 'share-buttons', 'related-posts']}),
+        dict(name='div', attrs={'class': ['comments-area', 'nav-links']}),
+        dict(name='div', attrs={'id': ['sidebar', 'comments']}),
+        dict(name='section', attrs={'class': 'comments-area'}),
+        dict(name='footer'),
+        dict(name='div', attrs={'class': 'yarpp-related'}),
+        dict(name='div', attrs={'class': 'related-posts'})
+    ]
+
+    def preprocess_html(self, soup):
+        # Nettoyage des styles
+        for tag in soup.findAll(True):
+            if 'style' in tag.attrs:
+                del tag['style']
+
+        # Nettoyage des images
+        for img in soup.findAll('img'):
+            for attr in ['srcset', 'sizes', 'loading', 'class', 'width', 'height', 'decoding', 'data-lazy-srcset', 'data-lazy-sizes']:
+                if attr in img.attrs:
+                    del img[attr]
+
+            if 'data-lazy-src' in img.attrs:
+                img['src'] = img['data-lazy-src']
+                del img['data-lazy-src']
+
+            if img.get('src', '').startswith('/'):
+                img['src'] = 'https://www.contretemps.eu' + img['src']
+
+        # Suppression de tout ce qui suit "à voir aussi"
+        for text in soup.findAll(text=lambda text: text and 'à voir aussi' in text.lower()):
+            parent = text.parent
+            for sibling in list(parent.find_next_siblings()):
+                sibling.decompose()
+            parent.decompose()
+
+        return soup
+
+    extra_css = '''
+        h1 { font-size: 1.8em; font-weight: bold; margin: 0 0 1em 0; }
+        h2 { font-size: 1.4em; font-weight: bold; margin: 1em 0; }
+        .author { font-style: italic; margin-bottom: 1.5em; color: #666; }
+        img { max-width: 100%; height: auto; margin: 1em auto; }
+        figcaption { font-size: 0.9em; font-style: italic; color: #666; margin: 0.5em 0 1.5em 0; }
+        p { margin-bottom: 1em; line-height: 1.5; }
+        blockquote { margin: 1em 2em; font-style: italic; }
+        .wp-block-quote { margin: 1em 0; padding: 0 1em; border-left: 3px solid #ccc; }
+    '''
