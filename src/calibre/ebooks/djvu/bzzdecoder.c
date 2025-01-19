@@ -21,7 +21,9 @@
 #define STRFY2(x) STRFY(x)
 #define CORRUPT PyErr_SetString(PyExc_ValueError, "Corrupt bitstream at line: " STRFY2(__LINE__))
 
+#if __STDC_VERSION__ < 202311L
 typedef uint8_t bool;
+#endif
 
 typedef struct Table {
     uint16_t p;
