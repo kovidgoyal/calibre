@@ -100,6 +100,8 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
 
     def show_context_menu(self, point):
         clicked_item = self.rules_table.itemAt(point)
+        if clicked_item is None:
+            return
         item = self.rules_table.item(clicked_item.row(), CATEGORY_COLUMN)
         m = QMenu(self)
         ac = m.addAction(_('Delete this rule'), partial(self.context_menu_handler, 'delete', item))
