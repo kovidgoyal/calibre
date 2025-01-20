@@ -453,12 +453,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     size_calculated = pyqtSignal(object)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.register_child_tab(self.tb_icon_browser_tab)
-        self.register_child_tab(self.tb_hierarchy_tab)
-        self.register_child_tab(self.cover_view)
-
     def genesis(self, gui):
         self.gui = gui
         self.ui_style_available = True

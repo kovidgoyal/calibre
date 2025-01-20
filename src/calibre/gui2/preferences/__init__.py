@@ -292,6 +292,9 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             self.setupUi(self)
         self.settings = {}
         self.child_tabs = []
+        for v in self.__dict__.values():
+            if isinstance(v, ConfigTabWidget):
+                self.child_tabs.append(v)
 
     def register(self, name, config_obj, gui_name=None, choices=None,
             restart_required=False, empty_string_is_None=True, setting=Setting):
@@ -349,10 +352,6 @@ def get_plugin(category, name):
 
 
 class ConfigTabWidget(ConfigWidgetBase):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        super().register_child_tab(self)
 
     def set_changed_signal(self, changed_signal):
         self.changed_signal.connect(changed_signal)
