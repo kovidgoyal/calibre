@@ -97,7 +97,7 @@ list_folder_by_name(Device *self, PyObject *args) {
         PyObject *k = PyTuple_GET_ITEM(names, i);
         if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
         pyobject_raii l(PyObject_CallMethod(k, "lower", NULL)); if (!l) return NULL;
-        pyobject_raii object_id(wpd::find_in_parent(content, self->bulk_properties, parent_id.ptr(), l.ptr()));
+        pyobject_raii object_id(wpd::find_in_parent(content, parent_id.ptr(), l.ptr()));
         if (!object_id) {
             if (PyErr_Occurred()) return NULL;
             Py_RETURN_NONE;
@@ -106,7 +106,7 @@ list_folder_by_name(Device *self, PyObject *args) {
         found = true;
     }
     if (!found) Py_RETURN_NONE;
-    return wpd::list_folder(content, self->bulk_properties, parent_id.ptr());
+    return wpd::list_folder(self->device, content, self->bulk_properties, parent_id.ptr());
 } // }}}
 
 // create_folder() {{{

@@ -7,6 +7,7 @@
 
 #include "global.h"
 
+#include <dictobject.h>
 #include <new>
 
 namespace wpd {
@@ -169,12 +170,14 @@ private:
 			if (PyDict_SetItem(this->items, object_id.ptr(), obj.ptr()) != 0) { PyErr_Clear(); return; }
 		} else Py_INCREF(obj.ptr());
 		set_properties(obj.ptr(), properties);
-		pyobject_raii r(PyObject_CallFunction(callback, "OI", obj.ptr(), this->level));
-		if (!r) PyErr_Clear();
-		else if (r && PyObject_IsTrue(r.ptr())) {
-			PyObject *borrowed = PyDict_GetItemString(obj.ptr(), "id");
-			if (borrowed) if (PyList_Append(this->subfolders, borrowed) != 0) PyErr_Clear();
-		}
+        if (callback) {
+            pyobject_raii r(PyObject_CallFunction(callback, "OI", obj.ptr(), this->level));
+            if (!r) PyErr_Clear();
+            else if (r && PyObject_IsTrue(r.ptr())) {
+                PyObject *borrowed = PyDict_GetItemString(obj.ptr(), "id");
+                if (borrowed) if (PyList_Append(this->subfolders, borrowed) != 0) PyErr_Clear();
+            }
+        }
 	}
 
 	void handle_values(IPortableDeviceValuesCollection* values) {
@@ -422,9 +425,11 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
         if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
             pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
 			if (!item) return false;
-			pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
 			if (PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr()) != 0) return false;
-			if (r && PyObject_IsTrue(r.ptr())) recurse.attach(item.detach());
+            if (callback) {
+                pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
+                if (r && PyObject_IsTrue(r.ptr())) recurse.attach(item.detach());
+            }
         } else { hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr); return false; }
 
         if (recurse) {
@@ -468,42 +473,28 @@ create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GU
 } // }}}
 
 PyObject*
-list_folder(CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *folder_id) {
+list_folder(IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *folder_id) {
     HRESULT hr;
     CComPtr<IPortableDevicePropVariantCollection> object_ids;
     Py_BEGIN_ALLOW_THREADS;
     hr = object_ids.CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); return NULL; }
+    pyobject_raii ans(PyDict_New()); if (!ans) return NULL;
 
     bool enum_failed = false;
     if (!find_objects_in(content, object_ids, folder_id, &enum_failed)) return NULL;
-    DWORD num;
-    CComPtr<IPortableDeviceProperties> devprops;
 
-    hr = content->Properties(&devprops);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
-
-    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
-    if (!properties) return NULL;
-    hr = object_ids->GetCount(&num);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); return NULL; }
-    pyobject_raii ans(PyList_New(0)); if (!ans) return NULL;
-
-    for (DWORD i = 0; i < num; i++) {
-		prop_variant pv;
-        hr = object_ids->GetAt(i, &pv);
-        if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
-            pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
-            if (!item) return NULL;
-            if (PyList_Append(ans.ptr(), item.ptr()) != 0) return NULL;
-        }
+    if (bulk_properties) {
+        if (!bulk_get_filesystem(0, device, bulk_properties, object_ids, NULL, ans.ptr(), NULL)) return NULL;
+    } else {
+        if (!single_get_filesystem(0, content, object_ids, NULL, ans.ptr(), NULL)) return NULL;
     }
     return ans.detach();
 }
 
 PyObject*
-find_in_parent(CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *name) {
+find_in_parent(CComPtr<IPortableDeviceContent> &content, const wchar_t *parent_id, PyObject *name) {
     HRESULT hr;
     CComPtr<IPortableDevicePropVariantCollection> object_ids;
     Py_BEGIN_ALLOW_THREADS;

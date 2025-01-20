@@ -398,7 +398,7 @@ class MTP_DEVICE(MTPDeviceBase):
         x = self.dev.list_folder_by_name(parent.object_id, names)
         if x is None:
             raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
-        return x
+        return list(x.values())
 
     @same_thread
     def get_mtp_file(self, f, stream=None, callback=None):

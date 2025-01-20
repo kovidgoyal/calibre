@@ -50,7 +50,8 @@ extern PyObject* create_folder(IPortableDevice *device, const wchar_t *parent_id
 extern PyObject* delete_object(IPortableDevice *device, const wchar_t *object_id);
 extern PyObject* put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback);
 extern PyObject* find_in_parent(
-    CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *name);
+    CComPtr<IPortableDeviceContent> &content, const wchar_t *parent_id, PyObject *name);
 extern PyObject* list_folder(
-        CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *folder_id);
+        IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties,
+        const wchar_t *folder_id);
 }
