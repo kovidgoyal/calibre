@@ -12,7 +12,7 @@ from qt.core import QListWidgetItem, Qt
 
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs
 from calibre.gui2.preferences import ConfigTabWidget
-from calibre.gui2.preferences.look_feel_displayed_fields import DisplayedFields
+from calibre.gui2.preferences.look_feel_tabs import DisplayedFields
 from calibre.gui2.preferences.look_feel_tabs.tb_hierarchy_ui import Ui_Form
 
 class TBHierarchicalFields(DisplayedFields):  # {{{

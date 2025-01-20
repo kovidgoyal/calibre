@@ -1,41 +1,12 @@
-'''
-Created on 19 Jan 2025
+#!/usr/bin/env python
 
-@author: chaley
-'''
 
-from qt.core import (
-    QAbstractListModel,
-    QApplication,
-    QBrush,
-    QColor,
-    QColorDialog,
-    QComboBox,
-    QDialog,
-    QDialogButtonBox,
-    QFont,
-    QFontDialog,
-    QFontInfo,
-    QFormLayout,
-    QHeaderView,
-    QIcon,
-    QItemSelectionModel,
-    QKeySequence,
-    QLabel,
-    QLineEdit,
-    QListWidgetItem,
-    QPainter,
-    QPixmap,
-    QPushButton,
-    QSize,
-    QSizePolicy,
-    Qt,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-    QWidget,
-    pyqtSignal,
-)
+__license__   = 'GPL v3'
+__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+
+from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre.gui2.book_details import get_field_list
 

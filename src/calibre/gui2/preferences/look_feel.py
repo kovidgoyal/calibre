@@ -64,7 +64,7 @@ from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import ConfigWidgetBase, Setting, set_help_tips, test_widget
 from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.preferences.look_feel_displayed_fields import DisplayedFields, move_field_down, move_field_up
+from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
