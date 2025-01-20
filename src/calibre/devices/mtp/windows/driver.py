@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 import threading
 import time
 import traceback
@@ -408,6 +409,26 @@ class MTP_DEVICE(MTPDeviceBase):
         if x is None:
             raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
         return x
+
+    @same_thread
+    def get_mtp_file_by_name(self, parent, *names: str, stream=None, callback=None):
+        if not parent.is_folder:
+            raise ValueError(f'{parent.full_path} is not a folder')
+        set_name = stream is None
+        if stream is None:
+            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+        try:
+            try:
+                self.dev.get_file_by_name(parent.object_id, names, stream, callback)
+            except self.wpd.WPDFileBusy:
+                time.sleep(2)
+                self.dev.get_file_by_name(parent.object_id, names, stream, callback)
+        except Exception as e:
+            raise DeviceError(f'Failed to fetch the file {os.sep.join(names)} from {parent.full_path} with error: {as_unicode(e)}')
+        stream.seek(0)
+        if set_name:
+            stream.name = '/'.join(names)
+        return stream
 
     @same_thread
     def get_mtp_file(self, f, stream=None, callback=None):
