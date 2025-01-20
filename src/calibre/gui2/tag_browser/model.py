@@ -55,6 +55,7 @@ class TagTreeItem:  # {{{
     icon_config_dir = {}
     file_icon_provider = None
     eval_formatter = EvalFormatter()
+    database = None
 
     def __init__(self, data=None, is_category=False, icon_map=None,
                  parent=None, tooltip=None, category_key=None, temporary=False,
@@ -143,9 +144,12 @@ class TagTreeItem:  # {{{
                                 if node.type != self.TAG or node.type == self.ROOT:
                                     break
                             if val_icon is None and TEMPLATE_ICON_INDICATOR in self.value_icons[category]:
+                                v = {'category': category, 'value': self.tag.original_name,
+                                     'count': getattr(self.tag, 'count', ''),
+                                     'avg_rating': getattr(self.tag, 'avg_rating', '')}
                                 t = self.eval_formatter.safe_format(self.value_icons[category][TEMPLATE_ICON_INDICATOR][0],
-                                                                    {'category': category, 'value': self.tag.original_name},
-                                                                    'VALUE_ICON_TEMPLATE_ERROR', {})
+                                                                    v, 'VALUE_ICON_TEMPLATE_ERROR', {},
+                                                                    database=self.database)
                                 if t:
                                     val_icon = (os.path.join('template_icons', t), False)
                                 else:
@@ -406,8 +410,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.filter_categories_by = None
         self.collapse_model = 'disable'
         self.row_map = []
-        self.root_item = self.create_node(icon_map=self.icon_state_map)
         self.db = None
+        self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
         self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.ConnectionType.QueuedConnection)
@@ -1483,6 +1487,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         node.value_icons = self.value_icons
         node.value_icon_cache = self.value_icon_cache
         node.icon_config_dir = self.icon_config_dir
+        node.database = self.db
         return node
 
     def get_node(self, idx):

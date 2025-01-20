@@ -248,7 +248,12 @@ class FormatterFunction:
     def only_in_gui_error(self):
         only_in_gui_error(self.name)
 
-    def get_database(self, mi):
+    def get_database(self, mi, formatter=None):
+        if formatter is not None:
+            if hasattr(formatter, 'database'):
+                db = formatter.database
+                if db is not None:
+                    return db
         return get_database(mi, self.name)
 
 
@@ -1680,7 +1685,7 @@ attached to the current book.[/] This function works only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        c = self.get_database(mi).new_api.annotation_count_for_book(mi.id)
+        c = self.get_database(mi, formatter=formatter).new_api.annotation_count_for_book(mi.id)
         return '' if c == 0 else str(c)
 
 
@@ -1697,7 +1702,7 @@ not marked. This function works only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        c = self.get_database(mi).data.get_marked(mi.id)
+        c = self.get_database(mi, formatter=formatter).data.get_marked(mi.id)
         return c if c else ''
 
 
@@ -2346,7 +2351,7 @@ and use that column's value in your save/send templates.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
-        db = self.get_database(mi)
+        db = self.get_database(mi, formatter=formatter)
         try:
             a = db.data.get_virtual_libraries_for_books((mi.id,))
             return ', '.join(a[mi.id])
@@ -2370,7 +2375,7 @@ This function works only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        return self.get_database(mi).data.get_base_restriction_name()
+        return self.get_database(mi, formatter=formatter).data.get_base_restriction_name()
 
 
 class BuiltinUserCategories(BuiltinFormatterFunction):
@@ -2441,7 +2446,7 @@ ans
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             link = None
             item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
@@ -2602,7 +2607,7 @@ More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
 
     def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
         # 'field' is a lookup name, not a value
-        if field not in self.get_database(mi).field_metadata:
+        if field not in self.get_database(mi, formatter=formatter).field_metadata:
             raise ValueError(_("The column {} doesn't exist").format(field))
         res = getattr(mi, field, None)
         if res is None:
@@ -2865,7 +2870,7 @@ expressions.
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_count() function cannot be used in a composite column'))
-        db = self.get_database(mi)
+        db = self.get_database(mi, formatter=formatter)
         try:
             ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
             return len(ids)
@@ -2895,7 +2900,7 @@ used only in the GUI.
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
             raise ValueError(_('The book_values() function cannot be used in a composite column'))
-        db = self.get_database(mi)
+        db = self.get_database(mi, formatter=formatter)
         if column not in db.field_metadata:
             raise ValueError(_("The column {} doesn't exist").format(column))
         try:
@@ -2930,7 +2935,7 @@ This function can be used only in the GUI.
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             files = tuple(f.relpath.partition('/')[-1] for f in
                           db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
@@ -2961,7 +2966,7 @@ the functions :ref:`has_extra_files`, :ref:`extra_file_modtime` and
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             files = tuple(f.relpath.partition('/')[-1] for f in
                           db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN))
@@ -2987,7 +2992,7 @@ also the functions :ref:`has_extra_files`, :ref:`extra_file_names` and
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name):
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
             for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
@@ -3016,7 +3021,7 @@ This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name, format_string):
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
             for f in db.list_extra_files(mi.id, use_cache=True, pattern=DATA_FILE_PATTERN):
@@ -3057,7 +3062,7 @@ program:
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         try:
             note = None
             item_id = db.get_item_id(field_name, field_value, case_sensitive=True)
@@ -3125,7 +3130,7 @@ values in ``field_name``. Example:
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
-        db = self.get_database(mi).new_api
+        db = self.get_database(mi, formatter=formatter).new_api
         if field_value:
             note = None
             try:

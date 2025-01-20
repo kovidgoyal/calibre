@@ -686,14 +686,21 @@ class TagsView(QTreeView):  # {{{
             if action == 'set_icon':
                 if category is None:
                     if index is not None:
-                        current_item = self._model.get_node(index).tag.original_name
+                        tag = self._model.get_node(index).tag
+                        current_item = tag.original_name
+                        count = tag.count
+                        avg_rating = tag.avg_rating
                     else:
                         current_item = _('No value available')
+                        count = ''
+                        avg_rating = ''
                     template = self._model.value_icons.get(key, {}).get(TEMPLATE_ICON_INDICATOR, ('', False))[0]
                     from calibre.gui2.dialogs.template_dialog import TemplateDialog
                     from calibre.utils.formatter import EvalFormatter
+                    v = {'title': key, 'category': key, 'value': current_item,
+                         'count': count, 'avg_rating': avg_rating}
                     d = TemplateDialog(parent=self, text=template,
-                                       mi={'title': key, 'category': key, 'value': current_item},
+                                       mi=v,
                                        doing_emblem=True,
                                        # fm=None, color_field=None, icon_field_key=None,
                                        # icon_rule_kind=None,  text_is_placeholder=False,

@@ -1083,6 +1083,8 @@ def evaluate(book, context):
         tv = self.template_value
         l = self.template_value.selectionModel().selectedRows()
         break_on_mi = 0 if len(l) == 0 else l[0].row()
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         for r,mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
             w.setText(mi.get('title', _('No title provided')))
@@ -1096,7 +1098,8 @@ def evaluate(book, context):
                                  mi, global_vars=self.global_vars,
                                  template_functions=self.all_functions,
                                  break_reporter=self.break_reporter if r == break_on_mi else None,
-                                 python_context_object=self.python_context_object)
+                                 python_context_object=self.python_context_object,
+                                 database=db)
                 w = tv.cellWidget(r, 2)
                 w.setText(v.translate(translate_table))
                 w.setCursorPosition(0)
