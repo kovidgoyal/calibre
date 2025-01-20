@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
 import json
+from functools import partial
 
 from qt.core import QListWidgetItem, Qt
 
@@ -14,6 +14,7 @@ from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs
 from calibre.gui2.preferences import ConfigTabWidget
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields
 from calibre.gui2.preferences.look_feel_tabs.tb_hierarchy_ui import Ui_Form
+
 
 class TBHierarchicalFields(DisplayedFields):  # {{{
     # The code in this class depends on the fact that the tag browser is

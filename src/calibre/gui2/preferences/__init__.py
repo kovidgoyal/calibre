@@ -20,7 +20,6 @@ from qt.core import (
     QListView,
     QListWidget,
     Qt,
-    QTabWidget,
     QTableWidget,
     QVBoxLayout,
     QWidget,

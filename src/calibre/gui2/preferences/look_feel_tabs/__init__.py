@@ -10,6 +10,7 @@ from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre.gui2.book_details import get_field_list
 
+
 class DisplayedFields(QAbstractListModel):  # {{{
 
     def __init__(self, db, parent=None, pref_name=None, category_icons=None):

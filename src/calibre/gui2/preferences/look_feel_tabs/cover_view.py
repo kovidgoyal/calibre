@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QKeySequence
 
 from calibre.gui2 import config, gprefs
-
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigTabWidget, ConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
@@ -63,4 +62,3 @@ class CoverView(ConfigTabWidget, Ui_Form):
         gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])
         gui.update_cover_flow_subtitle_font()
         gui.cover_flow.template_inited = False
-

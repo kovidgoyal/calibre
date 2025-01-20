@@ -6,8 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy
-from functools import partial
 import os
+from functools import partial
 
 from qt.core import QAbstractItemView, QApplication, QIcon, QMenu, Qt, QTableWidgetItem
 
@@ -168,3 +168,4 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             if len(v[category]) == 0:
                 v.pop(category, None)
         gprefs['tags_browser_value_icons'] = v
+        return rr
