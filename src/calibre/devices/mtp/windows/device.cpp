@@ -78,6 +78,37 @@ py_get_file(Device *self, PyObject *args) {
     return wpd::get_file(self->device, object.ptr(), stream, callback);
 } // }}}
 
+// list_folder_by_name() {{{
+
+static PyObject*
+list_folder_by_name(Device *self, PyObject *args) {
+    wchar_raii parent_id; PyObject *names;
+    CComPtr<IPortableDeviceContent> content;
+    HRESULT hr; bool found = false;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = self->device->Content(&content);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); return NULL; }
+
+
+    if (!PyArg_ParseTuple(args, "O&O!", py_to_wchar, &parent_id, &PyTuple_Type, &names)) return NULL;
+    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(names); i++) {
+        PyObject *k = PyTuple_GET_ITEM(names, i);
+        if (!PyUnicode_Check(k)) { PyErr_SetString(PyExc_TypeError, "names must contain only unicode strings"); return NULL; }
+        pyobject_raii l(PyObject_CallMethod(k, "lower", NULL)); if (!l) return NULL;
+        pyobject_raii object_id(wpd::find_in_parent(content, self->bulk_properties, parent_id.ptr(), l.ptr()));
+        if (!object_id) {
+            if (PyErr_Occurred()) return NULL;
+            Py_RETURN_NONE;
+        }
+        if (!py_to_wchar_(object_id.ptr(), &parent_id)) return NULL;
+        found = true;
+    }
+    if (!found) Py_RETURN_NONE;
+    return wpd::list_folder(content, self->bulk_properties, parent_id.ptr());
+} // }}}
+
 // create_folder() {{{
 static PyObject*
 py_create_folder(Device *self, PyObject *args) {
@@ -114,6 +145,10 @@ static PyMethodDef Device_methods[] = {
 
     {"get_filesystem", (PyCFunction)py_get_filesystem, METH_VARARGS,
      "get_filesystem(storage_id, callback) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible. callback must be a callable that is called as (object, level). It is called with every found object. If the callback returns False and the object is a folder, it is not recursed into."
+    },
+
+    {"list_folder_by_name", (PyCFunction)list_folder_by_name, METH_VARARGS,
+     "list_folder_by_name(parent_id, names) -> List the folder specified by names (a tuple of name components) relative to parent_id from the device. Return None or a list of entries."
     },
 
     {"get_file", (PyCFunction)py_get_file, METH_VARARGS,

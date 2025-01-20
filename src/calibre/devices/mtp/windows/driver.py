@@ -392,6 +392,15 @@ class MTP_DEVICE(MTPDeviceBase):
         return tuple(ans)
 
     @same_thread
+    def list_mtp_folder_by_name(self, parent, *names: str):
+        if not parent.is_folder:
+            raise ValueError(f'{parent.full_path} is not a folder')
+        x = self.dev.list_folder_by_name(parent.object_id, names)
+        if x is None:
+            raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
+        return x
+
+    @same_thread
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
             raise ValueError('%s if a folder'%(f.full_path,))

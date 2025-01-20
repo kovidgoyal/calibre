@@ -32,7 +32,7 @@ pump_waiting_messages() {
 }
 
 static IPortableDeviceKeyCollection*
-create_filesystem_properties_collection() { // {{{
+create_filesystem_properties_collection(bool for_name_query = false) { // {{{
     CComPtr<IPortableDeviceKeyCollection> properties;
     HRESULT hr;
 
@@ -45,17 +45,19 @@ create_filesystem_properties_collection() { // {{{
 #define ADDPROP(x) hr = properties->Add(x); if (FAILED(hr)) { hresult_set_exc("Failed to add property " #x " to filesystem properties collection", hr); return NULL; }
 
     ADDPROP(WPD_OBJECT_CONTENT_TYPE);
-    ADDPROP(WPD_OBJECT_PARENT_ID);
-    ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
-    ADDPROP(WPD_OBJECT_NAME);
     ADDPROP(WPD_OBJECT_ORIGINAL_FILE_NAME);
-    // ADDPROP(WPD_OBJECT_SYNC_ID);
-    ADDPROP(WPD_OBJECT_ISSYSTEM);
-    ADDPROP(WPD_OBJECT_ISHIDDEN);
-    ADDPROP(WPD_OBJECT_CAN_DELETE);
-    ADDPROP(WPD_OBJECT_SIZE);
-    ADDPROP(WPD_OBJECT_DATE_CREATED);
-    ADDPROP(WPD_OBJECT_DATE_MODIFIED);
+    if (!for_name_query) {
+        ADDPROP(WPD_OBJECT_PARENT_ID);
+        ADDPROP(WPD_OBJECT_PERSISTENT_UNIQUE_ID);
+        ADDPROP(WPD_OBJECT_NAME);
+        // ADDPROP(WPD_OBJECT_SYNC_ID);
+        ADDPROP(WPD_OBJECT_ISSYSTEM);
+        ADDPROP(WPD_OBJECT_ISHIDDEN);
+        ADDPROP(WPD_OBJECT_CAN_DELETE);
+        ADDPROP(WPD_OBJECT_SIZE);
+        ADDPROP(WPD_OBJECT_DATE_CREATED);
+        ADDPROP(WPD_OBJECT_DATE_MODIFIED);
+    }
 #undef ADDPROP
 
     return properties.Detach();
@@ -364,6 +366,23 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
 // Single get filesystem {{{
 
 static PyObject*
+get_object_filename(IPortableDeviceProperties *devprops, IPortableDeviceKeyCollection *properties, const wchar_t *object_id) {
+    CComPtr<IPortableDeviceValues> values;
+    HRESULT hr;
+
+    Py_BEGIN_ALLOW_THREADS;
+    hr = devprops->GetValues(object_id, properties, &values);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); return NULL; }
+	com_wchar_raii property;
+    hr = values->GetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, property.unsafe_address());
+    if (SUCCEEDED(hr)) return PyUnicode_FromWideChar(property.ptr(), -1);
+    hresult_set_exc("Failed to get original file name for object", hr);
+    return NULL;
+}
+
+
+static PyObject*
 get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCollection *properties, const wchar_t *object_id) {
     CComPtr<IPortableDeviceValues> values;
     HRESULT hr;
@@ -447,6 +466,79 @@ create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GU
 #undef A
     return values.Detach();
 } // }}}
+
+PyObject*
+list_folder(CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *folder_id) {
+    HRESULT hr;
+    CComPtr<IPortableDevicePropVariantCollection> object_ids;
+    Py_BEGIN_ALLOW_THREADS;
+    hr = object_ids.CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL, CLSCTX_INPROC_SERVER);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); return NULL; }
+
+    bool enum_failed = false;
+    if (!find_objects_in(content, object_ids, folder_id, &enum_failed)) return NULL;
+    DWORD num;
+    CComPtr<IPortableDeviceProperties> devprops;
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
+
+    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
+    if (!properties) return NULL;
+    hr = object_ids->GetCount(&num);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); return NULL; }
+    pyobject_raii ans(PyList_New(0)); if (!ans) return NULL;
+
+    for (DWORD i = 0; i < num; i++) {
+		prop_variant pv;
+        hr = object_ids->GetAt(i, &pv);
+        if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
+            pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
+            if (!item) return NULL;
+            if (PyList_Append(ans.ptr(), item.ptr()) != 0) return NULL;
+        }
+    }
+    return ans.detach();
+}
+
+PyObject*
+find_in_parent(CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *name) {
+    HRESULT hr;
+    CComPtr<IPortableDevicePropVariantCollection> object_ids;
+    Py_BEGIN_ALLOW_THREADS;
+    hr = object_ids.CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL, CLSCTX_INPROC_SERVER);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); return NULL; }
+
+    bool enum_failed = false;
+    if (!find_objects_in(content, object_ids, parent_id, &enum_failed)) return NULL;
+    DWORD num;
+    CComPtr<IPortableDeviceProperties> devprops;
+
+    hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
+
+    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection(true));
+    if (!properties) return NULL;
+
+    hr = object_ids->GetCount(&num);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); return NULL; }
+
+    for (DWORD i = 0; i < num; i++) {
+		prop_variant pv;
+        hr = object_ids->GetAt(i, &pv);
+        if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
+            pyobject_raii item(get_object_filename(devprops, properties, pv.pwszVal));
+			if (!item) { if (PyErr_Occurred()) { PyErr_Clear(); }; continue; }
+            pyobject_raii q(PyObject_CallMethod(item.ptr(), "lower", NULL));
+            if (!q) return NULL;
+            if (PyUnicode_Compare(q.ptr(), name) == 0) return PyUnicode_FromWideChar(pv.pwszVal, -1);
+        }
+    }
+    return NULL;
+}
+
 
 static bool
 get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *callback, PyObject *ans) { // {{{
