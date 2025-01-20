@@ -133,6 +133,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             item = self.rules_table.item(idx.row(), CATEGORY_COLUMN)
             item.is_deleted = True
             item.setIcon(QIcon.ic('trash.png'))
+            self.changed_signal.emit()
 
     def undo_delete(self):
         idx = self.rules_table.currentIndex()
