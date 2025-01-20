@@ -88,7 +88,7 @@ class Configure(Dialog):
         Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
     def setup_ui(self):
-        from calibre.gui2.preferences.look_feel import DisplayedFields, move_field_down, move_field_up
+        from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
         self.l = QVBoxLayout(self)
         self.field_display_order = fdo = QListView(self)
         self.model = DisplayedFields(self.db, fdo, pref_name='popup_book_display_fields')

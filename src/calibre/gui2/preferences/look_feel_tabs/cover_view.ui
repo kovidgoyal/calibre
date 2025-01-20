@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="cover_browser_tab">
+  <attribute name="icon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+  </attribute>
+  <attribute name="title">
+   <string>Cover &amp;browser</string>
+  </attribute>
+  <layout class="QGridLayout" name="gridLayout_cover_browser">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_cb_fullscreen">
+     <property name="text">
+      <string>When showing in a separate window, show it &amp;fullscreen</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QCheckBox" name="opt_separate_cover_flow">
+     <property name="text">
+      <string>Show in a &amp;separate window (needs restart)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_61">
+     <property name="text">
+      <string>&amp;Number of covers to show in browse mode (needs restart):</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_flow_queue_length</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QPushButton" name="cover_browser_title_template_button">
+     <property name="text">
+      <string>Template &amp;editor</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="2">
+    <spacer name="verticalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>690</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="opt_cover_browser_title_template">
+     <property name="toolTip">
+      <string>&lt;p&gt;The template used to generate the text below the covers. This template uses
+the same syntax as save templates. Defaults to just the book title.
+Note that this setting is per-library, which means that you have to
+set it again for every different calibre library you use. Use an
+empty template for no text.&lt;/p&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_cover_browser_reflections">
+     <property name="text">
+      <string>Show &amp;reflections</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_cb_preserve_aspect_ratio">
+     <property name="toolTip">
+      <string>Show covers in their original aspect ratio instead of resizing
+them to all have the same width and height</string>
+     </property>
+     <property name="text">
+      <string>Preserve &amp;aspect ratio of covers</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_987">
+     <property name="text">
+      <string>Cover browser &amp;position in the narrow layout:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_browser_narrow_view_position</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QComboBox" name="opt_cover_browser_narrow_view_position"/>
+   </item>
+   <item row="9" column="1" colspan="2">
+    <widget class="QComboBox" name="opt_cover_browser_subtitle_field"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_23">
+     <property name="text">
+      <string>&amp;Template for caption:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_browser_title_template</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_24">
+     <property name="text">
+      <string>Fie&amp;ld for sub-title:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_browser_subtitle_field</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QLabel" name="fs_help_msg">
+     <property name="styleSheet">
+      <string notr="true">margin-left: 1.5em</string>
+     </property>
+     <property name="text">
+      <string>You can press the %s key to toggle full screen mode.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_26">
+     <property name="text">
+      <string>Show ne&amp;xt cover during auto scroll after:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_books_autoscroll_time</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QDoubleSpinBox" name="opt_books_autoscroll_time">
+     <property name="suffix">
+      <string> seconds</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>100000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_cb_double_click_to_activate">
+     <property name="text">
+      <string>&amp;Double click to view the central book, instead of single click</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+</ui>

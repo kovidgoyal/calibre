@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1035</width>
+    <height>547</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="toolTip">
+      <string>&lt;p&gt;Check the box for an item if it is to be displayed as a
+hierarchical tree in the Tag browser. For example, if you check
+'tags' then tags of the form 'Mystery.English'
+and 'Mystery.Thriller' will be displayed with English and Thriller
+both under 'Mystery'. If 'tags' is not checked
+then the tags will be displayed each on their own line.&lt;/p&gt;
+&lt;p&gt;The categories 'authors', 'publisher', 'news', 'formats', and 'rating'
+cannot be hierarchical.&lt;/p&gt;
+&lt;p&gt;User categories are always hierarchical and so do not appear in this list.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string>Select categories with &amp;hierarchical items:</string>
+     </property>
+     <property name="buddy">
+      <cstring>tb_hierarchical_cats</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListView" name="tb_hierarchical_cats">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>200</height>
+      </size>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="tb_hierarchy_reset_layout_button">
+       <property name="toolTip">
+        <string>Click this button to reset the list to its default order.</string>
+       </property>
+       <property name="text">
+        <string>Reset list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="tb_hierarchy_import_layout_button">
+       <property name="toolTip">
+        <string>&lt;p&gt;Click this button to set the list to one
+previously exported. This could be useful if you have several libraries with
+similar structure and you want to use the same for each one.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Import list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="tb_hierarchy_export_layout_button">
+       <property name="toolTip">
+        <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same for each one.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Export list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="10" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label">
+     <property name="toolTip">
+      <string>&lt;p&gt;Set the order of the searches when clicking on an item in
+the Tag browser. The 'or its children' options are ignored when clicking on
+top-level categories, items that aren't in a hierarchical category, and items
+that don't have children.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string>Set the &amp;order of searches when clicking on items</string>
+     </property>
+     <property name="buddy">
+      <cstring>tb_search_order</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" rowspan="3">
+    <widget class="ListWidgetWithMoveByKeyPress" name="tb_search_order">
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QToolButton" name="tb_search_order_up_button">
+     <property name="toolTip">
+      <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <spacer name="verticalSpacer_51">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>1</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="14" column="1">
+    <widget class="QToolButton" name="tb_search_order_down_button">
+     <property name="toolTip">
+      <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="tb_search_order_reset_button">
+       <property name="toolTip">
+        <string>Click this button to reset the list to its default order.</string>
+       </property>
+       <property name="text">
+        <string>Reset list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListWidgetWithMoveByKeyPress</class>
+   <extends>QListWidget</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+ </customwidgets>
+</ui>
