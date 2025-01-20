@@ -494,6 +494,16 @@ list_folder(IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, I
 }
 
 PyObject*
+get_metadata(CComPtr<IPortableDeviceContent> &content, const wchar_t *object_id) {
+    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
+    if (!properties) return NULL;
+    CComPtr<IPortableDeviceProperties> devprops;
+    HRESULT hr = content->Properties(&devprops);
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
+    return get_object_properties(devprops, properties, object_id);
+}
+
+PyObject*
 find_in_parent(CComPtr<IPortableDeviceContent> &content, const wchar_t *parent_id, PyObject *name) {
     HRESULT hr;
     CComPtr<IPortableDevicePropVariantCollection> object_ids;

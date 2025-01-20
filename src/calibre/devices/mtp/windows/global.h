@@ -54,4 +54,5 @@ extern PyObject* find_in_parent(
 extern PyObject* list_folder(
         IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties,
         const wchar_t *folder_id);
+extern PyObject* get_metadata(CComPtr<IPortableDeviceContent> &content, const wchar_t *object_id);
 }
