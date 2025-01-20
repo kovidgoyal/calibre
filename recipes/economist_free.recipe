@@ -123,7 +123,8 @@ def load_article_from_web_json(raw):
     data = json.loads(raw)['props']['pageProps']['cp2Content']
     body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
     body += f'<h1>{data["headline"]}</h1>'
-    body += f'<div style="font-style: italic; color:#202020;">{data.get("rubric", "")}</div>'
+    if data.get("rubric") and data.get("rubric") is not None:
+        body += f'<div style="font-style: italic; color:#202020;">{data.get("rubric", "")}</div>'
     try:
         date = data['dateModified']
     except Exception:
