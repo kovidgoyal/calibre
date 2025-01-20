@@ -62,6 +62,12 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         hh.sectionClicked.connect(self.do_sort)
         hh.setSortIndicatorShown(True)
 
+        self.delete_button.clicked.connect(self.delete_rule)
+        self.undo_button.clicked.connect(self.undo_delete)
+
+        self.tb_icon_rules_groupbox.setContentsMargins(0, 0, 0, 0)
+        self.tb_icon_rules_gridlayout.setContentsMargins(2, 2, 2, 2)
+
         v = gprefs['tags_browser_value_icons']
         row = 0
         for category,vdict in v.items():
@@ -111,6 +117,27 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         item.setIcon(QIcon.ic('trash.png') if action == 'delete' else QIcon())
         item.is_deleted = action == 'delete'
         self.changed_signal.emit()
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key.Key_Delete:
+            self.delete_rule()
+            ev.accept()
+            return
+        return super().keyPressEvent(ev)
+
+    def delete_rule(self):
+        idx = self.rules_table.currentIndex()
+        if idx.isValid():
+            item = self.rules_table.item(idx.row(), CATEGORY_COLUMN)
+            item.is_deleted = True
+            item.setIcon(QIcon.ic('trash.png'))
+
+    def undo_delete(self):
+        idx = self.rules_table.currentIndex()
+        if idx.isValid():
+            item = self.rules_table.item(idx.row(), CATEGORY_COLUMN)
+            item.is_deleted = False
+            item.setIcon(QIcon())
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
