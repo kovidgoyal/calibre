@@ -37,21 +37,47 @@
      <property name="title">
       <string>Icon value rules</string>
      </property>
-     <layout class="QVBoxLayout">
-      <item>
+     <layout class="QGridLayout" name="tb_icon_rules_gridlayout">
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="l12345">
         <property name="text">
          <string>&lt;p&gt;View all the defined value icon rules, including template rules.
 Rules are defined and edited in the Tag browser context menus. Rules can be deleted in
-this dialog using the context menu.&lt;/p&gt;</string>
+this dialog using the button, the delete key, or the context menu.&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="1">
        <widget class="QTableWidget" name="rules_table"/>
+      </item>
+      <item row="1" column="0">
+       <layout class="QVBoxLayout">
+        <item>
+         <widget class="QToolButton" name="delete_button">
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+          </property>
+          <property name="toolTip">
+           <string>Delete the selected rule</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="undo_button">
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
+          </property>
+          <property name="toolTip">
+           <string>Undelete the selected rule if it is deleted</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
