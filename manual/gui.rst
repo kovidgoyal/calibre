@@ -739,8 +739,10 @@ To choose icons for values in categories, right-click on a value then choose `Ma
 
   * ``category``: the lookup name of the category, for example ``authors``, ``series``, ``#mycolumn``.
   * ``value``: the value of the item within the category.
+  * ``count``: the number of books with this value. If the value is part of a hierarchy then the count includes the children.
+  * ``avg_rating``: the average rating for books with this value. If the value is part of a hierarchy then the average includes the children.
 
-  Book metadata such as title is not available.
+  Book metadata such as title is not available. Template database functions such as book_count() and book_values() will work, but the performance might not be acceptable. Python templates have full access to the calibre database API.
 
   For example, this template specifies that any value in the clicked-on category beginning with `History` will have an icon named ``flower.png``::
 

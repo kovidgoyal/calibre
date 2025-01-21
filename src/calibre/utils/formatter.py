@@ -1651,6 +1651,7 @@ class TemplateFormatter(string.Formatter):
         self.recursion_level = -1
         self._caller = None
         self.python_context_object = None
+        self.database = None
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -1759,7 +1760,8 @@ class TemplateFormatter(string.Formatter):
     def _run_python_template(self, compiled_template, arguments):
         try:
             self.python_context_object.set_values(
-                         db=get_database(self.book, get_database(self.book, None)),
+                         db=(self.database if self.database is not None
+                             else get_database(self.book, get_database(self.book, None))),
                          globals=self.global_vars,
                          arguments=arguments,
                          formatter=self,
@@ -1914,7 +1916,8 @@ class TemplateFormatter(string.Formatter):
              self.funcs,
              self.locals,
              self._caller,
-             self.python_context_object))
+             self.python_context_object,
+             self.database))
 
     def restore_state(self, state):
         self.recursion_level -= 1
@@ -1929,7 +1932,8 @@ class TemplateFormatter(string.Formatter):
          self.funcs,
          self.locals,
          self._caller,
-         self.python_context_object) = state
+         self.python_context_object,
+         self.database) = state
 
     # Allocate an interpreter if the formatter encounters a GPM or TPM template.
     # We need to allocate additional interpreters if there is composite recursion
@@ -1980,12 +1984,13 @@ class TemplateFormatter(string.Formatter):
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
                     global_vars=None, break_reporter=None,
-                    python_context_object=None):
+                    python_context_object=None, database=None):
         state = self.save_state()
         if self.recursion_level == 0:
-            # Initialize the composite values dict if this is the base-level
-            # call. Recursive calls will use the same dict.
+            # Initialize the composite values dict and database if this is the
+            # base-level call. Recursive calls will use the same dict.
             self.composite_values = {}
+            self.database = database
         try:
             self._caller = FormatterFuncsCaller(self)
             self.strip_results = strip_results

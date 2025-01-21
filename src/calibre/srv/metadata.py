@@ -166,7 +166,8 @@ def get_gpref(name: str, defval = None):
     return gprefs.get(name, defval)
 
 
-def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
+def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db):
+    # This needs a legacy database so legacy formatter functions work
     category = node['category']
     if category in ('search', 'formats') or category.startswith('@'):
         return
@@ -190,10 +191,13 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter):
             if val_icon is not None and for_children:
                 break
             par = pd
+            val_icon = None
     if val_icon is None and TEMPLATE_ICON_INDICATOR in value_icons.get(category, {}):
+        v = {'category': category, 'value': name_for_icon(node),
+            'count': node.get('count', ''), 'avg_rating': node.get('avg_rating', '')}
         t = eval_formatter.safe_format(
-            value_icons[category][TEMPLATE_ICON_INDICATOR][0], {'category': category, 'value': name_for_icon(node)},
-            'VALUE_ICON_TEMPLATE_ERROR', {})
+            value_icons[category][TEMPLATE_ICON_INDICATOR][0], v,
+            'VALUE_ICON_TEMPLATE_ERROR', {}, database=db)
         if t:
             # Use POSIX path separator
             val_icon = 'template_icons/' + t
@@ -428,7 +432,7 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
         opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes,
-        intermediate_nodes, hierarchical_items):
+        intermediate_nodes, hierarchical_items, db):
     category = items[category_node['id']]['category']
     if category not in category_data:
         # This can happen for user categories that are hierarchical and missing their parent.
@@ -469,7 +473,7 @@ def process_category_node(
         node = {'id':node_id, 'children':[]}
         parent['children'].append(node)
         try:
-            get_icon_for_node(node_data, parent, node_to_tag_map, tag_map, eval_formatter)
+            get_icon_for_node(node_data, parent, node_to_tag_map, tag_map, eval_formatter, db)
         except Exception:
             import traceback
             traceback.print_exc()
@@ -555,7 +559,7 @@ def iternode_descendants(node):
         yield from iternode_descendants(child)
 
 
-def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map):
+def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map, db):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
     first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
@@ -572,7 +576,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
             process_category_node(
                 cnode, items, category_data, eval_formatter, field_metadata,
                 opts, tag_map, hierarchical_tags, node_to_tag_map,
-                collapse_nodes, intermediate_nodes, hierarchical_items)
+                collapse_nodes, intermediate_nodes, hierarchical_items, db)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
     # much use. Instead only update the ratings and counts based on id_set
@@ -600,7 +604,7 @@ def render_categories(opts, db, category_data):
     items = {}
     with db.safe_read_lock:
         root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, db.field_metadata, opts, db)
-        fillout_tree(root, items, node_id_map, category_nodes, category_data, db.field_metadata, opts, db.fields['rating'].book_value_map)
+        fillout_tree(root, items, node_id_map, category_nodes, category_data, db.field_metadata, opts, db.fields['rating'].book_value_map, db)
     for node in recount_nodes:
         item = items[node['id']]
         item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_category', False))
