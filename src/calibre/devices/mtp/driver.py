@@ -724,6 +724,7 @@ def main():
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
         dev.filesystem_cache.dump()
+        print(dev.device_debug_info(), flush=True)
         docs = dev.prefix_for_location(None)
         print('Prefix for main mem:', docs, flush=True)
         entries = dev.list_folder_by_name(dev.filesystem_cache.entries[0], docs)
