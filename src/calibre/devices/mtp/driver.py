@@ -385,11 +385,11 @@ class MTP_DEVICE(BASE):
         f = self.filesystem_cache.resolve_mtp_id_path(path)
         self.get_mtp_file(f, outfile)
 
-    def get_file_by_name(self, outfile, parent, *names):
+    def get_file_by_name(self, outfile, parent: FileOrFolder, *names: str) -> None:
         ' Get the file parent/ + "/".join(names) and put it into outfile. Works with files not cached in FilesystemCache. '
         self.get_mtp_file_by_name(parent, *names, stream=outfile)
 
-    def list_folder_by_name(self, parent, *names):
+    def list_folder_by_name(self, parent: FileOrFolder, *names: str) ->tuple[ListEntry, ...]:
         ' List the contents of the folder parent/ + "/".join(names). Works with folders not cached in FilesystemCache. '
         return tuple(ListEntry(x['name'], x['is_folder'], x['size'], convert_timestamp(x['modified'])) for x in self.list_mtp_folder_by_name(parent, *names))
 
