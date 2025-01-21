@@ -436,7 +436,7 @@ class MTP_DEVICE(MTPDeviceBase):
         parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
         x = self.dev.list_folder_by_name(parent.storage_id, parent_id, names)
         if x is None:
-            raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
+            raise FileNotFoundError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
         return x
 
     @synchronous
@@ -462,7 +462,7 @@ class MTP_DEVICE(MTPDeviceBase):
         parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
         x = self.dev.get_file_by_name(parent.storage_id, parent_id, names, stream, callback)
         if x is None:
-            raise DeviceError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
+            raise FileNotFoundError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
         ok, errs = x
         if not ok:
             raise DeviceError(f'Failed to get file: {"/".join(names)} in {parent.full_path} with errors: {self.format_errorstack(errs)}')

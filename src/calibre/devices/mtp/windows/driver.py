@@ -398,7 +398,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise ValueError(f'{parent.full_path} is not a folder')
         x = self.dev.list_folder_by_name(parent.object_id, names)
         if x is None:
-            raise DeviceError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
+            raise FileNotFoundError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
         return list(x.values())
 
     @same_thread
@@ -423,8 +423,10 @@ class MTP_DEVICE(MTPDeviceBase):
             except self.wpd.WPDFileBusy:
                 time.sleep(2)
                 self.dev.get_file_by_name(parent.object_id, names, stream, callback)
+        except KeyError as e:
+            raise FileNotFoundError(f'Failed to find the file {os.sep.join(names)} in {parent.full_path}') from e
         except Exception as e:
-            raise DeviceError(f'Failed to fetch the file {os.sep.join(names)} from {parent.full_path} with error: {as_unicode(e)}')
+            raise DeviceError(f'Failed to fetch the file {os.sep.join(names)} in {parent.full_path} with error: {as_unicode(e)}')
         stream.seek(0)
         if set_name:
             stream.name = '/'.join(names)
