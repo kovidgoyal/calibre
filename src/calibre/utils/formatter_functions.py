@@ -214,7 +214,7 @@ def get_database(mi, name):
     wr = getattr(cache, 'library_database_instance', None)
     if wr is None:
         if name is not None:
-            only_in_gui_error()
+            only_in_gui_error(name)
         return None
     db = wr()
     if db is None:
@@ -2347,7 +2347,8 @@ r'''
 contain this book.[/] This function works only in the GUI. If you want to use these
 values in save-to-disk or send-to-device templates then you must make a custom
 "Column built from other columns", use the function in that column's template,
-and use that column's value in your save/send templates.
+and use that column's value in your save/send templates. This function works
+only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
@@ -2443,6 +2444,7 @@ program:
 ans
 [/CODE]
 [/LIST]
+This function works only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
@@ -2863,6 +2865,7 @@ Using a stored template instead of putting the template into the search
 eliminates problems caused by the requirement to escape quotes in search
 expressions.
 [/LIST]
+This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, query, use_vl):
@@ -2872,8 +2875,13 @@ expressions.
             raise ValueError(_('The book_count() function cannot be used in a composite column'))
         db = self.get_database(mi, formatter=formatter)
         try:
-            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
-            return len(ids)
+            if use_vl == '0':
+                # use the new_api search that doesn't use virtual libraries to let
+                # the function work in content server icon rules.
+                ids = db.new_api.search(query, None)
+            else:
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)
+            return str(len(ids))
         except Exception:
             traceback.print_exc()
 
@@ -2891,8 +2899,8 @@ then virtual libraries are ignored. This function and its companion
 ``book_count()`` are particularly useful in template searches, supporting
 searches that combine information from many books such as looking for series
 with only one book. It cannot be used in composite columns unless the tweak
-``allow_template_database_functions_in_composites`` is set to True. It can be
-used only in the GUI.
+``allow_template_database_functions_in_composites`` is set to True. This function
+can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, column, query, sep, use_vl):
@@ -2904,7 +2912,10 @@ used only in the GUI.
         if column not in db.field_metadata:
             raise ValueError(_("The column {} doesn't exist").format(column))
         try:
-            ids = db.search_getting_ids(query, None, use_virtual_library=use_vl != '0')
+            if use_vl == '0':
+                ids = db.new_api.search(query, None)
+            else:
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)
             s = set()
             for id_ in ids:
                 f = db.new_api.get_proxy_metadata(id_).get(column, None)

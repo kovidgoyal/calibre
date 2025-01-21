@@ -560,12 +560,6 @@ def iternode_descendants(node):
 
 
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map, db):
-    # Convert the DB to an old DB if needed, which it seems to be
-    wr = db.new_api.library_database_instance
-    if wr is not None:
-        db = wr()
-    else: # This shouldn't happen, but
-        db = None
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
     first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
