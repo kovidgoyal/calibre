@@ -55,7 +55,6 @@ class TagTreeItem:  # {{{
     icon_config_dir = {}
     file_icon_provider = None
     eval_formatter = EvalFormatter()
-    database = None
 
     def __init__(self, data=None, is_category=False, icon_map=None,
                  parent=None, tooltip=None, category_key=None, temporary=False,
@@ -147,9 +146,11 @@ class TagTreeItem:  # {{{
                                 v = {'category': category, 'value': self.tag.original_name,
                                      'count': getattr(self.tag, 'count', ''),
                                      'avg_rating': getattr(self.tag, 'avg_rating', '')}
+                                from calibre.gui2 import get_gui
+                                db = get_gui().current_db
                                 t = self.eval_formatter.safe_format(self.value_icons[category][TEMPLATE_ICON_INDICATOR][0],
                                                                     v, 'VALUE_ICON_TEMPLATE_ERROR', {},
-                                                                    database=self.database)
+                                                                    database=db)
                                 if t:
                                     val_icon = (os.path.join('template_icons', t), False)
                                 else:
@@ -1487,7 +1488,6 @@ class TagsModel(QAbstractItemModel):  # {{{
         node.value_icons = self.value_icons
         node.value_icon_cache = self.value_icon_cache
         node.icon_config_dir = self.icon_config_dir
-        node.database = self.db
         return node
 
     def get_node(self, idx):
