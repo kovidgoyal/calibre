@@ -729,8 +729,8 @@ def main():
         pprint(dev.get_mtp_metadata_by_name(dev.filesystem_cache.entries[0], docs, entries[0].name))
         files = [x for x in entries if not x.is_folder]
         f = io.BytesIO()
-        dev.get_file_by_name(f, dev.filesystem_cache.entries[0], docs, files[0]['name'])
-        print('Got', files[0]['name'], 'of size:', len(f.getvalue()))
+        dev.get_file_by_name(f, dev.filesystem_cache.entries[0], docs, files[0].name)
+        print('Got', files[0].name, 'of size:', len(f.getvalue()))
     except Exception:
         import traceback
         traceback.print_exc()
