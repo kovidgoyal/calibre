@@ -167,7 +167,6 @@ def get_gpref(name: str, defval = None):
 
 
 def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db):
-    # This needs a legacy database so legacy formatter functions work
     category = node['category']
     if category in ('search', 'formats') or category.startswith('@'):
         return

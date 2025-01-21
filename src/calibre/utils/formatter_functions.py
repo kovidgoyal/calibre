@@ -249,11 +249,8 @@ class FormatterFunction:
         only_in_gui_error(self.name)
 
     def get_database(self, mi, formatter=None):
-        if formatter is not None:
-            if hasattr(formatter, 'database'):
-                db = formatter.database
-                if db is not None:
-                    return db
+        if (db := getattr(formatter, 'database', None)) is not None:
+            return db
         return get_database(mi, self.name)
 
 
