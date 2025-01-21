@@ -12,7 +12,7 @@ import posixpath
 import sys
 import traceback
 from io import BytesIO
-from typing import Sequence
+from typing import NamedTuple, Sequence
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
@@ -35,6 +35,12 @@ class MTPInvalidSendPathError(PathError):
     def __init__(self, folder):
         PathError.__init__(self, 'Trying to send to ignored folder: %s'%folder)
         self.folder = folder
+
+
+class ListEntry(NamedTuple):
+    name: str
+    is_folder: bool
+    size: int
 
 
 class MTP_DEVICE(BASE):
@@ -377,6 +383,12 @@ class MTP_DEVICE(BASE):
         f = self.filesystem_cache.resolve_mtp_id_path(path)
         self.get_mtp_file(f, outfile)
 
+    def get_file_by_name(self, outfile, parent, *names):
+        self.get_mtp_file_by_name(parent, *names, stream=outfile)
+
+    def list_folder_by_name(self, parent, *names):
+        return tuple(ListEntry(x['name'], x['is_folder'], x['size']) for x in self.list_mtp_folder_by_name(parent, *names))
+
     def prepare_addable_books(self, paths):
         tdir = PersistentTemporaryDirectory('_prepare_mtp')
         ans = []
@@ -710,12 +722,13 @@ def main():
         dev.filesystem_cache.dump()
         docs = dev.prefix_for_location(None)
         print('Prefix for main mem:', docs, flush=True)
-        entries = dev.list_mtp_folder_by_name(dev.filesystem_cache.entries[0], docs)
+        entries = dev.list_folder_by_name(dev.filesystem_cache.entries[0], docs)
         pprint(entries)
-        pprint(dev.get_mtp_metadata_by_name(dev.filesystem_cache.entries[0], docs, entries[0]['name']))
-        files = [x for x in entries if not x['is_folder']]
-        with dev.get_mtp_file_by_name(dev.filesystem_cache.entries[0], docs, files[0]['name']) as f:
-            print('Got', files[0]['name'], 'of size:', len(f.read()))
+        pprint(dev.get_mtp_metadata_by_name(dev.filesystem_cache.entries[0], docs, entries[0].name))
+        files = [x for x in entries if not x.is_folder]
+        f = io.BytesIO()
+        dev.get_file_by_name(f, dev.filesystem_cache.entries[0], docs, files[0]['name'])
+        print('Got', files[0]['name'], 'of size:', len(f.getvalue()))
     except Exception:
         import traceback
         traceback.print_exc()
