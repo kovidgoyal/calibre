@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import datetime
 import importlib
 import json
 import os
@@ -19,7 +20,7 @@ from calibre.constants import iswindows, numeric_version
 from calibre.devices.errors import PathError
 from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
-from calibre.devices.mtp.filesystem_cache import FileOrFolder
+from calibre.devices.mtp.filesystem_cache import FileOrFolder, convert_timestamp
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import shorten_components_to
 from calibre.utils.icu import lower as icu_lower
@@ -41,6 +42,7 @@ class ListEntry(NamedTuple):
     name: str
     is_folder: bool
     size: int
+    mtime: datetime.datetime
 
 
 class MTP_DEVICE(BASE):
@@ -389,7 +391,7 @@ class MTP_DEVICE(BASE):
 
     def list_folder_by_name(self, parent, *names):
         ' List the contents of the folder parent/ + "/".join(names). Works with folders not cached in FilesystemCache. '
-        return tuple(ListEntry(x['name'], x['is_folder'], x['size']) for x in self.list_mtp_folder_by_name(parent, *names))
+        return tuple(ListEntry(x['name'], x['is_folder'], x['size'], convert_timestamp(x['modified'])) for x in self.list_mtp_folder_by_name(parent, *names))
 
     def prepare_addable_books(self, paths):
         tdir = PersistentTemporaryDirectory('_prepare_mtp')
