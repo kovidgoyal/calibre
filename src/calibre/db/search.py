@@ -677,7 +677,7 @@ class Parser(SearchQueryParser):  # {{{
                 val = mi.formatter.safe_format(template, {}, error_string, mi,
                                             column_name='search template',
                                             template_cache=template_cache,
-                                            global_vars=global_vars)
+                                            global_vars=global_vars, database=self.dbcache)
                 if val.startswith(error_string):
                     raise ParseException(val[len(error_string):])
                 if sep == 't':

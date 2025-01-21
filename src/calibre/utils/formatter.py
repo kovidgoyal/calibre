@@ -1759,9 +1759,10 @@ class TemplateFormatter(string.Formatter):
 
     def _run_python_template(self, compiled_template, arguments):
         try:
+            db = get_database(self.book, None)
+            db = db if db is not None else self.database
             self.python_context_object.set_values(
-                         db=(self.database if self.database is not None
-                             else get_database(self.book, get_database(self.book, None))),
+                         db=db,
                          globals=self.global_vars,
                          arguments=arguments,
                          formatter=self,

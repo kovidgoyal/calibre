@@ -152,8 +152,10 @@ class Cache:
         self.shutting_down = False
         self.is_doing_rebuild_or_vacuum = False
         self.backend = backend
-        self.library_database_instance = (None if library_database_instance is None else
-                                          weakref.ref(library_database_instance))
+        # We want templates to have access to LibraryDatabase if we have it,
+        # otherwise this instance (Cache)
+        self.database_instance = (weakref.ref(self) if library_database_instance is None else
+                                  weakref.ref(library_database_instance))
         self.event_dispatcher = EventDispatcher()
         self.fields = {}
         self.composites = {}
@@ -433,13 +435,12 @@ class Cache:
 
             for field, table in iteritems(self.backend.tables):
                 self.fields[field] = create_field(field, table, bools_are_tristate,
-                                          self.backend.get_template_functions)
+                                                  self.backend.get_template_functions, self.database_instance)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
-            self.fields['ondevice'] = create_field('ondevice',
-                    VirtualTable('ondevice'), bools_are_tristate,
-                    self.backend.get_template_functions)
+            self.fields['ondevice'] = create_field('ondevice', VirtualTable('ondevice'), bools_are_tristate,
+                                                   self.backend.get_template_functions, self.database_instance)
 
             for name, field in iteritems(self.fields):
                 if name[0] == '#' and name.endswith('_index'):
