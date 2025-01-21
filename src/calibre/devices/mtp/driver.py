@@ -384,9 +384,11 @@ class MTP_DEVICE(BASE):
         self.get_mtp_file(f, outfile)
 
     def get_file_by_name(self, outfile, parent, *names):
+        ' Get the file parent/ + "/".join(names) and put it into outfile. Works with files not cached in FilesystemCache. '
         self.get_mtp_file_by_name(parent, *names, stream=outfile)
 
     def list_folder_by_name(self, parent, *names):
+        ' List the contents of the folder parent/ + "/".join(names). Works with folders not cached in FilesystemCache. '
         return tuple(ListEntry(x['name'], x['is_folder'], x['size']) for x in self.list_mtp_folder_by_name(parent, *names))
 
     def prepare_addable_books(self, paths):
