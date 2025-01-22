@@ -629,6 +629,29 @@ User-defined Python template functions
 
 You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog. Note that you can use `Python Templates` for a similar purpose. As calling user-defined functions is faster than calling a Python template, user-defined functions might be more efficient depending on the complexity of what the function or template does.
 
+Special notes for using templates in difference contexts
+--------------------------------------------------------
+
+In the GUI (`Columns made from other columns` and `Template searches`):
+
+* GPM templates work as before.
+* Python templates have full access to the calibre database.
+
+In icon rules:
+
+* icon rule templates have no book data so field-based functions such as :ref:`ff_format_date_field`, :ref:`ff_list_count_field`, and :ref:`ff_check_yes_no` won't work.
+
+In the content server:
+
+* Templates have access to the new API but not the old API (LibraryDatabase).
+* Because of the above, the following formatter functions are not guaranteed to work in GPM templates (composite columns, icon rules, etc) and should be avoided if you use the content server:
+
+  * :ref:`ff_connected_device_name`
+  * :ref:`ff_connected_device_uuid`
+  * :ref:`ff_current_virtual_library_name`
+  * :ref:`ff_is_marked`
+  * :ref:`ff_virtual_libraries`
+
 Special notes for save/send templates
 ---------------------------------------
 

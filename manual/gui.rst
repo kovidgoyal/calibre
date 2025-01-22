@@ -743,7 +743,7 @@ To choose icons for values in categories, right-click on a value then choose `Ma
   * ``count``: the number of books with this value. If the value is part of a hierarchy then the count includes the children.
   * ``avg_rating``: the average rating for books with this value. If the value is part of a hierarchy then the average includes the children.
 
-  Book metadata such as title is not available. Template database functions such as book_count() and book_values() will work, but the performance might not be acceptable. The following template functions will work in the GUI but won't work in the content server: ``connected_device_name()``, ``connected_device_uuid()``, ``current_virtual_library_name()``, ``is_marked()``, and ``virtual_libraries()``.
+  Book metadata such as title is not available. Template database functions such as :ref:`ff_book_count` and :ref:`ff_book_values` will work, but the performance might not be acceptable. The following template functions will work in the GUI but won't work in the content server: :ref:`ff_connected_device_name`, :ref:`ff_connected_device_uuid`, :ref:`ff_current_virtual_library_name`, :ref:`ff_is_marked`, and :ref:`ff_virtual_libraries`.
 
   In the GUI, Python templates have full access to the calibre database. In the content server, Python templates have access to new API (see `API documentation for the database interface <https://manual.calibre-ebook.com/db_api.html>`_) but not the old API (LibraryDatabase).
 
