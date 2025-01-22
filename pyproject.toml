@@ -1,9 +1,9 @@
 [project]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 
 [tool.ruff]
 line-length = 160
-target-version = 'py38'
+target-version = 'py310'
 builtins = ['_', 'I', 'P']
 include = ['*.py', '*.recipe']
 exclude = [
