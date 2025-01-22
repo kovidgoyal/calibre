@@ -3,9 +3,9 @@
 
 import json
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import mechanize
-from zoneinfo import ZoneInfo
 
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe

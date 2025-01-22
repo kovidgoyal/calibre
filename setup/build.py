@@ -15,7 +15,7 @@ import sys
 import sysconfig
 import textwrap
 from functools import partial
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 from setup import SRC, Command, isbsd, isfreebsd, ishaiku, islinux, ismacos, iswindows
 
@@ -24,14 +24,14 @@ isunix = islinux or ismacos or isbsd or ishaiku
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
 class CompileCommand(NamedTuple):
-    cmd: List[str]
+    cmd: list[str]
     src: str
     dest: str
 
 
 class LinkCommand(NamedTuple):
-    cmd: List[str]
-    objects: List[str]
+    cmd: list[str]
+    objects: list[str]
     dest: str
 
 
@@ -209,11 +209,11 @@ class Environment(NamedTuple):
     cc: str
     cxx: str
     linker: str
-    base_cflags: List[str]
-    base_cxxflags: List[str]
-    base_ldflags: List[str]
-    cflags: List[str]
-    ldflags: List[str]
+    base_cflags: list[str]
+    base_cxxflags: list[str]
+    base_ldflags: list[str]
+    cflags: list[str]
+    ldflags: list[str]
     make: str
     internal_inc_prefix: str
     external_inc_prefix: str
@@ -228,10 +228,10 @@ class Environment(NamedTuple):
     dest_ext: str
     std_prefix: str
 
-    def inc_dirs_to_cflags(self, dirs) -> List[str]:
+    def inc_dirs_to_cflags(self, dirs) -> list[str]:
         return [self.external_inc_prefix+x for x in dirs]
 
-    def lib_dirs_to_ldflags(self, dirs) -> List[str]:
+    def lib_dirs_to_ldflags(self, dirs) -> list[str]:
         return [self.libdir_prefix+x for x in dirs if x]
 
     def libraries_to_ldflags(self, libs):

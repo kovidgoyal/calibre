@@ -2,7 +2,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
-from typing import Optional
 
 from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGenerator, mobi_html_length
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
@@ -13,10 +12,10 @@ class FastPageGenerator(IPageGenerator):
     def name(self) -> str:
         return "fast"
 
-    def _generate_fallback(self, mobi_file_path: str, real_count: Optional[int]) -> Pages:
+    def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
         raise Exception("Fast calculation impossible.")
 
-    def _generate(self, mobi_file_path: str, real_count: Optional[int]) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
         """
         2300 characters of uncompressed text per page. This is
         not meant to map 1 to 1 to a print book but to be a

@@ -8,12 +8,13 @@ import os
 import re
 import sys
 from collections import deque
+from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from dataclasses import dataclass
 from functools import lru_cache
 from itertools import count
 from time import monotonic
-from typing import BinaryIO, Iterable, Iterator
+from typing import BinaryIO
 
 from qt.core import (
     QAudio,

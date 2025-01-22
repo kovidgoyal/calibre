@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime, timedelta
-from typing import Iterable
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz

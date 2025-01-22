@@ -97,12 +97,12 @@ class DocViewer(Dialog):
 
         b = self.back_button = self.bb.addButton(_('&Back'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.back)
-        b.setToolTip((_('Displays the previously viewed function')))
+        b.setToolTip(_('Displays the previously viewed function'))
         b.setEnabled(False)
 
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.show_all_functions_button_clicked)
-        b.setToolTip((_('Shows a list of all built-in functions in alphabetic order')))
+        b.setToolTip(_('Shows a list of all built-in functions in alphabetic order'))
 
     def back(self):
         if not self.back_stack:

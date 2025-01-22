@@ -5,7 +5,6 @@ contretemps.eu
 '''
 
 from datetime import datetime
-
 from zoneinfo import ZoneInfo
 
 from calibre.web.feeds.news import BasicNewsRecipe

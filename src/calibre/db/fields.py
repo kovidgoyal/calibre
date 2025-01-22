@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from functools import partial
 from threading import Lock
-from typing import Iterable
 
 from calibre.db.tables import MANY_MANY, MANY_ONE, ONE_ONE, null
 from calibre.db.utils import atof, force_to_bool

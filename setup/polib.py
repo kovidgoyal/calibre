@@ -1,4 +1,3 @@
-# -* coding: utf-8 -*-
 #
 # License: MIT (see LICENSE file provided)
 # vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4:
@@ -34,25 +33,14 @@ default_encoding = 'utf-8'
 # python 2/3 compatibility helpers {{{
 
 
-if sys.version_info < (3,):
-    PY3 = False
-    text_type = unicode
+PY3 = True
+text_type = str
 
-    def b(s):
-        return s
+def b(s):
+    return s.encode()
 
-    def u(s):
-        return unicode(s, "unicode_escape")
-
-else:
-    PY3 = True
-    text_type = str
-
-    def b(s):
-        return s.encode("latin-1")
-
-    def u(s):
-        return s
+def u(s):
+    return s
 # }}}
 # _pofile_or_mofile {{{
 
@@ -390,7 +378,7 @@ class _BaseFile(list):
         # But if pickling, we never want to check for duplicates anyway.
         if getattr(self, 'check_for_duplicates', False) and entry in self:
             raise ValueError('Entry "%s" already exists' % entry.msgid)
-        super(_BaseFile, self).append(entry)
+        super().append(entry)
 
     def insert(self, index, entry):
         """
@@ -408,7 +396,7 @@ class _BaseFile(list):
         """
         if self.check_for_duplicates and entry in self:
             raise ValueError('Entry "%s" already exists' % entry.msgid)
-        super(_BaseFile, self).insert(index, entry)
+        super().insert(index, entry)
 
     def metadata_as_entry(self):
         """
@@ -420,7 +408,7 @@ class _BaseFile(list):
             strs = []
             for name, value in mdata:
                 # Strip whitespace off each line in a multi-line entry
-                strs.append('%s: %s' % (name, value))
+                strs.append(f'{name}: {value}')
             e.msgstr = '\n'.join(strs) + '\n'
         if self.metadata_is_fuzzy:
             e.flags.append('fuzzy')
@@ -444,7 +432,7 @@ class _BaseFile(list):
             string, controls how universal newlines works
         """
         if self.fpath is None and fpath is None:
-            raise IOError('You must provide a file path to save() method')
+            raise OSError('You must provide a file path to save() method')
         contents = getattr(self, repr_method)()
         if fpath is None:
             fpath = self.fpath
@@ -452,7 +440,7 @@ class _BaseFile(list):
             with open(fpath, 'wb') as fhandle:
                 fhandle.write(contents)
         else:
-            with io.open(
+            with open(
                 fpath,
                 'w',
                 encoding=self.encoding,
@@ -730,10 +718,10 @@ class POFile(_BaseFile):
             object POFile, the reference catalog.
         """
         # Store entries in dict/set for faster access
-        self_entries = dict(
-            (entry.msgid_with_context, entry) for entry in self
-        )
-        refpot_msgids = set(entry.msgid_with_context for entry in refpot)
+        self_entries = {
+            entry.msgid_with_context: entry for entry in self
+        }
+        refpot_msgids = {entry.msgid_with_context for entry in refpot}
         # Merge entries that are in the refpot
         for entry in refpot:
             e = self_entries.get(entry.msgid_with_context)
@@ -822,7 +810,7 @@ class MOFile(_BaseFile):
 # class _BaseEntry {{{
 
 
-class _BaseEntry(object):
+class _BaseEntry:
     """
     Base class for :class:`~polib.POEntry` and :class:`~polib.MOEntry` classes.
     This class should **not** be instantiated directly.
@@ -942,16 +930,16 @@ class _BaseEntry(object):
             # quick and dirty trick to get the real field name
             fieldname = fieldname[9:]
 
-        ret = ['%s%s%s "%s"' % (delflag, fieldname, plural_index,
+        ret = ['{}{}{} "{}"'.format(delflag, fieldname, plural_index,
                                 escape(lines.pop(0)))]
         for line in lines:
-            ret.append('%s"%s"' % (delflag, escape(line)))
+            ret.append(f'{delflag}"{escape(line)}"')
         return ret
 
     @property
     def msgid_with_context(self):
         if self.msgctxt:
-            return '%s%s%s' % (self.msgctxt, "\x04", self.msgid)
+            return '{}{}{}'.format(self.msgctxt, "\x04", self.msgid)
         return self.msgid
 # }}}
 # class POEntry {{{
@@ -1023,14 +1011,14 @@ class POEntry(_BaseEntry):
                             break_long_words=False
                         )
                     else:
-                        ret.append('%s%s' % (c[1], comment))
+                        ret.append(f'{c[1]}{comment}')
 
         # occurrences (with text wrapping as xgettext does)
         if not self.obsolete and self.occurrences:
             filelist = []
             for fpath, lineno in self.occurrences:
                 if lineno:
-                    filelist.append('%s:%s' % (fpath, lineno))
+                    filelist.append(f'{fpath}:{lineno}')
                 else:
                     filelist.append(fpath)
             filestr = ' '.join(filelist)
@@ -1238,7 +1226,7 @@ class MOEntry(_BaseEntry):
 # class _POFileParser {{{
 
 
-class _POFileParser(object):
+class _POFileParser:
     """
     A finite state machine to efficiently and correctly parse po
     file format.
@@ -1264,10 +1252,10 @@ class _POFileParser(object):
         enc = kwargs.get('encoding', default_encoding)
         if _is_file(pofile):
             try:
-                self.fhandle = io.open(pofile, 'rt', encoding=enc)
+                self.fhandle = open(pofile, encoding=enc)
             except LookupError:
                 enc = default_encoding
-                self.fhandle = io.open(pofile, 'rt', encoding=enc)
+                self.fhandle = open(pofile, encoding=enc)
         else:
             self.fhandle = pofile.splitlines()
 
@@ -1373,7 +1361,7 @@ class _POFileParser(object):
                 if tokens[0] in keywords and nb_tokens > 1:
                     line = line[len(tokens[0]):].lstrip()
                     if re.search(r'([^\\]|^)"', line[1:-1]):
-                        raise IOError('Syntax error in po file %s(line %s): '
+                        raise OSError('Syntax error in po file %s(line %s): '
                                       'unescaped double quote found' %
                                       (fpath, self.current_line))
                     self.current_token = line
@@ -1391,7 +1379,7 @@ class _POFileParser(object):
                 elif line[:1] == '"':
                     # we are on a continuation line
                     if re.search(r'([^\\]|^)"', line[1:-1]):
-                        raise IOError('Syntax error in po file %s(line %s): '
+                        raise OSError('Syntax error in po file %s(line %s): '
                                       'unescaped double quote found' %
                                       (fpath, self.current_line))
                     self.process('mc')
@@ -1420,7 +1408,7 @@ class _POFileParser(object):
 
                 elif tokens[0] == '#|':
                     if nb_tokens <= 1:
-                        raise IOError('Syntax error in po file %s(line %s)' %
+                        raise OSError('Syntax error in po file %s(line %s)' %
                                       (fpath, self.current_line))
 
                     # Remove the marker and any whitespace right after that.
@@ -1434,14 +1422,14 @@ class _POFileParser(object):
 
                     if nb_tokens == 2:
                         # Invalid continuation line.
-                        raise IOError('Syntax error in po file %s(line %s): '
+                        raise OSError('Syntax error in po file %s(line %s): '
                                       'invalid continuation line' %
                                       (fpath, self.current_line))
 
                     # we are on a "previous translation" comment line,
                     if tokens[1] not in prev_keywords:
                         # Unknown keyword in previous translation comment.
-                        raise IOError('Syntax error in po file %s(line %s): '
+                        raise OSError('Syntax error in po file %s(line %s): '
                                       'unknown keyword %s' %
                                       (fpath, self.current_line,
                                        tokens[1]))
@@ -1453,7 +1441,7 @@ class _POFileParser(object):
                     self.process(prev_keywords[tokens[1]])
 
                 else:
-                    raise IOError('Syntax error in po file %s(line %s)' %
+                    raise OSError('Syntax error in po file %s(line %s)' %
                                   (fpath, self.current_line))
 
             if self.current_entry and len(tokens) > 0 and \
@@ -1524,7 +1512,7 @@ class _POFileParser(object):
             fpath = '%s ' % self.instance.fpath if self.instance.fpath else ''
             if hasattr(self.fhandle, 'close'):
                 self.fhandle.close()
-            raise IOError('Syntax error in po file %s(line %s)' %
+            raise OSError('Syntax error in po file %s(line %s)' %
                           (fpath, self.current_line))
 
     # state handlers
@@ -1673,7 +1661,7 @@ class _POFileParser(object):
 # class _MOFileParser {{{
 
 
-class _MOFileParser(object):
+class _MOFileParser:
     """
     A class to parse binary mo files.
     """
@@ -1729,14 +1717,14 @@ class _MOFileParser(object):
         elif magic_number == MOFile.MAGIC_SWAPPED:
             ii = '>II'
         else:
-            raise IOError('Invalid mo file, magic number is incorrect !')
+            raise OSError('Invalid mo file, magic number is incorrect !')
         self.instance.magic_number = magic_number
         # parse the version number and the number of strings
         version, numofstrings = self._readbinary(ii, 8)
         # from MO file format specs: "A program seeing an unexpected major
         # revision number should stop reading the MO file entirely"
         if version >> 16 not in (0, 1):
-            raise IOError('Invalid mo file, unexpected major revision number')
+            raise OSError('Invalid mo file, unexpected major revision number')
         self.instance.version = version
         # original strings and translation strings hash table offset
         msgids_hash_offset, msgstrs_hash_offset = self._readbinary(ii, 8)
@@ -1777,8 +1765,8 @@ class _MOFileParser(object):
                 entry = self._build_entry(
                     msgid=msgid_tokens[0],
                     msgid_plural=msgid_tokens[1],
-                    msgstr_plural=dict((k, v) for k, v in
-                                       enumerate(msgstr.split(b('\0'))))
+                    msgstr_plural={k: v for k, v in
+                                       enumerate(msgstr.split(b('\0')))}
                 )
             else:
                 entry = self._build_entry(msgid=msgid, msgstr=msgstr)

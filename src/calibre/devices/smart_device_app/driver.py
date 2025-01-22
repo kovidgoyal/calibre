@@ -159,7 +159,7 @@ class ConnectionListener(Thread):
                             device_socket = None
                             self.driver._debug('driver is not answering')
 
-                    except socket.timeout:
+                    except TimeoutError:
                         pass
                     except OSError:
                         x = sys.exc_info()[1]
@@ -648,7 +648,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if not wait_for_response:
                 return None, None
             return self._receive_from_client(print_debug_info=print_debug_info)
-        except socket.timeout:
+        except TimeoutError:
             self._debug('timeout communicating with device')
             self._close_device_socket()
             raise TimeoutError('Device did not respond in reasonable time')
@@ -676,7 +676,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._debug('receive after decode')  # , v)
                 return (self.reverse_opcodes[v[0]], v[1])
             self._debug('protocol error -- empty json string')
-        except socket.timeout:
+        except TimeoutError:
             self._debug('timeout communicating with device')
             self._close_device_socket()
             raise TimeoutError('Device did not respond in reasonable time')
@@ -1202,7 +1202,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 pass
 
             return True
-        except socket.timeout:
+        except TimeoutError:
             self._close_device_socket()
         except OSError:
             x = sys.exc_info()[1]

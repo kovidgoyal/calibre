@@ -12,8 +12,9 @@ import os
 import posixpath
 import sys
 import traceback
+from collections.abc import Sequence
 from io import BytesIO
-from typing import NamedTuple, Sequence
+from typing import NamedTuple
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version

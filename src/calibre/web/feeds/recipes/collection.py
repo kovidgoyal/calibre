@@ -9,9 +9,10 @@ import calendar
 import json
 import os
 import zipfile
+from collections.abc import Sequence
 from datetime import timedelta
 from threading import RLock
-from typing import Dict, NamedTuple, Optional, Sequence
+from typing import NamedTuple
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -298,7 +299,7 @@ class RecipeCustomization(NamedTuple):
     add_title_tag: bool = False
     custom_tags: Sequence[str] = ()
     keep_issues: int = 0
-    recipe_specific_options: Optional[Dict[str, str]] = None
+    recipe_specific_options: dict[str, str] | None = None
 
 
 class SchedulerConfig:

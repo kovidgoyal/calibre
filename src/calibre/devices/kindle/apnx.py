@@ -2,7 +2,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2011, John Schember <john at nachtimwald.com>, refactored: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
-from typing import Dict, Optional
 
 '''
 Generates and writes an APNX page mapping file.
@@ -29,14 +28,14 @@ class APNXBuilder:
     Create an APNX file using a pseudo page mapping.
     """
 
-    generators: Dict[str, IPageGenerator] = {
+    generators: dict[str, IPageGenerator] = {
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
         AccuratePageGenerator.instance.name(): AccuratePageGenerator.instance,
         PagebreakPageGenerator.instance.name(): PagebreakPageGenerator.instance,
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }
 
-    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: Optional[str] = None, page_count: int = 0):
+    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0):
         """
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
@@ -61,7 +60,7 @@ class APNXBuilder:
             fsync(apnxf)
 
     @staticmethod
-    def get_apnx_meta(mobi_file_path) -> Dict[str, str]:
+    def get_apnx_meta(mobi_file_path) -> dict[str, str]:
         import uuid
         apnx_meta = {
             'guid': str(uuid.uuid4()).replace('-', '')[:8],

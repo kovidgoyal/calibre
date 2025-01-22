@@ -8,7 +8,6 @@ import time
 from collections import defaultdict
 from contextlib import suppress
 from itertools import count, repeat
-from typing import Optional
 
 import apsw
 import xxhash
@@ -368,7 +367,7 @@ class Notes:
                     name = f'{base_name}-{c}{ext}'
         return resource_hash
 
-    def get_resource_data(self, conn, resource_hash) -> Optional[dict]:
+    def get_resource_data(self, conn, resource_hash) -> dict | None:
         ans = None
         for (name,) in conn.execute('SELECT name FROM notes_db.resources WHERE hash=?', (resource_hash,)):
             path = self.path_for_resource(resource_hash)

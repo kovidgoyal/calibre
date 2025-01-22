@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
-from typing import List, NamedTuple, Optional, Tuple
+from typing import NamedTuple
 
 from css_parser.css import CSSRule
 from css_selectors import Select, SelectorError
@@ -21,9 +21,9 @@ class NoMatchingRuleFound(KeyError):
 
 
 class RuleLocation(NamedTuple):
-    rule_address: List[int]
+    rule_address: list[int]
     file_name: str
-    style_tag_address: Optional[Tuple[int, List[int]]] = None
+    style_tag_address: tuple[int, list[int]] | None = None
 
 
 def rule_matches_elem(rule, elem, select, class_name):

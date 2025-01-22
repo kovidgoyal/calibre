@@ -92,7 +92,7 @@ class LoopTest(BaseTest):
             with self.assertRaises(socket.timeout):
                 res = conn.getresponse()
                 if int(res.status) == int(http_client.REQUEST_TIMEOUT):
-                    raise socket.timeout('Timeout')
+                    raise TimeoutError('Timeout')
                 raise Exception('Got unexpected response: code: {} {} headers: {!r} data: {!r}'.format(
                     res.status, res.reason, res.getheaders(), res.read()))
             self.ae(pool.busy, 1)

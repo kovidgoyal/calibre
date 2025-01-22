@@ -13,7 +13,6 @@ from collections import defaultdict, deque
 from datetime import datetime
 from itertools import chain
 from operator import attrgetter
-from typing import Dict, Tuple
 
 from calibre import force_unicode, human_readable, prints
 from calibre.constants import iswindows
@@ -121,7 +120,7 @@ class FileOrFolder:
         return not self.files and not self.folders
 
     @property
-    def id_map(self) -> Dict[int, 'FileOrFolder']:
+    def id_map(self) -> dict[int, 'FileOrFolder']:
         return self.fs_cache().id_maps[self.storage_id]
 
     @property
@@ -141,7 +140,7 @@ class FileOrFolder:
         return self.fs_cache().storage(self.storage_id)
 
     @property
-    def full_path(self) -> Tuple[str, ...]:
+    def full_path(self) -> tuple[str, ...]:
         parts = deque()
         parts.append(self.name)
         p = self.parent

@@ -40,7 +40,7 @@ class FDST:
     def __str__(self):
         ans = ['FDST record']
         def a(k, v):
-            return ans.append('{}: {}'.format(k, v))
+            return ans.append(f'{k}: {v}')
         a('Offset to sections', self.sec_off)
         a('Number of section records', self.num_sections)
         ans.append('**** %d Sections ****'% len(self.sections))

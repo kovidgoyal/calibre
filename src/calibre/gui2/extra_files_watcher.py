@@ -3,7 +3,7 @@
 
 
 from time import monotonic
-from typing import NamedTuple, Tuple
+from typing import NamedTuple
 
 from qt.core import QObject, QTimer, pyqtSignal
 
@@ -18,7 +18,7 @@ class ExtraFile(NamedTuple):
 
 class ExtraFiles(NamedTuple):
     last_changed_at: float
-    files: Tuple[ExtraFile, ...]
+    files: tuple[ExtraFile, ...]
 
 
 class ExtraFilesWatcher(QObject):

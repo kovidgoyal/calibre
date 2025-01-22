@@ -8,7 +8,6 @@ import os
 import secrets
 import stat
 import struct
-from typing import Optional, Union
 
 from calibre.constants import ismacos, iswindows
 
@@ -44,7 +43,7 @@ class SharedMemory:
     '''
     _fd: int = -1
     _name: str = ''
-    _mmap: Optional[mmap.mmap] = None
+    _mmap: mmap.mmap | None = None
     _size: int = 0
     size_fmt = '!I'
     num_bytes_for_size = struct.calcsize(size_fmt)
@@ -158,7 +157,7 @@ class SharedMemory:
     def flush(self) -> None:
         self.mmap.flush()
 
-    def write_data_with_size(self, data: Union[str, bytes]) -> None:
+    def write_data_with_size(self, data: str | bytes) -> None:
         if isinstance(data, str):
             data = data.encode('utf-8')
         sz = struct.pack(self.size_fmt, len(data))

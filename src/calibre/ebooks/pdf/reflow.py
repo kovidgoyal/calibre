@@ -385,7 +385,7 @@ class Text(Element):
         return self.raw
 
     def dump(self, f):
-        f.write('T top={}, left={}, width={}, height={}: '.format(self.top, self.left, self.width, self.height))
+        f.write(f'T top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
@@ -422,7 +422,7 @@ class Paragraph(Text):
         return self.raw
 
     def dump(self, f):
-        f.write('P top={}, left={}, width={}, height={}: '.format(self.top, self.left, self.width, self.height))
+        f.write(f'P top={self.top}, left={self.left}, width={self.width}, height={self.height}: ')
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 ''' orientxxi.info '''
 from datetime import datetime
-
 from zoneinfo import ZoneInfo
 
 from calibre import browser

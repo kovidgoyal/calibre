@@ -4,7 +4,6 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 from abc import ABCMeta, abstractmethod
-from typing import Optional
 
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
 from calibre.ebooks.pdb.header import PdbHeaderReader
@@ -15,14 +14,14 @@ from polyglot.builtins import as_bytes
 class IPageGenerator(metaclass=ABCMeta):
 
     @abstractmethod
-    def _generate(self, mobi_file_path: str, real_count: Optional[int]) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
         pass
 
     @abstractmethod
-    def _generate_fallback(self, mobi_file_path: str, real_count: Optional[int]) -> Pages:
+    def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
         pass
 
-    def generate(self, mobi_file_path: str, real_count: Optional[int]) -> Pages:
+    def generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
         try:
             result = self._generate(mobi_file_path, real_count)
             if result.number_of_pages > 0:

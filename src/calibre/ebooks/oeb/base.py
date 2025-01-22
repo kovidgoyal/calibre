@@ -14,7 +14,6 @@ import sys
 from collections import defaultdict
 from itertools import count
 from operator import attrgetter
-from typing import Optional
 
 from lxml import etree, html
 
@@ -1027,7 +1026,7 @@ class Manifest:
         # }}}
 
         @property
-        def data_as_bytes_or_none(self) -> Optional[bytes]:
+        def data_as_bytes_or_none(self) -> bytes | None:
             if self._loader is None:
                 return None
             return self._loader(getattr(self, 'html_input_href', self.href))

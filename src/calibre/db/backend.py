@@ -17,7 +17,6 @@ import time
 import uuid
 from contextlib import closing, suppress
 from functools import partial
-from typing import Optional
 
 import apsw
 
@@ -1007,7 +1006,7 @@ class DB:
     def add_notes_resource(self, path_or_stream, name, mtime=None) -> int:
         return self.notes.add_resource(self.conn, path_or_stream, name, mtime=mtime)
 
-    def get_notes_resource(self, resource_hash) -> Optional[dict]:
+    def get_notes_resource(self, resource_hash) -> dict | None:
         return self.notes.get_resource_data(self.conn, resource_hash)
 
     def notes_resources_used_by(self, field, item_id):

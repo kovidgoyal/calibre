@@ -14,13 +14,13 @@ import sys
 import traceback
 import weakref
 from collections import defaultdict
-from collections.abc import MutableSet, Set
+from collections.abc import Iterable, MutableSet, Set
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
 from threading import Lock
 from time import mktime, monotonic, sleep, time
-from typing import Iterable, NamedTuple, Optional, Tuple
+from typing import NamedTuple
 
 from calibre import as_unicode, detect_ncpus, isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -725,7 +725,7 @@ class Cache:
         return self.backend.add_notes_resource(path_or_stream_or_data, name, mtime)
 
     @read_api
-    def get_notes_resource(self, resource_hash) -> Optional[dict]:
+    def get_notes_resource(self, resource_hash) -> dict | None:
         ' Return a dict containing the resource data and name or None if no resource with the specified hash is found '
         return self.backend.get_notes_resource(resource_hash)
 
@@ -3370,7 +3370,7 @@ class Cache:
         return dict.fromkeys(relpaths)
 
     @read_api
-    def list_extra_files(self, book_id, use_cache=False, pattern='') -> Tuple[ExtraFile, ...]:
+    def list_extra_files(self, book_id, use_cache=False, pattern='') -> tuple[ExtraFile, ...]:
         '''
         Get information about extra files in the book's directory.
 

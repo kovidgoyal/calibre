@@ -3,18 +3,17 @@ __copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
 import itertools
-from typing import List, Optional
 
 from calibre.devices.kindle.apnx_page_generator.page_group import PageGroup
 from calibre.devices.kindle.apnx_page_generator.page_number_type import PageNumberTypes
 
 
 class Pages:
-    def __init__(self, page_locations: Optional[List[int]] = None):
+    def __init__(self, page_locations: list[int] | None = None):
         if page_locations.__class__ is list:
-            self.__pages_groups: List[PageGroup] = [PageGroup(page_locations, PageNumberTypes.Arabic, 1)]
+            self.__pages_groups: list[PageGroup] = [PageGroup(page_locations, PageNumberTypes.Arabic, 1)]
         else:
-            self.__pages_groups: List[PageGroup] = []
+            self.__pages_groups: list[PageGroup] = []
 
     def append(self, page_location: PageGroup) -> None:
         self.__pages_groups.append(page_location)
@@ -34,7 +33,7 @@ class Pages:
         return ",".join(result)
 
     @property
-    def page_locations(self) -> List[int]:
+    def page_locations(self) -> list[int]:
         return list(itertools.chain.from_iterable(list(map(lambda pg: pg.page_locations, self.__pages_groups))))
 
     @property

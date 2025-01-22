@@ -6,8 +6,8 @@ import shutil
 import stat
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from contextlib import suppress
-from typing import Callable, Dict, List, Set, Tuple, Union
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import make_long_path_useable, samefile, windows_hardlink
@@ -16,14 +16,14 @@ if iswindows:
     from calibre_extensions import winutil
 
 WINDOWS_SLEEP_FOR_RETRY_TIME = 2  # seconds
-WindowsFileId = Tuple[int, int, int]
+WindowsFileId = tuple[int, int, int]
 
 class UnixFileCopier:
 
     def __init__(self, delete_all=False, allow_move=False):
         self.delete_all = delete_all
         self.allow_move = allow_move
-        self.copy_map: Dict[str, str] = {}
+        self.copy_map: dict[str, str] = {}
 
     def register(self, path: str, dest: str) -> None:
         self.copy_map[path] = dest
@@ -81,12 +81,12 @@ class WindowsFileCopier:
     def __init__(self, delete_all=False, allow_move=False):
         self.delete_all = delete_all
         self.allow_move = allow_move
-        self.path_to_fileid_map : Dict[str, WindowsFileId] = {}
-        self.fileid_to_paths_map: Dict[WindowsFileId, Set[str]] = defaultdict(set)
-        self.path_to_handle_map: Dict[str, 'winutil.Handle'] = {}
-        self.folder_to_handle_map: Dict[str, 'winutil.Handle'] = {}
-        self.folders: List[str] = []
-        self.copy_map: Dict[str, str] = {}
+        self.path_to_fileid_map : dict[str, WindowsFileId] = {}
+        self.fileid_to_paths_map: dict[WindowsFileId, set[str]] = defaultdict(set)
+        self.path_to_handle_map: dict[str, 'winutil.Handle'] = {}
+        self.folder_to_handle_map: dict[str, 'winutil.Handle'] = {}
+        self.folders: list[str] = []
+        self.copy_map: dict[str, str] = {}
 
     def register(self, path: str, dest: str) -> None:
         with suppress(OSError):
@@ -184,11 +184,11 @@ class WindowsFileCopier:
             winutil.move_file(make_long_path_useable(src_path), make_long_path_useable(dest_path))
 
 
-def get_copier(delete_all=False, allow_move=False) -> Union[UnixFileCopier, WindowsFileCopier]:
+def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFileCopier:
     return (WindowsFileCopier if iswindows else UnixFileCopier)(delete_all, allow_move)
 
 
-def rename_files(src_to_dest_map: Dict[str, str]) -> None:
+def rename_files(src_to_dest_map: dict[str, str]) -> None:
     ' Rename a bunch of files. On Windows all files are locked before renaming so no other process can interfere. '
     copier = get_copier(allow_move=True)
     for s, d in src_to_dest_map.items():
@@ -197,7 +197,7 @@ def rename_files(src_to_dest_map: Dict[str, str]) -> None:
         copier.rename_all()
 
 
-def copy_files(src_to_dest_map: Dict[str, str], delete_source: bool = False) -> None:
+def copy_files(src_to_dest_map: dict[str, str], delete_source: bool = False) -> None:
     copier = get_copier(delete_source)
     for s, d in src_to_dest_map.items():
         if not samefile(s, d):
@@ -211,7 +211,7 @@ def identity_transform(src_path: str, dest_path: str) -> str:
 
 
 def register_folder_recursively(
-    src: str, copier: Union[UnixFileCopier, WindowsFileCopier], dest_dir: str,
+    src: str, copier: UnixFileCopier | WindowsFileCopier, dest_dir: str,
     transform_destination_filename: Callable[[str, str], str] = identity_transform,
     read_only: bool = False
 ) -> None:
