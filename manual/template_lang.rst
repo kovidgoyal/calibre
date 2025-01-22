@@ -629,10 +629,10 @@ User-defined Python template functions
 
 You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog. Note that you can use `Python Templates` for a similar purpose. As calling user-defined functions is faster than calling a Python template, user-defined functions might be more efficient depending on the complexity of what the function or template does.
 
-Special notes for using templates in difference contexts
+Special notes for using templates in different contexts
 --------------------------------------------------------
 
-In the GUI (`Columns made from other columns` and `Template searches`):
+In the GUI (:guilabel:`Columns made from other columns` and :guilabel:`Template searches`):
 
 * GPM templates work as before.
 * Python templates have full access to the calibre database.
@@ -641,7 +641,7 @@ In icon rules:
 
 * icon rule templates have no book data so field-based functions such as :ref:`ff_format_date_field`, :ref:`ff_list_count_field`, and :ref:`ff_check_yes_no` won't work.
 
-In the content server:
+In the Content server:
 
 * Templates have access to the new API but not the old API (LibraryDatabase).
 * Because of the above, the following formatter functions are not guaranteed to work in GPM templates (composite columns, icon rules, etc) and should be avoided if you use the content server:
@@ -655,7 +655,7 @@ In the content server:
 Special notes for save/send templates
 ---------------------------------------
 
-Special processing is applied when a template is used in a `save to disk` or `send to device` template. The values of the fields are cleaned, replacing characters that are special to file systems with underscores, including slashes. This means that field text cannot be used to create folders. However, slashes are not changed in prefix or suffix strings, so slashes in these strings will cause folders to be created. Because of this, you can create variable-depth folder structure.
+Special processing is applied when a template is used in a :guilabel:`Save to disk` or :guilabel:`Send to device` template. The values of the fields are cleaned, replacing characters that are special to file systems with underscores, including slashes. This means that field text cannot be used to create folders. However, slashes are not changed in prefix or suffix strings, so slashes in these strings will cause folders to be created. Because of this, you can create variable-depth folder structure.
 
 For example, assume we want the folder structure `series/series_index - title`, with the caveat that if series does not exist, then the title should be in the top folder. The template to do this is::
 
