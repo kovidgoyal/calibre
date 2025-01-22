@@ -211,7 +211,7 @@ def get_database(mi, name):
         if name is not None:
             raise ValueError(_('In function {}: The database has been closed').format(name))
         return None
-    wr = getattr(cache, 'library_database_instance', None)
+    wr = getattr(cache, 'database_instance', None)
     if wr is None:
         if name is not None:
             only_in_gui_error(name)
@@ -249,9 +249,20 @@ class FormatterFunction:
         only_in_gui_error(self.name)
 
     def get_database(self, mi, formatter=None):
-        if (db := getattr(formatter, 'database', None)) is not None:
-            return db
-        return get_database(mi, self.name)
+        # Prefer the db that comes from proxy_metadata because it is probably an
+        # instance of LibraryDatabase where the one in the formatter might be an
+        # instance of Cache
+        formatter_db = getattr(formatter, 'database', None)
+        if formatter_db is None:
+            # The formatter doesn't have a database. Try to get one from
+            # proxy_metadata. This will raise an exception because the name
+            # parameter is not None
+            return get_database(mi, self.name)
+        else:
+            # We have a formatter db. Try to get the db from proxy_metadata but
+            # don't raise an exception if one isn't available.
+            legacy_db = get_database(mi, None)
+            return legacy_db if legacy_db is not None else formatter_db
 
 
 class BuiltinFormatterFunction(FormatterFunction):
@@ -1678,7 +1689,8 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
     __doc__ = doc = _(
 r'''
 ``annotation_count()`` -- return the total number of annotations of all types
-attached to the current book.[/] This function works only in the GUI.
+attached to the current book.[/] This function works only in the GUI and the
+content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals):
@@ -2441,7 +2453,7 @@ program:
 ans
 [/CODE]
 [/LIST]
-This function works only in the GUI.
+This function works only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
@@ -2602,6 +2614,8 @@ Example: ``check_yes_no("#bool", 1, 0, 1)`` returns ``'Yes'`` if the yes/no fiel
 ``#bool`` is either True or undefined (neither True nor False).
 
 More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
+
+This function works only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
@@ -2862,7 +2876,7 @@ Using a stored template instead of putting the template into the search
 eliminates problems caused by the requirement to escape quotes in search
 expressions.
 [/LIST]
-This function can be used only in the GUI.
+This function can be used only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, query, use_vl):
@@ -2897,7 +2911,7 @@ then virtual libraries are ignored. This function and its companion
 searches that combine information from many books such as looking for series
 with only one book. It cannot be used in composite columns unless the tweak
 ``allow_template_database_functions_in_composites`` is set to True. This function
-can be used only in the GUI.
+can be used only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, column, query, sep, use_vl):
@@ -2936,7 +2950,7 @@ r'''
 is supplied then the list is filtered to files that match ``pattern`` before the
 files are counted. The pattern match is case insensitive. See also the functions
 :ref:`extra_file_names`, :ref:`extra_file_size` and :ref:`extra_file_modtime`.
-This function can be used only in the GUI.
+This function can be used only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -2967,7 +2981,8 @@ extra files in the book's ``data/`` folder.[/] If the optional parameter
 ``pattern``, a regular expression, is supplied then the list is filtered to
 files that match ``pattern``. The pattern match is case insensitive. See also
 the functions :ref:`has_extra_files`, :ref:`extra_file_modtime` and
-:ref:`extra_file_size`. This function can be used only in the GUI.
+:ref:`extra_file_size`. This function can be used only in the GUI and the
+content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, sep, *args):
@@ -2996,7 +3011,8 @@ r'''
 ``extra_file_size(file_name)`` -- returns the size in bytes of the extra file
 ``file_name`` in the book's ``data/`` folder if it exists, otherwise ``-1``.[/] See
 also the functions :ref:`has_extra_files`, :ref:`extra_file_names` and
-:ref:`extra_file_modtime`. This function can be used only in the GUI.
+:ref:`extra_file_modtime`. This function can be used only in the GUI and the
+content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name):
@@ -3025,7 +3041,7 @@ exists, otherwise ``-1``. The modtime is formatted according to
 the empty string, returns the modtime as the floating point number of seconds
 since the epoch.  See also the functions :ref:`has_extra_files`,
 :ref:`extra_file_names` and :ref:`extra_file_size`. The epoch is OS dependent.
-This function can be used only in the GUI.
+This function can be used only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, file_name, format_string):
@@ -3067,6 +3083,7 @@ program:
     get_note('authors', 'Isaac Asimov', 1)
 [/CODE]
 [/LIST]
+This function works only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
@@ -3135,6 +3152,7 @@ values in ``field_name``. Example:
 [CODE]
     list_count(has_note('authors', ''), '&') ==# list_count_field('authors')
 [/CODE]
+This function works only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
