@@ -126,7 +126,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             elif i == ICON_COLUMN:
                 item.setToolTip(_('The file name of the icon or the text of the template'))
             elif i == FOR_CHILDREN_COLUMN:
-                item.setToolTip(_('Indicates whether the rule apples to child values'))
+                item.setToolTip(_('Indicates whether the rule applies to child values'))
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.rules_table.horizontalHeader()
