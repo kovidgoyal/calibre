@@ -58,7 +58,7 @@ class ValueTableWidgetItem(QTableWidgetItem):
     def __init__(self, txt):
         self._key = txt
         is_template = txt == TEMPLATE_ICON_INDICATOR
-        super().__init__(_('{template}') if is_template else txt)
+        super().__init__(('{' + _('template') + '}') if is_template else txt)
         self.setIcon(QIcon.cached_icon('debug.png' if is_template else 'icon_choose.png'))
 
     @property
