@@ -36,6 +36,7 @@ from qt.core import (
     Qt,
     QTableWidget,
     QTableWidgetItem,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -692,8 +693,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.css_highlighter = get_highlighter('css')()
         self.css_highlighter.apply_theme(get_theme(None))
         self.css_highlighter.set_document(self.opt_book_details_css.document())
+        self.lazy_tabs = {}
         for i in range(self.tabWidget.count()):
             self.sections_view.addItem(QListWidgetItem(self.tabWidget.tabIcon(i), self.tabWidget.tabText(i).replace('&', '')))
+            # retrieve tabs and subtabs of look & feel to load their content later when clicking of them
+            w = self.tabWidget.widget(i).widget()
+            self.lazy_tabs[(i, None)] = w
+            if isinstance(w, QTabWidget):
+                w.currentChanged.connect(partial(self.lazy_tab_operations, i))
+                for ii in range(w.count()):
+                    self.lazy_tabs[(i, ii)] = w.widget(ii)
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
         self.sections_view.currentRowChanged.connect(self.tabWidget.setCurrentIndex)
         self.sections_view.setMaximumWidth(self.sections_view.sizeHintForColumn(0) + 16)
@@ -863,8 +872,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             _('Current space used: %s') % human_readable(size))
 
     def tab_changed(self, index):
+        self.lazy_tab_operations(index, None)
         if self.tabWidget.currentWidget() is self.cover_grid_tab:
             self.show_current_cache_usage()
+
+    def lazy_tab_operations(self, idx_section, idx_subtab):
+        '''
+        Check if the tab has lazy operations.
+        Perfom the lazy operations only once, the first time the tab is selected.
+        '''
+        tab = self.lazy_tabs.get((idx_section, idx_subtab), None)
+        if hasattr(tab, 'lazy_populate_content'):
+            tab.lazy_populate_content()
+        self.lazy_tabs.pop((idx_section, idx_subtab), None)
 
     def show_current_cache_usage(self):
         t = Thread(target=self.calc_cache_size)
