@@ -36,6 +36,7 @@ from qt.core import (
     Qt,
     QTableWidget,
     QTableWidgetItem,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -692,8 +693,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.css_highlighter = get_highlighter('css')()
         self.css_highlighter.apply_theme(get_theme(None))
         self.css_highlighter.set_document(self.opt_book_details_css.document())
+        self.lazy_subtabs = {}
         for i in range(self.tabWidget.count()):
             self.sections_view.addItem(QListWidgetItem(self.tabWidget.tabIcon(i), self.tabWidget.tabText(i).replace('&', '')))
+            # retrieve subtabs of look & feel sections to load their content later when clicking of them
+            w = self.tabWidget.widget(i).widget()
+            if isinstance(w, QTabWidget):
+                w.currentChanged.connect(partial(self.lazy_subtab_operations, i))
+                for ii in range(w.count()):
+                    self.lazy_subtabs[(i, ii)] = w.widget(ii)
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
         self.sections_view.currentRowChanged.connect(self.tabWidget.setCurrentIndex)
         self.sections_view.setMaximumWidth(self.sections_view.sizeHintForColumn(0) + 16)
@@ -716,6 +724,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
+
+    def lazy_subtab_operations(self, idx_root, idx_subtab):
+        '''
+        Check if the subtab has lazy operations.
+        Perfom the lazy operations only once, the first time the subtab is selected.
+        '''
+        subtab = self.lazy_subtabs.get((idx_root, idx_subtab), None)
+        if hasattr(subtab, 'lazy_populate_content'):
+            subtab.lazy_populate_content()
+        self.lazy_subtabs.pop((idx_root, idx_subtab), None)
 
     def update_color_palette_state(self):
         if self.ui_style_available:

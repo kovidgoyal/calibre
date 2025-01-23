@@ -141,8 +141,14 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         self.tb_icon_rules_groupbox.setContentsMargins(0, 0, 0, 0)
         self.tb_icon_rules_gridlayout.setContentsMargins(2, 2, 2, 2)
 
-        field_metadata = gui.current_db.field_metadata
-        category_icons = gui.tags_view.model().category_custom_icons
+        try:
+            self.table_column_widths = gprefs.get('tag_browser_rules_dialog_table_widths', None)
+        except Exception:
+            pass
+
+    def lazy_populate_content(self):
+        field_metadata = self.gui.current_db.field_metadata
+        category_icons = self.gui.tags_view.model().category_custom_icons
         v = gprefs['tags_browser_value_icons']
         row = 0
         for category,vdict in v.items():
@@ -169,11 +175,6 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         self.for_children_order = 0
         self.do_sort(VALUE_COLUMN)
         self.do_sort(CATEGORY_COLUMN)
-
-        try:
-            self.table_column_widths = gprefs.get('tag_browser_rules_dialog_table_widths', None)
-        except Exception:
-            pass
 
     def show_context_menu(self, point):
         clicked_item = self.rules_table.itemAt(point)
