@@ -863,6 +863,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
         self.update_color_palette_state()
         self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
+        self.lazy_tab_operations(self.tabWidget.currentIndex(), None)
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)
