@@ -59,8 +59,16 @@ class TbHierarchyTab(ConfigTabWidget, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-        self.tb_hierarchical_cats_model = TBHierarchicalFields(gui.current_db, self.tb_hierarchical_cats,
-                                              category_icons=gui.tags_view.model().category_custom_icons)
+        self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
+        self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
+        self.tb_search_order.set_movement_functions(self.move_tb_search_up, self.move_tb_search_down)
+        self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
+
+    def lazy_populate_content(self):
+        self.fill_tb_search_order_box()
+
+        self.tb_hierarchical_cats_model = TBHierarchicalFields(self.gui.current_db, self.tb_hierarchical_cats,
+                                              category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_hierarchical_cats_model.dataChanged.connect(self.changed_signal)
         self.tb_hierarchical_cats.setModel(self.tb_hierarchical_cats_model)
         self.tb_hierarchy_reset_layout_button.clicked.connect(partial(self.reset_layout,
@@ -69,14 +77,6 @@ class TbHierarchyTab(ConfigTabWidget, Ui_Form):
                                                            model=self.tb_hierarchical_cats_model))
         self.tb_hierarchy_import_layout_button.clicked.connect(partial(self.import_layout,
                                                            model=self.tb_hierarchical_cats_model))
-
-        self.fill_tb_search_order_box()
-        self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
-        self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
-        self.tb_search_order.set_movement_functions(self.move_tb_search_up, self.move_tb_search_down)
-        self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
-
-    def initialize(self):
         self.tb_hierarchical_cats_model.initialize()
 
     def fill_tb_search_order_box(self):
