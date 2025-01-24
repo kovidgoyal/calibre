@@ -163,7 +163,7 @@ class HTMLConverter:
     # Fix Book Designer markup
     BOOK_DESIGNER = [
                      # HR
-                     (re.compile('<hr>', re.IGNORECASE),
+                     (re.compile(r'<hr>', re.IGNORECASE),
                       lambda match : '<span style="page-break-after:always"> </span>'),
                      # Create header tags
                      (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
@@ -279,7 +279,7 @@ class HTMLConverter:
             if isinstance(src, bytes):
                 src = src.decode('utf-8', 'replace')
             match = self.PAGE_BREAK_PAT.search(src)
-            if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+            if match and not re.match(r'avoid', match.group(1), re.IGNORECASE):
                 self.page_break_found = True
             ncss, npcss = self.parse_css(src)
             if ncss:
@@ -324,10 +324,10 @@ class HTMLConverter:
 
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher',
-                        'content':re.compile('Baen', re.IGNORECASE)}))
+                        'content':re.compile(r'Baen', re.IGNORECASE)}))
 
     def is_book_designer(self, raw):
-        return bool(re.search('<H2[^><]*id=BookTitle', raw))
+        return bool(re.search(r'<H2[^><]*id=BookTitle', raw))
 
     def preprocess(self, raw):
         nmassage = []
@@ -1152,7 +1152,7 @@ class HTMLConverter:
 
         def font_weight(val):
             ans = 0
-            m = re.search('([0-9]+)', val)
+            m = re.search(r'([0-9]+)', val)
             if m:
                 ans = int(m.group(1))
             elif val.find('bold') >= 0 or val.find('strong') >= 0:
@@ -1544,7 +1544,7 @@ class HTMLConverter:
                         with open(path, 'rb') as f:
                             src = f.read().decode('utf-8', 'replace')
                         match = self.PAGE_BREAK_PAT.search(src)
-                        if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+                        if match and not re.match(r'avoid', match.group(1), re.IGNORECASE):
                             self.page_break_found = True
                         ncss, npcss = self.parse_css(src)
                     except OSError:
@@ -1869,11 +1869,11 @@ def process_file(path, options, logger):
         header.append(fheader + '  ')
     book, fonts = Book(options, logger, header=header, **args)
     le = re.compile(options.link_exclude) if options.link_exclude else \
-         re.compile('$')
+         re.compile(r'$')
     pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
-         re.compile('$')
+         re.compile(r'$')
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
-         re.compile('$')
+         re.compile(r'$')
     cq = options.chapter_attr.split(',')
     if len(cq) < 3:
         raise ValueError('The --chapter-attr setting must have 2 commas.')

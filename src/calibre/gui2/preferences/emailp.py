@@ -146,7 +146,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             if aval:
                 self.tags[account] = aval
         elif col == 1:
-            self.accounts[account][0] = re.sub(',+', ',', re.sub(r'\s+', ',', as_unicode(value or '').upper()))
+            self.accounts[account][0] = re.sub(r',+', ',', re.sub(r'\s+', ',', as_unicode(value or '').upper()))
         elif col == 0:
             na = as_unicode(value or '').strip()
             from email.utils import parseaddr

@@ -3828,7 +3828,7 @@ class CatalogBuilder:
                     # if self.opts.numbers_as_text and re.match('[0-9]+',word[0]):
                     translated.append(NumberToText(word).text.capitalize())
                 else:
-                    if re.match('[0-9]+', word[0]):
+                    if re.match(r'[0-9]+', word[0]):
                         word = word.replace(',', '')
                         suffix = re.search(r'[\D]', word)
                         if suffix:
@@ -3844,7 +3844,7 @@ class CatalogBuilder:
                     translated.append(capitalize(word))
 
             else:
-                if re.search('[0-9]+', word[0]):
+                if re.search(r'[0-9]+', word[0]):
                     word = word.replace(',', '')
                     suffix = re.search(r'[\D]', word)
                     if suffix:
@@ -4114,7 +4114,7 @@ class CatalogBuilder:
         Return:
          (str): char if A-z, else SYMBOLS
         '''
-        if not re.search('[a-zA-Z]', ascii_text(char)):
+        if not re.search(r'[a-zA-Z]', ascii_text(char)):
             return self.SYMBOLS
         else:
             return char

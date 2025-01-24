@@ -47,7 +47,7 @@ class Chronicle(BasicNewsRecipe):
 
         # Find cover
         cover = soup0.find('div', attrs={
-                           'class': 'side-content'}).find(attrs={'src': re.compile('photos/biz/Current')})
+                           'class': 'side-content'}).find(attrs={'src': re.compile(r'photos/biz/Current')})
         if cover is not None:
             if 'chronicle.com' in cover['src']:
                 self.cover_url = cover['src']

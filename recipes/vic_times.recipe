@@ -82,28 +82,28 @@ class TimesColonist(BasicNewsRecipe):
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
     keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile('main.content')})]
+        dict(name='div', attrs={'class': re.compile(r'main.content')})]
 
     def __init__(self, options, log, progress_reporter):
         self.remove_tags = [{'class': 'comments'},
                             {'id': 'photocredit'},
                             dict(name='div', attrs={
-                                 'class': re.compile('top.controls')}),
+                                 'class': re.compile(r'top.controls')}),
                             dict(name='div', attrs={
-                                 'class': re.compile('^comments')}),
+                                 'class': re.compile(r'^comments')}),
                             dict(name='div', attrs={
-                                 'class': re.compile('social')}),
+                                 'class': re.compile(r'social')}),
                             dict(name='div', attrs={
-                                 'class': re.compile('tools')}),
+                                 'class': re.compile(r'tools')}),
                             dict(name='div', attrs={
-                                 'class': re.compile('bottom.tools')}),
+                                 'class': re.compile(r'bottom.tools')}),
                             dict(name='div', attrs={
-                                 'class': re.compile('window')}),
-                            dict(name='div', attrs={'class': re.compile('related.news.element')})]
+                                 'class': re.compile(r'window')}),
+                            dict(name='div', attrs={'class': re.compile(r'related.news.element')})]
         print('PROFILE NAME = ' + options.output_profile.short_name)
         if self.kindle_omit_images and options.output_profile.short_name in ['kindle', 'kindle_dx', 'kindle_pw']:
             self.remove_tags.append(
-                dict(name='div', attrs={'class': re.compile('image-container')}))
+                dict(name='div', attrs={'class': re.compile(r'image-container')}))
         BasicNewsRecipe.__init__(self, options, log, progress_reporter)
 
     def get_cover_url(self):
@@ -173,19 +173,19 @@ class TimesColonist(BasicNewsRecipe):
         return soup
 
     def preprocess_html(self, soup):
-        byline = soup.find('p', attrs={'class': re.compile('ancillary')})
+        byline = soup.find('p', attrs={'class': re.compile(r'ancillary')})
         if byline is not None:
             authstr = self.tag_to_string(byline, False)
-            authstr = re.sub('/ *Times Colonist', '/',
+            authstr = re.sub(r'/ *Times Colonist', '/',
                              authstr, flags=re.IGNORECASE)
-            authstr = re.sub('BY */', '', authstr, flags=re.IGNORECASE)
+            authstr = re.sub(r'BY */', '', authstr, flags=re.IGNORECASE)
             newdiv = new_tag(soup, 'div')
             newdiv.insert(0, authstr)
             newdiv['class'] = 'byline'
             byline.replaceWith(newdiv)
-        for caption in soup.findAll('p', attrs={'class': re.compile('caption')}):
+        for caption in soup.findAll('p', attrs={'class': re.compile(r'caption')}):
             capstr = self.tag_to_string(caption, False)
-            capstr = re.sub('Photograph by.*$', '',
+            capstr = re.sub(r'Photograph by.*$', '',
                             capstr, flags=re.IGNORECASE)
             newdiv = new_tag(soup, 'div')
             newdiv.insert(0, capstr)
@@ -239,13 +239,13 @@ class TimesColonist(BasicNewsRecipe):
         except:
             return ans
         mainsoup = soup.find(
-            'div', attrs={'class': re.compile('main.content')})
+            'div', attrs={'class': re.compile(r'main.content')})
         article_list = []
-        for wdiv in mainsoup.findAll('div', attrs={'id': re.compile('featured.story')}):
+        for wdiv in mainsoup.findAll('div', attrs={'id': re.compile(r'featured.story')}):
             for htag in wdiv.findAll('h3'):
                 self.handle_articles(htag, article_list, sectitle)
-        for ladiv in mainsoup.findAll(attrs={'class': re.compile('leading.articles')}):
-            for wdiv in mainsoup.findAll('div', attrs={'class': re.compile('article.row')}):
+        for ladiv in mainsoup.findAll(attrs={'class': re.compile(r'leading.articles')}):
+            for wdiv in mainsoup.findAll('div', attrs={'class': re.compile(r'article.row')}):
                 for htag in wdiv.findAll('h2'):
                     self.handle_articles(htag, article_list, sectitle)
         ans.append((sectitle, article_list))

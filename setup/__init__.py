@@ -17,7 +17,7 @@ import time
 from contextlib import contextmanager
 from functools import lru_cache
 
-iswindows = re.search('win(32|64)', sys.platform)
+iswindows = re.search(r'win(32|64)', sys.platform)
 ismacos = 'darwin' in sys.platform
 isfreebsd = 'freebsd' in sys.platform
 isnetbsd = 'netbsd' in sys.platform

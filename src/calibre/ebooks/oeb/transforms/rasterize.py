@@ -102,7 +102,7 @@ class SVGRasterizer:
 
         if view_box is not None:
             try:
-                box = [float(x) for x in filter(None, re.split('[, ]', view_box))]
+                box = [float(x) for x in filter(None, re.split(r'[, ]', view_box))]
                 sizes = [box[2]-box[0], box[3] - box[1]]
             except (TypeError, ValueError, IndexError):
                 logger.warn('SVG image has invalid viewBox="%s", ignoring the viewBox' % view_box)

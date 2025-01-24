@@ -121,7 +121,7 @@ class RTFMLizer:
             self.log.debug('Converting %s to RTF markup...' % item.href)
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
-            content = re.sub('<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
+            content = re.sub(r'<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = safe_xml_fromstring(content)
@@ -198,7 +198,7 @@ class RTFMLizer:
         text = re.sub('%s{3,}' % os.linesep, f'{os.linesep}{os.linesep}', text)
 
         # Remove excessive spaces
-        text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub('\t{2,}', '\t', text)
         text = text.replace('\t ', '\t')
 

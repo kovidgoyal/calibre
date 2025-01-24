@@ -269,7 +269,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             tag = 'div'
             # Add page-break-brefore: always because renders typically treat a new file (we're merging files)
             # as a page break and remove all other page break types that might be set.
-            style_a = 'page-break-before: always; %s' % re.sub('page-break-[^:]+:[^;]+;?', '', style_a)
+            style_a = 'page-break-before: always; %s' % re.sub(r'page-break-[^:]+:[^;]+;?', '', style_a)
         # Remove unnecessary spaces.
         style_a = re.sub(r'\s{2,}', ' ', style_a).strip()
         tags.append(tag)

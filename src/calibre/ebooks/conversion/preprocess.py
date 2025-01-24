@@ -16,7 +16,7 @@ XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 
-_span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
+_span_pat = re.compile(r'<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 LIGATURES = {
 #        'Æ': 'AE',
@@ -92,7 +92,7 @@ class DocAnalysis:
         elif format == 'pdf':
             linere = re.compile(r'(?<=<br>)(?!\s*<br>).*?(?=<br>)', re.DOTALL)
         elif format == 'spanned_html':
-            linere = re.compile('(?<=<span).*?(?=</span>)', re.DOTALL)
+            linere = re.compile(r'(?<=<span).*?(?=</span>)', re.DOTALL)
         elif format == 'txt':
             linere = re.compile('.*?\n')
         self.lines = linere.findall(raw)
@@ -430,16 +430,16 @@ def book_designer_rules():
     if ans is None:
         ans = book_designer_rules.ans = [
         # HR
-        (re.compile('<hr>', re.IGNORECASE),
+        (re.compile(r'<hr>', re.IGNORECASE),
         lambda match : '<span style="page-break-after:always"> </span>'),
         # Create header tags
         (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
         lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
         (re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
         lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
-        (re.compile('<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+        (re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
-        (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+        (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
     ]
     return ans
@@ -458,7 +458,7 @@ class HTMLPreProcessor:
                           re.IGNORECASE).search(src) is not None
 
     def is_book_designer(self, raw):
-        return re.search('<H2[^><]*id=BookTitle', raw) is not None
+        return re.search(r'<H2[^><]*id=BookTitle', raw) is not None
 
     def is_pdftohtml(self, src):
         return "<!-- created by calibre's pdftohtml -->" in src[:1000]

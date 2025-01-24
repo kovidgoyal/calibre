@@ -144,7 +144,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 # Most articles have anchors in their titles, *except* the
                 # security vulnerabilities
                 article_anchor = curr.find(
-                    name='a', attrs={'href': re.compile('^/Articles/')})
+                    name='a', attrs={'href': re.compile(r'^/Articles/')})
 
                 if article_anchor:
                     article_url = article_anchor.get('href')

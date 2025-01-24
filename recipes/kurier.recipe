@@ -44,16 +44,16 @@ class Kurier(BasicNewsRecipe):
     ]
 
     keep_only_tags = [
-        dict(name='article', attrs={'class': re.compile('main-article')})
+        dict(name='article', attrs={'class': re.compile(r'main-article')})
     ]
 
     remove_tags = [
         dict(name='div', attrs={'class': 'social-media-container'}),
         dict(name='section', attrs={'class': 'tags'}),
-        dict(name='section', attrs={'class': re.compile('comment-box')}),
-        dict(name='section', attrs={'class': re.compile('related-content')}),
-        dict(name='section', attrs={'class': re.compile('article-slider')}),
-        dict(name='section', attrs={'class': re.compile('commentcontainer')}),
+        dict(name='section', attrs={'class': re.compile(r'comment-box')}),
+        dict(name='section', attrs={'class': re.compile(r'related-content')}),
+        dict(name='section', attrs={'class': re.compile(r'article-slider')}),
+        dict(name='section', attrs={'class': re.compile(r'commentcontainer')}),
         dict(name='blockquote')
     ]
 

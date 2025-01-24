@@ -91,7 +91,7 @@ class HTMLFile:
 
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
     HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
-    TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
+    TITLE_PAT = re.compile(r'<title>([^<>]+)</title>', re.IGNORECASE)
     LINK_PAT  = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
     re.DOTALL|re.IGNORECASE)

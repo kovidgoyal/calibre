@@ -89,7 +89,7 @@ class TheAge(BasicNewsRecipe):
 
         for i in soup.findAll('a'):
             href = i['href']
-            if href and re.match('http://www.theage.com.au/frontpage/[0-9]+/[0-9]+/[0-9]+/frontpage.pdf', href):
+            if href and re.match(r'http://www.theage.com.au/frontpage/[0-9]+/[0-9]+/[0-9]+/frontpage.pdf', href):
                 return href
 
         return None

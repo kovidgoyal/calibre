@@ -195,7 +195,7 @@ class Parser:
     def tokenize(self, expr):
         # convert docstrings to base64 to avoid all processing. Change the docstring
         # indicator to something unique with no characters special to the parser.
-        expr = re.sub('(""")(..*?)(""")',
+        expr = re.sub(r'(""")(..*?)(""")',
                   lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep,
                   expr, flags=re.DOTALL)
 

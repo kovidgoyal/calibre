@@ -406,7 +406,7 @@ class SearchDialog(QDialog):
         self.resize(self.sizeHint())
 
     def retrieve_template_search(self):
-        template, sep, query = re.split('#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)
+        template, sep, query = re.split(r'#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)
         self.template_value_box.setText(query)
         cb = self.template_test_type_box
         for idx in range(0, cb.count()):

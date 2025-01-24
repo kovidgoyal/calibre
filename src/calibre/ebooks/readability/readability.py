@@ -19,11 +19,11 @@ def tounicode(tree_or_node, **kwargs):
 
 
 REGEXES = {
-    'unlikelyCandidatesRe': re.compile('combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',re.I),  # noqa: E501
-    'okMaybeItsACandidateRe': re.compile('and|article|body|column|main|shadow',re.I),
-    'positiveRe': re.compile('article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
-    'negativeRe': re.compile('combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa: E501
-    'divToPElementsRe': re.compile('<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
+    'unlikelyCandidatesRe': re.compile(r'combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',re.I),  # noqa: E501
+    'okMaybeItsACandidateRe': re.compile(r'and|article|body|column|main|shadow',re.I),
+    'positiveRe': re.compile(r'article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
+    'negativeRe': re.compile(r'combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa: E501
+    'divToPElementsRe': re.compile(r'<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
     # 'replaceBrsRe': re.compile('(<br[^>]*>[ \n\r\t]*){2,}',re.I),
     # 'replaceFontsRe': re.compile('<(\/?)font[^>]*>',re.I),
     # 'trimRe': re.compile('^\s+|\s+$/'),

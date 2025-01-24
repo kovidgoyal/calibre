@@ -165,7 +165,7 @@ def wayback_url_processor(url):
     if url.startswith('/'):
         # Use original URL instead of absolutizing to wayback URL as wayback is
         # slow
-        m = re.search('https?:', url)
+        m = re.search(r'https?:', url)
         if m is None:
             url = 'https://web.archive.org' + url
         else:

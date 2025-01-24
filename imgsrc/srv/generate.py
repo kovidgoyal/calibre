@@ -49,7 +49,7 @@ def merge():
             clone_node(child, symbol)
         ans.append(symbol)
     ans = etree.tostring(ans, encoding='unicode', pretty_print=True, with_tail=False)
-    ans = re.sub('<svg[^>]+>', '<svg style="display:none">', ans, count=1)
+    ans = re.sub(r'<svg[^>]+>', '<svg style="display:none">', ans, count=1)
     return ans
 
 

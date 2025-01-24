@@ -90,7 +90,7 @@ def get_system_locale():
 
 def sanitize_lang(lang):
     if lang:
-        match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
+        match = re.match(r'[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
         if match:
             lang = match.group()
     if lang == 'zh':

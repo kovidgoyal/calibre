@@ -2556,7 +2556,7 @@ class BibTeX:
         self.invalid_cit = re.compile('[ "@\',\\#}{~%&$^]')
         self.upper = re.compile('[' +
             string.ascii_uppercase + ']')
-        self.escape = re.compile('[#&%_]')
+        self.escape = re.compile(r'[#&%_]')
 
     def ValidateCitationKey(self, text):
         '''

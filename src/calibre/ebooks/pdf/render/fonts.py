@@ -121,7 +121,7 @@ class Font:
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
         self.subset_tag = str(
-            re.sub('.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
+            re.sub(r'.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
         )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
         try:

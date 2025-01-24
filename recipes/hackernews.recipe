@@ -78,7 +78,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
                 br = td.find('br')
                 if br:
                     br.extract()
-                reply = td.find('a', attrs={'href': re.compile('^reply?')})
+                reply = td.find('a', attrs={'href': re.compile(r'^reply?')})
                 if reply:
                     reply.parent.extract()
                 td.name = 'div'

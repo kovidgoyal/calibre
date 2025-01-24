@@ -165,13 +165,13 @@ class SNBMLizer:
         text = re.sub('\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
-            text = re.sub('(?imu)^(?=.)', '\t', text)
+            text = re.sub(r'(?imu)^(?=.)', '\t', text)
         else:
             text = re.sub('\n{3,}', '\n\n', text)
 
         # Replace spaces at the beginning and end of lines
-        text = re.sub('(?imu)^[ ]+', '', text)
-        text = re.sub('(?imu)[ ]+$', '', text)
+        text = re.sub(r'(?imu)^[ ]+', '', text)
+        text = re.sub(r'(?imu)[ ]+$', '', text)
 
         if self.opts.snb_max_line_length:
             max_length = self.opts.snb_max_line_length

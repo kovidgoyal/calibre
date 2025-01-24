@@ -200,11 +200,11 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         # browser.follow_link(abolink)
         # find page for latest issue
         latestlink = browser.find_link(text_regex=re.compile(
-            '.*ZUR AKTUELLEN AUSGABE.*'))
+            r'.*ZUR AKTUELLEN AUSGABE.*'))
         browser.follow_link(latestlink)
         # now find the correct file, we will still use the ePub file
         epublink = browser.find_link(text_regex=re.compile(
-            '.*EPUB F.*R E-READER LADEN.*'))  # change from '.*EPUB FÜR E-READER LADEN.*' in May 2017
+            r'.*EPUB F.*R E-READER LADEN.*'))  # change from '.*EPUB FÜR E-READER LADEN.*' in May 2017
         response = browser.follow_link(epublink)
         self.report_progress(1, _('next step'))
 
@@ -266,11 +266,11 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             # browser.follow_link(abolink)
             # find page for latest issue
             latestlink = browser.find_link(text_regex=re.compile(
-                '.*ZUR AKTUELLEN AUSGABE.*'))
+                r'.*ZUR AKTUELLEN AUSGABE.*'))
             browser.follow_link(latestlink)
             # actual cover search
             pdflink = browser.find_link(text_regex=re.compile(
-                '.*GESAMT-PDF LADEN.*'))
+                r'.*GESAMT-PDF LADEN.*'))
             cover_url = urlparse(pdflink.base_url)[0] + '://' + urlparse(pdflink.base_url)[1] + '' + (
                 urlparse(pdflink.url)[2]).replace('ePaper_', '').replace('.pdf', '_001.pdf')
             self.log.warning('PDF link found:')

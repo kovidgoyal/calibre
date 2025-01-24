@@ -39,12 +39,12 @@ class CSMonitor(BasicNewsRecipe):
     }
 
     remove_tags = [
-        dict(name=['meta', 'link', 'iframe', 'object', 'embed']), dict(attrs={'class': re.compile('(^|| )podStoryRel($|| )', re.DOTALL)}), dict(
+        dict(name=['meta', 'link', 'iframe', 'object', 'embed']), dict(attrs={'class': re.compile(r'(^|| )podStoryRel($|| )', re.DOTALL)}), dict(
             attrs={'class': ['bottom-rel', 'hide']}), dict(attrs={'id': ['pgallerycarousel_enlarge', 'pgallerycarousel_related']})
     ]
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'head'}), dict(name='h2', attrs={'class': 'subhead'}), dict(attrs={'class': [
-            'sByline', 'thePhoto', 'ui-body-header']}), dict(attrs={'class': re.compile('(^|| )sBody($|| )', re.DOTALL)})
+            'sByline', 'thePhoto', 'ui-body-header']}), dict(attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
     ]
     remove_attributes = ['xmlns:fb']
 
@@ -74,11 +74,11 @@ class CSMonitor(BasicNewsRecipe):
                 nurl = 'http://www.csmonitor.com' + nexttag['href']
                 soup2 = self.index_to_soup(nurl)
                 texttag = soup2.find(
-                    attrs={'class': re.compile('(^|| )sBody($|| )', re.DOTALL)})
+                    attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
                 if texttag:
                     appendtag = soup.find(
-                        attrs={'class': re.compile('(^|| )sBody($|| )', re.DOTALL)})
-                    for citem in texttag.findAll(attrs={'class': [re.compile('(^|| )podStoryRel($|| )', re.DOTALL), 'bottom-rel', 'hide']}):
+                        attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
+                    for citem in texttag.findAll(attrs={'class': [re.compile(r'(^|| )podStoryRel($|| )', re.DOTALL), 'bottom-rel', 'hide']}):
                         citem.extract()
                     self.append_page(soup2)
                     texttag.extract()

@@ -39,7 +39,7 @@ class AdvancedUserRecipe1515196393(BasicNewsRecipe):
         feeds = []
         br = self.get_browser()
         self.ctdir = PersistentTemporaryDirectory()
-        for x in toc.findAll(['li'], attrs={'class': re.compile('.*get_content.*')}):
+        for x in toc.findAll(['li'], attrs={'class': re.compile(r'.*get_content.*')}):
             edwo = x.find('a')
             title = self.tag_to_string(edwo)
             self.log('\t\tFound article:', title)

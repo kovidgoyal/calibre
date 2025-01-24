@@ -213,7 +213,7 @@ class Row:
     def __init__(self, conv, row, css, colpad):
         self.cells = []
         self.colpad = colpad
-        cells = row.findAll(re.compile('td|th', re.IGNORECASE))
+        cells = row.findAll(re.compile(r'td|th', re.IGNORECASE))
         self.targets = []
         for cell in cells:
             ccss = conv.tag_css(cell, css)[0]

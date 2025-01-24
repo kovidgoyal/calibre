@@ -51,9 +51,9 @@ class MarkdownMLizer(OEB2HTML):
 
     def tidy_up(self, text):
         # Remove blank space form beginning of paragraph.
-        text = re.sub('(?msu)^[ ]{1,3}', '', text)
+        text = re.sub(r'(?msu)^[ ]{1,3}', '', text)
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
-        text = re.sub('(?msu)^[ ]', '    ', text)
+        text = re.sub(r'(?msu)^[ ]', '    ', text)
 
         # Remove tabs that aren't at the beginning of a line
         new_text = []
@@ -68,7 +68,7 @@ class MarkdownMLizer(OEB2HTML):
         text = '\n'.join(new_text)
 
         # Remove spaces from blank lines.
-        text = re.sub('(?msu)^[ ]+$', '', text)
+        text = re.sub(r'(?msu)^[ ]+$', '', text)
 
         # Reduce blank lines
         text = re.sub('(?msu)\n{7,}', '\n' * 6, text)

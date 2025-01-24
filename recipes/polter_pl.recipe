@@ -41,9 +41,9 @@ class Polter(BasicNewsRecipe):
     (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html')]
 
     def preprocess_html(self, soup):
-        for s in soup.findAll(attrs={'style': re.compile('float: ?left')}):
+        for s in soup.findAll(attrs={'style': re.compile(r'float: ?left')}):
             s['class'] = 'floatleft'
-        for s in soup.findAll(attrs={'style': re.compile('float: ?right')}):
+        for s in soup.findAll(attrs={'style': re.compile(r'float: ?right')}):
             s['class'] = 'floatright'
         for s in soup.findAll(style=True):
             if 'bold;' in s['style']:

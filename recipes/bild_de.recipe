@@ -63,12 +63,12 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
         dict(
             attrs={'class': ['socialbar', 'social-sharing flank', 'vel', 'back']}),
         dict(name='img', attrs={'alt': 'logo'}),
-        dict(name='div', attrs={'class': re.compile('infoEl')}),
-        dict(name='span', attrs={'class': re.compile('loupe')})
+        dict(name='div', attrs={'class': re.compile(r'infoEl')}),
+        dict(name='span', attrs={'class': re.compile(r'loupe')})
     ]
 
     remove_tags_after = [
-        dict(name='div', attrs={'itemprop': re.compile('articleBody')})
+        dict(name='div', attrs={'itemprop': re.compile(r'articleBody')})
     ]
 
     def preprocess_html(self, soup):

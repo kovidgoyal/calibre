@@ -34,7 +34,7 @@ def clean_txt(txt):
     txt = re.sub('(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
 
     # Condense redundant spaces
-    txt = re.sub('[ ]{2,}', ' ', txt)
+    txt = re.sub(r'[ ]{2,}', ' ', txt)
 
     # Remove blank space from the beginning and end of the document.
     txt = re.sub(r'^\s+(?=.)', '', txt)
@@ -213,7 +213,7 @@ def preserve_spaces(txt):
     '''
     Replaces spaces multiple spaces with &nbsp; entities.
     '''
-    txt = re.sub('(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
+    txt = re.sub(r'(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
     return txt
 
@@ -325,9 +325,9 @@ def detect_formatting_type(txt):
 
     # Check for markdown
     # Headings
-    markdown_count += len(re.findall('(?mu)^#+', txt))
-    markdown_count += len(re.findall('(?mu)^=+$', txt))
-    markdown_count += len(re.findall('(?mu)^-+$', txt))
+    markdown_count += len(re.findall(r'(?mu)^#+', txt))
+    markdown_count += len(re.findall(r'(?mu)^=+$', txt))
+    markdown_count += len(re.findall(r'(?mu)^-+$', txt))
     # Images
     markdown_count += len(re.findall(r'(?u)!\[.*?\](\[|\()', txt))
     # Links

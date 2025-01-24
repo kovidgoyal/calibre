@@ -1730,7 +1730,7 @@ class BasicNewsRecipe(Recipe):
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        if traceback and re.search('^AbortArticle:', traceback, flags=re.M) is not None:
+        if traceback and re.search(r'^AbortArticle:', traceback, flags=re.M) is not None:
             self.log.warn('Aborted download of article:', request.article.title,
                           'from', request.article.url)
             self.report_progress(float(self.jobs_done)/len(self.jobs),

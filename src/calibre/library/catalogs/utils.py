@@ -87,7 +87,7 @@ class NumberToText:  # {{{
             self.log('numberTranslate(): %s' % self.number)
 
         # Special case ordinals
-        if re.search('[st|nd|rd|th]',self.number):
+        if re.search(r'[st|nd|rd|th]',self.number):
             self.number = self.number.replace(',', '')
             ordinal_suffix = re.search(r'[\D]', self.number)
             ordinal_number = re.sub(r'\D','',self.number.replace(',', ''))
@@ -134,7 +134,7 @@ class NumberToText:  # {{{
                 self.log('Hyphenated: %s' % self.number)
             self.number_as_float = self.number.split('-')[0]
             strings = self.number.split('-')
-            if re.search('[0-9]+', strings[0]):
+            if re.search(r'[0-9]+', strings[0]):
                 left = NumberToText(strings[0]).text
                 right = strings[1]
             else:
@@ -143,7 +143,7 @@ class NumberToText:  # {{{
             self.text = f'{left}-{right}'
 
         # Test for only commas and numbers
-        elif ',' in self.number and not re.search('[^0-9,]',self.number):
+        elif ',' in self.number and not re.search(r'[^0-9,]',self.number):
             if self.verbose:
                 self.log('Comma(s): %s' % self.number)
             self.number_as_float = self.number.replace(',', '')

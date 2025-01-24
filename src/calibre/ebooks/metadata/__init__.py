@@ -172,7 +172,7 @@ def get_title_sort_pat(lang=None):
         except:
             ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
     else:
-        ans = re.compile('^$')  # matches only the empty string
+        ans = re.compile(r'^$')  # matches only the empty string
     _title_pats[lang] = ans
     return ans
 

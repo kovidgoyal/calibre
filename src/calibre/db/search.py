@@ -657,7 +657,7 @@ class Parser(SearchQueryParser):  # {{{
 
         if location == 'template':
             try:
-                template, sep, query = regex.split('#@#:([tdnb]):', query, flags=regex.IGNORECASE)
+                template, sep, query = regex.split(r'#@#:([tdnb]):', query, flags=regex.IGNORECASE)
                 if sep:
                     sep = sep.lower()
                 else:

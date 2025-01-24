@@ -62,7 +62,7 @@ class NRCNext(BasicNewsRecipe):
         zfile = zipfile.ZipFile(BytesIO(epubraw), 'r')
         zfile.extractall(self.output_dir)
         namelist = zfile.namelist()
-        emre = re.compile('&lt;em(?:.*)&gt;(.*)&lt;/em&gt;')
+        emre = re.compile(r'&lt;em(?:.*)&gt;(.*)&lt;/em&gt;')
         subst = '\\1'
         for name in namelist:
             _, ext = os.path.splitext(name)

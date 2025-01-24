@@ -126,7 +126,7 @@ class TXTMLizer:
         text = re.sub('(?<=.)\n(?=.)', ' ', text)
 
         # Remove multiple spaces.
-        text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub(r'[ ]{2,}', ' ', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
@@ -140,8 +140,8 @@ class TXTMLizer:
         # Replace spaces at the beginning and end of lines
         # We don't replace tabs because those are only added
         # when remove paragraph spacing is enabled.
-        text = re.sub('(?imu)^[ ]+', '', text)
-        text = re.sub('(?imu)[ ]+$', '', text)
+        text = re.sub(r'(?imu)^[ ]+', '', text)
+        text = re.sub(r'(?imu)[ ]+$', '', text)
 
         # Remove empty space and newlines at the beginning of the document.
         text = re.sub(r'(?u)^[ \n]+', '', text)

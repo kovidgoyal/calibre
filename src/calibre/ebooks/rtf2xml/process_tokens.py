@@ -652,7 +652,7 @@ class ProcessTokens:
         return f'cw<{pre}<{token}<nu<{type}\n'
 
     def __language_func(self, pre, token, num):
-        lang_name = self.__language_dict.get(int(re.search('[0-9]+', num).group()))
+        lang_name = self.__language_dict.get(int(re.search(r'[0-9]+', num).group()))
         if not lang_name:
             lang_name = 'not defined'
             if self.__run_level > 3:

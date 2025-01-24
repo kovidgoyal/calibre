@@ -239,7 +239,7 @@ def generate_masthead(title, output_path=None, width=600, height=60):
 def escape_xpath_attr(value):
     if '"' in value:
         if "'" in value:
-            parts = re.split('("+)', value)
+            parts = re.split(r'("+)', value)
             ans = []
             for x in parts:
                 if x:

@@ -36,7 +36,7 @@ class JoopRecipe(BasicNewsRecipe):
     keep_only_tags.append(
         dict(name='h2', attrs={'class': 'columnhead smallline'}))
     keep_only_tags.append(
-        dict(name='div', attrs={'class': re.compile('article.*')}))
+        dict(name='div', attrs={'class': re.compile(r'article.*')}))
 
     extra_css = '''
                 body {font-family: verdana, arial, helvetica, geneva, sans-serif;}

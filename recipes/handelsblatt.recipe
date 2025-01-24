@@ -59,7 +59,7 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='aside', attrs={'class': ['vhb-article-element vhb-left',
                                             'vhb-article-element vhb-left vhb-teasergallery',
                                             'vhb-article-element vhb-left vhb-shorttexts']}),
-        dict(name='aside', attrs={'class': re.compile('vhb-club-events')}),
+        dict(name='aside', attrs={'class': re.compile(r'vhb-club-events')}),
         dict(name='article', attrs={'class': ['vhb-imagegallery vhb-teaser',
                                               'vhb-teaser vhb-type-video']}),
         dict(name='small', attrs={'class': ['vhb-credit']}),
@@ -70,14 +70,14 @@ class Handelsblatt(BasicNewsRecipe):
                                           'opinary-widget-wrapper',
                                           'vhb-article__content-element--shorttextgallery',
                                           'vhb-hollow-area vhb-hollow-area--col-1']}),
-        dict(name='div', attrs={'class': re.compile('stepstone')}),
-        dict(name='div', attrs={'class': re.compile('vhb-imagegallery')}),
+        dict(name='div', attrs={'class': re.compile(r'stepstone')}),
+        dict(name='div', attrs={'class': re.compile(r'vhb-imagegallery')}),
         dict(name='div', attrs={'id': ['highcharts_infografik']}),
-        dict(name='div', attrs={'id': re.compile('dax-sentiment')}),
-        dict(name=['div', 'section'], attrs={'class': re.compile('slider')}),
+        dict(name='div', attrs={'id': re.compile(r'dax-sentiment')}),
+        dict(name=['div', 'section'], attrs={'class': re.compile(r'slider')}),
         dict(name='a', attrs={'class': ['twitter-follow-button']}),
         dict(name='img', attrs={'class': ['highlight-icon', 'lb-author__avatar', 'pin-icon']}),
-        dict(name='img', attrs={'alt': re.compile('Handelsblatt Morning Briefing')}),
+        dict(name='img', attrs={'alt': re.compile(r'Handelsblatt Morning Briefing')}),
         dict(name=['blockquote', 'button', 'link'])
     ]
 
@@ -138,7 +138,7 @@ class Handelsblatt(BasicNewsRecipe):
 
     def postprocess_html(self, soup, first_fetch):
         # convert lists of author(s) and date(s) into simple text
-        for cap in soup.find_all('div', {'class': re.compile('vhb-article-caption')}):
+        for cap in soup.find_all('div', {'class': re.compile(r'vhb-article-caption')}):
             cap.replace_with(cap.encode_contents().decode('utf-8').strip() + ' ')
         for row in soup.find_all('div', {'class': 'vhb-article-author-row'}):
             for ul in row.find_all('ul'):
@@ -160,7 +160,7 @@ class Handelsblatt(BasicNewsRecipe):
             fig.find('div', {'class': 'vhb-caption'}).replace_with(cap)
         # remove references to related articles
         for strong in soup.find_all('strong'):
-            if strong.string and (re.match('^Mehr:? ?', strong.string) or re.match('^>>.*', strong.string)):
+            if strong.string and (re.match(r'^Mehr:? ?', strong.string) or re.match(r'^>>.*', strong.string)):
                 p_parent = strong.find_parent('p')
                 if p_parent:
                     p_parent.decompose()

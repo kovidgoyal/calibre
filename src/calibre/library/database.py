@@ -1504,11 +1504,11 @@ def text_to_tokens(text):
         text = match.group(1)
         OR = True
     tokens = []
-    quot = re.search('"(.*?)"', text)
+    quot = re.search(r'"(.*?)"', text)
     while quot:
         tokens.append(quot.group(1))
         text = text.replace('"'+quot.group(1)+'"', '')
-        quot = re.search('"(.*?)"', text)
+        quot = re.search(r'"(.*?)"', text)
     tokens += text.split(' ')
     ans = []
     for i in tokens:

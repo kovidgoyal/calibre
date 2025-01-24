@@ -54,7 +54,7 @@ class GN(BasicNewsRecipe):
              }]
         feeds.append((u'Na dobry początek', articles))
         # columns:
-        for addr in soup.findAll('a', attrs={'href': re.compile('kategoria')}):
+        for addr in soup.findAll('a', attrs={'href': re.compile(r'kategoria')}):
             if not addr.span:
                 main_block = self.index_to_soup(
                     'http://www.gosc.pl' + addr['href'])

@@ -92,7 +92,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # 1. Title. By author
     #.2. Title by author: subtitle
     # 3. Title: author: subtitle
-    title_author_re = re.compile('^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
+    title_author_re = re.compile(r'^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
 
     # Separate author from title (where it is specified)
     def title_author(self, head):

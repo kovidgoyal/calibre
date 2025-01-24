@@ -384,7 +384,7 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
     repl_func = partial(fd_repl_func, dt, 'ap' in format.lower())
     return re.sub(
-        '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        r'(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
 # }}}
@@ -460,7 +460,7 @@ def clean_date_for_sort(dt, fmt=None):
           'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
 
     repl_func = partial(cd_repl_func, tt, dt)
-    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
+    re.sub(r'(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
     return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
                       minute=tt['min'], second=tt['sec'], microsecond=0)
 # }}}

@@ -380,7 +380,7 @@ class MobiReader:
         self.processed_html = re.sub(
             r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', r'\g<blockquote>'+r'\g<para>', self.processed_html)
         bods = htmls = 0
-        for x in re.finditer('</body>|</html>', self.processed_html):
+        for x in re.finditer(r'</body>|</html>', self.processed_html):
             if x == '</body>':
                 bods +=1
             else:

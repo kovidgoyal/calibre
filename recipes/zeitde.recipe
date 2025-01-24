@@ -139,7 +139,7 @@ class ZeitDe(BasicNewsRecipe):
                 body.insert(0, header)
 
         # Add real img tags for images
-        for container in soup.findAll(class_=re.compile('__media-container$')):
+        for container in soup.findAll(class_=re.compile(r'__media-container$')):
             img = container.find('noscript')
             if img is not None:
                 img.name = 'div'

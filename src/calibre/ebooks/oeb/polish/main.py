@@ -155,7 +155,7 @@ def hfix(name, raw):
     return raw
 
 
-CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in iteritems(HELP)}
+CLI_HELP = {x:hfix(x, re.sub(r'<.*?>', '', y)) for x, y in iteritems(HELP)}
 # }}}
 
 

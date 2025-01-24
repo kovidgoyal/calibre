@@ -365,7 +365,7 @@ class Worker(Thread):  # Get details {{{
             r'([0-9.,]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de|av) '
             r'([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren|stjärnor)){0,1}'
         )
-        self.ratings_pat_cn = re.compile('([0-9.]+) 颗星，最多 5 颗星')
+        self.ratings_pat_cn = re.compile(r'([0-9.]+) 颗星，最多 5 颗星')
         self.ratings_pat_jp = re.compile(r'\d+つ星のうち([\d\.]+)')
 
         lm = {

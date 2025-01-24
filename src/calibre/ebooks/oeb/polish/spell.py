@@ -36,7 +36,7 @@ class Patterns:
         # French words with prefixes are reduced to the stem word, so that the
         # words appear only once in the word list
         self.fr_elision_pat = regex.compile(
-            "^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
+            r"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
 
 
 def patterns():

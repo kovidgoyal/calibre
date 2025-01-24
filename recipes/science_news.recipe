@@ -54,7 +54,7 @@ class ScienceNewsIssue(BasicNewsRecipe):
         # Get articles
         soup = self.index_to_soup(url)
         soup = soup.find('main', attrs={'id':'content'})
-        re_article = re.compile('https://www.sciencenews.org/article/')
+        re_article = re.compile(r'https://www.sciencenews.org/article/')
         stories = []
         past_urls = set()
         for sec in soup.find_all(href=re_article):

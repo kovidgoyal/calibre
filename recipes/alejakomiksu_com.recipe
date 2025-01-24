@@ -29,6 +29,6 @@ class AlejaKomiksu(BasicNewsRecipe):
     def skip_ad_pages(self, soup):
         tag = soup.find(attrs={'class': 'rodzaj'})
         if tag and tag.a.string.lower().strip() == 'recenzje':
-            link = soup.find(text=re.compile('recenzuje'))
+            link = soup.find(text=re.compile(r'recenzuje'))
             if link:
                 return self.index_to_soup(link.parent['href'], raw=True)

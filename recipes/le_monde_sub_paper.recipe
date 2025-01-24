@@ -121,7 +121,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         files = os.listdir(path)
 
         nb_index_files = len([
-            name for name in files if re.match('frame_gauche_[0-9]+.html', name)
+            name for name in files if re.match(r'frame_gauche_[0-9]+.html', name)
         ])
 
         flux = []

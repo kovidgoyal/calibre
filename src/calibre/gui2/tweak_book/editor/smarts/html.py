@@ -920,6 +920,6 @@ if __name__ == '__main__':  # {{{
 
     def callback(ed):
         import regex
-        ed.find_text(regex.compile('A bold word'))
+        ed.find_text(regex.compile(r'A bold word'))
     launch_editor(raw, path_is_raw=True, syntax='html', callback=callback)
 # }}}

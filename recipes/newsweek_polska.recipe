@@ -71,21 +71,21 @@ class Newsweek(BasicNewsRecipe):
                 strong = p.find('strong')
                 if strong:
                     newest = re.compile(
-                        'Tekst pochodzi z najnowszego numeru Tygodnika Newsweek')
+                        r'Tekst pochodzi z najnowszego numeru Tygodnika Newsweek')
                     if newest.search(str(strong)):
                         strong.extract()
                         continue
 
                 itunes = p.find('a')
                 if itunes:
-                    reurl = re.compile('itunes.apple.com')
+                    reurl = re.compile(r'itunes.apple.com')
                     if reurl.search(str(itunes['href'])):
                         p.extract()
                         continue
 
                 imagedesc = p.find('div', attrs={'class': 'image-desc'})
                 if imagedesc:
-                    redesc = re.compile('Okładka numeru')
+                    redesc = re.compile(r'Okładka numeru')
                     if (redesc.search(str(imagedesc))):
                         p.extract()
                         continue

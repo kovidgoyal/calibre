@@ -76,8 +76,8 @@ class SolHaberRecipe(BasicNewsRecipe):
         result = []
         articles_dict = {}
 
-        author_regexp = re.compile('^http://.*?/yazarlar/(.*?)/.*$')
-        category_regexp = re.compile('^http://.*?/(.+?)/.*$')
+        author_regexp = re.compile(r'^http://.*?/yazarlar/(.*?)/.*$')
+        category_regexp = re.compile(r'^http://.*?/(.+?)/.*$')
 
         for section_tuple in self.section_tuples:
 

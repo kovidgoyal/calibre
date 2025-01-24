@@ -50,10 +50,10 @@ class GazetvanAntwerpen(BasicNewsRecipe):
     remove_tags = [
         dict(name=['embed', 'object']),
         dict(name='div', attrs={'class': ['note NotePortrait', 'note']}),
-        dict(name='ul', attrs={'class': re.compile('article__share')}),
+        dict(name='ul', attrs={'class': re.compile(r'article__share')}),
         dict(name='div', attrs={'class': 'slideshow__controls'}),
         dict(name='a', attrs={'role': 'button'}),
-        dict(name='figure', attrs={'class': re.compile('video')})
+        dict(name='figure', attrs={'class': re.compile(r'video')})
     ]
 
     remove_attributes = ['width', 'height']

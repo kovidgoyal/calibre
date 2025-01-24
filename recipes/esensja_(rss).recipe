@@ -95,7 +95,7 @@ class EsensjaRSS(BasicNewsRecipe):
             info = tag.find(attrs={'class': 'img_info'})
             text = str(tag)
             if not src:
-                src = re.search('src="[^"]*?"', text)
+                src = re.search(r'src="[^"]*?"', text)
                 if src:
                     src = src.group(0)
                     src = src[5:].replace('//', '/')

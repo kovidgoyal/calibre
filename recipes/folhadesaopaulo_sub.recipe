@@ -109,7 +109,7 @@ img { background: none !important; float: none; margin: 0px; }
 
         for post in soup.findAll('a'):
             strpost = str(post)
-            if re.match('<a href="https://www1.folha.uol.com.br/.*/"><svg aria-hidden="true" class="icon icon--star"', strpost):
+            if re.match(r'<a href="https://www1.folha.uol.com.br/.*/"><svg aria-hidden="true" class="icon icon--star"', strpost):
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()

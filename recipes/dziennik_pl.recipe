@@ -21,8 +21,8 @@ class Dziennik_pl(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = 'ul {list-style: none; padding: 0; margin: 0;} .foto {float: left;} .clr {clear: both;}'
-    preprocess_regexps = [(re.compile('Komentarze:'), lambda m: ''), (re.compile(
-        '<p><strong><a href=".*?">&gt;&gt;&gt; CZYTAJ TAKŻE: ".*?"</a></strong></p>'), lambda m: '')]
+    preprocess_regexps = [(re.compile(r'Komentarze:'), lambda m: ''), (re.compile(
+        r'<p><strong><a href=".*?">&gt;&gt;&gt; CZYTAJ TAKŻE: ".*?"</a></strong></p>'), lambda m: '')]
     keep_only_tags = [dict(id='article')]
     remove_tags = [dict(name='div', attrs={'class': ['art_box_dodatki', 'new_facebook_icons2', 'leftArt', 'article_print', 'quiz-widget', 'belka-spol', 'belka-spol belka-spol-bottom', 'art_data_tags', 'cl_right', 'boxRounded gal_inside']}), dict(name='a', attrs={'class': ['komentarz', 'article_icon_addcommnent']}), dict(name='ins'), dict(name='br')]  # noqa: E501
     feeds = [(u'Wszystko', u'http://rss.dziennik.pl/Dziennik-PL/'),

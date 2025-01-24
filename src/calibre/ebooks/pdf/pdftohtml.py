@@ -152,7 +152,7 @@ def flip_image(img, flip):
 
 
 def flip_images(raw):
-    for match in re.finditer('<IMG[^>]+/?>', raw, flags=re.I):
+    for match in re.finditer(r'<IMG[^>]+/?>', raw, flags=re.I):
         img = match.group()
         m = re.search(r'class="(x|y|xy)flip"', img)
         if m is None:
@@ -174,5 +174,5 @@ def flip_images(raw):
         counter += 1
         return m.group(1).rstrip('/') + f' alt="Image {counter}"/>'
 
-    raw = re.sub('(<IMG[^>]+)/?>', add_alt, raw, flags=re.I)
+    raw = re.sub(r'(<IMG[^>]+)/?>', add_alt, raw, flags=re.I)
     return raw

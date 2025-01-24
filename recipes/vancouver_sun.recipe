@@ -127,7 +127,7 @@ class CanWestPaper(BasicNewsRecipe):
                 .photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 #photocredit { font-size: xx-small; font-weight: normal; }'''
 
-    keep_only_tags = [dict(name='div', attrs={'id': re.compile('story')})]
+    keep_only_tags = [dict(name='div', attrs={'id': re.compile(r'story')})]
 
     remove_tags = [{'class': 'comments'}, {'class': 'comment-intro'}, {'class': 'storytab'},
                    dict(name='div', attrs={'class': 'section_title'}), dict(name='div', attrs={'class': 'sharebar'}), dict(
@@ -141,7 +141,7 @@ class CanWestPaper(BasicNewsRecipe):
                        name='div', attrs={'class': 'copyright'}),
                    dict(name='div', attrs={'class': 'rule_grey_solid'}),
                    dict(name='div', attrs={'id': 'soundoff'}),
-                   dict(name='div', attrs={'id': re.compile('flyer')}),
+                   dict(name='div', attrs={'id': re.compile(r'flyer')}),
                    dict(name='li', attrs={'class': 'print'}), dict(name='li', attrs={'class': 'share'}), dict(name='ul', attrs={'class': 'bullet'})]
 
     def get_cover_url(self):

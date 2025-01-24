@@ -42,7 +42,7 @@ def _metadata_from_table(soup, searchfor):
     # on the home page. cue some nasty special-case hacks...
     if re.match(r'^\s*'+searchfor+r'\s*$', td.decode_contents(), flags=re.I):
         meta = _detag(td.findNextSibling('td'))
-        return re.sub('^:', '', meta).strip()
+        return re.sub(r'^:', '', meta).strip()
     else:
         meta = _detag(td)
         return re.sub(r'^[^:]+:', '', meta).strip()
@@ -89,7 +89,7 @@ def _get_comments(soup):
 def _get_cover(soup, rdr):
     ans = None
     try:
-        ans = soup.find('img', alt=re.compile('cover', flags=re.I))['src']
+        ans = soup.find('img', alt=re.compile(r'cover', flags=re.I))['src']
     except TypeError:
         # meeehh, no handy alt-tag goodness, try some hackery
         # the basic idea behind this is that in general, the cover image

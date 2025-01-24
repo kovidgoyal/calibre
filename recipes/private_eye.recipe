@@ -161,9 +161,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'attrs': {'id': 'about-covers'}},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
         {'name': 'iframe'},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/lightbox/')}},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/news_ticker/')}},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/media-queries-')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/lightbox/')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/news_ticker/')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/media-queries-')}},
     ]
 
     # Convert headers to h1, strapline to h4

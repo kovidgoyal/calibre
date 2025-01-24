@@ -49,7 +49,7 @@ class HistoryToday(BasicNewsRecipe):
         # Go to issue
         soup = self.index_to_soup('https://www.historytoday.com/contents')
         cover = soup.find('div', attrs={
-                          'id': 'content-area'}).find('img', attrs={'src': re.compile('.*cover.*')})['src']
+                          'id': 'content-area'}).find('img', attrs={'src': re.compile(r'.*cover.*')})['src']
         self.cover_url = cover
         self.log(self.cover_url)
 

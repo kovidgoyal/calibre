@@ -86,7 +86,7 @@ class CourrierInternational(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for link in soup.findAll('a', href=re.compile('^/')):
+        for link in soup.findAll('a', href=re.compile(r'^/')):
             link['href'] = 'http://www.courrierinternational.com' + link['href']
         return soup
 

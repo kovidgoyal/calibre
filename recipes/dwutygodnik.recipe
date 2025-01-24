@@ -33,7 +33,7 @@ class dwutygodnik(BasicNewsRecipe):
         browser.open('http://www.dwutygodnik.com/')
 
         # find the link
-        epublink = browser.find_link(text_regex=re.compile('Wydanie EPUB'))
+        epublink = browser.find_link(text_regex=re.compile(r'Wydanie EPUB'))
 
         # download ebook
         self.report_progress(0, _('Downloading ePUB'))
