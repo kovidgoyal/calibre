@@ -161,12 +161,12 @@ class ODF2MoinMoin:
 
         # Tags
         self.elements = {
-         'draw:page': self.textToString,
-         'draw:frame': self.textToString,
-         'draw:image': self.draw_image,
-         'draw:text-box': self.textToString,
-         'text:a': self.text_a,
-         'text:note': self.text_note,
+            'draw:page': self.textToString,
+            'draw:frame': self.textToString,
+            'draw:image': self.draw_image,
+            'draw:text-box': self.textToString,
+            'text:a': self.text_a,
+            'text:note': self.text_note,
         }
         for tag in IGNORED_TAGS:
             self.elements[tag] = self.do_nothing

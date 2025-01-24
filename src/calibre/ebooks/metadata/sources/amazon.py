@@ -1344,7 +1344,7 @@ class Amazon(Source):
         terms = []
         q = {'search-alias': 'aps',
              'unfiltered': '1',
-             }
+        }
 
         if domain == 'com':
             q['sort'] = 'relevanceexprank'

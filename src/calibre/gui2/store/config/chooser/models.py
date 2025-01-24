@@ -251,13 +251,13 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
-             'affiliate': lambda x: x.affiliate,
-             'description': lambda x: x.description.lower(),
-             'drm': lambda x: not x.drm_free_only,
-             'enabled': lambda x: not is_disabled(x),
-             'format': lambda x: ','.join(x.formats).lower(),
-             'headquarters': lambda x: x.headquarters.lower(),
-             'name': lambda x : x.name.lower(),
+            'affiliate': lambda x: x.affiliate,
+            'description': lambda x: x.description.lower(),
+            'drm': lambda x: not x.drm_free_only,
+            'enabled': lambda x: not is_disabled(x),
+            'format': lambda x: ','.join(x.formats).lower(),
+            'headquarters': lambda x: x.headquarters.lower(),
+            'name': lambda x : x.name.lower(),
         }
         q['formats'] = q['format']
         upf = prefs['use_primary_find_in_search']

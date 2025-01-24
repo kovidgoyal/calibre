@@ -397,15 +397,15 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
-             'affiliate': attrgetter('affiliate'),
-             'author': lambda x: x.author.lower(),
-             'cover': attrgetter('cover_url'),
-             'drm': attrgetter('drm'),
-             'download': attrgetter('downloads'),
-             'format': attrgetter('formats'),
-             'price': lambda x: comparable_price(x.price),
-             'store': lambda x: x.store_name.lower(),
-             'title': lambda x: x.title.lower(),
+            'affiliate': attrgetter('affiliate'),
+            'author': lambda x: x.author.lower(),
+            'cover': attrgetter('cover_url'),
+            'drm': attrgetter('drm'),
+            'download': attrgetter('downloads'),
+            'format': attrgetter('formats'),
+            'price': lambda x: comparable_price(x.price),
+            'store': lambda x: x.store_name.lower(),
+            'title': lambda x: x.title.lower(),
         }
         for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]

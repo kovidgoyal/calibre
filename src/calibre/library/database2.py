@@ -440,10 +440,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         lines.extend([custom_map[x] for x in custom_cols])
 
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
-             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
-             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-             'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
+            'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
+            'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
+            'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
+            'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
 
         for k,v in iteritems(self.FIELD_MAP):
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)

@@ -72,22 +72,22 @@ assert sys.version_info >= (2, 2)
 # s=content() s.addElement(s) won't eat up too much processor time.
 
 odmimetypes = {
- 'application/vnd.oasis.opendocument.text':                  '.odt',
- 'application/vnd.oasis.opendocument.text-template':         '.ott',
- 'application/vnd.oasis.opendocument.graphics':              '.odg',
- 'application/vnd.oasis.opendocument.graphics-template':     '.otg',
- 'application/vnd.oasis.opendocument.presentation':          '.odp',
- 'application/vnd.oasis.opendocument.presentation-template': '.otp',
- 'application/vnd.oasis.opendocument.spreadsheet':           '.ods',
- 'application/vnd.oasis.opendocument.spreadsheet-template':  '.ots',
- 'application/vnd.oasis.opendocument.chart':                 '.odc',
- 'application/vnd.oasis.opendocument.chart-template':        '.otc',
- 'application/vnd.oasis.opendocument.image':                 '.odi',
- 'application/vnd.oasis.opendocument.image-template':        '.oti',
- 'application/vnd.oasis.opendocument.formula':               '.odf',
- 'application/vnd.oasis.opendocument.formula-template':      '.otf',
- 'application/vnd.oasis.opendocument.text-master':           '.odm',
- 'application/vnd.oasis.opendocument.text-web':              '.oth',
+    'application/vnd.oasis.opendocument.text':                  '.odt',
+    'application/vnd.oasis.opendocument.text-template':         '.ott',
+    'application/vnd.oasis.opendocument.graphics':              '.odg',
+    'application/vnd.oasis.opendocument.graphics-template':     '.otg',
+    'application/vnd.oasis.opendocument.presentation':          '.odp',
+    'application/vnd.oasis.opendocument.presentation-template': '.otp',
+    'application/vnd.oasis.opendocument.spreadsheet':           '.ods',
+    'application/vnd.oasis.opendocument.spreadsheet-template':  '.ots',
+    'application/vnd.oasis.opendocument.chart':                 '.odc',
+    'application/vnd.oasis.opendocument.chart-template':        '.otc',
+    'application/vnd.oasis.opendocument.image':                 '.odi',
+    'application/vnd.oasis.opendocument.image-template':        '.oti',
+    'application/vnd.oasis.opendocument.formula':               '.odf',
+    'application/vnd.oasis.opendocument.formula-template':      '.otf',
+    'application/vnd.oasis.opendocument.text-master':           '.odm',
+    'application/vnd.oasis.opendocument.text-web':              '.oth',
 }
 
 

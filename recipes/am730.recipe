@@ -89,7 +89,7 @@ class AM730(BasicNewsRecipe):
         ('體育','https://www.am730.com.hk/news/%E9%AB%94%E8%82%B2'),
         ('娛樂','https://www.am730.com.hk/news/%E5%A8%9B%E6%A8%82'),
         ('旅遊.飲食','https://www.am730.com.hk/news/%E6%97%85%E9%81%8A.%E9%A3%B2%E9%A3%9F')
-         ]       # articles =[]
+        ]       # articles =[]
         SectionsArticles=[]
         for (title, url) in Sections:
             if self.debug:

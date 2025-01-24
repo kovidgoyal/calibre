@@ -347,26 +347,26 @@ class TagStack:
 
 
 special_styles = {
-   'S-Emphasis':'em',
-   'S-Citation':'cite',
-   'S-Strong_20_Emphasis':'strong',
-   'S-Variable':'var',
-   'S-Definition':'dfn',
-   'S-Teletype':'tt',
-   'P-Heading_20_1':'h1',
-   'P-Heading_20_2':'h2',
-   'P-Heading_20_3':'h3',
-   'P-Heading_20_4':'h4',
-   'P-Heading_20_5':'h5',
-   'P-Heading_20_6':'h6',
-#  'P-Caption':'caption',
-   'P-Addressee':'address',
-#  'P-List_20_Heading':'dt',
-#  'P-List_20_Contents':'dd',
-   'P-Preformatted_20_Text':'pre',
-#  'P-Table_20_Heading':'th',
-#  'P-Table_20_Contents':'td',
-#  'P-Text_20_body':'p'
+    'S-Emphasis':'em',
+    'S-Citation':'cite',
+    'S-Strong_20_Emphasis':'strong',
+    'S-Variable':'var',
+    'S-Definition':'dfn',
+    'S-Teletype':'tt',
+    'P-Heading_20_1':'h1',
+    'P-Heading_20_2':'h2',
+    'P-Heading_20_3':'h3',
+    'P-Heading_20_4':'h4',
+    'P-Heading_20_5':'h5',
+    'P-Heading_20_6':'h6',
+    # 'P-Caption':'caption',
+    'P-Addressee':'address',
+    # 'P-List_20_Heading':'dt',
+    # 'P-List_20_Contents':'dd',
+    'P-Preformatted_20_Text':'pre',
+    # 'P-Table_20_Heading':'th',
+    # 'P-Table_20_Contents':'td',
+    # 'P-Text_20_body':'p'
 }
 
 # -----------------------------------------------------------------------------
@@ -1123,8 +1123,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     # Short prefixes for class selectors
     _familyshort = {'drawing-page':'DP', 'paragraph':'P', 'presentation':'PR',
         'text':'S', 'section':'D',
-         'table':'T', 'table-cell':'TD', 'table-column':'TC',
-         'table-row':'TR', 'graphic':'G'}
+        'table':'T', 'table-cell':'TD', 'table-column':'TC',
+        'table-row':'TR', 'graphic':'G'}
 
     def s_style_style(self, tag, attrs):
         ''' Collect the formatting for the style.

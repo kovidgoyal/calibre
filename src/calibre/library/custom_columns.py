@@ -628,7 +628,7 @@ class CustomColumns:
 
     def clean_custom(self):
         st = ('DELETE FROM {table} WHERE (SELECT COUNT(id) FROM {lt} WHERE'
-           ' {lt}.value={table}.id) < 1;')
+            ' {lt}.value={table}.id) < 1;')
         statements = []
         for data in self.custom_column_num_map.values():
             if data['normalized']:

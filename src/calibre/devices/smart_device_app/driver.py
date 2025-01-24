@@ -291,7 +291,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         '',
         _('Use fixed network port') + ':::<p>' +
         _('If checked, use the port number in the "Port" box, otherwise '
-              'the driver will pick a random port') + '</p>',
+            'the driver will pick a random port') + '</p>',
         _('Port number: ') + ':::<p>' +
         _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
@@ -300,52 +300,52 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         _('Comma separated list of metadata fields '
             'to turn into collections on the device.') + ':::<p>' +
         _('Possibilities include: series, tags, authors, etc' +
-              '. Three special collections are available: %(abt)s:%(abtv)s, '
-              '%(aba)s:%(abav)s, and %(abs)s:%(absv)s. Add  '
-              'these values to the list to enable them. The collections will be '
-              'given the name provided after the ":" character.')%dict(
-                    abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR,
-                    abs='abs', absv=ALL_BY_SOMETHING),
+            '. Three special collections are available: %(abt)s:%(abtv)s, '
+            '%(aba)s:%(abav)s, and %(abs)s:%(absv)s. Add  '
+            'these values to the list to enable them. The collections will be '
+            'given the name provided after the ":" character.')%dict(
+                abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR,
+                abs='abs', absv=ALL_BY_SOMETHING),
         '',
         _('Enable the no-activity timeout') + ':::<p>' +
         _('If this box is checked, calibre will automatically disconnect if '
-              'a connected device does nothing for %d minutes. Unchecking this '
-              ' box disables this timeout, so calibre will never automatically '
-              'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
+            'a connected device does nothing for %d minutes. Unchecking this '
+            ' box disables this timeout, so calibre will never automatically '
+            'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
         _('Use this IP address') + ':::<p>' +
         _('Use this option if you want to force the driver to listen on a '
-              'particular IP address. The driver will listen only on the '
-              'entered address, and this address will be the one advertised '
-              'over mDNS (BonJour).') + '</p>',
+            'particular IP address. The driver will listen only on the '
+            'entered address, and this address will be the one advertised '
+            'over mDNS (BonJour).') + '</p>',
         _('Replace books with same calibre ID') + ':::<p>' +
         _('Use this option to overwrite a book on the device if that book '
-              'has the same calibre identifier as the book being sent. The file name of the '
-              'book will not change even if the save template produces a '
-              'different result. Using this option in most cases prevents '
-              'having multiple copies of a book on the device.') + '</p>',
+            'has the same calibre identifier as the book being sent. The file name of the '
+            'book will not change even if the save template produces a '
+            'different result. Using this option in most cases prevents '
+            'having multiple copies of a book on the device.') + '</p>',
         _('Cover thumbnail compression quality') + ':::<p>' +
         _('Use this option to control the size and quality of the cover '
-              'file sent to the device. It must be between 50 and 99. '
-              'The larger the number the higher quality the cover, but also '
-              'the larger the file. For example, changing this from 70 to 90 '
-              'results in a much better cover that is approximately 2.5 '
-              'times as big. To see the changes you must force calibre '
-              'to resend metadata to the device, either by changing '
-              'the metadata for the book (updating the last modification '
-              'time) or resending the book itself.') + '</p>',
+            'file sent to the device. It must be between 50 and 99. '
+            'The larger the number the higher quality the cover, but also '
+            'the larger the file. For example, changing this from 70 to 90 '
+            'results in a much better cover that is approximately 2.5 '
+            'times as big. To see the changes you must force calibre '
+            'to resend metadata to the device, either by changing '
+            'the metadata for the book (updating the last modification '
+            'time) or resending the book itself.') + '</p>',
         _('Use metadata cache') + ':::<p>' +
         _('Setting this option allows calibre to keep a copy of metadata '
-              'on the device, speeding up device connections. Unsetting this '
-              'option disables keeping the copy, forcing the device to send '
-              'metadata to calibre on every connect. Unset this option if '
-              'you think that the cache might not be operating correctly.') + '</p>',
+            'on the device, speeding up device connections. Unsetting this '
+            'option disables keeping the copy, forcing the device to send '
+            'metadata to calibre on every connect. Unset this option if '
+            'you think that the cache might not be operating correctly.') + '</p>',
         '',
         _('Additional file extensions to send to the device') + ':::<p>' +
         _('This is a comma-separated list of format file extensions you want '
-              'to be able to send to the device. For example, you might have '
-              'audio books in your library with the extension "m4b" that you '
-              'want to listen to on your device. Don\'t worry about the "extra '
-              'enabled extensions" warning.'),
+            'to be able to send to the device. For example, you might have '
+            'audio books in your library with the extension "m4b" that you '
+            'want to listen to on your device. Don\'t worry about the "extra '
+            'enabled extensions" warning.'),
         _('Ignore device free space') + ':::<p>' +
         _("Check this box to ignore the amount of free space reported by your "
           "devices. This might be needed if you store books on an SD card and "

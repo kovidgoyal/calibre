@@ -199,8 +199,7 @@ def download(dest_dir, manifest_version=17, manifest_type='release', manifest_pa
     pkgs = Packages(manifest, crt_variant, arch)
     os.makedirs(dest_dir, exist_ok=True)
     total = sum(x.size for x in pkgs.files_to_download)
-    print('Downloading', int(total/(1024*1024)), 'MB in', len(pkgs.files_to_download),
-          'files...')
+    print('Downloading', int(total/(1024*1024)), 'MB in', len(pkgs.files_to_download), 'files...')
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         for _ in executor.map(partial(download_item, dest_dir), pkgs.files_to_download):
             pass

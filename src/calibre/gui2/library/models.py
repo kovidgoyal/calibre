@@ -1392,13 +1392,13 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags', 'search'}
         locations = all_locs if location == 'all' else [location]
         q = {
-             'title' : lambda x : getattr(x, 'title').lower(),
-             'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
-             'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
-             'format':lambda x: os.path.splitext(x.path)[1].lower(),
-             'inlibrary':lambda x : getattr(x, 'in_library'),
-             'tags':lambda x : getattr(x, 'tags', [])
-             }
+            'title' : lambda x : getattr(x, 'title').lower(),
+            'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
+            'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
+            'format':lambda x: os.path.splitext(x.path)[1].lower(),
+            'inlibrary':lambda x : getattr(x, 'in_library'),
+            'tags':lambda x : getattr(x, 'tags', [])
+        }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
         upf = prefs['use_primary_find_in_search']

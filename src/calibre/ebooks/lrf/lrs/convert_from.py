@@ -80,15 +80,15 @@ class LrsParser:
 
     def text_tag_to_element(self, tag):
         map = {
-               'span'    : Span,
-               'italic'  : Italic,
-               'bold'    : Bold,
-               'empline' : EmpLine,
-               'sup'     : Sup,
-               'sub'     : Sub,
-               'cr'      : CR,
-               'drawchar': DropCaps,
-               }
+            'span'    : Span,
+            'italic'  : Italic,
+            'bold'    : Bold,
+            'empline' : EmpLine,
+            'sup'     : Sup,
+            'sub'     : Sub,
+            'cr'      : CR,
+            'drawchar': DropCaps,
+        }
         if tag.name == 'charbutton':
             return CharButton(self.parsed_objects[tag.get('refobj')], None)
         if tag.name == 'plot':

@@ -348,11 +348,11 @@ class CreateCustomColumn(QDialog):
         h.addWidget(ud)
         self.is_names = ins = QCheckBox(_('Contains names'), self)
         ins.setToolTip('<p>' + _('Check this box if this column contains names, '
-             'like the authors column. If checked, the item separator will be an ampersand '
-             '(&) instead of a comma (,), sorting will be done using a computed value '
-             'that respects the author sort tweaks (for example converting "Firstname '
-             'Lastname" into "Lastname, Firstname"), and item order will be '
-             'preserved.')+'</p>')
+            'like the authors column. If checked, the item separator will be an ampersand '
+            '(&) instead of a comma (,), sorting will be done using a computed value '
+            'that respects the author sort tweaks (for example converting "Firstname '
+            'Lastname" into "Lastname, Firstname"), and item order will be '
+            'preserved.')+'</p>')
         h.addWidget(ins)
         add_row(_('&Column type:'), h)
 
@@ -513,13 +513,13 @@ class CreateCustomColumn(QDialog):
         l = QHBoxLayout()
         self.store_template_value_in_opf = cmc = QCheckBox(_("Store this column's value in an OPF"))
         cmc.setToolTip('<p>' + _('If you check this box then the result of '
-             "evaluating this column's template will be stored in the backup OPF "
-             'stored in the library. The same is true when sending to a device, '
-             'assuming the format has an OPF. One reason to uncheck this box is '
-             'that the column contains large images.') + '</p>' + '<p>' +
-             _('Note that some background functions require data for a column to '
-               'be in the OPF, for example book jackets. If you uncheck this box '
-               'and some function stops working then check the box.') + '</p>')
+                       "evaluating this column's template will be stored in the backup OPF "
+                       'stored in the library. The same is true when sending to a device, '
+                       'assuming the format has an OPF. One reason to uncheck this box is '
+                       'that the column contains large images.') + '</p>' + '<p>' +
+                     _('Note that some background functions require data for a column to '
+                       'be in the OPF, for example book jackets. If you uncheck this box '
+                       'and some function stops working then check the box.') + '</p>')
         l.addWidget(cmc)
         l.addStretch()
         add_row(None, l)
