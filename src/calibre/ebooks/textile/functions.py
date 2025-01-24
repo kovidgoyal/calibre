@@ -277,11 +277,11 @@ class Textile:
         '''
         >>> import textile
         >>> textile.textile('some textile')
-        u'\\t<p>some textile</p>'
+        '\\t<p>some textile</p>'
         '''
         self.html_type = html_type
 
-        # text = type(u'')(text)
+        # text = str(text)
         text = _normalize_newlines(text)
 
         if self.restricted:

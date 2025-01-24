@@ -106,7 +106,7 @@ class AllGUIActions(InterfaceAction):
         for n,v in kbd.keys_map.items():
             act_name = kbd.shortcuts[n]['name'].lower()
             if act_name in lower_names:
-                shortcuts = list(sc.toString() for sc in v)
+                shortcuts = [sc.toString() for sc in v]
                 shortcut_map[act_name] = f'\t{", ".join(shortcuts)}'
 
         # This function constructs a menu action, dealing with the action being

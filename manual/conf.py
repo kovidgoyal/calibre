@@ -1,4 +1,3 @@
-#
 # calibre documentation build configuration file, created by
 # sphinx-quickstart.py on Sun Mar 23 01:23:55 2008.
 #

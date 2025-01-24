@@ -128,12 +128,12 @@ class JETBOOK_MINI(USBMS):
 class JETBOOK_COLOR(USBMS):
 
     '''
-set([(u'0x951',
-      u'0x160b',
-      u'0x0',
-      u'Freescale',
-      u'Mass Storage Device',
-      u'0802270905553')])
+set([('0x951',
+      '0x160b',
+      '0x0',
+      'Freescale',
+      'Mass Storage Device',
+      '0802270905553')])
     '''
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'djvu']

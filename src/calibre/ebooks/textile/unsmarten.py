@@ -119,8 +119,8 @@ def unsmarten(txt):
     txt = re.sub('&#9830;|&diams;|♦',   r'{diamond}', txt)  # diamond
 
     # Move into main code?
-    # txt = re.sub(u'\xa0',   r'p. ', txt)              # blank paragraph
-    # txt = re.sub(u'\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
-    # txt = re.sub(u'\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
+    # txt = re.sub('\xa0',   r'p. ', txt)              # blank paragraph
+    # txt = re.sub('\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
+    # txt = re.sub('\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
 
     return txt

@@ -26,7 +26,7 @@ def generate_data():
     return ans
 
 def main():
-    if sys.version_info[0] < 3:
+    if sys.version_info[0] < 3:  # noqa: UP036
         raise RuntimeError('Must be run using python 3.x')
     locale.setlocale(locale.LC_ALL, '')
     dest = os.path.abspath(__file__)

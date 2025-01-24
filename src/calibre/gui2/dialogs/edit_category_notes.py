@@ -194,7 +194,7 @@ class AskImage(Dialog):
                 'No image is present in the system clipboard'), show=True)
 
     @property
-    def image_layout(self) -> 'QTextFrameFormat.Position':
+    def image_layout(self) -> QTextFrameFormat.Position:
         b = self.image_layout_group.checkedButton()
         if b is self.inline:
             return QTextFrameFormat.Position.InFlow

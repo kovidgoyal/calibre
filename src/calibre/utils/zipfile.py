@@ -1049,9 +1049,9 @@ class ZipFile:
             print(('WARNING: Header (%r) and directory (%r) filenames do not'
                     ' match inside ZipFile')%(fname, zinfo.orig_filename))
             print('Using directory filename %r'%zinfo.orig_filename)
-            # raise BadZipfile, \
+            # raise BadZipfile(
             #          'File name in directory "%r" and header "%r" differ.' % (
-            #              zinfo.orig_filename, fname)
+            #              zinfo.orig_filename, fname))
 
         # check for encrypted flag & handle password
         is_encrypted = zinfo.flag_bits & 0x1

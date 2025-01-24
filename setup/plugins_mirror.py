@@ -722,7 +722,7 @@ class HelloWorld(FileTypePlugin):
     name                = _('name') # Name of the plugin
     description         = {1, 2}
     supported_platforms = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
-    author              = u'Acme Inc.' # The author of this plugin
+    author              = 'Acme Inc.' # The author of this plugin
     version             = {1:'a', 'b':2}
     file_types          = set(['epub', 'mobi']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete

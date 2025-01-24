@@ -7,9 +7,9 @@ Device driver for the Netronix EB600
 
 Windows PNP strings:
  ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
-2W00000&0', 2, u'F:\\')
+2W00000&0', 2, 'F:\\')
         ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
-2W00000&1', 3, u'G:\\')
+2W00000&1', 3, 'G:\\')
 
 '''
 import re
@@ -184,7 +184,7 @@ class SHINEBOOK(EB600):
 class POCKETBOOK360(EB600):
 
     # Device info on OS X
-    # (8069L, 5768L, 272L, u'', u'', u'1.00')
+    # (8069L, 5768L, 272L,'', '', '1.00')
 
     name = 'PocketBook 360 Device Interface'
 

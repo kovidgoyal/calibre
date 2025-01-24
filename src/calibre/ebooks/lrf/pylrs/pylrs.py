@@ -195,7 +195,7 @@ class Delegator:
             self.applySetting(setting, value, testValid)
             '''
             if setting not in self.delegatedSettingsDict:
-                raise LrsError, "setting %s not valid" % setting
+                raise LrsError("setting %s not valid" % setting)
             delegates = self.delegatedSettingsDict[setting]
             for d in delegates:
                 setattr(d, setting, value)

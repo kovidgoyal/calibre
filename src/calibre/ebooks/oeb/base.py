@@ -585,7 +585,7 @@ class DirContainer:
     def _unquote(self, path):
         # unquote must run on a bytestring and will return a bytestring
         # If it runs on a unicode object, it returns a double encoded unicode
-        # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
+        # string: unquote('%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
         # and the latter is correct
         if isinstance(path, str):
             path = path.encode('utf-8')
@@ -619,7 +619,7 @@ class DirContainer:
             # On linux, if LANG is unset, the os.stat call tries to encode the
             # unicode path using ASCII
             # To replicate try:
-            # LANG=en_US.ASCII python -c "import os; os.stat(u'Espa\xf1a')"
+            # LANG=en_US.ASCII python -c "import os; os.stat('Espa\xf1a')"
             return os.path.isfile(path.encode(filesystem_encoding))
 
     def namelist(self):
