@@ -101,7 +101,7 @@ def read_images_from_folder(path):
         name = os.path.relpath(filepath, path).replace(os.sep, '/')
         ext = name.rpartition('.')[-1]
         bname = os.path.basename(name)
-        if bname.startswith('.') or bname.startswith('_'):
+        if bname.startswith(('.', '_')):
             continue
         if ext == 'svg':
             render_svg(filepath)

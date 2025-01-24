@@ -65,7 +65,7 @@ def find_tests_in_package(package, excludes=('main.py',)):
     excludes = set(excludes) | {x + 'c' for x in excludes}
     seen = set()
     for x in items:
-        if (x.endswith('.py') or x.endswith('.pyc')) and x not in excludes:
+        if (x.endswith(('.py', '.pyc'))) and x not in excludes:
             q = x.rpartition('.')[0]
             if q in seen:
                 continue

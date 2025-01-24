@@ -386,7 +386,7 @@ class USBMS(CLI, Device):
                         self._main_prefix)
                 continue
             lpath = path.partition(prefix)[2]
-            if lpath.startswith('/') or lpath.startswith('\\'):
+            if lpath.startswith(('/', '\\')):
                 lpath = lpath[1:]
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:

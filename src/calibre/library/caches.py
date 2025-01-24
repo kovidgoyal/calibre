@@ -395,7 +395,7 @@ class ResultCache(SearchQueryParser):  # {{{
         elif query in self.local_thismonth:
             qd = now()
             field_count = 2
-        elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
+        elif query.endswith((self.local_daysago, self.untrans_daysago)):
             num = query[0:-(self.untrans_daysago_len if query.endswith(self.untrans_daysago) else self.local_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))

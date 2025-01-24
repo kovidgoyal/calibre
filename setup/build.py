@@ -520,7 +520,7 @@ class Build(Command):
         def get(src: str, env: Environment, for_tooling: bool = False) -> CompileCommand:
             compiler = env.cxx if ext.needs_cxx else env.cc
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+env.obj_suffix)
-            inf = env.cc_input_cpp_flag if src.endswith('.cpp') or src.endswith('.cxx') else env.cc_input_c_flag
+            inf = env.cc_input_cpp_flag if src.endswith(('.cpp', '.cxx')) else env.cc_input_c_flag
             sinc = [inf, src]
             if env.cc_output_flag.startswith('/'):
                 if for_tooling:  # clangd gets confused by cl.exe style source and output flags

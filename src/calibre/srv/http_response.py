@@ -677,8 +677,7 @@ class HTTPConnection(HTTPRequest):
         else:
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
-        compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
-                        ct.partition(';')[0] in COMPRESSIBLE_TYPES)
+        compressible = (not ct or ct.startswith(('text/', 'image/svg')) or ct.partition(';')[0] in COMPRESSIBLE_TYPES)
         compressible = (compressible and request.status_code == http_client.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)

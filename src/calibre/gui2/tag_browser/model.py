@@ -1443,7 +1443,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 def key_func(val):
                     if order == 'display_name':
                         return icu_lower(self.db.field_metadata[val]['name'])
-                    return icu_lower(val[1:] if val.startswith('#') or val.startswith('@') else val)
+                    return icu_lower(val[1:] if val.startswith(('#', '@')) else val)
                 direction = tweaks.get('tag_browser_category_default_sort_direction', 'ascending')
                 if direction not in ('ascending', 'descending'):
                     print('Tweak tag_browser_category_default_sort_direction is not valid. Ignored')

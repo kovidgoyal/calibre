@@ -1012,13 +1012,13 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         self.setFormat(0, textLength,
                        self.Formats['normal'])
 
-        if text.startswith('Traceback') or text.startswith('Error: '):
+        if text.startswith(('Traceback', 'Error: ')):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            self.Formats['error'])
             return
         if prevState == ERROR and \
-           not (text.startswith('>>>') or text.startswith('#')):
+           not (text.startswith(('>>>', '#'))):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            self.Formats['error'])

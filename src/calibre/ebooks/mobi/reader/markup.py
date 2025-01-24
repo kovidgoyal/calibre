@@ -145,7 +145,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
 
         for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
-            if tag.startswith('<im') or tag.startswith('<svg:image'):
+            if tag.startswith(('<im', '<svg:image')):
                 for m in img_index_pattern.finditer(tag):
                     num = int(m.group(1), 32)
                     href = resource_map[num-1]

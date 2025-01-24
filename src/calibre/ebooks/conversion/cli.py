@@ -347,7 +347,7 @@ def create_option_parser(args, log):
 
 
 def abspath(x):
-    if x.startswith('http:') or x.startswith('https:'):
+    if x.startswith(('http:', 'https:')):
         return x
     return os.path.abspath(os.path.expanduser(x))
 

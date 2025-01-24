@@ -349,7 +349,7 @@ def generate_index():  # {{{
                         .format(osx[0], 'OS X Disk Image (.dmg)')
                     )
                 linux = [
-                    x for x in files if x.endswith('.txz') or x.endswith('tar.bz2')
+                    x for x in files if x.endswith(('.txz', 'tar.bz2'))
                 ]
                 if linux:
                     def ldesc(x):
@@ -366,7 +366,7 @@ def generate_index():  # {{{
                             ' '.join(linux)
                         )
                     )
-                source = [x for x in files if x.endswith('.xz') or x.endswith('.gz')]
+                source = [x for x in files if x.endswith(('.xz', '.gz'))]
                 if source:
                     body.append(
                         '<dt>Source Code</dt><dd><a href="{0}" title="{1}">{1}</a></dd>'

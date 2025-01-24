@@ -125,7 +125,7 @@ img { background: none !important; float: none; margin: 0px; }
                 break
             elif strpost.startswith('<a href'):
                 url = post['href']
-                if url.startswith('http://www1.folha.uol.com.br/') or url.startswith('https://www1.folha.uol.com.br/') :
+                if url.startswith(('http://www1.folha.uol.com.br/', 'https://www1.folha.uol.com.br/')) :
                     title = self.tag_to_string(post)
                     self.log()
                     self.log('--> post:  ', post)

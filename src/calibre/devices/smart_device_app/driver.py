@@ -472,7 +472,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         special_tag = None
         if mdata.tags:
             for t in mdata.tags:
-                if t.startswith(_('News')) or t.startswith('/'):
+                if t.startswith((_('News'), '/')):
                     special_tag = t
                     break
 

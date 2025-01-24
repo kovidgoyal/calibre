@@ -30,7 +30,7 @@ class GUI(Command):
                 path = os.path.abspath(os.path.join(root, name))
                 if name.endswith('.ui'):
                     forms.append(path)
-                elif name.endswith('_ui.py') or name.endswith('_ui.pyc'):
+                elif name.endswith(('_ui.py', '_ui.pyc')):
                     fname = path.rpartition('_')[0] + '.ui'
                     if not os.path.exists(fname):
                         os.remove(path)

@@ -623,7 +623,7 @@ class BasicNewsRecipe(Recipe):
         for key in article.keys():
             if key.endswith('_origlink'):
                 url = article[key]
-                if url and (url.startswith('http://') or url.startswith('https://')):
+                if url and (url.startswith(('http://', 'https://'))):
                     return url
         ans = article.get('link', None)
         if not ans and getattr(article, 'links', None):

@@ -326,8 +326,7 @@ class CSSPreProcessor:
         ans, namespaced = [], False
         for line in data.splitlines():
             ll = line.lstrip()
-            if not (namespaced or ll.startswith('@import') or not ll or
-                        ll.startswith('@charset')):
+            if not (namespaced or ll.startswith(('@import', '@charset')) or not ll):
                 ans.append(XHTML_CSS_NAMESPACE.strip())
                 namespaced = True
             ans.append(line)

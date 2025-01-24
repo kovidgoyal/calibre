@@ -80,7 +80,7 @@ def create_upload_path(mdata, fname, template, sanitize,
     special_tag = None
     if mdata.tags:
         for t in mdata.tags:
-            if t.startswith(_('News')) or t.startswith('/'):
+            if t.startswith((_('News'), '/')):
                 special_tag = t
                 break
 

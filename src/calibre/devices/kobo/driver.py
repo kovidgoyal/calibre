@@ -637,7 +637,7 @@ class KOBO(USBMS):
             # print('Add book to metadata: ')
             # print('prefix: ' + prefix)
             lpath = path.partition(prefix)[2]
-            if lpath.startswith('/') or lpath.startswith('\\'):
+            if lpath.startswith(('/', '\\')):
                 lpath = lpath[1:]
             # print('path: ' + lpath)
             book = self.book_class(prefix, lpath, info.title, other=info)

@@ -1750,7 +1750,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         if identifier_found:
             return
         text = str(QApplication.clipboard().text()).strip()
-        if text.startswith('http://') or text.startswith('https://'):
+        if text.startswith(('http://', 'https://')):
             return self.paste_prefix('url')
         try:
             prefix = gprefs['paste_isbn_prefixes'][0]
@@ -1803,7 +1803,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                     try:
                         url_pattern = formatter.safe_format(template, vals, '', vals)
                         url_pattern = re.escape(url_pattern).replace('__ID_REGEX_PLACEHOLDER__', '(?P<new_id>.+)')
-                        if url_pattern.startswith('http:') or url_pattern.startswith('https:'):
+                        if url_pattern.startswith(('http:', 'https:')):
                             url_pattern = '(?:http|https):' + url_pattern.partition(':')[2]
                         new_id = re.compile(url_pattern)
                         new_id = new_id.search(text).group('new_id')
