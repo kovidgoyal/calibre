@@ -203,7 +203,7 @@ class Manual(Command):
                 sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'),
                 language, self.j(tdir, language)
             ], '\n\n**************** Building translations for: {}'.format(language)))
-        self.info('Building manual for %d languages' % len(jobs))
+        self.info('Building manual for {} languages'.format(len(jobs)))
         subprocess.check_call(jobs[0].cmd)
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
@@ -222,8 +222,8 @@ class Manual(Command):
                 if x and not os.path.exists(x):
                     os.symlink('.', x)
             self.info(
-                'Built manual for %d languages in %s minutes' %
-                (len(jobs), int((time.time() - st) / 60.))
+                'Built manual for {} languages in {} minutes'
+                .format(len(jobs), int((time.time() - st) / 60.))
             )
         finally:
             os.chdir(cwd)

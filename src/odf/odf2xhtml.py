@@ -647,7 +647,7 @@ class ODF2XHTML(handler.ContentHandler):
         ''' Create a unique anchor id for a href name '''
         if name not in self.anchors:
             # Changed by Kovid
-            self.anchors[name] = 'anchor%d' % (len(self.anchors) + 1)
+            self.anchors[name] = 'anchor{}'.format(len(self.anchors) + 1)
         return self.anchors.get(name)
 
     def purgedata(self):
@@ -940,13 +940,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         for key in range(1,self.currentnote+1):
             note = self.notedict[key]
 #       for key,note in self.notedict.items():
-            self.opentag('dt', {'id':'footnote-%d' % key})
+            self.opentag('dt', {'id':'footnote-{}'.format(key)})
 #           self.opentag('sup')
 #           self.writeout(escape(note['citation']))
 #           self.closetag('sup', False)
             self.writeout('[')
-            self.opentag('a', {'href': '#citation-%d' % key})
-            self.writeout('←%d' % key)
+            self.opentag('a', {'href': '#citation-{}'.format(key)})
+            self.writeout('←{}'.format(key))
             self.closetag('a')
             self.writeout(']\xa0')
             self.closetag('dt')
@@ -1335,7 +1335,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr((TEXTNS,'style-name'))
-        list_class = '%s_%d' % (name, level)
+        list_class = '{}_{}'.format(name, level)
         tag_name = self.listtypes.get(list_class,'ul')
         number_class = tag_name + list_class
         if list_id:
@@ -1372,7 +1372,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr((TEXTNS,'style-name'))
-        list_class = '%s_%d' % (name, level)
+        list_class = '{}_{}'.format(name, level)
         self.closetag(self.listtypes.get(list_class,'ul'))
         self.purgedata()
 

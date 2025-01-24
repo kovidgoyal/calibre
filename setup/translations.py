@@ -93,7 +93,7 @@ class POT(Command):  # {{{
 
         ans = []
         for lineno, msg in msgs:
-            ans.append('#: %s:%d'%(path, lineno))
+            ans.append('#: {}:{}'.format(path, lineno))
             slash = codepoint_to_chr(92)
             msg = msg.replace(slash, slash*2).replace('"', r'\"').replace('\n',
                     r'\n').replace('\r', r'\r').replace('\t', r'\t')

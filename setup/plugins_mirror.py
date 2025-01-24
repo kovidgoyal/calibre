@@ -476,7 +476,7 @@ def plugin_to_index(plugin, count):
             block.append('<br>')
         block.append('<li>{}</li>'.format(li))
     block = '<ul>{}</ul>'.format('\n'.join(block))
-    downloads = ('\xa0<span class="download-count">[%d total downloads]</span>' % count) if count else ''
+    downloads = ('\xa0<span class="download-count">[{} total downloads]</span>'.format(count)) if count else ''
     zipfile = '<div class="end"><a href={} title="Download plugin" download={}>Download plugin \u2193</a>{}</div>'.format(
         quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''

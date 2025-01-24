@@ -385,7 +385,7 @@ class OpenDocument:
         '''
         self.childobjects.append(document)
         if objectname is None:
-            document.folder = '%s/Object %d' % (self.folder, len(self.childobjects))
+            document.folder = '{}/Object {}'.format(self.folder, len(self.childobjects))
         else:
             document.folder = objectname
         return '.{}'.format(document.folder)
@@ -407,7 +407,7 @@ class OpenDocument:
         # Look in subobjects
         subobjectnum = 1
         for subobject in object.childobjects:
-            self._savePictures(subobject,'%sObject %d/' % (folder, subobjectnum))
+            self._savePictures(subobject,'{}Object {}/'.format(folder, subobjectnum))
             subobjectnum += 1
 
     def __replaceGenerator(self):
@@ -524,7 +524,7 @@ class OpenDocument:
         # Write subobjects
         subobjectnum = 1
         for subobject in object.childobjects:
-            self._saveXmlObjects(subobject, '%sObject %d/' % (folder, subobjectnum))
+            self._saveXmlObjects(subobject, '{}Object {}/'.format(folder, subobjectnum))
             subobjectnum += 1
 
 # Document's DOM methods

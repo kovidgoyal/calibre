@@ -114,4 +114,4 @@ if __name__ == '__main__':
     import sys
     result = odfmanifest(sys.argv[1])
     for file in result.values():
-        print('%-40s %-40s' % (file['media-type'], file['full-path']))
+        print('{:<40} {:<40}'.format(file['media-type'], file['full-path']))

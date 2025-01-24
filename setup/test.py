@@ -37,7 +37,7 @@ class Test(BaseTest):
         super().add_options(parser)
         parser.add_option('--test-verbosity', type=int, default=4, help='Test verbosity (0-4)')
         parser.add_option('--test-module', '--test-group', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
-                          help='The test module to run (can be specified more than once for multiple modules). Choices: {}'.format(', '.join(sorted(TEST_MODULES))))
+                    help='The test module to run (can be specified more than once for multiple modules). Choices: {}'.format(', '.join(sorted(TEST_MODULES))))
         parser.add_option('--test-name', '-n', default=[], action='append',
                           help='The name of an individual test to run. Can be specified more than once for multiple tests. The name of the'
                           ' test is the name of the test function without the leading test_. For example, the function test_something()'

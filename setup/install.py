@@ -388,7 +388,7 @@ class Bootstrap(Command):
             st = time.time()
             clone_cmd.insert(2, '--depth=1')
             subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
-            print('Downloaded translations in %d seconds' % int(time.time() - st))
+            print('Downloaded translations in {} seconds'.format(int(time.time() - st)))
         else:
             if os.path.exists(tdir):
                 subprocess.check_call(['git', 'pull'], cwd=tdir)

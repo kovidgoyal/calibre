@@ -50,7 +50,7 @@ class EPUBHelpBuilder(EpubBuilder):
                 fmt, width, height = identify(container.raw_data(imgname))
                 if width == -1:
                     raise ValueError('Failed to read size of: {}'.format(imgname))
-                img.set('style', 'width: %dpx; height: %dpx' % (width, height))
+                img.set('style', 'width: {}px; height: {}px'.format(width, height))
 
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}

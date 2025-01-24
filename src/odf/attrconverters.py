@@ -275,7 +275,7 @@ def cnv_points(attribute, arg, element):
         return arg
     else:
         try:
-            strarg = ' '.join(['%d,%d' % p for p in arg])
+            strarg = ' '.join(['{},{}'.format(*p) for p in arg])
         except:
             raise ValueError('Points must be string or [(0,0),(1,1)] - not {}'.format(arg))
         return strarg

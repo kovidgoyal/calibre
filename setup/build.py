@@ -21,7 +21,7 @@ from setup import SRC, Command, isbsd, isfreebsd, ishaiku, islinux, ismacos, isw
 
 isunix = islinux or ismacos or isbsd or ishaiku
 
-py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
+py_lib = os.path.join(sys.prefix, 'libs', 'python{}{}.lib'.format(*sys.version_info[:2]))
 
 class CompileCommand(NamedTuple):
     cmd: list[str]
@@ -657,7 +657,7 @@ class Build(Command):
         os.chdir(bdir)
         try:
             self.check_call(cmd + ['-S', os.path.dirname(sources[0])])
-            self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
+            self.check_call([self.env.make] + ['-j{}'.format(cpu_count or 1)])
         finally:
             os.chdir(cwd)
         os.rename(self.j(bdir, 'libheadless.so'), target)
@@ -734,7 +734,7 @@ sip-file = {os.path.basename(sipf)!r}
             env = os.environ.copy()
             if is_macos_universal_build:
                 env['ARCHS'] = 'x86_64 arm64'
-            self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]), env=env)
+            self.check_call([self.env.make] + ([] if iswindows else ['-j{}'.format(os.cpu_count() or 1)]), env=env)
             e = 'pyd' if iswindows else 'so'
             m = glob.glob(f'{ext.name}/{ext.name}.*{e}')
             if not m:

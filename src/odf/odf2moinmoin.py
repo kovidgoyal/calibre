@@ -131,7 +131,7 @@ class ParagraphProps:
 
     def __unicode__(self):
 
-        return '[bq=%s, h=%d, code=%s]' % (unicode_type(self.blockquote),
+        return '[bq={}, h={}, code={}]'.format(unicode_type(self.blockquote),
                                            self.headingLevel,
                                            unicode_type(self.code))
     __str__ = __unicode__
