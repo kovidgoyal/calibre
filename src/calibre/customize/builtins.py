@@ -1997,7 +1997,7 @@ if __name__ == '__main__':
     try:
         subprocess.check_call(['python', '-c', textwrap.dedent(
         '''
-        import time, sys, init_calibre
+        import time, sys, init_calibre  # noqa: F401
         st = time.time()
         import calibre.customize.builtins
         t = time.time() - st

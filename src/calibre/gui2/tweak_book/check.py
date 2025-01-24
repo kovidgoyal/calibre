@@ -271,7 +271,7 @@ class Check(QSplitter):
 def main():
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
-    app = Application([])
+    app = Application([])  # noqa: F841
     path = sys.argv[-1]
     container = get_container(path)
     d = Check()

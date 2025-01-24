@@ -121,7 +121,7 @@ history_length(2000) #value of -1 means no limit
         import atexit
         import readline
 
-        import pyreadline.unicode_helper
+        import pyreadline.unicode_helper  # noqa: F401
         # Normally the codepage for pyreadline is set to be sys.stdout.encoding
         # if you need to change this uncomment the following line
         # pyreadline.unicode_helper.pyreadline_codepage="utf8"
@@ -172,8 +172,7 @@ def simple_repl(user_ns={}):
         setup_pyreadline()
     else:
         try:
-            import rlcompleter  # noqa: I001, F401
-            import readline
+            import readline, rlcompleter  # noqa: I001, E401, F401
             readline.parse_and_bind("tab: complete")
         except ImportError:
             pass
