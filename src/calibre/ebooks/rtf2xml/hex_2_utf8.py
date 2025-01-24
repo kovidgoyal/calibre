@@ -568,22 +568,20 @@ class Hex2Utf8:
             self.__convert_body()
 
 
-'''
-how to swap case for non-capitals
-my_string.swapcase()
-An example of how to use a hash for the caps function
-(but I shouldn't need this, since utf text is separate
- from regular text?)
-sub_dict = {
-    "&#x0430;"   : "some other value"
-    }
-def my_sub_func(matchobj):
-    info =  matchobj.group(0)
-    value = sub_dict.get(info)
-    return value
-    return "f"
-line = "&#x0430; more text"
-reg_exp = re.compile(r'(?P<name>&#x0430;|&#x0431;)')
-line2 = re.sub(reg_exp, my_sub_func, line)
-print line2
-'''
+# how to swap case for non-capitals
+# my_string.swapcase()
+# An example of how to use a hash for the caps function
+# (but I shouldn't need this, since utf text is separate
+#  from regular text?)
+# sub_dict = {
+#     "&#x0430;"   : "some other value"
+#     }
+# def my_sub_func(matchobj):
+#     info =  matchobj.group(0)
+#     value = sub_dict.get(info)
+#     return value
+#     return "f"
+# line = "&#x0430; more text"
+# reg_exp = re.compile(r'(?P<name>&#x0430;|&#x0431;)')
+# line2 = re.sub(reg_exp, my_sub_func, line)
+# print line2

@@ -111,13 +111,11 @@ class Bookmark:  # {{{
                         # Switch location to start (0x08:0x0c)
                         start, = unpack('>I', data[eo+8:eo+12])
                         user_notes[start] = user_notes[end_loc]
-                        '''
-                        print(" %s: swapping 0x%x (%d) to 0x%x (%d)" % (user_notes[end_loc]['type'],
-                                                                    end_loc,
-                                                                    end_loc/MAGIC_MOBI_CONSTANT + 1,
-                                                                    start,
-                                                                    start//MAGIC_MOBI_CONSTANT + 1))
-                        '''
+                        # print(" %s: swapping 0x%x (%d) to 0x%x (%d)" % (user_notes[end_loc]['type'],
+                        #                                             end_loc,
+                        #                                             end_loc/MAGIC_MOBI_CONSTANT + 1,
+                        #                                             start,
+                        #                                             start//MAGIC_MOBI_CONSTANT + 1))
                         user_notes[start]['displayed_location'] = start // MAGIC_MOBI_CONSTANT + 1
                         user_notes.pop(end_loc)
                     else:
@@ -225,37 +223,36 @@ class Bookmark:  # {{{
                 e_base = 0x0d
                 self.pdf_page_offset = 0
                 while current_entry < entries:
-                    '''
-                    location, = unpack('>I', data[e_base+2:e_base+6])
-                    text = None
-                    text_len, = unpack('>I', data[e_base+0xA:e_base+0xE])
-                    e_type, = unpack('>B', data[e_base+1])
-                    if e_type == 0:
-                        e_type = 'Bookmark'
-                    elif e_type == 1:
-                        e_type = 'Highlight'
-                        text = get_topaz_highlight(location/MAGIC_TOPAZ_CONSTANT + 1)
-                    elif e_type == 2:
-                        e_type = 'Note'
-                        text = data[e_base+0x10:e_base+0x10+text_len]
-                    else:
-                        e_type = 'Unknown annotation type'
+                    # location, = unpack('>I', data[e_base+2:e_base+6])
+                    # text = None
+                    # text_len, = unpack('>I', data[e_base+0xA:e_base+0xE])
+                    # e_type, = unpack('>B', data[e_base+1])
+                    # if e_type == 0:
+                    #     e_type = 'Bookmark'
+                    # elif e_type == 1:
+                    #     e_type = 'Highlight'
+                    #     text = get_topaz_highlight(location/MAGIC_TOPAZ_CONSTANT + 1)
+                    # elif e_type == 2:
+                    #     e_type = 'Note'
+                    #     text = data[e_base+0x10:e_base+0x10+text_len]
+                    # else:
+                    #     e_type = 'Unknown annotation type'
+                    #
+                    # if self.book_format in ['tpz','azw1']:
+                    #     displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
+                    # elif self.book_format == 'pdf':
+                    #     # *** This needs implementation
+                    #     displayed_location = location
+                    # user_notes[location] = dict(id=self.id,
+                    #                             displayed_location=displayed_location,
+                    #                             type=e_type,
+                    #                             text=text)
+                    # if text_len == 0xFFFFFFFF:
+                    #     e_base = e_base + 14
+                    # else:
+                    #     e_base = e_base + 14 + 2 + text_len
+                    # current_entry += 1
 
-                    if self.book_format in ['tpz','azw1']:
-                        displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
-                    elif self.book_format == 'pdf':
-                        # *** This needs implementation
-                        displayed_location = location
-                    user_notes[location] = dict(id=self.id,
-                                                displayed_location=displayed_location,
-                                                type=e_type,
-                                                text=text)
-                    if text_len == 0xFFFFFFFF:
-                        e_base = e_base + 14
-                    else:
-                        e_base = e_base + 14 + 2 + text_len
-                    current_entry += 1
-                    '''
                     # Use label as page number
                     pdf_location, = unpack('>I', data[e_base+1:e_base+5])
                     label_len, = unpack('>H', data[e_base+5:e_base+7])

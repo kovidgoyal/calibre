@@ -150,10 +150,7 @@ file.
             self.__state = 'body'
             type = 'bookmark-%s'  % self.__type_of_bookmark
             # change here
-            '''
-            my_string = self.__string_obj.process_string(
-                self.__text_string, type)
-            '''
+            # my_string = self.__string_obj.process_string(self.__text_string, type)
             my_string = self.__parse_bookmark_func(
                 self.__text_string, type)
             self.__write_obj.write(self.__marker)

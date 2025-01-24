@@ -166,28 +166,26 @@ class Colors:
             if the_index > -1:
                 line = re.sub(self.__line_color_exp, self.__sub_from_line_color, line)
             self.__write_obj.write(line)
-            '''
-            if num == 0:
-                hex_num = 'false'
-            else:
-                hex_num = self.__color_dict.get(num)
-            if hex_num == None:
-                if self.__run_level > 0:
-                    sys.stderr.write(
-                    'module is colors.py\n'
-                    'function is self.__after_color_func\n'
-                    'no value in self.__color_dict for key %s\n' % num
-                    )
-                if self.__run_level > 3:
-                    sys.stderr.write(
-                        'run level is %s\n'
-                        'Script will now quit\n'
-                        % self.__run_level)
-            else:
-                self.__write_obj.write(
-                'cw<ci<font-color<nu<%s\n' % hex_num
-                )
-            '''
+            # if num == 0:
+            #     hex_num = 'false'
+            # else:
+            #     hex_num = self.__color_dict.get(num)
+            # if hex_num == None:
+            #     if self.__run_level > 0:
+            #         sys.stderr.write(
+            #         'module is colors.py\n'
+            #         'function is self.__after_color_func\n'
+            #         'no value in self.__color_dict for key %s\n' % num
+            #         )
+            #     if self.__run_level > 3:
+            #         sys.stderr.write(
+            #             'run level is %s\n'
+            #             'Script will now quit\n'
+            #             % self.__run_level)
+            # else:
+            #     self.__write_obj.write(
+            #     'cw<ci<font-color<nu<%s\n' % hex_num
+            #     )
         else:
             self.__write_obj.write(line)
         # cw<bd<bor-par-to<nu<bdr-hair__|bdr-li-wid:0.50|bdr-sp-wid:1.00|bdr-color_:2

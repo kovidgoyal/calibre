@@ -107,11 +107,8 @@ class GetOptions:
             return_options['out-file'] = options['output']
         else:
             pass
-            '''
-            sys.stderr.write(
-                'You must provide an output file with the \'o\' option\n')
-            return_options['valid'] = 0
-            '''
+            # sys.stderr.write("You must provide an output file with the 'o' option\n")
+            # return_options['valid'] = 0
         if 'level' in the_keys:
             return_options['level'] = options['level']
         the_level = return_options.get('level')
@@ -225,14 +222,12 @@ class GetOptions:
             else:
                 return_options['out-file'] = '%s.xml' % the_file_name
         if not smart_output and not return_options['out-file']:
-            '''
-            sys.stderr.write(
-                'Please provide and file to output with the -o option.\n'
-                'Or set \'<smart-output value = "true"/>\'.\n'
-                'in the configuration file.\n'
-                )
-            return_options['valid'] = 0
-            '''
+            # sys.stderr.write(
+            #     'Please provide and file to output with the -o option.\n'
+            #     'Or set \'<smart-output value = "true"/>\'.\n'
+            #     'in the configuration file.\n'
+            #     )
+            # return_options['valid'] = 0
             pass
         if 'indent' in the_keys:
             try:
@@ -242,28 +237,26 @@ class GetOptions:
                 sys.stderr.write('--indent must take an integer')
                 return_options['valid'] = 0
         # check for format and pyxml
-        '''
-        the_format = return_options.get('format')
-        if the_format != 'raw':
-            no_pyxml = return_options.get('no-pyxml')
-            if no_pyxml:
-                sys.stderr.write('You want to convert your file to "%s".\n'
-                        'Sorry, but you must have pyxml installed\n'
-                        'in order to convert your document to anything but raw XML.\n'
-                        'Please do not use the --format option.\n\n'
-                        % the_format
-                    )
-                return_options['valid'] = 0
-            xslt_proc = return_options.get('xslt-processor')
-            if xslt_proc == None and not no_pyxml:
-                sys.stderr.write('You want to convert your file to "%s".\n'
-                        'Sorry, but you must have an xslt processor set up\n'
-                        'in order to conevert your document to anything but raw XML.\n'
-                        'Please use --format raw.\n\n'
-                        % the_format
-                        )
-                return_options['valid'] = 0
-        '''
+        # the_format = return_options.get('format')
+        # if the_format != 'raw':
+        #     no_pyxml = return_options.get('no-pyxml')
+        #     if no_pyxml:
+        #         sys.stderr.write('You want to convert your file to "%s".\n'
+        #                 'Sorry, but you must have pyxml installed\n'
+        #                 'in order to convert your document to anything but raw XML.\n'
+        #                 'Please do not use the --format option.\n\n'
+        #                 % the_format
+        #             )
+        #         return_options['valid'] = 0
+        #     xslt_proc = return_options.get('xslt-processor')
+        #     if xslt_proc == None and not no_pyxml:
+        #         sys.stderr.write('You want to convert your file to "%s".\n'
+        #                 'Sorry, but you must have an xslt processor set up\n'
+        #                 'in order to conevert your document to anything but raw XML.\n'
+        #                 'Please use --format raw.\n\n'
+        #                 % the_format
+        #                 )
+        #         return_options['valid'] = 0
         return return_options
 
     def __get_config_options(self):

@@ -674,15 +674,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write('mi<tg<open-att__<paragraph-definition')
         self.__write_obj.write('<name>%s' % self.__att_val_dict['name'])
         self.__write_obj.write('<style-number>%s' % self.__att_val_dict['style-num'])
-        tabs_list = ['tabs-left', 'tabs-right', 'tabs-decimal', 'tabs-center',
-            'tabs-bar', 'tabs']
-        '''
-        for tab_item in tabs_list:
-            if self.__att_val_dict[tab_item] != '':
-                the_value = self.__att_val_dict[tab_item]
-                the_value = the_value[:-1]
-                self.__write_obj.write('<%s>%s' % (tab_item, the_value))
-        '''
+        tabs_list = ['tabs-left', 'tabs-right', 'tabs-decimal', 'tabs-center', 'tabs-bar', 'tabs']
+        # for tab_item in tabs_list:
+        #     if self.__att_val_dict[tab_item] != '':
+        #         the_value = self.__att_val_dict[tab_item]
+        #         the_value = the_value[:-1]
+        #         self.__write_obj.write('<%s>%s' % (tab_item, the_value))
         if self.__att_val_dict['tabs'] != '':
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]

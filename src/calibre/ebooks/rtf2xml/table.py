@@ -468,16 +468,14 @@ class Table:
             if action:
                 action(line)
             self.__write_obj.write(line)
-        '''
-        elif self.__token_info == 'mi<mk<pard-start':
-            self.__start_cell_func(line)
-            self.__write_obj.write(line)
-        elif self.__token_info == 'cw<tb<row_______':
-            self.__end_row_func(line)
-            self.__write_obj.write(line)
-        else:
-            self.__write_obj.write(line)
-        '''
+        # elif self.__token_info == 'mi<mk<pard-start':
+        #     self.__start_cell_func(line)
+        #     self.__write_obj.write(line)
+        # elif self.__token_info == 'cw<tb<row_______':
+        #     self.__end_row_func(line)
+        #     self.__write_obj.write(line)
+        # else:
+        #     self.__write_obj.write(line)
 
     def __end_row_func(self, line):
         '''

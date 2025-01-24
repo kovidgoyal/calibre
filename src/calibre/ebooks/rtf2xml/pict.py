@@ -115,11 +115,9 @@ class Pict:
         has not already been created.) Set the self.__in_pict flag to true.
         If the line does not contain pict data, return 1
         '''
-        '''
-        $pict_count++;
-        $pict_count =  sprintf("%03d", $pict_count);
-        print OUTPUT "dv<xx<em<nu<pict<at<num>$pict_count\n";
-        '''
+        # $pict_count++;
+        # $pict_count =  sprintf("%03d", $pict_count);
+        # print OUTPUT "dv<xx<em<nu<pict<at<num>$pict_count\n";
         if self.__token_info == 'cw<gr<picture___':
             self.__pict_count += 1
             # write_obj.write("mi<tg<em<at<pict<num>%03d\n" % self.__pict_count)

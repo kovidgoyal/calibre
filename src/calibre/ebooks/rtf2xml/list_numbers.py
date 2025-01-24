@@ -119,11 +119,9 @@ class ListNumbers:
         text_string = text_string.replace(')', '')
         if text_string.isdigit():
             return 'ordered'
-        '''
-        sys.stderr.write('module is list_numbers\n')
-        sys.stderr.write('method is __determine type\n')
-        sys.stderr.write('Couldn\'t get type of list\n')
-        '''
+        # sys.stderr.write('module is list_numbers\n')
+        # sys.stderr.write('method is __determine type\n')
+        # sys.stderr.write('Couldn\'t get type of list\n')
         # must be some type of ordered list -- just a guess!
         return 'unordered'
 

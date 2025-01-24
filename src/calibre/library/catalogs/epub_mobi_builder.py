@@ -3072,12 +3072,10 @@ class CatalogBuilder:
                     # Don't include Author for Kindle
                     title_str = self.format_ncx_text('%s' % (book['title']), dest='title')
                     if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
-                        '''
-                        dots = int((book['percent_read'] + 5)/10)
-                        dot_string = '+' * dots
-                        empty_dots = '-' * (10 - dots)
-                        title_str += ' %s%s' % (dot_string,empty_dots)
-                        '''
+                        # dots = int((book['percent_read'] + 5)/10)
+                        # dot_string = '+' * dots
+                        # empty_dots = '-' * (10 - dots)
+                        # title_str += ' %s%s' % (dot_string,empty_dots)
                         title_str += '*'
                     sec_text = title_str
                 else:

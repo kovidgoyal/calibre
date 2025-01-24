@@ -191,15 +191,13 @@ class PreambleDiv:
         '''
         If not font table is found, make a string for a default one
         '''
-        '''
-        self.__style_sheet_final = 'mi<tg<open______<style-table\n'
-        self.__style_sheet_final +=
-        self.__style_sheet_final +=
-        self.__style_sheet_final +=
-        self.__style_sheet_final +=
-        self.__style_sheet_final +=
-        self.__style_sheet_final += 'mi<tg<close_____<style-table\n'
-        '''
+        # self.__style_sheet_final = 'mi<tg<open______<style-table\n'
+        # self.__style_sheet_final +=
+        # self.__style_sheet_final +=
+        # self.__style_sheet_final +=
+        # self.__style_sheet_final +=
+        # self.__style_sheet_final +=
+        # self.__style_sheet_final += 'mi<tg<close_____<style-table\n'
         self.__style_sheet_final = '''mi<tg<open______<style-table
 mi<mk<styles-beg
 mi<mk<stylei-beg

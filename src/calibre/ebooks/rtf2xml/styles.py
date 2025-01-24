@@ -460,13 +460,11 @@ class Styles:
         '''
         self.__type_of_style = 'par'
         self.__styles_num = line[20:-1]
-        '''
-        self.__enter_dict_entry('tabs-left', '')
-        self.__enter_dict_entry('tabs-right', '')
-        self.__enter_dict_entry('tabs-center', '')
-        self.__enter_dict_entry('tabs-decimal', '')
-        self.__enter_dict_entry('tabs-bar', '')
-        '''
+        # self.__enter_dict_entry('tabs-left', '')
+        # self.__enter_dict_entry('tabs-right', '')
+        # self.__enter_dict_entry('tabs-center', '')
+        # self.__enter_dict_entry('tabs-decimal', '')
+        # self.__enter_dict_entry('tabs-bar', '')
 
     def __char_style_func(self, line):
         '''

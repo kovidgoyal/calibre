@@ -427,12 +427,12 @@ class Sections:
         '''
         # change this 2004-04-26
         # Don't do anything
-        '''
-        self.__sec_in_field_string += line
-        self.__print_field_sec_attributes()
-        self.__write_obj.write(self.__sec_in_field_string)
-        self.__print_field_sec_attributes()
-        '''
+        #
+        # self.__sec_in_field_string += line
+        # self.__print_field_sec_attributes()
+        # self.__write_obj.write(self.__sec_in_field_string)
+        # self.__print_field_sec_attributes()
+
         self.__state = 'body'
         self.__in_field = 0
         # this is changed too

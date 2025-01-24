@@ -209,15 +209,13 @@ class Inline:
         if name:
             self.__inline_list[-1]['contains_inline'] = 1
             self.__inline_list[-1][name] = char_value
-            '''
-            if name == 'font-style':
-                if char_value == 'Symbol':
-                    self.__write_obj.write('mi<mk<font-symbo\n')
-                elif char_value == 'Wingdings':
-                    self.__write_obj.write('mi<mk<font-wingd\n')
-                elif char_value == 'Zapf Dingbats':
-                    self.__write_obj.write('mi<mk<font-dingb\n')
-            '''
+            # if name == 'font-style':
+            #     if char_value == 'Symbol':
+            #         self.__write_obj.write('mi<mk<font-symbo\n')
+            #     elif char_value == 'Wingdings':
+            #         self.__write_obj.write('mi<mk<font-wingd\n')
+            #     elif char_value == 'Zapf Dingbats':
+            #         self.__write_obj.write('mi<mk<font-dingb\n')
 
     def __close_bracket_func(self, line):
         '''

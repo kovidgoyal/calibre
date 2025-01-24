@@ -161,15 +161,13 @@ class Delegator:
             for m in methods:
                 setattr(self, m, getattr(d, m))
 
-            '''
-            for setting in d.getSettings():
-                if isinstance(setting, string_or_bytes):
-                    setting = (d, setting)
-                delegates = \
-                        self.delegatedSettingsDict.setdefault(setting[1], [])
-                delegates.append(setting[0])
-                self.delegatedSettings.append(setting)
-            '''
+            # for setting in d.getSettings():
+            #     if isinstance(setting, string_or_bytes):
+            #         setting = (d, setting)
+            #     delegates = \
+            #             self.delegatedSettingsDict.setdefault(setting[1], [])
+            #     delegates.append(setting[0])
+            #     self.delegatedSettings.append(setting)
 
     def applySetting(self, name, value, testValid=False):
         applied = False
@@ -193,13 +191,11 @@ class Delegator:
     def applySettings(self, settings, testValid=False):
         for (setting, value) in settings.items():
             self.applySetting(setting, value, testValid)
-            '''
-            if setting not in self.delegatedSettingsDict:
-                raise LrsError("setting %s not valid" % setting)
-            delegates = self.delegatedSettingsDict[setting]
-            for d in delegates:
-                setattr(d, setting, value)
-            '''
+            # if setting not in self.delegatedSettingsDict:
+            #     raise LrsError("setting %s not valid" % setting)
+            # delegates = self.delegatedSettingsDict[setting]
+            # for d in delegates:
+            #     setattr(d, setting, value)
 
     def appendDelegates(self, element, sourceEncoding):
         for d in self.delegates:

@@ -68,14 +68,12 @@ class ListTable:
             'cw<ci<bold______'  :       'bold',
             'cw<ss<para-style'  :       'paragraph-style-name',
         }
-        '''
-        all_lists =
-        [{anything here?}
-            [{list-templateid = ""}
-                [{level-indent}],[{level-indent}]
-            ]
-        ],
-        '''
+        # all_lists =
+        # [{anything here?}
+        #     [{list-templateid = ""}
+        #         [{level-indent}],[{level-indent}]
+        #     ]
+        # ],
 
     def __parse_lines(self, line):
         '''
@@ -229,14 +227,12 @@ class ListTable:
             self.__level_numbers_string += '\\&#x0027;%s' % line[18:]
         elif self.__token_info == 'tx<nu<__________':
             self.__level_numbers_string += line[17:]
-            '''
-            num = line[18:]
-            num = int(num, 16)
-            level = str(round((num - 1)/2, 0))
-            level = level[:-2]
-            level = 'level%s-show-level' % level
-            self.__all_lists[-1][-1][0][level] = 'true'
-            '''
+            # num = line[18:]
+            # num = int(num, 16)
+            # level = str(round((num - 1)/2, 0))
+            # level = level[:-2]
+            # level = 'level%s-show-level' % level
+            # self.__all_lists[-1][-1][0][level] = 'true'
 
     def __level_text_func(self, line):
         '''
