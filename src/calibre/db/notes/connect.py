@@ -16,12 +16,11 @@ from calibre import sanitize_file_name
 from calibre.constants import iswindows
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize
+from calibre.db.constants import NOTES_DB_NAME, NOTES_DIR_NAME
+from calibre.db.notes.schema_upgrade import SchemaUpgrade
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
-
-from .schema_upgrade import SchemaUpgrade
-from ..constants import NOTES_DB_NAME, NOTES_DIR_NAME
 
 if iswindows:
     from calibre_extensions import winutil
