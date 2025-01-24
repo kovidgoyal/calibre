@@ -662,7 +662,7 @@ class ODF2XHTML(handler.ContentHandler):
         ''' Get the title from the meta data and create a HTML <title>
         '''
         self.title = ''.join(self.data)
-        # self.metatags.append('<title>%s</title>\n' % escape(self.title))
+        # self.metatags.append('<title>{}</title>\n'.format(escape(self.title)))
         self.data = []
 
     def e_dc_metatag(self, tag, attrs):
@@ -1355,7 +1355,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             attrs = {'start': unicode_type(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
-        self.opentag('{}'.format(tag_name), attrs)
+        self.opentag(str(tag_name), attrs)
         self.purgedata()
 
     def e_text_list(self, tag, attrs):

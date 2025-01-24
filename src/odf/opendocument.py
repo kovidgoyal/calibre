@@ -403,7 +403,7 @@ class OpenDocument:
                 self._z.writestr(zi, fileobj)
         # According to section 17.7.3 in ODF 1.1, the pictures folder should not have a manifest entry
 #       if hasPictures:
-#           self.manifest.addElement(manifest.FileEntry(fullpath="%sPictures/" % folder, mediatype=""))
+#           self.manifest.addElement(manifest.FileEntry(fullpath=f"{folder}Pictures/", mediatype=""))
         # Look in subobjects
         subobjectnum = 1
         for subobject in object.childobjects:

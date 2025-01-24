@@ -126,7 +126,7 @@ def __save_prefix(attribute, arg, element):
         return str(arg)
     namespace = element.get_knownns(prefix)
     if namespace is None:
-        # raise ValueError("'%s' is an unknown prefix" % unicode_type(prefix))
+        # raise ValueError(f"'{unicode_type(prefix)}' is an unknown prefix")
         return str(arg)
     return str(arg)
 

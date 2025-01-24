@@ -253,5 +253,5 @@ latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
     'papersize':'letterpaper',
-    'preamble': r'\renewcommand{{\pageautorefname}}{{{}}}'.format(_('page')),
+    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),  # noqa: UP031
 }

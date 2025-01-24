@@ -502,25 +502,25 @@ def create_index(index, raw_stats):
 <head><meta charset="utf-8"><title>Index of calibre plugins</title>
 <link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
-body {{ background-color: #eee; }}
-a {{ text-decoration: none }}
-a:hover, h3:hover {{ color: red }}
-a:visited {{ color: blue }}
-ul {{ list-style-type: none; font-size: smaller }}
-li {{ display: inline }}
-li+li:before {{ content: " - " }}
-.end {{ border-bottom: solid 1pt black; padding-bottom: 0.5ex; margin-bottom: 4ex; }}
-h1 img, h3 img {{ vertical-align: middle; margin-right: 0.5em; }}
-h1 {{ text-align: center }}
-.download-count {{ color: gray; font-size: smaller }}
+body { background-color: #eee; }
+a { text-decoration: none }
+a:hover, h3:hover { color: red }
+a:visited { color: blue }
+ul { list-style-type: none; font-size: smaller }
+li { display: inline }
+li+li:before { content: " - " }
+.end { border-bottom: solid 1pt black; padding-bottom: 0.5ex; margin-bottom: 4ex; }
+h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
+h1 { text-align: center }
+.download-count { color: gray; font-size: smaller }
 </style>
 </head>
 <body>
 <h1><img src="//manual.calibre-ebook.com/_static/logo.png">Index of calibre plugins</h1>
 <div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
-{}
+%s
 </body>
-</html>'''.format('\n'.join(plugins))
+</html>''' % ('\n'.join(plugins))  # noqa: UP031
     raw = index.encode('utf-8')
     try:
         with open('index.html', 'rb') as f:
@@ -541,20 +541,20 @@ h1 {{ text-align: center }}
 <head><meta charset="utf-8"><title>Stats for calibre plugins</title>
 <link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
-body {{ background-color: #eee; }}
-h1 img, h3 img {{ vertical-align: middle; margin-right: 0.5em; }}
-h1 {{ text-align: center }}
+body { background-color: #eee; }
+h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
+h1 { text-align: center }
 </style>
 </head>
 <body>
 <h1><img src="//manual.calibre-ebook.com/_static/logo.png">Stats for calibre plugins</h1>
 <table>
 <tr><th>Plugin</th><th>Total downloads</th></tr>
-{}
+%s
 </table>
 </body>
 </html>
-    '''.format('\n'.join(pstats))
+    ''' % ('\n'.join(pstats))  # noqa: UP031
     raw = stats.encode('utf-8')
     try:
         with open('stats.html', 'rb') as f:

@@ -42,7 +42,7 @@ def merge():
                 recover=True, no_network=True, resolve_entities=False
             )
         )
-        symbol = ans.makeelement('{{{}}}symbol'.format(SVG_NS))
+        symbol = ans.makeelement('{%s}symbol' % SVG_NS)  # noqa: UP031
         symbol.set('viewBox', svg.get('viewBox'))
         symbol.set('id', 'icon-' + f.rpartition('.')[0])
         for child in svg.iterchildren('*'):

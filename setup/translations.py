@@ -171,14 +171,14 @@ class POT(Command):  # {{{
     def pot_header(self, appname=__appname__, version=__version__):
         return textwrap.dedent('''\
         # Translation template file..
-        # Copyright (C) %(year)s Kovid Goyal
-        # Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
+        # Copyright (C) {year} Kovid Goyal
+        # Kovid Goyal <kovid@kovidgoyal.net>, {year}.
         #
         msgid ""
         msgstr ""
-        "Project-Id-Version: %(appname)s %(version)s\\n"
-        "POT-Creation-Date: %(time)s\\n"
-        "PO-Revision-Date: %(time)s\\n"
+        "Project-Id-Version: {appname} {version}\\n"
+        "POT-Creation-Date: {time}\\n"
+        "PO-Revision-Date: {time}\\n"
         "Last-Translator: Automatically generated\\n"
         "Language-Team: LANGUAGE\\n"
         "MIME-Version: 1.0\\n"
@@ -187,7 +187,7 @@ class POT(Command):  # {{{
         "Content-Type: text/plain; charset=UTF-8\\n"
         "Content-Transfer-Encoding: 8bit\\n"
 
-        ''')%dict(appname=appname, version=version,
+        ''').format(appname=appname, version=version,
                 year=time.strftime('%Y'),
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
