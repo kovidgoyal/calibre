@@ -386,7 +386,7 @@ class Box(QWidget):
 
 class Property:
 
-    __slots__ = 'color', 'important', 'is_overriden', 'name', 'specificity', 'value'
+    __slots__ = ('color', 'important', 'is_overriden', 'name', 'specificity', 'value')
 
     def __init__(self, prop, specificity=()):
         self.name, self.value, self.important, self.color = prop

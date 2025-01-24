@@ -194,7 +194,7 @@ class SearchResult:
         'search_query',
         'spine_idx',
         'text',
-        'toc_nodes'
+        'toc_nodes',
     )
 
     def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):

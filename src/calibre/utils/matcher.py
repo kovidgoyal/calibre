@@ -231,7 +231,7 @@ class PyScorer:
         'level2',
         'level3',
         'max_score_per_char',
-        'memory'
+        'memory',
     )
 
     def __init__(

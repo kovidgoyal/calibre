@@ -334,7 +334,7 @@ class ZipInfo :
         'orig_filename',
         'reserved',
         'volume',
-        )
+    )
 
     def __init__(self, filename='NoName', date_time=(1980,1,1,0,0,0)):
         self.orig_filename = filename   # Original file name in archive

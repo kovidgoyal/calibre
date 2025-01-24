@@ -36,7 +36,7 @@ __all__ = [
     'ThreadPool',
     'WorkRequest',
     'WorkerThread',
-    'makeRequests'
+    'makeRequests',
 ]
 
 __author__ = 'Christopher Arndt'
