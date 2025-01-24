@@ -77,34 +77,34 @@ class Paragraphs:
         self.__end2_marker =   'mi<mk<par-end___\n'  # inside para tags
         self.__end_marker =    'mi<mk<para-end__\n'  # outside para tags
         self.__state_dict = {
-        'before_body'       : self.__before_body_func,
-        'not_paragraph'     : self.__not_paragraph_func,
-        'paragraph'         : self.__paragraph_func,
+        'before_body'   : self.__before_body_func,
+        'not_paragraph' : self.__not_paragraph_func,
+        'paragraph'     : self.__paragraph_func,
         }
         self.__paragraph_dict = {
-        'cw<pf<par-end___'      : self.__close_para_func,   # end of paragraph
-        'mi<mk<headi_-end'      : self.__close_para_func,   # end of header or footer
-        # 'cw<pf<par-def___'      : self.__close_para_func,   # paragraph definition
-        # 'mi<mk<fld-bk-end'      : self.__close_para_func,   # end of field-block
-        'mi<mk<fldbk-end_'      : self.__close_para_func,   # end of field-block
-        'mi<mk<body-close'      : self.__close_para_func,   # end of body
-        'mi<mk<sect-close'      : self.__close_para_func,   # end of body
-        'mi<mk<sect-start'      : self.__close_para_func,   # start of section
-        'mi<mk<foot___clo'      : self.__close_para_func,   # end of footnote
-        'cw<tb<cell______'      : self.__close_para_func,   # end of cell
-        'mi<mk<par-in-fld'      : self.__close_para_func,   # start of block field
-        'cw<pf<par-def___'      : self.__bogus_para__def_func,   # paragraph definition
+        'cw<pf<par-end___'  : self.__close_para_func,   # end of paragraph
+        'mi<mk<headi_-end'  : self.__close_para_func,   # end of header or footer
+        # 'cw<pf<par-def___'  : self.__close_para_func,   # paragraph definition
+        # 'mi<mk<fld-bk-end'  : self.__close_para_func,   # end of field-block
+        'mi<mk<fldbk-end_'  : self.__close_para_func,   # end of field-block
+        'mi<mk<body-close'  : self.__close_para_func,   # end of body
+        'mi<mk<sect-close'  : self.__close_para_func,   # end of body
+        'mi<mk<sect-start'  : self.__close_para_func,   # start of section
+        'mi<mk<foot___clo'  : self.__close_para_func,   # end of footnote
+        'cw<tb<cell______'  : self.__close_para_func,   # end of cell
+        'mi<mk<par-in-fld'  : self.__close_para_func,   # start of block field
+        'cw<pf<par-def___'  : self.__bogus_para__def_func,   # paragraph definition
         }
         self.__not_paragraph_dict = {
-        'tx<nu<__________'      : self.__start_para_func,
-        'tx<hx<__________'      : self.__start_para_func,
-        'tx<ut<__________'      : self.__start_para_func,
-        'tx<mc<__________'      : self.__start_para_func,
-        'mi<mk<inline-fld'      : self.__start_para_func,
-        'mi<mk<para-beg__'      : self.__start_para_func,
-        'cw<pf<par-end___'      : self.__empty_para_func,
-        'mi<mk<pict-start'      : self.__start_para_func,
-        'cw<pf<page-break'      : self.__empty_pgbk_func,    # page break
+        'tx<nu<__________'  : self.__start_para_func,
+        'tx<hx<__________'  : self.__start_para_func,
+        'tx<ut<__________'  : self.__start_para_func,
+        'tx<mc<__________'  : self.__start_para_func,
+        'mi<mk<inline-fld'  : self.__start_para_func,
+        'mi<mk<para-beg__'  : self.__start_para_func,
+        'cw<pf<par-end___'  : self.__empty_para_func,
+        'mi<mk<pict-start'  : self.__start_para_func,
+        'cw<pf<page-break'  : self.__empty_pgbk_func,    # page break
         }
 
     def __before_body_func(self, line):

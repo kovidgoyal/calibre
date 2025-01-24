@@ -59,9 +59,9 @@ def format_tag_string(tags, sep, joinval=', '):
 DC_NS = 'http://purl.org/dc/terms/'
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
                  nsmap={
-                     None   : 'http://www.w3.org/2005/Atom',
-                     'dc'   : DC_NS,
-                     'opds' : 'http://opds-spec.org/2010/catalog',
+                     None  : 'http://www.w3.org/2005/Atom',
+                     'dc'  : DC_NS,
+                     'opds': 'http://opds-spec.org/2010/catalog',
                      })
 
 

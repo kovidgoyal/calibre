@@ -28,7 +28,7 @@ class Header:
     '''
 
     def __init__(self,
-            in_file ,
+            in_file,
             bug_handler,
             copy=None,
             run_level=1,
@@ -103,14 +103,14 @@ class Header:
         self.__in_header = False
         self.__header_count = 0
         self.__head_dict = {
-            'head-left_'        :   ('header-left'),
-            'head-right'        :   ('header-right'),
-            'foot-left_'        :   ('footer-left'),
-            'foot-right'        :   ('footer-right'),
-            'head-first'        :   ('header-first'),
-            'foot-first'        :   ('footer-first'),
-            'header____'        :   ('header'),
-            'footer____'        :   ('footer'),
+            'head-left_': ('header-left'),
+            'head-right': ('header-right'),
+            'foot-left_': ('footer-left'),
+            'foot-right': ('footer-right'),
+            'head-first': ('header-first'),
+            'foot-first': ('footer-first'),
+            'header____': ('header'),
+            'footer____': ('footer'),
         }
 
     def separate_headers(self):

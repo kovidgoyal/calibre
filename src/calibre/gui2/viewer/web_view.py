@@ -632,7 +632,7 @@ class WebView(RestartingWebEngineView):
         self.dead_renderer_error_shown = True
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed.'
-            ' You should try restarting the viewer.') , show=True)
+            ' You should try restarting the viewer.'), show=True)
 
     def event(self, event):
         if event.type() == QEvent.Type.ChildPolished:

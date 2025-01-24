@@ -96,20 +96,20 @@ def encode_is_multiple(fm):
         if dt == 'composite':
             fm['is_multiple'] = ','
         else:
-            fm['is_multiple'] =  '|'
+            fm['is_multiple'] = '|'
     else:
         fm['is_multiple'] = None
         fm['is_multiple2'] = {}
 
 
 def decode_is_multiple(fm):
-    im = fm.get('is_multiple2',  None)
+    im = fm.get('is_multiple2', None)
     if im:
         fm['is_multiple'] = im
         del fm['is_multiple2']
     else:
         # Must migrate the is_multiple from char to dict
-        im = fm.get('is_multiple',  {})
+        im = fm.get('is_multiple', {})
         if im:
             dt = fm.get('datatype', None)
             if dt == 'composite':

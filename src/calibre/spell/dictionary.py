@@ -90,7 +90,7 @@ def custom_dictionaries(reread=False):
             if ploc.countrycode is None:
                 continue
             dics.append(Dictionary(
-                ploc, frozenset(filter(lambda x:x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
+                ploc, frozenset(filter(lambda x: x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom

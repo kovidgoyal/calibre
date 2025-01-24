@@ -937,7 +937,7 @@ class TextEdit(PlainTextEdit):
             c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
             href = prepare_string_for_xml(href, True)
             if fullpage:
-                template =  '''\
+                template = '''\
 <div style="page-break-before:always; page-break-after:always; page-break-inside:avoid">\
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" \
 version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectRatio="{a}">\

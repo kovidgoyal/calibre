@@ -224,7 +224,7 @@ def resolve_bing_wrapper_page(url, br, log):
     raw = br.open_novisit(url).read().decode('utf-8', 'replace')
     m = re.search(r'var u = "(.+)"', raw)
     if m is None:
-        log('Failed to resolve bing wrapper page for url: ' +  url)
+        log('Failed to resolve bing wrapper page for url: ' + url)
         return url
     log('Resolved bing wrapped URL: ' + url + ' to ' + m.group(1))
     return m.group(1)

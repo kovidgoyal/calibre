@@ -257,7 +257,7 @@ class SearchFilter(SearchQueryParser):
             'enabled': lambda x: not is_disabled(x),
             'format': lambda x: ','.join(x.formats).lower(),
             'headquarters': lambda x: x.headquarters.lower(),
-            'name': lambda x : x.name.lower(),
+            'name': lambda x: x.name.lower(),
         }
         q['formats'] = q['format']
         upf = prefs['use_primary_find_in_search']

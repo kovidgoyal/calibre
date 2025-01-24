@@ -188,7 +188,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         for by in soup.findAll(**classes('topper__byline topper__date font-style-italic')):
             by.name = 'div'
         for img in soup.find_all('img', attrs={'srcset': True}):
-            img['src'] = re.sub(r'_webp_small_\dx', '_webp_large_1x',img['srcset'].split()[0])
+            img['src'] = re.sub(r'_webp_small_\dx', '_webp_large_1x', img['srcset'].split()[0])
         return soup
 
     def get_browser(self):

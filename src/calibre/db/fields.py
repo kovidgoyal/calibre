@@ -97,7 +97,7 @@ class Field:
             self._default_sort_key = ''
 
         if self.name == 'languages':
-            self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
+            self._sort_key = lambda x: sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
         self.sort_sort_key = True
@@ -224,8 +224,8 @@ class OneToOneField(Field):
                         ans = dk
                     return ans
                 return none_safe_key
-            return lambda book_id:bcmg(book_id, dk)
-        return lambda book_id:sk(bcmg(book_id, dk))
+            return lambda book_id: bcmg(book_id, dk)
+        return lambda book_id: sk(bcmg(book_id, dk))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.book_col_map
@@ -339,8 +339,8 @@ class CompositeField(OneToOneField):
         gv = self.get_value_with_cache
         sk = self._sort_key
         if sk is IDENTITY:
-            return lambda book_id:gv(book_id, get_metadata)
-        return lambda book_id:sk(gv(book_id, get_metadata))
+            return lambda book_id: gv(book_id, get_metadata)
+        return lambda book_id: sk(gv(book_id, get_metadata))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
@@ -517,7 +517,7 @@ class ManyToOneField(Field):
     def sort_keys_for_books(self, get_metadata, lang_map):
         sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
         bcmg = self.table.book_col_map.get
-        return lambda book_id:sk_map(bcmg(book_id, None))
+        return lambda book_id: sk_map(bcmg(book_id, None))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map

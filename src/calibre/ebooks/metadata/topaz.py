@@ -158,7 +158,7 @@ class MetadataUpdater:
         N=0
         result=''
         while src:
-            s,src = src[:length],src[length:]
+            s, src = src[:length],src[length:]
             hexa = ' '.join(['%02X'%ord(x) for x in s])
             s = s.translate(FILTER)
             result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
@@ -170,7 +170,7 @@ class MetadataUpdater:
         for tag in self.metadata:
             print(f'{tag}: {self.metadata[tag]!r}')
 
-    def encode_vwi(self,value):
+    def encode_vwi(self, value):
         ans = []
         multi_byte = (value > 0x7f)
         while value:
@@ -333,7 +333,7 @@ class MetadataUpdater:
         self.original_md_len = original_md_len
         return ths.getvalue().encode('iso-8859-1')
 
-    def update(self,mi):
+    def update(self, mi):
         # Collect the original metadata
         self.get_original_metadata()
 

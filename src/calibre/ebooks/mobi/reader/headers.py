@@ -45,7 +45,7 @@ class EXTHHeader:  # {{{
         self.page_progression_direction = None
         self.primary_writing_mode = None
 
-        self.decode = lambda x : clean_ascii_chars(x.decode(codec, 'replace'))
+        self.decode = lambda x: clean_ascii_chars(x.decode(codec, 'replace'))
 
         while left > 0:
             left -= 1

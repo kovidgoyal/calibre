@@ -21,7 +21,7 @@ class GeekCity(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'term-badges floated'}),
         dict(name='div', attrs={'class': 'post-meta single-post-meta'}),
         dict(name='div', attrs={'class': 'post-share single-post-share top-share clearfix style-1'}),

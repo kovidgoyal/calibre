@@ -335,7 +335,7 @@ def develop(url: str) -> None:
     from calibre.gui2 import must_use_qt, setup_unix_signals
     must_use_qt()
     app = QApplication.instance()
-    app.signal_received = lambda : app.exit(1)
+    app.signal_received = lambda: app.exit(1)
     setup_unix_signals(app)
     backend = FetchBackend()
     num_left = 0

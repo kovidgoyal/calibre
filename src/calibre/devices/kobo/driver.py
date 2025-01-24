@@ -292,7 +292,7 @@ class KOBO(USBMS):
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
                 lpath = lpath.replace('\\', '/')
-                # debug_print("LPATH: ", lpath, "  - Title:  " , title)
+                # debug_print("LPATH: ", lpath, "  - Title:  ", title)
 
                 playlist_map = {}
 
@@ -562,7 +562,7 @@ class KOBO(USBMS):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
             # print('Delete file normalized path: ' + path)
-            extension =  os.path.splitext(path)[1]
+            extension = os.path.splitext(path)[1]
             ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path)
 
             ContentID = self.contentid_from_path(path, ContentType)
@@ -651,7 +651,7 @@ class KOBO(USBMS):
 
     def contentid_from_path(self, path, ContentType):
         if ContentType == 6:
-            extension =  os.path.splitext(path)[1]
+            extension = os.path.splitext(path)[1]
             if extension == '.kobo':
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
@@ -770,7 +770,7 @@ class KOBO(USBMS):
 
     def get_file(self, path, *args, **kwargs):
         tpath = self.munge_path(path)
-        extension =  os.path.splitext(tpath)[1]
+        extension = os.path.splitext(tpath)[1]
         if extension == '.kobo':
             from calibre.devices.errors import UserFeedback
             raise UserFeedback(_('Not Implemented'),
@@ -796,7 +796,7 @@ class KOBO(USBMS):
             mi = MetaInformation(os.path.splitext(os.path.basename(lpath))[0],
                     [_('Unknown')])
         size = os.stat(cls.normalize_path(os.path.join(prefix, lpath))).st_size
-        book =  cls.book_class(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=size, other=mi)
+        book = cls.book_class(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=size, other=mi)
 
         return book
 
@@ -948,7 +948,7 @@ class KOBO(USBMS):
                             if category not in book.device_collections:
                                 book.device_collections.append(category)
 
-                            extension =  os.path.splitext(book.path)[1]
+                            extension = os.path.splitext(book.path)[1]
                             ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
 
                             ContentID = self.contentid_from_path(book.path, ContentType)
@@ -1062,7 +1062,7 @@ class KOBO(USBMS):
 
             if os.path.exists(cover):
                 # Get ContentID for Selected Book
-                extension =  os.path.splitext(filepath)[1]
+                extension = os.path.splitext(filepath)[1]
                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
@@ -1231,17 +1231,17 @@ class KOBO(USBMS):
         bookmarked_books = {}
         with closing(self.device_database_connection(use_row_factory=True)) as connection:
             for book_id in path_map:
-                extension =  os.path.splitext(path_map[book_id])[1]
+                extension = os.path.splitext(path_map[book_id])[1]
                 ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[book_id])
                 ContentID = self.contentid_from_path(path_map[book_id], ContentType)
-                debug_print('get_annotations - ContentID: ',  ContentID, 'ContentType: ', ContentType)
+                debug_print('get_annotations - ContentID: ', ContentID, 'ContentType: ', ContentType)
 
                 bookmark_ext = extension
 
                 myBookmark = Bookmark(connection, ContentID, path_map[book_id], book_id, book_ext[book_id], bookmark_ext)
                 bookmarked_books[book_id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
 
-        # This returns as job.result in gui2.ui.annotations_fetched(self,job)
+        # This returns as job.result in gui2.ui.annotations_fetched(self, job)
         return bookmarked_books
 
     def generate_annotation_html(self, bookmark):
@@ -1252,7 +1252,7 @@ class KOBO(USBMS):
         # last_read_location = bookmark.last_read_location
         # timestamp = bookmark.timestamp
         percent_read = bookmark.percent_read
-        debug_print('Kobo::generate_annotation_html - last_read: ',  bookmark.last_read)
+        debug_print('Kobo::generate_annotation_html - last_read: ', bookmark.last_read)
         if bookmark.last_read is not None:
             try:
                 last_read = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(calendar.timegm(time.strptime(bookmark.last_read, '%Y-%m-%dT%H:%M:%S'))))
@@ -1348,7 +1348,7 @@ class KOBO(USBMS):
                 divTag.insert(dtc, annot)
                 dtc += 1
 
-        ka_soup.insert(0,divTag)
+        ka_soup.insert(0, divTag)
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
@@ -1358,7 +1358,7 @@ class KOBO(USBMS):
 
         if bm.type == 'kobo_bookmark' and bm.value.last_read:
             mi = db.get_metadata(db_id, index_is_id=True)
-            debug_print('KOBO:add_annotation_to_library - Title: ',  mi.title)
+            debug_print('KOBO:add_annotation_to_library - Title: ', mi.title)
             user_notes_soup = self.generate_annotation_html(bm.value)
             if mi.comments:
                 a_offset = mi.comments.find('<div class="user_annotations">')
@@ -1428,9 +1428,9 @@ class KOBOTOUCH(KOBO):
     min_aurah2o_fwversion           = (3, 7, 0)
     min_reviews_fwversion           = (3, 12, 0)
     min_glohd_fwversion             = (3, 14, 0)
-    min_auraone_fwversion           = (3, 20,  7280)
-    min_fwversion_overdrive         = (4,  0,  7523)
-    min_clarahd_fwversion           = (4,  8, 11090)
+    min_auraone_fwversion           = (3, 20, 7280)
+    min_fwversion_overdrive         = (4, 0, 7523)
+    min_clarahd_fwversion           = (4, 8, 11090)
     min_forma_fwversion             = (4, 11, 11879)
     min_librah20_fwversion          = (4, 16, 13337)  # "Reviewers" release.
     min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
@@ -1749,7 +1749,7 @@ class KOBOTOUCH(KOBO):
                 if lpath.startswith(os.sep):
                     lpath = lpath[len(os.sep):]
                 lpath = lpath.replace('\\', '/')
-                # debug_print("KoboTouch:update_booklist - LPATH: ", lpath, "  - Title:  " , title)
+                # debug_print("KoboTouch:update_booklist - LPATH: ", lpath, "  - Title:  ", title)
 
                 playlist_map = {}
 
@@ -1909,7 +1909,7 @@ class KOBOTOUCH(KOBO):
                             if isdownloaded == 'true':  # A recommendation or preview is OK to not have a file
                                 debug_print('    Strange:  The file: ', prefix, lpath, ' does not exist!')
                                 title = 'FILE MISSING: ' + title
-                            book =  self.book_class(prefix, lpath, title, authors, MimeType, DateCreated, ContentType, ImageID, size=0)
+                            book = self.book_class(prefix, lpath, title, authors, MimeType, DateCreated, ContentType, ImageID, size=0)
                             if show_debug:
                                 debug_print('KoboTouch:update_booklist - book file does not exist. ContentID="%s"'%ContentID)
 
@@ -2491,7 +2491,7 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:contentid_from_path - path='%s'"%path, "ContentType='%s'"%ContentType)
             debug_print("KoboTouch:contentid_from_path - self._main_prefix='%s'"%self._main_prefix, "self._card_a_prefix='%s'"%self._card_a_prefix)
         if ContentType == 6:
-            extension =  os.path.splitext(path)[1]
+            extension = os.path.splitext(path)[1]
             if extension == '.kobo':
                 ContentID = os.path.splitext(path)[0]
                 # Remove the prefix on the file.  it could be either
@@ -2507,7 +2507,7 @@ class KOBOTOUCH(KOBO):
                 debug_print("KoboTouch:contentid_from_path - 1 ContentID='%s'"%ContentID)
 
             if self._card_a_prefix is not None:
-                ContentID = ContentID.replace(self._card_a_prefix,  'file:///mnt/sd/')
+                ContentID = ContentID.replace(self._card_a_prefix, 'file:///mnt/sd/')
         else:  # ContentType = 16
             debug_print("KoboTouch:contentid_from_path ContentType other than 6 - ContentType='%d'"%ContentType, "path='%s'"%path)
             ContentID = path
@@ -2636,7 +2636,7 @@ class KOBOTOUCH(KOBO):
 
                             if book.contentID is None:
                                 debug_print('    Do not know ContentID - Title="%s", Authors="%s", path="%s"'%(book.title, book.author, book.path))
-                                extension =  os.path.splitext(book.path)[1]
+                                extension = os.path.splitext(book.path)[1]
                                 ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
 
@@ -2880,7 +2880,7 @@ class KOBOTOUCH(KOBO):
             return
 
         # Get ContentID for Selected Book
-        extension =  os.path.splitext(filepath)[1]
+        extension = os.path.splitext(filepath)[1]
         ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(filepath)
         ContentID = self.contentid_from_path(filepath, ContentType)
 

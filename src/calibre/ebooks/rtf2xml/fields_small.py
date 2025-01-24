@@ -70,15 +70,15 @@ file.
         self.__marker = 'mi<mk<inline-fld\n'
         self.__state_dict = {
         'before_body'   : self.__before_body_func,
-        'body'  : self.__body_func,
-        'bookmark'  : self.__bookmark_func,
-        'toc_index'       : self.__toc_index_func,
+        'body'          : self.__body_func,
+        'bookmark'      : self.__bookmark_func,
+        'toc_index'     : self.__toc_index_func,
         }
         self.__body_dict = {
-        'cw<an<book-mk-st'      : (self.__found_bookmark_func, 'start'),
-        'cw<an<book-mk-en'      : (self.__found_bookmark_func, 'end'),
-        'cw<an<toc_______'      : (self.__found_toc_index_func, 'toc'),
-        'cw<an<index-mark'      : (self.__found_toc_index_func, 'index'),
+        'cw<an<book-mk-st'  : (self.__found_bookmark_func, 'start'),
+        'cw<an<book-mk-en'  : (self.__found_bookmark_func, 'end'),
+        'cw<an<toc_______'  : (self.__found_toc_index_func, 'toc'),
+        'cw<an<index-mark'  : (self.__found_toc_index_func, 'index'),
         }
         ob = 'ob<nu<open-brack.....'
         cb = 'cb<nu<clos-brack'
@@ -274,7 +274,7 @@ file.
 
     def __index__format_func(self, my_string):
         italics = 0
-        bold =0
+        bold = 0
         lines = my_string.split('\n')
         for line in lines:
             token_info = line[:16]

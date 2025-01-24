@@ -38,7 +38,7 @@ class version2(BasicNewsRecipe):
         dict(name='span', attrs={'class': 'article-link-id'}),
         dict(name='section', attrs={'class': 'social-tools-pane'}),
         dict(name='section', attrs={'class': 'article-timeline'}),
-        dict(name='div', attrs={'id' : 'mini-panel-comments_and_form'}),
+        dict(name='div', attrs={'id': 'mini-panel-comments_and_form'}),
         dict(name='div', attrs={'class': 'related-articles top-three'}),
         dict(name='div', attrs={'id': 'mini-panel-jobfinder_1'}),
         dict(name='section', attrs={'id': 'mini-panel-frontpage_debat_zone'}),
@@ -53,7 +53,7 @@ class version2(BasicNewsRecipe):
         dict(name='section', attrs={'class': 'jobs-list'}),
         dict(name='footer', attrs={'id': 'footer'}),
         dict(name='section', attrs={'class': 'banner'}),
-        dict(name='div', attrs={'class' : 'fast-track-frontpage'}),
+        dict(name='div', attrs={'class': 'fast-track-frontpage'}),
         dict(name='a', attrs={'class': 'byline-comments'})
     ]
 

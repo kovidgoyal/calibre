@@ -22,7 +22,7 @@ class MoscowTimes(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'article__tags'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='aside'),
         dict(name='footer'),
         dict(name='section', attrs={'class': 'cluster'}),

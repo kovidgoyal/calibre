@@ -15,7 +15,7 @@ import sys
 
 from . import open_for_read, open_for_write
 
-# , codecs
+# codecs
 
 
 class Output:

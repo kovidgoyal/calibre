@@ -47,7 +47,7 @@ IMAGE_TAGS = [
 ]
 
 STYLES = [
-    ('font-weight', {'bold'   : 'b', 'bolder' : 'b'}),
+    ('font-weight', {'bold'  : 'b', 'bolder' : 'b'}),
     ('font-style', {'italic' : 'i'}),
     ('text-align', {'center' : 'center'}),
 ]

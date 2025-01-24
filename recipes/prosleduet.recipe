@@ -26,7 +26,7 @@ class ProSleduet(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'container'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'ya-share2 ya-share2_inited'})
         ]
 

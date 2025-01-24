@@ -49,12 +49,14 @@ class SNBInput(InputFormatPlugin):
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta is not None:
             meta = safe_xml_fromstring(meta)
-            l = {'title'    : './/head/name',
+            l = {
+                  'title'    : './/head/name',
                   'creator'  : './/head/author',
                   'language' : './/head/language',
                   'generator': './/head/generator',
                   'publisher': './/head/publisher',
-                  'cover'    : './/head/cover', }
+                  'cover'    : './/head/cover',
+            }
             d = {}
             for item in l:
                 node = meta.find(l[item])

@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
+__copyright__ = '2010-2012, Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
 import os

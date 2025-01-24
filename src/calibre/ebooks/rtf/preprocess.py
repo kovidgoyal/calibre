@@ -127,7 +127,7 @@ class tokenUnicode:
         ucn = self.current_ucn
         if len(self.eqList) < ucn:
             ucn = len(self.eqList)
-            result =  tokenControlWordWithNumericArgument('\\uc', ucn).toRTF() + result
+            result = tokenControlWordWithNumericArgument('\\uc', ucn).toRTF() + result
         i = 0
         for eq in self.eqList:
             if i >= ucn:
@@ -321,7 +321,7 @@ class RtfTokenizer:
                                 break
                             l = l + 1
                             i = i + 1
-                            if l > 10 :
+                            if l > 10:
                                 raise Exception('Error (at:%d): Too many digits in control word numeric argument.'%[tokenStart])
 
                         if not consumed:

@@ -953,7 +953,7 @@ if __name__ == '__main__':
     from calibre.library import db
     app = Application([])
     d = QDialog()
-    d.sizeHint = lambda : QSize(1000, 680)
+    d.sizeHint = lambda: QSize(1000, 680)
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)

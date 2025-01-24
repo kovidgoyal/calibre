@@ -121,7 +121,7 @@ class IrishTimes(BasicNewsRecipe):
             'sec-fetch-site': 'same-origin',
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
-        },  data=urlencode({'username': self.username, 'password': self.password, 'deviceid':deviceid, 'persistent':'on', 'rid': ''}))
+        }, data=urlencode({'username': self.username, 'password': self.password, 'deviceid':deviceid, 'persistent':'on', 'rid': ''}))
 
         r = br.open(rq)
         raw = r.read()

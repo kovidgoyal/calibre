@@ -160,7 +160,7 @@ class Main(MainWindow, Ui_MainWindow):
 
     def parsed(self):
         if not self.renderer.aborted and self.renderer.lrf is not None:
-            width, height =  self.renderer.lrf.device_info.width, \
+            width, height = self.renderer.lrf.device_info.width, \
                                             self.renderer.lrf.device_info.height
             hdelta = self.tool_bar.height()+3
 
@@ -197,7 +197,7 @@ class Main(MainWindow, Ui_MainWindow):
             print('Error rendering document', file=sys.stderr)
             print(exception, file=sys.stderr)
             print(self.renderer.formatted_traceback, file=sys.stderr)
-            msg =  '<p><b>%s</b>: '%(exception.__class__.__name__,) + as_unicode(exception) + '</p>'
+            msg = '<p><b>%s</b>: '%(exception.__class__.__name__,) + as_unicode(exception) + '</p>'
             msg += '<p>Failed to render document</p>'
             msg += '<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'

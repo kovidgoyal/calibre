@@ -318,7 +318,7 @@ class AddAction(InterfaceAction):
         self.add_recursive(False)
 
     def add_recursive_question(self):
-        single =  question_dialog(self.gui, _('Multi-file books?'), _(
+        single = question_dialog(self.gui, _('Multi-file books?'), _(
             'Assume all e-book files in a single folder are multiple formats of the same book?'))
         self.add_recursive(single)
 
@@ -670,7 +670,7 @@ class AddAction(InterfaceAction):
             vmsg = getattr(self.gui.device_manager.device, 'VIRTUAL_BOOK_EXTENSION_MESSAGE', None) or _(
                 'The following books are virtual and cannot be added'
                 ' to the calibre library:')
-            info_dialog(self.gui,  _('Not Implemented'), vmsg, '\n'.join(remove), show=True)
+            info_dialog(self.gui, _('Not Implemented'), vmsg, '\n'.join(remove), show=True)
             if not paths:
                 return
         if not paths or len(paths) == 0:

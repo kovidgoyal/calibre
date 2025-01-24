@@ -184,10 +184,10 @@ class CustomColumns:
         self.custom_data_adapters = {
                 'float': adapt_number,
                 'int':   adapt_number,
-                'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
+                'rating':lambda x,d: x if x is None else min(10., max(0., float(x))),
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
-                'datetime' : adapt_datetime,
+                'datetime': adapt_datetime,
                 'text':adapt_text,
                 'series':adapt_text,
                 'enumeration': adapt_enum

@@ -84,7 +84,7 @@ class Tokenize:
                 self.__uc_char -=1
                 self.__uc_bin = True
                 return ''
-            elif token[:1] == '\\' :
+            elif token[:1] == '\\':
                 self.__uc_char -=1
                 return ''
             else:
@@ -114,7 +114,7 @@ class Tokenize:
         # default
         return token
 
-    def __sub_reg_split(self,input_file):
+    def __sub_reg_split(self, input_file):
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub(r'\n\\par \n', input_file)

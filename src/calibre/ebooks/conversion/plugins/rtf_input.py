@@ -11,8 +11,8 @@ from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes, iteritems
 
 border_style_map = {
-        'single' : 'solid',
-        'double-thickness-border' : 'double',
+        'single': 'solid',
+        'double-thickness-border': 'double',
         'shadowed-border': 'outset',
         'double-border': 'double',
         'dotted-border': 'dotted',
@@ -288,7 +288,7 @@ class RTFInput(InputFormatPlugin):
         self.log('Converting XML to HTML...')
         inline_class = InlineClass(self.log)
         styledoc = safe_xml_fromstring(P('templates/rtf.xsl', data=True), recover=False)
-        extensions = {('calibre', 'inline-class') : inline_class}
+        extensions = {('calibre', 'inline-class'): inline_class}
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
         html = 'index.xhtml'

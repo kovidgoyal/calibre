@@ -101,29 +101,29 @@ class Sections:
         }
         # cw<sc<sect-defin<nu<true
         self.__body_dict = {
-        'cw<sc<section___'      : self.__found_section_func,
-        'mi<mk<sec-fd-beg'      : self.__found_sec_in_field_func,
-        'cw<sc<sect-defin'      : self.__found_section_def_bef_sec_func,
+        'cw<sc<section___'  : self.__found_section_func,
+        'mi<mk<sec-fd-beg'  : self.__found_sec_in_field_func,
+        'cw<sc<sect-defin'  : self.__found_section_def_bef_sec_func,
         }
         self.__section_def_dict = {
-        'cw<pf<par-def___'      : (self.__end_sec_def_func, None),
-        'mi<mk<body-open_'      : (self.__end_sec_def_func, None),
-        'cw<tb<columns___'      : (self.__attribute_func, 'columns'),
-        'cw<pa<margin-lef'      : (self.__attribute_func, 'margin-left'),
-        'cw<pa<margin-rig'      : (self.__attribute_func, 'margin-right'),
-        'mi<mk<header-ind'      : (self.__end_sec_def_func, None),
+        'cw<pf<par-def___'  : (self.__end_sec_def_func, None),
+        'mi<mk<body-open_'  : (self.__end_sec_def_func, None),
+        'cw<tb<columns___'  : (self.__attribute_func, 'columns'),
+        'cw<pa<margin-lef'  : (self.__attribute_func, 'margin-left'),
+        'cw<pa<margin-rig'  : (self.__attribute_func, 'margin-right'),
+        'mi<mk<header-ind'  : (self.__end_sec_def_func, None),
         # premature endings
         # __end_sec_premature_func
-        'tx<nu<__________'      : (self.__end_sec_premature_func, None),
-        'cw<ci<font-style'      : (self.__end_sec_premature_func, None),
-        'cw<ci<font-size_'      : (self.__end_sec_premature_func, None),
+        'tx<nu<__________'  : (self.__end_sec_premature_func, None),
+        'cw<ci<font-style'  : (self.__end_sec_premature_func, None),
+        'cw<ci<font-size_'  : (self.__end_sec_premature_func, None),
         }
         self.__sec_in_field_dict = {
-        'mi<mk<sec-fd-end'      : self.__end_sec_in_field_func,
+        'mi<mk<sec-fd-end'  : self.__end_sec_in_field_func,
         # changed this 2004-04-26
         # two lines
-        # 'cw<sc<section___'      : self.__found_section_in_field_func,
-        # 'cw<sc<sect-defin'      : self.__found_section_def_in_field_func,
+        # 'cw<sc<section___'  : self.__found_section_in_field_func,
+        # 'cw<sc<sect-defin'  : self.__found_section_def_in_field_func,
         }
 
     def __found_section_def_func(self, line):
@@ -465,7 +465,7 @@ class Sections:
         'mi<tg<open-att__<section<num>%s' % str(num)
         )
         if self.__list_of_sec_values:
-            keys =  self.__list_of_sec_values[0].keys()
+            keys = self.__list_of_sec_values[0].keys()
             for key in keys:
                 self.__write_obj.write(
                 f'<{key}>{self.__list_of_sec_values[0][key]}\n')

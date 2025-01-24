@@ -202,7 +202,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], str):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
+        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 

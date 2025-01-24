@@ -217,7 +217,7 @@ OBJECT_TYPE_ENCODING = dict(
         TOC=0x1E
 )
 
-LINE_TYPE_ENCODING =  {
+LINE_TYPE_ENCODING = {
         'none':0, 'solid':0x10, 'dashed':0x20, 'double':0x30, 'dotted':0x40
 }
 

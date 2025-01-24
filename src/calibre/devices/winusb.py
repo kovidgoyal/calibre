@@ -664,7 +664,7 @@ def get_volume_information(drive_letter):
     flags, serial_number, max_component_length = DWORD(0), DWORD(0), DWORD(0)
     GetVolumeInformation(drive_letter, vname, len(vname), byref(serial_number), byref(max_component_length), byref(flags), fsname, len(fsname))
     flags = flags.value
-    ans =  {
+    ans = {
         'name': vname.value,
         'filesystem': fsname.value,
         'serial_number': serial_number.value,

@@ -22,7 +22,7 @@ class Cherta(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class':'single-page__footer-info'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'single-content-link'}),
         dict(name='div', attrs={'class': 'single-page__footer-info_links clearfix'}),
         dict(name='div', attrs={'class': 'single-article-tags-wrapper'})

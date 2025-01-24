@@ -536,7 +536,7 @@ class EmailMixin:  # {{{
                 get_fmts, self.email_sent, self.job_manager)
         if sent_mails:
             self.status_bar.show_message(_('Sent news to')+' '+
-                    ', '.join(sent_mails),  3000)
+                    ', '.join(sent_mails), 3000)
 
 # }}}
 

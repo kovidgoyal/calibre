@@ -26,9 +26,8 @@ class iHeuteRecipe(BasicNewsRecipe):
     no_stylesheets = True
 
     remove_attributes = ['width', 'height']
-    remove_tags = [dict(name='div',   attrs={'id': ['zooming']}),
-                   dict(name='div',   attrs={
-                        'class': ['related', 'mapa-wrapper']}),
+    remove_tags = [dict(name='div', attrs={'id': ['zooming']}),
+                   dict(name='div', attrs={'class': ['related', 'mapa-wrapper']}),
                    dict(name='table', attrs={'id': ['opener-img', 'portal']}),
                    dict(name='table', attrs={'class': ['video-16ku9']})]
     remove_tags_after = [

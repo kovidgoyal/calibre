@@ -479,10 +479,10 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
     if field and item_name:
         m = menu.addMenu(QIcon.ic('external-link'), _('Associated link'))
-        m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda : book_info.link_clicked.emit(link))
-        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda : book_info.link_removal_requested.emit(field, item_name))
+        m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda: book_info.link_clicked.emit(link))
+        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda: book_info.link_removal_requested.emit(field, item_name))
     else:
-        menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda : book_info.link_clicked.emit(link))
+        menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda: book_info.link_clicked.emit(link))
 
 
 def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):

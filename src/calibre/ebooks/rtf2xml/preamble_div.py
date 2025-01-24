@@ -70,51 +70,51 @@ class PreambleDiv:
         self.__revision_table_final = ''
         self.__doc_info_table_final = ''
         self.__state_dict = {
-        'default'           :   self.__default_func,
-        'rtf_header'        :   self.__rtf_head_func,
-        'preamble'          :   self.__preamble_func,
-        'font_table'        :   self.__font_table_func,
-        'color_table'       :   self.__color_table_func,
-        'style_sheet'       :   self.__style_sheet_func,
-        'list_table'        :   self.__list_table_func,
-        'override_table'    :   self.__override_table_func,
-        'revision_table'    :   self.__revision_table_func,
-        'doc_info'          :   self.__doc_info_func,
-        'body'              :   self.__body_func,
-        'ignore'            :   self.__ignore_func,
-        'cw<ri<rtf_______'  :   self.__found_rtf_head_func,
-        'cw<pf<par-def___'  :   self.__para_def_func,
-        'tx<nu<__________'  :   self.__text_func,
-        'cw<tb<row-def___'  :   self.__row_def_func,
-        'cw<sc<section___'  :   self.__new_section_func,
-        'cw<sc<sect-defin'  :   self.__new_section_func,
-        'cw<it<font-table'  :   self.__found_font_table_func,
-        'cw<it<colr-table'  :   self.__found_color_table_func,
-        'cw<ss<style-shet'  :   self.__found_style_sheet_func,
-        'cw<it<listtable_'  :   self.__found_list_table_func,
-        'cw<it<lovr-table'  :   self.__found_override_table_func,
-        'cw<it<revi-table'  :   self.__found_revision_table_func,
-        'cw<di<doc-info__'  :   self.__found_doc_info_func,
-        'cw<pa<margin-lef'  :   self.__margin_func,
-        'cw<pa<margin-rig'  :   self.__margin_func,
-        'cw<pa<margin-top'  :   self.__margin_func,
-        'cw<pa<margin-bot'  :   self.__margin_func,
-        'cw<pa<gutter____'  :   self.__margin_func,
-        'cw<pa<paper-widt'  :   self.__margin_func,
-        'cw<pa<paper-hght'  :   self.__margin_func,
-        # 'cw<tb<columns___'  :   self.__section_func,
+        'default'           : self.__default_func,
+        'rtf_header'        : self.__rtf_head_func,
+        'preamble'          : self.__preamble_func,
+        'font_table'        : self.__font_table_func,
+        'color_table'       : self.__color_table_func,
+        'style_sheet'       : self.__style_sheet_func,
+        'list_table'        : self.__list_table_func,
+        'override_table'    : self.__override_table_func,
+        'revision_table'    : self.__revision_table_func,
+        'doc_info'          : self.__doc_info_func,
+        'body'              : self.__body_func,
+        'ignore'            : self.__ignore_func,
+        'cw<ri<rtf_______'  : self.__found_rtf_head_func,
+        'cw<pf<par-def___'  : self.__para_def_func,
+        'tx<nu<__________'  : self.__text_func,
+        'cw<tb<row-def___'  : self.__row_def_func,
+        'cw<sc<section___'  : self.__new_section_func,
+        'cw<sc<sect-defin'  : self.__new_section_func,
+        'cw<it<font-table'  : self.__found_font_table_func,
+        'cw<it<colr-table'  : self.__found_color_table_func,
+        'cw<ss<style-shet'  : self.__found_style_sheet_func,
+        'cw<it<listtable_'  : self.__found_list_table_func,
+        'cw<it<lovr-table'  : self.__found_override_table_func,
+        'cw<it<revi-table'  : self.__found_revision_table_func,
+        'cw<di<doc-info__'  : self.__found_doc_info_func,
+        'cw<pa<margin-lef'  : self.__margin_func,
+        'cw<pa<margin-rig'  : self.__margin_func,
+        'cw<pa<margin-top'  : self.__margin_func,
+        'cw<pa<margin-bot'  : self.__margin_func,
+        'cw<pa<gutter____'  : self.__margin_func,
+        'cw<pa<paper-widt'  : self.__margin_func,
+        'cw<pa<paper-hght'  : self.__margin_func,
+        # 'cw<tb<columns___'  : self.__section_func,
         }
         self.__margin_dict = {
-        'margin-lef'        :   'margin-left',
-        'margin-rig'        :   'margin-right',
-        'margin-top'        :   'margin-top',
-        'margin-bot'        :   'margin-bottom',
-        'gutter____'        :   'gutter',
-        'paper-widt'        :   'paper-width',
-        'paper-hght'        :   'paper-height',
+        'margin-lef': 'margin-left',
+        'margin-rig': 'margin-right',
+        'margin-top': 'margin-top',
+        'margin-bot': 'margin-bottom',
+        'gutter____': 'gutter',
+        'paper-widt': 'paper-width',
+        'paper-hght': 'paper-height',
         }
         self.__translate_sec = {
-        'columns___'        :   'column',
+        'columns___': 'column',
         }
         self.__section = {}
         # self.__write_obj.write(self.__color_table_final)
@@ -172,7 +172,7 @@ class PreambleDiv:
         self.__font_table_final += 'cw<ci<font-style<nu<0\n'
         self.__font_table_final += 'tx<nu<__________<Times;\n'
         self.__font_table_final += 'mi<mk<fontit-end\n'
-        self.__font_table_final +=  'mi<mk<fonttb-end\n'
+        self.__font_table_final += 'mi<mk<fonttb-end\n'
         self.__font_table_final += 'mi<tg<close_____<font-table\n'
 
     def __make_default_color_table(self):
@@ -238,8 +238,7 @@ cw<ci<font-style<nu<0
             'mi<mk<fonttb-end\n' + 'mi<tg<close_____<font-table\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
-                self.__font_table_final +=  \
-                'mi<mk<fontit-beg\n'
+                self.__font_table_final += 'mi<mk<fontit-beg\n'
                 self.__individual_font = 1
             else:
                 # ignore
@@ -249,21 +248,20 @@ cw<ci<font-style<nu<0
         elif self.__token_info == 'cb<nu<clos-brack':
             if int(self.__cb_count) == int(self.__close_group_count) + 1:
                 self.__individual_font = 0
-                self.__font_table_final +=  \
-                'mi<mk<fontit-end\n'
+                self.__font_table_final += 'mi<mk<fontit-end\n'
         elif self.__individual_font:
             if self.__old_font and self.__token_info == 'tx<nu<__________':
                 if ';' in line:
-                    self.__font_table_final +=  line
-                    self.__font_table_final +=   'mi<mk<fontit-end\n'
+                    self.__font_table_final += line
+                    self.__font_table_final += 'mi<mk<fontit-end\n'
                     self.__individual_font = 0
             else:
-                self.__font_table_final +=  line
+                self.__font_table_final += line
         elif self.__token_info == 'cw<ci<font-style':
             self.__old_font = 1
             self.__individual_font = 1
-            self.__font_table_final +=   'mi<mk<fontit-beg\n'
-            self.__font_table_final +=  line
+            self.__font_table_final += 'mi<mk<fontit-beg\n'
+            self.__font_table_final += line
 
     def __old_font_func(self, line):
         '''
@@ -316,14 +314,12 @@ cw<ci<font-style<nu<0
             'mi<mk<styles-end\n' + 'mi<tg<close_____<style-table\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
-                self.__style_sheet_final +=  \
-                'mi<mk<stylei-beg\n'
+                self.__style_sheet_final += 'mi<mk<stylei-beg\n'
         elif self.__token_info == 'cb<nu<clos-brack':
             if int(self.__cb_count) == int(self.__close_group_count) + 1:
-                self.__style_sheet_final +=  \
-                'mi<mk<stylei-end\n'
+                self.__style_sheet_final += 'mi<mk<stylei-end\n'
         else:
-            self.__style_sheet_final +=  line
+            self.__style_sheet_final += line
 
     def __found_list_table_func(self, line):
         self.__state = 'list_table'
@@ -395,14 +391,12 @@ cw<ci<font-style<nu<0
             'mi<mk<doc-in-end\n' + 'mi<tg<close_____<doc-information\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
-                self.__doc_info_table_final +=  \
-                'mi<mk<docinf-beg\n'
+                self.__doc_info_table_final += 'mi<mk<docinf-beg\n'
         elif self.__token_info == 'cb<nu<clos-brack':
             if int(self.__cb_count) == int(self.__close_group_count) + 1:
-                self.__doc_info_table_final +=  \
-                'mi<mk<docinf-end\n'
+                self.__doc_info_table_final += 'mi<mk<docinf-end\n'
         else:
-            self.__doc_info_table_final +=  line
+            self.__doc_info_table_final += line
 
     def __margin_func(self, line):
         '''
@@ -441,7 +435,7 @@ cw<ci<font-style<nu<0
             keys = self.__section.keys()
             for key in keys:
                 self.__write_obj.write(
-                '<%s>%s' %  (key, self.__section[key])
+                '<%s>%s' % (key, self.__section[key])
                 )
             self.__write_obj.write('\n')
 

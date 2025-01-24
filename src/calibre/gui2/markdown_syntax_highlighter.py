@@ -57,7 +57,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Entity': 'entity',
     }
 
-    light_theme =  {
+    light_theme = {
         'bold': {'font-weight':'bold'},
         'emphasis': {'font-style':'italic'},
         'boldemphasis': {'font-weight':'bold', 'font-style':'italic'},
@@ -74,7 +74,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'entity': {'color':'#006496'},
     }
 
-    dark_theme =  {
+    dark_theme = {
         'bold': {'font-weight':'bold'},
         'emphasis': {'font-style':'italic'},
         'boldemphasis': {'font-weight':'bold', 'font-style':'italic'},

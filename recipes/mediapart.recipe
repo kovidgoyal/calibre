@@ -95,7 +95,7 @@ class Mediapart(BasicNewsRecipe):
         for feed in feeds:
             feed_name = feed.title.lower()
             for article in feed.articles:
-                if feed_name != 'autres'  and feed_name not in article.url:
+                if feed_name != 'autres' and feed_name not in article.url:
                     feed.articles.remove(article)
                 if feed_name == 'autres' and any(section in article.url for section in self.sections):
                     feed.articles.remove(article)

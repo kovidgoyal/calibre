@@ -169,7 +169,7 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_ge
         return False
     if is_debugging():
         debug('Restoring geometry for:', name)
-        dx =  x.copy()
+        dx = x.copy()
         del dx['qt']
         debug(dx)
     s = find_matching_screen(x['screen'])

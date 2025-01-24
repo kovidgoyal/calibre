@@ -9,7 +9,7 @@ from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
-ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
+ADOBE_OBFUSCATION = 'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
 
 

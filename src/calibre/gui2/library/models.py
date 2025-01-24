@@ -59,7 +59,7 @@ def render_pin(color=None, save_to=None):
 
 
 def group_numbers(numbers):
-    for k, g in groupby(enumerate(sorted(numbers)), lambda i_x:i_x[0] - i_x[1]):
+    for k, g in groupby(enumerate(sorted(numbers)), lambda i_x: i_x[0] - i_x[1]):
         first = None
         for last in g:
             if first is None:
@@ -97,7 +97,7 @@ class ColumnColor:  # {{{
 
 
 def themed_icon_name(icon_dir, icon_name):
-    root,ext = os.path.splitext(icon_name)
+    root, ext = os.path.splitext(icon_name)
     # Remove any theme from the icon name
     root = root.removesuffix('-for-dark-theme').removesuffix('-for-light-theme')
     # Check if the correct themed icon exists.
@@ -205,7 +205,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.styled_columns = {}
         self.orig_headers = {
                         'title'     : _('Title'),
-                        'ondevice'   : _('On Device'),
+                        'ondevice'  : _('On Device'),
                         'authors'   : _('Author(s)'),
                         'size'      : _('Size (MB)'),
                         'timestamp' : _('Date'),
@@ -1392,12 +1392,12 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags', 'search'}
         locations = all_locs if location == 'all' else [location]
         q = {
-            'title' : lambda x : getattr(x, 'title').lower(),
+            'title': lambda x: getattr(x, 'title').lower(),
             'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
             'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
             'format':lambda x: os.path.splitext(x.path)[1].lower(),
-            'inlibrary':lambda x : getattr(x, 'in_library'),
-            'tags':lambda x : getattr(x, 'tags', [])
+            'inlibrary':lambda x: getattr(x, 'in_library'),
+            'tags':lambda x: getattr(x, 'tags', [])
         }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
@@ -1627,8 +1627,8 @@ class DeviceBooksModel(BooksModel):  # {{{
 
         keygen = {
                 'title': ('title_sorter', lambda x: sort_key(x) if x else b''),
-                'authors' : author_key,
-                'size' : ('size', int),
+                'authors': author_key,
+                'size': ('size', int),
                 'timestamp': ('datetime', functools.partial(dt_factory, assume_utc=True)),
                 'collections': ('device_collections', lambda x:sorted(x,
                     key=sort_key)),
@@ -1893,7 +1893,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 self.upload_collections.emit(self.db)
                 return True
 
-            if cname == 'title' :
+            if cname == 'title':
                 self.db[idx].title = val
             elif cname == 'authors':
                 self.db[idx].authors = string_to_authors(val)

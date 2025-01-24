@@ -128,7 +128,7 @@ def extractText(odfElement):
                 elif tagName == ('urn:oasis:names:tc:opendocument:xmlns:text:1.0', 's'):
                     c = subElement.getAttribute('c')
                     if c:
-                        spaceCount =  int(c)
+                        spaceCount = int(c)
                     else:
                         spaceCount = 1
 

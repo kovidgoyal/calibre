@@ -2595,7 +2595,7 @@ class BibTeX:
             return ''
         text = self.resolveEntities(text)
         text = self.escapeSpecialCharacters(text)
-        if self.ascii_bibtex :
+        if self.ascii_bibtex:
             text = self.resolveUnicode(text)
         return text
 

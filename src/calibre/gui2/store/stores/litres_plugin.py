@@ -62,7 +62,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         br.addheaders.append(['Accept-Encoding','gzip'])
 
         with closing(br.open(search_url, timeout=timeout)) as r:
-            ungzipResponse(r,br)
+            ungzipResponse(r, br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
             doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
@@ -120,7 +120,7 @@ def format_price_in_RUR(price):
     return price
 
 
-def ungzipResponse(r,b):
+def ungzipResponse(r, b):
     headers = r.info()
     if headers.get('Content-Encoding', '')=='gzip':
         import gzip

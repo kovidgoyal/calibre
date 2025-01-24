@@ -153,7 +153,7 @@ class Hex2Utf8:
         # New on 2004-05-8: the self.__char_map is not in directory with other
         # modules
         self.__char_file = io.StringIO(char_set)
-        char_map_obj =  get_char_map.GetCharMap(
+        char_map_obj = get_char_map.GetCharMap(
                 char_file=self.__char_file,
                 bug_handler=self.__bug_handler,
                 )
@@ -193,25 +193,25 @@ class Hex2Utf8:
         # keys = self.__caps_uni_dict.keys()
         # self.__caps_uni_replace = '|'.join(keys)
         self.__preamble_state_dict = {
-            'preamble'      :       self.__preamble_func,
-            'body'          :       self.__body_func,
-            'mi<mk<body-open_'  :   self.__found_body_func,
-            'tx<hx<__________'  :   self.__hex_text_func,
+            'preamble'          : self.__preamble_func,
+            'body'              : self.__body_func,
+            'mi<mk<body-open_'  : self.__found_body_func,
+            'tx<hx<__________'  : self.__hex_text_func,
             }
         self.__body_state_dict = {
-            'preamble'      :       self.__preamble_for_body_func,
-            'body'          :       self.__body_for_body_func,
+            'preamble'  : self.__preamble_for_body_func,
+            'body'      : self.__body_for_body_func,
             }
         self.__in_body_dict = {
-            'mi<mk<body-open_'  :   self.__found_body_func,
-            'tx<ut<__________'  :   self.__utf_to_caps_func,
-            'tx<hx<__________'  :   self.__hex_text_func,
-            'tx<mc<__________'  :   self.__hex_text_func,
-            'tx<nu<__________'  :   self.__text_func,
-            'mi<mk<font______'  :   self.__start_font_func,
-            'mi<mk<caps______'  :   self.__start_caps_func,
-            'mi<mk<font-end__'  :   self.__end_font_func,
-            'mi<mk<caps-end__'  :   self.__end_caps_func,
+            'mi<mk<body-open_'  : self.__found_body_func,
+            'tx<ut<__________'  : self.__utf_to_caps_func,
+            'tx<hx<__________'  : self.__hex_text_func,
+            'tx<mc<__________'  : self.__hex_text_func,
+            'tx<nu<__________'  : self.__text_func,
+            'mi<mk<font______'  : self.__start_font_func,
+            'mi<mk<caps______'  : self.__start_caps_func,
+            'mi<mk<font-end__'  : self.__end_font_func,
+            'mi<mk<caps-end__'  : self.__end_caps_func,
         }
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']

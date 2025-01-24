@@ -794,7 +794,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         display_plugin = self._selected_display_plugin()
         plugin = display_plugin.plugin
         if not plugin.can_be_disabled:
-            return error_dialog(self,_('Plugin cannot be disabled'),
+            return error_dialog(self, _('Plugin cannot be disabled'),
                          _('The plugin: %s cannot be disabled')%plugin.name, show=True)
         if is_disabled(plugin):
             enable_plugin(plugin)

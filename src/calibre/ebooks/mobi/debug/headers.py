@@ -298,18 +298,18 @@ class MOBIHeader:  # {{{
         self.length, = struct.unpack(b'>I', self.raw[20:24])
         self.type_raw, = struct.unpack(b'>I', self.raw[24:28])
         self.type = {
-                2 : 'Mobipocket book',
-                3 : 'PalmDOC book',
-                4 : 'Audio',
-                257 : 'News',
-                258 : 'News Feed',
-                259 : 'News magazine',
-                513 : 'PICS',
-                514 : 'Word',
-                515 : 'XLS',
-                516 : 'PPT',
-                517 : 'TEXT',
-                518 : 'HTML',
+                2  : 'Mobipocket book',
+                3  : 'PalmDOC book',
+                4  : 'Audio',
+                257: 'News',
+                258: 'News Feed',
+                259: 'News magazine',
+                513: 'PICS',
+                514: 'Word',
+                515: 'XLS',
+                516: 'PPT',
+                517: 'TEXT',
+                518: 'HTML',
             }.get(self.type_raw, repr(self.type_raw))
 
         self.encoding_raw, = struct.unpack(b'>I', self.raw[28:32])

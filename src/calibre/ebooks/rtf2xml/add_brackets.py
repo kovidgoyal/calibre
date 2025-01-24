@@ -51,39 +51,39 @@ class AddBrackets:
         self.__write_to = better_mktemp()
         self.__run_level = run_level
         self.__state_dict = {
-            'before_body'           : self.__before_body_func,
-            'in_body'               : self.__in_body_func,
-            'after_control_word'    : self.__after_control_word_func,
-            'in_ignore'             : self.__ignore_func,
+            'before_body'       : self.__before_body_func,
+            'in_body'           : self.__in_body_func,
+            'after_control_word': self.__after_control_word_func,
+            'in_ignore'         : self.__ignore_func,
         }
         self.__accept = [
-            'cw<ci<bold______' ,
-            'cw<ci<annotation' ,
-            'cw<ci<blue______' ,
-            # 'cw<ci<bold______' ,
-            'cw<ci<caps______' ,
-            'cw<ci<char-style' ,
-            'cw<ci<dbl-strike' ,
-            'cw<ci<emboss____' ,
-            'cw<ci<engrave___' ,
-            'cw<ci<font-color' ,
-            'cw<ci<font-down_' ,
-            'cw<ci<font-size_' ,
-            'cw<ci<font-style' ,
-            'cw<ci<font-up___' ,
-            'cw<ci<footnot-mk' ,
-            'cw<ci<green_____' ,
-            'cw<ci<hidden____' ,
-            'cw<ci<italics___' ,
-            'cw<ci<outline___' ,
-            'cw<ci<red_______' ,
-            'cw<ci<shadow____' ,
-            'cw<ci<small-caps' ,
-            'cw<ci<strike-thr' ,
-            'cw<ci<subscript_' ,
-            'cw<ci<superscrip' ,
-            'cw<ci<underlined' ,
-            # 'cw<ul<underlined' ,
+            'cw<ci<bold______',
+            'cw<ci<annotation',
+            'cw<ci<blue______',
+            # 'cw<ci<bold______',
+            'cw<ci<caps______',
+            'cw<ci<char-style',
+            'cw<ci<dbl-strike',
+            'cw<ci<emboss____',
+            'cw<ci<engrave___',
+            'cw<ci<font-color',
+            'cw<ci<font-down_',
+            'cw<ci<font-size_',
+            'cw<ci<font-style',
+            'cw<ci<font-up___',
+            'cw<ci<footnot-mk',
+            'cw<ci<green_____',
+            'cw<ci<hidden____',
+            'cw<ci<italics___',
+            'cw<ci<outline___',
+            'cw<ci<red_______',
+            'cw<ci<shadow____',
+            'cw<ci<small-caps',
+            'cw<ci<strike-thr',
+            'cw<ci<subscript_',
+            'cw<ci<superscrip',
+            'cw<ci<underlined',
+            # 'cw<ul<underlined',
         ]
 
     def __initiate_values(self):
@@ -180,7 +180,7 @@ class AddBrackets:
         What is the interest as it is build to accept only accepted cw
         in __after_control_word_func?
         '''
-        self.__inline = {line[:16] : line[20:-1]
+        self.__inline = {line[:16]: line[20:-1]
             for line in self.__temp_group\
             # Is this really necessary?
                 if line[:16] in self.__accept}

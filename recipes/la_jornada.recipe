@@ -111,7 +111,7 @@ class LaJornada_mx(BasicNewsRecipe):
 
     def get_article_url(self, article):
         # Get link to original article URL
-        rurl = article.get('guid',  None)
+        rurl = article.get('guid', None)
         if not rurl:
             # Use the "link" attribute as failover
             return article.get('link', None)

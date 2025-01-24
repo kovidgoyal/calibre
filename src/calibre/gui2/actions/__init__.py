@@ -31,7 +31,7 @@ def toolbar_widgets_for_action(gui, action):
             # The button might be hidden
             if not w.isVisible():
                 continue
-            yield (w)
+            yield w
         except Exception:
             continue
 

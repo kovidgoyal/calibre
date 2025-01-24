@@ -23,7 +23,7 @@ class ViknaSTB(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'content-wrapper'})
 
-    remove_tags =   [
+    remove_tags = [
          dict(name='div', attrs={'class': 'share-content-wrapper flex-wrapper'}),
          dict(name='div', attrs={'class': 'sticky-wrapper'}),
          dict(name='div', attrs={'class': 'promo-wrapper'}),

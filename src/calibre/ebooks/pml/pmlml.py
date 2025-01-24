@@ -34,10 +34,10 @@ TAG_MAP = {
 }
 
 STYLES = [
-    ('font-weight', {'bold' : 'B', 'bolder' : 'B'}),
-    ('font-style', {'italic' : 'i'}),
-    ('text-decoration', {'underline' : 'u'}),
-    ('text-align', {'right' : 'r', 'center' : 'c'}),
+    ('font-weight', {'bold': 'B', 'bolder': 'B'}),
+    ('font-style', {'italic': 'i'}),
+    ('text-decoration', {'underline': 'u'}),
+    ('text-align', {'right': 'r', 'center': 'c'}),
 ]
 
 BLOCK_TAGS = [

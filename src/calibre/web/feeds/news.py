@@ -1387,7 +1387,7 @@ class BasicNewsRecipe(Recipe):
                 break
 
         for f, feed in enumerate(feeds):
-            html = self.feed2index(f,feeds)
+            html = self.feed2index(f, feeds)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)
@@ -1595,7 +1595,7 @@ class BasicNewsRecipe(Recipe):
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
             if self.default_cover(pf):
-                cpath =  pf.name
+                cpath = pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
@@ -1860,7 +1860,7 @@ class BasicNewsRecipe(Recipe):
             item.extract()
             divtag = soup.new_tag('div')
             brtag  = soup.new_tag('br')
-            oldParent.insert(myIndex,divtag)
+            oldParent.insert(myIndex, divtag)
             divtag.append(item)
             divtag.append(brtag)
         return soup

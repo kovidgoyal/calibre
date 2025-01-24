@@ -69,11 +69,11 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
 class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
-            'bool2' : (
+            'bool2': (
                     (_('is true'), 'is true',),
                     (_('is false'), 'is not true'),
             ),
-            'bool' : (
+            'bool': (
                     (_('is true'), 'is true',),
                     (_('is not true'), 'is not true'),
                     (_('is false'), 'is false'),
@@ -81,22 +81,22 @@ class ConditionEditor(QWidget):  # {{{
                     (_('is undefined'), 'is undefined'),
                     (_('is defined'), 'is defined'),
             ),
-            'ondevice' : (
+            'ondevice': (
                     (_('is true'), 'is set',),
                     (_('is false'), 'is not set'),
             ),
-            'identifiers' : (
+            'identifiers': (
                 (_('has id'), 'has id'),
                 (_('does not have id'), 'does not have id'),
             ),
-            'int' : (
+            'int': (
                 (_('is equal to'), 'eq'),
                 (_('is less than'), 'lt'),
                 (_('is greater than'), 'gt'),
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set')
             ),
-            'datetime' : (
+            'datetime': (
                 (_('is equal to'), 'eq'),
                 (_('is earlier than'), 'lt'),
                 (_('is later than'), 'gt'),
@@ -108,7 +108,7 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is more days from now than'), 'newer future days'),
                 (_('is fewer days from now than'), 'older future days')
             ),
-            'multiple' : (
+            'multiple': (
                 (_('has'), 'has'),
                 (_('does not have'), 'does not have'),
                 (_('has pattern'), 'has pattern'),
@@ -116,13 +116,13 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-            'multiple_no_isset' : (
+            'multiple_no_isset': (
                 (_('has'), 'has'),
                 (_('does not have'), 'does not have'),
                 (_('has pattern'), 'has pattern'),
                 (_('does not have pattern'), 'does not have pattern'),
             ),
-            'single'   : (
+            'single': (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
                 (_('contains'), 'contains'),
@@ -132,7 +132,7 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-            'single_no_isset'   : (
+            'single_no_isset': (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
                 (_('contains'), 'contains'),

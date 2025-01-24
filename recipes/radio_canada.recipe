@@ -104,7 +104,7 @@ class RadioCanada(BasicNewsRecipe):
         ('Grands titres',   'https://ici.radio-canada.ca/rss/771'),
         ('Football',        'https://ici.radio-canada.ca/rss/1000057'),
         ('Hockey',          'https://ici.radio-canada.ca/rss/1000056'),
-        ('Olympiques',        'https://ici.radio-canada.ca/rss/64852'),
+        ('Olympiques',      'https://ici.radio-canada.ca/rss/64852'),
         ('Podium',          'https://ici.radio-canada.ca/rss/555082'),
         ('Soccer',          'https://ici.radio-canada.ca/rss/1000058'),
         ('Tennis',          'https://ici.radio-canada.ca/rss/1000059'),

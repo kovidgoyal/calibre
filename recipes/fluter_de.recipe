@@ -26,7 +26,7 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
     max_articles_per_feed = 50
     auto_cleanup = False
 
-    feeds =  [
+    feeds = [
               (u'Inhalt:', u'https://www.fluter.de/rss.xml')
              ]
 
@@ -38,6 +38,6 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
                     dict(name='h2', attrs={'class':'element-invisible'})
                   ]
 
-    extra_css =  '''
+    extra_css = '''
                  .field-group-format, .group_additional_info, .additional-info {display: inline-block; min-width: 8rem; text-align: center}
                  '''

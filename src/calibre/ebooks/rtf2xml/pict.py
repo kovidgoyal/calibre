@@ -46,9 +46,9 @@ class Pict:
 
     def __initiate_pict_dict(self):
         self.__pict_dict = {
-        'ob<nu<open-brack'    :   self.__open_br_func,
-        'cb<nu<clos-brack'    :   self.__close_br_func,
-        'tx<nu<__________'    :   self.__text_func,
+        'ob<nu<open-brack'  :   self.__open_br_func,
+        'cb<nu<clos-brack'  :   self.__close_br_func,
+        'tx<nu<__________'  :   self.__text_func,
         }
 
     def __open_br_func(self, line):
@@ -154,11 +154,11 @@ class Pict:
                         self.__cb_count = line[-5:-1]
                     if not self.__in_pict:
                         to_print = self.__default(line, write_obj)
-                        if to_print :
+                        if to_print:
                             write_obj.write(line)
                     else:
                         to_print = self.__in_pict_func(line)
-                        if to_print :
+                        if to_print:
                             write_obj.write(line)
                 if self.__already_found_pict:
                     self.__write_pic_obj.write('}\n')

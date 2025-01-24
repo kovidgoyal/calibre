@@ -416,7 +416,7 @@ class BZZDecoder:
         # Create machine independent ffz table
         for i in range(256):
             j = i
-            while (j & 0x80):
+            while j & 0x80:
                 self.ffzt[i] += 1
                 j <<= 1
         # Initialize table

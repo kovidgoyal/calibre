@@ -106,7 +106,7 @@ class IndexTemplate(Template):
                     href='feed_%d/index.html'%i)), id='feed_%d'%i)
                 ul.append(li)
         div = DIV(
-                PT(IMG(src=masthead,alt='masthead'),style='text-align:center'),
+                PT(IMG(src=masthead, alt='masthead'), style='text-align:center'),
                 PT(date, style='text-align:right'),
                 ul,
                 attrs(rescale=100))
@@ -284,7 +284,7 @@ class TouchscreenFeedTemplate(Template):
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
         from calibre.utils.cleantext import clean_xml_chars
 
-        def trim_title(title,clip=18):
+        def trim_title(title, clip=18):
             if len(title)>clip:
                 tokens = title.split(' ')
                 new_title_tokens = []

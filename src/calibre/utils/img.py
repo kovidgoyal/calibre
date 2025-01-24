@@ -817,7 +817,7 @@ def test():  # {{{
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
-        save_image(img, 'test.webp',  compression_quality=100)
+        save_image(img, 'test.webp', compression_quality=100)
         ret = optimize_webp('test.webp')
         if ret is not None:
             raise SystemExit('optimize_webp failed: %s' % ret)

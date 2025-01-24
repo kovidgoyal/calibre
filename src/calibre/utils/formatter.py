@@ -686,8 +686,8 @@ class _Parser:
         return self.expr()
 
     keyword_nodes = {
-            'if':       (lambda self:None, if_expression),
-            'for':      (lambda self:None, for_expression),
+            'if':       (lambda self: None, if_expression),
+            'for':      (lambda self: None, for_expression),
             'break':    (lambda self: self.consume(), lambda self: BreakNode(self.line_number)),
             'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
             'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.top_expr())),
@@ -995,7 +995,7 @@ class _Interpreter:
         try:
             if is_call:
                 # prog is an instance of the function definition class
-                ret =  self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)
+                ret = self.do_node_stored_template_call(StoredTemplateCallNode(1, prog.name, prog, None), args=args)
             else:
                 ret = self.expression_list(prog)
         except ReturnExecuted as e:

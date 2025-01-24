@@ -32,7 +32,7 @@ class Gagadget(BasicNewsRecipe):
     # Ukrainian version only
     remove_tags_after = dict(name='div', attrs={'class': 'top20 bottom20 post-links'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'footer-content'}),
     ]
 

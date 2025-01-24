@@ -191,7 +191,7 @@ class CacheRow(list):  # {{{
                 mi = self.db.get_metadata(id_, index_is_id=True,
                                           get_user_categories=False)
                 for c in self._composites:
-                    self[c] =  mi.get(self._composites[c])
+                    self[c] = mi.get(self._composites[c])
         if col == self._series_sort_col and self._series_sort is None:
             if self[self._series_col]:
                 self._series_sort = title_sort(self[self._series_col])
@@ -206,7 +206,7 @@ class CacheRow(list):  # {{{
 
     def refresh_composites(self):
         for c in self._composites:
-            self[c] =  None
+            self[c] = None
         self._must_do = True
 
 # }}}

@@ -57,7 +57,7 @@ def load_article_from_json(raw, root):
     data = json.loads(raw)
     body = root.xpath('//body')[0]
     article = E(body, 'article')
-    E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
+    E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
     E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
     E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
     E(article, 'div', data['byline'], style='font-style: italic; color:#202020;')

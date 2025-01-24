@@ -24,7 +24,7 @@ class WiComix(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'article__body'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'article__reference article__reference_header'}),
         dict(name='div', attrs={'class': 'my-lg-5'}),
         dict(name='div', attrs={'class': 'video '}),

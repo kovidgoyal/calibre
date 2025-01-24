@@ -49,7 +49,7 @@ class GroupStyles:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to =  better_mktemp()
+        self.__write_to = better_mktemp()
         self.__wrap = wrap
 
     def __initiate_values(self):
@@ -69,9 +69,9 @@ class GroupStyles:
         self.__all_lists = []
         self.__list_chunk = ''
         self.__state_dict={
-        'default'           :   self.__default_func,
-        'in_pard'           :   self.__in_pard_func,
-        'after_pard'        :   self.__after_pard_func,
+        'default'   : self.__default_func,
+        'in_pard'   : self.__in_pard_func,
+        'after_pard': self.__after_pard_func,
         }
         # section end
         self.__end_list = [
@@ -143,7 +143,7 @@ class GroupStyles:
             and line[17:-1] == 'paragraph-definition':
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
-                msg =  'wrong flag'
+                msg = 'wrong flag'
                 raise self.__bug_handler(msg)
         elif self.__token_info in self.__end_list:
             self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')

@@ -459,7 +459,7 @@ class Editor(QFrame):  # {{{
 
         self.done_button = doneb = QPushButton(_('Done'), self)
         l.addWidget(doneb, 0, 2, 1, 1)
-        doneb.clicked.connect(lambda : self.editing_done.emit(self))
+        doneb.clicked.connect(lambda: self.editing_done.emit(self))
         l.setColumnStretch(0, 100)
 
         self.custom_toggled(False)
@@ -595,7 +595,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         else:
             # Group
             html = data.data
-        doc =  QTextDocument()
+        doc = QTextDocument()
         doc.setHtml(html)
         return doc
 

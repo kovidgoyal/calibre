@@ -32,7 +32,7 @@ def extract_member(path_or_stream, match=None, name=None):
     with open_archive(path_or_stream) as ar:
         all_names = list(filter(is_match, ar.getnames()))
         if all_names:
-            return all_names[0] , ar.read(all_names[:1])[all_names[0]].read()
+            return all_names[0], ar.read(all_names[:1])[all_names[0]].read()
 
 
 def extract_cover_image(stream):

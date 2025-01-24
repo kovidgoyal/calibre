@@ -51,7 +51,7 @@ MIME_MAP   = {
                 'lrx' : 'application/x-sony-bbeb',
                 'rtf' : 'application/rtf',
                 'pdf' : 'application/pdf',
-                'txt' : 'text/plain' ,
+                'txt' : 'text/plain',
                 'epub': 'application/epub+zip',
               }
 
@@ -482,7 +482,7 @@ class XMLCache:
 
         try:
             pubdate = strftime(book.pubdate.utctimetuple(),
-                    zone=lambda x : x)
+                    zone=lambda x: x)
             record.set('publicationDate', pubdate)
         except:
             pass

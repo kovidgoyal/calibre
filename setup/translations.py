@@ -566,7 +566,7 @@ class Translations(POT):  # {{{
         srcbase = self.j(self.d(self.SRC), 'translations', 'manual')
         destbase = self.j(self.d(self.SRC), 'manual', 'locale')
         complete = {}
-        all_stats = defaultdict(lambda : {'translated': 0, 'untranslated': 0})
+        all_stats = defaultdict(lambda: {'translated': 0, 'untranslated': 0})
         files = []
         for x in os.listdir(srcbase):
             q = self.j(srcbase, x)

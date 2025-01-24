@@ -241,7 +241,7 @@ class CreateCustomColumn(QDialog):
         which = str(url).split(':')[-1]
         self.column_type_box.setCurrentIndex({
             'yesno': self.column_types_map['bool'],
-            'tags' : self.column_types_map['*text'],
+            'tags': self.column_types_map['*text'],
             'series': self.column_types_map['series'],
             'rating': self.column_types_map['rating'],
             'people': self.column_types_map['*text'],
@@ -626,7 +626,7 @@ class CreateCustomColumn(QDialog):
         self.store_template_value_in_opf.setVisible(col_type == 'composite')
         self.store_template_value_in_opf.setChecked(True)
 
-        for x in ('box', 'default_label',  'colors', 'colors_label'):
+        for x in ('box', 'default_label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         for x in ('value_label', 'value'):
             getattr(self, 'default_'+x).setVisible(col_type not in ['composite', '*composite'])

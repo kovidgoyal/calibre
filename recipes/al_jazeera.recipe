@@ -55,7 +55,7 @@ class AlJazeera(BasicNewsRecipe):
               u'http://www.aljazeera.com/xml/rss/all.xml')]
 
     def get_article_url(self, article):
-        artlurl = article.get('link',  None)
+        artlurl = article.get('link', None)
         return artlurl
 
     def preprocess_html(self, soup):

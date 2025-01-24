@@ -91,7 +91,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             return
 
         base_url = 'http://chitanka.info'
-        url = base_url + '/search?q=' +  quote(query)
+        url = base_url + '/search?q=' + quote(query)
         counter = max_results
 
         # search for book title

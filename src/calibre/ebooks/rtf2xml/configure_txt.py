@@ -48,7 +48,7 @@ class Configure:
                     continue
                 fields = line.split('=')
                 if len(fields) != 2:
-                    msg =  line
+                    msg = line
                     msg += ('Error in configuration.txt, line %s\n' % line_num)
                     msg += ('Options take the form of option = value.\n')
                     msg += ('Please correct the configuration file "%s" before continuing\n'

@@ -57,7 +57,7 @@ class Colors:
         self.__state_dict = {
         'before_color_table': self.__before_color_func,
         'in_color_table'    : self.__in_color_func,
-        'after_color_table'  : self.__after_color_func,
+        'after_color_table' : self.__after_color_func,
         'cw<ci<red_______'  : self.__default_color_func,
         'cw<ci<green_____'  : self.__default_color_func,
         'cw<ci<blue______'  : self.__blue_func,
@@ -110,7 +110,7 @@ class Colors:
             number. Reset the color string to '#'
         '''
         hex_num = line[-3:-1]
-        self.__color_string +=  hex_num
+        self.__color_string += hex_num
         self.__color_dict[self.__color_num] = self.__color_string
         self.__write_obj.write(
         'mi<tg<empty-att_'

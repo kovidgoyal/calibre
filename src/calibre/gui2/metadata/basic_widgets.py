@@ -196,9 +196,9 @@ def make_undoable(spinbox):
             m = QMenu(self)
             if hasattr(self, 'setDateTime'):
                 m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
-                            lambda : self.setDateTime(self.minimumDateTime()))
+                            lambda: self.setDateTime(self.minimumDateTime()))
                 m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
-                            lambda : self.setDateTime(QDateTime.currentDateTime()))
+                            lambda: self.setDateTime(QDateTime.currentDateTime()))
             m.addAction(_('&Undo') + access_key(QKeySequence.StandardKey.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
             m.addAction(_('&Redo') + access_key(QKeySequence.StandardKey.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
@@ -1796,7 +1796,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         rules = msprefs['id_link_rules']
         if rules:
             formatter = EvalFormatter()
-            vals = {'id' : '__ID_REGEX_PLACEHOLDER__'}
+            vals = {'id': '__ID_REGEX_PLACEHOLDER__'}
             for key in rules.keys():
                 rule = rules[key]
                 for name, template in rule:

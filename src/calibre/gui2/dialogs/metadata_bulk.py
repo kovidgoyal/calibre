@@ -85,7 +85,7 @@ class MyBlockingBusy(QDialog):  # {{{
     def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
-        self._layout =  l = QVBoxLayout()
+        self._layout = l = QVBoxLayout()
         self.setLayout(l)
         self.cover_sizes = {'old': 0, 'new': 0}
         # Every Path that will be taken in do_all
@@ -557,11 +557,11 @@ class MyBlockingBusy(QDialog):  # {{{
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
-    s_r_functions = {''              : lambda x: x,
-                            _('Lower Case') : lambda x: icu_lower(x),
-                            _('Upper Case') : lambda x: icu_upper(x),
-                            _('Title Case') : lambda x: titlecase(x),
-                            _('Capitalize') : lambda x: capitalize(x),
+    s_r_functions = {'': lambda x: x,
+        _('Lower Case'): lambda x: icu_lower(x),
+        _('Upper Case'): lambda x: icu_upper(x),
+        _('Title Case'): lambda x: titlecase(x),
+        _('Capitalize'): lambda x: capitalize(x),
                     }
 
     s_r_match_modes = [_('Character match'),
@@ -603,7 +603,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initialize_combos()
 
         self.series.currentIndexChanged.connect(self.series_changed)
-        connect_lambda(self.rating.currentIndexChanged, self, lambda self:self.apply_rating.setChecked(True))
+        connect_lambda(self.rating.currentIndexChanged, self, lambda self: self.apply_rating.setChecked(True))
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
@@ -799,7 +799,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.testgrid.setColumnStretch(2, 1)
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
-        for i in range(1,self.s_r_number_of_books+1):
+        for i in range(1, self.s_r_number_of_books+1):
             w = QLabel(self.tabWidgetPage3)
             w.setText(_('Book %d:')%i)
             self.testgrid.addWidget(w, i+offset, 0, 1, 1)
@@ -1277,7 +1277,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(key=lambda x : sort_key(x[1]))
+        all_authors.sort(key=lambda x: sort_key(x[1]))
 
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
@@ -1474,7 +1474,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             dex = 0
         name = ''
         while not name:
-            name, ok =  QInputDialog.getItem(self, _('Save search/replace'),
+            name, ok = QInputDialog.getItem(self, _('Save search/replace'),
                     _('Search/replace name:'), names, dex, True)
             if not ok:
                 return

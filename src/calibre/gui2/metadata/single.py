@@ -1083,7 +1083,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
-                   13, 1, 1 ,1)
+                   13, 1, 1, 1)
 
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -1242,7 +1242,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
-                   13, 1, 1 ,1)
+                   13, 1, 1, 1)
 
         # Custom metadata in col 1
         w = getattr(self, 'custom_metadata_widgets_parent', None)

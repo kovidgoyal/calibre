@@ -183,7 +183,7 @@ def download_resources(
 def develop():
     from calibre.gui2 import Application
     app = Application([])
-    urls =  {
+    urls = {
         'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx': (
             '/tmp/model', 'Voice neural network'),
         'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json': (

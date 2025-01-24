@@ -338,11 +338,11 @@ class Page(LRFStream):
       }
     tag_map.update(PageAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
-    style = property(fget=lambda self : self._document.objects[self.style_id])
-    evenheader = property(fget=lambda self : self._document.objects[self.style.evenheaderid])
-    evenfooter = property(fget=lambda self : self._document.objects[self.style.evenfooterid])
-    oddheader  = property(fget=lambda self : self._document.objects[self.style.oddheaderid])
-    oddfooter  = property(fget=lambda self : self._document.objects[self.style.oddfooterid])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
+    evenheader = property(fget=lambda self: self._document.objects[self.style.evenheaderid])
+    evenfooter = property(fget=lambda self: self._document.objects[self.style.evenfooterid])
+    oddheader  = property(fget=lambda self: self._document.objects[self.style.oddheaderid])
+    oddfooter  = property(fget=lambda self: self._document.objects[self.style.oddfooterid])
 
     class Content(LRFContentObject):
         tag_map = {
@@ -531,7 +531,7 @@ class TextCSS:
 
 class TextAttr(StyleObject, LRFObject, TextCSS):
 
-    FONT_MAP = collections.defaultdict(lambda : 'serif')
+    FONT_MAP = collections.defaultdict(lambda: 'serif')
     for key, value in PRS500_PROFILE.default_fonts.items():
         FONT_MAP[value] = key
 
@@ -571,8 +571,8 @@ class Block(LRFStream, TextCSS):
     extra_attrs = [i[0] for i in BlockAttr.tag_map.values()]
     extra_attrs.extend([i[0] for i in TextAttr.tag_map.values()])
 
-    style = property(fget=lambda self : self._document.objects[self.style_id])
-    textstyle = property(fget=lambda self : self._document.objects[self.textstyle_id])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
+    textstyle = property(fget=lambda self: self._document.objects[self.textstyle_id])
 
     def initialize(self):
         self.attrs = {}
@@ -638,7 +638,7 @@ class Text(LRFStream):
     tag_map.update(TextAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
 
-    style = property(fget=lambda self : self._document.objects[self.style_id])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
 
     text_map = {0x22: '"', 0x26: '&amp;', 0x27: "'", 0x3c: '&lt;', 0x3e: '&gt;'}
     entity_pattern = re.compile(r'&amp;(\S+?);')
@@ -931,8 +931,8 @@ class Image(LRFObject):
     def parse_image_size(self, tag, f):
         self.xsize, self.ysize = struct.unpack('<HH', tag.contents)
 
-    encoding = property(fget=lambda self : self._document.objects[self.refstream].encoding)
-    data = property(fget=lambda self : self._document.objects[self.refstream].stream)
+    encoding = property(fget=lambda self: self._document.objects[self.refstream].encoding)
+    data = property(fget=lambda self: self._document.objects[self.refstream].stream)
 
     def __str__(self):
         return '<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
@@ -1021,7 +1021,7 @@ class ImageStream(LRFStream):
 
     tag_map.update(LRFStream.tag_map)
 
-    encoding = property(fget=lambda self : self.imgext[self.stream_flags & 0xFF].upper())
+    encoding = property(fget=lambda self: self.imgext[self.stream_flags & 0xFF].upper())
 
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
@@ -1122,8 +1122,8 @@ class Button(LRFObject):
         s += '</Button>\n'
         return s
 
-    refpage = property(fget=lambda self : self.jump_action(2)[0])
-    refobj = property(fget=lambda self : self.jump_action(2)[1])
+    refpage = property(fget=lambda self: self.jump_action(2)[0])
+    refobj = property(fget=lambda self: self.jump_action(2)[1])
 
 
 class Window(LRFObject):
@@ -1173,7 +1173,7 @@ class BookAttr(StyleObject, LRFObject):
       }
     tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
-    binding_map = {1: 'Lr', 16 : 'Rl'}
+    binding_map = {1: 'Lr', 16: 'Rl'}
 
     def __init__(self, document, stream, id, scramble_key, boundary):
         self.font_link_list = []

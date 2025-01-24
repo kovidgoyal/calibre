@@ -340,7 +340,7 @@ class ThemeCreateDialog(Dialog):
         self.license.setText((theme.license or 'Unknown').strip())
         self.url.setText((theme.url or '').strip())
         if self.report.missing:
-            title =  _('%d icons missing in this theme') % len(self.report.missing)
+            title = _('%d icons missing in this theme') % len(self.report.missing)
         else:
             title = _('No missing icons')
         self.missing_icons_group.setTitle(title)
@@ -751,12 +751,12 @@ class ChooseThemeWidget(QWidget):
 
     def re_sort(self):
         ct = self.current_theme
-        self.themes.sort(key=lambda x:sort_key(x.get('title', '')))
+        self.themes.sort(key=lambda x: sort_key(x.get('title', '')))
         field = self.sort_on
         if field == 'number':
-            self.themes.sort(key=lambda x:x.get('number', 0), reverse=True)
+            self.themes.sort(key=lambda x: x.get('number', 0), reverse=True)
         elif field == 'usage':
-            self.themes.sort(key=lambda x:x.get('usage', 0), reverse=True)
+            self.themes.sort(key=lambda x: x.get('usage', 0), reverse=True)
         self.theme_list.clear()
         for theme in self.themes:
             i = QListWidgetItem(theme.get('title', '') + ' {} {}'.format(theme.get('number'), theme.get('usage', 0)), self.theme_list)
@@ -944,7 +944,7 @@ class ChooseTheme(Dialog):
         if themes_to_download:
             size = sum(t['compressed-size'] for t in themes_to_download.values())
             d = DownloadProgress(self, size)
-            d.canceled_signal.connect(lambda : setattr(self, 'keep_downloading', False))
+            d.canceled_signal.connect(lambda: setattr(self, 'keep_downloading', False))
             t = Thread(name='DownloadIconTheme', target=download)
             t.daemon = True
             t.start()

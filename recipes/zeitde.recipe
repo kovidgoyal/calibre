@@ -115,7 +115,7 @@ class ZeitDe(BasicNewsRecipe):
     def print_version(self, url):
         # If there is a complete page, use that one
         req = Request(url=url+'/komplettansicht')
-        req.get_method = lambda : 'HEAD'
+        req.get_method = lambda: 'HEAD'
         try:
             urlopen(req)
             return url + '/komplettansicht'

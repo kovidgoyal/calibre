@@ -402,7 +402,7 @@ class SearchDialog(QDialog):
         else:
             self.copy_current_template_search_button.setEnabled(False)
         self.copy_current_template_search_button.clicked.connect(self.retrieve_template_search)
-        self.edit_template_button.clicked.connect(lambda:self.template_program_box.open_editor())
+        self.edit_template_button.clicked.connect(lambda: self.template_program_box.open_editor())
         self.resize(self.sizeHint())
 
     def retrieve_template_search(self):
@@ -469,7 +469,7 @@ class SearchDialog(QDialog):
         template = str(self.template_program_box.text())
         value = str(self.template_value_box.text())
         cb = self.template_test_type_box
-        op =  str(cb.itemData(cb.currentIndex()))
+        op = str(cb.itemData(cb.currentIndex()))
         l = f'{template}#@#:{op}:{value}'
         # Use docstring quoting (super-quoting) to avoid problems with escaping
         return 'template:"""' + l + '"""'

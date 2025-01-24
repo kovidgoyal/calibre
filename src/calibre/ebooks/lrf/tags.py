@@ -177,7 +177,7 @@ class Tag:
                 0xF7 : (4, None),
                 0xF8 : (4, None),
                 0xF9 : (6, None),
-                }
+            }
     name_map = {}
     for key in tags.keys():
         temp = tags[key][1]

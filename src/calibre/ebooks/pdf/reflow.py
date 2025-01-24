@@ -170,7 +170,7 @@ class Text(Element):
             ('top', 'left', 'width', 'height'))))
         # This does nothing, as expected,
         # but somewhere left (at least) is changed sometimes to not .0
-        if self.left != round(self.left) :
+        if self.left != round(self.left):
             self.left = round(self.left)
         self.bottom  = self.top + self.height
         self.right = self.left + self.width
@@ -264,8 +264,8 @@ class Text(Element):
 
         self.left = min(self.left, other.left)
         self.right = max(self.right, other.right)
-        self.width +=  other.width
-        self.final_width =  other.left + other.width
+        self.width += other.width
+        self.final_width = other.left + other.width
         self.height = self.bottom - self.top
         # Need to check for </span> <span... as well
         # This test does not work in its present form
@@ -274,7 +274,7 @@ class Text(Element):
           and False \
           and self.font.id == other.font.id \
           and re.match(r'<span style="font-size:', self.raw) is not None \
-          and re.match(r'<span style="font-size:', other.raw) is not None :
+          and re.match(r'<span style="font-size:', other.raw) is not None:
             # We have the same class, so merge
             m_self = re.match(r'^(.+)</span>$', self.raw)
             m_other = re.match(r'^<span style="font-size:.+em">(.+</span>)$', other.raw)
@@ -282,12 +282,12 @@ class Text(Element):
                 self.raw = m_self.group(1)
                 other.raw = m_other.group(1)
         elif self.font_size_em != other.font_size_em \
-          and self.font_size_em != 1.00 :
-            if re.match(r'<span', self.raw) is None :
+          and self.font_size_em != 1.00:
+            if re.match(r'<span', self.raw) is None:
                 self.raw = '<span style="font-size:%sem">%s</span>'%(str(self.font_size_em),self.raw)
             # Try to allow for a very large initial character
             elif len(self.text_as_string) <= 2 \
-              and self.font_size_em >= other.font_size_em * 2.0 :
+              and self.font_size_em >= other.font_size_em * 2.0:
                 # Insert 'float: left' etc. into current font info
                 # Unfortunately, processing to generate the .epub file changes things.
                 # The line height gets set to the same as other parts of the file
@@ -351,10 +351,10 @@ class Text(Element):
         # Are there problems if self.raw does not end </a>?
         # Note that the 2 parts could have different font sizes
         matchObj = re.match(r'^([^<]*)(<span[^>]*>)*(<a href[^>]+>)(.*)</a>(</span>)*(\s*)$', self.raw)
-        if matchObj is not None :
+        if matchObj is not None:
             otherObj = re.match(r'^([^<]*)(<span[^>]*>)*(<a href[^>]+>)(.*)(</a>)(</span>)*(.*)$', other.raw)
             # There is another href, but is it for the same place?
-            if otherObj is not None  and  matchObj.group(3) == otherObj.group(3) :
+            if otherObj is not None and matchObj.group(3) == otherObj.group(3):
                 m2 = matchObj.group(2)
                 if m2 is None:
                     m2 = ''
@@ -523,7 +523,7 @@ class Column:
             left_margin = elem.left - self.left
             elem.indent_fraction = left_margin/self.width
             elem.width_fraction = elem.width/self.width
-            if i == 0  or  self.average_line_separation == 0:
+            if i == 0 or self.average_line_separation == 0:
                 elem.top_gap_ratio = None
             else:
                 elem.top_gap_ratio = (self.elements[i-1].bottom -
@@ -740,15 +740,15 @@ class Page:
             if (frst.top <= secnd.top and frst.bottom >= secnd.bottom-BOTTOM_FACTOR) \
               or (secnd.top <= frst.top and secnd.bottom >= frst.bottom-BOTTOM_FACTOR):
                 # Overlap = same line
-                if frst.left < secnd.left :
+                if frst.left < secnd.left:
                     return -1
-                elif frst.left == secnd.left :
+                elif frst.left == secnd.left:
                     return 0
                 return 1
             # Different line so sort into line number
-            if frst.bottom < secnd.bottom :
+            if frst.bottom < secnd.bottom:
                 return -1
-            elif frst.bottom == secnd.bottom :
+            elif frst.bottom == secnd.bottom:
                 return 0
             return 1
 
@@ -862,7 +862,7 @@ class Page:
         # Approximate the line spacing for checking overlapped lines
         line_height = frag.bottom - frag.top
         for t in self.texts:
-            if t is not frag :
+            if t is not frag:
                 # Do the parts of a line overlap?
                 # Some files can have separate lines overlapping slightly
                 # BOTTOM_FACTOR allows for this
@@ -1100,7 +1100,7 @@ class Page:
             for i in range(LINE_SCAN_COUNT):
                 if len(self.texts) < 1:
                     break
-                if re.match(opts.pdf_header_regex, self.texts[0].text_as_string) is not None :
+                if re.match(opts.pdf_header_regex, self.texts[0].text_as_string) is not None:
                     # There could be fragments which are spread out, so join_fragments has not coalesced them
                     # Not sure that this would work as it relies on the first fragment matching regex
                     t = self.texts[0]
@@ -1116,7 +1116,7 @@ class Page:
             for i in range(LINE_SCAN_COUNT):
                 if len(self.texts) < 1:
                     break
-                if re.match(opts.pdf_footer_regex, self.texts[-1].text_as_string) is not None :
+                if re.match(opts.pdf_footer_regex, self.texts[-1].text_as_string) is not None:
                     # There could be fragments which are spread out, so join_fragments has not coalesced them
                     t = self.texts[-1]
                     # match = self.find_match(t)
@@ -1154,10 +1154,10 @@ class Page:
         for text in self.texts:
             top = text.top
             left = text.left
-            if round(left) != left :
+            if round(left) != left:
                 text.left = left = round(left)
             right = text.right
-            if round(right) != right :
+            if round(right) != right:
                 text.right = right = round(right)
             if first:
                 tops[top] = tops.get(top, 0) + 1
@@ -1969,7 +1969,7 @@ class PDFDocument:
                             merged_len = 0  # No merge
                         # Allow where the last line ends with or next line starts with lower case.
                         if re.match(r'.*[a-z,-]\s*$', last_line.text_as_string) is not None \
-                          or re.match(r'^\s*[a-z,-]', merged_text.text_as_string) is not None :
+                          or re.match(r'^\s*[a-z,-]', merged_text.text_as_string) is not None:
                             merged_len = merged_text.right
 
                         # To use merged_len etc.
@@ -1984,7 +1984,7 @@ class PDFDocument:
                             merge_done = True
                             # We don't want to merge partial pages
                             # i.e. if this is the last line, preserve its top/bottom till after merge
-                            if len(page.texts) == 1 :
+                            if len(page.texts) == 1:
                                 save_bottom = merged_text.bottom
                             else:
                                 save_bottom = 0.0
@@ -2014,7 +2014,7 @@ class PDFDocument:
                                  or self.pages[pind+1].texts[0].top > self.pages[pind+1].imgs[0].top)):
                                 page.page_break_after = True
                     elif (re.match(r'.*[a-z, ]$', last_line.text_as_string) is not None \
-                      or  last_line.final_width > page.width*self.opts.unwrap_factor):
+                      or last_line.final_width > page.width*self.opts.unwrap_factor):
                         candidate = page
                 else:
                     candidate = None

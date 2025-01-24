@@ -54,9 +54,9 @@ class Fonts:
         Initiate all values.
         '''
         self.__special_font_dict = {
-        'Symbol'        :   0,
-        'Wingdings'     :   0,
-        'Zapf Dingbats'      :   0,
+        'Symbol'        : 0,
+        'Wingdings'     : 0,
+        'Zapf Dingbats' : 0,
         }
         self.__special_font_list = [
         'Symbol', 'Wingdings', 'Zapf Dingbats'

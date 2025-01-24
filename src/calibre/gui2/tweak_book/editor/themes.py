@@ -59,8 +59,8 @@ SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'62626
 SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa: E501
 m = {'base%d'%n:'base%02d'%n for n in range(1, 4)}
 m.update({'base%02d'%n:'base%d'%n for n in range(1, 4)})
-SLL = {m.get(k, k) : v for k, v in iteritems(SLD)}
-SLLX = {m.get(k, k) : v for k, v in iteritems(SLDX)}
+SLL =  {m.get(k, k): v for k, v in iteritems(SLD)}
+SLLX = {m.get(k, k): v for k, v in iteritems(SLDX)}
 SOLARIZED = \
     '''
     CursorLine   bg={base02}

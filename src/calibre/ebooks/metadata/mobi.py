@@ -181,7 +181,7 @@ class MetadataUpdater:
     def patch(self, off, new_record0):
         # Save the current size of each record
         record_sizes = [len(new_record0)]
-        for i in range(1,self.nrecs-1):
+        for i in range(1, self.nrecs-1):
             record_sizes.append(self.pdbrecords[i+1][0]-self.pdbrecords[i][0])
         # And the last one
         record_sizes.append(self.data.stop - self.pdbrecords[self.nrecs-1][0])
@@ -192,7 +192,7 @@ class MetadataUpdater:
         record0_offset = self.pdbrecords[0][0]
         updated_offset = record0_offset + len(new_record0)
 
-        for i in range(1,self.nrecs-1):
+        for i in range(1, self.nrecs-1):
             updated_pdbrecords.append(updated_offset)
             updated_offset += record_sizes[i]
         # Update the last pdbrecord
@@ -200,7 +200,7 @@ class MetadataUpdater:
 
         # Read in current records 1 to last
         data_blocks = [new_record0]
-        for i in range(1,self.nrecs):
+        for i in range(1, self.nrecs):
             data_blocks.append(self.data[self.pdbrecords[i][0]:self.pdbrecords[i][0] + record_sizes[i]])
 
         # Rewrite the stream
@@ -272,7 +272,7 @@ class MetadataUpdater:
         new_record0.write(b'\0'*(1024*8))
 
         # Rebuild the stream, update the pdbrecords pointers
-        self.patchSection(0,new_record0.getvalue())
+        self.patchSection(0, new_record0.getvalue())
 
         # Update record0
         self.record0 = self.record(0)
@@ -283,7 +283,7 @@ class MetadataUpdater:
         N=0
         result=''
         while src:
-            s,src = src[:length],src[length:]
+            s, src = src[:length],src[length:]
             hexa = ' '.join(['%02X'%ord(x) for x in s])
             s = s.translate(FILTER)
             result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
@@ -448,7 +448,7 @@ class MetadataUpdater:
 
         if mi.cover_data[1] or mi.cover:
             try:
-                data =  mi.cover_data[1]
+                data = mi.cover_data[1]
                 if not data:
                     with open(mi.cover, 'rb') as f:
                         data = f.read()

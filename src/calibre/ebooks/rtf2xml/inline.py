@@ -51,33 +51,33 @@ class Inline:
         Initiate all values.
         '''
         self.__state_dict = {
-            'default':              self.__default_func,
-            'after_open_bracket':   self.__after_open_bracket_func,
+            'default'           : self.__default_func,
+            'after_open_bracket': self.__after_open_bracket_func,
         }
         self.__default_dict = {
-            'ob<nu<open-brack':         self.__found_open_bracket_func,
-            'tx<nu<__________'  :       self.__found_text_func,
-            'tx<hx<__________'  :       self.__found_text_func,
-            'tx<ut<__________'  :       self.__found_text_func,
-            'mi<mk<inline-fld'  :       self.__found_text_func,
-            'text'              :       self.__found_text_func,
-            'cb<nu<clos-brack'  :       self.__close_bracket_func,
-            'mi<mk<par-end___'  :       self.__end_para_func,
-            'mi<mk<footnt-ope'  :       self.__end_para_func,
-            'mi<mk<footnt-ind'  :       self.__end_para_func,
+            'ob<nu<open-brack'  : self.__found_open_bracket_func,
+            'tx<nu<__________'  : self.__found_text_func,
+            'tx<hx<__________'  : self.__found_text_func,
+            'tx<ut<__________'  : self.__found_text_func,
+            'mi<mk<inline-fld'  : self.__found_text_func,
+            'text'              : self.__found_text_func,
+            'cb<nu<clos-brack'  : self.__close_bracket_func,
+            'mi<mk<par-end___'  : self.__end_para_func,
+            'mi<mk<footnt-ope'  : self.__end_para_func,
+            'mi<mk<footnt-ind'  : self.__end_para_func,
         }
         self.__after_open_bracket_dict = {
-            'cb<nu<clos-brack'  :       self.__close_bracket_func,
-            'tx<nu<__________'  :       self.__found_text_func,
-            'tx<hx<__________'  :       self.__found_text_func,
-            'tx<ut<__________'  :       self.__found_text_func,
-            'text'              :       self.__found_text_func,
-            'mi<mk<inline-fld'  :       self.__found_text_func,
-            'ob<nu<open-brack':         self.__found_open_bracket_func,
-            'mi<mk<par-end___'  :       self.__end_para_func,
-            'mi<mk<footnt-ope'  :       self.__end_para_func,
-            'mi<mk<footnt-ind'  :       self.__end_para_func,
-            'cw<fd<field_____'  :       self.__found_field_func,
+            'cb<nu<clos-brack'  : self.__close_bracket_func,
+            'tx<nu<__________'  : self.__found_text_func,
+            'tx<hx<__________'  : self.__found_text_func,
+            'tx<ut<__________'  : self.__found_text_func,
+            'text'              : self.__found_text_func,
+            'mi<mk<inline-fld'  : self.__found_text_func,
+            'ob<nu<open-brack'  : self.__found_open_bracket_func,
+            'mi<mk<par-end___'  : self.__end_para_func,
+            'mi<mk<footnt-ope'  : self.__end_para_func,
+            'mi<mk<footnt-ind'  : self.__end_para_func,
+            'cw<fd<field_____'  : self.__found_field_func,
         }
         self.__state = 'default'
         self.__brac_count = 0  # do I need this?
@@ -91,31 +91,31 @@ class Inline:
         self.__in_para = 0  # not in paragraph
         self.__char_dict = {
             # character info => ci
-            'annotation'    :   'annotation',
-            'blue______'    :   'blue',
-            'bold______'    :   'bold',
-            'caps______'    :   'caps',
-            'char-style'    :   'character-style',
-            'dbl-strike'    :   'double-strike-through',
-            'emboss____'    :   'emboss',
-            'engrave___'    :   'engrave',
-            'font-color'    :   'font-color',
-            'font-down_'    :   'subscript',
-            'font-size_'    :   'font-size',
-            'font-style'    :   'font-style',
-            'font-up___'    :   'superscript',
-            'footnot-mk'    :   'footnote-marker',
-            'green_____'    :   'green',
-            'hidden____'    :   'hidden',
-            'italics___'    :   'italics',
-            'outline___'    :   'outline',
-            'red_______'    :   'red',
-            'shadow____'    :   'shadow',
-            'small-caps'    :   'small-caps',
-            'strike-thr'    :   'strike-through',
-            'subscript_'    :   'subscript',
-            'superscrip'    :   'superscript',
-            'underlined'    :   'underlined',
+            'annotation':   'annotation',
+            'blue______':   'blue',
+            'bold______':   'bold',
+            'caps______':   'caps',
+            'char-style':   'character-style',
+            'dbl-strike':   'double-strike-through',
+            'emboss____':   'emboss',
+            'engrave___':   'engrave',
+            'font-color':   'font-color',
+            'font-down_':   'subscript',
+            'font-size_':   'font-size',
+            'font-style':   'font-style',
+            'font-up___':   'superscript',
+            'footnot-mk':   'footnote-marker',
+            'green_____':   'green',
+            'hidden____':   'hidden',
+            'italics___':   'italics',
+            'outline___':   'outline',
+            'red_______':   'red',
+            'shadow____':   'shadow',
+            'small-caps':   'small-caps',
+            'strike-thr':   'strike-through',
+            'subscript_':   'subscript',
+            'superscrip':   'superscript',
+            'underlined':   'underlined',
         }
         self.__caps_list = ['false']
 
@@ -365,7 +365,7 @@ class Inline:
         '''
         for the_dict in self.__inline_list:
             contains_info = the_dict.get('contains_inline')
-            if contains_info :
+            if contains_info:
                 the_keys = the_dict.keys()
                 if 'font-style' in the_keys:
                     face = the_dict['font-style']

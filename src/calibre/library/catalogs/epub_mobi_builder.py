@@ -2285,13 +2285,13 @@ class CatalogBuilder:
             # Generate the title from the template
             args = self.generate_format_args(book)
             if current_series:
-                # aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
+                # aTag.insert(0, escape(book['title'][len(book['series'])+1:]))
                 formatted_title = self.formatter.safe_format(
                                  self.by_genres_series_title_template, args,
                                  _('error in') + ' by_genres_series_title_template:',
                                  self.db.new_api.get_proxy_metadata(book['id']))
             else:
-                # aTag.insert(0,escape(book['title']))
+                # aTag.insert(0, escape(book['title']))
                 formatted_title = self.formatter.safe_format(
                                  self.by_genres_normal_title_template, args,
                                  _('error in') + ' by_genres_normal_title_template:',
@@ -3416,7 +3416,7 @@ class CatalogBuilder:
         # Create an NCX article entry for each populated month
         # Loop over the booksByDate list, find start of each month,
         # add description_preview_count titles
-        # master_month_list(list,date,count)
+        # master_month_list(list, date, count)
         current_titles_list = []
         master_month_list = []
         current_date = self.books_by_month[0]['timestamp']
@@ -3513,7 +3513,7 @@ class CatalogBuilder:
         # Create an NCX article entry for each populated day
         # Loop over the booksByDate list, find start of each month,
         # add description_preview_count titles
-        # master_month_list(list,date,count)
+        # master_month_list(list, date, count)
         current_titles_list = []
         master_day_list = []
         current_date = utcfromtimestamp(self.bookmarked_books_by_date_read[0]['bookmark_timestamp'])

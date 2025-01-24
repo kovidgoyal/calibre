@@ -12,7 +12,7 @@ def classes(classes):
 
 def absolutize(href):
     if href.startswith('/'):
-        href =  'https://www.lrb.co.uk' + href
+        href = 'https://www.lrb.co.uk' + href
     return href
 
 

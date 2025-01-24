@@ -254,7 +254,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
     '''
     assert max_levels >= 0
     level = 0
-    flat =  [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
+    flat = [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
     seen = {flat[0].path}
     next_level = list(flat)
     while level < max_levels and len(next_level) > 0:

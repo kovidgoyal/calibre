@@ -242,12 +242,12 @@ class Tag:  # {{{
     '''
 
     TAG_MAP = {
-            1: ('offset', 'Offset in HTML'),
-            2: ('size', 'Size in HTML'),
-            3: ('label_offset', 'Label offset in CNCX'),
-            4: ('depth', 'Depth of this entry in TOC'),
-            5: ('class_offset', 'Class offset in CNCX'),
-            6: ('pos_fid', 'File Index'),
+            1 : ('offset', 'Offset in HTML'),
+            2 : ('size', 'Size in HTML'),
+            3 : ('label_offset', 'Label offset in CNCX'),
+            4 : ('depth', 'Depth of this entry in TOC'),
+            5 : ('class_offset', 'Class offset in CNCX'),
+            6 : ('pos_fid', 'File Index'),
 
             11: ('secondary', '[unknown, unknown, '
                 'tag type from TAGX in primary index header]'),
@@ -256,14 +256,14 @@ class Tag:  # {{{
             22: ('first_child_index', 'First child'),
             23: ('last_child_index', 'Last child'),
 
-            69 : ('image_index', 'Offset from first image record to the'
+            69: ('image_index', 'Offset from first image record to the'
                                 ' image record associated with this entry'
                                 ' (masthead for periodical or thumbnail for'
                                 ' article entry).'),
-            70 : ('desc_offset', 'Description offset in cncx'),
-            71 : ('author_offset', 'Author offset in cncx'),
-            72 : ('image_caption_offset', 'Image caption offset in cncx'),
-            73 : ('image_attr_offset', 'Image attribution offset in cncx'),
+            70: ('desc_offset', 'Description offset in cncx'),
+            71: ('author_offset', 'Author offset in cncx'),
+            72: ('image_caption_offset', 'Image caption offset in cncx'),
+            73: ('image_attr_offset', 'Image attribution offset in cncx'),
 
     }
 

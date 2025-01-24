@@ -57,7 +57,7 @@ class CanWestPaper(BasicNewsRecipe):
         divtags = soup.findAll('div', attrs={'id': ''})
         if divtags:
             for div in divtags:
-                del (div['id'])
+                del div['id']
         return soup
 
     def parse_index(self):

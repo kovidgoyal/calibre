@@ -68,7 +68,7 @@ def get_wordcount(text):
 
     characters = len(text)
     chars_no_spaces = sum(not x.isspace() for x in text)
-    asian_chars =  sum(is_asian(x) for x in text)
+    asian_chars = sum(is_asian(x) for x in text)
     non_asian_words = nonj_len(text)
     words = non_asian_words + asian_chars
 

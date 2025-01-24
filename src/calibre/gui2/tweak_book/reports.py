@@ -390,7 +390,7 @@ def jump_to_location(loc):
 class Jump:
 
     def __init__(self):
-        self.pos_map = defaultdict(lambda : -1)
+        self.pos_map = defaultdict(lambda: -1)
 
     def clear(self):
         self.pos_map.clear()

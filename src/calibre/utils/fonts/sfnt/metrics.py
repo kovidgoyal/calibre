@@ -42,7 +42,7 @@ class FontMetrics:
         self._sig = hash(self.sfnt[b'name'].raw)
 
         # Metrics for embedding in PDF
-        pdf_scale = self.pdf_scale = lambda x:int(round(x*1000./self.units_per_em))
+        pdf_scale = self.pdf_scale = lambda x: int(round(x*1000./self.units_per_em))
         self.pdf_ascent, self.pdf_descent = map(pdf_scale,
                         (self.os2.typo_ascender, self.os2.typo_descender))
         self.pdf_bbox = tuple(map(pdf_scale, self.bbox))

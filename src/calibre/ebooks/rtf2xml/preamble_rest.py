@@ -67,14 +67,14 @@ class Preamble:
         self.__state_dict = {
         'default'   : self.__default_func,
         'revision'  : self.__revision_table_func,
-        'list_table'  : self.__list_table_func,
-        'body'        : self.__body_func,
+        'list_table': self.__list_table_func,
+        'body'      : self.__body_func,
         }
         self.__default_dict = {
-        'mi<mk<rtfhed-beg'      : self.__found_rtf_head_func,
-        'mi<mk<listabbeg_'      : self.__found_list_table_func,
-        'mi<mk<revtbl-beg'      : self.__found_revision_table_func,
-        'mi<mk<body-open_'      : self.__found_body_func,
+        'mi<mk<rtfhed-beg'  : self.__found_rtf_head_func,
+        'mi<mk<listabbeg_'  : self.__found_list_table_func,
+        'mi<mk<revtbl-beg'  : self.__found_revision_table_func,
+        'mi<mk<body-open_'  : self.__found_body_func,
         }
 
     def __default_func(self, line):

@@ -29,7 +29,7 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup     = False
 
-    extra_css      =  '''
+    extra_css      = '''
                       h1, h2 {font-size: 1.6em; text-align: left}
                       .article-header-description {font-size: 1em; font-style: italic; font-weight: normal;margin-bottom: 1em}
                       .b-image-figure, .caption-figure.is-left, .b-image-credits {font-size: .75em; font-weight: normal;margin-bottom: .75em}

@@ -216,7 +216,7 @@ class Header(Canvas):
 
     def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated):
         Canvas.__init__(self, font_loader, header, logger, opts, ruby_tags, link_activated,
-                        page_style.textwidth,  page_style.headheight)
+                        page_style.textwidth, page_style.headheight)
         if opts.visual_debug:
             self.setPen(QPen(Qt.GlobalColor.blue, 1, Qt.PenStyle.DashLine))
 

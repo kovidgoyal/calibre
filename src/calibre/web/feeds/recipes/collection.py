@@ -351,7 +351,7 @@ class SchedulerConfig:
             if last_downloaded is None:
                 last_downloaded = EPOCH
             sr = E.scheduled_recipe({
-                'id' : recipe.get('id'),
+                'id': recipe.get('id'),
                 'title': recipe.get('title'),
                 'last_downloaded':isoformat(last_downloaded),
                 }, self.serialize_schedule(schedule_type, schedule))
@@ -365,10 +365,10 @@ class SchedulerConfig:
                 if x.get('id') == urn:
                     self.root.remove(x)
             cs = E.recipe_customization({
-                'keep_issues' : str(val.keep_issues),
-                'id' : urn,
-                'add_title_tag' : 'yes' if val.add_title_tag else 'no',
-                'custom_tags' : ','.join(val.custom_tags),
+                'keep_issues': str(val.keep_issues),
+                'id': urn,
+                'add_title_tag': 'yes' if val.add_title_tag else 'no',
+                'custom_tags': ','.join(val.custom_tags),
                 'recipe_specific_options': json.dumps(val.recipe_specific_options or {}),
                 })
             self.root.append(cs)

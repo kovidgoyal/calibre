@@ -452,7 +452,7 @@ class Diff(Dialog):
             return {'context': self.context, 'beautify': self.beautify, 'syntax': syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
-            for name, other_name in sorted(iteritems(changed_names), key=lambda x:numeric_sort_key(x[0])):
+            for name, other_name in sorted(iteritems(changed_names), key=lambda x: numeric_sort_key(x[0])):
                 args = (name, other_name, cache.left(name), cache.right(other_name))
                 add(args, kwargs(name))
         else:
@@ -468,7 +468,7 @@ class Diff(Dialog):
             args = (name, _('[%s was removed]') % name, cache.left(name), None)
             add(args, kwargs(name))
 
-        for name, new_name in sorted(iteritems(renamed_names), key=lambda x:numeric_sort_key(x[0])):
+        for name, new_name in sorted(iteritems(renamed_names), key=lambda x: numeric_sort_key(x[0])):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 
@@ -522,7 +522,7 @@ def main(args=sys.argv):
     app = Application([])  # noqa: F841
     d = Diff(show_as_window=True)
     func = getattr(d, attr)
-    QTimer.singleShot(0, lambda : func(left, right))
+    QTimer.singleShot(0, lambda: func(left, right))
     d.show()
     app.exec()
     return 0

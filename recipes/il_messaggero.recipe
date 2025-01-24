@@ -36,7 +36,7 @@ class IlMessaggero(BasicNewsRecipe):
                       dict(name='h2', attrs={
                           'class': ['sottotitLettura', 'grigio16']}),
                       dict(name='span', attrs={'class': 'testoArticoloG'}),
-                      dict(name='div',  attrs={'id': 'testodim'})
+                      dict(name='div', attrs={'id': 'testodim'})
                       ]
 
     def get_cover_url(self):

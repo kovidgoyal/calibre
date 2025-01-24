@@ -9,9 +9,9 @@ Default fonts used in the PRS500
 
 
 LIBERATION_FONT_MAP = {
-            'Swis721 BT Roman'     : 'LiberationSans-Regular',
-            'Dutch801 Rm BT Roman' : 'LiberationSerif-Regular',
-            'Courier10 BT Roman'   : 'LiberationMono-Regular',
+            'Swis721 BT Roman'    : 'LiberationSans-Regular',
+            'Dutch801 Rm BT Roman': 'LiberationSerif-Regular',
+            'Courier10 BT Roman'  : 'LiberationMono-Regular',
             }
 
 FONT_FILE_MAP = {}

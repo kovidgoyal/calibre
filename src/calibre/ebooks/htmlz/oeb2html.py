@@ -338,7 +338,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         if self.opts.htmlz_class_style == 'external':
             css = '<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
-            css =  '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
+            css = '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
         title = '<title>%s</title>' % prepare_string_for_xml(self.book_title)
         output = ['<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'] + \
             [css] + [title, '</head><body>'] + output + ['</body></html>']

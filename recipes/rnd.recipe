@@ -60,7 +60,7 @@ class RND(BasicNewsRecipe):
 
     feeds = [
  ('Politik', 'https://www.rnd.de/arc/outboundfeeds/rss/category/politik/'),
- ('Wirtschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/wirtschaft/'),
+ ('Wirtschaft', 'https://www.rnd.de/arc/outboundfeeds/rss/category/wirtschaft/'),
  ('Sport', 'https://www.rnd.de/arc/outboundfeeds/rss/category/sport/'),
  ('Panorama', 'https://www.rnd.de/arc/outboundfeeds/rss/category/panorama/'),
  # ('Promis', 'https://www.rnd.de/arc/outboundfeeds/rss/category/promis/'),

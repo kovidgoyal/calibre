@@ -266,10 +266,10 @@ def get_parsed_proxy(typ='http', debug=True):
         if match:
             try:
                 ans = {
-                        'host' : match.group('host'),
-                        'port' : match.group('port'),
-                        'user' : match.group('user'),
-                        'pass' : match.group('pass')
+                        'host': match.group('host'),
+                        'port': match.group('port'),
+                        'user': match.group('user'),
+                        'pass': match.group('pass')
                     }
                 if ans['port']:
                     ans['port'] = int(ans['port'])
@@ -452,11 +452,11 @@ def my_unichr(num):
 
 
 XML_ENTITIES = {
-    '"' : '&quot;',
-    "'" : '&apos;',
-    '<' : '&lt;',
-    '>' : '&gt;',
-    '&' : '&amp;'
+    '"': '&quot;',
+    "'": '&apos;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;'
 }
 
 

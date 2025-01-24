@@ -93,7 +93,7 @@ class TextureChooser(QDialog):
             'name': os.path.splitext(os.path.basename(x))[0],
         } for x in glob.glob(os.path.join(self.tdir, '*')) if x.rpartition('.')[-1].lower() in {'jpeg', 'png', 'jpg'}]
 
-        images.sort(key=lambda x:sort_key(x['name']))
+        images.sort(key=lambda x: sort_key(x['name']))
 
         for i in images:
             self.create_item(i)

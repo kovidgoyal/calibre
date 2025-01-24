@@ -73,7 +73,7 @@ class TheEconomicTimes(BasicNewsRecipe):
             return citem['content']
 
     def get_article_url(self, article):
-        rurl = article.get('guid',  None)
+        rurl = article.get('guid', None)
         if '/articleshow/' in rurl:
             return rurl
 

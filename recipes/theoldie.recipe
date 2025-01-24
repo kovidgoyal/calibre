@@ -217,7 +217,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ]
 
     # We remove vast swathes of HTML which is not part of the articles.
-    remove_tags_before =  [
+    remove_tags_before = [
         {'name': 'div', 'class': 'container'},
         {'name': 'div', 'class': 'content-wrapper'},
         {'name': 'div', 'class': 'only-in-the-magazine'},

@@ -25,7 +25,7 @@ class FootballUA(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
          dict(name='div', attrs={'class': 'bottom-info'}),
          dict(name='div', attrs={'class': 'social-buttons'})
         ]

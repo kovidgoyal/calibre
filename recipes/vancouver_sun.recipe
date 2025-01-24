@@ -215,7 +215,7 @@ class CanWestPaper(BasicNewsRecipe):
         divtags = soup.findAll('div', attrs={'id': ''})
         if divtags:
             for div in divtags:
-                del (div['id'])
+                del div['id']
 
         pgall = soup.find('div', attrs={'id': 'storyphoto'})
         if pgall is not None:  # photo gallery perhaps

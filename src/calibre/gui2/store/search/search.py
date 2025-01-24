@@ -155,9 +155,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setColumnWidth(0, 85)
         total = total - 85
         # Title / Author
-        self.results_view.setColumnWidth(1,int(total*.40))
+        self.results_view.setColumnWidth(1, int(total*.40))
         # Price
-        self.results_view.setColumnWidth(2,int(total*.12))
+        self.results_view.setColumnWidth(2, int(total*.12))
         # DRM
         self.results_view.setColumnWidth(3, int(total*.15))
         # Store / Formats
@@ -181,7 +181,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Prevent hitting the enter key twice in quick succession causing
         # the search to start and stop
         self.search.setEnabled(False)
-        QTimer.singleShot(1000, lambda :self.search.setEnabled(True))
+        QTimer.singleShot(1000, lambda: self.search.setEnabled(True))
 
     def do_search(self):
         # Stop all running threads.

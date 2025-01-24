@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 def absurl(url):
     if url.startswith('/'):
-        url =  'https://www.spectator.co.uk' + url
+        url = 'https://www.spectator.co.uk' + url
     return url
 
 

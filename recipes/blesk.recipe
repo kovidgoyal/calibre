@@ -33,9 +33,9 @@ class bleskRecipe(BasicNewsRecipe):
     remove_attributes = []
     remove_tags_before = dict(name='div', attrs={'id': ['boxContent']})
     remove_tags_after = dict(name='div', attrs={'class': ['artAuthors']})
-    remove_tags = [dict(name='div',   attrs={'class': ['link_clanek']}),
-                   dict(name='div',   attrs={'id': ['partHeader']}),
-                   dict(name='div',   attrs={'id': ['top_bottom_box', 'lista_top']})]
+    remove_tags = [dict(name='div', attrs={'class': ['link_clanek']}),
+                   dict(name='div', attrs={'id': ['partHeader']}),
+                   dict(name='div', attrs={'id': ['top_bottom_box', 'lista_top']})]
     preprocess_regexps = [(re.compile(r'<div class="(textovytip|related)".*',
                                       re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
 

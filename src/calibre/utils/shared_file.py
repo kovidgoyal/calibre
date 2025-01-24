@@ -35,9 +35,9 @@ if iswindows:
 
     _ACCESS_MASK = os.O_RDONLY | os.O_WRONLY | os.O_RDWR
     _ACCESS_MAP  = {
-        os.O_RDONLY : winutil.GENERIC_READ,
-        os.O_WRONLY : winutil.GENERIC_WRITE,
-        os.O_RDWR   : winutil.GENERIC_READ | winutil.GENERIC_WRITE
+        os.O_RDONLY: winutil.GENERIC_READ,
+        os.O_WRONLY: winutil.GENERIC_WRITE,
+        os.O_RDWR  : winutil.GENERIC_READ | winutil.GENERIC_WRITE
     }
 
     _CREATE_MASK = os.O_CREAT | os.O_EXCL | os.O_TRUNC

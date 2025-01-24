@@ -80,7 +80,7 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         sections = soup.findAll(attrs={'class': re.compile(r'.*cmn-article_title.*')})
 
         for sect in sections:
-            sect_title = sect.find(attrs={'class' : re.compile(r'.*cmnc-((large)|(middle)|(small)).*')})
+            sect_title = sect.find(attrs={'class': re.compile(r'.*cmnc-((large)|(middle)|(small)).*')})
             if sect_title is None:
                 continue
             sect_title = sect_title.contents[0]

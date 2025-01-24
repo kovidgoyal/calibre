@@ -39,7 +39,7 @@ def alphabet(val, lower=True):
 
 alphabet_map = {
     'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
-    'lower-roman':lambda x:roman(x).lower(), 'upper-roman':roman,
+    'lower-roman':lambda x: roman(x).lower(), 'upper-roman':roman,
     'decimal-leading-zero': lambda x: '0%d' % x
 }
 
@@ -361,7 +361,7 @@ class Numbering:
                 if child.tag == 'li':
                     if current_run:
                         last = current_run[-1]
-                        if (last.get('list-id') , last.get('list-lvl')) != (child.get('list-id'), child.get('list-lvl')):
+                        if (last.get('list-id'), last.get('list-lvl')) != (child.get('list-id'), child.get('list-lvl')):
                             commit(current_run)
                     current_run.append(child)
                 else:

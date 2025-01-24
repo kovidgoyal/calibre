@@ -22,7 +22,7 @@ class Sobaka(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'b-post-view__foot'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'b-post-view__telegram-promo'}),
         dict(name='div', attrs={'class': 'b-post-view__tgb'}),
         dict(name='div', attrs={'id': 'comments'}),

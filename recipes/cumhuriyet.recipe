@@ -31,8 +31,8 @@ class Cumhuriyet(BasicNewsRecipe):
     ]
 
     feeds = [
-        ('Gundem',  'https://www.cumhuriyet.com.tr/rss/9999'),
-        ('Dünya',   'https://www.cumhuriyet.com.tr/rss/4'),
+        ('Gundem', 'https://www.cumhuriyet.com.tr/rss/9999'),
+        ('Dünya', 'https://www.cumhuriyet.com.tr/rss/4'),
         ('Türkiye', 'https://www.cumhuriyet.com.tr/rss/3'),
         ('Ekonomi', 'https://www.cumhuriyet.com.tr/rss/5'),
         ('Kultur Sanat', 'https://www.cumhuriyet.com.tr/rss/6'),

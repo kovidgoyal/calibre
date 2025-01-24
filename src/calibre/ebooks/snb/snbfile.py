@@ -156,8 +156,8 @@ class SNBFile:
     def AppendPlain(self, fileName, tdir):
         f = FileStream()
         f.attr = 0x41000000
-        f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
-        with open(os.path.join(tdir,fileName), 'rb') as data:
+        f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
+        with open(os.path.join(tdir, fileName), 'rb') as data:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, str):
@@ -167,8 +167,8 @@ class SNBFile:
     def AppendBinary(self, fileName, tdir):
         f = FileStream()
         f.attr = 0x01000000
-        f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
-        with open(os.path.join(tdir,fileName), 'rb') as data:
+        f.fileSize = os.path.getsize(os.path.join(tdir, fileName))
+        with open(os.path.join(tdir, fileName), 'rb') as data:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, str):

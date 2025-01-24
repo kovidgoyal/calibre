@@ -22,7 +22,7 @@ class Coda(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'article'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='li', attrs={'class': 'material-meta__type'}),
         dict(name='div', attrs={'class': 'more'})
         ]

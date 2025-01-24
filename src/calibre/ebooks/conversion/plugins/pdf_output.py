@@ -13,7 +13,7 @@ from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugi
 from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import iteritems
 
-UNITS = ('millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
+UNITS = ('millimeter', 'centimeter', 'point', 'inch', 'pica', 'didot',
         'cicero', 'devicepixel')
 
 PAPER_SIZES = ('a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',

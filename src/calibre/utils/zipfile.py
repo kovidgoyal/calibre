@@ -307,7 +307,7 @@ def _EndRecData(fpin):
     return
 
 
-class ZipInfo :
+class ZipInfo:
     '''Class with attributes describing each file in the ZIP archive.'''
 
     __slots__ = (
@@ -759,7 +759,7 @@ class ZipFile:
         if isinstance(file, string_or_bytes):
             self._filePassed = 0
             self.filename = file
-            modeDict = {'r' : 'rb', 'w': 'wb', 'a' : 'r+b'}
+            modeDict = {'r': 'rb', 'w': 'wb', 'a': 'r+b'}
             try:
                 self.fp = open(file, modeDict[mode])
             except OSError:

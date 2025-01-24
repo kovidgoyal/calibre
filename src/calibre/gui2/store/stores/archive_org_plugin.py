@@ -11,7 +11,7 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore, open_search
 from calibre.gui2.store.search_result import SearchResult
 
-SEARCH_URL =  'http://bookserver.archive.org/catalog/opensearch.xml'
+SEARCH_URL = 'http://bookserver.archive.org/catalog/opensearch.xml'
 
 
 def search(query, max_results=10, timeout=60):

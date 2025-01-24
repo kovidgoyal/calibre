@@ -445,7 +445,7 @@ class ItemEdit(QWidget):
         if frac == 0:
             loctext = _('Top of the file')
         else:
-            loctext =  _('Approximately %d%% from the top')%frac
+            loctext = _('Approximately %d%% from the top')%frac
         return loctext
 
     def elem_clicked(self, tag, frac, elem_id, loc, totals):

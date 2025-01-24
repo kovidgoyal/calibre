@@ -297,7 +297,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.rendered_emblem_cache = {}
         self.font_name_cache = {}
         self.top_level_pixmap_cache = {
-            name : QIcon.ic(icon).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
+            name: QIcon.ic(icon).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in iteritems({
                 'text':'keyboard-prefs.png',
                 'styles':'lookfeel.png',
@@ -994,7 +994,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         b = self.verticalScrollBar()
         if b.value() == b.maximum():
             b.setValue(b.minimum())
-            QTimer.singleShot(0, lambda : b.setValue(b.maximum()))
+            QTimer.singleShot(0, lambda: b.setValue(b.maximum()))
 
     def __enter__(self):
         self.ordered_selected_indexes = True

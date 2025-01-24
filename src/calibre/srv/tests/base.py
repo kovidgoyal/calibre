@@ -96,7 +96,7 @@ class LibraryBaseTest(BaseTest):
         return dest
 
     def create_server(self, *args, **kwargs):
-        args = (self.library_path ,) + args
+        args = (self.library_path,) + args
         return LibraryServer(*args, **kwargs)
 
 

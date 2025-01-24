@@ -55,11 +55,11 @@ class Info:
         self.__state = 'before_info_table'
         self.rmspace = re.compile(r'\s+')
         self.__state_dict = {
-        'before_info_table': self.__before_info_table_func,
-        'after_info_table': self.__after_info_table_func,
-        'in_info_table'    : self.__in_info_table_func,
+        'before_info_table' : self.__before_info_table_func,
+        'after_info_table'  : self.__after_info_table_func,
+        'in_info_table'     : self.__in_info_table_func,
         'collect_text'      : self.__collect_text_func,
-        'collect_tokens'      : self.__collect_tokens_func,
+        'collect_tokens'    : self.__collect_tokens_func,
         }
         self.__info_table_dict = {
         'cw<di<title_____'  : (self.__found_tag_with_text_func, 'title'),
@@ -88,23 +88,23 @@ class Info:
         'cw<di<internalID'  : (self.__single_field_func, 'internal-id-number'),
         }
         self.__token_dict = {
-        'year______'        : 'year',
-        'month_____'        : 'month',
-        'day_______'        : 'day',
-        'minute____'        : 'minute',
-        'second____'        : 'second',
-        'revis-time'        : 'revision-time',
-        'create-tim'        : 'creation-time',
-        'edit-time_'        : 'editing-time',
-        'print-time'        : 'printing-time',
-        'backuptime'        : 'backup-time',
-        'num-of-wor'        : 'number-of-words',
-        'num-of-chr'        : 'number-of-characters',
-        'numofchrws'        : 'number-of-characters-without-space',
-        'num-of-pag'        : 'number-of-pages',
-        'version___'        : 'version',
-        'intern-ver'        : 'internal-version-number',
-        'internalID'        : 'internal-id-number',
+        'year______': 'year',
+        'month_____': 'month',
+        'day_______': 'day',
+        'minute____': 'minute',
+        'second____': 'second',
+        'revis-time': 'revision-time',
+        'create-tim': 'creation-time',
+        'edit-time_': 'editing-time',
+        'print-time': 'printing-time',
+        'backuptime': 'backup-time',
+        'num-of-wor': 'number-of-words',
+        'num-of-chr': 'number-of-characters',
+        'numofchrws': 'number-of-characters-without-space',
+        'num-of-pag': 'number-of-pages',
+        'version___': 'version',
+        'intern-ver': 'internal-version-number',
+        'internalID': 'internal-id-number',
         }
 
     def __before_info_table_func(self, line):

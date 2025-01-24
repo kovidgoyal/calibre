@@ -143,9 +143,9 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
     try:
         if iswindows:
             priority = {
-                    'high'   : subprocess.HIGH_PRIORITY_CLASS,
-                    'normal' : subprocess.NORMAL_PRIORITY_CLASS,
-                    'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
+                    'high'  : subprocess.HIGH_PRIORITY_CLASS,
+                    'normal': subprocess.NORMAL_PRIORITY_CLASS,
+                    'low'   : subprocess.IDLE_PRIORITY_CLASS}[priority]
             args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
             pass_fds = args.pop('pass_fds', None)
             if pass_fds:
@@ -153,7 +153,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
                     os.set_handle_inheritable(fd, True)
                 args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
         else:
-            niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
+            niceness = {'normal': 0, 'low': 10, 'high': 20}[priority]
             args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
 
         exe = w.executable

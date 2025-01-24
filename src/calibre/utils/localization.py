@@ -340,13 +340,13 @@ set_translators.lang = None
 
 _iso639 = None
 _extra_lang_codes = {
-        'pt_BR' : _('Brazilian Portuguese'),
-        'zh_CN' : _('Simplified Chinese'),
-        'zh_TW' : _('Traditional Chinese'),
-        'bn_IN' : _('Indian Bengali'),
-        'bn_BD' : _('Bangladeshi Bengali'),
-        'en'    : _('English'),
-        'und'   : _('Unknown')
+        'pt_BR': _('Brazilian Portuguese'),
+        'zh_CN': _('Simplified Chinese'),
+        'zh_TW': _('Traditional Chinese'),
+        'bn_IN': _('Indian Bengali'),
+        'bn_BD': _('Bangladeshi Bengali'),
+        'en'   : _('English'),
+        'und'  : _('Unknown')
         }
 
 if False:

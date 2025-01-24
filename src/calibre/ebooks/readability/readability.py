@@ -455,7 +455,7 @@ class Document:
                             if j == x:
                                 break
                     # self.debug(str(siblings))
-                    if siblings and sum(siblings) > 1000 :
+                    if siblings and sum(siblings) > 1000:
                         to_remove = False
                         self.debug('Allowing %s' % describe(el))
                         for desnode in self.tags(el, 'table', 'ul', 'div'):

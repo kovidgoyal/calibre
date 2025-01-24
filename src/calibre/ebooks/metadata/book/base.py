@@ -213,7 +213,7 @@ class Metadata:
             if f['datatype'] == 'composite' and f['#value#'] is None:
                 self.get(field)
 
-    def deepcopy(self, class_generator=lambda : Metadata(None)):
+    def deepcopy(self, class_generator=lambda: Metadata(None)):
         ''' Do not use this method unless you know what you are doing, if you
         want to create a simple clone of this object, use :meth:`deepcopy_metadata`
         instead. Class_generator must be a function that returns an instance
@@ -772,7 +772,7 @@ class Metadata:
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
-            fmt('Author(s)',  authors_to_string(self.authors) +
+            fmt('Author(s)', authors_to_string(self.authors) +
                ((' [' + self.author_sort + ']')
                 if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:

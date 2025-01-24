@@ -21,7 +21,7 @@ class Sotavision(BasicNewsRecipe):
 
     remove_tags_after = dict(name='span', attrs={'style': 'border-color:#EBEBEB;border-width:1px;width:100%;'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'td_block_wrap tdb_mobile_menu tdi_7 td-pb-border-top td_block_template_1 tdb-header-align'}),
         dict(name='div', attrs={'class': 'td_block_wrap tdb_single_author tdi_52 td-pb-border-top td_block_template_1 tdb-post-meta'}),
         dict(name='div', attrs={'class': 'td_block_wrap tdb_single_date tdi_53 td-pb-border-top td_block_template_1 tdb-post-meta'}),

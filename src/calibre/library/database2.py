@@ -2165,7 +2165,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     sorted(items, key=lambda x: sort_key(x.sort))
             else:
                 categories[cat_name] = \
-                    sorted(items, key=lambda x:x.avg_rating, reverse=True)
+                    sorted(items, key=lambda x: x.avg_rating, reverse=True)
 
         # ### Finally, the saved searches category ####
         items = []
@@ -2509,7 +2509,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for bk in books_to_refresh:
                     ss = self.author_sort_from_book(id, index_is_id=True)
                     aus = self.author_sort(bk, index_is_id=True)
-                    if strcmp(aus, ss) ==  0:
+                    if strcmp(aus, ss) == 0:
                         self._update_author_in_cache(bk, ss, final_authors)
         # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)

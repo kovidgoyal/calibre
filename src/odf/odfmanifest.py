@@ -48,7 +48,7 @@ class ODFManifestHandler(handler.ContentHandler):
         }
 
     def handle_starttag(self, tag, method, attrs):
-        method(tag,attrs)
+        method(tag, attrs)
 
     def handle_endtag(self, tag, method):
         method(tag)
@@ -58,7 +58,7 @@ class ODFManifestHandler(handler.ContentHandler):
         if method:
             self.handle_starttag(tag, method, attrs)
         else:
-            self.unknown_starttag(tag,attrs)
+            self.unknown_starttag(tag, attrs)
 
     def endElementNS(self, tag, qname):
         method = self.elements.get(tag, (None, None))[1]

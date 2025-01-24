@@ -55,8 +55,8 @@ class Connection(sqlite.Connection):
 def _connect(path):
     if isinstance(path, str):
         path = path.encode('utf-8')
-    conn =  sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-    conn.row_factory = lambda cursor, row : list(row)
+    conn = sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+    conn.row_factory = lambda cursor, row: list(row)
     conn.create_aggregate('concat', 1, Concatenate)
     title_pat = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
 
@@ -841,16 +841,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Rebuild self.data and self.cache. Filter results are lost.
         '''
         FIELDS = {
-                  'title'        : 'sort',
-                  'authors'      : 'author_sort',
-                  'publisher'    : 'publisher',
-                  'size'         : 'size',
-                  'date'         : 'timestamp',
-                  'timestamp'    : 'timestamp',
-                  'formats'      : 'formats',
-                  'rating'       : 'rating',
-                  'tags'         : 'tags',
-                  'series'       : 'series',
+                  'title'    : 'sort',
+                  'authors'  : 'author_sort',
+                  'publisher': 'publisher',
+                  'size'     : 'size',
+                  'date'     : 'timestamp',
+                  'timestamp': 'timestamp',
+                  'formats'  : 'formats',
+                  'rating'   : 'rating',
+                  'tags'     : 'tags',
+                  'series'   : 'series',
                  }
         field = FIELDS[sort_field]
         order = 'ASC'
@@ -1462,13 +1462,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
 class SearchToken:
 
-    FIELD_MAP = {'title'       : 1,
-                  'author'      : 2,
-                  'publisher'   : 3,
-                  'tag'         : 7,
-                  'comments'    : 8,
-                  'series'      : 9,
-                  'format'      : 13,
+    FIELD_MAP = {'title'     : 1,
+                  'author'   : 2,
+                  'publisher': 3,
+                  'tag'      : 7,
+                  'comments' : 8,
+                  'series'   : 9,
+                  'format'   : 13,
                  }
 
     def __init__(self, text_token):

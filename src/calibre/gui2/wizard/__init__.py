@@ -751,9 +751,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         try:
             lang = prefs['language'].lower()[:2]
             metadata_plugins = {
-                    'zh' : ('Douban Books',),
-                    'fr' : ('Nicebooks',),
-                    'ru' : ('OZON.ru',),
+                    'zh': ('Douban Books',),
+                    'fr': ('Nicebooks',),
+                    'ru': ('OZON.ru',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:

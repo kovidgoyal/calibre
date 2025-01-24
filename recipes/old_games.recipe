@@ -24,7 +24,7 @@ class OGRU(BasicNewsRecipe):
 
     remove_attributes = ['style']
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='p', attrs={'id': 'pageDescription'}),
         dict(name='div', attrs={'class': 'pageNavLinkGroup'}),
         dict(name='div', attrs={'class': 'tagBlock TagContainer'}),

@@ -114,7 +114,7 @@ div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}
         from datetime import date
         cover = ('https://srv00.epimg.net/pdf/elpais/snapshot/' +
                  str(date.today().year) + '/' + date.today().strftime('%m') + '/elpais/' +
-                 str(date.today().year) +  date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg')
+                 str(date.today().year) + date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg')
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)

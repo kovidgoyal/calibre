@@ -15,18 +15,18 @@ from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
 MREADER = {
-    'PNPdPPrs' : get_eReader,
-    'PNRdPPrs' : get_eReader,
-    'DataPlkr' : get_plucker,
-    'BOOKMTIT' : get_Haodoo,
-    'BOOKMTIU' : get_Haodoo,
+    'PNPdPPrs': get_eReader,
+    'PNRdPPrs': get_eReader,
+    'DataPlkr': get_plucker,
+    'BOOKMTIT': get_Haodoo,
+    'BOOKMTIU': get_Haodoo,
 }
 
 from calibre.ebooks.metadata.ereader import set_metadata as set_eReader
 
 MWRITER = {
-    'PNPdPPrs' : set_eReader,
-    'PNRdPPrs' : set_eReader,
+    'PNPdPPrs': set_eReader,
+    'PNRdPPrs': set_eReader,
 }
 
 

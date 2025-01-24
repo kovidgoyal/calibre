@@ -30,7 +30,7 @@ class kudyznudyRecipe(BasicNewsRecipe):
         name='div', attrs={'class': ['C_WholeContentPadding']})
     remove_tags_after = dict(
         name='div', attrs={'class': ['SurroundingsContainer']})
-    remove_tags = [dict(name='div',   attrs={
+    remove_tags = [dict(name='div', attrs={
                         'class': ['Details', 'buttons', 'SurroundingsContainer', 'breadcrumb']})]
 
     keep_only_tags = []

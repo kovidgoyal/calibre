@@ -21,7 +21,7 @@ class Zerkalo(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'id': 'article_body'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'b-addition m-single m-simplify'}),
         dict(name='div', attrs={'class': 'b-addition m-simplify'}),
         dict(name='iframe'),

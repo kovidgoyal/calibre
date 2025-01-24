@@ -58,7 +58,7 @@ d['merge_identical_selectors'] = False
 d['merge_rules_with_identical_properties'] = False
 d['remove_unreferenced_sheets'] = True
 d['global_book_toolbar'] = [
-'new-file', 'open-book',  'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
+'new-file', 'open-book', 'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
 d['global_tools_toolbar'] = [
     'check-book', 'spell-check-book', 'edit-toc', 'insert-character',
     'manage-fonts', 'smarten-punctuation', 'remove-unused-css', 'show-reports'

@@ -37,7 +37,7 @@ class TAGX:  # {{{
     BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
     BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
 
-    NUM_VALUES = defaultdict(lambda :1)
+    NUM_VALUES = defaultdict(lambda:1)
     NUM_VALUES[11] = 3
     NUM_VALUES[0] = 0
 
@@ -64,7 +64,7 @@ class TAGX:  # {{{
         '''
         TAGX block for the Primary index header of a periodical
         '''
-        for i in (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72,73, 0):
+        for i in (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72, 73, 0):
             self.add_tag(i)
         return self.header(2) + bytes(self.byts)
 

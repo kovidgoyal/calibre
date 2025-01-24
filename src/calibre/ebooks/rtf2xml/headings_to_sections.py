@@ -58,10 +58,10 @@ class HeadingsToSections:
         self.__all_sections = []
         self.__chunk = ''
         self.__state_dict={
-        'default'           :   self.__default_func,
-        'in_table'          :   self.__in_table_func,
-        'in_list'           :   self.__in_list_func,
-        'after_body'        :   self.__after_body_func,
+        'default'   : self.__default_func,
+        'in_table'  : self.__in_table_func,
+        'in_list'   : self.__in_list_func,
+        'after_body': self.__after_body_func,
         }
         self.__list_depth = 0
         self.__end_list = [

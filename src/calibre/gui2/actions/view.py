@@ -222,7 +222,7 @@ class ViewAction(InterfaceAction):
                 for f in x:
                     all_fmts.add(f)
         if not all_fmts:
-            error_dialog(self.gui,  _('Format unavailable'),
+            error_dialog(self.gui, _('Format unavailable'),
                     _('Selected books have no formats'), show=True)
             return
         d = ChooseFormatDialog(self.gui, _('Choose the format to view'),

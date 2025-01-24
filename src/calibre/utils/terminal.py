@@ -108,7 +108,7 @@ class Detect:
     def __init__(self, stream):
         self.stream = stream or sys.stdout
         self.is_binary = is_binary(self.stream)
-        self.isatty = getattr(self.stream, 'isatty', lambda : False)()
+        self.isatty = getattr(self.stream, 'isatty', lambda: False)()
         force_ansi = 'CALIBRE_FORCE_ANSI' in os.environ
         if not self.isatty and force_ansi:
             self.isatty = True

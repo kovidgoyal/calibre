@@ -22,7 +22,7 @@ class Gorky(BasicNewsRecipe):
 
     remove_tags_after = dict(name='footer')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='footer'),
         dict(name='nav', attrs={'class': 'navbar'}),
         dict(name='div', attrs={'class': 'hide'}),

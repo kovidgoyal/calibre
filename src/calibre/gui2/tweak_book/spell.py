@@ -98,7 +98,7 @@ def country_map():
 
 def current_languages_dictionaries(reread=False):
     all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
-    languages = defaultdict(lambda : defaultdict(set))
+    languages = defaultdict(lambda: defaultdict(set))
     for d in all_dictionaries:
         for locale in d.locales | {d.primary_locale}:
             languages[locale.langcode][locale.countrycode].add(d)
@@ -357,7 +357,7 @@ class ManageUserDictionaries(Dialog):
 
     def build_dictionaries(self, current=None):
         self.dictionaries.clear()
-        for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d:sort_key(d.name)):
+        for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d: sort_key(d.name)):
             i = QListWidgetItem(dic.name, self.dictionaries)
             i.setData(Qt.ItemDataRole.UserRole, dic)
             if dic.is_active:
@@ -432,7 +432,7 @@ class ManageUserDictionaries(Dialog):
         self.is_active.setChecked(d.is_active)
         self.is_active.blockSignals(False)
         self.words.clear()
-        for word, lang in sorted(d.words, key=lambda x:sort_key(x[0])):
+        for word, lang in sorted(d.words, key=lambda x: sort_key(x[0])):
             i = QListWidgetItem(f'{word} [{get_language(lang)}]', self.words)
             i.setData(Qt.ItemDataRole.UserRole, (word, lang))
 
@@ -604,7 +604,7 @@ class ManageDictionaries(Dialog):  # {{{
         itf.setItalic(True)
         self.dictionaries.clear()
 
-        for lc in sorted(languages, key=lambda x:sort_key(calibre_langcode_to_name(x))):
+        for lc in sorted(languages, key=lambda x: sort_key(calibre_langcode_to_name(x))):
             i = QTreeWidgetItem(self.dictionaries, LANG)
             i.setText(0, calibre_langcode_to_name(lc))
             i.setData(0, Qt.ItemDataRole.UserRole, lc)
@@ -1045,7 +1045,7 @@ class WordsView(QTableView):
         a = m.addAction(_('Add/remove all selected words'))
         am = QMenu(self)
         a.setMenu(am)
-        for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):
+        for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x: sort_key(x.name)):
             am.addAction(dic.name, partial(self.add_all.emit, dic.name))
         m.addSeparator()
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)

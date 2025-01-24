@@ -136,7 +136,7 @@ class BasicSettings(QWidget):  # {{{
             order_map = {x:i for i, x in enumerate(val)}
             items = list(w.defaults)
             limit = len(items)
-            items.sort(key=lambda x:order_map.get(x, limit))
+            items.sort(key=lambda x: order_map.get(x, limit))
             w.clear()
             for x in items:
                 i = QListWidgetItem(w)

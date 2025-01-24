@@ -101,7 +101,7 @@ class weblogssl(BasicNewsRecipe):
                           dict(name='div', attrs={'id':'comments'})
                          ]
 
-    remove_tags_after  = dict(name='div' , attrs={'id':'comments'})
+    remove_tags_after  = dict(name='div', attrs={'id':'comments'})
 
     def print_version(self, url):
         if url.startswith('http://www'):

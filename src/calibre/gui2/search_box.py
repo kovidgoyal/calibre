@@ -66,7 +66,7 @@ class SearchLineEdit(QLineEdit):  # {{{
         if self.as_url is not None:
             url = self.as_url(self.text())
             if url:
-                menu.addAction(_('Copy search as URL'), lambda : QApplication.clipboard().setText(url))
+                menu.addAction(_('Copy search as URL'), lambda: QApplication.clipboard().setText(url))
         menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
         menu.exec(ev.globalPos())
 

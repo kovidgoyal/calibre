@@ -1005,7 +1005,7 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
         if not id_:
             return nfv
         for candidate in l:
-            i, __, v =  candidate.partition(':')
+            i, __, v = candidate.partition(':')
             if v and i == id_:
                 if not regexp or re.search(regexp, v, flags=re.I):
                     return candidate if fv_is_id else fv
@@ -1386,7 +1386,7 @@ items from ``start_index`` to ``end_index``.[/] The first item is number zero. I
 an index is negative, then it counts from the end of the list. As a special
 case, an end_index of zero is assumed to be the length of the list.
 
-Examples assuming that the tags column (which is comma-separated) contains "A, B ,C":
+Examples assuming that the tags column (which is comma-separated) contains "A, B, C":
 [LIST]
 [*]``{tags:sublist(0,1,\,)}`` returns "A"
 [*]``{tags:sublist(-1,0,\,)}`` returns "C"

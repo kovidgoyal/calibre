@@ -644,7 +644,7 @@ class HTMLConverter:
                 ans = ntb
 
             if found:
-                targets[fragment] =  ans
+                targets[fragment] = ans
                 page.contents.remove(bs)
             return ans
 
@@ -1706,7 +1706,7 @@ class HTMLConverter:
 
                 self.process_children(tag, tag_css, tag_pseudo_css)
 
-                if self.current_para.contents :
+                if self.current_para.contents:
                     self.current_block.append(self.current_para)
                 self.current_para = Paragraph()
                 if tagname.startswith('h') or self.blank_after_para:

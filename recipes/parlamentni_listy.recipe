@@ -32,4 +32,4 @@ class plRecipe(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(r'<(span|strong)[^>]*>\s*Ptejte se politik.*',
                                       re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
 
-    keep_only_tags = [dict(name='div',   attrs={'class': ['article-detail']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['article-detail']})]

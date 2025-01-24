@@ -40,7 +40,7 @@ if iswindows:
     # Note that when running via the "Restart in debug mode" action, stdout is
     # not a console (its already redirected to a log file), so no redirection
     # is required.
-    if getattr(sys, 'gui_app', False) or getattr(sys.stdout, 'isatty', lambda : False)():
+    if getattr(sys, 'gui_app', False) or getattr(sys.stdout, 'isatty', lambda: False)():
         if DEBUG:
             # We are running in a windows console with calibre-debug -g
             import subprocess

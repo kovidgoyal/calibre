@@ -12,7 +12,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 
 
 def find_folders_under(root, db, add_root=True,  # {{{
-        follow_links=False, cancel_callback=lambda : False):
+        follow_links=False, cancel_callback=lambda: False):
     '''
     Find all folders under the specified root path, ignoring any folders under
     the library path of db
@@ -102,7 +102,7 @@ class FormatCollection:  # {{{
 
 
 def books_in_folder(folder, one_per_folder,  # {{{
-        cancel_callback=lambda : False):
+        cancel_callback=lambda: False):
     dirpath = os.path.abspath(folder)
     if one_per_folder:
         formats = set()

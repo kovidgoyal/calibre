@@ -66,16 +66,16 @@ class ConvertToTags:
                 'style-group', 'border-group','styles-in-body', 'paragraph-style-in-body',
                 'list-in-table', 'level-in-table', 'override-table','override-list',
                 )
-        self.__two_new_line = ('section',  'body',  'table', 'row' 'list-table')
+        self.__two_new_line = ('section', 'body', 'table', 'row' 'list-table')
         self.__state_dict = {
-        'default'           :   self.__default_func,
-        'mi<tg<open______'  :   self.__open_func,
-        'mi<tg<close_____'  :   self.__close_func,
-        'mi<tg<open-att__'  :   self.__open_att_func,
-        'mi<tg<empty-att_'  :   self.__empty_att_func,
-        'tx<nu<__________'  :   self.__text_func,
-        'tx<ut<__________'  :   self.__text_func,
-        'mi<tg<empty_____'  :   self.__empty_func,
+        'default'           : self.__default_func,
+        'mi<tg<open______'  : self.__open_func,
+        'mi<tg<close_____'  : self.__close_func,
+        'mi<tg<open-att__'  : self.__open_att_func,
+        'mi<tg<empty-att_'  : self.__empty_att_func,
+        'tx<nu<__________'  : self.__text_func,
+        'tx<ut<__________'  : self.__text_func,
+        'mi<tg<empty_____'  : self.__empty_func,
         }
 
     def __open_func(self, line):

@@ -54,7 +54,7 @@ class Catalog(QDialog, Ui_Dialog):
                     pw.initialize(name, db)
                     pw.ICON = 'forward.png'
                     self.widgets.append(pw)
-                    [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
+                    [self.fmts.append([file_type.upper(), pw.sync_enabled, pw]) for file_type in plugin.file_types]
                 except ImportError:
                     info('ImportError initializing %s' % name)
                     continue
@@ -87,7 +87,7 @@ class Catalog(QDialog, Ui_Dialog):
                         pw.initialize(name)
                         pw.ICON = 'forward.png'
                         self.widgets.append(pw)
-                        [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
+                        [self.fmts.append([file_type.upper(), pw.sync_enabled, pw]) for file_type in plugin.file_types]
                     except ImportError:
                         info('ImportError with %s' % name)
                         continue

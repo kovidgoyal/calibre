@@ -119,7 +119,7 @@ class barrons(BasicNewsRecipe):
             byl = articles.find(**prefixed_classes('BarronsTheme--byline--'))
             if byl:
                 desc += self.tag_to_string(byl)
-            ttr =  articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
+            ttr = articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
             if ttr:
                 desc += self.tag_to_string(ttr)
             summ = articles.find(**prefixed_classes('BarronsTheme--summary--'))

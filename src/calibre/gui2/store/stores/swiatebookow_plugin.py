@@ -81,7 +81,7 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url =  'https://www.swiatebookow.pl' + cover_url
+                    s.cover_url = 'https://www.swiatebookow.pl' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
                     s.price = price

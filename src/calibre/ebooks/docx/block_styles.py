@@ -88,7 +88,7 @@ LINE_STYLES = {  # {{{
     'thick': 'solid',
     'thickThinLargeGap': 'double',
     'thickThinMediumGap': 'double',
-    'thickThinSmallGap' : 'double',
+    'thickThinSmallGap': 'double',
     'thinThickLargeGap': 'double',
     'thinThickMediumGap': 'double',
     'thinThickSmallGap': 'double',

@@ -305,7 +305,7 @@ class MobiMLizer:
                 inline = etree.SubElement(inline, XHTML('i'))
             if istate.bold:
                 inline = etree.SubElement(inline, XHTML('b'))
-            if istate.bgcolor is not None and istate.bgcolor != 'transparent' :
+            if istate.bgcolor is not None and istate.bgcolor != 'transparent':
                 inline = etree.SubElement(inline, XHTML('span'),
                         bgcolor=convert_color_for_font_tag(istate.bgcolor))
             if istate.fgcolor != 'black':

@@ -57,7 +57,7 @@ class WiredDailyNews(BasicNewsRecipe):
         self.log('Parsing index page', currenturl)
         soup = self.index_to_soup(currenturl)
         baseurl = 'https://www.wired.com'
-        for a in soup.find('div', {'class' : 'multi-packages'}).findAll('a', href=True):
+        for a in soup.find('div', {'class': 'multi-packages'}).findAll('a', href=True):
             url = a['href']
             if url.startswith('/story') and url.endswith('/'):
                 title = self.tag_to_string(a.parent.find('h3'))

@@ -267,7 +267,7 @@ class OptionSet:
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
         parser = OptionParser(usage, gui_mode=gui_mode)
-        groups = defaultdict(lambda : parser)
+        groups = defaultdict(lambda: parser)
         for group, desc in self.groups.items():
             groups[group] = parser.add_option_group(group.upper(), desc)
 

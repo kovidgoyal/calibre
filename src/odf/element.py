@@ -260,7 +260,7 @@ class Text(Childless, Node):
         return self.data
     __unicode__ = __str__
 
-    def toXml(self,level,f):
+    def toXml(self, level, f):
         ''' Write XML in UTF-8 '''
         if self.data:
             f.write(_escape(str(self.data).encode('utf-8')))
@@ -269,7 +269,7 @@ class Text(Childless, Node):
 class CDATASection(Text, Childless):
     nodeType = Node.CDATA_SECTION_NODE
 
-    def toXml(self,level,f):
+    def toXml(self, level, f):
         ''' Generate XML output of the node. If the text contains "]]>", then
             escape it by going out of CDATA mode (]]>), then write the string
             and then go into CDATA mode again. (<![CDATA[)
@@ -299,7 +299,7 @@ class Element(Node):
     def __init__(self, attributes=None, text=None, cdata=None, qname=None, qattributes=None, check_grammar=True, **args):
         if qname is not None:
             self.qname = qname
-        assert (hasattr(self, 'qname'))
+        assert hasattr(self, 'qname')
         self.ownerDocument = None
         self.childNodes=[]
         self.allowed_children = grammar.allowed_children.get(self.qname)
@@ -494,7 +494,7 @@ class Element(Node):
         if self.childNodes:
             f.write('>')
             for element in self.childNodes:
-                element.toXml(level+1,f)
+                element.toXml(level+1, f)
             f.write('</'+self.tagName+'>')
         else:
             f.write('/>')

@@ -327,7 +327,7 @@ def main(args=sys.argv, logger=None):
         warnings.defaultaction = 'error'
 
     logger.info('Parsing LRS file...')
-    converter =  LrsParser(open(args[1], 'rb'), logger)
+    converter = LrsParser(open(args[1], 'rb'), logger)
     logger.info('Writing to output file...')
     converter.render(opts.output, to_lrs=opts.lrs)
     logger.info('Output written to '+opts.output)

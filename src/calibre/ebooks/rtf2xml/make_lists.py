@@ -76,9 +76,9 @@ class MakeLists:
         self.__level = 0
         self.__list_chunk = ''
         self.__state_dict={
-        'default'           :   self.__default_func,
-        'in_pard'           :   self.__in_pard_func,
-        'after_pard'        :   self.__after_pard_func,
+        'default'   : self.__default_func,
+        'in_pard'   : self.__in_pard_func,
+        'after_pard': self.__after_pard_func,
         }
         self.__headings = [
         'heading 1', 'heading 2', 'heading 3', 'heading 4',
@@ -177,7 +177,7 @@ class MakeLists:
                 else:
                     self.__state = 'in_pard'
         # section to end lists
-        elif self.__token_info in self.__end_list :
+        elif self.__token_info in self.__end_list:
             self.__left_indent = -1000
             self.__close_lists()
             self.__write_obj.write(self.__list_chunk)

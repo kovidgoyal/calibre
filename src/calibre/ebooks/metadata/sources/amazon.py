@@ -333,7 +333,7 @@ class Worker(Thread):  # Get details {{{
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare', 'Herausgeber',
                                 'Editore', 'Editeur', 'Éditeur', 'Editor', 'Editora', '出版社'}
 
-        self.language_xpath =    '''
+        self.language_xpath = '''
             descendant::*[
                 starts-with(text(), "Language:") \
                 or text() = "Language" \

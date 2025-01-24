@@ -79,10 +79,10 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setRowCount(row + 1)
         newItem = self.search_replace.itemPrototype().clone()
         newItem.setText(search)
-        self.search_replace.setItem(row,0, newItem)
+        self.search_replace.setItem(row, 0, newItem)
         newItem = self.search_replace.itemPrototype().clone()
         newItem.setText(replace)
-        self.search_replace.setItem(row,1, newItem)
+        self.search_replace.setItem(row, 1, newItem)
         return row
 
     def sr_change_clicked(self):
@@ -147,7 +147,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             item2.setText(value)
         self.search_replace.setCurrentCell(row+i, 0)
 
-    def sr_currentCellChanged(self, row, column, previousRow, previousColumn) :
+    def sr_currentCellChanged(self, row, column, previousRow, previousColumn):
         if row >= 0:
             self.sr_change.setEnabled(True)
             self.sr_remove.setEnabled(True)
@@ -254,7 +254,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             for col, cellValue in enumerate(colItems):
                 newItem = self.search_replace.itemPrototype().clone()
                 newItem.setText(cellValue)
-                self.search_replace.setItem(row,col, newItem)
+                self.search_replace.setItem(row, col, newItem)
         return True
 
     def apply_recommendations(self, recs):

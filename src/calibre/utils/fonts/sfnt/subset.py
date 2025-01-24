@@ -225,7 +225,7 @@ def print_stats(old_stats, new_stats):
     prints('='*80)
     old_total = sum(itervalues(old_stats))
     new_total = sum(itervalues(new_stats))
-    tables = sorted(old_stats, key=lambda x:old_stats[x],
+    tables = sorted(old_stats, key=lambda x: old_stats[x],
             reverse=True)
     for table in tables:
         osz = old_stats[table]
@@ -363,7 +363,7 @@ def all():
                 failed.append((font['full_name'], font['path'], str(e)))
             else:
                 averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
-                print('Reduced to:', '%.1f'%averages[-1] , '%')
+                print('Reduced to:', '%.1f'%averages[-1], '%')
     if unsupported:
         print('\n\nUnsupported:')
         for name, path, err in unsupported:

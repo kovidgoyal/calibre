@@ -60,7 +60,7 @@ class MarkdownEditDialog(QDialog):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        self.textbox.markdown =text
+        self.textbox.markdown = text
         # self.textbox.wyswyg_dirtied()
 
         if column_name:

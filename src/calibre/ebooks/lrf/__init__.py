@@ -36,7 +36,7 @@ class PRS500_PROFILE:
 
 def find_custom_fonts(options, logger):
     from calibre.utils.fonts.scanner import font_scanner
-    fonts = {'serif' : None, 'sans' : None, 'mono' : None}
+    fonts = {'serif': None, 'sans': None, 'mono': None}
 
     def family(cmd):
         return cmd.split(',')[-1].strip()
@@ -106,7 +106,7 @@ def Book(options, logger, font_delta=0, header=None,
 
     for family in ['serif', 'sans', 'mono']:
         if not fonts[family]:
-            fonts[family] = {'normal' : (None, profile.default_fonts[family])}
+            fonts[family] = {'normal': (None, profile.default_fonts[family])}
         elif 'normal' not in fonts[family]:
             raise ConversionError('Could not find the normal version of the ' + family + ' font')
     return book, fonts

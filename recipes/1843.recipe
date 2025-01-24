@@ -61,7 +61,7 @@ if use_archive:
         data = json.loads(raw)
         body = root.xpath('//body')[0]
         article = E(body, 'article')
-        E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
+        E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
         E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
         E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
         try:
@@ -96,7 +96,7 @@ else:
         for child in tuple(body):
             body.remove(child)
         article = E(body, 'article')
-        E(article, 'div', replace_entities(data['subheadline']) , style='color: red; font-size:small; font-weight:bold;')
+        E(article, 'div', replace_entities(data['subheadline']), style='color: red; font-size:small; font-weight:bold;')
         E(article, 'h1', replace_entities(data['headline']))
         E(article, 'div', replace_entities(data['description']), style='font-style: italic; color:#202020;')
         if data['dateline'] is None:

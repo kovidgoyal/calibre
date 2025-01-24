@@ -479,9 +479,9 @@ def read_css_block_borders(self, css, store_css_style=False):
             setattr(self, 'css_margin_' + edge, '')
             setattr(self, 'border_%s_width' % edge, 2)
             setattr(self, 'border_%s_color' % edge, None)
-            setattr(self, 'border_%s_style' %  edge, 'none')
+            setattr(self, 'border_%s_style' % edge, 'none')
             if store_css_style:
-                setattr(self, 'border_%s_css_style' %  edge, 'none')
+                setattr(self, 'border_%s_css_style' % edge, 'none')
         else:
             # In DOCX padding can only be a positive integer
             try:
@@ -500,9 +500,9 @@ def read_css_block_borders(self, css, store_css_style=False):
             val = min(96, max(2, int(val * 8)))
             setattr(self, 'border_%s_width' % edge, val)
             setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]) or 'auto')
-            setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            setattr(self, 'border_%s_style' % edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
             if store_css_style:
-                setattr(self, 'border_%s_css_style' %  edge, css['border-%s-style' % edge].lower())
+                setattr(self, 'border_%s_css_style' % edge, css['border-%s-style' % edge].lower())
 
 
 class BlockStyle(DOCXStyle):

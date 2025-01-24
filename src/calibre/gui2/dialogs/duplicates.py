@@ -100,7 +100,7 @@ class DuplicatesQuestion(QDialog):
             incoming_formats = ', '.join(os.path.splitext(path)[-1].replace('.', '').upper() for path in formats)
             item = QTreeWidgetItem([ta%dict(
                 title=mi.title, author=mi.format_field('authors')[1],
-                formats=incoming_formats)] , 0)
+                formats=incoming_formats)], 0)
             item.setCheckState(0, Qt.CheckState.Checked)
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
             item.setData(0, Qt.ItemDataRole.FontRole, bf)

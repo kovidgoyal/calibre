@@ -24,7 +24,7 @@ class WiComix(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         # dict(name='div', attrs={'class': 'author-meta'}),
         dict(name='div', attrs={'id': 'jp-post-flair'}),
         dict(name='footer', attrs={'class': 'entry-meta'})

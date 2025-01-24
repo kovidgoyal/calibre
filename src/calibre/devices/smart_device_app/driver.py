@@ -705,8 +705,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                'metadata': book_metadata, 'thisBook': this_book,
                                'totalBooks': total_books,
                                'willStreamBooks': True,
-                               'willStreamBinary' : True,
-                               'wantsSendOkToSendbook' : self.can_send_ok_to_sendbook,
+                               'willStreamBinary': True,
+                               'wantsSendOkToSendbook': self.can_send_ok_to_sendbook,
                                'canSupportLpathChanges': True},
                           print_debug_info=False,
                           wait_for_response=self.can_send_ok_to_sendbook)
@@ -744,7 +744,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 lastmod = parse_date(lastmod)
             if key in self.device_book_cache and self.device_book_cache[key]['book'].last_modified == lastmod:
                 self.device_book_cache[key]['last_used'] = now()
-                return self.device_book_cache[key]['book'].deepcopy(lambda : SDBook('', ''))
+                return self.device_book_cache[key]['book'].deepcopy(lambda: SDBook('', ''))
         except:
             traceback.print_exc()
         return None
@@ -1247,8 +1247,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                          {'location_code': 'main', 'name':name})
 
     @synchronous('sync_lock')
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None) :
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
         self._debug()
         self.set_progress_reporter(report_progress)
 
@@ -1573,7 +1572,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         position = 0
         while not eof:
             opcode, result = self._call_client('GET_BOOK_FILE_SEGMENT',
-                                    {'lpath' : path, 'position': position,
+                                    {'lpath': path, 'position': position,
                                      'thisBook': this_book, 'totalBooks': total_books,
                                      'canStream':True, 'canStreamBinary': True},
                                     print_debug_info=False)
@@ -1614,7 +1613,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             other_info['id_link_rules'] = msprefs.get('id_link_rules', {})
 
             self._call_client('SET_LIBRARY_INFO',
-                                    {'libraryName' : library_name,
+                                    {'libraryName': library_name,
                                      'libraryUuid': library_uuid,
                                      'fieldMetadata': field_metadata.all_metadata(),
                                      'otherInfo': other_info},

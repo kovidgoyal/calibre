@@ -157,7 +157,7 @@ elif iswindows:
         def loop(self):
             for w in self.watchers:
                 w.start()
-            with HandleInterrupt(lambda : self.modified_queue.put(None)):
+            with HandleInterrupt(lambda: self.modified_queue.put(None)):
                 while True:
                     path = self.modified_queue.get()
                     if path is None:

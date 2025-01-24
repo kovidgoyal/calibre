@@ -84,7 +84,7 @@ def convert_bool(val):
     return val != '0'
 
 
-sqlite.register_adapter(bool, lambda x : 1 if x else 0)
+sqlite.register_adapter(bool, lambda x: 1 if x else 0)
 sqlite.register_converter(native_string_type('bool'), convert_bool)
 sqlite.register_converter(native_string_type('BOOL'), convert_bool)
 
@@ -258,7 +258,7 @@ def do_connect(path, row_factory=None):
     conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)
     conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
     load_c_extensions(conn)
-    conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row : list(row))
+    conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row: list(row))
     conn.create_aggregate('concat', 1, Concatenate)
     conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
     conn.create_collation(native_string_type('PYNOCASE'), partial(pynocase,
@@ -266,7 +266,7 @@ def do_connect(path, row_factory=None):
     conn.create_function('title_sort', 1, title_sort)
     conn.create_function('author_to_author_sort', 1,
             _author_to_author_sort)
-    conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+    conn.create_function('uuid4', 0, lambda: str(uuid.uuid4()))
     # Dummy functions for dynamically created filters
     conn.create_function('books_list_filter', 1, lambda x: 1)
     conn.create_collation(native_string_type('icucollate'), icu_collator)

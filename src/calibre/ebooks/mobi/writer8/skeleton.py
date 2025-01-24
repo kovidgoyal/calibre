@@ -73,7 +73,7 @@ def tostring(raw, **kwargs):
     ans = etree.tostring(raw, **kwargs)
     if xml_declaration:
         ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
-    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:my_unichr(int(m.group(1), 16)),
+    return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m: my_unichr(int(m.group(1), 16)),
             ans).encode(encoding)
 
 
@@ -432,9 +432,9 @@ class Chunker:
                         'wb') as f:
                     f.write(chunk.raw)
             oraw, rraw = orig_dumps[i], skeleton.rebuild()
-            with open(os.path.join(orig, '%04d.html'%i),  'wb') as f:
+            with open(os.path.join(orig, '%04d.html'%i), 'wb') as f:
                 f.write(oraw)
-            with open(os.path.join(rebuilt, '%04d.html'%i),  'wb') as f:
+            with open(os.path.join(rebuilt, '%04d.html'%i), 'wb') as f:
                 f.write(rraw)
             if oraw != rraw:
                 error = True

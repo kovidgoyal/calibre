@@ -91,7 +91,7 @@ def comments_to_html(comments):
     all_tokens = list(soup.contents)
     inline_tags = ('br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a', 'hr')
     for token in all_tokens:
-        if isinstance(token,  (CData, Comment, Declaration, ProcessingInstruction)):
+        if isinstance(token, (CData, Comment, Declaration, ProcessingInstruction)):
             continue
         if isinstance(token, NavigableString):
             if not open_pTag:

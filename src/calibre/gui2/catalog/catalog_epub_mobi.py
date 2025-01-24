@@ -40,7 +40,7 @@ from calibre.utils.localization import localize_user_manual_link
 from .catalog_epub_mobi_ui import Ui_Form
 
 
-class PluginWidget(QWidget,Ui_Form):
+class PluginWidget(QWidget, Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
@@ -203,7 +203,7 @@ class PluginWidget(QWidget,Ui_Form):
                     start.append(excluded_tags[lower])
                     break
                 start.append(excluded_tags[lower])
-                end.insert(0,excluded_tags[upper])
+                end.insert(0, excluded_tags[upper])
                 if len(', '.join(start)) + len(', '.join(end)) > limit:
                     break
                 lower += 1
@@ -282,7 +282,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         self.genre_source_field.setEnabled(enabled)
 
-    def genre_source_field_changed(self,new_index):
+    def genre_source_field_changed(self, new_index):
         '''
         Process changes in the genre_source_field combo box
         Update Excluded genres preview
@@ -303,7 +303,7 @@ class PluginWidget(QWidget,Ui_Form):
             current_format = parent.format.currentText().strip()
         return current_format, current_title
 
-    def header_note_source_field_changed(self,new_index):
+    def header_note_source_field_changed(self, new_index):
         '''
         Process changes in the header_note_source_field combo box
         '''
@@ -359,13 +359,13 @@ class PluginWidget(QWidget,Ui_Form):
                     if c_name == 'genre_source_field':
                         index = self.genre_source_field.findText(_('Tags'))
                 else:
-                    index = getattr(self,c_name).findText(opt_value)
+                    index = getattr(self, c_name).findText(opt_value)
                     if index == -1:
                         if c_name == 'read_source_field':
                             index = self.read_source_field.findText(_('Tags'))
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
-                getattr(self,c_name).setCurrentIndex(index)
+                getattr(self, c_name).setCurrentIndex(index)
                 if c_name != 'preset_field':
                     getattr(self, c_name).currentIndexChanged.connect(partial(self.settings_changed, c_name))
             elif c_type in ['line_edit']:
@@ -439,7 +439,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         self.blocking_all_signals = False
 
-    def merge_source_field_changed(self,new_index):
+    def merge_source_field_changed(self, new_index):
         '''
         Process changes in the merge_source_field combo box
         '''
@@ -481,7 +481,7 @@ class PluginWidget(QWidget,Ui_Form):
             if c_type in ['check_box', 'radio_button']:
                 opt_value = getattr(self, c_name).isChecked()
             elif c_type in ['combo_box']:
-                opt_value = str(getattr(self,c_name).currentText()).strip()
+                opt_value = str(getattr(self, c_name).currentText()).strip()
             elif c_type in ['line_edit']:
                 opt_value = str(getattr(self, c_name).text()).strip()
             elif c_type in ['spin_box']:
@@ -663,13 +663,13 @@ class PluginWidget(QWidget,Ui_Form):
                     if c_name == 'genre_source_field':
                         index = self.genre_source_field.findText(_('Tags'))
                 else:
-                    index = getattr(self,c_name).findText(opt_value)
+                    index = getattr(self, c_name).findText(opt_value)
                     if index == -1:
                         if c_name == 'read_source_field':
                             index = self.read_source_field.findText(_('Tags'))
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
-                getattr(self,c_name).setCurrentIndex(index)
+                getattr(self, c_name).setCurrentIndex(index)
             elif c_type in ['line_edit']:
                 getattr(self, c_name).setText(opt_value if opt_value else '')
             elif c_type in ['radio_button'] and opt_value is not None:
@@ -725,7 +725,7 @@ class PluginWidget(QWidget,Ui_Form):
         self.preset_field.setCurrentIndex(0)
 
         if item_name in self.presets.keys():
-            del (self.presets[item_name])
+            del self.presets[item_name]
             self.presets.commit()
 
     def preset_save(self):
@@ -737,7 +737,7 @@ class PluginWidget(QWidget,Ui_Form):
             dex = 0
         name = ''
         while not name:
-            name, ok =  QInputDialog.getItem(self, _('Save catalog preset'),
+            name, ok = QInputDialog.getItem(self, _('Save catalog preset'),
                     _('Preset name:'), names, dex, True)
             if not ok:
                 return
@@ -769,7 +769,7 @@ class PluginWidget(QWidget,Ui_Form):
             elif c_type in ['combo_box']:
                 if c_name == 'preset_field':
                     continue
-                opt_value = str(getattr(self,c_name).currentText()).strip()
+                opt_value = str(getattr(self, c_name).currentText()).strip()
             elif c_type in ['line_edit']:
                 opt_value = str(getattr(self, c_name).text()).strip()
             elif c_type in ['spin_box']:
@@ -888,7 +888,7 @@ class NoWheelComboBox(QComboBox):
 class ComboBox(NoWheelComboBox):
     # Caller is responsible for providing the list in the preferred order
 
-    def __init__(self, parent, items, selected_text,insert_blank=True):
+    def __init__(self, parent, items, selected_text, insert_blank=True):
         NoWheelComboBox.__init__(self, parent)
         self.populate_combo(items, selected_text, insert_blank)
 
@@ -1012,7 +1012,7 @@ class GenericRulesTable(QTableWidget):
         first = rows[0].row() + 1
         last = rows[-1].row() + 1
 
-        first_rule_name = str(self.cellWidget(first-1,self.COLUMNS['NAME']['ordinal']).text()).strip()
+        first_rule_name = str(self.cellWidget(first-1, self.COLUMNS['NAME']['ordinal']).text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
             message = _('Are you sure you want to delete rules #%(first)d-%(last)d?') % dict(first=first, last=last)
@@ -1034,11 +1034,11 @@ class GenericRulesTable(QTableWidget):
                 print('%s:enabled_state_changed(): row %d col %d' %
                       (self.objectName(), row, col))
 
-    def focusInEvent(self,e):
+    def focusInEvent(self, e):
         if self.DEBUG:
             print('%s:focusInEvent()' % self.objectName())
 
-    def focusOutEvent(self,e):
+    def focusOutEvent(self, e):
         # Override of QTableWidget method - clear selection when table loses focus
         self.last_row_selected = self.currentRow()
         self.last_rows_selected = self.selectionModel().selectedRows()
@@ -1130,7 +1130,7 @@ class GenericRulesTable(QTableWidget):
             print('%s:rule_name_edited()' % self.objectName())
 
         current_row = self.currentRow()
-        self.cellWidget(current_row,1).home(False)
+        self.cellWidget(current_row, 1).home(False)
         self.select_and_scroll_to_row(current_row)
         self.settings_changed('rule_name_edited')
 
@@ -1228,10 +1228,10 @@ class ExclusionRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
-        data['name'] = str(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
-        data['field'] = str(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
-        data['pattern'] = str(self.cellWidget(row,self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
+        data['enabled'] = self.item(row, self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
+        data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
+        data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
+        data['pattern'] = str(self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
         return data
 
     def create_blank_row_data(self):
@@ -1322,11 +1322,11 @@ class PrefixRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
-        data['name'] = str(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
-        data['prefix'] = str(self.cellWidget(row,self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
-        data['field'] = str(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
-        data['pattern'] = str(self.cellWidget(row,self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
+        data['enabled'] = self.item(row, self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
+        data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
+        data['prefix'] = str(self.cellWidget(row, self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
+        data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
+        data['pattern'] = str(self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
         return data
 
     def create_blank_row_data(self):

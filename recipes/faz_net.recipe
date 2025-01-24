@@ -93,24 +93,24 @@ class FazNet(BasicNewsRecipe):
     # original by Armin Geller
     # overhaul to deal with changes in the faz.net websites
 
-    title                 =             'FAZ.NET'
-    __author__            =             'Unknown'
-    description           =             'Frankfurter Allgemeine Zeitung'
-    publisher             =             'Frankfurter Allgemeine Zeitung GmbH'
-    category              =             'news, politics, Germany'
-    cover_url             =             'https://upload.wikimedia.org/wikipedia/commons/7/72/Frankfurter_Allgemeine_logo.svg'
-    encoding              =             'utf-8'
-    language              =             'de'
-    ignore_duplicate_articles   =       {'title', 'url'}
-    max_articles_per_feed =             30
-    no_stylesheets        =             True
-    remove_javascript     =             True
-    scale_news_images = (10,100)
-    delay                 =      1
+    title                       = 'FAZ.NET'
+    __author__                  = 'Unknown'
+    description                 = 'Frankfurter Allgemeine Zeitung'
+    publisher                   = 'Frankfurter Allgemeine Zeitung GmbH'
+    category                    = 'news, politics, Germany'
+    cover_url                   = 'https://upload.wikimedia.org/wikipedia/commons/7/72/Frankfurter_Allgemeine_logo.svg'
+    encoding                    = 'utf-8'
+    language                    = 'de'
+    ignore_duplicate_articles   = {'title', 'url'}
+    max_articles_per_feed       = 30
+    no_stylesheets              = True
+    remove_javascript           = True
+    scale_news_images           = (10,100)
+    delay                       = 1
 
     test_feed = 'https://www.faz.net/rss/aktuell/feuilleton/kunst-und-architektur/berlinische-galerie-zeigt-edvard-munch-die-ganze-gefuehlsskala-des-lebens-19180631.html?printPagedArticle=true#pageIndex_2'
 
-    extra_css      =  '''
+    extra_css = '''
         .header-title,.scrolly-title {font-size: 1.5em; font-weight:bold; text-align:left;}
         .quote {font-size: 1.5em; font-weight:bold; text-align:center;}
         .author {font-size: 0.7em; font-weight:bold; text-align:center; display:block;

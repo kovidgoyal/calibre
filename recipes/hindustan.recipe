@@ -28,7 +28,7 @@ class LiveHindustan(BasicNewsRecipe):
     remove_tags_after = [classes('stry-bdy')]
 
     feeds = [
-        ('प्रमुख खबरें' ,'https://feed.livehindustan.com/rss/3127'),
+        ('प्रमुख खबरें', 'https://feed.livehindustan.com/rss/3127'),
         ('देश', 'https://feed.livehindustan.com/rss/4911'),
         ('विदेश', 'https://feed.livehindustan.com/rss/4913'),
         ('ओपिनियन', 'https://feed.livehindustan.com/rss/5165'),

@@ -47,7 +47,7 @@ class jotdown(BasicNewsRecipe):
                           dict(name='div', attrs={'id':'respond'})
                          ]
 
-    remove_tags_after  = dict(name='div' , attrs={'id':'respond'})
+    remove_tags_after  = dict(name='div', attrs={'id':'respond'})
 
     preprocess_regexps = [
         # To change the small size of the text

@@ -472,7 +472,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     def remove_value_icon(self, key, value, file_name):
         self.value_icons = self.prefs['tags_browser_value_icons']
         self.value_icons.get(key, {}).pop(value, None)
-        self.prefs['tags_browser_value_icons'] =self.value_icons
+        self.prefs['tags_browser_value_icons'] = self.value_icons
         self._remove_icon_file(file_name)
 
     def remove_all_value_icons(self, key, keep_template=True):
@@ -903,12 +903,12 @@ class TagsModel(QAbstractItemModel):  # {{{
                                          t for t in node_parent.children
                                             if t.type != TagTreeItem.CATEGORY}
                         if (comp,child_key) in child_map:
-                            node_parent = child_map[(comp,child_key)]
+                            node_parent = child_map[(comp, child_key)]
                             t = node_parent.tag
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
                             if tag.id_set is not None and t.id_set is not None:
                                 t.id_set = t.id_set | tag.id_set
-                            intermediate_nodes[t.original_name,child_key] = t
+                            intermediate_nodes[t.original_name, child_key] = t
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
@@ -924,12 +924,12 @@ class TagsModel(QAbstractItemModel):  # {{{
                                     else:
                                         t.is_searchable = t.is_editable = False
                                         t.search_expression = None
-                                    intermediate_nodes[original_name,child_key] = t
+                                    intermediate_nodes[original_name, child_key] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                                intermediate_nodes[t.original_name,child_key] = t
+                                intermediate_nodes[t.original_name, child_key] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
@@ -1613,7 +1613,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.add_renamed_item_to_user_categories(lookup_key, original_name, new_name)
 
         children = item.all_children()
-        restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
+        restrict_to_book_ids = self.get_book_ids_to_use() if item.use_vl else None
         if item.tag.is_editable and len(children) == 0:
             # Leaf node, just do it.
             do_one_item(key, item, item.tag.original_name, to_what, restrict_to_book_ids)
@@ -1907,10 +1907,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         nodes_seen = set()
         stars = rating_to_stars(3, True)
 
-        node_searches = {TAG_SEARCH_STATES['mark_plus']       : 'true',
-                         TAG_SEARCH_STATES['mark_plusplus']   : '.true',
-                         TAG_SEARCH_STATES['mark_minus']      : 'false',
-                         TAG_SEARCH_STATES['mark_minusminus'] : '.false'}
+        node_searches = {TAG_SEARCH_STATES['mark_plus']      : 'true',
+                         TAG_SEARCH_STATES['mark_plusplus']  : '.true',
+                         TAG_SEARCH_STATES['mark_minus']     : 'false',
+                         TAG_SEARCH_STATES['mark_minusminus']: '.false'}
 
         for node in self.category_nodes:
             if node.tag.state:

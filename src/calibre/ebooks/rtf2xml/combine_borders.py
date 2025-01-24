@@ -22,7 +22,7 @@ class CombineBorders:
     '''Combine borders in RTF tokens to make later processing easier'''
 
     def __init__(self,
-            in_file ,
+            in_file,
             bug_handler,
             copy=None,
             run_level=1,

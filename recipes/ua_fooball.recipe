@@ -39,7 +39,7 @@ class UAFootball(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'show-post'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='form'),
         dict(name='iframe'),
         dict(name='div', attrs={'class': 'language'}),

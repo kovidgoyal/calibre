@@ -44,92 +44,92 @@ class FieldStrings:
         '''
         self.__field_instruction_dict = {
         # number type (arabic, etc.) and number format (\# " ")
-        'EDITTIME'      :       (self.__num_type_and_format_func, 'editing-time'),
-        'NUMCHARS'      :       (self.__num_type_and_format_func, 'number-of-characters-in-doc'),
-        'NUMPAGES'      :       (self.__num_type_and_format_func, 'number-of-pages-in-doc'),
-        'NUMWORDS'      :       (self.__num_type_and_format_func, 'number-of-words-in-doc'),
-        'REVNUM'        :       (self.__num_type_and_format_func, 'revision-number'),
-        'SECTIONPAGES'  :       (self.__num_type_and_format_func, 'num-of-pages-in-section'),
-        'SECTION'       :       (self.__num_type_and_format_func, 'insert-section-number'),
-        'QUOTE'         :       (self.__num_type_and_format_func, 'quote'),
+        'EDITTIME'      : (self.__num_type_and_format_func, 'editing-time'),
+        'NUMCHARS'      : (self.__num_type_and_format_func, 'number-of-characters-in-doc'),
+        'NUMPAGES'      : (self.__num_type_and_format_func, 'number-of-pages-in-doc'),
+        'NUMWORDS'      : (self.__num_type_and_format_func, 'number-of-words-in-doc'),
+        'REVNUM'        : (self.__num_type_and_format_func, 'revision-number'),
+        'SECTIONPAGES'  : (self.__num_type_and_format_func, 'num-of-pages-in-section'),
+        'SECTION'       : (self.__num_type_and_format_func, 'insert-section-number'),
+        'QUOTE'         : (self.__num_type_and_format_func, 'quote'),
         # number formatting (\# "")
-        'PAGE'          :       (self.__default_inst_func, 'insert-page-number'),
-        'page'          :       (self.__default_inst_func, 'insert-page-number'),
+        'PAGE'          : (self.__default_inst_func, 'insert-page-number'),
+        'page'          : (self.__default_inst_func, 'insert-page-number'),
         # date format (\@ "")
-        'CREATEDATE'    :       (self.__date_func, 'insert-date'),
-        'PRINTDATE'     :       (self.__date_func, 'insert-date'),
+        'CREATEDATE'    : (self.__date_func, 'insert-date'),
+        'PRINTDATE'     : (self.__date_func, 'insert-date'),
         # PRINTDATE?
-        'SAVEDATE'      :       (self.__date_func, 'last-saved'),
-        'TIME'          :       (self.__date_func, 'insert-time'),
+        'SAVEDATE'      : (self.__date_func, 'last-saved'),
+        'TIME'          : (self.__date_func, 'insert-time'),
         # numbers?
         # these fields take four switches
-        'AUTHOR'        :       (self.__simple_info_func, 'user-name'),
-        'COMMENTS'      :       (self.__simple_info_func, 'comments'),
-        'FILENAME'      :       (self.__simple_info_func, 'file-name'),
-        'filename'      :       (self.__simple_info_func, 'file-name'),
-        'KEYWORDS'      :       (self.__simple_info_func, 'keywords'),
-        'LASTSAVEDBY'   :       (self.__simple_info_func, 'last-saved-by'),
-        'SUBJECT'       :       (self.__simple_info_func, 'subject'),
-        'TEMPLATE'      :       (self.__simple_info_func, 'based-on-template'),
-        'TITLE'         :       (self.__simple_info_func, 'document-title'),
-        'USERADDRESS'   :       (self.__simple_info_func, 'user-address'),
-        'USERINITIALS'  :       (self.__simple_info_func, 'user-initials'),
-        'USERNAME'      :       (self.__simple_info_func, 'user-name'),
-        'EQ'            :       (self.__equation_func, 'equation'),
-        'HYPERLINK'     :       (self.__hyperlink_func, 'hyperlink'),
-        'INCLUDEPICTURE':       (self.__include_pict_func, 'include-picture'),
-        'INCLUDETEXT'   :       (self.__include_text_func, 'include-text-from-file'),
-        'INDEX'         :       (self.__index_func, 'index'),
-        'NOTEREF'       :       (self.__note_ref_func, 'reference-to-note'),
-        'PAGEREF'       :       (self.__page_ref_func, 'reference-to-page'),
-        'REF'           :       (self.__ref_func, 'reference'),
-        'ref'           :       (self.__ref_func, 'reference'),
-        'SEQ'           :       (self.__sequence_func, 'numbering-sequence'),
-        'SYMBOL'        :       (self.__symbol_func, 'symbol'),
-        'TA'            :       (self.__ta_func, 'anchor-for-table-of-authorities'),
-        'TOA'           :       (self.__toc_table_func, 'table-of-authorities'),
-        'TOC'           :       (self.__toc_table_func, 'table-of-contents'),
+        'AUTHOR'        : (self.__simple_info_func, 'user-name'),
+        'COMMENTS'      : (self.__simple_info_func, 'comments'),
+        'FILENAME'      : (self.__simple_info_func, 'file-name'),
+        'filename'      : (self.__simple_info_func, 'file-name'),
+        'KEYWORDS'      : (self.__simple_info_func, 'keywords'),
+        'LASTSAVEDBY'   : (self.__simple_info_func, 'last-saved-by'),
+        'SUBJECT'       : (self.__simple_info_func, 'subject'),
+        'TEMPLATE'      : (self.__simple_info_func, 'based-on-template'),
+        'TITLE'         : (self.__simple_info_func, 'document-title'),
+        'USERADDRESS'   : (self.__simple_info_func, 'user-address'),
+        'USERINITIALS'  : (self.__simple_info_func, 'user-initials'),
+        'USERNAME'      : (self.__simple_info_func, 'user-name'),
+        'EQ'            : (self.__equation_func, 'equation'),
+        'HYPERLINK'     : (self.__hyperlink_func, 'hyperlink'),
+        'INCLUDEPICTURE': (self.__include_pict_func, 'include-picture'),
+        'INCLUDETEXT'   : (self.__include_text_func, 'include-text-from-file'),
+        'INDEX'         : (self.__index_func, 'index'),
+        'NOTEREF'       : (self.__note_ref_func, 'reference-to-note'),
+        'PAGEREF'       : (self.__page_ref_func, 'reference-to-page'),
+        'REF'           : (self.__ref_func, 'reference'),
+        'ref'           : (self.__ref_func, 'reference'),
+        'SEQ'           : (self.__sequence_func, 'numbering-sequence'),
+        'SYMBOL'        : (self.__symbol_func, 'symbol'),
+        'TA'            : (self.__ta_func, 'anchor-for-table-of-authorities'),
+        'TOA'           : (self.__toc_table_func, 'table-of-authorities'),
+        'TOC'           : (self.__toc_table_func, 'table-of-contents'),
         # no switches
-        'AUTONUMOUT'    :       (self.__no_switch_func, 'auto-num-out?'),
-        'COMPARE'       :       (self.__no_switch_func, 'compare'),
-        'DOCVARIABLE'   :       (self.__no_switch_func, 'document-variable'),
-        'GOTOBUTTON'    :       (self.__no_switch_func, 'go-button'),
-        'NEXT'          :       (self.__no_switch_func, 'next'),
-        'NEXTIF'        :       (self.__no_switch_func, 'next-if'),
-        'SKIPIF'        :       (self.__no_switch_func, 'skip-if'),
-        'IF'            :       (self.__no_switch_func, 'if'),
-        'MERGEFIELD'    :       (self.__no_switch_func, 'merge-field'),
-        'MERGEREC'      :       (self.__no_switch_func, 'merge-record'),
-        'MERGESEQ'      :       (self.__no_switch_func, 'merge-sequence'),
-        'PLACEHOLDER'   :       (self.__no_switch_func, 'place-holder'),
-        'PRIVATE'       :       (self.__no_switch_func, 'private'),
-        'RD'            :       (self.__no_switch_func, 'referenced-document'),
-        'SET'           :       (self.__no_switch_func, 'set'),
+        'AUTONUMOUT'    : (self.__no_switch_func, 'auto-num-out?'),
+        'COMPARE'       : (self.__no_switch_func, 'compare'),
+        'DOCVARIABLE'   : (self.__no_switch_func, 'document-variable'),
+        'GOTOBUTTON'    : (self.__no_switch_func, 'go-button'),
+        'NEXT'          : (self.__no_switch_func, 'next'),
+        'NEXTIF'        : (self.__no_switch_func, 'next-if'),
+        'SKIPIF'        : (self.__no_switch_func, 'skip-if'),
+        'IF'            : (self.__no_switch_func, 'if'),
+        'MERGEFIELD'    : (self.__no_switch_func, 'merge-field'),
+        'MERGEREC'      : (self.__no_switch_func, 'merge-record'),
+        'MERGESEQ'      : (self.__no_switch_func, 'merge-sequence'),
+        'PLACEHOLDER'   : (self.__no_switch_func, 'place-holder'),
+        'PRIVATE'       : (self.__no_switch_func, 'private'),
+        'RD'            : (self.__no_switch_func, 'referenced-document'),
+        'SET'           : (self.__no_switch_func, 'set'),
         # default instructions (haven't written a method for them
-        'ADVANCE'       :       (self.__default_inst_func, 'advance'),
-        'ASK'           :       (self.__default_inst_func, 'prompt-user'),
-        'AUTONUMLGL'    :       (self.__default_inst_func, 'automatic-number'),
+        'ADVANCE'       : (self.__default_inst_func, 'advance'),
+        'ASK'           : (self.__default_inst_func, 'prompt-user'),
+        'AUTONUMLGL'    : (self.__default_inst_func, 'automatic-number'),
         'AUTONUM'       : (self.__default_inst_func, 'automatic-number'),
-        'AUTOTEXTLIST'  :       (self.__default_inst_func, 'auto-list-text'),
-        'AUTOTEXT'      :       (self.__default_inst_func, 'auto-text'),
-        'BARCODE'       :       (self.__default_inst_func, 'barcode'),
-        'CONTACT'       :       (self.__default_inst_func, 'contact'),
-        'DATABASE'      :       (self.__default_inst_func, 'database'),
-        'DATE'          :       (self.__default_inst_func, 'date'),
-        'date'          :       (self.__default_inst_func, 'date'),
-        'DOCPROPERTY'   :       (self.__default_inst_func, 'document-property'),
-        'FILESIZE'      :       (self.__default_inst_func, 'file-size'),
-        'FILLIN'        :       (self.__default_inst_func, 'fill-in'),
-        'INFO'          :       (self.__default_inst_func, 'document-info'),
-        'LINK'          :       (self.__default_inst_func, 'link'),
-        'PA'            :       (self.__default_inst_func, 'page'),
-        'PRINT'         :       (self.__default_inst_func, 'print'),
-        'STYLEREF'      :       (self.__default_inst_func, 'style-reference'),
-        'USERPROPERTY'  :       (self.__default_inst_func, 'user-property'),
-        'FORMCHECKBOX'  :       (self.__default_inst_func, 'form-checkbox'),
-        'FORMTEXT'      :       (self.__default_inst_func, 'form-text'),
+        'AUTOTEXTLIST'  : (self.__default_inst_func, 'auto-list-text'),
+        'AUTOTEXT'      : (self.__default_inst_func, 'auto-text'),
+        'BARCODE'       : (self.__default_inst_func, 'barcode'),
+        'CONTACT'       : (self.__default_inst_func, 'contact'),
+        'DATABASE'      : (self.__default_inst_func, 'database'),
+        'DATE'          : (self.__default_inst_func, 'date'),
+        'date'          : (self.__default_inst_func, 'date'),
+        'DOCPROPERTY'   : (self.__default_inst_func, 'document-property'),
+        'FILESIZE'      : (self.__default_inst_func, 'file-size'),
+        'FILLIN'        : (self.__default_inst_func, 'fill-in'),
+        'INFO'          : (self.__default_inst_func, 'document-info'),
+        'LINK'          : (self.__default_inst_func, 'link'),
+        'PA'            : (self.__default_inst_func, 'page'),
+        'PRINT'         : (self.__default_inst_func, 'print'),
+        'STYLEREF'      : (self.__default_inst_func, 'style-reference'),
+        'USERPROPERTY'  : (self.__default_inst_func, 'user-property'),
+        'FORMCHECKBOX'  : (self.__default_inst_func, 'form-checkbox'),
+        'FORMTEXT'      : (self.__default_inst_func, 'form-text'),
         # buttons
-        'MACROBUTTON'   :       (self.__default_inst_func, 'macro-button'),
+        'MACROBUTTON'   : (self.__default_inst_func, 'macro-button'),
         }
         self.__number_dict = {
             'Arabic'        :   'arabic',
@@ -238,7 +238,7 @@ class FieldStrings:
         '''
         return [None, None, name]
 
-    def __fall_back_func(self, field_name,  line):
+    def __fall_back_func(self, field_name, line):
         '''
         Requires:
             field_name -- the first word in the string
@@ -350,8 +350,8 @@ class FieldStrings:
         '''
         match_group = re.search(self.__num_type_exp, the_string)
         if match_group:
-            name =  match_group.group(1)
-            changed_name =   self.__number_dict.get(name)
+            name = match_group.group(1)
+            changed_name = self.__number_dict.get(name)
             if changed_name:
                 return changed_name
             else:
@@ -394,8 +394,8 @@ class FieldStrings:
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
-            name =  match_group.group(1)
-            changed_name =   self.__text_format_dict.get(name)
+            name = match_group.group(1)
+            changed_name = self.__text_format_dict.get(name)
             if changed_name:
                 the_string += '<format>%s' % changed_name
             else:
@@ -451,8 +451,8 @@ class FieldStrings:
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
-            name =  match_group.group(1)
-            changed_name =   self.__text_format_dict.get(name)
+            name = match_group.group(1)
+            changed_name = self.__text_format_dict.get(name)
             if changed_name:
                 the_string += '<format>%s' % changed_name
             else:
@@ -529,8 +529,8 @@ class FieldStrings:
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
-            name =  match_group.group(1)
-            changed_name =   self.__text_format_dict.get(name)
+            name = match_group.group(1)
+            changed_name = self.__text_format_dict.get(name)
             if changed_name:
                 the_string += '<format>%s' % changed_name
             else:
@@ -617,15 +617,15 @@ class FieldStrings:
         the_string = name
         match_group = re.search(self.__ta_short_field_exp, line)
         if match_group:
-            short_name =  match_group.group(1)
+            short_name = match_group.group(1)
             the_string += '<short-field>%s' % short_name
         match_group = re.search(self.__ta_long_field_exp, line)
         if match_group:
-            long_name =  match_group.group(1)
+            long_name = match_group.group(1)
             the_string += '<long-field>%s' % long_name
         match_group = re.search(self.__ta_category_exp, line)
         if match_group:
-            category =  match_group.group(1)
+            category = match_group.group(1)
             the_string += '<category>%s' % category
         index = line.find('\\b')
         if index > -1:

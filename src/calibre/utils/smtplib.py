@@ -541,7 +541,7 @@ class SMTP:
             q = q + '.' + CRLF
             self.send(q)
             (code, msg) = self.getreply()
-            if self.debuglevel > 0 :
+            if self.debuglevel > 0:
                 self.debug('data:', (code, msg))
             return (code, msg)
 
@@ -747,7 +747,7 @@ class SMTP:
          ...
          ... This is a test '''
          >>> s.sendmail("me@my.org",tolist,msg)
-         { "three@three.org" : ( 550 ,"User unknown" ) }
+         { "three@three.org" : (550, "User unknown") }
          >>> s.quit()
 
         In the above example, the message was accepted for delivery to three
@@ -776,7 +776,7 @@ class SMTP:
         for each in to_addrs:
             (code, resp) = self.rcpt(each, rcpt_options)
             if (code != 250) and (code != 251):
-                senderrs[each] = (code,resp)
+                senderrs[each] = (code, resp)
         if len(senderrs) == len(to_addrs):
             # the server refused all our recipients
             self.rset()

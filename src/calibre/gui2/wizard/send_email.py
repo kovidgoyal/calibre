@@ -204,7 +204,7 @@ class SendEmail(QWidget, Ui_Form):
             button = getattr(self, 'relay_use_'+x)
             button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
-         lambda state : self.relay_password.setEchoMode(
+         lambda state: self.relay_password.setEchoMode(
              QLineEdit.EchoMode.Password if
              state == 0 else QLineEdit.EchoMode.Normal))
         self.test_email_button.clicked.connect(self.test_email)

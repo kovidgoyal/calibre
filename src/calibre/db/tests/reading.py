@@ -26,12 +26,12 @@ class ReadingTest(BaseTest):
         'Test the reading of data from the database'
         cache = self.init_cache(self.library_path)
         tests = {
-                3  : {
+                3: {
                     'title': 'Unknown',
                     'sort': 'Unknown',
                     'authors': ('Unknown',),
                     'author_sort': 'Unknown',
-                    'series' : None,
+                    'series': None,
                     'series_index': 1.0,
                     'rating': None,
                     'tags': (),
@@ -58,12 +58,12 @@ class ReadingTest(BaseTest):
                     'size':None,
                 },
 
-                2 : {
+                2: {
                     'title': 'Title One',
                     'sort': 'One',
                     'authors': ('Author One',),
                     'author_sort': 'One, Author',
-                    'series' : 'A Series One',
+                    'series': 'A Series One',
                     'series_index': 1.0,
                     'tags':('Tag One', 'Tag Two'),
                     'formats': ('FMT1',),
@@ -88,12 +88,12 @@ class ReadingTest(BaseTest):
                     '#comments': '<div>My Comments One<p></p></div>',
                     'size':9,
                 },
-                1  : {
+                1: {
                     'title': 'Title Two',
                     'sort': 'Title Two',
                     'authors': ('Author Two', 'Author One'),
                     'author_sort': 'Two, Author & One, Author',
-                    'series' : 'A Series One',
+                    'series': 'A Series One',
                     'series_index': 2.0,
                     'rating': 6.0,
                     'tags': ('Tag One', 'News'),
@@ -217,7 +217,7 @@ class ReadingTest(BaseTest):
         cache.set_field('#two', {10:2})
         cache.set_field('#three', {i:i for i in range(1, 11)})
         ae(list(range(1, 11)), cache.multisort([('#one', True), ('#two', True)], ids_to_sort=sorted(cache.all_book_ids())))
-        ae([4, 5, 1, 2, 3, 7,8, 9, 10, 6], cache.multisort([('#one', True), ('#two', False)], ids_to_sort=sorted(cache.all_book_ids())))
+        ae([4, 5, 1, 2, 3, 7, 8, 9, 10, 6], cache.multisort([('#one', True), ('#two', False)], ids_to_sort=sorted(cache.all_book_ids())))
         ae([5, 4, 3, 2, 1, 10, 9, 8, 7, 6], cache.multisort([('#one', True), ('#two', False), ('#three', False)], ids_to_sort=sorted(cache.all_book_ids())))
     # }}}
 

@@ -341,7 +341,7 @@ def main(args=sys.argv):
 def config(defaults=None):
     from calibre.utils.config import Config, StringConfig
     desc = _('Control email delivery')
-    c = Config('smtp',desc) if defaults is None else StringConfig(defaults,desc)
+    c = Config('smtp', desc) if defaults is None else StringConfig(defaults, desc)
     c.add_opt('from_')
     c.add_opt('accounts', default={})
     c.add_opt('subjects', default={})

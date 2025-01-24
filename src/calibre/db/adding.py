@@ -78,7 +78,7 @@ def metadata_extensions():
     # but not actually added)
     global _metadata_extensions
     if _metadata_extensions is None:
-        _metadata_extensions =  frozenset(BOOK_EXTENSIONS) | {'opf'}
+        _metadata_extensions = frozenset(BOOK_EXTENSIONS) | {'opf'}
     return _metadata_extensions
 
 

@@ -155,7 +155,7 @@ class WSJ(BasicNewsRecipe):
             # br.set_debug_http(True)
             res = br.open(start_url)
             sso_url = res.geturl()
-            query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
+            query = urlparse.parse_qs(urlparse.urlparse(sso_url).query)
             query = {k:v[0] for k, v in query.items()}
             # pprint(query)
             request_query = {

@@ -43,7 +43,7 @@ COMMENT_NAMES = {
 }
 
 META_NAMES = {
-    'title' : ('dc.title', 'dcterms.title', 'title'),
+    'title': ('dc.title', 'dcterms.title', 'title'),
     'authors': ('author', 'dc.creator.aut', 'dcterms.creator.aut', 'dc.creator'),
     'publisher': ('publisher', 'dc.publisher', 'dcterms.publisher'),
     'isbn': ('isbn',),

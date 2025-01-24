@@ -41,7 +41,7 @@ class Copy:
         '''Remove files from directory'''
         list_of_files = os.listdir(the_dir)
         for file in list_of_files:
-            rem_file = os.path.join(Copy.__dir,file)
+            rem_file = os.path.join(Copy.__dir, file)
             if os.path.isdir(rem_file):
                 self.__remove_the_files(rem_file)
             else:
@@ -56,7 +56,7 @@ class Copy:
         If the platform is linux, use the faster linux command
         of cp. Otherwise, use a safe python method.
         '''
-        write_file = os.path.join(Copy.__dir,new_file)
+        write_file = os.path.join(Copy.__dir, new_file)
         shutil.copyfile(file, write_file)
 
     def rename(self, source, dest):

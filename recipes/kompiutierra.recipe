@@ -26,7 +26,7 @@ class Computerra(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='ul', attrs={'class': 'breadcrumbs'}),
         dict(name='div', attrs={'class': 'post-info__likes post-info-likes'}),
         dict(name='div', attrs={'class': 'cta-row'}),

@@ -326,7 +326,7 @@ def parse_plugin(raw, names, zf):
 
 def get_plugin_init(zf):
     metadata = None
-    names = {x.decode('utf-8') if isinstance(x, bytes) else x : x for x in zf.namelist()}
+    names = {x.decode('utf-8') if isinstance(x, bytes) else x: x for x in zf.namelist()}
     inits = [x for x in names if x.rpartition('/')[-1] == '__init__.py']
     inits.sort(key=lambda x:x.count('/'))
     if inits and inits[0] == '__init__.py':
@@ -378,7 +378,7 @@ def fetch_plugin(old_index, entry):
         # Previously downloaded plugin
         lm = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6])
         request = Request(url)
-        request.get_method = lambda : 'HEAD'
+        request.get_method = lambda: 'HEAD'
         with closing(urlopen(request)) as response:
             info = response.info()
         slm = datetime(*parsedate(info.get('Last-Modified'))[:6])

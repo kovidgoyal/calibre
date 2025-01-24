@@ -198,13 +198,13 @@ def add_input_output_options(parser, plumber):
 
 def add_pipeline_options(parser, plumber):
     groups = OrderedDict((
-              ('' , ('',
+              ('', ('',
                     [
                      'input_profile',
                      'output_profile',
                      ]
                     )),
-              (_('LOOK AND FEEL') , (
+              (_('LOOK AND FEEL'), (
                   _('Options to control the look and feel of the output'),
                   [
                       'base_font_size', 'disable_font_rescaling',
@@ -223,7 +223,7 @@ def add_pipeline_options(parser, plumber):
                   ]
                   )),
 
-              (_('HEURISTIC PROCESSING') , (
+              (_('HEURISTIC PROCESSING'), (
                   _('Modify the document text and structure using common'
                      ' patterns. Disabled by default. Use %(en)s to enable. '
                      ' Individual actions can be disabled with the %(dis)s options.')
@@ -231,7 +231,7 @@ def add_pipeline_options(parser, plumber):
                   ['enable_heuristics'] + HEURISTIC_OPTIONS
                   )),
 
-              (_('SEARCH AND REPLACE') , (
+              (_('SEARCH AND REPLACE'), (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
                      'sr1_search', 'sr1_replace',
@@ -241,7 +241,7 @@ def add_pipeline_options(parser, plumber):
                  ]
               )),
 
-              (_('STRUCTURE DETECTION') , (
+              (_('STRUCTURE DETECTION'), (
                   _('Control auto-detection of document structure.'),
                   [
                       'chapter', 'chapter_mark',
@@ -251,7 +251,7 @@ def add_pipeline_options(parser, plumber):
                   ]
                   )),
 
-              (_('TABLE OF CONTENTS') , (
+              (_('TABLE OF CONTENTS'), (
                   _('Control the automatic generation of a Table of Contents. By '
                   'default, if the source file has a Table of Contents, it will '
                   'be used in preference to the automatically generated one.'),
@@ -262,7 +262,7 @@ def add_pipeline_options(parser, plumber):
                   ]
                   )),
 
-              (_('METADATA') , (_('Options to set metadata in the output'),
+              (_('METADATA'), (_('Options to set metadata in the output'),
                             plumber.metadata_option_names + ['read_metadata_from_opf'],
                             )),
               (_('DEBUG'), (_('Options to help with debugging the conversion'),

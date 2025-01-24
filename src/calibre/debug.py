@@ -56,15 +56,15 @@ as a shebang in scripts, like this:
                       help=_('Subset the specified font. Use -- after this option to pass option to the font subsetting program.'))
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help=_('Debug device detection'))
-    parser.add_option('-g', '--gui',  default=False, action='store_true',
+    parser.add_option('-g', '--gui', default=False, action='store_true',
                       help=_('Run the GUI with debugging enabled. Debug output is '
                       'printed to stdout and stderr.'))
-    parser.add_option('--gui-debug',  default=None,
+    parser.add_option('--gui-debug', default=None,
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
     parser.add_option('--run-without-debug', default=False, action='store_true', help=_("Don't run with the DEBUG flag set"))
-    parser.add_option('-w', '--viewer',  default=False, action='store_true',
+    parser.add_option('-w', '--viewer', default=False, action='store_true',
                       help=_('Run the E-book viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',
             help=_('Output the paths necessary to setup the calibre environment'))

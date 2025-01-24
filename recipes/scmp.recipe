@@ -54,7 +54,7 @@ def load_article_from_json(raw, root):
     for child in tuple(body):
         body.remove(child)
     article = E(body, 'article')
-    E(article, 'div', replace_entities(data['firstTopic']['name']) , style='color: gray; font-size:small; font-weight:bold;')
+    E(article, 'div', replace_entities(data['firstTopic']['name']), style='color: gray; font-size:small; font-weight:bold;')
     E(article, 'h1', replace_entities(data['headline']))
     # E(article, 'p', replace_entities(data['subHeadline']['text']), style='font-style: italic; color:#202020;')
     for subh in data['subHeadline']['json']:

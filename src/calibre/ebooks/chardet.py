@@ -100,7 +100,7 @@ def find_declared_encoding(raw, limit=50*1024):
                 return ans
 
 
-_CHARSET_ALIASES = {'macintosh' : 'mac-roman', 'x-sjis' : 'shift-jis', 'mac-centraleurope': 'cp1250'}
+_CHARSET_ALIASES = {'macintosh': 'mac-roman', 'x-sjis': 'shift-jis', 'mac-centraleurope': 'cp1250'}
 
 
 def detect(bytestring):

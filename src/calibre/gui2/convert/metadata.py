@@ -134,7 +134,7 @@ class MetadataWidget(Widget, Ui_Form):
 
     def initalize_authors(self):
         all_authors = self.db.all_authors()
-        all_authors.sort(key=lambda x : sort_key(x[1]))
+        all_authors.sort(key=lambda x: sort_key(x[1]))
         self.author.set_separator('&')
         self.author.set_space_before_sep(True)
         self.author.set_add_separator(tweaks['authors_completer_append_separator'])

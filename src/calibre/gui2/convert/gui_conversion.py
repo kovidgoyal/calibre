@@ -68,9 +68,9 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
     # Extract the option dictionary to comma-separated lists
     for option in fmt_options:
         if isinstance(fmt_options[option],list):
-            setattr(opts,option, ','.join(fmt_options[option]))
+            setattr(opts, option, ','.join(fmt_options[option]))
         else:
-            setattr(opts,option, fmt_options[option])
+            setattr(opts, option, fmt_options[option])
 
     # Fetch and run the plugin for fmt
     # Returns 0 if successful, 1 if no catalog built

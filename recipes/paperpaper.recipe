@@ -24,7 +24,7 @@ class PaperPaper(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'bottom-block '}),
         dict(name='div', attrs={'class': 'bottom-block news'})
         ]

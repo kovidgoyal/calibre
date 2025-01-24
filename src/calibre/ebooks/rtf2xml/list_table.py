@@ -49,24 +49,24 @@ class ListTable:
             'list_name'     : self.__list_name_func,
         }
         self.__main_list_dict = {
-            'cw<ls<ls-tem-id_'  :       'list-template-id',
-            'cw<ls<list-hybri'  :       'list-hybrid',
-            'cw<ls<lis-tbl-id'  :       'list-table-id',
+            'cw<ls<ls-tem-id_'  : 'list-template-id',
+            'cw<ls<list-hybri'  : 'list-hybrid',
+            'cw<ls<lis-tbl-id'  : 'list-table-id',
         }
         self.__level_dict = {
-            'cw<ls<level-star'  :       'list-number-start',
-            'cw<ls<level-spac'  :       'list-space',
-            'cw<ls<level-inde'  :       'level-indent',
-            'cw<ls<fir-ln-ind'  :       'first-line-indent',
-            'cw<ls<left-inden'  :       'left-indent',
-            'cw<ls<tab-stop__'  :       'tabs',
-            'cw<ls<level-type'  :       'numbering-type',
-            'cw<pf<right-inde'  :       'right-indent',
-            'cw<pf<left-inden'  :       'left-indent',
-            'cw<pf<fir-ln-ind'  :       'first-line-indent',
-            'cw<ci<italics___'  :       'italics',
-            'cw<ci<bold______'  :       'bold',
-            'cw<ss<para-style'  :       'paragraph-style-name',
+            'cw<ls<level-star'  : 'list-number-start',
+            'cw<ls<level-spac'  : 'list-space',
+            'cw<ls<level-inde'  : 'level-indent',
+            'cw<ls<fir-ln-ind'  : 'first-line-indent',
+            'cw<ls<left-inden'  : 'left-indent',
+            'cw<ls<tab-stop__'  : 'tabs',
+            'cw<ls<level-type'  : 'numbering-type',
+            'cw<pf<right-inde'  : 'right-indent',
+            'cw<pf<left-inden'  : 'left-indent',
+            'cw<pf<fir-ln-ind'  : 'first-line-indent',
+            'cw<ci<italics___'  : 'italics',
+            'cw<ci<bold______'  : 'bold',
+            'cw<ss<para-style'  : 'paragraph-style-name',
         }
         # all_lists =
         # [{anything here?}

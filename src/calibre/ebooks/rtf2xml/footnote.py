@@ -27,7 +27,7 @@ class Footnote:
     '''
 
     def __init__(self,
-            in_file ,
+            in_file,
             bug_handler,
             copy=None,
             run_level=1,

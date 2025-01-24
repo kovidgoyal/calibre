@@ -397,7 +397,7 @@ class LRFMetaFile:
             size = self.compressed_info_size - 4
             self._file.seek(self.info_start)
             try:
-                src =  zlib.decompress(self._file.read(size))
+                src = zlib.decompress(self._file.read(size))
                 if len(src) != self.uncompressed_info_size:
                     raise LRFException('Decompression of document meta info\
                                         yielded unexpected results')
@@ -511,7 +511,7 @@ class LRFMetaFile:
         '''
         end = start + struct.calcsize(fmt)
         self._file.seek(start)
-        ret =  struct.unpack(fmt, self._file.read(end-start))
+        ret = struct.unpack(fmt, self._file.read(end-start))
         return ret
 
     @safe

@@ -41,7 +41,7 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:
-            hier_cats =  self.db.prefs.get('categories_using_hierarchy') or ()
+            hier_cats = self.db.prefs.get('categories_using_hierarchy') or ()
             for key in cats:
                 ans.append([key, key in hier_cats])
         self.beginResetModel()

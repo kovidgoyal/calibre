@@ -24,12 +24,12 @@ class novinkyRecipe(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    remove_tags = [dict(name='div',   attrs={'id': ['pictureInnerBox']}),
-                   dict(name='div',   attrs={'id': ['discussionEntry']}),
-                   dict(name='span',   attrs={
+    remove_tags = [dict(name='div', attrs={'id': ['pictureInnerBox']}),
+                   dict(name='div', attrs={'id': ['discussionEntry']}),
+                   dict(name='span', attrs={
                         'id': ['mynews-hits', 'mynews-author']}),
-                   dict(name='div',   attrs={'class': ['related']}),
-                   dict(name='div',   attrs={'id': ['multimediaInfo']})]
+                   dict(name='div', attrs={'class': ['related']}),
+                   dict(name='div', attrs={'id': ['multimediaInfo']})]
     remove_tags_before = dict(name='div', attrs={'class': ['articleHeader']})
     remove_tags_after = dict(name='div', attrs={'class': 'related'})
 

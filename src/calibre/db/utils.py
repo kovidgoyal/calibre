@@ -225,7 +225,7 @@ class ThumbnailCache:
         except OSError as err:
             self.log('Failed to read thumbnail cache dir:', as_unicode(err))
 
-        self.items = OrderedDict(sorted(items, key=lambda x:order.get(x[0], 0)))
+        self.items = OrderedDict(sorted(items, key=lambda x: order.get(x[0], 0)))
         self._apply_size()
 
     def _invalidate_sizes(self):

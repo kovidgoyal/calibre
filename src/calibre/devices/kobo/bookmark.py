@@ -135,7 +135,7 @@ class Bookmark:  # {{{
                                    'chapter_title': chapter_title,
                                    'chapter_progress': chapter_progress}
             previous_chapter = current_chapter
-            # debug_print("e_type:" , e_type, '\t', 'loc: ', note_id, 'text: ', text,
+            # debug_print("e_type:", e_type, '\t', 'loc: ', note_id, 'text: ', text,
             # 'annotation: ', annotation, 'chapter_title: ', chapter_title,
             # 'chapter_progress: ', chapter_progress, 'date: ')
 

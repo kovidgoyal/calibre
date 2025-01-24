@@ -105,7 +105,7 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
                 return error_dialog(self.gui, _('Cannot edit book'), _(
                     'The book "{0}" must be in the {1} formats to edit.'
                     '\n\nFirst convert the book to one of these formats.'
-                ).format(title,  _(' or ').join(SUPPORTED)), show=True)
+                ).format(title, _(' or ').join(SUPPORTED)), show=True)
         from calibre.gui2.tweak_book import tprefs
         tprefs.refresh()  # In case they were changed in a Tweak Book process
         if len(tweakable_fmts) > 1:

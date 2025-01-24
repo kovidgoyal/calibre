@@ -892,7 +892,7 @@ class Textile:
 
         atts = self.pba(atts)
         if title:
-            atts = atts +  ' title="%s"' % self.encode_html(title)
+            atts = atts + ' title="%s"' % self.encode_html(title)
 
         if not self.noimage:
             text = self.image(text)

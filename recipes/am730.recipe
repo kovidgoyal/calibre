@@ -58,7 +58,7 @@ class AM730(BasicNewsRecipe):
         articles = []
         for aTag in soup.findAll('a',attrs={'class':'newsimglink'}):
             href = aTag.get('href',False)
-            if not href.encode('utf-8').startswith(url.encode('utf-8')) :
+            if not href.encode('utf-8').startswith(url.encode('utf-8')):
                 continue  # not in same section
 
             title = href.split('/')[-1].split('-')[0]

@@ -125,7 +125,7 @@ class respektRecipe(BasicNewsRecipe):
                     else:
                         if next.getchildren():
                             next_child = next.getchildren()[0]
-                            next_child.text = next_child.text +  u' • ' + text
+                            next_child.text = next_child.text + u' • ' + text
                     par.getparent().remove(par)
         # Insert text length
         text = root.xpath("//div[@id='postcontent']")[0]
@@ -171,4 +171,4 @@ class respektRecipe(BasicNewsRecipe):
             o.getparent().replace(o,e)
         except:
             pass
-        return (BeautifulSoup(lxml.etree.tostring(root,encoding='unicode')))
+        return BeautifulSoup(lxml.etree.tostring(root,encoding='unicode'))

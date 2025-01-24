@@ -80,28 +80,28 @@ class Table:
         Initiate all values.
         '''
         self.__state_dict = {
-        'in_table':         self.__in_table_func,
-        'in_row_def':       self.__in_row_def_func,
-        'not_in_table':     self.__not_in_table_func,
-        'in_cell':          self.__in_cell_func,
-        'in_row':           self.__in_row_func,
+        'in_table'      : self.__in_table_func,
+        'in_row_def'    : self.__in_row_def_func,
+        'not_in_table'  : self.__not_in_table_func,
+        'in_cell'       : self.__in_cell_func,
+        'in_row'        : self.__in_row_func,
         }
         self.__not_in_table_dict = {
-        'cw<tb<row-def___':   self.__found_row_def_func,
-        'cw<tb<in-table__': self.__start_table_func,
+        'cw<tb<row-def___'  : self.__found_row_def_func,
+        'cw<tb<in-table__'  : self.__start_table_func,
         'mi<mk<in-table__'  : self.__start_table_func,
         }
         # can't use this dictionary. When in row_definition, many tokens
         # require multiple definitions
         self.__in_row_definition_dict = {
-        'mi<mk<not-in-tbl'  :   self.__end_row_table_func,
-        'mi<mk<pard-start'  :   self.__end_row_def_func,
+        'mi<mk<not-in-tbl'  : self.__end_row_table_func,
+        'mi<mk<pard-start'  : self.__end_row_def_func,
         }
         self.__in_row_dict = {
-        'mi<mk<not-in-tbl'  :   self.__close_table,
-        'mi<mk<pard-start'  :   self.__start_cell_func,
-        'cw<tb<row_______'  :   self.__end_row_func,
-        'cw<tb<cell______'  :   self.__empty_cell,
+        'mi<mk<not-in-tbl'  : self.__close_table,
+        'mi<mk<pard-start'  : self.__start_cell_func,
+        'cw<tb<row_______'  : self.__end_row_func,
+        'cw<tb<cell______'  : self.__empty_cell,
         }
         # set the default state
         self.__state = ['not_in_table']
@@ -434,7 +434,7 @@ class Table:
             self.__end_row_func(line)
             self.__close_table(line)
             self.__write_obj.write(line)
-        elif self.__token_info ==  'cw<tb<cell______':
+        elif self.__token_info == 'cw<tb<cell______':
             self.__end_cell_func(line)
         else:
             self.__write_obj.write(line)

@@ -42,31 +42,31 @@ class OldRtf:
         self.__bug_handler = bug_handler
         self.__run_level = run_level
         self.__allowable = [
-            'annotation' ,
-            'blue______'  ,
+            'annotation',
+            'blue______',
             'bold______',
             'caps______',
-            'char-style' ,
-            'dbl-strike' ,
+            'char-style',
+            'dbl-strike',
             'emboss____',
-            'engrave___' ,
+            'engrave___',
             'font-color',
-            'font-down_' ,
+            'font-down_',
             'font-size_',
             'font-style',
             'font-up___',
-            'footnot-mk' ,
-            'green_____' ,
+            'footnot-mk',
+            'green_____',
             'hidden____',
             'italics___',
             'outline___',
             'red_______',
-            'shadow____' ,
+            'shadow____',
             'small-caps',
             'strike-thr',
             'subscript_',
-            'superscrip' ,
-            'underlined' ,
+            'superscrip',
+            'underlined',
         ]
         self.__action_dict = {
             'before_body'   : self.__before_body_func,
@@ -86,7 +86,7 @@ class OldRtf:
                 return 'old_rtf'
             else:
                 self.__found_new += 1
-        elif self.__token_info ==  'cw<pf<par-def___':
+        elif self.__token_info == 'cw<pf<par-def___':
             self.__state = 'after_pard'
 
     def __before_body_func(self, line):

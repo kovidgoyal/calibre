@@ -240,7 +240,7 @@ class CurrentModel(BaseModel):
     def restore_defaults(self):
         current = gprefs.defaults[self.gprefs_name]
         self.beginResetModel()
-        self._data =  [self.name_to_action(x, self.gui) for x in current]
+        self._data = [self.name_to_action(x, self.gui) for x in current]
         self.endResetModel()
 
 

@@ -115,6 +115,6 @@ class IndiaToday(BasicNewsRecipe):
                 imagecap = '<div id="imgcap">' + data['image_caption'] + '</div>'
 
         html = '<html><body>' + slug + '<h1>' + title + '</h1>\n' + desc + '<div id="author">'\
-                    + author +  '<span> ' + city + ' UPDATED: ' + date + '</span></div>\n' + image + imagecap + body\
+                    + author + '<span> ' + city + ' UPDATED: ' + date + '</span></div>\n' + image + imagecap + body\
                         + '</body></html>'
         return html

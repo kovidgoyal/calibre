@@ -290,7 +290,7 @@ class CSSFlattener:
             body = html.find(XHTML('body'))
             if 'style' in html.attrib:
                 b = body.attrib.get('style', '')
-                body.set('style',  html.get('style') + ';' + b)
+                body.set('style', html.get('style') + ';' + b)
                 del html.attrib['style']
             bs = body.get('style', '').split(';')
             bs.append('margin-top: 0pt')
@@ -534,7 +534,7 @@ class CSSFlattener:
             indent_size = self.context.remove_paragraph_spacing_indent_size
             keep_indents = indent_size < 0.0
             if (self.context.remove_paragraph_spacing and not keep_indents and cssdict.get('text-align', None) not in ('center', 'right')):
-                cssdict['text-indent'] =  '%1.1fem' % indent_size
+                cssdict['text-indent'] = '%1.1fem' % indent_size
 
         pseudo_classes = style.pseudo_classes(self.filter_css)
         if cssdict or pseudo_classes:
@@ -696,9 +696,9 @@ class CSSFlattener:
             fsize = self.context.dest.fbase
             self.flatten_node(html, stylizer, names, styles, pseudo_styles, fsize, item.id, recurse=False)
             self.flatten_node(html.find(XHTML('body')), stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x:numeric_sort_key(x[0]))
+        items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x: numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
-        psels = sorted(pseudo_styles, key=lambda x :
+        psels = sorted(pseudo_styles, key=lambda x:
                 {'hover':1, 'active':2}.get(x, 0))
         for psel in psels:
             styles = pseudo_styles[psel]

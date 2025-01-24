@@ -106,7 +106,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
         if styles:
             heading_style = styles[0]
     else:
-        items = sorted(xe_fields, key=lambda x:sort_key(x['text']))
+        items = sorted(xe_fields, key=lambda x: sort_key(x['text']))
 
     hyperlinks = []
     blocks = []

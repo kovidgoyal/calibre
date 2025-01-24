@@ -136,7 +136,7 @@ Examples
         'cw<fd<field_____'  : self.__found_field_func,
         }
         self.__field_dict = {
-        'cw<fd<field-inst'  :   self.__found_field_instruction_func,
+        'cw<fd<field-inst'  : self.__found_field_instruction_func,
         'cw<fd<field_____'  : self.__found_field_func,
         'cw<pf<par-end___'  : self.__par_in_field_func,
         'cw<sc<section___'  : self.__sec_in_field_func,

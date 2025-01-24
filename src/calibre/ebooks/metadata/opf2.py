@@ -568,7 +568,7 @@ def dump_dict(cats):
 
 
 XPATH_NS = {
-    'dc': 'http://purl.org/dc/elements/1.1/',
+    'dc' : 'http://purl.org/dc/elements/1.1/',
     'opf': 'http://www.idpf.org/2007/opf',
     're' : 'http://exslt.org/regular-expressions'
 }
@@ -843,7 +843,7 @@ class OPF:  # {{{
     def create_guide_element(self):
         e = etree.SubElement(self.root, '{%s}guide'%self.NAMESPACES['opf'])
         e.text = '\n        '
-        e.tail =  '\n'
+        e.tail = '\n'
         return e
 
     def remove_guide(self):

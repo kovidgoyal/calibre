@@ -281,8 +281,8 @@ class ChunkIndex(Index):
 class GuideIndex(Index):
 
     tag_types = tuple(map(TagMeta, (
-        ('title',           1, 1, 1, 0),
-        ('pos_fid',         6, 2, 2, 0),
+        ('title',   1, 1, 1, 0),
+        ('pos_fid', 6, 2, 2, 0),
         EndTagTable
     )))
 

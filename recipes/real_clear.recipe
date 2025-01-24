@@ -35,9 +35,9 @@ class RealClear(BasicNewsRecipe):
 
     # Numeric parameter is type, controls whether we look for
     feedsets = [
-        ['Politics',        'http://www.realclearpolitics.com/index.xml',   0],
-        ['Policy',           'http://www.realclearpolicy.com/index.xml', 0],
-        ['Science',         'http://www.realclearscience.com/index.xml',    0],
+        ['Politics',        'http://www.realclearpolitics.com/index.xml', 0],
+        ['Policy',          'http://www.realclearpolicy.com/index.xml', 0],
+        ['Science',         'http://www.realclearscience.com/index.xml', 0],
         ['Tech',            'http://www.realcleartechnology.com/index.xml', 0],
         # The feedburner is essentially the same as the top feed, politics.
         # ["Politics Burner", "http://feeds.feedburner.com/realclearpolitics/qlMj", 1],
@@ -45,7 +45,7 @@ class RealClear(BasicNewsRecipe):
         ['Markets Home',    'http://www.realclearmarkets.com/index.xml', 0],
         ['Markets',         'http://www.realclearmarkets.com/articles/index.xml', 0],
         ['World',           'http://www.realclearworld.com/index.xml', 0],
-        ['World Blog',           'http://www.realclearworld.com/blog/index.xml', 2]
+        ['World Blog',      'http://www.realclearworld.com/blog/index.xml', 2]
     ]
     # Hints to extractPrintURL.
     # First column is the URL snippet.  Then the string to search for as text,
@@ -53,12 +53,11 @@ class RealClear(BasicNewsRecipe):
     # drill down.
     phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
 
-    printhints = [['realclear',           '',                            '', 'printpage'],
-                  ['billoreilly.com',     'Print this entry',            'a', ''],
-                  ['billoreilly.com',     'Print This Article',          'a', ''],
-                  ['politico.com',        'Print',
-                      'a', 'share-print'],
-                  ['nationalreview.com',  '>Print<',                     'a', ''],
+    printhints = [['realclear',           '',                       '', 'printpage'],
+                  ['billoreilly.com',     'Print this entry',       'a', ''],
+                  ['billoreilly.com',     'Print This Article',     'a', ''],
+                  ['politico.com',        'Print',                  'a', 'share-print'],
+                  ['nationalreview.com',  '>Print<',                'a', ''],
                   ['reason.com',          '',                       'a', 'printer']
                   # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
                   # forbes,

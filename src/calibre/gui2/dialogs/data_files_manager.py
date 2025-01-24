@@ -168,7 +168,7 @@ class Files(QAbstractListModel):
         if row >= len(self.files):
             return None
         if role == Qt.ItemDataRole.DisplayRole:
-            name =  self.file_display_name(row)
+            name = self.file_display_name(row)
             e = self.item_at(row)
             date = datetime.fromtimestamp(e.stat_result.st_mtime)
             l2 = human_readable(e.stat_result.st_size) + date.strftime(' [%Y/%m/%d]')

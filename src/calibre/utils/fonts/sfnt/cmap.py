@@ -106,7 +106,7 @@ def set_id_delta(index, start_code):  # {{{
     #    (short)finalGID = (gid +  id_delta) % 0x10000),
     # we can get from a startCode of 0 to a final GID of 64 -1K by subtracting 1, and casting the
     # negative number to an unsigned short.
-    # Similarly , we can get from a startCode of 64K-1 to a final GID of 1 by adding 2, because of
+    # Similarly, we can get from a startCode of 64K-1 to a final GID of 1 by adding 2, because of
     # the modulo arithmetic.
 
     id_delta = index - start_code

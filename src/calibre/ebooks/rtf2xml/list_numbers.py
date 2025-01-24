@@ -58,10 +58,10 @@ class ListNumbers:
         self.__previous_line = ''
         self.__list_text_ob_count = ''
         self.__state_dict={
-        'default'           :   self.__default_func,
-        'after_ob'          :   self.__after_ob_func,
-        'list_text'         :   self.__list_text_func,
-        'after_list_text'   :   self.__after_list_text_func
+        'default'           : self.__default_func,
+        'after_ob'          : self.__after_ob_func,
+        'list_text'         : self.__list_text_func,
+        'after_list_text'   : self.__after_list_text_func
         }
 
     def __after_ob_func(self, line):

@@ -180,7 +180,7 @@ class NumberToText:  # {{{
 
             if number == 10**9:
                 self.text = 'one billion'
-            else :
+            else:
                 # Isolate the three-digit number groups
                 millionsNumber  = number//10**6
                 thousandsNumber = (number - (millionsNumber * 10**6))//10**3
@@ -189,7 +189,7 @@ class NumberToText:  # {{{
                     print(f'Converting {millionsNumber} {thousandsNumber} {hundredsNumber}')
 
                 # Convert hundredsNumber
-                if hundredsNumber :
+                if hundredsNumber:
                     hundredsString = self.stringFromInt(hundredsNumber)
 
                 # Convert thousandsNumber

@@ -480,7 +480,7 @@ class HTMLPreProcessor:
         start_rules = []
 
         if not getattr(self.extra_opts, 'keep_ligatures', False):
-            html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
+            html = _ligpat.sub(lambda m: LIGATURES[m.group()], html)
 
         user_sr_rules = {}
         # Function for processing search and replace

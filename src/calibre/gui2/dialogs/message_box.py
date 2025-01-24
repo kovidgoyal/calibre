@@ -108,7 +108,7 @@ class MessageBox(QDialog):  # {{{
         self.aborted = False
         if q_icon is None:
             icon = {
-                    self.ERROR : 'error',
+                    self.ERROR: 'error',
                     self.WARNING: 'warning',
                     self.INFO:    'information',
                     self.QUESTION: 'question',

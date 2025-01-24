@@ -163,7 +163,7 @@ class Serializer:
                 continue
 
             buf.write(b'<reference type="')
-            if ref.type.startswith('other.') :
+            if ref.type.startswith('other.'):
                 self.serialize_text(ref.type.replace('other.',''), quot=True)
             else:
                 self.serialize_text(ref.type, quot=True)

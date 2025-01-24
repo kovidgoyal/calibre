@@ -300,18 +300,18 @@ class Tester(SearchQueryParser):
  }
 
     tests = {
-            'Dysfunction' : {348},
-            'title:Dysfunction' : {348},
-            'Title:Dysfunction' : {348},
+            'Dysfunction': {348},
+            'title:Dysfunction': {348},
+            'Title:Dysfunction': {348},
             'title:Dysfunction OR author:Laurie': {348, 444},
             '(tag:txt or tag:pdf)': {33, 258, 354, 305, 242, 51, 55, 56, 154},
             '(tag:txt OR tag:pdf) and author:Tolstoy': {55, 56},
             'Tolstoy txt': {55, 56},
-            'Hamilton Amsterdam' : set(),
-            'Beär' : {91},
+            'Hamilton Amsterdam': set(),
+            'Beär': {91},
             'dysfunc or tolstoy': {348, 55, 56},
             'tag:txt AND NOT tolstoy': {33, 258, 354, 305, 242, 154},
-            'not tag:lrf' : {305},
+            'not tag:lrf': {305},
             'london:thames': {13},
             'publisher:london:thames': {13},
             '"(1977)"': {13},
@@ -346,10 +346,10 @@ class Tester(SearchQueryParser):
         if candidates:
             return {key for key, val in self.texts.items()
                 if key in candidates and query and query
-                        in getattr(getter(val), 'lower', lambda : '')()}
+                        in getattr(getter(val), 'lower', lambda: '')()}
         else:
             return {key for key, val in self.texts.items()
-                if query and query in getattr(getter(val), 'lower', lambda : '')()}
+                if query and query in getattr(getter(val), 'lower', lambda: '')()}
 
     def run_tests(self, ae):
         for query in self.tests.keys():
@@ -391,7 +391,7 @@ class TestSQP(unittest.TestCase):
         # docstring tests
         t(r'"""a\1b"""', 'W', r'a\1b')
         t(r'("""a\1b""" AND """c""" OR d)',
-          'O', '(', 'W', r'a\1b', 'W', 'AND', 'W', 'c',  'W', 'OR', 'W', 'd', 'O', ')')
+          'O', '(', 'W', r'a\1b', 'W', 'AND', 'W', 'c', 'W', 'OR', 'W', 'd', 'O', ')')
         t(r'template:="""a\1b"""', 'W', r'template:=a\1b')
         t('template:="""a\nb"""', 'W', 'template:=a\nb')
         t(r'template:"""=a\1b"""', 'W', r'template:=a\1b')

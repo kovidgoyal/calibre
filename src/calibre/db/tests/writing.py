@@ -829,7 +829,7 @@ class WritingTest(BaseTest):
         changes = []
         cache.backend.conn.setupdatehook(lambda typ, dbname, tblname, rowid: changes.append(rowid))
         prefs = cache.backend.prefs
-        prefs['test mutable'] =  [1, 2, 3]
+        prefs['test mutable'] = [1, 2, 3]
         self.assertEqual(len(changes), 1)
         a = prefs['test mutable']
         a.append(4)

@@ -26,7 +26,7 @@ class BeforeWeGo(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'id': 'author-bio'})
     # remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'nectar-scrolling-text font_size_10vh custom_color has-custom-divider'}),
         dict(name='span', attrs={'class': 'meta-comment-count'}),
         dict(name='p', attrs={'id': 'breadcrumbs'})

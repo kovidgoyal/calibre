@@ -136,7 +136,7 @@ class Server(Thread):
         with a:
             env = {
                 'CALIBRE_WORKER_FD': str(a.fileno()),
-                'CALIBRE_WORKER_RESULT' : environ_item(as_hex_unicode(rfile))
+                'CALIBRE_WORKER_RESULT': environ_item(as_hex_unicode(rfile))
             }
             w = Worker(env, gui=gui, job_name=job_name)
 

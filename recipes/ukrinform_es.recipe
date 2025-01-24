@@ -22,7 +22,7 @@ class UkrInform(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='aside'),
         dict(name='img', attrs={'class': 'pixel'}),
         dict(name='section', attrs={'class': 'read'}),

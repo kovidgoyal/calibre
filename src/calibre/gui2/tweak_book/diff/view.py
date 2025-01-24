@@ -388,7 +388,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             if min(y_top, y_bot) > floor:
                 break
             if y_top != y_bot:
-                painter.fillRect(0,  int(y_top), int(w), int(y_bot - y_top), self.diff_backgrounds[kind])
+                painter.fillRect(0, int(y_top), int(w), int(y_bot - y_top), self.diff_backgrounds[kind])
             lines.append((y_top, y_bot, kind))
             if top in self.images:
                 img, maxw = self.images[top][:2]

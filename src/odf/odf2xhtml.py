@@ -120,15 +120,15 @@ class StyleToCSS:
             (FONS,'page-width'): self.c_page_width,
             (FONS,'page-height'): self.c_page_height,
             (FONS,'text-align'): self.c_text_align,
-            (FONS,'text-indent') :self.c_fo,
-            (TABLENS,'border-model') :self.c_border_model,
-            (STYLENS,'column-width') : self.c_width,
+            (FONS,'text-indent'):self.c_fo,
+            (TABLENS,'border-model'):self.c_border_model,
+            (STYLENS,'column-width'): self.c_width,
             (STYLENS,'font-name'): self.c_fn,
             (STYLENS,'horizontal-pos'): self.c_hp,
             (STYLENS,'text-position'): self.c_text_position,
             (STYLENS,'text-line-through-style'): self.c_text_line_through_style,
             (STYLENS,'text-underline-style'): self.c_text_underline_style,
-            (STYLENS,'width') : self.c_width,
+            (STYLENS,'width'): self.c_width,
             # FIXME Should do style:vertical-pos here
         }
 
@@ -383,7 +383,7 @@ class ODF2XHTML(handler.ContentHandler):
         # Tags
         self.generate_css = generate_css
         self.frame_stack = []
-        self.list_number_map = defaultdict(lambda : 1)
+        self.list_number_map = defaultdict(lambda: 1)
         self.list_id_map = {}
         self.list_class_stack = []
         self.elements = {
@@ -595,7 +595,7 @@ class ODF2XHTML(handler.ContentHandler):
             if method:
                 self.handle_starttag(tag, method, attrs)
             else:
-                self.unknown_starttag(tag,attrs)
+                self.unknown_starttag(tag, attrs)
         self.tagstack.push(tag, attrs)
 
     def endElementNS(self, tag, qname):
@@ -610,7 +610,7 @@ class ODF2XHTML(handler.ContentHandler):
 
 # --------------------------------------------------
     def handle_starttag(self, tag, method, attrs):
-        method(tag,attrs)
+        method(tag, attrs)
 
     def handle_endtag(self, tag, attrs, method):
         method(tag, attrs)
@@ -704,11 +704,11 @@ class ODF2XHTML(handler.ContentHandler):
         if (SVGNS,'width') in attrs:
             style = style + 'width:' + attrs[(SVGNS,'width')] + ';'
         if (SVGNS,'height') in attrs:
-            style = style + 'height:' +  attrs[(SVGNS,'height')] + ';'
+            style = style + 'height:' + attrs[(SVGNS,'height')] + ';'
         if (SVGNS,'x') in attrs:
-            style = style + 'left:' +  attrs[(SVGNS,'x')] + ';'
+            style = style + 'left:' + attrs[(SVGNS,'x')] + ';'
         if (SVGNS,'y') in attrs:
-            style = style + 'top:' +  attrs[(SVGNS,'y')] + ';'
+            style = style + 'top:' + attrs[(SVGNS,'y')] + ';'
         if self.generate_css:
             self.opentag(htmltag, {'class': name, 'style': style})
         else:
@@ -741,11 +741,11 @@ class ODF2XHTML(handler.ContentHandler):
         if (SVGNS,'width') in attrs:
             style = style + 'width:' + attrs[(SVGNS,'width')] + ';'
         if (SVGNS,'height') in attrs:
-            style = style + 'height:' +  attrs[(SVGNS,'height')] + ';'
+            style = style + 'height:' + attrs[(SVGNS,'height')] + ';'
         if (SVGNS,'x') in attrs:
-            style = style + 'left:' +  attrs[(SVGNS,'x')] + ';'
+            style = style + 'left:' + attrs[(SVGNS,'x')] + ';'
         if (SVGNS,'y') in attrs:
-            style = style + 'top:' +  attrs[(SVGNS,'y')] + ';'
+            style = style + 'top:' + attrs[(SVGNS,'y')] + ';'
         if self.generate_css:
             self.opentag(htmltag, {'class': name, 'style': style})
         else:
@@ -837,7 +837,7 @@ class ODF2XHTML(handler.ContentHandler):
     def s_draw_textbox(self, tag, attrs):
         style = ''
         if (FONS,'min-height') in attrs:
-            style = style + 'min-height:' +  attrs[(FONS,'min-height')] + ';'
+            style = style + 'min-height:' + attrs[(FONS,'min-height')] + ';'
         self.opentag('div')
         # self.opentag('div', {'style': style})
 
@@ -935,7 +935,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.writeout(_('Notes'))
         self.closetag('h1')
         self.opentag('dl', {'class':'notes'})
-        for key in range(1,self.currentnote+1):
+        for key in range(1, self.currentnote+1):
             note = self.notedict[key]
         # for key,note in self.notedict.items():
             self.opentag('dt', {'id':f'footnote-{key}'})
@@ -1274,7 +1274,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             level = 1
         self.headinglevels[level] = self.headinglevels[level] + 1
         name = self.classname(attrs)
-        for x in range(level + 1,10):
+        for x in range(level + 1, 10):
             self.headinglevels[x] = 0
         special = special_styles.get('P-'+name)
         if special or not self.generate_css:
@@ -1295,7 +1295,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         if level < 1:
             level = 1
         lev = self.headinglevels[1:level+1]
-        outline = '.'.join(map(str,lev))
+        outline = '.'.join(map(str, lev))
         heading = ''.join(self.data)
         if self.title == '':
             self.title = heading
@@ -1451,7 +1451,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def e_text_note(self, tag, attrs):
         pass
 
-    def collectnote(self,s):
+    def collectnote(self, s):
         if s != '':
             self.notebody.append(s)
 
@@ -1620,7 +1620,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.load(odffile)
         return self.xhtml()
 
-    def _wlines(self,s):
+    def _wlines(self, s):
         if s:
             self.lines.append(s)
 

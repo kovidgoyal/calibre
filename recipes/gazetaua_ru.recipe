@@ -23,7 +23,7 @@ class GazetaUA(BasicNewsRecipe):
 
     remove_tags_after = dict(name='section', attrs={'class': 'article-content clearfix'})
 
-    remove_tags =   [
+    remove_tags = [
          dict(name='div', attrs={'class': 'mt5'}),
          dict(name='div', attrs={'class': 'interview-block'}),
          dict(name='p', attrs={'id': 'mce_0'}),

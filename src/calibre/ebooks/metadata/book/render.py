@@ -111,7 +111,7 @@ def mi_to_html(
         link_note_icon_size=16
     ):
 
-    link_markup =  '↗️'
+    link_markup = '↗️'
     if for_qt:
         s = link_note_icon_size
         link_markup = f'<img valign="bottom" src="calibre-icon:///external-link.png" width={s} height={s}>'

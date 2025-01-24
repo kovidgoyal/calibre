@@ -185,7 +185,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db
                 break
             pt = node_to_tag_map[pid]
             pd = tag_map[id(pt)][1]
-            val_icon,for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
+            val_icon, for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
             if val_icon is not None and for_children:
                 break
             par = pd
@@ -282,7 +282,7 @@ def categories_settings(query, db, gst_container=GroupedSearchTerms):
 
 
 def create_toplevel_tree(category_data, items, field_metadata, opts, db):
-    # Create the basic tree, containing all top level categories , user
+    # Create the basic tree, containing all top level categories, user
     # categories and grouped search terms
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
@@ -609,9 +609,9 @@ def render_categories(opts, db, category_data):
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
-        root['children'] = list(filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children']))
+        root['children'] = list(filter((lambda child: items[child['id']]['category'] not in opts.hidden_categories), root['children']))
     if opts.hide_empty_categories:
-        root['children'] = list(filter((lambda child:items[child['id']]['count'] > 0), root['children']))
+        root['children'] = list(filter((lambda child: items[child['id']]['count'] > 0), root['children']))
     return {'root':root, 'item_map': items}
 
 

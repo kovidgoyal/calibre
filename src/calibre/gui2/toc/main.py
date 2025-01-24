@@ -270,7 +270,7 @@ class ItemView(QStackedWidget):  # {{{
         l.addWidget(la, 1, 0, 1, 2)
 
         # Item status
-        ip.hl1 = hl =  QFrame()
+        ip.hl1 = hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         self.icon_label = QLabel()
@@ -278,7 +278,7 @@ class ItemView(QStackedWidget):  # {{{
         self.status_label.setWordWrap(True)
         l.addWidget(self.icon_label, l.rowCount(), 0)
         l.addWidget(self.status_label, l.rowCount()-1, 1)
-        ip.hl2 = hl =  QFrame()
+        ip.hl2 = hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
 
@@ -292,7 +292,7 @@ class ItemView(QStackedWidget):  # {{{
             _('&Remove this entry'), self)
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         b.clicked.connect(self.delete_item)
-        ip.hl3 = hl =  QFrame()
+        ip.hl3 = hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
@@ -315,7 +315,7 @@ class ItemView(QStackedWidget):  # {{{
                        'level as this entry.'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
 
-        ip.hl4 = hl =  QFrame()
+        ip.hl4 = hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
@@ -525,7 +525,7 @@ class TreeWidget(QTreeWidget):  # {{{
             # have to ensure that selectedIndexes returns an ordered list of
             # indexes.
             sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iter_items())}
-            ans = sorted(ans, key=lambda x:sort_map.get(x, -1))
+            ans = sorted(ans, key=lambda x: sort_map.get(x, -1))
         return ans
 
     def highlight_item(self, item):
@@ -671,7 +671,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def bulk_rename(self):
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
         sort_map = {id(item):i for i, item in enumerate(self.iter_items())}
-        items = sorted(self.selectedItems(), key=lambda x:sort_map.get(id(x), -1))
+        items = sorted(self.selectedItems(), key=lambda x: sort_map.get(id(x), -1))
         settings = get_bulk_rename_settings(self, len(items), prefix=_('Chapter '), msg=_(
             'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
         fmt, num = settings['prefix'], settings['start']

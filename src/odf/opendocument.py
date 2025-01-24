@@ -231,7 +231,7 @@ class OpenDocument:
         '''
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
-        self.manifest.toXml(0,xml)
+        self.manifest.toXml(0, xml)
         return xml.getvalue()
 
     def metaxml(self):
@@ -241,7 +241,7 @@ class OpenDocument:
         x.addElement(self.meta)
         xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
-        x.toXml(0,xml)
+        x.toXml(0, xml)
         return xml.getvalue()
 
     def settingsxml(self):
@@ -250,7 +250,7 @@ class OpenDocument:
         x.addElement(self.settings)
         xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
-        x.toXml(0,xml)
+        x.toXml(0, xml)
         return xml.getvalue()
 
     def _parseoneelement(self, top, stylenamelist):
@@ -407,7 +407,7 @@ class OpenDocument:
         # Look in subobjects
         subobjectnum = 1
         for subobject in object.childobjects:
-            self._savePictures(subobject,f'{folder}Object {subobjectnum}/')
+            self._savePictures(subobject, f'{folder}Object {subobjectnum}/')
             subobjectnum += 1
 
     def __replaceGenerator(self):
@@ -424,10 +424,10 @@ class OpenDocument:
             If the filename is '-' then save to stdout
         '''
         if outputfile == '-':
-            outputfp = zipfile.ZipFile(sys.stdout,'w')
+            outputfp = zipfile.ZipFile(sys.stdout, 'w')
         else:
             if addsuffix:
-                outputfile = outputfile + odmimetypes.get(self.mimetype,'.xxx')
+                outputfile = outputfile + odmimetypes.get(self.mimetype, '.xxx')
             outputfp = zipfile.ZipFile(outputfile, 'w')
         self.__zipwrite(outputfp)
         outputfp.close()
@@ -658,7 +658,7 @@ def load(odffile):
 
     # Look in the manifest file to see if which of the four files there are
     manifestpart = z.read('META-INF/manifest.xml')
-    manifest =  manifestlist(manifestpart)
+    manifest = manifestlist(manifestpart)
     __loadxmlparts(z, manifest, doc, '')
     for mentry,mvalue in manifest.items():
         if mentry[:9] == 'Pictures/' and len(mentry) > 9:

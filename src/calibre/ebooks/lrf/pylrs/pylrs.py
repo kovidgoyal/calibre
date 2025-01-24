@@ -1587,7 +1587,7 @@ class DropCaps(LrsTextTag):
         return self.text is None or not self.text.strip()
 
     def toElement(self, se):
-        elem =  Element('DrawChar', line=str(self.line))
+        elem = Element('DrawChar', line=str(self.line))
         appendTextElements(elem, self.contents, se)
         return elem
 
@@ -1695,7 +1695,7 @@ class Plot(LrsSimpleChar1, LrsContainer):
             parent.append(self.obj)
 
     def toElement(self, se):
-        elem =  Element('Plot', xsize=str(self.xsize), ysize=str(self.ysize),
+        elem = Element('Plot', xsize=str(self.xsize), ysize=str(self.ysize),
                                 refobj=str(self.obj.objId))
         if self.adjustment:
             elem.set('adjustment', self.adjustment)
@@ -2364,7 +2364,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
             parent.append(self.blockStyle)
 
     def getReferencedObjIds(self):
-        objects =  [self.objId, self.extraId, self.refstream.objId]
+        objects = [self.objId, self.extraId, self.refstream.objId]
         if self.blockStyle is not None:
             objects.append(self.blockStyle.objId)
 

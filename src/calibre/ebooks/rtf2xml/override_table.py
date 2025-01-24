@@ -35,13 +35,13 @@ class OverrideTable:
         self.__state = 'default'
         self.__override_list = []
         self.__state_dict = {
-            'default'       : self.__default_func,
-            'override'      : self.__override_func,
-            'unsure_ob'     : self.__after_bracket_func,
+            'default'   : self.__default_func,
+            'override'  : self.__override_func,
+            'unsure_ob' : self.__after_bracket_func,
         }
         self.__override_dict = {
-            'cw<ls<lis-tbl-id'  :       'list-table-id',
-            'cw<ls<list-id___'  :       'list-id',
+            'cw<ls<lis-tbl-id'  : 'list-table-id',
+            'cw<ls<list-id___'  : 'list-id',
         }
 
     def __override_func(self, line):

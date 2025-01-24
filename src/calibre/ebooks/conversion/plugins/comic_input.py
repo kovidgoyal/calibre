@@ -77,11 +77,11 @@ class ComicInput(InputFormatPlugin):
 
     recommendations = {
         ('margin_left', 0, OptionRecommendation.HIGH),
-        ('margin_top',  0, OptionRecommendation.HIGH),
+        ('margin_top', 0, OptionRecommendation.HIGH),
         ('margin_right', 0, OptionRecommendation.HIGH),
         ('margin_bottom', 0, OptionRecommendation.HIGH),
         ('insert_blank_line', False, OptionRecommendation.HIGH),
-        ('remove_paragraph_spacing',  False, OptionRecommendation.HIGH),
+        ('remove_paragraph_spacing', False, OptionRecommendation.HIGH),
         ('change_justification', 'left', OptionRecommendation.HIGH),
         ('dont_split_on_pagebreaks', True, OptionRecommendation.HIGH),
         ('chapter', None, OptionRecommendation.HIGH),

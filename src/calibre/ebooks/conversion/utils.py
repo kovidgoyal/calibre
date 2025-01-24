@@ -449,7 +449,7 @@ class HeuristicProcessor:
         for i in range(2):
             html = re.sub(r'\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*', ' ', html)
             html = re.sub(
-                r'\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}'.format(open=open_fmt_pat, close=close_fmt_pat) , ' ', html)
+                r'\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}'.format(open=open_fmt_pat, close=close_fmt_pat), ' ', html)
         # delete surrounding divs from empty paragraphs
         html = re.sub(r'<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Empty heading tags
