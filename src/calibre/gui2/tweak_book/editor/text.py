@@ -282,7 +282,7 @@ class TextEdit(PlainTextEdit):
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         fm = self.fontMetrics()
-        self.number_width = max((fm.horizontalAdvance(str(x)) for x in range(10)))
+        self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
         self.size_hint = QSize(self.expected_geometry[0] * fm.averageCharWidth(), self.expected_geometry[1] * fm.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()

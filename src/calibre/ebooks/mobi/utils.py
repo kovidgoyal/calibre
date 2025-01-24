@@ -647,4 +647,4 @@ def convert_color_for_font_tag(val):
     def clamp(x):
         return min(x, max(0, x), 1)
     rgb = map(clamp, rgba[:3])
-    return '#' + ''.join(('%02x' % int(x * 255) for x in rgb))
+    return '#' + ''.join('%02x' % int(x * 255) for x in rgb)

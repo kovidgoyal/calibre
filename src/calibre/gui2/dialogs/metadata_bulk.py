@@ -660,8 +660,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.button_transform_publishers.clicked.connect(self.transform_publishers)
         self.button_transform_series.clicked.connect(self.transform_series)
         self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = self.series_map_rules = ()
-        tuple(((b.clicked.connect(self.clear_transform_rules_for), b.setIcon(QIcon.ic('clear_left.png')), b.setToolTip(_(
-            'Clear the rules'))) for b in (self.button_clear_tags_rules, self.button_clear_authors_rules, self.button_clear_publishers_rules)))
+        tuple((b.clicked.connect(self.clear_transform_rules_for), b.setIcon(QIcon.ic('clear_left.png')), b.setToolTip(_('Clear the rules')))
+            for b in (self.button_clear_tags_rules, self.button_clear_authors_rules, self.button_clear_publishers_rules))
         self.update_transform_labels()
         if starting_tab < 0:
             starting_tab = gprefs.get('bulk_metadata_window_tab', 0)

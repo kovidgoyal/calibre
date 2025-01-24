@@ -86,7 +86,7 @@ class TextureChooser(QDialog):
         images = [{
             'fname': ':'+os.path.basename(x),
             'path': x,
-            'name': ' '.join((s.capitalize() for s in os.path.splitext(os.path.basename(x))[0].split('_')))
+            'name': ' '.join(s.capitalize() for s in os.path.splitext(os.path.basename(x))[0].split('_'))
         } for x in glob.glob(I('textures/*.png'))] + [{
             'fname': os.path.basename(x),
             'path': x,

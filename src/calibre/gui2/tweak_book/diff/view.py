@@ -181,7 +181,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         fm = self.fontMetrics()
-        self.number_width = max((fm.horizontalAdvance(str(x)) for x in range(10)))
+        self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
         self.space_width = fm.horizontalAdvance(' ')
 
     def show_context_menu(self, pos):
