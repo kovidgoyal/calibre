@@ -332,7 +332,7 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
     Py_END_ALLOW_THREADS;
 
     if (FAILED(hr)) {
-        fwprintf(stderr, L"Failed to EnumObjects() for object id: %s retrying with a sleep.\n", parent_id); fflush(stderr);
+        fwprintf(stderr, L"Failed to EnumObjects() for object id: %s with hr: %x retrying with a sleep.\n", parent_id, hr); fflush(stderr);
         Py_BEGIN_ALLOW_THREADS;
         Sleep(500);
         hr = content->EnumObjects(0, parent_id, NULL, &children);
@@ -345,22 +345,29 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
         }
     }
 
-    hr = S_OK;
-
-    while (hr == S_OK) {
-		DWORD fetched;
-		prop_variant pv(VT_LPWSTR);
-		generic_raii_array<wchar_t*, co_task_mem_free, 16> child_ids;
+    wchar_t* child_ids[64];
+    prop_variant pv(VT_LPWSTR);
+    DWORD fetched;
+    while (true) {
         Py_BEGIN_ALLOW_THREADS;
-        hr = children->Next((ULONG)child_ids.size(), child_ids.ptr(), &fetched);
+        hr = children->Next(64u, child_ids, &fetched);
         Py_END_ALLOW_THREADS;
-        if (SUCCEEDED(hr)) {
+        if (SUCCEEDED(hr) && fetched) {
             for (DWORD i = 0; i < fetched; i++) {
                 pv.pwszVal = child_ids[i];
                 hr2 = object_ids->Add(&pv);
                 pv.pwszVal = NULL;
-                if (FAILED(hr2)) { hresult_set_exc("Failed to add child ids to propvariantcollection", hr2); return false; }
+                CoTaskMemFree(child_ids[i]); child_ids[i] = NULL;
+                if (FAILED(hr2)) {
+                    for (DWORD c = i + 1; c < fetched; c++) CoTaskMemFree(child_ids[c]);
+                    hresult_set_exc("Failed to add child id to propvariantcollection", hr2); return false;
+                }
             }
+        } else {
+            if (hr == S_FALSE && !fetched) break;
+            pyobject_raii parent_name(PyUnicode_FromWideChar(parent_id, -1));
+            set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, "Failed to EnumObjects()->Next() of folder from device", parent_name.ptr());
+            return false;
         }
     }
 	return true;
