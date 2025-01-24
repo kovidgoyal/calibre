@@ -1,4 +1,4 @@
-""" Hyphenation, using Frank Liang's algorithm.
+''' Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes
     a string (the word), and returns a list of parts that can be separated by hyphens.
@@ -12,7 +12,7 @@
 
     Ned Batchelder, July 2007.
     This Python code is in the public domain.
-"""
+'''
 
 import re
 

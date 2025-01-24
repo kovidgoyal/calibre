@@ -359,7 +359,7 @@ class DevicePlugin(Plugin):
         raise NotImplementedError()
 
     def total_space(self, end_session=True):
-        """
+        '''
         Get total space available on the mountpoints:
             1. Main memory
             2. Memory Card A
@@ -368,11 +368,11 @@ class DevicePlugin(Plugin):
         :return: A 3 element list with total space in bytes of (1, 2, 3). If a
                  particular device doesn't have any of these locations it should return 0.
 
-        """
+        '''
         raise NotImplementedError()
 
     def free_space(self, end_session=True):
-        """
+        '''
         Get free space available on the mountpoints:
           1. Main memory
           2. Card A
@@ -381,11 +381,11 @@ class DevicePlugin(Plugin):
         :return: A 3 element list with free space in bytes of (1, 2, 3). If a
                  particular device doesn't have any of these locations it should return -1.
 
-        """
+        '''
         raise NotImplementedError()
 
     def books(self, oncard=None, end_session=True):
-        """
+        '''
         Return a list of e-books on the device.
 
         :param oncard:  If 'carda' or 'cardb' return a list of e-books on the
@@ -395,7 +395,7 @@ class DevicePlugin(Plugin):
 
         :return: A BookList.
 
-        """
+        '''
         raise NotImplementedError()
 
     def upload_books(self, files, names, on_card=None, end_session=True,

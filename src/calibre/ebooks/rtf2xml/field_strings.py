@@ -182,7 +182,7 @@ class FieldStrings:
         self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
 
     def process_string(self, my_string, type):
-        """
+        '''
         Requires:
             my_string --the string to parse.
             type -- the type of string.
@@ -195,7 +195,7 @@ class FieldStrings:
             resulting list. This item is the field's type. Check for the
             action in the field instructions dictionary for further parsing.
             If no action is found, print out an error message.
-        """
+        '''
         changed_string = ''
         lines = my_string.split('\n')
         for line in lines:
@@ -770,7 +770,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __symbol_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --first name in the string.
             name -- the changed name according to the dictionary.
@@ -792,7 +792,7 @@ class FieldStrings:
             string, and make this string the last item in a list. The first
             item in the list is the simple word 'symbol', which tells me that
             I don't really have  field, but UTF-8 data.
-        """
+        '''
         num = ''
         font = ''
         font_size = ''

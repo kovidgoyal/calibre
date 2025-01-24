@@ -24,7 +24,7 @@ class ConvertToTags:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -33,7 +33,7 @@ class ConvertToTags:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -105,13 +105,13 @@ class ConvertToTags:
             self.__write_extra_new_line()
 
     def __open_att_func(self, line):
-        """
+        '''
         Process lines for open tags that have attributes.
         The important info is between [17:-1]. Take this info and split it
         with the delimiter '<'. The first token in this group is the element
         name. The rest are attributes, separated fromt their values by '>'. So
         read each token one at a time, and split them by '>'.
-        """
+        '''
         # mi<tg<open-att__<footnote<num>
         info = line[17:-1]
         tokens = info.split('<')
@@ -140,9 +140,9 @@ class ConvertToTags:
             self.__write_extra_new_line()
 
     def __empty_att_func(self, line):
-        """
+        '''
         Same as the __open_att_func, except a '/' is placed at the end of the tag.
-        """
+        '''
         # mi<tg<open-att__<footnote<num>
         info = line[17:-1]
         tokens = info.split('<')
@@ -260,7 +260,7 @@ class ConvertToTags:
             attributes.
             a closed function for closed tags.
             an empty tag function.
-            '''
+        '''
         self.__initiate_values()
         with open_for_write(self.__write_to) as self.__write_obj:
             self.__write_dec()

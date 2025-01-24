@@ -913,8 +913,8 @@ class ZipFile:
         self.write(filename, arcname, compress_type)
 
     def replacestr(self, zinfo, byts):
-        """Delete zinfo.filename, and write a new file into the archive. The
-        contents is the string 'bytes'."""
+        '''Delete zinfo.filename, and write a new file into the archive. The
+        contents is the string 'bytes'.'''
         self.delete(zinfo.filename)
         self.writestr(zinfo, byts)
 
@@ -988,7 +988,7 @@ class ZipFile:
                 return zinfo.filename
 
     def getinfo(self, name):
-        """Return the instance of ZipInfo given 'name'."""
+        '''Return the instance of ZipInfo given 'name'.'''
         info = self.NameToInfo.get(name)
         if info is None:
             raise KeyError(
@@ -1010,7 +1010,7 @@ class ZipFile:
         return zef.read_raw()
 
     def open(self, name, mode='r', pwd=None):
-        """Return file-like object for 'name'."""
+        '''Return file-like object for 'name'.'''
         if mode not in ('r', 'U', 'rU'):
             raise RuntimeError('open() requires mode "r", "U", or "rU"')
         if not self.fp:
@@ -1083,11 +1083,11 @@ class ZipFile:
         return ZipExtFile(zef_file, mode, zinfo, zd)
 
     def extract(self, member, path=None, pwd=None):
-        """Extract a member from the archive to the current working directory,
+        '''Extract a member from the archive to the current working directory,
            using its full name. Its file information is extracted as accurately
            as possible. `member' may be a filename or a ZipInfo object. You can
            specify a different directory using `path'.
-        """
+        '''
         if not isinstance(member, ZipInfo):
             member = self.getinfo(member)
 
@@ -1097,11 +1097,11 @@ class ZipFile:
         return self._extract_member(member, path, pwd)
 
     def extractall(self, path=None, members=None, pwd=None):
-        """Extract all members from the archive to the current working
+        '''Extract all members from the archive to the current working
            directory. `path' specifies a different directory to extract to.
            `members' is optional and must be a subset of the list returned
            by namelist().
-        """
+        '''
         if members is None:
             members = self.namelist()
 
@@ -1113,9 +1113,9 @@ class ZipFile:
             self.extract(zipinfo, path, pwd)
 
     def _extract_member(self, member, targetpath, pwd):
-        """Extract the ZipInfo object 'member' to a physical
+        '''Extract the ZipInfo object 'member' to a physical
            file on the path targetpath.
-        """
+        '''
         # build the destination pathname, replacing
         # forward slashes to platform specific separators.
         # Strip trailing path separator, unless it represents the root.
@@ -1293,9 +1293,9 @@ class ZipFile:
 
     def writestr(self, zinfo_or_arcname, byts, permissions=0o600,
             compression=ZIP_DEFLATED, raw_bytes=False):
-        """Write a file into the archive.  The contents is the string
+        '''Write a file into the archive.  The contents is the string
         'byts'.  'zinfo_or_arcname' is either a ZipInfo instance or
-        the name of the file in the archive."""
+        the name of the file in the archive.'''
         assert not raw_bytes or (raw_bytes and
                 isinstance(zinfo_or_arcname, ZipInfo))
         if not isinstance(byts, bytes):

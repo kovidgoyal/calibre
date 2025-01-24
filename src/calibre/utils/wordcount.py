@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-"""
+'''
 Get word, character, and Asian character counts
 
 1. Get a word count as a dictionary:
@@ -22,7 +22,7 @@ properties counted:
 Sourced from:
 http://ginstrom.com/scribbles/2008/05/17/counting-words-etc-in-an-html-file-with-python/
 http://ginstrom.com/scribbles/2007/10/06/counting-words-characters-and-asian-characters-with-python/
-"""
+'''
 __version__ = 0.1
 __author__ = 'Ryan Ginstrom'
 

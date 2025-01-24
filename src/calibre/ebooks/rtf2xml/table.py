@@ -47,19 +47,19 @@ States.
 
 
 class Table:
-    """
+    '''
     Make tables.
     Logic:
     Read one line at a time. The default state (self.__state) is
     'not_in_table'. Look for either a 'cw<tb<in-table__', or a row definition.
-    """
+    '''
 
     def __init__(self,
             in_file,
             bug_handler,
             copy=None,
             run_level=1,):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -68,7 +68,7 @@ class Table:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -113,14 +113,14 @@ class Table:
         self.__cell_widths = []
 
     def __in_table_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Logic:
             Look for the end of the table. If found, close out the table.
             Look for  'mi<mk<pard-start', which marks the beginning of a row. Start
             a row and start a cell.
-        """
+        '''
         # 'cell'               : ('tb', 'cell______', self.default_func),
         if self.__token_info == 'mi<mk<not-in-tbl' or\
             self.__token_info == 'mi<mk<sect-start' or\
@@ -138,7 +138,7 @@ class Table:
         self.__write_obj.write(line)
 
     def __not_in_table_func(self, line):
-        """
+        '''
         Requires:
             line -- the line of text read in from document
         Returns:
@@ -148,14 +148,14 @@ class Table:
             mark the start of a table: 'cw<tb<row-def', or 'cw<tb<in-table__'.
             If these tokens are found, use another method to start a table
             and change states. Otherwise, just output the line.
-        """
+        '''
         action = self.__not_in_table_dict.get(self.__token_info)
         if action:
             action(line)
         self.__write_obj.write(line)
 
     def __close_table(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -164,7 +164,7 @@ class Table:
             Write the end marker for the table.
             Write the end tag for the table.
             Set the state to ['not_in_table']
-        """
+        '''
         self.__write_obj.write('mi<mk<table-end_\n')
         self.__state = ['not_in_table']
         self.__table_data[-1]['number-of-columns'] = self.__max_number_cells_in_row
@@ -175,7 +175,7 @@ class Table:
         self.__table_data[-1]['average-cell-width'] = average_cell_width
 
     def __found_row_def_func(self, line):
-        """
+        '''
         Requires:
             line don't need this except for consistency with other methods.
         Returns:
@@ -183,7 +183,7 @@ class Table:
         Logic:
             A row definition has been found. Collect all the data from this
             to use later in writing attributes for the table.
-        """
+        '''
         self.__state.append('in_row_def')
         self.__last_cell_position = 0
         self.__row_dict = {}
@@ -192,7 +192,7 @@ class Table:
         self.__cell_widths = []
 
     def __start_table_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -201,7 +201,7 @@ class Table:
             Add the 'in_table' to the state list.
             Write out the table marker.
             Initialize table values (not sure about these yet)
-        """
+        '''
         self.__rows_in_table = 0
         self.__cells_in_table = 0
         self.__cells_in_row = 0
@@ -223,7 +223,7 @@ class Table:
         self.__close_table(self, line)
 
     def __end_row_def_func(self, line):
-        """
+        '''
         Requires:
             line --just for consistency
         Returns:
@@ -233,7 +233,7 @@ class Table:
             get rid of the last {} in the cell list
             figure out the number of cells based on the self.__row_dict[widths]
             ('122, 122')
-        """
+        '''
         if len(self.__state) > 0:
             if self.__state[-1] == 'in_row_def':
                 self.__state.pop()
@@ -330,7 +330,7 @@ class Table:
             self.__row_dict['header'] = 'true'
 
     def __start_cell_func(self, line):
-        """
+        '''
         Required:
             line -- the line of text
         Returns:
@@ -341,7 +341,7 @@ class Table:
             Write value => attributes for key=> value
             pop the self.__cell_list.
             Otherwise, print out a cell tag.
-        """
+        '''
         self.__state.append('in_cell')
         # self.__cell_list = []
         if len(self.__cell_list) > 0:
@@ -361,7 +361,7 @@ class Table:
         self.__cells_in_row += 1
 
     def __start_row_func(self, line):
-        """
+        '''
         Required:
             line -- the line of text
         Returns:
@@ -369,7 +369,7 @@ class Table:
         Logic:
             Append 'in_row' for states
             Write value => attributes for key=> value
-        """
+        '''
         self.__state.append('in_row')
         self.__write_obj.write('mi<tg<open-att__<row')
         keys = self.__row_dict.keys()

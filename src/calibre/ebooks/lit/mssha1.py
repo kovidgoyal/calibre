@@ -283,12 +283,12 @@ class mssha1:
         return ''.join(['%02x' % c for c in bytearray(self.digest())])
 
     def copy(self):
-        """Return a clone object.
+        '''Return a clone object.
 
         Return a copy ('clone') of the md5 object. This can be used
         to efficiently compute the digests of strings that share
         a common initial substring.
-        """
+        '''
 
         return copy.deepcopy(self)
 

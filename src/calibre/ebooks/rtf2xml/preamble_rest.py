@@ -34,7 +34,7 @@ class Preamble:
                 copy=None,
                 temp_dir=None,
                 ):
-        """
+        '''
         Required:
             file--file to parse
             platform --Windows or Macintosh
@@ -46,7 +46,7 @@ class Preamble:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file=file
         self.__bug_handler = bug_handler
         self.__copy = copy

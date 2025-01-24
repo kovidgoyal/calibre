@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class FieldsLarge:
-    r"""
+    r'''
 =========================
 Logic
 =========================
@@ -92,7 +92,7 @@ Examples
         language="1024">1</inline></field></para>
         </paragraph-definition>
         </field-block>
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -100,7 +100,7 @@ Examples
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -109,7 +109,7 @@ Examples
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -244,7 +244,7 @@ Examples
         self.__sec_in_field[-1] = 1
 
     def __found_field_instruction_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -252,13 +252,13 @@ Examples
         Change the state to field instruction. Set the open bracket count of
         the beginning of this field so  you know when it ends. Set the closed
         bracket count to 0 so you don't prematureley exit this state.
-        """
+        '''
         self.__state = 'field_instruction'
         self.__field_instruction_count = self.__ob_count
         self.__cb_count = 0
 
     def __field_instruction_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -267,7 +267,7 @@ Examples
             Collect all the lines until the end of the field is reached.
             Process these lines with the module rtr.field_strings.
             Check if the field instruction is 'Symbol' (really UTF-8).
-        """
+        '''
         if self.__cb_count == self.__field_instruction_count:
             # The closing bracket should be written, since the opening bracket
             # was written

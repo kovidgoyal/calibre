@@ -1,4 +1,4 @@
-""" Collection of python utility-methodes commonly used by other
+''' Collection of python utility-methodes commonly used by other
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/
     from Tom Gross <itconsense@gmail.com>
@@ -58,7 +58,7 @@
       OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
       DAMAGE.
-    """
+'''
 
 __author__  = 'sengian <sengian1 at gmail.com>'
 __docformat__ = 'restructuredtext en'

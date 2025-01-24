@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class Paragraphs:
-    """
+    '''
     =================
     Purpose
     =================
@@ -41,7 +41,7 @@ class Paragraphs:
     (\\par) marks the end of a paragraph. So does the end of a footnote or heading;
     a paragraph definition; the end of a field-block; and the beginning of a
     section. (How about the end of a section or the end of a field-block?)
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -50,7 +50,7 @@ class Paragraphs:
             write_empty_para=1,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -59,7 +59,7 @@ class Paragraphs:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -108,7 +108,7 @@ class Paragraphs:
         }
 
     def __before_body_func(self, line):
-        """
+        '''
         Required:
             line -- line to parse
         Returns:
@@ -116,7 +116,7 @@ class Paragraphs:
         Logic:
             This function handles all the lines before the start of the body.
             Once the body starts, the state is switched to 'not_paragraph'
-        """
+        '''
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'not_paragraph'
         self.__write_obj.write(line)
@@ -232,7 +232,7 @@ class Paragraphs:
         self.__write_obj.write('mi<mk<bogus-pard\n')
 
     def make_paragraphs(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -243,7 +243,7 @@ class Paragraphs:
             beginning of the body.
             When the body is found, change the state to 'not_paragraph'. The
             only other state is 'paragraph'.
-        """
+        '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

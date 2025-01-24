@@ -608,12 +608,12 @@ class Build(Command):
                     os.remove(x)
 
     def check_call(self, *args, **kwargs):
-        """print cmdline if an error occurred
+        '''print cmdline if an error occurred
 
         If something is missing (cmake e.g.) you get a non-informative error
          self.check_call(qmc + [ext.name+'.pro'])
          so you would have to look at the source to see the actual command.
-        """
+        '''
         try:
             subprocess.check_call(*args, **kwargs)
         except:

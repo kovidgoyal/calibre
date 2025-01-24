@@ -207,7 +207,7 @@ class CatalogBuilder:
     ''' key() functions '''
 
     def _kf_author_to_author_sort(self, author):
-        """ Compute author_sort value from author
+        ''' Compute author_sort value from author
 
         Tokenize author string, return capitalized string with last token first
 
@@ -216,7 +216,7 @@ class CatalogBuilder:
 
         Return:
          (str): 'Smith, john'
-        """
+        '''
         tokens = author.split()
         tokens = tokens[-1:] + tokens[:-1]
         if len(tokens) > 1:
@@ -224,7 +224,7 @@ class CatalogBuilder:
         return ' '.join(tokens).capitalize()
 
     def _kf_books_by_author_sorter_author(self, book):
-        """ Generate book sort key with computed author_sort.
+        ''' Generate book sort key with computed author_sort.
 
         Generate a sort key of computed author_sort, title. Used to look for
         author_sort mismatches.
@@ -237,7 +237,7 @@ class CatalogBuilder:
 
         Return:
          (str): sort key
-        """
+        '''
         if not book['series']:
             key = '{} {}'.format(self._kf_author_to_author_sort(book['author']),
                                 capitalize(book['title_sort']))
@@ -460,7 +460,7 @@ class CatalogBuilder:
                                             (self.thumbs_path, float(cached_thumb_width)))
 
     def convert_html_entities(self, s):
-        """ Convert string containing HTML entities to its unicode equivalent.
+        ''' Convert string containing HTML entities to its unicode equivalent.
 
         Convert a string containing HTML entities of the form '&amp;' or '&97;'
         to a normalized unicode string. E.g., 'AT&amp;T' converted to 'AT&T'.
@@ -470,7 +470,7 @@ class CatalogBuilder:
 
         Return:
          s (str): converted string
-        """
+        '''
         return replace_entities(s)
 
     def copy_catalog_resources(self):
@@ -884,7 +884,7 @@ class CatalogBuilder:
             raise EmptyCatalogException(error_msg)
 
     def fetch_books_to_catalog(self):
-        """ Populate self.books_to_catalog from database
+        ''' Populate self.books_to_catalog from database
 
         Create self.books_to_catalog from filtered database.
         Keys:
@@ -917,7 +917,7 @@ class CatalogBuilder:
         Returns:
          True: Successful
          False: Empty data, (check filter restrictions)
-        """
+        '''
 
         def _populate_title(record):
             ''' populate this_title with massaged metadata '''
@@ -1334,7 +1334,7 @@ class CatalogBuilder:
         return tag_list
 
     def format_ncx_text(self, description, dest=None):
-        """ Massage NCX text for Kindle.
+        ''' Massage NCX text for Kindle.
 
         Convert HTML entities for proper display on Kindle, convert
         '&amp;' to '&#38;' (Kindle fails).
@@ -1345,7 +1345,7 @@ class CatalogBuilder:
 
         Return:
          (str): massaged, possibly truncated description
-        """
+        '''
         # Kindle TOC descriptions won't render certain characters
         # Fix up
         massaged = xml_replace_entities(str(description))
@@ -1388,7 +1388,7 @@ class CatalogBuilder:
         return re.sub(r'\W', '', ascii_text(author))
 
     def generate_format_args(self, book):
-        """ Generate the format args for template substitution.
+        ''' Generate the format args for template substitution.
 
         self.load_section_templates imports string formatting templates of the form
         'by_*_template.py' for use in the various sections. The templates are designed to use
@@ -1399,7 +1399,7 @@ class CatalogBuilder:
 
         Return:
          (dict): formatted args for templating
-        """
+        '''
         series_index = str(book['series_index'])
         if series_index.endswith('.0'):
             series_index = series_index[:-2]
@@ -2032,7 +2032,7 @@ class CatalogBuilder:
         bookmarked_books = []
         for bm_book in self.bookmarked_books:
             book = self.bookmarked_books[bm_book]
-            # print "bm_book: %s" % bm_book
+            # print 'bm_book: %s' % bm_book
             book[1]['bookmark_timestamp'] = book[0].timestamp
             try:
                 book[1]['percent_read'] = min(float(100 * book[0].last_read / book[0].book_length), 100)
@@ -2139,7 +2139,7 @@ class CatalogBuilder:
         master_genre_list = []
         for genre_tag_set in genre_list:
             for (index, genre) in enumerate(genre_tag_set):
-                # print "genre: %s  \t  genre_tag_set[genre]: %s" % (genre, genre_tag_set[genre])
+                # print 'genre: %s  \t  genre_tag_set[genre]: %s' % (genre, genre_tag_set[genre])
 
                 # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
                 authors = []
@@ -3396,7 +3396,7 @@ class CatalogBuilder:
             for book in self.books_by_date_range:
                 book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
                 if (today_time - book_time).days <= date_range_limit:
-                    # print "generate_ncx_by_date_added: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                    # print 'generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days)
                     current_titles_list.append(book['title'])
                 else:
                     break
@@ -3505,7 +3505,7 @@ class CatalogBuilder:
             for book in self.bookmarked_books_by_date_read:
                 bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
                 if (today_time - bookmark_time).days <= date_range_limit:
-                    # print "generate_ncx_by_date_added: %s added %d days ago" % (book['title'], (today_time-book_time).days)
+                    # print 'generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days)
                     current_titles_list.append(book['title'])
                 else:
                     break
@@ -3609,7 +3609,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_opf(self):
-        """ Generate the OPF file.
+        ''' Generate the OPF file.
 
         Start with header template, construct manifest, spine and guide.
 
@@ -3624,7 +3624,7 @@ class CatalogBuilder:
 
         Outputs:
          opts.basename + '.opf' (file): written
-        """
+        '''
 
         self.update_progress_full_step(_('Generating OPF'))
         lang = get_lang() or 'en'
@@ -3798,7 +3798,7 @@ class CatalogBuilder:
             raise RuntimeError
 
     def generate_sort_title(self, title):
-        """ Generates a sort string from title.
+        ''' Generates a sort string from title.
 
         Based on trunk title_sort algorithm, but also accommodates series
         numbers by padding with leading zeroes to force proper numeric
@@ -3810,7 +3810,7 @@ class CatalogBuilder:
 
         Return:
          (str): sort string
-        """
+        '''
 
         from calibre.ebooks.metadata import title_sort
         from calibre.library.catalogs.utils import NumberToText
@@ -4077,7 +4077,7 @@ class CatalogBuilder:
                 return profile
 
     def get_prefix_rules(self):
-        """ Convert opts.prefix_rules to dict.
+        ''' Convert opts.prefix_rules to dict.
 
         Convert opts.prefix_rules to dict format. The model for a prefix rule is
         ('<rule name>','<#source_field_lookup>','<pattern>','<prefix>')
@@ -4087,7 +4087,7 @@ class CatalogBuilder:
 
         Return:
          (list): list of prefix_rules dicts
-        """
+        '''
         pr = []
         if self.opts.prefix_rules:
             try:
@@ -4309,7 +4309,7 @@ class CatalogBuilder:
         return books_by_author
 
     def update_progress_full_step(self, description):
-        """ Update calibre's job status UI.
+        ''' Update calibre's job status UI.
 
         Call ProgessReporter() with updates.
 
@@ -4318,7 +4318,7 @@ class CatalogBuilder:
 
         Result:
          (UI): Jobs UI updated
-        """
+        '''
 
         self.current_step += 1
         self.progress_string = description
@@ -4336,7 +4336,7 @@ class CatalogBuilder:
         self.opts.log(log_msg)
 
     def update_progress_micro_step(self, description, micro_step_pct):
-        """ Update calibre's job status UI.
+        ''' Update calibre's job status UI.
 
         Called from steps requiring more time:
          generate_html_descriptions()
@@ -4348,7 +4348,7 @@ class CatalogBuilder:
 
         Results:
          (UI): Jobs UI updated
-        """
+        '''
 
         step_range = 100 / self.total_steps
         self.progress_string = description

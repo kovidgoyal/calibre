@@ -30,7 +30,7 @@ class ListNumbers:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -39,7 +39,7 @@ class ListNumbers:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -71,7 +71,7 @@ class ListNumbers:
             self, line
         Returns:
             Nothing
-            '''
+        '''
         if self.__token_info == 'cw<ls<list-text_':
             self.__state = 'list_text'
             self.__list_chunk = self.__list_chunk + \
@@ -136,7 +136,7 @@ class ListNumbers:
             self, line
         Returns:
             Nothing
-            '''
+        '''
         if self.__list_text_ob == self.__cb_count:
             self.__state = 'after_list_text'
             self.__right_after_list_text = 1
@@ -155,7 +155,7 @@ class ListNumbers:
             self, line
         Returns:
             Nothing
-            '''
+        '''
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'after_ob'
             self.__previous_line = line
@@ -163,7 +163,7 @@ class ListNumbers:
             self.__write_obj.write(line)
 
     def fix_list_numbers(self):
-        """
+        '''
         Required:
             nothing
         Returns:
@@ -178,7 +178,7 @@ class ListNumbers:
             found.
             Next, look for an open bracket or text. When either is found,
             print out self.__list_chunk and the line.
-        """
+        '''
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

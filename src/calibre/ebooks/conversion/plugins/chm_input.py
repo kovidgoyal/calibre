@@ -127,10 +127,10 @@ class CHMInput(InputFormatPlugin):
                             strip_encoding_pats=True, resolve_entities=True)[0]
         hhcroot = html.fromstring(hhcdata)
         toc = self._process_nodes(hhcroot)
-        # print("=============================")
-        # print("Printing hhcroot")
+        # print('=============================')
+        # print('Printing hhcroot')
         # print(etree.tostring(hhcroot, pretty_print=True))
-        # print("=============================")
+        # print('=============================')
         log.debug('Found %d section nodes' % toc.count())
         htmlpath = os.path.splitext(hhcpath)[0] + '.html'
         base = os.path.dirname(os.path.abspath(htmlpath))

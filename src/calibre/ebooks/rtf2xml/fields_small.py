@@ -21,7 +21,7 @@ from . import open_for_read, open_for_write
 
 
 class FieldsSmall:
-    """
+    '''
 =================
 Purpose
 =================
@@ -36,7 +36,7 @@ is found, store the opening bracket count in a variable. Collect all the text
 until the closing bracket entry is found. Send the string to the module
 field_strings to process it. Write the processed string to the output
 file.
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -44,7 +44,7 @@ file.
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -53,7 +53,7 @@ file.
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -119,7 +119,7 @@ file.
             self.__write_obj.write(line)
 
     def __found_bookmark_func(self, line, tag):
-        """
+        '''
         Requires:
             line --the line to parse
         Returns:
@@ -128,7 +128,7 @@ file.
             This function is called when a bookmark is found. The opening
             bracket count is stored int eh beginning bracket count. The state
             is changed to 'bookmark.'
-        """
+        '''
         self.__beg_bracket_count = self.__ob_count
         self.__cb_count = 0
         self.__state = 'bookmark'
@@ -164,7 +164,7 @@ file.
             self.__text_string += line[17:-1]
 
     def __parse_index_func(self, my_string):
-        """
+        '''
         Requires:
             my_string --string to parse
             type --type of string
@@ -179,7 +179,7 @@ file.
             sub entry element.
             If the token is a pargrah ending, ignore it, since I don't won't
             paragraphs within toc or index entries.
-        """
+        '''
         my_string, see_string = self.__index_see_func(my_string)
         my_string, bookmark_string = self.__index_bookmark_func(my_string)
         italics, bold = self.__index__format_func(my_string)
@@ -385,7 +385,7 @@ file.
         return my_changed_string
 
     def __found_toc_index_func(self, line, tag):
-        """
+        '''
         Requires:
             line --the line to parse
         Returns:
@@ -394,7 +394,7 @@ file.
             This function is called when a toc or index entry is found. The opening
             bracket count is stored in the beginning bracket count. The state
             is changed to 'toc_index.'
-        """
+        '''
         self.__beg_bracket_count = self.__ob_count
         self.__cb_count = 0
         self.__state = 'toc_index'

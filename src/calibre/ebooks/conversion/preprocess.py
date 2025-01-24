@@ -143,20 +143,20 @@ class DocAnalysis:
         maxLineLength=1900  # Discard larger than this to stay in range
         buckets=20  # Each line is divided into a bucket based on length
 
-        # print("there are "+str(len(lines))+" lines")
+        # print('there are '+str(len(lines))+' lines')
         # max = 0
         # for line in self.lines:
         #    l = len(line)
         #    if l > max:
         #        max = l
-        # print("max line found is "+str(max))
+        # print('max line found is '+str(max))
         # Build the line length histogram
         hRaw = [0 for i in range(0,buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
                 l = int(l // 100)
-                # print("adding "+str(l))
+                # print('adding '+str(l))
                 hRaw[l]+=1
 
         # Normalize the histogram into percents
@@ -165,8 +165,8 @@ class DocAnalysis:
             h = [float(count)/totalLines for count in hRaw]
         else:
             h = []
-        # print("\nhRaw histogram lengths are: "+str(hRaw))
-        # print("              percents are: "+str(h)+"\n")
+        # print('\nhRaw histogram lengths are: '+str(hRaw))
+        # print('              percents are: '+str(h)+'\n')
 
         # Find the biggest bucket
         maxValue = 0
@@ -175,10 +175,10 @@ class DocAnalysis:
                 maxValue = h[i]
 
         if maxValue < percent:
-            # print("Line lengths are too variable. Not unwrapping.")
+            # print('Line lengths are too variable. Not unwrapping.')
             return False
         else:
-            # print(str(maxValue)+" of the lines were in one bucket")
+            # print(str(maxValue)+' of the lines were in one bucket')
             return True
 
 
@@ -528,7 +528,7 @@ class HTMLPreProcessor:
             docanalysis = DocAnalysis('pdf', html)
             length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
-                # print("The pdf line length returned is " + str(length))
+                # print('The pdf line length returned is ' + str(length))
                 # unwrap em/en dashes
                 end_rules.append((re.compile(
                     r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))

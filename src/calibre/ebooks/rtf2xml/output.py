@@ -30,7 +30,7 @@ class Output:
             out_file=None,
             no_ask=True
             ):
-        """
+        '''
         Required:
             'file' -- xml file ready to output
             orig_file -- original rtf file
@@ -38,7 +38,7 @@ class Output:
             output_file -- the file to output to
         Returns:
             nothing
-            """
+        '''
         self.__file = file
         self.__orig_file = orig_file
         self.__output_dir = output_dir

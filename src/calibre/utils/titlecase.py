@@ -43,7 +43,7 @@ def lang():
 
 
 def titlecase(text):
-    """
+    '''
     Titlecases input text
 
     This filter changes all words to Title Caps, and attempts to be clever
@@ -52,7 +52,7 @@ def titlecase(text):
     The list of "SMALL words" which are not capped comes from
     the New York Times Manual of Style, plus 'vs' and 'v'.
 
-    """
+    '''
 
     all_caps = icu_upper(text) == text
 

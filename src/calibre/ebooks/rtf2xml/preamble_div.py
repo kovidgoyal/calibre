@@ -30,7 +30,7 @@ class PreambleDiv:
             no_namespace=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -39,7 +39,7 @@ class PreambleDiv:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy

@@ -122,7 +122,7 @@ class xml_attr_field:
         self.attr= attr
 
     def __get__(self, obj, typ=None):
-        """ Return the data in this field or '' if the field is empty """
+        ''' Return the data in this field or '' if the field is empty '''
         document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
@@ -170,7 +170,7 @@ class xml_field:
         self.parent = parent
 
     def __get__(self, obj, typ=None):
-        """ Return the data in this field or '' if the field is empty """
+        ''' Return the data in this field or '' if the field is empty '''
         document = obj.info
 
         elems = document.getElementsByTagName(self.tag_name)

@@ -34,7 +34,7 @@ class TableInfo:
             table_data,
             copy=None,
             run_level=1,):
-        """
+        '''
         Required:
             'file'--file to parse
             'table_data' -- a dictionary for each table.
@@ -44,7 +44,7 @@ class TableInfo:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy

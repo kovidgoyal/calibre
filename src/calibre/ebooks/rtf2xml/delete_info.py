@@ -95,8 +95,8 @@ class DeleteInfo:
             return True
 
     def __delete_func(self,line):
-        """Handle lines when in delete state. Don't print out lines
-        unless the state has ended."""
+        '''Handle lines when in delete state. Don't print out lines
+        unless the state has ended.'''
         if self.__delete_count == self.__cb_count:
             self.__state = 'default'
             if self.__write_cb:

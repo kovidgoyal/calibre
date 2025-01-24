@@ -142,7 +142,7 @@ class ParseRtf:
                 char_data='',
                 default_encoding='cp1252',
                 ):
-        """
+        '''
         Requires:
         'file' --file to parse
         'char_data' --file containing character maps
@@ -157,7 +157,7 @@ class ParseRtf:
             'check_brackets' -- make sure the brackets match up after each run
             through a file. Only for debugging.
         Returns: Nothing
-        """
+        '''
 
         self.__file = in_file
         self.__out_file = out_file
@@ -210,14 +210,14 @@ class ParseRtf:
         return 1
 
     def parse_rtf(self):
-        """
+        '''
         Parse the file by calling on other classes.
         Requires:
             Nothing
         Returns:
             A parsed file in XML, either to standard output or to a file,
             depending on the value of 'output' when the instance was created.
-        """
+        '''
         self.__temp_file = self.__make_temp_file(self.__file)
         # if the self.__deb_dir is true, then create a copy object,
         # set the directory to write to, remove files, and copy

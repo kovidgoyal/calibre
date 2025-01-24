@@ -35,7 +35,7 @@ class AddBrackets:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -44,7 +44,7 @@ class AddBrackets:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy

@@ -1,4 +1,4 @@
-"""Easy to use object-oriented thread pool framework.
+'''Easy to use object-oriented thread pool framework.
 
 A thread pool is an object that maintains a pool of worker threads to perform
 time consuming operations in parallel. It assigns jobs to the threads
@@ -28,7 +28,7 @@ Basic usage:
 See the end of the module code for a brief, annotated usage example.
 
 Website : http://chrisarndt.de/en/software/python/threadpool/
-"""
+'''
 
 __all__ = [
   'makeRequests',
@@ -239,7 +239,7 @@ class ThreadPool:
 
 
 def makeRequests(callable, args_list, callback=None, exc_callback=None):
-    """Create several work requests for same callable with different arguments.
+    '''Create several work requests for same callable with different arguments.
 
     Convenience function for creating several work requests for the same
     callable where each invocation of the callable receives different values
@@ -251,7 +251,7 @@ def makeRequests(callable, args_list, callback=None, exc_callback=None):
     non-tuple argument.
 
     See docstring for WorkRequest for info on callback and exc_callback.
-    """
+    '''
 
     requests = []
     for item in args_list:

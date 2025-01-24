@@ -183,13 +183,13 @@ class Header:
             self.__write_to_head_obj.write(line)
 
     def __get_headers(self):
-        """
+        '''
         Private method to remove footnotes from main file.  Read one line from
         the main file at a time. If the state is 'body', call on the private
         __get_foot_foot_func. Otherwise, call on the __get_foot_body_func.
         These two functions do the work of separating the footnotes form the
         body.
-        """
+        '''
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
                 with open_for_write(self.__header_holder) as self.__write_to_head_obj:

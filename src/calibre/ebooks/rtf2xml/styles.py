@@ -30,7 +30,7 @@ class Styles:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -39,7 +39,7 @@ class Styles:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -283,7 +283,7 @@ class Styles:
             Write an error message if no key is found for the info.
             If the line is text, add the text to a text string. The text
             string will be the name of the style.
-            '''
+        '''
         action = self.__state_dict.get(self.__token_info)
         if action:
             action(line)
@@ -313,7 +313,7 @@ class Styles:
             self.__text_string += line[17:-1]
 
     def __tab_stop_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -321,7 +321,7 @@ class Styles:
         Logic:
             Try to add the number to dictionary entry tabs-left, or tabs-right, etc.
             If the dictionary entry doesn't exist, create one.
-        """
+        '''
         try:
             if self.__leader_found:
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
@@ -353,7 +353,7 @@ class Styles:
                 raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -362,7 +362,7 @@ class Styles:
             Try to add the string of the tab leader to dictionary entry
             tabs-left, or tabs-right, etc.  If the dictionary entry doesn't
             exist, create one.
-        """
+        '''
         self.__leader_found = 1
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
@@ -378,7 +378,7 @@ class Styles:
                 raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -386,7 +386,7 @@ class Styles:
         Logic:
             Try to add the string of the tab bar to dictionary entry tabs-bar.
             If the dictionary entry doesn't exist, create one.
-        """
+        '''
         # self.__add_dict_entry('tabs-bar', line[20:-1])
         try:
             self.__styles_dict['par'][self.__styles_num]['tabs']\
@@ -482,7 +482,7 @@ class Styles:
         self.__styles_num = line[20:-1]
 
     def __found_beg_ind_style_func(self, line):
-        """
+        '''
         Required:
             line
         Returns:
@@ -491,7 +491,7 @@ class Styles:
             Get rid of the last semicolon in the text string. Add the text
             string as the value with 'name' as the key in the style
             dictionary.
-        """
+        '''
         self.__state = 'in_individual_style'
 
     def __found_end_ind_style_func(self, line):
@@ -518,7 +518,7 @@ class Styles:
         self.__print_style_table()
 
     def __fix_based_on(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -532,7 +532,7 @@ class Styles:
             all the character styles.
             The inner loop: first check 'next-style', then check 'based-on-style'.
             Make sure values exist for the keys to avoid the nasty keyerror message.
-        """
+        '''
         types = ['par', 'char']
         for type in types:
             keys = self.__styles_dict[type].keys()

@@ -21,7 +21,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
     remove_images = False
 
     def get_cover_url(self):
-        """Récupère dynamiquement l'URL de la dernière une depuis MLP"""
+        '''Récupère dynamiquement l'URL de la dernière une depuis MLP'''
         br = self.get_browser()
         try:
             # Accéder à la page du magazine sur MLP

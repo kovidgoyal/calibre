@@ -48,7 +48,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        """Récupère dynamiquement l'URL de la dernière une"""
+        '''Récupère dynamiquement l'URL de la dernière une'''
         br = self.get_browser()
         try:
             soup = self.index_to_soup(br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read())

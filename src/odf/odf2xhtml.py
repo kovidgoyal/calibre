@@ -134,13 +134,13 @@ class StyleToCSS:
         }
 
     def save_font(self, name, family, generic):
-        """ It is possible that the HTML browser doesn't know how to
+        ''' It is possible that the HTML browser doesn't know how to
             show a particular font. Fortunately ODF provides generic fallbacks.
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
             This method put the font and fallback into a dictionary
-        """
+        '''
         htmlgeneric = 'sans-serif'
         if generic == 'roman':
             htmlgeneric = 'serif'
@@ -157,10 +157,10 @@ class StyleToCSS:
         self.fontdict[name] = (family, htmlgeneric)
 
     def c_drawfillimage(self, ruleset, sdict, rule, val):
-        """ Fill a figure with an image. Since CSS doesn't let you resize images
+        ''' Fill a figure with an image. Since CSS doesn't let you resize images
             this should really be implemented as an absolutely position <img>
             with a width and a height
-        """
+        '''
         sdict['background-image'] = "url('%s')" % self.fillimages[val]
 
     def c_fo(self, ruleset, sdict, rule, val):
@@ -278,22 +278,22 @@ class StyleToCSS:
                     sdict['left'] = ruleset[(SVGNS,'x')]
 
     def c_page_width(self, ruleset, sdict, rule, val):
-        """ Set width of box
+        ''' Set width of box
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
+        '''
         sdict['width'] = val
 
     def c_text_underline_style(self, ruleset, sdict, rule, val):
-        """ Set underline decoration
+        ''' Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
+        '''
         if val and val != 'none':
             sdict['text-decoration'] = 'underline'
 
     def c_text_line_through_style(self, ruleset, sdict, rule, val):
-        """ Set underline decoration
+        ''' Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
+        '''
         if val and val != 'none':
             sdict['text-decoration'] = 'line-through'
 
@@ -302,9 +302,9 @@ class StyleToCSS:
         sdict['height'] = val
 
     def convert_styles(self, ruleset):
-        """ Rule is a tuple of (namespace, name). If the namespace is '' then
+        ''' Rule is a tuple of (namespace, name). If the namespace is '' then
             it is already CSS2
-        """
+        '''
         sdict = {}
         for rule,val in ruleset.items():
             if rule[0] == '':
@@ -766,9 +766,9 @@ class ODF2XHTML(handler.ContentHandler):
         self.cs.fillimages[name] = imghref
 
     def rewritelink(self, imghref):
-        """ Intended to be overloaded if you don't store your pictures
+        ''' Intended to be overloaded if you don't store your pictures
             in a Pictures subfolder
-        """
+        '''
         return imghref
 
     def s_draw_image(self, tag, attrs):
@@ -980,10 +980,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         ''' '''
 
     def s_office_presentation(self, tag, attrs):
-        """ For some odd reason, OpenOffice Impress doesn't define a default-style
+        ''' For some odd reason, OpenOffice Impress doesn't define a default-style
             for the 'paragraph'. We therefore force a standard when we see
             it is a presentation
-        """
+        '''
         self.styledict['p'] = {(FONS,'font-size'): '24pt'}
         self.styledict['presentation'] = {(FONS,'font-size'): '24pt'}
         self.html_body(tag, attrs)
@@ -1039,12 +1039,12 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.currentstyle = None
 
     def s_style_font_face(self, tag, attrs):
-        """ It is possible that the HTML browser doesn't know how to
+        ''' It is possible that the HTML browser doesn't know how to
             show a particular font. Luckily ODF provides generic fallbacks
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
-        """
+        '''
         name = attrs[(STYLENS,'name')]
         family = attrs[(SVGNS,'font-family')]
         generic = attrs.get((STYLENS,'font-family-generic'),'')
@@ -1086,10 +1086,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.styledict[self.currentstyle] = {}
 
     def s_style_page_layout(self, tag, attrs):
-        """ Collect the formatting for the page layout style.
+        ''' Collect the formatting for the page layout style.
             This won't work in CSS 2.1, as page identifiers are not allowed.
             It is legal in CSS3, but the rest of the application doesn't specify when to use what page layout
-        """
+        '''
         name = attrs[(STYLENS,'name')]
         name = name.replace('.','_')
         self.currentstyle = '.PL-' + name
@@ -1319,10 +1319,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_list(self, tag, attrs):
-        """ Start a list (<ul> or <ol>)
+        ''' Start a list (<ul> or <ol>)
             To know which level we're at, we have to count the number
             of <text:list> elements on the tagstack.
-        """
+        '''
         name = attrs.get((TEXTNS,'style-name'))
         continue_numbering = attrs.get((TEXTNS, 'continue-numbering')) == 'true'
         continue_list = attrs.get((TEXTNS, 'continue-list'))
@@ -1391,10 +1391,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_list_level_style_bullet(self, tag, attrs):
-        """ CSS doesn't have the ability to set the glyph
+        ''' CSS doesn't have the ability to set the glyph
             to a particular character, so we just go through
             the available glyphs
-        """
+        '''
         name = self.tagstack.rfindattr((STYLENS,'name'))
         level = attrs[(TEXTNS,'level')]
         self.prevstyle = self.currentstyle
@@ -1649,10 +1649,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         return res
 
     def save(self, outputfile, addsuffix=False):
-        """ Save the HTML under the filename.
+        ''' Save the HTML under the filename.
             If the filename is '-' then save to stdout
             We have the last style filename in self.stylefilename
-        """
+        '''
         if outputfile == '-':
             import sys  # Added by Kovid
             outputfp = sys.stdout

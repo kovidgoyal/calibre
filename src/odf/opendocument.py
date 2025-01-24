@@ -226,9 +226,9 @@ class OpenDocument:
         return xml.getvalue()
 
     def __manifestxml(self):
-        """ Generates the manifest.xml file
+        ''' Generates the manifest.xml file
             The self.manifest isn't available unless the document is being saved
-        """
+        '''
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         self.manifest.toXml(0,xml)
@@ -313,11 +313,11 @@ class OpenDocument:
         return xml.getvalue()
 
     def addPicture(self, filename, mediatype=None, content=None):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'
             If passed a file ptr, mediatype must be set
-        """
+        '''
         if content is None:
             if mediatype is None:
                 mediatype, encoding = mimetypes.guess_type(filename)
@@ -337,12 +337,12 @@ class OpenDocument:
         return manifestfn
 
     def addPictureFromFile(self, filename, mediatype=None):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'.
             If mediatype is not given, it will be guessed from the filename
             extension.
-        """
+        '''
         if mediatype is None:
             mediatype, encoding = mimetypes.guess_type(filename)
         if mediatype is None:
@@ -358,12 +358,12 @@ class OpenDocument:
         return manifestfn
 
     def addPictureFromString(self, content, mediatype):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'. The content variable
             is a string that contains the binary image data. The mediatype
             indicates the image format.
-        """
+        '''
         ext = mimetypes.guess_extension(mediatype)
         manifestfn = f'Pictures/{(time.time()*10000000000):0.0f}{ext}'
         self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
@@ -420,9 +420,9 @@ class OpenDocument:
         self.meta.addElement(meta.Generator(text=TOOLSVERSION))
 
     def save(self, outputfile, addsuffix=False):
-        """ Save the document under the filename.
+        ''' Save the document under the filename.
             If the filename is '-' then save to stdout
-        """
+        '''
         if outputfile == '-':
             outputfp = zipfile.ZipFile(sys.stdout,'w')
         else:
@@ -529,9 +529,9 @@ class OpenDocument:
 
 # Document's DOM methods
     def createElement(self, element):
-        """ Inconvenient interface to create an element, but follows XML-DOM.
+        ''' Inconvenient interface to create an element, but follows XML-DOM.
             Does not allow attributes as argument, therefore can't check grammar.
-        """
+        '''
         return element(check_grammar=False)
 
     def createTextNode(self, data):

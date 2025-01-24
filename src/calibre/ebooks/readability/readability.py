@@ -315,7 +315,7 @@ class Document:
             if not REGEXES['divToPElementsRe'].search(str(''.join(map(tounicode, list(elem))))):
                 # self.debug("Altering %s to p" % (describe(elem)))
                 elem.tag = 'p'
-                # print("Fixed element "+describe(elem))
+                # print('Fixed element '+describe(elem))
 
         for elem in self.tags(self.html, 'div'):
             if elem.text and elem.text.strip():
@@ -323,7 +323,7 @@ class Document:
                 p.text = elem.text
                 elem.text = None
                 elem.insert(0, p)
-                # print("Appended "+tounicode(p)+" to "+describe(elem))
+                # print('Appended '+tounicode(p)+' to '+describe(elem))
 
             for pos, child in reversed(list(enumerate(elem))):
                 if child.tail and child.tail.strip():
@@ -331,7 +331,7 @@ class Document:
                     p.text = child.tail
                     child.tail = None
                     elem.insert(pos + 1, p)
-                    # print("Inserted "+tounicode(p)+" to "+describe(elem))
+                    # print('Inserted '+tounicode(p)+' to '+describe(elem))
                 if child.tag == 'br':
                     # print('Dropped <br> at '+describe(elem))
                     child.drop_tree()

@@ -21,12 +21,12 @@ from . import open_for_read, open_for_write
 
 
 class GroupBorders:
-    """
+    '''
     Form lists.
     Use RTF's own formatting to determine if a paragraph definition is part of a
     list.
     Use indents to determine items and how lists are nested.
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -35,7 +35,7 @@ class GroupBorders:
             run_level=1,
             wrap=0,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -44,7 +44,7 @@ class GroupBorders:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -123,7 +123,7 @@ class GroupBorders:
         self.__last_border_string = ''
 
     def __in_pard_func(self, line):
-        """
+        '''
         Required:
             line -- the line of current text.
         Return:
@@ -131,7 +131,7 @@ class GroupBorders:
         Logic:
             You are in a list, but in the middle of a paragraph definition.
             Don't do anything until you find the end of the paragraph definition.
-        """
+        '''
         if self.__token_info == 'mi<tg<close_____' \
             and line[17:-1] == 'paragraph-definition':
             self.__state = 'after_pard'
@@ -220,7 +220,7 @@ class GroupBorders:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-            '''
+        '''
         if self.__token_info == 'mi<tg<open-att__' \
             and line[17:37] == 'paragraph-definition':
             contains_border = self.__is_border_func(line)

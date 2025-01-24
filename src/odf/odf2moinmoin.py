@@ -182,7 +182,7 @@ class ODF2MoinMoin:
     def processFontDeclarations(self, fontDecl):
         ''' Extracts necessary font information from a font-declaration
             element.
-            '''
+        '''
         for fontFace in fontDecl.getElementsByTagName('style:font-face'):
             if fontFace.getAttribute('style:font-pitch') == 'fixed':
                 self.fixedFonts.append(fontFace.getAttribute('style:name'))

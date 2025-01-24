@@ -29,7 +29,7 @@ class HeadingsToSections:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -38,7 +38,7 @@ class HeadingsToSections:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -154,7 +154,7 @@ class HeadingsToSections:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-            '''
+        '''
         if self.__token_info == 'mi<mk<sect-start':
             self.__section_num[0] += 1
             self.__section_num = self.__section_num[0:1]

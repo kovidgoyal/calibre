@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class ParagraphDef:
-    """
+    '''
 =================
 Purpose
 =================
@@ -52,7 +52,7 @@ be closed:
 5. after_para_def
 'mi<mk<para-start'  changes state to in_paragraphs
 if another paragraph_def is found, the state changes to collect_tokens.
-    """
+    '''
 
     def __init__(self,
         in_file,
@@ -60,7 +60,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         default_font,
         copy=None,
         run_level=1,):
-        """
+        '''
         Required:
             'file'--file to parse
             'default_font' --document default font
@@ -70,7 +70,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__default_font = default_font
@@ -423,7 +423,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__reset_dict()
 
     def __end_para_def_func(self, line):
-        """
+        '''
         Requires:
             Nothing
         Returns:
@@ -433,13 +433,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             of a paragraph. I want to output the definition tag; output the line
             itself (telling me of the beginning of a paragraph);change the
             state to 'in_paragraphs';
-        """
+        '''
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
 
     def __start_para_after_def_func(self, line):
-        """
+        '''
         Requires:
             Nothing
         Returns:
@@ -450,7 +450,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             itself (telling me of the beginning of a paragraph);change the
             state to 'in_paragraphs'.
             (I now realize that this is absolutely identical to the function above!)
-        """
+        '''
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
@@ -503,7 +503,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write(line)
 
     def __after_para_end_func(self, line):
-        """
+        '''
         Requires:
             line -- line to output
         Returns:
@@ -520,14 +520,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             If you find the beginning of a paragraph, then you don't need to
             write out the paragraph definition. Write out the string, and
             change the state to in paragraphs.
-        """
+        '''
         self.__text_string += line
         action = self.__after_para_end_dict.get(self.__token_info)
         if action:
             action(line)
 
     def __continue_block_func(self, line):
-        """
+        '''
         Requires:
             line --line to print out
         Returns:
@@ -537,14 +537,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             start of a paragraph, so you don't need to print out the paragraph
             definition. Print out the string, the line, and change the state
             to in paragraphs.
-        """
+        '''
         self.__state = 'in_paragraphs'
         self.__write_obj.write(self.__text_string)
         self.__text_string = ''
     # found a new paragraph definition after an end of a paragraph
 
     def __new_para_def_func(self, line):
-        """
+        '''
         Requires:
             line -- line to output
         Returns:
@@ -554,13 +554,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             paragraph. Output the end of the old paragraph definition. Output
             the text string. Output the line. Change the state to collect
             tokens. (And don't forget to set the text string to ''!)
-        """
+        '''
         self.__write_para_def_end_func()
         self.__found_para_def_func()
     # after a paragraph and found reason to stop this block
 
     def __stop_block_func(self, line):
-        """
+        '''
         Requires:
             line --(shouldn't be here?)
         Returns:
@@ -570,7 +570,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             than paragraph-definition. You want to write the end tag of the
             old definition and reset the text string (handled by other
             methods).
-        """
+        '''
         self.__write_para_def_end_func()
         self.__state = 'after_para_def'
 

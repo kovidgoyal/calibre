@@ -17,14 +17,14 @@
 #   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-"""
+'''
 Class for handling whitespace properly in OpenDocument.
 
 While it is possible to use getTextContent() and setTextContent()
 to extract or create ODF content, these won't extract or create
 the appropriate <text:s>, <text:tab>, or <text:line-break>
 elements.  This module takes care of that problem.
-"""
+'''
 
 
 from .element import Node
@@ -38,12 +38,12 @@ class WhitespaceText:
         self.spaceCount = 0
 
     def addTextToElement(self, odfElement, s):
-        """ Process an input string, inserting
+        ''' Process an input string, inserting
             <text:tab> elements for '\t',
             <text:line-break> elements for '\n', and
             <text:s> elements for runs of more than one blank.
             These will be added to the given element.
-        """
+        '''
         i = 0
         ch = ' '
 

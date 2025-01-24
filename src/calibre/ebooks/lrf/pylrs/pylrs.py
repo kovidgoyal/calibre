@@ -357,7 +357,7 @@ class LrsObject:
 
 
 class Book(Delegator):
-    """
+    '''
         Main class for any lrs or lrf.  All objects must be appended to
         the Book class in some way or another in order to be rendered as
         an LRS or LRF file.
@@ -396,7 +396,7 @@ class Book(Delegator):
         Override the default SetDefault.
 
         There are several other settings -- see the BookInfo class for more.
-    """
+    '''
 
     def __init__(self, textstyledefault=None, blockstyledefault=None,
                        pagestyledefault=None,
@@ -1344,7 +1344,7 @@ class Page(LrsObject, LrsContainer):
             if hasattr(content, 'getReferencedObjIds'):
                 pageContent.update(content.getReferencedObjIds())
 
-        # print "page contents:", pageContent
+        # print 'page contents:', pageContent
         # ObjectList not needed and causes slowdown in SONY LRF renderer
         # p.appendLrfTag(LrfTag("ObjectList", pageContent))
         p.appendLrfTag(LrfTag('Link', self.pageStyle.objId))
@@ -1485,7 +1485,7 @@ class TextBlock(LrsObject, LrsContainer):
 
 
 class Paragraph(LrsContainer):
-    """
+    '''
         Note: <P> alone does not make a paragraph.  Only a CR inserted
         into a text block right after a <P> makes a real paragraph.
         Two Paragraphs appended in a row act like a single Paragraph.
@@ -1493,7 +1493,7 @@ class Paragraph(LrsContainer):
         Also note that there are few autoappenders for Paragraph (and
         the things that can go in it.)  It's less confusing (to me) to use
         explicit .append methods to build up the text stream.
-    """
+    '''
 
     def __init__(self, text=None):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
@@ -1620,7 +1620,7 @@ class Button(LrsObject, LrsContainer):
 
     def toLrf(self, lrfWriter):
         (refobj, refpage) = self.findJumpToRefs()
-        # print "Button writing JumpTo refobj=", jumpto.refobj, ", and refpage=", jumpto.refpage
+        # print 'Button writing JumpTo refobj=', jumpto.refobj, ', and refpage=', jumpto.refpage
         button = LrfObject('Button', self.objId)
         button.appendLrfTag(LrfTag('buttonflags', 0x10))  # pushbutton
         button.appendLrfTag(LrfTag('PushButtonStart'))

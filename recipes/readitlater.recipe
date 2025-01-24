@@ -53,11 +53,11 @@ class Pocket(BasicNewsRecipe):
     articles = []
 
     def get_browser(self, *args, **kwargs):
-        """
+        '''
         We need to pretend to be a recent version of safari for the mac to
         prevent User-Agent checks Pocket api requires username and password so
         fail loudly if it's missing from the config.
-        """
+        '''
         br = BasicNewsRecipe.get_browser(self,
                                          user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; \
                         en-us) AppleWebKit/533.19.4 (KHTML, like Gecko) \
@@ -151,10 +151,10 @@ class Pocket(BasicNewsRecipe):
             pass
 
     def default_cover(self, cover_file):
-        """
+        '''
         Create a generic cover for recipes that don't have a cover
         This override adds time to the cover
-        """
+        '''
         try:
             from calibre.ebooks.covers import calibre_cover2
             title = self.title if isinstance(self.title, type(u'')) else \

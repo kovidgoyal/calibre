@@ -330,7 +330,7 @@ class TouchscreenFeedTemplate(Template):
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t
         bottom_navbar = copy.copy(navbar_t)
-        # print "\n%s\n" % etree.tostring(navbar_t, pretty_print=True)
+        # print '\n%s\n' % etree.tostring(navbar_t, pretty_print=True)
 
         # Build the page
         head = HEAD(TITLE(feed.title))
@@ -423,6 +423,6 @@ class TouchscreenNavBarTemplate(Template):
         navbar_tr.append(TD(attrs('article_next'),link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
-        # print "\n%s\n" % etree.tostring(navbar, pretty_print=True)
+        # print '\n%s\n' % etree.tostring(navbar, pretty_print=True)
 
         self.root = HTML(head, BODY(navbar))

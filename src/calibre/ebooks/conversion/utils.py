@@ -628,7 +628,7 @@ class HeuristicProcessor:
     def check_paragraph(self, content):
         content = re.sub('\\s*</?span[^>]*>\\s*', '', content)
         if re.match('.*["\'.!?:]$', content):
-            # print "detected this as a paragraph"
+            # print 'detected this as a paragraph'
             return True
         else:
             return False
@@ -641,9 +641,9 @@ class HeuristicProcessor:
         html = re.sub('</?a[^>]*>', '', html)
 
         def convert_styles(match):
-            # print "raw styles are: "+match.group('styles')
+            # print 'raw styles are: '+match.group('styles')
             content = match.group('content')
-            # print "raw content is: "+match.group('content')
+            # print 'raw content is: '+match.group('content')
             image = match.group('image')
 
             is_paragraph = False
@@ -668,12 +668,12 @@ class HeuristicProcessor:
             else:
                 styles = match.group('styles').split(';')
                 is_paragraph = self.check_paragraph(content)
-                # print "styles for this line are: "+str(styles)
+                # print 'styles for this line are: '+str(styles)
                 split_styles = []
                 for style in styles:
-                    # print "style is: "+str(style)
+                    # print 'style is: '+str(style)
                     newstyle = style.split(':')
-                    # print "newstyle is: "+str(newstyle)
+                    # print 'newstyle is: '+str(newstyle)
                     split_styles.append(newstyle)
                 styles = split_styles
                 for style, setting in styles:
@@ -710,18 +710,18 @@ class HeuristicProcessor:
                             self.log.debug('padding bottom is: ' + str(setting[2]))
                             self.log.debug('padding left is: ' +str(setting[3]))
 
-                # print "text-align is: "+str(text_align)
-                # print "\n***\nline is:\n     "+str(match.group(0))+'\n'
+                # print 'text-align is: '+str(text_align)
+                # print '\n***\nline is:\n     '+str(match.group(0))+'\n'
                 if debugabby:
-                    # print "this line is a paragraph = "+str(is_paragraph)+", previous line was "+str(self.previous_was_paragraph)
+                    # print 'this line is a paragraph = '+str(is_paragraph)+', previous line was '+str(self.previous_was_paragraph)
                     self.log.debug('styles for this line were:', styles)
                     self.log.debug('newline is:')
                     self.log.debug(blockquote_open_loop+blockquote_close_loop+
                             paragraph_before+'<p style="'+text_indent+text_align+
                             '">'+content+'</p>'+paragraph_after+'\n\n\n\n\n')
-                # print "is_paragraph is "+str(is_paragraph)+", previous_was_paragraph is "+str(self.previous_was_paragraph)
+                # print 'is_paragraph is '+str(is_paragraph)+', previous_was_paragraph is '+str(self.previous_was_paragraph)
                 self.previous_was_paragraph = is_paragraph
-                # print "previous_was_paragraph is now set to "+str(self.previous_was_paragraph)+"\n\n\n"
+                # print 'previous_was_paragraph is now set to '+str(self.previous_was_paragraph)+'\n\n\n'
                 return blockquote_open_loop+blockquote_close_loop+paragraph_before+'<p style="'+text_indent+text_align+'">'+content+'</p>'+paragraph_after
 
         html = abbyy_line.sub(convert_styles, html)

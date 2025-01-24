@@ -397,7 +397,7 @@ class LrfTag:
         if p is None:
             return
 
-        # print "   Writing tag", self.name
+        # print '   Writing tag', self.name
         for f in self.format:
             if isinstance(f, dict):
                 p = f[p]
@@ -565,7 +565,7 @@ class LrfObject:
                 dotscode)))
 
     def write(self, lrf, encoding=None):
-        # print "Writing object", self.name
+        # print 'Writing object', self.name
         LrfTag('ObjectStart', (self.objId, self.type)).write(lrf)
 
         for tag in self.tags:

@@ -74,7 +74,7 @@ class Fokus(BasicNewsRecipe):
         return br
 
     def get_web_sections(self, main_url: str) -> dict[str, str]:
-        """Return a dict of (1) section URL and (2) section name key-value pairs found at `main_url`.
+        '''Return a dict of (1) section URL and (2) section name key-value pairs found at `main_url`.
 
         For example, if the Fokus website currently includes an 'Aktuellt' section, the dict should include an entry on
         the form: `{'https://www.fokus.se/aktuellt': 'Aktuellt'}`.
@@ -84,7 +84,7 @@ class Fokus(BasicNewsRecipe):
 
         Yields:
             dict[str, str]: (1) URLs and (2) human-readable names of Fokus sections.
-        """
+        '''
         self.log(f"Identifying all sections under '{main_url}'...")
         soup = self.index_to_soup(main_url)
 
@@ -110,14 +110,14 @@ class Fokus(BasicNewsRecipe):
         return section_urls_and_names
 
     def parse_article_blurb(self, article_blurb) -> dict[str, str, str, str] | None:
-        """Given a <article> tag of class 'Blurb', parse it into a dict.
+        '''Given a <article> tag of class 'Blurb', parse it into a dict.
 
         Args:
             article_blurb (Tag): An <article> tag hosting metadata and the URL of an article.
 
         Returns:
             dict[str, str, str, str]: A dict on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
-        """
+        '''
         if a_tag := article_blurb.find('a', href=True):
             url = a_tag['href'].strip().rstrip('/')
             if url.startswith('/'):
@@ -147,7 +147,7 @@ class Fokus(BasicNewsRecipe):
         return
 
     def _get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str]]:
-        """Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
+        '''Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
 
         The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
         on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
@@ -157,7 +157,7 @@ class Fokus(BasicNewsRecipe):
 
         Returns:
             dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
-        """
+        '''
 
         def _log(article) -> None:
             '''Log a digestible summary of the input `article` blurb.'''
@@ -187,7 +187,7 @@ class Fokus(BasicNewsRecipe):
         return parsed_blurbs
 
     def get_article_blurbs(self, sections: dict[str, str]) -> dict[str, dict[str, str, str, str]]:
-        """Create and return a dict of all unique article blurbs found in all `sections`.
+        '''Create and return a dict of all unique article blurbs found in all `sections`.
 
         The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
         on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
@@ -197,7 +197,7 @@ class Fokus(BasicNewsRecipe):
 
         Returns:
             dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
-        """
+        '''
         self.log(f'Identifying all articles under all {len(sections)} sections...')
 
         article_blurbs = {}

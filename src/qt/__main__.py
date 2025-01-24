@@ -85,6 +85,6 @@ with open(f'{base}/__init__.py', 'w') as f:
 def __getattr__(name):
     if name in top_level_module_names:
         import importlib
-        return importlib.import_module("{QT_WRAPPER}." + name)
+        return importlib.import_module('{QT_WRAPPER}.' + name)
     raise AttributeError(name)
 ''', end='', file=f)

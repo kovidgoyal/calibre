@@ -186,7 +186,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prev = prevBlock.text()
             prevAscii = str(prev.replace('\u2029','\n'))
             if self.offset == 0 and prevAscii.strip():
-                #print "Its a header"
+                #print 'Its a header'
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
                 #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()

@@ -209,9 +209,9 @@ def cnv_namespacedToken(attribute, arg, element):
 
 
 def cnv_NCName(attribute, arg, element):
-    """ NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
+    ''' NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
         Essentially an XML name minus ':'
-    """
+    '''
     if isinstance(arg, string_or_bytes):
         return make_NCName(arg)
     else:

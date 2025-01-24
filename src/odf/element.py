@@ -279,12 +279,12 @@ class CDATASection(Text, Childless):
 
 
 class Element(Node):
-    """ Creates a arbitrary element and is intended to be subclassed not used on its own.
+    ''' Creates a arbitrary element and is intended to be subclassed not used on its own.
         This element is the base of every element it defines a class which resembles
         a xml-element. The main advantage of this kind of implementation is that you don't
         have to create a toXML method for every different object. Every element
         consists of an attribute, optional subelements, optional text and optional cdata.
-    """
+    '''
 
     nodeType = Node.ELEMENT_NODE
     namespaces = {}  # Due to shallow copy this is a static variable
@@ -438,12 +438,12 @@ class Element(Node):
             self.setAttrNS(allowed_attrs[i][0], allowed_attrs[i][1], value)
 
     def setAttrNS(self, namespace, localpart, value):
-        """ Add an attribute to the element
+        ''' Add an attribute to the element
             In case you need to add an attribute the library doesn't know about
             then you must provide the full qualified name
             It will not check that the attribute is legal according to the schema.
             Must overwrite, If attribute already exists.
-        """
+        '''
         c = AttrConverters()
         self.attributes[(namespace, localpart)] = c.convert((namespace, localpart), value, self)
 

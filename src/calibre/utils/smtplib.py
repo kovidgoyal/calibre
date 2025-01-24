@@ -82,13 +82,13 @@ class SMTPServerDisconnected(SMTPException):
 
 
 class SMTPResponseException(SMTPException):
-    """Base class for all exceptions that include an SMTP error code.
+    '''Base class for all exceptions that include an SMTP error code.
 
     These exceptions are generated in some instances when the SMTP
     server returns an error code.  The error code is stored in the
     `smtp_code' attribute of the error, and the `smtp_error' attribute
     is set to the error message.
-    """
+    '''
 
     def __init__(self, code, msg):
         self.smtp_code = code
@@ -97,11 +97,11 @@ class SMTPResponseException(SMTPException):
 
 
 class SMTPSenderRefused(SMTPResponseException):
-    """Sender address refused.
+    '''Sender address refused.
 
     In addition to the attributes set by on all SMTPResponseException
     exceptions, this sets `sender' to the string that the SMTP refused.
-    """
+    '''
 
     def __init__(self, code, msg, sender):
         self.smtp_code = code
@@ -111,12 +111,12 @@ class SMTPSenderRefused(SMTPResponseException):
 
 
 class SMTPRecipientsRefused(SMTPException):
-    """All recipient addresses refused.
+    '''All recipient addresses refused.
 
     The errors for each recipient are accessible through the attribute
     'recipients', which is a dictionary of exactly the same sort as
     SMTP.sendmail() returns.
-    """
+    '''
 
     def __init__(self, recipients):
         self.recipients = recipients
@@ -124,7 +124,7 @@ class SMTPRecipientsRefused(SMTPException):
 
 
 class SMTPDataError(SMTPResponseException):
-    """The SMTP server didn't accept the data."""
+    '''The SMTP server didn't accept the data.'''
 
 
 class SMTPConnectError(SMTPResponseException):
@@ -136,11 +136,11 @@ class SMTPHeloError(SMTPResponseException):
 
 
 class SMTPAuthenticationError(SMTPResponseException):
-    """Authentication error.
+    '''Authentication error.
 
     Most probably the server didn't accept the username/password
     combination provided.
-    """
+    '''
 
 
 def quoteaddr(addr):
@@ -172,11 +172,11 @@ def _addr_only(addrstring):
 
 
 def quotedata(data):
-    """Quote data for email.
+    '''Quote data for email.
 
     Double leading '.', and change Unix newline '\\n', or Mac '\\r' into
     Internet CRLF end-of-line.
-    """
+    '''
     return re.sub(r'(?m)^\.', '..',
         re.sub(r'(?:\r\n|\n|\r(?!\n))', CRLF, data))
 
@@ -216,7 +216,7 @@ else:
 
 
 class SMTP:
-    """This class manages a connection to an SMTP or ESMTP server.
+    '''This class manages a connection to an SMTP or ESMTP server.
     SMTP Objects:
         SMTP objects have the following attributes:
             helo_resp
@@ -243,7 +243,7 @@ class SMTP:
         See each method's docstrings for details.  In general, there is a
         method of the same name to perform each SMTP command.  There is also a
         method called 'sendmail' that will do an entire mail transaction.
-        """
+        '''
     debuglevel = 0
     file = None
     helo_resp = None
@@ -255,7 +255,7 @@ class SMTP:
     def __init__(self, host='', port=0, local_hostname=None,
                  timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                  debug_to=partial(print, file=stderr)):
-        """Initialize a new instance.
+        '''Initialize a new instance.
 
         If specified, `host' is the name of the remote host to which to
         connect.  If specified, `port' specifies the port to which to connect.
@@ -266,7 +266,7 @@ class SMTP:
         specifies where debug output is written to. By default it is written to
         sys.stderr. You should pass in a print function of your own to control
         where debug output is written.
-        """
+        '''
         self._host = host
         self.timeout = timeout
         self.debug = debug_to
@@ -312,7 +312,7 @@ class SMTP:
         return socket.create_connection((host, port), timeout)
 
     def connect(self, host='localhost', port=0):
-        """Connect to a host on a given port.
+        '''Connect to a host on a given port.
 
         If the hostname ends with a colon (`:') followed by a number, and
         there is no port specified, that suffix will be stripped off and the
@@ -321,7 +321,7 @@ class SMTP:
         Note: This method is automatically invoked by __init__, if a host is
         specified during instantiation.
 
-        """
+        '''
         if not port and (host.find(':') == host.rfind(':')):
             i = host.rfind(':')
             if i >= 0:
@@ -342,7 +342,7 @@ class SMTP:
         return (code, msg)
 
     def send(self, str):
-        """Send `str' to the server."""
+        '''Send `str' to the server.'''
         if self.debuglevel > 0:
             raw = repr(str)
             self.debug('send:', raw)
@@ -364,7 +364,7 @@ class SMTP:
         self.send(str)
 
     def getreply(self):
-        """Get a reply from the server.
+        '''Get a reply from the server.
 
         Returns a tuple consisting of:
 
@@ -375,7 +375,7 @@ class SMTP:
             responses are converted to a single, multiline string).
 
         Raises SMTPServerDisconnected if end-of-file is reached.
-        """
+        '''
         resp = []
         if self.file is None:
             self.file = self.sock.makefile('rb')
@@ -417,20 +417,20 @@ class SMTP:
 
     # std smtp commands
     def helo(self, name=''):
-        """SMTP 'helo' command.
+        '''SMTP 'helo' command.
         Hostname to send for this command defaults to the FQDN of the local
         host.
-        """
+        '''
         self.putcmd('helo', name or self.local_hostname)
         (code, msg) = self.getreply()
         self.helo_resp = msg
         return (code, msg)
 
     def ehlo(self, name=''):
-        """ SMTP 'ehlo' command.
+        ''' SMTP 'ehlo' command.
         Hostname to send for this command defaults to the FQDN of the local
         host.
-        """
+        '''
         self.esmtp_features = {}
         self.putcmd(self.ehlo_msg, name or self.local_hostname)
         (code, msg) = self.getreply()
@@ -481,21 +481,21 @@ class SMTP:
         return opt.lower() in self.esmtp_features
 
     def help(self, args=''):
-        """SMTP 'help' command.
-        Returns help text from server."""
+        '''SMTP 'help' command.
+        Returns help text from server.'''
         self.putcmd('help', args)
         return self.getreply()[1]
 
     def rset(self):
-        """SMTP 'rset' command -- resets session."""
+        '''SMTP 'rset' command -- resets session.'''
         return self.docmd('rset')
 
     def noop(self):
-        """SMTP 'noop' command -- doesn't do anything :>"""
+        '''SMTP 'noop' command -- doesn't do anything :>'''
         return self.docmd('noop')
 
     def mail(self, sender, options=[]):
-        """SMTP 'mail' command -- begins mail xfer session."""
+        '''SMTP 'mail' command -- begins mail xfer session.'''
         optionlist = ''
         if options and self.does_esmtp:
             optionlist = ' ' + ' '.join(options)
@@ -503,7 +503,7 @@ class SMTP:
         return self.getreply()
 
     def rcpt(self, recip, options=[]):
-        """SMTP 'rcpt' command -- indicates 1 recipient for this mail."""
+        '''SMTP 'rcpt' command -- indicates 1 recipient for this mail.'''
         optionlist = ''
         if options and self.does_esmtp:
             optionlist = ' ' + ' '.join(options)
@@ -511,13 +511,13 @@ class SMTP:
         return self.getreply()
 
     def data(self, msg):
-        """SMTP 'DATA' command -- sends message data to server.
+        '''SMTP 'DATA' command -- sends message data to server.
 
         Automatically quotes lines beginning with a period per rfc821.
         Raises SMTPDataError if there is an unexpected reply to the
         DATA command; the return value from this method is the final
         response code received when the all data is sent.
-        """
+        '''
         self.putcmd('data')
         (code, repl) = self.getreply()
         if self.debuglevel > 0:
@@ -536,21 +536,21 @@ class SMTP:
             return (code, msg)
 
     def verify(self, address):
-        """SMTP 'verify' command -- checks for address validity."""
+        '''SMTP 'verify' command -- checks for address validity.'''
         self.putcmd('vrfy', _addr_only(address))
         return self.getreply()
     # a.k.a.
     vrfy = verify
 
     def expn(self, address):
-        """SMTP 'expn' command -- expands a mailing list."""
+        '''SMTP 'expn' command -- expands a mailing list.'''
         self.putcmd('expn', _addr_only(address))
         return self.getreply()
 
     # some useful methods
 
     def ehlo_or_helo_if_needed(self):
-        """Call self.ehlo() and/or self.helo() if needed.
+        '''Call self.ehlo() and/or self.helo() if needed.
 
         If there has been no previous EHLO or HELO command this session, this
         method tries ESMTP EHLO first.
@@ -559,7 +559,7 @@ class SMTP:
 
          SMTPHeloError            The server didn't reply properly to
                                   the helo greeting.
-        """
+        '''
         if self.helo_resp is None and self.ehlo_resp is None:
             if not (200 <= self.ehlo()[0] <= 299):
                 (code, resp) = self.helo()
@@ -567,7 +567,7 @@ class SMTP:
                     raise SMTPHeloError(code, resp)
 
     def login(self, user, password):
-        """Log in on an SMTP server that requires authentication.
+        '''Log in on an SMTP server that requires authentication.
 
         The arguments are:
             - user:     The user name to authenticate with.
@@ -586,7 +586,7 @@ class SMTP:
                                   password combination.
          SMTPException            No suitable authentication method was
                                   found.
-        """
+        '''
 
         def encode_cram_md5(challenge, user, password):
             challenge = base64.decodestring(challenge)
@@ -646,7 +646,7 @@ class SMTP:
         return (code, resp)
 
     def starttls(self, context=None):
-        """Puts the connection to the SMTP server into TLS mode.
+        '''Puts the connection to the SMTP server into TLS mode.
 
         If there has been no previous EHLO or HELO command this session, this
         method tries ESMTP EHLO first.
@@ -661,7 +661,7 @@ class SMTP:
 
          SMTPHeloError            The server didn't reply properly to
                                   the helo greeting.
-        """
+        '''
         self.ehlo_or_helo_if_needed()
         if not self.has_extn('starttls'):
             raise SMTPException('STARTTLS extension not supported by server.')
@@ -744,8 +744,8 @@ class SMTP:
         of the four addresses, and one was rejected, with the error code
         550.  If all addresses are accepted, then the method will return an
         empty dictionary.
-
         """
+
         self.ehlo_or_helo_if_needed()
         esmtp_opts = []
         if self.does_esmtp:
@@ -805,13 +805,13 @@ class SMTP:
 if _have_ssl:
 
     class SMTP_SSL(SMTP):
-        """ This is a subclass derived from SMTP that connects over an SSL encrypted
+        ''' This is a subclass derived from SMTP that connects over an SSL encrypted
         socket (to use this class you need a socket module that was compiled with SSL
         support). If host is not specified, '' (the local host) is used. If port is
         omitted, the standard SMTP-over-SSL port (465) is used. keyfile and certfile
         are also optional - they can contain a PEM formatted private key and
         certificate chain file for the SSL connection.
-        """
+        '''
 
         default_port = SMTP_SSL_PORT
 
@@ -841,7 +841,7 @@ LMTP_PORT = 2003
 
 
 class LMTP(SMTP):
-    """LMTP - Local Mail Transfer Protocol
+    '''LMTP - Local Mail Transfer Protocol
 
     The LMTP protocol, which is very similar to ESMTP, is heavily based
     on the standard SMTP client. It's common to use Unix sockets for LMTP,
@@ -851,7 +851,7 @@ class LMTP(SMTP):
 
     Authentication is supported, using the regular SMTP mechanism. When
     using a Unix socket, LMTP generally don't support or require any
-    authentication, but your mileage might vary."""
+    authentication, but your mileage might vary.'''
 
     ehlo_msg = 'lhlo'
 

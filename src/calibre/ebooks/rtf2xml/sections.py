@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class Sections:
-    """
+    '''
     =================
     Purpose
     =================
@@ -53,14 +53,14 @@ class Sections:
     the list; use the second item in the description list.
     CHANGE (2004-04-26) No longer write sections that occur in field-blocks.
     Instead, ignore all section information in a field-block.
-    """
+    '''
 
     def __init__(self,
             in_file,
             bug_handler,
             copy=None,
             run_level=1):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -69,7 +69,7 @@ class Sections:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -439,7 +439,7 @@ class Sections:
         self.__write_obj.write(line)
 
     def __print_field_sec_attributes(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -457,7 +457,7 @@ class Sections:
             my_string += '\n'
         else:
             my_string += 'mi<tg<open______<section-definition\n'
-        """
+        '''
         num = self.__field_num[0]
         self.__field_num = self.__field_num[1:]
         self.__write_obj.write(

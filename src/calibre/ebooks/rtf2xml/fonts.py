@@ -31,7 +31,7 @@ class Fonts:
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
             'default_font_num'--the default font number
@@ -41,7 +41,7 @@ class Fonts:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -86,7 +86,7 @@ class Fonts:
         self.__write_obj.write(line)
 
     def __font_table_func(self, line):
-        """
+        '''
         Requires:
             line
         Returns:
@@ -99,7 +99,7 @@ class Fonts:
             font to the default font (in case there is no number provided, in
             which case RTF assumes the number will be the default font.) Reset
             the test string (for the font name) to ''
-            """
+        '''
         if self.__token_info == 'mi<mk<fonttb-end':
             self.__state = 'after_font_table'
         elif self.__token_info == 'mi<mk<fontit-beg':
@@ -125,7 +125,7 @@ class Fonts:
                 dictionary. Also create an empty tag with the name and number
                 as attributes.
                 Preamture end of font table
-            '''
+        '''
         # cw<ci<font-style<nu<4
         # tx<nu<__________<Times;
         if self.__token_info == 'mi<mk<fontit-end':
@@ -174,7 +174,7 @@ class Fonts:
             the name rather than the number.
             If the line does not contain font info, simply print it out to the
             file.
-            '''
+        '''
         if self.__token_info == 'cw<ci<font-style':
             font_num = line[20:-1]
             font_name = self.__font_table.get(font_num)
@@ -205,7 +205,7 @@ class Fonts:
             tag for each individual font in the font table.
             If the state is after the font table, look for lines with font
             info. Substitute a font name for a font number.
-            '''
+        '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

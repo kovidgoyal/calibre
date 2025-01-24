@@ -2,7 +2,7 @@ import sys
 
 
 class ParseOptions:
-    """
+    '''
         Requires:
            system_string --The string from the command line
            options_dict -- a dictionary with the key equal to the opition, and
@@ -29,7 +29,7 @@ class ParseOptions:
                 print arguments
             The result will be:
                 {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
-        """
+        '''
 
     def __init__(self, system_string, options_dict):
         self.__system_string = system_string[1:]
@@ -133,7 +133,7 @@ class ParseOptions:
         return new_string
 
     def __pair_arg_with_option(self):
-        """
+        '''
         Required:
             nothing
         Returns
@@ -142,7 +142,7 @@ class ParseOptions:
             iterate through the system string, and match arguments with options:
                 old_list = ['--foo', 'bar']
                 new_list = ['--foo=bar'
-        """
+        '''
         opt_len = len(self.__system_string)
         new_system_string = []
         counter = 0

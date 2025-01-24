@@ -337,7 +337,7 @@ class FFMLProcessor:
         return self.tree_to_html(tree, 0)
 
     def document_to_summary_html(self, document, name, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in HTML format.
 
@@ -349,7 +349,7 @@ class FFMLProcessor:
 
         :return: a string containing the HTML
 
-        """
+        '''
         document = document.strip()
         sum_tag = document.find('[/]')
         if sum_tag > 0:
@@ -453,7 +453,7 @@ class FFMLProcessor:
         return doc
 
     def document_to_summary_rst(self, document, name, indent=0, prefix=None, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in RST (sphinx reStructuredText) format.
 
@@ -471,7 +471,7 @@ class FFMLProcessor:
 
         :return: a string containing the RST text
 
-        """
+        '''
         document = document.strip()
         sum_tag = document.find('[/]')
         if sum_tag > 0:

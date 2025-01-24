@@ -841,7 +841,7 @@ class CreateCustomColumn(QDialog):
 
 
 class CreateNewCustomColumn:
-    """
+    '''
     Provide an API to create new custom columns.
 
     Usage:
@@ -942,7 +942,7 @@ class CreateNewCustomColumn:
     The method returns Result.MUST_RESTART if further calibre configuration has
     been blocked. You can check for this situation in advance by calling
     must_restart().
-    """
+    '''
 
     class Result(Enum):
         COLUMN_ADDED = 0
@@ -1058,7 +1058,7 @@ class CreateNewCustomColumn:
         return (self.Result.CANCELED, _('Canceled'))
 
     def current_columns(self):
-        """
+        '''
         Return the currently defined custom columns
 
         Return the currently defined custom columns including the ones that haven't
@@ -1075,20 +1075,20 @@ class CreateNewCustomColumn:
         Columns that already exist will have additional attributes that this class
         doesn't use. See calibre.library.field_metadata.add_custom_field() for the
         complete list.
-        """
+        '''
         # deepcopy to prevent users from changing it. The new MappingProxyType
         # isn't enough because only the top-level dict is immutable, not the
         # items in the dict.
         return copy.deepcopy(self.custcols)
 
     def current_headings(self):
-        """
+        '''
         Return the currently defined column headings
 
         Return the column headings including the ones that haven't yet been
         created. It is a dict. The key is the heading, the value is the lookup
         name having that heading.
-        """
+        '''
         return {v['name']:('#' + v['label']) for v in self.custcols.values()}
 
     def must_restart(self):

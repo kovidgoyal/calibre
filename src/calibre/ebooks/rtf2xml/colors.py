@@ -31,7 +31,7 @@ class Colors:
             copy=None,
             run_level=1
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -40,7 +40,7 @@ class Colors:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__copy = copy
         self.__bug_handler = bug_handler
@@ -92,12 +92,12 @@ class Colors:
             nothing
         Logic:
             get the hex number from the line and add it to the color string.
-            '''
+        '''
         hex_num = line[-3:-1]
         self.__color_string += hex_num
 
     def __blue_func(self, line):
-        """
+        '''
         Requires:
             line
         Returns:
@@ -108,7 +108,7 @@ class Colors:
             as the key, and the hex number as the value. Write an empty tag
             with the hex number and number as attributes. Add one to the color
             number. Reset the color string to '#'
-            """
+        '''
         hex_num = line[-3:-1]
         self.__color_string +=  hex_num
         self.__color_dict[self.__color_num] = self.__color_string
@@ -130,7 +130,7 @@ class Colors:
             change the state to after the color table.
             Otherwise, get a function by passing the self.__token_info to the
             state dictionary.
-            '''
+        '''
         # mi<mk<clrtbl-beg
         # cw<ci<red_______<nu<00
         if self.__token_info == 'mi<mk<clrtbl-end':

@@ -239,7 +239,7 @@ class ListTable:
             '''
 
     def __level_text_func(self, line):
-        """
+        '''
         Requires:
             line --line to process
         Returns:
@@ -252,7 +252,7 @@ class ListTable:
             This attribute indicates the puncuation after a certain level.
             An example is "level1-marker = '.'"
             Otherwise, check for a level-template-id.
-        """
+        '''
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__level_text_ob_count:
             if self.__prefix_string:

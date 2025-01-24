@@ -24,7 +24,7 @@ HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
 
 def parse_request_uri(uri):
-    """Parse a Request-URI into (scheme, authority, path).
+    '''Parse a Request-URI into (scheme, authority, path).
 
     Note that Request-URI's must be one of::
 
@@ -42,7 +42,7 @@ def parse_request_uri(uri):
         path_segments = segment *( "/" segment )
         segment       = *pchar *( ";" param )
         param         = *pchar
-    """
+    '''
     if uri == b'*':
         return None, None, uri
 

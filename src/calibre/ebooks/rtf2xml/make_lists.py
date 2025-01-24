@@ -21,12 +21,12 @@ from . import open_for_read, open_for_write
 
 
 class MakeLists:
-    """
+    '''
     Form lists.
     Use RTF's own formatting to determine if a paragraph definition is part of a
     list.
     Use indents to determine items and how lists are nested.
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -38,7 +38,7 @@ class MakeLists:
             no_headings_as_list=1,
             write_list_info=0,
             ):
-        """
+        '''
         Required:
             'file'
         Optional:
@@ -47,7 +47,7 @@ class MakeLists:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__run_level = run_level
@@ -114,7 +114,7 @@ class MakeLists:
         self.__line_num = 0
 
     def __in_pard_func(self, line):
-        """
+        '''
         Required:
             line -- the line of current text.
         Return:
@@ -122,7 +122,7 @@ class MakeLists:
         Logic:
             You are in a list, but in the middle of a paragraph definition.
             Don't do anything until you find the end of the paragraph definition.
-        """
+        '''
         if self.__token_info == 'mi<mk<pard-end__':
             self.__state = 'after_pard'
         self.__write_obj.write(line)
@@ -395,7 +395,7 @@ class MakeLists:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-            '''
+        '''
         if self.__token_info == 'mi<tg<open-att__' and line[17:37] == 'paragraph-definition':
             is_a_heading = self.__is_a_heading()
             if not is_a_heading:

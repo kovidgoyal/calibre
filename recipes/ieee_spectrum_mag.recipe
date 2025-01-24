@@ -27,7 +27,7 @@ class IEEESpectrumMagazine(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        """Go to this month's URL and pull cover image from there."""
+        '''Go to this month's URL and pull cover image from there.'''
         month_url = 'https://spectrum.ieee.org/magazine/{}'.format(self.year_month)
         soup = self.index_to_soup(month_url)
         img_meta = soup.find('meta', property='og:image')

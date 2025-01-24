@@ -27,7 +27,7 @@ class OldRtf:
                 bug_handler,
                 run_level,
                 ):
-        """
+        '''
         Required:
             'file'--file to parse
             'table_data' -- a dictionary for each table.
@@ -37,7 +37,7 @@ class OldRtf:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__run_level = run_level

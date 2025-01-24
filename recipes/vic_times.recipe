@@ -206,7 +206,7 @@ class TimesColonist(BasicNewsRecipe):
         if atag is not None:
             url = atag['href']
             url = url.strip()
-            # print("Checking >>"+url+'<<\n\r')
+            # print('Checking >>'+url+'<<\n\r')
             if url.startswith('/'):
                 url = self.url_prefix + url
             if url in self.url_list:

@@ -42,7 +42,7 @@ class Hex2Utf8:
             dingbats=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'
             'area_to_convert'--the area of file to convert
@@ -58,7 +58,7 @@ class Hex2Utf8:
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
-        """
+        '''
         self.__file = in_file
         self.__copy = copy
         if area_to_convert not in ('preamble', 'body'):
@@ -99,7 +99,7 @@ class Hex2Utf8:
                         caps=None,
                         dingbats=None,
                     ):
-        """
+        '''
         Required:
             'file'
             'area_to_convert'--the area of file to convert
@@ -114,7 +114,7 @@ class Hex2Utf8:
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
-            """
+        '''
         self.__file=file
         self.__copy = copy
         if area_to_convert not in ('preamble', 'body'):
@@ -217,7 +217,7 @@ class Hex2Utf8:
         self.__font_list = ['not-defined']
 
     def __hex_text_func(self, line):
-        """
+        '''
         Required:
             'line' -- the line
         Logic:
@@ -227,7 +227,7 @@ class Hex2Utf8:
             as normal text.
             If the hex_num is not in the dictionary, then a mistake has been
             made.
-            """
+        '''
         hex_num = line[17:-1]
         converted = self.__current_dict.get(hex_num)
         if converted is not None:

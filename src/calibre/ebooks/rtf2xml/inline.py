@@ -30,7 +30,7 @@ class Inline:
             bug_handler,
             copy=None,
             run_level=1,):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -39,7 +39,7 @@ class Inline:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -153,14 +153,14 @@ class Inline:
         self.__write_obj.write(line)
 
     def __found_open_bracket_func(self, line):
-        """
+        '''
         Requires:
             line -- current line of text
         Returns:
             nothing
         Logic:
             Change the state to 'after_open_bracket'
-        """
+        '''
         self.__state = 'after_open_bracket'
         self.__brac_count += 1
         self.__groups_in_waiting[0] += 1
@@ -220,7 +220,7 @@ class Inline:
             '''
 
     def __close_bracket_func(self, line):
-        """
+        '''
         Requires:
             line --line of text
         Returns:
@@ -230,7 +230,7 @@ class Inline:
             Get the keys of the last dictionary in the inline_groups.
             If 'contains_inline' in the keys, write a close tag.
             If the_dict contains font information, write a mk tag.
-        """
+        '''
         if len(self.__inline_list) == 0:
             # nothing to add
             return
@@ -282,7 +282,7 @@ class Inline:
                 self.__write_inline()
 
     def __write_inline(self):
-        """
+        '''
         Required:
             nothing
         Returns
@@ -298,7 +298,7 @@ class Inline:
             write a marker tag. (I will use this marker tag later when converting
             hext text to utf8.)
             Write a tag for the inline values.
-        """
+        '''
         if self.__groups_in_waiting[0] != 0:
             last_index = -1 * self.__groups_in_waiting[0]
             inline_list = self.__inline_list[last_index:]
@@ -383,10 +383,10 @@ class Inline:
         self.__groups_in_waiting[0] = 0
 
     def __found_field_func(self, line):
-        """
+        '''
         Just a default function to make sure I don't prematurely exit
         default state
-        """
+        '''
         pass
 
     def form_tags(self):

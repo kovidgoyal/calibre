@@ -526,14 +526,14 @@ def smartyPants(text, attr='1'):
 
 
 def educateQuotes(text):
-    """
+    '''
     Parameter:  String.
 
     Returns:    The string, with "educated" curly quote HTML entities.
 
     Example input:  "Isn't this fun?"
     Example output: &#8220;Isn&#8217;t this fun?&#8221;
-    """
+    '''
 
     punct_class = r'''[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]'''
 
@@ -572,12 +572,12 @@ def educateQuotes(text):
     # meaningful
 
     # Special case for Quotes at end of line with a preceding space (may change just to end of line)
-    # text = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", text)
-    # text = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", text)
+    # text = re.sub(r'''(?<=\s)"$''', r'''&#8221;''', text)
+    # text = re.sub(r'''(?<=\s)'$''', r'''&#8217;''', text)
 
     # Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
-    # text = re.sub(r"""^"(?=\s)""", r"""&#8220;""", text)
-    # text = re.sub(r"""^'(?=\s)""", r"""&#8216;""", text)
+    # text = re.sub(r'''^"(?=\s)''', r'''&#8220;''', text)
+    # text = re.sub(r'''^'(?=\s)''', r'''&#8216;''', text)
 
     close_class = r'''[^\ \t\r\n\[\{\(\-]'''
     dec_dashes = r'''&#8211;|&#8212;'''
@@ -654,13 +654,13 @@ def educateQuotes(text):
 
 
 def educateBackticks(text):
-    """
+    '''
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
                 translated into HTML curly quote entities.
     Example input:  ``Isn't this fun?''
     Example output: &#8220;Isn't this fun?&#8221;
-    """
+    '''
 
     text = re.sub(r'''``''', r'''&#8220;''', text)
     text = re.sub(r"""''""", r'''&#8221;''', text)
@@ -668,14 +668,14 @@ def educateBackticks(text):
 
 
 def educateSingleBackticks(text):
-    """
+    '''
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
                 translated into HTML curly quote entities.
 
     Example input:  `Isn't this fun?'
     Example output: &#8216;Isn&#8217;t this fun?&#8217;
-    """
+    '''
 
     text = re.sub(r'''`''', r'''&#8216;''', text)
     text = re.sub(r"""'""", r'''&#8217;''', text)
@@ -710,7 +710,7 @@ def educateDashesOldSchool(text):
 
 
 def educateDashesOldSchoolInverted(text):
-    """
+    '''
     Parameter:  String.
 
     Returns:    The string, with each instance of "--" translated to
@@ -723,7 +723,7 @@ def educateDashesOldSchoolInverted(text):
                 common than en-dashes, and so it sort of makes sense that
                 the shortcut should be shorter to type. (Thanks to Aaron
                 Swartz for the idea.)
-    """
+    '''
     text = re.sub(r'''---''', r'''&#8211;''', text)    # em
     text = re.sub(r'''--''', r'''&#8212;''', text)    # en
     return text
@@ -769,7 +769,7 @@ def stupefyEntities(text):
 
 
 def processEscapes(text):
-    r"""
+    r'''
     Parameter:  String.
     Returns:    The string, with after processing the following backslash
                 escape sequences. This is useful if you want to force a "dumb"
@@ -783,7 +783,7 @@ def processEscapes(text):
                 \.      &#46;
                 \-      &#45;
                 \`      &#96;
-    """
+    '''
     text = re.sub(r'''\\\\''', r'''&#92;''', text)
     text = re.sub(r'''\\"''', r'''&#34;''', text)
     text = re.sub(r"""\\'""", r'''&#39;''', text)
@@ -795,7 +795,7 @@ def processEscapes(text):
 
 
 def _tokenize(html):
-    """
+    '''
     Parameter:  String containing HTML markup.
     Returns:    Reference to an array of the tokens comprising the input
                 string. Each token is either a tag (possibly with nested,
@@ -806,15 +806,15 @@ def _tokenize(html):
 
     Based on the _tokenize() subroutine from Brad Choate's MTRegex plugin.
         <http://www.bradchoate.com/past/mtregex.php>
-    """
+    '''
 
     tokens = []
 
     # depth = 6
     # nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
-    # match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
+    # match = r'''(?: <! ( -- .*? -- \s* )+ > ) |  # comments
     # (?: <\? .*? \?> ) |  # directives
-    # %s  # nested tags       """ % (nested_tags,)
+    # %s  # nested tags       ''' % (nested_tags,)
     tag_soup = re.compile(r'''([^<]*)(<[^>]*>)''')
 
     token_match = tag_soup.search(html)
