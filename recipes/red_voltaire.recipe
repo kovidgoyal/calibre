@@ -18,9 +18,9 @@ class RedVoltaireRecipe(BasicNewsRecipe):
     masthead_url = u'http://www.voltairenet.org/squelettes/elements/images/logo-voltairenet-org.png'
 
     preprocess_regexps = [
-        (re.compile(r'<title>(?P<titulo>.+)</title>.+<span class="updated" title=".+"><time', re.IGNORECASE | re.DOTALL), lambda match:'</title></head><body><h1>' + match.group('titulo') + '</h1><time'),
+        (re.compile(r'<title>(?P<titulo>.+)</title>.+<span class="updated" title=".+"><time', re.IGNORECASE | re.DOTALL), lambda match:'</title></head><body><h1>' + match.group('titulo') + '</h1><time'),  # noqa: E501
         (re.compile(
-            r'<time datetime=.+pubdate>. (?P<fecha>.+)</time>.+<!------------------- COLONNE TEXTE ------------------->', re.IGNORECASE | re.DOTALL), lambda match:'<small>' + match.group('fecha') + '</small>'), (re.compile(r'<aside>.+', re.IGNORECASE | re.DOTALL), lambda match:'</body></html>')
+            r'<time datetime=.+pubdate>. (?P<fecha>.+)</time>.+<!------------------- COLONNE TEXTE ------------------->', re.IGNORECASE | re.DOTALL), lambda match:'<small>' + match.group('fecha') + '</small>'), (re.compile(r'<aside>.+', re.IGNORECASE | re.DOTALL), lambda match:'</body></html>')  # noqa: E501
     ]
 
     extra_css = '''

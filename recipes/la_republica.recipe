@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaRepubblica(BasicNewsRecipe):
     title = 'La Repubblica'
     __author__ = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic, faber1971'
-    description = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'
+    description = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'  # noqa: E501
     masthead_url = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
     publisher = 'Gruppo editoriale L\'Espresso'
     category = 'News, politics, culture, economy, general interest'

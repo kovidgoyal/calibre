@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class CiperChile(BasicNewsRecipe):
     title = 'CIPER Chile'
     __author__ = 'Darko Miletic'
-    description = 'El Centro de Investigacion e Informacion Periodistica (CIPER) es una institucion independiente que desarrolla reportajes de investigacion de acuerdo a principios de maxima calidad e integridad profesional. Para lograr dicho objetivo, los profesionales de CIPER incorporan a las tecnicas propias del reporteo el uso sistematico de las leyes chilenas que norman el libre acceso a la informacion, de manera que los documentos que se obtengan por esta via esten puestos a disposicion del publico sin restricciones.'
+    description = 'El Centro de Investigacion e Informacion Periodistica (CIPER) es una institucion independiente que desarrolla reportajes de investigacion de acuerdo a principios de maxima calidad e integridad profesional. Para lograr dicho objetivo, los profesionales de CIPER incorporan a las tecnicas propias del reporteo el uso sistematico de las leyes chilenas que norman el libre acceso a la informacion, de manera que los documentos que se obtengan por esta via esten puestos a disposicion del publico sin restricciones.'  # noqa: E501
     publisher = 'CIPER'
     category = 'news, politics, Chile'
     oldest_article = 15

@@ -36,7 +36,7 @@ class DnevnikCro(BasicNewsRecipe):
 
     lang = 'hr-HR'
     direction = 'ltr'
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'  # noqa: E501
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True
@@ -59,7 +59,7 @@ class DnevnikCro(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
 
-        attribs = ['style', 'font', 'valign', 'colspan', 'width', 'height', 'rowspan', 'summary', 'align', 'cellspacing', 'cellpadding', 'frames', 'rules', 'border' ]
+        attribs = ['style', 'font', 'valign', 'colspan', 'width', 'height', 'rowspan', 'summary', 'align', 'cellspacing', 'cellpadding', 'frames', 'rules', 'border' ]  # noqa: E501
         for item in soup.body.findAll(name=['table', 'td', 'tr', 'th', 'caption', 'thead', 'tfoot', 'tbody', 'colgroup', 'col']):
             item.name = 'div'
             for attrib in attribs:

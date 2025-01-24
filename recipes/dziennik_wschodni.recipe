@@ -20,8 +20,8 @@ class DziennikWschodni(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
 
-    preprocess_regexps = [(re.compile(u'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(u'Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
-                          (re.compile(u'Przeczytaj również:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(u'Zobacz też:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: '')]
+    preprocess_regexps = [(re.compile(u'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(u'Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa: E501
+                          (re.compile(u'Przeczytaj również:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(u'Zobacz też:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: '')]  # noqa: E501
 
     keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
     remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',

@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Smh_au(BasicNewsRecipe):
     title = "The Sydney Morning Herald"
     __author__ = "Darko Miletic"
-    description = "Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news."
+    description = "Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news."  # noqa: E501
     publisher = "Fairfax Digital"
     category = "news, politics, Australia, Sydney"
     oldest_article = 2

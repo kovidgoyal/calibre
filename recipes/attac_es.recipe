@@ -11,7 +11,7 @@ class AttacEspanaRecipe (BasicNewsRecipe):
     __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
     title = u'attac.es'
-    description = u'La Asociación por la Tasación de las Transacciones Financieras y por la Ayuda a los Ciudadanos (ATTAC) es un movimiento internacional altermundialista que promueve el control democrático de los mercados financieros y las instituciones encargadas de su control mediante la reflexión política y la movilización social.'
+    description = u'La Asociación por la Tasación de las Transacciones Financieras y por la Ayuda a los Ciudadanos (ATTAC) es un movimiento internacional altermundialista que promueve el control democrático de los mercados financieros y las instituciones encargadas de su control mediante la reflexión política y la movilización social.'  # noqa: E501
     url = 'http://www.attac.es'
     language = 'es'
     tags = 'contrainformación, información alternativa'

@@ -46,12 +46,12 @@ class SolHaberRecipe(BasicNewsRecipe):
     start_date = (datetime.date.today() -
                   datetime.timedelta(days=1)).isoformat()
 
-    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],  # noqa: E501
                       ['Haberler', 'http://haber.sol.org.tr/arsiv?icerik=haber&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
                           (start_date, end_date)],
                       ['soL postal', 'http://haber.sol.org.tr/arsiv?icerik=postal&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
                           (start_date, end_date)],
-                      ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]
+                      ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]  # noqa: E501
 
     # Disable stylesheets from site.
     no_stylesheets = True

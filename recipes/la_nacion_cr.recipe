@@ -5,7 +5,7 @@ class crnews(BasicNewsRecipe):
     __author__ = 'Douglas Delgado'
     title = u'La Nacion Costa Rica'
     publisher = 'GRUPO NACION GN, S. A.'
-    description = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'
+    description = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'  # noqa: E501
     category = 'Spanish, Entertainment'
     masthead_url = 'http://www.nacion.com/App_Themes/nacioncom/Images/logo_nacioncom.png'
 

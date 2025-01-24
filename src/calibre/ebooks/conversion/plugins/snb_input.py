@@ -12,7 +12,7 @@ HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html;
 
 
 def html_encode(s):
-    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')  # noqa: E501
 
 
 class SNBInput(InputFormatPlugin):

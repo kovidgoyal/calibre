@@ -63,7 +63,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
                 'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
         except:
             cover_url = random.choice([
-                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'  # noqa: E501
             ])
 
         return cover_url

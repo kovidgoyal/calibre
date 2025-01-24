@@ -34,7 +34,7 @@ class AM730(BasicNewsRecipe):
     description = 'http://www.am730.com.hk'
     category = 'Chinese, News, Hong Kong'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/en/5/58/Am730_Hong_Kong_newspaper_logo.png'
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa: E501
     remove_tags =[dict(name='div',attrs={'class':'col-xs-12 col-sm-1 col-md-1 share-button'}),
                 dict(name='div',attrs={'class':'logo-container print-logo'}),
                 dict(name='div',attrs={'id':'galleria'})]

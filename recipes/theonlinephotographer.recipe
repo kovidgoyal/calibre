@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class theonlinephotographer(BasicNewsRecipe):
     title = 'The Online Photographer'
     __author__ = 'Darko Miletic'
-    description = 'A photography news and information website in the form of a weblog with multiple authors who write on a variety of photography and art-photography related issues.'
+    description = 'A photography news and information website in the form of a weblog with multiple authors who write on a variety of photography and art-photography related issues.'  # noqa: E501
     publisher = 'The Online Photographer'
     category = 'news, blog, photograph, international'
     oldest_article = 15

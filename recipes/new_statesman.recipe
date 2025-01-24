@@ -15,7 +15,7 @@ class NewStatesman(BasicNewsRecipe):
     __author__ = 'Darko Miletic'
     description = "Current affairs, world politics, the arts and more from Britain's award-winning magazine"
     publisher = 'New Statesman Media'
-    category = 'New Statesman magazine, International Politics, British Politics, Britain, UK, Tony Blair, Gordon Brown, Geoffrey Robinson, David Cameron, Sir Menzies Campbell, Labour, Conservative, Liberal Democrat, UK Politics, House of Commons, House of Lords, Legislation, politics magazine'
+    category = 'New Statesman magazine, International Politics, British Politics, Britain, UK, Tony Blair, Gordon Brown, Geoffrey Robinson, David Cameron, Sir Menzies Campbell, Labour, Conservative, Liberal Democrat, UK Politics, House of Commons, House of Lords, Legislation, politics magazine'  # noqa: E501
     oldest_article = 30
     no_stylesheets = True
     encoding = 'utf8'

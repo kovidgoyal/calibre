@@ -33,7 +33,7 @@ class Adevarul(BasicNewsRecipe):
                       ]
 
     remove_tags = [
-        dict(name='li', attrs={'class': 'author'}), dict(name='li', attrs={'class': 'date'}), dict(name='li', attrs={'class': 'comments'}), dict(name='div', attrs={'class': 'bb-wg-article_related_attachements'}), dict(name='div', attrs={'class': 'bb-md bb-md-article_comments'}), dict(name='form', attrs={'id': 'bb-comment-create-form'}), dict(name='div', attrs={'id': 'mediatag'}), dict(name='div', attrs={'id': 'ft'}), dict(name='div', attrs={'id': 'comment_wrapper'})
+        dict(name='li', attrs={'class': 'author'}), dict(name='li', attrs={'class': 'date'}), dict(name='li', attrs={'class': 'comments'}), dict(name='div', attrs={'class': 'bb-wg-article_related_attachements'}), dict(name='div', attrs={'class': 'bb-md bb-md-article_comments'}), dict(name='form', attrs={'id': 'bb-comment-create-form'}), dict(name='div', attrs={'id': 'mediatag'}), dict(name='div', attrs={'id': 'ft'}), dict(name='div', attrs={'id': 'comment_wrapper'})  # noqa: E501
     ]
 
     remove_tags_after = [

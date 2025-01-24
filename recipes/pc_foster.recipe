@@ -9,7 +9,7 @@ class PC_Foster(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     __author__ = 'fenuks'
-    description = u'Vortal technologiczny: testy, recenzje sprzętu komputerowego i telefonów, nowinki hardware, programy i gry dla Windows. Podkręcanie, modding i Overclocking.'
+    description = u'Vortal technologiczny: testy, recenzje sprzętu komputerowego i telefonów, nowinki hardware, programy i gry dla Windows. Podkręcanie, modding i Overclocking.'  # noqa: E501
     category = 'IT'
     language = 'pl'
     masthead_url = 'http://pcfoster.pl/public/images/logo.png'

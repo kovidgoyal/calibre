@@ -49,11 +49,11 @@ class NASA(BasicNewsRecipe):
          lambda match: match.group().replace(match.group(1), 'UTF-8')),
 
         # Remove any banners/links/ads/cruft before the body of the article.
-        (r'<body.*?((<div id="article_body">)|(<div id="st-page-maincontent">)|(<div id="containermain">)|(<p class="ap-story-p">)|(<!-- img_nav -->))', lambda match: '<body><div>'),
+        (r'<body.*?((<div id="article_body">)|(<div id="st-page-maincontent">)|(<div id="containermain">)|(<p class="ap-story-p">)|(<!-- img_nav -->))', lambda match: '<body><div>'),  # noqa: E501
 
         # Remove any links/ads/comments/cruft from the end of the body
         # of the article.
-        (r'((<!-- end article content -->)|(<div id="st-custom-afterpagecontent">)|(<p class="ap-story-p">&copy;)|(<div class="entry-footer">)|(<div id="see_also">)|(<p>Via <a href=)|(<div id="ss_nav">)).*?</html>', lambda match: '</div></body></html>'),
+        (r'((<!-- end article content -->)|(<div id="st-custom-afterpagecontent">)|(<p class="ap-story-p">&copy;)|(<div class="entry-footer">)|(<div id="see_also">)|(<p>Via <a href=)|(<div id="ss_nav">)).*?</html>', lambda match: '</div></body></html>'),  # noqa: E501
 
         # Correctly embed in-line images by removing the surrounding
         # javascript that will be ignored in the conversion

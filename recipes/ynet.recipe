@@ -9,7 +9,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     title = u'Ynet'
     __author__ = 'marbs & barakplasma'
     language = 'he'
-    extra_css = 'img {max-width:100%;direction: rtl;} #article{direction: rtl;} div{direction: rtl;} title{direction: rtl; } article_description{direction: rtl; } a.article{direction: rtl; } calibre_feed_description{direction: rtl; } body{direction: ltr;}'
+    extra_css = 'img {max-width:100%;direction: rtl;} #article{direction: rtl;} div{direction: rtl;} title{direction: rtl; } article_description{direction: rtl; } a.article{direction: rtl; } calibre_feed_description{direction: rtl; } body{direction: ltr;}'  # noqa: E501
     remove_attributes = ['width']
     simultaneous_downloads = 5
     keep_only_tags = [

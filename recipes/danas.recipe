@@ -17,7 +17,7 @@ class Danas(BasicNewsRecipe):
     __author__ = 'Darko Miletic'
     description = 'Dnevne novine sa vestima iz sveta, politike, ekonomije, kulture, sporta, Beograda, Novog Sada i cele Srbije.'
     publisher = 'DAN GRAF d.o.o.'
-    category = 'danas Dnevne novine politika drustvo ekonomija svet sport beograd vojvodina periskop terazije Beograd Srbija Novi Sad Nis Kragujevac Vojvodina politics Serbia'
+    category = 'danas Dnevne novine politika drustvo ekonomija svet sport beograd vojvodina periskop terazije Beograd Srbija Novi Sad Nis Kragujevac Vojvodina politics Serbia'  # noqa: E501
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = False

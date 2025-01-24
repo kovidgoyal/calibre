@@ -33,7 +33,7 @@ class Financiarul(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['infoArticol']}), dict(name='ul', attrs={'class': 'navSectiuni'}), dict(name='div', attrs={'class': 'separator separatorTop'}), dict(name='div', attrs={'class': 'infoArticol infoArticolBottom'}), dict(name='ul', attrs={'class': ['related']}), dict(name='div', attrs={'class': ['slot panel300 panelGri300 panelGri300s panelGri300sm']})
+        dict(name='div', attrs={'class': ['infoArticol']}), dict(name='ul', attrs={'class': 'navSectiuni'}), dict(name='div', attrs={'class': 'separator separatorTop'}), dict(name='div', attrs={'class': 'infoArticol infoArticolBottom'}), dict(name='ul', attrs={'class': ['related']}), dict(name='div', attrs={'class': ['slot panel300 panelGri300 panelGri300s panelGri300sm']})  # noqa: E501
     ]
 
     remove_tags_after = [

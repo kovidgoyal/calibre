@@ -12,7 +12,7 @@ class CMJornal_pt(BasicNewsRecipe):
     encoding = 'utf-8'
     use_embedded_content = False
     language = 'pt'
-    extra_css = ' .publish{font-style: italic; line-height: 1.2em; border-bottom: 1px dotted; padding: 5px 0} .entity{line-height: 1.2em} .overview{line-height:1.2em} '
+    extra_css = ' .publish{font-style: italic; line-height: 1.2em; border-bottom: 1px dotted; padding: 5px 0} .entity{line-height: 1.2em} .overview{line-height:1.2em} '  # noqa: E501
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

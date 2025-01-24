@@ -37,7 +37,7 @@ class PhilippineDailyInquirer(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': 'recent'}), dict(name='div', attrs={'id': 'sharefeature'}), dict(name='div', attrs={'id': 'masthead_bg'}), dict(name='div', attrs={'id': 'navmenu_main'}), dict(name='div', attrs={'id': 'navmenu_channel'}), dict(name='div', attrs={'class': 'breadcrumbs'}), dict(name='div', attrs={'id': 'search_container'}), dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1143'}), dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1147'})
+        dict(name='div', attrs={'class': 'recent'}), dict(name='div', attrs={'id': 'sharefeature'}), dict(name='div', attrs={'id': 'masthead_bg'}), dict(name='div', attrs={'id': 'navmenu_main'}), dict(name='div', attrs={'id': 'navmenu_channel'}), dict(name='div', attrs={'class': 'breadcrumbs'}), dict(name='div', attrs={'id': 'search_container'}), dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1143'}), dict(name='a', attrs={'href': 'http://ruby.inquirer.net/redirect/redirect.php?item_id=1147'})  # noqa: E501
     ]
 
     conversion_options = {'title': custom_title,

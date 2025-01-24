@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class IOL_za(BasicNewsRecipe):
     title = 'IOL News'
     __author__ = 'Darko Miletic'
-    description = "South Africa's Premier Online News Source. Discover the world of IOL, News South Africa, Sport, Business, Financial, World News, Entertainment, Technology, Motoring, Travel, Property, Classifieds and more."
+    description = "South Africa's Premier Online News Source. Discover the world of IOL, News South Africa, Sport, Business, Financial, World News, Entertainment, Technology, Motoring, Travel, Property, Classifieds and more."  # noqa: E501
     publisher = 'Independent Newspapers (Pty) Limited.'
     category = 'news, politics, South Africa'
     oldest_article = 2

@@ -49,7 +49,7 @@ class Onemagazine(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='p', attrs={'class': ['info']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='span', attrs={'class': ['photo']}), dict(name='div', attrs={'class': ['counter']}), dict(name='div', attrs={'class': ['carousel']}), dict(name='div', attrs={'class': ['jcarousel-container jcarousel-container-horizontal']})
+        dict(name='p', attrs={'class': ['info']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='span', attrs={'class': ['photo']}), dict(name='div', attrs={'class': ['counter']}), dict(name='div', attrs={'class': ['carousel']}), dict(name='div', attrs={'class': ['jcarousel-container jcarousel-container-horizontal']})  # noqa: E501
     ]
 
     remove_tags_after = [

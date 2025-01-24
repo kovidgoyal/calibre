@@ -36,7 +36,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class': [' g-w8']})
 
     remove_tags = [
-        dict(name='ul', attrs={'class': ['document-tools blq-clearfix', 'blq-clearfix']}), dict(name='div', attrs={'class': ['box bx-quote-bubble', 'socialmedia-links', 'list li-carousel', 'list li-plain rolling-news', 'list li-plain', 'box bx-livestats', 'li-tab content', 'list li-relatedlinks', 'list li-relatedinternetlinks']})
+        dict(name='ul', attrs={'class': ['document-tools blq-clearfix', 'blq-clearfix']}), dict(name='div', attrs={'class': ['box bx-quote-bubble', 'socialmedia-links', 'list li-carousel', 'list li-plain rolling-news', 'list li-plain', 'box bx-livestats', 'li-tab content', 'list li-relatedlinks', 'list li-relatedinternetlinks']})  # noqa: E501
     ]
 
     feeds = [

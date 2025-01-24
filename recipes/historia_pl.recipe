@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Historia_org_pl(BasicNewsRecipe):
     title = u'Historia.org.pl'
     __author__ = 'fenuks'
-    description = u'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'
+    description = u'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'  # noqa: E501
     cover_url = 'http://lh3.googleusercontent.com/_QeRQus12wGg/TOvHsZ2GN7I/AAAAAAAAD_o/LY1JZDnq7ro/logo5.jpg'
     category = 'history'
     language = 'pl'

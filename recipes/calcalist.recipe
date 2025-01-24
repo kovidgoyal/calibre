@@ -9,7 +9,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     title = u'Calcalist'
     language = 'he'
     __author__ = 'marbs'
-    extra_css = 'img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'
+    extra_css = 'img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa: E501
     simultaneous_downloads = 5
     remove_javascript = True
     timefmt = '[%a, %d %b, %Y]'

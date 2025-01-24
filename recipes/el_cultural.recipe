@@ -14,7 +14,7 @@ class RevistaElCultural(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    extra_css = 'h1{ font-family: sans-serif; font-size: large; font-weight: bolder; text-align: justify } h2{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h3{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h4{ font-family: sans-serif; font-weight: lighter; font-size: medium; font-style: italic; text-align: justify } .rtsArticuloFirma{ font-family: sans-serif; font-size: small; text-align: justify } .column span-13 last{ font-family: sans-serif; font-size: medium; text-align: justify } .rtsImgArticulo{font-family: serif; font-size: small; color: #000000; text-align: justify}'
+    extra_css = 'h1{ font-family: sans-serif; font-size: large; font-weight: bolder; text-align: justify } h2{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h3{ font-family: sans-serif; font-size: small; font-weight: 500; text-align: justify } h4{ font-family: sans-serif; font-weight: lighter; font-size: medium; font-style: italic; text-align: justify } .rtsArticuloFirma{ font-family: sans-serif; font-size: small; text-align: justify } .column span-13 last{ font-family: sans-serif; font-size: medium; text-align: justify } .rtsImgArticulo{font-family: serif; font-size: small; color: #000000; text-align: justify}'  # noqa: E501
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

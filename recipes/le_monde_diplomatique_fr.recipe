@@ -23,7 +23,7 @@ def absurl(url):
 class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     title = u'Le Monde diplomatique.fr'
     __author__ = 'Gaëtan Lehmann'
-    description = "Le Monde diplomatique est un mensuel français d’information et d’opinion à la ligne éditoriale nettement engagée en faveur d'une gauche de rupture avec le capitalisme. Il aborde de nombreux sujets — géopolitique, relations internationales, économie, questions sociales, écologie, culture, médias, …"
+    description = "Le Monde diplomatique est un mensuel français d’information et d’opinion à la ligne éditoriale nettement engagée en faveur d'une gauche de rupture avec le capitalisme. Il aborde de nombreux sujets — géopolitique, relations internationales, économie, questions sociales, écologie, culture, médias, …"  # noqa: E501
     oldest_article = 30
     max_articles_per_feed = 100
     auto_cleanup = True

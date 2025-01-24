@@ -560,7 +560,7 @@ class CatalogBuilder:
                                       f"'{author[0]!s}':</p>" +
                                       f"<p><center><b>{author[1]!s}</b> != <b>{current_author[1]!s}</b></center></p>" +
                                       "<p>Unable to build MOBI catalog.<br/>" +
-                                      f"Select all books by '{author[0]!s}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>")
+                                      f"Select all books by '{author[0]!s}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>")  # noqa: E501
 
                         self.opts.log.warn('\n*** Metadata error ***')
                         self.opts.log.warn(error_msg)

@@ -105,7 +105,7 @@ class APNXBuilder:
 
         # Updated header if we have a KF8 file...
         if apnx_meta['format'] == 'MOBI_8':
-            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta  # noqa: E501
         else:
             # My 5.1.x Touch & 3.4 K3 seem to handle the 'extended' header fine for
             # legacy mobi files, too. But, since they still handle this one too, let's

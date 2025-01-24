@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class RBC_ru(BasicNewsRecipe):
     title = u'RBC.ru'
     __author__ = 'A. Chewi (with fixes by bugmen00t)'
-    description = 'Российское информационное агентство «РосБизнесКонсалтинг» (РБК) - ленты новостей политики, экономики и финансов, аналитические материалы, комментарии и прогнозы, тематические статьи'
+    description = 'Российское информационное агентство «РосБизнесКонсалтинг» (РБК) - ленты новостей политики, экономики и финансов, аналитические материалы, комментарии и прогнозы, тематические статьи'  # noqa: E501
     needs_subscription = False
     cover_url = 'https://pics.rbc.ru/img/fp_v4/skin/img/logo.gif'
     cover_margins = (80, 160, '#ffffff')

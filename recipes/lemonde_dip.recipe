@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     title = 'Le Monde diplomatique - English edition'
     __author__ = 'Darko Miletic'
-    description = "Le Monde diplomatique is the place you go when you want to know what's really happening. This is a major international paper that is truly independent, that sees the world in fresh ways, that focuses on places no other publications reach. We offer a clear, considered view of the conflicting interests and complexities of a modern global world. LMD in English is a concise version of the Paris-based parent edition, publishing all the major stories each month, expertly translated, and with some London-based commissions too. We offer a taster of LMD quality on our website where a selection of articles are available each month."
+    description = "Le Monde diplomatique is the place you go when you want to know what's really happening. This is a major international paper that is truly independent, that sees the world in fresh ways, that focuses on places no other publications reach. We offer a clear, considered view of the conflicting interests and complexities of a modern global world. LMD in English is a concise version of the Paris-based parent edition, publishing all the major stories each month, expertly translated, and with some London-based commissions too. We offer a taster of LMD quality on our website where a selection of articles are available each month."  # noqa: E501
     publisher = 'Le Monde diplomatique'
     category = 'news, politics, world'
     no_stylesheets = True

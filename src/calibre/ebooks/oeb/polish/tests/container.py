@@ -237,7 +237,7 @@ class ContainerTests(BaseTest):
         c = get_container(book)
         one, two = 'one/one.html', 'two/two.html'
         c.add_file(one, b'<head><link href="../stylesheet.css"><p><a name="one" href="../two/two.html">1</a><a name="two" href="../two/two.html#one">2</a>')
-        c.add_file(two, b'<head><link href="../page_styles.css"><p><a name="one" href="two.html#two">1</a><a name="two" href="../one/one.html#one">2</a><a href="#one">3</a>')
+        c.add_file(two, b'<head><link href="../page_styles.css"><p><a name="one" href="two.html#two">1</a><a name="two" href="../one/one.html#one">2</a><a href="#one">3</a>')  # noqa: E501
         merge(c, 'text', (one, two), one)
         self.check_links(c)
         root = c.parsed(one)

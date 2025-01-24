@@ -26,7 +26,7 @@ class LaStampa(BasicNewsRecipe):
     conversion_options = {'linearize_tables': True}
     remove_attributes = ['colspan']
 
-    extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '
+    extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '  # noqa: E501
 
     def get_article_url(self, article):
         link = article.get('links')
@@ -34,7 +34,7 @@ class LaStampa(BasicNewsRecipe):
             return link[0]['href']
 
     keep_only_tags = [
-        dict(attrs={'class': ['boxocchiello2', 'titoloRub', 'titologir', 'autore-girata', 'luogo-girata', 'catenaccio', 'sezione', 'articologirata', 'bodytext', 'news-single-img', 'ls-articoloCorpo', 'ls-blog-list-1col']}),
+        dict(attrs={'class': ['boxocchiello2', 'titoloRub', 'titologir', 'autore-girata', 'luogo-girata', 'catenaccio', 'sezione', 'articologirata', 'bodytext', 'news-single-img', 'ls-articoloCorpo', 'ls-blog-list-1col']}),  # noqa: E501
         dict(name='div', attrs={'id': 'corpoarticolo'})
     ]
 

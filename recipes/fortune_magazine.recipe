@@ -25,7 +25,7 @@ class Fortune(BasicNewsRecipe):
     title = 'Fortune Magazine'
     __author__ = 'Rick Shang'
 
-    description = 'FORTUNE is a global business magazine that has been revered in its content and credibility since 1930. FORTUNE covers the entire field of business, including specific companies and business trends, prominent business leaders, and new ideas shaping the global marketplace.'
+    description = 'FORTUNE is a global business magazine that has been revered in its content and credibility since 1930. FORTUNE covers the entire field of business, including specific companies and business trends, prominent business leaders, and new ideas shaping the global marketplace.'  # noqa: E501
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'

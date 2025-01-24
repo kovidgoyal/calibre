@@ -33,7 +33,7 @@ class AmericanThinker(BasicNewsRecipe):
         root = html5lib.parse(
             clean_xml_chars(raw), treebuilder='lxml',
             namespaceHTMLElements=False)
-        for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):
+        for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):  # noqa: E501
             x.getparent().remove(x)
         return etree.tostring(root, encoding='unicode')
 
