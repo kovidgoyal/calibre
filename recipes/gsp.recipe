@@ -29,7 +29,7 @@ class GSP(BasicNewsRecipe):
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher
     }
 
-    keep_only_tags = [dict(name='h1', attrs={'class': 'serif title_2'}), dict(name='div', attrs={'id': 'only_text'}), dict(name='span', attrs={'class': 'block poza_principala'})  # noqa
+    keep_only_tags = [dict(name='h1', attrs={'class': 'serif title_2'}), dict(name='div', attrs={'id': 'only_text'}), dict(name='span', attrs={'class': 'block poza_principala'})
                       ]
 
     feeds = [(u'\u0218tiri', u'http://www.gsp.ro/rss.xml')]

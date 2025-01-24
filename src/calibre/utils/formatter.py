@@ -1699,24 +1699,24 @@ class TemplateFormatter(string.Formatter):
     # ################# Template language lexical analyzer ######################
 
     lex_scanner = re.Scanner([
-            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),  # noqa
-            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
-            (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
-            (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),  # noqa
-            (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
-            (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),  # noqa
-            (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
-            (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
-            (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),  # noqa
-            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),  # noqa
+            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
+            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
+            (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
+            (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),
+            (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),
+            (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),
+            (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),
+            (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),
+            (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),
+            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
         ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog, column_name, global_vars, break_reporter):

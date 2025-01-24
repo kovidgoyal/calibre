@@ -14,7 +14,7 @@
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
-__copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 2016, Daniel Bonnery; 2009, Mathieu Godlewski; 2010-2012, Louis Gesbert'  # noqa
+__copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 2016, Daniel Bonnery; 2009, Mathieu Godlewski; 2010-2012, Louis Gesbert'
 '''
 Mediapart
 '''

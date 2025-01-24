@@ -37,7 +37,7 @@ class NacionalCro(BasicNewsRecipe):
     lang = 'hr-HR'
     direction = 'ltr'
 
-    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'  # noqa
+    extra_css = '@font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif}'
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True

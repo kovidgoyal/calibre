@@ -10,7 +10,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class Variety(BasicNewsRecipe):
     title = 'Variety'
     __author__ = 'Darko Miletic'
-    description = 'Breaking entertainment movie news, movie reviews, entertainment industry events, news and reviews from Cannes, Oscars, and Hollywood awards.  Featuring box office charts, archives and more.'  # noqa
+    description = 'Breaking entertainment movie news, movie reviews, entertainment industry events, news and reviews from Cannes, Oscars, and Hollywood awards.  Featuring box office charts, archives and more.'
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True

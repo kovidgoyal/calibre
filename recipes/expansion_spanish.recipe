@@ -37,7 +37,7 @@ class expansion_spanish(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='div', attrs={'class': ['compartir', 'metadata_desarrollo_noticia', 'relacionadas', 'mas_info',
-                                          'publicidad publicidad_textlink', 'ampliarfoto', 'tit_relacionadas', 'interact', 'paginacion estirar', 'sumario derecha']}),  # noqa
+                                          'publicidad publicidad_textlink', 'ampliarfoto', 'tit_relacionadas', 'interact', 'paginacion estirar', 'sumario derecha']}),
         dict(name='ul', attrs={
              'class': ['bolos_desarrollo_noticia', 'not_logged']}),
         dict(name='span', attrs={'class': ['comentarios']}),

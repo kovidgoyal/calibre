@@ -21,7 +21,7 @@ class AdvancedUserRecipe1313555075(BasicNewsRecipe):
     remove_tags_before = dict(name='article', attrs={
                               'class': 'scope bordered'})
     remove_tags_after = dict(name='div', attrs={'id': 'commentsSection'})
-    remove_tags = [dict(name='span', attrs={'class': 'relTags'}), dict(name='div', attrs={'class': 'articleActivity hdcol'}), dict(name='div', attrs={'id': 'commentsSection'})  # noqa
+    remove_tags = [dict(name='span', attrs={'class': 'relTags'}), dict(name='div', attrs={'class': 'articleActivity hdcol'}), dict(name='div', attrs={'id': 'commentsSection'})
                    ]
 
     feeds = [(u'The Clinic Online', u'http://www.theclinic.cl/feed/')]

@@ -1989,7 +1989,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if datatype == 'rating':
                 def formatter(x):
                     return ('★' * int(x // 2))
-                def avgr(x):  # noqa
+                def avgr(x):
                     return x.n
                 # eliminate the zero ratings line as well as count == 0
                 items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]

@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TInvariant(BasicNewsRecipe):
     title                 = 'T-Invariant'
     __author__            = 'bugmen00t'
-    description           = 'T-Invariant is a multimedia project of scientists and science journalists. Our task is to be a bridge between the academic community in Russia and outside Russia. Let’s keep in touch!'  # noqa
+    description           = 'T-Invariant is a multimedia project of scientists and science journalists. Our task is to be a bridge between the academic community in Russia and outside Russia. Let’s keep in touch!'
     publisher             = '\u0422-\u0438\u043D\u0432\u0430\u0440\u0438\u0430\u043D\u0442 / T-invariant'
     category              = 'news'
     cover_url = u'https://t-invariant.org/wp-content/uploads/2023/02/logo-s.png'

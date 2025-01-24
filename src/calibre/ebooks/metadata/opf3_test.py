@@ -58,12 +58,12 @@ from calibre.ebooks.metadata.opf3 import (
 )
 
 # This import is needed to prevent a test from running slowly
-from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa
+from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 read_user_categories, set_user_categories, read_link_maps, set_link_maps
 
-TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa
+TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX
 default_refines = defaultdict(list)
 
 

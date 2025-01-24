@@ -828,7 +828,7 @@ class HTMLConverter:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
                     fp['fontsize'] = int(fp['fontsize']) * 5 // 3
-                    valigner = Sub if valign == 'sub' else Sup  # noqa
+                    valigner = Sub if valign == 'sub' else Sup
             normal_font_size = int(fp['fontsize'])
 
             if variant == 'small-caps':

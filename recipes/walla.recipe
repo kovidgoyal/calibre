@@ -9,7 +9,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     title = u'Walla'
     language = 'he'
     __author__ = 'marbs & barakplasma'
-    extra_css = 'body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa
+    extra_css = 'body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'
     simultaneous_downloads = 5
     timefmt = '[%d/%m/%y %H:%M]'
     oldest_article = 1

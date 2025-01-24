@@ -18,7 +18,7 @@ class AdvancedUserRecipe1291540961(BasicNewsRecipe):
     language = 'en_CZ'
     publication_type = 'newsportal'
 
-    extra_css = 'h1 .section { display: block; text-transform: uppercase; font-size: 10px; margin-top: 4em; } \n .title { font-size: 14px; margin-top: 4em; } \n a.photo { display: block; clear:both; }  \n .caption { font-size: 9px; display: block; clear:both; padding:0px 0px 20px 0px; } \n a { font-type: normal; }'  # noqa
+    extra_css = 'h1 .section { display: block; text-transform: uppercase; font-size: 10px; margin-top: 4em; } \n .title { font-size: 14px; margin-top: 4em; } \n a.photo { display: block; clear:both; }  \n .caption { font-size: 9px; display: block; clear:both; padding:0px 0px 20px 0px; } \n a { font-type: normal; }'
 
     keep_only_tags = [
         dict(name='div', attrs={'class': ['main']})

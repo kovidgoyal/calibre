@@ -267,7 +267,7 @@ def main():
         elif command == "ls":
             parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/")
             parser.add_option(
-                "-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.",  # noqa
+                "-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.",
                 dest="ll", action="store_true", default=False)
             parser.add_option("-R", help="Recursively list subfolders encountered. /dev and /proc are omitted",
                               dest="recurse", action="store_true", default=False)
@@ -346,7 +346,7 @@ def main():
                 return 1
             dev.rm(args[0])
         elif command == "touch":
-            parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+  # noqa
+            parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
             "Unfortunately, I can't figure out how to update file times on the device, so if path already exists, touch does nothing")
             options, args = parser.parse_args(args)
             if len(args) != 1:

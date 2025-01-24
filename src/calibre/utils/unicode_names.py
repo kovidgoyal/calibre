@@ -40,4 +40,4 @@ def points_for_word(w):
     return ans
 
 
-points_for_word.cache = {}  # noqa
+points_for_word.cache = {}

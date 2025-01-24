@@ -18,7 +18,7 @@ def absolutize(url):
 class TheTorontoStar(BasicNewsRecipe):
     title = 'The Toronto Star'
     __author__ = 'Darko Miletic'
-    description = "Thestar.com is Canada's largest online news site. Stay current with our sports, business entertainment news and more from the Toronto Star and thestar.com"  # noqa
+    description = "Thestar.com is Canada's largest online news site. Stay current with our sports, business entertainment news and more from the Toronto Star and thestar.com"
     oldest_article = 2
     language = 'en_CA'
     max_articles_per_feed = 100

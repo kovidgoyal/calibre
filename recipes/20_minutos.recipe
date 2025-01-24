@@ -36,7 +36,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     remove_empty_feeds = True
 
     keep_only_tags = [
-        dict(name='div', attrs={'id': ['content', 'vinetas', ]}), dict(name='div', attrs={'class': ['boxed', 'description', 'lead', 'article-content', 'cuerpo estirar']}), dict(name='span', attrs={'class': ['photo-bar']}), dict(name='ul', attrs={'class': ['article-author']})  # noqa
+        dict(name='div', attrs={'id': ['content', 'vinetas', ]}), dict(name='div', attrs={'class': ['boxed', 'description', 'lead', 'article-content', 'cuerpo estirar']}), dict(name='span', attrs={'class': ['photo-bar']}), dict(name='ul', attrs={'class': ['article-author']})
     ]
 
     remove_tags_before = dict(name='ul', attrs={'class': ['servicios-sub']})
@@ -44,7 +44,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
         name='div', attrs={'class': ['related-news', 'col']})
 
     remove_tags = [
-        dict(name='ol', attrs={'class': ['navigation', ]}), dict(name='span', attrs={'class': ['action']}), dict(name='div', attrs={'class': ['twitter comments-list hidden', 'related-news', 'col', 'photo-gallery', 'photo-gallery side-art-block', 'calendario', 'article-comment', 'postto estirar', 'otras_vinetas estirar', 'kment', 'user-actions']}), dict( name='div', attrs={'id': ['twitter-destacados', 'eco-tabs', 'inner', 'vineta_calendario', 'vinetistas clearfix', 'otras_vinetas estirar', 'MIN1', 'main', 'SUP1', 'INT']}), dict(name='ul', attrs={'class': ['article-user-actions', 'stripped-list']}), dict(name='ul', attrs={'id': ['site-links']}), dict(name='li', attrs={'class': ['puntuacion', 'enviar', 'compartir']})  # noqa
+        dict(name='ol', attrs={'class': ['navigation', ]}), dict(name='span', attrs={'class': ['action']}), dict(name='div', attrs={'class': ['twitter comments-list hidden', 'related-news', 'col', 'photo-gallery', 'photo-gallery side-art-block', 'calendario', 'article-comment', 'postto estirar', 'otras_vinetas estirar', 'kment', 'user-actions']}), dict( name='div', attrs={'id': ['twitter-destacados', 'eco-tabs', 'inner', 'vineta_calendario', 'vinetistas clearfix', 'otras_vinetas estirar', 'MIN1', 'main', 'SUP1', 'INT']}), dict(name='ul', attrs={'class': ['article-user-actions', 'stripped-list']}), dict(name='ul', attrs={'id': ['site-links']}), dict(name='li', attrs={'class': ['puntuacion', 'enviar', 'compartir']})
     ]
 
     extra_css             = """

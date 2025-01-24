@@ -516,7 +516,7 @@ class NewBook(Dialog):  # {{{
 
 
 if __name__ == '__main__':
-    app = QApplication([])  # noqa
+    app = QApplication([])
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
     set_current_container(get_container(sys.argv[-1]))

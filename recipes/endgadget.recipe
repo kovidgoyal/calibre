@@ -38,7 +38,7 @@ class Engadget(BasicNewsRecipe):
     remove_tags = [
         dict(name='div', attrs={'class':'caas-content-byline-wrapper'}),
         dict(name='div', attrs={'data-component':'ArticleAuthorInfo'}),
-        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')  # noqa
+        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')
     ]
 
     feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]

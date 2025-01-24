@@ -44,7 +44,7 @@ if islinux:
         del pre_activated_socket
         has_preactivated_support = True
 
-        def pre_activated_socket():  # noqa
+        def pre_activated_socket():
             num = systemd.sd_listen_fds(1)  # Remove systemd env vars so that child processes do not inherit them
             if num > 1:
                 raise OSError('Too many file descriptors received from systemd')

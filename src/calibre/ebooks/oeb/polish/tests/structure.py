@@ -28,7 +28,7 @@ OPF_TEMPLATE = '''
     <manifest>{manifest}</manifest>
     <spine>{spine}</spine>
     <guide>{guide}</guide>
-</package>''' % CALIBRE_PREFIX  # noqa
+</package>''' % CALIBRE_PREFIX
 
 
 def create_manifest_item(name, data=b'', properties=None):

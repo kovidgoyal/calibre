@@ -35,7 +35,7 @@ class DziennikPolski24(BasicNewsRecipe):
 
     keep_only_tags = [
 
-        dict(name='div', attrs={'class': ['toolbar']}), dict(name='h1'), dict(name='h2', attrs={'class': ['teaser']}), dict(name='div', attrs={'class': ['picture']}), dict(name='div', attrs={'id': ['showContent']}), dict(name='div', attrs={'class': ['paging']}), dict(name='div', attrs={'class': ['wykupTresc']})  # noqa
+        dict(name='div', attrs={'class': ['toolbar']}), dict(name='h1'), dict(name='h2', attrs={'class': ['teaser']}), dict(name='div', attrs={'class': ['picture']}), dict(name='div', attrs={'id': ['showContent']}), dict(name='div', attrs={'class': ['paging']}), dict(name='div', attrs={'class': ['wykupTresc']})
     ]
 
     remove_tags = [

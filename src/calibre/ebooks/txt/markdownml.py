@@ -86,7 +86,7 @@ class MarkdownMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:  # noqa
+        if self.remove_space_after_newline == True:
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -148,13 +148,13 @@ class MarkdownMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:  # noqa
+                if self.style_italic == False:
                     text.append('*')
                     tags.append('*')
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:  # noqa
+                if self.style_bold == False:
                     text.append('**')
                     tags.append('**')
                     self.style_bold = True

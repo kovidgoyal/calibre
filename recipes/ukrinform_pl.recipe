@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class UkrInform(BasicNewsRecipe):
     title = 'UkrInform (polska)'
     __author__ = 'bugmen00t'
-    description = 'Krajowa agencja informacyjna Ukrainy, \u017Ar\u00F3d\u0142o informacji o \u017Cyciu politycznym, gospodarczym, spo\u0142ecznym, naukowym, kulturalnym i spo\u0142ecznym na Ukrainie i za granic\u0105.'  # noqa
+    description = 'Krajowa agencja informacyjna Ukrainy, \u017Ar\u00F3d\u0142o informacji o \u017Cyciu politycznym, gospodarczym, spo\u0142ecznym, naukowym, kulturalnym i spo\u0142ecznym na Ukrainie i za granic\u0105.'
     publisher = 'Ministerstwo Kultury i Polityki Informacyjnej Ukrainy'
     category = 'newspaper'
     cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'

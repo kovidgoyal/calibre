@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DemocracyNowRecipe(BasicNewsRecipe):
     title = u'Democracy now!'
     __author__ = u'Antoine Beaupré'
-    description = 'A daily TV/radio news program, hosted by Amy Goodman and Juan Gonzalez, airing on over 1,100 stations, pioneering the largest community media collaboration in the United States.'  # noqa
+    description = 'A daily TV/radio news program, hosted by Amy Goodman and Juan Gonzalez, airing on over 1,100 stations, pioneering the largest community media collaboration in the United States.'
     language = 'en'
     cover_url = 'http://www.democracynow.org/images/dn-logo-for-podcast.png'
 

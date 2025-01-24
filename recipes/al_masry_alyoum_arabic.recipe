@@ -22,7 +22,7 @@ class AlMasryAlyoum(BasicNewsRecipe):
     category = 'News'
     publication_type = 'newsportal'
 
-    extra_css = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif; direction: rtl; } .tit_2{ font-weight: bold; font-size: 2em; } .pinfo{ font-size: 1.3em; } .articleimg img{ max-width: 100%; } .imgauther{ display: block; font-size: 0.7em; } .caption{ font-size: 0.7em; } '  # noqa
+    extra_css = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif; direction: rtl; } .tit_2{ font-weight: bold; font-size: 2em; } .pinfo{ font-size: 1.3em; } .articleimg img{ max-width: 100%; } .imgauther{ display: block; font-size: 0.7em; } .caption{ font-size: 0.7em; } '
 
     keep_only_tags = [
         dict(name='div', attrs={'class': ['article']})

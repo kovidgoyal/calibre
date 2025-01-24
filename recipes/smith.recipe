@@ -16,7 +16,7 @@ class Smithsonian(BasicNewsRecipe):
     title = 'Smithsonian Magazine'
     __author__ = 'Kovid Goyal'
 
-    description = 'This magazine chronicles the arts, environment, sciences and popular culture of the times. It is edited for modern, well-rounded individuals with diverse, general interests. With your order, you become a National Associate Member of the Smithsonian. Membership benefits include your subscription to Smithsonian magazine, a personalized membership card, discounts from the Smithsonian catalog, and more.'  # noqa
+    description = 'This magazine chronicles the arts, environment, sciences and popular culture of the times. It is edited for modern, well-rounded individuals with diverse, general interests. With your order, you become a National Associate Member of the Smithsonian. Membership benefits include your subscription to Smithsonian magazine, a personalized membership card, discounts from the Smithsonian catalog, and more.'
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'

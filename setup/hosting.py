@@ -287,7 +287,7 @@ def generate_index():  # {{{
             rmap[series] = []
         rmap[series].append(rnum)
 
-    template = '''<!DOCTYPE html>\n<html lang="en"> <head> <meta charset="utf-8"> <title>{title}</title><link rel="icon" type="image/png" href="//calibre-ebook.com/favicon.png" /> <style type="text/css"> {style} </style> </head> <body> <h1>{title}</h1> <p>{msg}</p> {body} </body> </html> '''  # noqa
+    template = '''<!DOCTYPE html>\n<html lang="en"> <head> <meta charset="utf-8"> <title>{title}</title><link rel="icon" type="image/png" href="//calibre-ebook.com/favicon.png" /> <style type="text/css"> {style} </style> </head> <body> <h1>{title}</h1> <p>{msg}</p> {body} </body> </html> '''
     style = '''
     body { font-family: sans-serif; background-color: #eee; }
     a { text-decoration: none; }
@@ -304,7 +304,7 @@ def generate_index():  # {{{
     for series in rmap:
         body.append(
             '<li><a href="{0}.html" title="Releases in the {0}.x series">{0}.x</a>\xa0\xa0\xa0<span style="font-size:smaller">[{1} releases]</span></li>'
-            .format(  # noqa
+            .format(
                 '.'.join(map(str, series)), len(rmap[series])
             )
         )

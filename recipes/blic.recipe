@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Blic(BasicNewsRecipe):
     title = 'Blic'
     __author__ = 'Darko Miletic'
-    description = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'  # noqa
+    description = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'
     publisher = 'RINGIER d.o.o.'
     category = 'news, politics, Serbia'
     oldest_article = 2

@@ -20,7 +20,7 @@ def new_tag(soup, name, attrs=()):
 class Uncrate(BasicNewsRecipe):
     title = 'Uncrate'
     __author__ = 'Darko Miletic'
-    description = 'Uncrate is a web magazine for guys who love stuff. Our team digs up the best gadgets, clothes, cars, DVDs and more. New items are posted daily. Enjoy responsively.'  # noqa
+    description = 'Uncrate is a web magazine for guys who love stuff. Our team digs up the best gadgets, clothes, cars, DVDs and more. New items are posted daily. Enjoy responsively.'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True

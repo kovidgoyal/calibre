@@ -36,6 +36,6 @@ class Capital(BasicNewsRecipe):
          'http://www.capital.gr/articles/articlesrss.asp?catid=4'),
         (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A3\u0399\u03A9\u03A0\u0397\u03A4\u0397\u03A1\u0399\u039F',
          'http://www.capital.gr/articles/articlesrss.asp?catid=6'),
-        (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A0\u0399\u03A3\u03A9 \u0391\u03A0\u039F \u03A4\u0399\u03A3 \u0393\u03A1\u0391\u039C\u039C\u0395\u03A3',  # noqa
+        (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A0\u0399\u03A3\u03A9 \u0391\u03A0\u039F \u03A4\u0399\u03A3 \u0393\u03A1\u0391\u039C\u039C\u0395\u03A3',
          'http://www.capital.gr/articles/articlesrss.asp?catid=8'),
     ]

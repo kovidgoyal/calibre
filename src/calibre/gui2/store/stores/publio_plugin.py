@@ -61,7 +61,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/e-booki,strona{}.html?q={}'.format(page, quote(query)), timeout=timeout)) as f:  # noqa
+            with closing(br.open('http://www.publio.pl/e-booki,strona{}.html?q={}'.format(page, quote(query)), timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//div[@class="products-list"]//div[@class="product-tile"]'):
                     if counter <= 0:

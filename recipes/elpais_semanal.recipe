@@ -21,7 +21,7 @@ class ElPaisSemanal(BasicNewsRecipe):
     publication_type = 'magazine'
     masthead_url = 'http://www.elpais.com/im/tit_logo_int.gif'
     index = 'http://www.elpais.com/suple/eps/'
-    extra_css = ' p{text-align: justify} body{ text-align: left; font-family: Georgia,"Times New Roman",Times,serif } h2{font-family: Arial,Helvetica,sans-serif} img{margin-bottom: 0.4em} '  # noqa
+    extra_css = ' p{text-align: justify} body{ text-align: left; font-family: Georgia,"Times New Roman",Times,serif } h2{font-family: Arial,Helvetica,sans-serif} img{margin-bottom: 0.4em} '
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

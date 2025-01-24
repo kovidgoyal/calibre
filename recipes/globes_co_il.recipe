@@ -7,7 +7,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     title = u'Globes'
     language = 'he'
     __author__ = 'marbs & barakplasma'
-    extra_css = 'img {max-width:100%;} body{direction: rtl;max-width:100%;}title{direction: rtl; } article_description{direction: rtl; }, a.article{direction: rtl;max-width:100%;} calibre_feed_description{direction: rtl; }'  # noqa
+    extra_css = 'img {max-width:100%;} body{direction: rtl;max-width:100%;}title{direction: rtl; } article_description{direction: rtl; }, a.article{direction: rtl;max-width:100%;} calibre_feed_description{direction: rtl; }'
     simultaneous_downloads = 5
     remove_javascript = True
     keep_only_tags = [

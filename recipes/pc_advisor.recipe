@@ -14,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class pcAdvisor(BasicNewsRecipe):
     __author__ = 'Lorenzo Vigentini'
-    description = 'PC Advisor delivers expert advice you can trust to business and home PC users who want to buy the best-value equipment and make the most out of the equipment they already own.'  # noqa
+    description = 'PC Advisor delivers expert advice you can trust to business and home PC users who want to buy the best-value equipment and make the most out of the equipment they already own.'
 
     cover_url = 'http://media.pcadvisor.co.uk/images/spacer.gif'
     title = 'Pc Advisor '

@@ -252,7 +252,7 @@ class LrsParser:
             tag = base.find(tagname.lower())
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')  # noqa
+            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')
             return tag
 
         title          = me(bookinfo, 'Title')

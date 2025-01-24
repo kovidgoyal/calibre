@@ -236,7 +236,7 @@ fragment ArticlePageFields on Article {
                 )
                 img["src"] = img_src
                 del img["data-serialized"]
-            except:  # noqa
+            except:
                 pass
 
         return f"""<html>

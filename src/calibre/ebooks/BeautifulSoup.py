@@ -3,7 +3,7 @@
 
 
 import bs4
-from bs4 import CData, Comment, Declaration, NavigableString, ProcessingInstruction, SoupStrainer, Tag, __version__  # noqa
+from bs4 import CData, Comment, Declaration, NavigableString, ProcessingInstruction, SoupStrainer, Tag, __version__
 
 
 def parse_html(markup):

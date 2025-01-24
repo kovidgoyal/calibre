@@ -23,9 +23,9 @@ class AdvancedUserRecipe1328535130(BasicNewsRecipe):
     ]
     no_stylesheets = True
     feeds = [(u'Onda Rock', u'http://www.ondarock.it/feed.php')]
-    masthead_url = 'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'  # noqa
+    masthead_url = 'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'
 
-    extra_css = '''  # noqa
+    extra_css = '''
         .boxtabscontain_page {
              border: 1px solid #E0E0E0;clear: both;
              font-family: "Verdana", "Arial", "Helvetica", sans-serif;

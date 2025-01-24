@@ -106,8 +106,8 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(data, decompress(cdata))
 
     def test_html5lib(self):
-        import html5lib.html5parser  # noqa
-        from html5lib import parse  # noqa
+        import html5lib.html5parser
+        from html5lib import parse
 
     def test_html5_parser(self):
         from html5_parser import parse

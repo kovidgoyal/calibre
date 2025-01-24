@@ -21,7 +21,7 @@ class TheCultOfGhoul(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = True
     publication_type = 'blog'
-    extra_css = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: "Trebuchet MS",Trebuchet,Verdana,sans1,sans-serif} .article_description{font-family: sans1, sans-serif} img{margin-bottom: 0.8em; border: 1px solid #333333; padding: 4px } '  # noqa
+    extra_css = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: "Trebuchet MS",Trebuchet,Verdana,sans1,sans-serif} .article_description{font-family: sans1, sans-serif} img{margin-bottom: 0.8em; border: 1px solid #333333; padding: 4px } '
 
     conversion_options = {
         'comment': description, 'tags': 'film, blog, srbija, strava, uzas', 'publisher': 'Dejan Ognjanovic', 'language': language

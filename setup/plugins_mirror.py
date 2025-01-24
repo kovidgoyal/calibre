@@ -456,7 +456,7 @@ def fetch_plugins(old_index):
 
 
 def plugin_to_index(plugin, count):
-    title = '<h3><img src="plugin-icon.png"><a href={} title="Plugin forum thread">{}</a></h3>'.format(  # noqa
+    title = '<h3><img src="plugin-icon.png"><a href={} title="Plugin forum thread">{}</a></h3>'.format(
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [

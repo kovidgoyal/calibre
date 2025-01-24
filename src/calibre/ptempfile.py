@@ -38,7 +38,7 @@ def determined_remove_dir(x):
             shutil.rmtree(x)
             return
         except:
-            import os  # noqa
+            import os
             if os.path.exists(x):
                 # In case some other program has one of the temp files open.
                 import time

@@ -17,7 +17,7 @@ def classes(classes):
 class TheMiamiHerald(BasicNewsRecipe):
     title = 'The Miami Herald'
     __author__ = 'Kovid Goyal'
-    description = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."  # noqa
+    description = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."
     oldest_article = 1
     max_articles_per_feed = 100
     publisher = u'The Miami Herald'

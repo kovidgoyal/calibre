@@ -108,7 +108,7 @@ class IndexEntry:
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}  # noqa
+    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset

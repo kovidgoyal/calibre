@@ -167,7 +167,7 @@ class AddDictionary(QDialog):  # {{{
             download more dictionaries from <a href="{1}">the LibreOffice extensions repository</a>.
             The dictionary will download as an .oxt file. Simply specify the path to the
             downloaded .oxt file here to add the dictionary to {0}.''').format(
-                __appname__, 'https://extensions.libreoffice.org/?Tags%5B%5D=50')+'<p>')  # noqa
+                __appname__, 'https://extensions.libreoffice.org/?Tags%5B%5D=50')+'<p>')
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         la.setMinimumWidth(450)

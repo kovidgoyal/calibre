@@ -543,5 +543,5 @@ class EmailMixin:  # {{{
 
 if __name__ == '__main__':
     from qt.core import QApplication
-    app = QApplication([])  # noqa
+    app = QApplication([])
     print(select_recipients())

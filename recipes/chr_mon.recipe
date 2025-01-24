@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class CSMonitor(BasicNewsRecipe):
     title = 'The Christian Science Monitor - daily'
     __author__ = 'Darko Miletic'
-    description = 'The Christian Science Monitor is an international news organization that delivers thoughtful, global coverage via its website, weekly magazine, daily news briefing, and email newsletters.'  # noqa
+    description = 'The Christian Science Monitor is an international news organization that delivers thoughtful, global coverage via its website, weekly magazine, daily news briefing, and email newsletters.'
     publisher = 'The Christian Science Monitor'
     category = 'news, politics, USA'
     oldest_article = 2

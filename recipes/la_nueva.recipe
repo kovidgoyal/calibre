@@ -36,14 +36,14 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
             name='div', attrs={'id': ['noticia_texto']})
     ]
 
-    extra_css = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:150%; font-weight: 600; text-align: justify; } h2{ font-family: sans-serif; font-size:120%; font-weight: 500; text-align: justify } '  # noqa
+    extra_css = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:150%; font-weight: 600; text-align: justify; } h2{ font-family: sans-serif; font-size:120%; font-weight: 500; text-align: justify } '
 
     remove_tags_before = dict(name='div', attrs={'class': ['contenedor']})
     remove_tags_after = dict(name='div', attrs={'class': ['fin_noticia']})
 
     remove_tags = [
         dict(name='div', attrs={'class': ['epigrafe', 'antetitulo', 'bloqueclear', 'bloqueclear_video', 'cuadro_multimedia', 'cintillo2',
-                                          'editor_documentos', 'noticiadd', 'noticiadd3', 'noticiainterior', 'fin_noticia']}), dict(name='div', attrs={'id': ['evotos']})  # noqa
+                                          'editor_documentos', 'noticiadd', 'noticiadd3', 'noticiainterior', 'fin_noticia']}), dict(name='div', attrs={'id': ['evotos']})
     ]
 
     feeds = [

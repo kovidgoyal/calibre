@@ -138,7 +138,7 @@ class Clarin(BasicNewsRecipe):
                                      'ingresar_ingresar_email_paseInputComponent': self.username,
                                      'ingresar_ingresar_palabraClave_paseInputComponent': self.password,
                                      'ingresar_ingresar_ingresar_paseButton': 'Ingresar',
-                                     'javax.faces.ViewState': 'e1s1'  # noqa
+                                     'javax.faces.ViewState': 'e1s1'
                                      })
             br.open(self.LOGIN, data)
         return br

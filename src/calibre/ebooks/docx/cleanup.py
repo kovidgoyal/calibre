@@ -231,7 +231,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                     with open(path, 'rb') as imf:
                         fmt, width, height = identify(imf)
                 except:
-                    width, height, fmt = 0, 0, None  # noqa
+                    width, height, fmt = 0, 0, None
                 del fmt
                 try:
                     is_cover = 0.8 <= height/width <= 1.8 and height*width >= 160000

@@ -36,7 +36,7 @@ class Lanacion(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['iframe', 'embed', 'object', 'meta', 'link', 'button']), dict(attrs={'id': [
-            'herramientas-sociales', 'comunidad', 'ranking-nota', 'footer']}), dict(attrs={'class': ['mas-sobre-tema', 'cinturon-notas floatFix', 'cinturon-notas']})  # noqa
+            'herramientas-sociales', 'comunidad', 'ranking-nota', 'footer']}), dict(attrs={'class': ['mas-sobre-tema', 'cinturon-notas floatFix', 'cinturon-notas']})
     ]
 
     remove_tags_before = dict(attrs={'id': 'nota'})
