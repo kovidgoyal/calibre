@@ -20,7 +20,7 @@ quote-style = 'single'
 ignore = [
     'E402', 'E722', 'E741',
     'UP012', 'UP030', 'UP032', 'UP038', 'C413', 'C420',
-    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF034', 'RUF100',
+    'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',

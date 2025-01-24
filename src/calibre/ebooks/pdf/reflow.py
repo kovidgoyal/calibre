@@ -296,7 +296,7 @@ class Text(Element):
 
         self.font_size = max(self.font_size, other.font_size)
         self.font_size_em = max(self.font_size_em, other.font_size_em)
-        self.font = other.font if self.font_size == other.font_size else other.font
+        self.font = other.font
         if has_gap > 0:
             if has_gap < 3:  # Small number of spaces = 1 space
                 if not (self.text_as_string.endswith(' ') \

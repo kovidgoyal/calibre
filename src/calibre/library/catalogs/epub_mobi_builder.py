@@ -3176,7 +3176,7 @@ class CatalogBuilder:
                 fmt_string = _('Series beginning with %s')
             else:
                 fmt_string = _("Series beginning with '%s'")
-            sec_text = fmt_string % (title_letters[i] if len(title_letters[i]) > 1 else title_letters[i])
+            sec_text = fmt_string % title_letters[i]
             if title_letters[i] == self.SYMBOLS:
                 content_src = f'content/{output}.html#{self.SYMBOLS}_series'
             else:
@@ -3260,7 +3260,7 @@ class CatalogBuilder:
                 fmt_string = _('Titles beginning with %s')
             else:
                 fmt_string = _("Titles beginning with '%s'")
-            sec_text = fmt_string % (title_letters[i] if len(title_letters[i]) > 1 else title_letters[i])
+            sec_text = fmt_string % title_letters[i]
             if title_letters[i] == self.SYMBOLS:
                 content_src = f'content/{output}.html#{self.SYMBOLS}_titles'
             else:
