@@ -113,6 +113,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
                     ('', _('Category'), _('Value'), _('Icon file or template'),_('For children')))
         self.rules_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.rules_table.customContextMenuRequested.connect(self.show_context_menu)
+        self.rules_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         for i in range(0, HEADER_SECTION_COUNT):
             item = self.rules_table.horizontalHeaderItem(i)
