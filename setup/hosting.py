@@ -303,10 +303,8 @@ def generate_index():  # {{{
     body = []
     for series in rmap:
         body.append(
-            '<li><a href="{0}.html" title="Releases in the {0}.x series">{0}.x</a>\xa0\xa0\xa0<span style="font-size:smaller">[{1} releases]</span></li>'
-            .format(
-                '.'.join(map(str, series)), len(rmap[series])
-            )
+            '<li><a href="{0}.html" title="Releases in the {0}.x series">{0}.x</a>\xa0\xa0\xa0<span style="font-size:smaller">[{1} releases]</span></li>'  # noqa: E501
+            .format('.'.join(map(str, series)), len(rmap[series]))
         )
     body = '<ul>{}</ul>'.format(' '.join(body))
     index = template.format(

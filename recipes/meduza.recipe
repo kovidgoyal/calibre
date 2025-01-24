@@ -13,7 +13,7 @@ class Meduza(BasicNewsRecipe):
     oldest_article = 21
     max_articles_per_feed = 100
     language = 'en_RU'
-    cover_url = 'https://meduza.io/impro/E_cJMv0IQxOC45z-YXeGuzuPB2kQ_A1XsZYrdByOCnk/fill/1200/0/ce/0/aHR0cHM6Ly9tZWR1/emEuaW8vaW1hZ2Uv/YXR0YWNobWVudHMv/aW1hZ2VzLzAwNi83/MTgvODcyL29yaWdp/bmFsLzVPSmRDdWc1/bC1JVG9lTXBqSHFH/ZXcucG5n.png'
+    cover_url = 'https://meduza.io/impro/E_cJMv0IQxOC45z-YXeGuzuPB2kQ_A1XsZYrdByOCnk/fill/1200/0/ce/0/aHR0cHM6Ly9tZWR1/emEuaW8vaW1hZ2Uv/YXR0YWNobWVudHMv/aW1hZ2VzLzAwNi83/MTgvODcyL29yaWdp/bmFsLzVPSmRDdWc1/bC1JVG9lTXBqSHFH/ZXcucG5n.png'  # noqa: E501
     auto_cleanup = False
     no_stylesheets = False
 
