@@ -7,7 +7,7 @@ import os
 from calibre.prints import debug_print
 
 
-class Bookmark():  # {{{
+class Bookmark:  # {{{
     '''
     A simple class fetching bookmark data
     kobo-specific

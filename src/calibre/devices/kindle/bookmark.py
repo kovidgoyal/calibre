@@ -6,7 +6,7 @@ import os
 from struct import unpack
 
 
-class Bookmark():  # {{{
+class Bookmark:  # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific

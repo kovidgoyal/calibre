@@ -389,7 +389,7 @@ xmtf = (
 # }}}
 
 
-class BZZDecoder():
+class BZZDecoder:
 
     def __init__(self, infile, outfile):
         self.instream = infile

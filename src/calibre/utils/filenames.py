@@ -416,7 +416,7 @@ class WindowsAtomicFolderMove:
 
                 self.close_handles()
                 if e.winerror == winutil.ERROR_SHARING_VIOLATION:
-                    err = IOError(errno.EACCES,
+                    err = OSError(errno.EACCES,
                             _('File is open in another process'))
                     err.filename = f
                     raise err

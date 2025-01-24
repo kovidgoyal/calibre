@@ -17,11 +17,17 @@ exclude = [
 quote-style = 'single'
 
 [lint]
-ignore = ['E402', 'E722', 'E741']
-select = ['E', 'F', 'I', 'W', 'INT', 'Q']
+ignore = ['E402', 'E722', 'E741', 'UP012', 'UP030', 'UP031', 'UP032', 'UP038']
+select = ['E', 'F', 'I', 'W', 'INT', 'Q', 'UP']
 
 [lint.per-file-ignores]
+"recipes/*" = ['UP']
+"manual/plugin_examples/*" = ['UP']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
+"src/calibre/ebooks/metadata/sources/*" = ['UP']
+"src/calibre/gui2/store/stores/*" = ['UP']
+"src/calibre/gui2/tts/manager.py" = ['UP037']
+"src/calibre/utils/copy_files.py" = ['UP037']
 "src/qt/*.py" = ['I']
 "src/qt/*.pyi" = ['I']
 

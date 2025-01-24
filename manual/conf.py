@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # calibre documentation build configuration file, created by
 # sphinx-quickstart.py on Sun Mar 23 01:23:55 2008.
@@ -64,7 +63,7 @@ language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
 def generated_langs():
     try:
         return os.listdir(os.path.join(base, 'generated'))
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
     return ()
@@ -105,7 +104,7 @@ if needs_localization:
     import gettext
     try:
         t = gettext.translation('simple_index', locale_dirs[0], [language])
-    except IOError:
+    except OSError:
         pass
     else:
         title = t.gettext(title)
@@ -176,7 +175,7 @@ def sort_languages(x):
     lc, name = x
     if lc == language:
         return ''
-    return sort_key(type(u'')(name))
+    return sort_key(str(name))
 
 
 website = 'https://calibre-ebook.com'
@@ -193,13 +192,13 @@ extlinks = {
 }
 del sort_languages, get_language
 
-epub_author      = u'Kovid Goyal'
-epub_publisher   = u'Kovid Goyal'
-epub_copyright   = u'© {} Kovid Goyal'.format(date.today().year)
-epub_description = u'Comprehensive documentation for calibre'
-epub_identifier  = u'https://manual.calibre-ebook.com'
-epub_scheme      = u'url'
-epub_uid         = u'S54a88f8e9d42455e9c6db000e989225f'
+epub_author      = 'Kovid Goyal'
+epub_publisher   = 'Kovid Goyal'
+epub_copyright   = '© {} Kovid Goyal'.format(date.today().year)
+epub_description = 'Comprehensive documentation for calibre'
+epub_identifier  = 'https://manual.calibre-ebook.com'
+epub_scheme      = 'url'
+epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
 epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')

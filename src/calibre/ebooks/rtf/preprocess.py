@@ -14,7 +14,7 @@ In the process the UTF8 tokens are altered to be supported by the RTF2XML and al
 '''
 
 
-class tokenDelimitatorStart():
+class tokenDelimitatorStart:
 
     def __init__(self):
         pass
@@ -26,7 +26,7 @@ class tokenDelimitatorStart():
         return '{'
 
 
-class tokenDelimitatorEnd():
+class tokenDelimitatorEnd:
 
     def __init__(self):
         pass
@@ -38,7 +38,7 @@ class tokenDelimitatorEnd():
         return '}'
 
 
-class tokenControlWord():
+class tokenControlWord:
 
     def __init__(self, name, separator=''):
         self.name = name
@@ -51,7 +51,7 @@ class tokenControlWord():
         return self.name + self.separator
 
 
-class tokenControlWordWithNumericArgument():
+class tokenControlWordWithNumericArgument:
 
     def __init__(self, name, argument, separator=''):
         self.name = name
@@ -65,7 +65,7 @@ class tokenControlWordWithNumericArgument():
         return self.name + repr(self.argument) + self.separator
 
 
-class tokenControlSymbol():
+class tokenControlSymbol:
 
     def __init__(self, name):
         self.name = name
@@ -77,7 +77,7 @@ class tokenControlSymbol():
         return self.name
 
 
-class tokenData():
+class tokenData:
 
     def __init__(self, data):
         self.data = data
@@ -89,7 +89,7 @@ class tokenData():
         return self.data
 
 
-class tokenBinN():
+class tokenBinN:
 
     def __init__(self, data, separator=''):
         self.data = data
@@ -102,7 +102,7 @@ class tokenBinN():
         return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
 
-class token8bitChar():
+class token8bitChar:
 
     def __init__(self, data):
         self.data = data
@@ -114,7 +114,7 @@ class token8bitChar():
         return "\\'" + self.data
 
 
-class tokenUnicode():
+class tokenUnicode:
 
     def __init__(self, data, separator='', current_ucn=1, eqList=[]):
         self.data = data
@@ -155,7 +155,7 @@ def isString(buffer, string):
     return buffer == string
 
 
-class RtfTokenParser():
+class RtfTokenParser:
 
     def __init__(self, tokens):
         self.tokens = tokens
@@ -256,7 +256,7 @@ class RtfTokenParser():
         return ''.join(result)
 
 
-class RtfTokenizer():
+class RtfTokenizer:
 
     def __init__(self, rtfData):
         self.rtfData = []

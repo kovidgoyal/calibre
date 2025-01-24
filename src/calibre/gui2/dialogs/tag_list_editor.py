@@ -151,7 +151,7 @@ class NotesTableWidgetItem(QTableWidgetItem):
         return self._sort_val < other._sort_val
 
 
-class NotesUtilities():
+class NotesUtilities:
 
     def __init__(self, table, category, item_id_getter):
         self.table = table
