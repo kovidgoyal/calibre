@@ -54,11 +54,11 @@ def solve_captcha(captcha):
 
     # Parse into parts
     pattern = re.compile(
-            u'(?P<first_component>[0-9]+)?'
-            u'\\s*(?P<operator>[+×−])\\s*'
-            u'(?P<second_component>[0-9]+)'
-            u'\\s*(=)\\s*'
-            u'(?P<result>[0-9]+)?', re.UNICODE)
+            r'(?P<first_component>[0-9]+)?'
+            u'\\s*(?P<operator>[+×−])\\s*'  # noqa: RUF039
+            r'(?P<second_component>[0-9]+)'
+            r'\s*(=)\s*'
+            r'(?P<result>[0-9]+)?', re.UNICODE)
 
     calculationParts = re.search(pattern, numeric_problem)
     if calculationParts is None:

@@ -87,4 +87,4 @@ class Jadecoder(Unidecoder):
                 text = self.conv.do(text)
         except Exception:
             pass
-        return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
+        return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)

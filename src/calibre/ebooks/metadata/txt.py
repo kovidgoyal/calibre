@@ -31,7 +31,7 @@ def get_metadata(stream, extract_cover=True):
 
     mdata = mdata[:1024]
 
-    mo = re.search('(?u)^[ ]*(?P<title>.+)[ ]*(\n{3}|(\r\n){3}|\r{3})[ ]*(?P<author>.+)[ ]*(\n|\r\n|\r)$', mdata)
+    mo = re.search(r'(?u)^[ ]*(?P<title>.+)[ ]*(\n{3}|(\r\n){3}|\r{3})[ ]*(?P<author>.+)[ ]*(\n|\r\n|\r)$', mdata)
     if mo is not None:
         mi.title = mo.group('title')
         mi.authors = mo.group('author').split(',')

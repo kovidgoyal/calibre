@@ -16,5 +16,5 @@ class Android_com_pl(BasicNewsRecipe):
     remove_tags_after = [{'class': 'post-content'}]
     remove_tags = [dict(name='ul', attrs={'class': 'tags small-tags'}), dict(name='a', attrs={'onclick': 'return ss_plugin_loadpopup_js(this);'})]
     preprocess_regexps = [
-        (re.compile(u'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
+        (re.compile(r'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
     feeds = [(u'Android', u'http://android.com.pl/feed/')]

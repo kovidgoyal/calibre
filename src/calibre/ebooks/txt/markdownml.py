@@ -58,7 +58,7 @@ class MarkdownMLizer(OEB2HTML):
         # Remove tabs that aren't at the beginning of a line
         new_text = []
         for l in text.splitlines():
-            start = re.match('\t+', l)
+            start = re.match(r'\t+', l)
             if start:
                 start = start.group()
             else:
@@ -71,7 +71,7 @@ class MarkdownMLizer(OEB2HTML):
         text = re.sub(r'(?msu)^[ ]+$', '', text)
 
         # Reduce blank lines
-        text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
+        text = re.sub(r'(?msu)\n{7,}', '\n' * 6, text)
 
         # Remove blank lines at beginning and end of document.
         text = re.sub(r'^\s*', '', text)

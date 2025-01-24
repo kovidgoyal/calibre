@@ -94,4 +94,4 @@ def unescape(text, rm=False, rchar=''):
         if rm:
             return rchar  # replace by char
         return text  # leave as is
-    return re.sub('&#?\\w+;', fixup, text)
+    return re.sub(r'&#?\w+;', fixup, text)

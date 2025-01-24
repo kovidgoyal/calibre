@@ -34,7 +34,7 @@ class NjuzNet(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
 
     keep_only_tags = [
         dict(attrs={'id': 'entryMeta'}), dict(attrs={'class': 'post'})

@@ -503,7 +503,7 @@ class EPUBOutput(OutputFormatPlugin):
                     tag.tag = XHTML('div')
 
             # ADE fails to render non breaking hyphens/soft hyphens/zero width spaces
-            special_chars = re.compile('[\u200b\u00ad]')
+            special_chars = re.compile(r'[\u200b\u00ad]')
             for elem in root.iterdescendants('*'):
                 if elem.text:
                     elem.text = special_chars.sub('', elem.text)

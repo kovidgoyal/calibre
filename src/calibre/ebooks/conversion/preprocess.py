@@ -94,7 +94,7 @@ class DocAnalysis:
         elif format == 'spanned_html':
             linere = re.compile(r'(?<=<span).*?(?=</span>)', re.DOTALL)
         elif format == 'txt':
-            linere = re.compile('.*?\n')
+            linere = re.compile(r'.*?\n')
         self.lines = linere.findall(raw)
 
     def line_length(self, percent):

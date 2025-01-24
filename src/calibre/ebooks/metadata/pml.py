@@ -42,21 +42,21 @@ def get_metadata(stream, extract_cover=True):
     for comment in re.findall(br'(?ms)\\v.*?\\v', pml):
         m = re.search(br'TITLE="(.*?)"', comment)
         if m:
-            mi.title = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
+            mi.title = re.sub(r'[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(br'AUTHOR="(.*?)"', comment)
         if m:
             if mi.authors == [_('Unknown')]:
                 mi.authors = []
-            mi.authors.append(re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace'))))
+            mi.authors.append(re.sub(r'[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace'))))
         m = re.search(br'PUBLISHER="(.*?)"', comment)
         if m:
-            mi.publisher = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
+            mi.publisher = re.sub(r'[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(br'COPYRIGHT="(.*?)"', comment)
         if m:
-            mi.rights = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
+            mi.rights = re.sub(r'[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
         m = re.search(br'ISBN="(.*?)"', comment)
         if m:
-            mi.isbn = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
+            mi.isbn = re.sub(r'[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
 
     return mi
 

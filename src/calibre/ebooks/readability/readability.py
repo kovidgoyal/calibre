@@ -61,8 +61,8 @@ def to_int(x):
 
 
 def clean(text):
-    text = re.sub('\\s*\n\\s*', '\n', text)
-    text = re.sub('[ \t]{2,}', ' ', text)
+    text = re.sub(r'\s*\n\s*', '\n', text)
+    text = re.sub(r'[ \t]{2,}', ' ', text)
     return text.strip()
 
 

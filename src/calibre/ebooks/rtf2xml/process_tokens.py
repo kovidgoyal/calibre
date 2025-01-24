@@ -719,7 +719,7 @@ class ProcessTokens:
     def divide_num(self, numerator, denominator):
         try:
             # calibre why ignore negative number? Wrong in case of \fi
-            numerator = float(re.search('[0-9.\\-]+', numerator).group())
+            numerator = float(re.search(r'[0-9.\-]+', numerator).group())
         except TypeError:
             if self.__run_level > 3:
                 msg = ('No number to process?\nthis indicates that the token \\(\\li\\) \

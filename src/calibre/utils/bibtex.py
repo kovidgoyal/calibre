@@ -2553,7 +2553,7 @@ class BibTeX:
         self.ascii_bibtex = True
         # This substitution is based on the description of cite key restrictions at
         # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
-        self.invalid_cit = re.compile('[ "@\',\\#}{~%&$^]')
+        self.invalid_cit = re.compile(r'[ "@\',\#}{~%&$^]')
         self.upper = re.compile('[' +
             string.ascii_uppercase + ']')
         self.escape = re.compile(r'[#&%_]')

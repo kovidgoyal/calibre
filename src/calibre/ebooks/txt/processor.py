@@ -31,7 +31,7 @@ def clean_txt(txt):
     txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
 
     # Replace whitespace at the beginning of the line with &nbsp;
-    txt = re.sub('(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
+    txt = re.sub(r'(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
 
     # Condense redundant spaces
     txt = re.sub(r'[ ]{2,}', ' ', txt)
@@ -40,7 +40,7 @@ def clean_txt(txt):
     txt = re.sub(r'^\s+(?=.)', '', txt)
     txt = re.sub(r'(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
-    txt = re.sub('\n{5,}', '\n\n\n\n', txt)
+    txt = re.sub(r'\n{5,}', '\n\n\n\n', txt)
     # remove ASCII invalid chars : 0 to 8 and 11-14 to 24
     txt = clean_ascii_chars(txt)
 
@@ -190,7 +190,7 @@ def separate_paragraphs_single_line(txt):
 
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub('(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
+    txt = re.sub(r'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
     return txt
 
 

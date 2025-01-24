@@ -296,7 +296,7 @@ class RTFInput(InputFormatPlugin):
             res = as_bytes(transform.tostring(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # clean multiple \n
-            res = re.sub(b'\n+', b'\n', res)
+            res = re.sub(br'\n+', b'\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
             # res = re.sub('\s*<body>', '<body>', res)
             # res = re.sub('(?<=\n)\n{2}',

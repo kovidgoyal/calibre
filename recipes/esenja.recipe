@@ -45,9 +45,7 @@ class Esensja(BasicNewsRecipe):
                             '''
 
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
-                          ]
+                          (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.esensja.pl/magazyn/')

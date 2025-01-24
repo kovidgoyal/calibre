@@ -45,7 +45,7 @@ class Nspm(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
     remove_tags = [dict(name=['link', 'script', 'meta', 'base', 'img'])]
     remove_attributes = ['width', 'height', 'lang', 'xmlns:fb',
                          'xmlns:og', 'vspace', 'hspace', 'type', 'start', 'size']

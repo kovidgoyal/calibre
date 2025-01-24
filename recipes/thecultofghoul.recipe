@@ -27,7 +27,7 @@ class TheCultOfGhoul(BasicNewsRecipe):
         'comment': description, 'tags': 'film, blog, srbija, strava, uzas', 'publisher': 'Dejan Ognjanovic', 'language': language
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
 
     feeds = [(u'Posts', u'http://cultofghoul.blogspot.com/feeds/posts/default')]
 

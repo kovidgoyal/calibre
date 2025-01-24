@@ -57,8 +57,8 @@ class HeuristicProcessor:
                     ' chapters. - ' + str(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
-            delete_whitespace = re.compile('^\\s*(?P<c>.*?)\\s*$')
-            delete_quotes = re.compile('\'"')
+            delete_whitespace = re.compile(r'^\s*(?P<c>.*?)\s*$')
+            delete_quotes = re.compile(r'\'"')
             txt_chap = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(chap)))
             txt_title = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
@@ -109,7 +109,7 @@ class HeuristicProcessor:
         be marked up to return true.
         '''
         htm_end_ere = re.compile(r'</(p|div)>', re.DOTALL)
-        line_end_ere = re.compile('(\n|\r|\r\n)', re.DOTALL)
+        line_end_ere = re.compile(r'(\n|\r|\r\n)', re.DOTALL)
         htm_end = htm_end_ere.findall(raw)
         line_end = line_end_ere.findall(raw)
         tot_htm_ends = len(htm_end)
@@ -417,7 +417,7 @@ class HeuristicProcessor:
             # Add markup naively
             # TODO - find out if there are cases where there are more than one <pre> tag or
             # other types of unmarked html and handle them in some better fashion
-            add_markup = re.compile('(?<!>)(\n)')
+            add_markup = re.compile(r'(?<!>)(\n)')
             html = add_markup.sub('</p>\n<p>', html)
         return html
 
@@ -440,7 +440,7 @@ class HeuristicProcessor:
         # Get rid of empty <o:p> tags to simplify other processing
         html = re.sub(r'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
-        html = re.sub('(?i)</?st1:\\w+>', '', html)
+        html = re.sub(r'(?i)</?st1:\w+>', '', html)
         # Re-open self closing paragraph tags
         html = re.sub(r'<p[^>/]*/>', '<p> </p>', html)
         # Get rid of empty span, bold, font, em, & italics tags
@@ -451,7 +451,7 @@ class HeuristicProcessor:
             html = re.sub(
                 r'\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}'.format(open=open_fmt_pat, close=close_fmt_pat) , ' ', html)
         # delete surrounding divs from empty paragraphs
-        html = re.sub('<div[^>]*>\\s*<p[^>]*>\\s*</p>\\s*</div>', '<p> </p>', html)
+        html = re.sub(r'<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Empty heading tags
         html = re.sub(r'(?i)<h\d+>\s*</h\d+>', '', html)
         self.deleted_nbsps = True
@@ -538,7 +538,7 @@ class HeuristicProcessor:
             elif content.find('scenebreak') != -1:
                 return content
             else:
-                content = re.sub('(?i)<h(?P<hnum>\\d+)[^>]*>', '\n\n<h'+'\\g<hnum>'+' style="'+top_margin+bottom_margin+'">', content)
+                content = re.sub(r'(?i)<h(?P<hnum>\d+)[^>]*>', r'\n\n<h\g<hnum> style="'+top_margin+bottom_margin+'">', content)
             return content
 
         html = blanks_around_headings.sub(merge_header_whitespace, html)
@@ -551,7 +551,7 @@ class HeuristicProcessor:
 
         html = blanks_n_nopunct.sub(markup_whitespaces, html)
         if self.html_preprocess_sections > self.min_chapters:
-            html = re.sub('(?si)^.*?(?=<h\\d)', markup_whitespaces, html)
+            html = re.sub(r'(?si)^.*?(?=<h\d)', markup_whitespaces, html)
 
         return html
 
@@ -600,13 +600,13 @@ class HeuristicProcessor:
             if re.match(r'^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
                     try:
-                        width = int(re.sub('.*?width(:|=)(?P<wnum>\\d+).*', '\\g<wnum>', replacement_break))
+                        width = int(re.sub(r'.*?width(:|=)(?P<wnum>\d+).*', r'\g<wnum>', replacement_break))
                     except:
                         scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
                         self.log.warn('Invalid replacement scene break'
                                 ' expression, using default')
                     else:
-                        replacement_break = re.sub('(?i)(width=\\d+\\%?|width:\\s*\\d+(\\%|px|pt|em)?;?)', '', replacement_break)
+                        replacement_break = re.sub(r'(?i)(width=\d+\\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
                         divpercent = (100 - width) // 2
                         hr_open = re.sub(r'45', str(divpercent), hr_open)
                         scene_break = hr_open+replacement_break+'</div>'
@@ -617,24 +617,24 @@ class HeuristicProcessor:
             else:
                 from calibre.utils.html2text import html2text
                 replacement_break = html2text(replacement_break)
-                replacement_break = re.sub('\\s', '&nbsp;', replacement_break)
+                replacement_break = re.sub(r'\s', '&nbsp;', replacement_break)
                 scene_break = self.scene_break_open+replacement_break+'</p>'
         else:
-            replacement_break = re.sub('\\s', '&nbsp;', replacement_break)
+            replacement_break = re.sub(r'\s', '&nbsp;', replacement_break)
             scene_break = self.scene_break_open+replacement_break+'</p>'
 
         return scene_break
 
     def check_paragraph(self, content):
-        content = re.sub('\\s*</?span[^>]*>\\s*', '', content)
-        if re.match('.*["\'.!?:]$', content):
+        content = re.sub(r'\s*</?span[^>]*>\s*', '', content)
+        if re.match(r'.*["\'.!?:]$', content):
             # print('detected this as a paragraph')
             return True
         else:
             return False
 
     def abbyy_processor(self, html):
-        abbyy_line = re.compile('((?P<linestart><p\\sstyle="(?P<styles>[^"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
+        abbyy_line = re.compile(r'((?P<linestart><p\sstyle="(?P<styles>[^"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
         empty_paragraph = '\n<p> </p>\n'
         self.in_blockquote = False
         self.previous_was_paragraph = False
@@ -680,7 +680,7 @@ class HeuristicProcessor:
                     if style == 'text-align' and setting != 'left':
                         text_align = style+':'+setting+';'
                     if style == 'text-indent':
-                        setting = int(re.sub('\\s*pt\\s*', '', setting))
+                        setting = int(re.sub(r'\s*pt\s*', '', setting))
                         if 9 < setting < 14:
                             text_indent = indented_text
                         else:
@@ -853,7 +853,7 @@ class HeuristicProcessor:
         # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
             self.log.debug('Formatting scene breaks')
-            html = re.sub('(?i)<div[^>]*>\\s*<br(\\s?/)?>\\s*</div>', '<p></p>', html)
+            html = re.sub(r'(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
             html = self.detect_scene_breaks(html)
             html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
@@ -870,9 +870,9 @@ class HeuristicProcessor:
                 replacement_break = self.markup_user_break(replacement_break)
                 if scene_break_count >= 1:
                     html = detected_scene_break.sub(replacement_break, html)
-                    html = re.sub('<p\\s+class="softbreak"[^>]*>\\s*</p>', replacement_break, html)
+                    html = re.sub(r'<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
                 else:
-                    html = re.sub('<p\\s+class="softbreak"[^>]*>\\s*</p>', replacement_break, html)
+                    html = re.sub(r'<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly

@@ -23,7 +23,7 @@ class FilmWebPl(BasicNewsRecipe):
                       'ul.sep-line > li + li::before {content: " | "} '
                       'ul.inline {padding:0px;} .vertical-align {display: inline-block;}')
     preprocess_regexps = [(re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''),  # fix malformed HTML with 2 body tags...
-    (re.compile(u'(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),
+    (re.compile(u'(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
     (re.compile(type(u'')(r'(<br ?/?>\s*?<br ?/?>\s*?)+'), re.IGNORECASE), lambda m: '<br />')
     ]
     remove_tags = [dict(attrs={'class':['infoParent', 'likeBar',

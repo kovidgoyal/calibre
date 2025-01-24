@@ -94,7 +94,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 raw = re.sub(r'<a id="(\d+)"', r'<a id="p\1"', raw, flags=re.I)
                 raw = re.sub(r'<a href="index.html#(\d+)"', r'<a href="#p\1"', raw, flags=re.I)
                 raw = xml_replace_entities(raw)
-                raw = re.sub('[\u00a0\u2029]', ' ', raw)
+                raw = re.sub(r'[\u00a0\u2029]', ' ', raw)
 
                 i.write(raw.encode('utf-8'))
 

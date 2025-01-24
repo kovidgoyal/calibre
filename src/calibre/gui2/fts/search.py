@@ -733,7 +733,7 @@ class ResultDetails(QWidget):
     def render_results(self, results, individual_match=None):
         html = []
         space_pat = re.compile(r'\s+')
-        markup_pat = re.compile('\x1d')
+        markup_pat = re.compile(r'\x1d')
 
         def markup_text(text):
             count = 0

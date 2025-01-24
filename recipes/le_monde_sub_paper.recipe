@@ -66,7 +66,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'po-copy'})
     ]
 
-    article_id_pattern = re.compile('[0-9]+\\.html')
+    article_id_pattern = re.compile(r'[0-9]+\.html')
     article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
 
     def get_browser(self):

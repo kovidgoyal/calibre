@@ -193,7 +193,7 @@ def load_dictionary(dictionary):
 class Dictionaries:
 
     def __init__(self):
-        self.remove_hyphenation = re.compile('[\u2010-]+')
+        self.remove_hyphenation = re.compile(r'[\u2010-]+')
         self.negative_pat = re.compile(r'-[.\d+]')
         self.fix_punctuation_pat = re.compile(r'''[:.]''')
         self.dictionaries = {}

@@ -41,7 +41,7 @@ class Blic(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
     remove_tags_before = dict(name='div', attrs={'id': 'article_info'})
     remove_tags = [
         dict(name=['object', 'link', 'meta', 'base', 'object', 'embed'])]

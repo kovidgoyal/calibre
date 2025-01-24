@@ -73,7 +73,7 @@ class Unidecoder:
 
     def decode(self, text):
         # Replace characters larger than 127 with their ASCII equivalent.
-        return re.sub('[^\x00-\x7f]',lambda x: self.replace_point(x.group()), text)
+        return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
 
     def replace_point(self, codepoint):
         '''

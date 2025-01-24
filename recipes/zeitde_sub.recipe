@@ -48,7 +48,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
     preprocess_regexps = [
         # filtering for correct dashes ("Gedankenstrich" and "bis")
-        (re.compile(u' (-|\u2212)(?=[ ,])'), lambda match: u' \u2013'),
+        (re.compile(u' (-|\u2212)(?=[ ,])'), lambda match: u' \u2013'),  # noqa: RUF039
         (re.compile(r'(?<=\d)-(?=\d)'), lambda match: u'\u2013'),  # number-number
         (re.compile(r'(?<=\d,)-(?= ?\u20AC)'), lambda match: u'\u2013'),  # ,- Euro
         # fix the number dash number dash for the title image that was broken
@@ -130,9 +130,9 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         (re.compile(
             r'(?<=<p class="absatz">[A-ZÄÖÜ]) (?=[a-zäöü\-])'), lambda match: ''),
         # before closing quotation
-        (re.compile(u' \u00AB'), lambda match: u'\u00AB '),
+        (re.compile(u' \u00AB'), lambda match: u'\u00AB '),  # noqa: RUF039
         # after opening quotation
-        (re.compile(u'\u00BB '), lambda match: u' \u00BB'),
+        (re.compile(u'\u00BB '), lambda match: u' \u00BB'),  # noqa: RUF039
         # filtering for spaces in large numbers for better readability
         # end of the number with some character following
         (re.compile(r'(?<=\d\d)(?=\d\d\d[ ,;\)<\?!-])'),
@@ -151,25 +151,25 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         # filtering for unicode characters that are missing on the Kindle,
         # try to replace them with meaningful work-arounds
         # subscript-0
-        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 40%;">0</span>'),
+        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 40%;">0</span>'),  # noqa: RUF039
         # subscript-1
-        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 40%;">1</span>'),
+        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 40%;">1</span>'),  # noqa: RUF039
         # subscript-2
-        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 40%;">2</span>'),
+        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 40%;">2</span>'),  # noqa: RUF039
         # subscript-3
-        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 40%;">3</span>'),
+        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 40%;">3</span>'),  # noqa: RUF039
         # subscript-4
-        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 40%;">4</span>'),
+        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 40%;">4</span>'),  # noqa: RUF039
         # subscript-5
-        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 40%;">5</span>'),
+        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 40%;">5</span>'),  # noqa: RUF039
         # subscript-6
-        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 40%;">6</span>'),
+        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 40%;">6</span>'),  # noqa: RUF039
         # subscript-7
-        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 40%;">7</span>'),
+        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 40%;">7</span>'),  # noqa: RUF039
         # subscript-8
-        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 40%;">8</span>'),
+        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 40%;">8</span>'),  # noqa: RUF039
         # subscript-9
-        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 40%;">9</span>'),
+        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 40%;">9</span>'),  # noqa: RUF039
         # always chance CO2
         (re.compile(r'CO2'), lambda match: 'CO<span style="font-size: 40%;">2</span>'),  # CO2
         # remove *** paragraphs

@@ -39,7 +39,7 @@ attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
 cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
-nbsp_pat = re.compile('[\xa0\u2000-\u200A\u202F\u205F\u3000\u2011-\u2015\uFE58\uFE63\uFF0D]+')  # special spaces and hyphens
+nbsp_pat = re.compile(r'[\xa0\u2000-\u200A\u202F\u205F\u3000\u2011-\u2015\uFE58\uFE63\uFF0D]+')  # special spaces and hyphens
 
 NORMAL = 0
 IN_OPENING_TAG = 1

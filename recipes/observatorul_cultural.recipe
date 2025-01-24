@@ -31,8 +31,7 @@ class ObservatorulCultural(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup(
             'http://www.observatorcultural.ro/Arhiva*-archive.html')
-        issueTag = soup.find('a', href=re.compile(
-            'observatorcultural.ro\\/Numarul'))
+        issueTag = soup.find('a', href=re.compile(r'observatorcultural.ro/Numarul'))
         issueURL = issueTag['href']
         print(issueURL)
         issueSoup = self.index_to_soup(issueURL)

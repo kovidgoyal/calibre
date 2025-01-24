@@ -119,7 +119,7 @@ class NumberToText:  # {{{
             self.text = NumberToText(self.number.replace('%',' percent')).text
 
         # Test for decimal
-        elif re.search('\\.',self.number):
+        elif '.' in self.number:
             if self.verbose:
                 self.log('Decimal: %s' % self.number)
             self.number_as_float = self.number
@@ -150,7 +150,7 @@ class NumberToText:  # {{{
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'
-        elif re.search('[\\D]+', self.number):
+        elif re.search(r'[\D]+', self.number):
             if self.verbose:
                 self.log('Hybrid: %s' % self.number)
             # Split the token into number/text

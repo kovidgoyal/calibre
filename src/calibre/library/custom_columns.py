@@ -674,7 +674,7 @@ class CustomColumns:
             editable=True, display={}):
         if not label:
             raise ValueError(_('No label was provided'))
-        if re.match('^\\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+        if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)

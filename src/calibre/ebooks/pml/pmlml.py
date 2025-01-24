@@ -196,7 +196,7 @@ class PMLMLizer:
 
         # Turn all characters that cannot be represented by themself into their
         # PML code equivalent
-        text = re.sub('[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
+        text = re.sub(r'[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
 
         # Remove excess spaces at beginning and end of lines
         text = re.sub(r'(?m)^[ ]+', '', text)
@@ -209,14 +209,14 @@ class PMLMLizer:
         text = re.sub(r'(\\c\s*\\c\s*){2,}', r'\\c \n\\c\n', text)
 
         # Remove excessive newlines.
-        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub(r'\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
-            text = re.sub('\n{2,}', '\n', text)
+            text = re.sub(r'\n{2,}', '\n', text)
             # Only indent lines that don't have special formatting
             text = re.sub(r'(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
                           if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
         else:
-            text = re.sub('\n{3,}', '\n\n', text)
+            text = re.sub(r'\n{3,}', '\n\n', text)
 
         return text
 
