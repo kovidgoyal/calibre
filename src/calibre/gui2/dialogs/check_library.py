@@ -421,14 +421,14 @@ class CheckLibraryDialog(QDialog):
             self.log.blockSignals(True)
             if col:
                 node.setCheckState(col, to_what)
-            for i in range(0, node.childCount()):
+            for i in range(node.childCount()):
                 node.child(i).setCheckState(2, to_what)
             self.log.blockSignals(False)
 
         def is_child_delete_checked(node):
             checked = False
             all_checked = True
-            for i in range(0, node.childCount()):
+            for i in range(node.childCount()):
                 c = node.child(i).checkState(2)
                 checked = checked or c == Qt.CheckState.Checked
                 all_checked = all_checked and c == Qt.CheckState.Checked
@@ -522,7 +522,7 @@ class CheckLibraryDialog(QDialog):
     def fix_missing_formats(self):
         tl = self.top_level_items['missing_formats']
         child_count = tl.childCount()
-        for i in range(0, child_count):
+        for i in range(child_count):
             item = tl.child(i)
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
@@ -535,7 +535,7 @@ class CheckLibraryDialog(QDialog):
     def fix_missing_covers(self):
         tl = self.top_level_items['missing_covers']
         child_count = tl.childCount()
-        for i in range(0, child_count):
+        for i in range(child_count):
             item = tl.child(i)
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, False)
@@ -543,7 +543,7 @@ class CheckLibraryDialog(QDialog):
     def fix_extra_covers(self):
         tl = self.top_level_items['extra_covers']
         child_count = tl.childCount()
-        for i in range(0, child_count):
+        for i in range(child_count):
             item = tl.child(i)
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, True)

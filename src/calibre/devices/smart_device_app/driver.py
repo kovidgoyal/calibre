@@ -1303,7 +1303,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if will_use_cache:
                 books_on_device = []
                 self._debug('caching. count=', count)
-                for i in range(0, count):
+                for i in range(count):
                     opcode, result = self._receive_from_client(print_debug_info=False)
                     books_on_device.append(result)
 
@@ -1356,7 +1356,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._call_client('NOOP', {'priKey':priKey},
                                   print_debug_info=False, wait_for_response=False)
 
-            for i in range(0, count):
+            for i in range(count):
                 if (i % 100) == 0:
                     self._debug('getting book metadata. Done', i, 'of', count)
                 opcode, result = self._receive_from_client(print_debug_info=False)
@@ -1539,7 +1539,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for path in paths:
             new_paths.append(self._strip_prefix(path))
         opcode, result = self._call_client('DELETE_BOOK', {'lpaths': new_paths})
-        for i in range(0, len(new_paths)):
+        for i in range(len(new_paths)):
             opcode, result = self._receive_from_client(False)
             self._debug('removed book with UUID', result['uuid'])
         self._debug('removed', len(new_paths), 'books')

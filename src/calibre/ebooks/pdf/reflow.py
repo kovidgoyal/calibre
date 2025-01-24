@@ -517,7 +517,7 @@ class Column:
     def collect_stats(self):
         if len(self.elements) > 1:
             gaps = [self.elements[i+1].top - self.elements[i].bottom for i in
-                    range(0, len(self.elements)-1)]
+                    range(len(self.elements)-1)]
             self.average_line_separation = sum(gaps)/len(gaps)
         for i, elem in enumerate(self.elements):
             left_margin = elem.left - self.left

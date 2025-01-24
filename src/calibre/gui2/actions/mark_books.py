@@ -37,7 +37,7 @@ class MarkWithTextDialog(QDialog):
 
         history = textbox.all_items
         button_rows = min(4, len(history)-1)
-        for i in range(0, button_rows):
+        for i in range(button_rows):
             if i == 0:
                 layout.addWidget(QLabel(_('Recently used values:')), 0, 0, 1, 2)
             button = QPushButton()

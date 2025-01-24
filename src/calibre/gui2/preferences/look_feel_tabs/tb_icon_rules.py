@@ -115,7 +115,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         self.rules_table.customContextMenuRequested.connect(self.show_context_menu)
         self.rules_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
-        for i in range(0, HEADER_SECTION_COUNT):
+        for i in range(HEADER_SECTION_COUNT):
             item = self.rules_table.horizontalHeaderItem(i)
             if i == DELETED_COLUMN:
                 item.setIcon(QIcon.cached_icon('trash.png'))
@@ -221,7 +221,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.rules_table.columnCount()):
+        for c in range(self.rules_table.columnCount()):
             self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
@@ -236,7 +236,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             # widths will be remembered.
             w = self.tb_icon_rules_groupbox.width() - 25 - self.rules_table.verticalHeader().width()
             w //= self.rules_table.columnCount()
-            for c in range(0, self.rules_table.columnCount()):
+            for c in range(self.rules_table.columnCount()):
                 self.rules_table.setColumnWidth(c, w)
                 self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
@@ -258,7 +258,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
     def commit(self):
         rr = ConfigWidgetBase.commit(self)
         v = copy.deepcopy(gprefs['tags_browser_value_icons'])
-        for r in range(0, self.rules_table.rowCount()):
+        for r in range(self.rules_table.rowCount()):
             cat_item = self.rules_table.item(r, CATEGORY_COLUMN)
             if cat_item.is_deleted:
                 val = self.rules_table.item(r, VALUE_COLUMN).real_value

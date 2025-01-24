@@ -409,7 +409,7 @@ class SearchDialog(QDialog):
         template, sep, query = re.split(r'#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)
         self.template_value_box.setText(query)
         cb = self.template_test_type_box
-        for idx in range(0, cb.count()):
+        for idx in range(cb.count()):
             if sep == str(cb.itemData(idx)):
                 cb.setCurrentIndex(idx)
                 break

@@ -126,7 +126,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
         # articleList = []
         ans = []
         feedsCount = len(self.feeds)
-        for x in range(0, feedsCount - 1):  # should be ,4
+        for x in range(feedsCount - 1):  # should be ,4
             feedarticles = self.parsePage(x)
             if feedarticles is not None:
                 ans.append((self.feeds[x][0], feedarticles))

@@ -164,7 +164,7 @@ class mssha1:
         D = self.H3
         E = self.H4
 
-        for t in range(0, 80):
+        for t in range(80):
             TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t//20]
             E = D
             D = C

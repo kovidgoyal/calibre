@@ -346,7 +346,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         select_item = None
         if id_to_select:
             use_as = tweaks['categories_use_field_for_author_name'] == 'author_sort'
-            for row in range(0, len(auts_to_show)):
+            for row in range(len(auts_to_show)):
                 if is_first_letter:
                     item_txt = str(self.table.item(row, AUTHOR_SORT_COLUMN).text() if use_as
                                                 else self.table.item(row, AUTHOR_COLUMN).text())
@@ -382,7 +382,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def save_state(self):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
         gprefs['general_category_editor_row_height'] = self.table.verticalHeader().sectionSize(0)
         gprefs['manage_authors_table_widths'] = self.table_column_widths
@@ -390,7 +390,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def resizeEvent(self, *args):
@@ -404,7 +404,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
             w //= self.table.columnCount()
-            for c in range(0, self.table.columnCount()):
+            for c in range(self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
         self.save_state()
 
@@ -543,7 +543,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         st = icu_lower(str(self.find_box.currentText()))
         if not st:
             return
-        for _ in range(0, self.table.rowCount()*2):
+        for _ in range(self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
             r = (self.start_find_pos//2) % self.table.rowCount()
             c = self.start_find_pos % 2
@@ -600,7 +600,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def do_recalc_author_sort(self):
         with self.no_cell_changed():
-            for row in range(0,self.table.rowCount()):
+            for row in range(self.table.rowCount()):
                 item_aut = self.table.item(row, AUTHOR_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
                 aut  = str(item_aut.text()).strip()
@@ -620,7 +620,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def do_auth_sort_to_author(self):
         with self.no_cell_changed():
-            for row in range(0,self.table.rowCount()):
+            for row in range(self.table.rowCount()):
                 aus  = str(self.table.item(row, AUTHOR_SORT_COLUMN).text()).strip()
                 item_aut = self.table.item(row, AUTHOR_COLUMN)
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))

@@ -211,7 +211,7 @@ class RBMLizer:
             text += self.dump_text(item, stylizer, page, tag_stack)
 
         close_tag_list = []
-        for i in range(0, tag_count):
+        for i in range(tag_count):
             close_tag_list.insert(0, tag_stack.pop())
 
         text += self.close_tags(close_tag_list)
@@ -223,7 +223,7 @@ class RBMLizer:
 
     def close_tags(self, tags):
         text = ['']
-        for i in range(0, len(tags)):
+        for i in range(len(tags)):
             tag = tags.pop()
             text.append('</%s>' % tag)
 

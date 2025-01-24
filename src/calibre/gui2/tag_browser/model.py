@@ -797,7 +797,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         cur_idx = 0
                         for interval in intervals:
                             first_chr, last_chr, length = interval
-                            for i in range(0, length):
+                            for i in range(length):
                                 if first_chr == last_chr:
                                     cl_list[cur_idx] = first_chr
                                 else:

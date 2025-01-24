@@ -151,7 +151,7 @@ class DocAnalysis:
         #         max = l
         # print('max line found is '+str(max))
         # Build the line length histogram
-        hRaw = [0 for i in range(0,buckets)]
+        hRaw = [0 for i in range(buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
@@ -170,7 +170,7 @@ class DocAnalysis:
 
         # Find the biggest bucket
         maxValue = 0
-        for i in range(0,len(h)):
+        for i in range(len(h)):
             if h[i] > maxValue:
                 maxValue = h[i]
 

@@ -278,7 +278,7 @@ class RTFMLizer:
         for item in elem:
             text += self.dump_text(item, stylizer, tag_stack)
 
-        for i in range(0, tag_count):
+        for i in range(tag_count):
             end_tag =  tag_stack.pop()
             if end_tag != 'block':
                 if tag in BLOCK_TAGS:

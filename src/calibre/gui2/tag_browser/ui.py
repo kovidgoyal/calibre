@@ -97,7 +97,7 @@ class TagBrowserMixin:  # {{{
         if idx is not None and idx.isValid():
             col = idx.column()
             model = self.library_view.model()
-            if col in range(0, len(model.column_map)):
+            if col in range(len(model.column_map)):
                 current_cat = model.column_map[col]
                 if current_cat in ('authors', 'series', 'publisher', 'tags') or current_cat in cust_cats:
                     cdn = cat_display_name(current_cat) or current_cat

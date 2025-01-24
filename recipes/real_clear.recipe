@@ -84,7 +84,7 @@ class RealClear(BasicNewsRecipe):
         baseParse = urlparse(pageURL)
         baseURL = baseParse[0] + '://' + baseParse[1]
         hintsCount = len(self.printhints)
-        for x in range(0, hintsCount):
+        for x in range(hintsCount):
             if pageURL.find(self.printhints[x][0]) == -1:
                 continue
             print('Trying ' + self.printhints[x][0])
@@ -218,7 +218,7 @@ class RealClear(BasicNewsRecipe):
         # articleList = []
         ans = []
         feedsCount = len(self.feedsets)
-        for x in range(0, feedsCount):  # should be ,4
+        for x in range(feedsCount):  # should be ,4
             feedarticles = self.parseRSS(x)
             if feedarticles is not None:
                 ans.append((self.feedsets[x][0], feedarticles))

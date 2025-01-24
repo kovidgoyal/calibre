@@ -32,7 +32,7 @@ class brewiarz(BasicNewsRecipe):
         now = datetime.datetime.now()
 
         feeds = []
-        for i in range(0, self.next_days):
+        for i in range(self.next_days):
             url_date = now + datetime.timedelta(days=i)
             url_date_month = url_date.strftime('%m')
             url_date_month_roman = dec2rom_dict[url_date_month]

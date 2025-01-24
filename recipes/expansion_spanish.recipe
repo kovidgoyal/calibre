@@ -142,7 +142,7 @@ class expansion_spanish(BasicNewsRecipe):
             link = link.split('/')[-2]
             a = ['0B', '0C', '0D', '0E', '0F', '0G', '0N', '0L0S', '0A']
             b = ['.', '/', '?', '-', '=', '&', '.com', 'www.', '0']
-            for i in range(0, len(a)):
+            for i in range(len(a)):
                 link = link.replace(a[i], b[i])
             link = 'http://' + link
 

@@ -990,7 +990,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_src_ident_label.setVisible(True)
             self.s_r_src_ident.setVisible(True)
 
-        for i in range(0, self.s_r_number_of_books):
+        for i in range(self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = self.s_r_sf_itemdata(idx)
@@ -1060,7 +1060,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             tt = error_message(self.s_r_error)
             self.test_result.setText(tt)
         update_status_actions(self.test_result, self.s_r_error is None, tt)
-        for i in range(0,self.s_r_number_of_books):
+        for i in range(self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
     def s_r_func(self, match):
@@ -1184,7 +1184,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_set_colors()
             return
 
-        for i in range(0,self.s_r_number_of_books):
+        for i in range(self.s_r_number_of_books):
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             wr = getattr(self, 'book_%d_result'%(i+1))
             try:

@@ -770,7 +770,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         tv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         tv.setRowCount(len(mi))
         # Use our own widget to get rid of elision. setTextElideMode() doesn't work
-        for r in range(0, len(mi)):
+        for r in range(len(mi)):
             w = QLineEdit(tv)
             w.setReadOnly(True)
             w.setText(mi[r].get('title', _('No title provided')))
@@ -1145,7 +1145,7 @@ def evaluate(book, context):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.template_value.columnCount()):
+        for c in range(self.template_value.columnCount()):
             self.table_column_widths.append(self.template_value.columnWidth(c))
 
     def save_geometry(self):
@@ -1289,7 +1289,7 @@ class BreakReporterBase(QDialog):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def get_field_keys(self):

@@ -126,7 +126,7 @@ class TbHierarchyTab(ConfigTabWidget, Ui_Form):
         # Walk the items in the list box building the (node -> node) graph of
         # the option order
         node = 0
-        for i in range(0, 4):
+        for i in range(4):
             v = self.tb_search_order.item(i).data(Qt.ItemDataRole.UserRole)
             # JSON dumps converts integer keys to strings, so do it explicitly
             t[str(node)] = v

@@ -69,7 +69,7 @@ class AllGUIActions(InterfaceAction):
         # 'toolbar-device' depending on whether a device is connected.
         location = 'toolbar' + ('-device' if self.gui.location_manager.has_device else '')
         for model in (AllModel(location, self.gui), CurrentModel(location, self.gui)):
-            for i in range(0, model.rowCount(None)):
+            for i in range(model.rowCount(None)):
                 dex = model.index(i)
                 name = model.names((dex,))[0]  # this is the action name
                 if name is not None and not name.startswith('---'):

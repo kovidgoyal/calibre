@@ -157,7 +157,7 @@ class Reader132(FormatReader):
             os.makedirs(os.path.join(output_dir, 'images/'))
         images = []
         with CurrentDir(os.path.join(output_dir, 'images/')):
-            for i in range(0, self.header_record.num_image_pages):
+            for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
                 images.append(name)
                 with open(name, 'wb') as imgf:
@@ -210,7 +210,7 @@ class Reader132(FormatReader):
             os.makedirs(output_dir)
 
         with CurrentDir(output_dir):
-            for i in range(0, self.header_record.num_image_pages):
+            for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
                 with open(name, 'wb') as imgf:
                     imgf.write(img)

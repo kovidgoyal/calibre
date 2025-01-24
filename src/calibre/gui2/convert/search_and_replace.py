@@ -139,7 +139,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def cell_rearrange(self, i):
         row = self.search_replace.currentRow()
-        for col in range(0, self.search_replace.columnCount()):
+        for col in range(self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
             item2 = self.search_replace.item(row+i, col)
             value = item1.text()
@@ -227,9 +227,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def get_definitions(self):
         ans = []
-        for row in range(0, self.search_replace.rowCount()):
+        for row in range(self.search_replace.rowCount()):
             colItems = []
-            for col in range(0, self.search_replace.columnCount()):
+            for col in range(self.search_replace.columnCount()):
                 colItems.append(str(self.search_replace.item(row, col).text()))
             ans.append(colItems)
         return ans

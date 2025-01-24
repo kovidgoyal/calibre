@@ -32,14 +32,11 @@ class AnimalPolitico(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('http://www.animalpolitico.com/')
         articles = []
-        for a in soup(**{
-                'name': 'a',
-                'attrs': {
+        for a in soup(name='a', attrs={
                     'href': True, 'title': True,
                     'data-author': True, 'data-type': True,
                     'data-home-title': True
-                }
-        }):
+                }):
             title = a['title']
             url = a['href']
             author = a['data-author']

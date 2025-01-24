@@ -605,7 +605,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         find_text = str(self.search_box.currentText())
         if not find_text:
             return
-        for _ in range(0, self.table.rowCount()):
+        for _ in range(self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()):
                 self.table.setCurrentItem(self.table.item(r, VALUE_COLUMN))
@@ -849,7 +849,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def table_column_resized(self, *args):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def resizeEvent(self, *args):
@@ -863,7 +863,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
             w //= self.table.columnCount()
-            for c in range(0, self.table.columnCount()):
+            for c in range(self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
     def start_editing(self, on_row):

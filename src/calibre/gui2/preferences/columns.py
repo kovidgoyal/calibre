@@ -87,7 +87,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.opt_columns.setColumnCount(6)
         # Set up the columns in logical index order
-        for p in range(0, len(self.column_headings)):
+        for p in range(len(self.column_headings)):
             self.opt_columns.setHorizontalHeaderItem(p, QTableWidgetItem(self.column_headings[p]))
 
         # Now reorder the columns into the desired visual order. Note: ignore
@@ -125,7 +125,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def header_moved(self, log_index, old_v_index, new_v_index):
         self.column_positions = []
-        for vi in range(0, self.opt_columns.columnCount()):
+        for vi in range(self.opt_columns.columnCount()):
             self.column_positions.append(self.opt_columns.horizontalHeader().logicalIndex(vi))
         self.save_geometry()
 
@@ -158,7 +158,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def save_geometry(self):
         # Save both the column widths and the column order
         widths = []
-        for i in range(0, self.opt_columns.columnCount()):
+        for i in range(self.opt_columns.columnCount()):
             widths.append(self.opt_columns.columnWidth(i))
         gprefs.set('custcol-prefs-table-geometry', widths)
         gprefs.set('custcol-prefs-column_order', self.column_positions)
@@ -168,7 +168,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         geom = gprefs.get('custcol-prefs-table-geometry', None)
         if geom is not None and len(geom) == self.opt_columns.columnCount():
             with suppress(Exception):
-                for i in range(0, self.opt_columns.columnCount()):
+                for i in range(self.opt_columns.columnCount()):
                     self.opt_columns.setColumnWidth(i, geom[i])
                 return
         self.opt_columns.resizeColumnsToContents()
@@ -292,11 +292,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def up_column(self):
         count = self.get_move_count()
-        for _ in range(0, count):
+        for _ in range(count):
             row = self.opt_columns.currentRow()
             if row > 0:
                 self.opt_columns.setSortingEnabled(False)
-                for i in range(0, self.opt_columns.columnCount()):
+                for i in range(self.opt_columns.columnCount()):
                     lower = self.opt_columns.takeItem(row-1, i)
                     upper = self.opt_columns.takeItem(row, i)
                     self.opt_columns.setItem(row, i, lower)
@@ -309,11 +309,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def down_column(self):
         count = self.get_move_count()
-        for _ in range(0, count):
+        for _ in range(count):
             row = self.opt_columns.currentRow()
             if row < self.opt_columns.rowCount()-1:
                 self.opt_columns.setSortingEnabled(False)
-                for i in range(0, self.opt_columns.columnCount()):
+                for i in range(self.opt_columns.columnCount()):
                     lower = self.opt_columns.takeItem(row, i)
                     upper = self.opt_columns.takeItem(row+1, i)
                     self.opt_columns.setItem(row+1, i, lower)
@@ -365,7 +365,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         o.setRowCount(row + 1)
         self.setup_row(row, self.cc_column_key, row)
         # We need to find the new item after sorting
-        for i in range(0, o.rowCount()):
+        for i in range(o.rowCount()):
             if self.column_order_val(i) == row:
                 o.setCurrentCell(i, 1)
                 o.scrollTo(o.currentIndex())

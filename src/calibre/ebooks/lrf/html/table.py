@@ -244,7 +244,7 @@ class Row:
         i = -1
         cell = None
         for cell in self.cells:
-            for k in range(0, cell.colspan):
+            for k in range(cell.colspan):
                 if i == col:
                     break
                 i += 1

@@ -924,7 +924,7 @@ class ZipFile:
     def delete(self, name):
         '''Delete the file from the archive. If it appears multiple
         times only the first instance will be deleted.'''
-        for i in range(0, len(self.filelist)):
+        for i in range(len(self.filelist)):
             if self.filelist[i].filename == name:
                 if self.debug:
                     print('Removing', name)

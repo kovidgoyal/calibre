@@ -389,7 +389,7 @@ arguments.[/] Can take any number of arguments. In most cases you can use the
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         i = 0
         res = ''
-        for i in range(0, len(args)):
+        for i in range(len(args)):
             res += args[i]
         return res
 
@@ -1054,7 +1054,7 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
         def repl(mo):
             res = ''
             if mo and mo.lastindex:
-                for dex in range(0, mo.lastindex):
+                for dex in range(mo.lastindex):
                     gv = mo.group(dex+1)
                     if gv is None:
                         continue
@@ -2114,7 +2114,7 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
             def repl(mo):
                 newval = ''
                 if mo and mo.lastindex:
-                    for dex in range(0, mo.lastindex):
+                    for dex in range(mo.lastindex):
                         gv = mo.group(dex+1)
                         if gv is None:
                             continue

@@ -47,7 +47,7 @@ from polyglot.urllib import urlparse
 
 # }}}
 
-OK, KILL_SIGNAL = range(0, 2)
+OK, KILL_SIGNAL = range(2)
 HANG_TIME = 60  # seconds
 
 

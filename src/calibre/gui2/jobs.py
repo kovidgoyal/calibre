@@ -732,8 +732,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def hide_all(self, *args):
-        self.model.hide_jobs(list(range(0,
-            self.model.rowCount(QModelIndex()))))
+        self.model.hide_jobs(list(range(self.model.rowCount(QModelIndex()))))
         self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def show_hidden(self, *args):

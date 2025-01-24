@@ -238,7 +238,7 @@ class EnumValuesEdit(QDialog):
         values = []
         colors = []
         id_map = {}
-        for i in range(0, self.table.rowCount()):
+        for i in range(self.table.rowCount()):
             it = self.table.item(i, self.VALUE_COLUMN)
             v = str(it.text())
             if not v:

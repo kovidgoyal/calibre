@@ -105,7 +105,7 @@ class TCRCompressor:
 
         # Generate the code dictionary.
         code_dict = []
-        for i in range(0, 256):
+        for i in range(256):
             if i in self.unused_codes:
                 code_dict.append(b'\0')
             else:

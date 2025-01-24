@@ -1366,7 +1366,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         self.model = model
 
     def universal_set(self):
-        return set(range(0, len(self.model.db)))
+        return set(range(len(self.model.db)))
 
     def get_matches(self, location, query):
         location = location.lower().strip()
@@ -1533,7 +1533,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.count_changed()
 
     def paths_deleted(self, paths):
-        self.map = list(range(0, len(self.db)))
+        self.map = list(range(len(self.db)))
         self.resort(False)
         self.research(True)
         self.count_changed()
@@ -1669,7 +1669,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def set_database(self, db):
         self.custom_columns = {}
         self.db = db
-        self.map = list(range(0, len(db)))
+        self.map = list(range(len(db)))
         self.research(reset=False)
         self.resort()
         self.count_changed()

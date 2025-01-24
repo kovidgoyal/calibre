@@ -166,7 +166,7 @@ class TabbedDeviceConfig(QTabWidget):
         try:
             return super().__getattr__(attr_name)
         except AttributeError as ae:
-            for i in range(0, self.count()):
+            for i in range(self.count()):
                 atab = self.widget(i)
                 try:
                     return getattr(atab, attr_name)
@@ -346,7 +346,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
         ec = []
         if self.extra_customization_message:
             if isinstance(self.extra_customization_message, list):
-                for i in range(0, len(self.extra_customization_message)):
+                for i in range(len(self.extra_customization_message)):
                     if self.opt_extra_customization[i] is None:
                         ec.append(None)
                         continue

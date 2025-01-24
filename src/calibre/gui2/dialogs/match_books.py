@@ -169,7 +169,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             # widths will be remembered
             w = self.books_table.width() - 25 - self.books_table.verticalHeader().width()
             w //= self.books_table.columnCount()
-            for c in range(0, self.books_table.columnCount()):
+            for c in range(self.books_table.columnCount()):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
 
@@ -184,7 +184,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     def save_state(self):
         self.books_table_column_widths = []
-        for c in range(0, self.books_table.columnCount()):
+        for c in range(self.books_table.columnCount()):
             self.books_table_column_widths.append(self.books_table.columnWidth(c))
         gprefs['match_books_dialog_books_table_widths'] = self.books_table_column_widths
         self.save_geometry(gprefs, 'match_books_dialog_geometry')
