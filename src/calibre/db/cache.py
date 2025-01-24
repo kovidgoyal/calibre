@@ -2113,7 +2113,7 @@ class Cache:
 
     @read_api
     def has_id(self, book_id):
-        ' Return True iff the specified book_id exists in the db '''
+        ' Return True iff the specified book_id exists in the db '
         return book_id in self.fields['title'].table.book_col_map
 
     @write_api

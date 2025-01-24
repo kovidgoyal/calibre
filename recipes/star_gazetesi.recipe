@@ -5,7 +5,7 @@ class Star (BasicNewsRecipe):
 
     title = u'Star Gazetesi'
     __author__ = u'thomass'
-    description = 'Yeni Türkiye''nin Gazetesi'
+    description = "Yeni Türkiye'nin Gazetesi"
     oldest_article = 1
     max_articles_per_feed = 10
     no_stylesheets = True

@@ -3,8 +3,8 @@ Support for reading LIT files.
 '''
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
-    'and Marshall T. Vandegrift <llasram@gmail.com>'
+__copyright__ = ('2008, Kovid Goyal <kovid at kovidgoyal.net> '
+                 'and Marshall T. Vandegrift <llasram@gmail.com>')
 
 import functools
 import io
@@ -429,10 +429,9 @@ class ManifestItem:
         return self.internal == other
 
     def __repr__(self):
-        return 'ManifestItem(internal=%r, path=%r, mime_type=%r, ' \
-            'offset=%d, root=%r, state=%r)' \
-            % (self.internal, self.path, self.mime_type, self.offset,
-               self.root, self.state)
+        return (
+            'ManifestItem(internal=%r, path=%r, mime_type=%r, offset=%d, root=%r, state=%r)'
+            ) % (self.internal, self.path, self.mime_type, self.offset, self.root, self.state)
 
 
 def preserve(function):

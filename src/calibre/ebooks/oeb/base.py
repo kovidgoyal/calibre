@@ -455,7 +455,8 @@ ASCII_CHARS   = frozenset(codepoint_to_chr(x) for x in range(128))
 UNIBYTE_CHARS = frozenset(x.encode('ascii') for x in ASCII_CHARS)
 USAFE         = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                  'abcdefghijklmnopqrstuvwxyz'
-                 '0123456789' '_.-/~')
+                 '0123456789'
+                 '_.-/~')
 URL_SAFE      = frozenset(USAFE)
 URL_SAFE_BYTES = frozenset(USAFE.encode('ascii'))
 URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE_BYTES]

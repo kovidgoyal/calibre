@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com> ' \
-                '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = ('2009, John Schember <john at nachtimwald.com> '
+                 '2009, Kovid Goyal <kovid@kovidgoyal.net>')
 __docformat__ = 'restructuredtext en'
 
 '''

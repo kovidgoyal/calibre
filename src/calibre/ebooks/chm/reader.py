@@ -1,7 +1,7 @@
 ''' CHM File decoding support '''
 __license__ = 'GPL v3'
-__copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
-                 ' and Alex Bramley <a.bramley at gmail.com>.'
+__copyright__  = ('2008, Kovid Goyal <kovid at kovidgoyal.net>,'
+                  ' and Alex Bramley <a.bramley at gmail.com>.')
 
 import codecs
 import os

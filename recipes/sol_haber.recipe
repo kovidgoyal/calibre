@@ -22,7 +22,7 @@ class SolHaberRecipe(BasicNewsRecipe):
 
     language = 'tr'
     __author__ = 'Onur Güngör'
-    description = 'Hayata soL''dan bakın..'
+    description = "Hayata soL'dan bakın.."
     publisher = 'soL Haber'
     tags = 'news, haberler, siyaset, türkiye, turkey, politics'
 
