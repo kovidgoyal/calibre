@@ -75,7 +75,15 @@ def serialize_recipe(urn, recipe_class):
     if rso:
         options = f' options={quoteattr(json.dumps(rso))}'
     return ('  <recipe id={id} title={title} author={author} language={language}'
-            ' needs_subscription={needs_subscription} description={description}{options}/>').format(id=quoteattr(str(urn)), title=attr('title', _('Unknown')), author=attr('__author__', default_author), language=attr('language', 'und', normalize_language), needs_subscription=quoteattr(ns), description=attr('description', ''), options=options)
+            ' needs_subscription={needs_subscription} description={description}{options}/>').format(
+                id=quoteattr(str(urn)),
+                title=attr('title', _('Unknown')),
+                author=attr('__author__', default_author),
+                language=attr('language', 'und', normalize_language),
+                needs_subscription=quoteattr(ns),
+                description=attr('description', ''),
+                options=options,
+            )
 
 
 def serialize_collection(mapping_of_recipe_classes):

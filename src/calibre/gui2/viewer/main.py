@@ -202,8 +202,7 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     oat = opts.open_at
-    if oat and not (
-            oat.startswith(('toc:', 'toc-href:', 'toc-href-contains:', 'epubcfi(/', 'ref:', 'search:', 'regex:')) or is_float(oat)):
+    if oat and not (oat.startswith(('toc:', 'toc-href:', 'toc-href-contains:', 'epubcfi(/', 'ref:', 'search:', 'regex:')) or is_float(oat)):
         raise SystemExit(f'Not a valid --open-at value: {opts.open_at}')
 
     if not opts.new_instance and get_session_pref('singleinstance', False):

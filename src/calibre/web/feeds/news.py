@@ -1108,7 +1108,6 @@ class BasicNewsRecipe(Recipe):
                 article = self.feed_objects[f].articles[a]
             except:
                 self.log.exception('Failed to get article object for postprocessing')
-                pass
             else:
                 self.populate_article_metadata(article, ans, first_fetch)
         return ans

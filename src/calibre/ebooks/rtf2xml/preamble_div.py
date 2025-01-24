@@ -342,7 +342,6 @@ cw<ci<font-style<nu<0
             pass
         else:
             self.__list_table_final += line
-            pass
 
     def __found_override_table_func(self, line):
         self.__override_table_obj = override_table.OverrideTable(

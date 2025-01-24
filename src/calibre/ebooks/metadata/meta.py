@@ -227,7 +227,6 @@ def opf_metadata(opfpath):
     except Exception:
         import traceback
         traceback.print_exc()
-        pass
 
 
 def forked_read_metadata(original_path, tdir):

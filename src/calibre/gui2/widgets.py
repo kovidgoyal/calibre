@@ -1017,8 +1017,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
             self.setFormat(0, textLength,
                            self.Formats['error'])
             return
-        if prevState == ERROR and \
-           not (text.startswith(('>>>', '#'))):
+        if prevState == ERROR and not text.startswith(('>>>', '#')):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            self.Formats['error'])

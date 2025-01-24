@@ -63,4 +63,3 @@ class TheCND(BasicNewsRecipe):
     def populate_article_metadata(self, article, soup, first):
         header = soup.find('h3')
         self.log('header: ' + self.tag_to_string(header))
-        pass

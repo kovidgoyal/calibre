@@ -644,7 +644,6 @@ class CatalogBuilder:
                     except:
                         if self.opts.verbose:
                             self.opts.log.error('pattern failed to compile: %s' % rule['pattern'])
-                        pass
                 elif field_contents is None and rule['pattern'] == 'None':
                     if self.DEBUG:
                         _log_prefix_rule_match_info(rule, record, field_contents)
