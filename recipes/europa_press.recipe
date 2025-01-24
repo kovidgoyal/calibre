@@ -33,7 +33,7 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='ul', attrs={'id': ['entidadesNoticia', 'MenuSecciones']}), dict(name='div', attrs={'id': ['ImprimirEnviarNoticia', 'PublicidadSuperior', 'CabeceraDerecha', 'Comentarios', 'comentarios full fbConnectAPI', 'ComentarEstaNoticia', 'ctl00_Superior_Main_MasEnChance_cajamasnoticias', 'gl_chn', 'videos_portada_derecha', 'galeria_portada_central', 'galeria_portada_central_boxes']}), dict(  # noqa: E501
-            name='div', attrs={'class': ['infoRelacionada', 'col_1', 'buscador', 'caja doblecolumna strong', 'CHANCE_EP_Encuesta_frontal text', 'seccionportada col_0', 'seccion header', 'text', 'pie caption_over']}), dict(name='a', attrs={'class': ['buscadorLabel']}), dict(name='span', attrs={'class': ['editado']}), dict(name='table'), dict(name='li') ]  # noqa: E501
+            name='div', attrs={'class': ['infoRelacionada', 'col_1', 'buscador', 'caja doblecolumna strong', 'CHANCE_EP_Encuesta_frontal text', 'seccionportada col_0', 'seccion header', 'text', 'pie caption_over']}), dict(name='a', attrs={'class': ['buscadorLabel']}), dict(name='span', attrs={'class': ['editado']}), dict(name='table'), dict(name='li')]  # noqa: E501
 
     feeds = [
 

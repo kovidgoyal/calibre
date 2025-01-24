@@ -104,7 +104,7 @@ class Volkskrant(BasicNewsRecipe):
             if tag.name == 'picture':
                 tag.replaceWith(tag.find('img'))
 
-        comic_articles = { 'Bas van der Schot', 'Poldermodellen', 'Gummbah', 'Sigmund' }
+        comic_articles = {'Bas van der Schot', 'Poldermodellen', 'Gummbah', 'Sigmund'}
         if self.tag_to_string(soup.find('h1')).strip() in comic_articles:
             for node in soup.find('figure').find_next_siblings():
                 node.extract()

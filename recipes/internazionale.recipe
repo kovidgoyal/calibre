@@ -12,8 +12,8 @@ class Volkskrant(BasicNewsRecipe):
     country = 'IT'
     category = 'news, politics, Italy, world'
     resolve_internal_links = True
-    remove_tags_before = { 'name': 'article' }
-    remove_tags_after = { 'name': 'article' }
+    remove_tags_before = {'name': 'article'}
+    remove_tags_after = {'name': 'article'}
     remove_tags = [
         dict(
             attrs={
@@ -67,8 +67,8 @@ class Volkskrant(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(self.current_number_url)
-        self.cover_url = soup.find('span', { 'class': 'img_expand' })['data-src']
-        main_container = soup.find('div', { 'class': 'content_data' })
+        self.cover_url = soup.find('span', {'class': 'img_expand'})['data-src']
+        main_container = soup.find('div', {'class': 'content_data'})
         children = main_container.findAll('div', recursive=False)
         sections = []
         current_section = None

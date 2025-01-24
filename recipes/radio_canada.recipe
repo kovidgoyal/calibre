@@ -152,7 +152,7 @@ class RadioCanada(BasicNewsRecipe):
     # The following was copied and adapted as per the following post:
     # https://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
     # Credit goes to user Starson17
-    def parse_feeds (self):
+    def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:

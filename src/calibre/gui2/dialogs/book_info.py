@@ -206,7 +206,7 @@ class BookInfo(QDialog, DropMixin):
 
         self.details = Details(parent.book_details.book_info, self,
                                allow_context_menu=library_path is None,
-                               is_locked = dialog_number == DialogNumbers.Locked)
+                               is_locked=dialog_number == DialogNumbers.Locked)
         self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)

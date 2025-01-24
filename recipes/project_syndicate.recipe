@@ -60,7 +60,7 @@ class projectsynd(BasicNewsRecipe):
     keep_only_tags = [
         dict(attrs={'itemprop':lambda x: x and 'associatedMedia' in x.split()}),
         dict(attrs={'itemprop':['headline', 'datePublished', 'author', 'abstract', 'articleBody']}),
-        dict(name = 'aside', attrs={'data-page-area':'article-bottom'})
+        dict(name='aside', attrs={'data-page-area':'article-bottom'})
     ]
 
     remove_tags = [

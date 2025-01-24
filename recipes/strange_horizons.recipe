@@ -28,7 +28,7 @@ class StrangeHorizons(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name = 'button'),
+        dict(name='button'),
         classes('font-size sharedaddy comments-form-row')
     ]
 

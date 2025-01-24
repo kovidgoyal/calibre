@@ -40,7 +40,7 @@ class Tracker:
         self.last_pos = 0
         self.queue: deque[Utterance] = deque()
 
-    def parse_marked_text(self, marked_text, limit = MAX_UTTERANCE_LENGTH):
+    def parse_marked_text(self, marked_text, limit=MAX_UTTERANCE_LENGTH):
         self.clear()
         text = []
         text_len = chunk_len = index_in_positions = offset_in_text = 0

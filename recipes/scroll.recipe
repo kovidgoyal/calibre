@@ -25,7 +25,7 @@ class scroll(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        dict(name = 'header'),
+        dict(name='header'),
         classes('featured-image article-body')
     ]
 

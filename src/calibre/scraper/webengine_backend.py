@@ -124,7 +124,7 @@ class Worker(QWebEnginePage):
         if not sip.isdeleted(self):
             self.messages_dispatch.emit(messages)
 
-    def runjs(self, js: str, callback = None) -> None:
+    def runjs(self, js: str, callback=None) -> None:
         if callback is None:
             self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:

@@ -39,7 +39,7 @@ class afr(BasicNewsRecipe):
         dict(name=['button', 'aside', 'svg']),
     ]
 
-    remove_tags_after= [ dict(name='aside', attrs={'id':'stickyContainer'})]
+    remove_tags_after= [dict(name='aside', attrs={'id':'stickyContainer'})]
 
     extra_css = '''
         #img-cap {font-size:small; text-align:center;}

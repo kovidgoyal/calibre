@@ -37,7 +37,7 @@ class spectator(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name = ['svg', 'button']),
+        dict(name=['svg', 'button']),
         classes(
             'entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content '
             'subscription-banner '

@@ -725,7 +725,7 @@ class PluginWidget(QWidget,Ui_Form):
         self.preset_field.setCurrentIndex(0)
 
         if item_name in self.presets.keys():
-            del(self.presets[item_name])
+            del (self.presets[item_name])
             self.presets.commit()
 
     def preset_save(self):

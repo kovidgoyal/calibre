@@ -65,7 +65,7 @@ class times(BasicNewsRecipe):
     ]
 
     remove_tags_after = [
-        dict(name = 'div', attrs={'id':'paywall-portal-article-footer'})
+        dict(name='div', attrs={'id':'paywall-portal-article-footer'})
     ]
 
     def preprocess_html(self, soup):

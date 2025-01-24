@@ -76,7 +76,7 @@ class FreeInquiry(BasicNewsRecipe):
                                 url = ''
                             seen.add(url)
                             self.log('Found article:', art_title)
-                            yield{
+                            yield {
                                 'title': art_title,
                                 'url': url,
                                 'description': desc

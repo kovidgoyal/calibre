@@ -34,7 +34,7 @@ class IlManifesto(BasicNewsRecipe):
             startSoup = self.index_to_soup(startUrl)
             lastEdition = startSoup.findAll('div', id='accordion_inedicola')[
                 1].find('a')['href']
-            del(startSoup)
+            del (startSoup)
             self.manifesto_index = MANIFESTO_BASEURL + lastEdition
             urlsplit = lastEdition.split('/')
             self.manifesto_datestr = urlsplit[-1]
@@ -106,5 +106,5 @@ class IlManifesto(BasicNewsRecipe):
             summary = sommNode
 
         template = "<html><head><title>%(title)s</title></head><body><h1>%(title)s</h1><h2>%(subtitle)s</h2><h3>%(author)s</h3><div style='font-size: x-large;'>%(summary)s</div><div>%(content)s</div></body></html>"  # noqa: E501
-        del(bs)
+        del (bs)
         return template % dict(title=title, subtitle=subtitle, author=author, summary=summary, content=content)

@@ -45,7 +45,7 @@ class infzm(BasicNewsRecipe):
         # if article is paywalled, add code to figure out machine_id
         raw = br.open(res_link).read()
         html = json_to_html(raw, link)
-        return ({ 'data': html, 'url': link })
+        return ({'data': html, 'url': link})
 
     extra_css = '''
         img {display:block; margin:0 auto;}

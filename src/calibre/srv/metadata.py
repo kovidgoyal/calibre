@@ -157,7 +157,7 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
-def get_gpref(name: str, defval = None):
+def get_gpref(name: str, defval=None):
     gprefs = getattr(get_gpref, 'gprefs', None)
     if gprefs is None:
         from calibre.utils.config import JSONConfig

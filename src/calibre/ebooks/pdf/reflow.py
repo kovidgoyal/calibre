@@ -306,7 +306,7 @@ class Text(Element):
                 if not (self.text_as_string.endswith(' ') \
                      or self.text_as_string.endswith('-') \
                      or other.text_as_string.startswith(' ') \
-                     or other.text_as_string.startswith('-') ):
+                     or other.text_as_string.startswith('-')):
                     has_gap = 1
                 else:
                     has_gap = 0

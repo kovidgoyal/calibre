@@ -299,7 +299,7 @@ class Element(Node):
     def __init__(self, attributes=None, text=None, cdata=None, qname=None, qattributes=None, check_grammar=True, **args):
         if qname is not None:
             self.qname = qname
-        assert(hasattr(self, 'qname'))
+        assert (hasattr(self, 'qname'))
         self.ownerDocument = None
         self.childNodes=[]
         self.allowed_children = grammar.allowed_children.get(self.qname)

@@ -58,7 +58,7 @@ class elcorreo(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name = ['svg', 'section', 'nav']),
+        dict(name=['svg', 'section', 'nav']),
         dict(attrs={'data-voc-component':['dropdown', 'modal', 'slider-grab']}),
         classes(
             'v-mdl-ath__img-c v-adv v-i-b v-mdl-ath__c--2 v-d-cmp-adv v-d-cmp-nws '

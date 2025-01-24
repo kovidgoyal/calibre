@@ -39,6 +39,7 @@ select = [
     'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
     'E111', 'E112', 'E113', 'E117',  # code indentation
     'E114', 'E115', 'E116', 'E261', 'E262', 'E265',  # comment formating
+    'E201', 'E202', 'E211', 'E251', 'E275',  # various whitespace
 ]
 unfixable = ['PIE794']
 

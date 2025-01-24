@@ -109,7 +109,7 @@ class DJVUFile:
     def __init__(self, instream, verbose=0):
         self.instream = instream
         buf = self.instream.read(4)
-        assert(buf == b'AT&T')
+        assert (buf == b'AT&T')
         buf = self.instream.read()
         self.dc = DjvuChunk(buf, 0, len(buf), verbose=verbose)
 

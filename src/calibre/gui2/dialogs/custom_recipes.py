@@ -488,7 +488,7 @@ class AdvancedRecipe(QWidget):  # {{{
             compile_recipe(src)
         except Exception as err:
             error_dialog(self, _('Invalid recipe'), _(
-                'Failed to compile the recipe, with syntax error: {}' ).format(err), show=True)
+                'Failed to compile the recipe, with syntax error: {}').format(err), show=True)
             return False
         return True
 

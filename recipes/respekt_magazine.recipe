@@ -171,4 +171,4 @@ class respektRecipe(BasicNewsRecipe):
             o.getparent().replace(o,e)
         except:
             pass
-        return(BeautifulSoup(lxml.etree.tostring(root,encoding='unicode')))
+        return (BeautifulSoup(lxml.etree.tostring(root,encoding='unicode')))

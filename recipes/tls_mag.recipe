@@ -92,7 +92,7 @@ class TLS(BasicNewsRecipe):
         if x['byline']['text']:
             desc = 'By ' + re_html(x['byline']['text']) + ' | ' + desc
         self.log('              ', title, '\n\t', desc, '\n\t', url)
-        return ({ 'title': title, 'description': desc, 'url': url })
+        return ({'title': title, 'description': desc, 'url': url})
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src':True}):

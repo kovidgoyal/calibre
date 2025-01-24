@@ -150,7 +150,7 @@ class Liberation(BasicNewsRecipe):
         }
         api = 'https://arc.api.liberation.fr/content/v4/?' + urlencode(query, safe='()!', quote_via=quote)
         rq = Request(
-            url= api,
+            url=api,
             headers=headers
         )
         raw = br.open(rq).read()

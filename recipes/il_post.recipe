@@ -14,7 +14,7 @@ from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-dates = [ date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d') ]
+dates = [date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d')]
 
 # ----------- CUSTOMIZATION OPTIONS START -----------
 

@@ -401,7 +401,7 @@ class Main(MainWindow):
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_save_copy_edit = treg('save.png', _('Save a &copy and edit in new window'), partial(self.boss._save_copy, 'edit'), 'save-copy-edit',
-                                          'Ctrl+Shift+S', _( 'Save a copy of the book and edit it in a new window'))
+                                          'Ctrl+Shift+S', _('Save a copy of the book and edit it in a new window'))
         self.action_save_copy_replace = treg('save.png', _('Save a &copy and edit here'), partial(self.boss._save_copy, 'replace'),
                                              'save-copy-replace', 'Ctrl+Alt+Shift+S', _('Save a copy of the book and edit it in this window'))
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))

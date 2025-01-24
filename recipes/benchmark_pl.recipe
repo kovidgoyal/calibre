@@ -23,7 +23,7 @@ class BenchmarkPl(BasicNewsRecipe):
     keep_only_tags = [dict(id=['articleHeader', 'articleGallery']), dict(
         name='div', attrs={'class': ['m_zwykly', 'gallery']}), dict(id='article')]
     remove_tags_after = dict(id='article')
-    remove_tags = [dict(name='div', attrs={'class': ['comments', 'body', 'kategoria', 'socialize', 'thumb', 'panelOcenaObserwowane', 'categoryNextToSocializeGallery', 'breadcrumb', 'footer', 'moreTopics']}), dict(name='table', attrs={ 'background': 'http://www.benchmark.pl/uploads/backend_img/a/fotki_newsy/opinie_dnia/bg.png'}), dict(name='table', attrs={'width': '210', 'cellspacing': '1', 'cellpadding': '4', 'border': '0', 'align': 'right'})]  # noqa: E501
+    remove_tags = [dict(name='div', attrs={'class': ['comments', 'body', 'kategoria', 'socialize', 'thumb', 'panelOcenaObserwowane', 'categoryNextToSocializeGallery', 'breadcrumb', 'footer', 'moreTopics']}), dict(name='table', attrs={'background': 'http://www.benchmark.pl/uploads/backend_img/a/fotki_newsy/opinie_dnia/bg.png'}), dict(name='table', attrs={'width': '210', 'cellspacing': '1', 'cellpadding': '4', 'border': '0', 'align': 'right'})]  # noqa: E501
 
     INDEX = 'http://www.benchmark.pl'
     feeds = [(u'Aktualności', u'http://www.benchmark.pl/rss/aktualnosci-pliki.xml'),

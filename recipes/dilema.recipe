@@ -12,8 +12,8 @@ class Volkskrant(BasicNewsRecipe):
     country = 'RO'
     category = 'politics, culture, Romania'
     resolve_internal_links = True
-    remove_tags_before = { 'class': 'post' }
-    remove_tags_after = { 'class': 'post_content' }
+    remove_tags_before = {'class': 'post'}
+    remove_tags_after = {'class': 'post_content'}
     remove_tags = [
         dict(
             attrs={

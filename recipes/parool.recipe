@@ -50,7 +50,7 @@ class Parool(BasicNewsRecipe):
                 teaser_label = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__label'})).strip()
                 teaser_sublabel = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__sublabel'})).strip()
                 teaser_title = self.tag_to_string(header.find('h3').find('span', attrs={'class': 'teaser__title__value--short'})).strip()
-                ignore = { 'dirkjan', 's1ngle', 'pukkels', 'hein de kort' }
+                ignore = {'dirkjan', 's1ngle', 'pukkels', 'hein de kort'}
                 if teaser_label.lower() in ignore:
                     continue
                 parts = []
