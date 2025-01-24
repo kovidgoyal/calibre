@@ -1521,8 +1521,7 @@ class Editor(QWidget):  # {{{
         self.editor.html = v
 
     def change_tab(self, index):
-        # print('reloading:', (index and self.wyswyg_dirty) or (not index and
-        #        self.source_dirty))
+        # print('reloading:', (index and self.wyswyg_dirty) or (not index and self.source_dirty))
         if index == 1:  # changing to code view
             if self.wyswyg_dirty:
                 self.code_edit.setPlainText(self.editor.html)

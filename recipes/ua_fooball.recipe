@@ -40,14 +40,14 @@ class UAFootball(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class': 'show-post'})
 
     remove_tags =   [
-         dict(name='form'),
-         dict(name='iframe'),
-         dict(name='div', attrs={'class': 'language'}),
-         dict(name='div', attrs={'class': 'article__read-also'}),
-         dict(name='div', attrs={'class': 'card-player'}),
-         dict(name='div', attrs={'class': 'show-post-socials'})
-         ]
+        dict(name='form'),
+        dict(name='iframe'),
+        dict(name='div', attrs={'class': 'language'}),
+        dict(name='div', attrs={'class': 'article__read-also'}),
+        dict(name='div', attrs={'class': 'card-player'}),
+        dict(name='div', attrs={'class': 'show-post-socials'})
+    ]
 
-# Replacing articles in Ukraininan for RU-feed
-#    def print_version(self, url):
-#        return url.replace('ua-football.com/ua/', 'ua-football.com/')
+    # Replacing articles in Ukraininan for RU-feed
+    # def print_version(self, url):
+    #     return url.replace('ua-football.com/ua/', 'ua-football.com/')

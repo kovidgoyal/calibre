@@ -28,14 +28,10 @@ class Zerkalo(BasicNewsRecipe):
         ]
 
     feeds = [
-#
-# Original feeds
-#
-#        ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0437\u0430 \u0434\u0435\u043D\u044C', 'https://news.zerkalo.io/rss/all.rss'),
-#       ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u043D\u0435\u0434\u0435\u043B\u0438', 'https://news.zerkalo.io/rss/index.rss'),
-#
-# Censorship bypass
-#
+        # Original feeds
+        # ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0437\u0430 \u0434\u0435\u043D\u044C', 'https://news.zerkalo.io/rss/all.rss'),
+        # ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u043D\u0435\u0434\u0435\u043B\u0438', 'https://news.zerkalo.io/rss/index.rss'),
+        # Censorship bypass
         ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0437\u0430 \u0434\u0435\u043D\u044C', 'https://br0wse-zerkalo.site/news/rss/all.rss'),
         ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u043D\u0435\u0434\u0435\u043B\u0438', 'https://br0wse-zerkalo.site/news/rss/index.rss'),
     ]

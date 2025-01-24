@@ -143,7 +143,7 @@ class FazNet(BasicNewsRecipe):
                        'tik4-sharing','tik4-load-more-bottom',
                        'tik4-by','header-detail__image','mm-adbox','upper-toolbar content-container'
                    ]}),
-  #                 dict(name ='script'),
+                   # dict(name ='script'),
                    dict(name = 'style'),
                    dict(name='svg'),
                    dict(name='div', attrs={'data-module':'teaser'}),
@@ -240,11 +240,11 @@ class FazNet(BasicNewsRecipe):
             if tag.contents[0] and 'F.A.Z.-Newsletter' in tag.contents[0]:
                 tag.extract()
 
-#         format liveblog
+        # format liveblog
         if soup.find(attrs={'class':'tik4-live__container'}):
             format_tickaroo_liveblog(soup)
 
-# remove sizes and calc attributes in images
+        # remove sizes and calc attributes in images
         for tag in soup.findAll('img'):
             if tag.has_attr('src'):
                 new_img = soup.new_tag('img')

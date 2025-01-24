@@ -19,60 +19,60 @@ class CanWestPaper(BasicNewsRecipe):
     # #    url_prefix = 'http://www.timescolonist.com'
     # #    description = u'News from Victoria, BC'
     # #    fp_tag = 'CAN_TC'
-    #
+
     # un-comment the following four lines for the Vancouver Province
     # #    title = u'Vancouver Province'
     # #    url_prefix = 'http://www.theprovince.com'
     # #    description = u'News from Vancouver, BC'
     # #    fp_tag = 'CAN_VP'
-    #
+
     # un-comment the following four lines for the Vancouver Sun
     # #    title = u'Vancouver Sun'
     # #    url_prefix = 'http://www.vancouversun.com'
     # #    description = u'News from Vancouver, BC'
     # #    fp_tag = 'CAN_VS'
-    #
+
     # un-comment the following four lines for the Edmonton Journal
     # #    title = u'Edmonton Journal'
     # #    url_prefix = 'http://www.edmontonjournal.com'
     # #    description = u'News from Edmonton, AB'
     # #    fp_tag = 'CAN_EJ'
-    #
+
     # un-comment the following four lines for the Calgary Herald
     # #    title = u'Calgary Herald'
     # #    url_prefix = 'http://www.calgaryherald.com'
     # #    description = u'News from Calgary, AB'
     # #    fp_tag = 'CAN_CH'
-    #
+
     # un-comment the following four lines for the Regina Leader-Post
     # #    title = u'Regina Leader-Post'
     # #    url_prefix = 'http://www.leaderpost.com'
     # #    description = u'News from Regina, SK'
     # #    fp_tag = ''
-    #
+
     # un-comment the following four lines for the Saskatoon Star-Phoenix
     title = u'Saskatoon Star-Phoenix'
     url_prefix = 'http://www.thestarphoenix.com'
     description = u'News from Saskatoon, SK'
     fp_tag = ''
 
-#     un-comment the following four lines for the Windsor Star
-# #    title = u'Windsor Star'
-# #    url_prefix = 'http://www.windsorstar.com'
-# #    description = u'News from Windsor, ON'
-# #    fp_tag = 'CAN_'
-#
-#     un-comment the following four lines for the Ottawa Citizen
-# #    title = u'Ottawa Citizen'
-# #    url_prefix = 'http://www.ottawacitizen.com'
-# #    description = u'News from Ottawa, ON'
-# #    fp_tag = 'CAN_OC'
-#
-#     un-comment the following four lines for the Montreal Gazette
-# #    title = u'Montreal Gazette'
-# #    url_prefix = 'http://www.montrealgazette.com'
-# #    description = u'News from Montreal, QC'
-# #    fp_tag = 'CAN_MG'
+    # un-comment the following four lines for the Windsor Star
+    # #    title = u'Windsor Star'
+    # #    url_prefix = 'http://www.windsorstar.com'
+    # #    description = u'News from Windsor, ON'
+    # #    fp_tag = 'CAN_'
+
+    # un-comment the following four lines for the Ottawa Citizen
+    # #    title = u'Ottawa Citizen'
+    # #    url_prefix = 'http://www.ottawacitizen.com'
+    # #    description = u'News from Ottawa, ON'
+    # #    fp_tag = 'CAN_OC'
+
+    # un-comment the following four lines for the Montreal Gazette
+    # #    title = u'Montreal Gazette'
+    # #    url_prefix = 'http://www.montrealgazette.com'
+    # #    description = u'News from Montreal, QC'
+    # #    fp_tag = 'CAN_MG'
 
     language = 'en_CA'
     __author__ = 'Nick Redding'

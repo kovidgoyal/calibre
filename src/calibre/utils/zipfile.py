@@ -1068,10 +1068,10 @@ class ZipFile:
 
             zd = _ZipDecrypter(pwd)
             # The first 12 bytes in the cypher stream is an encryption header
-            #  used to strengthen the algorithm. The first 11 bytes are
-            #  completely random, while the 12th contains the MSB of the CRC,
-            #  or the MSB of the file time depending on the header type
-            #  and is used to check the correctness of the password.
+            # used to strengthen the algorithm. The first 11 bytes are
+            # completely random, while the 12th contains the MSB of the CRC,
+            # or the MSB of the file time depending on the header type
+            # and is used to check the correctness of the password.
             byts = zef_file.read(12)
             h = list(map(zd, bytearray(byts[0:12])))
             if zinfo.flag_bits & 0x8:

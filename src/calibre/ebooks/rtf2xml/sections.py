@@ -285,7 +285,7 @@ class Sections:
                 my_string += f'<{key}>{self.__section_values[key]}'
         my_string += '\n'
         my_string += self.__mark_end
-        # # my_string += line
+        # my_string += line
         if self.__state == 'body':
             self.__write_obj.write(my_string)
         elif self.__state == 'sec_in_field':

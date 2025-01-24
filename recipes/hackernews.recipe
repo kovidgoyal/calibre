@@ -136,7 +136,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         article.text_summary = self.prettyify_url(article.url)
         article.summary = article.text_summary
 
-#    def parse_index(self):
-#        feeds = []
-#        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
-#        return feeds
+    # def parse_index(self):
+    #     feeds = []
+    #     feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
+    #     return feeds

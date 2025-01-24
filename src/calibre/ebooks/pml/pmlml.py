@@ -356,7 +356,7 @@ class PMLMLizer:
         text += self.close_tags(tags)
 
         # if tag in SEPARATE_TAGS:
-        #    text.append('\n\n')
+        #     text.append('\n\n')
 
         if style['page-break-after'] == 'always':
             text.append(r'\p')

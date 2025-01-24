@@ -104,7 +104,7 @@ Has content : %s
 
     def is_same_as(self, other_article):
         # if self.title != getattr(other_article, 'title', False):
-        #    return False
+        #     return False
         if self.url:
             return self.url == getattr(other_article, 'url', False)
         return self.content == getattr(other_article, 'content', False)

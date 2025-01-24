@@ -38,9 +38,9 @@ class AllIpAddressesGetter(Thread):
 
     def run(self):
         global _all_ip_addresses
-#        print('sleeping')
-#        time.sleep(15)
-#        print('slept')
+        # print('sleeping')
+        # time.sleep(15)
+        # print('slept')
         _all_ip_addresses = self.get_all_ips()
 
 

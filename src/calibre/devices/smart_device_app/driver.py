@@ -166,7 +166,7 @@ class ConnectionListener(Thread):
                         self.driver._debug('unexpected socket exception', x.args[0])
                         self._close_socket(device_socket)
                         device_socket = None
-#                        raise
+                        # raise
 
 
 class SDBook(Book):

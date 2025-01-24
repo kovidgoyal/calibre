@@ -57,7 +57,7 @@ CALIBRE_SNB_PRE_TAG = '<$$calibre_snb_pre_tag$$>'
 class SNBMLizer:
 
     curSubItem = ''
-#    curText = [ ]
+    # curText = [ ]
 
     def __init__(self, log):
         self.log = log
@@ -86,7 +86,7 @@ class SNBMLizer:
         output = ['']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
-#        content = self.remove_newlines(content)
+        # content = self.remove_newlines(content)
         trees = {}
         for subitem, subtitle in self.subitems:
             snbcTree = etree.Element('snbc')

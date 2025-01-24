@@ -221,10 +221,10 @@ per_language_title_sort_articles = {
         'epo': (r'La\s+', r"L'", 'L´'),
         # Spanish
         'spa': (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
-                  r'Una\s+', r'Unos\s+', r'Unas\s+'),
+                r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra': (r'Le\s+', r'La\s+', r"L'", r'L´', r'L’', r'Les\s+', r'Un\s+', r'Une\s+',
-                  r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", r'D´', r'D’'),
+                r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'", r'D´', r'D’'),
         # Polish
         'pol': (),
         # Italian
@@ -234,17 +234,17 @@ per_language_title_sort_articles = {
                 r'Della\s+', r'Dello\s+', r"Dell'", r'Dell´'),
         # Portuguese
         'por': (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
-                  r'Uma\s+', r'Umas\s+'),
+                r'Uma\s+', r'Umas\s+'),
         # Romanian
         'ron': (r'Un\s+', r'O\s+', r'Nişte\s+'),
         # German
         'deu': (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
-                  r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
-                  r'Eines\s+'),
+                r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
+                r'Eines\s+'),
         # Dutch
         'nld': (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
-                  r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
-                  r"'t\s+"),
+                r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
+                r"'t\s+"),
         # Swedish
         'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+'),
         # Turkish
@@ -253,7 +253,7 @@ per_language_title_sort_articles = {
         'afr': (r"'n\s+", r'Die\s+'),
         # Greek
         'ell': (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
-                  r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+"),
+                r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+"),
         # Hungarian
         'hun': (r'A\s+', r'Az\s+', r'Egy\s+'),
 }

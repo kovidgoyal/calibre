@@ -19,13 +19,13 @@ XLINK_NS     = 'http://www.w3.org/1999/xlink'
 _span_pat = re.compile(r'<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 LIGATURES = {
-#        'Æ': 'AE',
-#        'æ': 'ae',
-#        'Œ': 'OE',
-#        'œ': 'oe',
-#        'Ĳ': 'IJ',
-#        'ĳ': 'ij',
-#        'ᵫ': 'ue',
+        # 'Æ': 'AE',
+        # 'æ': 'ae',
+        # 'Œ': 'OE',
+        # 'œ': 'oe',
+        # 'Ĳ': 'IJ',
+        # 'ĳ': 'ij',
+        # 'ᵫ': 'ue',
         'ﬀ': 'ff',
         'ﬁ': 'fi',
         'ﬂ': 'fl',
@@ -146,9 +146,9 @@ class DocAnalysis:
         # print('there are '+str(len(lines))+' lines')
         # max = 0
         # for line in self.lines:
-        #    l = len(line)
-        #    if l > max:
-        #        max = l
+        #     l = len(line)
+        #     if l > max:
+        #         max = l
         # print('max line found is '+str(max))
         # Build the line length histogram
         hRaw = [0 for i in range(0,buckets)]

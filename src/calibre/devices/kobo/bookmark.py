@@ -90,8 +90,8 @@ class Bookmark:  # {{{
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter opf_reference='{opf_reference}'")
                 file_contentID_part = file_contentID_part[filename_index + 1:]
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter file_contentID_part='{file_contentID_part}'")
-#                 from urllib import quote
-#                 file_contentID_part = quote(file_contentID_part)
+                # from urllib import quote
+                # file_contentID_part = quote(file_contentID_part)
                 chapter_contentID = book_contentID_part + '!' + opf_reference + '!' + file_contentID_part
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapter chapter_contentID='{chapter_contentID}'")
                 kepub_chapter = kepub_chapters.get(chapter_contentID, None)
@@ -152,7 +152,7 @@ class Bookmark:  # {{{
             # print(row[1])
         cursor.close()
 
-#                self.last_read_location = self.last_read - self.pdf_page_offset
+        # self.last_read_location = self.last_read - self.pdf_page_offset
         self.user_notes = user_notes
 
     def get_book_length(self):

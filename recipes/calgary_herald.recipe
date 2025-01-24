@@ -60,20 +60,20 @@ class CanWestPaper(BasicNewsRecipe):
     ]
 
     # un-comment the following six lines for the Vancouver Province
-    # title = u'Vancouver Province'
-    # url_prefix = 'http://www.theprovince.com'
-    # description = u'News from Vancouver, BC'
-    # std_logo_url = 'http://www.theprovince.com/images/logo_theprovince.jpg'
-    # logo_url = 'vplogo.jpg'
-    # fp_tag = 'CAN_TP'
+    # #    title = u'Vancouver Province'
+    # #    url_prefix = 'http://www.theprovince.com'
+    # #    description = u'News from Vancouver, BC'
+    # #    std_logo_url = 'http://www.theprovince.com/images/logo_theprovince.jpg'
+    # #    logo_url = 'vplogo.jpg'
+    # #    fp_tag = 'CAN_TP'
 
     # un-comment the following six lines for the Vancouver Sun
-    # title = u'Vancouver Sun'
-    # url_prefix = 'http://www.vancouversun.com'
-    # description = u'News from Vancouver, BC'
-    # std_logo_url = 'http://www.vancouversun.com/images/logo_vancouversun.jpg'
-    # logo_url = 'vslogo.jpg'
-    # fp_tag = 'CAN_VS'
+    # #    title = u'Vancouver Sun'
+    # #    url_prefix = 'http://www.vancouversun.com'
+    # #    description = u'News from Vancouver, BC'
+    # #    std_logo_url = 'http://www.vancouversun.com/images/logo_vancouversun.jpg'
+    # #    logo_url = 'vslogo.jpg'
+    # #    fp_tag = 'CAN_VS'
 
     # un-comment the following six lines for the Calgary Herald
     title = u'Calgary Herald'
@@ -90,7 +90,7 @@ class CanWestPaper(BasicNewsRecipe):
     # #    std_logo_url = 'http://www.edmontonjournal.com/images/logo_edmontonjournal.jpg'
     # #    logo_url = 'ejlogo.jpg'
     # #    fp_tag = 'CAN_EJ'
-    #
+
     # un-comment the following six lines for the Ottawa Citizen
     # #    title = u'Ottawa Citizen'
     # #    url_prefix = 'http://www.ottawacitizen.com'
@@ -98,7 +98,7 @@ class CanWestPaper(BasicNewsRecipe):
     # #    std_logo_url = 'http://www.ottawacitizen.com/images/logo_ottawacitizen.jpg'
     # #    logo_url = 'oclogo.jpg'
     # #    fp_tag = 'CAN_OC'
-    #
+
     # un-comment the following six lines for the Montreal Gazette
     # #    title = u'Montreal Gazette'
     # #    url_prefix = 'http://www.montrealgazette.com'

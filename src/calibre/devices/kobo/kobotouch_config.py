@@ -515,7 +515,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device, _('Advanced options'))
-#         self.setTitle(_("Advanced Options"))
+        # self.setTitle(_("Advanced Options"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName('options_layout')
@@ -844,9 +844,9 @@ if __name__ == '__main__':
     app = Application([])
     debug_print('KOBOTOUCH:', KOBOTOUCH)
     dev = KOBOTOUCH(None)
-#     dev.startup()
-#     cd = dev.detect_managed_devices(s.devices)
-#     dev.open(cd, 'test')
+    # dev.startup()
+    # cd = dev.detect_managed_devices(s.devices)
+    # dev.open(cd, 'test')
     cw = dev.config_widget()
     d = QDialog()
     d.l = QVBoxLayout()

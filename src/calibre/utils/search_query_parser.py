@@ -424,8 +424,8 @@ class SearchQueryParser:
         #  return self.universal_set().difference(self.evaluate(argument[0]))
         return candidates.difference(self.evaluate(argument[0], candidates))
 
-#     def evaluate_parenthesis(self, argument, candidates):
-#         return self.evaluate(argument[0], candidates)
+    # def evaluate_parenthesis(self, argument, candidates):
+    #     return self.evaluate(argument[0], candidates)
 
     def _check_saved_search_recursion(self, query):
         if query.startswith('='):

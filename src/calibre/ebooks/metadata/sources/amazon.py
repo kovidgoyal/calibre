@@ -1775,7 +1775,7 @@ def manual_tests(domain, **kw):  # {{{
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
     all_tests = {}
     all_tests['com'] = [  # {{{
-        (  # # in title
+        (  # in title
             {'title': 'Expert C# 2008 Business Objects',
              'authors': ['Lhotka']},
             [title_test('Expert C#'),
@@ -1970,7 +1970,7 @@ def manual_tests(domain, **kw):  # {{{
             [title_test('Parting Shot', exact=True),
              authors_test(['Mary Calmes'])]
         ),
-        (  # # in title
+        (  # in title
             {'title': 'Expert C# 2008 Business Objects',
              'authors': ['Lhotka']},
             [title_test('Expert C# 2008 Business Objects'),

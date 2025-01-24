@@ -371,9 +371,9 @@ class MakeLists:
                 % (id)
                 )
             # sys.stderr.write(repr(self.__list_of_lists))
-#        if self.__run_level > 3:
-#            msg = 'level is "%s"\n' % self.__run_level
-#            self.__bug_handler
+        # if self.__run_level > 3:
+        #     msg = 'level is "%s"\n' % self.__run_level
+        #     self.__bug_handler
 
     def __write_start_item(self):
         self.__write_obj.write('mi<mk<item_start\n')

@@ -1127,8 +1127,8 @@ class BooksModel(QAbstractTableModel):  # {{{
             cname = self.column_map[index.column()]
             return self.styled_columns.get(cname)
         # elif role == Qt.ItemDataRole.ToolTipRole and index.isValid():
-        #    if self.column_map[index.column()] in self.editable_cols:
-        #        return (_("Double click to <b>edit</b> me<br><br>"))
+        #     if self.column_map[index.column()] in self.editable_cols:
+        #         return (_("Double click to <b>edit</b> me<br><br>"))
         return None
 
     def headerData(self, section, orientation, role):

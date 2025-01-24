@@ -52,28 +52,28 @@ def Title(**args):
 # these elements
 
 # def Contributor(**args):
-#    return Element(qname = (DCNS,'contributor'), **args)
+#     return Element(qname = (DCNS,'contributor'), **args)
 
 # def Coverage(**args):
-#    return Element(qname = (DCNS,'coverage'), **args)
+#     return Element(qname = (DCNS,'coverage'), **args)
 
 # def Format(**args):
-#    return Element(qname = (DCNS,'format'), **args)
+#     return Element(qname = (DCNS,'format'), **args)
 
 # def Identifier(**args):
-#    return Element(qname = (DCNS,'identifier'), **args)
+#     return Element(qname = (DCNS,'identifier'), **args)
 
 # def Publisher(**args):
-#    return Element(qname = (DCNS,'publisher'), **args)
+#     return Element(qname = (DCNS,'publisher'), **args)
 
 # def Relation(**args):
-#    return Element(qname = (DCNS,'relation'), **args)
+#     return Element(qname = (DCNS,'relation'), **args)
 
 # def Rights(**args):
-#    return Element(qname = (DCNS,'rights'), **args)
+#     return Element(qname = (DCNS,'rights'), **args)
 
 # def Source(**args):
-#    return Element(qname = (DCNS,'source'), **args)
+#     return Element(qname = (DCNS,'source'), **args)
 
 # def Type(**args):
-#    return Element(qname = (DCNS,'type'), **args)
+#     return Element(qname = (DCNS,'type'), **args)

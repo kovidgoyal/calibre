@@ -199,7 +199,7 @@ class Text(Element):
             self.font = {}
             self.font_size = 0.0
             self.font_size_em = 0.0
-        #    self.color = 0
+            # self.color = 0
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text', encoding='unicode')
@@ -373,9 +373,9 @@ class Text(Element):
                 self.raw = matchObj.group(1)+matchObj.group(3)+m2+matchObj.group(4)+m5+matchObj.group(6)
         # This needs more work
         # if sub_super < 0:
-        #    other.raw = '<sup>' + other.raw + '</sup>'
+        #     other.raw = '<sup>' + other.raw + '</sup>'
         # elif sub_super > 0:
-        #    other.raw = '<sub>' + other.raw + '</sub>'
+        #     other.raw = '<sub>' + other.raw + '</sub>'
 
         if has_float:
             self.raw += has_float
@@ -413,7 +413,7 @@ class Paragraph(Text):
         else:
             self.font = {}
             self.font_size = 0
-        #    self.color = 0
+            # self.color = 0
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
@@ -1106,8 +1106,8 @@ class Page:
                     t = self.texts[0]
                     # match = self.find_match(t)
                     # while match is not None:
-                    #    self.texts.remove(match)
-                    #    match = self.find_match(t)
+                    #     self.texts.remove(match)
+                    #     match = self.find_match(t)
                     self.texts.remove(t)
 
         if len(opts.pdf_footer_regex) > 0 \
@@ -1121,8 +1121,8 @@ class Page:
                     t = self.texts[-1]
                     # match = self.find_match(t)
                     # while match is not None:
-                    #    self.texts.remove(match)
-                    #    match = self.find_match(t)
+                    #     self.texts.remove(match)
+                    #     match = self.find_match(t)
                     self.texts.remove(t)
 
     def create_page_format(self, stats, opts):
@@ -1343,7 +1343,7 @@ class Page:
 
         # self.elements = list(self.texts)
         # for img in page.xpath('descendant::img'):
-        #    self.elements.append(Image(img, self.opts, self.log, idc))
+        #     self.elements.append(Image(img, self.opts, self.log, idc))
         # self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
 
         return
@@ -1802,7 +1802,7 @@ class PDFDocument:
                         break  # Short page
                     t = page.texts[head_ind].text_as_string
                     # if len(page.texts) > 1 and page.texts[0].top == page.texts[1].top:
-                    #    t += ' ' + page.texts[1].text_as_string
+                    #     t += ' ' + page.texts[1].text_as_string
                     if len(head_text[head_ind]) == 0:
                         head_text[head_ind] = t
                     else:
@@ -1835,7 +1835,7 @@ class PDFDocument:
                         break  # Short page
                     t = page.texts[-foot_ind-1].text_as_string
                     # if len(page.texts) > 1 and page.texts[-1].top == page.texts[-2].top:
-                    #    t += ' ' + page.texts[-2].text_as_string
+                    #     t += ' ' + page.texts[-2].text_as_string
                     if len(foot_text[foot_ind]) == 0:
                         foot_text[foot_ind] = t
                     else:

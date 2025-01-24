@@ -21,7 +21,7 @@ class Book(Book_):
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
                  thumbnail_name=None, size=None, other=None):
         from calibre.utils.date import parse_date
-#         debug_print('Book::__init__ - title=', title)
+        # debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find('xxxxx') >= 0
         if other is not None:
             other.title = title
@@ -308,9 +308,9 @@ class KTCollectionsBookList(CollectionsBookList):
     def is_debugging_title(self, title):
         if not DEBUG:
             return False
-#        debug_print("KTCollectionsBookList:is_debugging - title=", title, "self.debugging_title=", self.debugging_title)
+        # debug_print("KTCollectionsBookList:is_debugging - title=", title, "self.debugging_title=", self.debugging_title)
         is_debugging = self.debugging_title is not None and len(self.debugging_title) > 0 and title is not None and (
             title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0)
-#        debug_print("KTCollectionsBookList:is_debugging - is_debugging=", is_debugging)
+        # debug_print("KTCollectionsBookList:is_debugging - is_debugging=", is_debugging)
 
         return is_debugging

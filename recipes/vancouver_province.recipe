@@ -68,44 +68,44 @@ class CanWestPaper(BasicNewsRecipe):
     fp_tag = 'CAN_TP'
 
     # un-comment the following six lines for the Vancouver Sun
-    # title = u'Vancouver Sun'
-    # url_prefix = 'http://www.vancouversun.com'
-    # description = u'News from Vancouver, BC'
-    # std_logo_url = 'http://www.vancouversun.com/images/logo_vancouversun.jpg'
-    # logo_url = 'vslogo.jpg'
-    # fp_tag = 'CAN_VS'
+    # #    title = u'Vancouver Sun'
+    # #    url_prefix = 'http://www.vancouversun.com'
+    # #    description = u'News from Vancouver, BC'
+    # #    std_logo_url = 'http://www.vancouversun.com/images/logo_vancouversun.jpg'
+    # #    logo_url = 'vslogo.jpg'
+    # #    fp_tag = 'CAN_VS'
 
     # un-comment the following six lines for the Calgary Herald
-# #    title = u'Calgary Herald'
-# #    url_prefix = 'http://www.calgaryherald.com'
-# #    description = u'News from Calgary, AB'
-# #    std_logo_url = 'http://www.calgaryherald.com/images/logo_calgaryherald.jpg'
-# #    logo_url = 'chlogo.jpg'
-# #    fp_tag = 'CAN_CH'
-#
-#     un-comment the following six lines for the Edmonton Journal
-# #    title = u'Edmonton Journal'
-# #    url_prefix = 'http://www.edmontonjournal.com'
-# #    description = u'News from Edmonton, AB'
-# #    std_logo_url = 'http://www.edmontonjournal.com/images/logo_edmontonjournal.jpg'
-# #    logo_url = 'ejlogo.jpg'
-# #    fp_tag = 'CAN_EJ'
-#
-#     un-comment the following six lines for the Ottawa Citizen
-# #    title = u'Ottawa Citizen'
-# #    url_prefix = 'http://www.ottawacitizen.com'
-# #    description = u'News from Ottawa, ON'
-# #    std_logo_url = 'http://www.ottawacitizen.com/images/logo_ottawacitizen.jpg'
-# #    logo_url = 'oclogo.jpg'
-# #    fp_tag = 'CAN_OC'
-#
-#     un-comment the following six lines for the Montreal Gazette
-# #    title = u'Montreal Gazette'
-# #    url_prefix = 'http://www.montrealgazette.com'
-# #    description = u'News from Montreal, QC'
-# #    std_logo_url = 'http://www.montrealgazette.com/images/logo_montrealgazette.jpg'
-# #    logo_url = 'mglogo.jpg'
-# #    fp_tag = 'CAN_MG'
+    # #    title = u'Calgary Herald'
+    # #    url_prefix = 'http://www.calgaryherald.com'
+    # #    description = u'News from Calgary, AB'
+    # #    std_logo_url = 'http://www.calgaryherald.com/images/logo_calgaryherald.jpg'
+    # #    logo_url = 'chlogo.jpg'
+    # #    fp_tag = 'CAN_CH'
+
+    # un-comment the following six lines for the Edmonton Journal
+    # #    title = u'Edmonton Journal'
+    # #    url_prefix = 'http://www.edmontonjournal.com'
+    # #    description = u'News from Edmonton, AB'
+    # #    std_logo_url = 'http://www.edmontonjournal.com/images/logo_edmontonjournal.jpg'
+    # #    logo_url = 'ejlogo.jpg'
+    # #    fp_tag = 'CAN_EJ'
+
+    # un-comment the following six lines for the Ottawa Citizen
+    # #    title = u'Ottawa Citizen'
+    # #    url_prefix = 'http://www.ottawacitizen.com'
+    # #    description = u'News from Ottawa, ON'
+    # #    std_logo_url = 'http://www.ottawacitizen.com/images/logo_ottawacitizen.jpg'
+    # #    logo_url = 'oclogo.jpg'
+    # #    fp_tag = 'CAN_OC'
+
+    # un-comment the following six lines for the Montreal Gazette
+    # #    title = u'Montreal Gazette'
+    # #    url_prefix = 'http://www.montrealgazette.com'
+    # #    description = u'News from Montreal, QC'
+    # #    std_logo_url = 'http://www.montrealgazette.com/images/logo_montrealgazette.jpg'
+    # #    logo_url = 'mglogo.jpg'
+    # #    fp_tag = 'CAN_MG'
 
     Kindle_Fire = False
     masthead_url = std_logo_url

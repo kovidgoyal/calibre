@@ -108,7 +108,7 @@ class EXTHHeader:  # {{{
                 except Exception:
                     pass
             # else:
-            #    print('unknown record', idx, repr(content))
+            #     print('unknown record', idx, repr(content))
         if title:
             self.mi.title = replace_entities(clean_xml_chars(clean_ascii_chars(title)))
 
@@ -184,7 +184,7 @@ class EXTHHeader:  # {{{
             if self.kf8_header == NULL_INDEX:
                 self.kf8_header = None
         # else:
-        #    print('unhandled metadata record', idx, repr(content))
+        #     print('unhandled metadata record', idx, repr(content))
 # }}}
 
 

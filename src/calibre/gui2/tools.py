@@ -56,7 +56,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
             if result == QDialog.DialogCode.Accepted:
                 # if not convert_existing(parent, db, [book_id], d.output_format):
-                #    continue
+                #     continue
 
                 mi = db.get_metadata(book_id, True)
                 in_file = PersistentTemporaryFile('.'+d.input_format)

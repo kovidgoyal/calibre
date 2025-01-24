@@ -115,7 +115,7 @@ class HeuristicProcessor:
         tot_htm_ends = len(htm_end)
         tot_ln_fds = len(line_end)
         # self.log.debug("There are " + str(tot_ln_fds) + " total Line feeds, and " +
-        #        str(tot_htm_ends) + " marked up endings")
+        #         str(tot_htm_ends) + " marked up endings")
 
         if percent > 1:
             percent = 1

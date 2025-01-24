@@ -791,9 +791,9 @@ class CurrentlyConnectedDevice:
 
 # A device driver can check if a device is currently connected to calibre using
 # the following code::
-#   from calibre.device.interface import currently_connected_device
-#   if currently_connected_device.device is None:
-#      # no device connected
+#     from calibre.device.interface import currently_connected_device
+#     if currently_connected_device.device is None:
+#         # no device connected
 # The device attribute will be either None or the device driver object
 # (DevicePlugin instance) for the currently connected device.
 currently_connected_device = CurrentlyConnectedDevice()

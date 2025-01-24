@@ -188,7 +188,7 @@ class Document:
             if append:
                 parent.append(sibling)
         # if output is not None:
-        #   output.append(best_elem)
+        #     output.append(best_elem)
         return output.find('body')
 
     def select_best_candidate(self, candidates):
@@ -208,7 +208,7 @@ class Document:
         for i in elem.findall('.//a'):
             link_length += text_length(i)
         # if len(elem.findall(".//div") or elem.findall(".//p")):
-        #   link_length = link_length
+        #     link_length = link_length
         total_length = text_length(elem)
         return float(link_length) / max(total_length, 1)
 
@@ -243,7 +243,7 @@ class Document:
             content_score += len(inner_text.split(','))
             content_score += min((inner_text_len / 100), 3)
             # if elem not in candidates:
-            #   candidates[elem] = self.score_node(elem)
+            #     candidates[elem] = self.score_node(elem)
 
             # WTF? candidates[elem]['content_score'] += content_score
             candidates[parent_node]['content_score'] += content_score
@@ -384,16 +384,16 @@ class Document:
                     else:
                         content_score = 0
                 # if parent_node is not None:
-                    # pweight = self.class_weight(parent_node) + content_score
-                    # pname = describe(parent_node)
+                #     pweight = self.class_weight(parent_node) + content_score
+                #     pname = describe(parent_node)
                 # else:
-                    # pweight = 0
-                    # pname = "no parent"
+                #     pweight = 0
+                #     pname = "no parent"
                 to_remove = False
                 reason = ''
 
                 # if el.tag == 'div' and counts["img"] >= 1:
-                #   continue
+                #     continue
                 if counts['p'] and counts['img'] > counts['p']:
                     reason = 'too many images (%s)' % counts['img']
                     to_remove = True
@@ -415,24 +415,24 @@ class Document:
                 elif (counts['embed'] == 1 and content_length < 75) or counts['embed'] > 1:
                     reason = '<embed>s with too short content length, or too many <embed>s'
                     to_remove = True
-#               if el.tag == 'div' and counts['img'] >= 1 and to_remove:
-#                   imgs = el.findall('.//img')
-#                   valid_img = False
-#                   self.debug(tounicode(el))
-#                   for img in imgs:
-#
-#                       height = img.get('height')
-#                       text_length = img.get('text_length')
-#                       self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
-#                       if to_int(height) >= 100 or to_int(text_length) >= 100:
-#                           valid_img = True
-#                           self.debug("valid image" + tounicode(img))
-#                           break
-#                   if valid_img:
-#                       to_remove = False
-#                       self.debug("Allowing %s" %el.text_content())
-#                       for desnode in self.tags(el, "table", "ul", "div"):
-#                           allowed[desnode] = True
+                # if el.tag == 'div' and counts['img'] >= 1 and to_remove:
+                #     imgs = el.findall('.//img')
+                #     valid_img = False
+                #     self.debug(tounicode(el))
+                #     for img in imgs:
+                #
+                #         height = img.get('height')
+                #         text_length = img.get('text_length')
+                #         self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
+                #         if to_int(height) >= 100 or to_int(text_length) >= 100:
+                #             valid_img = True
+                #             self.debug("valid image" + tounicode(img))
+                #             break
+                #     if valid_img:
+                #         to_remove = False
+                #         self.debug("Allowing %s" %el.text_content())
+                #         for desnode in self.tags(el, "table", "ul", "div"):
+                #             allowed[desnode] = True
 
                     # find x non empty preceding and succeeding siblings
                     i, j = 0, 0

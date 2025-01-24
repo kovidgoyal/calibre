@@ -99,7 +99,7 @@ def generate():
     output = struct.pack('Iiiiiii',
                          0x950412de,       # Magic
                          0,                 # Version
-                         len(keys),         # # of entries
+                         len(keys),         # of entries
                          7*4,               # start of key index
                          7*4+len(keys)*8,   # start of value index
                          0, 0)              # size and offset of hash table

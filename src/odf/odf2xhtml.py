@@ -424,22 +424,22 @@ class ODF2XHTML(handler.ContentHandler):
         (OFFICENS, 'scripts'):(self.s_ignorexml, None),
         (OFFICENS, 'settings'):(self.s_ignorexml, None),
         (PRESENTATIONNS, 'notes'):(self.s_ignorexml, None),
-#       (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+        # (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
         (STYLENS, 'default-page-layout'):(self.s_ignorexml, None),
         (STYLENS, 'default-style'):(self.s_style_default_style, self.e_style_default_style),
         (STYLENS, 'drawing-page-properties'):(self.s_style_handle_properties, None),
         (STYLENS, 'font-face'):(self.s_style_font_face, None),
-#       (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
-#       (STYLENS, "footer-style"):(self.s_style_footer_style, None),
+        # (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
+        # (STYLENS, "footer-style"):(self.s_style_footer_style, None),
         (STYLENS, 'graphic-properties'):(self.s_style_handle_properties, None),
         (STYLENS, 'handout-master'):(self.s_ignorexml, None),
-#       (STYLENS, "header"):(self.s_style_header, self.e_style_header),
-#       (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
-#       (STYLENS, "header-style"):(self.s_style_header_style, None),
+        # (STYLENS, "header"):(self.s_style_header, self.e_style_header),
+        # (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "header-style"):(self.s_style_header_style, None),
         (STYLENS, 'master-page'):(self.s_style_master_page, None),
         (STYLENS, 'page-layout-properties'):(self.s_style_handle_properties, None),
         (STYLENS, 'page-layout'):(self.s_style_page_layout, self.e_style_page_layout),
-#       (STYLENS, "page-layout"):(self.s_ignorexml, None),
+        # (STYLENS, "page-layout"):(self.s_ignorexml, None),
         (STYLENS, 'paragraph-properties'):(self.s_style_handle_properties, None),
         (STYLENS, 'style'):(self.s_style_style, self.e_style_style),
         (STYLENS, 'table-cell-properties'):(self.s_style_handle_properties, None),
@@ -792,10 +792,10 @@ class ODF2XHTML(handler.ContentHandler):
         return  # Added by Kovid
         objhref = attrs[(XLINKNS,'href')]
         # Remove leading "./": from "./Object 1" to "Object 1"
-#       objhref = objhref [2:]
+        # objhref = objhref [2:]
 
         # Not using os.path.join since it fails to find the file on Windows.
-#       objcontentpath = '/'.join([objhref, 'content.xml'])
+        # objcontentpath = '/'.join([objhref, 'content.xml'])
 
         for c in self.document.childnodes:
             if c.folder == objhref:
@@ -839,7 +839,7 @@ class ODF2XHTML(handler.ContentHandler):
         if (FONS,'min-height') in attrs:
             style = style + 'min-height:' +  attrs[(FONS,'min-height')] + ';'
         self.opentag('div')
-#       self.opentag('div', {'style': style})
+        # self.opentag('div', {'style': style})
 
     def e_draw_textbox(self, tag, attrs):
         ''' End the <draw:text-box>
@@ -937,11 +937,11 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.opentag('dl', {'class':'notes'})
         for key in range(1,self.currentnote+1):
             note = self.notedict[key]
-#       for key,note in self.notedict.items():
+        # for key,note in self.notedict.items():
             self.opentag('dt', {'id':f'footnote-{key}'})
-#           self.opentag('sup')
-#           self.writeout(escape(note['citation']))
-#           self.closetag('sup', False)
+            # self.opentag('sup')
+            # self.writeout(escape(note['citation']))
+            # self.closetag('sup', False)
             self.writeout('[')
             self.opentag('a', {'href': f'#citation-{key}'})
             self.writeout(f'←{key}')
@@ -1030,7 +1030,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         family = attrs[(STYLENS,'family')]
         htmlfamily = self.familymap.get(family,'unknown')
         self.currentstyle = htmlfamily
-#       self.stylestack.append(self.currentstyle)
+        # self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def e_style_default_style(self, tag, attrs):
@@ -1475,7 +1475,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             'class': 'citation',
             'id':f'citation-{self.currentnote}',
         })
-#        self.writeout( escape(mark) )
+        # self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
         # marker is reused in the source. Therefore we force numeric markers
         self.writeout(str(self.currentnote))
@@ -1672,11 +1672,11 @@ class ODF2XHTMLembedded(ODF2XHTML):
         # Tags
         self.generate_css = generate_css
         self.elements = {
-#        (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
-#        (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
-#        (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
-#        (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
-#        (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
+        # (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
+        # (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
         (DRAWNS, 'frame'): (self.s_draw_frame, self.e_draw_frame),
         (DRAWNS, 'image'): (self.s_draw_image, None),
         (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
@@ -1685,48 +1685,48 @@ class ODF2XHTMLembedded(ODF2XHTML):
         (DRAWNS, 'object'): (self.s_draw_object, None),
         (DRAWNS, 'object-ole'): (self.s_draw_object_ole, None),
         (DRAWNS, 'text-box'): (self.s_draw_textbox, self.e_draw_textbox),
-#        (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
         (NUMBERNS, 'boolean-style'):(self.s_ignorexml, None),
         (NUMBERNS, 'currency-style'):(self.s_ignorexml, None),
         (NUMBERNS, 'date-style'):(self.s_ignorexml, None),
         (NUMBERNS, 'number-style'):(self.s_ignorexml, None),
         (NUMBERNS, 'text-style'):(self.s_ignorexml, None),
-#        (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
-#        (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
+        # (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
+        # (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
         (OFFICENS, 'forms'):(self.s_ignorexml, None),
-#        (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
+        # (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
         (OFFICENS, 'meta'):(self.s_ignorecont, None),
-#        (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
-#        (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
-#        (OFFICENS, "styles"):(self.s_office_styles, None),
-#        (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
+        # (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
+        # (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
+        # (OFFICENS, "styles"):(self.s_office_styles, None),
+        # (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
         (OFFICENS, 'scripts'):(self.s_ignorexml, None),
         (PRESENTATIONNS, 'notes'):(self.s_ignorexml, None),
-# (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
-#        (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
-#        (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
-#        (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "font-face"):(self.s_style_font_face, None),
-# (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
-# (STYLENS, "footer-style"):(self.s_style_footer_style, None),
-#        (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "handout-master"):(self.s_ignorexml, None),
-# (STYLENS, "header"):(self.s_style_header, self.e_style_header),
-# (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
-# (STYLENS, "header-style"):(self.s_style_header_style, None),
-#        (STYLENS, "master-page"):(self.s_style_master_page, None),
-#        (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
-# (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
-#        (STYLENS, "page-layout"):(self.s_ignorexml, None),
-#        (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "style"):(self.s_style_style, self.e_style_style),
-#        (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+        # (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
+        # (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
+        # (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "font-face"):(self.s_style_font_face, None),
+        # (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
+        # (STYLENS, "footer-style"):(self.s_style_footer_style, None),
+        # (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "handout-master"):(self.s_ignorexml, None),
+        # (STYLENS, "header"):(self.s_style_header, self.e_style_header),
+        # (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "header-style"):(self.s_style_header_style, None),
+        # (STYLENS, "master-page"):(self.s_style_master_page, None),
+        # (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
+        # (STYLENS, "page-layout"):(self.s_ignorexml, None),
+        # (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "style"):(self.s_style_style, self.e_style_style),
+        # (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
         (SVGNS, 'desc'): (self.s_ignorexml, None),
         (TABLENS, 'covered-table-cell'): (self.s_ignorexml, None),
         (TABLENS, 'table-cell'): (self.s_table_table_cell, self.e_table_table_cell),

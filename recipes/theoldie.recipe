@@ -90,7 +90,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # oldie links/headings often contain the author (in one of various formats
     # 1. Title. By author
-    # .2. Title by author: subtitle
+    # 2. Title by author: subtitle
     # 3. Title: author: subtitle
     title_author_re = re.compile(r'^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
 

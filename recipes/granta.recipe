@@ -47,7 +47,7 @@ def multiply_with_unknown_component(first_comp, second_comp, result):
 
 
 def solve_captcha(captcha):
-    # # Convert from a word problem into a numeric problem
+    # Convert from a word problem into a numeric problem
     numeric_problem = ''
     for part in captcha.split(' '):
         numeric_problem = numeric_problem + str(text2num(part))

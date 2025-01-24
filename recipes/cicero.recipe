@@ -15,7 +15,7 @@ class BasicUserRecipe1316245412(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = False
 
-#    remove_javascript = True
+    # remove_javascript = True
 
     remove_tags = [
         dict(name='div', attrs={'id': ['header', 'navigation', 'skip-link',
@@ -51,6 +51,6 @@ class BasicUserRecipe1316245412(BasicNewsRecipe):
     def print_version(self, url):
         return url + '?print'
 
-#    def get_cover_url(self):
-# return 'http://www.cicero.de/sites/all/themes/cicero/logo.png' # need to
-# find a good logo on their home page!
+    # def get_cover_url(self):
+    #     return 'http://www.cicero.de/sites/all/themes/cicero/logo.png' # need to
+    #     find a good logo on their home page!

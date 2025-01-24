@@ -34,15 +34,15 @@ class ParseOptions:
     def __init__(self, system_string, options_dict):
         self.__system_string = system_string[1:]
         long_list  = self.__make_long_list_func(options_dict)
-        # # print(long_list)
+        # print(long_list)
         short_list = self.__make_short_list_func(options_dict)
-        # # print(short_list)
+        # print(short_list)
         self.__legal_options = long_list + short_list
-        # # print(self.__legal_options)
+        # print(self.__legal_options)
         self.__short_long_dict = self.__make_short_long_dict_func(options_dict)
-        # # print(self.__short_long_dict)
+        # print(self.__short_long_dict)
         self.__opt_with_args = self.__make_options_with_arg_list(options_dict)
-        # # print(self.__opt_with_args)
+        # print(self.__opt_with_args)
         self.__options_okay = 1
 
     def __make_long_list_func(self, options_dict):
@@ -256,16 +256,16 @@ class ParseOptions:
 
     def parse_options(self):
         self.__system_string = self.__sub_short_with_long()
-        # # print('subbed list is  %s' % self.__system_string)
+        # print('subbed list is  %s' % self.__system_string)
         self.__system_string = self.__pair_arg_with_option()
-        # # print('list with pairing is %s' % self.__system_string)
+        # print('list with pairing is %s' % self.__system_string)
         options, arguments  = self.__get_just_options()
-        # # print('options are %s ' % options)
-        # # print('arguments are %s ' % arguments)
+        # print('options are %s ' % options)
+        # print('arguments are %s ' % arguments)
         self.__is_legal_option_func()
         if self.__options_okay:
             options_dict = self.__make_options_dict(options)
-            # # print(options_dict)
+            # print(options_dict)
             return options_dict, arguments
         else:
             return 0,0

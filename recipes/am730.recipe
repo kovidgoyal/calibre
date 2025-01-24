@@ -96,5 +96,5 @@ class AM730(BasicNewsRecipe):
                 print(title)
                 print(url)
             SectionsArticles.append(self.getAMSectionArticles(title,url))
-#        feeds.append(articles[0]['url'])
+        # feeds.append(articles[0]['url'])
         return SectionsArticles

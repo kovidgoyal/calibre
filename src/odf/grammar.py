@@ -86,7 +86,7 @@ allowed_children = {
         ),
         (DCNS,'title') : (
         ),
-# Completes Dublin Core start
+    # Completes Dublin Core start
         # (DCNS,'contributor') : (
         # ),
         # (DCNS,'coverage') : (
@@ -105,7 +105,7 @@ allowed_children = {
         # ),
         # (DCNS,'type') : (
         # ),
-# Completes Dublin Core end
+    # Completes Dublin Core end
         (MATHNS,'math') : None,
 
         (XFORMSNS,'model') : None,
@@ -123,7 +123,7 @@ allowed_children = {
         (ANIMNS,'command') : (
                 (ANIMNS,'param'),
         ),
-# allowed_children
+    # allowed_children
         (ANIMNS,'iterate') : (
                 (ANIMNS,'animate'),
                 (ANIMNS,'animateColor'),
@@ -150,7 +150,7 @@ allowed_children = {
                 (ANIMNS,'set'),
                 (ANIMNS,'transitionFilter'),
         ),
-# allowed_children
+    # allowed_children
         (ANIMNS,'param') : (
         ),
         (ANIMNS,'seq') : (
@@ -175,7 +175,7 @@ allowed_children = {
                 (CHARTNS,'grid'),
                 (CHARTNS,'title'),
         ),
-# allowed_children
+    # allowed_children
         (CHARTNS,'categories') : (
         ),
         (CHARTNS,'chart') : (
@@ -201,7 +201,7 @@ allowed_children = {
         ),
         (CHARTNS,'legend') : (
         ),
-# allowed_children
+    # allowed_children
         (CHARTNS,'mean-value') : (
         ),
         (CHARTNS,'plot-area') : (
@@ -227,7 +227,7 @@ allowed_children = {
         ),
         (CHARTNS,'stock-loss-marker') : (
         ),
-# allowed_children
+    # allowed_children
         (CHARTNS,'stock-range-line') : (
         ),
         (CHARTNS,'subtitle') : (
@@ -254,7 +254,7 @@ allowed_children = {
         (CONFIGNS,'config-item-map-named') : (
                 (CONFIGNS,'config-item-map-entry'),
         ),
-# allowed_children
+    # allowed_children
         (CONFIGNS,'config-item-set') : (
                 (CONFIGNS,'config-item'),
                 (CONFIGNS,'config-item-map-indexed'),
@@ -279,7 +279,7 @@ allowed_children = {
         ),
         (NUMBERNS,'boolean') : (
         ),
-# allowed_children
+    # allowed_children
         (NUMBERNS,'boolean-style') : (
                 (NUMBERNS,'boolean'),
                 (NUMBERNS,'text'),
@@ -311,7 +311,7 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
+    # allowed_children
         (NUMBERNS,'day') : (
         ),
         (NUMBERNS,'day-of-week') : (
@@ -339,7 +339,7 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
+    # allowed_children
         (NUMBERNS,'percentage-style') : (
                 (NUMBERNS,'number'),
                 (NUMBERNS,'text'),
@@ -362,7 +362,7 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
+    # allowed_children
         (NUMBERNS,'time-style') : (
                 (NUMBERNS,'am-pm'),
                 (NUMBERNS,'hours'),
@@ -372,7 +372,7 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
+    # allowed_children
         (NUMBERNS,'week-of-year') : (
         ),
         (NUMBERNS,'year') : (
@@ -400,7 +400,7 @@ allowed_children = {
         (DRAWNS,'a') : (
                 (DRAWNS,'frame'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'applet') : (
                 (DRAWNS,'param'),
         ),
@@ -435,7 +435,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'connector') : (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
@@ -462,7 +462,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'ellipse') : (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
@@ -477,7 +477,7 @@ allowed_children = {
         ),
         (DRAWNS,'equation') : (
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'fill-image') : (
         ),
         (DRAWNS,'floating-frame') : (
@@ -498,7 +498,7 @@ allowed_children = {
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'g') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
@@ -530,7 +530,7 @@ allowed_children = {
         ),
         (DRAWNS,'hatch') : (
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'image') : (
                 (OFFICENS,'binary-data'),
                 (TEXTNS,'list'),
@@ -570,7 +570,7 @@ allowed_children = {
                 (MATHNS,'math'),
                 (OFFICENS,'document'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'object-ole') : (
                 (OFFICENS,'binary-data'),
         ),
@@ -609,7 +609,7 @@ allowed_children = {
                 (PRESENTATIONNS,'animations'),
                 (PRESENTATIONNS,'notes'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'page-thumbnail') : (
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
@@ -643,7 +643,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
+    # allowed_children
         (DRAWNS,'rect') : (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
@@ -699,7 +699,7 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
+    # allowed_children
         (FORMNS,'button') : (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
@@ -737,7 +737,7 @@ allowed_children = {
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-# allowed_children
+    # allowed_children
         (FORMNS,'form') : (
                 (FORMNS,'button'),
                 (FORMNS,'checkbox'),
@@ -790,7 +790,7 @@ allowed_children = {
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-# allowed_children
+    # allowed_children
         (FORMNS,'image-frame') : (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
@@ -878,7 +878,7 @@ allowed_children = {
         ),
         (METANS,'user-defined') : (
         ),
-# allowed_children
+    # allowed_children
         (OFFICENS,'annotation') : (
                 (DCNS,'creator'),
                 (DCNS,'date'),
@@ -982,7 +982,7 @@ allowed_children = {
         (OFFICENS,'font-face-decls') : (
                 (STYLENS,'font-face'),
         ),
-# allowed_children
+    # allowed_children
         (OFFICENS,'forms') : (
                 (XFORMSNS,'model'),
                 (FORMNS,'form'),
@@ -1003,17 +1003,17 @@ allowed_children = {
                 (DCNS,'language'),
                 (DCNS,'subject'),
                 (DCNS,'title'),
-# Completes Dublin Core start
-#               (DCNS,'contributor'),
-#               (DCNS,'coverage'),
-#               (DCNS,'format'),
-#               (DCNS,'identifier'),
-#               (DCNS,'publisher'),
-#               (DCNS,'relation'),
-#               (DCNS,'rights'),
-#               (DCNS,'source'),
-#               (DCNS,'type'),
-# Completes Dublin Core end
+        # Completes Dublin Core start
+                # (DCNS,'contributor'),
+                # (DCNS,'coverage'),
+                # (DCNS,'format'),
+                # (DCNS,'identifier'),
+                # (DCNS,'publisher'),
+                # (DCNS,'relation'),
+                # (DCNS,'rights'),
+                # (DCNS,'source'),
+                # (DCNS,'type'),
+        # Completes Dublin Core end
                 (METANS,'auto-reload'),
                 (METANS,'creation-date'),
                 (METANS,'document-statistic'),
@@ -1048,7 +1048,7 @@ allowed_children = {
                 (TEXTNS,'user-field-decls'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
+    # allowed_children
         (OFFICENS,'script') : None,
 
         (OFFICENS,'scripts') : (
@@ -1194,7 +1194,7 @@ allowed_children = {
         (PRESENTATIONNS,'hide-text') : (
                 (PRESENTATIONNS,'sound'),
         ),
-# allowed_children
+    # allowed_children
         (PRESENTATIONNS,'notes') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
@@ -1297,7 +1297,7 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
+    # allowed_children
         (STYLENS,'footer-left') : (
                 (STYLENS,'region-center'),
                 (STYLENS,'region-left'),
@@ -1335,7 +1335,7 @@ allowed_children = {
                 (STYLENS,'columns'),
                 (TEXTNS,'list-style'),
         ),
-# allowed_children
+    # allowed_children
         (STYLENS,'handout-master') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
@@ -1382,7 +1382,7 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
+    # allowed_children
         (STYLENS,'header-footer-properties') : (
                 (STYLENS,'background-image'),
         ),
@@ -1456,7 +1456,7 @@ allowed_children = {
                 (STYLENS,'columns'),
                 (STYLENS,'footnote-sep'),
         ),
-# allowed_children
+    # allowed_children
         (STYLENS,'paragraph-properties') : (
                 (STYLENS,'background-image'),
                 (STYLENS,'drop-cap'),
@@ -1500,7 +1500,7 @@ allowed_children = {
         (STYLENS,'tab-stops') : (
                 (STYLENS,'tab-stop'),
         ),
-# allowed_children
+    # allowed_children
         (STYLENS,'table-cell-properties') : (
                 (STYLENS,'background-image'),
         ),
@@ -1545,7 +1545,7 @@ allowed_children = {
                 (TABLENS,'iteration'),
                 (TABLENS,'null-date'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'cell-address') : (
         ),
         (TABLENS,'cell-content-change') : (
@@ -1574,7 +1574,7 @@ allowed_children = {
                 (TABLENS,'error-message'),
                 (TABLENS,'help-message'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'content-validations') : (
                 (TABLENS,'content-validation'),
         ),
@@ -1618,7 +1618,7 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'cut-offs') : (
                 (TABLENS,'insertion-cut-off'),
                 (TABLENS,'movement-cut-off'),
@@ -1661,7 +1661,7 @@ allowed_children = {
         (TABLENS,'data-pilot-subtotals') : (
                 (TABLENS,'data-pilot-subtotal'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'data-pilot-table') : (
                 (TABLENS,'data-pilot-field'),
                 (TABLENS,'database-source-query'),
@@ -1690,7 +1690,7 @@ allowed_children = {
         ),
         (TABLENS,'database-source-table') : (
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'dde-link') : (
                 (OFFICENS,'dde-source'),
                 (TABLENS,'table'),
@@ -1717,7 +1717,7 @@ allowed_children = {
                 (TABLENS,'highlighted-range'),
                 (TABLENS,'operation'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'error-macro') : (
         ),
         (TABLENS,'error-message') : (
@@ -1742,7 +1742,7 @@ allowed_children = {
                 (TABLENS,'filter-and'),
                 (TABLENS,'filter-condition'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'first-column') : (
         ),
         (TABLENS,'first-row') : (
@@ -1785,7 +1785,7 @@ allowed_children = {
                 (TABLENS,'named-expression'),
                 (TABLENS,'named-range'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'named-range') : (
         ),
         (TABLENS,'null-date') : (
@@ -1820,7 +1820,7 @@ allowed_children = {
                 (DRAWNS,'rect'),
                 (DRAWNS,'regular-polygon'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'sort') : (
                 (TABLENS,'sort-by'),
         ),
@@ -1844,7 +1844,7 @@ allowed_children = {
                 (TABLENS,'sort-groups'),
                 (TABLENS,'subtotal-rule'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'table') : (
                 (OFFICENS,'dde-source'),
                 (OFFICENS,'forms'),
@@ -1901,7 +1901,7 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'table-column') : (
         ),
         (TABLENS,'table-column-group') : (
@@ -1935,7 +1935,7 @@ allowed_children = {
                 (TABLENS,'table-row'),
                 (TEXTNS,'soft-page-break'),
         ),
-# allowed_children
+    # allowed_children
         (TABLENS,'table-source') : (
         ),
         (TABLENS,'table-template') : (
@@ -1957,7 +1957,7 @@ allowed_children = {
                 (TABLENS,'insertion'),
                 (TABLENS,'movement'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'a') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2086,7 +2086,7 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'alphabetical-index') : (
                 (TEXTNS,'alphabetical-index-source'),
                 (TEXTNS,'index-body'),
@@ -2126,7 +2126,7 @@ allowed_children = {
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'bibliography-mark') : (
         ),
         (TEXTNS,'bibliography-source') : (
@@ -2188,7 +2188,7 @@ allowed_children = {
         (TEXTNS,'dde-connection-decls') : (
                 (TEXTNS,'dde-connection-decl'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'deletion') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2243,7 +2243,7 @@ allowed_children = {
         (TEXTNS,'format-change') : (
                 (OFFICENS,'change-info'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'h') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2372,7 +2372,7 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'hidden-paragraph') : (
         ),
         (TEXTNS,'hidden-text') : (
@@ -2393,7 +2393,7 @@ allowed_children = {
         ),
         (TEXTNS,'image-count') : (
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'index-body') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2453,7 +2453,7 @@ allowed_children = {
         (TEXTNS,'index-source-styles') : (
                 (TEXTNS,'index-source-style'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'index-title') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2553,7 +2553,7 @@ allowed_children = {
                 (TEXTNS,'note-body'),
                 (TEXTNS,'note-citation'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'note-body') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2633,7 +2633,7 @@ allowed_children = {
         (TEXTNS,'outline-style') : (
                 (TEXTNS,'outline-level-style'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'p') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -2790,7 +2790,7 @@ allowed_children = {
         ),
         (TEXTNS,'reference-mark-end') : (
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'reference-mark-start') : (
         ),
         (TEXTNS,'reference-ref') : (
@@ -2926,7 +2926,7 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'ruby-text') : (
         ),
         (TEXTNS,'s') : (
@@ -2980,7 +2980,7 @@ allowed_children = {
         ),
         (TEXTNS,'sender-country') : (
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'sender-email') : (
         ),
         (TEXTNS,'sender-fax') : (
@@ -3020,7 +3020,7 @@ allowed_children = {
         ),
         (TEXTNS,'sort-key') : (
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'span') : (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
@@ -3148,7 +3148,7 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'subject') : (
         ),
         (TEXTNS,'tab') : (
@@ -3203,7 +3203,7 @@ allowed_children = {
         ),
         (TEXTNS,'toc-mark-start') : (
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'tracked-changes') : (
                 (TEXTNS,'changed-region'),
         ),
@@ -3229,7 +3229,7 @@ allowed_children = {
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-# allowed_children
+    # allowed_children
         (TEXTNS,'user-index-mark') : (
         ),
         (TEXTNS,'user-index-mark-end') : (
@@ -3254,6 +3254,7 @@ allowed_children = {
         ),
         (TEXTNS,'word-count') : (
         ),
+    # allowed_children
 }
 
 #
@@ -3267,17 +3268,17 @@ allows_text = (
         (DCNS,'language'),
         (DCNS,'subject'),
         (DCNS,'title'),
-# Completes Dublin Core start
-#       (DCNS,'contributor'),
-#       (DCNS,'coverage'),
-#       (DCNS,'format'),
-#       (DCNS,'identifier'),
-#       (DCNS,'publisher'),
-#       (DCNS,'relation'),
-#       (DCNS,'rights'),
-#       (DCNS,'source'),
-#       (DCNS,'type'),
-# Completes Dublin Core end
+    # Completes Dublin Core start
+        # (DCNS,'contributor'),
+        # (DCNS,'coverage'),
+        # (DCNS,'format'),
+        # (DCNS,'identifier'),
+        # (DCNS,'publisher'),
+        # (DCNS,'relation'),
+        # (DCNS,'rights'),
+        # (DCNS,'source'),
+        # (DCNS,'type'),
+    # Completes Dublin Core end
         (FORMNS,'item'),
         (FORMNS,'option'),
         (MATHNS,'math'),
@@ -3285,7 +3286,7 @@ allows_text = (
         (METANS,'date-string'),
         (METANS,'editing-cycles'),
         (METANS,'editing-duration'),
-# allows_text
+    # allows_text
         (METANS,'generator'),
         (METANS,'initial-creator'),
         (METANS,'keyword'),
@@ -3328,7 +3329,7 @@ allows_text = (
         (TEXTNS,'hidden-paragraph'),
         (TEXTNS,'hidden-text'),
         (TEXTNS,'image-count'),
-# allowed_children
+    # allows_text
         (TEXTNS,'index-entry-span'),
         (TEXTNS,'index-title-template'),
         (TEXTNS,'initial-creator'),
@@ -3376,7 +3377,7 @@ allows_text = (
         (TEXTNS,'sequence'),
         (TEXTNS,'sequence-ref'),
         (TEXTNS,'sheet-name'),
-# allowed_children
+    # allows_text
         (TEXTNS,'span'),
         (TEXTNS,'subject'),
         (TEXTNS,'table-count'),
@@ -3392,6 +3393,7 @@ allows_text = (
         (TEXTNS,'variable-input'),
         (TEXTNS,'variable-set'),
         (TEXTNS,'word-count'),
+    # allows_text
 )
 
 # Only the elements with at least one required attribute is listed
@@ -3420,7 +3422,7 @@ required_attributes = {
         (ANIMNS,'set'): (
                 (SMILNS,'attributeName'),
         ),
-# required_attributes
+    # required_attributes
         (ANIMNS,'transitionFilter'): (
                 (SMILNS,'type'),
         ),
@@ -3446,7 +3448,7 @@ required_attributes = {
         (CONFIGNS,'config-item-set'): (
                 (CONFIGNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (NUMBERNS,'boolean-style'): (
                 (STYLENS,'name'),
         ),
@@ -3482,7 +3484,7 @@ required_attributes = {
                 (SVGNS,'viewBox'),
                 (SVGNS,'d'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'a'): (
                 (XLINKNS,'href'),
         ),
@@ -3531,7 +3533,7 @@ required_attributes = {
                 (DRAWNS,'id'),
                 (DRAWNS,'escape-direction'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'gradient'): (
                 (DRAWNS,'style'),
         ),
@@ -3579,7 +3581,7 @@ required_attributes = {
                 (DRAWNS,'points'),
                 (SVGNS,'viewBox'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'polyline'): (
                 (DRAWNS,'points'),
                 (SVGNS,'viewBox'),
@@ -3626,7 +3628,7 @@ required_attributes = {
         (FORMNS,'hidden'): (
                 (FORMNS,'id'),
         ),
-# required_attributes
+    # required_attributes
         (FORMNS,'image'): (
                 (FORMNS,'id'),
         ),
@@ -3683,7 +3685,7 @@ required_attributes = {
                 (MANIFESTNS,'salt'),
                 (MANIFESTNS,'iteration-count'),
         ),
-# required_attributes
+    # required_attributes
         (METANS,'template'): (
                 (XLINKNS,'href'),
         ),
@@ -3709,7 +3711,7 @@ required_attributes = {
                 (DRAWNS,'color'),
                 (DRAWNS,'shape-id'),
         ),
-# required_attributes
+    # required_attributes
         (PRESENTATIONNS,'event-listener'): (
                 (PRESENTATIONNS,'action'),
                 (SCRIPTNS,'event-name'),
@@ -3756,7 +3758,7 @@ required_attributes = {
         (STYLENS,'column'): (
                 (STYLENS,'rel-width'),
         ),
-# required_attributes
+    # required_attributes
         (STYLENS,'column-sep'): (
                 (STYLENS,'width'),
         ),
@@ -3804,7 +3806,7 @@ required_attributes = {
         (SVGNS,'stop'): (
                 (SVGNS,'offset'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'body'): (
                 (TEXTNS,'style-name'),
         ),
@@ -3836,7 +3838,7 @@ required_attributes = {
                 (TABLENS,'enabled'),
                 (TABLENS,'display-member-mode'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'data-pilot-field'): (
                 (TABLENS,'source-field-name'),
         ),
@@ -3875,7 +3877,7 @@ required_attributes = {
         (TABLENS,'database-range'): (
                 (TABLENS,'target-range-address'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'database-source-query'): (
                 (TABLENS,'query-name'),
                 (TABLENS,'database-name'),
@@ -3922,7 +3924,7 @@ required_attributes = {
                 (TABLENS,'position'),
                 (TABLENS,'id'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'label-range'): (
                 (TABLENS,'label-cell-range-address'),
                 (TABLENS,'data-cell-range-address'),
@@ -3955,7 +3957,7 @@ required_attributes = {
                 (TABLENS,'index'),
                 (TABLENS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'scenario'): (
                 (TABLENS,'is-active'),
                 (TABLENS,'scenario-ranges'),
@@ -3991,7 +3993,7 @@ required_attributes = {
         (TEXTNS,'a'): (
                 (XLINKNS,'href'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'alphabetical-index'): (
                 (TEXTNS,'name'),
         ),
@@ -4024,7 +4026,7 @@ required_attributes = {
         (TEXTNS,'bookmark'): (
                 (TEXTNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'bookmark-end'): (
                 (TEXTNS,'name'),
         ),
@@ -4071,7 +4073,7 @@ required_attributes = {
         (TEXTNS,'dde-connection'): (
                 (TEXTNS,'connection-name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'dde-connection-decl'): (
                 (OFFICENS,'dde-topic'),
                 (OFFICENS,'dde-application'),
@@ -4119,7 +4121,7 @@ required_attributes = {
         (TEXTNS,'list-style'): (
                 (STYLENS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'measure'): (
                 (TEXTNS,'kind'),
         ),
@@ -4169,7 +4171,7 @@ required_attributes = {
                 (TEXTNS,'display-outline-level'),
                 (TEXTNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'sort-key'): (
                 (TEXTNS,'key'),
         ),
@@ -4214,7 +4216,7 @@ required_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'outline-level'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'user-index-mark'): (
                 (TEXTNS,'index-name'),
                 (TEXTNS,'string-value'),
@@ -4243,6 +4245,7 @@ required_attributes = {
         (TEXTNS,'variable-set'): (
                 (TEXTNS,'name'),
         ),
+    # required_attributes
 }
 
 # Empty list means the element has no allowed attributes
@@ -4261,29 +4264,29 @@ allowed_attributes = {
         ),
         (DCNS,'title'):(
         ),
-# Completes Dublin Core start
-#       (DCNS,'contributor') : (
-#       ),
-#       (DCNS,'coverage') : (
-#       ),
-#       (DCNS,'format') : (
-#       ),
-#       (DCNS,'identifier') : (
-#       ),
-#       (DCNS,'publisher') : (
-#       ),
-#       (DCNS,'relation') : (
-#       ),
-#       (DCNS,'rights') : (
-#       ),
-#       (DCNS,'source') : (
-#       ),
-#       (DCNS,'type') : (
-#       ),
-# Completes Dublin Core end
+    # Completes Dublin Core start
+        # (DCNS,'contributor') : (
+        # ),
+        # (DCNS,'coverage') : (
+        # ),
+        # (DCNS,'format') : (
+        # ),
+        # (DCNS,'identifier') : (
+        # ),
+        # (DCNS,'publisher') : (
+        # ),
+        # (DCNS,'relation') : (
+        # ),
+        # (DCNS,'rights') : (
+        # ),
+        # (DCNS,'source') : (
+        # ),
+        # (DCNS,'type') : (
+        # ),
+    # Completes Dublin Core end
         (MATHNS,'math'): None,
         (XFORMSNS,'model'): None,
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animate'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4311,7 +4314,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
                 (SMILNS,'values'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateColor'):(
                 (ANIMNS,'color-interpolation'),
                 (ANIMNS,'color-interpolation-direction'),
@@ -4341,7 +4344,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
                 (SMILNS,'values'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateMotion'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4371,7 +4374,7 @@ allowed_attributes = {
                 (SVGNS,'origin'),
                 (SVGNS,'path'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateTransform'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4397,7 +4400,7 @@ allowed_attributes = {
                 (SMILNS,'values'),
                 (SVGNS,'type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'audio'):(
                 (ANIMNS,'audio-level'),
                 (ANIMNS,'id'),
@@ -4428,7 +4431,7 @@ allowed_attributes = {
                 (ANIMNS,'id'),
                 (PRESENTATIONNS,'master-element'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'iterate'):(
                 (ANIMNS,'id'),
                 (ANIMNS,'iterate-interval'),
@@ -4477,7 +4480,7 @@ allowed_attributes = {
                 (SMILNS,'restart'),
                 (PRESENTATIONNS,'master-element'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'param'):(
                 (ANIMNS,'name'),
                 (ANIMNS,'value'),
@@ -4525,7 +4528,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
 
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'transitionFilter'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4556,7 +4559,7 @@ allowed_attributes = {
                 (SMILNS,'values'),
 
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'axis'):(
                 (CHARTNS,'style-name'),
                 (CHARTNS,'dimension'),
@@ -4587,7 +4590,7 @@ allowed_attributes = {
                 (SVGNS,'width'),
                 (CHARTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'footer'):(
                 (SVGNS,'y'),
                 (SVGNS,'x'),
@@ -4643,7 +4646,7 @@ allowed_attributes = {
         (CHARTNS,'stock-gain-marker'):(
                 (CHARTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'stock-loss-marker'):(
                 (CHARTNS,'style-name'),
         ),
@@ -4685,7 +4688,7 @@ allowed_attributes = {
         (CONFIGNS,'config-item-set'):(
                 (CONFIGNS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'am-pm'):(
         ),
         (NUMBERNS,'boolean'):(
@@ -4719,7 +4722,7 @@ allowed_attributes = {
                 (NUMBERNS,'country'),
                 (NUMBERNS,'language'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'date-style'):(
                 (NUMBERNS,'transliteration-language'),
                 (STYLENS,'name'),
@@ -4759,7 +4762,7 @@ allowed_attributes = {
         (NUMBERNS,'hours'):(
                 (NUMBERNS,'style'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'minutes'):(
                 (NUMBERNS,'style'),
         ),
@@ -4788,7 +4791,7 @@ allowed_attributes = {
                 (STYLENS,'volatile'),
                 (NUMBERNS,'transliteration-country'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'percentage-style'):(
                 (NUMBERNS,'transliteration-language'),
                 (STYLENS,'name'),
@@ -4894,7 +4897,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'class-names'),
                 (DRAWNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DR3DNS,'scene'):(
                 (DR3DNS,'ambient-color'),
                 (DR3DNS,'distance'),
@@ -5142,7 +5145,7 @@ allowed_attributes = {
                 (DRAWNS,'id'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'ellipse'):(
                 (DRAWNS,'layer'),
                 (DRAWNS,'start-angle'),
@@ -5173,7 +5176,7 @@ allowed_attributes = {
                 (SVGNS,'x'),
                 (DRAWNS,'text-style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'enhanced-geometry'):(
                 (DRAWNS,'extrusion-rotation-center'),
                 (DRAWNS,'extrusion-shininess'),
@@ -5219,7 +5222,7 @@ allowed_attributes = {
                 (DRAWNS,'glue-point-type'),
                 (DRAWNS,'text-path'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'equation'):(
                 (DRAWNS,'formula'),
                 (DRAWNS,'name'),
@@ -5270,7 +5273,7 @@ allowed_attributes = {
                 (TEXTNS,'anchor-page-number'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'g'):(
                 (DRAWNS,'id'),
                 (DRAWNS,'caption-id'),
@@ -5343,7 +5346,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (DRAWNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'layer-set'):(
         ),
         (DRAWNS,'line'):(
@@ -5375,7 +5378,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (SVGNS,'viewBox'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'measure'):(
                 (TABLENS,'end-cell-address'),
                 (DRAWNS,'layer'),
@@ -5465,7 +5468,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (DRAWNS,'value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'path'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5523,7 +5526,7 @@ allowed_attributes = {
                 (SVGNS,'viewBox'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'polyline'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5573,7 +5576,7 @@ allowed_attributes = {
                 (TEXTNS,'anchor-page-number'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'regular-polygon'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5619,7 +5622,7 @@ allowed_attributes = {
                 (FONS,'max-width'),
                 (TEXTNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'button'):(
                 (FORMNS,'tab-stop'),
                 (FORMNS,'focus-on-click'),
@@ -5691,7 +5694,7 @@ allowed_attributes = {
                 (FORMNS,'current-value'),
                 (FORMNS,'size'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'connection-resource'):(
                 (XLINKNS,'href'),
         ),
@@ -5741,7 +5744,7 @@ allowed_attributes = {
                 (FORMNS,'printable'),
                 (FORMNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'form'):(
                 (XLINKNS,'actuate'),
                 (XLINKNS,'href'),
@@ -5798,7 +5801,7 @@ allowed_attributes = {
                 (FORMNS,'printable'),
                 (FORMNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'generic-control'):(
                 (FORMNS,'control-implementation'),
                 (XFORMSNS,'bind'),
@@ -5861,7 +5864,7 @@ allowed_attributes = {
         (FORMNS,'list-value'):(
                 (OFFICENS,'string-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'listbox'):(
                 (FORMNS,'tab-stop'),
                 (FORMNS,'bound-column'),
@@ -6043,7 +6046,7 @@ allowed_attributes = {
         ),
         (MANIFESTNS,'manifest'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (METANS,'auto-reload'):(
                 (METANS,'delay'),
                 (XLINKNS,'actuate'),
@@ -6078,7 +6081,7 @@ allowed_attributes = {
         ),
         (METANS,'generator'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (METANS,'hyperlink-behaviour'):(
                 (OFFICENS,'target-frame-name'),
                 (XLINKNS,'show'),
@@ -6174,7 +6177,7 @@ allowed_attributes = {
         ),
         (OFFICENS,'image'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (OFFICENS,'master-styles'):(
         ),
         (OFFICENS,'meta'):(
@@ -6245,7 +6248,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'speed'),
                 (DRAWNS,'shape-id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (PRESENTATIONNS,'hide-text'):(
                 (PRESENTATIONNS,'direction'),
                 (PRESENTATIONNS,'effect'),
@@ -6273,7 +6276,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'speed'),
                 (DRAWNS,'shape-id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (PRESENTATIONNS,'settings'):(
                 (PRESENTATIONNS,'animations'),
                 (PRESENTATIONNS,'endless'),
@@ -6319,7 +6322,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'play-full'),
                 (XLINKNS,'show'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (SCRIPTNS,'event-listener'):(
                 (SCRIPTNS,'language'),
                 (SCRIPTNS,'macro-name'),
@@ -6412,7 +6415,7 @@ allowed_attributes = {
         (STYLENS,'default-style'):(
                 (STYLENS,'family'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'drawing-page-properties'): (
                 (DRAWNS,'fill'),
                 (DRAWNS,'fill-color'),
@@ -6455,7 +6458,7 @@ allowed_attributes = {
                 (STYLENS,'style-name'),
                 (STYLENS,'lines'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'font-face'):(
                 (STYLENS,'font-adornments'),
                 (STYLENS,'font-charset'),
@@ -6513,7 +6516,7 @@ allowed_attributes = {
                 (STYLENS,'line-style'),
                 (STYLENS,'adjustment'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'graphic-properties'): (
                 (DR3DNS,'ambient-color'),
                 (DR3DNS,'back-scale'),
@@ -6568,7 +6571,7 @@ allowed_attributes = {
                 (DRAWNS,'fill-image-ref-point-x'),
                 (DRAWNS,'fill-image-ref-point-y'),
                 (DRAWNS,'fill-image-width'),
-# allowed_attributes
+    # allowed_attributes
                 (DRAWNS,'fit-to-contour'),
                 (DRAWNS,'fit-to-size'),
                 (DRAWNS,'frame-display-border'),
@@ -6621,7 +6624,7 @@ allowed_attributes = {
                 (DRAWNS,'visible-area-top'),
                 (DRAWNS,'visible-area-width'),
                 (DRAWNS,'wrap-influence-on-position'),
-# allowed_attributes
+    # allowed_attributes
                 (FONS,'background-color'),
                 (FONS,'border'),
                 (FONS,'border-bottom'),
@@ -6696,7 +6699,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'use-header-name'),
                 (PRESENTATIONNS,'use-date-time-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'header'):(
                 (STYLENS,'display'),
         ),
@@ -6732,7 +6735,7 @@ allowed_attributes = {
         ),
         (STYLENS,'header-style'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'list-level-properties'): (
                 (FONS,'height'),
                 (FONS,'text-align'),
@@ -6761,7 +6764,7 @@ allowed_attributes = {
                 (STYLENS,'name'),
                 (STYLENS,'page-usage'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'page-layout-properties'): (
                 (FONS,'background-color'),
                 (FONS,'border'),
@@ -6811,7 +6814,7 @@ allowed_attributes = {
                 (STYLENS,'table-centering'),
                 (STYLENS,'writing-mode'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'paragraph-properties'): (
                 (FONS,'background-color'),
                 (FONS,'border'),
@@ -6870,7 +6873,7 @@ allowed_attributes = {
                 (STYLENS,'display-name'),
                 (STYLENS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'region-center'):(
         ),
         (STYLENS,'region-left'):(
@@ -6902,7 +6905,7 @@ allowed_attributes = {
                 (STYLENS,'display-name'),
                 (STYLENS,'parent-style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'tab-stop'):(
                 (STYLENS,'leader-text-style'),
                 (STYLENS,'leader-width'),
@@ -6951,7 +6954,7 @@ allowed_attributes = {
                 (STYLENS,'text-align-source'),
                 (STYLENS,'vertical-align'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'table-column-properties'): (
                 (FONS,'break-after'),
                 (FONS,'break-before'),
@@ -6988,7 +6991,7 @@ allowed_attributes = {
                 (STYLENS,'row-height'),
                 (STYLENS,'use-optimal-row-height'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'text-properties'): (
                 (FONS,'background-color'),
                 (FONS,'color'),
@@ -7074,7 +7077,7 @@ allowed_attributes = {
         (SVGNS,'font-face-format'):(
                 (SVGNS,'string'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (SVGNS,'font-face-name'):(
                 (SVGNS,'name'),
         ),
@@ -7115,7 +7118,7 @@ allowed_attributes = {
         ),
         (SVGNS,'title'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'body'):(
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
@@ -7185,7 +7188,7 @@ allowed_attributes = {
         ),
         (TABLENS,'content-validations'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'covered-table-cell'):(
                 (TABLENS,'protect'),
                 (OFFICENS,'string-value'),
@@ -7222,7 +7225,7 @@ allowed_attributes = {
                 (TABLENS,'member-type'),
                 (TABLENS,'type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-group'):(
                 (TABLENS,'name'),
         ),
@@ -7245,7 +7248,7 @@ allowed_attributes = {
         (TABLENS,'data-pilot-level'):(
                 (TABLENS,'show-empty'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-member'):(
                 (TABLENS,'show-details'),
                 (TABLENS,'name'),
@@ -7274,7 +7277,7 @@ allowed_attributes = {
                 (TABLENS,'show-filter-button'),
                 (TABLENS,'grand-total'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-tables'):(
         ),
         (TABLENS,'database-range'):(
@@ -7295,7 +7298,7 @@ allowed_attributes = {
                 (TABLENS,'query-name'),
                 (TABLENS,'database-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'database-source-sql'):(
                 (TABLENS,'parse-sql-statement'),
                 (TABLENS,'database-name'),
@@ -7318,7 +7321,7 @@ allowed_attributes = {
                 (TABLENS,'type'),
                 (TABLENS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'deletions'):(
         ),
         (TABLENS,'dependencies'):(
@@ -7344,7 +7347,7 @@ allowed_attributes = {
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'filter'):(
                 (TABLENS,'target-range-address'),
                 (TABLENS,'display-duplicates'),
@@ -7370,7 +7373,7 @@ allowed_attributes = {
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'help-message'):(
                 (TABLENS,'display'),
                 (TABLENS,'title'),
@@ -7399,7 +7402,7 @@ allowed_attributes = {
                 (TABLENS,'maximum-difference'),
                 (TABLENS,'steps'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'label-range'):(
                 (TABLENS,'label-cell-range-address'),
                 (TABLENS,'data-cell-range-address'),
@@ -7501,7 +7504,7 @@ allowed_attributes = {
                 (TABLENS,'end-table'),
                 (TABLENS,'start-column'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'source-service'):(
                 (TABLENS,'user-name'),
                 (TABLENS,'source-name'),
@@ -7548,7 +7551,7 @@ allowed_attributes = {
                 (TABLENS,'formula'),
                 (OFFICENS,'time-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'table-column'):(
                 (TABLENS,'style-name'),
                 (TABLENS,'default-cell-style-name'),
@@ -7606,7 +7609,7 @@ allowed_attributes = {
         (TABLENS,'tracked-changes'):(
                 (TABLENS,'track-changes'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'a'):(
                 (TEXTNS,'visited-style-name'),
                 (OFFICENS,'name'),
@@ -7641,7 +7644,7 @@ allowed_attributes = {
                 (TEXTNS,'key2-phonetic'),
                 (TEXTNS,'string-value-phonetic'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'alphabetical-index-mark-end'):(
                 (TEXTNS,'id'),
         ),
@@ -7670,7 +7673,7 @@ allowed_attributes = {
                 (TEXTNS,'main-entry-style-name'),
                 (TEXTNS,'use-keys-as-entries'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'author-initials'):(
                 (TEXTNS,'fixed'),
         ),
@@ -7696,7 +7699,7 @@ allowed_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'bibliography-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'bibliography-mark'):(
                 (TEXTNS,'address'),
                 (TEXTNS,'annote'),
@@ -7746,7 +7749,7 @@ allowed_attributes = {
         (TEXTNS,'bookmark-start'):(
                 (TEXTNS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'change'):(
                 (TEXTNS,'change-id'),
         ),
@@ -7815,7 +7818,7 @@ allowed_attributes = {
                 (TEXTNS,'database-name'),
                 (TEXTNS,'condition'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'date'):(
                 (TEXTNS,'date-value'),
                 (TEXTNS,'fixed'),
@@ -7866,7 +7869,7 @@ allowed_attributes = {
                 (TEXTNS,'fixed'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'format-change'):(
         ),
         (TEXTNS,'h'):(
@@ -7914,7 +7917,7 @@ allowed_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'index-entry-link-end'):(
                 (TEXTNS,'style-name'),
         ),
@@ -7956,7 +7959,7 @@ allowed_attributes = {
         ),
         (TEXTNS,'insertion'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'keywords'):(
                 (TEXTNS,'fixed'),
         ),
@@ -8011,7 +8014,7 @@ allowed_attributes = {
                 (STYLENS,'num-letter-sync'),
                 (TEXTNS,'start-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'list-style'):(
                 (TEXTNS,'consecutive-numbering'),
                 (STYLENS,'display-name'),
@@ -8080,7 +8083,7 @@ allowed_attributes = {
                 (TEXTNS,'name'),
                 (TEXTNS,'protection-key'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'object-index-entry-template'):(
                 (TEXTNS,'style-name'),
         ),
@@ -8201,7 +8204,7 @@ allowed_attributes = {
         (TEXTNS,'sender-country'):(
                 (TEXTNS,'fixed'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'sender-email'):(
                 (TEXTNS,'fixed'),
         ),
@@ -8264,7 +8267,7 @@ allowed_attributes = {
                 (TEXTNS,'sort-ascending'),
                 (TEXTNS,'key'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'span'):(
                 (TEXTNS,'style-name'),
                 (TEXTNS,'class-names'),
@@ -8296,7 +8299,7 @@ allowed_attributes = {
                 (TEXTNS,'caption-sequence-format'),
                 (TEXTNS,'relative-tab-stop-position'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'table-of-content'):(
                 (TEXTNS,'protected'),
                 (TEXTNS,'style-name'),
@@ -8372,7 +8375,7 @@ allowed_attributes = {
                 (TEXTNS,'name'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'user-field-input'):(
                 (STYLENS,'data-style-name'),
                 (TEXTNS,'name'),
@@ -8402,7 +8405,7 @@ allowed_attributes = {
                 (TEXTNS,'id'),
                 (TEXTNS,'outline-level'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'user-index-source'):(
                 (TEXTNS,'copy-outline-levels'),
                 (TEXTNS,'index-name'),
@@ -8445,5 +8448,5 @@ allowed_attributes = {
                 (TEXTNS,'formula'),
                 (OFFICENS,'time-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
 }

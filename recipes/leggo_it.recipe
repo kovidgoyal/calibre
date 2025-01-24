@@ -16,7 +16,7 @@ class LeggoIT(BasicNewsRecipe):
     __author__ = 'Gabriele Marini'
     description = 'Italian Free daily newspaper'
 
-#    cover_url      = 'http://www.leggo.it/img/logo-leggo2.gif'
+    # cover_url      = 'http://www.leggo.it/img/logo-leggo2.gif'
     title = u'Leggo.it'
     publisher = 'Ced Caltagirone Editore S.p.A.'
     category = 'News, politics, culture, economy, general interest'

@@ -17,14 +17,14 @@ class CanWestPaper(BasicNewsRecipe):
     description = u'News from Windsor, ON'
 
     # un-comment the following three lines for the Ottawa Citizen
-    # title = u'Ottawa Citizen'
-    # url_prefix = 'http://www.ottawacitizen.com'
-    # description = u'News from Ottawa, ON'
-    #
+    # #    title = u'Ottawa Citizen'
+    # #    url_prefix = 'http://www.ottawacitizen.com'
+    # #    description = u'News from Ottawa, ON'
+
     # un-comment the following three lines for the Montreal Gazette
-    # title = u'Montreal Gazette'
-    # url_prefix = 'http://www.montrealgazette.com'
-    # description = u'News from Montreal, QC'
+    # #    title = u'Montreal Gazette'
+    # #    url_prefix = 'http://www.montrealgazette.com'
+    # #    description = u'News from Montreal, QC'
 
     language = 'en_CA'
     __author__ = 'Nick Redding'

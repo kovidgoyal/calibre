@@ -177,7 +177,7 @@ class TextBlock(etree.XSLTExtension):
 
         self.log.warn('Found deeply nested spans. Flattening.')
         # with open('/t/before.xml', 'wb') as f:
-        #    f.write(etree.tostring(node, method='xml'))
+        #     f.write(etree.tostring(node, method='xml'))
 
         spans = [(depth(span), span) for span in node.xpath('descendant::Span')]
         spans.sort(key=operator.itemgetter(0), reverse=True)
@@ -206,7 +206,7 @@ class TextBlock(etree.XSLTExtension):
                 gp.insert(pidx+1, child)
 
         # with open('/t/after.xml', 'wb') as f:
-        #    f.write(etree.tostring(node, method='xml'))
+        #     f.write(etree.tostring(node, method='xml'))
 
     def add_text(self, text):
         if text:
@@ -377,8 +377,8 @@ class Styles(etree.XSLTExtension):
             ans['font-weight'] = ('bold' if fw >= 700 else 'normal')
         # fn = getattr(obj, 'fontfacename', None)
         # if fn is not None:
-        #    fn = cls.FONT_MAP[fn]
-        #    item('font-family: %s;'%fn)
+        #     fn = cls.FONT_MAP[fn]
+        #     item('font-family: %s;'%fn)
         fg = self.color(node.get('textcolor', None))
         if fg is not None:
             ans['color'] = fg
@@ -391,7 +391,7 @@ class Styles(etree.XSLTExtension):
             ans['text-align'] = all.get(al, 'left')
         # lh = self.to_num(node.get('linespace', None), 0.1)
         # if lh is not None:
-        #    ans['line-height'] = '%fpt'%lh
+        #     ans['line-height'] = '%fpt'%lh
         pi = self.to_num(node.get('parindent', None), 0.1)
         if pi is not None:
             ans['text-indent'] = '%fpt'%pi

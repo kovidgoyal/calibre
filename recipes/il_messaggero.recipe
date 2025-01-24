@@ -16,7 +16,7 @@ class IlMessaggero(BasicNewsRecipe):
     __author__ = 'Gabriele Marini'
     description = 'Italian News'
 
-#    cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
+    # cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
     title = u'Il Messaggero'
     publisher = 'Caltagirone Editore'
     category = 'News, politics, culture, economy, general interest'

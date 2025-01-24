@@ -50,5 +50,5 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     feeds = [
               (u'Nachrichten', u'https://pro-physik.de/rss/news/'),
-#              (u'Veranstaltungen', u'https://pro-physik.de/rss/events/'), # AGe 2024-02-11
+              # (u'Veranstaltungen', u'https://pro-physik.de/rss/events/'), # AGe 2024-02-11
             ]
