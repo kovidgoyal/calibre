@@ -312,7 +312,7 @@ class FlowSplitter:
     def split_text(self, text, root, size):
         self.log.debug('\t\t\tSplitting text of length: %d'%len(text))
         rest = text.replace('\r', '')
-        parts = re.split('\n\n', rest)
+        parts = rest.split('\n\n')
         self.log.debug('\t\t\t\tFound %d parts'%len(parts))
         if max(map(len, parts)) > size:
             raise SplitError('Cannot split as file contains a <pre> tag '

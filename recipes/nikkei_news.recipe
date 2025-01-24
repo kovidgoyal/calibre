@@ -86,7 +86,7 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             sect_title = sect_title.contents[0]
             sect_result = []
             url = sect.a['href']
-            url = re.sub('/article/', '/print-article/', url)
+            url = url.replace('/article/', '/print-article/')
             url = 'http://www.nikkei.com' + url
             sect_result.append(dict(title=sect_title, url=url, date='',description='', content=''))
             result.append([sect_title, sect_result])

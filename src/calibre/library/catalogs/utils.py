@@ -88,9 +88,9 @@ class NumberToText:  # {{{
 
         # Special case ordinals
         if re.search('[st|nd|rd|th]',self.number):
-            self.number = re.sub(',','',self.number)
+            self.number = self.number.replace(',', '')
             ordinal_suffix = re.search(r'[\D]', self.number)
-            ordinal_number = re.sub(r'\D','',re.sub(',','',self.number))
+            ordinal_number = re.sub(r'\D','',self.number.replace(',', ''))
             if self.verbose:
                 self.log('Ordinal: %s' % ordinal_number)
             self.number_as_float = ordinal_number
@@ -102,17 +102,17 @@ class NumberToText:  # {{{
                 self.text = '%s' % (self.ORDINALS[int(ordinal_number)])
 
         # Test for time
-        elif re.search(':',self.number):
+        elif ':' in self.number:
             if self.verbose:
                 self.log('Time: %s' % self.number)
-            self.number_as_float = re.sub(':','.',self.number)
+            self.number_as_float = self.number.replace(':', '.')
             time_strings = self.number.split(':')
             hours = NumberToText(time_strings[0]).text
             minutes = NumberToText(time_strings[1]).text
             self.text = f'{hours.capitalize()}-{minutes}'
 
         # Test for %
-        elif re.search('%', self.number):
+        elif '%' in self.number:
             if self.verbose:
                 self.log('Percent: %s' % self.number)
             self.number_as_float = self.number.split('%')[0]
@@ -129,7 +129,7 @@ class NumberToText:  # {{{
             self.text = f'{left.capitalize()} point {right}'
 
         # Test for hyphenated
-        elif re.search('-', self.number):
+        elif '-' in self.number:
             if self.verbose:
                 self.log('Hyphenated: %s' % self.number)
             self.number_as_float = self.number.split('-')[0]
@@ -143,10 +143,10 @@ class NumberToText:  # {{{
             self.text = f'{left}-{right}'
 
         # Test for only commas and numbers
-        elif re.search(',', self.number) and not re.search('[^0-9,]',self.number):
+        elif ',' in self.number and not re.search('[^0-9,]',self.number):
             if self.verbose:
                 self.log('Comma(s): %s' % self.number)
-            self.number_as_float = re.sub(',','',self.number)
+            self.number_as_float = self.number.replace(',', '')
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'

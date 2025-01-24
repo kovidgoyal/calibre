@@ -63,7 +63,7 @@ class MarkdownMLizer(OEB2HTML):
                 start = start.group()
             else:
                 start = ''
-            l = re.sub('\t', '', l)
+            l = l.replace('\t', '')
             new_text.append(start + l)
         text = '\n'.join(new_text)
 

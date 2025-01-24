@@ -75,7 +75,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                s.detail_item = re.sub(r'%3D', '=', id)
+                s.detail_item = id.replace('%3D', '=')
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats[0:-2].upper()
 

@@ -686,7 +686,7 @@ class HeuristicProcessor:
                         else:
                             text_indent = style+':'+str(setting)+'pt;'
                     if style == 'padding':
-                        setting = re.sub('pt', '', setting).split(' ')
+                        setting = setting.replace('pt', '').split(' ')
                         if int(setting[1]) < 16 and int(setting[3]) < 16:
                             if self.in_blockquote:
                                 debugabby = True

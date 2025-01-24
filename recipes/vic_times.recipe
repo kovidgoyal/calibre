@@ -133,18 +133,18 @@ class TimesColonist(BasicNewsRecipe):
 
     def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub('\x91', '‘', string)
+        fixed = string.replace('\x91', '‘')
         # Replace rsquo (\x92)
-        fixed = re.sub('\x92', '’', fixed)
+        fixed = fixed.replace('\x92', '’')
         # Replace ldquo (\x93)
-        fixed = re.sub('\x93', '“', fixed)
+        fixed = fixed.replace('\x93', '“')
         # Replace rdquo (\x94)
-        fixed = re.sub('\x94', '”', fixed)
+        fixed = fixed.replace('\x94', '”')
         # Replace ndash (\x96)
-        fixed = re.sub('\x96', '–', fixed)
+        fixed = fixed.replace('\x96', '–')
         # Replace mdash (\x97)
-        fixed = re.sub('\x97', '—', fixed)
-        fixed = re.sub('&#x2019;', '’', fixed)
+        fixed = fixed.replace('\x97', '—')
+        fixed = fixed.replace('&#x2019;', '’')
         return fixed
 
     def massageNCXText(self, description):

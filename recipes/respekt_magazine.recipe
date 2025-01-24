@@ -73,7 +73,7 @@ class respektRecipe(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         root = lxml.html.fromstring(raw_html)
         if root.xpath('//title')[0].text == (u'Respekt • Despekt • RESPEKT'):
-            raw_html = re.sub('h2','h1',raw_html)
+            raw_html = raw_html.replace('h2', 'h1')
         return raw_html
 
     def parse_index(self):

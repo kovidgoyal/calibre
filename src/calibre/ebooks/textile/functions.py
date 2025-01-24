@@ -594,7 +594,7 @@ class Textile:
 
             line = self.doPBr(line)
             if self.html_type == 'xhtml':
-                line = re.sub(r'<br>', '<br />', line)
+                line = line.replace('<br>', '<br />')
 
             if ext and anon:
                 out.append(out.pop() + '\n' + line)

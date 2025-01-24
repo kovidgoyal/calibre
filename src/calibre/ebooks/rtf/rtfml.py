@@ -200,7 +200,7 @@ class RTFMLizer:
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
         text = re.sub('\t{2,}', '\t', text)
-        text = re.sub('\t ', '\t', text)
+        text = text.replace('\t ', '\t')
 
         # Remove excessive line breaks
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)

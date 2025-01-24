@@ -95,7 +95,7 @@ class TextileMLizer(OEB2HTML):
         # remove empty spans
         text = re.sub(r'%\xa0+', r'%', text)
         # remove empty spans - MAY MERGE SOME ?
-        text = re.sub(r'%%', r'', text)
+        text = text.replace('%%', '')
         # remove spans from tagged output
         text = re.sub(r'%([_+*-]+)%', r'\1', text)
         # remove spaces before a newline
@@ -402,7 +402,7 @@ class TextileMLizer(OEB2HTML):
             txt = self.build_block('', style, attribs, stylizer)
             txt += '. '
             if txt != '\n. ':
-                txt = re.sub('\n', '', txt)
+                txt = txt.replace('\n', '')
                 text.append(txt)
             tags.append('|\n')
         elif tag == 'td':

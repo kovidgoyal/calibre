@@ -92,8 +92,7 @@ class brewiarz(BasicNewsRecipe):
                     for sublink in sublinks:
                         link_title = self.tag_to_string(
                             link) + ' - ' + self.tag_to_string(sublink)
-                        link_url_print = re.sub(
-                            'php3', 'php3?kr=_druk&wr=lg&', sublink['href'])
+                        link_url_print = sublink['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
@@ -102,8 +101,7 @@ class brewiarz(BasicNewsRecipe):
                         continue
                     else:
                         link_title = self.tag_to_string(link)
-                        link_url_print = re.sub(
-                            'php3', 'php3?kr=_druk&wr=lg&', link['href'])
+                        link_url_print = link['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})

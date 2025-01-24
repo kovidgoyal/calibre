@@ -153,7 +153,7 @@ class HTMLConverter:
                   # Remove <br> and replace <br><br> with <p>
                   (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
                   (re.compile(r'(.*)<br.*?>', re.IGNORECASE),
-                   lambda match: match.group() if re.match('<', match.group(1).lstrip()) or len(match.group(1)) < 40
+                   lambda match: match.group() if match.group(1).lstrip().startswith('<') or len(match.group(1)) < 40
                                 else match.group(1)),
                   # Remove hyphenation
                   (re.compile(r'-\n\r?'), lambda match: ''),
@@ -1864,8 +1864,8 @@ def process_file(path, options, logger):
             fheader = '%t by %a'
         fheader = re.sub(r'(?<!%)%t', options.title, fheader)
         fheader = re.sub(r'(?<!%)%a', options.author, fheader)
-        fheader = re.sub(r'%%a','%a',fheader)
-        fheader = re.sub(r'%%t','%t',fheader)
+        fheader = fheader.replace('%%a', '%a')
+        fheader = fheader.replace('%%t', '%t')
         header.append(fheader + '  ')
     book, fonts = Book(options, logger, header=header, **args)
     le = re.compile(options.link_exclude) if options.link_exclude else \
