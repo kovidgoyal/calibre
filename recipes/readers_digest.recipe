@@ -23,7 +23,6 @@ class ReadersDigest(BasicNewsRecipe):
     oldest_article = 60
     max_articles_per_feed = 200
 
-    language = 'en'
     remove_javascript = True
     remove_attributes = ['style']
 

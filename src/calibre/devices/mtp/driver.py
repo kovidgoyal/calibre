@@ -50,7 +50,6 @@ class MTP_DEVICE(BASE):
 
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
-    CAN_SET_METADATA = []
     NEWS_IN_FOLDER = True
     MAX_PATH_LEN = 230
     THUMBNAIL_HEIGHT = DEFAULT_THUMBNAIL_HEIGHT

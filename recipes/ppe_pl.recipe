@@ -11,7 +11,6 @@ class ppeRecipe(BasicNewsRecipe):
     category = u'News'
     description = u'Portal o konsolach i grach wideo.'
     extra_css = '.categories > li {list-style: none; display: inline;} .galmini > li {list-style: none; float: left;} .calibre_navbar {clear: both;}'
-    remove_empty_feeds = True
     no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100

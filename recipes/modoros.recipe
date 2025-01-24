@@ -24,7 +24,6 @@ class ModorosBlogHu(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     feeds = [(u'Modoros Blog', u'http://modoros.blog.hu/rss')]
-    remove_javascript = True
     use_embedded_content = False
     preprocess_regexps = [
         (re.compile(r'<!--megosztas -->.*?</body>', re.DOTALL | re.IGNORECASE),

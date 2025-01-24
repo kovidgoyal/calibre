@@ -21,7 +21,6 @@ class WwwAltomdata_dk(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
     auto_cleanup = True
-    language = 'da'
 
     feeds = [
         ('Alt om DATA, Datatid TechLife', 'http://www.altomdata.dk/feed'),

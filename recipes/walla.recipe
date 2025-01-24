@@ -19,7 +19,6 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         dict(name='p', attrs={'class': 'subtitle'}),
         dict(name='p', attrs={'class': 'article_speakable'}),
     ]
-    max_articles_per_feed = 100
 
     feeds = [
         (u'חדשות', u'https://rss.walla.co.il/feed/1?type=main'),

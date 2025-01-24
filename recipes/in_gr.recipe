@@ -14,7 +14,6 @@ class ingr(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
-    encoding = 'utf8'
     keep_only_tags = [
         dict(name='h1'),
 

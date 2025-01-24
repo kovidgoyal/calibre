@@ -108,8 +108,7 @@ class FazNet(BasicNewsRecipe):
     scale_news_images = (10,100)
     delay                 =      1
 
-    test_article = 'https://www.faz.net/rss/aktuell/feuilleton/kunst-und-architektur/berlinische-galerie-zeigt-edvard-munch-die-ganze-gefuehlsskala-des-lebens-19180631.html?printPagedArticle=true#pageIndex_2'
-    test_article = None
+    test_feed = 'https://www.faz.net/rss/aktuell/feuilleton/kunst-und-architektur/berlinische-galerie-zeigt-edvard-munch-die-ganze-gefuehlsskala-des-lebens-19180631.html?printPagedArticle=true#pageIndex_2'
 
     extra_css      =  '''
         .header-title,.scrolly-title {font-size: 1.5em; font-weight:bold; text-align:left;}

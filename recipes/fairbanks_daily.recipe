@@ -13,7 +13,6 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     no_stylesheets = True
-    language = 'en'
     encoding = 'utf8'
     conversion_options = {'linearize_tables': True}
     auto_cleanup = True

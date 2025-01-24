@@ -19,8 +19,6 @@ class AmericanProspect(BasicNewsRecipe):
 
     use_embedded_content = False
 
-    no_stylesheets = True
-
     keep_only_tags = [
         dict(id=['title', 'content']),
     ]

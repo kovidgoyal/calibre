@@ -15,7 +15,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     index = 'http://www.dobreprogramy.pl/'
     no_stylesheets = True
     language = 'pl'
-    extra_css = '.title {font-size:22px;}'
+    extra_css = '.title {font-size:22px;}, h1 { font-size:130% }'
     oldest_article = 8
     max_articles_per_feed = 100
     remove_attrs = ['style', 'width', 'height']
@@ -41,7 +41,3 @@ class Dobreprogramy_pl(BasicNewsRecipe):
             if not r.string:
                 r.extract()
         return soup
-
-    extra_css = '''
-        h1 { font-size:130% }
-    '''

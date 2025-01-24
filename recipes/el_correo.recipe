@@ -18,7 +18,6 @@ class elcorreo(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     encoding = 'utf-8'
     masthead_url = 'https://s1.ppllstatics.com/starfish/1.3.76/assets/images/logos/logo-elcorreo.svg'
-    encoding = 'utf-8'
     remove_empty_feeds = True
     resolve_internal_links = True
     max_articles_per_feed = 25  # articles
@@ -87,14 +86,6 @@ class elcorreo(BasicNewsRecipe):
             for p in x.findAll('p'):
                 p.name = 'div'
         return soup
-
-    recipe_specific_options = {
-        'days': {
-            'short': 'Oldest article to download from this news source. In days ',
-            'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
-        }
-    }
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'

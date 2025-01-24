@@ -29,9 +29,8 @@ class AdvancedUserRecipe1287519083(BasicNewsRecipe):
     remove_tags_before = dict(id='modul_artikel')
     remove_tags_after = dict(id='articlecontent')
 
-    remove_tags = dict(id='articlesidebar')
-
     remove_tags = [
+        dict(id='articlesidebar'),
         dict(name='div', attrs={'class': ['articlecomment',
                                           'articlebookmark', 'teaser_anzeige', 'teaser_umfrage',
                                           'navigation', 'subnavigation']})

@@ -15,8 +15,6 @@ class BusinessStandardPrint(BasicNewsRecipe):
     language = 'en_IN'
     masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
     encoding = 'utf-8'
-    resolve_internal_links = True
-    remove_empty_feeds = True
 
     no_stylesheets = True
     remove_javascript = True

@@ -10,7 +10,6 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     language = 'he'
     __author__ = 'marbs'
     extra_css = 'img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa: E501
-    simultaneous_downloads = 5
     remove_javascript = True
     timefmt = '[%a, %d %b, %Y]'
     oldest_article = 1
@@ -23,7 +22,6 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'ArticleBodyComponent'}),
     ]
     remove_tags = [dict(name='p', attrs={'text': ['&nbsp;']})]
-    max_articles_per_feed = 100
     preprocess_regexps = [
         (re.compile(r'<p>&nbsp;</p>', re.DOTALL | re.IGNORECASE), lambda match: '')
     ]

@@ -32,7 +32,6 @@ class NYTimesSports(BasicNewsRecipe):
     max_articles_per_feed = 25
     use_embedded_content = False
     no_stylesheets = True
-    language = 'en'
     delay = 1
 
     feeds = [

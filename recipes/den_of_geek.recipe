@@ -7,7 +7,6 @@ class AdvancedUserRecipe1316944753(BasicNewsRecipe):
     language = 'en'
     description = 'From science fiction enthusiasts through to gaming fanatics, Den of Geek has become the one-stop UK website for people genuinely passionate about their entertainment media. Den of Geek covers popular culture but always with an edgy, UK centric slant that sets it apart from the crowd.'  # noqa: E501
     category = 'Movies, TV, Games, Comics, Cult, News, Reviews'
-    language = 'en'
 
     oldest_article = 7
     max_articles_per_feed = 100

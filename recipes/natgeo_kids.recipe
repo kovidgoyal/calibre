@@ -6,13 +6,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic Kids'
-    description = 'The National Geographic, an American monthly magazine'
+    description = ('The National Geographic, an American monthly magazine. '
+                   'Inspiring people to care about the planet since 1888')
     language = 'en'
     encoding = 'utf8'
     publisher = 'kids.nationalgeographic.com'
     category = 'science, nat geo'
     __author__ = 'unkn0wn'
-    description = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     use_embedded_content = False
     remove_javascript = True

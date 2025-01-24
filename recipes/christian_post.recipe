@@ -9,7 +9,6 @@ class ChristianPost(BasicNewsRecipe):
     __author__ = 'sexymax15'
     description = 'Homepage'
     language = 'en'
-    no_stylesheets = True
     use_embedded_content = False
     oldest_article = 30
     max_articles_per_feed = 15

@@ -35,7 +35,6 @@ class Harpers(BasicNewsRecipe):
     remove_tags = [
         classes('header-controls')
     ]
-    remove_attributes = ['style', 'width', 'height']
 
     extra_css = '''
         img {display:block; margin:0 auto;}

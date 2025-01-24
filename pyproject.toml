@@ -21,7 +21,8 @@ quote-style = 'single'
 
 [tool.ruff.lint]
 ignore = ['E402', 'E722', 'E741']
-select = ['E', 'F', 'I', 'W', 'INT']
+select = ['E', 'F', 'I', 'W', 'INT', 'PIE794']
+unfixable = ['PIE794']
 
 [tool.ruff.lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']

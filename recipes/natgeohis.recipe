@@ -5,16 +5,14 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic History'
-    description = (
-        'From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
-        'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore.'
-    )
+    description = ('From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
+                   'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore. '
+                   'Inspiring people to care about the planet since 1888')
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
     category = 'science, nat geo'
     __author__ = 'Kovid Goyal, unkn0wn'
-    description = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     no_stylesheets = True
     use_embedded_content = False

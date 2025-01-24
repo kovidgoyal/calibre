@@ -32,7 +32,6 @@ class USAToday(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 25
     no_stylesheets = True
-    remove_empty_feeds = True
 
     keep_only_tags = [
         classes('gnt_ar_hl gnt_ar_by gnt_ar_b topper__inner in-depth-content'),

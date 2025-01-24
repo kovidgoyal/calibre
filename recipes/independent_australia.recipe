@@ -20,8 +20,6 @@ class IndependentAustralia(BasicNewsRecipe):
     description = (
         'Independent Australia is a progressive journal focusing on politics, democracy, the environment, Australian history and Australian identity.'
         ' It contains news and opinion from Australia and around the world.')
-    oldest_article = 7  # days
-    max_articles_per_feed = 100
 
     feeds = [
         (
@@ -66,13 +64,6 @@ class IndependentAustralia(BasicNewsRecipe):
     remove_attributes = ['width', 'height', 'style']
     extra_css = '.byline{font-size:smaller;margin-bottom:10px;}.inline-caption{display:block;font-size:smaller;text-decoration: none;}'
     compress_news_images = True
-
-    feeds = [
-        (
-            'Independent Australia',
-            'https://feeds.feedburner.com/IndependentAustralia'
-        ),
-    ]
 
     # ************************************
     # Break up feed into categories (based on BrianG's code snippet):

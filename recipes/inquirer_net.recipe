@@ -15,15 +15,12 @@ class InquirerNet(BasicNewsRecipe):
     description = 'News from Philipines'
     oldest_article = 2
     max_articles_per_feed = 100
-    no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf8'
     publisher = 'inquirer.net'
     category = 'news, politics, philipines'
     lang = 'en'
     language = 'en'
-
-    use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True

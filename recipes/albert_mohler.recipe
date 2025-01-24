@@ -13,7 +13,6 @@ class AlbertMohlersBlog(BasicNewsRecipe):
     auto_cleanup = True
     cover_url = 'http://www.albertmohler.com/wp-content/themes/albert-mohler-v5/img/logo-am-lg.gif'
     publisher = 'Albert Mohler'
-    language = 'en'
     author = 'Albert Mohler'
 
     feeds = [(u"Albert Mohler's Blog",

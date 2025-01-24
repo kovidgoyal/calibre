@@ -30,7 +30,6 @@ class TheIndependentNew(BasicNewsRecipe):
     publisher = 'The Independent'
     oldest_article = 2.0
     ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds = True
     category = 'news, UK'
     no_stylesheets = True
     use_embedded_content = False

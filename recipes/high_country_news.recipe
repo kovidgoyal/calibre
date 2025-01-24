@@ -50,7 +50,7 @@ class HighCountryNews(BasicNewsRecipe):
     auto_cleanup = False
     remove_javascript = True
     remove_empty_feeds = True
-    remove_attributes = ['width', 'height']
+    remove_attributes = ['style', 'width', 'height']
     use_embedded_content = False
 
     masthead_url = 'http://www.hcn.org/logo.jpg'
@@ -68,8 +68,6 @@ class HighCountryNews(BasicNewsRecipe):
     # li for delete disc style,
     # caption and credit for description & author of pictures
     # main-topic
-
-    remove_attributes = ['style']
 
     extra_css = '''
                       h1 {font-size: 1.6em; text-align: left}

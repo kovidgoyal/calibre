@@ -121,7 +121,7 @@ class econ_search(BasicNewsRecipe):
         'Use the Advanced section of the recipe to search.'
     )
 
-    remove_attributes = ['style', 'height', 'width']
+    remove_attributes = ['data-reactid', 'style', 'height', 'width']
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     extra_css = '''
@@ -154,8 +154,6 @@ class econ_search(BasicNewsRecipe):
         )
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
-    no_stylesheets = True
-    remove_attributes = ['data-reactid', 'width', 'height']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 3

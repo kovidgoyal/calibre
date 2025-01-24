@@ -27,7 +27,6 @@ class LeMonde(BasicNewsRecipe):
 
     oldest_article = 1
     no_stylesheets = True
-    remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     reverse_article_order = True
     remove_empty_feeds = True

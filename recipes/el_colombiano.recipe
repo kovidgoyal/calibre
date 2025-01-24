@@ -9,8 +9,10 @@ class AdvancedUserRecipe1311790237(BasicNewsRecipe):
     language = 'es_CO'
     cover_url = 'http://www.elcolombiano.com/images/logoElColombiano348x46.gif'
     remove_tags_before = dict(id='contenidoArt')
-    remove_tags_after = dict(id='enviaTips')
-    remove_tags_after = dict(id='zonaPata')
+    remove_tags_after = [
+        dict(id='enviaTips'),
+        dict(id='zonaPata'),
+    ]
     oldest_article = 1
     max_articles_per_feed = 100
     remove_javascript = True

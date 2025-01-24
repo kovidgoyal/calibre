@@ -8,9 +8,11 @@ class WozDie(BasicNewsRecipe):
     language = 'de'
 
     no_stylesheets = True
-    remove_tags = [dict(name='p', attrs={'class': 'arrow_top'})]
-    remove_tags = [dict(name='p', attrs={'class': 'bottom_right'})]
-    remove_tags = [dict(name='script')]
+    remove_tags = [
+        dict(name='p', attrs={'class': 'arrow_top'}),
+        dict(name='p', attrs={'class': 'bottom_right'}),
+        dict(name='script'),
+    ]
     extra_css      = '''#print_titel{vertical-align: bottom; text-align:
  left; color: #666666; background-color: white; padding-top: 30px; padding-
  bottom: 10px; border-bottom: 1px solid #999999;} #title{text-align:

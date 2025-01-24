@@ -13,8 +13,10 @@ class AdvancedUserRecipe1329123365(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     keep_only_tags = [dict(name='div', attrs={'id': 'content'})]
-    remove_tags = [dict(name='div', attrs={'id': 'text_options'})]
-    remove_tags = [dict(name='div', attrs={'id': 'social_shares_top'})]
+    remove_tags = [
+        dict(name='div', attrs={'id': 'text_options'}),
+        dict(name='div', attrs={'id': 'social_shares_top'}),
+    ]
     remove_tags_after = dict(id='textsize')
     feeds = [(u'Business', u'http://novinite.bg/rss.php?category_id=1'),
              (u'Politics', u'http://novinite.bg/rss.php?category_id=2'),

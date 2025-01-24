@@ -13,7 +13,6 @@ class hnaDe(BasicNewsRecipe):
     title = 'HNA'
     description = 'local news from Hessen/Germany'
     __author__ = 'Oliver Niesner'
-    use_embedded_content = False
     language = 'de'
     use_embedded_content = False
     timefmt = ' [%d %b %Y]'

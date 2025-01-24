@@ -7,13 +7,13 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic Traveller'
-    description = 'News articles from The National Geographic Traveller, Download Monthly.'
+    description = ('News articles from The National Geographic Traveller, Download Monthly. '
+                   'Inspiring people to care about the planet since 1888')
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
     category = 'science, nat geo'
     __author__ = 'unkn0wn'
-    description = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     no_stylesheets = True
     use_embedded_content = False

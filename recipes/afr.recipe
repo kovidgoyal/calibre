@@ -25,7 +25,6 @@ class afr(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 25
     no_stylesheets = True
-    remove_empty_feeds = True
     remove_attributes = ['style', 'height', 'width']
 
     keep_only_tags = [
