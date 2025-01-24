@@ -105,7 +105,7 @@ class TagBrowserMixin:  # {{{
                     proxy_md = db.new_api.get_proxy_metadata(db.id(idx.row()))
                     items = proxy_md.get(current_cat)
                     if isinstance(items, str):
-                        items = list((items,))
+                        items = [items,]
                     if items:
                         items_title = _('{category} for current book').format(category=cdn)
                         if len(items) > 4:

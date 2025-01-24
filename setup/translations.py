@@ -357,7 +357,7 @@ class Translations(POT):  # {{{
         l = {}
         lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
         exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
-        lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
+        lcdata = {k:dict(v) for k, v in l['data']}
         self.info('Compiling main UI translation files...')
         fmap = {f:self.mo_file(f) for f in self.po_files()}
         files = [(f, fmap[f][1]) for f in self.po_files()]

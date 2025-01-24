@@ -547,7 +547,7 @@ class CatalogBuilder:
          AuthorSortMismatchException: author_sort mismatch detected
         '''
 
-        books_by_author = sorted(list(books_to_test), key=self._kf_books_by_author_sorter_author)
+        books_by_author = sorted(books_to_test, key=self._kf_books_by_author_sorter_author)
 
         authors = [(record['author'], record['author_sort']) for record in books_by_author]
         current_author = authors[0]

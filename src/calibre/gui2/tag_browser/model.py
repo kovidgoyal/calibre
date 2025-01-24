@@ -636,7 +636,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         key, (category_icon_map['user:'] if key.startswith('@') else category_icon_map['custom:'])))
 
             if key.startswith('@'):
-                path_parts = [p for p in key.split('.')]
+                path_parts = list(key.split('.'))
                 path = ''
                 last_category_node = self.root_item
                 tree_root = self.user_category_node_tree
@@ -1547,7 +1547,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.use_position_based_index_on_next_recount = True
                 return True
 
-            for c in sorted(list(user_cats.keys()), key=sort_key):
+            for c in sorted(user_cats.keys(), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
@@ -1652,13 +1652,13 @@ class TagsModel(QAbstractItemModel):  # {{{
             if ucat.get(new_name, None) == item_category:
                 if ucat.pop(item_name, None) is not None:
                     # Only update the user_cats when something changes
-                    user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
+                    user_cats[k] = [(n, c, 0) for n, c in ucat.items()]
             elif ucat.get(item_name, None) == item_category:
                 # If the old name/item_category exists, rename it to the new
                 # name using del/add
                 del ucat[item_name]
                 ucat[new_name] = item_category
-                user_cats[k] = list([(n, c, 0) for n, c in ucat.items()])
+                user_cats[k] = [(n, c, 0) for n, c in ucat.items()]
         self.db.new_api.set_pref('user_categories', user_cats)
 
     def delete_item_from_all_user_categories(self, item_name, item_category):

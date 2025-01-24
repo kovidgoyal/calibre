@@ -560,7 +560,7 @@ class CcTextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDeleg
                 editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
-            complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
+            complete_items = sorted(m.db.all_custom(label=key), key=sort_key)
             editor.update_items_cache(complete_items)
         else:
             editor = QLineEdit(parent)

@@ -16,7 +16,7 @@ class ResultsView(QTreeView):
     def __init__(self, parent=None):
         QTreeView.__init__(self,parent)
 
-        self._model = Matches([p for p in store_plugins()])
+        self._model = Matches(list(store_plugins()))
         self.setModel(self._model)
 
         self.setIconSize(QSize(24, 24))

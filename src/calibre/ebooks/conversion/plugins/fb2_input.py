@@ -105,7 +105,7 @@ class FB2Input(InputFormatPlugin):
         # Handle links of type note and cite
         notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
         cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
-        all_ids = {x for x in result.xpath('//*/@id')}
+        all_ids = set(result.xpath('//*/@id'))
         for cite, a in iteritems(cites):
             note = notes.get(cite, None)
             if note:

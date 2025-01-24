@@ -1281,7 +1281,7 @@ class EditRules(QWidget):  # {{{
 
     def move_rows(self, moving_up=True):
         sm = self.rules_view.selectionModel()
-        rows = sorted(list(sm.selectedRows()), reverse=not moving_up)
+        rows = sorted(sm.selectedRows(), reverse=not moving_up)
         if rows:
             if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):
                 return

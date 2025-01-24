@@ -112,7 +112,7 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
         elif rule.type == rule.FONT_FACE_RULE:
             ff = rule.style.getProperty('font-family')
             if ff is not None:
-                families = {x for x in parse_font_family(css_text(ff.propertyValue))}
+                families = set(parse_font_family(css_text(ff.propertyValue)))
                 if old_name in families:
                     changed = True
                     removals.append(rule)

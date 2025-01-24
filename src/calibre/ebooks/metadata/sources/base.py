@@ -180,7 +180,7 @@ class Option:
         self.name, self.type, self.default, self.label, self.desc = (name,
                 type_, default, label, desc)
         if choices and not isinstance(choices, dict):
-            choices = dict([(x, x) for x in choices])
+            choices = {x: x for x in choices}
         self.choices = choices
 
 

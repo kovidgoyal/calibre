@@ -129,7 +129,7 @@ def clean_identifier(typ, val):
 
 def adapt_identifiers(to_tuple, x):
     if not isinstance(x, dict):
-        x = {k:v for k, v in (y.partition(':')[0::2] for y in to_tuple(x))}
+        x = dict(y.partition(':')[0::2] for y in to_tuple(x))
     ans = {}
     for k, v in iteritems(x):
         k, v = clean_identifier(k, v)

@@ -108,7 +108,7 @@ class LrsParser:
 
     def process_paragraph(self, tag):
         p = Paragraph()
-        contents = [i for i in tag.contents]
+        contents = list(tag.contents)
         if contents:
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()

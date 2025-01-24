@@ -230,7 +230,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def fill_applied_items(self):
         ccn = self.current_cat_name
         if ccn:
-            self.applied_items = [v for v in self.user_categories[ccn]]
+            self.applied_items = list(self.user_categories[ccn])
             self.applied_items.sort(key=self.item_sort_key)
         else:
             self.applied_items = []

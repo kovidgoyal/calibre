@@ -2260,7 +2260,7 @@ class KOBOTOUCH(KOBO):
         return extra_sheet
 
     def get_extra_css_rules(self, sheet, css_rule):
-        return [r for r in sheet.cssRules.rulesOfType(css_rule)]
+        return list(sheet.cssRules.rulesOfType(css_rule))
 
     def get_extra_css_rules_widow_orphan(self, sheet):
         from css_parser.css import CSSRule

@@ -353,7 +353,7 @@ class TBPartitionedFields(DisplayedFields):  # {{{
             ans = [[k, True] for k in cats.keys()]
             self.changed = True
         elif pref_data_override:
-            po = {k:v for k,v in pref_data_override}
+            po = dict(pref_data_override)
             ans = [[k, po.get(k, True)] for k in cats.keys()]
             self.changed = True
         else:
@@ -389,7 +389,7 @@ class BDVerticalCats(DisplayedFields):  # {{{
             ans = [[k, False] for k in cats]
             self.changed = True
         elif pref_data_override:
-            ph = {k:v for k,v in pref_data_override}
+            ph = dict(pref_data_override)
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:

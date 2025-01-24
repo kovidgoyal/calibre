@@ -1335,7 +1335,7 @@ class BooksView(QTableView):  # {{{
     def visible_columns(self):
         h = self.horizontalHeader()
         logical_indices = (x for x in range(h.count()) if not h.isSectionHidden(x))
-        rmap = {i:x for i, x in enumerate(self.column_map)}
+        rmap = dict(enumerate(self.column_map))
         return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
     def refresh_book_details(self, force=False):

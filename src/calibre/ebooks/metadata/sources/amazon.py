@@ -564,9 +564,9 @@ class Worker(Thread):  # Get details {{{
         res = self.tostring(elem, encoding='unicode', method='text')
         if only_printable:
             try:
-                filtered_characters = list(s for s in res if s.isprintable())
+                filtered_characters = [s for s in res if s.isprintable()]
             except AttributeError:
-                filtered_characters = list(s for s in res if s in string.printable)
+                filtered_characters = [s for s in res if s in string.printable]
             res = ''.join(filtered_characters)
         return res.strip()
 
@@ -1395,8 +1395,8 @@ class Amazon(Source):
                 q['field-keywords'] += ' ' + q.pop(f, '')
             q['field-keywords'] = q['field-keywords'].strip()
 
-        encoded_q = dict([(x.encode('utf-8', 'ignore'), y.encode(
-            'utf-8', 'ignore')) for x, y in q.items()])
+        encoded_q = {x.encode('utf-8', 'ignore'): y.encode(
+            'utf-8', 'ignore') for x, y in q.items()}
         url_query = urlencode(encoded_q)
         # amazon's servers want IRIs with unicode characters not percent esaped
         parts = []

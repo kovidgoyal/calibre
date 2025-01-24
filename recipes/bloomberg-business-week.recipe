@@ -124,7 +124,7 @@ class Bloomberg(BasicNewsRecipe):
             cat = '<div class="cat">' + data['primaryCategory'] + '</div>'
 
         if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
-            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join([x for x in data['abstract']]) + '</li></ul></div>'
+            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join(list(data['abstract'])) + '</li></ul></div>'
         elif 'summary' in data and data['summary']:
             subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
 

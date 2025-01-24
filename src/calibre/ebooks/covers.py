@@ -318,7 +318,7 @@ ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_co
 
 
 def to_theme(x):
-    return {k:v for k, v in zip(ColorTheme._fields[:4], x.split())}
+    return dict(zip(ColorTheme._fields[:4], x.split()))
 
 
 fallback_colors = to_theme('ffffff 000000 000000 ffffff')

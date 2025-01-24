@@ -26,7 +26,7 @@ def uniq(vals):
     vals = vals or ()
     seen = set()
     seen_add = seen.add
-    return list(x for x in vals if x not in seen and not seen_add(x))
+    return [x for x in vals if x not in seen and not seen_add(x)]
 
 
 class EXTHHeader:  # {{{

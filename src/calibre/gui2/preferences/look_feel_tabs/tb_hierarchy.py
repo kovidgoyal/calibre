@@ -37,7 +37,7 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
             ans = [[k, False] for k in cats]
             self.changed = True
         elif pref_data_override:
-            ph = {k:v for k,v in pref_data_override}
+            ph = dict(pref_data_override)
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:

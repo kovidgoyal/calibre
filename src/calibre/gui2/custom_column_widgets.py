@@ -891,8 +891,8 @@ def get_field_list(db, use_defaults=False, pref_data_override=None):
 
 
 def get_custom_columns_to_display_in_editor(db):
-    return list([k[0] for k in
-        get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]])
+    return [k[0] for k in
+        get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]]
 
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):

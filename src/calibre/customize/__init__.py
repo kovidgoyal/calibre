@@ -573,10 +573,10 @@ class CatalogPlugin(Plugin):  # {{{
             # Validate requested_fields
             if requested_fields - all_fields:
                 from calibre.library import current_library_name
-                invalid_fields = sorted(list(requested_fields - all_fields))
+                invalid_fields = sorted(requested_fields - all_fields)
                 print('invalid --fields specified: %s' % ', '.join(invalid_fields))
                 print("available fields in '%s': %s" %
-                      (current_library_name(), ', '.join(sorted(list(all_fields)))))
+                      (current_library_name(), ', '.join(sorted(all_fields))))
                 raise ValueError('unable to generate catalog with specified fields')
 
             fields = [x for x in of if x in all_fields]

@@ -152,7 +152,7 @@ def main(opts, args, dbctx):
             raise SystemExit(_('No book with id: %s in the database') % book_id)
 
     if opts.field:
-        fields = {k: v for k, v in get_fields(dbctx)}
+        fields = dict(get_fields(dbctx))
         fields['title_sort'] = fields['sort']
         vals = {}
         for x in opts.field:

@@ -17,8 +17,14 @@ exclude = [
 quote-style = 'single'
 
 [lint]
-ignore = ['E402', 'E722', 'E741', 'UP012', 'UP030', 'UP032', 'UP038']
-select = ['E', 'F', 'I', 'W', 'INT', 'Q', 'UP', 'YTT', 'TID']
+ignore = [
+    'E402', 'E722', 'E741',
+    'UP012', 'UP030', 'UP032', 'UP038', 'C408', 'C413', 'C417', 'C420',
+]
+select = [
+    'E', 'F', 'I', 'W', 'INT',
+    'Q', 'UP', 'YTT', 'TID', 'C4',
+]
 
 [lint.per-file-ignores]
 "recipes/*" = ['UP']

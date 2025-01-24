@@ -119,7 +119,7 @@ def uniq(vals, kmap=icu_lower):
     lvals = (kmap(x) for x in vals)
     seen = set()
     seen_add = seen.add
-    return list(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+    return [x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k)]
 
 
 def map_tags(tags, rules=()):

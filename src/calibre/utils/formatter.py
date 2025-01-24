@@ -878,11 +878,11 @@ class PythonTemplateContext:
     @property
     def attributes(self):
         # return a list of attributes in the context object
-        return sorted(list(self.attrs_set))
+        return sorted(self.attrs_set)
 
     def __str__(self):
         # return a string of the attribute with values separated by newlines
-        attrs = sorted(list(self.attrs_set))
+        attrs = sorted(self.attrs_set)
         ans = OrderedDict()
         for k in attrs:
             ans[k] = getattr(self, k, None)

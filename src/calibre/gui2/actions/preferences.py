@@ -46,7 +46,7 @@ class PreferencesAction(InterfaceAction):
     def initialization_complete(self):
         # Add the individual preferences to the menu.
         # First, sort them into the same order as shown in the preferences dialog
-        plugins = sorted([p for p in preferences_plugins()],
+        plugins = sorted(preferences_plugins(),
                          key=lambda p: p.category_order * 100 + p.name_order)
 
         pm = self.preferences_menu

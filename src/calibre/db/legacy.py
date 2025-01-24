@@ -799,7 +799,7 @@ class LibraryDatabase:
             with self.new_api.write_lock:
                 self.new_api._set_field(field, {book_id:val for book_id in ids}, allow_case_change=False)
             if extras is not None:
-                self.new_api._set_field(field + '_index', {book_id:val for book_id, val in zip(ids, extras)})
+                self.new_api._set_field(field + '_index', dict(zip(ids, extras)))
         if notify:
             self.notify('metadata', list(ids))
 

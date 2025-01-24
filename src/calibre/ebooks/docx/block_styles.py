@@ -128,7 +128,7 @@ def read_single_border(parent, edge, XPath, get):
                 width = min(96, max(2, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
-    return {p:v for p, v in zip(border_props, (padding, width, style, color))}
+    return dict(zip(border_props, (padding, width, style, color)))
 
 
 def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'):

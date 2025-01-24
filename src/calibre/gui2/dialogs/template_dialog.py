@@ -958,7 +958,7 @@ def evaluate(book, context):
         self.textbox.set_clicked_line_numbers(set())
 
     def set_all_button_pressed(self):
-        self.textbox.set_clicked_line_numbers({i for i in range(1, self.textbox.blockCount()+1)})
+        self.textbox.set_clicked_line_numbers(set(range(1, self.textbox.blockCount()+1)))
 
     def toggle_button_pressed(self):
         ln = self.breakpoint_line_box.value()

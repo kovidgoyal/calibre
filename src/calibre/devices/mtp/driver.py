@@ -487,7 +487,7 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Transferring books to device...'))
         i, total = 0, len(files)
 
-        routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
+        routing = dict(self.get_pref('rules'))
 
         for infile, fname, mi in zip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)

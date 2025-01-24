@@ -1019,9 +1019,9 @@ class WritingTest(BaseTest):
         cache.set_field('publisher', {1:'random'})
         cache.set_link_map('publisher', {'random': 'url2'})
         links = cache.get_all_link_maps_for_book(1)
-        self.assertSetEqual({v for v in links.keys()}, {'tags', 'publisher'}, 'Wrong link keys')
-        self.assertSetEqual({v for v in links['tags'].keys()}, {'foo', }, 'Should be "foo"')
-        self.assertSetEqual({v for v in links['publisher'].keys()}, {'random', }, 'Should be "random"')
+        self.assertSetEqual(set(links.keys()), {'tags', 'publisher'}, 'Wrong link keys')
+        self.assertSetEqual(set(links['tags'].keys()), {'foo', }, 'Should be "foo"')
+        self.assertSetEqual(set(links['publisher'].keys()), {'random', }, 'Should be "random"')
         self.assertEqual('url', links['tags']['foo'], 'link for tag foo is wrong')
         self.assertEqual('url2', links['publisher']['random'], 'link for publisher random is wrong')
 
