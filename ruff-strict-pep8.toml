@@ -35,6 +35,7 @@ select = [
     'RUF051', 'RUF056',  # useless dict operation
     'RUF055',  # unnecessary regex
     'RUF039',  # always use raw-string for regex
+    'RUF047',  # needless else
 ]
 
 [lint.per-file-ignores]

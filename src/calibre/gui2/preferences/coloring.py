@@ -444,8 +444,6 @@ class RuleEditor(QDialog):  # {{{
                 ' first rule to match will be used.')))
             self.l3 = l3 = QLabel(_('of the column:'))
             l.addWidget(l3, 2, 2)
-        else:
-            pass
 
         self.column_box = QComboBox(self)
         l.addWidget(self.column_box, 3, 0 if self.rule_kind == 'color' else 2)

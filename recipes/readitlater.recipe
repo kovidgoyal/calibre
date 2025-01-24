@@ -147,8 +147,6 @@ class Pocket(BasicNewsRecipe):
     def cleanup(self):
         if self.mark_as_read_after_dl:
             self.mark_as_read([x['item_id'] for x in self.articles])
-        else:
-            pass
 
     def default_cover(self, cover_file):
         '''

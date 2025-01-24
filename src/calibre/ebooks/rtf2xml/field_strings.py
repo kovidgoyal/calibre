@@ -427,8 +427,6 @@ class FieldStrings:
         if match_group:
             arg = match_group.group(1)
             the_string += '<argument>%s' % arg
-        else:
-            pass
         index = line.find('\\m')
         if index > -1:
             the_string += '<html2-image-map>true'

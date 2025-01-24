@@ -136,8 +136,6 @@ class DeleteInfo:
                 self.__write_obj.write(self.__ob)
                 self.__ob = 0
                 self.__state = 'default'
-            else:
-                pass
             return True
         elif self.__token_info == 'cw<ls<list______':
             self.__ob = 0
