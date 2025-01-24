@@ -65,7 +65,7 @@ UNIXPERMS = 0o100644 << 16  # -rw-r--r--
 IS_FILENAME = 0
 IS_IMAGE = 1
 # We need at least Python 2.2
-assert sys.version_info[0]>=2 and sys.version_info[1] >= 2
+assert sys.version_info >= (2, 2)
 
 # sys.setrecursionlimit(100)
 # The recursion limit is set conservative so mistakes like
