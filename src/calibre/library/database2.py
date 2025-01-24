@@ -2119,7 +2119,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
+            taglist[c] = {icu_lower(t.name): t for t in categories[c]}
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})

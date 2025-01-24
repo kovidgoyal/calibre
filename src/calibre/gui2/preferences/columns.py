@@ -107,9 +107,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.verticalHeader().hide()
 
         self.opt_columns.setRowCount(len(colmap))
-        self.column_desc = dict(map(lambda x:(CreateCustomColumn.column_types[x]['datatype'],
-                                         CreateCustomColumn.column_types[x]['text']),
-                                  CreateCustomColumn.column_types))
+        self.column_desc = {CreateCustomColumn.column_types[x]['datatype']: CreateCustomColumn.column_types[x]['text'] for x in CreateCustomColumn.column_types}
 
         for row, key in enumerate(colmap):
             self.setup_row(row, key, row)

@@ -69,7 +69,7 @@ def parse_multipart_byterange(buf, content_type):  # {{{
         if not cr.startswith('bytes '):
             raise ValueError('Malformed Content-Range header in sub-part, no prefix')
         try:
-            start, stop = map(lambda x: int(x.strip()), cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])
+            start, stop = (int(x.strip()) for x in cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])
         except Exception:
             raise ValueError('Malformed Content-Range header in sub-part, failed to parse byte range')
         content_length = stop - start + 1

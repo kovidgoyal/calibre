@@ -236,7 +236,7 @@ class IdLinksEditor(Dialog):
     def edit_rule(self, r=-1):
         key = name = template = ''
         if r > -1:
-            key, name, template = map(lambda c: self.table.item(r, c).text(), range(3))
+            key, name, template = (self.table.item(r, c).text() for c in range(3))
         d = IdLinksRuleEdit(key, name, template, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             if r < 0:

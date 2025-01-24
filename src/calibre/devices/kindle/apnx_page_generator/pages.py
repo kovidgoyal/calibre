@@ -34,10 +34,10 @@ class Pages:
 
     @property
     def page_locations(self) -> list[int]:
-        return list(itertools.chain.from_iterable(list(map(lambda pg: pg.page_locations, self.__pages_groups))))
+        return list(itertools.chain.from_iterable([pg.page_locations for pg in self.__pages_groups]))
 
     @property
     def number_of_pages(self) -> int:
-        return sum(list(map(lambda pg: len(pg.page_locations), self.__pages_groups)))
+        return sum([len(pg.page_locations) for pg in self.__pages_groups])
 
 

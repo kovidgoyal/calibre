@@ -110,7 +110,7 @@ class BaseTest(unittest.TestCase):
                 continue
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
-                attr1, attr2 = map(lambda x:tuple(x) if x else (), (attr1, attr2))
+                attr1, attr2 = (tuple(x) if x else () for x in (attr1, attr2))
             if isinstance(attr1, (tuple, list)) and 'authors' not in attr and 'languages' not in attr:
                 attr1, attr2 = set(attr1), set(attr2)
             self.assertEqual(attr1, attr2,

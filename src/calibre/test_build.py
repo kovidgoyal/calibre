@@ -344,7 +344,7 @@ class BuildTest(unittest.TestCase):
         # package. On non-frozen builds, it should just work because the
         # hard-coded paths of the Qt installation should work. If they do not,
         # then it is a distro problem.
-        fmts = set(map(lambda x: x.data().decode('utf-8'), QImageReader.supportedImageFormats()))  # no2to3
+        fmts = {x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()}  # no2to3
         testf = {'jpg', 'png', 'svg', 'ico', 'gif', 'webp'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = P('images/blank.png', allow_user_override=False, data=True)

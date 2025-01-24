@@ -505,8 +505,7 @@ class SearchDialog(QDialog):
             self.mc = '~'
         else:
             self.mc = '^'
-        all, any, phrase, none = map(lambda x: str(x.text()),
-                (self.all, self.any, self.phrase, self.none))
+        all, any, phrase, none = (str(x.text()) for x in (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))
         phrase = phrase.strip()
         all = ' and '.join(all)

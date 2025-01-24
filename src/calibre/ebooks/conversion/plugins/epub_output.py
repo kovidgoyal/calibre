@@ -452,7 +452,7 @@ class EPUBOutput(OutputFormatPlugin):
                     br.tag = XHTML('p')
                     br.text = '\u00a0'
                     style = br.get('style', '').split(';')
-                    style = list(filter(None, map(lambda x: x.strip(), style)))
+                    style = list(filter(None, (x.strip() for x in style)))
                     style.append('margin:0pt; border:0pt')
                     # If the prior tag is a block (including a <br> we replaced)
                     # then this <br> replacement should have a 1-line height.

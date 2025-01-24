@@ -74,7 +74,7 @@ def do_list(fields, data, opts):
     from calibre.utils.terminal import ColoredStream, geometry
 
     separator = ' '
-    widths = list(map(lambda x: 0, fields))
+    widths = [0 for x in fields]
     for i in data:
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], max(len(field), len(str(i[field]))))
@@ -83,7 +83,7 @@ def do_list(fields, data, opts):
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = list(map(lambda x: min(x + 1, field_width), widths))
+    base_widths = [min(x + 1, field_width) for x in widths]
 
     while sum(base_widths) < screen_width:
         adjusted = False
@@ -104,7 +104,7 @@ def do_list(fields, data, opts):
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))
 
-    wrappers = list(map(lambda x: TextWrapper(x - 1), widths))
+    wrappers = [TextWrapper(x - 1) for x in widths]
 
     for record in data:
         text = [

@@ -131,7 +131,7 @@ class TestAuth(BaseTest):
         opts = Options(userdb=':memory:')
         Data = namedtuple('Data', 'username')
         with TemporaryDirectory() as base:
-            l1, l2, l3 = map(lambda x: os.path.join(base, 'l' + x), '123')
+            l1, l2, l3 = (os.path.join(base, 'l' + x) for x in '123')
             for l in (l1, l2, l3):
                 create_backend(l).close()
             ctx = Handler((l1, l2, l3), opts).router.ctx
