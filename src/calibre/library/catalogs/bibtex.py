@@ -127,9 +127,9 @@ class BIBTEX(CatalogPlugin):
             # Define starting chain or if book valid strict and not book return a Fail string
 
             bibtex_entry = []
-            if mode != "misc" and check_entry_book_valid(entry) :
+            if mode != 'misc' and check_entry_book_valid(entry) :
                 bibtex_entry.append('@book{')
-            elif mode != "book" :
+            elif mode != 'book' :
                 bibtex_entry.append('@misc{')
             else :
                 # case strict book
@@ -191,7 +191,7 @@ class BIBTEX(CatalogPlugin):
                     try:
                         item = html2text(item)
                     except:
-                        log.warn("Failed to convert comments to text")
+                        log.warn('Failed to convert comments to text')
                     bibtex_entry.append('note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
                 elif field == 'isbn' :
@@ -215,7 +215,7 @@ class BIBTEX(CatalogPlugin):
 
                 elif field == 'pubdate' :
                     bibtex_entry.append('year = "%s"' % item.year)
-                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
+                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime('%b', item)))
 
                 elif field.startswith('#') and isinstance(item, string_or_bytes):
                     bibtex_entry.append('custom_{} = "{}"'.format(field[1:],
@@ -269,11 +269,11 @@ class BIBTEX(CatalogPlugin):
                 if len(tpl_citation) >0 :
                     return tpl_citation
 
-            if len(entry["isbn"]) > 0 :
-                template_citation = '%s' % re.sub(r'[\D]','', entry["isbn"])
+            if len(entry['isbn']) > 0 :
+                template_citation = '%s' % re.sub(r'[\D]','', entry['isbn'])
 
             else :
-                template_citation = '%s' % str(entry["id"])
+                template_citation = '%s' % str(entry['id'])
 
             return bibtexclass.ValidateCitationKey(template_citation)
 
@@ -294,39 +294,39 @@ class BIBTEX(CatalogPlugin):
             if opts.bibfile_enc in bibfile_enc :
                 bibfile_enc = opts.bibfile_enc
             else :
-                log.warn("Incorrect --choose-encoding flag, revert to default")
+                log.warn('Incorrect --choose-encoding flag, revert to default')
                 bibfile_enc = bibfile_enc[0]
             if opts.bibfile_enctag in bibfile_enctag :
                 bibfile_enctag = opts.bibfile_enctag
             else :
-                log.warn("Incorrect --choose-encoding-configuration flag, revert to default")
+                log.warn('Incorrect --choose-encoding-configuration flag, revert to default')
                 bibfile_enctag = bibfile_enctag[0]
             if opts.bib_entry in bib_entry :
                 bib_entry = opts.bib_entry
             else :
-                log.warn("Incorrect --entry-type flag, revert to default")
+                log.warn('Incorrect --entry-type flag, revert to default')
                 bib_entry = bib_entry[0]
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log(f"{self.name}(): Generating {self.fmt}")
+            log(f'{self.name}(): Generating {self.fmt}')
             if opts.connected_device['is_device_connected']:
-                log(" connected_device: %s" % opts.connected_device['name'])
+                log(' connected_device: %s' % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
             if opts_dict['ids']:
-                log(" Book count: %d" % len(opts_dict['ids']))
+                log(' Book count: %d' % len(opts_dict['ids']))
                 if opts_dict['search_text']:
-                    log(" (--search ignored when a subset of the database is specified)")
+                    log(' (--search ignored when a subset of the database is specified)')
 
             if opts_dict['fields']:
                 if opts_dict['fields'] == 'all':
-                    log(" Fields: %s" % ', '.join(FIELDS[1:]))
+                    log(' Fields: %s' % ', '.join(FIELDS[1:]))
                 else:
-                    log(" Fields: %s" % opts_dict['fields'])
+                    log(' Fields: %s' % opts_dict['fields'])
 
-            log(f" Output file will be encoded in {bibfile_enc} with {bibfile_enctag} flag")
+            log(f' Output file will be encoded in {bibfile_enc} with {bibfile_enctag} flag')
 
             log(" BibTeX entry type is {} with a citation like '{}' flag".format(bib_entry, opts_dict['bib_cit']))
 
@@ -361,7 +361,7 @@ class BIBTEX(CatalogPlugin):
             elif opts.impcit == 'True' :
                 citation_bibtex= True
             else :
-                log.warn("Incorrect --create-citation, revert to default")
+                log.warn('Incorrect --create-citation, revert to default')
                 citation_bibtex= True
         else :
             citation_bibtex= opts.impcit
@@ -373,7 +373,7 @@ class BIBTEX(CatalogPlugin):
             elif opts.addfiles == 'True' :
                 addfiles_bibtex = True
             else :
-                log.warn("Incorrect --add-files-path, revert to default")
+                log.warn('Incorrect --add-files-path, revert to default')
                 addfiles_bibtex= True
         else :
             addfiles_bibtex = opts.addfiles
@@ -391,7 +391,7 @@ class BIBTEX(CatalogPlugin):
             if bib_entry == 'book' :
                 nb_books = len(list(filter(check_entry_book_valid, data)))
                 if nb_books < nb_entries :
-                    log.warn("Only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                    log.warn('Only %d entries in %d are book compatible' % (nb_books, nb_entries))
                     nb_entries = nb_books
 
             # If connected device, add 'On Device' values to data
@@ -401,7 +401,7 @@ class BIBTEX(CatalogPlugin):
 
             # outfile.write('%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
             outfile.write('@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
-                % (nb_entries, strftime("%A, %d. %B %Y %H:%M")))
+                % (nb_entries, strftime('%A, %d. %B %Y %H:%M')))
 
             for entry in data:
                 outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,

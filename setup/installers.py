@@ -253,7 +253,7 @@ class ExtDev(Command):
             ext_dir = build_only(which, '', ext)
             src = os.path.join(ext_dir, f'{ext}.so')
             print(
-                "\n\n\x1b[33;1mWARNING: This does not work on macOS, unless you use un-signed builds with ",
+                '\n\n\x1b[33;1mWARNING: This does not work on macOS, unless you use un-signed builds with ',
                 ' ./update-on-ox develop\x1b[m',
                 file=sys.stderr, end='\n\n\n')
             host = 'ox'

@@ -56,7 +56,7 @@ class Bloomberg(BasicNewsRecipe):
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
     description = (
         'Bloomberg Businessweek helps global leaders stay ahead with insights and in-depth analysis on the people,'
-        ' companies, events, and trends shaping today\'s complex, global economy.'
+        " companies, events, and trends shaping today's complex, global economy."
     )
     remove_empty_feeds = True
 

@@ -80,7 +80,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     i = m.makeelement('{%s}item' % opfns, href=toc_name, id='ncx')
     i.set('media-type', guess_type(toc_name))
     m.append(i)
-    s = opf.makeelement('{%s}spine' % opfns, toc="ncx")
+    s = opf.makeelement('{%s}spine' % opfns, toc='ncx')
     opf.insert(2, s)
     i = s.makeelement('{%s}itemref' % opfns, idref='start')
     s.append(i)

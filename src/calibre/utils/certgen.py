@@ -99,7 +99,7 @@ def create_server_cert(
 
 def develop():
     cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['DNS:moose.cat', 'DNS:huge.bat'])
-    print("CA Certificate")
+    print('CA Certificate')
     print(cert_info(cacert))
     print(), print(), print()
     print('Server Certificate')

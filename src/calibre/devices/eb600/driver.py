@@ -71,7 +71,7 @@ class TOLINO(EB600):
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Swap main and card A') +
         ':::' +
-        _('Check this box if the device\'s main memory is being seen as card a and the card '
+        _("Check this box if the device's main memory is being seen as card a and the card "
             'is being seen as main memory. Some tolino devices may need this option.'),
     ]
 

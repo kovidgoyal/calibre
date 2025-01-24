@@ -21,7 +21,7 @@ def format_tickaroo_liveblog(soup):
 
     #format liveblogs
     for tag in soup.findAll('time'):
-        ntag = soup.new_tag("br")
+        ntag = soup.new_tag('br')
         tag.insert_before(ntag)
 
     for tag in soup.findAll(class_ = 'tik4-author__wrapper'):
@@ -61,14 +61,14 @@ def bilderstrecke(soup,tag):
 #                head.append(struct[i-1])
             cap = soup.new_tag('p')
             cap.append(struct[int(v['caption'])])
-            cap['class'] = "body-elements__image-figcaption"
+            cap['class'] = 'body-elements__image-figcaption'
             if 'source' in v.keys():
                 cred = soup.new_tag('span')
                 cred.append(struct[int(v['source'])])
-                cred['class'] = "body-elements__image-figcaption--source"
+                cred['class'] = 'body-elements__image-figcaption--source'
                 cap.append(cred)
             if 'defaultUrl' in v.keys():
-                fig = soup.new_tag("figure")
+                fig = soup.new_tag('figure')
                 img = soup.new_tag('img')
                 img['src'] = struct[int(v['defaultUrl'])]
                 fig.append(img)
@@ -145,7 +145,7 @@ class FazNet(BasicNewsRecipe):
                        'tik4-by','header-detail__image','mm-adbox','upper-toolbar content-container'
                    ]}),
   #                 dict(name ='script'),
-                   dict(name = "style"),
+                   dict(name = 'style'),
                    dict(name='svg'),
                    dict(name='div', attrs={'data-module':'teaser'}),
 
@@ -215,9 +215,9 @@ class FazNet(BasicNewsRecipe):
         for par in soup.findAll('p'):
             if len(par.contents) == 1:
                 cont = str(par.contents[0])
-                if re.search(r"^[1-9]\d* Bilder$",cont):
+                if re.search(r'^[1-9]\d* Bilder$',cont):
 #                    print(cont)
-                    for tag in soup.findAll('script',attrs={'id':"__NUXT_DATA__",'type':'application/json'}):
+                    for tag in soup.findAll('script',attrs={'id':'__NUXT_DATA__','type':'application/json'}):
                         bilderstrecke(soup,tag)
                         break
                     break
@@ -227,14 +227,14 @@ class FazNet(BasicNewsRecipe):
             tag.unwrap()
 
         # remove ":""
-        tag = soup.find(class_ ="header-label__content")
+        tag = soup.find(class_ ='header-label__content')
         if tag:
-            colon=tag.find(class_ ="sr-only")
+            colon=tag.find(class_ ='sr-only')
             if colon:
                 colon.extract()
 
         # Skip articles behind paywall
-        if soup.find(id = "faz-paywall"):
+        if soup.find(id = 'faz-paywall'):
             self.abort_article('Skipping paywalled article')
 
         # Remove F.A.Z. ad
@@ -271,5 +271,5 @@ class FazNet(BasicNewsRecipe):
                 text = str(tag.string)
                 text = text.strip()
                 if text != '' and text[-1] not in ['.','?','!',':']:
-                    tag.string.replace_with(text + ".")
+                    tag.string.replace_with(text + '.')
         return self.adeify_images(soup)

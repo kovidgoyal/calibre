@@ -683,7 +683,7 @@ class Convert:
                 multi_spaces = self.ms_pat.search(ctext) is not None
                 preserve = multi_spaces or self.ws_pat.search(ctext) is not None
                 if preserve:
-                    text.add_elem(SPAN(ctext, style="white-space:pre-wrap"))
+                    text.add_elem(SPAN(ctext, style='white-space:pre-wrap'))
                     ans.append(text.elem)
                 else:
                     text.buf.append(ctext)

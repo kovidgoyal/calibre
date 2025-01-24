@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-__license__ = "GPL v3"
+__license__ = 'GPL v3'
 
-"""DistroWatch Weekly"""
+'''DistroWatch Weekly'''
 
 import datetime
 
@@ -10,28 +10,28 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DistroWatchWeekly(BasicNewsRecipe):
-    title = "DistroWatch Weekly"
-    description = "Weekly news about Linux distributions"
-    category = "Linux, Technology, News"
+    title = 'DistroWatch Weekly'
+    description = 'Weekly news about Linux distributions'
+    category = 'Linux, Technology, News'
     oldest_article = 14
-    language = "en"
+    language = 'en'
     max_articles_per_feed = 50
     no_stylesheets = True
     use_embedded_content = False
-    timefmt = " [%A, %d %B, %Y]"
+    timefmt = ' [%A, %d %B, %Y]'
     auto_cleanup = False
 
     keep_only_tags = [
         dict(
             attrs={
-                "class":
-                lambda x: x and ("News1" in x)
+                'class':
+                lambda x: x and ('News1' in x)
             }
         )
     ]
 
     def _get_mag_date(self):
-        """Return date of latest weekly issue."""
+        '''Return date of latest weekly issue.'''
 
         d = datetime.date(2022, 6, 20)
         t = datetime.date.today()
@@ -45,17 +45,17 @@ class DistroWatchWeekly(BasicNewsRecipe):
 
         # Get URL of latest mag page
         ld = self._get_mag_date()
-        url = ld.strftime("https://distrowatch.com/weekly.php?issue=%Y%m%d")
+        url = ld.strftime('https://distrowatch.com/weekly.php?issue=%Y%m%d')
         url = url.lower()
-        title = ld.strftime("DistroWatch Weekly for %Y-%m-%d")
+        title = ld.strftime('DistroWatch Weekly for %Y-%m-%d')
 
         # Get articles
         stories = [{
-            "url": url,
-            "title": title,
+            'url': url,
+            'title': title,
         },]
         index = [
-            ("Articles", stories),
+            ('Articles', stories),
         ]
 
         return index

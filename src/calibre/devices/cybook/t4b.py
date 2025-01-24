@@ -21,7 +21,7 @@ def write_t4b(t4bfile, coverdata=None):
     from PIL import Image
     if coverdata is not None:
         coverdata = BytesIO(coverdata)
-        cover = Image.open(coverdata).convert("L")
+        cover = Image.open(coverdata).convert('L')
         cover.thumbnail((96, 144), Image.Resampling.LANCZOS)
         t4bcover = Image.new('L', (96, 144), 'white')
 

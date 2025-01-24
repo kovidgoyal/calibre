@@ -34,7 +34,7 @@ class AdvancedUserRecipe1234144423(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['padding', 'sidebar-photo', 'blog caitlin']})]
 
     remove_tags = [
-        dict(name=['object', 'link', 'table', 'embed']), dict(name='div', attrs={'id': ["pluckcomments", "StoryChat"]}), dict(
+        dict(name=['object', 'link', 'table', 'embed']), dict(name='div', attrs={'id': ['pluckcomments', 'StoryChat']}), dict(
             name='div', attrs={'class': ['articleflex-container', ]}), dict(name='p', attrs={'class': ['posted', 'tags']})
     ]
 

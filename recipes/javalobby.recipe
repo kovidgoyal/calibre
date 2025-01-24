@@ -19,10 +19,10 @@ class Engadget(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
 
-    remove_tags = [dict(name='div', attrs={'class': ["fivestar-static-form-item", "relatedContent", "pagination clearfix", "addResources"]}),
-                   dict(name='div', attrs={'id': ["comments"]})]
+    remove_tags = [dict(name='div', attrs={'class': ['fivestar-static-form-item', 'relatedContent', 'pagination clearfix', 'addResources']}),
+                   dict(name='div', attrs={'id': ['comments']})]
 
-    keep_only_tags = [dict(name='div', attrs={'id': ["article"]})]
+    keep_only_tags = [dict(name='div', attrs={'id': ['article']})]
 
     feeds = [(u'news', u'http://feeds.dzone.com/javalobby/frontpage')]
 

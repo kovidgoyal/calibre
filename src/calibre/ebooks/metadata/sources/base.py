@@ -26,8 +26,8 @@ def create_log(ostream=None):
 
 
 # Comparing Metadata objects for relevance {{{
-words = ("the", "a", "an", "of", "and")
-prefix_pat = re.compile(r'^(%s)\s+'%("|".join(words)))
+words = ('the', 'a', 'an', 'of', 'and')
+prefix_pat = re.compile(r'^(%s)\s+'%('|'.join(words)))
 trailing_paren_pat = re.compile(r'\(.*\)$')
 whitespace_pat = re.compile(r'\s+')
 

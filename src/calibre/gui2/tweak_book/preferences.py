@@ -87,7 +87,7 @@ class BasicSettings(QWidget):  # {{{
                 raise TypeError('Unknown setting type for setting: %s' % name)
         else:
             if getter is None or setter is None:
-                raise ValueError("getter or setter not provided for: %s" % name)
+                raise ValueError('getter or setter not provided for: %s' % name)
         self._prevent_changed = True
         setter(widget, inval)
         self._prevent_changed = False

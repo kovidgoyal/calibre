@@ -300,7 +300,7 @@ class TagsView(QTreeView):  # {{{
         self.pane_is_visible = False
         self.current_expansion = None
         self.search_icon = QIcon.ic('search.png')
-        self.search_copy_icon = QIcon.ic("search_copy_saved.png")
+        self.search_copy_icon = QIcon.ic('search_copy_saved.png')
         self.user_category_icon = QIcon.ic('tb_folder.png')
         self.edit_metadata_icon = QIcon.ic('edit_input.png')
         self.delete_icon = QIcon.ic('list_remove.png')
@@ -817,7 +817,7 @@ class TagsView(QTreeView):  # {{{
             if action == 'search':
                 self._toggle(index, set_to=search_state)
                 return
-            if action == "raw_search":
+            if action == 'raw_search':
                 get_gui().get_saved_search_text(search_name='search:' + key)
                 return
             if action == 'add_to_category':
@@ -1404,7 +1404,7 @@ class TagsView(QTreeView):  # {{{
             for p in paths:
                 # Now add the menu items
                 m.addAction(self.minus_icon,
-                            _("Collapse {0}").format(p[0]), partial(self.collapse_node, p[1]))
+                            _('Collapse {0}').format(p[0]), partial(self.collapse_node, p[1]))
             m.addAction(self.minus_icon, _('Collapse all'), self.collapseAll)
 
         # Ask plugins if they have any actions to add to the context menu

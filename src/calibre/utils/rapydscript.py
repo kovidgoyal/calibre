@@ -394,7 +394,7 @@ def run_rapydscript_tests():
             if fail_code is None:
                 fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
             rq.fail(fail_code)
-            print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()}", file=sys.stderr)
+            print(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()}', file=sys.stderr)
 
     class Tester(QWebEnginePage):
 

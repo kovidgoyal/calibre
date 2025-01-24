@@ -17,6 +17,6 @@ class BasicUserRecipe1318619728(BasicNewsRecipe):
         try:
             br.open(masthead)
         except:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             masthead = None
         return masthead

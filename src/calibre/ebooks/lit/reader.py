@@ -25,23 +25,23 @@ from polyglot.builtins import codepoint_to_chr, itervalues, string_or_bytes
 from polyglot.urllib import unquote as urlunquote
 from polyglot.urllib import urldefrag
 
-__all__ = ["LitReader"]
+__all__ = ['LitReader']
 
-XML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
-"""
-OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+XML_DECL = '''<?xml version="1.0" encoding="UTF-8" ?>
+'''
+OPF_DECL = '''<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
   "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
-"""
-HTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+'''
+HTML_DECL = '''<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC
  "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
-"""
+'''
 
-DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
-LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
+DESENCRYPT_GUID = '{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}'
+LZXCOMPRESS_GUID = '{0A9007C6-4076-11D3-8789-0000F8105754}'
 
 CONTROL_TAG = 4
 CONTROL_WINDOW_SIZE = 12
@@ -84,8 +84,8 @@ def encint(byts, remaining):
 
 
 def msguid(bytes):
-    values = struct.unpack("<LHHBBBBBBBB", bytes[:16])
-    return "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}" % values
+    values = struct.unpack('<LHHBBBBBBBB', bytes[:16])
+    return '{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}' % values
 
 
 def read_utf8_char(bytes, pos):
@@ -242,7 +242,7 @@ class UnBinary:
                     if flags & FLAG_ATOM:
                         if not self.tag_atoms or tag not in self.tag_atoms:
                             raise LitError(
-                                "atom tag %d not in atom tag list" % tag)
+                                'atom tag %d not in atom tag list' % tag)
                         tag_name = self.tag_atoms[tag]
                         current_map = self.attr_atoms
                     elif tag < len(self.tag_map):
@@ -397,7 +397,7 @@ class DirectoryEntry:
         self.size = size
 
     def __repr__(self):
-        return "DirectoryEntry(name=%s, section=%d, offset=%d, size=%d)" \
+        return 'DirectoryEntry(name=%s, section=%d, offset=%d, size=%d)' \
             % (repr(self.name), self.section, self.offset, self.size)
 
     def __str__(self):
@@ -429,8 +429,8 @@ class ManifestItem:
         return self.internal == other
 
     def __repr__(self):
-        return "ManifestItem(internal=%r, path=%r, mime_type=%r, " \
-            "offset=%d, root=%r, state=%r)" \
+        return 'ManifestItem(internal=%r, path=%r, mime_type=%r, ' \
+            'offset=%d, root=%r, state=%r)' \
             % (self.internal, self.path, self.mime_type, self.offset,
                self.root, self.state)
 
@@ -649,7 +649,7 @@ class LitFile:
             raise LitError('Invalid Namelist section')
         pos = 4
         num_sections = u16(raw[2:pos])
-        self.section_names = [""] * num_sections
+        self.section_names = [''] * num_sections
         self.section_data = [None] * num_sections
         for section in range(num_sections):
             size = u16(raw[pos:pos+2])
@@ -698,7 +698,7 @@ class LitFile:
                 path = item.path
                 while shared and not path.startswith(shared):
                     try:
-                        shared = shared[:shared.rindex("/", 0, -2) + 1]
+                        shared = shared[:shared.rindex('/', 0, -2) + 1]
                     except ValueError:
                         shared = None
                 if not shared:
@@ -730,7 +730,7 @@ class LitFile:
                 raise LitError('Unable to decrypt title key!')
             self.bookkey = bookkey[1:9]
         else:
-            raise DRMError("Cannot access DRM-protected book")
+            raise DRMError('Cannot access DRM-protected book')
 
     def calculate_deskey(self):
         hashfiles = ['/meta', '/DRMStorage/DRMSource']
@@ -741,11 +741,11 @@ class LitFile:
         for name in hashfiles:
             data = self.get_file(name)
             if prepad > 0:
-                data = (b"\000" * prepad) + data
+                data = (b'\000' * prepad) + data
                 prepad = 0
             postpad = 64 - (len(data) % 64)
             if postpad < 64:
-                data = data + (b"\000" * postpad)
+                data = data + (b'\000' * postpad)
             hash.update(data)
         digest = hash.digest()
         if not isinstance(digest, bytes):
@@ -779,7 +779,7 @@ class LitFile:
         while len(transform) >= 16:
             csize = (int32(control) + 1) * 4
             if csize > len(control) or csize <= 0:
-                raise LitError("ControlData is too short")
+                raise LitError('ControlData is too short')
             guid = msguid(transform)
             if guid == DESENCRYPT_GUID:
                 content = self.decrypt(content)
@@ -791,7 +791,7 @@ class LitFile:
                 content = self.decompress(content, control, reset_table)
                 control = control[csize:]
             else:
-                raise LitError("Unrecognized transform: %s." % repr(guid))
+                raise LitError('Unrecognized transform: %s.' % repr(guid))
             transform = transform[16:]
         return content
 
@@ -799,18 +799,18 @@ class LitFile:
         length = len(content)
         extra = length & 0x7
         if extra > 0:
-            self.warn("content length not a multiple of block size")
-            content += b"\0" * (8 - extra)
+            self.warn('content length not a multiple of block size')
+            content += b'\0' * (8 - extra)
         msdes.deskey(self.bookkey, msdes.DE1)
         return msdes.des(content)
 
     def decompress(self, content, control, reset_table):
-        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != b"LZXC":
-            raise LitError("Invalid ControlData tag value")
+        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != b'LZXC':
+            raise LitError('Invalid ControlData tag value')
         if len(reset_table) < (RESET_INTERVAL + 8):
-            raise LitError("Reset table is too short")
+            raise LitError('Reset table is too short')
         if u32(reset_table[RESET_UCLENGTH + 4:]) != 0:
-            raise LitError("Reset table has 64bit value for UCLENGTH")
+            raise LitError('Reset table has 64bit value for UCLENGTH')
 
         result = []
 
@@ -820,7 +820,7 @@ class LitFile:
             u >>= 1
             window_size += 1
         if window_size < 15 or window_size > 21:
-            raise LitError("Invalid window in ControlData")
+            raise LitError('Invalid window in ControlData')
         lzx.init(window_size)
 
         ofs_entry = int32(reset_table[RESET_HDRLEN:]) + 8
@@ -836,16 +836,16 @@ class LitFile:
                 size = int32(reset_table[ofs_entry:])
                 u = int32(reset_table[ofs_entry + 4:])
                 if u != 0:
-                    raise LitError("Reset table entry greater than 32 bits")
+                    raise LitError('Reset table entry greater than 32 bits')
                 if size >= len(content):
-                    self._warn("LZX reset table entry out of bounds")
+                    self._warn('LZX reset table entry out of bounds')
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
                     try:
                         result.append(
                             lzx.decompress(content[base:size], window_bytes))
                     except lzx.LZXError:
-                        self.warn("LZX decompression error; skipping chunk")
+                        self.warn('LZX decompression error; skipping chunk')
                     bytes_remaining -= window_bytes
                     base = size
             accum += int32(reset_table[RESET_INTERVAL:])
@@ -855,10 +855,10 @@ class LitFile:
             try:
                 result.append(lzx.decompress(content[base:], bytes_remaining))
             except lzx.LZXError:
-                self.warn("LZX decompression error; skipping chunk")
+                self.warn('LZX decompression error; skipping chunk')
             bytes_remaining = 0
         if bytes_remaining > 0:
-            raise LitError("Failed to completely decompress section")
+            raise LitError('Failed to completely decompress section')
         return b''.join(result)
 
     def get_atoms(self, entry):
@@ -876,7 +876,7 @@ class LitFile:
                 break
             tags[i], data = data[:size], data[size:]
         if len(tags) != nentries:
-            self._warn("damaged or invalid atoms tag table")
+            self._warn('damaged or invalid atoms tag table')
         if len(data) < 4:
             return (tags, {})
         attrs = {}
@@ -889,12 +889,12 @@ class LitFile:
                 break
             attrs[i], data = data[:size], data[size:]
         if len(attrs) != nentries:
-            self._warn("damaged or invalid atoms attributes table")
+            self._warn('damaged or invalid atoms attributes table')
         return (tags, attrs)
 
 
 class LitContainer:
-    """Simple Container-interface, read-only accessor for LIT files."""
+    '''Simple Container-interface, read-only accessor for LIT files.'''
 
     def __init__(self, filename_or_stream, log):
         self._litfile = LitFile(filename_or_stream, log)
@@ -934,7 +934,7 @@ class LitContainer:
         except LitError:
             if b'PENGUIN group' not in raw:
                 raise
-            print("WARNING: attempting PENGUIN malformed OPF fix")
+            print('WARNING: attempting PENGUIN malformed OPF fix')
             raw = raw.replace(
                 b'PENGUIN group', b'\x00\x01\x18\x00PENGUIN group', 1)
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)

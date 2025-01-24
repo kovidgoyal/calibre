@@ -234,12 +234,12 @@ class WebSocketTest(BaseTest):
         with WSTestServer(EchoHandler) as server:
             simple_test = partial(self.simple_test, server)
 
-            for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536, "Hello-µ@ßöäüàá-UTF-8!!"):
+            for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536, 'Hello-µ@ßöäüàá-UTF-8!!'):
                 simple_test([q], [q])
             for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
                 simple_test([q], [q])
 
-            for payload in [b'', b'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
+            for payload in [b'', b'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b'\xfe' * 125]:
                 simple_test([(PING, payload)], [(PONG, payload)])
 
             simple_test([(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
@@ -312,7 +312,7 @@ class WebSocketTest(BaseTest):
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
 
-            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', "Hello-µ@ßöäüàá-UTF-8!!".encode()):
+            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', 'Hello-µ@ßöäüàá-UTF-8!!'.encode()):
                 frags = []
                 for i in range(len(q)):
                     b = q[i:i+1]

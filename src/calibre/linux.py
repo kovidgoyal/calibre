@@ -287,7 +287,7 @@ class ZshCompleter:  # {{{
                 if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
-                    arg += "(%s)"%'|'.join(opt.choices)
+                    arg += '(%s)'%'|'.join(opt.choices)
                 elif set(file_map).intersection(set(opt._long_opts)):
                     k = tuple(set(file_map).intersection(set(opt._long_opts)))
                     exts = file_map[k[0]]
@@ -295,9 +295,9 @@ class ZshCompleter:  # {{{
                         exts = ('*.%s'%x for x in sorted(exts + [x.upper() for x in exts]))
                         arg += "'_files -g \"%s\"'" % ' '.join(exts)
                     else:
-                        arg += "_files"
+                        arg += '_files'
                 elif (opt.dest in {'pidfile', 'attachment'}):
-                    arg += "_files"
+                    arg += '_files'
                 elif set(opf_opts).intersection(set(opt._long_opts)):
                     arg += "'_files -g \"*.opf\"'"
                 elif set(cover_opts).intersection(set(opt._long_opts)):
@@ -408,17 +408,17 @@ class ZshCompleter:  # {{{
         w('\n_ebook_convert() {')
         w('\n  local iarg oarg context state_descr state line\n  typeset -A opt_args\n  local ret=1')
         w("\n  _arguments '1: :_ebc_input_args' '*::ebook-convert output:->args' && ret=0")
-        w("\n  case $state in \n  (args)")
+        w('\n  case $state in \n  (args)')
         w('\n    iarg=${line[1]##*.}; ')
         w("\n    _arguments '1: :_ebc_output_args' '*::ebook-convert options:->args' && ret=0")
-        w("\n     case $state in \n    (args)")
+        w('\n     case $state in \n    (args)')
 
         w('\n      oarg=${line[1]##*.}')
         w('\n      iarg="_ebc_input_opts_${(L)iarg}"; oarg="_ebc_output_opts_${(L)oarg}"')
         w('\n      _call_function - $iarg; _call_function - $oarg; _ebc_common_opts; ret=0')
         w('\n    ;;\n    esac')
 
-        w("\n  ;;\n  esac\n  return ret")
+        w('\n  ;;\n  esac\n  return ret')
         w('\n}\n')
 
     def do_ebook_edit(self, f):
@@ -489,7 +489,7 @@ _ebook_edit() {{
         w('    "--version:Show version"\n')
         for command, desc in iteritems(descs):
             w('    "%s:%s"\n'%(
-                command, desc.replace(':', '\\:').replace('"', '\'')))
+                command, desc.replace(':', '\\:').replace('"', "'")))
         w('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
@@ -1031,7 +1031,7 @@ def opts_and_words(name, op, words, takes_files=False):
     esac
 
 }
-complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
+complete -F _'''%(opts, words) + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
@@ -1052,7 +1052,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
          ;;
     '''
     extras = []
-    for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
+    for eopts, eexts in ((cover_opts, '${pics}'), (opf_opts, "'@(opf)'")):
         for opt in eopts:
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
@@ -1085,7 +1085,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 VIEWER = '''\

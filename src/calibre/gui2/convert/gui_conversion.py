@@ -53,7 +53,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
     # Create a minimal OptionParser that we can append to
     parser = OptionParser()
     args = []
-    parser.add_option("--verbose", action="store_true", dest="verbose", default=True)
+    parser.add_option('--verbose', action='store_true', dest='verbose', default=True)
     opts, args = parser.parse_args()
 
     # Populate opts

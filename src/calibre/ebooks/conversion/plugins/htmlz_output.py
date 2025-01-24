@@ -39,7 +39,7 @@ class HTMLZOutput(OutputFormatPlugin):
         OptionRecommendation(name='htmlz_class_style', recommended_value='external',
             level=OptionRecommendation.LOW,
             choices=list(ui_data['sheet_choices']),
-            help=_('How to handle the CSS when using css-type = \'class\'.\n'
+            help=_("How to handle the CSS when using css-type = 'class'.\n"
                    'Default is external.\n'
                    'external: {external}\n'
                    'inline: {inline}'

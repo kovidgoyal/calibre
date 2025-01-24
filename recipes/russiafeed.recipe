@@ -25,11 +25,11 @@ class RussiaFeed(BasicNewsRecipe):
     publication_type     = 'newsportal'
     auto_cleanup         = True
     ignore_duplicate_articles = {'url'}
-    extra_css            = """
+    extra_css            = '''
         body{font-family: Roboto, Arial, sans-serif}
         img{margin-top:1em; margin-bottom: 1em; display:block}
         entry-title,entry-subtitle{font-family: Rajdhani, Poppins, Roboto, Arial, sans-serif}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

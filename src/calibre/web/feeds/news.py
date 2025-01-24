@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Defines various abstract base classes that can be subclassed to create powerful news fetching recipes.
 '''
-__docformat__ = "restructuredtext en"
+__docformat__ = 'restructuredtext en'
 
 
 import io
@@ -1159,7 +1159,7 @@ class BasicNewsRecipe(Recipe):
         templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.get_extra_css() or '')
         timefmt = self.timefmt
-        return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
+        return templ.generate(self.title, 'mastheadImage.jpg', timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
     @classmethod
@@ -1478,7 +1478,7 @@ class BasicNewsRecipe(Recipe):
         try:
             self._download_masthead(url)
         except:
-            self.log.exception("Failed to download supplied masthead_url")
+            self.log.exception('Failed to download supplied masthead_url')
 
     def resolve_masthead(self):
         self.masthead_path = None
@@ -1493,7 +1493,7 @@ class BasicNewsRecipe(Recipe):
             # Failure sets self.masthead_path to None
             self.download_masthead(murl)
         if self.masthead_path is None:
-            self.log.info("Synthesizing mastheadImage")
+            self.log.info('Synthesizing mastheadImage')
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             try:
                 self.default_masthead_image(self.masthead_path)

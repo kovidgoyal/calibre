@@ -923,7 +923,7 @@ class CcTemplateDelegate(StyledItemDelegate):  # {{{
         else:
             text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
         editor = TemplateDialog(parent, text, mi)
-        editor.setWindowTitle(_("Edit template"))
+        editor.setWindowTitle(_('Edit template'))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopDistance(20)
         d = editor.exec()

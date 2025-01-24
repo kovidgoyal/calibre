@@ -47,13 +47,13 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    extra_css             = """
+    extra_css             = '''
                                p{text-align: justify; font-size: 100%}
                                body{ text-align: left; font-size:100% }
                                h3{font-family: sans-serif; font-size:120%; font-weight:bold; text-align: justify; }
                                h2{font-family: sans-serif; font-size:100%; font-weight:bold; text-align: justify; }
                                h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
-                                 """
+                                 '''
 
     feeds = [
 

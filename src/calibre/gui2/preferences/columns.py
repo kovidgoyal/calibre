@@ -248,7 +248,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item.setFlags(flags)
         self.opt_columns.setItem(row, self.TYPE_COLUMN, item)
 
-        desc = cc['display'].get('description', "")
+        desc = cc['display'].get('description', '')
         item = QTableWidgetItem(desc)
         item.setToolTip(desc)
         item.setFlags(flags)

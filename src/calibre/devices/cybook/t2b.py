@@ -23,7 +23,7 @@ def reduce_color(c):
 
 
 def i2b(n):
-    return "".join([str((n >> y) & 1) for y in range(1, -1, -1)])
+    return ''.join([str((n >> y) & 1) for y in range(1, -1, -1)])
 
 
 def write_t2b(t2bfile, coverdata=None):
@@ -34,7 +34,7 @@ def write_t2b(t2bfile, coverdata=None):
     from PIL import Image
     if coverdata is not None:
         coverdata = io.BytesIO(coverdata)
-        cover = Image.open(coverdata).convert("L")
+        cover = Image.open(coverdata).convert('L')
         cover.thumbnail((96, 144), Image.Resampling.LANCZOS)
         t2bcover = Image.new('L', (96, 144), 'white')
 

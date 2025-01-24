@@ -102,7 +102,7 @@ class LRFOutput(OutputFormatPlugin):
         OptionRecommendation(name='header', recommended_value=False,
             help=_('Add a header to all the pages with title and author.')
         ),
-        OptionRecommendation(name='header_format', recommended_value="%t by %a",
+        OptionRecommendation(name='header_format', recommended_value='%t by %a',
             help=_('Set the format of the header. %a is replaced by the author '
             'and %t by the title. Default is %default')
         ),

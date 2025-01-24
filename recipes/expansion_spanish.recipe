@@ -106,15 +106,15 @@ class expansion_spanish(BasicNewsRecipe):
         cover = None
         st = time.localtime()
         year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
+        month = '%.2d' % st.tm_mon
+        day = '%.2d' % st.tm_mday
         cover = 'http://img5.kiosko.net/' + year + '/' + \
             month + '/' + day + '/es/expansion.750.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            self.log("\nPortada no disponible")
+            self.log('\nPortada no disponible')
             cover = 'http://www.aproahp.org/enlaces/images/diario_expansion.gif'
         return cover
 
@@ -138,13 +138,13 @@ class expansion_spanish(BasicNewsRecipe):
         link = article.get('link', None)
         if link is None:
             return article
-        if link.split('/')[-1] == "story01.htm":
+        if link.split('/')[-1] == 'story01.htm':
             link = link.split('/')[-2]
             a = ['0B', '0C', '0D', '0E', '0F', '0G', '0N', '0L0S', '0A']
             b = ['.', '/', '?', '-', '=', '&', '.com', 'www.', '0']
             for i in range(0, len(a)):
                 link = link.replace(a[i], b[i])
-            link = "http://" + link
+            link = 'http://' + link
 
         # Eliminar artículos duplicados en otros feeds
 

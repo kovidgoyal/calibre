@@ -55,9 +55,9 @@ class Uncrate(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll(style=True):

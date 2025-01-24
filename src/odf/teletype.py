@@ -83,17 +83,17 @@ class WhitespaceText:
         self._emitTextBuffer(odfElement)
 
     def _emitTextBuffer(self, odfElement):
-        """ Creates a Text Node whose contents are the current textBuffer.
+        ''' Creates a Text Node whose contents are the current textBuffer.
             Side effect: clears the text buffer.
-        """
+        '''
         if len(self.textBuffer) > 0:
             odfElement.addText(''.join(self.textBuffer))
         self.textBuffer = []
 
     def _emitSpaces(self, odfElement):
-        """ Creates a <text:s> element for the current spaceCount.
+        ''' Creates a <text:s> element for the current spaceCount.
             Side effect: sets spaceCount back to zero
-        """
+        '''
         if self.spaceCount > 0:
             spaceElement = S(c=self.spaceCount)
             odfElement.addElement(spaceElement)
@@ -106,12 +106,12 @@ def addTextToElement(odfElement, s):
 
 
 def extractText(odfElement):
-    """ Extract text content from an Element, with whitespace represented
+    ''' Extract text content from an Element, with whitespace represented
         properly. Returns the text, with tabs, spaces, and newlines
         correctly evaluated. This method recursively descends through the
         children of the given element, accumulating text and "unwrapping"
         <text:s>, <text:tab>, and <text:line-break> elements along the way.
-    """
+    '''
     result = []
 
     if len(odfElement.childNodes) != 0:
@@ -121,18 +121,18 @@ def extractText(odfElement):
             elif child.nodeType == Node.ELEMENT_NODE:
                 subElement = child
                 tagName = subElement.qname
-                if tagName == ("urn:oasis:names:tc:opendocument:xmlns:text:1.0", "line-break"):
-                    result.append("\n")
-                elif tagName == ("urn:oasis:names:tc:opendocument:xmlns:text:1.0", "tab"):
-                    result.append("\t")
-                elif tagName == ("urn:oasis:names:tc:opendocument:xmlns:text:1.0", "s"):
+                if tagName == ('urn:oasis:names:tc:opendocument:xmlns:text:1.0', 'line-break'):
+                    result.append('\n')
+                elif tagName == ('urn:oasis:names:tc:opendocument:xmlns:text:1.0', 'tab'):
+                    result.append('\t')
+                elif tagName == ('urn:oasis:names:tc:opendocument:xmlns:text:1.0', 's'):
                     c = subElement.getAttribute('c')
                     if c:
                         spaceCount =  int(c)
                     else:
                         spaceCount = 1
 
-                    result.append(" " * spaceCount)
+                    result.append(' ' * spaceCount)
                 else:
                     result.append(extractText(subElement))
     return ''.join(result)

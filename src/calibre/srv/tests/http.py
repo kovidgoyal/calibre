@@ -344,7 +344,7 @@ class TestHTTP(BaseTest):
             def edfunc():
                 num_calls[0] += 1
                 return b'data'
-            server.change_handler(lambda conn:conn.etagged_dynamic_response("xxx", edfunc))
+            server.change_handler(lambda conn:conn.etagged_dynamic_response('xxx', edfunc))
             conn = server.connect()
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()

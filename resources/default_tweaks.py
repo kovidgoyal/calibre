@@ -427,7 +427,7 @@ maximum_cover_size = (1650, 2200)
 # control where it is sent. Valid values are "main", "carda", "cardb". Note
 # that if there isn't enough free space available on the location you choose,
 # the files will be sent to the location with the most free space.
-send_news_to_device_location = "main"
+send_news_to_device_location = 'main'
 
 #: Unified toolbar on macOS
 # If you enable this option and restart calibre, the toolbar will be 'unified'

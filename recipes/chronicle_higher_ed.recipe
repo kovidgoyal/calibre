@@ -39,7 +39,7 @@ class Chronicle(BasicNewsRecipe):
         # Go to the issue
         soup0 = self.index_to_soup('http://chronicle.com/section/Archives/39/')
         issue = soup0.find('ul', attrs={'class': 'feature-promo-list'}).li
-        issueurl = "http://chronicle.com" + issue.a['href']
+        issueurl = 'http://chronicle.com' + issue.a['href']
 
         # Find date
         dates = self.tag_to_string(issue.a).split(': ')[-1]
@@ -47,12 +47,12 @@ class Chronicle(BasicNewsRecipe):
 
         # Find cover
         cover = soup0.find('div', attrs={
-                           'class': 'side-content'}).find(attrs={'src': re.compile("photos/biz/Current")})
+                           'class': 'side-content'}).find(attrs={'src': re.compile('photos/biz/Current')})
         if cover is not None:
-            if "chronicle.com" in cover['src']:
+            if 'chronicle.com' in cover['src']:
                 self.cover_url = cover['src']
             else:
-                self.cover_url = "http://chronicle.com" + cover['src']
+                self.cover_url = 'http://chronicle.com' + cover['src']
         # Go to the main body
         soup = self.index_to_soup(issueurl)
         div = soup.find('div', attrs={'id': 'article-body'})
@@ -64,7 +64,7 @@ class Chronicle(BasicNewsRecipe):
             a = post.find('a', href=True)
             if a is not None:
                 title = self.tag_to_string(a)
-                url = "http://chronicle.com" + a['href'].strip()
+                url = 'http://chronicle.com' + a['href'].strip()
                 sectiontitle = post.findPrevious('h3')
                 if sectiontitle is None:
                     sectiontitle = post.findPrevious('h4')

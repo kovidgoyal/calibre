@@ -27,7 +27,7 @@ class Diplomat(BasicNewsRecipe):
         soup = self.index_to_soup('https://thediplomat.com')
         tag = soup.find(attrs={'class': 'td-nav-mag'})
         if tag:
-            url = tag.find('img')['src'].split("/")[-1]
+            url = tag.find('img')['src'].split('/')[-1]
             self.cover_url = ('https://magazine.thediplomat.com/media/1080/' +
                               url)
             # /ads/magazine/cover/td-mag-s-1/issue_89_cover.jpg
@@ -67,5 +67,5 @@ class Diplomat(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src': True}):
-            img['src'] = img['src'].replace("td-story-s-1", "td-story-s-2")
+            img['src'] = img['src'].replace('td-story-s-1', 'td-story-s-2')
         return soup

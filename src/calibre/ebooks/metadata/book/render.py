@@ -355,7 +355,7 @@ def mi_to_html(
                     val = _(
                         '%(sidx)s of <a href="%(href)s" title="%(tt)s">'
                         '<span class="%(cls)s">%(series)s</span></a>') % dict(
-                            sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
+                            sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls='series_name',
                             series=p(series), href=search_action_with_data(st, series, book_id, field),
                             tt=p(_('Click to see books in this series')))
                     val += add_other_links(field, series)

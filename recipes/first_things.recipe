@@ -16,7 +16,7 @@ class FirstThings(BasicNewsRecipe):
 
     title = 'First Things'
     __author__ = 'John Hutson'
-    description = 'America\'s Most Influential Journal of Religion and Public Life'
+    description = "America's Most Influential Journal of Religion and Public Life"
     INDEX = 'https://www.firstthings.com/current-edition'
     language = 'en'
     encoding = 'utf-8'

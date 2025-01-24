@@ -248,7 +248,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.setSortRole(Qt.ItemDataRole.UserRole)
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
-        self.filter_text = ""
+        self.filter_text = ''
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         index = self.sourceModel().index(sourceRow, 0, sourceParent)
@@ -509,7 +509,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         header_layout.addWidget(la)
         self.filter_by_name_lineedit = QLineEdit(self)
         la.setBuddy(self.filter_by_name_lineedit)
-        self.filter_by_name_lineedit.setText("")
+        self.filter_by_name_lineedit.setText('')
         self.filter_by_name_lineedit.textChanged.connect(self._filter_name_lineedit_changed)
 
         header_layout.addWidget(self.filter_by_name_lineedit)
@@ -652,7 +652,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.plugin_view.setFocus()
 
     def _filter_combo_changed(self, idx):
-        self.filter_by_name_lineedit.setText("")  # clear the name filter text when a different group was selected
+        self.filter_by_name_lineedit.setText('')  # clear the name filter text when a different group was selected
         self.proxy_model.set_filter_criteria(idx)
         if idx == FILTER_NOT_INSTALLED:
             self.plugin_view.sortByColumn(5, Qt.SortOrder.DescendingOrder)

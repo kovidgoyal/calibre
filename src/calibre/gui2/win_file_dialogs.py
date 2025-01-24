@@ -66,7 +66,7 @@ def serialize_string(key, val):
 
 
 def serialize_file_types(file_types):
-    key = b"FILE_TYPES"
+    key = b'FILE_TYPES'
     buf = [struct.pack('=B%dsH' % len(key), len(key), key, len(file_types))]
 
     def add(x):

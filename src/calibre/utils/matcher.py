@@ -277,7 +277,7 @@ def test(return_tests=False):
 
     class Test(unittest.TestCase):
 
-        @unittest.skipIf(is_sanitized, 'Sanitizer enabled can\'t check for leaks')
+        @unittest.skipIf(is_sanitized, "Sanitizer enabled can't check for leaks")
         def test_mem_leaks(self):
             import gc
 

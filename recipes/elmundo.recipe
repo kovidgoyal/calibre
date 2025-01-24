@@ -35,14 +35,14 @@ class ElMundo(BasicNewsRecipe):
     articles_are_obfuscated = True
     auto_cleanup = True
     temp_files = []
-    extra_css                 = """
+    extra_css                 = '''
                                     body{font-family: "PT serif",Georgia,serif,times}
                                     .metadata_noticia{font-size: small}
                                     .pestana_GDP{font-size: small; font-weight:bold}
                                     h1 {color: #333333; font-family: "Clear Sans Bold",Arial,sans-serif,helvetica}
                                     .hora{color: red}
                                     .update{color: gray}
-                                    """
+                                    '''
 
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher
@@ -83,14 +83,14 @@ class ElMundo(BasicNewsRecipe):
         cover = self.masthead_url
         st = time.localtime()
         year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
+        month = '%.2d' % st.tm_mon
+        day = '%.2d' % st.tm_mday
         cover = 'http://img.kiosko.net/' + year + '/' + \
             month + '/' + day + '/es/elmundo.750.jpg'
         try:
             self.browser.open(cover)
         except:
-            self.log("\nPortada no disponible")
+            self.log('\nPortada no disponible')
         return cover
 
     def get_obfuscated_article(self, url):
@@ -103,7 +103,7 @@ class ElMundo(BasicNewsRecipe):
                 html = response.read()
                 count = tries
             except:
-                print("Retrying download...")
+                print('Retrying download...')
             count += 1
         if html is not None:
             tfile = PersistentTemporaryFile('_fa.html')

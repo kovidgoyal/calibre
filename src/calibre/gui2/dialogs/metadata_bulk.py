@@ -114,8 +114,8 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.series_map_rules:
             self.selected_options += 1
         if DEBUG:
-            print("Number of steps for bulk metadata: %d" % self.selected_options)
-            print("Optionslist: ")
+            print('Number of steps for bulk metadata: %d' % self.selected_options)
+            print('Optionslist: ')
             print(options)
 
         self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
@@ -123,13 +123,13 @@ class MyBlockingBusy(QDialog):  # {{{
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
         self.current_step_pb = QProgressBar(self)
-        self.current_step_pb.setFormat(_("Current step progress: %p %"))
+        self.current_step_pb.setFormat(_('Current step progress: %p %'))
         if self.selected_options > 1:
             # More than one Option needs to be done! Add Overall ProgressBar
             self.overall_pb = QProgressBar(self)
             self.overall_pb.setRange(0, self.selected_options)
             self.overall_pb.setValue(0)
-            self.overall_pb.setFormat(_("Step %v/%m"))
+            self.overall_pb.setFormat(_('Step %v/%m'))
             self._layout.addWidget(self.overall_pb)
             self._layout.addSpacing(15)
         self.current_option = 0
@@ -159,9 +159,9 @@ class MyBlockingBusy(QDialog):  # {{{
         pass
 
     def on_progress_update(self, processed_steps):
-        """
+        '''
         This signal should be emitted if a step can be traced with numbers.
-        """
+        '''
         self.current_step_value += processed_steps
         self.current_step_pb.setValue(self.current_step_value)
 
@@ -171,10 +171,10 @@ class MyBlockingBusy(QDialog):  # {{{
             self.overall_pb.setValue(self.current_option)
 
     def on_progress_next_step_range(self, steps_of_progress):
-        """
+        '''
         If steps_of_progress equals 0 results this in a indetermined ProgressBar
         Otherwise the range is from 0..steps_of_progress
-        """
+        '''
         self.current_step_value = 0
         self.current_step_pb.setRange(0, steps_of_progress)
 
@@ -857,8 +857,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'matching and replacement is to be assigned. You can replace '
                  'the text in the field, or prepend or append the matched text. '
                  'See <a href="https://docs.python.org/library/re.html">'
-                 'this reference</a> for more information on Python\'s regular '
-                 'expressions, and in particular the \'sub\' function.'
+                 "this reference</a> for more information on Python's regular "
+                 "expressions, and in particular the 'sub' function."
                  )
 
         self.search_mode.addItems(self.s_r_match_modes)
@@ -900,9 +900,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.save_button.clicked.connect(self.s_r_save_query)
         self.remove_button.clicked.connect(self.s_r_remove_query)
 
-        self.queries = JSONConfig("search_replace_queries")
+        self.queries = JSONConfig('search_replace_queries')
         self.saved_search_name = ''
-        self.query_field.addItem("")
+        self.query_field.addItem('')
         self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
         self.query_field.currentIndexChanged.connect(self.s_r_query_change)
@@ -1450,9 +1450,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if self.query_field.currentIndex() == 0:
             return
 
-        if not question_dialog(self, _("Delete saved search/replace"),
-                _("The selected saved search/replace will be deleted. "
-                    "Are you sure?")):
+        if not question_dialog(self, _('Delete saved search/replace'),
+                _('The selected saved search/replace will be deleted. '
+                    'Are you sure?')):
             return
 
         item_id = self.query_field.currentIndex()
@@ -1481,14 +1481,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if not ok:
                 return
             if not name:
-                error_dialog(self, _("Save search/replace"),
-                        _("You must provide a name."), show=True)
+                error_dialog(self, _('Save search/replace'),
+                        _('You must provide a name.'), show=True)
         new = True
         name = str(name)
         if name in list(self.queries.keys()):
-            if not question_dialog(self, _("Save search/replace"),
-                    _("That saved search/replace already exists and will be overwritten. "
-                        "Are you sure?")):
+            if not question_dialog(self, _('Save search/replace'),
+                    _('That saved search/replace already exists and will be overwritten. '
+                        'Are you sure?')):
                 return
             new = False
 
@@ -1580,10 +1580,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         # as it was
         self.search_field.setCurrentIndex(0)
         self.s_r_src_ident.setCurrentIndex(0)
-        self.s_r_template.setText("")
-        self.search_for.setText("")
+        self.s_r_template.setText('')
+        self.search_for.setText('')
         self.case_sensitive.setChecked(False)
-        self.replace_with.setText("")
+        self.replace_with.setText('')
         self.replace_func.setCurrentIndex(0)
         self.destination_field.setCurrentIndex(0)
         self.s_r_dst_ident.setText('')
@@ -1591,4 +1591,4 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.comma_separated.setChecked(True)
         self.results_count.setValue(999)
         self.starting_from.setValue(1)
-        self.multiple_separator.setText(" ::: ")
+        self.multiple_separator.setText(' ::: ')

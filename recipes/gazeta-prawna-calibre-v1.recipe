@@ -69,8 +69,8 @@ class gazetaprawna(BasicNewsRecipe):
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
         for n, feed in enumerate(parsed_feeds):
             for a, article in enumerate(feed):
-                article.text_summary = re.sub(r'<\!\[CDATA\[', "", article.text_summary)
-                article.text_summary = re.sub(r'\]\]', "", article.text_summary)
+                article.text_summary = re.sub(r'<\!\[CDATA\[', '', article.text_summary)
+                article.text_summary = re.sub(r'\]\]', '', article.text_summary)
                 article.summary = article.text_summary
 
         return parsed_feeds
@@ -84,10 +84,10 @@ class gazetaprawna(BasicNewsRecipe):
 
         for span in soup.findAll(name='span'):
             if len(self.tag_to_string(span)) > 1:
-                span.append(" ")
+                span.append(' ')
 
         for locked in soup.findAll(name='div', attrs={'class': ['articleGate']}):
-            locked.append(u"Przejd\u017a do artyku\u0142u na GazetaPrawna.pl aby zalogowa\u0107 si\u0119 lub wykupi\u0107 dost\u0119p")
+            locked.append(u'Przejd\u017a do artyku\u0142u na GazetaPrawna.pl aby zalogowa\u0107 si\u0119 lub wykupi\u0107 dost\u0119p')
 
         return soup
 
@@ -108,5 +108,5 @@ class gazetaprawna(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup(
             'http://www.egazety.pl/infor/e-wydanie-dziennik-gazeta-prawna.html')
-        self.cover_url = soup.find("a", {"class": "image cover-preview"}).img['src']
+        self.cover_url = soup.find('a', {'class': 'image cover-preview'}).img['src']
         return getattr(self, 'cover_url', self.cover_url)

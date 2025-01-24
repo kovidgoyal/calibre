@@ -15,8 +15,8 @@ class AllGUIActions(InterfaceAction):
 
     name = 'All GUI actions'
     action_spec = (_('All actions'), 'wizard.png',
-                   _("Show a menu of all available actions, including from third party plugins.\nThis menu "
-                     "is not available when looking at books on a device"), None)
+                   _('Show a menu of all available actions, including from third party plugins.\nThis menu '
+                     'is not available when looking at books on a device'), None)
 
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
@@ -34,7 +34,7 @@ class AllGUIActions(InterfaceAction):
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
                         shortcut='Ctrl+F1',
-                        text=_("Show a menu of all available actions."),
+                        text=_('Show a menu of all available actions.'),
                         icon='wizard.png',
                         triggered=self.show_menu)
 

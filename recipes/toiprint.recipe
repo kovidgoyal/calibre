@@ -97,7 +97,7 @@ class toiprint(BasicNewsRecipe):
                     else:
                         desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ColumnTitle', '')
                     self.log('\t', title, '\n\t', desc.replace('\n', ''))
-                    feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                    feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         def sort_key(x):
             section = x[0]
             try:

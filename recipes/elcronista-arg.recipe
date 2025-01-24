@@ -28,10 +28,10 @@ class ElCronistaArg(BasicNewsRecipe):
     auto_cleanup_keep    = '//div[@class="header-bottom"] | //h1 | //h2'
     ignore_duplicate_articles = {'url'}
     masthead_url         = 'https://www.cronista.com/export/sites/diarioelcronista/arte/v2/lg_cronista_footer.png_665574830.png'
-    extra_css            = """
+    extra_css            = '''
         body{font-family: 'Source Sans Pro', sans-serif}
         h1,h2,h3,h4{font-family: 'Libre Baskerville', serif}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

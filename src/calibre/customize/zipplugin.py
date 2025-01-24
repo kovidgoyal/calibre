@@ -118,8 +118,8 @@ def load_translations(namespace, zfp):
             _translations_cache[zfp] = None
             return
         with zipfile.ZipFile(zfp) as zf:
-            mo_path = zipfile.Path(zf, f"translations/{lang}.mo")
-            if not mo_path.exists() and "_" in lang:
+            mo_path = zipfile.Path(zf, f'translations/{lang}.mo')
+            if not mo_path.exists() and '_' in lang:
                 mo_path = zipfile.Path(zf, f"translations/{lang.split('_')[0]}.mo")
             if mo_path.exists():
                 mo = mo_path.read_bytes()

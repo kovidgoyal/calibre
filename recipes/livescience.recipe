@@ -5,8 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LiveScience(BasicNewsRecipe):
-    title = "Live Science"
-    description = "For the science geek in everyone! Stories on the latest findings from science journals and institutions. Sourced from livescience.com"
+    title = 'Live Science'
+    description = 'For the science geek in everyone! Stories on the latest findings from science journals and institutions. Sourced from livescience.com'
     __author__ = 'yodha8'
     language = 'en'
     oldest_article = 7

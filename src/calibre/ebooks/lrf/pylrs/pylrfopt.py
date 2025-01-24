@@ -2,7 +2,7 @@ def _optimize(tagList, tagName, conversion):
     # copy the tag of interest plus any text
     newTagList = []
     for tag in tagList:
-        if tag.name == tagName or tag.name == "rawtext":
+        if tag.name == tagName or tag.name == 'rawtext':
             newTagList.append(tag)
 
     # now, eliminate any duplicates (leaving the last one)
@@ -36,6 +36,6 @@ def tagListOptimizer(tagList):
     # should be:
     # fontsize=200 text
     oldSize = len(tagList)
-    _optimize(tagList, "fontsize", int)
-    _optimize(tagList, "fontweight", int)
+    _optimize(tagList, 'fontsize', int)
+    _optimize(tagList, 'fontweight', int)
     return oldSize - len(tagList)

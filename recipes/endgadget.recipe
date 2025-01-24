@@ -87,8 +87,8 @@ class Engadget(BasicNewsRecipe):
             except KeyError:
                 continue
         # Reorder the "title" and "content" elements
-        title_div = soup.find("div", {"class": "caas-title-wrapper"})
-        content_div = soup.find("div", {"class": "caas-content-wrapper"})
+        title_div = soup.find('div', {'class': 'caas-title-wrapper'})
+        content_div = soup.find('div', {'class': 'caas-content-wrapper'})
         if title_div and content_div:
             soup.body.clear()
             soup.body.append(title_div)

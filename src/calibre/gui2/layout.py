@@ -212,7 +212,7 @@ class SearchBar(QFrame):  # {{{
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
         x.setIcon(QIcon.ic('vl.png'))
-        x.setObjectName("virtual_library")
+        x.setObjectName('virtual_library')
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(x)
 
@@ -241,9 +241,9 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.search = SearchBox2(self, as_url=search_as_url)
         x.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        x.setObjectName("search")
-        x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
-                       "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
+        x.setObjectName('search')
+        x.setToolTip(_('<p>Search the list of books by title, author, publisher, '
+                       'tags, comments, etc.<br><br>Words separated by spaces are ANDed'))
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
@@ -255,7 +255,7 @@ class SearchBar(QFrame):  # {{{
         parent.addAction(ac)
         ac.setToolTip(_('Advanced search'))
         parent.keyboard.register_shortcut('advanced search toggle',
-                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
+                _('Advanced search'), default_keys=('Shift+Ctrl+F',),
                 action=ac)
 
         # This error icon will be placed after the clear button icon

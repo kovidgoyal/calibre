@@ -25,17 +25,17 @@ def class_startswith(*prefixes):
     return dict(attrs={'class': q})
 
 def absolutize_url(url):
-    if url.startswith("//"):
-        return "https:" + url
+    if url.startswith('//'):
+        return 'https:' + url
     if url.startswith('/'):
-        url = "https://www.bostonglobe.com" + url
+        url = 'https://www.bostonglobe.com' + url
     return url
 
 
 class BostonGlobePrint(BasicNewsRecipe):
-    title = "Boston Globe | Print Edition"
+    title = 'Boston Globe | Print Edition'
     __author__ = 'Kovid Goyal, unkn0wn'
-    description = 'The Boston Globe - Today\'s Paper'
+    description = "The Boston Globe - Today's Paper"
     language = 'en_US'
 
     keep_only_tags = [
@@ -70,7 +70,7 @@ class BostonGlobePrint(BasicNewsRecipe):
             for image in soup.findAll('img', src=True):
                 if image['src'].endswith('750.jpg'):
                     return 'https:' + image['src']
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
@@ -94,7 +94,7 @@ class BostonGlobePrint(BasicNewsRecipe):
                     desc = self.tag_to_string(d)
 
                 self.log(section, '\n\t', title, '\n\t', desc, '\n\t\t', url)
-                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         return [(section, articles) for section, articles in feeds_dict.items()]
 
     def preprocess_raw_html(self, raw_html, url):

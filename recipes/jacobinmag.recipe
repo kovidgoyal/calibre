@@ -35,11 +35,11 @@ class Jacobinmag(BasicNewsRecipe):
     issue_url = None
     PREFIX = 'https://www.jacobinmag.com'
     LOGIN = 'https://auth.jacobinmag.com/mini_profile?redirect=https%3A%2F%2Fwww.jacobinmag.com%2F'
-    extra_css = """
+    extra_css = '''
         body{font-family: Antwerp, 'Times New Roman', Times, serif}
         img{margin-top:1em; margin-bottom: 1em; display:block}
         .entry-dek,.entry-author{font-family: Hurme-No3, Futura, sans-serif}
-    """
+    '''
 
     conversion_options = {
         'comment': description,

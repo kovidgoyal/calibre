@@ -184,7 +184,7 @@ class StylizerRules:
             if size == 'smallest':
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%.1frem" % (self.profile.fnames[size] / float(self.profile.fbase))
+                style['font-size'] = '%.1frem' % (self.profile.fnames[size] / float(self.profile.fbase))
         if '-epub-writing-mode' in style:
             for x in ('-webkit-writing-mode', 'writing-mode'):
                 style[x] = style.get(x, style['-epub-writing-mode'])
@@ -421,7 +421,7 @@ class Stylizer:
                     style['font-size'].endswith('pt'):
                 style = copy.copy(style)
                 size = float(style['font-size'][:-2])
-                style['font-size'] = "%.2fpt" % (size * font_scale)
+                style['font-size'] = '%.2fpt' % (size * font_scale)
             style = ';\n    '.join(': '.join(item) for item in style.items())
             rules.append(f'{selector} {{\n    {style};\n}}')
         return '\n'.join(rules)
@@ -628,7 +628,7 @@ class Style:
                 if not isinstance(result, numbers.Number):
                     return base
                 if result < 0:
-                    result = normalize_fontsize("smaller", base)
+                    result = normalize_fontsize('smaller', base)
             if factor:
                 result = factor * base
             return result
@@ -854,7 +854,7 @@ class Style:
 
     def __str__(self):
         items = sorted(iteritems(self._style))
-        return '; '.join(f"{key}: {val}" for key, val in items)
+        return '; '.join(f'{key}: {val}' for key, val in items)
 
     def cssdict(self):
         return dict(self._style)

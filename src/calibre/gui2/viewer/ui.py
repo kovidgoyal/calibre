@@ -420,21 +420,21 @@ class EbookViewer(MainWindow):
                 self.image_popup()
             else:
                 error_dialog(self, _('Invalid image'), _(
-                    "Failed to load the image {}").format(name), show=True)
+                    'Failed to load the image {}').format(name), show=True)
         else:
             error_dialog(self, _('Image not found'), _(
-                    "Failed to find the image {}").format(name), show=True)
+                    'Failed to find the image {}').format(name), show=True)
 
     def copy_image(self, name):
         path = get_path_for_name(name)
         if not path:
             return error_dialog(self, _('Image not found'), _(
-                "Failed to find the image {}").format(name), show=True)
+                'Failed to find the image {}').format(name), show=True)
         try:
             img = image_from_path(path)
         except Exception:
             return error_dialog(self, _('Invalid image'), _(
-                "Failed to load the image {}").format(name), show=True)
+                'Failed to load the image {}').format(name), show=True)
         url = QUrl.fromLocalFile(path)
         md = QMimeData()
         md.setImageData(img)

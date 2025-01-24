@@ -12,13 +12,13 @@ MAGIC = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 
 def get_metadata(stream):
-    """ Return metadata as a L{MetaInfo} object """
+    ''' Return metadata as a L{MetaInfo} object '''
     title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)
     try:
         if not stream.read(14) == MAGIC:
-            print('Couldn\'t read RB header from file', file=sys.stderr)
+            print("Couldn't read RB header from file", file=sys.stderr)
             return mi
         stream.read(10)
 
@@ -34,7 +34,7 @@ def get_metadata(stream):
             if flag == 2:
                 break
         else:
-            print('Couldn\'t find INFO from RB file', file=sys.stderr)
+            print("Couldn't find INFO from RB file", file=sys.stderr)
             return mi
 
         stream.seek(offset)
@@ -48,7 +48,7 @@ def get_metadata(stream):
             elif key.strip() == 'AUTHOR':
                 mi.authors = string_to_authors(value)
     except Exception as err:
-        msg = 'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, str(err))
+        msg = "Couldn't read metadata from rb: %s with error %s"%(mi.title, str(err))
         prints(msg, file=sys.stderr)
         raise
     return mi

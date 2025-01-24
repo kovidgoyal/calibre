@@ -35,33 +35,33 @@ class LaPrensa(BasicNewsRecipe):
     filter_regexps = [r'.*archive.aspx.*']
 
     remove_tags = [
-        dict(name='td', attrs={'class': ["link-registro", "link-buscador"]}),
+        dict(name='td', attrs={'class': ['link-registro', 'link-buscador']}),
         dict(name='td', attrs={
-             'id': ["TDTabItem1", "TDTabItem2", "TDTabItem3", "TDTabItem4"]}),
-        dict(name='table', attrs={'class': ["marco-botonera"]}),
-        dict(name='tr', attrs={'class': ["messages", "IUTabItemSelected"]}),
-        dict(name='input', attrs={'id': "txt_allfields"}),
+             'id': ['TDTabItem1', 'TDTabItem2', 'TDTabItem3', 'TDTabItem4']}),
+        dict(name='table', attrs={'class': ['marco-botonera']}),
+        dict(name='tr', attrs={'class': ['messages', 'IUTabItemSelected']}),
+        dict(name='input', attrs={'id': 'txt_allfields'}),
         dict(name='div', attrs={
-             'id': ["TabItem1", "TabItem2", "TabItem3", "TabItem4", "RCPanel"]}),
-        dict(name='span', attrs={'id': ["GWCNavigatorControl", "_ctl15"]}),
-        dict(name='span', attrs={'class': ["ranking-titulo", "IUTab"]}),
-        dict(name='a', attrs={'class': ["link-registro", ]}),
-        dict(name='img', src="/versions/1/imgs/icono-comentario.gif"),
-        dict(name='img', src="/versions/1/imgs/logo.gif"),
-        dict(name='img', src="/versions/1/imgs/boton-ingresar-roll.gif"),
-        dict(name='img', src="/versions/1/imgs/icono-recomendar.gif"),
+             'id': ['TabItem1', 'TabItem2', 'TabItem3', 'TabItem4', 'RCPanel']}),
+        dict(name='span', attrs={'id': ['GWCNavigatorControl', '_ctl15']}),
+        dict(name='span', attrs={'class': ['ranking-titulo', 'IUTab']}),
+        dict(name='a', attrs={'class': ['link-registro', ]}),
+        dict(name='img', src='/versions/1/imgs/icono-comentario.gif'),
+        dict(name='img', src='/versions/1/imgs/logo.gif'),
+        dict(name='img', src='/versions/1/imgs/boton-ingresar-roll.gif'),
+        dict(name='img', src='/versions/1/imgs/icono-recomendar.gif'),
         dict(name='button'),
-        dict(name='img', src="/versions/1/imgs/boton-votar-roll.gif"),
-        dict(name='img', src="/versions/1/imgs/boton-ingresar.gif"),
-        dict(name='img', src="/versions/1/imgs/icono-imprimir.gif"),
-        dict(name='img', src="/versions/1/imgs/icono-ampliar-letra.gif"),
-        dict(name='img', src="/versions/1/imgs/icono-reducir-letra.gif"),
-        dict(name='img', src="/versions/1/imgs/pix-trans.gif"),
-        dict(name='img', src="/versions/1/imgs/icono-buscador.gif"),
-        dict(name='img', src="/versions/1/imgs/separador-linea-azul.gif"),
-        dict(name='img', src=" /versions/1/imgs/separador-linea.gif"),
-        dict(name='a', text="Powered by Civinext Groupware - V. 2.0.3567.23706"),
-        dict(name='img', height="0")
+        dict(name='img', src='/versions/1/imgs/boton-votar-roll.gif'),
+        dict(name='img', src='/versions/1/imgs/boton-ingresar.gif'),
+        dict(name='img', src='/versions/1/imgs/icono-imprimir.gif'),
+        dict(name='img', src='/versions/1/imgs/icono-ampliar-letra.gif'),
+        dict(name='img', src='/versions/1/imgs/icono-reducir-letra.gif'),
+        dict(name='img', src='/versions/1/imgs/pix-trans.gif'),
+        dict(name='img', src='/versions/1/imgs/icono-buscador.gif'),
+        dict(name='img', src='/versions/1/imgs/separador-linea-azul.gif'),
+        dict(name='img', src=' /versions/1/imgs/separador-linea.gif'),
+        dict(name='a', text='Powered by Civinext Groupware - V. 2.0.3567.23706'),
+        dict(name='img', height='0')
     ]
 
     extra_css = '''
@@ -95,8 +95,8 @@ class LaPrensa(BasicNewsRecipe):
         soup.head.insert(0, mtag)
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll(align="center"):
+        for item in soup.findAll(align='center'):
             del item['align']
-        for item in soup.findAll(bgcolor="ffffff"):
+        for item in soup.findAll(bgcolor='ffffff'):
             del item['bgcolor']
         return soup

@@ -10,10 +10,10 @@ from calibre.devices.kindle.apnx_page_generator.pages import Pages
 class FastPageGenerator(IPageGenerator):
 
     def name(self) -> str:
-        return "fast"
+        return 'fast'
 
     def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
-        raise Exception("Fast calculation impossible.")
+        raise Exception('Fast calculation impossible.')
 
     def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
         """

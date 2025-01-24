@@ -161,7 +161,7 @@ class BuildTest(unittest.TestCase):
         root = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         self.assertEqual(etree.tostring(root), raw)
         from lxml import html
-        html.fromstring("<p>\U0001f63a")
+        html.fromstring('<p>\U0001f63a')
 
     def test_certgen(self):
         from calibre.utils.certgen import create_key_pair
@@ -303,7 +303,7 @@ class BuildTest(unittest.TestCase):
         os.rmdir(dpath)
         del h
         shutil.rmtree(tdir)
-        m = winutil.create_mutex("test-mutex", False)
+        m = winutil.create_mutex('test-mutex', False)
         self.assertRaises(OSError, winutil.create_mutex, 'test-mutex', False)
         m.close()
         self.assertEqual(winutil.parse_cmdline('"c:\\test exe.exe" "some arg" 2'), ('c:\\test exe.exe', 'some arg', '2'))
@@ -422,7 +422,7 @@ class BuildTest(unittest.TestCase):
 
     def test_pykakasi(self):
         from calibre.ebooks.unihandecode.jadecoder import Jadecoder
-        self.assertEqual(Jadecoder().decode("自転車生活の愉しみ"), 'Jitensha Seikatsu no Tanoshi mi')
+        self.assertEqual(Jadecoder().decode('自転車生活の愉しみ'), 'Jitensha Seikatsu no Tanoshi mi')
 
     def test_imaging(self):
         from PIL import Image

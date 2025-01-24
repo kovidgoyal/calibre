@@ -1,12 +1,12 @@
-""" elements.py -- replacements and helpers for ElementTree """
+''' elements.py -- replacements and helpers for ElementTree '''
 
 from polyglot.builtins import string_or_bytes
 
 
 class ElementWriter:
 
-    def __init__(self, e, header=False, sourceEncoding="ascii",
-                 spaceBeforeClose=True, outputEncodingName="UTF-16"):
+    def __init__(self, e, header=False, sourceEncoding='ascii',
+                 spaceBeforeClose=True, outputEncodingName='UTF-16'):
         self.header = header
         self.e = e
         self.sourceEncoding=sourceEncoding
@@ -17,9 +17,9 @@ class ElementWriter:
         if isinstance(rawText, bytes):
             rawText = rawText.decode(self.sourceEncoding)
 
-        text = rawText.replace("&", "&amp;")
-        text = text.replace("<", "&lt;")
-        text = text.replace(">", "&gt;")
+        text = rawText.replace('&', '&amp;')
+        text = text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
         return text
 
     def _writeAttribute(self, f, name, value):

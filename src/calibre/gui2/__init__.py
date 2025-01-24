@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-""" The GUI """
+''' The GUI '''
 
 import glob
 import os
@@ -469,7 +469,7 @@ def create_defs():
     defs['books_autoscroll_time'] = 2.0
     defs['edit_metadata_single_use_2_cols_for_custom_fields'] = True
     defs['edit_metadata_elide_labels'] = True
-    defs['edit_metadata_elision_point'] = "right"
+    defs['edit_metadata_elision_point'] = 'right'
     defs['edit_metadata_bulk_cc_label_length'] = 25
     defs['edit_metadata_single_cc_label_length'] = 12
     defs['edit_metadata_templates_only_F2_on_booklist'] = False
@@ -1030,7 +1030,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
     if quality is None:
-        if format.upper() == "PNG":
+        if format.upper() == 'PNG':
             # For some reason on windows with Qt 5.6 using a quality of 90
             # generates invalid PNG data. Many other quality values work
             # but we use -1 for the default quality which is most likely to
@@ -1551,7 +1551,7 @@ def open_url(qurl):
             # QDesktopServices::openUrl()
             ensure_app()
             cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
-            if isfrozen and QApplication.instance().platformName() == "wayland":
+            if isfrozen and QApplication.instance().platformName() == 'wayland':
                 # See https://bugreports.qt.io/browse/QTBUG-119438
                 run_cmd(cmd)
                 ok = True

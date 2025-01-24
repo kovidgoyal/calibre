@@ -10,18 +10,18 @@ from calibre.ebooks.lrf import LRFParseError
 class Tag:
 
     tags = {
-                0x00 : (6, "*ObjectStart"),
-                0x01 : (0, "*ObjectEnd"),
-                0x02 : (4, "*ObjectInfoLink"),
-                0x03 : (4, "*Link"),
-                0x04 : (4, "*StreamSize"),
-                0x05 : (0, "*StreamStart"),
-                0x06 : (0, "*StreamEnd"),
+                0x00 : (6, '*ObjectStart'),
+                0x01 : (0, '*ObjectEnd'),
+                0x02 : (4, '*ObjectInfoLink'),
+                0x03 : (4, '*Link'),
+                0x04 : (4, '*StreamSize'),
+                0x05 : (0, '*StreamStart'),
+                0x06 : (0, '*StreamEnd'),
                 0x07 : (4, None),
                 0x08 : (4, None),
                 0x09 : (4, None),
                 0x0A : (4, None),
-                0x0B : ("type_one", "*ContainedObjectsList"),
+                0x0B : ('type_one', '*ContainedObjectsList'),
                 0x0D : (2, None),
                 0x0E : (2, None),
                 0x11 : (2, None),
@@ -29,7 +29,7 @@ class Tag:
                 0x13 : (2, None),
                 0x14 : (2, None),
                 0x15 : (2, None),
-                0x16 : ("string", None),
+                0x16 : ('string', None),
                 0x17 : (4, None),
                 0x18 : (4, None),
                 0x19 : (2, None),
@@ -81,16 +81,16 @@ class Tag:
                 0x51 : (2, None),
                 0x52 : (2, None),
                 0x53 : (4, None),
-                0x54 : (2, "*StreamFlags"),
-                0x55 : ("string", None),
+                0x54 : (2, '*StreamFlags'),
+                0x55 : ('string', None),
                 0x56 : (2, None),
                 0x57 : (2, None),
                 0x58 : (2, None),
-                0x59 : ("string", None),
-                0x5A : ("string", None),
+                0x59 : ('string', None),
+                0x5A : ('string', None),
                 0x5B : (4, None),
-                0x5C : ("type_one", None),
-                0x5D : ("string", None),
+                0x5C : ('type_one', None),
+                0x5D : ('string', None),
                 0x5E : (2, None),
                 0x61 : (2, None),
                 0x62 : (0, None),
@@ -112,16 +112,16 @@ class Tag:
                 0x75 : (2, None),
                 0x76 : (2, None),
                 0x77 : (2, None),
-                0x78 : ("tag_78", None),
+                0x78 : ('tag_78', None),
                 0x79 : (2, None),
                 0x7A : (2, None),
                 0x7B : (4, None),
-                0x7C : (4, "*ParentPageTree"),
+                0x7C : (4, '*ParentPageTree'),
                 0x81 : (0, None),
                 0x82 : (0, None),
                 0xA1 : (4, None),
                 0xA2 : (0, None),
-                0xA5 : ("unknown", None),
+                0xA5 : ('unknown', None),
                 0xA6 : (0, None),
                 0xA7 : (4, None),
                 0xA8 : (0, None),
@@ -155,7 +155,7 @@ class Tag:
                 0xC8 : (2, None),
                 0xC9 : (0, None),
                 0xCA : (2, None),
-                0xCB : ("unknown", None),
+                0xCB : ('unknown', None),
                 0xCC : (2, None),
                 0xD1 : (12, None),
                 0xD2 : (0, None),
@@ -186,11 +186,11 @@ class Tag:
 
     def __init__(self, stream):
         self.offset = stream.tell()
-        tag_id = struct.unpack("<BB", stream.read(2))
+        tag_id = struct.unpack('<BB', stream.read(2))
         if tag_id[1] != 0xF5:
-            raise LRFParseError("Bad tag ID %02X at %d"%(tag_id[1], self.offset))
+            raise LRFParseError('Bad tag ID %02X at %d'%(tag_id[1], self.offset))
         if tag_id[0] not in self.__class__.tags:
-            raise LRFParseError("Unknown tag ID: F5%02X" % tag_id[0])
+            raise LRFParseError('Unknown tag ID: F5%02X' % tag_id[0])
 
         self.id = 0xF500 + tag_id[0]
 
@@ -202,59 +202,59 @@ class Tag:
             self.contents = stream.read(size)
 
     def __str__(self):
-        s = "Tag %04X " % self.id
+        s = 'Tag %04X ' % self.id
         if self.name:
             s += self.name
-        s += f" at {self.offset:08X}, contents: {repr(self.contents)}"
+        s += f' at {self.offset:08X}, contents: {repr(self.contents)}'
         return s
 
     @property
     def byte(self):
         if len(self.contents) != 1:
-            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-        return struct.unpack("<B", self.contents)[0]
+            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+        return struct.unpack('<B', self.contents)[0]
 
     @property
     def word(self):
         if len(self.contents) != 2:
-            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-        return struct.unpack("<H", self.contents)[0]
+            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+        return struct.unpack('<H', self.contents)[0]
 
     @property
     def sword(self):
         if len(self.contents) != 2:
-            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-        return struct.unpack("<h", self.contents)[0]
+            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+        return struct.unpack('<h', self.contents)[0]
 
     @property
     def dword(self):
         if len(self.contents) != 4:
-            raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
-        return struct.unpack("<I", self.contents)[0]
+            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+        return struct.unpack('<I', self.contents)[0]
 
     def dummy_parser(self, stream):
-        raise LRFParseError("Unknown tag at %08X" % stream.tell())
+        raise LRFParseError('Unknown tag at %08X' % stream.tell())
 
     @classmethod
     def string_parser(self, stream):
-        size = struct.unpack("<H", stream.read(2))[0]
-        return str(stream.read(size), "utf_16")
+        size = struct.unpack('<H', stream.read(2))[0]
+        return str(stream.read(size), 'utf_16')
 
     def type_one_parser(self, stream):
-        cnt = struct.unpack("<H", stream.read(2))[0]
+        cnt = struct.unpack('<H', stream.read(2))[0]
         res = []
         while cnt > 0:
-            res.append(struct.unpack("<I", stream.read(4))[0])
+            res.append(struct.unpack('<I', stream.read(4))[0])
             cnt -= 1
         return res
 
     def tag_78_parser(self, stream):
         pos = stream.tell()
         res = []
-        res.append(struct.unpack("<I", stream.read(4))[0])
+        res.append(struct.unpack('<I', stream.read(4))[0])
         tag = Tag(stream)
         if tag.id != 0xF516:
-            raise LRFParseError("Bad tag 78 at %08X" % pos)
+            raise LRFParseError('Bad tag 78 at %08X' % pos)
         res.append(tag.contents)
-        res.append(struct.unpack("<H", stream.read(2))[0])
+        res.append(struct.unpack('<H', stream.read(2))[0])
         return res

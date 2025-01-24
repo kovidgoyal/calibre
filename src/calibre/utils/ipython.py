@@ -126,7 +126,7 @@ history_length(2000) #value of -1 means no limit
         # if you need to change this uncomment the following line
         # pyreadline.unicode_helper.pyreadline_codepage="utf8"
     except ImportError:
-        print("Module readline not available.")
+        print('Module readline not available.')
     else:
         # import tab completion functionality
         import rlcompleter
@@ -140,7 +140,7 @@ history_length(2000) #value of -1 means no limit
         readline.set_completer(completer_obj.complete)
 
         # activate tab completion
-        readline.parse_and_bind("tab: complete")
+        readline.parse_and_bind('tab: complete')
         readline.read_history_file()
         atexit.register(readline.write_history_file)
         del readline, rlcompleter, atexit
@@ -159,8 +159,8 @@ class Exit:
 class Helper:
 
     def __repr__(self):
-        return "Type help() for interactive help, " \
-               "or help(object) for help about object."
+        return 'Type help() for interactive help, ' \
+               'or help(object) for help about object.'
 
     def __call__(self, *args, **kwds):
         import pydoc
@@ -173,7 +173,7 @@ def simple_repl(user_ns={}):
     else:
         try:
             import readline, rlcompleter  # noqa: I001, E401, F401
-            readline.parse_and_bind("tab: complete")
+            readline.parse_and_bind('tab: complete')
         except ImportError:
             pass
 

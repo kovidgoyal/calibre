@@ -29,10 +29,10 @@ class Veintitres(BasicNewsRecipe):
     auto_cleanup = True
     auto_cleanup_keep = '//h1'
     resolve_internal_links = True
-    INDEX = "https://www.veintitres.com.ar"
-    extra_css = """
+    INDEX = 'https://www.veintitres.com.ar'
+    extra_css = '''
                                 img{margin-bottom: 0.8em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description,

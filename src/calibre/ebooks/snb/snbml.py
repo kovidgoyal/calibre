@@ -16,9 +16,9 @@ from polyglot.builtins import string_or_bytes
 
 def ProcessFileName(fileName):
     # Flat the path
-    fileName = fileName.replace("/", "_").replace(os.sep, "_")
+    fileName = fileName.replace('/', '_').replace(os.sep, '_')
     # Handle bookmark for HTML file
-    fileName = fileName.replace("#", "_")
+    fileName = fileName.replace('#', '_')
     # Make it lower case
     fileName = fileName.lower()
     # Change all images to jpg
@@ -49,14 +49,14 @@ SPACE_TAGS = [
     'td',
 ]
 
-CALIBRE_SNB_IMG_TAG = "<$$calibre_snb_temp_img$$>"
-CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
-CALIBRE_SNB_PRE_TAG = "<$$calibre_snb_pre_tag$$>"
+CALIBRE_SNB_IMG_TAG = '<$$calibre_snb_temp_img$$>'
+CALIBRE_SNB_BM_TAG = '<$$calibre_snb_bm_tag$$>'
+CALIBRE_SNB_PRE_TAG = '<$$calibre_snb_pre_tag$$>'
 
 
 class SNBMLizer:
 
-    curSubItem = ""
+    curSubItem = ''
 #    curText = [ ]
 
     def __init__(self, log):
@@ -72,10 +72,10 @@ class SNBMLizer:
 
     def merge_content(self, old_tree, oeb_book, item, subitems, opts):
         newTrees = self.extract_content(oeb_book, item, subitems, opts)
-        body = old_tree.find(".//body")
+        body = old_tree.find('.//body')
         if body is not None:
             for subName in newTrees:
-                newbody = newTrees[subName].find(".//body")
+                newbody = newTrees[subName].find('.//body')
                 for entity in newbody:
                     body.append(entity)
 
@@ -89,48 +89,48 @@ class SNBMLizer:
 #        content = self.remove_newlines(content)
         trees = {}
         for subitem, subtitle in self.subitems:
-            snbcTree = etree.Element("snbc")
-            snbcHead = etree.SubElement(snbcTree, "head")
-            etree.SubElement(snbcHead, "title").text = subtitle
+            snbcTree = etree.Element('snbc')
+            snbcHead = etree.SubElement(snbcTree, 'head')
+            etree.SubElement(snbcHead, 'title').text = subtitle
             if self.opts and self.opts.snb_hide_chapter_name:
-                etree.SubElement(snbcHead, "hidetitle").text = "true"
-            etree.SubElement(snbcTree, "body")
+                etree.SubElement(snbcHead, 'hidetitle').text = 'true'
+            etree.SubElement(snbcTree, 'body')
             trees[subitem] = snbcTree
-        output.append('{}{}\n\n'.format(CALIBRE_SNB_BM_TAG, ""))
+        output.append('{}{}\n\n'.format(CALIBRE_SNB_BM_TAG, ''))
         output += self.dump_text(self.subitems, safe_xml_fromstring(content), stylizer)[0]
         output = self.cleanup_text(''.join(output))
 
         subitem = ''
-        bodyTree = trees[subitem].find(".//body")
+        bodyTree = trees[subitem].find('.//body')
         for line in output.splitlines():
             pos = line.find(CALIBRE_SNB_PRE_TAG)
             if pos == -1:
                 line = line.strip(' \t\n\r\u3000')
             else:
-                etree.SubElement(bodyTree, "text").text = \
+                etree.SubElement(bodyTree, 'text').text = \
                     etree.CDATA(line[pos+len(CALIBRE_SNB_PRE_TAG):])
                 continue
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
                     prefix = ProcessFileName(os.path.dirname(self.item.href))
                     if prefix != '':
-                        etree.SubElement(bodyTree, "img").text = \
+                        etree.SubElement(bodyTree, 'img').text = \
                             prefix + '_' + line[len(CALIBRE_SNB_IMG_TAG):]
                     else:
-                        etree.SubElement(bodyTree, "img").text = \
+                        etree.SubElement(bodyTree, 'img').text = \
                             line[len(CALIBRE_SNB_IMG_TAG):]
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
-                    bodyTree = trees[subitem].find(".//body")
+                    bodyTree = trees[subitem].find('.//body')
                 else:
                     if self.opts and not self.opts.snb_dont_indent_first_line:
                         prefix = '\u3000\u3000'
                     else:
                         prefix = ''
-                    etree.SubElement(bodyTree, "text").text = \
+                    etree.SubElement(bodyTree, 'text').text = \
                         etree.CDATA(str(prefix + line))
                 if self.opts and self.opts.snb_insert_empty_line:
-                    etree.SubElement(bodyTree, "text").text = \
+                    etree.SubElement(bodyTree, 'text').text = \
                         etree.CDATA('')
 
         return trees

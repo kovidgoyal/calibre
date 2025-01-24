@@ -53,23 +53,23 @@ def DdeSource(**args):
     return Element(qname=(OFFICENS,'dde-source'), **args)
 
 
-def Document(version="1.1", **args):
+def Document(version='1.1', **args):
     return Element(qname=(OFFICENS,'document'), version=version, **args)
 
 
-def DocumentContent(version="1.1", **args):
+def DocumentContent(version='1.1', **args):
     return Element(qname=(OFFICENS, 'document-content'), version=version, **args)
 
 
-def DocumentMeta(version="1.1", **args):
+def DocumentMeta(version='1.1', **args):
     return Element(qname=(OFFICENS, 'document-meta'), version=version, **args)
 
 
-def DocumentSettings(version="1.1", **args):
+def DocumentSettings(version='1.1', **args):
     return Element(qname=(OFFICENS, 'document-settings'), version=version, **args)
 
 
-def DocumentStyles(version="1.1", **args):
+def DocumentStyles(version='1.1', **args):
     return Element(qname=(OFFICENS, 'document-styles'), version=version, **args)
 
 

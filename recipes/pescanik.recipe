@@ -24,11 +24,11 @@ class Pescanik(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'newsportal'
     masthead_url = 'http://pescanik.net/wp-content/uploads/2011/10/logo1.png'
-    extra_css             = """
+    extra_css             = '''
                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Verdana,Arial,Tahoma,sans1,sans-serif}
                                #BlogTitle{font-size: xx-large; font-weight: bold}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

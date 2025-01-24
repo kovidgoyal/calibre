@@ -31,9 +31,9 @@ MWRITER = {
 
 
 def get_metadata(stream, extract_cover=True):
-    """
+    '''
     Return metadata as a L{MetaInfo} object
-    """
+    '''
 
     pheader = PdbHeaderReader(stream)
 

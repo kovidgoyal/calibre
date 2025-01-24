@@ -45,9 +45,9 @@ class TheNewCriterion(BasicNewsRecipe):
     fetch_retries           = 10
     auto_cleanup         = True
     masthead_url         = 'https://www.newcriterion.com/themes/thenewcriterion/assets/img/horizontal-logo.svg'
-    extra_css            = """
+    extra_css            = '''
         body{font-family: Galliard, serif}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -112,6 +112,6 @@ class TheNewCriterion(BasicNewsRecipe):
                 self.temp_files.append(tfile)
                 result = tfile.name
             except:
-                print("Retrying download...")
+                print('Retrying download...')
             count += 1
         return result

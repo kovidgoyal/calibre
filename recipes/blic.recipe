@@ -23,7 +23,7 @@ class Blic(BasicNewsRecipe):
     masthead_url = 'http://www.blic.rs/resources/images/header/header_back.png'
     language = 'sr'
     publication_type = 'newspaper'
-    extra_css             = """
+    extra_css             = '''
                                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Georgia, serif1, serif}
@@ -35,7 +35,7 @@ class Blic(BasicNewsRecipe):
                                .potpis{font-size: x-small; color: gray}
                                .article_info{font-size: small}
                                img{margin-bottom: 0.8em; margin-top: 0.8em; display: block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True

@@ -135,7 +135,7 @@ def items_with_property(root, q, prefixes=None):
     if prefixes is None:
         prefixes = read_prefixes(root)
     q = expand_prefix(q, known_prefixes).lower()
-    for item in XPath("./opf:manifest/opf:item[@properties]")(root):
+    for item in XPath('./opf:manifest/opf:item[@properties]')(root):
         for prop in (item.get('properties') or '').lower().split():
             prop = expand_prefix(prop, prefixes)
             if prop == q:

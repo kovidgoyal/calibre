@@ -79,9 +79,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         # Dictionary needed to convert shortened style names to readable names
         self.__token_dict={
         # paragraph formatting => pf
@@ -307,14 +307,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
         }
 
     def __before_1st_para_def_func(self, line):
-        """
+        '''
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             Look for the beginning of a paragraph definition
-        """
+        '''
         # cw<pf<par-def___<nu<true
         if self.__token_info == 'cw<pf<par-def___':
             self.__found_para_def_func()
@@ -328,7 +328,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__reset_dict()
 
     def __collect_tokens_func(self, line):
-        """
+        '''
         Required:
             line --line to parse
         Returns:
@@ -341,7 +341,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             change the state to after_para_def.
             Otherwise, check if the token is a paragraph definition word; if
             so, add it to the attributes and values dictionary.
-        """
+        '''
         action = self.__collect_tokens_dict.get(self.__token_info)
         if action:
             action(line)
@@ -360,15 +360,15 @@ if another paragraph_def is found, the state changes to collect_tokens.
                     self.__att_val_dict[token] = line[20:-1]
 
     def __tab_stop_func(self, line):
-        """
-        """
+        '''
+        '''
         self.__att_val_dict['tabs'] += '%s:' % self.__tab_type
         self.__att_val_dict['tabs'] += '%s;' % line[20:-1]
         self.__tab_type = 'left'
 
     def __tab_type_func(self, line):
-        """
-        """
+        '''
+        '''
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -378,8 +378,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
                 raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        """
-        """
+        '''
+        '''
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
             self.__att_val_dict['tabs'] += '%s^' % leader
@@ -389,14 +389,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
                 raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        """
-        """
+        '''
+        '''
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += 'bar:%s;' % (line[20:-1])
         self.__tab_type = 'left'
 
     def __parse_border(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -404,12 +404,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Uses the border_parse module to return a dictionary of attribute
             value pairs for a border line.
-        """
+        '''
         border_dict = self.__border_obj.parse_border(line)
         self.__att_val_dict.update(border_dict)
 
     def __para_def_in_para_def_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -417,7 +417,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             I have found a \\pard while I am collecting tokens. I want to reset
             the dectionary and do nothing else.
-        """
+        '''
         # Change this
         self.__state = 'collect_tokens'
         self.__reset_dict()
@@ -456,7 +456,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__state = 'in_paragraphs'
 
     def __after_para_def_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -464,7 +464,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Check if the token info is the start of a paragraph. If so, call
             on the function found in the value of the dictionary.
-        """
+        '''
         action = self.__after_para_def_dict.get(self.__token_info)
         if self.__token_info == 'cw<pf<par-def___':
             self.__found_para_def_func()
@@ -474,14 +474,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write(line)
 
     def __in_paragraphs_func(self, line):
-        """
+        '''
         Requires:
             line --current line
         Returns:
             nothing
         Logic:
             Look for the end of a paragraph, the start of a cell or row.
-        """
+        '''
         action = self.__in_paragraphs_dict.get(self.__token_info)
         if action:
             action(line)
@@ -489,7 +489,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write(line)
 
     def __found_para_end_func(self,line):
-        """
+        '''
         Requires:
             line -- line to print out
         Returns:
@@ -498,7 +498,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             State is in paragraphs. You have found the end of a paragraph. You
             need to print out the line and change the state to after
             paragraphs.
-        """
+        '''
         self.__state = 'after_para_end'
         self.__write_obj.write(line)
 
@@ -575,7 +575,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__state = 'after_para_def'
 
     def __write_para_def_end_func(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -584,7 +584,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             Print out the end of the pargraph definition tag, and the markers
             that let me know when I have reached this tag. (These markers are
             used for later parsing.)
-        """
+        '''
         self.__write_obj.write(self.__end2_marker)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_obj.write(self.__end_marker)
@@ -597,14 +597,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write('mi<mk<caps-end__\n')
 
     def __get_num_of_style(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
             nothing
         Logic:
             Get a unique value for each style.
-        """
+        '''
         my_string = ''
         new_style = 0
         # when determining uniqueness for a style, ingorne these values, since
@@ -644,7 +644,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__body_style_strings.append(style_string)
 
     def __write_para_def_beg(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -653,7 +653,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             Print out the beginning of the pargraph definition tag, and the markers
             that let me know when I have reached this tag. (These markers are
             used for later parsing.)
-        """
+        '''
         self.__get_num_of_style()
         table = self.__att_val_dict.get('in-table')
         if table:
@@ -676,13 +676,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write('<style-number>%s' % self.__att_val_dict['style-num'])
         tabs_list = ['tabs-left', 'tabs-right', 'tabs-decimal', 'tabs-center',
             'tabs-bar', 'tabs']
-        """
+        '''
         for tab_item in tabs_list:
             if self.__att_val_dict[tab_item] != '':
                 the_value = self.__att_val_dict[tab_item]
                 the_value = the_value[:-1]
                 self.__write_obj.write('<%s>%s' % (tab_item, the_value))
-        """
+        '''
         if self.__att_val_dict['tabs'] != '':
             the_value = self.__att_val_dict['tabs']
             # the_value = the_value[:-1]
@@ -707,7 +707,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__state = 'after_para_def'
 
     def __reset_dict(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -715,7 +715,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             The dictionary containing values and attributes must be reset each
             time a new paragraphs definition is found.
-        """
+        '''
         self.__att_val_dict.clear()
         self.__att_val_dict['name'] = 'Normal'
         self.__att_val_dict['font-style'] = self.__default_font
@@ -728,7 +728,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__att_val_dict['tabs'] = ''
 
     def make_paragraph_def(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -736,7 +736,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Read one line in at a time. Determine what action to take based on
             the state.
-        """
+        '''
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
@@ -754,7 +754,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "paragraphs_def.data")
+            copy_obj.copy_file(self.__write_to, 'paragraphs_def.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         return self.__body_style_strings

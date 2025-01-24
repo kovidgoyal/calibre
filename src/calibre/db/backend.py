@@ -1516,8 +1516,8 @@ class DB:
     @property
     def custom_tables(self):
         return {x[0] for x in self.conn.get(
-            'SELECT name FROM sqlite_master WHERE type=\'table\' AND '
-            '(name GLOB \'custom_column_*\' OR name GLOB \'books_custom_column_*\')')}
+            "SELECT name FROM sqlite_master WHERE type='table' AND "
+            "(name GLOB 'custom_column_*' OR name GLOB 'books_custom_column_*')")}
 
     @classmethod
     def exists_at(cls, path):
@@ -2399,7 +2399,7 @@ class DB:
                 text = "snippet({fts_table}, 0, ?, ?, '…', {snippet_size})".format(
                         fts_table=fts_table, snippet_size=max(1, min(snippet_size, 64)))
             else:
-                text = f"highlight({fts_table}, 0, ?, ?)"
+                text = f'highlight({fts_table}, 0, ?, ?)'
             data.append(highlight_start)
             data.append(highlight_end)
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '

@@ -21,7 +21,7 @@ MD_EXTENSIONS = {
     'meta': _('Metadata in the document'),
     'nl2br': _('Treat newlines as hard breaks'),
     'sane_lists': _('Do not allow mixing list types'),
-    'smarty': _('Use Markdown\'s internal smartypants parser'),
+    'smarty': _("Use Markdown's internal smartypants parser"),
     'tables': _('Support tables'),
     'toc': _('Generate a table of contents'),
     'wikilinks': _('Wiki style links'),
@@ -43,7 +43,7 @@ class TXTInput(InputFormatPlugin):
             'single': _('Assume every line is a paragraph'),
             'print': _('Assume every line starting with 2+ spaces or a tab starts a paragraph'),
             'unformatted': _('Most lines have hard line breaks, few/no blank lines or indents'),
-            'off': _('Don\'t modify the paragraph structure'),
+            'off': _("Don't modify the paragraph structure"),
         },
         'formatting_types': {
             'auto': _('Automatically decide which formatting processor to use'),
@@ -83,7 +83,7 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='txt_in_remove_indents', recommended_value=False,
             help=_('Normally extra space at the beginning of lines is retained. '
                    'With this option they will be removed.')),
-        OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
+        OptionRecommendation(name='markdown_extensions', recommended_value='footnotes, tables, toc',
             help=_('Enable extensions to Markdown syntax. Extensions are formatting that is not part '
                    'of the standard Markdown format. The extensions enabled by default: %default.\n'
                    'To learn more about Markdown extensions, see {}\n'

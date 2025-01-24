@@ -45,7 +45,7 @@ def parse_book_page(doc, base_url, counter):
         s.title = ''.join(data.xpath('.//div[@class="media-body"]/a[@class="booklink"]/i/text()')).strip()
         alternative_headline = data.xpath('.//div[@class="media-body"]/div[@itemprop="alternativeHeadline"]/text()')
         if len(alternative_headline) > 0:
-            s.title = "{} ({})".format(s.title, ''.join(alternative_headline).strip())
+            s.title = '{} ({})'.format(s.title, ''.join(alternative_headline).strip())
 
         s.author = ', '.join(data.xpath('.//div[@class="media-body"]/div[@class="bookauthor"]/span/a/text()')).strip(', ')
         s.detail_item = id

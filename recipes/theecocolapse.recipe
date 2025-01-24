@@ -20,10 +20,10 @@ class TheEconomicCollapse(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: Tahoma,Arial,sans-serif }
                                 img{margin-bottom: 0.4em; display: block;}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

@@ -75,14 +75,14 @@ class Bookmark():  # {{{
                     entry_type = None
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     if rec_len == 0:
-                        current_block = "empty_data"
-                    elif data[eo+8:eo+12] == b"EBAR":
-                        current_block = "data_header"
+                        current_block = 'empty_data'
+                    elif data[eo+8:eo+12] == b'EBAR':
+                        current_block = 'data_header'
                         # entry_type = "data_header"
                         location, = unpack('>I', data[eo+0x34:eo+0x38])
                         # print "data_header location: %d" % location
                     else:
-                        current_block = "text_block"
+                        current_block = 'text_block'
                         if previous_block == 'empty_data':
                             entry_type = 'Note'
                         elif previous_block == 'data_header':
@@ -149,7 +149,7 @@ class Bookmark():  # {{{
                     mi = get_topaz_metadata(stream)
                 my_clippings = self.path
                 split = my_clippings.find('documents') + len('documents/')
-                my_clippings = my_clippings[:split] + "My Clippings.txt"
+                my_clippings = my_clippings[:split] + 'My Clippings.txt'
                 try:
                     with open(my_clippings, encoding='utf-8', errors='replace') as f2:
                         marker_found = 0
@@ -274,7 +274,7 @@ class Bookmark():  # {{{
                 self.last_read_location = self.last_read - self.pdf_page_offset
 
         else:
-            print("unsupported bookmark_extension: %s" % self.bookmark_extension)
+            print('unsupported bookmark_extension: %s' % self.bookmark_extension)
         self.user_notes = user_notes
 
     def get_book_length(self):
@@ -303,6 +303,6 @@ class Bookmark():  # {{{
             except:
                 pass
         else:
-            print("unsupported bookmark_extension: %s" % self.bookmark_extension)
+            print('unsupported bookmark_extension: %s' % self.bookmark_extension)
 
 # }}}

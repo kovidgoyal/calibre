@@ -62,7 +62,7 @@ socket.setdefaulttimeout(30)
 
 
 def read(url, get_info=False):  # {{{
-    if url.startswith("file://"):
+    if url.startswith('file://'):
         return urlopen(url).read()
     opener = build_opener()
     opener.addheaders = [

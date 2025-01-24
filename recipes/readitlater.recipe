@@ -1,6 +1,6 @@
-"""
+'''
 Pocket Calibre Recipe v1.5
-"""
+'''
 import json
 import operator
 
@@ -69,22 +69,22 @@ class Pocket(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         else:
-            self.user_error("This Recipe requires authentication")
+            self.user_error('This Recipe requires authentication')
         return br
 
     def get_auth_uri(self):
-        """Quick function to return the authentication part of the url"""
-        uri = ""
+        '''Quick function to return the authentication part of the url'''
+        uri = ''
         uri = u'{0}&apikey={1!s}'.format(uri, self.apikey)
         if self.username is None or self.password is None:
-            self.user_error("Username or password is blank.")
+            self.user_error('Username or password is blank.')
         else:
             uri = u'{0}&username={1!s}'.format(uri, self.username)
             uri = u'{0}&password={1!s}'.format(uri, self.password)
         return uri
 
     def get_pull_articles_uri(self):
-        uri = ""
+        uri = ''
         uri = u'{0}&state={1}'.format(uri, u'unread')
         uri = u'{0}&contentType={1}'.format(uri, u'article')
         uri = u'{0}&sort={1}'.format(uri, self.sort_method)
@@ -95,7 +95,7 @@ class Pocket(BasicNewsRecipe):
 
     def parse_index(self):
         pocket_feed = []
-        fetch_url = u"{0}?{1}{2}".format(
+        fetch_url = u'{0}?{1}{2}'.format(
             self.read_api_url,
             self.get_auth_uri(),
             self.get_pull_articles_uri()
@@ -106,7 +106,7 @@ class Pocket(BasicNewsRecipe):
         if len(pocket_feed) < self.minimum_articles:
             self.mark_as_read_after_dl = False
             self.user_error(
-                "Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
+                'Only {0} articles retrieved, minimum_articles not reached'.format(len(pocket_feed)))
 
         for pocket_article in pocket_feed.items():
             self.articles.append({
@@ -119,7 +119,7 @@ class Pocket(BasicNewsRecipe):
                 'sort':         pocket_article[1]['sort_id']
             })
         self.articles = sorted(self.articles, key=operator.itemgetter('sort'))
-        return [("My Pocket Articles for {0}".format(strftime('[%I:%M %p]')), self.articles)]
+        return [('My Pocket Articles for {0}'.format(strftime('[%I:%M %p]')), self.articles)]
 
     def mark_as_read(self, mark_list):
         actions_list = []

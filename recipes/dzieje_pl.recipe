@@ -63,20 +63,20 @@ class Dzieje(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        feeds.append((u"Wiadomości", self.find_articles(
+        feeds.append((u'Wiadomości', self.find_articles(
             'http://dzieje.pl/wiadomosci')))
-        feeds.append((u"Kultura i sztuka", self.find_articles(
+        feeds.append((u'Kultura i sztuka', self.find_articles(
             'http://dzieje.pl/kulturaisztuka')))
-        feeds.append((u"Film", self.find_articles('http://dzieje.pl/kino')))
-        feeds.append((u"Rozmaitości historyczne",
+        feeds.append((u'Film', self.find_articles('http://dzieje.pl/kino')))
+        feeds.append((u'Rozmaitości historyczne',
                       self.find_articles('http://dzieje.pl/rozmaitości')))
         feeds.append(
-            (u"Książka", self.find_articles('http://dzieje.pl/ksiazka')))
+            (u'Książka', self.find_articles('http://dzieje.pl/ksiazka')))
         feeds.append(
-            (u"Wystawa", self.find_articles('http://dzieje.pl/wystawa')))
-        feeds.append((u"Edukacja", self.find_articles(
+            (u'Wystawa', self.find_articles('http://dzieje.pl/wystawa')))
+        feeds.append((u'Edukacja', self.find_articles(
             'http://dzieje.pl/edukacja')))
-        feeds.append((u"Dzieje się", self.find_articles(
+        feeds.append((u'Dzieje się', self.find_articles(
             'http://dzieje.pl/wydarzenia')))
         return feeds
 

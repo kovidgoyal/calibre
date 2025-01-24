@@ -68,7 +68,7 @@ class Develop(Command):
                       dest='fatal_errors', help='If set die on post install errors.')
         parser.add_option('--no-postinstall', action='store_false',
             dest='postinstall', default=True,
-            help='Don\'t run post install actions like creating MAN pages, setting'+
+            help="Don't run post install actions like creating MAN pages, setting"+
                     ' up desktop integration and so on')
 
     def add_options(self, parser):

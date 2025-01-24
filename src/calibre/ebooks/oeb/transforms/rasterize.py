@@ -49,7 +49,7 @@ def rasterize_svg(data=None, sizes=(), width=0, height=0, print=None, fmt='PNG',
     if print is not None:
         print(f'Rasterizing SVG to {size.width()} x {size.height()}')
     image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
-    image.fill(QColor("white").rgb())
+    image.fill(QColor('white').rgb())
     painter = QPainter(image)
     svg.render(painter)
     painter.end()
@@ -219,7 +219,7 @@ class SVGRasterizer:
             logger.info('Rasterizing %r to %dx%d'
                         % (svgitem.href, size.width(), size.height()))
             image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
-            image.fill(QColor("white").rgb())
+            image.fill(QColor('white').rgb())
             painter = QPainter(image)
             svg.render(painter)
             painter.end()

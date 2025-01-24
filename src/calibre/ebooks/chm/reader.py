@@ -73,7 +73,7 @@ class CHMReader(CHMFile):
         # location of '.hhc' file, which is the CHM TOC.
         base = self.topics or self.home
         self.root = os.path.splitext(base.lstrip('/'))[0]
-        self.hhc_path = self.root + ".hhc"
+        self.hhc_path = self.root + '.hhc'
 
     def relpath_to_first_html_file(self):
         # See https://www.nongnu.org/chmspec/latest/Internal.html#SYSTEM
@@ -170,10 +170,10 @@ class CHMReader(CHMFile):
             path = '/' + path
         res, ui = self.ResolveObject(path)
         if res != chmlib.CHM_RESOLVE_SUCCESS:
-            raise CHMError(f"Unable to locate {path!r} within CHM file {self.filename!r}")
+            raise CHMError(f'Unable to locate {path!r} within CHM file {self.filename!r}')
         size, data = self.RetrieveObject(ui)
         if size == 0:
-            raise CHMError(f"{path!r} is zero bytes in length!")
+            raise CHMError(f'{path!r} is zero bytes in length!')
         return data
 
     def get_home(self):
@@ -254,7 +254,7 @@ class CHMReader(CHMFile):
             soup = BeautifulSoup(data)
         except ValueError:
             # hit some strange encoding problems...
-            self.log.exception("Unable to parse html for cleaning, leaving it")
+            self.log.exception('Unable to parse html for cleaning, leaving it')
             return data
         # nuke javascript...
         [s.extract() for s in soup('script')]

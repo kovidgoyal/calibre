@@ -55,9 +55,9 @@ class RevistaElCultural(BasicNewsRecipe):
             if url.startswith('/version_papel/' + titleSection + '/'):
                 url = 'http://www.elcultural.es' + url
 
-            self.log('\t\tFound article:', title[0:title.find("|") - 1])
+            self.log('\t\tFound article:', title[0:title.find('|') - 1])
             self.log('\t\t\t', url)
-            current_articles.append({'title': title[0:title.find("|") - 1], 'url': url,
+            current_articles.append({'title': title[0:title.find('|') - 1], 'url': url,
                                      'description': '', 'date': ''})
 
         return current_articles

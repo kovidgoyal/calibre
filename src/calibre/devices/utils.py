@@ -34,11 +34,11 @@ def sanity_check(on_card, files, card_prefixes, free_space):
         size += os.path.getsize(getattr(f, 'name', f))
 
     if not on_card and size > free_space[0] - 2*1024*1024:
-        raise FreeSpaceError(_("There is insufficient free space in main memory"))
+        raise FreeSpaceError(_('There is insufficient free space in main memory'))
     if on_card == 'carda' and size > free_space[1] - 1024*1024:
-        raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        raise FreeSpaceError(_('There is insufficient free space on the storage card'))
     if on_card == 'cardb' and size > free_space[2] - 1024*1024:
-        raise FreeSpaceError(_("There is insufficient free space on the storage card"))
+        raise FreeSpaceError(_('There is insufficient free space on the storage card'))
 
 
 def build_template_regexp(template):
@@ -91,7 +91,7 @@ def create_upload_path(mdata, fname, template, sanitize,
         except:
             today = time.localtime()
             date = (today[0], today[1], today[2])
-        template = "{title}_%d-%d-%d" % date
+        template = '{title}_%d-%d-%d' % date
 
     fname = sanitize(fname)
     ext = path_type.splitext(fname)[1]

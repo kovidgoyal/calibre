@@ -123,24 +123,24 @@ class CanWestPaper(BasicNewsRecipe):
                     continue
                 break
         if daysback == 7:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
     def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\x91", "‘", string)
+        fixed = re.sub('\x91', '‘', string)
         # Replace rsquo (\x92)
-        fixed = re.sub("\x92", "’", fixed)
+        fixed = re.sub('\x92', '’', fixed)
         # Replace ldquo (\x93)
-        fixed = re.sub("\x93", "“", fixed)
+        fixed = re.sub('\x93', '“', fixed)
         # Replace rdquo (\x94)
-        fixed = re.sub("\x94", "”", fixed)
+        fixed = re.sub('\x94', '”', fixed)
         # Replace ndash (\x96)
-        fixed = re.sub("\x96", "–", fixed)
+        fixed = re.sub('\x96', '–', fixed)
         # Replace mdash (\x97)
-        fixed = re.sub("\x97", "—", fixed)
-        fixed = re.sub("&#x2019;", "’", fixed)
+        fixed = re.sub('\x97', '—', fixed)
+        fixed = re.sub('&#x2019;', '’', fixed)
         return fixed
 
     def massageNCXText(self, description):
@@ -180,14 +180,14 @@ class CanWestPaper(BasicNewsRecipe):
         ans = ['News']
 
         # Find each instance of class="sectiontitle", class="featurecontent"
-        for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
+        for divtag in soup.findAll('div', attrs={'class': ['section_title02', 'featurecontent']}):
             if ''.join(divtag['class']).startswith('section_title'):
                 # div contains section title
                 if not divtag.h3:
                     continue
                 key = self.tag_to_string(divtag.h3, False)
                 ans.append(key)
-                self.log("Section name %s" % key)
+                self.log('Section name %s' % key)
                 continue
             # div contains article data
             h1tag = divtag.find('h1')

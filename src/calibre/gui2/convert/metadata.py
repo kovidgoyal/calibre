@@ -200,11 +200,11 @@ class MetadataWidget(Widget, Ui_Form):
                 return
             cover = None
             try:
-                with open(_file, "rb") as f:
+                with open(_file, 'rb') as f:
                     cover = f.read()
             except OSError as e:
                 d = error_dialog(self.parent(), _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
+                        _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />'+str(e))
                 d.exec()
             if cover:
                 pix = QPixmap()
@@ -212,7 +212,7 @@ class MetadataWidget(Widget, Ui_Form):
                 pix.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 if pix.isNull():
                     d = error_dialog(self.parent(), _('Error reading file'),
-                                      _file + _(" is not a valid picture"))
+                                      _file + _(' is not a valid picture'))
                     d.exec()
                 else:
                     self.cover_path.setText(_file)
@@ -243,7 +243,7 @@ class MetadataWidget(Widget, Ui_Form):
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
         except OSError as err:
-            err.locking_violation_msg = _('Failed to change on disk location of this book\'s files.')
+            err.locking_violation_msg = _("Failed to change on disk location of this book's files.")
             raise
         publisher = self.publisher.text().strip()
         if publisher != db.field_for('publisher', self.book_id):

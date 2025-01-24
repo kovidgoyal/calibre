@@ -19,7 +19,7 @@ from . import open_for_read, open_for_write
 
 
 class CombineBorders:
-    """Combine borders in RTF tokens to make later processing easier"""
+    '''Combine borders in RTF tokens to make later processing easier'''
 
     def __init__(self,
             in_file ,
@@ -48,7 +48,7 @@ class CombineBorders:
         return line
 
     def end_border(self, line, write_obj):
-        border_string = "|".join(self.__bord_att)
+        border_string = '|'.join(self.__bord_att)
         self.__bord_att = []
         write_obj.write('cw<bd<{}<nu<{}\n'.format(self.__bord_pos,
                                                 border_string))
@@ -88,6 +88,6 @@ class CombineBorders:
                         write_obj.write(self.__default_func(line))
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "combine_borders.data")
+            copy_obj.copy_file(self.__write_to, 'combine_borders.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

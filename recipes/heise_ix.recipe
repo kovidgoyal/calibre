@@ -109,7 +109,7 @@ class heise_select(BasicNewsRecipe):
                     'img',
                     src=aimg['href'],
                     alt=aimg['data-pswp-bu'],
-                    style="display: block;"
+                    style='display: block;'
                 )
             if img is not None:
                 aimg.replaceWith(img)

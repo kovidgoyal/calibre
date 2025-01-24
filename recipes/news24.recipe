@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1375900744(BasicNewsRecipe):
     title = u'News24'
-    description = "News24."
+    description = 'News24.'
     __author__ = 'Nicki de Wet'
     publisher = 'Media24'
     category = 'news, politics, South Africa'
@@ -17,10 +17,10 @@ class AdvancedUserRecipe1375900744(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.24.com/images/widgethead_news.png'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: Arial,Helvetica,sans-serif }
                                 img{display: block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

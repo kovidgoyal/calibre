@@ -104,7 +104,7 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
                     'url': absurl(feed_link['href']),
                     'description': description
                 })
-        return [("La valise diplomatique", articles)]
+        return [('La valise diplomatique', articles)]
 
     def parse_index_cartes(self):
         articles = []
@@ -125,7 +125,7 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
                     'url': absurl(feed_link['href']),
                     'description': author
                 })
-        return [("Cartes", articles)]
+        return [('Cartes', articles)]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)

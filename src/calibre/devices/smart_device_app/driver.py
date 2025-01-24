@@ -48,7 +48,7 @@ from polyglot.builtins import as_bytes, iteritems, itervalues
 
 
 def synchronous(tlockname):
-    """A decorator to place an instance based lock around a method """
+    '''A decorator to place an instance based lock around a method '''
 
     def _synched(func):
         @wraps(func)
@@ -96,7 +96,7 @@ class ConnectionListener(Thread):
             if not self.all_ip_addresses:
                 self.all_ip_addresses = get_all_ips()
                 if self.all_ip_addresses:
-                    self.driver._debug("All IP addresses", self.all_ip_addresses)
+                    self.driver._debug('All IP addresses', self.all_ip_addresses)
 
             if not self.driver.connection_queue.empty():
                 d = currently_connected_device.device
@@ -485,7 +485,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 today = time.localtime()
                 date = (today[0], today[1], today[2])
-            template = "{title}_%d-%d-%d" % date
+            template = '{title}_%d-%d-%d' % date
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         from calibre.library.save_to_disk import config, get_components
@@ -854,7 +854,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
                     json_metadata[key]['last_used'] = book['last_used']
                     result = as_bytes(json.dumps(json_metadata, indent=2, default=to_json))
-                    fd.write(("%0.7d\n"%(len(result)+1)).encode('ascii'))
+                    fd.write(('%0.7d\n'%(len(result)+1)).encode('ascii'))
                     fd.write(result)
                     fd.write(b'\n')
                     count += 1
@@ -1014,14 +1014,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from functools import partial
         p = partial(prints, file=output)
         if self.is_connected:
-            p("A wireless device is connected")
+            p('A wireless device is connected')
             return True
         all_ip_addresses = get_all_ips()
         if all_ip_addresses:
-            p("All IP addresses", all_ip_addresses)
+            p('All IP addresses', all_ip_addresses)
         else:
-            p("No IP addresses found")
-        p("No device is connected")
+            p('No IP addresses found')
+        p('No device is connected')
         return False
 
     @synchronous('sync_lock')
@@ -1123,7 +1123,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.client_device_name = result.get('deviceName', self.client_device_kind)
             self._debug('Client device name', self.client_device_name)
 
-            self.client_app_name = result.get('appName', "")
+            self.client_app_name = result.get('appName', '')
             self._debug('Client app name', self.client_app_name)
             self.app_version_number = result.get('ccVersionNumber', '0')
             self._debug('App version #:', self.app_version_number)
@@ -1132,7 +1132,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if (self.client_app_name == 'CalibreCompanion' and
                          self.app_version_number < self.CURRENT_CC_VERSION):
                     self._debug('Telling client to update')
-                    self._call_client("DISPLAY_MESSAGE",
+                    self._call_client('DISPLAY_MESSAGE',
                             {'messageKind': self.MESSAGE_UPDATE_NEEDED,
                              'lastestKnownAppVersion': self.CURRENT_CC_VERSION})
             except:
@@ -1185,7 +1185,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # bad password
                     self._debug('password mismatch')
                     try:
-                        self._call_client("DISPLAY_MESSAGE",
+                        self._call_client('DISPLAY_MESSAGE',
                                 {'messageKind': self.MESSAGE_PASSWORD_ERROR,
                                  'currentLibraryName': self.current_library_name,
                                  'currentLibraryUUID': library_uuid})
@@ -1242,7 +1242,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def set_driveinfo_name(self, location_code, name):
-        self._update_driveinfo_record(self.driveinfo, "main", name)
+        self._update_driveinfo_record(self.driveinfo, 'main', name)
         self._call_client('SET_CALIBRE_DEVICE_NAME',
                          {'location_code': 'main', 'name':name})
 
@@ -1625,7 +1625,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         device_prefs.set_overrides(manage_device_metadata='on_connect')
 
     def _show_message(self, message):
-        self._call_client("DISPLAY_MESSAGE",
+        self._call_client('DISPLAY_MESSAGE',
                 {'messageKind': self.MESSAGE_SHOW_TOAST,
                  'message': message})
 
@@ -1685,8 +1685,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self.have_bad_sync_columns = True
                 elif fm[self.is_read_sync_col]['datatype'] != 'bool':
                     self._debug('is_read_sync_col not bool type')
-                    self._show_message(_("The read sync column %s is "
-                             "not a Yes/No column")%self.is_read_sync_col)
+                    self._show_message(_('The read sync column %s is '
+                             'not a Yes/No column')%self.is_read_sync_col)
                     self.have_bad_sync_columns = True
 
             if self.is_read_date_sync_col:
@@ -1697,8 +1697,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self.have_bad_sync_columns = True
                 elif fm[self.is_read_date_sync_col]['datatype'] != 'datetime':
                     self._debug('is_read_date_sync_col not date type')
-                    self._show_message(_("The read date sync column %s is "
-                             "not a date column")%self.is_read_date_sync_col)
+                    self._show_message(_('The read date sync column %s is '
+                             'not a date column')%self.is_read_date_sync_col)
                     self.have_bad_sync_columns = True
 
             self.have_checked_sync_columns = True

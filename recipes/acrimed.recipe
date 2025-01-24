@@ -28,6 +28,6 @@ class Acrimed(BasicNewsRecipe):
          lambda m: '<title>' + m.group(1) + '</title>'),
         (re.compile(r'<h2>(.*) - Acrimed \| Action Critique M.*dias</h2>'), lambda m: '<h2>' + m.group(1) + '</h2>')]
 
-    extra_css              = """
+    extra_css              = '''
                                 .chapo{font-style:italic; margin: 1em 0 0.5em}
-                            """
+                            '''

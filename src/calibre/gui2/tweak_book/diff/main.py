@@ -133,7 +133,7 @@ def get_decoded_raw(name):
         if syntax in {'html', 'xml'}:
             raw = xml_to_unicode(raw, verbose=True)[0]
         else:
-            m = re.search(br"coding[:=]\s*([-\w.]+)", raw[:1024], flags=re.I)
+            m = re.search(br'coding[:=]\s*([-\w.]+)', raw[:1024], flags=re.I)
             if m is not None and m.group(1) != '8bit':
                 enc = m.group(1)
                 if enc == b'unicode':

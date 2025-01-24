@@ -56,7 +56,7 @@ class StrangeHorizons(BasicNewsRecipe):
                 desc = ''
                 if exp := ti.find_next_sibling(**classes('excerpt')):
                     desc = self.tag_to_string(exp) + desc
-                    desc = re.sub(r"\d{5} ", "", desc)
+                    desc = re.sub(r'\d{5} ', '', desc)
                 if auth := ti.find_next_sibling(**classes('author')):
                     desc = self.tag_to_string(auth) + ' | ' + desc
 
@@ -64,5 +64,5 @@ class StrangeHorizons(BasicNewsRecipe):
                     continue
 
             self.log(sec, '\n\t', title, '\n\t', desc, '\n\t\t', url)
-            feeds_dict[sec].append({"title": title, "url": url, "description": desc})
+            feeds_dict[sec].append({'title': title, 'url': url, 'description': desc})
         return [(section, articles) for section, articles in feeds_dict.items()]

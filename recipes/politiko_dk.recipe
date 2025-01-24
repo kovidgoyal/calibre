@@ -26,10 +26,10 @@ class PolitikoDK(BasicNewsRecipe):
     auto_cleanup          = False
 
     keep_only_tags = [
-        dict(name="h1", attrs={'class': 'article-headline'}),
-        dict(name="p", attrs={'class': 'article-summary'}),
-        dict(name="div", attrs={'class': 'article-date'}),
-        dict(name="div", attrs={'class': 'article-content'}),
+        dict(name='h1', attrs={'class': 'article-headline'}),
+        dict(name='p', attrs={'class': 'article-summary'}),
+        dict(name='div', attrs={'class': 'article-date'}),
+        dict(name='div', attrs={'class': 'article-content'}),
     ]
 
     # Feed are found here: http://www.b.dk/rss

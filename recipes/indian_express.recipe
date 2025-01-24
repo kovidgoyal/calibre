@@ -136,13 +136,13 @@ class IndianExpress(BasicNewsRecipe):
         return citem['content'].replace('300', '600')
 
     def preprocess_html(self, soup):
-        if h2 := (soup.find(attrs={"itemprop": "description"}) or soup.find(**classes("synopsis"))):
+        if h2 := (soup.find(attrs={'itemprop': 'description'}) or soup.find(**classes('synopsis'))):
             h2.name = 'p'
             h2['id'] = 'sub-d'
         for span in soup.findAll(
-            "span", attrs={"class": ["ie-custom-caption", "custom-caption"]}
+            'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
         ):
-            span["id"] = "img-cap"
+            span['id'] = 'img-cap'
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         if span := soup.find('span', content=True, attrs={'itemprop': 'dateModified'}):

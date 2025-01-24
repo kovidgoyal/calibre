@@ -375,7 +375,7 @@ class SearchRestrictionMixin:
 
         self.search_restriction = ComboBoxWithHelp(self)
         self.search_restriction.setVisible(False)
-        self.clear_vl.setText(_("(all books)"))
+        self.clear_vl.setText(_('(all books)'))
         self.ar_menu = QMenu(_('Additional restriction'), self.virtual_library_menu)
         self.edit_menu = QMenu(_('Edit Virtual library'), self.virtual_library_menu)
         self.rm_menu = QMenu(_('Remove Virtual library'), self.virtual_library_menu)

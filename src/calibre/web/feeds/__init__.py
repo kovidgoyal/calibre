@@ -65,7 +65,7 @@ class Article:
     def formatted_date(self):
 
         if self._formatted_date is None:
-            self._formatted_date = strftime(" [%a, %d %b %H:%M]",
+            self._formatted_date = strftime(' [%a, %d %b %H:%M]',
                     t=self.localtime.timetuple())
         return self._formatted_date
 

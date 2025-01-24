@@ -30,7 +30,7 @@ class Pages:
         for group in self.__pages_groups:
             result.append(group.get_page_map(location))
             location += group.number_of_pages
-        return ",".join(result)
+        return ','.join(result)
 
     @property
     def page_locations(self) -> list[int]:

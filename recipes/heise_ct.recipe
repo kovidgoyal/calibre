@@ -108,7 +108,7 @@ class heise_select(BasicNewsRecipe):
                 img = soup.new_tag('img',
                                    src=aimg['href'],
                                    alt=aimg['data-pswp-bu'],
-                                   style="display: block;")
+                                   style='display: block;')
             if img is not None:
                 aimg.replaceWith(img)
 

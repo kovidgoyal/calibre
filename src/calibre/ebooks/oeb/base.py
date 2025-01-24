@@ -463,13 +463,13 @@ del USAFE
 
 
 def urlquote(href):
-    """ Quote URL-unsafe characters, allowing IRI-safe characters.
+    ''' Quote URL-unsafe characters, allowing IRI-safe characters.
     That is, this function returns valid IRIs not valid URIs. In particular,
-    IRIs can contain non-ascii characters.  """
+    IRIs can contain non-ascii characters.  '''
     result = []
     isbytes = isinstance(href, bytes)
     unsafe = URL_UNSAFE[int(isbytes)]
-    esc, join = "%%%02x", ''
+    esc, join = '%%%02x', ''
     if isbytes:
         esc, join = esc.encode('ascii'), b''
     for char in href:
@@ -480,9 +480,9 @@ def urlquote(href):
 
 
 def urlnormalize(href):
-    """Convert a URL into normalized form, with all and only URL-unsafe
+    '''Convert a URL into normalized form, with all and only URL-unsafe
     characters URL quoted.
-    """
+    '''
     try:
         parts = urlparse(href)
     except ValueError as e:
@@ -497,11 +497,11 @@ def urlnormalize(href):
 
 
 def extract(elem):
-    """
+    '''
     Removes this element from the tree, including its children and
     text.  The tail text is joined to the previous element or
     parent.
-    """
+    '''
     parent = elem.getparent()
     if parent is not None:
         if elem.tail:
@@ -535,15 +535,15 @@ _css_logger.addHandler(_css_log_handler)
 
 
 class OEBError(Exception):
-    """Generic OEB-processing error."""
+    '''Generic OEB-processing error.'''
     pass
 
 
 class NullContainer:
-    """An empty container.
+    '''An empty container.
 
     For use with book formats which do not support container-like access.
-    """
+    '''
 
     def __init__(self, log):
         self.log = log
@@ -562,7 +562,7 @@ class NullContainer:
 
 
 class DirContainer:
-    """Filesystem directory container."""
+    '''Filesystem directory container.'''
 
     def __init__(self, path, log, ignore_opf=False):
         self.log = log
@@ -664,7 +664,7 @@ class Metadata:
                      'xsi': XSI_NS, 'calibre': CALIBRE_NS}
 
     class Item:
-        """An item of OEB data model metadata.
+        '''An item of OEB data model metadata.
 
         The metadata term or name may be accessed via the :attr:`term` or
         :attr:`name` attributes.  The metadata value or content may be accessed
@@ -675,9 +675,9 @@ class Metadata:
         fully-qualified names using the Python container access syntax, or via
         their local names using Python attribute syntax.  Only attributes
         allowed by the OPF 2.0 specification are supported.
-        """
+        '''
         class Attribute:
-            """Smart accessor for allowed OEB metadata item attributes."""
+            '''Smart accessor for allowed OEB metadata item attributes.'''
 
             def __init__(self, attr, allowed=None):
                 if not callable(attr):
@@ -815,7 +815,7 @@ class Metadata:
         self.primary_writing_mode = None
 
     def add(self, term, value, attrib={}, nsmap={}, **kwargs):
-        """Add a new metadata item."""
+        '''Add a new metadata item.'''
         item = self.Item(term, value, attrib, nsmap, **kwargs)
         items = self.items[barename(item.term)]
         items.append(item)
@@ -894,7 +894,7 @@ class Metadata:
 
 
 class Manifest:
-    """Collection of files composing an OEB data model book.
+    '''Collection of files composing an OEB data model book.
 
     Provides access to the content of the files composing the book and
     attributes associated with those files, including their internal paths,
@@ -907,7 +907,7 @@ class Manifest:
         the manifest items and the values are the items themselves.
     :attr:`hrefs`: A dictionary in which the keys are the internal paths of the
         manifest items and the values are the items themselves.
-    """
+    '''
 
     class Item:
         """An OEB data model book content file.
@@ -1138,15 +1138,15 @@ class Manifest:
             return sp, (self.media_type or '').lower(), numeric_sort_key(href), self.id
 
         def relhref(self, href):
-            """Convert the URL provided in :param:`href` from a book-absolute
+            '''Convert the URL provided in :param:`href` from a book-absolute
             reference to a reference relative to this manifest item.
-            """
+            '''
             return rel_href(self.href, href)
 
         def abshref(self, href):
-            """Convert the URL provided in :param:`href` from a reference
+            '''Convert the URL provided in :param:`href` from a reference
             relative to this manifest item to a book-absolute reference.
-            """
+            '''
             try:
                 purl = urlparse(href)
             except ValueError:
@@ -1194,7 +1194,7 @@ class Manifest:
         return item
 
     def remove(self, item):
-        """Removes :param:`item` from the manifest."""
+        '''Removes :param:`item` from the manifest.'''
         if item in self.ids:
             item = self.ids[item]
         del self.ids[item.id]
@@ -1211,14 +1211,14 @@ class Manifest:
         self.items.remove(item)
 
     def generate(self, id=None, href=None):
-        """Generate a new unique identifier and/or internal path for use in
+        '''Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
         :param:`href` as bases.
 
         Returns an two-tuple of the new id and path.  If either :param:`id` or
         :param:`href` are `None` then the corresponding item in the return
         tuple will also be `None`.
-        """
+        '''
         if id is not None:
             base = id
             index = 1
@@ -1316,14 +1316,14 @@ class Spine:
         return linear
 
     def add(self, item, linear=None):
-        """Append :param:`item` to the end of the `Spine`."""
+        '''Append :param:`item` to the end of the `Spine`.'''
         item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
 
     def insert(self, index, item, linear):
-        """Insert :param:`item` at position :param:`index` in the `Spine`."""
+        '''Insert :param:`item` at position :param:`index` in the `Spine`.'''
         item.linear = self._linear(linear)
         item.spine_position = index
         self.items.insert(index, item)
@@ -1332,7 +1332,7 @@ class Spine:
         return item
 
     def remove(self, item):
-        """Remove :param:`item` from the `Spine`."""
+        '''Remove :param:`item` from the `Spine`.'''
         index = item.spine_position
         self.items.pop(index)
         for i in range(index, len(self.items)):
@@ -1375,15 +1375,15 @@ class Spine:
 
 
 class Guide:
-    """Collection of references to standard frequently-occurring sections
+    '''Collection of references to standard frequently-occurring sections
     within an OEB data model book.
 
     Provides dictionary-like access, in which the keys are the OEB reference
     type identifiers and the values are `Reference` objects.
-    """
+    '''
 
     class Reference:
-        """Reference to a standard book section.
+        '''Reference to a standard book section.
 
         Provides the following instance data members:
 
@@ -1392,7 +1392,7 @@ class Guide:
         :attr:`title`: Human-readable section title.
         :attr:`href`: Book-internal URL of the referenced section.  May include
             a fragment identifier.
-        """
+        '''
         _TYPES_TITLES = [('cover', __('Cover')),
                          ('title-page', __('Title page')),
                          ('toc', __('Table of Contents')),
@@ -1433,7 +1433,7 @@ class Guide:
 
         @property
         def item(self):
-            """The manifest item associated with this reference."""
+            '''The manifest item associated with this reference.'''
             path = urldefrag(self.href)[0]
             hrefs = self.oeb.manifest.hrefs
             return hrefs.get(path, None)
@@ -1443,7 +1443,7 @@ class Guide:
         self.refs = {}
 
     def add(self, type, title, href):
-        """Add a new reference to the `Guide`."""
+        '''Add a new reference to the `Guide`.'''
         if href:
             href = str(href)
         ref = self.Reference(self.oeb, type, title, href)
@@ -1505,7 +1505,7 @@ class Guide:
 
 
 class TOC:
-    """Represents a hierarchical table of contents or navigation tree for
+    '''Represents a hierarchical table of contents or navigation tree for
     accessing arbitrary semantic sections within an OEB data model book.
 
     Acts as a node within the navigation tree.  Provides list-like access to
@@ -1518,7 +1518,7 @@ class TOC:
     :attr:`author`: Optional author attribution for periodicals <mbp:>
     :attr:`description`: Optional description attribute for periodicals <mbp:>
     :attr:`toc_thumbnail`: Optional toc thumbnail image
-    """
+    '''
 
     def __init__(self, title=None, href=None, klass=None, id=None,
             play_order=None, author=None, description=None, toc_thumbnail=None):
@@ -1536,7 +1536,7 @@ class TOC:
         self.toc_thumbnail = toc_thumbnail
 
     def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None, toc_thumbnail=None):
-        """Create and return a new sub-node of this node."""
+        '''Create and return a new sub-node of this node.'''
         node = TOC(title, href, klass, id, play_order, author, description, toc_thumbnail)
         self.nodes.append(node)
         return node
@@ -1552,7 +1552,7 @@ class TOC:
         return False
 
     def iter(self):
-        """Iterate over this node and all descendants in depth-first order."""
+        '''Iterate over this node and all descendants in depth-first order.'''
         yield self
         for child in self.nodes:
             yield from child.iter()
@@ -1578,7 +1578,7 @@ class TOC:
         return False
 
     def iterdescendants(self, breadth_first=False):
-        """Iterate over all descendant nodes in depth-first order."""
+        '''Iterate over all descendant nodes in depth-first order.'''
         if breadth_first:
             for child in self.nodes:
                 yield child
@@ -1589,16 +1589,16 @@ class TOC:
                 yield from child.iter()
 
     def __iter__(self):
-        """Iterate over all immediate child nodes."""
+        '''Iterate over all immediate child nodes.'''
         yield from self.nodes
 
     def __getitem__(self, index):
         return self.nodes[index]
 
     def autolayer(self):
-        """Make sequences of children pointing to the same content file into
+        '''Make sequences of children pointing to the same content file into
         children of the first node referencing that file.
-        """
+        '''
         prev = None
         for node in list(self.nodes):
             if prev and urldefrag(prev.href)[0] == urldefrag(node.href)[0]:
@@ -1608,7 +1608,7 @@ class TOC:
                 prev = node
 
     def depth(self):
-        """The maximum depth of the navigation tree rooted at this node."""
+        '''The maximum depth of the navigation tree rooted at this node.'''
         try:
             return max(node.depth() for node in self.nodes) + 1
         except ValueError:
@@ -1719,7 +1719,7 @@ class PageList:
         self.pages = []
 
     def add(self, name, href, type='normal', klass=None, id=None):
-        """Create a new page and add it to the `PageList`."""
+        '''Create a new page and add it to the `PageList`.'''
         page = self.Page(name, href, type, klass, id)
         self.pages.append(page)
         return page
@@ -1763,7 +1763,7 @@ class PageList:
 
 
 class OEBBook:
-    """Representation of a book in the IDPF OEB data model."""
+    '''Representation of a book in the IDPF OEB data model.'''
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
@@ -1773,7 +1773,7 @@ class OEBBook:
             css_preprocessor=CSSPreProcessor(),
             encoding='utf-8', pretty_print=False,
             input_encoding='utf-8'):
-        """Create empty book.  Arguments:
+        '''Create empty book.  Arguments:
 
         :param:`encoding`: Default encoding for textual content read
             from an external container.
@@ -1802,7 +1802,7 @@ class OEBBook:
         :attr:`toc`: Hierarchical table of contents.
         :attr:`pages`: List of "pages," such as indexed to a print edition of
             the same text.
-        """
+        '''
         _css_log_handler.log = logger
         self.encoding = encoding
         self.input_encoding = input_encoding
@@ -1841,7 +1841,7 @@ class OEBBook:
 
     @classmethod
     def generate(cls, opts):
-        """Generate an OEBBook instance from command-line options."""
+        '''Generate an OEBBook instance from command-line options.'''
         encoding = opts.encoding
         pretty_print = opts.pretty_print
         return cls(encoding=encoding, pretty_print=pretty_print)
@@ -1853,7 +1853,7 @@ class OEBBook:
         return translate(lang, text)
 
     def decode(self, data):
-        """Automatically decode :param:`data` into a `unicode` object."""
+        '''Automatically decode :param:`data` into a `unicode` object.'''
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
         if isinstance(data, str):
@@ -1998,8 +1998,8 @@ class OEBBook:
 
 
 def rel_href(base_href, href):
-    """Convert the URL provided in :param:`href` to a URL relative to the URL
-    in :param:`base_href`  """
+    '''Convert the URL provided in :param:`href` to a URL relative to the URL
+    in :param:`base_href`  '''
     if urlparse(href).scheme:
         return href
     if '/' not in base_href:

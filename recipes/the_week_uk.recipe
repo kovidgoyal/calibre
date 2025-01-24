@@ -9,7 +9,7 @@ class TheWeek(BasicNewsRecipe):
     title = 'The Week'
     __author__ = 'unkn0wn'
     description = (
-        'The Week is for readers who want to know what\'s going on in the world, without having to read '
+        "The Week is for readers who want to know what's going on in the world, without having to read "
         'several daily newspapers or get wrapped up in the endless news cycle. For every important story, '
         'our editors carefully select commentary from all sides of the debate and artfully stitch them together '
         'into one concise read. By showing you every perspective, we enable you to form your own opinion.'

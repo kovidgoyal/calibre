@@ -18,10 +18,10 @@
 #
 
 
-__doc__=""" In principle the OpenDocument schema converted to python structures.
+__doc__=''' In principle the OpenDocument schema converted to python structures.
 Currently it contains the legal child elements of a given element.
 To be used for validation check in the API
-"""
+'''
 
 from .namespaces import (
     ANIMNS,

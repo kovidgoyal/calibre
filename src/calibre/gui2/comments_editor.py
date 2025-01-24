@@ -1241,7 +1241,7 @@ class Highlighter(QSyntaxHighlighter):
             if state == State_Comment:
                 start = pos
                 while pos < len_:
-                    if text[pos:pos+3] == "-->":
+                    if text[pos:pos+3] == '-->':
                         pos += 3
                         state = State_Text
                         break
@@ -1398,10 +1398,10 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     if ch == '<':
-                        if text[pos:pos+4] == "<!--":
+                        if text[pos:pos+4] == '<!--':
                             state = State_Comment
                         else:
-                            if text[pos:pos+9].upper() == "<!DOCTYPE":
+                            if text[pos:pos+9].upper() == '<!DOCTYPE':
                                 state = State_DocType
                             else:
                                 state = State_TagStart

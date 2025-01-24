@@ -88,7 +88,7 @@ class Packages:
                 self.files_to_download.append(File(pf))
 
         # CRT headers
-        add_package(f"Microsoft.VC.{self.crt_version}.CRT.Headers.base")
+        add_package(f'Microsoft.VC.{self.crt_version}.CRT.Headers.base')
         # CRT libs
         prefix = f'Microsoft.VC.{self.crt_version}.CRT.{arch}.'.lower()
         variants = {}
@@ -102,7 +102,7 @@ class Packages:
                         variants[variant] = pid
         add_package(variants[crt_variant])
         # ATL headers
-        add_package(f"Microsoft.VC.{self.crt_version}.ATL.Headers.base")
+        add_package(f'Microsoft.VC.{self.crt_version}.ATL.Headers.base')
         # ATL libs
         add_package(f'Microsoft.VC.{self.crt_version}.ATL.{arch}.Spectre.base')
         add_package(f'Microsoft.VC.{self.crt_version}.ATL.{arch}.base')
@@ -188,10 +188,10 @@ def download(dest_dir, manifest_version=17, manifest_type='release', manifest_pa
         url = f'https://aka.ms/vs/{manifest_version}/{manifest_type}/channel'
         print('Downloading top-level manifest from', url)
         tm = json.loads(urlopen(url).read())
-        print("Got toplevel manifest for", (tm["info"]["productDisplayVersion"]))
-        for item in tm["channelItems"]:
-            if item.get('type') == "Manifest":
-                url = item["payloads"][0]["url"]
+        print('Got toplevel manifest for', (tm['info']['productDisplayVersion']))
+        for item in tm['channelItems']:
+            if item.get('type') == 'Manifest':
+                url = item['payloads'][0]['url']
                 print('Downloading actual manifest...')
                 manifest = urlopen(url).read()
 
@@ -244,7 +244,7 @@ def extract_msi(path, dest_dir):
 
 
 def extract_zipfile(zf, dest_dir):
-    tmp = os.path.join(dest_dir, "extract")
+    tmp = os.path.join(dest_dir, 'extract')
     os.mkdir(tmp)
     for f in zf.infolist():
         name = unquote(f.filename)
@@ -259,7 +259,7 @@ def extract_vsix(path, dest_dir):
     print('Extracting', os.path.basename(path), '...')
     with TemporaryDirectory(dir=dest_dir) as tdir, ZipFile(path, 'r') as zf:
         extract_zipfile(zf, tdir)
-        contents = os.path.join(tdir, "Contents")
+        contents = os.path.join(tdir, 'Contents')
         merge_trees(contents, dest_dir)
         names = zf.namelist()
     with open(os.path.join(dest_dir, os.path.basename(path) + '.listing'), 'w') as ls:

@@ -18,14 +18,14 @@ class OpenPopupMessage:
 
 
 class DevicePlugin(Plugin):
-    """
+    '''
     Defines the interface that should be implemented by backends that
     communicate with an e-book reader.
-    """
+    '''
     type = _('Device interface')
 
     #: Ordered list of supported formats
-    FORMATS     = ["lrf", "rtf", "pdf", "txt"]
+    FORMATS     = ['lrf', 'rtf', 'pdf', 'txt']
     # If True, the config dialog will not show the formats box
     HIDE_FORMATS_CONFIG_BOX = False
 
@@ -226,7 +226,7 @@ class DevicePlugin(Plugin):
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
-        """
+        '''
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
         :param report_progress: Function that is called with a % progress
@@ -235,7 +235,7 @@ class DevicePlugin(Plugin):
                                 task does not have any progress information
         :param detected_device: Device information from the device scanner
 
-        """
+        '''
         raise NotImplementedError()
 
     def can_handle_windows(self, usbdevice, debug=False):
@@ -324,14 +324,14 @@ class DevicePlugin(Plugin):
         raise NotImplementedError()
 
     def get_device_information(self, end_session=True):
-        """
+        '''
         Ask device for device information. See L{DeviceInfoQuery}.
 
         :return: (device name, device version, software version on device, MIME type)
                  The tuple can optionally have a fifth element, which is a
                  drive information dictionary. See usbms.driver for an example.
 
-        """
+        '''
         raise NotImplementedError()
 
     def get_driveinfo(self):

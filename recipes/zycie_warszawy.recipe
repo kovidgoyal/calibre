@@ -47,5 +47,5 @@ class zyciewarszawy(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(r',3.jpg'), lambda m: ',2.jpg')]
 
     def print_version(self, url):
-        url += "?print=tak"
+        url += '?print=tak'
         return url

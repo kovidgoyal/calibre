@@ -42,9 +42,9 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
 
 
 def extract(filename, dir):
-    """
+    '''
     Extract archive C{filename} into directory C{dir}
-    """
+    '''
     zf = zipfile.ZipFile(filename)
     zf.extractall(dir)
 

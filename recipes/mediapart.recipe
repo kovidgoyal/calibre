@@ -49,7 +49,7 @@ class Mediapart(BasicNewsRecipe):
 
     conversion_options = {'smarten_punctuation': True}
 
-    masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
+    masthead_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png'
 
     ignore_duplicate_articles = {'title'}
     resolve_internal_links  = True

@@ -22,9 +22,9 @@ class Borsen_dk(BasicNewsRecipe):
     language              = 'da'
 
     keep_only_tags = [
-        dict(name="h1", attrs={'itemprop': 'headline'}),
-        dict(name="div", attrs={'itemprob': 'datePublished'}),
-        dict(name="div", attrs={'itemprop': 'articleBody'}),
+        dict(name='h1', attrs={'itemprop': 'headline'}),
+        dict(name='div', attrs={'itemprob': 'datePublished'}),
+        dict(name='div', attrs={'itemprop': 'articleBody'}),
     ]
 
     # Feed are found here:

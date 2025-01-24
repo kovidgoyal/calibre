@@ -556,19 +556,19 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     def print_version(self, url):
 
         # Handle sports page urls type 01:
-        if (url.find("go/rss/-/sport1/") != -1):
-            temp_url = url.replace("go/rss/-/", "")
+        if (url.find('go/rss/-/sport1/') != -1):
+            temp_url = url.replace('go/rss/-/', '')
 
         # Handle sports page urls type 02:
-        elif (url.find("go/rss/int/news/-/sport1/") != -1):
-            temp_url = url.replace("go/rss/int/news/-/", "")
+        elif (url.find('go/rss/int/news/-/sport1/') != -1):
+            temp_url = url.replace('go/rss/int/news/-/', '')
 
         # Handle regular news page urls:
         else:
-            temp_url = url.replace("go/rss/int/news/-/", "")
+            temp_url = url.replace('go/rss/int/news/-/', '')
 
         # Always add "?print=true" to the end of the url.
-        print_url = temp_url + "?print=true"
+        print_url = temp_url + '?print=true'
 
         return print_url
 

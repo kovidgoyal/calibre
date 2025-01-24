@@ -35,17 +35,17 @@ class RealClear(BasicNewsRecipe):
 
     # Numeric parameter is type, controls whether we look for
     feedsets = [
-        ["Politics",        "http://www.realclearpolitics.com/index.xml",   0],
-        ["Policy",           "http://www.realclearpolicy.com/index.xml", 0],
-        ["Science",         "http://www.realclearscience.com/index.xml",    0],
-        ["Tech",            "http://www.realcleartechnology.com/index.xml", 0],
+        ['Politics',        'http://www.realclearpolitics.com/index.xml',   0],
+        ['Policy',           'http://www.realclearpolicy.com/index.xml', 0],
+        ['Science',         'http://www.realclearscience.com/index.xml',    0],
+        ['Tech',            'http://www.realcleartechnology.com/index.xml', 0],
         # The feedburner is essentially the same as the top feed, politics.
         # ["Politics Burner", "http://feeds.feedburner.com/realclearpolitics/qlMj", 1],
         # ["Commentary",      "http://feeds.feedburner.com/Realclearpolitics-Articles", 1],
-        ["Markets Home",    "http://www.realclearmarkets.com/index.xml", 0],
-        ["Markets",         "http://www.realclearmarkets.com/articles/index.xml", 0],
-        ["World",           "http://www.realclearworld.com/index.xml", 0],
-        ["World Blog",           "http://www.realclearworld.com/blog/index.xml", 2]
+        ['Markets Home',    'http://www.realclearmarkets.com/index.xml', 0],
+        ['Markets',         'http://www.realclearmarkets.com/articles/index.xml', 0],
+        ['World',           'http://www.realclearworld.com/index.xml', 0],
+        ['World Blog',           'http://www.realclearworld.com/blog/index.xml', 2]
     ]
     # Hints to extractPrintURL.
     # First column is the URL snippet.  Then the string to search for as text,
@@ -53,13 +53,13 @@ class RealClear(BasicNewsRecipe):
     # drill down.
     phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
 
-    printhints = [["realclear",           "",                            '', 'printpage'],
-                  ["billoreilly.com",     "Print this entry",            'a', ''],
-                  ["billoreilly.com",     "Print This Article",          'a', ''],
-                  ["politico.com",        "Print",
+    printhints = [['realclear',           '',                            '', 'printpage'],
+                  ['billoreilly.com',     'Print this entry',            'a', ''],
+                  ['billoreilly.com',     'Print This Article',          'a', ''],
+                  ['politico.com',        'Print',
                       'a', 'share-print'],
-                  ["nationalreview.com",  ">Print<",                     'a', ''],
-                  ["reason.com",          "",                       'a', 'printer']
+                  ['nationalreview.com',  '>Print<',                     'a', ''],
+                  ['reason.com',          '',                       'a', 'printer']
                   # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
                   # forbes,
                   # usatoday - just prints with all current crap anyhow
@@ -82,12 +82,12 @@ class RealClear(BasicNewsRecipe):
     def extractPrintURL(self, pageURL):
         tagURL = pageURL
         baseParse = urlparse(pageURL)
-        baseURL = baseParse[0] + "://" + baseParse[1]
+        baseURL = baseParse[0] + '://' + baseParse[1]
         hintsCount = len(self.printhints)
         for x in range(0, hintsCount):
             if pageURL.find(self.printhints[x][0]) == -1:
                 continue
-            print("Trying " + self.printhints[x][0])
+            print('Trying ' + self.printhints[x][0])
             # Only retrieve the soup if we have a match to check for the
             # printed article with.
             soup = self.index_to_soup(pageURL)
@@ -96,51 +96,51 @@ class RealClear(BasicNewsRecipe):
             if len(self.printhints[x][self.phHrefSearch]) > 0 and len(self.printhints[x][self.phLinkText]) == 0:
                 # e.g. RealClear
                 if self.debugMessages is True:
-                    print("Search by href: " +
+                    print('Search by href: ' +
                           self.printhints[x][self.phHrefSearch])
                 printFind = soup.find(href=re.compile(
                     self.printhints[x][self.phHrefSearch]))
             elif len(self.printhints[x][3]) > 0 and len(self.printhints[x][1]) == 0:
                 if self.debugMessages is True:
-                    print("Search 1: " +
-                          self.printhints[x][2] + " Attributes: ")
+                    print('Search 1: ' +
+                          self.printhints[x][2] + ' Attributes: ')
                     print(self.printhints[x][3])
                 printFind = soup.find(
                     self.printhints[x][2], attrs=self.printhints[x][3])
             elif len(self.printhints[x][3]) > 0:
                 if self.debugMessages is True:
-                    print("search2")
+                    print('search2')
                 printFind = soup.find(self.printhints[x][2], attrs=self.printhints[
                                       x][3], text=self.printhints[x][1])
             else:
                 if self.debugMessages is True:
                     print(
-                        "Default Search: " + self.printhints[x][2] + " Text: " + self.printhints[x][1])
+                        'Default Search: ' + self.printhints[x][2] + ' Text: ' + self.printhints[x][1])
                 printFind = soup.find(
                     self.printhints[x][2], text=self.printhints[x][1])
             if printFind is None:
                 if self.debugMessages is True:
-                    print("Not Found")
+                    print('Not Found')
                     # print(soup)
-                    print("end soup\n\n")
+                    print('end soup\n\n')
                 continue
 
             print(printFind)
             if isinstance(printFind, NavigableString) is False:
                 if printFind['href'] is not None:
-                    print("Check " + printFind['href'] +
-                          " for base of " + baseURL)
-                    if printFind['href'].find("http") != 0:
+                    print('Check ' + printFind['href'] +
+                          ' for base of ' + baseURL)
+                    if printFind['href'].find('http') != 0:
                         return baseURL + printFind['href']
                     return printFind['href']
             tag = printFind.parent
             print(tag)
             if tag.get('href', None) is None:
                 if self.debugMessages is True:
-                    print("Not in parent, trying skip-up")
+                    print('Not in parent, trying skip-up')
                 if tag.parent['href'] is None:
                     if self.debugMessages is True:
-                        print("Not in skip either, aborting")
+                        print('Not in skip either, aborting')
                     continue
                 return tag.parent['href']
             return tag['href']
@@ -148,45 +148,45 @@ class RealClear(BasicNewsRecipe):
 
     def get_browser(self):
         if self.debugMessages is True:
-            print("In get_browser")
+            print('In get_browser')
         br = BasicNewsRecipe.get_browser(self)
         return br
 
     def parseRSS(self, index):
         if self.debugMessages is True:
-            print("\n\nStarting " + self.feedsets[index][0])
+            print('\n\nStarting ' + self.feedsets[index][0])
         articleList = []
         soup = self.index_to_soup(self.feedsets[index][1])
-        for div in soup.findAll("item"):
-            title = div.find("title").contents[0]
-            urlEl = div.find("originalLink")
+        for div in soup.findAll('item'):
+            title = div.find('title').contents[0]
+            urlEl = div.find('originalLink')
             if urlEl is None or len(urlEl.contents) == 0:
-                urlEl = div.find("originallink")
+                urlEl = div.find('originallink')
             if urlEl is None or len(urlEl.contents) == 0:
-                urlEl = div.find("link")
+                urlEl = div.find('link')
             if urlEl is None or len(urlEl.contents) == 0:
-                urlEl = div.find("guid")
+                urlEl = div.find('guid')
             if urlEl is None or title is None or len(urlEl.contents) == 0:
-                print("Error in feed " + self.feedsets[index][0])
+                print('Error in feed ' + self.feedsets[index][0])
                 print(div)
                 continue
             print(title)
             print(urlEl)
-            url = urlEl.contents[0].encode("utf-8")
-            description = div.find("description")
+            url = urlEl.contents[0].encode('utf-8')
+            description = div.find('description')
             if description is not None and description.contents is not None and len(description.contents) > 0:
                 description = description.contents[0]
             else:
-                description = "None"
-            pubDateEl = div.find("pubDate")
+                description = 'None'
+            pubDateEl = div.find('pubDate')
             if pubDateEl is None:
-                pubDateEl = div.find("pubdate")
+                pubDateEl = div.find('pubdate')
             if pubDateEl is None:
                 pubDate = time.strftime('%a, %d %b')
             else:
                 pubDate = pubDateEl.contents[0]
             if self.debugMessages is True:
-                print("Article")
+                print('Article')
                 print(title)
                 print(description)
                 print(pubDate)

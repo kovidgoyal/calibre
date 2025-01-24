@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GrantLand(BasicNewsRecipe):
-    title = u"Grantland"
+    title = u'Grantland'
     description = 'Writings on Sports & Pop Culture'
     language = 'en'
     __author__ = 'barty on mobileread.com forum'
@@ -51,7 +51,7 @@ class GrantLand(BasicNewsRecipe):
             self.log('Reading category:', cat_name)
             articles = []
 
-            page = "%s/%s" % (self.INDEX, tag)
+            page = '%s/%s' % (self.INDEX, tag)
             soup = self.index_to_soup(page)
 
             main = soup.find('div', id='col-main')

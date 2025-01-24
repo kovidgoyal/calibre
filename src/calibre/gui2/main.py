@@ -92,7 +92,7 @@ def find_portable_library():
 
     if len(lib) > 74:
         error_dialog(None, _('Path too long'),
-            _("Path to Calibre Portable (%s) "
+            _('Path to Calibre Portable (%s) '
                 'too long. It must be less than 59 characters.')%base, show=True)
         raise AbortInit()
 

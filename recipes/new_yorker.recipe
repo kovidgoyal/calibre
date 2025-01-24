@@ -16,7 +16,7 @@ def absurl(x):
 
 class NewYorker(BasicNewsRecipe):
 
-    title = "The New Yorker Magazine"
+    title = 'The New Yorker Magazine'
     description = "Articles of the week's New Yorker magazine"
     language = 'en_US'
     __author__ = 'Kovid Goyal'
@@ -99,9 +99,9 @@ class NewYorker(BasicNewsRecipe):
             self.log('Found cover:', self.cover_url)
             try:
                 # the src original resolution w_280 was too low, replace w_280 with w_560
-                cover_url_width_index = self.cover_url.find("w_")
+                cover_url_width_index = self.cover_url.find('w_')
                 old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
-                self.cover_url = self.cover_url.replace(old_width, "w_640")
+                self.cover_url = self.cover_url.replace(old_width, 'w_640')
             except Exception:
                 self.log('Failed enlarging cover img, using the original one')
 
@@ -126,7 +126,7 @@ class NewYorker(BasicNewsRecipe):
                 if rub:
                     desc = self.tag_to_string(rub) + ' | ' + desc
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         return feeds_dict.items()
 
 

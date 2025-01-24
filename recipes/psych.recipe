@@ -5,10 +5,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 def absurl(url):
-    if url.startswith("//"):
-        return "https:" + url
-    if url.startswith("/"):
-        return "https://www.psychologytoday.com" + url
+    if url.startswith('//'):
+        return 'https:' + url
+    if url.startswith('/'):
+        return 'https://www.psychologytoday.com' + url
     return url
 
 

@@ -87,7 +87,7 @@ class HAL:
                 time.sleep(1)
                 loops += 1
                 if loops > 100:
-                    raise Exception("ERROR: Timeout waiting for mount to complete")
+                    raise Exception('ERROR: Timeout waiting for mount to complete')
         return self.prop(vol['dev'], 'volume.mount_point')
 
     def mount_volumes(self, volumes):
@@ -106,19 +106,19 @@ class HAL:
             # Mount Point becomes Mount Path
             mp += '/'
             if DEBUG:
-                print("FBSD:\tmounted", vol['label'], "on", mp)
+                print('FBSD:\tmounted', vol['label'], 'on', mp)
             if mtd == 0:
                 ans['_main_prefix'], ans['_main_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:\tmain = ", mp)
+                    print('FBSD:\tmain = ', mp)
             elif mtd == 1:
                 ans['_card_a_prefix'], ans['_card_a_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:\tcard a = ", mp)
+                    print('FBSD:\tcard a = ', mp)
             elif mtd == 2:
                 ans['_card_b_prefix'], ans['_card_b_vol'] = mp, vol['vol']
                 if DEBUG:
-                    print("FBSD:\tcard b = ", mp)
+                    print('FBSD:\tcard b = ', mp)
                 break
             mtd += 1
 

@@ -13,7 +13,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a L{MetaInfo} object """
+    ''' Return metadata as a L{MetaInfo} object '''
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     snbFile = SNBFile()
 

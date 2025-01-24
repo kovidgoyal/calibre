@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LeGorafi(BasicNewsRecipe):
     title = u'Le GORAFI.fr'
     __author__ = 'Malah, LAntoine'
-    description = u'Depuis 1826, toute l\'information de sources contradictoires'
+    description = u"Depuis 1826, toute l'information de sources contradictoires"
     oldest_article = 7
     language = 'fr'
     max_articles_per_feed = 100
@@ -54,7 +54,7 @@ class LeGorafi(BasicNewsRecipe):
                     soup = self.index_to_soup(article.url)
                     img = soup.select_one('#mvp-post-feat-img img')
                     return img['data-lazy-src']
-        print("No cover found")
+        print('No cover found')
         return None
 
     def parse_feeds(self):

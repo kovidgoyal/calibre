@@ -567,8 +567,8 @@ def dump_dict(cats):
             skipkeys=True)
 
 XPATH_NS = {
-    'dc': "http://purl.org/dc/elements/1.1/",
-    'opf': "http://www.idpf.org/2007/opf",
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'opf': 'http://www.idpf.org/2007/opf',
     're' : 'http://exslt.org/regular-expressions'
 }
 XPath = functools.partial(etree.XPath, namespaces=XPATH_NS)
@@ -578,9 +578,9 @@ class OPF:  # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
     NAMESPACES       = {
-                        None: "http://www.idpf.org/2007/opf",
-                        'dc': "http://purl.org/dc/elements/1.1/",
-                        'opf': "http://www.idpf.org/2007/opf",
+                        None: 'http://www.idpf.org/2007/opf',
+                        'dc': 'http://purl.org/dc/elements/1.1/',
+                        'opf': 'http://www.idpf.org/2007/opf',
                        }
     META             = '{%s}meta' % NAMESPACES['opf']
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
@@ -1841,7 +1841,7 @@ def suite():
 
         def testWriting(self):
             for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
-                        ('author_sort', "Kitchen"), ('tags', ['Three']),
+                        ('author_sort', 'Kitchen'), ('tags', ['Three']),
                         ('isbn', 'a'), ('rating', 3), ('series_index', 1),
                         ('title_sort', 'ts')]:
                 setattr(self.opf, *test)

@@ -22,11 +22,11 @@ def _clean(s):
 
 
 def _detag(tag):
-    ans = ""
+    ans = ''
     if tag is None:
         return ans
     for elem in tag:
-        if hasattr(elem, "contents"):
+        if hasattr(elem, 'contents'):
             ans += _detag(elem)
         else:
             ans += _clean(elem)
@@ -119,7 +119,7 @@ def _get_cover(soup, rdr):
         try:
             ans = rdr.GetFile(ans)
         except:
-            ans = rdr.root + "/" + ans
+            ans = rdr.root + '/' + ans
             try:
                 ans = rdr.GetFile(ans)
             except:

@@ -18,7 +18,7 @@ from calibre.utils.zipfile import ZipFile
 
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a L{MetaInfo} object """
+    ''' Return metadata as a L{MetaInfo} object '''
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
 

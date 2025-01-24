@@ -198,7 +198,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query.append('author2:"%s"' % str(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
             query.append(str(self.search_edit.text()))
-        query = " ".join(query)
+        query = ' '.join(query)
         if not query.strip():
             error_dialog(self, _('No query'),
                         _('You must enter a title, author or keyword to'
@@ -385,7 +385,7 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.results_view.model().add_result(res, store_plugin)
 
         if not self.search_pool.threads_running() and not self.results_view.model().has_results():
-            info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
+            info_dialog(self, _('No matches'), _("Couldn't find any books matching your query."), show=True, show_copy_button=False)
 
     def update_book_total(self, total):
         self.total.setText('%s' % total)

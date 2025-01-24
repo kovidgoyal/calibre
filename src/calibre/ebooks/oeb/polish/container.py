@@ -163,11 +163,11 @@ class ContainerBase:  # {{{
         return adjust_mime_for_epub(filename=name, opf_version=self.opf_version_parsed)
 
     def decode(self, data, normalize_to_nfc=True):
-        """
+        '''
         Automatically decode ``data`` into a ``unicode`` object.
 
         :param normalize_to_nfc: Normalize returned unicode to the NFC normal form as is required by both the EPUB and AZW3 formats.
-        """
+        '''
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
         if isinstance(data, str):
@@ -911,12 +911,12 @@ class Container(ContainerBase):  # {{{
         metadata = self.opf_xpath('//opf:metadata')[0]
         total_duration = 0
         for item_id, duration in (duration_map or {}).items():
-            meta = metadata.makeelement(OPF('meta'), property="media:duration", refines="#" + item_id)
+            meta = metadata.makeelement(OPF('meta'), property='media:duration', refines='#' + item_id)
             meta.text = seconds_to_timestamp(duration)
             self.insert_into_xml(metadata, meta)
             total_duration += duration
         if duration_map:
-            meta = metadata.makeelement(OPF('meta'), property="media:duration")
+            meta = metadata.makeelement(OPF('meta'), property='media:duration')
             meta.text = seconds_to_timestamp(total_duration)
             self.insert_into_xml(metadata, meta)
 

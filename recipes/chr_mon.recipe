@@ -24,7 +24,7 @@ class CSMonitor(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
     masthead_url = 'http://www.csmonitor.com/extension/csm_base/design/csm_design/images/csmlogo_179x46.gif'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,Tahoma,Verdana,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                                .head {font-family: Georgia,"Times New Roman",Times,serif}
@@ -32,7 +32,7 @@ class CSMonitor(BasicNewsRecipe):
                                .hide{display: none}
                                .sLoc{font-weight: bold}
                                ul{list-style-type: none}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

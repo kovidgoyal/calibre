@@ -26,11 +26,11 @@ class AsianReviewOfBooks(BasicNewsRecipe):
     publication_type = 'magazine'
     auto_cleanup = True
     masthead_url = 'https://i2.wp.com/asianreviewofbooks.com/content/wp-content/uploads/2016/09/ARBwidelogo.png'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: "Droid Serif", serif}
                                .entry-title {font-family: "Playfair Display", serif}
                                img {display: block}
-                            """
+                            '''
 
     recipe_specific_options = {
         'days': {

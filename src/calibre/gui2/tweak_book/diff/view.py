@@ -531,7 +531,7 @@ class DiffSplit(QSplitter):  # {{{
 
         self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self, show_open_in_editor=show_open_in_editor)
         self.addWidget(self.left), self.addWidget(self.right)
-        self.split_words = re.compile(r"\w+|\W", re.UNICODE)
+        self.split_words = re.compile(r'\w+|\W', re.UNICODE)
         self.clear()
 
     def createHandle(self):

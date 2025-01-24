@@ -55,7 +55,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
         try:
             s.author = etree.tostring(next(CSSSelect('span.subtitle', li)), method='text', encoding='unicode').strip()
         except StopIteration:
-            s.author = ""
+            s.author = ''
         for img in CSSSelect('img.cover-thumb', li):
             s.cover_url = absurl(img.get('src'))
             break

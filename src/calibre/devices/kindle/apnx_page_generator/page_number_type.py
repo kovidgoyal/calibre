@@ -6,6 +6,6 @@ import enum
 
 
 class PageNumberTypes(enum.Enum):
-    Arabic = "a"
-    Roman = "r"
-    Custom = "c"
+    Arabic = 'a'
+    Roman = 'r'
+    Custom = 'c'

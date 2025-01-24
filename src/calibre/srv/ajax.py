@@ -34,11 +34,11 @@ def get_pagination(query, num=100, offset=0):
     try:
         num = int(query.get('num', num))
     except:
-        raise HTTPNotFound("Invalid num")
+        raise HTTPNotFound('Invalid num')
     try:
         offset = int(query.get('offset', offset))
     except:
-        raise HTTPNotFound("Invalid offset")
+        raise HTTPNotFound('Invalid offset')
     return num, offset
 
 

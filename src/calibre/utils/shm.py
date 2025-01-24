@@ -19,7 +19,7 @@ else:
 
 
 def make_filename(prefix: str) -> str:
-    "Create a random filename for the shared memory object."
+    'Create a random filename for the shared memory object.'
     # number of random bytes to use for name. Use a largeish value
     # to make double unlink safe.
     if not iswindows and not prefix.startswith('/'):
@@ -202,8 +202,8 @@ class SharedMemory:
         return f'{self.__class__.__name__}({self.name!r}, size={self.size})'
 
     def close(self) -> None:
-        """Closes access to the shared memory from this instance but does
-        not destroy the shared memory block."""
+        '''Closes access to the shared memory from this instance but does
+        not destroy the shared memory block.'''
         if self._mmap is not None:
             self._mmap.close()
             self._mmap = None
@@ -213,11 +213,11 @@ class SharedMemory:
         self.unlink()
 
     def unlink(self) -> None:
-        """Requests that the underlying shared memory block be destroyed.
+        '''Requests that the underlying shared memory block be destroyed.
 
         In order to ensure proper cleanup of resources, unlink should be
         called once (and only once) across all processes which have access
-        to the shared memory block."""
+        to the shared memory block.'''
         if self._name:
             if not iswindows:
                 try:

@@ -20,13 +20,13 @@ class Variety(BasicNewsRecipe):
     category = 'Entertainment Industry News, Daily Variety, Movie Reviews, TV, Awards, Oscars, Cannes, Box Office, Hollywood'
     language = 'en'
     masthead_url = 'http://images1.variety.com/graphics/variety/Variety_logo_green_tm.gif'
-    extra_css              = """
+    extra_css              = '''
         body{font-family: Arial,Helvetica,sans-serif; font-size: 1.275em}
         .date{font-size: small; border: 1px dotted rgb(204, 204, 204); font-style: italic; color: rgb(102, 102, 102); margin: 5px 0px; padding: 0.5em;}
                                 .author{margin: 5px 0px 5px 20px; padding: 0.5em; background: none repeat scroll 0% 0% rgb(247, 247, 247);}
                                 .art h2{color: rgb(153, 0, 0); font-size: 1.275em; font-weight: bold;}
                                 img{margin-bottom: 1em}
-                             """
+                             '''
 
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher

@@ -40,7 +40,7 @@ class TheEconomicTimes(BasicNewsRecipe):
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
@@ -81,7 +81,7 @@ class TheEconomicTimes(BasicNewsRecipe):
             secname = re.sub(r'[0-9]', '', sec)
             self.log(secname)
             articles = []
-            for h3 in section.findAll(("h1", "h3", "h4", "h5")):
+            for h3 in section.findAll(('h1', 'h3', 'h4', 'h5')):
                 span = h3.find(
                     'span',
                     href=lambda x: x and x.startswith('https://economictimes.indiatimes.com/epaper/'),
@@ -102,7 +102,7 @@ class TheEconomicTimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for image in soup.findAll('img', attrs={'src': True}):
-            image['src'] = image['src'].replace("width-300", "width-640")
+            image['src'] = image['src'].replace('width-300', 'width-640')
         for img in soup.findAll('img', attrs={'data-original': True}):
             img['src'] = img['data-original']
         return soup

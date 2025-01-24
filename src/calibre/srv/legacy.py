@@ -201,18 +201,18 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
     body.append(E.div(
         E.a(_('Switch to the full interface (non-mobile interface)'),
             href=ctx.url_for(None),
-            style="text-decoration: none; color: blue",
+            style='text-decoration: none; color: blue',
             title=_('The full interface gives you many more features, '
                     'but it may not work well on a small screen')),
-        style="text-align:center")
+        style='text-align:center')
     )
     return E.html(
         E.head(
             E.title(__appname__ + ' Library'),
             E.link(rel='icon', href=ctx.url_for('/favicon.png'), type='image/png'),
             E.link(rel='stylesheet', type='text/css', href=ctx.url_for('/static', what='mobile.css')),
-            E.link(rel='apple-touch-icon', href=ctx.url_for("/static", what='calibre.png')),
-            E.meta(name="robots", content="noindex")
+            E.link(rel='apple-touch-icon', href=ctx.url_for('/static', what='calibre.png')),
+            E.meta(name='robots', content='noindex')
         ),  # End head
         body
     )  # End html

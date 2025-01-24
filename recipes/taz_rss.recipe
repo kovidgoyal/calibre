@@ -47,7 +47,7 @@ class TazRSSRecipe(BasicNewsRecipe):
     no_stylesheets = True  # default value is False, but True makes process much faster
     keep_only_tags = [
         dict(name=['div'], attrs={
-             'class': re.compile(r".*\bsect_article\b.*")})
+             'class': re.compile(r'.*\bsect_article\b.*')})
     ]
     remove_tags = [
         dict(name=['div'], attrs={'class': 'sectfoot'}),

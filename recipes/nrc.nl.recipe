@@ -39,7 +39,7 @@ class NRC(BasicNewsRecipe):
         ),
         dict(name=['script', 'noscript', 'style']),
     ]
-    remove_attributes = ["class", "id", "name", "style"]
+    remove_attributes = ['class', 'id', 'name', 'style']
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
@@ -52,8 +52,8 @@ class NRC(BasicNewsRecipe):
     title_regexp = None
 
     @staticmethod
-    def _monthly_list_url(date, fmt="%Y/%m/"):
-        return "https://www.nrc.nl/de/data/NH/" + date.strftime(fmt)
+    def _monthly_list_url(date, fmt='%Y/%m/'):
+        return 'https://www.nrc.nl/de/data/NH/' + date.strftime(fmt)
 
     def _clean_article_title(self, title):
         if not title:
@@ -62,7 +62,7 @@ class NRC(BasicNewsRecipe):
             self.title_regexp = re.compile(
                 r'<span class="keyword">([^<]+)</span>\s*'
             )
-        return self.title_regexp.sub(r"\1 ", title)
+        return self.title_regexp.sub(r'\1 ', title)
 
     def parse_index(self):
         sections = []
@@ -88,43 +88,43 @@ class NRC(BasicNewsRecipe):
                 issues = json.loads(r.read())
                 if len(issues) > 0:
                     issue_date = datetime.datetime.strptime(
-                        issues[0]["published_at"], "%Y-%m-%dT%H:%M:%SZ"
+                        issues[0]['published_at'], '%Y-%m-%dT%H:%M:%SZ'
                     )
-                    issue_url = self._monthly_list_url(issue_date, "%Y/%m/%d/")
-                    self.frontpage = issues[0]["frontpage"]
+                    issue_url = self._monthly_list_url(issue_date, '%Y/%m/%d/')
+                    self.frontpage = issues[0]['frontpage']
                     break
         if issue_url is None:
             return []
         with closing(self.browser.open(Request(issue_url, None, headers))) as r:
             edition = json.loads(r.read())
         documents = {}
-        for headline in edition["paperheadlines"]:
-            item = headline["item"]
-            documents[headline["document_id"]] = dict(
-                url=item["full_url"],
-                headline=self._clean_article_title(item["headline"])
+        for headline in edition['paperheadlines']:
+            item = headline['item']
+            documents[headline['document_id']] = dict(
+                url=item['full_url'],
+                headline=self._clean_article_title(item['headline'])
             )
-        for section in edition["sections"]:
+        for section in edition['sections']:
             articles = []
-            for doc in section["document_ids"]:
+            for doc in section['document_ids']:
                 if doc not in documents:
                     self.log.warn('Document not found:', doc)
                     continue
                 articles.append(
                     dict(
-                        title=documents[doc]["headline"], url=documents[doc]["url"]
+                        title=documents[doc]['headline'], url=documents[doc]['url']
                     )
                 )
-            sections.append((section["name"], articles))
+            sections.append((section['name'], articles))
         return sections
 
     def preprocess_html(self, soup):
         for tag in soup():
             if tag.name == 'img':
                 if tag.has_attr('data-src-medium'):
-                    tag['src'] = tag['data-src-medium'].split("|")[0]
+                    tag['src'] = tag['data-src-medium'].split('|')[0]
                 elif tag.has_attr('data-src'):
-                    tag['src'] = tag['data-src'].split("|")[0]
+                    tag['src'] = tag['data-src'].split('|')[0]
                 if tag['src'].startswith('//'):
                     tag['src'] = 'https:' + tag['src']
                 elif tag['src'].startswith('/'):

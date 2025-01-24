@@ -36,7 +36,7 @@ class ElPaisBabelia(BasicNewsRecipe):
                     title = self.tag_to_string(post)
                     if str(post).find('class=') > 0:
                         klass = post['class']
-                        if klass != "":
+                        if klass != '':
                             self.log()
                             self.log('--> post:  ', post)
                             self.log('--> url:   ', url)

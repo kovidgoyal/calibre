@@ -13,7 +13,7 @@ __all__ = ['HTMLTOCAdder']
 DEFAULT_TITLE = __('Table of Contents')
 
 STYLE_CSS = {
-    'nested': """
+    'nested': '''
 .calibre_toc_header {
   text-align: center;
 }
@@ -27,9 +27,9 @@ STYLE_CSS = {
 .calibre_toc_block .calibre_toc_block .calibre_toc_block {
   margin-left: 3.6em;
 }
-""",
+''',
 
-    'centered': """
+    'centered': '''
 .calibre_toc_header {
   text-align: center;
 }
@@ -39,7 +39,7 @@ STYLE_CSS = {
 body > .calibre_toc_block {
   margin-top: 1.2em;
 }
-"""
+'''
     }
 
 

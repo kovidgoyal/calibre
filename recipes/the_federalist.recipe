@@ -23,10 +23,10 @@ class Federalist(BasicNewsRecipe):
     use_embedded_content = False
     remove_attributes = ['xmlns', 'lang', 'style', 'width', 'height']
 
-    extra_css = """
+    extra_css = '''
         .shortbio,.article-excerpt{font-style: italic}
         .article-author-details,.article-author-description,.article-meta-author,.article-meta-date,.article-thumbnail-caption{font-size: small}
-    """
+    '''
 
     keep_only_tags = [
         classes(

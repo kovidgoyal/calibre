@@ -43,7 +43,7 @@ class ALD(BasicNewsRecipe):
         # Extract a list of dates from the page.
         # Subset this out to the list of target dates for extraction.
         date_list = []
-        for div in soup.findAll('div', attrs={'id': "dayheader"}):
+        for div in soup.findAll('div', attrs={'id': 'dayheader'}):
             date_list.append(self.tag_to_string(div))
         date_list_clean = [re.sub(r'[^\w]', ' ', date) for date in date_list]
         date_list_bool = [
@@ -54,14 +54,14 @@ class ALD(BasicNewsRecipe):
 
         # Process each paragraph one by one.
         # Stop when the text of the previous div is not in the target date list.
-        for div in soup.findAll('div', attrs={'class': "mobile-front"}):
+        for div in soup.findAll('div', attrs={'class': 'mobile-front'}):
             for p in div.findAll('p'):
                 if self.tag_to_string(p.findPreviousSibling('div')) in compress_date:
                     if p.find('a'):
                         title = self.tag_to_string(p)
                         link = p.find('a')['href']
                         if self.tag_to_string(p.findPreviousSibling('h3')
-                                              ) == "Articles of Note":
+                                              ) == 'Articles of Note':
                             articles_note.append({
                                 'title': title,
                                 'url': link,
@@ -69,7 +69,7 @@ class ALD(BasicNewsRecipe):
                                 'date': ''
                             })
                         elif self.tag_to_string(p.findPreviousSibling('h3')
-                                                ) == "New Books":
+                                                ) == 'New Books':
                             new_books.append({
                                 'title': title,
                                 'url': link,

@@ -66,8 +66,8 @@ class Canvas(etree.XSLTExtension):
         div = etree.Element('div')
         div.set('id', input_node.get('objid', 'scuzzy'))
         div.set('class', 'image_page')
-        width = self.styles.to_num(block.get("xsize", None))
-        height = self.styles.to_num(block.get("ysize", None))
+        width = self.styles.to_num(block.get('xsize', None))
+        height = self.styles.to_num(block.get('ysize', None))
         img = div.makeelement('img')
         if width is not None:
             img.set('width', str(int(width)))
@@ -197,7 +197,7 @@ class TextBlock(etree.XSLTExtension):
             pattrib = dict(**p.attrib) if p.tag == 'Span' else {}
             for child in children:
                 p.remove(child)
-                if pattrib and child.tag == "Span":
+                if pattrib and child.tag == 'Span':
                     attrib = copy(pattrib)
                     attrib.update(child.attrib)
                     child.attrib.update(attrib)

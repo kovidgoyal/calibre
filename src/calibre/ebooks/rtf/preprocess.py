@@ -5,13 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Gerendi Sandor Attila'
 __docformat__ = 'restructuredtext en'
 
-"""
+'''
 RTF tokenizer and token parser. v.1.0 (1/17/2010)
 Author: Gerendi Sandor Attila
 
 At this point this will tokenize a RTF file then rebuild it from the tokens.
 In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compliant.
-"""
+'''
 
 
 class tokenDelimitatorStart():
@@ -96,10 +96,10 @@ class tokenBinN():
         self.separator = separator
 
     def toRTF(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
+        return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
     def __repr__(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
+        return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
 
 class token8bitChar():
@@ -253,7 +253,7 @@ class RtfTokenParser():
         result = []
         for token in self.tokens:
             result.append(token.toRTF())
-        return "".join(result)
+        return ''.join(result)
 
 
 class RtfTokenizer():
@@ -334,7 +334,7 @@ class RtfTokenizer():
                     controlWord = self.rtfData[tokenStart: tokenEnd]
                     if tokenEnd < i:
                         value = int(self.rtfData[tokenEnd: i])
-                        if isString(controlWord, "\\bin"):
+                        if isString(controlWord, '\\bin'):
                             i = i + value
                             self.tokens.append(tokenBinN(self.rtfData[tokenStart:i], separator))
                         else:
@@ -359,13 +359,13 @@ class RtfTokenizer():
         result = []
         for token in self.tokens:
             result.append(token.toRTF())
-        return "".join(result)
+        return ''.join(result)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
-        print("Usage %prog rtfFileToConvert")
+        print('Usage %prog rtfFileToConvert')
         sys.exit()
     with open(sys.argv[1], 'rb') as f:
         data = f.read()

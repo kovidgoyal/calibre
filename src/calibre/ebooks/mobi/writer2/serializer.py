@@ -223,7 +223,7 @@ class Serializer:
                 buf.write(b'<mbp:pagebreak />')
                 self.id_offsets[urlnormalize(href)] = buf.tell()
 
-            if tocref.klass == "periodical":
+            if tocref.klass == 'periodical':
                 buf.write(b'<div> <div height="1em"></div>')
             else:
                 t = tocref.title

@@ -1093,7 +1093,7 @@ class Cache:
                 # We can't clear the composite caches because a read lock is set.
                 # As a consequence the value of a composite column that calls
                 # virtual_libraries() might be wrong. Oh well. Log and keep running.
-                print('Couldn\'t get write lock after vls_for_books_cache was loaded', file=sys.stderr)
+                print("Couldn't get write lock after vls_for_books_cache was loaded", file=sys.stderr)
                 traceback.print_exc()
 
         if get_cover:

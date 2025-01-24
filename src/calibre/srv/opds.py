@@ -121,7 +121,7 @@ def html_to_lxml(raw):
     raw = '<div>%s</div>'%raw
     root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
     root = next(root.iterdescendants('div'))
-    root.set('xmlns', "http://www.w3.org/1999/xhtml")
+    root.set('xmlns', 'http://www.w3.org/1999/xhtml')
     raw = etree.tostring(root, encoding='unicode')
     try:
         return safe_xml_fromstring(raw, recover=False)
@@ -227,16 +227,16 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
             fmt = fmt.lower()
             mt = guess_type('a.'+fmt)[0]
             if mt:
-                link = E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition")
+                link = E.link(type=mt, href=get(what=fmt), rel='http://opds-spec.org/acquisition')
                 ffm = fm.get(fmt.upper())
                 if ffm:
                     link.set('length', str(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
-    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
-    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
-    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/image"))
-    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/image/thumbnail"))
+    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel='http://opds-spec.org/cover'))
+    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel='http://opds-spec.org/thumbnail'))
+    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel='http://opds-spec.org/image'))
+    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel='http://opds-spec.org/image/thumbnail'))
 
     return ans
 

@@ -39,7 +39,7 @@ def unsmarten(txt):
     txt = re.sub('&#214;|&Ouml;|Ö',     r'{O"}',  txt)  # O-umlaut
     txt = re.sub('&#215;|&times;|×',    r'{x}',   txt)  # dimension
     txt = re.sub('&#216;|&Oslash;|Ø',   r'{O/}',  txt)  # O-slash
-    txt = re.sub('&#217;|&Ugrave;|Ù',   r"{U`}",  txt)  # U-grave
+    txt = re.sub('&#217;|&Ugrave;|Ù',   r'{U`}',  txt)  # U-grave
     txt = re.sub('&#218;|&Uacute;|Ú',   r"{U'}",  txt)  # U-acute
     txt = re.sub('&#219;|&Ucirc;|Û',    r'{U^}',  txt)  # U-circumflex
     txt = re.sub('&#220;|&Uuml;|Ü',     r'{U"}',  txt)  # U-umlaut

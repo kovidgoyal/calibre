@@ -23,13 +23,13 @@ class Ugeskriftet(BasicNewsRecipe):
         ]})
         ]
     remove_tags = [dict(name='img')]
-    extra_css = """
+    extra_css = '''
         h1{font-weight: bold; font-size: large;}
         b{font-weight: bold; font-size: medium;}
         h2{font-weight: bold; font-size: large;}
         h3{font-weight: bold; font-size: large;}
         h4{font-weight: bold; font-size: large;}
-    """
+    '''
 
     feeds          = [
         ('Ugeskriftet for læger', 'https://ugeskriftet.dk/rss/forside'),

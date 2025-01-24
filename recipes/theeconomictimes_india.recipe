@@ -54,7 +54,7 @@ class TheEconomicTimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for image in soup.findAll('img', attrs={'src': True}):
-            image['src'] = image['src'].replace("width-300", "width-640")
+            image['src'] = image['src'].replace('width-300', 'width-640')
         for img in soup.findAll('img', attrs={'data-original': True}):
             img['src'] = img['data-original'].replace('photo', 'thumb').replace('quality-100', 'quality-100,width-600,resizemode-4')
         return soup

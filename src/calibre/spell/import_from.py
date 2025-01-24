@@ -21,8 +21,8 @@ from calibre.utils.zipfile import ZipFile
 from polyglot.builtins import iteritems
 
 NS_MAP = {
-    'oor': "http://openoffice.org/2001/registry",
-    'xs': "http://www.w3.org/2001/XMLSchema",
+    'oor': 'http://openoffice.org/2001/registry',
+    'xs': 'http://www.w3.org/2001/XMLSchema',
     'manifest': 'http://openoffice.org/2001/manifest',
 }
 

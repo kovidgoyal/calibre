@@ -219,31 +219,31 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # We remove vast swathes of HTML which is not part of the articles.
     remove_tags_before =  [
-        {'name': 'div', 'class': "container"},
-        {'name': 'div', 'class': "content-wrapper"},
-        {'name': 'div', 'class': "only-in-the-magazine"},
+        {'name': 'div', 'class': 'container'},
+        {'name': 'div', 'class': 'content-wrapper'},
+        {'name': 'div', 'class': 'only-in-the-magazine'},
     ]
     remove_tags_after = [
-        {'name': 'div', 'class': "container"},
-        {'name': 'div', 'class': "content-wrapper"},
-        {'name': 'h2', 'string': "Find out more about The Oldie"},
+        {'name': 'div', 'class': 'container'},
+        {'name': 'div', 'class': 'content-wrapper'},
+        {'name': 'h2', 'string': 'Find out more about The Oldie'},
     ]
     # Remove non-sibling content
     remove_tags = [
-        {'name': 'nav', 'class': "categories"},
-        {'name': 'div', 'class': "internal-placeholders"},
-        {'name': 'div', 'class': "leaderboard"},
-        {'name': 'div', 'class': "share"},
-        {'name': 'div', 'class': "most-popular"},
-        {'name': 'div', 'class': "article-convert"},
+        {'name': 'nav', 'class': 'categories'},
+        {'name': 'div', 'class': 'internal-placeholders'},
+        {'name': 'div', 'class': 'leaderboard'},
+        {'name': 'div', 'class': 'share'},
+        {'name': 'div', 'class': 'most-popular'},
+        {'name': 'div', 'class': 'article-convert'},
         # {'name': 'p', 'class': "article-convert"},
         # {'name': 'p', 'class': "meta"},
         {'name': 'hr'},
-        {'name': 'a', 'class': "view-full-screen"},
-        {'name': 'div', 'class': "image-counter"},
-        {'name': 'h2', 'string': "Find out more about The Oldie"},
-        {'name': 'a', 'href': re.compile(r"^https?:\/\/issuu.com\/")},
-        {'name': 'img', 'src': re.compile(r"\/assets\/images\/icons\/icon-")},
+        {'name': 'a', 'class': 'view-full-screen'},
+        {'name': 'div', 'class': 'image-counter'},
+        {'name': 'h2', 'string': 'Find out more about The Oldie'},
+        {'name': 'a', 'href': re.compile(r'^https?:\/\/issuu.com\/')},
+        {'name': 'img', 'src': re.compile(r'\/assets\/images\/icons\/icon-')},
     ]
 
     # The following extra css is to tweak the formatting of various elements of various article pages.

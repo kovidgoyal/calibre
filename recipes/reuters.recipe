@@ -33,11 +33,11 @@ class Reuters(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'url', 'title'}
 
-    extra_css = """
+    extra_css = '''
         .label, .auth { font-size:small; color:#202020; }
         .figc { font-size:small; }
         img {display:block; margin:0 auto;}
-    """
+    '''
 
     recipe_specific_options = {
         'days': {

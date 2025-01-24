@@ -30,7 +30,7 @@ class BillOReilly(BasicNewsRecipe):
             feeds.append(("O'Reilly Factor", articles_shows))
 
         if articles_columns:
-            feeds.append(("Newspaper Column", articles_columns))
+            feeds.append(('Newspaper Column', articles_columns))
 
         return feeds
 

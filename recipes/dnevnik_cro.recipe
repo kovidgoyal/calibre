@@ -23,7 +23,7 @@ def new_tag(soup, name, attrs=()):
 class DnevnikCro(BasicNewsRecipe):
     title = 'Dnevnik - Hr'
     __author__ = 'Darko Miletic'
-    description = "Vijesti iz Hrvatske"
+    description = 'Vijesti iz Hrvatske'
     publisher = 'Dnevnik.hr'
     category = 'news, politics, Croatia'
     oldest_article = 2
@@ -67,9 +67,9 @@ class DnevnikCro(BasicNewsRecipe):
                 del item[attrib]
 
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=UTF-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         return self.adeify_images(soup)

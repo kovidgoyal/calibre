@@ -574,10 +574,10 @@ class CatalogPlugin(Plugin):  # {{{
             if requested_fields - all_fields:
                 from calibre.library import current_library_name
                 invalid_fields = sorted(list(requested_fields - all_fields))
-                print("invalid --fields specified: %s" % ', '.join(invalid_fields))
+                print('invalid --fields specified: %s' % ', '.join(invalid_fields))
                 print("available fields in '%s': %s" %
                       (current_library_name(), ', '.join(sorted(list(all_fields)))))
-                raise ValueError("unable to generate catalog with specified fields")
+                raise ValueError('unable to generate catalog with specified fields')
 
             fields = [x for x in of if x in all_fields]
         else:
@@ -600,7 +600,7 @@ class CatalogPlugin(Plugin):  # {{{
         from calibre.ptempfile import PersistentTemporaryDirectory
 
         if type(self) not in builtin_plugins and self.name not in config['disabled_plugins']:
-            files_to_copy = [f"{self.name.lower()}.{ext}" for ext in ["ui","py"]]
+            files_to_copy = [f'{self.name.lower()}.{ext}' for ext in ['ui','py']]
             resources = zipfile.ZipFile(self.plugin_path,'r')
 
             if self.resources_path is None:
@@ -610,7 +610,7 @@ class CatalogPlugin(Plugin):  # {{{
                 try:
                     resources.extract(file, self.resources_path)
                 except:
-                    print(f" customize:__init__.initialize(): {file} not found in {os.path.basename(self.plugin_path)}")
+                    print(f' customize:__init__.initialize(): {file} not found in {os.path.basename(self.plugin_path)}')
                     continue
             resources.close()
 

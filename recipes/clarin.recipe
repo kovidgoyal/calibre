@@ -44,7 +44,7 @@ class Clarin(BasicNewsRecipe):
     # To get all the data (images)
     auto_cleanup = False
 
-    extra_css = """
+    extra_css = '''
       h1#title {
         line-height: 1em;
         margin: 0 0 .5em 0;
@@ -64,7 +64,7 @@ class Clarin(BasicNewsRecipe):
         font-size: .9em;
         margin-bottom: .5em;
       }
-    """
+    '''
 
     conversion_options = {
       'comment': description, 'tags': category, 'publisher': publisher, 'language': language

@@ -17,8 +17,8 @@ class CommentsDialog(QDialog):
 
     def __init__(self, parent, text, column_name=None):
         QDialog.__init__(self, parent)
-        self.setObjectName("CommentsDialog")
-        self.setWindowTitle(_("Edit comments"))
+        self.setObjectName('CommentsDialog')
+        self.setWindowTitle(_('Edit comments'))
         self.verticalLayout = l = QVBoxLayout(self)
         self.textbox = tb = Editor(self)
         self.buttonBox = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)

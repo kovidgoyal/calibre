@@ -342,17 +342,17 @@ class BasicRecipe(QWidget):  # {{{
 
         self.oldest_article = o = QSpinBox(self)
         o.setSuffix(' ' + _('day(s)'))
-        o.setToolTip(_("The oldest article to download"))
+        o.setToolTip(_('The oldest article to download'))
         o.setMinimum(1), o.setMaximum(36500)
         l.addRow(_('&Oldest article:'), o)
 
         self.max_articles = m = QSpinBox(self)
         m.setMinimum(5), m.setMaximum(100)
-        m.setToolTip(_("Maximum number of articles to download per feed."))
-        l.addRow(_("&Max. number of articles per feed:"), m)
+        m.setToolTip(_('Maximum number of articles to download per feed.'))
+        l.addRow(_('&Max. number of articles per feed:'), m)
 
         self.fg = fg = QGroupBox(self)
-        fg.setTitle(_("Feeds in recipe"))
+        fg.setTitle(_('Feeds in recipe'))
         self.feeds = f = QListWidget(self)
         fg.h = QHBoxLayout(fg)
         fg.h.addWidget(f)
@@ -519,7 +519,7 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
 
     def __init__(self, recipe_model, parent=None):
         self.recipe_model = recipe_model
-        Dialog.__init__(self, _("Choose builtin recipe"), 'choose-builtin-recipe', parent=parent)
+        Dialog.__init__(self, _('Choose builtin recipe'), 'choose-builtin-recipe', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -537,7 +537,7 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
         self.recipe_model.searched.connect(self.search.search_done, type=Qt.ConnectionType.QueuedConnection)
         self.recipe_model.searched.connect(self.search_done)
         self.go_button = b = QToolButton(self)
-        b.setText(_("Go"))
+        b.setText(_('Go'))
         b.clicked.connect(self.search.do_search)
         h = QHBoxLayout()
         h.addWidget(s), h.addWidget(b)
@@ -572,7 +572,7 @@ class CustomRecipes(Dialog):
 
     def __init__(self, recipe_model, parent=None):
         self.recipe_model = recipe_model
-        Dialog.__init__(self, _("Add custom news source"), 'add-custom-news-source', parent=parent)
+        Dialog.__init__(self, _('Add custom news source'), 'add-custom-news-source', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -598,9 +598,9 @@ class CustomRecipes(Dialog):
         la('document_open.png', _('Load recipe from &file'), _('Load a recipe from a file'), self.load_recipe)
         la('mimetypes/dir.png', _('&Show recipe files'), _('Show the folder containing all recipe files'), self.show_recipe_files)
         la('mimetypes/opml.png', _('Import &OPML'), _(
-            "Import a collection of RSS feeds in OPML format\n"
-            "Many RSS readers can export their subscribed RSS feeds\n"
-            "in OPML format"), self.import_opml)
+            'Import a collection of RSS feeds in OPML format\n'
+            'Many RSS readers can export their subscribed RSS feeds\n'
+            'in OPML format'), self.import_opml)
 
         s.currentChanged.connect(self.update_button_box)
         self.update_button_box()

@@ -576,8 +576,8 @@ class _Parser:
         while not self.token_op_is(')'):
             a = self.top_expr()
             if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
-                self.error(_("Parameters to a function must be "
-                             "variables or assignments"))
+                self.error(_('Parameters to a function must be '
+                             'variables or assignments'))
             if a.node_type == Node.NODE_RVALUE:
                 a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))
             arguments.append(a)
@@ -961,7 +961,7 @@ class FormatterFuncsCaller:
 
             return call
 
-        e = AttributeError(_("No function named {!r} exists").format(name))
+        e = AttributeError(_('No function named {!r} exists').format(name))
         e.is_internal = True
         raise e
 
@@ -1074,20 +1074,20 @@ class _Interpreter:
             try:
                 start_val = int(self.float_deal_with_none(self.expr(prog.start_expr)))
             except ValueError:
-                self.error(_("{0}: {1} must be an integer").format('for', 'start'), line_number)
+                self.error(_('{0}: {1} must be an integer').format('for', 'start'), line_number)
             try:
                 stop_val = int(self.float_deal_with_none(self.expr(prog.stop_expr)))
             except ValueError:
-                self.error(_("{0}: {1} must be an integer").format('for', 'stop'), line_number)
+                self.error(_('{0}: {1} must be an integer').format('for', 'stop'), line_number)
             try:
                 step_val = int(self.float_deal_with_none(self.expr(prog.step_expr)))
             except ValueError:
-                self.error(_("{0}: {1} must be an integer").format('for', 'step'), line_number)
+                self.error(_('{0}: {1} must be an integer').format('for', 'step'), line_number)
             try:
                 limit_val = (1000 if prog.limit_expr is None else
                          int(self.float_deal_with_none(self.expr(prog.limit_expr))))
             except ValueError:
-                self.error(_("{0}: {1} must be an integer").format('for', 'limit'), line_number)
+                self.error(_('{0}: {1} must be an integer').format('for', 'limit'), line_number)
             var = prog.variable
             if (self.break_reporter):
                 self.break_reporter("'for': start value", str(start_val), line_number)
@@ -1099,7 +1099,7 @@ class _Interpreter:
                 range_gen = range(start_val, stop_val, step_val)
                 if len(range_gen) > limit_val:
                     self.error(
-                        _("{0}: the range length ({1}) is larger than the limit ({2})").format(
+                        _('{0}: the range length ({1}) is larger than the limit ({2})').format(
                             'for', str(len(range_gen)), str(limit_val)), line_number)
                 for x in (str(x) for x in range_gen):
                     try:
@@ -1187,8 +1187,8 @@ class _Interpreter:
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         line_number, argument_list, block  = self.local_functions[prog.name].attributes_to_tuple()
         if len(prog.arguments) > len(argument_list):
-            self.error(_("Function {0}: argument count mismatch -- "
-                         "{1} given, at most {2} required").format(prog.name,
+            self.error(_('Function {0}: argument count mismatch -- '
+                         '{1} given, at most {2} required').format(prog.name,
                                                           len(prog.arguments),
                                                           len(argument_list)),
                        prog.line_number)
@@ -1330,15 +1330,15 @@ class _Interpreter:
         for i in range(0, len(prog.expression_list)-1, 2):
             tst = self.expr(prog.expression_list[i])
             if self.break_reporter:
-                self.break_reporter("switch_if(): test expr", tst, prog.line_number)
+                self.break_reporter('switch_if(): test expr', tst, prog.line_number)
             if tst:
                 res = self.expr(prog.expression_list[i+1])
                 if self.break_reporter:
-                    self.break_reporter("switch_if(): value expr", res, prog.line_number)
+                    self.break_reporter('switch_if(): value expr', res, prog.line_number)
                 return res
         res = self.expr(prog.expression_list[-1])
         if (self.break_reporter):
-            self.break_reporter("switch_if(): default expr", res, prog.line_number)
+            self.break_reporter('switch_if(): default expr', res, prog.line_number)
         return res
 
     def do_node_strcat(self, prog):
@@ -1387,14 +1387,14 @@ class _Interpreter:
         return res
 
     INFIX_STRING_COMPARE_OPS = {
-        "==": lambda x, y: strcmp(x, y) == 0,
-        "!=": lambda x, y: strcmp(x, y) != 0,
-        "<": lambda x, y: strcmp(x, y) < 0,
-        "<=": lambda x, y: strcmp(x, y) <= 0,
-        ">": lambda x, y: strcmp(x, y) > 0,
-        ">=": lambda x, y: strcmp(x, y) >= 0,
-        "in": lambda x, y: re.search(x, y, flags=re.I),
-        "inlist": lambda x, y: list(filter(partial(re.search, x, flags=re.I),
+        '==': lambda x, y: strcmp(x, y) == 0,
+        '!=': lambda x, y: strcmp(x, y) != 0,
+        '<': lambda x, y: strcmp(x, y) < 0,
+        '<=': lambda x, y: strcmp(x, y) <= 0,
+        '>': lambda x, y: strcmp(x, y) > 0,
+        '>=': lambda x, y: strcmp(x, y) >= 0,
+        'in': lambda x, y: re.search(x, y, flags=re.I),
+        'inlist': lambda x, y: list(filter(partial(re.search, x, flags=re.I),
                                            [v.strip() for v in y.split(',') if v.strip()]))
         }
 
@@ -1434,12 +1434,12 @@ class _Interpreter:
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
     INFIX_NUMERIC_COMPARE_OPS = {
-        "==#": lambda x, y: x == y,
-        "!=#": lambda x, y: x != y,
-        "<#": lambda x, y: x < y,
-        "<=#": lambda x, y: x <= y,
-        ">#": lambda x, y: x > y,
-        ">=#": lambda x, y: x >= y,
+        '==#': lambda x, y: x == y,
+        '!=#': lambda x, y: x != y,
+        '<#': lambda x, y: x < y,
+        '<=#': lambda x, y: x <= y,
+        '>#': lambda x, y: x > y,
+        '>=#': lambda x, y: x >= y,
         }
 
     def float_deal_with_none(self, v):
@@ -1804,7 +1804,7 @@ class TemplateFormatter(string.Formatter):
             raise ValueError(
                 _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text))
         except KeyError:
-            raise ValueError(_("The {0} function is not defined in the template").format('evaluate'))
+            raise ValueError(_('The {0} function is not defined in the template').format('evaluate'))
 
     # ################# Override parent classes methods #####################
 
@@ -1823,13 +1823,13 @@ class TemplateFormatter(string.Formatter):
 
         # Handle functions
         # First see if we have a functional-style expression
-        if fmt.startswith('\''):
+        if fmt.startswith("'"):
             p = 0
         else:
-            p = fmt.find(':\'')
+            p = fmt.find(":'")
             if p >= 0:
                 p += 1
-        if p >= 0 and fmt[-1] == '\'':
+        if p >= 0 and fmt[-1] == "'":
             val = self._eval_program(val, fmt[p+1:-1], None, self.global_vars, None)
             colon = fmt[0:p].find(':')
             if colon < 0:

@@ -415,7 +415,7 @@ class Config(ConfigInterface):
             try:
                 src = src_bytes.decode('utf-8')
             except ValueError:
-                print("Failed to parse", path)
+                print('Failed to parse', path)
                 traceback.print_exc()
         if not src:
             path = path.rpartition('.')[0]
@@ -594,7 +594,7 @@ def create_global_prefs(conf_obj=None):
                    'can cause problems with text that starts with numbers and is '
                    'a little slower.'))
 
-    c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
+    c.add_opt('migrated', default=False, help="For Internal use. Don't modify.")
     return c
 
 

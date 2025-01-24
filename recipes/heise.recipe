@@ -68,4 +68,4 @@ class heiseDe(BasicNewsRecipe):
     ]
 
     def get_article_url(self, article):
-        return article.link + "&view=print"
+        return article.link + '&view=print'

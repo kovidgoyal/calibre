@@ -7,7 +7,7 @@ class AdvancedUserRecipe1716109928(BasicNewsRecipe):
     title          = 'Screen Rant'
     description = (
             'ScreenRant is a digital publication. ScreenRant has grown into one of the'
-            " world’s most prominent entertainment news sources. ScreenRant don’t just break and report news;"
+            ' world’s most prominent entertainment news sources. ScreenRant don’t just break and report news;'
             ' they analyze and editorialize it with unique insight and inside information.')
     __author__ = 'Spicy Poison'
     encoding = 'utf-8'

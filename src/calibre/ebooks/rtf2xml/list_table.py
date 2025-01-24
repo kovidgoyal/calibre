@@ -13,10 +13,10 @@
 
 
 class ListTable:
-    """
+    '''
     Parse the list table line. Make a string. Form a dictionary.
     Return the string and the dictionary.
-    """
+    '''
 
     def __init__(
                 self,
@@ -68,23 +68,23 @@ class ListTable:
             'cw<ci<bold______'  :       'bold',
             'cw<ss<para-style'  :       'paragraph-style-name',
         }
-        """
+        '''
         all_lists =
         [{anything here?}
             [{list-templateid = ""}
                 [{level-indent}],[{level-indent}]
             ]
         ],
-        """
+        '''
 
     def __parse_lines(self, line):
-        """
+        '''
         Required : line --line to parse
         Returns:  nothing
         Logic:
             Split the lines into a list by a new line. Process the line
             according to the state.
-        """
+        '''
         lines = line.split('\n')
         self.__ob_count = 0
         self.__ob_group = 0
@@ -104,18 +104,18 @@ class ListTable:
         # self.__add_to_final_line()
 
     def __default_func(self, line):
-        """
+        '''
         Requires: line --line to process
         Return: nothing
         Logic:
             This state is used at the start and end of a list. Look for an
             opening bracket, which marks the change of state.
-        """
+        '''
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
 
     def __found_list_func(self, line):
-        """
+        '''
         Requires: line -- line to process
         Returns: nothing
         Logic:
@@ -127,7 +127,7 @@ class ListTable:
             "list-id" and the value of an empty list. Later, this empty list
             will be filled with all the ids for which the formatting is valid.
             Append the temporary dictionary to the new list.
-        """
+        '''
         self.__state = 'list'
         self.__list_ob_count = self.__ob_count
         self.__all_lists.append([])
@@ -135,14 +135,14 @@ class ListTable:
         self.__all_lists[-1].append(the_dict)
 
     def __list_func(self, line):
-        """
+        '''
         Requires: line --line to process
         Returns: nothing
         Logic:
             This method is called when you are in a list, but outside of a level.
             Check for the end of the list. Otherwise, use the self.__mainlist_dict
             to determine if you need to add a lines values to the main list.
-        """
+        '''
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__list_ob_count:
             self.__state = 'default'
@@ -157,7 +157,7 @@ class ListTable:
                 self.__all_lists[-1][0][att] = value
 
     def __found_level_func(self, line):
-        """
+        '''
         Requires: line -- line to process
         Returns: nothing
         Logic:
@@ -176,7 +176,7 @@ class ListTable:
                     self.__all_lists[-1][0] => a dictionary of the list attributes
                     self.__all_lists[-1][-1] => a list with just a dictionary
                     self.__all_lists[-1][-1][0] => the dictionary of level attributes
-        """
+        '''
         self.__state = 'level'
         self.__level_ob_count = self.__ob_count
         self.__all_lists[-1].append([])
@@ -185,7 +185,7 @@ class ListTable:
         self.__level_dict
 
     def __level_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -194,7 +194,7 @@ class ListTable:
             Look for the end of the this group.
             Change states if an open bracket is found.
             Add attributes to all_dicts if an appropriate token is found.
-        """
+        '''
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__level_ob_count:
             self.__state = 'list'
@@ -207,7 +207,7 @@ class ListTable:
                 self.__all_lists[-1][-1][0][att] = value
 
     def __level_number_func(self, line):
-        """
+        '''
         Requires:
             line -- line to process
         Returns:
@@ -219,7 +219,7 @@ class ListTable:
             this by 2 and round it. Remove the ".0". Sandwwhich the result to
             give you something like level1-show-level.
             The show-level attribute means the numbering for this level.
-        """
+        '''
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__level_number_ob_count:
             self.__state = 'level'
@@ -229,14 +229,14 @@ class ListTable:
             self.__level_numbers_string += '\\&#x0027;%s' % line[18:]
         elif self.__token_info == 'tx<nu<__________':
             self.__level_numbers_string += line[17:]
-            """
+            '''
             num = line[18:]
             num = int(num, 16)
             level = str(round((num - 1)/2, 0))
             level = level[:-2]
             level = 'level%s-show-level' % level
             self.__all_lists[-1][-1][0][level] = 'true'
-            """
+            '''
 
     def __level_text_func(self, line):
         """
@@ -278,14 +278,14 @@ class ListTable:
             self.__all_lists[-1][-1][0]['level-template-id'] = value
 
     def __parse_level_text_length(self, line):
-        """
+        '''
         Requires:
             line --line with hexadecimal number
         Returns:
             nothing
         Logic:
             Method is used for to parse text in the \\leveltext group.
-        """
+        '''
         num = line[18:]
         the_num = int(num, 16)
         if not self.__found_level_text_length:
@@ -304,20 +304,20 @@ class ListTable:
                 self.__prefix_string = None
 
     def __list_name_func(self, line):
-        """
+        '''
         Requires:
             line --line to process
         Returns:
             nothing
         Logic:
             Simply check for the end of the group and change states.
-        """
+        '''
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__list_name_ob_count:
             self.__state = 'list'
 
     def __after_bracket_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -327,7 +327,7 @@ class ListTable:
             you are now in.
             WARNING: this could cause problems. If no group is found, the state will remain
             unsure_ob, which means no other text will be parsed.
-        """
+        '''
         if self.__token_info == 'cw<ls<level-text':
             self.__state = 'level_text'
             self.__level_text_ob_count = self.__ob_count
@@ -348,9 +348,9 @@ class ListTable:
                 raise self.__bug_handler
 
     def __add_to_final_line(self):
-        """
+        '''
         Method no longer used.
-        """
+        '''
         self.__list_table_final = 'mi<mk<listabbeg_\n'
         self.__list_table_final += 'mi<tg<open______<list-table\n' + \
         'mi<mk<listab-beg\n' + self.__list_table_final
@@ -359,7 +359,7 @@ class ListTable:
         self.__list_table_final += 'mi<mk<listabend_\n'
 
     def __write_final_string(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -372,7 +372,7 @@ class ListTable:
             Remove the first item (the dictionary) form this list. Now iterate
             through what is left in the list. Each list will contain one item,
             a dictionary. Get this dictionary and print out key => value pair.
-        """
+        '''
         not_allow = ['list-id',]
         id = 0
         self.__list_table_final = 'mi<mk<listabbeg_\n'
@@ -431,7 +431,7 @@ class ListTable:
         self.__list_table_final += 'mi<mk<listabend_\n'
 
     def parse_list_table(self, line):
-        """
+        '''
         Requires:
             line -- line with border definition in it
         Returns:
@@ -439,6 +439,6 @@ class ListTable:
         Logic:
             Call on the __parse_lines method, which splits the text string into
             lines (which will be tokens) and processes them.
-        """
+        '''
         self.__parse_lines(line)
         return self.__list_table_final, self.__all_lists

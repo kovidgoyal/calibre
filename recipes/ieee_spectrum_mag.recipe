@@ -7,18 +7,18 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class IEEESpectrumMagazine(BasicNewsRecipe):
-    title = "IEEE Spectrum Magazine"
+    title = 'IEEE Spectrum Magazine'
     language = 'en'
     __author__ = 'yodha8'
-    description = "Published on day 1 of every month."
+    description = 'Published on day 1 of every month.'
     oldest_article = 120  # Mag gathers articles published older than a month online. So we scan for 4 months in the feed.
     max_articles_per_feed = 100
     auto_cleanup = True
 
     # RSS feed for the current month
     now = datetime.datetime.now()
-    year_month = now.strftime("%Y/%B").lower()
-    month_feed_url = "https://spectrum.ieee.org/feeds/magazine/{}.rss".format(
+    year_month = now.strftime('%Y/%B').lower()
+    month_feed_url = 'https://spectrum.ieee.org/feeds/magazine/{}.rss'.format(
         year_month
     )
 
@@ -28,8 +28,8 @@ class IEEESpectrumMagazine(BasicNewsRecipe):
 
     def get_cover_url(self):
         """Go to this month's URL and pull cover image from there."""
-        month_url = "https://spectrum.ieee.org/magazine/{}".format(self.year_month)
+        month_url = 'https://spectrum.ieee.org/magazine/{}'.format(self.year_month)
         soup = self.index_to_soup(month_url)
-        img_meta = soup.find("meta", property="og:image")
-        img_url = img_meta["content"]
+        img_meta = soup.find('meta', property='og:image')
+        img_url = img_meta['content']
         return img_url

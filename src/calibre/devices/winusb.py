@@ -47,10 +47,10 @@ except ImportError:
 
 class GUID(Structure):
     _fields_ = [
-        ("data1", DWORD),
-        ("data2", WORD),
-        ("data3", WORD),
-        ("data4", c_ubyte * 8)]
+        ('data1', DWORD),
+        ('data2', WORD),
+        ('data3', WORD),
+        ('data4', c_ubyte * 8)]
 
     def __init__(self, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8):
         self.data1 = l
@@ -66,12 +66,12 @@ class GUID(Structure):
         self.data4[7] = b8
 
     def __str__(self):
-        return "{{{:08x}-{:04x}-{:04x}-{}-{}}}".format(
+        return '{{{:08x}-{:04x}-{:04x}-{}-{}}}'.format(
             self.data1,
             self.data2,
             self.data3,
-            ''.join(["%02x" % d for d in self.data4[:2]]),
-            ''.join(["%02x" % d for d in self.data4[2:]]),
+            ''.join(['%02x' % d for d in self.data4[:2]]),
+            ''.join(['%02x' % d for d in self.data4[2:]]),
         )
 
 
@@ -130,7 +130,7 @@ class SP_DEVINFO_DATA(Structure):
     ]
 
     def __str__(self):
-        return f"ClassGuid:{self.ClassGuid} DevInst:{self.DevInst}"
+        return f'ClassGuid:{self.ClassGuid} DevInst:{self.DevInst}'
 
 
 PSP_DEVINFO_DATA = POINTER(SP_DEVINFO_DATA)
@@ -145,7 +145,7 @@ class SP_DEVICE_INTERFACE_DATA(Structure):
     ]
 
     def __str__(self):
-        return f"InterfaceClassGuid:{self.InterfaceClassGuid} Flags:{self.Flags}"
+        return f'InterfaceClassGuid:{self.InterfaceClassGuid} Flags:{self.Flags}'
 
 
 ANYSIZE_ARRAY = 1
@@ -153,8 +153,8 @@ ANYSIZE_ARRAY = 1
 
 class SP_DEVICE_INTERFACE_DETAIL_DATA(Structure):
     _fields_ = [
-        ("cbSize", DWORD),
-        ("DevicePath", c_wchar*ANYSIZE_ARRAY)
+        ('cbSize', DWORD),
+        ('DevicePath', c_wchar*ANYSIZE_ARRAY)
     ]
 
 

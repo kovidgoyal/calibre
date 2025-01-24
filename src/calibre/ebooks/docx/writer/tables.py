@@ -121,7 +121,7 @@ class Cell:
         # cell level
         bc = self.background_color or self.row.background_color or self.row.table.background_color
         if bc:
-            makeelement(tcPr, 'w:shd', w_val="clear", w_color="auto", w_fill=bc)
+            makeelement(tcPr, 'w:shd', w_val='clear', w_color='auto', w_fill=bc)
 
         b = makeelement(tcPr, 'w:tcBorders', append=False)
         for edge, border in iteritems(self.borders):

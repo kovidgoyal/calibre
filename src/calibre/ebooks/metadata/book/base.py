@@ -25,7 +25,7 @@ SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 
 def human_readable(size, precision=2):
-    """ Convert a size in bytes into megabytes """
+    ''' Convert a size in bytes into megabytes '''
     ans = size/(1024*1024)
     if ans < 0.1:
         return '<0.1 MB'
@@ -448,7 +448,7 @@ class Metadata:
         if field is not None:
             if not field.startswith('#'):
                 raise AttributeError(
-                        'Custom field name %s must begin with \'#\''%repr(field))
+                        "Custom field name %s must begin with '#'"%repr(field))
             if metadata is None:
                 traceback.print_stack()
                 return

@@ -47,11 +47,11 @@ EMPTY_EXT_CACHE = b'''\
 '''
 
 MIME_MAP   = {
-                "lrf" : "application/x-sony-bbeb",
+                'lrf' : 'application/x-sony-bbeb',
                 'lrx' : 'application/x-sony-bbeb',
-                "rtf" : "application/rtf",
-                "pdf" : "application/pdf",
-                "txt" : "text/plain" ,
+                'rtf' : 'application/rtf',
+                'pdf' : 'application/pdf',
+                'txt' : 'text/plain' ,
                 'epub': 'application/epub+zip',
               }
 
@@ -71,9 +71,9 @@ def strptime(src):
 
 def strftime(epoch, zone=time.localtime):
     try:
-        src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
+        src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone(epoch)).split()
     except:
-        src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone()).split()
+        src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone()).split()
 
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
@@ -460,7 +460,7 @@ class XMLCache:
         if not self.is_sony_periodical(book):
             return
         record.set('conformsTo',
-            "http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0")
+            'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0')
 
         record.set('description', '')
 
@@ -649,10 +649,10 @@ class XMLCache:
                 debug_print("Use localtime TZ and tz='0' for new book", book.lpath)
             elif ltz_count >= gtz_count:
                 tz = time.localtime
-                debug_print("Use localtime TZ for new book", book.lpath)
+                debug_print('Use localtime TZ for new book', book.lpath)
             else:
                 tz = time.gmtime
-                debug_print("Use GMT TZ for new book", book.lpath)
+                debug_print('Use GMT TZ for new book', book.lpath)
             date = strftime(timestamp, zone=tz)
             record.set('date', clean(date))
         try:

@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LWNFree(BasicNewsRecipe):
-    title = "LWN Linux Weekly News (Free)"
+    title = 'LWN Linux Weekly News (Free)'
     language = 'en'
     __author__ = 'yodha8'
     description = "LWN is published every Thursday. This recipe skips current week's articles (subscriber-only) and pulls free articles from previous week."
@@ -18,7 +18,7 @@ class LWNFree(BasicNewsRecipe):
     ]
 
     def parse_feeds(self):
-        """Remove paid articles and articles older than a week."""
+        '''Remove paid articles and articles older than a week.'''
 
         prev_feeds = super().parse_feeds()
 
@@ -28,12 +28,12 @@ class LWNFree(BasicNewsRecipe):
         for article in prev_feeds[0]:
 
             # Paid article
-            if "[$]" in article.title:
+            if '[$]' in article.title:
                 remove_articles.append(article)
                 continue
 
             # Count how many free weekly edition we passed
-            if "Weekly Edition" in article.title:
+            if 'Weekly Edition' in article.title:
                 weekly_count += 1
 
             # Remove all articles starting from 2nd free weekly edition

@@ -384,8 +384,8 @@ if __name__ == '__main__':
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, pubdate_test, test_identify_plugin, title_test
     tests = [
         (  # A title and author search
-         {'title': 'The Husband\'s Secret', 'authors':['Liane Moriarty']},
-         [title_test('The Husband\'s Secret', exact=True),
+         {'title': "The Husband's Secret", 'authors':['Liane Moriarty']},
+         [title_test("The Husband's Secret", exact=True),
                 authors_test(['Liane Moriarty'])]
         ),
 
@@ -398,7 +398,7 @@ if __name__ == '__main__':
         # Multiple authors and two part title and no general description
         ({'identifiers':{'edelweiss':'0321180607'}},
         [title_test(
-        "XQuery From the Experts: A Guide to the W3C XML Query Language"
+        'XQuery From the Experts: A Guide to the W3C XML Query Language'
         , exact=True), authors_test([
             'Howard Katz', 'Don Chamberlin', 'Denise Draper', 'Mary Fernandez',
             'Michael Kay', 'Jonathan Robie', 'Michael Rys', 'Jerome Simeon',

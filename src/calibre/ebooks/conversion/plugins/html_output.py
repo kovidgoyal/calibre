@@ -213,7 +213,7 @@ class HTMLOutput(OutputFormatPlugin):
                     f.write(t.encode('utf-8'))
                 item.unload_data_from_memory(memory=path)
 
-        zfile = zipfile.ZipFile(output_path, "w")
+        zfile = zipfile.ZipFile(output_path, 'w')
         zfile.add_dir(output_dir, basename(output_dir))
         zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
 

@@ -73,4 +73,4 @@ class FontsManager:
                 font_data_map['word/' + fname] = obfuscate_font_data(item.data, key)
             makeelement(font, 'w:embed' + tag, r_id=rid,
                         w_fontKey='{%s}' % key.urn.rpartition(':')[-1].upper(),
-                        w_subsetted="true" if self.opts.subset_embedded_fonts else "false")
+                        w_subsetted='true' if self.opts.subset_embedded_fonts else 'false')

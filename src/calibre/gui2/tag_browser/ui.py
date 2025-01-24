@@ -893,7 +893,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser set focus',
-                _("Give the Tag browser keyboard focus"), default_keys=(),
+                _('Give the Tag browser keyboard focus'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.give_tb_focus)
 

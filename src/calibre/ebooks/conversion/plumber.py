@@ -187,7 +187,7 @@ OptionRecommendation(name='disable_font_rescaling',
 OptionRecommendation(name='minimum_line_height',
             recommended_value=120.0, level=OptionRecommendation.LOW,
             help=_(
-            'The minimum line height, as a percentage of the element\'s '
+            "The minimum line height, as a percentage of the element's "
             'calculated font size. calibre will ensure that every element '
             'has a line height of at least this setting, irrespective of '
             'what the input document specifies. Set to zero to disable. '

@@ -34,7 +34,7 @@ class Volkskrant(BasicNewsRecipe):
         dict(id=['like', 'dlik']),
         dict(name=['script', 'noscript', 'style']),
     ]
-    remove_attributes = ["class", "id", "name", "style"]
+    remove_attributes = ['class', 'id', 'name', 'style']
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
@@ -88,7 +88,7 @@ class Volkskrant(BasicNewsRecipe):
                     )
                 )
 
-        sections = [("Numărul curent", articles)]
+        sections = [('Numărul curent', articles)]
         return sections
 
     def preprocess_html(self, soup):

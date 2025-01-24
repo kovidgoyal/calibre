@@ -137,7 +137,7 @@ class WeeklyLWN(BasicNewsRecipe):
                     article_title = _('Undefined article title')
 
                 if subsection:
-                    section_title = "%s: %s" % (section, subsection)
+                    section_title = '%s: %s' % (section, subsection)
                 else:
                     section_title = section
 
@@ -170,7 +170,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 })
 
             else:
-                self.log.error("lwn_weekly.recipe: something bad happened; should not be able to reach this")
+                self.log.error('lwn_weekly.recipe: something bad happened; should not be able to reach this')
 
         ans = [(section2, articles[section2])
                for section2 in ans if section2 in articles]

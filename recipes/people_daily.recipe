@@ -89,11 +89,11 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     #     dict(name='p'),
     # ]
     remove_tags = [
-        dict(name='div', class_="channel cf")
+        dict(name='div', class_='channel cf')
     ]
 
-    remove_tags_before = [dict(name='div', class_="layout rm_txt cf")]
-    remove_tags_after = [dict(name='div', class_="edit cf")]
+    remove_tags_before = [dict(name='div', class_='layout rm_txt cf')]
+    remove_tags_after = [dict(name='div', class_='edit cf')]
 
     def append_page(self, soup, appendtag, position):
         pager = soup.find('img', attrs={'src': '/img/next_b.gif'})
@@ -135,6 +135,6 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable: " + cover)
+            self.log('\nCover unavailable: ' + cover)
             cover = None
         return cover

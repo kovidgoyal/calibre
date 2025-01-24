@@ -172,7 +172,7 @@ class ZAOBAO(BasicNewsRecipe):
                         article.text_summary = article.text_summary.encode(
                             'cp1252', 'replace').decode(self.encoding, 'replace')
 
-                if article.title == "Untitled article":
+                if article.title == 'Untitled article':
                     self.log(_('Removing empty article %s from %s') %
                              (article.title, article.url))
                     # remove the article

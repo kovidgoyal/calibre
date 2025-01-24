@@ -4,7 +4,7 @@
 # License: GPL-3
 import base64
 
-iconstr = b"""
+iconstr = b'''
 iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA3NCSVQICAjb4U/gAAAACXBIWXMA
 AA3XAAAN1wFCKJt4AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAspQTFRF
 AAAAgICAZmZmVVVVgICAampqgICAYmJidnZ2aGhoa2treHh4ZGRkcHBwdnZ2ampqcXFxb29vc3Nz
@@ -48,7 +48,7 @@ BiRAqkN0UJpQckxaspHRj/IDhLE4KiAhJKLOko01SEYlmwSSY9OSjX1FYEo2RIpQrZDQZWdxSjZW
 UnLjko1lIrCOKLnkGFuysQfJpGRDQUTMko2dpMS0ZGM5OUaWbJJKjg1KNnaIMC3ZkJeMzEs21pZI
 5QEJcc0CH5TSZWdSAJ/96wq6H9jGaPO3R1IAo3Q9RwkoSwG8AdTT64YittdSAEVLL6r5iV9JCqB8
 9Dg1/e525oN8FrzYm21ctJGEBL49KQ6VKvpn/wE4qQRdyiC8rQAAAABJRU5ErkJggg==
-"""
+'''
 
 
 def thumbnail():
@@ -56,8 +56,8 @@ def thumbnail():
     return icon
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     icon = thumbnail()
-    f = open("thumbnail.png","wb")
+    f = open('thumbnail.png','wb')
     f.write(icon)
     f.close()

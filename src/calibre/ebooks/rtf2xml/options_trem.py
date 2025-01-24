@@ -46,12 +46,12 @@ class ParseOptions:
         self.__options_okay = 1
 
     def __make_long_list_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict -- the dictionary mapping options to a list
         Returns:
             a list of legal options
-        """
+        '''
         legal_list = []
         keys = options_dict.keys()
         for key in keys:
@@ -60,12 +60,12 @@ class ParseOptions:
         return legal_list
 
     def __make_short_list_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a list of legal short options
-        """
+        '''
         legal_list = []
         keys = options_dict.keys()
         for key in keys:
@@ -77,14 +77,14 @@ class ParseOptions:
         return legal_list
 
     def __make_short_long_dict_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a dictionary with keys of short options and values of long options
         Logic:
             read through the options dictionary and pair short options with long options
-        """
+        '''
         short_long_dict = {}
         keys = options_dict.keys()
         for key in keys:
@@ -98,12 +98,12 @@ class ParseOptions:
         return short_long_dict
 
     def __make_options_with_arg_list(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a list of options that take arguments.
-        """
+        '''
         opt_with_arg = []
         keys = options_dict.keys()
         for key in keys:
@@ -116,14 +116,14 @@ class ParseOptions:
         return opt_with_arg
 
     def __sub_short_with_long(self):
-        """
+        '''
         Required:
             nothing
         Returns:
             a new system string
         Logic:
             iterate through the system string and replace short options with long options
-        """
+        '''
         new_string = []
         sub_list = self.__short_long_dict.keys()
         for item in self.__system_string:
@@ -184,7 +184,7 @@ class ParseOptions:
         return new_system_string
 
     def __get_just_options(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -194,7 +194,7 @@ class ParseOptions:
             option. The options are everything in the system string before the
             last option.
             Check to see that the options contain no arguments.
-        """
+        '''
         highest = 0
         counter = 0
         found_options = 0
@@ -217,7 +217,7 @@ class ParseOptions:
         return just_options, arguments
 
     def __is_legal_option_func(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -225,7 +225,7 @@ class ParseOptions:
         Logic:
             Check each value in the newly creatd options list to see if it
             matches what the user describes as a legal option.
-        """
+        '''
         illegal_options = []
         for arg in self.__system_string:
             if '=' in arg:
@@ -282,7 +282,7 @@ if __name__ == '__main__':
             )
     options, the_args = test_obj.parse_options()
     print(options, the_args)
-    """
+    '''
     this_options = ['--foo', '-o']
     this_opt_with_args = ['--foo']
-    """
+    '''

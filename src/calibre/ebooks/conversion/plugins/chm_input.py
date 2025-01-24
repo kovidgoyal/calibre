@@ -132,7 +132,7 @@ class CHMInput(InputFormatPlugin):
         # print(etree.tostring(hhcroot, pretty_print=True))
         # print("=============================")
         log.debug('Found %d section nodes' % toc.count())
-        htmlpath = os.path.splitext(hhcpath)[0] + ".html"
+        htmlpath = os.path.splitext(hhcpath)[0] + '.html'
         base = os.path.dirname(os.path.abspath(htmlpath))
 
         def unquote(x):

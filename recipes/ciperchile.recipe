@@ -23,14 +23,14 @@ class CiperChile(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'blog'
     masthead_url = 'http://ciperchile.cl/wp-content/themes/cipertheme/css/ui/ciper-logo.png'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,sans-serif}
                                .excerpt{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: 1.25em}
                                .author{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: small}
                                .date{font-family: Georgia,"Times New Roman",Times,serif; font-size: small; color: grey}
                                .epigrafe{font-size: small; color: grey}
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

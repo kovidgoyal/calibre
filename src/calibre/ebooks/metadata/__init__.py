@@ -5,9 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-"""
+'''
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
-"""
+'''
 import os
 import re
 import sys
@@ -228,7 +228,7 @@ def title_sort(title, order=None, lang=None):
 
 coding = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
-["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I']
 ))
 
 

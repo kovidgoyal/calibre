@@ -17,7 +17,7 @@ class Capital(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1'),
         dict(name='p'),
-        dict(name='span', attrs={'id': ["textbody"]})
+        dict(name='span', attrs={'id': ['textbody']})
     ]
 
 # 3 posts seemed to have utf8 encoding

@@ -535,7 +535,7 @@ class MobiReader:
                             try:
                                 nval = float(val[:-2])
                                 nval *= 16 * (168.451/72)  # Assume this was set using the Kindle profile
-                                attrib[attr] = "%dpx"%int(nval)
+                                attrib[attr] = '%dpx'%int(nval)
                             except:
                                 del attrib[attr]
                         elif val.lower().endswith('%'):
@@ -560,7 +560,7 @@ class MobiReader:
             if 'filepos' in attrib:
                 filepos = attrib.pop('filepos')
                 try:
-                    attrib['href'] = "#filepos%d" % int(filepos)
+                    attrib['href'] = '#filepos%d' % int(filepos)
                 except ValueError:
                     pass
             if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos') and

@@ -238,7 +238,7 @@ def test_podofo():
         fraw = f.read()
         wraw = p.write()
         if fraw != wraw:
-            raise ValueError("write() and save_to_fileobj() resulted in different output")
+            raise ValueError('write() and save_to_fileobj() resulted in different output')
     try:
         p = podofo.PDFDoc()
         p.open(f.name)

@@ -29,12 +29,12 @@ class Nikkei(BasicNewsRecipe):
     encoding = 'utf-8'
     use_embedded_content = False
 
-    extra_css = """
+    extra_css = '''
         .subhead { font-style:italic; color:#202020; }
         em, blockquote { color:#202020; }
         .sec, .byline { font-size:small; font-weight:bold; }
         .article__image, .article__caption { font-size:small; text-align:center; }
-    """
+    '''
 
     recipe_specific_options = {
         'date': {'short': 'The edition date (YYYY-MM-DD format)', 'long': '2024-09-19'}

@@ -65,9 +65,9 @@ def create_msg_label(self):
     f.setFrameShadow(QFrame.Shadow.Raised)
     f.l = l = QVBoxLayout(f)
     f.um_label = la = QLabel(_(
-        "<p>You can also perform other kinds of advanced searches, for example checking"
+        '<p>You can also perform other kinds of advanced searches, for example checking'
         ' for books that have no covers, combining multiple search expression using Boolean'
-        ' operators and so on. See <a href=\"%s\">The search interface</a> for more information.'
+        ' operators and so on. See <a href="%s">The search interface</a> for more information.'
     ) % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
     la.setMinimumSize(QSize(150, 0))
     la.setWordWrap(True)
@@ -77,13 +77,13 @@ def create_msg_label(self):
 
 
 def create_match_kind(self):
-    self.cmk_label = la = QLabel(_("What &kind of match to use:"))
+    self.cmk_label = la = QLabel(_('What &kind of match to use:'))
     self.matchkind = m = QComboBox(self)
     la.setBuddy(m)
     m.addItems([
-        _("Contains: the word or phrase matches anywhere in the metadata field"),
-        _("Equals: the word or phrase must match the entire metadata field"),
-        _("Regular expression: the expression must match anywhere in the metadata field"),
+        _('Contains: the word or phrase matches anywhere in the metadata field'),
+        _('Equals: the word or phrase must match the entire metadata field'),
+        _('Regular expression: the expression must match anywhere in the metadata field'),
         _("Character variant: 'contains' with accents ignored and punctuation significant")
     ])
     l = QHBoxLayout()
@@ -102,9 +102,9 @@ def create_button_box(self):
 
 def create_adv_tab(self):
     self.adv_tab = w = QWidget(self.tab_widget)
-    self.tab_widget.addTab(w, _("A&dvanced search"))
+    self.tab_widget.addTab(w, _('A&dvanced search'))
 
-    w.g1 = QGroupBox(_("Find entries that have..."), w)
+    w.g1 = QGroupBox(_('Find entries that have...'), w)
     w.g2 = QGroupBox(_("But don't show entries that have..."), w)
     w.l = l = QVBoxLayout(w)
     l.addWidget(w.g1), l.addWidget(w.g2), l.addStretch(10)
@@ -112,9 +112,9 @@ def create_adv_tab(self):
     w.g1.l = l = QFormLayout(w.g1)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     for key, text in (
-            ('all', _("A&ll these words:")),
-            ('phrase', _("&This exact phrase:")),
-            ('any', _("O&ne or more of these words:")),
+            ('all', _('A&ll these words:')),
+            ('phrase', _('&This exact phrase:')),
+            ('any', _('O&ne or more of these words:')),
     ):
         le = QLineEdit(w)
         le.setClearButtonEnabled(True)
@@ -125,12 +125,12 @@ def create_adv_tab(self):
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     self.none = le = QLineEdit(w)
     le.setClearButtonEnabled(True)
-    l.addRow(_("Any of these &unwanted words:"), le)
+    l.addRow(_('Any of these &unwanted words:'), le)
 
 
 def create_simple_tab(self, db):
     self.simple_tab = w = QWidget(self.tab_widget)
-    self.tab_widget.addTab(w, _("Titl&e/author/series..."))
+    self.tab_widget.addTab(w, _('Titl&e/author/series...'))
 
     w.l = l = QFormLayout(w)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -198,7 +198,7 @@ def toggle_date_conditions_visibility(self):
 def create_date_tab(self, db):
     self.date_tab = w = QWidget(self.tab_widget)
     w.date_condition_layouts = dcl = []
-    self.tab_widget.addTab(w, _("&Date search"))
+    self.tab_widget.addTab(w, _('&Date search'))
     w.l = l = QVBoxLayout(w)
 
     def a(w):
@@ -213,7 +213,7 @@ def create_date_tab(self, db):
 
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
-    self.date_field = df = add(_("&Search the"), QComboBox(w))
+    self.date_field = df = add(_('&Search the'), QComboBox(w))
     vals = [((v['search_terms'] or [k])[0], v['name'] or k)
                 for k, v in db.field_metadata.iter_items()
                     if v.get('datatype', None) == 'datetime' or
@@ -222,7 +222,7 @@ def create_date_tab(self, db):
     for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
-    self.dateop_date = dd = add(_("date column for books whose &date is "), QComboBox(w))
+    self.dateop_date = dd = add(_('date column for books whose &date is '), QComboBox(w))
     init_dateop(dd)
     connect_lambda(dd.currentIndexChanged, self, toggle_date_conditions_visibility)
     w.la3 = la = QLabel('...')
@@ -276,7 +276,7 @@ def create_date_tab(self, db):
 
 def create_template_tab(self):
     self.simple_tab = w = QWidget(self.tab_widget)
-    self.tab_widget.addTab(w, _("&Template search"))
+    self.tab_widget.addTab(w, _('&Template search'))
 
     w.l = l = QFormLayout(w)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -323,7 +323,7 @@ def create_template_tab(self):
     lo = QHBoxLayout()
     lo.addWidget(le)
     self.edit_template_button = tb = QToolButton()
-    tb.setIcon(QIcon.ic("edit_input.png"))
+    tb.setIcon(QIcon.ic('edit_input.png'))
     tb.setToolTip(_('Open template editor'))
     lo.addWidget(tb)
     self.template_layout_label = tll = QLabel(_('&Template:'))
@@ -337,7 +337,7 @@ def create_template_tab(self):
 
 
 def setup_ui(self, db):
-    self.setWindowTitle(_("Advanced search"))
+    self.setWindowTitle(_('Advanced search'))
     self.setWindowIcon(QIcon.ic('search.png'))
     self.l = l = QVBoxLayout(self)
     self.h = h = QHBoxLayout()

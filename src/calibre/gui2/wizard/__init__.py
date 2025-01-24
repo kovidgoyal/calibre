@@ -623,8 +623,8 @@ class DevicePage(QWizardPage, DeviceUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
-        self.registerField("manufacturer", self.manufacturer_view)
-        self.registerField("device", self.device_view)
+        self.registerField('manufacturer', self.manufacturer_view)
+        self.registerField('device', self.device_view)
 
     def initializePage(self):
         self.label.setText(_('Choose your e-book device. If your device is'
@@ -950,7 +950,7 @@ class Wizard(QWizard):
         QWizard.accept(self)
 
     def set_finish_text(self, *args):
-        bt = str("<em>" + self.buttonText(QWizard.WizardButton.FinishButton) + "</em>").replace('&', '')
+        bt = str('<em>' + self.buttonText(QWizard.WizardButton.FinishButton) + '</em>').replace('&', '')
         t = str(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t%bt)

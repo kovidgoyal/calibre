@@ -10,9 +10,9 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-"""
+'''
 Gets options for main part of script
-"""
+'''
 import os
 import sys
 
@@ -33,9 +33,9 @@ class GetOptions:
         self.__bug_handler = bug_handler
 
     def get_options(self):
-        """
+        '''
         return valid, output, help, show_warnings, debug, file
-        """
+        '''
         return_options = self.__get_config_options()
         options_dict = {
                         'dir'               :       [1],
@@ -107,11 +107,11 @@ class GetOptions:
             return_options['out-file'] = options['output']
         else:
             pass
-            """
+            '''
             sys.stderr.write(
                 'You must provide an output file with the \'o\' option\n')
             return_options['valid'] = 0
-            """
+            '''
         if 'level' in the_keys:
             return_options['level'] = options['level']
         the_level = return_options.get('level')
@@ -129,8 +129,8 @@ class GetOptions:
         if 'format' in the_keys:
             format = options['format']
             if format not in acceptable:
-                sys.stderr.write('--format must take either \'sdoc\' or '
-                        '\'tei\'\n')
+                sys.stderr.write("--format must take either 'sdoc' or "
+                        "'tei'\n")
                 return_options['valid'] = 0
                 return return_options
             else:
@@ -225,14 +225,14 @@ class GetOptions:
             else:
                 return_options['out-file'] = '%s.xml' % the_file_name
         if not smart_output and not return_options['out-file']:
-            """
+            '''
             sys.stderr.write(
                 'Please provide and file to output with the -o option.\n'
                 'Or set \'<smart-output value = "true"/>\'.\n'
                 'in the configuration file.\n'
                 )
             return_options['valid'] = 0
-            """
+            '''
             pass
         if 'indent' in the_keys:
             try:
@@ -242,7 +242,7 @@ class GetOptions:
                 sys.stderr.write('--indent must take an integer')
                 return_options['valid'] = 0
         # check for format and pyxml
-        """
+        '''
         the_format = return_options.get('format')
         if the_format != 'raw':
             no_pyxml = return_options.get('no-pyxml')
@@ -263,7 +263,7 @@ class GetOptions:
                         % the_format
                         )
                 return_options['valid'] = 0
-        """
+        '''
         return return_options
 
     def __get_config_options(self):

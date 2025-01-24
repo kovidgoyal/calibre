@@ -17,7 +17,7 @@ class Description:
     A class for representing OpenSearch Description files.
     '''
 
-    def __init__(self, url=""):
+    def __init__(self, url=''):
         '''
         The constructor which may pass an optional url to load from.
 

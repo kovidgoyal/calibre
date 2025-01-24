@@ -415,7 +415,7 @@ class DataFilesManager(Dialog):
         if q:
             return error_dialog(
                 self, _('Cannot add'), _(
-                    'Cannot add these data files to the book because they are already in the book\'s data files folder'
+                    "Cannot add these data files to the book because they are already in the book's data files folder"
                 ), show=True, det_msg='\n'.join(q))
 
         m = {f'{DATA_DIR_NAME}/{os.path.basename(x)}': x for x in files}

@@ -23,10 +23,10 @@ from polyglot.binary import as_base64_unicode
 from polyglot.queue import Empty, Queue
 
 HANDSHAKE_STR = (
-    "HTTP/1.1 101 Switching Protocols\r\n"
-    "Upgrade: WebSocket\r\n"
-    "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Accept: %s\r\n\r\n"
+    'HTTP/1.1 101 Switching Protocols\r\n'
+    'Upgrade: WebSocket\r\n'
+    'Connection: Upgrade\r\n'
+    'Sec-WebSocket-Accept: %s\r\n\r\n'
 )
 GUID_STR = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 

@@ -10,12 +10,12 @@ bad_attrs = ['width', 'height', 'style', '[-a-z]*color', 'background[-a-z]*', 'o
 single_quoted = "'[^']+'"
 double_quoted = '"[^"]+"'
 non_space = '[^ "\'>]+'
-htmlstrip = re.compile("<"  # open
-    "([^>]+) "  # prefix
-    "(?:%s) *" % ('|'.join(bad_attrs),) +  # undesirable attributes
+htmlstrip = re.compile('<'  # open
+    '([^>]+) '  # prefix
+    '(?:%s) *' % ('|'.join(bad_attrs),) +  # undesirable attributes
     f'= *(?:{non_space}|{single_quoted}|{double_quoted})' +  # value
-    "([^>]*)"  # postfix
-    ">"        # end
+    '([^>]*)'  # postfix
+    '>'        # end
 , re.I)
 
 
@@ -28,8 +28,8 @@ def clean_attributes(html):
 def normalize_spaces(s):
     if not s:
         return ''
-    """replace any sequence of whitespace
-    characters with a single space"""
+    '''replace any sequence of whitespace
+    characters with a single space'''
     return ' '.join(s.split())
 
 

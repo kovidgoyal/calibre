@@ -145,7 +145,7 @@ class Cell:
             if not token.strip():
                 continue
             word = token.split()
-            word = word[0] if word else ""
+            word = word[0] if word else ''
             fl, ft, fr, fb = font.getbbox(word)
             width = fr - fl
             if width > mwidth:

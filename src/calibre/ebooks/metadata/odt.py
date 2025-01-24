@@ -171,7 +171,7 @@ def set_metadata(stream, mi):
         # print(raw.decode('utf-8'))
 
     stream.seek(os.SEEK_SET)
-    safe_replace(stream, "meta.xml", io.BytesIO(raw))
+    safe_replace(stream, 'meta.xml', io.BytesIO(raw))
 
 
 def _set_metadata(raw, mi):

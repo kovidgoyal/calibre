@@ -20,9 +20,9 @@ from . import open_for_read, open_for_write
 
 
 class Fonts:
-    """
+    '''
     Change lines with font info from font numbers to the actual font names.
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -50,9 +50,9 @@ class Fonts:
         self.__run_level = run_level
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__special_font_dict = {
         'Symbol'        :   0,
         'Wingdings'     :   0,
@@ -73,14 +73,14 @@ class Fonts:
         self.__wrote_ind_font = 0
 
     def __default_func(self, line):
-        """
+        '''
         Requires:
             line
         Returns:
             nothing
         Handle all lines before the font table. Check for the beginning of the
         font table. If found, change the state. Print out all lines.
-        """
+        '''
         if self.__token_info == 'mi<mk<fonttb-beg':
             self.__state = 'font_table'
         self.__write_obj.write(line)
@@ -109,7 +109,7 @@ class Fonts:
         # self.__write_obj.write(line)
 
     def __font_in_table_func(self, line):
-        """
+        '''
         Requires:
             line
         Returns:
@@ -125,7 +125,7 @@ class Fonts:
                 dictionary. Also create an empty tag with the name and number
                 as attributes.
                 Preamture end of font table
-            """
+            '''
         # cw<ci<font-style<nu<4
         # tx<nu<__________<Times;
         if self.__token_info == 'mi<mk<fontit-end':
@@ -147,21 +147,21 @@ class Fonts:
             self.__state = 'after_font_table'
 
     def __found_end_font_table_func(self):
-        """
+        '''
         Required:
             nothing
         Returns:
             nothing
         Logic:
             If not individual fonts have been written, write one out
-        """
+        '''
         if not self.__wrote_ind_font:
             self.__write_obj.write(
             'mi<tg<empty-att_'
             '<font-in-table<name>Times<num>0\n')
 
     def __after_font_table_func(self, line):
-        """
+        '''
         Required:
             line
         Returns:
@@ -174,7 +174,7 @@ class Fonts:
             the name rather than the number.
             If the line does not contain font info, simply print it out to the
             file.
-            """
+            '''
         if self.__token_info == 'cw<ci<font-style':
             font_num = line[20:-1]
             font_name = self.__font_table.get(font_num)
@@ -193,7 +193,7 @@ class Fonts:
             self.__write_obj.write(line)
 
     def convert_fonts(self):
-        """
+        '''
         Required:
             nothing
         Returns:
@@ -205,7 +205,7 @@ class Fonts:
             tag for each individual font in the font table.
             If the state is after the font table, look for lines with font
             info. Substitute a font name for a font number.
-            """
+            '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
@@ -221,7 +221,7 @@ class Fonts:
         self.__special_font_dict['default-font'] = default_font_name
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "fonts.data")
+            copy_obj.copy_file(self.__write_to, 'fonts.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         return self.__special_font_dict

@@ -790,7 +790,7 @@ class WritingTest(BaseTest):
             self.assertNotIn(uid, t.id_map)
             self.assertNotIn(uid, t.col_book_map)
             for bid in (1, 2, 3):
-                ae(c.field_for('publisher', bid), "mūs")
+                ae(c.field_for('publisher', bid), 'mūs')
             c.close()
 
         cache = self.init_cache()
@@ -1026,17 +1026,17 @@ class WritingTest(BaseTest):
         self.assertEqual('url2', links['publisher']['random'], 'link for publisher random is wrong')
 
         # Check that renaming a tag keeps the link and clears the link map cache for the book
-        self.assertTrue(1 in cache.link_maps_cache, "book not in link_map_cache")
+        self.assertTrue(1 in cache.link_maps_cache, 'book not in link_map_cache')
         tag_id = cache.get_item_id('tags', 'foo')
         cache.rename_items('tags', {tag_id: 'foobar'})
-        self.assertTrue(1 not in cache.link_maps_cache, "book still in link_map_cache")
+        self.assertTrue(1 not in cache.link_maps_cache, 'book still in link_map_cache')
         links = cache.get_link_map('tags')
-        self.assertTrue('foobar' in links, "rename foo lost the link")
-        self.assertEqual(links['foobar'], 'url', "The link changed contents")
+        self.assertTrue('foobar' in links, 'rename foo lost the link')
+        self.assertEqual(links['foobar'], 'url', 'The link changed contents')
         links = cache.get_all_link_maps_for_book(1)
-        self.assertTrue(1 in cache.link_maps_cache, "book not put back into link_map_cache")
+        self.assertTrue(1 in cache.link_maps_cache, 'book not put back into link_map_cache')
         self.assertDictEqual({'publisher': {'random': 'url2'}, 'tags': {'foobar': 'url'}},
-                             links, "book links incorrect after tag rename")
+                             links, 'book links incorrect after tag rename')
 
         # Check ProxyMetadata
         mi = cache.get_proxy_metadata(1)

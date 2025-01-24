@@ -15,7 +15,7 @@ from hashlib import md5
 class ModorosBlogHu(BasicNewsRecipe):
     __author__ = 'Zsolt Botykai'
     title = u'Modoros Blog'
-    description = u"Modoros.blog.hu"
+    description = u'Modoros.blog.hu'
     oldest_article = 10000
     max_articles_per_feed = 10000
     reverse_article_order = True

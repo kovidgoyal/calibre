@@ -30,7 +30,7 @@ def html_entities():
 
 
 def points_for_word(w):
-    """Returns the set of all codepoints that contain ``word`` in their names"""
+    '''Returns the set of all codepoints that contain ``word`` in their names'''
     w = w.lower()
     ans = points_for_word.cache.get(w)
     if ans is None:

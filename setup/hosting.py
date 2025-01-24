@@ -224,7 +224,7 @@ class GitHub(Base):  # {{{
 
     def fail(self, r, msg):
         print(msg, ' Status Code: %s' % r.status_code, file=sys.stderr)
-        print("JSON from response:", file=sys.stderr)
+        print('JSON from response:', file=sys.stderr)
         pprint(dict(r.json()), stream=sys.stderr)
         raise SystemExit(1)
 

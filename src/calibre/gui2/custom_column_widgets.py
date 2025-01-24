@@ -1327,12 +1327,12 @@ class BulkSeries(BulkBase):
         self.series_start_number = QDoubleSpinBox(parent)
         self.series_start_number.setMinimum(0.0)
         self.series_start_number.setMaximum(9999999.0)
-        self.series_start_number.setProperty("value", 1.0)
+        self.series_start_number.setProperty('value', 1.0)
         layout.addWidget(self.series_start_number)
         self.series_increment = QDoubleSpinBox(parent)
         self.series_increment.setMinimum(0.00)
         self.series_increment.setMaximum(99999.0)
-        self.series_increment.setProperty("value", 1.0)
+        self.series_increment.setProperty('value', 1.0)
         self.series_increment.setToolTip('<p>' + _(
             'The amount by which to increment the series number '
             'for successive books. Only applicable when using '

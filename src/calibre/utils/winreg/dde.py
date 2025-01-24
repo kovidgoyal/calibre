@@ -37,7 +37,7 @@ DML_ERRORS = {
 
     'MEMORY_ERROR': (0x4008, 'A memory allocation has failed.'),
 
-    'NO_CONV_ESTABLISHED': (0x400a, 'A client\'s attempt to establish a conversation has failed.'),
+    'NO_CONV_ESTABLISHED': (0x400a, "A client's attempt to establish a conversation has failed."),
 
     'NOTPROCESSED': (0x4009, 'A transaction has failed.'),
 

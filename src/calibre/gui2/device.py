@@ -1530,7 +1530,7 @@ class DeviceMixin:  # {{{
                         pass
                     total_size = self.location_manager.free[0]
                 loc = tweaks['send_news_to_device_location']
-                loc_index = {"carda": 1, "cardb": 2}.get(loc, 0)
+                loc_index = {'carda': 1, 'cardb': 2}.get(loc, 0)
                 if self.location_manager.free[loc_index] > total_size + (1024**2):
                     # Send news to main memory if enough space available
                     # as some devices like the Nook Color cannot handle

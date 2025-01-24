@@ -24,12 +24,12 @@ class Novosti(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'newspaper'
     masthead_url = 'http://www.novosti.rs/images/basic/logo-print.png'
-    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+    extra_css             = ''' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 .author{font-size: small}
                                 .articleLead{font-size: large; font-weight: bold}
                                 img{display: block; margin-bottom: 1em; margin-top: 1em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True

@@ -89,7 +89,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     outer['To'] = to
     outer['Subject'] = subject
     outer['Date'] = formatdate(localtime=True)
-    outer['Message-Id'] = f"<{uuid.uuid4()}@{get_msgid_domain(from_)}>"
+    outer['Message-Id'] = f'<{uuid.uuid4()}@{get_msgid_domain(from_)}>'
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:

@@ -100,7 +100,7 @@ class TimesColonist(BasicNewsRecipe):
                             dict(name='div', attrs={
                                  'class': re.compile('window')}),
                             dict(name='div', attrs={'class': re.compile('related.news.element')})]
-        print("PROFILE NAME = " + options.output_profile.short_name)
+        print('PROFILE NAME = ' + options.output_profile.short_name)
         if self.kindle_omit_images and options.output_profile.short_name in ['kindle', 'kindle_dx', 'kindle_pw']:
             self.remove_tags.append(
                 dict(name='div', attrs={'class': re.compile('image-container')}))
@@ -127,24 +127,24 @@ class TimesColonist(BasicNewsRecipe):
                     continue
                 break
         if daysback == 7:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
     def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\x91", "‘", string)
+        fixed = re.sub('\x91', '‘', string)
         # Replace rsquo (\x92)
-        fixed = re.sub("\x92", "’", fixed)
+        fixed = re.sub('\x92', '’', fixed)
         # Replace ldquo (\x93)
-        fixed = re.sub("\x93", "“", fixed)
+        fixed = re.sub('\x93', '“', fixed)
         # Replace rdquo (\x94)
-        fixed = re.sub("\x94", "”", fixed)
+        fixed = re.sub('\x94', '”', fixed)
         # Replace ndash (\x96)
-        fixed = re.sub("\x96", "–", fixed)
+        fixed = re.sub('\x96', '–', fixed)
         # Replace mdash (\x97)
-        fixed = re.sub("\x97", "—", fixed)
-        fixed = re.sub("&#x2019;", "’", fixed)
+        fixed = re.sub('\x97', '—', fixed)
+        fixed = re.sub('&#x2019;', '’', fixed)
         return fixed
 
     def massageNCXText(self, description):
@@ -229,11 +229,11 @@ class TimesColonist(BasicNewsRecipe):
                 description = self.tag_to_string(dtag, False)
             article_list.append(dict(
                 title=title, url=url, date='', description=description, author='', content=''))
-            print(sectitle + title + ": description = " +
-                  description + " URL=" + url + '\n\r')
+            print(sectitle + title + ': description = ' +
+                  description + ' URL=' + url + '\n\r')
 
     def add_section_index(self, ans, securl, sectitle):
-        print("Add section url=" + self.url_prefix + '/' + securl + '\n\r')
+        print('Add section url=' + self.url_prefix + '/' + securl + '\n\r')
         try:
             soup = self.index_to_soup(self.url_prefix + '/' + securl)
         except:

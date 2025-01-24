@@ -39,7 +39,7 @@ class SNBFile:
     def Open(self, inputFile):
         self.fileName = inputFile
 
-        with open(self.fileName, "rb") as f:
+        with open(self.fileName, 'rb') as f:
             f.seek(0)
             self.Parse(f)
 
@@ -74,7 +74,7 @@ class SNBFile:
             if f.attr & 0x41000000 == 0x41000000:
                 # Compressed Files
                 if uncompressedData is None:
-                    uncompressedData = b""
+                    uncompressedData = b''
                     for i in range(self.plainBlock):
                         bzdc = bz2.BZ2Decompressor()
                         if (i < self.plainBlock - 1):
@@ -101,7 +101,7 @@ class SNBFile:
                 f.fileBody = snbFile.read(f.fileSize)
                 binPos += f.fileSize
             else:
-                raise ValueError(f"Invalid file: {f.attr} {f.fileName}")
+                raise ValueError(f'Invalid file: {f.attr} {f.fileName}')
 
     def ParseFile(self, vfat, fileCount):
         fileNames = vfat[fileCount*12:].split(b'\0')
@@ -148,7 +148,7 @@ class SNBFile:
         for root, dirs, files in os.walk(tdir):
             for name in files:
                 p, ext = os.path.splitext(name)
-                if ext in [".snbf", ".snbc"]:
+                if ext in ['.snbf', '.snbc']:
                     self.AppendPlain(os.path.relpath(os.path.join(root, name), tdir), tdir)
                 else:
                     self.AppendBinary(os.path.relpath(os.path.join(root, name), tdir), tdir)
@@ -161,7 +161,7 @@ class SNBFile:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, str):
-            f.fileName = f.fileName.encode("ascii", "ignore")
+            f.fileName = f.fileName.encode('ascii', 'ignore')
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -172,7 +172,7 @@ class SNBFile:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, str):
-            f.fileName = f.fileName.encode("ascii", "ignore")
+            f.fileName = f.fileName.encode('ascii', 'ignore')
         self.files.append(f)
 
     def GetFileStream(self, fileName):
@@ -220,7 +220,7 @@ class SNBFile:
                 f.contentOffset = len(binStream)
                 binStream += f.fileBody
             else:
-                raise Exception(f"Unknown file type: {f.attr} {f.fileName}")
+                raise Exception(f'Unknown file type: {f.attr} {f.fileName}')
         vfatCompressed = zlib.compress(vfat+fileNameTable)
 
         # File header part 2
@@ -282,31 +282,31 @@ class SNBFile:
 
     def Dump(self):
         if self.fileName:
-            print("File Name:\t", self.fileName)
-        print("File Count:\t", self.fileCount)
-        print("VFAT Size(Compressed):\t%d(%d)" % (self.vfatSize, self.vfatCompressed))
-        print("Binary Stream Size:\t", self.binStreamSize)
-        print("Plain Stream Uncompressed Size:\t", self.plainStreamSizeUncompressed)
-        print("Binary Block Count:\t", self.binBlock)
-        print("Plain Block Count:\t", self.plainBlock)
+            print('File Name:\t', self.fileName)
+        print('File Count:\t', self.fileCount)
+        print('VFAT Size(Compressed):\t%d(%d)' % (self.vfatSize, self.vfatCompressed))
+        print('Binary Stream Size:\t', self.binStreamSize)
+        print('Plain Stream Uncompressed Size:\t', self.plainStreamSizeUncompressed)
+        print('Binary Block Count:\t', self.binBlock)
+        print('Plain Block Count:\t', self.plainBlock)
         for i in range(self.fileCount):
-            print("File ", i)
+            print('File ', i)
             f = self.files[i]
-            print("File Name: ", f.fileName)
-            print("File Attr: ", f.attr)
-            print("File Size: ", f.fileSize)
-            print("Block Index: ", f.blockIndex)
-            print("Content Offset: ", f.contentOffset)
-            with open("/tmp/" + f.fileName, 'wb') as tempFile:
+            print('File Name: ', f.fileName)
+            print('File Attr: ', f.attr)
+            print('File Size: ', f.fileSize)
+            print('Block Index: ', f.blockIndex)
+            print('Content Offset: ', f.contentOffset)
+            with open('/tmp/' + f.fileName, 'wb') as tempFile:
                 tempFile.write(f.fileBody)
 
 
 def usage():
-    print("This unit test is for INTERNAL usage only!")
-    print("This unit test accept two parameters.")
-    print("python snbfile.py <INPUTFILE> <DESTFILE>")
-    print("The input file will be extracted and write to dest file. ")
-    print("Meta data of the file will be shown during this process.")
+    print('This unit test is for INTERNAL usage only!')
+    print('This unit test accept two parameters.')
+    print('python snbfile.py <INPUTFILE> <DESTFILE>')
+    print('The input file will be extracted and write to dest file. ')
+    print('Meta data of the file will be shown during this process.')
 
 
 def main():
@@ -316,19 +316,19 @@ def main():
     inputFile = sys.argv[1]
     outputFile = sys.argv[2]
 
-    print("Input file: ", inputFile)
-    print("Output file: ", outputFile)
+    print('Input file: ', inputFile)
+    print('Output file: ', outputFile)
 
     snbFile = SNBFile(inputFile)
     if snbFile.IsValid():
         snbFile.Dump()
         snbFile.Output(outputFile)
     else:
-        print("The input file is invalid.")
+        print('The input file is invalid.')
         return 1
     return 0
 
 
-if __name__ == "__main__":
-    """SNB file unit test"""
+if __name__ == '__main__':
+    '''SNB file unit test'''
     sys.exit(main())

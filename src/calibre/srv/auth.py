@@ -159,7 +159,7 @@ class DigestAuth:  # {{{
         return md5_hex(val)
 
     def H_A2(self, data):
-        """Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3."""
+        '''Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3.'''
         # RFC 2617 3.2.2.3
         # If the "qop" directive's value is "auth" or is unspecified,
         # then A2 is:
@@ -167,8 +167,8 @@ class DigestAuth:  # {{{
         #
         # If the "qop" value is "auth-int", then A2 is:
         #    A2 = method ":" digest-uri-value ":" H(entity-body)
-        if self.qop == "auth-int":
-            a2 = f"{data.method}:{self.uri}:{self.H(data.peek())}"
+        if self.qop == 'auth-int':
+            a2 = f'{data.method}:{self.uri}:{self.H(data.peek())}'
         else:
             a2 = f'{data.method}:{self.uri}'
         return self.H(a2)
@@ -178,10 +178,10 @@ class DigestAuth:  # {{{
         ha2 = self.H_A2(data)
         # Request-Digest -- RFC 2617 3.2.2.1
         if self.qop:
-            req = "{}:{}:{}:{}:{}".format(
+            req = '{}:{}:{}:{}:{}'.format(
                 self.nonce, self.nonce_count, self.cnonce, self.qop, ha2)
         else:
-            req = f"{self.nonce}:{ha2}"
+            req = f'{self.nonce}:{ha2}'
 
         # RFC 2617 3.2.2.2
         #

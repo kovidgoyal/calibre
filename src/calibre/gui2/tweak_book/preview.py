@@ -139,7 +139,7 @@ class ParseWorker(Thread):
                 pi.parsing_done = True
                 parsed_data = res['result']
                 if res['tb']:
-                    prints("Parser error:")
+                    prints('Parser error:')
                     prints(res['tb'])
                 else:
                     pi.parsed_data = parsed_data

@@ -118,14 +118,14 @@ def get_ranges(headervalue, content_length):  # {{{
 
     result = []
     try:
-        bytesunit, byteranges = headervalue.split("=", 1)
+        bytesunit, byteranges = headervalue.split('=', 1)
     except Exception:
         return None
     if bytesunit.strip() != 'bytes':
         return None
 
-    for brange in byteranges.split(","):
-        start, stop = (x.strip() for x in brange.split("-", 1))
+    for brange in byteranges.split(','):
+        start, stop = (x.strip() for x in brange.split('-', 1))
         if start:
             if not stop:
                 stop = content_length - 1
@@ -170,7 +170,7 @@ def gzip_prefix():
 
 
 def compress_readable_output(src_file, compress_level=6):
-    crc = zlib.crc32(b"")
+    crc = zlib.crc32(b'')
     size = 0
     zobj = zlib.compressobj(compress_level,
                             zlib.DEFLATED, -zlib.MAX_WBITS,
@@ -187,7 +187,7 @@ def compress_readable_output(src_file, compress_level=6):
             prefix_written = True
             data = gzip_prefix() + data
         yield data
-    yield zobj.flush() + struct.pack(b"<L", crc & 0xffffffff) + struct.pack(b"<L", size)
+    yield zobj.flush() + struct.pack(b'<L', crc & 0xffffffff) + struct.pack(b'<L', size)
 # }}}
 
 
@@ -419,12 +419,12 @@ class HTTPConnection(HTTPRequest):
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
             '%s %d %s' % (self.response_protocol, status_code, http_client.responses[status_code]),
-            "Content-Length: %s" % len(msg),
-            "Content-Type: text/%s; charset=UTF-8" % ct,
-            "Date: " + http_date(),
+            'Content-Length: %s' % len(msg),
+            'Content-Type: text/%s; charset=UTF-8' % ct,
+            'Date: ' + http_date(),
         ]
         if self.close_after_response and self.response_protocol is HTTP11:
-            buf.append("Connection: close")
+            buf.append('Connection: close')
         if extra_headers is not None:
             for h, v in iteritems(extra_headers):
                 buf.append(f'{h}: {v}')
@@ -460,8 +460,8 @@ class HTTPConnection(HTTPRequest):
                 self.response_protocol,
                 http_client.REQUESTED_RANGE_NOT_SATISFIABLE,
                 http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
-            "Date: " + http_date(),
-            "Content-Range: bytes */%d" % content_length,
+            'Date: ' + http_date(),
+            'Content-Range: bytes */%d' % content_length,
         ]
         response_data = header_list_to_file(buf)
         self.log_access(status_code=http_client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
@@ -470,8 +470,8 @@ class HTTPConnection(HTTPRequest):
     def send_not_modified(self, etag=None):
         buf = [
             '%s %d %s' % (self.response_protocol, http_client.NOT_MODIFIED, http_client.responses[http_client.NOT_MODIFIED]),
-            "Content-Length: 0",
-            "Date: " + http_date(),
+            'Content-Length: 0',
+            'Date: ' + http_date(),
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)

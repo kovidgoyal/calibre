@@ -14,9 +14,9 @@ import sys
 
 
 class BorderParse:
-    """
+    '''
     Parse a border line and return a dictionary of attributes and values
-    """
+    '''
 
     def __init__(self):
         # cw<bd<bor-t-r-hi<nu<true
@@ -75,13 +75,13 @@ class BorderParse:
         }
 
     def parse_border(self, line):
-        """
+        '''
         Requires:
             line -- line with border definition in it
         Returns:
             ?
         Logic:
-        """
+        '''
         border_dict = {}
         border_style_dict = {}
         border_style_list = []

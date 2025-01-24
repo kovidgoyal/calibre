@@ -87,7 +87,7 @@ class NewYorkTimes(BasicNewsRecipe):
     is_web_edition = True
     oldest_web_edition_article = 7  # days
 
-    extra_css = """
+    extra_css = '''
         .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
@@ -95,7 +95,7 @@ class NewYorkTimes(BasicNewsRecipe):
         .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
         img { display:block; margin:0 auto; }
-    """
+    '''
 
     @property
     def nyt_parser(self):

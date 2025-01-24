@@ -19,12 +19,12 @@ def get_download_filename_from_response(response):
             if 'filename' in p:
                 if '*=' in disposition:
                     parts = disposition.split('*=')[-1]
-                    filename = parts.split('\'')[-1]
+                    filename = parts.split("'")[-1]
                 else:
                     filename = disposition.split('=')[-1]
-                if filename[0] in ('\'', '"'):
+                if filename[0] in ("'", '"'):
                     filename = filename[1:]
-                if filename[-1] in ('\'', '"'):
+                if filename[-1] in ("'", '"'):
                     filename = filename[:-1]
                 filename = unquote(filename)
                 break

@@ -26,7 +26,7 @@ class Parool(BasicNewsRecipe):
         dict(attrs={'data-element-id': ['article-element-authors']}),
         dict(name=['script', 'noscript', 'style']),
     ]
-    remove_attributes = ["class", "id", "name", "style"]
+    remove_attributes = ['class', 'id', 'name', 'style']
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
@@ -50,7 +50,7 @@ class Parool(BasicNewsRecipe):
                 teaser_label = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__label'})).strip()
                 teaser_sublabel = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__sublabel'})).strip()
                 teaser_title = self.tag_to_string(header.find('h3').find('span', attrs={'class': 'teaser__title__value--short'})).strip()
-                ignore = { "dirkjan", "s1ngle", "pukkels", "hein de kort" }
+                ignore = { 'dirkjan', 's1ngle', 'pukkels', 'hein de kort' }
                 if teaser_label.lower() in ignore:
                     continue
                 parts = []
@@ -74,13 +74,13 @@ class Parool(BasicNewsRecipe):
                 if tag['src'][0] == '/':
                     tag['src'] = 'https://www.parool.nl' + tag['src']
         for tag in soup():
-            if tag.name == "picture":
-                tag.replaceWith(tag.find("img"))
+            if tag.name == 'picture':
+                tag.replaceWith(tag.find('img'))
         comic_articles = {
-            "Alle strips van Dirkjan",
-            "S1NGLE",
-            "Pukkels",
-            "Bekijk hier alle cartoons van Hein de Kort",
+            'Alle strips van Dirkjan',
+            'S1NGLE',
+            'Pukkels',
+            'Bekijk hier alle cartoons van Hein de Kort',
         }
         if self.tag_to_string(soup.find('h1')).strip() in comic_articles:
             for node in soup.find('figure').find_next_siblings():
@@ -93,8 +93,8 @@ class Parool(BasicNewsRecipe):
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'DNT': '1',
         }
-        url = "https://login-api.e-pages.dk/v1/krant.parool.nl/folders"
+        url = 'https://login-api.e-pages.dk/v1/krant.parool.nl/folders'
         with closing(self.browser.open(Request(url, None, headers))) as r:
             folders = json.loads(r.read())
-            return folders["objects"][0]["teaser_medium"]
+            return folders['objects'][0]['teaser_medium']
         return None

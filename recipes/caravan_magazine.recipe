@@ -96,7 +96,7 @@ class CaravanMagazine(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         if not self.username or not self.password:
             return br
-        data = json.dumps({"0":{"json":{"email":self.username,"password":self.password}}})
+        data = json.dumps({'0':{'json':{'email':self.username,'password':self.password}}})
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         rq = Request(
@@ -138,7 +138,7 @@ class CaravanMagazine(BasicNewsRecipe):
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             x = d.split('-')
-            inp = json.dumps({"0":{"json":{"month":int(x[0]),"year":int(x[1])}}})
+            inp = json.dumps({'0':{'json':{'month':int(x[0]),'year':int(x[1])}}})
             api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
 
         raw = json.loads(self.index_to_soup(api, raw=True))
@@ -174,7 +174,7 @@ class CaravanMagazine(BasicNewsRecipe):
 
     def print_version(self, url):
         slug = urlparse(url).path
-        inp = json.dumps({"0":{"json":{"slug":slug}}})
+        inp = json.dumps({'0':{'json':{'slug':slug}}})
         return 'https://api.caravanmagazine.in/api/trpc/articles.getFromCache?batch=1&input=' + quote(inp, safe='')
 
     def preprocess_raw_html(self, raw, url):

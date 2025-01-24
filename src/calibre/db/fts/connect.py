@@ -39,7 +39,7 @@ class FTS:
             if conn.fts_dbpath is None:
                 main_db_path = os.path.abspath(conn.db_filename('main'))
                 dbpath = os.path.join(os.path.dirname(main_db_path), 'full-text-search.db')
-                conn.execute("ATTACH DATABASE ? AS fts_db", (dbpath,))
+                conn.execute('ATTACH DATABASE ? AS fts_db', (dbpath,))
                 SchemaUpgrade(conn)
                 conn.execute('UPDATE fts_db.dirtied_formats SET in_progress=FALSE WHERE in_progress=TRUE')
                 num_dirty = conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]

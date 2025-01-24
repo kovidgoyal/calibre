@@ -5,9 +5,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class CATOInstitute(BasicNewsRecipe):
     title = u'The CATO Institute'
-    description         = "The Cato Institute is a public policy research organization — a think tank — \
+    description         = 'The Cato Institute is a public policy research organization — a think tank — \
 dedicated to the principles of individual liberty, limited government, free markets and peace.\
- Its scholars and analysts conduct independent, nonpartisan research on a wide range of policy issues."
+ Its scholars and analysts conduct independent, nonpartisan research on a wide range of policy issues.'
     __author__ = '_reader'
     __date__ = '05 July 2012'
     __version__ = '1.0'

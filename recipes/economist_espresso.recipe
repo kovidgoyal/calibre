@@ -58,7 +58,7 @@ def load_article_from_json(raw, root):
     body = root.xpath('//body')[0]
     article = E(body, 'article')
     E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
-    E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+    E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
     E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
     E(article, 'div', data['byline'], style='font-style: italic; color:#202020;')
     main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
@@ -130,7 +130,7 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={
                 'class': [
                     'dblClkTrk', 'ec-article-info', 'share_inline_header',
@@ -189,13 +189,13 @@ class Espresso(BasicNewsRecipe):
         self.description = data['rubric']
 
         ans = []
-        for part in safe_dict(data, "hasPart", "parts"):
-            title = safe_dict(part, "title")
+        for part in safe_dict(data, 'hasPart', 'parts'):
+            title = safe_dict(part, 'title')
             pt = PersistentTemporaryFile('.html')
             pt.write(json.dumps(part).encode('utf-8'))
             pt.close()
             url = 'file:///' + pt.name
-            ans.append({"title": title, "url": url})
+            ans.append({'title': title, 'url': url})
         return [('Espresso', ans)]
 
     def preprocess_html(self, soup):

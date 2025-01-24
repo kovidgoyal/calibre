@@ -33,13 +33,13 @@ class Nspm(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'magazine'
     masthead_url = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
-    extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+    extra_css             = ''' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 body{font-family: "Times New Roman", serif1, serif}
                                 .article_description{font-family: Arial, sans1, sans-serif}
                                 img{margin-top:0.5em; margin-bottom: 0.7em; display: block}
                                 .author{color: #990000; font-weight: bold}
-                                .author,.createdate{font-size: 0.9em} """
+                                .author,.createdate{font-size: 0.9em} '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True

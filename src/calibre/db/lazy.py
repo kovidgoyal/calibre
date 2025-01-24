@@ -384,8 +384,8 @@ class ProxyMetadata(Metadata):
     # compatibility, flag __iter__ as unimplemented. This won't break anything
     # because the Metadata version raises AttributeError
     def __iter__(self):
-        raise NotImplementedError("__iter__() cannot be used in this context. "
-                                   "Use the explicit methods such as all_field_keys()")
+        raise NotImplementedError('__iter__() cannot be used in this context. '
+                                   'Use the explicit methods such as all_field_keys()')
 
     def has_key(self, key):
         return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')

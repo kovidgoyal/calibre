@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AmericanThinker(BasicNewsRecipe):
     title = u'American Thinker'
-    description = "American Thinker is a daily internet publication devoted to the thoughtful exploration of issues of importance to Americans."
+    description = 'American Thinker is a daily internet publication devoted to the thoughtful exploration of issues of importance to Americans.'
     __author__ = 'Walt Anthony'
     publisher = 'Thomas Lifson'
     category = 'news, politics, USA'

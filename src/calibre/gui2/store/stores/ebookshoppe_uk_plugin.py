@@ -46,7 +46,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.ebookshoppe.com/search.php?search_query=' + quote(query)
         br = browser()
-        br.addheaders = [("Referer", "http://www.ebookshoppe.com/")]
+        br.addheaders = [('Referer', 'http://www.ebookshoppe.com/')]
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:

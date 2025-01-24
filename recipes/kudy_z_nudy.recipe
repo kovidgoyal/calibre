@@ -22,8 +22,8 @@ class kudyznudyRecipe(BasicNewsRecipe):
     cover_url = 'http://www.kudyznudy.cz/App_Themes/KzN/Images/Containers/Header/HeaderLogoKZN.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = """
-                            """
+    extra_css             = '''
+                            '''
 
     remove_attributes = []
     remove_tags_before = dict(

@@ -817,7 +817,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.edit_metadata(book_id)
         else:
             if key not in self.view.visible_columns:
-                error_dialog(self, _("Quickview: Column cannot be selected"),
+                error_dialog(self, _('Quickview: Column cannot be selected'),
                      _("The column you double-clicked, '{}', is not shown in the "
                        "library view. The book/column cannot be selected by Quickview.").format(key),
                      show=True,

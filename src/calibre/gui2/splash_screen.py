@@ -77,7 +77,7 @@ class SplashScreen(QSplashScreen):
         x = pw + 10
         width -= num_width + 5 + x
         painter.setFont(self.title_font)
-        painter.drawText(x, y, width, self.title_height, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, "CALIBRE")
+        painter.drawText(x, y, width, self.title_height, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, 'CALIBRE')
 
         # Draw starting up message
         y += self.title_height + 5

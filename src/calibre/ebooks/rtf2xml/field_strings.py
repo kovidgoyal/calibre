@@ -15,24 +15,24 @@ import sys
 
 
 class FieldStrings:
-    """
+    '''
     This module is given a string. It processes the field instruction string and
     returns a list of three values.
-    """
+    '''
 
     def __init__(self, bug_handler, run_level=1):
-        """
+        '''
         Requires:
             nothing
         Returns:
             nothing
-        """
+        '''
         self.__run_level = run_level
         self.__bug_handler = bug_handler
         self.__initiate_values()
 
     def __initiate_values(self):
-        """
+        '''
         Requires:
             nothing.
         Returns:
@@ -41,7 +41,7 @@ class FieldStrings:
             initiate values for rest of class.
             self.__field_instruction_dict:
                 The dictionary for all field names.
-        """
+        '''
         self.__field_instruction_dict = {
         # number type (arabic, etc.) and number format (\# " ")
         'EDITTIME'      :       (self.__num_type_and_format_func, 'editing-time'),
@@ -226,7 +226,7 @@ class FieldStrings:
         return the_list
 
     def __default_inst_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name -- the first word in the string
             name -- the changed name according to the dictionary
@@ -235,11 +235,11 @@ class FieldStrings:
             The name of the field.
         Logic:
             I only need the changed name for the field.
-        """
+        '''
         return [None, None, name]
 
     def __fall_back_func(self, field_name,  line):
-        """
+        '''
         Requires:
             field_name -- the first word in the string
             name -- the changed name according to the dictionary
@@ -248,13 +248,13 @@ class FieldStrings:
             The name of the field.
         Logic:
             Used for fields not found in dict
-        """
+        '''
         the_string = field_name
         the_string += '<update>none'
         return [None, None, the_string]
 
     def __equation_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -262,11 +262,11 @@ class FieldStrings:
         Returns:
             The name of the field
         Logic:
-        """
+        '''
         return [None, None, name]
 
     def __no_switch_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name --the first
             field_name -- the first word in the string
@@ -275,11 +275,11 @@ class FieldStrings:
         Returns:
             The name of the field
         Logic:
-        """
+        '''
         return [None, None, name]
 
     def __num_type_and_format_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -289,7 +289,7 @@ class FieldStrings:
         Logic:
             parse num_type
             parse num_format
-        """
+        '''
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
@@ -306,7 +306,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __num_format_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -314,7 +314,7 @@ class FieldStrings:
         Returns:
             list of None, None, and part of a tag
         Logic:
-        """
+        '''
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
@@ -322,20 +322,20 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __parse_num_format(self, the_string):
-        """
+        '''
         Required:
             the_string -- the string to parse
         Returns:
             a string if the_string contains number formatting information
             None, otherwise
         Logic:
-        """
+        '''
         match_group = re.search(self.__date_exp, the_string)
         if match_group:
             return match_group(1)
 
     def __parse_num_type(self, the_string):
-        """
+        '''
         Required:
             the_string -- the string to parse
         Returns:
@@ -347,7 +347,7 @@ class FieldStrings:
             Get the \\* Upper part. Use a dictionary to convert the "Arabic" to
             a more-readable word for the value of the key "number-type".
             (<field number-type = "Arabic">
-        """
+        '''
         match_group = re.search(self.__num_type_exp, the_string)
         if match_group:
             name =  match_group.group(1)
@@ -360,7 +360,7 @@ class FieldStrings:
                 sys.stderr.write('no dictionary entry for %s\n' % name)
 
     def __date_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name --the fist
             field_name -- the first word in the string
@@ -369,7 +369,7 @@ class FieldStrings:
         Returns:
             list of None, None, and part of a tag
         Logic:
-        """
+        '''
         the_string = name
         match_group = re.search(self.__date_exp, line)
         if match_group:
@@ -377,7 +377,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __simple_info_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -390,7 +390,7 @@ class FieldStrings:
                 2. Lower
                 3. FirstCap
                 4. Caps
-        """
+        '''
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
@@ -405,20 +405,20 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __hyperlink_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
         Returns:
             The name of the field
-        """
+        '''
         self.__link_switch = re.compile(r'\\l\s{1,}"{0,1}(.*?)"{0,1}\s')
         the_string = name
         match_group = re.search(self.__link_switch, line)
         if match_group:
             link = match_group.group(1)
-            link = link.replace('"', "&quot;")
+            link = link.replace('"', '&quot;')
             the_string += '<link>%s' % link
         # \l "txt" "link"
         # want "file name" so must get rid of \c "txt"
@@ -441,7 +441,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __include_text_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -449,7 +449,7 @@ class FieldStrings:
         Returns:
             The name of the field
         Logic:
-        """
+        '''
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
@@ -471,7 +471,7 @@ class FieldStrings:
         match_group = re.search(self.__quote_exp, line)
         if match_group:
             arg = match_group.group(1)
-            arg = arg.replace('"', "&quot;")
+            arg = arg.replace('"', '&quot;')
             the_string += '<argument>%s' % arg
         else:
             sys.stderr.write('Module is field_strings\n')
@@ -483,7 +483,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __include_pict_func(self, field_name, name, line):
-        """
+        '''
         Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
@@ -491,12 +491,12 @@ class FieldStrings:
         Returns:
             The name of the field
         Logic:
-        """
+        '''
         the_string = name
         match_group = re.search(self.__filter_switch, line)
         if match_group:
             arg = match_group.group(1)
-            arg = arg.replace('"', "&quot;")
+            arg = arg.replace('"', '&quot;')
             the_string += '<filter>%s' % arg
         # \c "txt" "file name"
         # want "file name" so must get rid of \c "txt"
@@ -515,7 +515,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __ref_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name -- the first word in the string
             name -- the changed name according to the dictionary
@@ -527,7 +527,7 @@ class FieldStrings:
                 PAGEREF _Toc440880424 \\h
             I want to extract the second line of info, which is used as an
             anchor in the resulting XML file.
-        """
+        '''
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
         if match_group:
@@ -569,7 +569,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __toc_table_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name -- the name of the first word in the string
             name --the changed name, according to the dictionary.
@@ -579,7 +579,7 @@ class FieldStrings:
         Logic:
             If the string contains Figure, it is a table of figures.
             Otherwise, it is a plain old table of contents.
-        """
+        '''
         the_string = name
         index = line.find('\\c "Figure"')
         if index > -1:
@@ -588,7 +588,7 @@ class FieldStrings:
         return [name, None, the_string]
 
     def __sequence_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --the name of the first word in the string.
             name --the changed name according to the dictionary.
@@ -600,14 +600,14 @@ class FieldStrings:
             whatever--is represented by the second word in the string. Extract
             and return.
             SEQ Figure \\* ARABIC
-        """
+        '''
         fields = line.split()
         label = fields[1]
         my_string = f'{name}<label>{label}'
         return [None, None, my_string]
 
     def __ta_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --the name of the first word in the string.
             name --the changed name according to the dictionary.
@@ -615,7 +615,7 @@ class FieldStrings:
         Returns:
             A string with a value for the type and label attributes
         Logic:
-        """
+        '''
         the_string = name
         match_group = re.search(self.__ta_short_field_exp, line)
         if match_group:
@@ -638,7 +638,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __index_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --the name of the first word in the string.
             name --the changed name according to the dictionary.
@@ -646,7 +646,7 @@ class FieldStrings:
         Returns:
             A string with a value for the type and label attributes
         Logic:
-        """
+        '''
         # self.__index_insert_blank_line_exp = re.compile(r'\\h\s{1,}""')
         # self.__index_insert_letter_exp = re.compile(r'\\h\s{1,}(".*?")')
         the_string = name
@@ -711,7 +711,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __page_ref_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --first name in the string.
             name -- the changed name according to the dictionary.
@@ -719,7 +719,7 @@ class FieldStrings:
         Returns:
             A string .
         Logic:
-        """
+        '''
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
@@ -742,7 +742,7 @@ class FieldStrings:
         return [None, None, the_string]
 
     def __note_ref_func(self, field_name, name, line):
-        """
+        '''
         Requires:
             field_name --first name in the string.
             name -- the changed name according to the dictionary.
@@ -750,7 +750,7 @@ class FieldStrings:
         Returns:
             A string .
         Logic:
-        """
+        '''
         the_string = name
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
@@ -812,5 +812,5 @@ class FieldStrings:
             font_size = int(font_size)
             font_size = '%.2f' % font_size
             changed_line += 'cw<ci<font-size_<nu<%s\n' % font_size
-        changed_line += 'tx<hx<__________<\'%s\n' % num
+        changed_line += "tx<hx<__________<'%s\n" % num
         return ['Symbol', None, changed_line]

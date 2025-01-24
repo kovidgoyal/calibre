@@ -163,7 +163,7 @@ class CSSState:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return f"CSSState(parse={self.parse}, blocks={self.blocks})"
+        return f'CSSState(parse={self.parse}, blocks={self.blocks})'
     __str__ = __repr__
 
 

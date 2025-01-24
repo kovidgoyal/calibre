@@ -59,7 +59,7 @@ class MakeLists:
         self.__write_list_info = write_list_info
 
     def __initiate_values(self):
-        """
+        '''
         Required:
             Nothing
         Return:
@@ -67,11 +67,11 @@ class MakeLists:
         Logic:
             The self.__end_list is a list of tokens that will force a list to end.
             Likewise, the self.__end_lines is a list of lines that forces a list to end.
-        """
-        self.__state = "default"
+        '''
+        self.__state = 'default'
         self.__left_indent = 0
         self.__list_type = 'not-defined'
-        self.__pard_def = ""
+        self.__pard_def = ''
         self.__all_lists = []
         self.__level = 0
         self.__list_chunk = ''
@@ -128,7 +128,7 @@ class MakeLists:
         self.__write_obj.write(line)
 
     def __after_pard_func(self, line):
-        """
+        '''
         Required:
             line -- the line of current text.
         Return:
@@ -145,7 +145,7 @@ class MakeLists:
             If a bigger block is found (such as a section or a cell), end all lists.
             indented.
             If no special line is found, add each line to a buffer.
-        """
+        '''
         if self.__token_info == 'mi<tg<open-att__' and line[17:37] == 'paragraph-definition':
             is_heading = self.__is_a_heading()
             # found paragraph definition and not heading 1
@@ -188,7 +188,7 @@ class MakeLists:
             self.__list_chunk += line
 
     def __list_after_par_def_func(self, line, id):
-        """
+        '''
         Required:
             line -- the line of current text.
             id -- the id of the current list
@@ -203,7 +203,7 @@ class MakeLists:
             If the list id is the same as the last one, check the indent on the
             current paragraph definition. If it is greater than the previous one,
             do not end the current list or item. Start a new list.
-        """
+        '''
         last_list_id = self.__all_lists[-1]['id']
         if id != last_list_id:
             self.__close_lists()
@@ -222,7 +222,7 @@ class MakeLists:
             self.__list_chunk = ''
 
     def __close_lists(self):
-        """
+        '''
         Required:
             Nothing
         Return:
@@ -234,7 +234,7 @@ class MakeLists:
             Keep track of how many levels you close. Reduce the list by that
             many levels.
             Reverse the list again.
-        """
+        '''
         if self.__line_num < 25 and self.__found_appt:
             sys.stderr.write('in closing out lists\n')
             sys.stderr.write('current_indent is "%s"\n' % self.__left_indent)
@@ -253,19 +253,19 @@ class MakeLists:
         self.__all_lists.reverse()
 
     def __write_end_list(self):
-        """
+        '''
         Required:
             Nothing
         Return:
             Nothing
         Logic:
             Write the end of a list.
-        """
+        '''
         self.__write_obj.write('mi<tg<close_____<list\n')
         self.__write_obj.write('mi<mk<list_close\n')
 
     def __write_start_list(self, id):
-        """
+        '''
         Required:
             id -- the id of the current list.
         Return:
@@ -281,7 +281,7 @@ class MakeLists:
             the first item of what I just got. This is a dictionary. Get the list-id.
             This is  a list. Check to see if the current id is in this list. If
             so, then get the list-type from the dictionary.
-        """
+        '''
         the_dict = {}
         the_dict['left-indent'] = self.__left_indent
         the_dict['id'] = id
@@ -341,7 +341,7 @@ class MakeLists:
         self.__write_start_item()
 
     def __get_index_of_list(self, id):
-        """
+        '''
         Requires:
             id -- id of current paragraph-definition
         Returns:
@@ -353,7 +353,7 @@ class MakeLists:
             track of how many times you iterate with the counter.
             Once you find a match, return the counter.
             If no match is found, print out an error message.
-        """
+        '''
         # some RTF use 0 indexed list. Don't know what to do?
         if id == '0':
             return
@@ -386,7 +386,7 @@ class MakeLists:
         self.__write_obj.write('mi<tg<item__end_\n')
 
     def __default_func(self, line):
-        """
+        '''
         Required:
             self, line
         Returns:
@@ -395,7 +395,7 @@ class MakeLists:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-            """
+            '''
         if self.__token_info == 'mi<tg<open-att__' and line[17:37] == 'paragraph-definition':
             is_a_heading = self.__is_a_heading()
             if not is_a_heading:
@@ -429,20 +429,20 @@ class MakeLists:
         if self.__token_info == 'mi<mk<list-type_':  # <ordered
             self.__list_type = line[17:-1]
             if self.__list_type == 'item':
-                self.__list_type = "unordered"
+                self.__list_type = 'unordered'
 
     def __get_style_name(self, line):
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
 
     def make_lists(self):
-        """
+        '''
         Required:
             nothing
         Returns:
             original file will be changed
         Logic:
-        """
+        '''
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
@@ -460,6 +460,6 @@ class MakeLists:
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "make_lists.data")
+            copy_obj.copy_file(self.__write_to, 'make_lists.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

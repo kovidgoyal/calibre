@@ -165,24 +165,24 @@ class CanWestPaper(BasicNewsRecipe):
                     continue
                 break
         if daysback == 7:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
     def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\x91", "‘", string)
+        fixed = re.sub('\x91', '‘', string)
         # Replace rsquo (\x92)
-        fixed = re.sub("\x92", "’", fixed)
+        fixed = re.sub('\x92', '’', fixed)
         # Replace ldquo (\x93)
-        fixed = re.sub("\x93", "“", fixed)
+        fixed = re.sub('\x93', '“', fixed)
         # Replace rdquo (\x94)
-        fixed = re.sub("\x94", "”", fixed)
+        fixed = re.sub('\x94', '”', fixed)
         # Replace ndash (\x96)
-        fixed = re.sub("\x96", "–", fixed)
+        fixed = re.sub('\x96', '–', fixed)
         # Replace mdash (\x97)
-        fixed = re.sub("\x97", "—", fixed)
-        fixed = re.sub("&#x2019;", "’", fixed)
+        fixed = re.sub('\x97', '—', fixed)
+        fixed = re.sub('&#x2019;', '’', fixed)
         return fixed
 
     def massageNCXText(self, description):
@@ -263,10 +263,10 @@ class CanWestPaper(BasicNewsRecipe):
                     if url.startswith('/'):
                         url = self.url_prefix + url
                     if not url.startswith(self.url_prefix):
-                        print("Rejected " + url)
+                        print('Rejected ' + url)
                         return
                     if url in self.url_list:
-                        print("Rejected dup " + url)
+                        print('Rejected dup ' + url)
                         return
                     self.url_list.append(url)
                     title = self.tag_to_string(atag, False)
@@ -278,8 +278,8 @@ class CanWestPaper(BasicNewsRecipe):
                         return
                     dtag = adiv.find('div', 'content')
                     description = ''
-                    print("URL " + url)
-                    print("TITLE " + title)
+                    print('URL ' + url)
+                    print('TITLE ' + title)
                     if dtag is not None:
                         stag = dtag.span
                         if stag is not None:
@@ -287,18 +287,18 @@ class CanWestPaper(BasicNewsRecipe):
                                 description = self.tag_to_string(stag, False)
                         else:
                             description = self.tag_to_string(dtag, False)
-                        print("DESCRIPTION: " + description)
+                        print('DESCRIPTION: ' + description)
                     if key not in articles:
                         articles[key] = []
                     articles[key].append(dict(
                         title=title, url=url, date='', description=description, author='', content=''))
 
         def parse_web_index(key, keyurl):
-            print("Section: " + key + ': ' + self.url_prefix + keyurl)
+            print('Section: ' + key + ': ' + self.url_prefix + keyurl)
             try:
                 soup = self.index_to_soup(self.url_prefix + keyurl)
             except:
-                print("Section: " + key + ' NOT FOUND')
+                print('Section: ' + key + ' NOT FOUND')
                 return
             ans.append(key)
             mainsoup = soup.find('div', 'bodywrapper')

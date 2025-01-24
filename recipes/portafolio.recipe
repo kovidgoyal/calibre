@@ -20,12 +20,12 @@ class AdvancedUserRecipe1311799898(BasicNewsRecipe):
     masthead_url = 'http://www.portafolio.co/sites/portafolio.co/themes/portafolio_2011/logo.png'
     publication_type = 'newspaper'
 
-    extra_css             = """
+    extra_css             = '''
                                p{text-align: justify; font-size: 100%}
                                body{ text-align: left; font-size:100% }
                                h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
                                h3{font-family: sans-serif; font-size:100%; font-style: italic; text-align: justify; }
-                                 """
+                                 '''
 
     feeds = [(u'Negocios', u'http://www.portafolio.co/negocios/feed'),
              (u'Economia', u'http://www.portafolio.co/economia/feed'),

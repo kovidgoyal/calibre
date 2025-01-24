@@ -28,11 +28,11 @@ class Thenation(BasicNewsRecipe):
     login_url = 'http://www.thenation.com/user?destination=%3Cfront%3E'
     publication_type = 'magazine'
     needs_subscription = 'optional'
-    exra_css              = """
+    exra_css              = '''
                               body{font-family: Arial,Helvetica,sans-serif;}
                               .print-created{font-size: small;}
                               .caption{display: block; font-size: x-small;}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -47,7 +47,7 @@ class Thenation(BasicNewsRecipe):
     ]
     remove_attributes = ['lang']
 
-    feeds = [(u"Articles", u'http://www.thenation.com/rss/articles')]
+    feeds = [(u'Articles', u'http://www.thenation.com/rss/articles')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

@@ -5,11 +5,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheMITPressReader(BasicNewsRecipe):
-    title = "The MIT Press Reader"
+    title = 'The MIT Press Reader'
     __author__ = 'yodha8'
     language = 'en'
-    description = ("Thought-provoking excerpts, interviews and essays backed by academic rigor written by MIT Press authors."
-                   " This recipe pulls articles from the past 7 days.")
+    description = ('Thought-provoking excerpts, interviews and essays backed by academic rigor written by MIT Press authors.'
+                   ' This recipe pulls articles from the past 7 days.')
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True

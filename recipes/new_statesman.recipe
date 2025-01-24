@@ -28,10 +28,10 @@ class NewStatesman(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.newstatesman.com/sites/all/themes/creative-responsive-theme/images/newstatesman_logo@2x.png'
 
-    extra_css = """
+    extra_css = '''
         body{font-family: serif}
         img{margin-top:1em; margin-bottom: 1em; display:block}
-    """
+    '''
 
     conversion_options = {
         'comment': description,

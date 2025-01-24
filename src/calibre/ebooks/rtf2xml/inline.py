@@ -6,7 +6,7 @@ from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
 
-"""
+'''
 States.
 1. default
     1. an open bracket ends this state.
@@ -16,14 +16,14 @@ States.
     1. The lack of a control word ends this state.
     2. paragraph end -- close out all tags
     3. footnote beg -- close out all tags
-"""
+'''
 
 
 class Inline:
-    """
+    '''
     Make inline tags within lists.
     Logic:
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -47,9 +47,9 @@ class Inline:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__state_dict = {
             'default':              self.__default_func,
             'after_open_bracket':   self.__after_open_bracket_func,
@@ -120,13 +120,13 @@ class Inline:
         self.__caps_list = ['false']
 
     def __set_list_func(self, line):
-        """
+        '''
         Requires:
             line--line of text
         Returns:
             nothing
         Logic:
-        """
+        '''
         if self.__place == 'in_list':
             if self.__token_info == 'mi<mk<lst-tx-end':
                 self.__place = 'not_in_list'
@@ -139,14 +139,14 @@ class Inline:
                 self.__groups_in_waiting = self.__groups_in_waiting_list
 
     def __default_func(self, line):
-        """
+        '''
         Requires:
             line-- line of text
         Returns:
             nothing
         Logic:
             Write if not hardline break
-        """
+        '''
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
@@ -168,7 +168,7 @@ class Inline:
         self.__inline_list[-1]['contains_inline'] = 0
 
     def __after_open_bracket_func(self, line):
-        """
+        '''
         Requires:
             line --line of text
         Returns:
@@ -178,7 +178,7 @@ class Inline:
             method to add to the dictionary.
             Use the dictionary to get the appropriate function.
             Always print out the line.
-        """
+        '''
         if line[0:5] == 'cw<ci':  # calibre: bug in original function no diff between cw<ci and cw<pf
             self.__handle_control_word(line)
         else:
@@ -189,7 +189,7 @@ class Inline:
         self.__write_obj.write(line)
 
     def __handle_control_word(self, line):
-        """
+        '''
         Required:
             line --line of text
         Returns:
@@ -200,7 +200,7 @@ class Inline:
             If the font style of Symbol, Wingdings, or Dingbats is found,
             always mark this. I need this later to convert the text to
             the right utf.
-        """
+        '''
         # cw<ci<shadow_____<nu<true
         # self.__char_dict = {
         char_info = line[6:16]
@@ -209,7 +209,7 @@ class Inline:
         if name:
             self.__inline_list[-1]['contains_inline'] = 1
             self.__inline_list[-1][name] = char_value
-            """
+            '''
             if name == 'font-style':
                 if char_value == 'Symbol':
                     self.__write_obj.write('mi<mk<font-symbo\n')
@@ -217,7 +217,7 @@ class Inline:
                     self.__write_obj.write('mi<mk<font-wingd\n')
                 elif char_value == 'Zapf Dingbats':
                     self.__write_obj.write('mi<mk<font-dingb\n')
-            """
+            '''
 
     def __close_bracket_func(self, line):
         """
@@ -259,7 +259,7 @@ class Inline:
             self.__groups_in_waiting[0] -= 1
 
     def __found_text_func(self, line):
-        """
+        '''
         Required:
             line--line of text
         Return:
@@ -271,7 +271,7 @@ class Inline:
                 Text can mark the start of a paragraph.
                 If already in a paragraph, check to see if any groups are waiting
                 to be added. If so, use another method to write these groups.
-        """
+        '''
         if self.__place == 'in_list':
             self.__write_inline()
         else:
@@ -326,7 +326,7 @@ class Inline:
         self.__groups_in_waiting[0] = 0
 
     def __end_para_func(self, line):
-        """
+        '''
         Requires:
             line -- line of text
         Returns:
@@ -335,7 +335,7 @@ class Inline:
             Slice from the end the groups in waiting.
             Iterate through the list. If the dictionary contaings info, write
             a closing tag.
-        """
+        '''
         if not self.__in_para:
             return
         if self.__groups_in_waiting[0] == 0:
@@ -355,7 +355,7 @@ class Inline:
         self.__in_para = 0
 
     def __start_para_func(self, line):
-        """
+        '''
         Requires:
             line -- line of text
         Returns:
@@ -364,7 +364,7 @@ class Inline:
             Iterate through the self.__inline_list to get each dict.
             If the dict containst inline info, get the keys.
             Iterate through the keys and print out the key and value.
-        """
+        '''
         for the_dict in self.__inline_list:
             contains_info = the_dict.get('contains_inline')
             if contains_info :
@@ -390,7 +390,7 @@ class Inline:
         pass
 
     def form_tags(self):
-        """
+        '''
         Requires:
             area--area to parse (list or non-list)
         Returns:
@@ -398,7 +398,7 @@ class Inline:
         Logic:
             Read one line in at a time. Determine what action to take based on
             the state.
-        """
+        '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
@@ -423,6 +423,6 @@ class Inline:
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "inline.data")
+            copy_obj.copy_file(self.__write_to, 'inline.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

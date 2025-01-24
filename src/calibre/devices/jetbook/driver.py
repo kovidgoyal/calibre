@@ -38,8 +38,8 @@ class JETBOOK(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Jetbook Storage Card'
 
-    EBOOK_DIR_MAIN = "Books"
-    EBOOK_DIR_CARD_A = "Books"
+    EBOOK_DIR_MAIN = 'Books'
+    EBOOK_DIR_CARD_A = 'Books'
     SUPPORTS_SUB_DIRS = True
 
     JETBOOK_FILE_NAME_PATTERN = re.compile(

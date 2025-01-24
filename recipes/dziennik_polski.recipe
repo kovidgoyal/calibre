@@ -120,7 +120,7 @@ class DziennikPolski24(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open('http://www.dziennikpolski24.pl/pl/moje-konto/950606-loguj.html')
             br.select_form(nr=1)
-            br["user_login[login]"] = self.username
+            br['user_login[login]'] = self.username
             br['user_login[pass]'] = self.password
             br.submit()
         return br

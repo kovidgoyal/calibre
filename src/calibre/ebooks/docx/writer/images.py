@@ -145,8 +145,8 @@ class ImagesManager:
             parent = makeelement(ans, 'wp:anchor', **get_image_margins(style))
             # The next three lines are boilerplate that Word requires, even
             # though the DOCX specs define defaults for all of them
-            parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc',"0"), parent.set('locked', "0")
-            parent.set('layoutInCell', "1"), parent.set('allowOverlap', '1')
+            parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc','0'), parent.set('locked', '0')
+            parent.set('layoutInCell', '1'), parent.set('allowOverlap', '1')
             makeelement(parent, 'wp:simplePos', x='0', y='0')
             makeelement(makeelement(parent, 'wp:positionH', relativeFrom='margin'), 'wp:align').text = floating
             makeelement(makeelement(parent, 'wp:positionV', relativeFrom='line'), 'wp:align').text = 'top'
@@ -169,7 +169,7 @@ class ImagesManager:
     def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid=''):
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
         makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=alt)
-        makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
+        makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect='1')
         g = makeelement(parent, 'a:graphic')
         gd = makeelement(g, 'a:graphicData', uri=namespaces['pic'])
         pic = makeelement(gd, 'pic:pic')
@@ -231,8 +231,8 @@ class ImagesManager:
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)
         parent = makeelement(ans, 'wp:anchor', **{'dist'+edge:'0' for edge in 'LRTB'})
-        parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc',"0"), parent.set('locked', "0")
-        parent.set('layoutInCell', "1"), parent.set('allowOverlap', '1')
+        parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc','0'), parent.set('locked', '0')
+        parent.set('layoutInCell', '1'), parent.set('allowOverlap', '1')
         makeelement(parent, 'wp:simplePos', x='0', y='0')
         makeelement(makeelement(parent, 'wp:positionH', relativeFrom='page'), 'wp:align').text = 'center'
         makeelement(makeelement(parent, 'wp:positionV', relativeFrom='page'), 'wp:align').text = 'center'

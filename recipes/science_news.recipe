@@ -12,8 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 class ScienceNewsIssue(BasicNewsRecipe):
     title = u'Science News'
-    description = ("Science News is an award-winning bi-weekly newsmagazine covering the most important research"
-                   " in all fields of science. This recipe downloads all the articles from the latest issue.")
+    description = ('Science News is an award-winning bi-weekly newsmagazine covering the most important research'
+                   ' in all fields of science. This recipe downloads all the articles from the latest issue.')
     category = u'Science, Technology, News'
     publisher = u'Society for Science & the Public'
     language = 'en'
@@ -54,16 +54,16 @@ class ScienceNewsIssue(BasicNewsRecipe):
         # Get articles
         soup = self.index_to_soup(url)
         soup = soup.find('main', attrs={'id':'content'})
-        re_article = re.compile("https://www.sciencenews.org/article/")
+        re_article = re.compile('https://www.sciencenews.org/article/')
         stories = []
         past_urls = set()
         for sec in soup.find_all(href=re_article):
 
-            article_url = sec["href"]
+            article_url = sec['href']
             article_title = sec.text.strip()
 
             # Ignore image URLs which do not have text title
-            if article_title == "":
+            if article_title == '':
                 continue
 
             # Ignore if link is a duplicate
@@ -73,12 +73,12 @@ class ScienceNewsIssue(BasicNewsRecipe):
             past_urls.add(article_url)
             self.log('\t', article_title, ' ', article_url)
             article_info = {
-                "url": article_url,
-                "title": article_title,
+                'url': article_url,
+                'title': article_title,
             }
             stories.append(article_info)
 
         index = [
-            ("Articles", stories),
+            ('Articles', stories),
         ]
         return index

@@ -560,15 +560,15 @@ def url_slash_cleaner(url):
 
 
 def human_readable(size, sep=' '):
-    """ Convert a size in bytes into a human readable form """
-    divisor, suffix = 1, "B"
+    ''' Convert a size in bytes into a human readable form '''
+    divisor, suffix = 1, 'B'
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
         if size < (1 << ((i + 1) * 10)):
             divisor, suffix = (1 << (i * 10)), candidate
             break
     size = str(float(size)/divisor)
-    if size.find(".") > -1:
-        size = size[:size.find(".")+2]
+    if size.find('.') > -1:
+        size = size[:size.find('.')+2]
     if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix

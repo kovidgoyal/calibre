@@ -54,7 +54,7 @@ class Bookmark():  # {{{
             'ORDER BY bm.ContentID, bm.chapterprogress'
         )
 
-        debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapters: contentId={self.contentId}")
+        debug_print(f'Kobo::Bookmark::get_bookmark_data - getting kepub chapters: contentId={self.contentId}')
         cursor.execute(kepub_chapter_query, book_query_values)
         kepub_chapters = {}
         if self.kepub:
@@ -66,9 +66,9 @@ class Bookmark():  # {{{
                                                          'chapter_title': chapter_row['Title'],
                                                          'chapter_index': chapter_row['VolumeIndex']
                                                         }
-                debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={kepub_chapters}")
+                debug_print(f'Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={kepub_chapters}')
             except:
-                debug_print("Kobo::Bookmark::get_bookmark_data - No chapters found")
+                debug_print('Kobo::Bookmark::get_bookmark_data - No chapters found')
 
         cursor.execute(bookmark_query, book_query_values)
 
@@ -92,7 +92,7 @@ class Bookmark():  # {{{
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter file_contentID_part='{file_contentID_part}'")
 #                 from urllib import quote
 #                 file_contentID_part = quote(file_contentID_part)
-                chapter_contentID = book_contentID_part + "!" + opf_reference + "!" + file_contentID_part
+                chapter_contentID = book_contentID_part + '!' + opf_reference + '!' + file_contentID_part
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub chapter chapter_contentID='{chapter_contentID}'")
                 kepub_chapter = kepub_chapters.get(chapter_contentID, None)
                 if kepub_chapter is not None:
@@ -115,7 +115,7 @@ class Bookmark():  # {{{
                 e_type = 'Bookmark'
                 text = row['Title']
             # highlight is text with no annotation
-            elif text is not None and (annotation is None or annotation == ""):
+            elif text is not None and (annotation is None or annotation == ''):
                 e_type = 'Highlight'
             elif text and annotation:
                 e_type = 'Annotation'
@@ -165,7 +165,7 @@ class Bookmark():  # {{{
         A string representation of this object, suitable for printing to
         console
         '''
-        ans = ["Kobo bookmark:"]
+        ans = ['Kobo bookmark:']
 
         def fmt(x, y):
             ans.append('%-20s: %s'%(str(x), str(y)))
@@ -181,7 +181,7 @@ class Bookmark():  # {{{
         if self.user_notes:
             fmt('User Notes', self.user_notes)
 
-        ans = '\n'.join(ans) + "\n"
+        ans = '\n'.join(ans) + '\n'
 
         return ans
 

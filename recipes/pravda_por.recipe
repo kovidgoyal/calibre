@@ -22,10 +22,10 @@ class Pravda_port(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
     masthead_url = 'http://port.pravda.ru/pix/logo.gif'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

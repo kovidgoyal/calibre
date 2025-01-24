@@ -237,13 +237,13 @@ class Manual(Command):
         from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
         HandlerClass = SimpleHTTPRequestHandler
         ServerClass = HTTPServer
-        Protocol = "HTTP/1.0"
+        Protocol = 'HTTP/1.0'
         server_address = ('127.0.0.1', 8000)
 
         HandlerClass.protocol_version = Protocol
         httpd = ServerClass(server_address, HandlerClass)
 
-        print("Serving User Manual on localhost:8000")
+        print('Serving User Manual on localhost:8000')
         from calibre.gui2 import open_url
         open_url('http://localhost:8000')
         httpd.serve_forever()

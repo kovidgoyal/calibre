@@ -269,7 +269,7 @@ def css_for_highlight_style(style):
     elif 'background-color' in style:
         ans = 'background-color: ' + style['background-color']
         if 'color' in style:
-            ans += '; color: ' + style["color"]
+            ans += '; color: ' + style['color']
     elif kind == 'decoration':
         which = style.get('which')
         if which is not None:

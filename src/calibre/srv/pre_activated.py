@@ -22,10 +22,10 @@ if islinux:
     import ctypes
 
     class SOCKADDR_NL(ctypes.Structure):
-        _fields_ = [("nl_family", ctypes.c_ushort),
-                    ("nl_pad",    ctypes.c_ushort),
-                    ("nl_pid",    ctypes.c_int),
-                    ("nl_groups", ctypes.c_int)]
+        _fields_ = [('nl_family', ctypes.c_ushort),
+                    ('nl_pad',    ctypes.c_ushort),
+                    ('nl_pid',    ctypes.c_int),
+                    ('nl_groups', ctypes.c_int)]
 
     def getsockfamily(fd):
         addr = SOCKADDR_NL(0, 0, 0, 0)

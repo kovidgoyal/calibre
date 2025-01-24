@@ -33,16 +33,16 @@ class SNBInput(InputFormatPlugin):
         from calibre.ebooks.snb.snbfile import SNBFile
         from calibre.utils.xml_parse import safe_xml_fromstring
 
-        log.debug("Parsing SNB file...")
+        log.debug('Parsing SNB file...')
         snbFile = SNBFile()
         try:
             snbFile.Parse(stream)
         except:
-            raise ValueError("Invalid SNB file")
+            raise ValueError('Invalid SNB file')
         if not snbFile.IsValid():
-            log.debug("Invalid SNB file")
-            raise ValueError("Invalid SNB file")
-        log.debug("Handle meta data ...")
+            log.debug('Invalid SNB file')
+            raise ValueError('Invalid SNB file')
+        log.debug('Handle meta data ...')
         from calibre.ebooks.conversion.plumber import create_oebbook
         oeb = create_oebbook(log, None, options,
                 encoding=options.input_encoding, populate=False)

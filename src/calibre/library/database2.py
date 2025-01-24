@@ -1402,8 +1402,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if dest:
                 if samefile(path, dest):
                     # Ensure that the file has the same case as dest
@@ -1458,8 +1458,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
@@ -2030,7 +2030,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 use_sort_as_name = False
             is_editable = (category not in ['news', 'rating', 'languages'] and
-                                datatype != "composite")
+                                datatype != 'composite')
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s,
                                         category=category,

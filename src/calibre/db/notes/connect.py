@@ -83,7 +83,7 @@ class Notes:
     def reopen(self, backend):
         conn = backend.get_connection()
         conn.notes_dbpath = os.path.join(self.notes_dir, NOTES_DB_NAME)
-        conn.execute("ATTACH DATABASE ? AS notes_db", (conn.notes_dbpath,))
+        conn.execute('ATTACH DATABASE ? AS notes_db', (conn.notes_dbpath,))
         self.allowed_fields = set()
         triggers = []
         for table in backend.tables.values():

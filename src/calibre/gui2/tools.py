@@ -110,7 +110,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
             warning_dialog(parent, _('Could not convert'), '<p>'+ _(
                 'Could not convert <b>%s</b> as it has no e-book files. If you '
                 'think it should have files, but calibre is not finding '
-                'them, that is most likely because you moved the book\'s '
+                "them, that is most likely because you moved the book's "
                 'files around outside of calibre. You will need to find those files '
                 'and re-add them to calibre.')%title, show=True)
         else:

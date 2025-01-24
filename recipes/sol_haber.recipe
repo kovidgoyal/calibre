@@ -69,7 +69,7 @@ class SolHaberRecipe(BasicNewsRecipe):
         dict(name='div', attrs={'class': re.compile(storybody_reg_exp, re.IGNORECASE)})]
 
     def get_masthead_title(self):
-        return self.title + "(" + self.end_date + ")"
+        return self.title + '(' + self.end_date + ')'
 
     def parse_index(self):
 

@@ -17,7 +17,7 @@ class Pointer(QWidget):
         self.setObjectName('jobs_pointer')
         self.setVisible(False)
         self.resize(100, 80)
-        self.animation = QPropertyAnimation(self, b"geometry", self)
+        self.animation = QPropertyAnimation(self, b'geometry', self)
         self.animation.setDuration(750)
         self.animation.setLoopCount(2)
         self.animation.setEasingCurve(QEasingCurve.Type.Linear)

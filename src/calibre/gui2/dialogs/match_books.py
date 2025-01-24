@@ -83,7 +83,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.books_table.setHorizontalHeaderItem(0, t)
         t = QTableWidgetItem(_('Authors'))
         self.books_table.setHorizontalHeaderItem(1, t)
-        t = QTableWidgetItem(ngettext("Series", 'Series', 1))
+        t = QTableWidgetItem(ngettext('Series', 'Series', 1))
         self.books_table.setHorizontalHeaderItem(2, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)

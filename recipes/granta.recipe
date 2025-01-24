@@ -138,14 +138,14 @@ Magnitude = {
 
 
 def text2num(s):
-    a = re.split(r"[\s-]+", s)
+    a = re.split(r'[\s-]+', s)
     n = 0
     g = 0
     for w in a:
         x = Small.get(w, None)
         if x is not None:
             g += x
-        elif w == "hundred" and g != 0:
+        elif w == 'hundred' and g != 0:
             g *= 100
         else:
             x = Magnitude.get(w, None)
@@ -195,7 +195,7 @@ class Granta(BasicNewsRecipe):
                 if captcha_question is not None:
                     captcha = str(solve_captcha(captcha_question))
 
-            br.select_form(method="post", action="https://granta.com/")
+            br.select_form(method='post', action='https://granta.com/')
             br['username'] = self.username
             br['password'] = self.password
             br['capcha'] = captcha

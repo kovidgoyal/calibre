@@ -42,24 +42,24 @@ def class_startswith(*prefixes):
 
 # From: https://www3.bostonglobe.com/lifestyle/comics?arc404=true
 comics_to_fetch = {
-    "ADAM@HOME": 'ad',
-    "ARLO & JANIS": 'aj',
+    'ADAM@HOME': 'ad',
+    'ARLO & JANIS': 'aj',
     # "CUL DE SAC": 'cds',
     # "CURTIS": 'kfcrt',
-    "DILBERT": 'dt',
-    "DOONESBURY": 'db',
-    "DUSTIN": 'kfdus',
-    "F MINUS": 'fm',
-    "FOR BETTER OR WORSE": 'fb',
+    'DILBERT': 'dt',
+    'DOONESBURY': 'db',
+    'DUSTIN': 'kfdus',
+    'F MINUS': 'fm',
+    'FOR BETTER OR WORSE': 'fb',
     # "GET FUZZY": 'gz',
     # "MOTHER GOOSE & GRIMM": 'tmmgg',
     # "JUMPSTART": 'jt',
-    "MONTY": 'mt',
+    'MONTY': 'mt',
     # "POOCH CAFE",
-    "RHYMES WITH ORANGE": 'kfrwo',
+    'RHYMES WITH ORANGE': 'kfrwo',
     # "ROSE IS ROSE": 'rr',
     # "ZIPPY THE PINHEAD": 'kfzpy',
-    "ZITS": 'kfzt'
+    'ZITS': 'kfzt'
 }
 
 
@@ -77,10 +77,10 @@ def extract_json(raw_html):
 
 
 def absolutize_url(url):
-    if url.startswith("//"):
-        return "https:" + url
+    if url.startswith('//'):
+        return 'https:' + url
     if url.startswith('/'):
-        url = "https://www.bostonglobe.com" + url
+        url = 'https://www.bostonglobe.com' + url
     return url
 
 
@@ -120,7 +120,7 @@ def main():
 
 class BostonGlobeSubscription(BasicNewsRecipe):
 
-    title = "Boston Globe"
+    title = 'Boston Globe'
     __author__ = 'Kovid Goyal'
     description = 'The Boston Globe'
     language = 'en_US'

@@ -72,8 +72,8 @@ class respektRecipe(BasicNewsRecipe):
     # So that remove_tags_before works for this section
     def preprocess_raw_html(self, raw_html, url):
         root = lxml.html.fromstring(raw_html)
-        if root.xpath("//title")[0].text == (u"Respekt • Despekt • RESPEKT"):
-            raw_html = re.sub("h2","h1",raw_html)
+        if root.xpath('//title')[0].text == (u'Respekt • Despekt • RESPEKT'):
+            raw_html = re.sub('h2','h1',raw_html)
         return raw_html
 
     def parse_index(self):
@@ -82,17 +82,17 @@ class respektRecipe(BasicNewsRecipe):
         current_edition_url = root1.xpath("//div[@class='heroissue']/a")[0].items()[0][1]
         raw2 = self.index_to_soup('https://www.respekt.cz/' + current_edition_url, raw=True)
         root2 = lxml.html.fromstring(raw2)
-        self.cover_url = root2.xpath("//i[contains(@class, 'heroissue-cover')]")[0].get("data-src")
+        self.cover_url = root2.xpath("//i[contains(@class, 'heroissue-cover')]")[0].get('data-src')
         # Fetch date
         date_text = root2.xpath("//time[@class='heroissue-date']")[0].text.split(',')[1]
-        s = date_text.split(" ")
+        s = date_text.split(' ')
         # Are the dates of the issue in the same month and year?
         if len(s) == 4 or len(s) == 7:
-            date = "/".join([s[1].split(".")[0],s[2].split(".")[0],s[-1]])
+            date = '/'.join([s[1].split('.')[0],s[2].split('.')[0],s[-1]])
         elif len(s) == 8:
-            date = "/".join([s[1].split(".")[0],s[2].split(".")[0],s[3]])
+            date = '/'.join([s[1].split('.')[0],s[2].split('.')[0],s[3]])
         self.conversion_options = {'pubdate':date}
-        self.title = "Respekt magazine #" + "/".join(current_edition_url.split("/")[-1:-3:-1])
+        self.title = 'Respekt magazine #' + '/'.join(current_edition_url.split('/')[-1:-3:-1])
         ans = []
         for section in root2.xpath("//div[@class='col-md-6']/div[@class='issuedetail-categorized-sectionname']"):
             section_name = section.text
@@ -100,7 +100,7 @@ class respektRecipe(BasicNewsRecipe):
             article = section.getnext()
             while hasattr(article, 'text') and not article.text.strip():
                 title = article.xpath("span[@class='issuedetail-categorized-title']")[0].text
-                url = respekt_url + article.xpath("@href")[0]
+                url = respekt_url + article.xpath('@href')[0]
                 articles.append({'title':title,'url':url})
                 article = article.getnext()
             ans.append((section_name,articles))
@@ -113,24 +113,24 @@ class respektRecipe(BasicNewsRecipe):
         raw = u''.join(type(u'')(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
         # Fix Letem světem
-        if "Letem sv" in root.xpath("//title")[0].text:
-            p = root.xpath("//p")
+        if 'Letem sv' in root.xpath('//title')[0].text:
+            p = root.xpath('//p')
             for par in p[:]:
                 next = par.getnext()
                 if par.getchildren():
                     child = par.getchildren()[0]
-                if hasattr(next,"tag") and next.tag == "h2" and hasattr(child,"tag") and child.tag == "strong":
+                if hasattr(next,'tag') and next.tag == 'h2' and hasattr(child,'tag') and child.tag == 'strong':
                     text = child.text_content()
                     if next.text:
-                        next.text = next.text + u" • " + text
+                        next.text = next.text + u' • ' + text
                     else:
                         if next.getchildren():
                             next_child = next.getchildren()[0]
-                            next_child.text = next_child.text +  u" • " + text
+                            next_child.text = next_child.text +  u' • ' + text
                     par.getparent().remove(par)
         # Insert text length
         text = root.xpath("//div[@id='postcontent']")[0]
-        article_length = u" • " + str(len(text.text_content().split(' '))) + ' slov'
+        article_length = u' • ' + str(len(text.text_content().split(' '))) + ' slov'
         try:
             aut = root.xpath("//div[@class='authorship-names']")[0]
             if aut.getchildren() and aut.getchildren()[0].tag == 'a':
@@ -149,11 +149,11 @@ class respektRecipe(BasicNewsRecipe):
         except:
             pass
         # Make images visible
-        pictures = root.xpath("//picture")
+        pictures = root.xpath('//picture')
         for picture in pictures:
-            image = picture.xpath("//source")[0]
-            image_link = [a for a in image.get('srcset').split(' ') if a[:4] == "http"][-1]
-            e=E.img({"src":image_link})
+            image = picture.xpath('//source')[0]
+            image_link = [a for a in image.get('srcset').split(' ') if a[:4] == 'http'][-1]
+            e=E.img({'src':image_link})
             picture.getparent().replace(picture,e)
         # Properly indent
         paragraphs = root.xpath('//p')
@@ -163,11 +163,11 @@ class respektRecipe(BasicNewsRecipe):
             prev = par.getprevious()
             # Do not indent after headings
             if hasattr(prev,'tag') and prev.tag not in ['h2', 'h3']:
-                par.attrib['class']="indent_first_line"
+                par.attrib['class']='indent_first_line'
         # Fix subtitle for Téma
         try:
             o = root.xpath("//p[@class='post-perex']")[0]
-            e = E.h2({"class":"post-subtitle"})
+            e = E.h2({'class':'post-subtitle'})
             e.text = o.text
             o.getparent().replace(o,e)
         except:

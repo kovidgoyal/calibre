@@ -8,11 +8,11 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 class barrons(BasicNewsRecipe):
-    title = 'Barron\'s Magazine'
+    title = "Barron's Magazine"
     __author__ = 'unkn0wn'
     description = (
-        'Barron\'s is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister '
-        'publication to The Wall Street Journal, Barron\'s covers U.S. financial information, market developments, and '
+        "Barron's is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister "
+        "publication to The Wall Street Journal, Barron's covers U.S. financial information, market developments, and "
         'relevant statistics.'
     )
     language = 'en_US'
@@ -82,7 +82,7 @@ class barrons(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYYMMDD format)',
-            'long': 'For example, 20240722.\nIf it didn\'t work, try again later.'
+            'long': "For example, 20240722.\nIf it didn't work, try again later."
         }
     }
 

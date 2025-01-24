@@ -20,12 +20,12 @@ class AdvancedUserRecipe1311790237(BasicNewsRecipe):
     masthead_url = 'http://www.elcolombiano.com/images/logoElColombiano348x46.gif'
     publication_type = 'newspaper'
 
-    extra_css             = """
+    extra_css             = '''
                                p{text-align: justify; font-size: 100%}
                                body{ text-align: left; font-size:100% }
                                h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
                                h3{font-family: sans-serif; font-size:100%; font-style: italic; text-align: justify; }
-                                 """
+                                 '''
 
     feeds = [(u'Portada', u'http://www.elcolombiano.com/rss/portada.xml'),
              (u'Antioquia', u'http://www.elcolombiano.com/rss/Antioquia.xml'),

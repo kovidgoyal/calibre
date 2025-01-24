@@ -180,7 +180,7 @@ class WSJ(BasicNewsRecipe):
             # you can get the version below from lib-min.js
             # search for: "\d+\.\d+\.\d+"
             # This might need to be updated in the future
-            auth0_client = json.dumps({"name": "auth0.js-ulp", "version": "9.11.3"})
+            auth0_client = json.dumps({'name': 'auth0.js-ulp', 'version': '9.11.3'})
             if not isinstance(auth0_client, bytes):
                 auth0_client = auth0_client.encode('utf-8')
             auth0_client = standard_b64encode(auth0_client)
@@ -260,7 +260,7 @@ class WSJ(BasicNewsRecipe):
             articles.append({'title': title, 'url': url,
                              'description': desc, 'date': ''})
             self.log('\tFound article:', title)
-            self.log('\t\t', desc + " " + url)
+            self.log('\t\t', desc + ' ' + url)
             if self.test and len(articles) >= self.test[1]:
                 break
 

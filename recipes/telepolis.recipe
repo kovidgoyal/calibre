@@ -22,4 +22,4 @@ class Telepolis(BasicNewsRecipe):
     remove_tags = [dict(name='p', attrs={'class':'printversion__back-to-article printversion--hide'})]
 
     def get_article_url(self, article):
-        return article.link + "&view=print"
+        return article.link + '&view=print'

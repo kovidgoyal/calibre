@@ -160,7 +160,7 @@ class Fokus(BasicNewsRecipe):
         """
 
         def _log(article) -> None:
-            """Log a digestible summary of the input `article` blurb."""
+            '''Log a digestible summary of the input `article` blurb.'''
             log_message = f"\t{article['title']} : {article['date']} : {article['url']}"
             if article.get('description'):
                 log_message += f" : {article['description']}"
@@ -224,7 +224,7 @@ class Fokus(BasicNewsRecipe):
         sections: dict[str, str],
         articles: dict[str, dict[str, str, str, str]],
     ) -> dict[str, list[dict[str, str, str, str]]]:
-        """Assign each article in `articles` to a section in `sections`.
+        '''Assign each article in `articles` to a section in `sections`.
 
         Args:
             sections (dict[str, str]): A dict of section URLs as keys and section titles as values.
@@ -232,7 +232,7 @@ class Fokus(BasicNewsRecipe):
 
         Returns:
             dict[str, list[dict[str, str, str, str]]]: A dict on a `{section_title: list[article_dict]}` format.
-        """
+        '''
         self.log(f'Assigning each of the {len(articles)} articles to either of the {len(sections)} sections...')
         section_to_articles = {}
         for article_url, article_dict in articles.items():

@@ -22,7 +22,7 @@ from . import open_for_read, open_for_write
 
 
 class Tokenize:
-    """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
+    '''Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script'''
 
     def __init__(self,
             in_file,
@@ -84,7 +84,7 @@ class Tokenize:
                 self.__uc_char -=1
                 self.__uc_bin = True
                 return ''
-            elif token[:1] == "\\" :
+            elif token[:1] == '\\' :
                 self.__uc_char -=1
                 return ''
             else:
@@ -118,10 +118,10 @@ class Tokenize:
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub(r'\n\\par \n', input_file)
-        input_file = self.__cwdigit_exp.sub(r"\g<1>\n\g<2>", input_file)
-        input_file = self.__cs_ast.sub(r"\g<1>", input_file)
-        input_file = self.__ms_hex_exp.sub(r"\\mshex0\g<1> ", input_file)
-        input_file = self.__utf_ud.sub(r"\\{\\uc0 \g<1>\\}", input_file)
+        input_file = self.__cwdigit_exp.sub(r'\g<1>\n\g<2>', input_file)
+        input_file = self.__cs_ast.sub(r'\g<1>', input_file)
+        input_file = self.__ms_hex_exp.sub(r'\\mshex0\g<1> ', input_file)
+        input_file = self.__utf_ud.sub(r'\\{\\uc0 \g<1>\\}', input_file)
         # remove \n in bin data
         input_file = self.__bin_exp.sub(lambda x:
                                         x.group().replace('\n', '') + '\n', input_file)
@@ -132,51 +132,51 @@ class Tokenize:
 
     def __compile_expressions(self):
         SIMPLE_RPL = {
-            "\\\\": "\\backslash ",
-            "\\~": "\\~ ",
-            "\\;": "\\; ",
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "\\_": "\\_ ",
-            "\\:": "\\: ",
-            "\\-": "\\- ",
+            '\\\\': '\\backslash ',
+            '\\~': '\\~ ',
+            '\\;': '\\; ',
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '\\_': '\\_ ',
+            '\\:': '\\: ',
+            '\\-': '\\- ',
             # turn into a generic token to eliminate special
             # cases and make processing easier
-            "\\{": "\\ob ",
+            '\\{': '\\ob ',
             # turn into a generic token to eliminate special
             # cases and make processing easier
-            "\\}": "\\cb ",
+            '\\}': '\\cb ',
             # put a backslash in front of to eliminate special cases and
             # make processing easier
-            "{": "\\{",
+            '{': '\\{',
             # put a backslash in front of to eliminate special cases and
             # make processing easier
-            "}": "\\}",
+            '}': '\\}',
             }
         self.__replace_spchar = MReplace(SIMPLE_RPL)
         # add ;? in case of char following \u
         self.__ms_hex_exp = re.compile(r"\\\'([0-9a-fA-F]{2})")
-        self.__utf_exp = re.compile(r"\\u(-?\d{3,6}) ?")
-        self.__bin_exp = re.compile(r"(?:\\bin(-?\d{0,10})[\n ]+)[01\n]+")
+        self.__utf_exp = re.compile(r'\\u(-?\d{3,6}) ?')
+        self.__bin_exp = re.compile(r'(?:\\bin(-?\d{0,10})[\n ]+)[01\n]+')
         # manage upr/ud situations
-        self.__utf_ud = re.compile(r"\\{[\n ]?\\upr[\n ]?(?:\\{.*?\\})[\n ]?" +
-                       r"\\{[\n ]?\\*[\n ]?\\ud[\n ]?(\\{.*?\\})[\n ]?\\}[\n ]?\\}")
+        self.__utf_ud = re.compile(r'\\{[\n ]?\\upr[\n ]?(?:\\{.*?\\})[\n ]?' +
+                       r'\\{[\n ]?\\*[\n ]?\\ud[\n ]?(\\{.*?\\})[\n ]?\\}[\n ]?\\}')
         # add \n in split for whole file reading
         # why keep backslash whereas \is replaced before?
         # remove \n from endline char
-        self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
+        self.__splitexp = re.compile(r'(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)')
         # this is for old RTF
         self.__par_exp = re.compile(r'(\\\n+|\\ )')
         # handle improper cs char-style with \* before without {
         self.__cs_ast = re.compile(r'\\\*([\n ]*\\cs\d+[\n \\]+)')
         # handle cw using a digit as argument and without space as delimiter
-        self.__cwdigit_exp = re.compile(r"(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)")
+        self.__cwdigit_exp = re.compile(r'(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)')
 
     def tokenize(self):
-        """Main class for handling other methods. Reads the file \
+        '''Main class for handling other methods. Reads the file \
         , uses method self.sub_reg to make basic substitutions,\
-        and process tokens by itself"""
+        and process tokens by itself'''
         # read
         with open_for_read(self.__file) as read_obj:
             input_file = read_obj.read()
@@ -195,7 +195,7 @@ class Tokenize:
         # Move and copy
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "tokenize.data")
+            copy_obj.copy_file(self.__write_to, 'tokenize.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
 

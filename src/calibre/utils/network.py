@@ -30,10 +30,10 @@ class LinuxNetworkStatus:
         self.xdp_call = lambda : new_method_call(DBusAddress(
             '/org/freedesktop/portal/desktop',
             bus_name='org.freedesktop.portal.Desktop',
-            interface="org.freedesktop.portal.NetworkMonitor"), 'GetConnectivity')
+            interface='org.freedesktop.portal.NetworkMonitor'), 'GetConnectivity')
         self.nm_call = lambda : Properties(DBusAddress('/org/freedesktop/NetworkManager',
                 bus_name='org.freedesktop.NetworkManager',
-                interface="org.freedesktop.NetworkManager")).get('Connectivity')
+                interface='org.freedesktop.NetworkManager')).get('Connectivity')
 
         if self.xdp() is not None:
             self.get_connectivity = self.xdp

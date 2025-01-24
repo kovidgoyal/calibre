@@ -356,9 +356,9 @@ class LegacyTest(BaseTest):
     def test_legacy_adding_books(self):  # {{{
         'Test various adding/deleting books methods'
         import sqlite3
-        con = sqlite3.connect(":memory:")
+        con = sqlite3.connect(':memory:')
         try:
-            con.execute("create virtual table recipe using fts5(name, ingredients)")
+            con.execute('create virtual table recipe using fts5(name, ingredients)')
         except Exception:
             self.skipTest('python sqlite3 module does not have FTS5 support')
         con.close()

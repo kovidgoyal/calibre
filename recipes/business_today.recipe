@@ -90,7 +90,7 @@ class BT(BasicNewsRecipe):
 
         # Insert feeds in specified order, if available
 
-        feedSort = ['Editor\'s Note', 'Editors note']
+        feedSort = ["Editor's Note", 'Editors note']
         for i in feedSort:
             if i in sections:
                 feeds.append((i, sections[i]))

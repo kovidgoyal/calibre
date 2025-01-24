@@ -14,7 +14,7 @@ class OpenFolderAction(InterfaceAction):
 
     name = 'Open Folder'
     action_spec = (_('Open book folder'), 'document_open.png',
-                   _('Open the folder containing the current book\'s files'), _('O'))
+                   _("Open the folder containing the current book's files"), _('O'))
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
     action_add_menu = True

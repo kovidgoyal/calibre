@@ -23,10 +23,10 @@ class IOL_za(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.iol.co.za/polopoly_fs/iol-news5-1.989381!/image/464471284.png_gen/derivatives/absolute/464471284.png'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: Arial,Helvetica,sans-serif }
                                 img{display: block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

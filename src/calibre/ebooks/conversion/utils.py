@@ -33,16 +33,16 @@ class HeuristicProcessor:
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
         self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
         self.line_open = (
-            r"<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*"
-            r"(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*")
-        self.line_close = "(</(?P=inner3)>)?\\s*(</(?P=inner2)>)?\\s*(</(?P=inner1)>)?\\s*</(?P=outer)>"
+            r'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*'
+            r'(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*')
+        self.line_close = '(</(?P=inner3)>)?\\s*(</(?P=inner2)>)?\\s*(</(?P=inner1)>)?\\s*</(?P=outer)>'
         self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
-        self.common_in_text_endings = '[\"\'—’”,\\.!\\?\\…\\)„\\w]'
-        self.common_in_text_beginnings = '[\\w\'\"“‘‛]'
+        self.common_in_text_endings = '["\'—’”,\\.!\\?\\…\\)„\\w]'
+        self.common_in_text_beginnings = '[\\w\'"“‘‛]'
 
     def is_pdftohtml(self, src):
-        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
+        return "<!-- created by calibre's pdftohtml -->" in src[:1000]
 
     def is_abbyy(self, src):
         return '<meta name="generator" content="ABBYY FineReader' in src[:1000]
@@ -53,25 +53,25 @@ class HeuristicProcessor:
         title = match.group('title')
         if not title:
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log.debug("marked " + str(self.html_preprocess_sections) +
-                    " chapters. - " + str(chap))
+            self.log.debug('marked ' + str(self.html_preprocess_sections) +
+                    ' chapters. - ' + str(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
             delete_whitespace = re.compile('^\\s*(?P<c>.*?)\\s*$')
-            delete_quotes = re.compile('\'\"')
+            delete_quotes = re.compile('\'"')
             txt_chap = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(chap)))
             txt_title = delete_quotes.sub('', delete_whitespace.sub('\\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
-            self.log.debug("marked " + str(self.html_preprocess_sections) +
-                    " chapters & titles. - " + str(chap) + ", " + str(title))
+            self.log.debug('marked ' + str(self.html_preprocess_sections) +
+                    ' chapters & titles. - ' + str(chap) + ', ' + str(title))
             return '<h2 title="'+txt_chap+', '+txt_title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
 
     def chapter_break(self, match):
         chap = match.group('section')
         styles = match.group('styles')
         self.html_preprocess_sections = self.html_preprocess_sections + 1
-        self.log.debug("marked " + str(self.html_preprocess_sections) +
-                " section markers based on punctuation. - " + str(chap))
+        self.log.debug('marked ' + str(self.html_preprocess_sections) +
+                ' section markers based on punctuation. - ' + str(chap))
         return '<'+styles+' style="page-break-before:always">'+chap
 
     def analyze_title_matches(self, match):
@@ -208,59 +208,59 @@ class HeuristicProcessor:
             if wordcount > 200000:
                 typical_chapters = 15000.
             self.min_chapters = int(ceil(wordcount / typical_chapters))
-        self.log.debug("minimum chapters required are: "+str(self.min_chapters))
+        self.log.debug('minimum chapters required are: '+str(self.min_chapters))
         heading = re.compile('<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))
-        self.log.debug("found " + str(self.html_preprocess_sections) + " pre-existing headings")
+        self.log.debug('found ' + str(self.html_preprocess_sections) + ' pre-existing headings')
 
         # Build the Regular Expressions in pieces
-        init_lookahead = "(?=<(p|div))"
+        init_lookahead = '(?=<(p|div))'
         chapter_line_open = self.line_open
-        title_line_open = (r"<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?"
-        r"\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*")
-        chapter_header_open = r"(?P<chap>"
-        title_header_open = r"(?P<title>"
-        chapter_header_close = ")\\s*"
-        title_header_close = ")"
+        title_line_open = (r'<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?'
+        r'\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*')
+        chapter_header_open = r'(?P<chap>'
+        title_header_open = r'(?P<title>'
+        chapter_header_close = ')\\s*'
+        title_header_close = ')'
         chapter_line_close = self.line_close
-        title_line_close = "(</(?P=inner6)>)?\\s*(</(?P=inner5)>)?\\s*(</(?P=inner4)>)?\\s*</(?P=outer2)>"
+        title_line_close = '(</(?P=inner6)>)?\\s*(</(?P=inner5)>)?\\s*(</(?P=inner4)>)?\\s*</(?P=outer2)>'
 
         is_pdftohtml = self.is_pdftohtml(html)
         if is_pdftohtml:
-            title_line_open = "<(?P<outer2>p)[^>]*>\\s*"
-            title_line_close = "\\s*</(?P=outer2)>"
+            title_line_open = '<(?P<outer2>p)[^>]*>\\s*'
+            title_line_close = '\\s*</(?P=outer2)>'
 
         if blanks_between_paragraphs:
-            blank_lines = "(\\s*<p[^>]*>\\s*</p>){0,2}\\s*"
+            blank_lines = '(\\s*<p[^>]*>\\s*</p>){0,2}\\s*'
         else:
-            blank_lines = ""
-        opt_title_open = "("
-        opt_title_close = ")?"
-        n_lookahead_open = "(?!\\s*"
-        n_lookahead_close = ")\\s*"
+            blank_lines = ''
+        opt_title_open = '('
+        opt_title_close = ')?'
+        n_lookahead_open = '(?!\\s*'
+        n_lookahead_close = ')\\s*'
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter)([\w\:\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
-        simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!(Chapter|\s+<)).{0,65}?(</[ibu][^>]*>)?(?=<)"
+        simple_title = r'(<[ibu][^>]*>)?\s{0,3}(?!(Chapter|\s+<)).{0,65}?(</[ibu][^>]*>)?(?=<)'
 
         analysis_result = []
 
         chapter_types = [
             [(
                 r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\b|Prologue|Book\b|Part\b|Dedication|Preface)"
-                r"\s*([\d\w-]+\:?\'?\s*){0,5}"), True, True, True, False, "Searching for common section headings", 'common'],
+                r"\s*([\d\w-]+\:?\'?\s*){0,5}"), True, True, True, False, 'Searching for common section headings', 'common'],
             # Highest frequency headings which include titles
-            [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for most common chapter headings", 'chapter'],
-            [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>",
-                           True, True, True, False, "Searching for emphasized lines", 'emphasized'],  # Emphasized lines
+            [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, 'Searching for most common chapter headings', 'chapter'],
+            [r'<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>',
+                           True, True, True, False, 'Searching for emphasized lines', 'emphasized'],  # Emphasized lines
             [r"[^'\"]?(\d+(\.|:))\s*([\w\-\'\"#,]+\s*){0,7}\s*", True, True, True, False,
-                       "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
-            [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, True, True, False, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
+                       'Searching for numeric chapter headings', 'numeric'],  # Numeric Chapters
+            [r'([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*', True, True, True, False, 'Searching for letter spaced headings', 'letter_spaced'],  # Spaced Lettering
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, True, True, False,
-                       "Searching for numeric chapters with titles", 'numeric_title'],  # Numeric Titles
+                       'Searching for numeric chapters with titles', 'numeric_title'],  # Numeric Titles
             [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False,
-                       "Searching for simple numeric headings", 'plain_number'],  # Numeric Chapters, no dot or colon
+                       'Searching for simple numeric headings', 'plain_number'],  # Numeric Chapters, no dot or colon
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, True, False, False,
-                          "Searching for chapters with Uppercase Characters", 'uppercase']  # Uppercase Chapters
+                          'Searching for chapters with Uppercase Characters', 'uppercase']  # Uppercase Chapters
             ]
 
         def recurse_patterns(html, analyze):
@@ -299,9 +299,9 @@ class HeuristicProcessor:
                     break
                 full_chapter_line = chapter_line_open+chapter_header_open+chapter_type+chapter_header_close+chapter_line_close
                 if n_lookahead_req:
-                    n_lookahead = re.sub("(ou|in|cha)", "lookahead_", full_chapter_line)
+                    n_lookahead = re.sub('(ou|in|cha)', 'lookahead_', full_chapter_line)
                 if not analyze:
-                    self.log.debug("Marked " + str(self.html_preprocess_sections) + " headings, " + log_message)
+                    self.log.debug('Marked ' + str(self.html_preprocess_sections) + ' headings, ' + log_message)
 
                 chapter_marker = arg_ignorecase+init_lookahead+full_chapter_line+blank_lines+lp_n_lookahead_open+n_lookahead+lp_n_lookahead_close+ \
                     lp_opt_title_open+title_line_open+title_header_open+lp_title+title_header_close+title_line_close+lp_opt_title_close
@@ -315,10 +315,10 @@ class HeuristicProcessor:
                             title_req = True
                             strict_title = False
                         self.log.debug(
-                                str(type_name)+" had "+str(hits)+
-                                " hits - "+str(self.chapters_no_title)+" chapters with no title, "+
-                                str(self.chapters_with_title)+" chapters with titles, "+
-                                str(float(self.chapters_with_title) / float(hits))+" percent. ")
+                                str(type_name)+' had '+str(hits)+
+                                ' hits - '+str(self.chapters_no_title)+' chapters with no title, '+
+                                str(self.chapters_with_title)+' chapters with titles, '+
+                                str(float(self.chapters_with_title) / float(hits))+' percent. ')
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                         elif self.min_chapters <= hits < max_chapters or self.min_chapters < 3 > hits:
@@ -335,8 +335,8 @@ class HeuristicProcessor:
         words_per_chptr = wordcount
         if words_per_chptr > 0 and self.html_preprocess_sections > 0:
             words_per_chptr = wordcount // self.html_preprocess_sections
-        self.log.debug("Total wordcount is: "+ str(wordcount)+", Average words per section is: "+
-                       str(words_per_chptr)+", Marked up "+str(self.html_preprocess_sections)+" chapters")
+        self.log.debug('Total wordcount is: '+ str(wordcount)+', Average words per section is: '+
+                       str(words_per_chptr)+', Marked up '+str(self.html_preprocess_sections)+' chapters')
         return html
 
     def punctuation_unwrap(self, length, content, format):
@@ -366,13 +366,13 @@ class HeuristicProcessor:
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
-        lookahead = "(?<=.{"+str(length)+r"}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýźâêîôûçąężłıãõñæøþðßěľščťžňďřůёђєіїјљњћўџѣа-я,:)\\IAß]|(?<!\&\w{4});))"
-        em_en_lookahead = "(?<=.{"+str(length)+"}[\u2013\u2014])"
-        soft_hyphen = "\xad"
-        line_ending = "\\s*(?P<style_close></(span|[iub])>)?\\s*(</(p|div)>)?"
-        blanklines = "\\s*(?P<up2threeblanks><(p|span|div)[^>]*>\\s*(<(p|span|div)[^>]*>\\s*</(span|p|div)>\\s*)</(span|p|div)>\\s*){0,3}\\s*"
-        line_opening = "<(p|div)[^>]*>\\s*(?P<style_open><(span|[iub])[^>]*>)?\\s*"
-        txt_line_wrap = "((\u0020|\u0009)*\n){1,4}"
+        lookahead = '(?<=.{'+str(length)+r'}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýźâêîôûçąężłıãõñæøþðßěľščťžňďřůёђєіїјљњћўџѣа-я,:)\\IAß]|(?<!\&\w{4});))'
+        em_en_lookahead = '(?<=.{'+str(length)+'}[\u2013\u2014])'
+        soft_hyphen = '\xad'
+        line_ending = '\\s*(?P<style_close></(span|[iub])>)?\\s*(</(p|div)>)?'
+        blanklines = '\\s*(?P<up2threeblanks><(p|span|div)[^>]*>\\s*(<(p|span|div)[^>]*>\\s*</(span|p|div)>\\s*)</(span|p|div)>\\s*){0,3}\\s*'
+        line_opening = '<(p|div)[^>]*>\\s*(?P<style_open><(span|[iub])[^>]*>)?\\s*'
+        txt_line_wrap = '((\u0020|\u0009)*\n){1,4}'
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
@@ -383,9 +383,9 @@ class HeuristicProcessor:
             em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
             shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
-        unwrap = re.compile("%s" % unwrap_regex, re.UNICODE)
-        em_en_unwrap = re.compile("%s" % em_en_unwrap_regex, re.UNICODE)
-        shy_unwrap = re.compile("%s" % shy_unwrap_regex, re.UNICODE)
+        unwrap = re.compile('%s' % unwrap_regex, re.UNICODE)
+        em_en_unwrap = re.compile('%s' % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile('%s' % shy_unwrap_regex, re.UNICODE)
 
         if format == 'txt':
             content = unwrap.sub(' ', content)
@@ -408,7 +408,7 @@ class HeuristicProcessor:
     def markup_pre(self, html):
         pre = re.compile(r'<pre>', re.IGNORECASE)
         if len(pre.findall(html)) >= 1:
-            self.log.debug("Running Text Processing")
+            self.log.debug('Running Text Processing')
             outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*?)</pre>', re.IGNORECASE|re.DOTALL)
             html = outerhtml.sub(self.txt_process, html)
             from calibre.ebooks.conversion.preprocess import convert_entities
@@ -422,15 +422,15 @@ class HeuristicProcessor:
         return html
 
     def arrange_htm_line_endings(self, html):
-        html = re.sub(r"\s*</(?P<tag>p|div)>", "</"+"\\g<tag>"+">\n", html)
-        html = re.sub(r"\s*<(?P<tag>p|div)(?P<style>[^>]*)>\s*", "\n<"+"\\g<tag>"+"\\g<style>"+">", html)
+        html = re.sub(r'\s*</(?P<tag>p|div)>', '</'+'\\g<tag>'+'>\n', html)
+        html = re.sub(r'\s*<(?P<tag>p|div)(?P<style>[^>]*)>\s*', '\n<'+'\\g<tag>'+'\\g<style>'+'>', html)
         return html
 
     def fix_nbsp_indents(self, html):
         txtindent = re.compile(r'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
-            self.log.debug("replaced "+str(self.found_indents)+ " nbsp indents with inline styles")
+            self.log.debug('replaced '+str(self.found_indents)+ ' nbsp indents with inline styles')
         return html
 
     def cleanup_markup(self, html):
@@ -447,9 +447,9 @@ class HeuristicProcessor:
         fmt_tags = 'font|[ibu]|em|strong'
         open_fmt_pat, close_fmt_pat = fr'<(?:{fmt_tags})(?:\s[^>]*)?>', f'</(?:{fmt_tags})>'
         for i in range(2):
-            html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
+            html = re.sub(r'\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*', ' ', html)
             html = re.sub(
-                r"\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}".format(open=open_fmt_pat, close=close_fmt_pat) , " ", html)
+                r'\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}'.format(open=open_fmt_pat, close=close_fmt_pat) , ' ', html)
         # delete surrounding divs from empty paragraphs
         html = re.sub('<div[^>]*>\\s*<p[^>]*>\\s*</p>\\s*</div>', '<p> </p>', html)
         # Empty heading tags
@@ -478,8 +478,8 @@ class HeuristicProcessor:
         blanklines = self.blankreg.findall(html)
         lines = self.linereg.findall(html)
         if len(lines) > 1:
-            self.log.debug("There are " + str(len(blanklines)) + " blank lines. " +
-                    str(float(len(blanklines)) / float(len(lines))) + " percent blank")
+            self.log.debug('There are ' + str(len(blanklines)) + ' blank lines. ' +
+                    str(float(len(blanklines)) / float(len(lines))) + ' percent blank')
 
             if float(len(blanklines)) / float(len(lines)) > 0.40:
                 return True
@@ -627,14 +627,14 @@ class HeuristicProcessor:
 
     def check_paragraph(self, content):
         content = re.sub('\\s*</?span[^>]*>\\s*', '', content)
-        if re.match('.*[\"\'.!?:]$', content):
+        if re.match('.*["\'.!?:]$', content):
             # print "detected this as a paragraph"
             return True
         else:
             return False
 
     def abbyy_processor(self, html):
-        abbyy_line = re.compile('((?P<linestart><p\\sstyle="(?P<styles>[^\"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
+        abbyy_line = re.compile('((?P<linestart><p\\sstyle="(?P<styles>[^"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
         empty_paragraph = '\n<p> </p>\n'
         self.in_blockquote = False
         self.previous_was_paragraph = False
@@ -714,7 +714,7 @@ class HeuristicProcessor:
                 # print "\n***\nline is:\n     "+str(match.group(0))+'\n'
                 if debugabby:
                     # print "this line is a paragraph = "+str(is_paragraph)+", previous line was "+str(self.previous_was_paragraph)
-                    self.log.debug("styles for this line were:", styles)
+                    self.log.debug('styles for this line were:', styles)
                     self.log.debug('newline is:')
                     self.log.debug(blockquote_open_loop+blockquote_close_loop+
                             paragraph_before+'<p style="'+text_indent+text_align+
@@ -728,7 +728,7 @@ class HeuristicProcessor:
         return html
 
     def __call__(self, html):
-        self.log.debug("*********  Heuristic processing HTML  *********")
+        self.log.debug('*********  Heuristic processing HTML  *********')
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
         try:
@@ -737,7 +737,7 @@ class HeuristicProcessor:
             self.log.warn("Can't get wordcount")
 
         if self.totalwords < 50:
-            self.log.warn("flow is too short, not running heuristics")
+            self.log.warn('flow is too short, not running heuristics')
             return html
 
         is_abbyy = self.is_abbyy(html)
@@ -754,7 +754,7 @@ class HeuristicProcessor:
             # <pre> tags), check and  mark up line endings if required before proceeding
             # fix indents must run after this step
             if self.no_markup(html, 0.1):
-                self.log.debug("not enough paragraph markers, adding now")
+                self.log.debug('not enough paragraph markers, adding now')
                 # markup using text processing
                 html = self.markup_pre(html)
 
@@ -768,8 +768,8 @@ class HeuristicProcessor:
 
         is_pdftohtml = self.is_pdftohtml(html)
         if is_pdftohtml:
-            self.line_open = "<(?P<outer>p)[^>]*>(\\s*<[ibu][^>]*>)?\\s*"
-            self.line_close = "\\s*(</[ibu][^>]*>\\s*)?</(?P=outer)>"
+            self.line_open = '<(?P<outer>p)[^>]*>(\\s*<[ibu][^>]*>)?\\s*'
+            self.line_close = '\\s*(</[ibu][^>]*>\\s*)?</(?P=outer)>'
 
         # ADE doesn't render <br />, change to empty paragraphs
         # html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
@@ -789,7 +789,7 @@ class HeuristicProcessor:
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
         if self.blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
-            self.log.debug("deleting blank lines")
+            self.log.debug('deleting blank lines')
             self.blanks_deleted = True
             html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
             html = self.blankreg.sub('', html)
@@ -804,18 +804,18 @@ class HeuristicProcessor:
         # more of the lines break in the same region of the document then unwrapping is required
         docanalysis = DocAnalysis(format, html)
         hardbreaks = docanalysis.line_histogram(.50)
-        self.log.debug("Hard line breaks check returned "+str(hardbreaks))
+        self.log.debug('Hard line breaks check returned '+str(hardbreaks))
 
         # Calculate Length
         unwrap_factor = getattr(self.extra_opts, 'html_unwrap_factor', 0.4)
         length = docanalysis.line_length(unwrap_factor)
-        self.log.debug("Median line length is " + str(length) + ", calculated with " + format + " format")
+        self.log.debug('Median line length is ' + str(length) + ', calculated with ' + format + ' format')
 
         # ##### Unwrap lines ######
         if getattr(self.extra_opts, 'unwrap_lines', False):
             # only go through unwrapping code if the histogram shows unwrapping is required or if the user decreased the default unwrap_factor
             if hardbreaks or unwrap_factor < 0.4:
-                self.log.debug("Unwrapping required, unwrapping Lines")
+                self.log.debug('Unwrapping required, unwrapping Lines')
                 # Dehyphenate with line length limiters
                 dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
                 html = dehyphenator(html,'html', length)
@@ -823,15 +823,15 @@ class HeuristicProcessor:
 
         if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
-            self.log.debug("Fixing hyphenated content")
+            self.log.debug('Fixing hyphenated content')
             dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html_cleanup', length)
             html = dehyphenator(html, 'individual_words', length)
 
         # If still no sections after unwrapping mark split points on lines with no punctuation
         if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):
-            self.log.debug("Looking for more split points based on punctuation,"
-                    " currently have " + str(self.html_preprocess_sections))
+            self.log.debug('Looking for more split points based on punctuation,'
+                    ' currently have ' + str(self.html_preprocess_sections))
             chapdetect3 = re.compile(
                 r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([\W]+\s*)+)'
                 r'(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*'

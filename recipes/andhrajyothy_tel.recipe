@@ -75,7 +75,7 @@ class andhra(BasicNewsRecipe):
                 url = str(snaps['OrgId'])
                 if snaps['ObjectType'] == 4:
                     continue
-                feeds_dict[section].append({"title": '', "url": url})
+                feeds_dict[section].append({'title': '', 'url': url})
         return [(section, articles) for section, articles in feeds_dict.items()]
 
     def preprocess_raw_html(self, raw, *a):

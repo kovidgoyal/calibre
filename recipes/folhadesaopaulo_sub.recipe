@@ -49,7 +49,7 @@ class FSP(BasicNewsRecipe):
     # this solves the problem with truncated content in Kindle
     conversion_options = {'linearize_tables': True}
 
-    extra_css = """
+    extra_css = '''
 #articleNew { font: 18px Times New Roman,verdana,arial; }
 img { background: none !important; float: none; margin: 0px; }
 .newstexts { list-style-type: none; height: 20px; margin: 15px 0 10px 0; }
@@ -82,14 +82,14 @@ img { background: none !important; float: none; margin: 0px; }
 .divisor { text-indent: -9999px; border-bottom: 1px solid #ccc; height: 1px; margin: 0; }
 .star { background: none !important; height: 15px; }
 .articleGraphic { margin-bottom: 20px; }
-"""
+'''
 
     # This is the code for login, here a mini browser is called and id entered
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://login.folha.com.br/login')
-            br.select_form(action="https://login.folha.com.br/login")
+            br.select_form(action='https://login.folha.com.br/login')
             br['email'] = self.username
             br['password'] = self.password
             br.submit()

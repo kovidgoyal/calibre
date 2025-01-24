@@ -193,7 +193,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
                 total_consumed += consumed
                 values.append(byts)
             if total_consumed != x.value_bytes:
-                err = ("Error: Should consume %s bytes, but consumed %s" %
+                err = ('Error: Should consume %s bytes, but consumed %s' %
                         (x.value_bytes, total_consumed))
                 if strict:
                     raise ValueError(err)
@@ -202,7 +202,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
         ans[x.tag] = values
     # Test that all bytes have been processed
     if data.replace(b'\0', b''):
-        err = ("Warning: There are unprocessed index bytes left: %s" %
+        err = ('Warning: There are unprocessed index bytes left: %s' %
                 format_bytes(data))
         if strict:
             raise ValueError(err)

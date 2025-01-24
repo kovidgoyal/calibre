@@ -30,13 +30,13 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     INDEX = PREFIX + strftime('%Y/%m/')
     use_embedded_content = False
     language = 'en'
-    extra_css              = """
+    extra_css              = '''
                                 body{font-family: "Luxi sans","Lucida sans","Lucida Grande",Lucida,"Lucida Sans Unicode",sans-serif}
                                 .surtitre{font-size: 1.2em; font-variant: small-caps; margin-bottom: 0.5em}
                                 .chapo{font-size: 1.2em; font-weight: bold; margin: 1em 0 0.5em}
                                 .texte{font-family: Georgia,"Times New Roman",serif} h1{color: #990000}
                                 .notes{border-top: 1px solid #CCCCCC; font-size: 0.9em; line-height: 1.4em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

@@ -5,10 +5,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class CosmosMagazine(BasicNewsRecipe):
-    title = "Cosmos Magazine"
+    title = 'Cosmos Magazine'
     description = (
-        "Cosmos is a quarterly science magazine with 4 editions a year (Mar, Jun, Sep, Dec)."
-        "It is produced by The Royal Institution of Australia Inc (RiAus)."
+        'Cosmos is a quarterly science magazine with 4 editions a year (Mar, Jun, Sep, Dec).'
+        'It is produced by The Royal Institution of Australia Inc (RiAus).'
     )
     language = 'en_AU'
     __author__ = 'yodha8'

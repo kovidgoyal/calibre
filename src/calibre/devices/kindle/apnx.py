@@ -24,9 +24,9 @@ from polyglot.builtins import as_bytes, as_unicode
 
 
 class APNXBuilder:
-    """
+    '''
     Create an APNX file using a pseudo page mapping.
-    """
+    '''
 
     generators: dict[str, IPageGenerator] = {
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
@@ -36,11 +36,11 @@ class APNXBuilder:
     }
 
     def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0):
-        """
+        '''
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
         using either the fast or accurate algorithm.
-        """
+        '''
         apnx_meta = self.get_apnx_meta(mobi_file_path)
 
         if page_count:

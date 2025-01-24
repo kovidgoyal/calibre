@@ -273,8 +273,8 @@ class ToolBar(QToolBar):  # {{{
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if md.hasFormat("application/calibre+from_library") or \
-           md.hasFormat("application/calibre+from_device"):
+        if md.hasFormat('application/calibre+from_library') or \
+           md.hasFormat('application/calibre+from_device'):
             event.setDropAction(Qt.DropAction.CopyAction)
             event.accept()
             return
@@ -292,8 +292,8 @@ class ToolBar(QToolBar):  # {{{
             w = self.widgetForAction(ac)
             if w is not None:
                 if (md.hasFormat(
-                    "application/calibre+from_library") or md.hasFormat(
-                    "application/calibre+from_device")) and \
+                    'application/calibre+from_library') or md.hasFormat(
+                    'application/calibre+from_device')) and \
                         w.geometry().contains(event.pos()) and \
                         isinstance(w, QToolButton) and not w.isChecked():
                     allowed = True

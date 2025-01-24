@@ -41,14 +41,14 @@ class NatGeo(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         return self.natgeo_parser.extract_html(raw_html)
 
-    extra_css = """
+    extra_css = '''
         blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap { font-size:small; }
         img {display:block; margin:0 auto;}
         .cred { font-style:italic; font-size:small; color:#404040; }
         .auth, .time, .sub { font-size:small; color:#5c5c5c; }
-    """
+    '''
 
     def parse_index(self):
         index = 'https://kids.nationalgeographic.com/'

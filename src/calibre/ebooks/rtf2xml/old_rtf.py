@@ -16,12 +16,12 @@ from . import open_for_read
 
 
 class OldRtf:
-    """
+    '''
     Check to see if the RTF is an older version
     Logic:
     If allowable control word/properties happen in text without being enclosed
     in brackets the file will be considered old rtf
-    """
+    '''
 
     def __init__(self, in_file,
                 bug_handler,
@@ -99,13 +99,13 @@ class OldRtf:
             self.__state = 'in_body'
 
     def check_if_old_rtf(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
             True if file is older RTf
             False if file is newer RTF
-        """
+        '''
         self.__initiate_values()
         line_num = 0
         with open_for_read(self.__file) as read_obj:

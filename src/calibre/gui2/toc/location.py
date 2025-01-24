@@ -149,7 +149,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}", file=sys.stderr)
+        print(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}', file=sys.stderr)
 
 
 class Page(QWebEnginePage):  # {{{
@@ -309,7 +309,7 @@ class ItemEdit(QWidget):
         sp.addWidget(f)
 
         f.la = la = QLabel('<p>'+_(
-            'Here you can choose a destination for the Table of Contents\' entry'
+            "Here you can choose a destination for the Table of Contents' entry"
             ' to point to. First choose a file from the book in the left-most panel. The'
             ' file will open in the central panel.<p>'
 

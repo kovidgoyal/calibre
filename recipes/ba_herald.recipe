@@ -24,12 +24,12 @@ class BuenosAiresHerald(BasicNewsRecipe):
     publication_type = 'newspaper'
     masthead_url = 'http://www.buenosairesherald.com/img/logo.jpg'
     INDEX = 'http://www.buenosairesherald.com'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                                h1{font-family: Georgia,serif}
                                #fecha{text-align: right; font-size: small}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

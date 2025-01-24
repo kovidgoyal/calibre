@@ -20,11 +20,11 @@ from . import open_for_read, open_for_write
 
 
 class ProcessTokens:
-    """
+    '''
     Process each token on a line and add information that will be useful for
     later processing. Information will be put on one line, delimited by "<"
     for main fields, and ">" for sub fields
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -46,7 +46,7 @@ class ProcessTokens:
         self.__bug_handler = bug_handler
 
     def compile_expressions(self):
-        self.__num_exp = re.compile(r"([a-zA-Z]+)(.*)")
+        self.__num_exp = re.compile(r'([a-zA-Z]+)(.*)')
         self.__utf_exp = re.compile(r'(&.*?;)')
 
     def initiate_token_dict(self):
@@ -466,7 +466,7 @@ class ProcessTokens:
             2060    :  'French Belgium',
             11276   :  'French Cameroon',
             3084    :  'French Canada',
-            12300   :  'French Cote d\'Ivoire',
+            12300   :  "French Cote d'Ivoire",
             5132    :  'French Luxembourg',
             13324   :  'French Mali',
             6156    :  'French Monaco',
@@ -585,7 +585,7 @@ class ProcessTokens:
             1024    :  'Unkown',
             255     :  'Unkown',
         }
-    """
+    '''
         # unknown
         # These must get passed on because they occurred after \\*
         'do'                :   ('un', 'unknown___', self.default_func),
@@ -609,12 +609,12 @@ class ProcessTokens:
         'objdata'           :   ('un', 'unknown___', self.default_func),
         'picprop'           :   ('un', 'unknown___', self.default_func),
         'blipuid'           :   ('un', 'unknown___', self.default_func),
-    """
+    '''
 
     def __ms_hex_func(self, pre, token, num):
         num = num[1:]  # chop off leading 0, which I added
         num = num.upper()  # the mappings store hex in caps
-        return 'tx<hx<__________<\'%s\n' % num  # add an ' for the mappings
+        return "tx<hx<__________<'%s\n" % num  # add an ' for the mappings
 
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
@@ -654,14 +654,14 @@ class ProcessTokens:
     def __language_func(self, pre, token, num):
         lang_name = self.__language_dict.get(int(re.search('[0-9]+', num).group()))
         if not lang_name:
-            lang_name = "not defined"
+            lang_name = 'not defined'
             if self.__run_level > 3:
                 msg = 'No entry for number "%s"' % num
                 raise self.__bug_handler(msg)
         return f'cw<{pre}<{token}<nu<{lang_name}\n'
 
     def two_part_func(self, pre, token, num):
-        list = token.split("<")
+        list = token.split('<')
         token = list[0]
         num = list[1]
         return f'cw<{pre}<{token}<nu<{num}\n'
@@ -696,7 +696,7 @@ class ProcessTokens:
             third_field = 'en'
         num = '%X' % int(num)
         if len(num) != 2:
-            num = "0" + num
+            num = '0' + num
         return f'cw<{pre}<{token}<{third_field}<{num}\n'
         # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
@@ -732,7 +732,7 @@ class ProcessTokens:
         num = '%0.2f' % round(numerator/denominator, 2)
         return num
         string_num = str(num)
-        if string_num[-2:] == ".0":
+        if string_num[-2:] == '.0':
             string_num = string_num[:-2]
         return string_num
 
@@ -754,21 +754,21 @@ class ProcessTokens:
         return first, second
 
     def convert_to_hex(self,number):
-        """Convert a string to uppercase hexadecimal"""
+        '''Convert a string to uppercase hexadecimal'''
         num = int(number)
         try:
-            hex_num = "%X" % num
+            hex_num = '%X' % num
             return hex_num
         except:
             raise self.__bug_handler
 
     def process_cw(self, token):
-        """Change the value of the control word by determining what dictionary
-        it belongs to"""
+        '''Change the value of the control word by determining what dictionary
+        it belongs to'''
         special = ['*', ':', '}', '{', '~', '_', '-', ';']
         # if token != "{" or token != "}":
         token = token[1:]  # strip off leading \
-        token = token.replace(" ", "")
+        token = token.replace(' ', '')
         # if not token: return
         only_alpha = token.isalpha()
         num = None
@@ -785,18 +785,18 @@ class ProcessTokens:
             return 1
 
     def process_tokens(self):
-        """Main method for handling other methods. """
+        '''Main method for handling other methods. '''
         line_count = 0
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:
-                    token = line.replace("\n", "")
+                    token = line.replace('\n', '')
                     line_count += 1
                     if line_count == 1 and token != '\\{':
-                        msg = '\nInvalid RTF: document doesn\'t start with {\n'
+                        msg = "\nInvalid RTF: document doesn't start with {\n"
                         raise self.__exception_handler(msg)
                     elif line_count == 2 and token[0:4] != '\\rtf':
-                        msg = '\nInvalid RTF: document doesn\'t start with \\rtf \n'
+                        msg = "\nInvalid RTF: document doesn't start with \\rtf \n"
                         raise self.__exception_handler(msg)
 
                     the_index = token.find('\\ ')
@@ -804,7 +804,7 @@ class ProcessTokens:
                         msg = '\nInvalid RTF: token "\\ " not valid.\nError at line %d'\
                             % line_count
                         raise self.__exception_handler(msg)
-                    elif token[:1] == "\\":
+                    elif token[:1] == '\\':
                         line = self.process_cw(token)
                         if line is not None:
                             write_obj.write(line)
@@ -824,7 +824,7 @@ class ProcessTokens:
 
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "processed_tokens.data")
+            copy_obj.copy_file(self.__write_to, 'processed_tokens.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
 

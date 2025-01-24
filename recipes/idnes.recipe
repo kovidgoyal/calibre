@@ -39,7 +39,7 @@ class iHeuteRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         print_url = url
-        split_url = url.split("?")
+        split_url = url.split('?')
         if (split_url[0].rfind('dilbert.asp') != -1):  # dilbert komix
             print_url = print_url.replace('.htm', '.gif&tisk=1')
             print_url = print_url.replace('.asp', '.aspx')

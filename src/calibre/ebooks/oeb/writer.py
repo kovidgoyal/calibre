@@ -15,10 +15,10 @@ __all__ = ['OEBWriter']
 
 class OEBWriter:
     DEFAULT_PROFILE = 'PRS505'
-    """Default renderer profile for content written with this Writer."""
+    '''Default renderer profile for content written with this Writer.'''
 
     TRANSFORMS = []
-    """List of transforms to apply to content written with this Writer."""
+    '''List of transforms to apply to content written with this Writer.'''
 
     def __init__(self, version='2.0', page_map=False, pretty_print=False):
         self.version = version
@@ -27,9 +27,9 @@ class OEBWriter:
 
     @classmethod
     def config(cls, cfg):
-        """Add any book-writing options to the :class:`Config` object
+        '''Add any book-writing options to the :class:`Config` object
         :param:`cfg`.
-        """
+        '''
         oeb = cfg.add_group('oeb', _('OPF/NCX/etc. generation options.'))
         versions = ['1.2', '2.0']
         oeb('opf_version', ['--opf-version'], default='2.0', choices=versions,
@@ -41,7 +41,7 @@ class OEBWriter:
 
     @classmethod
     def generate(cls, opts):
-        """Generate a Writer instance from command-line options."""
+        '''Generate a Writer instance from command-line options.'''
         version = opts.opf_version
         page_map = opts.adobe_page_map
         pretty_print = opts.pretty_print
@@ -49,10 +49,10 @@ class OEBWriter:
                    pretty_print=pretty_print)
 
     def __call__(self, oeb, path):
-        """
+        '''
         Write the book in the :class:`OEBBook` object :param:`oeb` to a folder
         at :param:`path`.
-        """
+        '''
         version = int(self.version[0])
         opfname = None
         if os.path.splitext(path)[1].lower() == '.opf':
@@ -69,7 +69,7 @@ class OEBWriter:
         elif version == 2:
             metadata = oeb.to_opf2(page_map=self.page_map)
         else:
-            raise OEBError("Unrecognized OPF version %r" % self.version)
+            raise OEBError('Unrecognized OPF version %r' % self.version)
         pretty_print = self.pretty_print
         for mime, (href, data) in metadata.items():
             if opfname and mime == OPF_MIME:

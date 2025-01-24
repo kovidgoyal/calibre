@@ -14,7 +14,7 @@ class afr(BasicNewsRecipe):
     description = (
         'For more than 65 years The Australian Financial Review has been the authority on business,'
         ' finance and investment news in Australia. It has a reputation for independent, award-winning '
-        'journalism and is essential reading for Australia\'s business and investor community.'
+        "journalism and is essential reading for Australia's business and investor community."
     )
     masthead_url = 'https://www.nineforbrands.com.au/wp-content/uploads/2020/08/AFR-DHOSP-Logo-black-RGB.png'
     encoding = 'utf-8'

@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
-"""
+'''
 Convert .fb2 files to .lrf
-"""
+'''
 import os
 import re
 
@@ -91,7 +91,7 @@ class FB2Input(InputFormatPlugin):
         log.debug('Converting XML to HTML...')
         with open(P('templates/fb2.xsl'), 'rb') as f:
             ss = f.read().decode('utf-8')
-        ss = ss.replace("__FB_NS__", fb_ns)
+        ss = ss.replace('__FB_NS__', fb_ns)
         if options.no_inline_fb2_toc:
             log('Disabling generation of inline FB2 TOC')
             ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',

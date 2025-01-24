@@ -77,7 +77,7 @@ class EPUBOutput(OutputFormatPlugin):
         ),
 
         OptionRecommendation(name='no_default_epub_cover', recommended_value=False,
-            help=_('Normally, if the input file has no cover and you don\'t'
+            help=_("Normally, if the input file has no cover and you don't"
             ' specify one, a default cover is generated with the title, '
             'authors, etc. This option disables the generation of this cover.')
         ),

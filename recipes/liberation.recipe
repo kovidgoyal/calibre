@@ -78,9 +78,9 @@ class Liberation(BasicNewsRecipe):
     title = 'Libération'
     __author__ = 'unkn0wn'
     description = (
-        'Libération est un quotidien d\'information libre, vigilant et engagé. L\'objectif de Libération est de '
+        "Libération est un quotidien d'information libre, vigilant et engagé. L'objectif de Libération est de "
         'fournir une information complète et vérifiée, dans tous les domaines. Sans préjugés, ni complaisance, '
-        'ses enquêtes reportages et analyses s\'emploient à comprendre et à décrire l\'actualité et à révéler '
+        "ses enquêtes reportages et analyses s'emploient à comprendre et à décrire l'actualité et à révéler "
         'les mutations des sociétés et des cultures.'
     )
     language = 'fr'

@@ -154,7 +154,7 @@ class FlatFilenames:  # {{{
         for item in list(oeb.manifest.items):
             # Flatten URL by removing directories.
             # Example: a/b/c/index.html -> a_b_c_index.html
-            nhref = item.href.replace("/", "_")
+            nhref = item.href.replace('/', '_')
 
             if item.href == nhref:
                 # URL hasn't changed, skip item.

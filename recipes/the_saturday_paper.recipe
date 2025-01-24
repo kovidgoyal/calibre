@@ -32,7 +32,7 @@ class SaturdayPaper(BasicNewsRecipe):
                 ' article-page__sidebar article-page__social__icons share-wrapper article-footer-container')
     ]
     remove_tags_after = [
-        {"name": "div", "class": "end-matter"},
+        {'name': 'div', 'class': 'end-matter'},
     ]
 
 
@@ -62,7 +62,7 @@ class SaturdayPaper(BasicNewsRecipe):
                 title = a.find(class_='article__title')
                 title = self.tag_to_string(title)
 
-                url = a.find(class_="article__title_link")
+                url = a.find(class_='article__title_link')
                 if url is None:
                     continue
                 url = url['href']

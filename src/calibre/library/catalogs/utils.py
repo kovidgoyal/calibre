@@ -19,11 +19,11 @@ class NumberToText:  # {{{
     4:56    => four fifty-six
     '''
     ORDINALS = ['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth']
-    lessThanTwenty = ["<zero>","one","two","three","four","five","six","seven","eight","nine",
-                        "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
-                        "eighteen","nineteen"]
-    tens = ["<zero>","<tens>","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"]
-    hundreds = ["<zero>","one","two","three","four","five","six","seven","eight","nine"]
+    lessThanTwenty = ['<zero>','one','two','three','four','five','six','seven','eight','nine',
+                        'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen',
+                        'eighteen','nineteen']
+    tens = ['<zero>','<tens>','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety']
+    hundreds = ['<zero>','one','two','three','four','five','six','seven','eight','nine']
 
     def __init__(self, number, verbose=False):
         self.number = number
@@ -37,31 +37,31 @@ class NumberToText:  # {{{
         # Convert intToTranslate to string
         # intToTranslate is a three-digit number
 
-        tensComponentString = ""
+        tensComponentString = ''
         hundredsComponent = intToTranslate - (intToTranslate % 100)
         tensComponent = intToTranslate % 100
 
         # Build the hundreds component
         if hundredsComponent:
-            hundredsComponentString = "%s hundred" % self.hundreds[hundredsComponent//100]
+            hundredsComponentString = '%s hundred' % self.hundreds[hundredsComponent//100]
         else:
-            hundredsComponentString = ""
+            hundredsComponentString = ''
 
         # Build the tens component
         if tensComponent < 20:
             tensComponentString = self.lessThanTwenty[tensComponent]
         else:
-            tensPart = ""
-            onesPart = ""
+            tensPart = ''
+            onesPart = ''
 
             # Get the tens part
             tensPart = self.tens[tensComponent // 10]
             onesPart = self.lessThanTwenty[tensComponent % 10]
 
             if intToTranslate % 10:
-                tensComponentString = f"{tensPart}-{onesPart}"
+                tensComponentString = f'{tensPart}-{onesPart}'
             else:
-                tensComponentString = "%s" % tensPart
+                tensComponentString = '%s' % tensPart
 
         # Concatenate the results
         result = ''
@@ -70,21 +70,21 @@ class NumberToText:  # {{{
         elif not hundredsComponent and tensComponent:
             result = tensComponentString
         elif hundredsComponent and tensComponent:
-            result = hundredsComponentString + " " + tensComponentString
+            result = hundredsComponentString + ' ' + tensComponentString
         else:
-            prints(" NumberToText.stringFromInt(): empty result translating %d" % intToTranslate)
+            prints(' NumberToText.stringFromInt(): empty result translating %d' % intToTranslate)
         return result
 
     def numberTranslate(self):
         hundredsNumber = 0
         thousandsNumber = 0
-        hundredsString = ""
-        thousandsString = ""
-        resultString = ""
+        hundredsString = ''
+        thousandsString = ''
+        resultString = ''
         self.suffix = ''
 
         if self.verbose:
-            self.log("numberTranslate(): %s" % self.number)
+            self.log('numberTranslate(): %s' % self.number)
 
         # Special case ordinals
         if re.search('[st|nd|rd|th]',self.number):
@@ -92,7 +92,7 @@ class NumberToText:  # {{{
             ordinal_suffix = re.search(r'[\D]', self.number)
             ordinal_number = re.sub(r'\D','',re.sub(',','',self.number))
             if self.verbose:
-                self.log("Ordinal: %s" % ordinal_number)
+                self.log('Ordinal: %s' % ordinal_number)
             self.number_as_float = ordinal_number
             self.suffix = self.number[ordinal_suffix.start():]
             if int(ordinal_number) > 9:
@@ -104,9 +104,9 @@ class NumberToText:  # {{{
         # Test for time
         elif re.search(':',self.number):
             if self.verbose:
-                self.log("Time: %s" % self.number)
+                self.log('Time: %s' % self.number)
             self.number_as_float = re.sub(':','.',self.number)
-            time_strings = self.number.split(":")
+            time_strings = self.number.split(':')
             hours = NumberToText(time_strings[0]).text
             minutes = NumberToText(time_strings[1]).text
             self.text = f'{hours.capitalize()}-{minutes}'
@@ -114,16 +114,16 @@ class NumberToText:  # {{{
         # Test for %
         elif re.search('%', self.number):
             if self.verbose:
-                self.log("Percent: %s" % self.number)
+                self.log('Percent: %s' % self.number)
             self.number_as_float = self.number.split('%')[0]
             self.text = NumberToText(self.number.replace('%',' percent')).text
 
         # Test for decimal
         elif re.search('\\.',self.number):
             if self.verbose:
-                self.log("Decimal: %s" % self.number)
+                self.log('Decimal: %s' % self.number)
             self.number_as_float = self.number
-            decimal_strings = self.number.split(".")
+            decimal_strings = self.number.split('.')
             left = NumberToText(decimal_strings[0]).text
             right = NumberToText(decimal_strings[1]).text
             self.text = f'{left.capitalize()} point {right}'
@@ -131,7 +131,7 @@ class NumberToText:  # {{{
         # Test for hyphenated
         elif re.search('-', self.number):
             if self.verbose:
-                self.log("Hyphenated: %s" % self.number)
+                self.log('Hyphenated: %s' % self.number)
             self.number_as_float = self.number.split('-')[0]
             strings = self.number.split('-')
             if re.search('[0-9]+', strings[0]):
@@ -145,14 +145,14 @@ class NumberToText:  # {{{
         # Test for only commas and numbers
         elif re.search(',', self.number) and not re.search('[^0-9,]',self.number):
             if self.verbose:
-                self.log("Comma(s): %s" % self.number)
+                self.log('Comma(s): %s' % self.number)
             self.number_as_float = re.sub(',','',self.number)
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'
         elif re.search('[\\D]+', self.number):
             if self.verbose:
-                self.log("Hybrid: %s" % self.number)
+                self.log('Hybrid: %s' % self.number)
             # Split the token into number/text
             number_position = re.search(r'\d',self.number).start()
             text_position = re.search(r'\D',self.number).start()
@@ -167,7 +167,7 @@ class NumberToText:  # {{{
 
         else:
             if self.verbose:
-                self.log("Clean: %s" % self.number)
+                self.log('Clean: %s' % self.number)
             try:
                 self.float_as_number = float(self.number)
                 number = int(self.number)
@@ -175,18 +175,18 @@ class NumberToText:  # {{{
                 return
 
             if number > 10**9:
-                self.text = "%d out of range" % number
+                self.text = '%d out of range' % number
                 return
 
             if number == 10**9:
-                self.text = "one billion"
+                self.text = 'one billion'
             else :
                 # Isolate the three-digit number groups
                 millionsNumber  = number//10**6
                 thousandsNumber = (number - (millionsNumber * 10**6))//10**3
                 hundredsNumber  = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
                 if self.verbose:
-                    print(f"Converting {millionsNumber} {thousandsNumber} {hundredsNumber}")
+                    print(f'Converting {millionsNumber} {thousandsNumber} {hundredsNumber}')
 
                 # Convert hundredsNumber
                 if hundredsNumber :
@@ -209,16 +209,16 @@ class NumberToText:  # {{{
                 # Concatenate the strings
                 resultString = ''
                 if millionsNumber:
-                    resultString += "%s million " % millionsString
+                    resultString += '%s million ' % millionsString
 
                 if thousandsNumber:
-                    resultString += "%s thousand " % thousandsString
+                    resultString += '%s thousand ' % thousandsString
 
                 if hundredsNumber:
-                    resultString += "%s" % hundredsString
+                    resultString += '%s' % hundredsString
 
                 if not millionsNumber and not thousandsNumber and not hundredsNumber:
-                    resultString = "zero"
+                    resultString = 'zero'
 
                 if self.verbose:
                     self.log('resultString: %s' % resultString)

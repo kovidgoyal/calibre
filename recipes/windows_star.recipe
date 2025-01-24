@@ -69,14 +69,14 @@ class CanWestPaper(BasicNewsRecipe):
         ans = ['News']
 
         # Find each instance of class="sectiontitle", class="featurecontent"
-        for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
+        for divtag in soup.findAll('div', attrs={'class': ['section_title02', 'featurecontent']}):
             if 'section_title' in ''.join(divtag['class']):
                 # div contains section title
                 if not divtag.h3:
                     continue
                 key = self.tag_to_string(divtag.h3, False)
                 ans.append(key)
-                self.log("Section name %s" % key)
+                self.log('Section name %s' % key)
                 continue
             # div contains article data
             h1tag = divtag.find('h1')

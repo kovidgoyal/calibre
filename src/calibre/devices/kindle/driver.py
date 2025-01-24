@@ -264,12 +264,12 @@ class KINDLE(USBMS):
 
         # Add the last-read location
         if bookmark.book_format == 'pdf':
-            markup = _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
+            markup = _('%(time)s<br />Last page read: %(loc)d (%(pr)d%%)') % dict(
                     time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
         else:
-            markup = _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
+            markup = _('%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)') % dict(
                     time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
@@ -610,7 +610,7 @@ class KINDLE2(KINDLE):
 
         # Create the sidecar folder if necessary
         if (self.sidecar_apnx):
-            path = os.path.join(os.path.dirname(filepath), filename+".sdr")
+            path = os.path.join(os.path.dirname(filepath), filename+'.sdr')
 
             if not os.path.exists(path):
                 os.makedirs(path)
@@ -636,7 +636,7 @@ class KINDLE2(KINDLE):
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:
-                            print("Invalid method choice for this book (%r), ignoring." % temp)
+                            print('Invalid method choice for this book (%r), ignoring.' % temp)
                     except:
                         print('Could not retrieve override method choice, using default.')
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)

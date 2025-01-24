@@ -31,11 +31,11 @@ class Danas(BasicNewsRecipe):
     auto_cleanup = True
     auto_cleanup_keep = '//div[@class="post-intro-above"] //h1[@class="post-title"] | //div[@class="post-intro-title"] | //div[@class="post-meta-wrapper"]'
     resolve_internal_links = True
-    extra_css = """
+    extra_css = '''
                                 .author{font-size: small}
                                 .published {font-size: small}
                                 img{margin-bottom: 0.8em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description,
@@ -66,7 +66,7 @@ class Danas(BasicNewsRecipe):
                   'avgust', 'septembar', 'oktobar', 'novembar', 'decembar']
         td = date.today()
         monthname = months[td.month - 1]
-        lurl = td.strftime("https://www.danas.rs/naslovna/naslovna-strana-za-%d-" + monthname + "-%Y/")
+        lurl = td.strftime('https://www.danas.rs/naslovna/naslovna-strana-za-%d-' + monthname + '-%Y/')
         soup = self.index_to_soup(lurl)
         al = soup.find('div', attrs={'class':'corax-image'})
         if al and al.img:

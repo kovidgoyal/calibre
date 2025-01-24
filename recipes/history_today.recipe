@@ -59,23 +59,23 @@ class HistoryToday(BasicNewsRecipe):
 
         feeds = OrderedDict()
         section_title = ''
-        for section in div.findAll('div', attrs={'id': re.compile(r"block\-views\-contents.*")}):
+        for section in div.findAll('div', attrs={'id': re.compile(r'block\-views\-contents.*')}):
             section_title = self.tag_to_string(
                 section.find('h2', attrs={'class': 'title'}))
             sectionbody = section.find('div', attrs={'class': 'view-content'})
-            for article in sectionbody.findAll('div', attrs={'class': re.compile(r"views\-row.*")}):
+            for article in sectionbody.findAll('div', attrs={'class': re.compile(r'views\-row.*')}):
                 articles = []
                 subarticle = []
                 subarticle = article.findAll('div')
                 if len(subarticle) < 2:
                     continue
                 title = self.tag_to_string(subarticle[0])
-                originalurl = "https://www.historytoday.com" + \
+                originalurl = 'https://www.historytoday.com' + \
                     subarticle[0].span.a['href'].strip()
                 originalpage = self.index_to_soup(originalurl)
                 printurl = originalpage.find(
                     'div', attrs={'id': 'ht-tools'}).a['href'].strip()
-                url = "https://www.historytoday.com" + printurl
+                url = 'https://www.historytoday.com' + printurl
                 desc = self.tag_to_string(subarticle[1])
                 articles.append({'title': title, 'url': url,
                                  'description': desc, 'date': ''})

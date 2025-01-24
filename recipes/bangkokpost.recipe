@@ -16,7 +16,7 @@ class BangkokPostRecipe(BasicNewsRecipe):
     title = u'Bangkok Post'
     publisher = u'Post Publishing PCL'
     category = u'News'
-    description = u'The world\'s window to Thailand'
+    description = u"The world's window to Thailand"
 
     oldest_article = 7
     max_articles_per_feed = 100

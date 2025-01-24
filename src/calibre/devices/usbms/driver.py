@@ -235,7 +235,7 @@ class USBMS(CLI, Device):
         def update_booklist(filename, path, prefix):
             changed = False
             # Ignore AppleDouble files
-            if filename.startswith("._"):
+            if filename.startswith('._'):
                 return False
             if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:

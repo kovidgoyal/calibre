@@ -172,11 +172,11 @@ class TextBlock:
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
     XML_ENTITIES = {
-            "apos" : "'",
-            "quot" : '"',
-            "amp" : "&",
-            "lt" : "<",
-            "gt" : ">"
+            'apos' : "'",
+            'quot' : '"',
+            'amp' : '&',
+            'lt' : '<',
+            'gt' : '>'
     }
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,

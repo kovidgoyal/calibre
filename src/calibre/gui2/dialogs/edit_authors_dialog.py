@@ -134,7 +134,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         except Exception:
             pass
 
-        self.notes_utilities = NotesUtilities(self.table, "authors",
+        self.notes_utilities = NotesUtilities(self.table, 'authors',
                   lambda item: int(self.table.item(item.row(), AUTHOR_COLUMN).data(Qt.ItemDataRole.UserRole)))
 
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
@@ -462,7 +462,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     ca = m.addAction(_('Copy to author sort'))
                     ca.triggered.connect(self.copy_au_to_aus)
                     m.addSeparator()
-                    ca = m.addAction(QIcon.cached_icon('lt.png'), _("Show books by author in book list"))
+                    ca = m.addAction(QIcon.cached_icon('lt.png'), _('Show books by author in book list'))
                     ca.triggered.connect(self.search_in_book_list)
                 else:
                     ca = m.addAction(_('Copy to author'))

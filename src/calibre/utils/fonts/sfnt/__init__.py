@@ -59,10 +59,10 @@ class FixedProperty:
 
 
 def max_power_of_two(x):
-    """
+    '''
 Return the highest exponent of two, so that
     (2 ** exponent) <= x
-    """
+    '''
     exponent = 0
     while x:
         x = x >> 1

@@ -21,9 +21,9 @@ from . import open_for_read, open_for_write
 
 
 class Info:
-    """
+    '''
     Make tags for document-information
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -48,9 +48,9 @@ class Info:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__text_string = ''
         self.__state = 'before_info_table'
         self.rmspace = re.compile(r'\s+')
@@ -108,7 +108,7 @@ class Info:
         }
 
     def __before_info_table_func(self, line):
-        """
+        '''
         Required:
             line -- the line to parse
         Returns:
@@ -116,13 +116,13 @@ class Info:
         Logic:
             Check for the beginning of the information table. When found, set
             the state to the information table. Always write the line.
-        """
+        '''
         if self.__token_info == 'mi<mk<doc-in-beg':
             self.__state = 'in_info_table'
         self.__write_obj.write(line)
 
     def __in_info_table_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -132,7 +132,7 @@ class Info:
             token has a special value in the info table dictionary. If it
             does, execute that function.
             Otherwise, output the line to the file.
-        """
+        '''
         if self.__token_info == 'mi<mk<doc-in-end':
             self.__state = 'after_info_table'
         else:
@@ -143,7 +143,7 @@ class Info:
                 self.__write_obj.write(line)
 
     def __found_tag_with_text_func(self, line, tag):
-        """
+        '''
         Requires:
             line -- line to parse
             tag --what kind of line
@@ -153,12 +153,12 @@ class Info:
             This function marks the beginning of information fields that have
             text that must be collected.  Set the type of information field
             with the tag option. Set the state to collecting text
-        """
+        '''
         self.__tag = tag
         self.__state = 'collect_text'
 
     def __collect_text_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -167,7 +167,7 @@ class Info:
             If the end of the information field is found, write the text
             string to the file.
             Otherwise, if the line contains text, add it to the text string.
-        """
+        '''
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
             # Don't print empty tags
@@ -182,7 +182,7 @@ class Info:
             self.__text_string += line[17:-1]
 
     def __found_tag_with_tokens_func(self, line, tag):
-        """
+        '''
         Requires:
             line -- line to parse
             tag -- type of field
@@ -193,13 +193,13 @@ class Info:
             that must be parsed as attributes for the element.
             Set the state to collect tokesn, and set the text string to
             start an empty element with attributes.
-        """
+        '''
         self.__state = 'collect_tokens'
         self.__text_string = 'mi<tg<empty-att_<%s' % tag
         # mi<tg<empty-att_<page-definition<margin>33\n
 
     def __collect_tokens_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -217,7 +217,7 @@ class Info:
             dictionary, print out an error message. Otherwise add the value
             to the text string.
             (num-of-wor => number-of-words)
-        """
+        '''
         # cw<di<year______<nu<2003
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
@@ -243,7 +243,7 @@ class Info:
         )
 
     def __after_info_table_func(self, line):
-        """
+        '''
         Requires:
             line --line to write to file
         Returns:
@@ -251,11 +251,11 @@ class Info:
         Logic:
             After the end of the information table, simple write the line to
             the file.
-        """
+        '''
         self.__write_obj.write(line)
 
     def fix_info(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -269,7 +269,7 @@ class Info:
             style table, look for lines with style info, and substitute the
             number with the name of the style.  If the state if after the
             information table, simply write the line to the output file.
-        """
+        '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
@@ -282,6 +282,6 @@ class Info:
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "info.data")
+            copy_obj.copy_file(self.__write_to, 'info.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

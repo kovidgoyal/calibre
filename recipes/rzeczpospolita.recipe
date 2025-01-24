@@ -19,9 +19,9 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     simultaneous_downloads = 5
 
     feeds = []
-    feeds.append((u"Wiadomości", u'http://www.rp.pl/rss/1056'))  # Wydarzenia
-    feeds.append((u"Ekonomia", u'http://www.rp.pl/rss/1004'))  # Ekonomia
-    feeds.append((u"Prawo", u'http://www.rp.pl/rss/1037'))  # Prawo
+    feeds.append((u'Wiadomości', u'http://www.rp.pl/rss/1056'))  # Wydarzenia
+    feeds.append((u'Ekonomia', u'http://www.rp.pl/rss/1004'))  # Ekonomia
+    feeds.append((u'Prawo', u'http://www.rp.pl/rss/1037'))  # Prawo
 
     keep_only_tags = []
     keep_only_tags.append(dict(name='h1', attrs={'id': 'article-title'}))

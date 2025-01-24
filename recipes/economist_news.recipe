@@ -59,7 +59,7 @@ def load_article_from_json(raw, root):
     body = root.xpath('//body')[0]
     article = E(body, 'article')
     E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
-    E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+    E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
     E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
     try:
         date = data['dateModified']
@@ -125,7 +125,7 @@ class EconomistNews(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
-    __author__ = "Kovid Goyal"
+    __author__ = 'Kovid Goyal'
     description = (
         'Global news and current affairs from a European'
         ' perspective. Get the latest articles here.'
@@ -140,7 +140,7 @@ class EconomistNews(BasicNewsRecipe):
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={'id': 'player'}),
         dict(attrs={
                 'class': [
@@ -234,9 +234,9 @@ class EconomistNews(BasicNewsRecipe):
             articles = []
 
             for art in part['hasPart']['parts']:
-                title = safe_dict(art, "title")
-                desc = safe_dict(art, "rubric") or ''
-                sub = safe_dict(art, "flyTitle") or ''
+                title = safe_dict(art, 'title')
+                desc = safe_dict(art, 'rubric') or ''
+                sub = safe_dict(art, 'flyTitle') or ''
                 if sub and section != sub:
                     desc = sub + ' :: ' + desc
                 if not art.get('text'):
@@ -249,7 +249,7 @@ class EconomistNews(BasicNewsRecipe):
                 pt.write(json.dumps(art).encode('utf-8'))
                 pt.close()
                 url = 'file:///' + pt.name
-                articles.append({"title": title, "url": url, "description": desc})
+                articles.append({'title': title, 'url': url, 'description': desc})
                 self.log('\t', title, '\n\t\t', desc)
             if articles:
                 feeds.append((section, articles))

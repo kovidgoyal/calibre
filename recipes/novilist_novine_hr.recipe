@@ -27,14 +27,14 @@ class NoviList_hr(BasicNewsRecipe):
     needs_subscription = True
     masthead_url = 'http://novine.novilist.hr/images/system/novilist-logo.jpg'
     index = 'http://novine.novilist.hr/'
-    extra_css             = """
+    extra_css             = '''
                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Geneva,Arial,Helvetica,Swiss,sans1,sans-serif }
                                img{display:block; margin-bottom: 0.4em; margin-top: 0.4em}
                                .nadnaslov,.podnaslov{font-size: small; display: block; margin-bottom: 1em}
                                .naslov{font-size: x-large; color: maroon; font-weight: bold; display: block; margin-bottom: 1em;}
                                p{display: block}
-                            """
+                            '''
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 

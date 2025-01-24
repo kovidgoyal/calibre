@@ -513,7 +513,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.setEnabled(not item.is_deleted)
 
         if self.category is not None:
-            ca = m.addAction(_("Search the library for {0}").format(item_name))
+            ca = m.addAction(_('Search the library for {0}').format(item_name))
             ca.setIcon(QIcon.cached_icon('lt.png'))
             ca.triggered.connect(partial(self.search_for_books, item))
             ca.setEnabled(not item.is_deleted)
@@ -916,8 +916,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         new_text = str(edited_item.text())
         if self.is_enumerated and new_text not in self.enum_permitted_values:
             error_dialog(self, _('Item is not a permitted value'), '<p>' + _(
-                "This column has a fixed set of permitted values. The entered "
-                "text must be one of ({0}).").format(', '.join(self.enum_permitted_values)) +
+                'This column has a fixed set of permitted values. The entered '
+                'text must be one of ({0}).').format(', '.join(self.enum_permitted_values)) +
                 '</p>', show=True)
             with block_signals(self.table):
                 edited_item.setText(self.text_before_editing)

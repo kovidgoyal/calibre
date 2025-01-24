@@ -234,7 +234,7 @@ def opf_writer(path, opf_name, manifest, spine, mi):
 
 
 def split_utf8(s, n):
-    """Split UTF-8 s into chunks of maximum length n."""
+    '''Split UTF-8 s into chunks of maximum length n.'''
     if n < 3:
         raise ValueError(f'Cannot split into chunks of less than {n} < 4 bytes')
     s = memoryview(s)

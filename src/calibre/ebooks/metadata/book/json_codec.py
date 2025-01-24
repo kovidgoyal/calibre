@@ -21,7 +21,7 @@ from polyglot.builtins import as_bytes, iteritems, itervalues
 
 def string_to_datetime(src):
     from calibre.utils.iso8601 import parse_iso8601
-    if src != "None":
+    if src != 'None':
         try:
             return parse_iso8601(src)
         except Exception:
@@ -32,13 +32,13 @@ def string_to_datetime(src):
 def datetime_to_string(dateval):
     from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
     if dateval is None:
-        return "None"
+        return 'None'
     if not isinstance(dateval, datetime):
         dateval = datetime.combine(dateval, time())
     if hasattr(dateval, 'tzinfo') and dateval.tzinfo is None:
         dateval = dateval.replace(tzinfo=local_tz)
     if dateval <= UNDEFINED_DATE:
-        return "None"
+        return 'None'
     return isoformat(dateval)
 
 

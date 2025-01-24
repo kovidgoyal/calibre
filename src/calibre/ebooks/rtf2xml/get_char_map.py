@@ -13,11 +13,11 @@
 
 
 class GetCharMap:
-    """
+    '''
 
     Return the character map for the given value
 
-    """
+    '''
 
     def __init__(self, bug_handler, char_file):
         """

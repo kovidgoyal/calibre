@@ -19,5 +19,5 @@ top_level_module_names = ('QtCore',
 def __getattr__(name):
     if name in top_level_module_names:
         import importlib
-        return importlib.import_module("PyQt6." + name)
+        return importlib.import_module('PyQt6.' + name)
     raise AttributeError(name)

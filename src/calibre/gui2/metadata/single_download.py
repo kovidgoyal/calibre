@@ -558,7 +558,7 @@ class IdentifyWidget(QWidget):  # {{{
             error_dialog(self, _('No matches found'), '<p>' +
                     _('Failed to find any books that '
                         'match your search. Try making the search <b>less '
-                        'specific</b>. For example, use only the author\'s '
+                        "specific</b>. For example, use only the author's "
                         'last name and a single distinctive word from '
                         'the title.<p>To see the full log, click "Show details".'),
                     show=True, det_msg=log)

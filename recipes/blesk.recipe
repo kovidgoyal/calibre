@@ -27,8 +27,8 @@ class bleskRecipe(BasicNewsRecipe):
     cover_url = 'http://img.blesk.cz/images/blesk/blesk-logo.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = """
-                            """
+    extra_css             = '''
+                            '''
 
     remove_attributes = []
     remove_tags_before = dict(name='div', attrs={'id': ['boxContent']})

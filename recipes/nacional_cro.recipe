@@ -23,7 +23,7 @@ def new_tag(soup, name, attrs=()):
 class NacionalCro(BasicNewsRecipe):
     title = 'Nacional - Hr'
     __author__ = 'Darko Miletic'
-    description = "news from Croatia"
+    description = 'news from Croatia'
     publisher = 'Nacional.hr'
     category = 'news, politics, Croatia'
     oldest_article = 2
@@ -53,9 +53,9 @@ class NacionalCro(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=UTF-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll(style=True):

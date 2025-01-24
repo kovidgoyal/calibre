@@ -204,16 +204,16 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bi_font.setItalic(True)
         self.styled_columns = {}
         self.orig_headers = {
-                        'title'     : _("Title"),
-                        'ondevice'   : _("On Device"),
-                        'authors'   : _("Author(s)"),
-                        'size'      : _("Size (MB)"),
-                        'timestamp' : _("Date"),
+                        'title'     : _('Title'),
+                        'ondevice'   : _('On Device'),
+                        'authors'   : _('Author(s)'),
+                        'size'      : _('Size (MB)'),
+                        'timestamp' : _('Date'),
                         'pubdate'   : _('Published'),
                         'rating'    : _('Rating'),
-                        'publisher' : _("Publisher"),
-                        'tags'      : _("Tags"),
-                        'series'    : ngettext("Series", 'Series', 1),
+                        'publisher' : _('Publisher'),
+                        'tags'      : _('Tags'),
+                        'series'    : ngettext('Series', 'Series', 1),
                         'last_modified' : _('Modified'),
                         'languages' : _('Languages'),
                         'formats'   : _('Formats'),
@@ -1840,7 +1840,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                     cname == 'collections' and (
                         callable(getattr(self.db, 'supports_collections', None)) and self.db.supports_collections())
             ):
-                return (_("Double click to <b>edit</b> me<br><br>"))
+                return (_('Double click to <b>edit</b> me<br><br>'))
         elif role == Qt.ItemDataRole.DecorationRole and cname == 'inlibrary':
             if hasattr(self.db[self.map[row]], 'in_library_waiting'):
                 return (self.sync_icon)

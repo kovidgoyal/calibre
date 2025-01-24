@@ -1,8 +1,8 @@
-"""
+'''
 Modified version of SHA-1 used in Microsoft LIT files.
 
 Adapted from the PyPy pure-Python SHA-1 implementation.
-"""
+'''
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -21,12 +21,12 @@ from polyglot.builtins import long_type
 
 
 def _long2bytesBigEndian(n, blocksize=0):
-    """Convert a long integer to a byte string.
+    '''Convert a long integer to a byte string.
 
     If optional blocksize is given and greater than zero, pad the front
     of the byte string with binary zeros so that the length is a multiple
     of blocksize.
-    """
+    '''
 
     # After much testing, this algorithm was deemed to be the fastest.
     s = b''
@@ -47,7 +47,7 @@ def _long2bytesBigEndian(n, blocksize=0):
 
 
 def _bytelist2longBigEndian(blist):
-    "Transform a list of characters into a list of longs."
+    'Transform a list of characters into a list of longs.'
 
     imax = len(blist)//4
     hl = [0] * imax
@@ -67,7 +67,7 @@ def _bytelist2longBigEndian(blist):
 
 
 def _rotateLeft(x, n):
-    "Rotate x (32 bit) left n bits circular."
+    'Rotate x (32 bit) left n bits circular.'
 
     return (x << n) | (x >> (32-n))
 
@@ -123,10 +123,10 @@ K = [
 
 
 class mssha1:
-    "An implementation of the MD5 hash function in pure Python."
+    'An implementation of the MD5 hash function in pure Python.'
 
     def __init__(self):
-        "Initialisation."
+        'Initialisation.'
 
         # Initial message length in bits(!).
         self.length = 0
@@ -140,7 +140,7 @@ class mssha1:
         self.init()
 
     def init(self):
-        "Initialize the message-digest and set all fields to zero."
+        'Initialize the message-digest and set all fields to zero.'
 
         self.length = 0
         self.input = []
@@ -182,7 +182,7 @@ class mssha1:
     # API of the sha module.
 
     def update(self, inBuf):
-        """Add to the current message.
+        '''Add to the current message.
 
         Update the mssha1 object with the string arg. Repeated calls
         are equivalent to a single call with the concatenation of all
@@ -195,7 +195,7 @@ class mssha1:
         keep an intermediate value for the hash, so that we only need to
         make minimal recalculation if we call update() to add more data
         to the hashed string.
-        """
+        '''
 
         inBuf = bytearray(inBuf)
         leninBuf = long_type(len(inBuf))
@@ -225,12 +225,12 @@ class mssha1:
             self.input = self.input + inBuf
 
     def digest(self):
-        """Terminate the message-digest computation and return digest.
+        '''Terminate the message-digest computation and return digest.
 
         Return the digest of the strings passed to the update()
         method so far. This is a 16-byte string which may contain
         non-ASCII characters, including null bytes.
-        """
+        '''
 
         H0 = self.H0
         H1 = self.H1
@@ -273,13 +273,13 @@ class mssha1:
         return digest
 
     def hexdigest(self):
-        """Terminate and return digest in HEX form.
+        '''Terminate and return digest in HEX form.
 
         Like digest() except the digest is returned as a string of
         length 32, containing only hexadecimal digits. This may be
         used to exchange the value safely in email or other non-
         binary environments.
-        """
+        '''
         return ''.join(['%02x' % c for c in bytearray(self.digest())])
 
     def copy(self):
@@ -306,10 +306,10 @@ blocksize = 1
 
 
 def new(arg=None):
-    """Return a new mssha1 crypto object.
+    '''Return a new mssha1 crypto object.
 
     If arg is present, the method call update(arg) is made.
-    """
+    '''
 
     crypto = mssha1()
     if arg:
@@ -323,7 +323,7 @@ if __name__ == '__main__':
         import sys
         file = None
         if len(sys.argv) > 2:
-            print("usage: %s [FILE]" % sys.argv[0])
+            print('usage: %s [FILE]' % sys.argv[0])
             return
         elif len(sys.argv) < 2:
             file = sys.stdin

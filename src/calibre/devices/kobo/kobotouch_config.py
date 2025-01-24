@@ -52,7 +52,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
 
-        self.addDeviceTab(self.tab1, _("Collections, covers && uploads"))
+        self.addDeviceTab(self.tab1, _('Collections, covers && uploads'))
         self.addDeviceTab(self.tab2, _('Metadata, on device && advanced'))
 
     def get_pref(self, key):
@@ -92,7 +92,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         return self.tab2.metadata_options
 
     def commit(self):
-        debug_print("KOBOTOUCHConfig::commit: start")
+        debug_print('KOBOTOUCHConfig::commit: start')
         p = super().commit()
 
         p['manage_collections'] = self.manage_collections
@@ -195,14 +195,14 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device)
-        self.setTitle(_("Uploading of books"))
+        self.setTitle(_('Uploading of books'))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.modify_css_checkbox = create_checkbox(
-                _("Modify CSS"),
+                _('Modify CSS'),
                 _('This allows addition of user CSS rules and removal of some CSS. '
                 'When sending a book, the driver adds the contents of {0} to all stylesheets in the EPUB. '
                 'This file is searched for in the root folder of the main memory of the device. '
@@ -211,7 +211,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 device.get_pref('modify_css')
                 )
         self.override_kobo_replace_existing_checkbox = create_checkbox(
-                _("Do not treat replacements as new books"),
+                _('Do not treat replacements as new books'),
                 _('When a new book is side-loaded, the Kobo firmware imports details of the book into the internal database. '
                 'Even if the book is a replacement for an existing book, the Kobo will remove the book from the database and then treat it as a new book. '
                 'This means that the reading status, bookmarks and collections for the book will be lost. '
@@ -237,10 +237,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device)
-        self.setTitle(_("Collections"))
+        self.setTitle(_('Collections'))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.setCheckable(True)
@@ -248,7 +248,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.setToolTip(wrap_msg(_('Create new collections on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
         self.use_collections_columns_checkbox = create_checkbox(
-                             _("Collections columns:"),
+                             _('Collections columns:'),
                              _('Use a column to generate collections.'),
                              device.get_pref('use_collections_columns')
                              )
@@ -259,7 +259,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
 
         self.use_collections_template_checkbox = create_checkbox(
-                             _("Collections template:"),
+                             _('Collections template:'),
                              _('Use a template to generate collections.'),
                              device.get_pref('use_collections_template')
                              )
@@ -272,7 +272,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                             )
 
         self.create_collections_checkbox = create_checkbox(
-                         _("Create collections"),
+                         _('Create collections'),
                          _('Create new collections on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
                          device.get_pref('create_collections')
                          )
@@ -346,10 +346,10 @@ class CoversGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device)
-        self.setTitle(_("Upload covers"))
+        self.setTitle(_('Upload covers'))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.setCheckable(True)
@@ -465,14 +465,14 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device)
-        self.setTitle(_("Show as on device"))
+        self.setTitle(_('Show as on device'))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.show_recommendations_checkbox = create_checkbox(
-                             _("Show recommendations"),
+                             _('Show recommendations'),
                              _('Kobo shows recommendations on the device.  In some cases these have '
                                'files but in other cases they are just pointers to the web site to buy. '
                                'Enable if you wish to see/delete them.'),
@@ -480,7 +480,7 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.show_archived_books_checkbox = create_checkbox(
-                             _("Show archived books"),
+                             _('Show archived books'),
                              _('Archived books are listed on the device but need to be downloaded to read.'
                                ' Use this option to show these books and match them with books in the calibre library.'),
                              device.get_pref('show_archived_books')
@@ -514,15 +514,15 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
 class AdvancedGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
-        super().__init__(parent, device, _("Advanced options"))
+        super().__init__(parent, device, _('Advanced options'))
 #         self.setTitle(_("Advanced Options"))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.support_newer_firmware_checkbox = create_checkbox(
-                            _("Attempt to support newer firmware"),
+                            _('Attempt to support newer firmware'),
                             _('Kobo routinely updates the firmware and the '
                               'database version. With this option calibre will attempt '
                               'to perform full read-write functionality - Here be Dragons!! '
@@ -533,7 +533,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.debugging_title_checkbox = create_checkbox(
-                             _("Title to test when debugging"),
+                             _('Title to test when debugging'),
                              _('Part of title of a book that can be used when doing some tests for debugging. '
                                'The test is to see if the string is contained in the title of a book. '
                                'The better the match, the less extraneous output.'),
@@ -564,10 +564,10 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super().__init__(parent, device)
-        self.setTitle(_("Update metadata on the device"))
+        self.setTitle(_('Update metadata on the device'))
 
         self.options_layout = QGridLayout()
-        self.options_layout.setObjectName("options_layout")
+        self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
         self.setCheckable(True)
@@ -576,7 +576,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Be careful when doing this as it will take time and could make the initial connection take a long time.')))
 
         self.update_series_checkbox = create_checkbox(
-                             _("Set series information"),
+                             _('Set series information'),
                              _('The book lists on the Kobo devices can display series information. '
                                'This is not read by the device from the sideloaded books. '
                                'Series information can only be added to the device after the '
@@ -585,7 +585,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('update_series')
                              )
         self.force_series_id_checkbox = create_checkbox(
-                             _("Force series ID"),
+                             _('Force series ID'),
                              _('Kobo devices use a SeriesID to distinguish between different series. '
                                'Purchased books have a SeriesID assigned by Kobo. Sideloaded books '
                                'have a SeriesID assigned by calibre, which is usually different. '
@@ -595,7 +595,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('force_series_id')
                              )
         self.update_core_metadata_checkbox = create_checkbox(
-                             _("Update metadata on Book Details pages"),
+                             _('Update metadata on Book Details pages'),
                              _('This will update the metadata in the device database when the device is connected. '
                                'The metadata updated is displayed on the device in the library and the Book details page. '
                                'This is the title, authors, comments/synopsis, series name and number, publisher and published Date, ISBN and language. '
@@ -605,57 +605,57 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.update_purchased_kepubs_checkbox = create_checkbox(
-                             _("Update purchased books"),
+                             _('Update purchased books'),
                              _('Update books purchased from Kobo and downloaded to the device.'
                                ),
                              device.get_pref('update_purchased_kepubs')
                              )
         self.update_subtitle_checkbox = create_checkbox(
-                             _("Subtitle"),
+                             _('Subtitle'),
                              _('Update the subtitle on the device using a template.'),
                              device.get_pref('update_subtitle')
                              )
         self.subtitle_template_edit = TemplateConfig(
                             device.get_pref('subtitle_template'),
-                            tooltip=_("Enter a template to use to set the subtitle. "
-                                      "If the template is empty, the subtitle will be cleared."
+                            tooltip=_('Enter a template to use to set the subtitle. '
+                                      'If the template is empty, the subtitle will be cleared.'
                                       )
                             )
         self.update_bookstats_checkbox = create_checkbox(
-                             _("Book stats"),
+                             _('Book stats'),
                              _('Update the book stats '),
                              device.get_pref('update_bookstats')
                              )
         self.bookstats_wordcount_template_edit = TemplateConfig(
                             device.get_pref('bookstats_wordcount_template'),
-                            label=_("Words:"),
-                            tooltip=_("Enter a template to use to set the word count for the book. "
-                                      "If the template is empty, the word count will be cleared."
+                            label=_('Words:'),
+                            tooltip=_('Enter a template to use to set the word count for the book. '
+                                      'If the template is empty, the word count will be cleared.'
                                       )
                             )
         self.bookstats_pagecount_template_edit = TemplateConfig(
                             device.get_pref('bookstats_pagecount_template'),
-                            label=_("Pages:"),
-                            tooltip=_("Enter a template to use to set the page count for the book. "
-                                      "If the template is empty, the page count will be cleared."
+                            label=_('Pages:'),
+                            tooltip=_('Enter a template to use to set the page count for the book. '
+                                      'If the template is empty, the page count will be cleared.'
                                       )
                             )
 
         self.bookstats_timetoread_label = QLabel(_('Hours to read estimates:'))
         self.bookstats_timetoread_upper_template_edit = TemplateConfig(
                             device.get_pref('bookstats_timetoread_upper_template'),
-                            label=_("Upper:"),
-                            tooltip=_("Enter a template to use to set the upper estimate of the time to read for the book. "
-                                      "The estimate is in hours. "
-                                      "If the template is empty, the time will be cleared."
+                            label=_('Upper:'),
+                            tooltip=_('Enter a template to use to set the upper estimate of the time to read for the book. '
+                                      'The estimate is in hours. '
+                                      'If the template is empty, the time will be cleared.'
                                       )
                             )
         self.bookstats_timetoread_lower_template_edit = TemplateConfig(
                             device.get_pref('bookstats_timetoread_lower_template'),
-                            label=_("Lower:"),
-                            tooltip=_("Enter a template to use to set the lower estimate of the time to read for the book. "
-                                      "The estimate is in hours. "
-                                      "If the template is empty, the time will be cleared."
+                            label=_('Lower:'),
+                            tooltip=_('Enter a template to use to set the lower estimate of the time to read for the book. '
+                                      'The estimate is in hours. '
+                                      'If the template is empty, the time will be cleared.'
                                       )
                             )
 
@@ -842,7 +842,7 @@ if __name__ == '__main__':
     s = DeviceScanner()
     s.scan()
     app = Application([])
-    debug_print("KOBOTOUCH:", KOBOTOUCH)
+    debug_print('KOBOTOUCH:', KOBOTOUCH)
     dev = KOBOTOUCH(None)
 #     dev.startup()
 #     cd = dev.detect_managed_devices(s.devices)

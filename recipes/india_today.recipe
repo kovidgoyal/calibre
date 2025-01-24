@@ -75,7 +75,7 @@ class IndiaToday(BasicNewsRecipe):
             section = x[0]
             try:
                 return (
-                    'Editor\'s Note', 'Cover Story', 'The Big Story', 'Upfront',
+                    "Editor's Note", 'Cover Story', 'The Big Story', 'Upfront',
                     'NATION', 'INTERVIEW'
                 ).index(section)
             except Exception:

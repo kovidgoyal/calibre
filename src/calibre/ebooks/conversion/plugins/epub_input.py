@@ -244,7 +244,7 @@ class EPUBInput(InputFormatPlugin):
             with open('META-INF/container.xml', 'rb') as f:
                 root = safe_xml_fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
-                    if attr(r, 'media-type') != "application/oebps-package+xml":
+                    if attr(r, 'media-type') != 'application/oebps-package+xml':
                         continue
                     path = attr(r, 'full-path')
                     if not path:

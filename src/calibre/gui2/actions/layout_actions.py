@@ -86,8 +86,8 @@ class LayoutActions(InterfaceAction):
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
                         shortcut=None,
-                        text=_("Save and restore layout item sizes, and add/remove/toggle "
-                               "layout items such as the search bar, tag browser, etc. "),
+                        text=_('Save and restore layout item sizes, and add/remove/toggle '
+                               'layout items such as the search bar, tag browser, etc. '),
                         icon='layout.png',
                         triggered=self.show_menu)
 

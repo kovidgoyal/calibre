@@ -69,7 +69,7 @@ if iswindows and not isportable:
 
     def startup_shortcut_path():
         startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
-        return os.path.join(startup_path, "calibre.lnk")
+        return os.path.join(startup_path, 'calibre.lnk')
 
     def create_shortcut(shortcut_path, target, description, *args):
         quoted_args = None
@@ -210,7 +210,7 @@ class Path(QWidget):
         self.b = b = QToolButton(self)
         l.addWidget(b)
         b.setIcon(QIcon.ic('document_open.png'))
-        b.setToolTip(_("Browse for the file"))
+        b.setToolTip(_('Browse for the file'))
         b.clicked.connect(self.choose)
         init_opt(self, opt, layout)
 

@@ -61,7 +61,7 @@ class Extension:
         self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
         self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
         self.needs_exceptions = d['needs_exceptions'] = kwargs.get('needs_exceptions', False)
-        self.qt_modules = d['qt_modules'] = kwargs.get('qt_modules', ["widgets"])
+        self.qt_modules = d['qt_modules'] = kwargs.get('qt_modules', ['widgets'])
         self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
         self.lib_dirs = d['lib_dirs'] = absolutize(kwargs.get('lib_dirs', []))
         self.extra_objs = d['extra_objs'] = absolutize(kwargs.get('extra_objs', []))
@@ -121,7 +121,7 @@ def is_ext_allowed(cross_compile_for: str, ext: Extension) -> bool:
         if islinux and only == cross_compile_for:
             return True
         only = set(only.split())
-        q = set(filter(lambda x: globals()["is" + x], ["bsd", "freebsd", "haiku", "linux", "macos", "windows"]))
+        q = set(filter(lambda x: globals()['is' + x], ['bsd', 'freebsd', 'haiku', 'linux', 'macos', 'windows']))
         return len(q.intersection(only)) > 0
     return True
 
@@ -541,8 +541,8 @@ class Build(Command):
                     '-DCALIBRE_MODINIT_FUNC='
                     '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
             if ext.needs_cxx and ext.needs_cxx_std:
-                if env.cc_output_flag.startswith('/') and ext.needs_cxx == "11":
-                    ext.needs_cxx = "14"
+                if env.cc_output_flag.startswith('/') and ext.needs_cxx == '11':
+                    ext.needs_cxx = '14'
                 cflags.append(env.std_prefix + 'c++' + ext.needs_cxx_std)
 
             if ext.needs_c_std and not env.std_prefix.startswith('/'):
@@ -618,7 +618,7 @@ class Build(Command):
             subprocess.check_call(*args, **kwargs)
         except:
             cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
-            print("Error while executing: %s\n" % (cmdline))
+            print('Error while executing: %s\n' % (cmdline))
             raise
 
     def build_headless(self):

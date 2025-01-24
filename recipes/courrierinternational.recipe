@@ -70,12 +70,12 @@ class CourrierInternational(BasicNewsRecipe):
         }
     '''
 
-    needs_subscription = "optional"
+    needs_subscription = 'optional'
     login_url = 'http://www.courrierinternational.com/login'
 
     def get_browser(self):
         def is_form_login(form):
-            return "id" in form.attrs and form.attrs['id'] == "user-login-form"
+            return 'id' in form.attrs and form.attrs['id'] == 'user-login-form'
         br = BasicNewsRecipe.get_browser(self)
         if self.username:
             br.open(self.login_url)
@@ -86,8 +86,8 @@ class CourrierInternational(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for link in soup.findAll("a", href=re.compile('^/')):
-            link["href"] = 'http://www.courrierinternational.com' + link["href"]
+        for link in soup.findAll('a', href=re.compile('^/')):
+            link['href'] = 'http://www.courrierinternational.com' + link['href']
         return soup
 
     feeds = [

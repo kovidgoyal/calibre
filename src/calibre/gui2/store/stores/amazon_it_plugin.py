@@ -100,7 +100,7 @@ def search_amazon(query, max_results=10, timeout=60,
             title = ''.join(data.xpath(title_xpath))
             author = ''.join(data.xpath(author_xpath))
             try:
-                author = author.split('by ', 1)[1].split(" (")[0]
+                author = author.split('by ', 1)[1].split(' (')[0]
             except:
                 pass
 

@@ -5,7 +5,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class PhilippineDailyInquirer(BasicNewsRecipe):
     title = 'The Philippine Daily Inquirer'
-    custom_title = "The Philippine Daily Inquirer - " + \
+    custom_title = 'The Philippine Daily Inquirer - ' + \
         time.strftime('%d %b %Y %I:%M %p')
     __author__ = 'jde'
     __date__ = '03 June 2012'

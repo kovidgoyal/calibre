@@ -14,7 +14,7 @@ class WSJ(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = (
         'The Print Edition of WSJ. The Wall Street Journal is your source for breaking news, analysis and insights from the U.S. and '
-        'around the world, the world\'s leading business and finance publication.'
+        "around the world, the world's leading business and finance publication."
     )
     language = 'en_US'
     masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'

@@ -1,36 +1,36 @@
 __license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-"""
+'''
 Defines the errors that the device drivers generate.
 
 G{classtree ProtocolError}
-"""
+'''
 
 
 class ProtocolError(Exception):
-    """ The base class for all exceptions in this package """
+    ''' The base class for all exceptions in this package '''
 
     def __init__(self, msg):
         Exception.__init__(self, msg)
 
 
 class TimeoutError(ProtocolError):
-    """ There was a timeout during communication """
+    ''' There was a timeout during communication '''
 
     def __init__(self, func_name):
         ProtocolError.__init__(
             self,
-            "There was a timeout while communicating with the device in function: " +
+            'There was a timeout while communicating with the device in function: ' +
             func_name
         )
 
 
 class DeviceError(ProtocolError):
-    """ Raised when device is not found """
+    ''' Raised when device is not found '''
 
     def __init__(self, msg=None):
         if msg is None:
-            msg = "Unable to find SONY Reader. Is it connected?"
+            msg = 'Unable to find SONY Reader. Is it connected?'
         ProtocolError.__init__(self, msg)
 
 
@@ -71,14 +71,14 @@ class OpenActionNeeded(DeviceError):
 
 
 class InitialConnectionError(OpenFeedback):
-    """ Errors detected during connection after detection but before open, for
-    e.g. in the is_connected() method. """
+    ''' Errors detected during connection after detection but before open, for
+    e.g. in the is_connected() method. '''
 
 
 class OpenFailed(ProtocolError):
-    """ Raised when device cannot be opened this time. No retry is to be done.
+    ''' Raised when device cannot be opened this time. No retry is to be done.
         The device should continue to be polled for future opens. If the
-        message is empty, no exception trace is produced. """
+        message is empty, no exception trace is produced. '''
 
     def __init__(self, msg):
         ProtocolError.__init__(self, msg)
@@ -86,36 +86,36 @@ class OpenFailed(ProtocolError):
 
 
 class DeviceBusy(ProtocolError):
-    """ Raised when device is busy """
+    ''' Raised when device is busy '''
 
-    def __init__(self, uerr=""):
+    def __init__(self, uerr=''):
         ProtocolError.__init__(
-            self, "Device is in use by another application:"
-            "\nUnderlying error:" + str(uerr)
+            self, 'Device is in use by another application:'
+            '\nUnderlying error:' + str(uerr)
         )
 
 
 class DeviceLocked(ProtocolError):
-    """ Raised when device has been locked """
+    ''' Raised when device has been locked '''
 
     def __init__(self):
-        ProtocolError.__init__(self, "Device is locked")
+        ProtocolError.__init__(self, 'Device is locked')
 
 
 class PacketError(ProtocolError):
-    """ Errors with creating/interpreting packets """
+    ''' Errors with creating/interpreting packets '''
 
 
 class FreeSpaceError(ProtocolError):
-    """ Errors caused when trying to put files onto an overcrowded device """
+    ''' Errors caused when trying to put files onto an overcrowded device '''
 
 
 class ArgumentError(ProtocolError):
-    """ Errors caused by invalid arguments to a public interface function """
+    ''' Errors caused by invalid arguments to a public interface function '''
 
 
 class PathError(ArgumentError):
-    """ When a user supplies an incorrect/invalid path """
+    ''' When a user supplies an incorrect/invalid path '''
 
     def __init__(self, msg, path=None):
         ArgumentError.__init__(self, msg)
@@ -123,7 +123,7 @@ class PathError(ArgumentError):
 
 
 class ControlError(ProtocolError):
-    """ Errors in Command/Response pairs while communicating with the device """
+    ''' Errors in Command/Response pairs while communicating with the device '''
 
     def __init__(self, query=None, response=None, desc=None):
         self.query = query
@@ -133,13 +133,13 @@ class ControlError(ProtocolError):
 
     def __str__(self):
         if self.query and self.response:
-            return "Got unexpected response:\n" + \
-           "query:\n"+str(self.query.query)+"\n"+\
-           "expected:\n"+str(self.query.response)+"\n" +\
-           "actual:\n"+str(self.response)
+            return 'Got unexpected response:\n' + \
+           'query:\n'+str(self.query.query)+'\n'+\
+           'expected:\n'+str(self.query.response)+'\n' +\
+           'actual:\n'+str(self.response)
         if self.desc:
             return self.desc
-        return "Unknown control error occurred"
+        return 'Unknown control error occurred'
 
 
 class WrongDestinationError(PathError):

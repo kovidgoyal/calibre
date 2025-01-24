@@ -68,9 +68,9 @@ class Paragraphs:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__state = 'before_body'
         self.__start_marker =  'mi<mk<para-start\n'  # outside para tags
         self.__start2_marker = 'mi<mk<par-start_\n'  # inside para tags
@@ -122,7 +122,7 @@ class Paragraphs:
         self.__write_obj.write(line)
 
     def __not_paragraph_func(self, line):
-        """
+        '''
         Required:
             line --line to parse
         Returns:
@@ -131,14 +131,14 @@ class Paragraphs:
             This function handles all lines that are outside of the paragraph.
             It looks for clues that start a paragraph, and when found,
             switches states and writes the start tags.
-        """
+        '''
         action = self.__not_paragraph_dict.get(self.__token_info)
         if action:
             action(line)
         self.__write_obj.write(line)
 
     def __paragraph_func(self, line):
-        """
+        '''
         Required:
             line --line to parse
         Returns:
@@ -148,7 +148,7 @@ class Paragraphs:
             looks for clues to the end of the paragraph. When a clue is found,
             it calls on another method to write the end of the tag and change
             the state.
-        """
+        '''
         action = self.__paragraph_dict.get(self.__token_info)
         if action:
             action(line)
@@ -156,7 +156,7 @@ class Paragraphs:
             self.__write_obj.write(line)
 
     def __start_para_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -164,7 +164,7 @@ class Paragraphs:
         Logic:
             This function writes the beginning tags for a paragraph and
             changes the state to paragraph.
-        """
+        '''
         self.__write_obj.write(self.__start_marker)  # marker for later parsing
         self.__write_obj.write(
         'mi<tg<open______<para\n'
@@ -173,7 +173,7 @@ class Paragraphs:
         self.__state = 'paragraph'
 
     def __empty_para_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -181,7 +181,7 @@ class Paragraphs:
         Logic:
             This function writes the empty tags for a paragraph.
             It does not do anything if self.__write_empty_para is 0.
-        """
+        '''
         if self.__write_empty_para:
             self.__write_obj.write(self.__start_marker)  # marker for later parsing
             self.__write_obj.write(
@@ -190,20 +190,20 @@ class Paragraphs:
             self.__write_obj.write(self.__end_marker)   # marker for later parsing
 
     def __empty_pgbk_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
             nothing
         Logic:
             This function writes the empty tags for a page break.
-        """
+        '''
         self.__write_obj.write(
         'mi<tg<empty_____<page-break\n'
         )
 
     def __close_para_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -211,7 +211,7 @@ class Paragraphs:
         Logic:
             This function writes the end tags for a paragraph and
             changes the state to not_paragraph.
-        """
+        '''
         self.__write_obj.write(self.__end2_marker)  # marker for later parser
         self.__write_obj.write(
         'mi<tg<close_____<para\n'
@@ -221,14 +221,14 @@ class Paragraphs:
         self.__state = 'not_paragraph'
 
     def __bogus_para__def_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
             nothing
         Logic:
             if a \\pard occurs in a paragraph, I want to ignore it. (I believe)
-        """
+        '''
         self.__write_obj.write('mi<mk<bogus-pard\n')
 
     def make_paragraphs(self):
@@ -259,6 +259,6 @@ class Paragraphs:
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "paragraphs.data")
+            copy_obj.copy_file(self.__write_to, 'paragraphs.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

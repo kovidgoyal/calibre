@@ -1055,7 +1055,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     # Drag'n Drop {{{
     def mimeTypes(self):
-        return ["application/calibre+from_library",
+        return ['application/calibre+from_library',
                 'application/calibre+from_tag_browser']
 
     def mimeData(self, indexes):
@@ -1086,7 +1086,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         fmts = {str(x) for x in md.formats()}
         if not fmts.intersection(set(self.mimeTypes())):
             return False
-        if "application/calibre+from_library" in fmts:
+        if 'application/calibre+from_library' in fmts:
             if action != Qt.DropAction.CopyAction:
                 return False
             return self.do_drop_from_library(md, action, row, column, parent)
@@ -1913,7 +1913,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         for node in self.category_nodes:
             if node.tag.state:
-                if node.category_key == "news":
+                if node.category_key == 'news':
                     if node_searches[node.tag.state] == 'true':
                         ans.append('tags:"=' + _('News') + '"')
                     else:

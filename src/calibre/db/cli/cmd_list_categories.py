@@ -54,8 +54,8 @@ information is the equivalent of what is shown in the Tag browser.
         '--categories',
         default='',
         dest='report',
-        help=_("Comma-separated list of category lookup names. "
-               "Default: all")
+        help=_('Comma-separated list of category lookup names. '
+               'Default: all')
     )
     parser.add_option(
         '-w',

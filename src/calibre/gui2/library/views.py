@@ -751,7 +751,7 @@ class BooksView(QTableView):  # {{{
 
             ac = getattr(m, 'column_mouse_move_action', None)
             if ac is None:
-                ac = m.column_mouse_move_action = m.addAction(_("Allow moving columns with the mouse"),
+                ac = m.column_mouse_move_action = m.addAction(_('Allow moving columns with the mouse'),
                           partial(self.column_header_context_handler, action='lock', column=col, view=view))
                 ac.setCheckable(True)
             ac.setChecked(view.column_header.sectionsMovable())

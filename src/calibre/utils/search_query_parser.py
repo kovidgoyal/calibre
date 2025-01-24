@@ -294,7 +294,7 @@ class ParseException(Exception):
     def msg(self):
         if len(self.args) > 0:
             return self.args[0]
-        return ""
+        return ''
 
 
 class SearchQueryParser:

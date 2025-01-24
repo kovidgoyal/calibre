@@ -63,7 +63,7 @@ as a shebang in scripts, like this:
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
-    parser.add_option('--run-without-debug', default=False, action='store_true', help=_('Don\'t run with the DEBUG flag set'))
+    parser.add_option('--run-without-debug', default=False, action='store_true', help=_("Don't run with the DEBUG flag set"))
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
                       help=_('Run the E-book viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',

@@ -39,8 +39,8 @@ Perform some checks on the filesystem representing a library. Reports are {0}
         '--report',
         default=None,
         dest='report',
-        help=_("Comma-separated list of reports.\n"
-               "Default: all")
+        help=_('Comma-separated list of reports.\n'
+               'Default: all')
     )
 
     parser.add_option(
@@ -48,8 +48,8 @@ Perform some checks on the filesystem representing a library. Reports are {0}
         '--ignore_extensions',
         default=None,
         dest='exts',
-        help=_("Comma-separated list of extensions to ignore.\n"
-               "Default: all")
+        help=_('Comma-separated list of extensions to ignore.\n'
+               'Default: all')
     )
 
     parser.add_option(
@@ -57,8 +57,8 @@ Perform some checks on the filesystem representing a library. Reports are {0}
         '--ignore_names',
         default=None,
         dest='names',
-        help=_("Comma-separated list of names to ignore.\n"
-               "Default: all")
+        help=_('Comma-separated list of names to ignore.\n'
+               'Default: all')
     )
     parser.add_option(
         '--vacuum-fts-db',

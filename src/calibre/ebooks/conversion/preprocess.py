@@ -200,8 +200,8 @@ class Dehyphenator:
             "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|"
             "(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|"
             "(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$")
-        self.suffixes = re.compile(r"^%s" % self.suffix_string, re.IGNORECASE)
-        self.removesuffixes = re.compile(r"%s" % self.suffix_string, re.IGNORECASE)
+        self.suffixes = re.compile(r'^%s' % self.suffix_string, re.IGNORECASE)
+        self.removesuffixes = re.compile(r'%s' % self.suffix_string, re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
         self.prefix_string = '^(dis|re|un|in|ex)'
         self.prefixes = re.compile(r'%s$' % self.prefix_string, re.IGNORECASE)
@@ -214,7 +214,7 @@ class Dehyphenator:
             wraptags = match.group('wraptags')
         except:
             wraptags = ''
-        hyphenated = str(firsthalf) + "-" + str(secondhalf)
+        hyphenated = str(firsthalf) + '-' + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
         if self.suffixes.match(secondhalf) is None:
             lookupword = self.removesuffixes.sub('', dehyphenated)
@@ -223,7 +223,7 @@ class Dehyphenator:
         if len(firsthalf) > 4 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
         if self.verbose > 2:
-            self.log("lookup word is: "+lookupword+", orig is: " + hyphenated)
+            self.log('lookup word is: '+lookupword+', orig is: ' + hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
         except:
@@ -231,33 +231,33 @@ class Dehyphenator:
         if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
-                    self.log("    Cleanup:returned dehyphenated word: " + dehyphenated)
+                    self.log('    Cleanup:returned dehyphenated word: ' + dehyphenated)
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
                 if self.verbose > 2:
-                    self.log("        Cleanup:returned hyphenated word: " + hyphenated)
+                    self.log('        Cleanup:returned hyphenated word: ' + hyphenated)
                 return hyphenated
             else:
                 if self.verbose > 2:
-                    self.log("            Cleanup:returning original text "+firsthalf+" + linefeed "+secondhalf)
+                    self.log('            Cleanup:returning original text '+firsthalf+' + linefeed '+secondhalf)
                 return firsthalf+'\u2014'+wraptags+secondhalf
 
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
                 if self.verbose > 2:
-                    self.log("too short, returned hyphenated word: " + hyphenated)
+                    self.log('too short, returned hyphenated word: ' + hyphenated)
                 return hyphenated
             if len(firsthalf) <= 2 and len(secondhalf) <= 2:
                 if self.verbose > 2:
-                    self.log("too short, returned hyphenated word: " + hyphenated)
+                    self.log('too short, returned hyphenated word: ' + hyphenated)
                 return hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
-                    self.log("     returned dehyphenated word: " + dehyphenated)
+                    self.log('     returned dehyphenated word: ' + dehyphenated)
                 return dehyphenated
             else:
                 if self.verbose > 2:
-                    self.log("          returned hyphenated word: " + hyphenated)
+                    self.log('          returned hyphenated word: ' + hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -461,7 +461,7 @@ class HTMLPreProcessor:
         return re.search('<H2[^><]*id=BookTitle', raw) is not None
 
     def is_pdftohtml(self, src):
-        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
+        return "<!-- created by calibre's pdftohtml -->" in src[:1000]
 
     def __call__(self, html, remove_special_chars=None,
             get_preprocess_html=False):
@@ -617,7 +617,7 @@ class HTMLPreProcessor:
             html = preprocessor(html)
 
         if is_pdftohtml:
-            html = html.replace('<!-- created by calibre\'s pdftohtml -->', '')
+            html = html.replace("<!-- created by calibre's pdftohtml -->", '')
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = smarten_punctuation(html, self.log)

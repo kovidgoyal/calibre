@@ -30,7 +30,7 @@ class AddFromISBN(QDialog):
 
     def setup_ui(self):
         self.resize(678, 430)
-        self.setWindowTitle(_("Add books by ISBN"))
+        self.setWindowTitle(_('Add books by ISBN'))
         self.setWindowIcon(QIcon.ic('add_book.png'))
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -43,24 +43,24 @@ class AddFromISBN(QDialog):
         self.isbn_box = i = QPlainTextEdit(self)
         i.setFocus(Qt.FocusReason.OtherFocusReason)
         l.addWidget(i)
-        self.paste_button = b = QPushButton(_("&Paste from clipboard"), self)
+        self.paste_button = b = QPushButton(_('&Paste from clipboard'), self)
         l.addWidget(b), b.clicked.connect(self.paste)
         self.lll = l  = QVBoxLayout()
         h.addLayout(l)
         self.label = la = QLabel(_(
-            "<p>Enter a list of ISBNs in the box to the left, one per line. calibre will automatically"
-            " create entries for books based on the ISBN and download metadata and covers for them.</p>\n"
-            "<p>Any invalid ISBNs in the list will be ignored.</p>\n"
-            "<p>You can also specify a file that will be added with each ISBN. To do this enter the full"
-            " path to the file after a <code>&gt;&gt;</code>. For example:</p>\n"
-            "<p><code>9788842915232 &gt;&gt; %s</code></p>"
-            "<p>To use identifiers other than ISBN use key:value syntax, For example:</p>\n"
-            "<p><code>amazon:B001JK9C72</code></p>"
+            '<p>Enter a list of ISBNs in the box to the left, one per line. calibre will automatically'
+            ' create entries for books based on the ISBN and download metadata and covers for them.</p>\n'
+            '<p>Any invalid ISBNs in the list will be ignored.</p>\n'
+            '<p>You can also specify a file that will be added with each ISBN. To do this enter the full'
+            ' path to the file after a <code>&gt;&gt;</code>. For example:</p>\n'
+            '<p><code>9788842915232 &gt;&gt; %s</code></p>'
+            '<p>To use identifiers other than ISBN use key:value syntax, For example:</p>\n'
+            '<p><code>amazon:B001JK9C72</code></p>'
         ), self)
 
         l.addWidget(la), la.setWordWrap(True)
         l.addSpacing(20)
-        self.la2 = la = QLabel(_("&Tags to set on created book entries:"), self)
+        self.la2 = la = QLabel(_('&Tags to set on created book entries:'), self)
         l.addWidget(la)
         self.add_tags = le = QLineEdit(self)
         le.setText(', '.join(gprefs.get('add from ISBN tags', [])))

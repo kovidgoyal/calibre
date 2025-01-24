@@ -18,7 +18,7 @@ quote-style = 'single'
 
 [lint]
 ignore = ['E402', 'E722', 'E741']
-select = ['E', 'F', 'I', 'W', 'INT']
+select = ['E', 'F', 'I', 'W', 'INT', 'Q']
 
 [lint.per-file-ignores]
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
@@ -36,3 +36,9 @@ section-order = ['__python__', "future", "standard-library", "third-party", "fir
 
 [lint.isort.sections]
 '__python__' = ['__python__']
+
+[lint.flake8-quotes]
+avoid-escape = true
+docstring-quotes = 'single'
+inline-quotes = 'single'
+multiline-quotes = 'single'

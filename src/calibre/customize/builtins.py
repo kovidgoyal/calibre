@@ -1546,7 +1546,7 @@ class StoreAmazonESKindleStore(StoreBase):
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Kovid Goyal'
-    description = 'Kindle books from Amazon\'s UK web site. Also, includes French language e-books.'
+    description = "Kindle books from Amazon's UK web site. Also, includes French language e-books."
     actual_plugin = 'calibre.gui2.store.stores.amazon_uk_plugin:AmazonKindleStore'
 
     headquarters = 'UK'
@@ -1595,7 +1595,7 @@ class StoreBaenWebScriptionStore(StoreBase):
 
 class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
-    description = 'The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.'
+    description = "The world's largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content."
     actual_plugin = 'calibre.gui2.store.stores.bn_plugin:BNStore'
 
     headquarters = 'US'
@@ -1825,7 +1825,7 @@ class StoreOzonRUStore(StoreBase):
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
-    description = 'The Pragmatic Bookshelf\'s collection of programming and tech books available as e-books.'
+    description = "The Pragmatic Bookshelf's collection of programming and tech books available as e-books."
     actual_plugin = 'calibre.gui2.store.stores.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
 
     drm_free_only = True

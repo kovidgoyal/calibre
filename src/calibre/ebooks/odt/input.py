@@ -239,14 +239,14 @@ class Extract(ODF2XHTML):
                         # now it should be safe to remove the text:p
                         parent = para.parentNode
                         parent.removeChild(para)
-                        log("Removed cover image paragraph from document...")
+                        log('Removed cover image paragraph from document...')
                         break
 
     def filter_load(self, odffile, mi, log):
-        """ This is an adaption from ODF2XHTML. It adds a step between
+        ''' This is an adaption from ODF2XHTML. It adds a step between
             load and parse of the document where the Element tree can be
             modified.
-        """
+        '''
         # first load the odf structure
         self.lines = []
         self._wfunc = self._wlines

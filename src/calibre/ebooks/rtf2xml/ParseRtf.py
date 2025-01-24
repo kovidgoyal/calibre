@@ -57,7 +57,7 @@ from calibre.ebooks.rtf2xml.old_rtf import OldRtf
 
 from . import open_for_read, open_for_write
 
-"""
+'''
 Here is an example script using the ParseRTF module directly
 #!/usr/bin/env python
 
@@ -98,27 +98,27 @@ def Handle_Main():
         sys.stderr.write(msg)
     except ParseRtf.RtfInvalidCodeException, msg:
         sys.stderr.write(msg)
-"""
+'''
 
 
 class InvalidRtfException(Exception):
-    """
+    '''
     handle invalid RTF
-    """
+    '''
     pass
 
 
 class RtfInvalidCodeException(Exception):
-    """
+    '''
     handle bugs in program
-    """
+    '''
     pass
 
 
 class ParseRtf:
-    """
+    '''
     Main class for controlling the rest of the parsing.
-    """
+    '''
 
     def __init__(self,
                 in_file,
@@ -164,7 +164,7 @@ class ParseRtf:
         self.__out_dir = out_dir
         self.__temp_dir = out_dir
         self.__dtd_path = dtd
-        self.__check_file(in_file,"file_to_parse")
+        self.__check_file(in_file,'file_to_parse')
         self.__char_data = char_data
         self.__debug_dir = deb_dir
         self.__check_dir(self.__temp_dir)
@@ -186,12 +186,12 @@ class ParseRtf:
         self.__default_encoding = default_encoding
 
     def __check_file(self, the_file, type):
-        """Check to see if files exist"""
+        '''Check to see if files exist'''
         if hasattr(the_file, 'read'):
             return
         if the_file is None:
-            if type == "file_to_parse":
-                msg = "\nYou must provide a file for the script to work"
+            if type == 'file_to_parse':
+                msg = '\nYou must provide a file for the script to work'
             raise RtfInvalidCodeException(msg)
         elif os.path.exists(the_file):
             pass  # do nothing
@@ -200,12 +200,12 @@ class ParseRtf:
             raise RtfInvalidCodeException(msg)
 
     def __check_dir(self, the_dir):
-        """Check to see if directory exists"""
+        '''Check to see if directory exists'''
         if not the_dir :
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            msg = "\n%s is not a directory" % the_dir
+            msg = '\n%s is not a directory' % the_dir
             raise RtfInvalidCodeException(msg)
         return 1
 
@@ -228,7 +228,7 @@ class ParseRtf:
                     )
             copy_obj.set_dir(self.__debug_dir)
             copy_obj.remove_files()
-            copy_obj.copy_file(self.__temp_file, "original_file")
+            copy_obj.copy_file(self.__temp_file, 'original_file')
         # Function to check if bracket are well handled
         if self.__debug_dir or self.__run_level > 2:
             self.__check_brack_obj = check_brackets.CheckBrackets(
@@ -591,8 +591,8 @@ class ParseRtf:
             self.__exit_level = num
 
     def __make_temp_file(self,file):
-        """Make a temporary file to parse"""
-        write_file="rtf_write_file"
+        '''Make a temporary file to parse'''
+        write_file='rtf_write_file'
         read_obj = file if hasattr(file, 'read') else open_for_read(file)
         with open_for_write(write_file) as write_obj:
             for line in read_obj:

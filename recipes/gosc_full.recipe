@@ -32,7 +32,7 @@ class GN(BasicNewsRecipe):
         page = doc.xpath(
             '//div[@class="search-result release-result"]/div[1]/div[1]/a/@href')
 
-        if time.strftime("%w") in ['3', '4']:
+        if time.strftime('%w') in ['3', '4']:
             return page[5]
         else:
             return page[4]

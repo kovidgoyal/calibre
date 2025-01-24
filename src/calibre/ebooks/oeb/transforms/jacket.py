@@ -174,7 +174,7 @@ def get_rating(rating, rchar, e_rchar):
     if num < 1:
         return ans
 
-    ans = ("%s%s") % (rchar * int(num), e_rchar * (5 - int(num)))
+    ans = ('%s%s') % (rchar * int(num), e_rchar * (5 - int(num)))
     return ans
 
 
@@ -389,10 +389,10 @@ def render_jacket(mi, output_profile,
                 pass
 
         if False:
-            print("Custom column values available in jacket template:")
+            print('Custom column values available in jacket template:')
             for key in args.keys():
                 if key.startswith('_') and not key.endswith('_label'):
-                    print(" {}: {}".format('#' + key[1:], args[key]))
+                    print(' {}: {}'.format('#' + key[1:], args[key]))
 
         # Used in the comment describing use of custom columns in templates
         # Don't change this unless you also change it in template.xhtml

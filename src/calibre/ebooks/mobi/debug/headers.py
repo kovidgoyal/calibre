@@ -40,7 +40,7 @@ class PalmDOCAttributes:
                 ('Backup this database', 0x08),
                 ('Okay to install newer over existing copy, if present on PalmPilot', 0x10),
                 ('Force the PalmPilot to reset after this database is installed', 0x12),
-                ('Don\'t allow copy of file to be beamed to other Pilot',
+                ("Don't allow copy of file to be beamed to other Pilot",
                     0x14)]:
             self.attributes.append(PalmDOCAttributes.Attr(name, field,
                 self.val))

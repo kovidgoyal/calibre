@@ -151,10 +151,10 @@ def recipe_test(option, opt_str, value, parser):
 
     for arg in parser.rargs:
         # stop on --foo like options
-        if arg[:2] == "--":
+        if arg[:2] == '--':
             break
         # stop on -a, but not on -3 or -3.0
-        if arg[:1] == "-" and len(arg) > 1 and not floatable(arg):
+        if arg[:1] == '-' and len(arg) > 1 and not floatable(arg):
             break
         try:
             value.append(int(arg))

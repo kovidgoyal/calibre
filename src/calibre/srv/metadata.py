@@ -30,7 +30,7 @@ IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 
 def encode_datetime(dateval):
     if dateval is None:
-        return "None"
+        return 'None'
     if not isinstance(dateval, datetime):
         dateval = datetime.combine(dateval, time())
     if hasattr(dateval, 'tzinfo') and dateval.tzinfo is None:

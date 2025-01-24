@@ -220,7 +220,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}", file=sys.stderr)
+        print(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}', file=sys.stderr)
 
 # }}}
 
@@ -1103,7 +1103,7 @@ def add_maths_script(container):
         has_maths[name] = hm = check_for_maths(root)
         if not hm:
             continue
-        script = root.makeelement(XHTML('script'), type="text/javascript", src=f'{FAKE_PROTOCOL}://{FAKE_HOST}/mathjax/loader/pdf-mathjax-loader.js')
+        script = root.makeelement(XHTML('script'), type='text/javascript', src=f'{FAKE_PROTOCOL}://{FAKE_HOST}/mathjax/loader/pdf-mathjax-loader.js')
         script.set('async', 'async')
         script.set('data-mathjax-path', f'{FAKE_PROTOCOL}://{FAKE_HOST}/mathjax/data/')
         last_tag(root).append(script)
@@ -1212,9 +1212,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             mult = -1 if i % 2 else 1
             val = opts.pdf_odd_even_offset
             if abs(val) < min(margins.left, margins.right):
-                box = list(pdf_doc.get_page_box("CropBox", i))
+                box = list(pdf_doc.get_page_box('CropBox', i))
                 box[0] += val * mult
-                pdf_doc.set_page_box("CropBox", i, *box)
+                pdf_doc.set_page_box('CropBox', i, *box)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)

@@ -28,8 +28,8 @@ if __name__ == '__main__':
 from setup import Command, __appname__, __version__, installer_names
 
 DOWNLOADS = '/srv/main/downloads'
-HTML2LRF = "calibre/ebooks/lrf/html/demo"
-TXT2LRF = "src/calibre/ebooks/lrf/txt/demo"
+HTML2LRF = 'calibre/ebooks/lrf/html/demo'
+TXT2LRF = 'src/calibre/ebooks/lrf/txt/demo'
 STAGING_HOST = 'download.calibre-ebook.com'
 BACKUP_HOST = 'code.calibre-ebook.com'
 STAGING_USER = BACKUP_USER = 'root'

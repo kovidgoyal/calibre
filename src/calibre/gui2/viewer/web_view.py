@@ -140,14 +140,14 @@ def handle_mathjax_request(rq, name):
             with open(path, 'rb') as f:
                 raw = f.read()
         except OSError as err:
-            prints(f"Failed to get mathjax file: {name} with error: {err}", file=sys.stderr)
+            prints(f'Failed to get mathjax file: {name} with error: {err}', file=sys.stderr)
             rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
             return
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
     else:
-        prints(f"Failed to get mathjax file: {name} outside mathjax directory", file=sys.stderr)
+        prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
         rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
@@ -212,7 +212,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        prints(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}")
+        prints(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}')
 
 # }}}
 

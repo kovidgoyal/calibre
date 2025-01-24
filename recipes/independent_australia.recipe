@@ -46,7 +46,7 @@ class IndependentAustralia(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': "art-display"})
+        dict(name='div', attrs={'class': 'art-display'})
     ]  # the article content is contained in
 
     # ************************************

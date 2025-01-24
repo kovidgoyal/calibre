@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-"""
+'''
 scmp.com
-"""
+'''
 
 import json
 import time
@@ -74,8 +74,8 @@ def load_article_from_json(raw, root):
 
 
 class SCMP(BasicNewsRecipe):
-    title = "South China Morning Post"
-    __author__ = "unkn0wn"
+    title = 'South China Morning Post'
+    __author__ = 'unkn0wn'
     description = (
         'The South China Morning Post is a leading news media company that has reported on China and Asia '
         'for more than a century with global impact. Founded in 1903, SCMP is headquartered in Hong Kong, '
@@ -84,18 +84,18 @@ class SCMP(BasicNewsRecipe):
         'and inspiring through journalism of the highest standards. Our vision is to “Elevate Thought”, '
         'and our mission is to “Lead the global conversation about China”.'
     )
-    publisher = "South China Morning Post Publishers Ltd."
+    publisher = 'South China Morning Post Publishers Ltd.'
     oldest_article = 1
     no_stylesheets = True
     remove_javascript = True
     remove_attributes = ['width', 'height']
-    encoding = "utf-8"
+    encoding = 'utf-8'
     use_embedded_content = False
-    language = "en_HK"
+    language = 'en_HK'
     remove_empty_feeds = True
     resolve_internal_links = True
-    publication_type = "newspaper"
-    ignore_duplicate_articles = {"title", "url"}
+    publication_type = 'newspaper'
+    ignore_duplicate_articles = {'title', 'url'}
     extra_css = 'blockquote, em { color: #202020; }'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/c/c3/SCMP_logo.svg'
 
@@ -139,29 +139,29 @@ class SCMP(BasicNewsRecipe):
     remove_tags = [
         dict(
             classes(
-                "sticky-wrap relative social-media social-media--extended__shares"
-                " article-body-comment scmp_button_comment_wrapper social-media--extended__in-site"
-                " footer scmp-advert-tile sidebar-col related-article share-widget"
+                'sticky-wrap relative social-media social-media--extended__shares'
+                ' article-body-comment scmp_button_comment_wrapper social-media--extended__in-site'
+                ' footer scmp-advert-tile sidebar-col related-article share-widget'
             )
         ),
-        dict(attrs={"addthis_title": True}),
-        dict(name=["script", "style"]),
+        dict(attrs={'addthis_title': True}),
+        dict(name=['script', 'style']),
     ]
 
     # https://www.scmp.com/rss
     feeds = [
-        ("Hong Kong", "https://www.scmp.com/rss/2/feed"),
-        ("China", "https://www.scmp.com/rss/4/feed"),
-        ("Asia", "https://www.scmp.com/rss/3/feed"),
-        ("World", "https://www.scmp.com/rss/5/feed"),
-        ("Business", "https://www.scmp.com/rss/92/feed"),
-        ("Tech", "https://www.scmp.com/rss/36/feed"),
-        ("Life", "https://www.scmp.com/rss/94/feed"),
-        ("Culture", "https://www.scmp.com/rss/322296/feed"),
-        ("Sport", "https://www.scmp.com/rss/95/feed"),
-        ("Post Mag", "https://www.scmp.com/rss/71/feed"),
-        ("Style", "https://www.scmp.com/rss/72/feed"),
-        ("News", 'https://www.scmp.com/rss/91/feed')
+        ('Hong Kong', 'https://www.scmp.com/rss/2/feed'),
+        ('China', 'https://www.scmp.com/rss/4/feed'),
+        ('Asia', 'https://www.scmp.com/rss/3/feed'),
+        ('World', 'https://www.scmp.com/rss/5/feed'),
+        ('Business', 'https://www.scmp.com/rss/92/feed'),
+        ('Tech', 'https://www.scmp.com/rss/36/feed'),
+        ('Life', 'https://www.scmp.com/rss/94/feed'),
+        ('Culture', 'https://www.scmp.com/rss/322296/feed'),
+        ('Sport', 'https://www.scmp.com/rss/95/feed'),
+        ('Post Mag', 'https://www.scmp.com/rss/71/feed'),
+        ('Style', 'https://www.scmp.com/rss/72/feed'),
+        ('News', 'https://www.scmp.com/rss/91/feed')
     ]
 
     def print_version(self, url):

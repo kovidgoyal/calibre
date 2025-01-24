@@ -33,7 +33,7 @@ class Pagina12(BasicNewsRecipe):
     articles_are_obfuscated = True
     temp_files              = []
     fetch_retries           = 10
-    extra_css            = """
+    extra_css            = '''
         body{font-family: "Open Sans", sans-serif}
         .article-date{font-size: small; margin-bottom: 1em;}
         .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em;}
@@ -43,7 +43,7 @@ class Pagina12(BasicNewsRecipe):
         img{margin-top:1em; margin-bottom: 1em; display:block}
         .article-text p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
         .article-prefix{font-family: "Archivo Narrow",Helvetica,sans-serif; font-size: small; text-transform: uppercase;}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -112,6 +112,6 @@ class Pagina12(BasicNewsRecipe):
                 self.temp_files.append(tfile)
                 result = tfile.name
             except:
-                self.info("Retrying download...")
+                self.info('Retrying download...')
             count += 1
         return result

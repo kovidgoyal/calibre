@@ -20,8 +20,8 @@ from . import open_for_read, open_for_write
 
 
 class HeadingsToSections:
-    """
-    """
+    '''
+    '''
 
     def __init__(self,
             in_file,
@@ -45,7 +45,7 @@ class HeadingsToSections:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Required:
             Nothing
         Return:
@@ -53,8 +53,8 @@ class HeadingsToSections:
         Logic:
             The self.__end_list is a list of tokens that will force a list to end.
             Likewise, the self.__end_lines is a list of lines that forces a list to end.
-        """
-        self.__state = "default"
+        '''
+        self.__state = 'default'
         self.__all_sections = []
         self.__chunk = ''
         self.__state_dict={
@@ -88,7 +88,7 @@ class HeadingsToSections:
         self.__id_regex = re.compile(r'\<list-id\>(\d+)')
 
     def __close_lists(self):
-        """
+        '''
         Required:
             Nothing
         Return:
@@ -100,7 +100,7 @@ class HeadingsToSections:
             Keep track of how many levels you close. Reduce the list by that
             many levels.
             Reverse the list again.
-        """
+        '''
         current_indent = self.__left_indent
         self.__all_lists.reverse()
         num_levels_closed = 0
@@ -145,7 +145,7 @@ class HeadingsToSections:
         self.__write_obj.write('mi<tg<close_____<section\n')
 
     def __default_func(self, line):
-        """
+        '''
         Required:
             self, line
         Returns:
@@ -154,7 +154,7 @@ class HeadingsToSections:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-            """
+            '''
         if self.__token_info == 'mi<mk<sect-start':
             self.__section_num[0] += 1
             self.__section_num = self.__section_num[0:1]
@@ -203,13 +203,13 @@ class HeadingsToSections:
         self.__write_obj.write(line)
 
     def make_sections(self):
-        """
+        '''
         Required:
             nothing
         Returns:
             original file will be changed
         Logic:
-        """
+        '''
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
@@ -224,6 +224,6 @@ class HeadingsToSections:
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "sections_to_headings.data")
+            copy_obj.copy_file(self.__write_to, 'sections_to_headings.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

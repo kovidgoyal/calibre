@@ -10,11 +10,11 @@ class SignOfTheTimes(BasicNewsRecipe):
     max_articles_per_feed = 50
     use_embedded_content = False
 
-    extra_css             = """
+    extra_css             = '''
                                h2{font-size: large; margin: .2em 0; text-decoration: none;}
                                .image-caption{font-size: medium; font-style:italic; margin: 0 0 1em 0;}
                                .article-info{font-size: small; font-style:italic; margin: 0 0 .5em 0;}
-                            """
+                            '''
 
     remove_stylesheets = True
     remove_tags = [

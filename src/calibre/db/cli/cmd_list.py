@@ -97,7 +97,7 @@ def implementation(
                     data[field] = {k: cover(db, k) for k in book_ids}
                     continue
             data[field] = db.all_field_for(field, book_ids)
-    return {'book_ids': book_ids, "data": data, 'metadata': metadata, 'fields':fields}
+    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields':fields}
 
 
 def stringify(data, metadata, for_machine):

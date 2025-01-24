@@ -26,7 +26,7 @@ class MarcTVde(BasicNewsRecipe):
 
     remove_tags = []
 
-    keep_only_tags = dict(name='div', attrs={'class': ["content"]})
+    keep_only_tags = dict(name='div', attrs={'class': ['content']})
 
     feeds = [
     (u'Spiele', u'http://feeds.feedburner.com/marctv/spiele'),

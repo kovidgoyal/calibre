@@ -7,9 +7,9 @@ __copyright__ = '2010, Steffen Siebert <calibre at steffensiebert.de>'
 __docformat__ = 'restructuredtext de'
 __version__ = '1.5'
 
-"""
+'''
 Die Zeit EPUB
-"""
+'''
 
 import io
 import os
@@ -184,7 +184,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     ]
 
     def build_index(self):
-        url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
+        url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
         browser = self.get_browser()
 
         # new login process
@@ -241,7 +241,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.report_progress(
             0, _('trying to download cover image (titlepage)'))
         self.download_cover()
-        self.conversion_options["cover"] = self.cover_path
+        self.conversion_options['cover'] = self.cover_path
 
         return index
 
@@ -250,7 +250,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.log.warning('Downloading cover')
         try:
             self.log.warning('Trying PDF-based cover')
-            url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
+            url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
             browser = self.get_browser()
 
             # new login process

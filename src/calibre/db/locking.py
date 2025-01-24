@@ -118,7 +118,7 @@ class SHLock:  # {{{
         with self._lock:
             if self.is_exclusive:
                 if self._exclusive_owner is not me:
-                    raise LockingError("release() called on unheld lock")
+                    raise LockingError('release() called on unheld lock')
                 self.is_exclusive -= 1
                 if not self.is_exclusive:
                     self._exclusive_owner = None
@@ -143,7 +143,7 @@ class SHLock:  # {{{
                     if self._shared_owners[me] == 0:
                         del self._shared_owners[me]
                 except KeyError:
-                    raise LockingError("release() called on unheld lock")
+                    raise LockingError('release() called on unheld lock')
                 self.is_shared -= 1
                 if not self.is_shared:
                     #  If there are waiting exclusive locks,
@@ -156,7 +156,7 @@ class SHLock:  # {{{
                     else:
                         assert not self._shared_queue
             else:
-                raise LockingError("release() called on unheld lock")
+                raise LockingError('release() called on unheld lock')
 
     def _acquire_shared(self, blocking=True):
         me = current_thread()

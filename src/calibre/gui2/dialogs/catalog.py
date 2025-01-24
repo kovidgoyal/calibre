@@ -57,7 +57,7 @@ class Catalog(QDialog, Ui_Dialog):
                     self.widgets.append(pw)
                     [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                 except ImportError:
-                    info("ImportError initializing %s" % name)
+                    info('ImportError initializing %s' % name)
                     continue
             else:
                 # Load dynamic tab
@@ -90,13 +90,13 @@ class Catalog(QDialog, Ui_Dialog):
                         self.widgets.append(pw)
                         [self.fmts.append([file_type.upper(), pw.sync_enabled,pw]) for file_type in plugin.file_types]
                     except ImportError:
-                        info("ImportError with %s" % name)
+                        info('ImportError with %s' % name)
                         continue
                     finally:
                         sys.path.remove(plugin.resources_path)
 
                 else:
-                    info("No dynamic tab resources found for %s" % name)
+                    info('No dynamic tab resources found for %s' % name)
 
         self.widgets = sorted(self.widgets, key=lambda x: x.TITLE)
 
@@ -181,7 +181,7 @@ class Catalog(QDialog, Ui_Dialog):
         '''
         cf = str(self.format.currentText()).lower()
         if cf in ('azw3', 'epub', 'mobi') and hasattr(self.options_widget, 'settings_changed'):
-            self.options_widget.settings_changed("title/format")
+            self.options_widget.settings_changed('title/format')
 
     @property
     def fmt_options(self):

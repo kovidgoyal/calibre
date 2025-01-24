@@ -25,7 +25,7 @@ def strptime(src):
 
 
 def strftime(epoch, zone=time.gmtime):
-    src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", zone(epoch)).split()
+    src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone(epoch)).split()
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)

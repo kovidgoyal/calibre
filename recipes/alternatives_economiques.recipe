@@ -38,7 +38,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                     self.log('Cover URL found:', cover_url)
                     return cover_url
 
-            self.log('Aucune couverture trouvée, utilisation de l\'image par défaut')
+            self.log("Aucune couverture trouvée, utilisation de l'image par défaut")
             return 'https://www.alternatives-economiques.fr/sites/all/themes/alternatives-economiques-main/assets/logo-alternatives-economiques.svg'
 
         except Exception as e:

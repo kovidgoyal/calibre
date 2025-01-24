@@ -43,15 +43,15 @@ class IlMessaggero(BasicNewsRecipe):
         cover = None
         st = time.localtime()
         year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
+        month = '%.2d' % st.tm_mon
+        day = '%.2d' % st.tm_mday
         cover = 'http://carta.ilmessaggero.it/' + year + \
             month + day + '/jpeg/MSGR_20_CITTA_1.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
 
         return cover

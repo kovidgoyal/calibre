@@ -17,7 +17,7 @@ def absurl(url):
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu'
     __author__ = 'unkn0wn'
-    description = 'Articles from The Hindu, Today\'s Paper.'
+    description = "Articles from The Hindu, Today's Paper."
     language = 'en_IN'
     no_stylesheets = True
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
@@ -133,7 +133,7 @@ class TheHindu(BasicNewsRecipe):
                         url = absurl(item['href'])
                         desc = 'Page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
                         self.log('            ', title, '\n\t', url)
-                        feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                        feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
                 return [(section, articles) for section, articles in feeds_dict.items()]
             else:
                 return []

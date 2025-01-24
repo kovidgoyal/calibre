@@ -910,7 +910,7 @@ class Worker(Thread):  # Get details {{{
                         seen.add(lraw)
         return ans
 
-    def parse_cover(self, root, raw=b""):
+    def parse_cover(self, root, raw=b''):
         # Look for the image URL in javascript, using the first image in the
         # image gallery as the cover
         import json
@@ -919,7 +919,7 @@ class Worker(Thread):  # Get details {{{
             m = imgpat.search(script.text or '')
             if m is not None:
                 return m.group(1)
-        imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
+        imgpat = re.compile(r''''imageGalleryData'\s*:\s*(\[\s*{.+])''')
         for script in root.xpath('//script'):
             m = imgpat.search(script.text or '')
             if m is not None:
@@ -1131,7 +1131,7 @@ class Amazon(Source):
     options = (
         Option('domain', 'choices', 'com', _('Amazon country website to use:'),
                _('Metadata from Amazon will be fetched using this '
-                 'country\'s Amazon website.'), choices=AMAZON_DOMAINS),
+                 "country's Amazon website."), choices=AMAZON_DOMAINS),
         Option('server', 'choices', 'auto', _('Server to get data from:'),
                _(
                    'Amazon has started blocking attempts to download'
@@ -1219,7 +1219,7 @@ class Amazon(Source):
         self.set_amazon_id_touched_fields()
 
     def set_amazon_id_touched_fields(self):
-        ident_name = "identifier:amazon"
+        ident_name = 'identifier:amazon'
         if self.domain != 'com':
             ident_name += '_' + self.domain
         tf = [x for x in self.touched_fields if not
@@ -1880,7 +1880,7 @@ def manual_tests(domain, **kw):  # {{{
         ),
         (
             {'identifiers': {'isbn': '2221116798'}},
-            [title_test('L\'étrange voyage de Monsieur Daldry',
+            [title_test("L'étrange voyage de Monsieur Daldry",
                         exact=True), authors_test(['Marc Levy'])
              ]
 

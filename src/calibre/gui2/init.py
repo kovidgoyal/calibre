@@ -141,7 +141,7 @@ class VersionLabel(QLabel):  # {{{
         QLabel.__init__(self, parent)
         self.mouse_over = False
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip(_('See what\'s new in this calibre release'))
+        self.setToolTip(_("See what's new in this calibre release"))
 
     def mouseReleaseEvent(self, ev):
         open_url(localize_website_link('https://calibre-ebook.com/whats-new'))

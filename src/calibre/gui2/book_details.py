@@ -524,7 +524,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             menu.addAction(ac)
         # See if we need to add a click associated link menu line for the author
         link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
-        link = link_map.get("authors", {}).get(author)
+        link = link_map.get('authors', {}).get(author)
         if link:
             add_link_submenu(menu, link, book_info, 'authors', author)
     elif dt in ('path', 'devpath'):
@@ -542,7 +542,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         if path:
             path = os.path.join(path, DATA_DIR_NAME)
             ac.current_url = path
-            ac.setText(_('The location of the book\'s data files'))
+            ac.setText(_("The location of the book's data files"))
             copy_menu.addAction(ac)
     else:
         field = data.get('field')
@@ -643,7 +643,7 @@ def create_copy_links(menu, data=None):
                                          note_data['searchable_text'].partition('\n')[2], sep)
             if field.startswith('#'):
                 field = '_' + field[1:]
-            url = f"calibre://show-note/{library_id}/{field}/id_{item_id}"
+            url = f'calibre://show-note/{library_id}/{field}/id_{item_id}'
             link_action(_('Link to show note in calibre'), url)
         else:
             field = data.get('field')

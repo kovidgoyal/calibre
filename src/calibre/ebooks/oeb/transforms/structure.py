@@ -132,7 +132,7 @@ class DetectStructure:
                 self.log('Setting start reading at position to %s in %s'%(
                     self.opts.start_reading_at, item.href))
                 return
-        self.log.warn("Failed to find start reading at position: %s"%
+        self.log.warn('Failed to find start reading at position: %s'%
                 self.opts.start_reading_at)
 
     def get_toc_parts_for_xpath(self, expr):

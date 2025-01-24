@@ -129,21 +129,21 @@ class FileDialog(QObject):
                 opts |= QFileDialog.Option.HideNameFilterDetails
             if mode == QFileDialog.FileMode.AnyFile:
                 if use_native_dialog:
-                    f = QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, "", opts)
+                    f = QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, '', opts)
                 else:
                     f = create_dialog(title, ftext, for_saving=True)
                 if f and f[0]:
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.FileMode.ExistingFile:
                 if use_native_dialog:
-                    f = QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, "", opts)
+                    f = QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, '', opts)
                 else:
                     f = create_dialog(title, ftext)
                 if f and f[0] and os.path.exists(f[0]):
                     self.selected_files.append(f[0])
             elif mode == QFileDialog.FileMode.ExistingFiles:
                 if use_native_dialog:
-                    fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, "", opts)
+                    fs = QFileDialog.getOpenFileNames(parent, title, initial_dir, ftext, '', opts)
                 else:
                     fs = create_dialog(title, ftext), True
                 if fs and fs[0]:

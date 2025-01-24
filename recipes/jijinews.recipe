@@ -23,8 +23,8 @@ class JijiDotCom(BasicNewsRecipe):
     feeds = [(u'\u30cb\u30e5\u30fc\u30b9',
               u'http://www.jiji.com/rss/ranking.rdf')]
 
-    remove_tags_before = dict(id="article-area")
-    remove_tags_after = dict(id="ad_google")
+    remove_tags_before = dict(id='article-area')
+    remove_tags_after = dict(id='ad_google')
 
     def get_cover_url(self):
         cover_url = 'http://www.jiji.com/img/top_header_logo2.gif'
