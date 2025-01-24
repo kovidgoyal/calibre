@@ -21,7 +21,7 @@ class Zerkalo(BasicNewsRecipe):
 
     remove_tags_before = dict(name='h1')
 
-    remove_tags_after = dict(name='div', attrs={'class': 'article_body'}),
+    remove_tags_after = dict(name='div', attrs={'class': 'article_body'})
 
     remove_tags = [
         dict(name='span', attrs={'class': 'print print-art-js'}),

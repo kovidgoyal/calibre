@@ -75,8 +75,8 @@ def dock_defs():
     def d(title, name, area, allowed=Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea):
         ans[name] = Dock(name + '-dock', title, area, allowed)
 
-    d(_('Table of Contents'), 'toc', Qt.DockWidgetArea.LeftDockWidgetArea),
-    d(_('Lookup'), 'lookup', Qt.DockWidgetArea.RightDockWidgetArea),
+    d(_('Table of Contents'), 'toc', Qt.DockWidgetArea.LeftDockWidgetArea)
+    d(_('Lookup'), 'lookup', Qt.DockWidgetArea.RightDockWidgetArea)
     d(_('Bookmarks'), 'bookmarks', Qt.DockWidgetArea.RightDockWidgetArea)
     d(_('Search'), 'search', Qt.DockWidgetArea.LeftDockWidgetArea)
     d(_('Inspector'), 'inspector', Qt.DockWidgetArea.RightDockWidgetArea, Qt.DockWidgetArea.AllDockWidgetAreas)

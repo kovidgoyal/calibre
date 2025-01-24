@@ -21,7 +21,7 @@ class Grani(BasicNewsRecipe):
 
     remove_tags_before = dict(name='h3')
 
-    remove_tags_after = dict(name='div', attrs={'class': 'main-text clearfix'}),
+    remove_tags_after = dict(name='div', attrs={'class': 'main-text clearfix'})
 
     # Original feeds
     #    feeds = [

@@ -39,7 +39,7 @@ optparse._ = _
 
 if False:
     # Make pyflakes happy
-    Config, ConfigProxy, Option, OptionValues, StringConfig, OptionSet,
+    Config, ConfigProxy, Option, OptionValues, StringConfig, OptionSet
     ConfigInterface, tweaks, plugin_dir, prefs, from_json, to_json, make_config_dir
 
 

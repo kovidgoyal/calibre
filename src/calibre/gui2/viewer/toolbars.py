@@ -558,7 +558,7 @@ class ConfigureToolBar(Dialog):
         self.available_actions.add_names(names)
 
     def remove_item(self, item):
-        names = self.current_actions.remove_item(item),
+        names = (self.current_actions.remove_item(item),)
         self.available_actions.add_names(names)
 
     def add_actions(self):
@@ -566,7 +566,7 @@ class ConfigureToolBar(Dialog):
         self.current_actions.add_names(names)
 
     def add_item(self, item):
-        names = self.available_actions.remove_item(item),
+        names = (self.available_actions.remove_item(item),)
         self.current_actions.add_names(names)
 
     def restore_defaults(self):

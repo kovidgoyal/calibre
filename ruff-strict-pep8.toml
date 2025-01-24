@@ -23,7 +23,7 @@ ignore = [
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',
-    'Q', 'UP', 'YTT', 'TID', 'C4',
+    'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818',
 ]
 
 [lint.per-file-ignores]

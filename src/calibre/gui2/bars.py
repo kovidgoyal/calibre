@@ -482,9 +482,9 @@ if ismacos:
                 self.edit_menu = QMenu()
                 self.edit_action = QAction(_('Edit'), self)
                 self.edit_action.setMenu(self.edit_menu)
-                ac(_('Copy'), QKeySequence.StandardKey.Copy),
-                ac(_('Paste'), QKeySequence.StandardKey.Paste),
-                ac(_('Select all'), QKeySequence.StandardKey.SelectAll),
+                ac(_('Copy'), QKeySequence.StandardKey.Copy)
+                ac(_('Paste'), QKeySequence.StandardKey.Paste)
+                ac(_('Select all'), QKeySequence.StandardKey.SelectAll)
                 mb.addAction(self.edit_action)
                 self.added_actions = [self.edit_action]
             else:

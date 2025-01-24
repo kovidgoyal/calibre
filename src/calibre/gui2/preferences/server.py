@@ -789,7 +789,7 @@ class User(QWidget):
         else:
             m = _('{} is currently allowed access to all libraries')
             b = _('Restrict the &libraries {} can access').format(self.username)
-        self.restrict_button.setText(b),
+        self.restrict_button.setText(b)
         self.access_label.setText(m.format(username))
 
     def show_user(self, username=None, user_data=None):

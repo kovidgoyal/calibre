@@ -74,7 +74,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     job_done  = pyqtSignal(int)
 
     def __init__(self):
-        self.header_titles = _('Job'), _('Status'), _('Progress'), _('Running time'), _('Start time'),
+        self.header_titles = _('Job'), _('Status'), _('Progress'), _('Running time'), _('Start time')
         QAbstractTableModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
 
