@@ -649,7 +649,7 @@ def create_copy_links(menu, data=None):
             field = data.get('field')
             if data['type'] == 'author':
                 field = 'authors'
-            if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
+            if (field and field in ('tags', 'series', 'publisher', 'authors')) or is_category(field):
                 name = data['name' if data['type'] == 'author' else 'value']
                 eq = f'{field}:"={name}"'.encode().hex()
                 link_action(_('Link to show books matching {} in calibre').format(name),

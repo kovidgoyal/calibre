@@ -670,7 +670,7 @@ class CentralContainer(QWidget):
             hs = h.state
             if hs is HandleState.both_visible or hs is HandleState.only_side_visible:
                 height = normal_handle_width
-            if hs is HandleState.only_main_visible and h is self.bottom_handle or (h is self.top_handle and self.separate_cover_browser):
+            if (hs is HandleState.only_main_visible and h is self.bottom_handle) or (h is self.top_handle and self.separate_cover_browser):
                 height = 0
             h.resize(int(central_width), int(height))
             available_height -= height

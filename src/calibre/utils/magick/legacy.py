@@ -135,7 +135,7 @@ class Image:
         return width, height, fmt
 
     def remove_border(self, fuzz=None):
-        if fuzz is not None and fuzz < 0 or fuzz > 255:
+        if (fuzz is not None and fuzz < 0) or fuzz > 255:
             fuzz = None
         self.img = remove_borders_from_image(self.img, fuzz)
     trim = remove_border

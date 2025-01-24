@@ -1782,7 +1782,7 @@ class KOBOTOUCH(KOBO):
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
                 # So, the following should be OK
                 if self.is_false_value(isdownloaded):
-                    if self.dbversion < 56 and accessibility <= 1 or self.dbversion >= 56 and accessibility == -1:
+                    if (self.dbversion < 56 and accessibility <= 1) or (self.dbversion >= 56 and accessibility == -1):
                         playlist_map[lpath].append('Deleted')
                         allow_shelves = False
                         if show_debug:
@@ -2689,7 +2689,7 @@ class KOBOTOUCH(KOBO):
                         self.reset_favouritesindex(connection, oncard)
 
             # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
-            if (self.supports_bookshelves and self.manage_collections or self.supports_series()) and (
+            if ((self.supports_bookshelves and self.manage_collections) or self.supports_series()) and (
                     have_bookshelf_attributes or update_series_details or update_core_metadata):
                 debug_print('KoboTouch:update_device_database_collections - managing bookshelves and series.')
 
@@ -4204,7 +4204,7 @@ class KOBOTOUCH(KOBO):
         if not self.debugging_title and not self.debugging_title == '':
             self.debugging_title = self.get_debugging_title()
         try:
-            is_debugging = len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0
+            is_debugging = (len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0) or len(title) == 0
         except:
             debug_print(("KoboTouch::is_debugging_title - Exception checking debugging title for title '{}'.").format(title))
             is_debugging = False

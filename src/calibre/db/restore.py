@@ -253,7 +253,7 @@ class Restore(Thread):
             dest = self.link_maps.setdefault(field, {})
             for item, link in lmap.items():
                 existing_link, timestamp = dest.get(item, (None, None))
-                if existing_link is None or existing_link != link and timestamp < mi.timestamp:
+                if existing_link is None or (existing_link != link and timestamp < mi.timestamp):
                     dest[item] = link, mi.timestamp
 
     def create_cc_metadata(self):

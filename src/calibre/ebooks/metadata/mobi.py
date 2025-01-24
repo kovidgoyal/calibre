@@ -279,7 +279,7 @@ class MetadataUpdater:
 
     def hexdump(self, src, length=16):
         # Diagnostic
-        FILTER=''.join([(len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x) or '.' for x in range(256)])
+        FILTER=''.join([((len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x)) or '.' for x in range(256)])
         N=0
         result=''
         while src:

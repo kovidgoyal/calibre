@@ -203,7 +203,7 @@ class Restore(Thread):
         alm = mi.get('author_link_map', {})
         for author, link in iteritems(alm):
             existing_link, timestamp = self.authors_links.get(author, (None, None))
-            if existing_link is None or existing_link != link and timestamp < mi.timestamp:
+            if existing_link is None or (existing_link != link and timestamp < mi.timestamp):
                 self.authors_links[author] = (link, mi.timestamp)
 
     def create_cc_metadata(self):
