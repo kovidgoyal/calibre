@@ -69,9 +69,9 @@ def _quoteattr(data, entities={}):
         if "'" in data:
             data = '"{}"'.format(data.replace('"', '&quot;'))
         else:
-            data = "'{}'".format(data)
+            data = f"'{data}'"
     else:
-        data = '"{}"'.format(data)
+        data = f'"{data}"'
     return data
 
 
@@ -383,7 +383,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         '''
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText('The <{}> element does not allow text'.format(self.tagName))
+            raise IllegalText(f'The <{self.tagName}> element does not allow text')
         else:
             if text != '':
                 self.appendChild(Text(text))
@@ -393,7 +393,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         '''
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText('The <{}> element does not allow text'.format(self.tagName))
+            raise IllegalText(f'The <{self.tagName}> element does not allow text')
         else:
             self.appendChild(CDATASection(cdata))
 

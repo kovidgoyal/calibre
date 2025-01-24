@@ -50,7 +50,7 @@ pattern_vector3D = re.compile(r'\([ ]*-?([0-9]+(\.[0-9]*)?|\.[0-9]+)([ ]+-?([0-9
 
 def make_NCName(arg):
     for c in (':',' '):
-        arg = arg.replace(c,'_{:x}_'.format(ord(c)))
+        arg = arg.replace(c,f'_{ord(c):x}_')
     return arg
 
 
@@ -78,13 +78,13 @@ def cnv_color(attribute, arg, element):
 def cnv_configtype(attribute, arg, element):
     if unicode_type(arg) not in ('boolean', 'short', 'int', 'long',
     'double', 'string', 'datetime', 'base64Binary'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 
 def cnv_data_source_has_labels(attribute, arg, element):
     if unicode_type(arg) not in ('none','row','column','both'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 # Understand different date formats
@@ -116,7 +116,7 @@ def cnv_family(attribute, arg, element):
     ''' A style family '''
     if unicode_type(arg) not in ('text', 'paragraph', 'section', 'ruby', 'table', 'table-column', 'table-row', 'table-cell',
       'graphic', 'presentation', 'drawing-page', 'chart'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 
@@ -154,7 +154,7 @@ def cnv_integer(attribute, arg, element):
 
 def cnv_legend_position(attribute, arg, element):
     if unicode_type(arg) not in ('start', 'end', 'top', 'bottom', 'top-start', 'bottom-start', 'top-end', 'bottom-end'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 
@@ -167,7 +167,7 @@ def cnv_length(attribute, arg, element):
     '''
     global pattern_length
     if not pattern_length.match(arg):
-        raise ValueError("'{}' is not a valid length".format(arg))
+        raise ValueError(f"'{arg}' is not a valid length")
     return arg
 
 
@@ -182,19 +182,19 @@ def cnv_lengthorpercent(attribute, arg, element):
     except:
         failed = True
     if failed:
-        raise ValueError("'{}' is not a valid length or percent".format(arg))
+        raise ValueError(f"'{arg}' is not a valid length or percent")
     return arg
 
 
 def cnv_metavaluetype(attribute, arg, element):
     if unicode_type(arg) not in ('float', 'date', 'time', 'boolean', 'string'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 
 def cnv_major_minor(attribute, arg, element):
     if arg not in ('major','minor'):
-        raise ValueError("'{}' is not either 'minor' or 'major'".format(arg))
+        raise ValueError(f"'{arg}' is not either 'minor' or 'major'")
 
 
 pattern_namespacedToken = re.compile(r'[0-9a-zA-Z_]+:[0-9a-zA-Z._\-]+')
@@ -204,7 +204,7 @@ def cnv_namespacedToken(attribute, arg, element):
     global pattern_namespacedToken
 
     if not pattern_namespacedToken.match(arg):
-        raise ValueError("'{}' is not a valid namespaced token".format(arg))
+        raise ValueError(f"'{arg}' is not a valid namespaced token")
     return __save_prefix(attribute, arg, element)
 
 
@@ -258,7 +258,7 @@ pattern_percent = re.compile(r'-?([0-9]+(\.[0-9]*)?|\.[0-9]+)%')
 def cnv_percent(attribute, arg, element):
     global pattern_percent
     if not pattern_percent.match(arg):
-        raise ValueError("'{}' is not a valid length".format(arg))
+        raise ValueError(f"'{arg}' is not a valid length")
     return arg
 
 
@@ -277,7 +277,7 @@ def cnv_points(attribute, arg, element):
         try:
             strarg = ' '.join(['{},{}'.format(*p) for p in arg])
         except:
-            raise ValueError('Points must be string or [(0,0),(1,1)] - not {}'.format(arg))
+            raise ValueError(f'Points must be string or [(0,0),(1,1)] - not {arg}')
         return strarg
 
 
@@ -291,7 +291,7 @@ def cnv_string(attribute, arg, element):
 
 def cnv_textnoteclass(attribute, arg, element):
     if unicode_type(arg) not in ('footnote', 'endnote'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 # Understand different time formats
@@ -317,7 +317,7 @@ def cnv_viewbox(attribute, arg, element):
 
 def cnv_xlinkshow(attribute, arg, element):
     if unicode_type(arg) not in ('new', 'replace', 'embed'):
-        raise ValueError("'{}' not allowed".format(unicode_type(arg)))
+        raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
 

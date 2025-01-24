@@ -56,11 +56,11 @@ class Bug:
             if int(bug) > 100000 and action != 'See':
                 self.close_bug(bug, action)
                 return match.group() + f' [{summary}]({LAUNCHPAD_BUG.format(bug)})'
-            return match.group() + ' ({})'.format(summary)
+            return match.group() + f' ({summary})'
         return match.group()
 
     def close_bug(self, bug, action):
-        print('Closing bug #{}'.format(bug))
+        print(f'Closing bug #{bug}')
         suffix = (
             'The fix will be in the next release. '
             'calibre is usually released every alternate Friday.'

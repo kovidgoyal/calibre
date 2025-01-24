@@ -49,9 +49,7 @@ def sanitize_path():
                 needed_paths.append(p)
                 executables.remove(x)
     sw = os.environ['SW']
-    paths = r'{0}\private\python\bin {0}\private\python\Lib\site-packages\pywin32_system32 {0}\bin {0}\qt\bin C:\Windows\System32'.format(
-        sw
-    ).split() + needed_paths
+    paths = rf'{sw}\private\python\bin {sw}\private\python\Lib\site-packages\pywin32_system32 {sw}\bin {sw}\qt\bin C:\Windows\System32'.split() + needed_paths
     os.environ['PATH'] = os.pathsep.join(paths)
     print('PATH:', os.environ['PATH'])
 

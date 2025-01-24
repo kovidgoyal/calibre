@@ -54,8 +54,8 @@ class checkbox(nodes.Element):
 def visit_checkbox(self, node):
     cid = node['ids'][0]
     node['classes'] = []
-    self.body.append('<input id="{0}" type="checkbox" />'
-                     '<label for="{0}">&nbsp;</label>'.format(cid))
+    self.body.append(f'<input id="{cid}" type="checkbox" />'
+                     f'<label for="{cid}">&nbsp;</label>')
 
 
 def modify_li(li):
@@ -66,7 +66,7 @@ def modify_li(li):
         li['classes'].append('leaf-node')
     else:
         c = checkbox()
-        c['ids'] = ['collapse-checkbox-{}'.format(next(id_counter))]
+        c['ids'] = [f'collapse-checkbox-{next(id_counter)}']
         li.insert(0, c)
 
 

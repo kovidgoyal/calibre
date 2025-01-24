@@ -222,7 +222,7 @@ def get_import_data(name, mod, zf, names):
             return module
         raise ValueError(f'Failed to find name: {name!r} in module: {mod!r}')
     else:
-        raise ValueError('Failed to find module: {!r}'.format(mod))
+        raise ValueError(f'Failed to find module: {mod!r}')
 
 
 def parse_metadata(raw, namelist, zf):
@@ -372,7 +372,7 @@ def fetch_plugin(old_index, entry):
     raw = read(entry.url).decode('utf-8', 'replace')
     url, name = parse_plugin_zip_url(raw)
     if url is None:
-        raise ValueError('Failed to find zip file URL for entry: {}'.format(repr(entry)))
+        raise ValueError(f'Failed to find zip file URL for entry: {entry!r}')
     plugin = lm_map.get(entry.thread_id, None)
 
     if plugin is not None:
@@ -392,7 +392,7 @@ def fetch_plugin(old_index, entry):
     slm = datetime(*parsedate(info.get('Last-Modified'))[:6])
     plugin = get_plugin_info(raw)
     plugin['last_modified'] = slm.isoformat()
-    plugin['file'] = 'staging_{}.zip'.format(entry.thread_id)
+    plugin['file'] = f'staging_{entry.thread_id}.zip'
     plugin['size'] = len(raw)
     plugin['original_url'] = url
     update_plugin_from_entry(plugin, entry)
@@ -474,14 +474,14 @@ def plugin_to_index(plugin, count):
     for li in details:
         if li.startswith('calibre:'):
             block.append('<br>')
-        block.append('<li>{}</li>'.format(li))
+        block.append(f'<li>{li}</li>')
     block = '<ul>{}</ul>'.format('\n'.join(block))
-    downloads = ('\xa0<span class="download-count">[{} total downloads]</span>'.format(count)) if count else ''
+    downloads = (f'\xa0<span class="download-count">[{count} total downloads]</span>') if count else ''
     zipfile = '<div class="end"><a href={} title="Download plugin" download={}>Download plugin \u2193</a>{}</div>'.format(
         quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''
     if desc:
-        desc = '<p>{}</p>'.format(desc)
+        desc = f'<p>{desc}</p>'
     return f'{title}\n{desc}\n{block}\n{zipfile}\n\n'
 
 

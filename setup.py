@@ -75,7 +75,7 @@ def main(args=sys.argv):
         print('\nWhere command is one of:')
         print()
         for x in sorted(commands.__all__):
-            print('{:20} -'.format(x), end=' ')
+            print(f'{x:20} -', end=' ')
             c = getattr(commands, x)
             desc = getattr(c, 'short_description', c.description)
             print(desc)
@@ -95,7 +95,7 @@ def main(args=sys.argv):
     parser = option_parser()
     command.add_all_options(parser)
     parser.set_usage(
-        'Usage: python setup.py {} [options]\n\n'.format(args[1]) + command.description)
+        f'Usage: python setup.py {args[1]} [options]\n\n' + command.description)
 
     opts, args = parser.parse_args(args)
     opts.cli_args = args[2:]

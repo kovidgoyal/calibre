@@ -153,20 +153,16 @@ class GitHub(Base):  # {{{
         existing_assets = self.existing_assets(release['id'])
         for path, desc in self.files.items():
             self.info('')
-            url = self.API + 'repos/{}/{}/releases/assets/{{}}'.format(
-                self.username, self.reponame
-            )
+            url = self.API + f'repos/{self.username}/{self.reponame}/releases/assets/{{}}'
             fname = os.path.basename(path)
             if fname in existing_assets:
-                self.info(
-                    'Deleting {} from GitHub with id: {}'.format(fname, existing_assets[fname])
-                )
+                self.info(f'Deleting {fname} from GitHub with id: {existing_assets[fname]}')
                 r = self.requests.delete(url.format(existing_assets[fname]))
                 if r.status_code != 204:
-                    self.fail(r, 'Failed to delete {} from GitHub'.format(fname))
+                    self.fail(r, f'Failed to delete {fname} from GitHub')
             r = self.do_upload(upload_url, path, desc, fname)
             if r.status_code != 201:
-                self.fail(r, 'Failed to upload file: {}'.format(fname))
+                self.fail(r, f'Failed to upload file: {fname}')
             try:
                 r = self.requests.patch(
                     url.format(r.json()['id']),
@@ -185,7 +181,7 @@ class GitHub(Base):  # {{{
                     })
                 )
             if r.status_code != 200:
-                self.fail(r, 'Failed to set label for {}'.format(fname))
+                self.fail(r, f'Failed to set label for {fname}')
 
     def clean_older_releases(self, releases):
         for release in releases:
@@ -218,7 +214,7 @@ class GitHub(Base):  # {{{
             )
 
     def fail(self, r, msg):
-        print(msg, ' Status Code: {}'.format(r.status_code), file=sys.stderr)
+        print(msg, f' Status Code: {r.status_code}', file=sys.stderr)
         print('JSON from response:', file=sys.stderr)
         pprint(dict(r.json()), stream=sys.stderr)
         raise SystemExit(1)
@@ -228,9 +224,7 @@ class GitHub(Base):  # {{{
         return error_code == 'already_exists'
 
     def existing_assets(self, release_id):
-        url = self.API + 'repos/{}/{}/releases/{}/assets'.format(
-            self.username, self.reponame, release_id
-        )
+        url = self.API + f'repos/{self.username}/{self.reponame}/releases/{release_id}/assets'
         r = self.requests.get(url)
         if r.status_code != 200:
             self.fail('Failed to get assets for release')
@@ -255,14 +249,14 @@ class GitHub(Base):  # {{{
             data=json.dumps({
                 'tag_name': self.current_tag_name,
                 'target_commitish': 'master',
-                'name': 'version {}'.format(self.version),
-                'body': 'Release version {}'.format(self.version),
+                'name': f'version {self.version}',
+                'body': f'Release version {self.version}',
                 'draft': False,
                 'prerelease': False
             })
         )
         if r.status_code != 201:
-            self.fail(r, 'Failed to create release for version: {}'.format(self.version))
+            self.fail(r, f'Failed to create release for version: {self.version}')
         return r.json()
 
 
@@ -320,12 +314,12 @@ def generate_index():  # {{{
         ]
         body = '<ul class="release-list">{}</ul>'.format(' '.join(body))
         index = template.format(
-            title='Previous calibre releases ({}.x)'.format(sname),
+            title=f'Previous calibre releases ({sname}.x)',
             style=style,
             msg='Choose a calibre release',
             body=body
         )
-        with open('{}.html'.format(sname), 'wb') as f:
+        with open(f'{sname}.html', 'wb') as f:
             f.write(index.encode('utf-8'))
 
         for r in releases:
@@ -385,7 +379,7 @@ def generate_index():  # {{{
 
                 body = '<dl>{}</dl>'.format(''.join(body))
                 index = template.format(
-                    title='calibre release ({})'.format(rname),
+                    title=f'calibre release ({rname})',
                     style=style,
                     msg='',
                     body=body

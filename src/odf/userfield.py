@@ -65,7 +65,7 @@ class UserFields:
         if isinstance(self.src_file, (bytes, str)):
             # src_file is a filename, check if it is a zip-file
             if not zipfile.is_zipfile(self.src_file):
-                raise TypeError('{} is no odt file.'.format(self.src_file))
+                raise TypeError(f'{self.src_file} is no odt file.')
         elif self.src_file is None:
             # use stdin if no file given
             self.src_file = sys.stdin

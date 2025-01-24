@@ -83,7 +83,7 @@ def lazy_load(name):
     try:
         return getattr(build_environment, name)
     except AttributeError:
-        raise ImportError('The setup.build_environment module has no symbol named: {}'.format(name))
+        raise ImportError(f'The setup.build_environment module has no symbol named: {name}')
 
 
 def expand_file_list(items, is_paths=True, cross_compile_for='native'):
@@ -539,7 +539,7 @@ class Build(Command):
                 extern_decl = 'extern "C"' if ext.needs_cxx else ''
                 cflags = [
                     '-DCALIBRE_MODINIT_FUNC='
-                    '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
+                    f'{extern_decl} __attribute__ ((visibility ("default"))) {return_type}']
             if ext.needs_cxx and ext.needs_cxx_std:
                 if env.cc_output_flag.startswith('/') and ext.needs_cxx == '11':
                     ext.needs_cxx = '14'
@@ -617,8 +617,8 @@ class Build(Command):
         try:
             subprocess.check_call(*args, **kwargs)
         except:
-            cmdline = ' '.join(['"{}"'.format(arg) if ' ' in arg else arg for arg in args[0]])
-            print('Error while executing: {}\n'.format(cmdline))
+            cmdline = ' '.join([f'"{arg}"' if ' ' in arg else arg for arg in args[0]])
+            print(f'Error while executing: {cmdline}\n')
             raise
 
     def build_headless(self):

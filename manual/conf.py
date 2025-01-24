@@ -97,7 +97,7 @@ today_fmt = '%B %d, %Y'
 unused_docs = ['global', 'cli/global']
 
 locale_dirs = ['locale/']
-title = '{} User Manual'.format(__appname__)
+title = f'{__appname__} User Manual'
 needs_localization = language not in {'en', 'eng'}
 if needs_localization:
     import gettext
@@ -193,7 +193,7 @@ del sort_languages, get_language
 
 epub_author      = 'Kovid Goyal'
 epub_publisher   = 'Kovid Goyal'
-epub_copyright   = '© {} Kovid Goyal'.format(date.today().year)
+epub_copyright   = f'© {date.today().year} Kovid Goyal'
 epub_description = 'Comprehensive documentation for calibre'
 epub_identifier  = 'https://manual.calibre-ebook.com'
 epub_scheme      = 'url'

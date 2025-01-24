@@ -72,9 +72,9 @@ def upload_signatures():
                 f.write(fingerprint)
             scp.append(sha512)
         for srv in 'code main'.split():
-            check_call(scp + ['{0}:/srv/{0}/signatures/'.format(srv)])
+            check_call(scp + [f'{srv}:/srv/{srv}/signatures/'])
             check_call(
-                ['ssh', srv, 'chown', '-R', 'http:http', '/srv/{}/signatures'.format(srv)]
+                ['ssh', srv, 'chown', '-R', 'http:http', f'/srv/{srv}/signatures']
             )
     finally:
         shutil.rmtree(tdir)
@@ -199,9 +199,7 @@ def upload_to_fosshub():
     entries = []
     for fname in files:
         desc = installer_description(fname)
-        url = 'https://download.calibre-ebook.com/{}/{}'.format(
-            __version__, os.path.basename(fname)
-        )
+        url = f'https://download.calibre-ebook.com/{__version__}/{os.path.basename(fname)}'
         entries.append({
             'fileUrl': url,
             'type': desc,
@@ -378,7 +376,7 @@ class UploadDemo(Command):  # {{{
 
         lrf = self.j(self.SRC, 'calibre', 'ebooks', 'lrf', 'html', 'demo')
         check_call(
-            'cd {} && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf'.format(lrf),
+            f'cd {lrf} && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf',
             shell=True
         )
 
@@ -409,7 +407,7 @@ class UploadToServer(Command):  # {{{
             ('ssh code /apps/update-calibre-version.py ' + __version__).split()
         )
         check_call((
-            'ssh main /usr/local/bin/update-calibre-version.py {} && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'.format(__version__)
+            f'ssh main /usr/local/bin/update-calibre-version.py {__version__} && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'
         ).split())
 
 

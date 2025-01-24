@@ -326,16 +326,16 @@ class ODF2MoinMoin:
 
         link = node.getAttribute('xlink:href')
         if link and link[:2] == './':  # Indicates a sub-object, which isn't supported
-            return '{}\n'.format(link)
+            return f'{link}\n'
         if link and link[:9] == 'Pictures/':
             link = link[9:]
-        return '[[Image({})]]\n'.format(link)
+        return f'[[Image({link})]]\n'
 
     def text_a(self, node):
         text = self.textToString(node)
         link = node.getAttribute('xlink:href')
         if link.strip() == text.strip():
-            return '[{}] '.format(link.strip())
+            return f'[{link.strip()}] '
         else:
             return f'[{link.strip()} {text.strip()}] '
 
@@ -348,7 +348,7 @@ class ODF2MoinMoin:
         body = (node.getElementsByTagName('text:note-body')[0]
                     .childNodes[0])
         self.footnotes.append((cite, self.textToString(body)))
-        return '^{}^'.format(cite)
+        return f'^{cite}^'
 
     def text_s(self, node):
         try:

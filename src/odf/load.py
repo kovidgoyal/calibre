@@ -75,7 +75,7 @@ class LoadParser(handler.ContentHandler):
             e = Element(qname=tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
         except AttributeError as v:
-            print('Error: {}'.format(v))
+            print(f'Error: {v}')
 
         if tag == (OFFICENS, 'automatic-styles'):
             e = self.doc.automaticstyles

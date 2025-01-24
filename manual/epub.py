@@ -49,8 +49,8 @@ class EPUBHelpBuilder(EpubBuilder):
                 imgname = container.href_to_name(img.get('src'), name)
                 fmt, width, height = identify(container.raw_data(imgname))
                 if width == -1:
-                    raise ValueError('Failed to read size of: {}'.format(imgname))
-                img.set('style', 'width: {}px; height: {}px'.format(width, height))
+                    raise ValueError(f'Failed to read size of: {imgname}')
+                img.set('style', f'width: {width}px; height: {height}px')
 
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}
@@ -75,7 +75,7 @@ class EPUBHelpBuilder(EpubBuilder):
 
         # Ensure that the cover-image property is set
         cover_id = rmap['_static/' + self.config.epub_cover[0]]
-        for item in container.opf_xpath('//opf:item[@id="{}"]'.format(cover_id)):
+        for item in container.opf_xpath(f'//opf:item[@id="{cover_id}"]'):
             item.set('properties', 'cover-image')
         for item in container.opf_xpath('//opf:item[@href="epub-cover.xhtml"]'):
             item.set('properties', 'svg calibre:title-page')

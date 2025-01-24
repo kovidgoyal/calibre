@@ -195,13 +195,13 @@ details and examples.
     lines = []
     for cmd in COMMANDS:
         parser = option_parser_for(cmd)()
-        lines += ['.. _calibredb-{}-{}:'.format(language, cmd), '']
+        lines += [f'.. _calibredb-{language}-{cmd}:', '']
         lines += [cmd, '~'*20, '']
         usage = parser.usage.strip()
         usage = [i for i in usage.replace('%prog', 'calibredb').splitlines()]
         cmdline = '    '+usage[0]
         usage = usage[1:]
-        usage = [re.sub(r'({})([^a-zA-Z0-9])'.format(cmd), r':command:`\1`\2', i) for i in usage]
+        usage = [re.sub(rf'({cmd})([^a-zA-Z0-9])', r':command:`\1`\2', i) for i in usage]
         lines += ['.. code-block:: none', '', cmdline, '']
         lines += usage
         groups = [(None, None, parser.option_list)]
@@ -257,7 +257,7 @@ def generate_ebook_convert_help(preamble, app):
 def update_cli_doc(name, raw, language):
     if isinstance(raw, bytes):
         raw = raw.decode('utf-8')
-    path = 'generated/{}/{}.rst'.format(language, name)
+    path = f'generated/{language}/{name}.rst'
     old_raw = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
     if not os.path.exists(path) or old_raw != raw:
         import difflib
@@ -352,7 +352,7 @@ def cli_docs(language):
         usage = [mark_options(i) for i in parser.usage.replace('%prog', cmd).splitlines()]
         cmdline = usage[0]
         usage = usage[1:]
-        usage = [i.replace(cmd, ':command:`{}`'.format(cmd)) for i in usage]
+        usage = [i.replace(cmd, f':command:`{cmd}`') for i in usage]
         usage = '\n'.join(usage)
         preamble = CLI_PREAMBLE.format(cmd=cmd, cmdref=cmd + '-' + language, cmdline=cmdline, usage=usage)
         if cmd == 'ebook-convert':
@@ -382,7 +382,7 @@ def template_docs(language):
 
 def localized_path(app, langcode, pagename):
     href = app.builder.get_target_uri(pagename)
-    href = re.sub(r'generated/[a-z]+/', 'generated/{}/'.format(langcode), href)
+    href = re.sub(r'generated/[a-z]+/', f'generated/{langcode}/', href)
     prefix = '/'
     if langcode != 'en':
         prefix += langcode + '/'
@@ -405,7 +405,7 @@ def setup_man_pages(app):
     documented_cmds = get_cli_docs()[0]
     man_pages = []
     for cmd, option_parser in documented_cmds:
-        path = 'generated/{}/{}'.format(app.config.language, cmd)
+        path = f'generated/{app.config.language}/{cmd}'
         man_pages.append((
             path, cmd, cmd, 'Kovid Goyal', 1
         ))

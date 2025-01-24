@@ -16,12 +16,12 @@ class ReVendor(Command):
     CAN_USE_SYSTEM_VERSION = True
 
     def add_options(self, parser):
-        parser.add_option('--path-to-{}'.format(self.NAME), help='Path to the extracted {} source'.format(self.TAR_NAME))
-        parser.add_option('--{}-url'.format(self.NAME), default=self.DOWNLOAD_URL,
-                help='URL to {} source archive in tar.gz format'.format(self.TAR_NAME))
+        parser.add_option(f'--path-to-{self.NAME}', help=f'Path to the extracted {self.TAR_NAME} source')
+        parser.add_option(f'--{self.NAME}-url', default=self.DOWNLOAD_URL,
+                help=f'URL to {self.TAR_NAME} source archive in tar.gz format')
         if self.CAN_USE_SYSTEM_VERSION:
-            parser.add_option('--system-{}'.format(self.NAME), default=False, action='store_true',
-                    help='Treat {} as system copy and symlink instead of copy'.format(self.TAR_NAME))
+            parser.add_option(f'--system-{self.NAME}', default=False, action='store_true',
+                    help=f'Treat {self.TAR_NAME} as system copy and symlink instead of copy')
 
     def download_securely(self, url: str) -> bytes:
         num = 5 if is_ci else 1
@@ -35,7 +35,7 @@ class ReVendor(Command):
                 time.sleep(2)
 
     def download_vendor_release(self, tdir, url):
-        self.info('Downloading {}:'.format(self.TAR_NAME), url)
+        self.info(f'Downloading {self.TAR_NAME}:', url)
         raw = self.download_securely(url)
         with tarfile.open(fileobj=BytesIO(raw)) as tf:
             tf.extractall(tdir)
