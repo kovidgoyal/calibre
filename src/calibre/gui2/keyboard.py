@@ -318,10 +318,8 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             sc = node.data
             un = sc['unique_name']
             if sc['set_to_default']:
-                if un in kmap:
-                    del kmap[un]
-                if un in options_map:
-                    del options_map[un]
+                kmap.pop(un, None)
+                options_map.pop(un, None)
             else:
                 if sc['persist_shortcut']:
                     options_map[un] = options_map.get(un, {})

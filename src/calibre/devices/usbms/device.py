@@ -517,7 +517,7 @@ class Device(DeviceConfig, DevicePlugin):
                     devnodes.append(node)
 
         devnodes += list(repeat(None, 3))
-        ans = ['/dev/'+x if ok.get(x, False) else None for x in devnodes]
+        ans = ['/dev/'+x if ok.get(x) else None for x in devnodes]
         ans.sort(key=lambda x: x[5:] if x else 'zzzzz')
         return self.linux_swap_drives(ans[:3])
 

@@ -32,6 +32,7 @@ select = [
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818',
     'RUF',  # nota: RUF can flag many unsolicited errors
     # preview rules
+    'RUF051', 'RUF056',  # useless dict operation
 ]
 
 [lint.per-file-ignores]

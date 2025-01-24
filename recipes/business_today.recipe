@@ -98,8 +98,7 @@ class BT(BasicNewsRecipe):
         # Done with the sorted feeds
 
         for i in feedSort:
-            if i in sections:
-                del sections[i]
+            sections.pop(i, None)
 
         # Append what is left over...
 
