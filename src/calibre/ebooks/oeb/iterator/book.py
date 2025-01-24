@@ -67,8 +67,7 @@ def extract_book(pathtoebook, tdir, log=None, view_kepub=False, processed=False,
         if not only_input_plugin:
             # Run the HTML preprocess/parsing from the conversion pipeline as
             # well
-            if (processed or (plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and
-                    not hasattr(pathtoopf, 'manifest'))):
+            if processed or (plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and not hasattr(pathtoopf, 'manifest')):
                 if hasattr(pathtoopf, 'manifest'):
                     pathtoopf = write_oebbook(pathtoopf, tdir)
                 pathtoopf = create_oebbook(log, pathtoopf, plumber.opts)

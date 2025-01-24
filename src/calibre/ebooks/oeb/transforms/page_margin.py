@@ -88,8 +88,7 @@ class RemoveFakeMargins:
                 except:
                     pass
                 else:
-                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or
-                            (isinstance(ti, numbers.Number) and ti < 0)):
+                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0)):
                         raise NegativeTextIndent()
                 return style.marginLeft, style.marginRight, style
         return '', '', None

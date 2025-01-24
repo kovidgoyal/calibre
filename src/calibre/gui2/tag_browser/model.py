@@ -1233,12 +1233,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                 fm_dest = self.db.metadata_for_field(node.category_key)
                 if fm_dest['kind'] == 'user':
                     fm_src = self.db.metadata_for_field(md.column_name)
-                    if md.column_name in ['authors', 'publisher', 'series'] or \
-                            ((fm_src['is_custom'] and (
-                             fm_src['datatype'] in ['series', 'text', 'enumeration'] and
-                              not fm_src['is_multiple']))or
-                             (fm_src['datatype'] == 'composite' and
-                              fm_src['display'].get('make_category', False))):
+                    if md.column_name in ['authors', 'publisher', 'series'] or (
+                               (fm_src['is_custom'] and (
+                                fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                                not fm_src['is_multiple'])) or
+                               (fm_src['datatype'] == 'composite' and
+                                fm_src['display'].get('make_category', False))
+                            ):
                         mime = 'application/calibre+from_library'
                         ids = list(map(int, md.data(mime).data().split()))
                         self.handle_user_category_drop(node, ids, md.column_name)
