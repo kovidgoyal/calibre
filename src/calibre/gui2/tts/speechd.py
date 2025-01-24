@@ -66,12 +66,12 @@ class SpeechdTTSBackend(TTSBackend):
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
-       if self._voices is None:
+        if self._voices is None:
             try:
                 self._voices = self._get_all_voices_for_all_output_modules()
             except Exception as e:
                 self._set_error(str(e))
-       return self._voices or {}
+        return self._voices or {}
 
     def stop(self) -> None:
         self._last_mark = self._last_text = ''

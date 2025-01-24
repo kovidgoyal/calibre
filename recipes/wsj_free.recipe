@@ -114,7 +114,7 @@ class WSJ(BasicNewsRecipe):
         for figc in soup.findAll('figcaption'):
             figc['id'] = 'big-top-caption'
         if name:= soup.find('h2', attrs={'itemprop':'name'}):
-                name.extract()
+            name.extract()
         for h2 in soup.findAll('h2'):
             if self.tag_to_string(h2).startswith(('What to Read Next', 'Conversation')):
                 h2.extract()

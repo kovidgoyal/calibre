@@ -339,9 +339,9 @@ class Economist(BasicNewsRecipe):
     def economist_parse_index(self, raw):
         # edition_date = self.recipe_specific_options.get('date')
         # if edition_date and isinstance(edition_date, str):
-            # data = json.loads(raw)['data']['section']
+        #     data = json.loads(raw)['data']['section']
         # else:
-            # data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        #     data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')

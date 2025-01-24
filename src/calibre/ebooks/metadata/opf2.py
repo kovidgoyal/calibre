@@ -529,9 +529,9 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
     for name, fm in all_user_metadata.items():
         try:
             fm = copy.copy(fm)
-            if (fm.get('datatype', 'text') == 'composite' and
-                not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
-                    fm['#value#'] = ''
+            if (fm.get('datatype', 'text') == 'composite'
+              and not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
+                fm['#value#'] = ''
             encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)

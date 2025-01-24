@@ -101,7 +101,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
 
     def text_color(self, hover, palette) -> QColor:
         if QApplication.instance().is_dark_theme and hover:
-                return QColor(Qt.GlobalColor.black)
+            return QColor(Qt.GlobalColor.black)
         return palette.color(QPalette.ColorRole.WindowText)
 
     def draw_text(self, style, painter, option, widget, index, item):

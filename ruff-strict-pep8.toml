@@ -37,6 +37,7 @@ select = [
     'RUF039',  # always use raw-string for regex
     'RUF047',  # needless else
     'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
+    'E111', 'E112', 'E113', 'E117',  # code indentation
 ]
 
 [lint.per-file-ignores]

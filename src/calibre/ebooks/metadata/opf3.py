@@ -951,9 +951,9 @@ def set_user_metadata(root, prefixes, refines, val):
         nval = {}
         for name, fm in val.items():
             fm = fm.copy()
-            if (fm.get('datatype', 'text') == 'composite' and
-                not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
-                    fm['#value#'] = ''
+            if (fm.get('datatype', 'text') == 'composite'
+              and not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
+                fm['#value#'] = ''
             encode_is_multiple(fm)
             nval[name] = fm
         set_user_metadata3(root, prefixes, refines, nval)

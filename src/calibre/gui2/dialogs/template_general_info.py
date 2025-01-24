@@ -33,11 +33,11 @@ class GeneralInformationDialog(Dialog):
         l.addWidget(self.bb)
         html = ''
         if self.include_general_doc:
-                html += '<h2>General Information</h2>'
-                html += FFMLProcessor().document_to_html(general_doc, 'Template General Information')
+            html += '<h2>General Information</h2>'
+            html += FFMLProcessor().document_to_html(general_doc, 'Template General Information')
         if self.include_ffml_doc:
-                html += '<h2>Format Function Markup Language Documentation</h2>'
-                html += FFMLProcessor().document_to_html(ffml_doc, 'FFML Documentation')
+            html += '<h2>Format Function Markup Language Documentation</h2>'
+            html += FFMLProcessor().document_to_html(ffml_doc, 'FFML Documentation')
         e.setHtml(html)
 
 

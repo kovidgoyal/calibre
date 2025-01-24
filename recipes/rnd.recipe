@@ -80,42 +80,41 @@ class RND(BasicNewsRecipe):
  ]
 
     def parse_feeds(self):
-      # Call parent's method.
-      feeds = BasicNewsRecipe.parse_feeds(self)
-      # Loop through all feeds.
-      for feed in feeds:
-        # Loop through all articles in feed.
-        for article in feed.articles[:]:
-          # Remove articles with '...' in the url.
-          if '/anzeige/' in article.url:
-            print('Removing:',article.title)
-            feed.articles.remove(article)
-          # Remove articles with '...' in the title.
-          elif 'Liveticker' in article.title:
-              print('Removing:',article.title)
-              feed.articles.remove(article)
-          elif 'Liveblog' in article.title:
-              print('Removing:',article.title)
-              feed.articles.remove(article)
-          elif 'Newsblog' in article.title:
-              print('Removing:',article.title)
-              feed.articles.remove(article)
-          elif 'Podcast' in article.title:
-              print('Removing:',article.title)
-              feed.articles.remove(article)
-
-      return feeds
+        # Call parent's method.
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        # Loop through all feeds.
+        for feed in feeds:
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+                # Remove articles with '...' in the url.
+                if '/anzeige/' in article.url:
+                    print('Removing:',article.title)
+                    feed.articles.remove(article)
+                # Remove articles with '...' in the title.
+                elif 'Liveticker' in article.title:
+                    print('Removing:',article.title)
+                    feed.articles.remove(article)
+                elif 'Liveblog' in article.title:
+                    print('Removing:',article.title)
+                    feed.articles.remove(article)
+                elif 'Newsblog' in article.title:
+                    print('Removing:',article.title)
+                    feed.articles.remove(article)
+                elif 'Podcast' in article.title:
+                    print('Removing:',article.title)
+                    feed.articles.remove(article)
+        return feeds
 
     def preprocess_raw_html(self, raw, url):
-      # remove articles requiring login and advertisements
-      unwantedtag='ArticleHeadstyled__ArticleHeadPaidIconContainer'
-      if unwantedtag in raw:
-        print('Skipping unwanted article with tag:',unwantedtag)
-        self.abort_article('Skipping unwanted article')
+        # remove articles requiring login and advertisements
+        unwantedtag='ArticleHeadstyled__ArticleHeadPaidIconContainer'
+        if unwantedtag in raw:
+            print('Skipping unwanted article with tag:',unwantedtag)
+            self.abort_article('Skipping unwanted article')
 
-      unwanted_article_keywords = ['Zum Login']
-      for keyword in unwanted_article_keywords:
-          if keyword in raw:
-            print('Skipping unwanted article with keyword(s):',keyword)
-            #self.abort_article('Skipping unwanted article')
-      return raw
+        unwanted_article_keywords = ['Zum Login']
+        for keyword in unwanted_article_keywords:
+            if keyword in raw:
+                print('Skipping unwanted article with keyword(s):',keyword)
+                #self.abort_article('Skipping unwanted article')
+        return raw

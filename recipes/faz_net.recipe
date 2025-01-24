@@ -33,7 +33,7 @@ def format_tickaroo_liveblog(soup):
             ntag.insert_after(temp)
 
 
-    # process run of images
+# process run of images
 def bilderstrecke(soup,tag):
     flag = False
     try:
@@ -242,7 +242,7 @@ class FazNet(BasicNewsRecipe):
 
 #         format liveblog
         if soup.find(attrs={'class':'tik4-live__container'}):
-                    format_tickaroo_liveblog(soup)
+            format_tickaroo_liveblog(soup)
 
 # remove sizes and calc attributes in images
         for tag in soup.findAll('img'):

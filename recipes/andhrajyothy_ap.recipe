@@ -51,7 +51,7 @@ class andhra(BasicNewsRecipe):
         self.log('## For your local edition id, modify this recipe to match your edi_id from the cities below\n')
         for edi in edi_data:
             if edi['org_location'] in {'Magazines', 'Navya Daily'}:
-                    continue
+                continue
             self.log(edi['org_location'])
             cities = []
             for edi_loc in edi['editionlocation']:
