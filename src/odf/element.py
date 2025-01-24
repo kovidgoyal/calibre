@@ -67,11 +67,11 @@ def _quoteattr(data, entities={}):
     data = _escape(data, entities)
     if '"' in data:
         if "'" in data:
-            data = '"%s"' % data.replace('"', '&quot;')
+            data = '"{}"'.format(data.replace('"', '&quot;'))
         else:
-            data = "'%s'" % data
+            data = "'{}'".format(data)
     else:
-        data = '"%s"' % data
+        data = '"{}"'.format(data)
     return data
 
 
@@ -275,7 +275,7 @@ class CDATASection(Text, Childless):
             and then go into CDATA mode again. (<![CDATA[)
         '''
         if self.data:
-            f.write('<![CDATA[%s]]>' % self.data.replace(']]>',']]>]]><![CDATA['))
+            f.write('<![CDATA[{}]]>'.format(self.data.replace(']]>',']]>]]><![CDATA[')))
 
 
 class Element(Node):
@@ -383,7 +383,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         '''
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText('The <%s> element does not allow text' % self.tagName)
+            raise IllegalText('The <{}> element does not allow text'.format(self.tagName))
         else:
             if text != '':
                 self.appendChild(Text(text))
@@ -393,7 +393,7 @@ class Element(Node):
             Setting check_grammar=False turns off grammar checking
         '''
         if check_grammar and self.qname not in grammar.allows_text:
-            raise IllegalText('The <%s> element does not allow text' % self.tagName)
+            raise IllegalText('The <{}> element does not allow text'.format(self.tagName))
         else:
             self.appendChild(CDATASection(cdata))
 

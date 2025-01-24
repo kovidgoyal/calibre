@@ -222,7 +222,7 @@ def get_import_data(name, mod, zf, names):
             return module
         raise ValueError(f'Failed to find name: {name!r} in module: {mod!r}')
     else:
-        raise ValueError('Failed to find module: %r' % mod)
+        raise ValueError('Failed to find module: {!r}'.format(mod))
 
 
 def parse_metadata(raw, namelist, zf):
@@ -372,7 +372,7 @@ def fetch_plugin(old_index, entry):
     raw = read(entry.url).decode('utf-8', 'replace')
     url, name = parse_plugin_zip_url(raw)
     if url is None:
-        raise ValueError('Failed to find zip file URL for entry: %s' % repr(entry))
+        raise ValueError('Failed to find zip file URL for entry: {}'.format(repr(entry)))
     plugin = lm_map.get(entry.thread_id, None)
 
     if plugin is not None:
@@ -392,7 +392,7 @@ def fetch_plugin(old_index, entry):
     slm = datetime(*parsedate(info.get('Last-Modified'))[:6])
     plugin = get_plugin_info(raw)
     plugin['last_modified'] = slm.isoformat()
-    plugin['file'] = 'staging_%s.zip' % entry.thread_id
+    plugin['file'] = 'staging_{}.zip'.format(entry.thread_id)
     plugin['size'] = len(raw)
     plugin['original_url'] = url
     update_plugin_from_entry(plugin, entry)
@@ -460,28 +460,28 @@ def plugin_to_index(plugin, count):
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
-        'Version: <b>%s</b>' % escape('.'.join(map(str, plugin['version']))),
-        'Released: <b>%s</b>' % escape(released),
-        'Author: %s' % escape(plugin['author']),
-        'calibre: %s' % escape('.'.join(map(str, plugin['minimum_calibre_version']))),
-        'Platforms: %s' % escape(', '.join(sorted(plugin['supported_platforms']) or ['all'])),
+        'Version: <b>{}</b>'.format(escape('.'.join(map(str, plugin['version'])))),
+        'Released: <b>{}</b>'.format(escape(released)),
+        'Author: {}'.format(escape(plugin['author'])),
+        'calibre: {}'.format(escape('.'.join(map(str, plugin['minimum_calibre_version'])))),
+        'Platforms: {}'.format(escape(', '.join(sorted(plugin['supported_platforms']) or ['all']))),
     ]
     if plugin['uninstall']:
-        details.append('Uninstall: %s' % escape(', '.join(plugin['uninstall'])))
+        details.append('Uninstall: {}'.format(escape(', '.join(plugin['uninstall']))))
     if plugin['donate']:
-        details.append('<a href=%s title="Donate">Donate</a>' % quoteattr(plugin['donate']))
+        details.append('<a href={} title="Donate">Donate</a>'.format(quoteattr(plugin['donate'])))
     block = []
     for li in details:
         if li.startswith('calibre:'):
             block.append('<br>')
-        block.append('<li>%s</li>' % li)
-    block = '<ul>%s</ul>' % ('\n'.join(block))
+        block.append('<li>{}</li>'.format(li))
+    block = '<ul>{}</ul>'.format('\n'.join(block))
     downloads = ('\xa0<span class="download-count">[%d total downloads]</span>' % count) if count else ''
     zipfile = '<div class="end"><a href={} title="Download plugin" download={}>Download plugin \u2193</a>{}</div>'.format(
         quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''
     if desc:
-        desc = '<p>%s</p>' % desc
+        desc = '<p>{}</p>'.format(desc)
     return f'{title}\n{desc}\n{block}\n{zipfile}\n\n'
 
 
@@ -502,25 +502,25 @@ def create_index(index, raw_stats):
 <head><meta charset="utf-8"><title>Index of calibre plugins</title>
 <link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
-body { background-color: #eee; }
-a { text-decoration: none }
-a:hover, h3:hover { color: red }
-a:visited { color: blue }
-ul { list-style-type: none; font-size: smaller }
-li { display: inline }
-li+li:before { content: " - " }
-.end { border-bottom: solid 1pt black; padding-bottom: 0.5ex; margin-bottom: 4ex; }
-h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
-h1 { text-align: center }
-.download-count { color: gray; font-size: smaller }
+body {{ background-color: #eee; }}
+a {{ text-decoration: none }}
+a:hover, h3:hover {{ color: red }}
+a:visited {{ color: blue }}
+ul {{ list-style-type: none; font-size: smaller }}
+li {{ display: inline }}
+li+li:before {{ content: " - " }}
+.end {{ border-bottom: solid 1pt black; padding-bottom: 0.5ex; margin-bottom: 4ex; }}
+h1 img, h3 img {{ vertical-align: middle; margin-right: 0.5em; }}
+h1 {{ text-align: center }}
+.download-count {{ color: gray; font-size: smaller }}
 </style>
 </head>
 <body>
 <h1><img src="//manual.calibre-ebook.com/_static/logo.png">Index of calibre plugins</h1>
 <div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
-%s
+{}
 </body>
-</html>''' % ('\n'.join(plugins))
+</html>'''.format('\n'.join(plugins))
     raw = index.encode('utf-8')
     try:
         with open('index.html', 'rb') as f:
@@ -541,20 +541,20 @@ h1 { text-align: center }
 <head><meta charset="utf-8"><title>Stats for calibre plugins</title>
 <link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
-body { background-color: #eee; }
-h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
-h1 { text-align: center }
+body {{ background-color: #eee; }}
+h1 img, h3 img {{ vertical-align: middle; margin-right: 0.5em; }}
+h1 {{ text-align: center }}
 </style>
 </head>
 <body>
 <h1><img src="//manual.calibre-ebook.com/_static/logo.png">Stats for calibre plugins</h1>
 <table>
 <tr><th>Plugin</th><th>Total downloads</th></tr>
-%s
+{}
 </table>
 </body>
 </html>
-    ''' % ('\n'.join(pstats))
+    '''.format('\n'.join(pstats))
     raw = stats.encode('utf-8')
     try:
         with open('stats.html', 'rb') as f:

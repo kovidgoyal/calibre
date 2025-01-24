@@ -113,7 +113,7 @@ qraw = subprocess.check_output([QMAKE, '-query']).decode('utf-8')
 
 
 def readvar(name):
-    return re.search('^%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
+    return re.search('^{}:(.+)$'.format(name), qraw, flags=re.M).group(1).strip()
 
 
 qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.items()}

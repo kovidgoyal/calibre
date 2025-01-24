@@ -49,7 +49,7 @@ class EPUBHelpBuilder(EpubBuilder):
                 imgname = container.href_to_name(img.get('src'), name)
                 fmt, width, height = identify(container.raw_data(imgname))
                 if width == -1:
-                    raise ValueError('Failed to read size of: %s' % imgname)
+                    raise ValueError('Failed to read size of: {}'.format(imgname))
                 img.set('style', 'width: %dpx; height: %dpx' % (width, height))
 
     def fix_opf(self, container):

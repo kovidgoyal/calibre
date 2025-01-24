@@ -288,14 +288,14 @@ class Install(Develop):
 class Sdist(Command):
 
     description = 'Create a source distribution'
-    DEST = os.path.join('dist', '%s-%s.tar.xz'%(__appname__, __version__))
+    DEST = os.path.join('dist', '{}-{}.tar.xz'.format(__appname__, __version__))
 
     def run(self, opts):
         if not self.e(self.d(self.DEST)):
             os.makedirs(self.d(self.DEST))
         tdir = tempfile.mkdtemp()
         atexit.register(shutil.rmtree, tdir)
-        tdir = self.j(tdir, 'calibre-%s' % __version__)
+        tdir = self.j(tdir, 'calibre-{}'.format(__version__))
         self.info('\tRunning git export...')
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
@@ -336,7 +336,7 @@ class Sdist(Command):
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
         shutil.rmtree(os.path.join(tdir, '.github'))
-        subprocess.check_call(['tar', '--mtime=now', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
+        subprocess.check_call(['tar', '--mtime=now', '-cf', self.a(dest), 'calibre-{}'.format(__version__)], cwd=self.d(tdir))
         self.info('\tCompressing tarfile...')
         if os.path.exists(self.a(self.DEST)):
             os.remove(self.a(self.DEST))
@@ -396,4 +396,4 @@ class Bootstrap(Command):
                 subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
 
     def run(self, opts):
-        self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)
+        self.info('\n\nAll done! You should now be able to run "{} setup.py install" to install calibre'.format(sys.executable))

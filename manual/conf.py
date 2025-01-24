@@ -97,7 +97,7 @@ today_fmt = '%B %d, %Y'
 unused_docs = ['global', 'cli/global']
 
 locale_dirs = ['locale/']
-title = '%s User Manual' % __appname__
+title = '{} User Manual'.format(__appname__)
 needs_localization = language not in {'en', 'eng'}
 if needs_localization:
     import gettext
@@ -253,5 +253,5 @@ latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
     'papersize':'letterpaper',
-    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),
+    'preamble': r'\renewcommand{{\pageautorefname}}{{{}}}'.format(_('page')),
 }

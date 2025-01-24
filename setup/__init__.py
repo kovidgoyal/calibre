@@ -126,7 +126,7 @@ def initialize_constants():
     with open(os.path.join(SRC, 'calibre/constants.py'), 'rb') as f:
         src = f.read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
-    __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
+    __version__ = '{}.{}.{}'.format(nv.group(1), nv.group(2), nv.group(3))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
     with open(os.path.join(SRC, 'calibre/linux.py'), 'rb') as sf:

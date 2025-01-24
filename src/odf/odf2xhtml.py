@@ -161,7 +161,7 @@ class StyleToCSS:
             this should really be implemented as an absolutely position <img>
             with a width and a height
         '''
-        sdict['background-image'] = "url('%s')" % self.fillimages[val]
+        sdict['background-image'] = "url('{}')".format(self.fillimages[val])
 
     def c_fo(self, ruleset, sdict, rule, val):
         ''' XSL formatting attributes '''
@@ -203,7 +203,7 @@ class StyleToCSS:
         if generic is not None:
             self.save_font(fontstyle, fontstyle, generic)
         family, htmlgeneric = self.fontdict.get(fontstyle, (fontstyle, 'serif'))
-        sdict['font-family'] = '%s, %s'  % (family, htmlgeneric)
+        sdict['font-family'] = '{}, {}'.format(family, htmlgeneric)
 
     def c_text_position(self, ruleset, sdict, rule, tp):
         ''' Text position. This is used e.g. to make superscript and subscript
@@ -510,7 +510,7 @@ class ODF2XHTML(handler.ContentHandler):
         if media:
             self.metatags.append(f'<link rel="stylesheet" type="text/css" href="{stylefilename}" media="{media}"/>\n')
         else:
-            self.metatags.append('<link rel="stylesheet" type="text/css" href="%s"/>\n' % (stylefilename))
+            self.metatags.append('<link rel="stylesheet" type="text/css" href="{}"/>\n'.format(stylefilename))
 
     def _resetfootnotes(self):
         # Footnotes and endnotes
@@ -564,7 +564,7 @@ class ODF2XHTML(handler.ContentHandler):
         for key,val in attrs.items():
             a.append(f'''{key}={quoteattr(val)}''')
         if len(a) == 0:
-            self.writeout('<%s>' % tag)
+            self.writeout('<{}>'.format(tag))
         else:
             self.writeout('<{} {}>'.format(tag, ' '.join(a)))
         if block:
@@ -573,7 +573,7 @@ class ODF2XHTML(handler.ContentHandler):
     def closetag(self, tag, block=True):
         ''' Close an open HTML tag '''
         self.htmlstack.pop()
-        self.writeout('</%s>' % tag)
+        self.writeout('</{}>'.format(tag))
         if block:
             self.writeout('\n')
 
@@ -675,14 +675,14 @@ class ODF2XHTML(handler.ContentHandler):
         ''' Set the content language. Identifies the targeted audience
         '''
         self.language = ''.join(self.data)
-        self.metatags.append('<meta http-equiv="content-language" content="%s"/>\n' % escape(self.language))
+        self.metatags.append('<meta http-equiv="content-language" content="{}"/>\n'.format(escape(self.language)))
         self.data = []
 
     def e_dc_creator(self, tag, attrs):
         ''' Set the content creator. Identifies the targeted audience
         '''
         self.creator = ''.join(self.data)
-        self.metatags.append('<meta http-equiv="creator" content="%s"/>\n' % escape(self.creator))
+        self.metatags.append('<meta http-equiv="creator" content="{}"/>\n'.format(escape(self.creator)))
         self.data = []
 
     def s_custom_shape(self, tag, attrs):
@@ -923,7 +923,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                     yield k, v
 
         for css2, names in css_styles.items():
-            self.writeout('%s {\n' % ', '.join(names))
+            self.writeout('{} {{\n'.format(', '.join(names)))
             for style, val in filter_margins(css2):
                 self.writeout(f'\t{style}: {val};\n')
             self.writeout('}\n')
@@ -970,7 +970,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.emptytag('meta', {'http-equiv':'Content-Type', 'content':'text/html;charset=UTF-8'})
         for metaline in self.metatags:
             self.writeout(metaline)
-        self.writeout('<title>%s</title>\n' % escape(self.title))
+        self.writeout('<title>{}</title>\n'.format(escape(self.title)))
 
     def e_office_document_content(self, tag, attrs):
         ''' Last tag '''
@@ -1172,7 +1172,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         c = attrs.get((TABLENS,'style-name'), None)
         if c and self.generate_css:
             c = c.replace('.','_')
-            self.opentag('table',{'class': 'T-%s' % c})
+            self.opentag('table',{'class': 'T-{}'.format(c)})
         else:
             self.opentag('table')
         self.purgedata()
@@ -1198,7 +1198,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
         c = attrs.get((TABLENS,'style-name'))
         if c:
-            htmlattrs['class'] = 'TD-%s' % c.replace('.','_')
+            htmlattrs['class'] = 'TD-{}'.format(c.replace('.','_'))
         self.opentag('td', htmlattrs)
         self.purgedata()
 
@@ -1214,7 +1214,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         repeated = int(attrs.get((TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
         if c:
-            htmlattrs['class'] = 'TC-%s' % c.replace('.','_')
+            htmlattrs['class'] = 'TC-{}'.format(c.replace('.','_'))
         for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
@@ -1225,7 +1225,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         c = attrs.get((TABLENS,'style-name'), None)
         htmlattrs = {}
         if c:
-            htmlattrs['class'] = 'TR-%s' % c.replace('.','_')
+            htmlattrs['class'] = 'TR-{}'.format(c.replace('.','_'))
         self.opentag('tr', htmlattrs)
         self.purgedata()
 
@@ -1280,9 +1280,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.headinglevels[x] = 0
         special = special_styles.get('P-'+name)
         if special or not self.generate_css:
-            self.opentag('h%s' % level)
+            self.opentag('h{}'.format(level))
         else:
-            self.opentag('h%s' % level, {'class':'P-%s' % name})
+            self.opentag('h{}'.format(level), {'class':'P-{}'.format(name)})
         self.purgedata()
 
     def e_text_h(self, tag, attrs):
@@ -1309,7 +1309,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('a', False)
         self.opentag('a', {'id': anchor2})
         self.closetag('a', False)
-        self.closetag('h%s' % level)
+        self.closetag('h{}'.format(level))
         self.purgedata()
 
     def s_text_line_break(self, tag, attrs):
@@ -1355,7 +1355,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             attrs = {'start': unicode_type(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
-        self.opentag('%s' % tag_name, attrs)
+        self.opentag('{}'.format(tag_name), attrs)
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
@@ -1473,9 +1473,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.notedict[self.currentnote]['citation'] = mark
         self.opentag('sup')
         self.opentag('a', {
-            'href': '#footnote-%s' % self.currentnote,
+            'href': '#footnote-{}'.format(self.currentnote),
             'class': 'citation',
-            'id':'citation-%s' % self.currentnote
+            'id':'citation-{}'.format(self.currentnote)
         })
 #        self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
@@ -1496,7 +1496,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             if specialtag is None:
                 specialtag = 'p'
                 if self.generate_css:
-                    htmlattrs['class'] = 'P-%s' % c
+                    htmlattrs['class'] = 'P-{}'.format(c)
         self.opentag(specialtag, htmlattrs)
         self.purgedata()
 
@@ -1548,7 +1548,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             if special is None:
                 special = 'span'
                 if self.generate_css:
-                    htmlattrs['class'] = 'S-%s' % c
+                    htmlattrs['class'] = 'S-{}'.format(c)
 
         self.opentag(special, htmlattrs)
         self.purgedata()

@@ -68,7 +68,7 @@ class Stage2(Command):
             installer = self.j(self.d(self.SRC), installer)
             if not os.path.exists(installer) or os.path.getsize(installer) < 10000:
                 raise SystemExit(
-                    'The installer %s does not exist' % os.path.basename(installer)
+                    'The installer {} does not exist'.format(os.path.basename(installer))
                 )
 
 
@@ -129,8 +129,7 @@ class PublishBetas(Command):
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
         subprocess.check_call((
-            'rsync --partial -rh --info=progress2 --delete-after %s/ download.calibre-ebook.com:/srv/download/betas/'
-            % dist
+            'rsync --partial -rh --info=progress2 --delete-after {}/ download.calibre-ebook.com:/srv/download/betas/'.format(dist)
         ).split())
 
 
@@ -203,7 +202,7 @@ class Manual(Command):
             jobs.append(create_job([
                 sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'),
                 language, self.j(tdir, language)
-            ], '\n\n**************** Building translations for: %s' % language))
+            ], '\n\n**************** Building translations for: {}'.format(language)))
         self.info('Building manual for %d languages' % len(jobs))
         subprocess.check_call(jobs[0].cmd)
         if not parallel_build(jobs[1:], self.info):
@@ -299,7 +298,7 @@ class ManPages(Command):
         for l in languages:
             jobs.append(create_job(
                 [sys.executable, self.j(base, 'build.py'), '--man-pages', l, dest],
-                '\n\n**************** Building translations for: %s' % l)
+                '\n\n**************** Building translations for: {}'.format(l))
             )
         self.info(f'\tCreating man pages in {dest} for {len(jobs)} languages...')
         subprocess.check_call(jobs[0].cmd)

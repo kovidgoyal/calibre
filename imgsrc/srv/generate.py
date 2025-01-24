@@ -26,7 +26,7 @@ def clone_node(node, parent):
 def merge():
     base = os.path.dirname(os.path.abspath(__file__))
     ans = etree.fromstring(
-        '<svg xmlns="%s" xmlns:xlink="%s"/>' % (SVG_NS, XLINK_NS),
+        '<svg xmlns="{}" xmlns:xlink="{}"/>'.format(SVG_NS, XLINK_NS),
         parser=etree.XMLParser(
             recover=True, no_network=True, resolve_entities=False
         )
@@ -42,7 +42,7 @@ def merge():
                 recover=True, no_network=True, resolve_entities=False
             )
         )
-        symbol = ans.makeelement('{%s}symbol' % SVG_NS)
+        symbol = ans.makeelement('{{{}}}symbol'.format(SVG_NS))
         symbol.set('viewBox', svg.get('viewBox'))
         symbol.set('id', 'icon-' + f.rpartition('.')[0])
         for child in svg.iterchildren('*'):

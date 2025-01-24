@@ -388,7 +388,7 @@ class OpenDocument:
             document.folder = '%s/Object %d' % (self.folder, len(self.childobjects))
         else:
             document.folder = objectname
-        return '.%s' % document.folder
+        return '.{}'.format(document.folder)
 
     def _savePictures(self, object, folder):
         for arcname, picturerec in object.Pictures.items():
@@ -492,23 +492,23 @@ class OpenDocument:
         else:
             self.manifest.addElement(manifest.FileEntry(fullpath=folder, mediatype=object.mimetype))
         # Write styles
-        self.manifest.addElement(manifest.FileEntry(fullpath='%sstyles.xml' % folder, mediatype='text/xml'))
-        zi = zipfile.ZipInfo('%sstyles.xml' % folder, self._now)
+        self.manifest.addElement(manifest.FileEntry(fullpath='{}styles.xml'.format(folder), mediatype='text/xml'))
+        zi = zipfile.ZipInfo('{}styles.xml'.format(folder), self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, object.stylesxml())
 
         # Write content
-        self.manifest.addElement(manifest.FileEntry(fullpath='%scontent.xml' % folder, mediatype='text/xml'))
-        zi = zipfile.ZipInfo('%scontent.xml' % folder, self._now)
+        self.manifest.addElement(manifest.FileEntry(fullpath='{}content.xml'.format(folder), mediatype='text/xml'))
+        zi = zipfile.ZipInfo('{}content.xml'.format(folder), self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, object.contentxml())
 
         # Write settings
         if object.settings.hasChildNodes():
-            self.manifest.addElement(manifest.FileEntry(fullpath='%ssettings.xml' % folder, mediatype='text/xml'))
-            zi = zipfile.ZipInfo('%ssettings.xml' % folder, self._now)
+            self.manifest.addElement(manifest.FileEntry(fullpath='{}settings.xml'.format(folder), mediatype='text/xml'))
+            zi = zipfile.ZipInfo('{}settings.xml'.format(folder), self._now)
             zi.compress_type = zipfile.ZIP_DEFLATED
             zi.external_attr = UNIXPERMS
             self._z.writestr(zi, object.settingsxml())

@@ -116,8 +116,7 @@ class SourceForge(Base):  # {{{
                 try:
                     check_call([
                         'rsync', '-h', '-zz', '--progress', '-e', 'ssh -x', x,
-                        '%s,%s@frs.sourceforge.net:%s' %
-                        (self.username, self.project, self.rdir + '/')
+                        '{},{}@frs.sourceforge.net:{}'.format(self.username, self.project, self.rdir + '/')
                     ])
                 except KeyboardInterrupt:
                     raise SystemExit(1)
@@ -160,15 +159,14 @@ class GitHub(Base):  # {{{
             fname = os.path.basename(path)
             if fname in existing_assets:
                 self.info(
-                    'Deleting %s from GitHub with id: %s' %
-                    (fname, existing_assets[fname])
+                    'Deleting {} from GitHub with id: {}'.format(fname, existing_assets[fname])
                 )
                 r = self.requests.delete(url.format(existing_assets[fname]))
                 if r.status_code != 204:
-                    self.fail(r, 'Failed to delete %s from GitHub' % fname)
+                    self.fail(r, 'Failed to delete {} from GitHub'.format(fname))
             r = self.do_upload(upload_url, path, desc, fname)
             if r.status_code != 201:
-                self.fail(r, 'Failed to upload file: %s' % fname)
+                self.fail(r, 'Failed to upload file: {}'.format(fname))
             try:
                 r = self.requests.patch(
                     url.format(r.json()['id']),
@@ -187,25 +185,22 @@ class GitHub(Base):  # {{{
                     })
                 )
             if r.status_code != 200:
-                self.fail(r, 'Failed to set label for %s' % fname)
+                self.fail(r, 'Failed to set label for {}'.format(fname))
 
     def clean_older_releases(self, releases):
         for release in releases:
             if release.get('assets',
                            None) and release['tag_name'] != self.current_tag_name:
                 self.info(
-                    '\nDeleting old released installers from: %s' %
-                    release['tag_name']
+                    '\nDeleting old released installers from: {}'.format(release['tag_name'])
                 )
                 for asset in release['assets']:
                     r = self.requests.delete(
-                        self.API + 'repos/%s/%s/releases/assets/%s' %
-                        (self.username, self.reponame, asset['id'])
+                        self.API + 'repos/{}/{}/releases/assets/{}'.format(self.username, self.reponame, asset['id'])
                     )
                     if r.status_code != 204:
                         self.fail(
-                            r, 'Failed to delete obsolete asset: %s for release: %s'
-                            % (asset['name'], release['tag_name'])
+                            r, 'Failed to delete obsolete asset: {} for release: {}'.format(asset['name'], release['tag_name'])
                         )
 
     def do_upload(self, url, path, desc, fname):
@@ -223,7 +218,7 @@ class GitHub(Base):  # {{{
             )
 
     def fail(self, r, msg):
-        print(msg, ' Status Code: %s' % r.status_code, file=sys.stderr)
+        print(msg, ' Status Code: {}'.format(r.status_code), file=sys.stderr)
         print('JSON from response:', file=sys.stderr)
         pprint(dict(r.json()), stream=sys.stderr)
         raise SystemExit(1)
@@ -260,14 +255,14 @@ class GitHub(Base):  # {{{
             data=json.dumps({
                 'tag_name': self.current_tag_name,
                 'target_commitish': 'master',
-                'name': 'version %s' % self.version,
-                'body': 'Release version %s' % self.version,
+                'name': 'version {}'.format(self.version),
+                'body': 'Release version {}'.format(self.version),
                 'draft': False,
                 'prerelease': False
             })
         )
         if r.status_code != 201:
-            self.fail(r, 'Failed to create release for version: %s' % self.version)
+            self.fail(r, 'Failed to create release for version: {}'.format(self.version))
         return r.json()
 
 
@@ -325,12 +320,12 @@ def generate_index():  # {{{
         ]
         body = '<ul class="release-list">{}</ul>'.format(' '.join(body))
         index = template.format(
-            title='Previous calibre releases (%s.x)' % sname,
+            title='Previous calibre releases ({}.x)'.format(sname),
             style=style,
             msg='Choose a calibre release',
             body=body
         )
-        with open('%s.html' % sname, 'wb') as f:
+        with open('{}.html'.format(sname), 'wb') as f:
             f.write(index.encode('utf-8'))
 
         for r in releases:
@@ -390,7 +385,7 @@ def generate_index():  # {{{
 
                 body = '<dl>{}</dl>'.format(''.join(body))
                 index = template.format(
-                    title='calibre release (%s)' % rname,
+                    title='calibre release ({})'.format(rname),
                     style=style,
                     msg='',
                     body=body

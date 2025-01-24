@@ -83,7 +83,7 @@ def lazy_load(name):
     try:
         return getattr(build_environment, name)
     except AttributeError:
-        raise ImportError('The setup.build_environment module has no symbol named: %s' % name)
+        raise ImportError('The setup.build_environment module has no symbol named: {}'.format(name))
 
 
 def expand_file_list(items, is_paths=True, cross_compile_for='native'):
@@ -617,8 +617,8 @@ class Build(Command):
         try:
             subprocess.check_call(*args, **kwargs)
         except:
-            cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
-            print('Error while executing: %s\n' % (cmdline))
+            cmdline = ' '.join(['"{}"'.format(arg) if ' ' in arg else arg for arg in args[0]])
+            print('Error while executing: {}\n'.format(cmdline))
             raise
 
     def build_headless(self):
