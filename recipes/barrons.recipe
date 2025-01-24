@@ -127,7 +127,7 @@ class barrons(BasicNewsRecipe):
                 desc += ' | ' + self.tag_to_string(summ)
             self.log('\t', title, ' ', url, '\n\t', desc)
             ans[section].append({'title': title, 'url': url, 'description': desc})
-        return [(section, articles) for section, articles in ans.items()]
+        return list(ans.items())
 
     def print_version(self, url):
         return url.split('?')[0].replace('/articles/', '/amp/articles/')

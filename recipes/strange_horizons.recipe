@@ -65,4 +65,4 @@ class StrangeHorizons(BasicNewsRecipe):
 
             self.log(sec, '\n\t', title, '\n\t', desc, '\n\t\t', url)
             feeds_dict[sec].append({'title': title, 'url': url, 'description': desc})
-        return [(section, articles) for section, articles in feeds_dict.items()]
+        return list(feeds_dict.items())

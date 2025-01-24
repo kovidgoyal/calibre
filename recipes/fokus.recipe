@@ -276,7 +276,7 @@ class Fokus(BasicNewsRecipe):
         section_to_articles = self.assign_articles_to_sections(sections, articles)
 
         # Convert to the expected `list[tuple[str, dict[str, str, str, str]]]` format.
-        feeds = [(section_url, article_dicts) for section_url, article_dicts in section_to_articles.items()]
+        feeds = list(section_to_articles.items())
         num_articles = sum(len(article_dicts) for article_dicts in section_to_articles.values())
         self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
 

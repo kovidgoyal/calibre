@@ -134,6 +134,6 @@ class TheHindu(BasicNewsRecipe):
                         desc = 'Page no.' + item['pageno'] + ' | ' + item['teaser_text'] or ''
                         self.log('            ', title, '\n\t', url)
                         feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
-                return [(section, articles) for section, articles in feeds_dict.items()]
+                return list(feeds_dict.items())
             else:
                 return []

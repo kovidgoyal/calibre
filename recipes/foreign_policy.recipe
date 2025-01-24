@@ -86,7 +86,7 @@ class ForeignPolicy(BasicNewsRecipe):
                     desc += ' | ' + self.tag_to_string(dek)
                 self.log('\t', title, url, '\n\t', desc)
                 feeds_dict[current_section].append({'title': title, 'url': url, 'description': desc})
-        return [(section, articles) for section, articles in feeds_dict.items()]
+        return list(feeds_dict.items())
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src':True}):

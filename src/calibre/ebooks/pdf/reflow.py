@@ -644,8 +644,7 @@ class Region:
     def collect_stats(self):
         for column in self.columns:
             column.collect_stats()
-        self.average_line_separation = sum([x.average_line_separation for x in
-            self.columns])/float(len(self.columns))
+        self.average_line_separation = sum(x.average_line_separation for x in self.columns)/float(len(self.columns))
 
     def __iter__(self):
         yield from self.columns
@@ -1263,8 +1262,7 @@ class Page:
                         absorb_into = prev_region
                         if self.regions[next_region].line_count >= \
                                 self.regions[prev_region].line_count:
-                            avg_column_count = sum([len(r.columns) for r in
-                                regions])/float(len(regions))
+                            avg_column_count = sum(len(r.columns) for r in regions)/float(len(regions))
                             if self.regions[next_region].line_count > \
                                     self.regions[prev_region].line_count \
                                or abs(avg_column_count -

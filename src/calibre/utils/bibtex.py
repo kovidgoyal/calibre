@@ -2603,7 +2603,7 @@ class BibTeX:
         '''
         Format authors for Bibtex compliance (get a list as input)
         '''
-        return self.utf8ToBibtex(' and '.join(list(item)))
+        return self.utf8ToBibtex(' and '.join(item))
 
     def stripUnmatchedSyntax(self, text, open_character, close_character):
         '''

@@ -254,7 +254,7 @@ def main(args):
     with open(iff, 'rb') as f:
         orig = f.read()
 
-    chars = list(chars.split(','))
+    chars = chars.split(',')
     individual, ranges = set(), set()
 
     def not_single(c):

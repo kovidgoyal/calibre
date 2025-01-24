@@ -887,7 +887,7 @@ def get_field_list(db, use_defaults=False, pref_data_override=None):
         for k in fields:
             if k not in result:
                 result[k] = True
-        return [(k,v) for k,v in result.items()]
+        return list(result.items())
 
 
 def get_custom_columns_to_display_in_editor(db):

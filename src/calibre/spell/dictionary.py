@@ -37,11 +37,10 @@ class UserDictionary:
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.is_active = kwargs['is_active']
-        self.words = {(w, langcode) for w, langcode in kwargs['words']}
+        self.words = set(kwargs['words'])
 
     def serialize(self):
-        return {'name':self.name, 'is_active': self.is_active, 'words':[
-            (w, l) for w, l in self.words]}
+        return {'name':self.name, 'is_active': self.is_active, 'words': list(self.words)}
 
 
 _builtins = _custom = None

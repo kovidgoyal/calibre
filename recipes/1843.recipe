@@ -262,7 +262,7 @@ class Economist(BasicNewsRecipe):
                     url = 'file:///' + pt.name
                     feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
                     self.log('\t', title, '\n\t\t', desc)
-            return [(section, articles) for section, articles in feeds_dict.items()]
+            return list(feeds_dict.items())
 
         def populate_article_metadata(self, article, soup, first):
             article.url = soup.find('h1')['title']

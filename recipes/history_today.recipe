@@ -85,7 +85,7 @@ class HistoryToday(BasicNewsRecipe):
                         feeds[section_title] = []
                     feeds[section_title] += articles
 
-        ans = [(key, val) for key, val in feeds.items()]
+        ans = list(feeds.items())
         return ans
 
     def cleanup(self):

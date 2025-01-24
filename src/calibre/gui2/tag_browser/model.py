@@ -636,7 +636,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         key, (category_icon_map['user:'] if key.startswith('@') else category_icon_map['custom:'])))
 
             if key.startswith('@'):
-                path_parts = list(key.split('.'))
+                path_parts = key.split('.')
                 path = ''
                 last_category_node = self.root_item
                 tree_root = self.user_category_node_tree

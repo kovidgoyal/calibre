@@ -106,7 +106,7 @@ class EbookIterator(BookmarksMixin):
 
     def search(self, text, index, backwards=False):
         from calibre.ebooks.oeb.polish.parsing import parse
-        pmap = [(i, path) for i, path in enumerate(self.spine)]
+        pmap = list(enumerate(self.spine))
         if backwards:
             pmap.reverse()
         q = text.lower()
