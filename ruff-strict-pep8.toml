@@ -29,7 +29,7 @@ ignore = [
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',
-    'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE',
+    'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501',
     'RUF',  # nota: RUF can flag many unsolicited errors
     # preview rules
     'RUF051', 'RUF056',  # useless dict operation
@@ -43,19 +43,24 @@ select = [
 ]
 unfixable = ['PIE794']
 
+
 [lint.per-file-ignores]
 "recipes/*" = ['UP']
 "manual/plugin_examples/*" = ['UP']
 "setup/commands.py" = ['RUF022']
 "src/calibre/*" = ['UP031']
+"src/calibre/customize/__init__.py" = ['RET501']
+"src/calibre/devices/interface.py" = ['RET501']
 "src/calibre/devices/kobo/driver.py" = ['E116']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
 "src/calibre/ebooks/metadata/sources/*" = ['UP']
+"src/calibre/ebooks/metadata/sources/base.py" = ['RET501']
 "src/calibre/ebooks/pdf/reflow.py" = ['E114']
 "src/calibre/gui2/store/stores/*" = ['UP']
 "src/calibre/gui2/tts/manager.py" = ['UP037']
 "src/calibre/utils/copy_files.py" = ['UP037']
 "src/calibre/utils/smartypants.py" = ['RUF039', 'RUF055']
+"src/calibre/web/feeds/news.py" = ['RET501']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 

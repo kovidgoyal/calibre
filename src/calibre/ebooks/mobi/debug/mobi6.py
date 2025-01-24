@@ -405,7 +405,7 @@ class IndexRecord:  # {{{
 
     def get_parent(self, index):
         if index.depth < 1:
-            return None
+            return
         parent_depth = index.depth - 1
         for p in self.indices:
             if p.depth != parent_depth:
