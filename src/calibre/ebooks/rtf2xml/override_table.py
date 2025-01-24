@@ -180,8 +180,7 @@ class OverrideTable:
             the attributes and values of the tag from the dictionary.
         '''
         self.__override_table_final = 'mi<mk<over_beg_\n'
-        self.__override_table_final += 'mi<tg<open______<override-table\n' + \
-        'mi<mk<overbeg__\n' + self.__override_table_final
+        self.__override_table_final += 'mi<tg<open______<override-table\n' + 'mi<mk<overbeg__\n' + self.__override_table_final
         for the_dict in self.__override_list:
             self.__override_table_final += 'mi<tg<empty-att_<override-list'
             the_keys = the_dict.keys()
@@ -190,8 +189,7 @@ class OverrideTable:
                     f'<{the_key}>{the_dict[the_key]}'
             self.__override_table_final += '\n'
         self.__override_table_final += '\n'
-        self.__override_table_final += \
-        'mi<mk<overri-end\n' + 'mi<tg<close_____<override-table\n'
+        self.__override_table_final += 'mi<mk<overri-end\n' + 'mi<tg<close_____<override-table\n'
         self.__override_table_final += 'mi<mk<overribend_\n'
 
     def parse_override_table(self, line):

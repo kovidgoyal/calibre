@@ -276,9 +276,9 @@ class EconomistNews(BasicNewsRecipe):
         load_article_from_json(raw, root)
 
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
-                        + 'This article is supposed to be read in a browser' \
-                            + '</em></article></body></html>'
+            return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
 
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))

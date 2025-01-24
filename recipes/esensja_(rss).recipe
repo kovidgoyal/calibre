@@ -51,9 +51,9 @@ class EsensjaRSS(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX)
         cover = soup.find(id='panel_1')
-        self.cover_url = self.INDEX + \
-            cover.find('a')['href'].replace(
-                'index.html', '') + 'img/ilustr/cover_b.jpg'
+        self.cover_url = (self.INDEX
+            + cover.find('a')['href'].replace('index.html', '')
+            + 'img/ilustr/cover_b.jpg')
         return getattr(self, 'cover_url', self.cover_url)
 
     def append_page(self, soup, appendtag):

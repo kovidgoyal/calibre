@@ -169,12 +169,9 @@ class econ_search(BasicNewsRecipe):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root_ = parse(raw)
         if '/interactive/' in url:
-            return (
-                '<html><body><article><h1>'
-                + root_.xpath('//h1')[0].text + '</h1><em>'
-                + 'This article is supposed to be read in a browser'
-                + '</em></article></body></html>'
-            )
+            return ('<html><body><article><h1>' + root_.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
 
         script = root_.xpath('//script[@id="__NEXT_DATA__"]')
 

@@ -281,12 +281,12 @@ def main():
         elif command == 'info':
             info(dev)
         elif command == 'cp':
-            usage='usage: %prog cp [options] source destination\nCopy files to/from the device\n\n'+\
-            'One of source or destination must be a path on the device. \n\nDevice paths have the form\n'+\
-            'dev:mountpoint/my/path\n'+\
-            'where mountpoint is one of / or carda: or cardb:/\n\n'+\
-            'source must point to a file for which you have read permissions\n'+\
-            'destination must point to a file or folder for which you have write permissions'
+            usage=('usage: %prog cp [options] source destination\nCopy files to/from the device\n\n'
+                   'One of source or destination must be a path on the device. \n\nDevice paths have the form\n'
+                   'dev:mountpoint/my/path\n'
+                   'where mountpoint is one of / or carda: or cardb:/\n\n'
+                   'source must point to a file for which you have read permissions\n'
+                   'destination must point to a file or folder for which you have write permissions')
             parser = OptionParser(usage=usage)
             parser.add_option('-f', '--force', dest='force', action='store_true', default=False,
                               help='Overwrite the destination file if it exists already.')

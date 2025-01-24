@@ -702,8 +702,7 @@ class Metadata:
                 res = cmeta['is_multiple']['list_to_ui'].join(res)
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
-                    res = res + \
-                        ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                    res = res + ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':

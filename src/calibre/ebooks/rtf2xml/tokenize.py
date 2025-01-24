@@ -174,8 +174,8 @@ class Tokenize:
         self.__cwdigit_exp = re.compile(r'(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)')
 
     def tokenize(self):
-        '''Main class for handling other methods. Reads the file \
-        , uses method self.sub_reg to make basic substitutions,\
+        '''Main class for handling other methods. Reads the file,
+        uses method self.sub_reg to make basic substitutions,
         and process tokens by itself'''
         # read
         with open_for_read(self.__file) as read_obj:

@@ -133,10 +133,10 @@ class ControlError(ProtocolError):
 
     def __str__(self):
         if self.query and self.response:
-            return 'Got unexpected response:\n' + \
-           'query:\n'+str(self.query.query)+'\n'+\
-           'expected:\n'+str(self.query.response)+'\n' +\
-           'actual:\n'+str(self.response)
+            return ('Got unexpected response:\n'
+                    'query:\n'+str(self.query.query)+'\n'
+                    'expected:\n'+str(self.query.response)+'\n'
+                    'actual:\n'+str(self.response))
         if self.desc:
             return self.desc
         return 'Unknown control error occurred'

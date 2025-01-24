@@ -41,21 +41,20 @@ class brewiarz(BasicNewsRecipe):
             url_date_weekday = url_date.strftime('%A')
             url_date_weekday_pl = weekday_dict[url_date_weekday]
 
-            url = 'http://brewiarz.pl/' + url_date_month_roman + '_' + \
-                url_date_year + '/' + url_date_day + url_date_month + '/index.php3'
+            url = ('http://brewiarz.pl/' + url_date_month_roman + '_' +
+                   url_date_year + '/' + url_date_day + url_date_month + '/index.php3')
             articles = self.parse_pages(url)
             if articles:
-                title = url_date_weekday_pl + ' ' + url_date_day + \
-                    '.' + url_date_month + '.' + url_date_year
+                title = (url_date_weekday_pl + ' ' + url_date_day +
+                         '.' + url_date_month + '.' + url_date_year)
                 feeds.append((title, articles))
             else:
                 sectors = self.get_sectors(url)
                 for subpage in sectors:
-                    title = url_date_weekday_pl + ' ' + url_date_day + '.' + \
-                        url_date_month + '.' + url_date_year + ' - ' + subpage.string
-                    url = 'http://brewiarz.pl/' + url_date_month_roman + '_' + url_date_year + \
-                        '/' + url_date_day + url_date_month + \
-                        '/' + subpage['href']
+                    title = (url_date_weekday_pl + ' ' + url_date_day + '.' +
+                             url_date_month + '.' + url_date_year + ' - ' + subpage.string)
+                    url = ('http://brewiarz.pl/' + url_date_month_roman + '_' + url_date_year +
+                           '/' + url_date_day + url_date_month + '/' + subpage['href'])
                     print(url)
                     articles = self.parse_pages(url)
                     if articles:

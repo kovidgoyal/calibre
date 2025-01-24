@@ -328,8 +328,7 @@ Examples
             'mi<tg<close_____<field\n'
             ) % (self.__marker, instruction, inner_field_string)
         if sec_in_field:
-            inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + \
-            'mi<mk<sec-fd-end\n'
+            inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + 'mi<mk<sec-fd-end\n'
         if par_in_field:
             inner_field_string = 'mi<mk<par-in-fld\n' + inner_field_string
         if len(self.__field_string) == 0:

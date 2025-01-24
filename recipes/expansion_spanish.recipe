@@ -108,8 +108,7 @@ class expansion_spanish(BasicNewsRecipe):
         year = str(st.tm_year)
         month = '%.2d' % st.tm_mon
         day = '%.2d' % st.tm_mday
-        cover = 'http://img5.kiosko.net/' + year + '/' + \
-            month + '/' + day + '/es/expansion.750.jpg'
+        cover = 'http://img5.kiosko.net/' + '/'.join([year, month, day]) + '/es/expansion.750.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)

@@ -556,11 +556,11 @@ class CatalogBuilder:
                 if author[0] == current_author[0]:
                     if self.opts.fmt == 'mobi':
                         # Exit if building MOBI
-                        error_msg = _('<p>Inconsistent author sort values for author<br/>' +
-                                      f"'{author[0]}':</p>" +
-                                      f'<p><center><b>{author[1]}</b> != <b>{current_author[1]}</b></center></p>' +
-                                      '<p>Unable to build MOBI catalog.<br/>' +
-                                      f"Select all books by '{author[0]}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>")  # noqa: E501
+                        error_msg = _("<p>Inconsistent author sort values for author<br/>'{0}':</p>"
+                                      '<p><center><b>{1}</b> != <b>{2}</b></center></p>'
+                                      '<p>Unable to build MOBI catalog.<br/>'
+                                      "Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.<p>"
+                                      ).format(author[0], author[1], current_author[1])
 
                         self.opts.log.warn('\n*** Metadata error ***')
                         self.opts.log.warn(error_msg)

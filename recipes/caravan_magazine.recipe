@@ -213,6 +213,6 @@ class CaravanMagazine(BasicNewsRecipe):
             for x in art_cont['premiumContent']:
                 premium_cont += '\n' + ''.join(parse_body(x))
 
-        return '<html><body><div>' \
-                    + cat + title + desc + auth + lede + free_cont + premium_cont + \
-                        '</div></body></html>'
+        return ('<html><body><div>'
+                + cat + title + desc + auth + lede + free_cont + premium_cont +
+                '</div></body></html>')

@@ -85,8 +85,7 @@ class ElMundo(BasicNewsRecipe):
         year = str(st.tm_year)
         month = '%.2d' % st.tm_mon
         day = '%.2d' % st.tm_mday
-        cover = 'http://img.kiosko.net/' + year + '/' + \
-            month + '/' + day + '/es/elmundo.750.jpg'
+        cover = 'http://img.kiosko.net/' + '/'.join([year, month, day]) + '/es/elmundo.750.jpg'
         try:
             self.browser.open(cover)
         except:

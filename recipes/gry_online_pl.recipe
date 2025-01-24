@@ -33,8 +33,7 @@ class GryOnlinePl(BasicNewsRecipe):
             url_part = soup.find('link', attrs={'rel': 'canonical'})['href']
             url_part = url_part[25:].rpartition('?')[0]
             for nexturl in nexturls[1:-1]:
-                finalurl = 'http://www.gry-online.pl/' + \
-                    url_part + nexturl['href']
+                finalurl = 'http://www.gry-online.pl/' + url_part + nexturl['href']
                 for i in range(10):
                     try:
                         soup2 = self.index_to_soup(finalurl)
@@ -69,8 +68,7 @@ class GryOnlinePl(BasicNewsRecipe):
                         break
                     else:
                         nexturl = tag.a
-                    finalurl = 'http://www.gry-online.pl/' + \
-                        url_part + nexturl['href']
+                    finalurl = 'http://www.gry-online.pl/' + url_part + nexturl['href']
                     for i in range(10):
                         try:
                             soup2 = self.index_to_soup(finalurl)

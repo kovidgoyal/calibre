@@ -53,8 +53,7 @@ class Esensja(BasicNewsRecipe):
         month = a['href'].split('/')[1]
         self.HREF = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/iso/'
         soup = self.index_to_soup(self.HREF + '01.html')
-        self.cover_url = 'http://www.esensja.pl/magazyn/' + \
-            year + '/' + month + '/img/ilustr/cover_b.jpg'
+        self.cover_url = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/img/ilustr/cover_b.jpg'
         feeds = []
         chapter = ''
         subchapter = ''

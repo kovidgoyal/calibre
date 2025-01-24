@@ -53,9 +53,7 @@ class field:
 
     def __repr__(self):
         typ = {DWORD: 'unsigned int', 'QWORD': 'unsigned long long', BYTE: 'unsigned char', WORD: 'unsigned short'}.get(self._fmt, '')
-        return 'An ' + typ + ' stored in ' + \
-        str(struct.calcsize(self._fmt)) + \
-        ' bytes starting at byte ' + str(self._start)
+        return 'An ' + typ + ' stored in ' + str(struct.calcsize(self._fmt)) + ' bytes starting at byte ' + str(self._start)
 
 
 class versioned_field(field):
@@ -110,8 +108,8 @@ class fixed_stringfield:
         obj.pack(val, start=self._start, fmt='<'+str(len(val))+'s')
 
     def __repr__(self):
-        return 'A string of length ' + str(self._length) + \
-                ' starting at byte ' + str(self._start)
+        return ('A string of length ' + str(self._length) +
+                ' starting at byte ' + str(self._start))
 
 
 class xml_attr_field:

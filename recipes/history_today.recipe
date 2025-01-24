@@ -70,15 +70,12 @@ class HistoryToday(BasicNewsRecipe):
                 if len(subarticle) < 2:
                     continue
                 title = self.tag_to_string(subarticle[0])
-                originalurl = 'https://www.historytoday.com' + \
-                    subarticle[0].span.a['href'].strip()
+                originalurl = 'https://www.historytoday.com' + subarticle[0].span.a['href'].strip()
                 originalpage = self.index_to_soup(originalurl)
-                printurl = originalpage.find(
-                    'div', attrs={'id': 'ht-tools'}).a['href'].strip()
+                printurl = originalpage.find('div', attrs={'id': 'ht-tools'}).a['href'].strip()
                 url = 'https://www.historytoday.com' + printurl
                 desc = self.tag_to_string(subarticle[1])
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
+                articles.append({'title': title, 'url': url,'description': desc, 'date': ''})
 
                 if articles:
                     if section_title not in feeds:

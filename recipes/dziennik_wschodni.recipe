@@ -52,16 +52,14 @@ class DziennikWschodni(BasicNewsRecipe):
             self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
         nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
         soup = self.index_to_soup(nexturl)
-        self.cover_url = self.INDEX + \
-            soup.find(id='cover').find(name='img')['src']
+        self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
         return getattr(self, 'cover_url', self.cover_url)
 
     def append_page(self, soup, appendtag):
         tag = soup.find('span', attrs={'class': 'photoNavigationPages'})
         if tag:
             number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
-            baseurl = self.INDEX + \
-                soup.find(attrs={'class': 'photoNavigationNext'})['href'][:-1]
+            baseurl = self.INDEX + soup.find(attrs={'class': 'photoNavigationNext'})['href'][:-1]
 
             for r in appendtag.findAll(attrs={'class': 'photoNavigation'}):
                 r.extract()

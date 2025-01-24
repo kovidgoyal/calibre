@@ -63,8 +63,8 @@ class toiprint(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        cover = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' \
-            + date0 + '/Page/' + date_ + '_001_' + le + '.jpg'
+        cover = ('https://asset.harnscloud.com/PublicationData/TOI/'
+                 + le + '/' + date0 + '/Page/' + date_ + '_001_' + le + '.jpg')
         self.log('cover_url ', cover)
         return cover
 
@@ -135,17 +135,18 @@ class toiprint(BasicNewsRecipe):
                 body += '<p class="auth"><i>' + x['ZoneText'] + '</i></p>'
             elif x['TagName'] == 'Photographs':
                 pag = x['ZoneID'].split('_')[-4]
-                body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
-                     + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
+                body += '<div><img src="{}"></div>'.format(
+                    '/'.join([img_index, 'Photographs', pag, x['ZoneID']]) + '.jpg&bucket=andre-toi-out&q=50'
+                )
             elif x['TagName'] == 'ImageCaption':
                 body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
             elif x['TagName'] == 'Lead':
                 body += '<div class="lead"><p><i>' + x['ZoneText'] + '</i></p></div><p>'
             elif 'ZoneText' in x:
                 body += '<p><i>' + x['ZoneText'] + '</i></p>'
-        return '<html><body><div>' \
-                    + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<br>') \
-                        + '</div></body></html>'
+        return ('<html><body><div>'
+                + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<br>') +
+                '</div></body></html>')
 
     def preprocess_html(self, soup):
         h1 = soup.find('h1')

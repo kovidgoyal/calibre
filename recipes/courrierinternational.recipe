@@ -2,8 +2,8 @@
 # vim:fileencoding=utf-8
 
 __license__ = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>\
-2015, Rémi Vanicat <vanicat at debian.org'
+__copyright__ = ('2009, Mathieu Godlewski <mathieu at godlewski.fr>, '
+                 '2015, Rémi Vanicat <vanicat at debian.org')
 '''
 Courrier International
 '''

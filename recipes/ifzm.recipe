@@ -40,8 +40,8 @@ class infzm(BasicNewsRecipe):
     def get_obfuscated_article(self, url):
         br = self.get_browser()
         link = url
-        res_link = link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') \
-            + '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type='
+        res_link = (link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') +
+                    '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type=')
         # if article is paywalled, add code to figure out machine_id
         raw = br.open(res_link).read()
         html = json_to_html(raw, link)

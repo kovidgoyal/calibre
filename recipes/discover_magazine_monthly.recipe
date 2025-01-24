@@ -104,8 +104,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         if cover is not None:
             img = cover.find('img', src=True)
             if img is not None:
-                self.cover_url = 'http://www.discovermagazine.com' + \
-                    img['src'].replace(' ', '%20')  # [:-7]
+                self.cover_url = 'http://www.discovermagazine.com' + img['src'].replace(' ', '%20')  # [:-7]
         # parse articles
         for tag in col.findAll(name=['h3', 'div'], attrs={'class': ['bottomBorder', 'headline']}):
             if tag.name == 'h3':

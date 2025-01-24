@@ -45,8 +45,7 @@ class NRCNext(BasicNewsRecipe):
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):
-            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/helekrant/epub/nn_%s.epub' \
-                  % today.strftime('%Y%m%d')
+            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/helekrant/epub/nn_%s.epub' % today.strftime('%Y%m%d')
             self.log('Trying to download epub from:', url)
             try:
                 response3 = br.open(url, timeout=60)

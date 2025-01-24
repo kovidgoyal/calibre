@@ -49,8 +49,7 @@ class BillOReilly(BasicNewsRecipe):
                     continue
 
                 if url.startswith('/'):
-                    url = 'http://www.billoreilly.com' + url + \
-                        '&dest=/pg/jsp/community/tvshowprint.jsp'
+                    url = 'http://www.billoreilly.com' + url + '&dest=/pg/jsp/community/tvshowprint.jsp'
 
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
-                 2013-2018, Tomasz Długosz, tomek3d@gmail.com'
+__copyright__ = ('2011, Piotr Kontek, piotr.kontek@gmail.com '
+                 '2013-2018, Tomasz Długosz, tomek3d@gmail.com')
 
 import re
 

@@ -59,9 +59,9 @@ class Pocket(BasicNewsRecipe):
         fail loudly if it's missing from the config.
         '''
         br = BasicNewsRecipe.get_browser(self,
-                                         user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; \
-                        en-us) AppleWebKit/533.19.4 (KHTML, like Gecko) \
-                        Version/5.0.3 Safari/533.19.4')
+                                         user_agent='''Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-us)
+                        AppleWebKit/533.19.4 (KHTML, like Gecko)
+                        Version/5.0.3 Safari/533.19.4''')
         if self.username is not None and self.password is not None:
             br.open(self.legacy_login_url)
             br.select_form(nr=0)
@@ -155,8 +155,7 @@ class Pocket(BasicNewsRecipe):
         '''
         try:
             from calibre.ebooks.covers import calibre_cover2
-            title = self.title if isinstance(self.title, type(u'')) else \
-                self.title.decode('utf-8', 'replace')
+            title = self.title if isinstance(self.title, type(u'')) else self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')
             img_data = calibre_cover2(title, date, time)

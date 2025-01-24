@@ -720,9 +720,9 @@ class ProcessTokens:
             numerator = float(re.search(r'[0-9.\-]+', numerator).group())
         except TypeError:
             if self.__run_level > 3:
-                msg = ('No number to process?\nthis indicates that the token \\(\\li\\) \
-                should have a number and does not\nnumerator is \
-                "%s"\ndenominator is "%s"\n') % (numerator, denominator)
+                msg = ('No number to process?\nthis indicates that the token \\(\\li\\)'
+                       'should have a number and does not\nnumerator is'
+                       '"%s"\ndenominator is "%s"\n') % (numerator, denominator)
                 raise self.__bug_handler(msg)
             if 5 > self.__return_code:
                 self.__return_code = 5

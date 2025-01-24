@@ -25,8 +25,7 @@ class AdvancedUserRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         segments = url.split('/')
-        printURL = 'http://www.presseportal.de/print.htx?nr=' + \
-            '/'.join(segments[5:6]) + '&type=polizei'
+        printURL = 'http://www.presseportal.de/print.htx?nr=' + '/'.join(segments[5:6]) + '&type=polizei'
         return printURL
 
     feeds = [(u'Frimmerdorf', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-frimmersdorf&w=public_service'),

@@ -1645,8 +1645,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         mi.uuid = str(uuid.uuid4())
 
     if not mi.book_producer:
-        mi.book_producer = __appname__ + ' (%s) '%__version__ + \
-            '[https://calibre-ebook.com]'
+        mi.book_producer = __appname__ + ' (%s) '%__version__ + '[https://calibre-ebook.com]'
 
     if not mi.languages:
         lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang

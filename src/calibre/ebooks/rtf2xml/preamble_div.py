@@ -232,10 +232,8 @@ cw<ci<font-style<nu<0
         '''
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
-            self.__font_table_final = 'mi<tg<open______<font-table\n' + \
-            'mi<mk<fonttb-beg\n' + self.__font_table_final
-            self.__font_table_final += \
-            'mi<mk<fonttb-end\n' + 'mi<tg<close_____<font-table\n'
+            self.__font_table_final = 'mi<tg<open______<font-table\n' + 'mi<mk<fonttb-beg\n' + self.__font_table_final
+            self.__font_table_final += 'mi<mk<fonttb-end\n' + 'mi<tg<close_____<font-table\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
                 self.__font_table_final += 'mi<mk<fontit-beg\n'
@@ -289,10 +287,8 @@ cw<ci<font-style<nu<0
     def __color_table_func(self, line):
         if int(self.__cb_count) == int(self.__close_group_count):
             self.__state = 'preamble'
-            self.__color_table_final = 'mi<tg<open______<color-table\n' + \
-            'mi<mk<clrtbl-beg\n' + self.__color_table_final
-            self.__color_table_final += \
-            'mi<mk<clrtbl-end\n' + 'mi<tg<close_____<color-table\n'
+            self.__color_table_final = 'mi<tg<open______<color-table\n' + 'mi<mk<clrtbl-beg\n' + self.__color_table_final
+            self.__color_table_final += 'mi<mk<clrtbl-end\n' + 'mi<tg<close_____<color-table\n'
         else:
             self.__color_table_final += line
 
@@ -308,10 +304,8 @@ cw<ci<font-style<nu<0
         '''
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
-            self.__style_sheet_final = 'mi<tg<open______<style-table\n' + \
-            'mi<mk<styles-beg\n' + self.__style_sheet_final
-            self.__style_sheet_final += \
-            'mi<mk<styles-end\n' + 'mi<tg<close_____<style-table\n'
+            self.__style_sheet_final = 'mi<tg<open______<style-table\n' + 'mi<mk<styles-beg\n' + self.__style_sheet_final
+            self.__style_sheet_final += 'mi<mk<styles-end\n' + 'mi<tg<close_____<style-table\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
                 self.__style_sheet_final += 'mi<mk<stylei-beg\n'
@@ -369,10 +363,8 @@ cw<ci<font-style<nu<0
     def __revision_table_func(self, line):
         if int(self.__cb_count) == int(self.__close_group_count):
             self.__state = 'preamble'
-            self.__revision_table_final = 'mi<tg<open______<revision-table\n' + \
-            'mi<mk<revtbl-beg\n' + self.__revision_table_final
-            self.__revision_table_final += \
-            'mi<mk<revtbl-end\n' + 'mi<tg<close_____<revision-table\n'
+            self.__revision_table_final = 'mi<tg<open______<revision-table\n' + 'mi<mk<revtbl-beg\n' + self.__revision_table_final
+            self.__revision_table_final += 'mi<mk<revtbl-end\n' + 'mi<tg<close_____<revision-table\n'
         else:
             self.__revision_table_final += line
 
@@ -385,10 +377,8 @@ cw<ci<font-style<nu<0
     def __doc_info_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
-            self.__doc_info_table_final = 'mi<tg<open______<doc-information\n' + \
-            'mi<mk<doc-in-beg\n' + self.__doc_info_table_final
-            self.__doc_info_table_final += \
-            'mi<mk<doc-in-end\n' + 'mi<tg<close_____<doc-information\n'
+            self.__doc_info_table_final = 'mi<tg<open______<doc-information\n' + 'mi<mk<doc-in-beg\n' + self.__doc_info_table_final
+            self.__doc_info_table_final += 'mi<mk<doc-in-end\n' + 'mi<tg<close_____<doc-information\n'
         elif self.__token_info == 'ob<nu<open-brack':
             if int(self.__ob_count) == int(self.__close_group_count) + 1:
                 self.__doc_info_table_final += 'mi<mk<docinf-beg\n'

@@ -138,14 +138,14 @@ class TLS(BasicNewsRecipe):
             i = data['article_data_leadimage']
             if i.get('full_image'):
                 lede = '<br><img src="{}"><div class="figc">{}</div>'.format(
-                    i['full_image'] + '?w600', i['imagecaption'] + ' <i>' \
-                        + i['imagecredit'] + '</i>'
+                    i['full_image'] + '?w600',
+                    i['imagecaption'] + ' <i>' + i['imagecredit'] + '</i>'
                 )
         cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/wp/v2/tls_articles/' + data['ID'], raw=True)
         c_data = json.loads(cont)
         body = c_data['content']['rendered']
 
-        html = '<html><body><div>' \
-                    + label + title + desc + auth + lede + bks + body + \
-                        '</div></body></html>'
+        html = ('<html><body><div>'
+                + label + title + desc + auth + lede + bks + body +
+                '</div></body></html>')
         return BeautifulSoup(html).prettify()

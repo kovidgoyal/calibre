@@ -348,10 +348,8 @@ class ListTable:
         Method no longer used.
         '''
         self.__list_table_final = 'mi<mk<listabbeg_\n'
-        self.__list_table_final += 'mi<tg<open______<list-table\n' + \
-        'mi<mk<listab-beg\n' + self.__list_table_final
-        self.__list_table_final += \
-        'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
+        self.__list_table_final += 'mi<tg<open______<list-table\n' + 'mi<mk<listab-beg\n' + self.__list_table_final
+        self.__list_table_final += 'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
         self.__list_table_final += 'mi<mk<listabend_\n'
 
     def __write_final_string(self):
@@ -372,8 +370,7 @@ class ListTable:
         not_allow = ['list-id',]
         id = 0
         self.__list_table_final = 'mi<mk<listabbeg_\n'
-        self.__list_table_final += 'mi<tg<open______<list-table\n' + \
-        'mi<mk<listab-beg\n' + self.__list_table_final
+        self.__list_table_final += 'mi<tg<open______<list-table\n' + 'mi<mk<listab-beg\n' + self.__list_table_final
         for list in self.__all_lists:
             id += 1
             self.__list_table_final += 'mi<tg<open-att__<list-in-table'
@@ -422,8 +419,7 @@ class ListTable:
                     # self.__list_table_final += '<bullet-type>%s' % (bullet_text)
                 self.__list_table_final += '\n'
             self.__list_table_final += 'mi<tg<close_____<list-in-table\n'
-        self.__list_table_final += \
-        'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
+        self.__list_table_final += 'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
         self.__list_table_final += 'mi<mk<listabend_\n'
 
     def parse_list_table(self, line):

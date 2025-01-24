@@ -36,8 +36,8 @@ class ElPeriodico_cat(BasicNewsRecipe):
         '--comment', description, '--category', category, '--publisher', publisher
     ]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = ('publisher="' + publisher +
+        '"\ncomments="' + description + '"\ntags="' + category + '"')
 
     feeds = [(u'Portada', u'http://www.elperiodico.com/es/rss/rss_portada.xml'),
              (u'Internacional', u'http://elperiodico.com/es/rss/internacional/rss.xml'),

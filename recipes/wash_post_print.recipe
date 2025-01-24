@@ -77,8 +77,8 @@ class wapoprint(BasicNewsRecipe):
 
         author = ''
         if 'credits' in data:
-            author = '<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) \
-                 + '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>'
+            author = ('<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) +
+                      '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>')
 
         body = ''
         for x in data['content_elements']:

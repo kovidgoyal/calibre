@@ -43,8 +43,7 @@ class IlManifesto(BasicNewsRecipe):
 
     def get_cover_url(self):
         self._set_manifesto_index()
-        url = MANIFESTO_BASEURL + \
-            'fileadmin/archivi/in_edicola/%sprimapagina.gif' % self.manifesto_datestr
+        url = MANIFESTO_BASEURL + 'fileadmin/archivi/in_edicola/%sprimapagina.gif' % self.manifesto_datestr
         return url
 
     def parse_index(self):

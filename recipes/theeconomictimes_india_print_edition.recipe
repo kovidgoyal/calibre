@@ -33,8 +33,8 @@ class TheEconomicTimes(BasicNewsRecipe):
         yr = str(date.today().year)
         mn = date.today().strftime('%m')
         dy = date.today().strftime('%d')
-        cover = 'https://asset.harnscloud.com/PublicationData/ET/etbg/'\
-         + yr + '/' + mn + '/' + dy + '/Page/' + dy + '_' + mn + '_' + yr + '_001_etbg.jpg'
+        cover = ('https://asset.harnscloud.com/PublicationData/ET/etbg/'
+                 + yr + '/' + mn + '/' + dy + '/Page/' + dy + '_' + mn + '_' + yr + '_001_etbg.jpg')
         self.log('cover_url ', cover)
         br = BasicNewsRecipe.get_browser(self)
         try:

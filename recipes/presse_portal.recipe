@@ -23,8 +23,7 @@ class PressePortalDE(BasicNewsRecipe):
     description = u'Presseportal News Feed DE'
     # add date to description so for dayly downloads you can find them easier
     # ---- can be edit by user
-    description = description + ' fetched: ' + \
-        datetime.now().strftime('%Y-%m-%d')  # %H:%M:%S")
+    description = description + ' fetched: ' + datetime.now().strftime('%Y-%m-%d')  # %H:%M:%S")
     # Who published the content?
     publisher = u'Presseportal.de'
     # What is the content of?

@@ -203,11 +203,10 @@ class AlMonitor(BasicNewsRecipe):
         return self.tag_to_string(n).strip()
 
     def _dbg_soup_node(self, node):
-        s = '   cls: ' + str(node.get('class')).strip() + \
-            '  id: ' + str(node.get('id')).strip() + \
-            '  role: ' + str(node.get('role')).strip() + \
-            ' txt: ' + self.text(node)
-        return s
+        return ('   cls: ' + str(node.get('class')).strip() +
+                '  id: ' + str(node.get('id')).strip() +
+                '  role: ' + str(node.get('role')).strip() +
+                ' txt: ' + self.text(node))
 
     def _p(self, msg):
         curframe = inspect.currentframe()

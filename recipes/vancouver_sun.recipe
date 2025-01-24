@@ -155,8 +155,7 @@ class CanWestPaper(BasicNewsRecipe):
         except:
             while daysback < 7:
                 cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-                    str((date.today() - timedelta(days=daysback)).day) + \
-                    '/lg/' + self.fp_tag + '.jpg'
+                    str((date.today() - timedelta(days=daysback)).day) + '/lg/' + self.fp_tag + '.jpg'
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
