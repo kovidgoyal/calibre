@@ -29,26 +29,26 @@ plugboard_save_to_disk_value = 'save_to_disk'
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
 
-FORMAT_ARG_DESCS = dict(
-        title=_('The title'),
-        authors=_('The authors'),
-        author_sort=_('The author sort string. To use only the first letter '
+FORMAT_ARG_DESCS = {
+        'title': _('The title'),
+        'authors': _('The authors'),
+        'author_sort': _('The author sort string. To use only the first letter '
             'of the name use {author_sort[0]}'),
-        tags=_('The tags'),
-        series=_('The series'),
-        series_index=_('The series number. '
+        'tags': _('The tags'),
+        'series': _('The series'),
+        'series_index': _('The series number. '
             'To get leading zeros use {series_index:0>3s} or '
             '{series_index:>3s} for leading spaces'),
-        rating=_('The rating'),
-        isbn=_('The ISBN'),
-        publisher=_('The publisher'),
-        timestamp=_('The date'),
-        pubdate=_('The published date'),
-        last_modified=_('The date when the metadata for this book record'
+        'rating': _('The rating'),
+        'isbn': _('The ISBN'),
+        'publisher': _('The publisher'),
+        'timestamp': _('The date'),
+        'pubdate': _('The published date'),
+        'last_modified': _('The date when the metadata for this book record'
             ' was last modified'),
-        languages=_('The language(s) of this book'),
-        id=_('The calibre internal id')
-        )
+        'languages': _('The language(s) of this book'),
+        'id': _('The calibre internal id')
+}
 
 FORMAT_ARGS = {}
 for x in FORMAT_ARG_DESCS:

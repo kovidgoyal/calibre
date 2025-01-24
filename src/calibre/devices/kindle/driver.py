@@ -245,7 +245,7 @@ class KINDLE(USBMS):
         if mc_path:
             timestamp = utcfromtimestamp(os.path.getmtime(mc_path))
             bookmarked_books['clippings'] = self.UserAnnotation(type='kindle_clippings',
-                                              value=dict(path=mc_path, timestamp=timestamp))
+                                              value={'path': mc_path, 'timestamp': timestamp})
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books

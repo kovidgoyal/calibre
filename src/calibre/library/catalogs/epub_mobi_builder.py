@@ -1168,7 +1168,7 @@ class CatalogBuilder:
                                                 authors=book['authors'])
                     myMeta.author_sort = book['author_sort']
                     a_path = d.create_upload_path('/<storage>', myMeta, 'x.bookmark', create_dirs=False)
-                    path_map[id] = dict(path=a_path, fmts=[x.rpartition('.')[2] for x in book['formats']])
+                    path_map[id] = {'path': a_path, 'fmts': [x.rpartition('.')[2] for x in book['formats']]}
 
                     path_map, book_ext = _resolve_bookmark_paths(self.opts.connected_device['storage'], path_map)
                     if path_map:

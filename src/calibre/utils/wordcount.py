@@ -72,11 +72,11 @@ def get_wordcount(text):
     non_asian_words = nonj_len(text)
     words = non_asian_words + asian_chars
 
-    return dict(characters=characters,
-                chars_no_spaces=chars_no_spaces,
-                asian_chars=asian_chars,
-                non_asian_words=non_asian_words,
-                words=words)
+    return {'characters': characters,
+            'chars_no_spaces': chars_no_spaces,
+            'asian_chars': asian_chars,
+            'non_asian_words': non_asian_words,
+            'words': words}
 
 
 def dict2obj(dictionary):

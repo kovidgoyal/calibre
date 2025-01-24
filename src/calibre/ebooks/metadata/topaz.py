@@ -238,8 +238,8 @@ class MetadataUpdater:
                 offset += consumed
                 len_comp, consumed = self.decode_vwi(self.data[offset:offset+4])
                 offset += consumed
-                blocks[val] = dict(offset=hdr_offset,len_uncomp=len_uncomp,len_comp=len_comp)
-            topaz_headers[tag] = dict(blocks=blocks)
+                blocks[val] = {'offset': hdr_offset,'len_uncomp': len_uncomp,'len_comp': len_comp}
+            topaz_headers[tag] = {'blocks': blocks}
             th_seq.append(tag)
         self.eoth = self.data[offset]
         offset += 1

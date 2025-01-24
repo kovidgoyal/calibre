@@ -332,23 +332,24 @@ def render_jacket(mi, output_profile,
 
     def generate_html(comments):
         display = Attributes()
-        args = dict(xmlns=XHTML_NS,
-            title_str=title_str,
-            identifiers=Identifiers(mi.identifiers),
-            css=css,
-            title=title,
-            author=author,
-            publisher=publisher, publisher_label=_('Publisher'),
-            pubdate_label=_('Published'), pubdate=Timestamp(pubdate, tweaks['gui_pubdate_display_format']),
-            series_label=ngettext('Series', 'Series', 1), series=series,
-            rating_label=_('Rating'), rating=rating,
-            tags_label=_('Tags'), tags=tags,
-            timestamp=Timestamp(timestamp, tweaks['gui_timestamp_display_format']), timestamp_label=_('Date'),
-            comments=comments,
-            footer='',
-            display=display,
-            searchable_tags=' '.join(escape(t)+'ttt' for t in tags.tags_list),
-        )
+        args = {
+            'xmlns': XHTML_NS,
+            'title_str': title_str,
+            'identifiers': Identifiers(mi.identifiers),
+            'css': css,
+            'title': title,
+            'author': author,
+            'publisher': publisher, 'publisher_label': _('Publisher'),
+            'pubdate_label': _('Published'), 'pubdate': Timestamp(pubdate, tweaks['gui_pubdate_display_format']),
+            'series_label': ngettext('Series', 'Series', 1), 'series': series,
+            'rating_label': _('Rating'), 'rating': rating,
+            'tags_label': _('Tags'), 'tags': tags,
+            'timestamp': Timestamp(timestamp, tweaks['gui_timestamp_display_format']), 'timestamp_label': _('Date'),
+            'comments': comments,
+            'footer': '',
+            'display': display,
+            'searchable_tags': ' '.join(escape(t)+'ttt' for t in tags.tags_list),
+        }
         for key in mi.custom_field_keys():
             m = mi.get_user_metadata(key, False) or {}
             try:

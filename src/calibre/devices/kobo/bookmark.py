@@ -126,14 +126,14 @@ class Bookmark:  # {{{
 
             # book_title = row[8]
             chapter_progress = min(round(float(100*row['ChapterProgress']),2),100)
-            user_notes[note_id] = dict(id=self.id,
-                                    displayed_location=note_id,
-                                    type=e_type,
-                                    text=text,
-                                    annotation=annotation,
-                                    chapter=current_chapter,
-                                    chapter_title=chapter_title,
-                                    chapter_progress=chapter_progress)
+            user_notes[note_id] = {'id': self.id,
+                                   'displayed_location': note_id,
+                                   'type': e_type,
+                                   'text': text,
+                                   'annotation': annotation,
+                                   'chapter': current_chapter,
+                                   'chapter_title': chapter_title,
+                                   'chapter_progress': chapter_progress}
             previous_chapter = current_chapter
             # debug_print("e_type:" , e_type, '\t', 'loc: ', note_id, 'text: ', text,
             # 'annotation: ', annotation, 'chapter_title: ', chapter_title,

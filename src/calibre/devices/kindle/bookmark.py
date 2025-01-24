@@ -91,10 +91,10 @@ class Bookmark:  # {{{
 
                     if entry_type:
                         displayed_location = location // MAGIC_MOBI_CONSTANT + 1
-                        user_notes[location] = dict(id=self.id,
-                                                    displayed_location=displayed_location,
-                                                    type=entry_type,
-                                                    text=text)
+                        user_notes[location] = {'id': self.id,
+                                                'displayed_location': displayed_location,
+                                                'type': entry_type,
+                                                'text': text}
 
                     eo += rec_len + 8
                     current_entry += 1
@@ -127,10 +127,10 @@ class Bookmark:  # {{{
                         if end_loc != self.last_read:
                             # print(' adding Bookmark at 0x%x (%d)' % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1))
                             displayed_location = end_loc // MAGIC_MOBI_CONSTANT + 1
-                            user_notes[end_loc - 1] = dict(id=self.id,
-                                                           displayed_location=displayed_location,
-                                                           type='Bookmark',
-                                                           text=None)
+                            user_notes[end_loc - 1] = {'id': self.id,
+                                                       'displayed_location': displayed_location,
+                                                       'type': 'Bookmark',
+                                                       'text': None}
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     eo += rec_len + 8
                     sig = data[eo:eo+4]
@@ -200,10 +200,10 @@ class Bookmark:  # {{{
                         e_type = 'Unknown annotation type'
 
                     displayed_location = location/MAGIC_TOPAZ_CONSTANT + 1
-                    user_notes[location] = dict(id=self.id,
-                                                displayed_location=displayed_location,
-                                                type=e_type,
-                                                text=text)
+                    user_notes[location] = {'id': self.id,
+                                            'displayed_location': displayed_location,
+                                            'type': e_type,
+                                            'text': text}
                     if text_len == 0xFFFFFFFF:
                         e_base = e_base + 14
                     else:
@@ -263,10 +263,10 @@ class Bookmark:  # {{{
                     displayed_location = location
                     e_type = 'Bookmark'
                     text = None
-                    user_notes[location] = dict(id=self.id,
-                                                displayed_location=displayed_location,
-                                                type=e_type,
-                                                text=text)
+                    user_notes[location] = {'id': self.id,
+                                            'displayed_location': displayed_location,
+                                            'type': e_type,
+                                            'text': text}
                     self.pdf_page_offset = pdf_location - location
                     e_base += (7 + label_len)
                     current_entry += 1
