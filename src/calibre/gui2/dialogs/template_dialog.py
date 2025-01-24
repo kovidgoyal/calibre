@@ -1011,7 +1011,6 @@ def evaluate(book, context):
                 self.icon_files.adjustSize()
         except:
             traceback.print_exc()
-        return
 
     def update_filename_box(self):
         self.icon_files.clear()

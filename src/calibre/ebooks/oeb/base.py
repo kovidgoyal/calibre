@@ -1930,7 +1930,6 @@ class OEBBook:
             href = urlnormalize(selector(elem)[0])
             order = playorder.get(href, i)
             elem.attrib['playOrder'] = str(order)
-        return
 
     def _to_ncx(self):
         try:

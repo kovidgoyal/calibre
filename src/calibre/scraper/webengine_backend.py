@@ -118,7 +118,6 @@ class Worker(QWebEnginePage):
                     self.runjs('window.get_messages()', self.dispatch_messages)
             else:
                 print(f'{source_id}:{line_num}:{message}')
-            return
 
     def dispatch_messages(self, messages: list) -> None:
         if not sip.isdeleted(self):

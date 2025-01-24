@@ -764,7 +764,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 item_val = itemx[4:]
             else:
                 prints('Ignoring invalid item hexval', itemx, file=sys.stderr)
-                return
 
             def doit():
                 nonlocal item_id, item_val

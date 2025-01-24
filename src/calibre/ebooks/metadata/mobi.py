@@ -473,7 +473,6 @@ class MetadataUpdater:
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
-    return
 
 
 def get_metadata(stream):

@@ -1042,7 +1042,6 @@ class BookStyle(LrsObject, LrsContainer):
     def Font(self, *args, **kwargs):
         f = Font(*args, **kwargs)
         self.append(f)
-        return
 
     def toElement(self, se):
         bookStyle = self.lrsObjectElement('BookStyle', objlabel='stylelabel',

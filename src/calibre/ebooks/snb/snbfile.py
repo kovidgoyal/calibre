@@ -278,7 +278,6 @@ class SNBFile:
 
         # Close
         outputFile.close()
-        return
 
     def Dump(self):
         if self.fileName:

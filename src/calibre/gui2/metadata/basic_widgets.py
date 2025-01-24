@@ -1022,15 +1022,13 @@ class FormatsManager(QWidget):
                 db.add_format(id_, ext, spool, notify=False,
                         index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
-        db_extensions = {fl.lower() for fl in (dbfmts.split(',') if dbfmts
-            else [])}
+        db_extensions = {fl.lower() for fl in (dbfmts.split(',') if dbfmts else [])}
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions and ext in self.original_val:
                 db.remove_format(id_, ext, notify=False, index_is_id=True)
 
         self.changed = False
-        return
 
     def add_format(self, *args):
         files = choose_files_and_remember_all_files(

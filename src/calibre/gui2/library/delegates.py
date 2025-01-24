@@ -610,7 +610,6 @@ class CcLongTextDelegate(StyledItemDelegate):  # {{{
         d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
-        return
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
@@ -665,7 +664,6 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
                                base_url=base_url)
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, (d.text), Qt.ItemDataRole.EditRole)
-        return
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
@@ -816,7 +814,6 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         d = editor.exec()
         if d:
             m.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
-        return
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)

@@ -677,7 +677,6 @@ class RuleEditor(QDialog):  # {{{
         except:
             import traceback
             traceback.print_exc()
-        return
 
     def get_filenames_from_box(self):
         if self.doing_multiple:
