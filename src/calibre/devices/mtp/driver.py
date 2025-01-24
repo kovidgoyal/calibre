@@ -100,19 +100,19 @@ class MTP_DEVICE(BASE):
         storage_id = str(getattr(storage_or_storage_id, 'object_id',
                              storage_or_storage_id))
         lpath = tuple(icu_lower(name) for name in path)
+        if self.is_kindle and lpath and lpath[-1].endswith('.sdr'):
+            return True
         if ignored_folders is None:
             ignored_folders = self.get_pref('ignored_folders')
         if storage_id in ignored_folders:
             # Use the users ignored folders settings
             return '/'.join(lpath) in {icu_lower(x) for x in ignored_folders[storage_id]}
-        if self.is_kindle and lpath and lpath[-1].endswith('.sdr'):
-            return True
 
         # Implement the default ignore policy
 
         # Top level ignores
         if lpath[0] in {
-            'alarms', 'dcim', 'movies', 'music', 'notifications',
+            'alarms', 'dcim', 'movies', 'music', 'notifications', 'screenshots',
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
@@ -120,16 +120,19 @@ class MTP_DEVICE(BASE):
             # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
             return True
         if lpath[0] == 'system' and not self.is_kindle:
-            # on Kindles we need the system folder for the amazon cover bug workaround
+            # on Kindles we need the system/thumbnails folder for the amazon cover bug workaround
             return True
 
-        if len(lpath) > 1 and lpath[0] == 'android':
-            # Ignore everything in Android apart from a few select folders
-            if lpath[1] != 'data':
-                return True
-            if len(lpath) > 2 and lpath[2] != 'com.amazon.kindle':
-                return True
-
+        if len(lpath) > 1:
+            if lpath[0] == 'android':
+                # Ignore everything in Android apart from a few select folders
+                if lpath[1] != 'data':
+                    return True
+                if len(lpath) > 2 and lpath[2] != 'com.amazon.kindle':
+                    return True
+            elif lpath[0] == 'system':
+                if lpath[1] != 'thumbnails':
+                    return True
         return False
 
     def configure_for_kindle_app(self):
