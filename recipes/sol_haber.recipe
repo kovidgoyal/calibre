@@ -74,7 +74,7 @@ class SolHaberRecipe(BasicNewsRecipe):
     def parse_index(self):
 
         result = []
-        articles_dict = dict()
+        articles_dict = {}
 
         author_regexp = re.compile('^http://.*?/yazarlar/(.*?)/.*$')
         category_regexp = re.compile('^http://.*?/(.+?)/.*$')

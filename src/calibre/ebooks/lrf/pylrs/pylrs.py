@@ -2301,7 +2301,7 @@ class ImageStream(LrsObject, LrsContainer):
 
 class Image(LrsObject, LrsContainer, LrsAttributes):
 
-    defaults = dict()
+    defaults = {}
 
     def __init__(self, refstream, x0=0, x1=0,
                  y0=0, y1=0, xsize=0, ysize=0, **settings):

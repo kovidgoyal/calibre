@@ -1873,7 +1873,7 @@ program:
                   "associated separator"))
 
         # Starting in python 3.7 dicts preserve order so we don't need OrderedDict
-        result = dict()
+        result = {}
         i = 0
         while i < len(args):
             lst = [v.strip() for v in args[i].split(args[i+1]) if v.strip()]

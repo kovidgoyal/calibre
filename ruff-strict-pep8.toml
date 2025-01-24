@@ -19,7 +19,7 @@ quote-style = 'single'
 [lint]
 ignore = [
     'E402', 'E722', 'E741',
-    'UP012', 'UP030', 'UP032', 'UP038', 'C408', 'C413', 'C420',
+    'UP012', 'UP030', 'UP032', 'UP038', 'C413', 'C420',
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',
@@ -49,6 +49,9 @@ section-order = ['__python__', "future", "standard-library", "third-party", "fir
 
 [lint.isort.sections]
 '__python__' = ['__python__']
+
+[lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
 
 [lint.flake8-quotes]
 avoid-escape = true

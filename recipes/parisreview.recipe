@@ -22,5 +22,5 @@ class ParisReview(BasicNewsRecipe):
     # keep_only_tags = []
     remove_tags = []
     # remove_tags_before = dict()
-    remove_tags_after = dict()
+    remove_tags_after = {}
     feeds          = [('Posts', 'http://feeds.feedburner.com/TheParisReviewBlog')]

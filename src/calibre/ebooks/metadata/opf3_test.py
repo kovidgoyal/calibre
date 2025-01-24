@@ -339,11 +339,11 @@ class TestOPF3(unittest.TestCase):
             set_user_metadata(root, read_prefixes(root), read_refines(root), val)
             return ru(root)
         root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>''')
-        self.ae({'#a': {'1': 1, 'is_multiple': dict()}}, ru(root))
+        self.ae({'#a': {'1': 1, 'is_multiple': {}}}, ru(root))
         root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>'''
                             '''<meta property="calibre:user_metadata">{"#b":{"2":2}}</meta>''')
-        self.ae({'#b': {'2': 2, 'is_multiple': dict()}}, ru(root))
-        self.ae({'#c': {'3': 3, 'is_multiple': {}, 'is_multiple2': dict()}}, su(root, {'#c':{'3':3}}))
+        self.ae({'#b': {'2': 2, 'is_multiple': {}}}, ru(root))
+        self.ae({'#c': {'3': 3, 'is_multiple': {}, 'is_multiple2': {}}}, su(root, {'#c':{'3':3}}))
 
     # }}}
 

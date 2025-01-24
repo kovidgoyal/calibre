@@ -81,8 +81,8 @@ class AllGUIActions(InterfaceAction):
 
         # Get display names of builtin and user plugins. We tell the difference
         # using the class full module name. Plugins start with 'calibre_plugins'
-        builtin_actions = list()
-        user_plugins = list()
+        builtin_actions = []
+        user_plugins = []
         for display_name, act_data in name_data.items():
             act = model.name_to_action(act_data['action_name'], self.gui)
             if act is not None:

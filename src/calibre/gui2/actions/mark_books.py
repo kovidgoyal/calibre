@@ -149,7 +149,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         num = len(frozenset(marked_ids).intersection(db.new_api.all_book_ids()))
         text = _('Show marked book') if num == 1 else (_('Show marked books') + (' (%d)' % num))
         self.show_marked_action.setText(text)
-        counts = dict()
+        counts = {}
         for v in marked_ids.values():
             counts[v] = counts.get(v, 0) + 1
         labels = sorted(counts.keys(), key=sort_key)

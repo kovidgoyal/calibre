@@ -769,7 +769,7 @@ class _Parser:
 
             # Eat the opening paren, parse the argument list, then eat the closing paren
             self.consume()
-            arguments = list()
+            arguments = []
             while not self.token_op_is(')'):
                 # parse an argument expression (recursive call)
                 arguments.append(self.expression_list())
@@ -983,7 +983,7 @@ class _Interpreter:
         self.parent_book = parent.book
         self.funcs = funcs
         self.locals = {'$':val}
-        self.local_functions = dict()
+        self.local_functions = {}
         self.override_line_number = None
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if break_reporter:
@@ -1128,7 +1128,7 @@ class _Interpreter:
             self.error(_("Unknown identifier '{0}'").format(prog.name), prog.line_number)
 
     def do_node_func(self, prog):
-        args = list()
+        args = []
         for arg in prog.expression_list:
             # evaluate the expression (recursive call)
             args.append(self.expr(arg))
@@ -1192,7 +1192,7 @@ class _Interpreter:
                                                           len(prog.arguments),
                                                           len(argument_list)),
                        prog.line_number)
-        new_locals = dict()
+        new_locals = {}
         for i,arg in enumerate(argument_list):
             if len(prog.arguments) > i:
                 new_locals[arg.left] = self.expr(prog.arguments[i])

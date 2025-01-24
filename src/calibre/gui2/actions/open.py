@@ -24,7 +24,7 @@ class OpenFolderAction(InterfaceAction):
         va = self.gui.iactions['View'].view_folder
         self.qaction.triggered.connect(va)
         a = self.create_menu_action(self.qaction.menu(), 'show-data-folder',
-                                _('Open book data folder'), icon='document_open.png', shortcut=tuple())
+                                _('Open book data folder'), icon='document_open.png', shortcut=())
         a.triggered.connect(partial(va, data_folder=True))
 
     def location_selected(self, loc):

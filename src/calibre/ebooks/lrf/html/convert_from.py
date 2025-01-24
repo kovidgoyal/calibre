@@ -446,7 +446,7 @@ class HTMLConverter:
         @return: A dictionary with one entry for each property where the key
                 is the property name and the value is the property value.
         '''
-        prop = dict()
+        prop = {}
         for s in props.split(';'):
             l = s.split(':',1)
             if len(l)==2:

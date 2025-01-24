@@ -260,8 +260,8 @@ class BookInfo(QDialog, DropMixin):
             mi = dbn.get_metadata(book_id, get_cover=False)
             mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
             mi.path = None
-            mi.format_files = dict()
-            mi.formats = list()
+            mi.format_files = {}
+            mi.formats = []
             mi.marked = ''
             mi.field_metadata = db.field_metadata
             mi.external_library_path = library_path

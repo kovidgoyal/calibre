@@ -66,7 +66,7 @@ class ConnectionListener(Thread):
         self.daemon = True
         self.driver = driver
         self.keep_running = True
-        self.all_ip_addresses = dict()
+        self.all_ip_addresses = {}
 
     def stop(self):
         self.keep_running = False
@@ -980,7 +980,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('timeout -- disconnected')
             else:
                 try:
-                    if self._call_client('NOOP', dict())[0] is None:
+                    if self._call_client('NOOP', {})[0] is None:
                         self._close_device_socket()
                 except:
                     self._close_device_socket()
@@ -1229,7 +1229,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def get_device_information(self, end_session=True):
         self._debug()
         self.report_progress(1.0, _('Get device information...'))
-        opcode, result = self._call_client('GET_DEVICE_INFORMATION', dict())
+        opcode, result = self._call_client('GET_DEVICE_INFORMATION', {})
         if opcode == 'OK':
             self.driveinfo = result['device_info']
             self._update_driveinfo_record(self.driveinfo, self.PREFIX, 'main')
