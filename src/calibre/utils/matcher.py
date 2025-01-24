@@ -226,7 +226,12 @@ def process_item(ctx, haystack, needle):
 
 class PyScorer:
     __slots__ = (
-        'level1', 'level2', 'level3', 'max_score_per_char', 'items', 'memory'
+        'items',
+        'level1',
+        'level2',
+        'level3',
+        'max_score_per_char',
+        'memory'
     )
 
     def __init__(

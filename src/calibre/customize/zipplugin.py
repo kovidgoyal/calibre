@@ -138,8 +138,13 @@ def load_translations(namespace, zfp):
 class CalibrePluginLoader:
 
     __slots__ = (
-        'plugin_name', 'fullname_in_plugin', 'zip_file_path', '_is_package', 'names',
-        'filename', 'all_names'
+        '_is_package',
+        'all_names',
+        'filename',
+        'fullname_in_plugin',
+        'names',
+        'plugin_name',
+        'zip_file_path'
     )
 
     def __init__(self, plugin_name, fullname_in_plugin, zip_file_path, names, filename, is_package, all_names):

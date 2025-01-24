@@ -32,7 +32,7 @@ not_present = object()
 
 class UserDictionary:
 
-    __slots__ = ('name', 'is_active', 'words')
+    __slots__ = ('is_active', 'name', 'words')
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']

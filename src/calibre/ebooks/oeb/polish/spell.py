@@ -22,7 +22,7 @@ _patterns = None
 
 class Patterns:
 
-    __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat', 'fr_elision_pat')
+    __slots__ = ('digit_pat', 'fr_elision_pat', 'sanitize_invisible_pat', 'split_pat')
 
     def __init__(self):
         import regex
@@ -56,7 +56,7 @@ class CharCounter:
 
 class Location:
 
-    __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item', 'elided_prefix')
+    __slots__ = ('elided_prefix', 'file_name', 'location_node', 'node_item', 'original_word', 'sourceline')
 
     def __init__(self, file_name=None, elided_prefix='', original_word=None, location_node=None, node_item=(None, None)):
         self.file_name, self.elided_prefix, self.original_word = file_name, elided_prefix, original_word

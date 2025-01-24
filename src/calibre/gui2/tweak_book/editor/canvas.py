@@ -58,7 +58,7 @@ def painter(func):
 
 class SelectionState:
 
-    __slots__ = ('last_press_point', 'current_mode', 'rect', 'in_selection', 'drag_corner', 'dragging', 'last_drag_pos')
+    __slots__ = ('current_mode', 'drag_corner', 'dragging', 'in_selection', 'last_drag_pos', 'last_press_point', 'rect')
 
     def __init__(self):
         self.reset()

@@ -40,7 +40,7 @@ from calibre.utils.localization import _
 
 class Action:
 
-    __slots__ = ('icon', 'text', 'shortcut_action')
+    __slots__ = ('icon', 'shortcut_action', 'text')
 
     def __init__(self, icon=None, text=None, shortcut_action=None):
         self.icon, self.text, self.shortcut_action = QIcon.ic(icon), text, shortcut_action

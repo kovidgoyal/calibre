@@ -49,7 +49,7 @@ class ReadBuffer:  # {{{
 
     ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
 
-    __slots__ = ('ba', 'buf', 'read_pos', 'write_pos', 'full_state')
+    __slots__ = ('ba', 'buf', 'full_state', 'read_pos', 'write_pos')
 
     def __init__(self, size=4096):
         self.ba = bytearray(size)

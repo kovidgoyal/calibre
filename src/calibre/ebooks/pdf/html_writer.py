@@ -624,7 +624,7 @@ def make_anchors_unique(container, log):
 
 class AnchorLocation:
 
-    __slots__ = ('pagenum', 'left', 'top', 'zoom')
+    __slots__ = ('left', 'pagenum', 'top', 'zoom')
 
     def __init__(self, pagenum=1, left=0, top=0, zoom=0):
         self.pagenum, self.left, self.top, self.zoom = pagenum, left, top, zoom

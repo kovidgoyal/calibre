@@ -26,8 +26,17 @@ except ImportError:
     zlib = None
     crc32 = binascii.crc32
 
-__all__ = ['BadZipfile', 'error', 'ZIP_STORED', 'ZIP_DEFLATED', 'is_zipfile',
-           'ZipInfo', 'ZipFile', 'PyZipFile', 'LargeZipFile']
+__all__ = [
+    'ZIP_DEFLATED',
+    'ZIP_STORED',
+    'BadZipfile',
+    'LargeZipFile',
+    'PyZipFile',
+    'ZipFile',
+    'ZipInfo',
+    'error',
+    'is_zipfile',
+]
 
 
 def decode_zip_internal_file_name(fname, flags):
@@ -305,26 +314,26 @@ class ZipInfo :
     '''Class with attributes describing each file in the ZIP archive.'''
 
     __slots__ = (
-            'orig_filename',
-            'filename',
-            'date_time',
-            'compress_type',
-            'comment',
-            'extra',
-            'create_system',
-            'create_version',
-            'extract_version',
-            'reserved',
-            'flag_bits',
-            'volume',
-            'internal_attr',
-            'external_attr',
-            'header_offset',
-            'CRC',
-            'compress_size',
-            'file_size',
-            '_raw_time',
-            'file_offset',
+        'CRC',
+        '_raw_time',
+        'comment',
+        'compress_size',
+        'compress_type',
+        'create_system',
+        'create_version',
+        'date_time',
+        'external_attr',
+        'extra',
+        'extract_version',
+        'file_offset',
+        'file_size',
+        'filename',
+        'flag_bits',
+        'header_offset',
+        'internal_attr',
+        'orig_filename',
+        'reserved',
+        'volume',
         )
 
     def __init__(self, filename='NoName', date_time=(1980,1,1,0,0,0)):

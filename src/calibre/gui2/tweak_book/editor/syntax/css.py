@@ -144,7 +144,7 @@ IN_COMMENT_CONTENT = 5
 
 class CSSState:
 
-    __slots__ = ('parse', 'blocks')
+    __slots__ = ('blocks', 'parse')
 
     def __init__(self):
         self.parse  = NORMAL

@@ -134,7 +134,7 @@ class HTTPHeaderParser:
     Headers which are repeated are folded together using a comma if their
     specification so dictates.
     '''
-    __slots__ = ('hdict', 'lines', 'finished')
+    __slots__ = ('finished', 'hdict', 'lines')
 
     def __init__(self):
         self.hdict = MultiDict()

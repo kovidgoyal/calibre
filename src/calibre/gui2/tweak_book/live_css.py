@@ -109,7 +109,7 @@ class Heading(QWidget):  # {{{
 
 class Cell:  # {{{
 
-    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch', 'is_overriden')
+    __slots__ = ('color_role', 'is_overriden', 'override_color', 'rect', 'right_align', 'swatch', 'text')
 
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine | Qt.TextFlag.TextIncludeTrailingSpaces
@@ -386,7 +386,7 @@ class Box(QWidget):
 
 class Property:
 
-    __slots__ = 'name', 'value', 'important', 'color', 'specificity', 'is_overriden'
+    __slots__ = 'color', 'important', 'is_overriden', 'name', 'specificity', 'value'
 
     def __init__(self, prop, specificity=()):
         self.name, self.value, self.important, self.color = prop

@@ -183,9 +183,18 @@ class SearchFinished:
 class SearchResult:
 
     __slots__ = (
-        'search_query', 'before', 'text', 'after', 'q', 'spine_idx',
-        'index', 'file_name', 'is_hidden', 'offset', 'toc_nodes',
-        'result_num'
+        'after',
+        'before',
+        'file_name',
+        'index',
+        'is_hidden',
+        'offset',
+        'q',
+        'result_num',
+        'search_query',
+        'spine_idx',
+        'text',
+        'toc_nodes'
     )
 
     def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):

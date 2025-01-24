@@ -31,12 +31,12 @@ Website : http://chrisarndt.de/en/software/python/threadpool/
 '''
 
 __all__ = [
-  'makeRequests',
-  'NoResultsPending',
-  'NoWorkersAvailable',
-  'ThreadPool',
-  'WorkRequest',
-  'WorkerThread'
+    'NoResultsPending',
+    'NoWorkersAvailable',
+    'ThreadPool',
+    'WorkRequest',
+    'WorkerThread',
+    'makeRequests'
 ]
 
 __author__ = 'Christopher Arndt'

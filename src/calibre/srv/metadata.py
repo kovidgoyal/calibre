@@ -213,7 +213,7 @@ CategoriesSettings = namedtuple(
 
 class GroupedSearchTerms:
 
-    __slots__ = ('keys', 'vals', 'hash')
+    __slots__ = ('hash', 'keys', 'vals')
 
     def __init__(self, src):
         self.keys = frozenset(src)

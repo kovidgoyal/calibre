@@ -54,10 +54,20 @@ from sys import stderr
 
 from polyglot.builtins import string_or_bytes
 
-__all__ = ['SMTPException', 'SMTPServerDisconnected', 'SMTPResponseException',
-           'SMTPSenderRefused', 'SMTPRecipientsRefused', 'SMTPDataError',
-           'SMTPConnectError', 'SMTPHeloError', 'SMTPAuthenticationError',
-           'quoteaddr', 'quotedata', 'SMTP']
+__all__ = [
+    'SMTP',
+    'SMTPAuthenticationError',
+    'SMTPConnectError',
+    'SMTPDataError',
+    'SMTPException',
+    'SMTPHeloError',
+    'SMTPRecipientsRefused',
+    'SMTPResponseException',
+    'SMTPSenderRefused',
+    'SMTPServerDisconnected',
+    'quoteaddr',
+    'quotedata',
+]
 
 SMTP_PORT = 25
 SMTP_SSL_PORT = 465

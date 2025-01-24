@@ -78,7 +78,7 @@ def parse_html(raw):
 
 class ParseItem:
 
-    __slots__ = ('name', 'length', 'fingerprint', 'parsing_done', 'parsed_data')
+    __slots__ = ('fingerprint', 'length', 'name', 'parsed_data', 'parsing_done')
 
     def __init__(self, name):
         self.name = name

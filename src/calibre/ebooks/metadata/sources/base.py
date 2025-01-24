@@ -164,7 +164,7 @@ def fixcase(x):
 
 
 class Option:
-    __slots__ = ['type', 'default', 'label', 'desc', 'name', 'choices']
+    __slots__ = ['choices', 'default', 'desc', 'label', 'name', 'type']
 
     def __init__(self, name, type_, default, label, desc, choices=None):
         '''
