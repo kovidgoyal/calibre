@@ -24,12 +24,12 @@ REGEXES = {
     'positiveRe': re.compile(r'article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
     'negativeRe': re.compile(r'combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa: E501
     'divToPElementsRe': re.compile(r'<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
-    # 'replaceBrsRe': re.compile('(<br[^>]*>[ \n\r\t]*){2,}',re.I),
-    # 'replaceFontsRe': re.compile('<(\/?)font[^>]*>',re.I),
-    # 'trimRe': re.compile('^\s+|\s+$/'),
-    # 'normalizeRe': re.compile('\s{2,}/'),
-    # 'killBreaksRe': re.compile('(<br\s*\/?>(\s|&nbsp;?)*){1,}/'),
-    # 'videoRe': re.compile('http:\/\/(www\.)?(youtube|vimeo)\.com', re.I),
+    # 'replaceBrsRe': re.compile(r'(<br[^>]*>[ \n\r\t]*){2,}',re.I),
+    # 'replaceFontsRe': re.compile(r'<(/?)font[^>]*>',re.I),
+    # 'trimRe': re.compile(r'^\s+|\s+$/'),
+    # 'normalizeRe': re.compile(r'\s{2,}/'),
+    # 'killBreaksRe': re.compile(r'(<br\s*/?>(\s|&nbsp;?)*){1,}/'),
+    # 'videoRe': re.compile(r'http://(www\.)?(youtube|vimeo)\.com', re.I),
     # skipFootnoteLink:    /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
 }
 

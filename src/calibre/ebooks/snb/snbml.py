@@ -156,10 +156,10 @@ class SNBMLizer:
         text = text.replace('\f+', ' ')
 
         # Single line paragraph.
-        text = re.sub('(?<=.)%s(?=.)' % os.linesep, ' ', text)
+        text = re.sub(r'(?<=.)%s(?=.)' % os.linesep, ' ', text)
 
         # Remove multiple spaces.
-        # text = re.sub('[ ]{2,}', ' ', text)
+        # text = re.sub(r'[ ]{2,}', ' ', text)
 
         # Remove excessive newlines.
         text = re.sub(r'\n[ ]+\n', '\n\n', text)

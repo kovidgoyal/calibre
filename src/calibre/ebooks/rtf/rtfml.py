@@ -195,7 +195,7 @@ class RTFMLizer:
 
     def clean_text(self, text):
         # Remove excessive newlines
-        text = re.sub('%s{3,}' % os.linesep, f'{os.linesep}{os.linesep}', text)
+        text = re.sub(r'%s{3,}' % os.linesep, f'{os.linesep}{os.linesep}', text)
 
         # Remove excessive spaces
         text = re.sub(r'[ ]{2,}', ' ', text)

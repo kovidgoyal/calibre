@@ -248,7 +248,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
-        query = re.sub(r'(^|\s|")(and|not|or|a|the|is|of)(\s|$|")', r' ', query)
+        query = re.sub(r'(^|\s|")(and|not|or|a|the|is|of)(\s|$|")', ' ', query)
         # Remove "
         query = query.replace('"', '')
         # Remove excess whitespace.

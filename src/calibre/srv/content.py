@@ -514,9 +514,9 @@ def set_note(ctx, rd, field, item_id, library_id):
         db_replacements[key] = f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}'
     db_html = srv_html = html
     if db_replacements:
-        db_html = re.sub('|'.join(map(re.escape, db_replacements)), lambda m: db_replacements[m.group()], html)
+        db_html = re.sub(r'|'.join(map(re.escape, db_replacements)), lambda m: db_replacements[m.group()], html)
     if srv_replacements:
-        srv_html = re.sub('|'.join(map(re.escape, srv_replacements)), lambda m: srv_replacements[m.group()], html)
+        srv_html = re.sub(r'|'.join(map(re.escape, srv_replacements)), lambda m: srv_replacements[m.group()], html)
     db.set_notes_for(field, item_id, db_html, searchable_text, resources)
     rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
     return srv_html

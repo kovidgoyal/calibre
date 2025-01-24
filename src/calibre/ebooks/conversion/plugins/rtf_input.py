@@ -298,8 +298,8 @@ class RTFInput(InputFormatPlugin):
             # clean multiple \n
             res = re.sub(br'\n+', b'\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
-            # res = re.sub('\s*<body>', '<body>', res)
-            # res = re.sub('(?<=\n)\n{2}',
+            # res = re.sub(br'\s*<body>', '<body>', res)
+            # res = re.sub(br'(?<=\n)\n{2}',
             # '<p>\u00a0</p>\n'.encode('utf-8'), res)
             f.write(res)
         self.write_inline_css(inline_class, border_styles)

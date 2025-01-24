@@ -222,7 +222,7 @@ def remove_indents(txt):
     '''
     Remove whitespace at the beginning of each line.
     '''
-    return re.sub(r'^[\r\t\f\v ]+', r'', txt, flags=re.MULTILINE)
+    return re.sub(r'^[\r\t\f\v ]+', '', txt, flags=re.MULTILINE)
 
 
 def opf_writer(path, opf_name, manifest, spine, mi):

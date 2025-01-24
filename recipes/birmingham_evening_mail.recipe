@@ -57,8 +57,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.birminghammail.co.uk')
-        cov = soup.find(attrs={'src': re.compile(
-            r'http://images.icnetwork.co.uk/upl/birm')})
+        cov = soup.find(attrs={'src': re.compile(r'http://images.icnetwork.co.uk/upl/birm')})
         cov = str(cov)
         cov2 = re.findall(
             r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)

@@ -80,7 +80,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 # with closing(br.open('https://empik.com' + id.strip(), timeout=timeout/4)) as nf:
                 #    idata = html.fromstring(nf.read())
                 #    crawled = idata.xpath('.//a[(@class="chosen hrefstyle") or (@class="connectionsLink hrefstyle")]/text()')
-                #    formats = ','.join([re.sub('ebook, ','', x.strip()) for x in crawled if 'ebook' in x])
+                #    formats = ','.join([re.sub(r'ebook, ','', x.strip()) for x in crawled if 'ebook' in x])
 
                 counter -= 1
 

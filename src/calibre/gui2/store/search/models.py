@@ -31,7 +31,7 @@ def comparable_price(text):
         m = re.sub(r'[.,\' ]', '.', match.group())
         # remove all separators accept fraction,
         # leave only 2 digits in fraction
-        m = re.sub(r'\.(?!\d*$)', r'', m)
+        m = re.sub(r'\.(?!\d*$)', '', m)
         text = f'{float(m) * 100.:0>8.0f}'
     return text
 

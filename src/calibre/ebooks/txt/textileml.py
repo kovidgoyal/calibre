@@ -83,7 +83,7 @@ class TextileMLizer(OEB2HTML):
                         text = re.sub(r'"(.+)":'+i+r'(\s)', r'\1\2', text)
             for i in self.our_ids:
                 if i not in self.our_links:
-                    text = re.sub(r'%?\('+i+'\\)\xa0?%?', r'', text)
+                    text = re.sub(r'%?\('+i+'\\)\xa0?%?', '', text)
 
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, [r'\*', '_', r'\*'])
@@ -101,7 +101,7 @@ class TextileMLizer(OEB2HTML):
         # remove spaces before a newline
         text = re.sub(r' +\n', r'\n', text)
         # remove newlines at top of file
-        text = re.sub(r'^\n+', r'', text)
+        text = re.sub(r'^\n+', '', text)
         # correct blockcode paras
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
         # correct blockquote paras

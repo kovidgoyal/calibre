@@ -108,7 +108,7 @@ class HTMLConverter:
                          lambda match: '<a'+match.group(1)+'></a>'),
                         # Strip comments from <style> tags. This is needed as
                         # sometimes there are unterminated comments
-                        (re.compile(r'<\s*style.*?>(.*?)<\/\s*style\s*>', re.DOTALL|re.IGNORECASE),
+                        (re.compile(r'<\s*style.*?>(.*?)</\s*style\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                         # remove <p> tags from within <a href> tags
                         (re.compile(r'<\s*a\s+[^<>]*href\s*=[^<>]*>(.*?)<\s*/\s*a\s*>', re.DOTALL|re.IGNORECASE),

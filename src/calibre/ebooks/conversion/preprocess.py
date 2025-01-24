@@ -274,7 +274,7 @@ class Dehyphenator:
                 r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)')% length)
         elif format == 'txt':
             intextmatch = re.compile(
-                '(?<=.{%i})(?P<firstpart>[^\\W\\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\\w\\d]+)'% length)
+                r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\w\d]+)'% length)
         elif format == 'individual_words':
             intextmatch = re.compile(
                 r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)

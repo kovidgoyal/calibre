@@ -43,7 +43,7 @@ def html_to_text(root):
     pat = re.compile(r'\n{3,}')
     for body in root.xpath('h:body', namespaces=XPNSMAP):
         body.tail = ''
-        yield pat.sub('\n\n', ''.join(tag_to_text(body)).strip())
+        yield pat.sub(r'\n\n', ''.join(tag_to_text(body)).strip())
 
 
 def to_text(container, name):

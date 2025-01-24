@@ -256,10 +256,10 @@ def get_parsed_proxy(typ='http', debug=True):
     proxy = proxies.get(typ, None)
     if proxy:
         pattern = re.compile((
-            '(?:ptype://)?'
-            '(?:(?P<user>\\w+):(?P<pass>.*)@)?'
-            '(?P<host>[\\w\\-\\.]+)'
-            '(?::(?P<port>\\d+))?').replace('ptype', typ)
+            r'(?:ptype://)?'
+            r'(?:(?P<user>\w+):(?P<pass>.*)@)?'
+            r'(?P<host>[\w\-\.]+)'
+            r'(?::(?P<port>\d+))?').replace('ptype', typ)
         )
 
         match = pattern.match(proxies[typ])
