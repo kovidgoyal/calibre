@@ -100,9 +100,9 @@ def adjacent_quotes(first_string, second_string):
     if fchar is not None:
         first_char = fchar.group(1)  # First non-space char
 
-    return bool((last_char == '\u0022' and first_char == '\u0022') \
-             or (last_char == '\u2019' and first_char == '\u2018') \
-             or (last_char == '\u201d' and first_char == '\u201c'))
+    return bool((last_char == '"' and first_char == '"') \
+             or (last_char == '’' and first_char == '‘') \
+             or (last_char == '”' and first_char == '“'))
 
 class Font:
 

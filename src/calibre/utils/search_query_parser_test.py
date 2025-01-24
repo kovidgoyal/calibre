@@ -227,7 +227,7 @@ class Tester(SearchQueryParser):
        'London : Jonathan Cape, 2005.',
        'lrf,txt'],
  259: ['My name is Red',
-       'Orhan Pamuk; translated from the Turkish by Erda\u011f G\xf6knar',
+       'Orhan Pamuk; translated from the Turkish by Erdağ G\xf6knar',
        'New York : Alfred A. Knopf, 2001.',
        'lit,lrf'],
  265: ['Harbinger', 'David Mack', 'Star Trek', 'lit,lrf'],

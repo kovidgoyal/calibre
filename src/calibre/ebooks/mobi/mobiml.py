@@ -529,11 +529,11 @@ class MobiMLizer:
             t = elem.text
             if not t:
                 t = ''
-            elem.text = '\u201c' + t
+            elem.text = '“' + t
             t = elem.tail
             if not t:
                 t = ''
-            elem.tail = '\u201d' + t
+            elem.tail = '”' + t
         text = None
         if elem.text:
             if istate.preserve or istate.pre_wrap:

@@ -362,7 +362,7 @@ class Serializer:
         text = text.replace('&', '&amp;')
         text = text.replace('<', '&lt;')
         text = text.replace('>', '&gt;')
-        text = text.replace('\u00AD', '')  # Soft-hyphen
+        text = text.replace('\u00ad', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
         if isinstance(text, str):

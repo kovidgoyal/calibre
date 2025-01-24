@@ -19,20 +19,20 @@ XLINK_NS     = 'http://www.w3.org/1999/xlink'
 _span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
 
 LIGATURES = {
-#        '\u00c6': 'AE',
-#        '\u00e6': 'ae',
-#        '\u0152': 'OE',
-#        '\u0153': 'oe',
-#        '\u0132': 'IJ',
-#        '\u0133': 'ij',
-#        '\u1D6B': 'ue',
-        '\uFB00': 'ff',
-        '\uFB01': 'fi',
-        '\uFB02': 'fl',
-        '\uFB03': 'ffi',
-        '\uFB04': 'ffl',
-        '\uFB05': 'ft',
-        '\uFB06': 'st',
+#        'Æ': 'AE',
+#        'æ': 'ae',
+#        'Œ': 'OE',
+#        'œ': 'oe',
+#        'Ĳ': 'IJ',
+#        'ĳ': 'ij',
+#        'ᵫ': 'ue',
+        'ﬀ': 'ff',
+        'ﬁ': 'fi',
+        'ﬂ': 'fl',
+        'ﬃ': 'ffi',
+        'ﬄ': 'ffl',
+        'ﬅ': 'ft',
+        'ﬆ': 'st',
         }
 
 _ligpat = re.compile('|'.join(LIGATURES))
@@ -240,7 +240,7 @@ class Dehyphenator:
             else:
                 if self.verbose > 2:
                     self.log('            Cleanup:returning original text '+firsthalf+' + linefeed '+secondhalf)
-                return firsthalf+'\u2014'+wraptags+secondhalf
+                return firsthalf+'—'+wraptags+secondhalf
 
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
@@ -274,7 +274,7 @@ class Dehyphenator:
                 r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)')% length)
         elif format == 'txt':
             intextmatch = re.compile(
-                '(?<=.{%i})(?P<firstpart>[^\\W\\-]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\\w\\d]+)'% length)
+                '(?<=.{%i})(?P<firstpart>[^\\W\\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\\w\\d]+)'% length)
         elif format == 'individual_words':
             intextmatch = re.compile(
                 r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)

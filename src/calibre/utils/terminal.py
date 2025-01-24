@@ -286,7 +286,7 @@ def test():
     text = [colored(t, fg=t)+'. '+colored(t, fg=t, bold=True)+'.' for t in
             ('red', 'yellow', 'green', 'white', 'cyan', 'magenta', 'blue',)]
     s.write('\n'.join(text))
-    u = '\u041c\u0438\u0445\u0430\u0438\u043b fällen'
+    u = 'Михаил fällen'
     print()
     s.write(u)
     print()

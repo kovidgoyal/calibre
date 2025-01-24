@@ -156,7 +156,7 @@ class EPUB_MOBI(CatalogPlugin):
                                  "Default: '%default'\n"
                                  "Applies to: AZW3, EPUB, MOBI output formats")),
                    Option('--prefix-rules',
-                          default="(('Read books','tags','+','\u2713'),('Wishlist item','tags','Wishlist','\u00d7'))",
+                          default="(('Read books','tags','+','✓'),('Wishlist item','tags','Wishlist','×'))",
                           dest='prefix_rules',
                           action=None,
                           help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"

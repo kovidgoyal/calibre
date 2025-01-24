@@ -465,7 +465,7 @@ class MetadataSingleDialogBase(QDialog):
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
-            title = title[:50] + '\u2026'
+            title = title[:50] + '…'
         self.setWindowTitle(BASE_TITLE + ' - ' +
                 title + ' -' +
                 _(' [%(num)d of %(tot)d]')%dict(num=self.current_row+1,

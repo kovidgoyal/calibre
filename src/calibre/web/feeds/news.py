@@ -1183,7 +1183,7 @@ class BasicNewsRecipe(Recipe):
             from calibre.utils.cleantext import clean_xml_chars
 
             # Truncating the string could cause a dangling UTF-16 half-surrogate, which will cause lxml to barf, clean it
-            ans = clean_xml_chars(ans) + '\u2026'
+            ans = clean_xml_chars(ans) + '…'
         return ans
 
     def feed2index(self, f, feeds):

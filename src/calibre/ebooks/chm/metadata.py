@@ -77,7 +77,7 @@ def _get_comments(soup):
     pages = (_metadata_from_span(soup, 'pages') or _metadata_from_table(soup, 'pages'))
     try:
         # date span can have copyright symbols in it...
-        date = date.replace('\u00a9', '').strip()
+        date = date.replace('©', '').strip()
         # and pages often comes as '(\d+ pages)'
         pages = re.search(r'\d+', pages).group(0)
         return f'Published {date}, {pages} pages.'

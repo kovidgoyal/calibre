@@ -24,9 +24,9 @@ def normalize_entities(cur_title):
         '\u2013':'-',
         '&mdash;': '-',
         '&ndash;': '-',
-        '\u00A0': ' ',
-        '\u00AB': '"',
-        '\u00BB': '"',
+        '\u00a0': ' ',
+        '\u00ab': '"',
+        '\u00bb': '"',
         '&quot;': '"',
     }
     for c, r in iteritems(entities):

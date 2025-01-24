@@ -113,7 +113,7 @@ def format_price_in_RUR(price):
     '''
     if price and re.match(r'^\d*?\.\d*?$', price):
         try:
-            price = u'{:,.2F} \u20BD'.format(float(price))  # \u20BD => руб.
+            price = u'{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except:
             pass

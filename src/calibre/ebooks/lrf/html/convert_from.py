@@ -803,7 +803,7 @@ class HTMLConverter:
             src = src.lstrip()
             f = src[0]
             next = 1
-            if f in ("'", '"', '\u201c', '\u2018', '\u201d', '\u2019'):
+            if f in ("'", '"', '“', '‘', '”', '’'):
                 if len(src) >= 2:
                     next = 2
                     f = src[:2]
@@ -819,7 +819,7 @@ class HTMLConverter:
 
         def append_text(src):
             fp, key, variant = self.font_properties(css)
-            for x, y in [('\xad', ''), ('\xa0', ' '), ('\ufb00', 'ff'), ('\ufb01', 'fi'), ('\ufb02', 'fl'), ('\ufb03', 'ffi'), ('\ufb04', 'ffl')]:
+            for x, y in [('\xad', ''), ('\xa0', ' '), ('ﬀ', 'ff'), ('ﬁ', 'fi'), ('ﬂ', 'fl'), ('ﬃ', 'ffi'), ('ﬄ', 'ffl')]:
                 src = src.replace(x, y)
 
             def valigner(x):
@@ -1624,7 +1624,7 @@ class HTMLConverter:
                             in_ol = parent.name.lower() == 'ol'
                             break
                         parent = parent.parent
-                    prepend = str(self.list_counter)+'. ' if in_ol else '\u2022' + ' '
+                    prepend = str(self.list_counter)+'. ' if in_ol else '•' + ' '
                     self.current_para.append(Span(prepend))
                     self.process_children(tag, tag_css, tag_pseudo_css)
                     if in_ol:

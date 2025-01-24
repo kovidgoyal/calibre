@@ -299,8 +299,8 @@ class iPadOutput(OutputProfile):
         }
     ]
 
-    ratings_char = '\u2605'            # filled star
-    empty_ratings_char = '\u2606'      # hollow star
+    ratings_char = '★'            # filled star
+    empty_ratings_char = '☆'      # hollow star
 
     touchscreen = True
     # touchscreen_news_css {{{
@@ -677,8 +677,8 @@ class KindleOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
 
-    empty_ratings_char = '\u2606'
-    ratings_char = '\u2605'
+    empty_ratings_char = '☆'
+    ratings_char = '★'
 
     mobi_ems_per_blockquote = 2.0
 
@@ -696,8 +696,8 @@ class KindleDXOutput(OutputProfile):
     # comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
-    empty_ratings_char = '\u2606'
-    ratings_char = '\u2605'
+    empty_ratings_char = '☆'
+    ratings_char = '★'
     mobi_ems_per_blockquote = 2.0
 
 
