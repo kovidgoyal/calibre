@@ -45,10 +45,10 @@ class ZeitDe(BasicNewsRecipe):
 
     masthead_url = 'https://static.zeit.de/p/zeit.web/3.714/images/structured-data-publisher-logo-zon.png'
 
-    extra_css = '.figure__text { font-size: 0.9em; font-style: italic; } \
-                 .figure__copyright { font-size: 0.9em; font-style: italic; color: #888; } \
-                 .article-heading__kicker { font-size: 0.5em; display: block; margin-bottom: 1em; } \
-                 p.summary { font-size: 1.3em; font-style: italic; } '
+    extra_css = '''.figure__text { font-size: 0.9em; font-style: italic; }
+                   .figure__copyright { font-size: 0.9em; font-style: italic; color: #888; }
+                   .article-heading__kicker { font-size: 0.5em; display: block; margin-bottom: 1em; }
+                   p.summary { font-size: 1.3em; font-style: italic; } '''
 
     remove_tags = [
         dict(name='aside', class_='topicbox'),

@@ -313,20 +313,20 @@ Examples
             inner_field_string = '%scb<nu<clos-brack<%s\n' % \
             (instruction, last_bracket)
         elif sec_in_field or par_in_field:
-            inner_field_string = \
-            'mi<mk<fldbkstart\n'\
-            'mi<tg<open-att__<field-block<type>%s\n%s'\
-            'mi<mk<fldbk-end_\n' \
-            'mi<tg<close_____<field-block\n'\
-            'mi<mk<fld-bk-end\n' \
-            % (instruction, inner_field_string)
+            inner_field_string = (
+            'mi<mk<fldbkstart\n'
+            'mi<tg<open-att__<field-block<type>%s\n%s'
+            'mi<mk<fldbk-end_\n'
+            'mi<tg<close_____<field-block\n'
+            'mi<mk<fld-bk-end\n'
+            ) % (instruction, inner_field_string)
         # write a marker to show an inline field for later parsing
         else:
-            inner_field_string = \
-            '%s' \
-            'mi<tg<open-att__<field<type>%s\n%s'\
-            'mi<tg<close_____<field\n'\
-            % (self.__marker, instruction, inner_field_string)
+            inner_field_string = (
+            '%s'
+            'mi<tg<open-att__<field<type>%s\n%s'
+            'mi<tg<close_____<field\n'
+            ) % (self.__marker, instruction, inner_field_string)
         if sec_in_field:
             inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + \
             'mi<mk<sec-fd-end\n'

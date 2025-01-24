@@ -37,17 +37,17 @@ class respektRecipe(BasicNewsRecipe):
         dict(name='script')
     ]
 
-    extra_css = 'p {text-align:justify;margin-top:0;margin-bottom:0} \
-                 ul {color:black} \
-                 .frame-caption {font-weight:normal;font-size:50%;font-style:italic;}  \
-                 h1 {font-size:150%;margin-bottom:0;} \
-                 h2 {font-size:100%;margin-bottom:0;} \
-                .post-subtitle {margin-top:0;} \
-                 h3 {font-size:100%;margin-bottom:0;margin-top:0;} \
-                 .box-title {background-color: lightgray;font-size:150%;font-weight:bold;margin-left:12%;margin-right:12%;margin-top:12%;margin-bottom:0;} \
-                 .box-content {background-color:lightgray;margin-left:12%;margin-right:12%;margin-top:0;margin-bottom:12%;} \
-                 p.indent_first_line {text-indent:30px;} \
-                 a {text-decoration:none;color:black;}'
+    extra_css = '''p {text-align:justify;margin-top:0;margin-bottom:0}
+                   ul {color:black}
+                   .frame-caption {font-weight:normal;font-size:50%;font-style:italic;}
+                   h1 {font-size:150%;margin-bottom:0;}
+                   h2 {font-size:100%;margin-bottom:0;}
+                   .post-subtitle {margin-top:0;}
+                   h3 {font-size:100%;margin-bottom:0;margin-top:0;}
+                   .box-title {background-color: lightgray;font-size:150%;font-weight:bold;margin-left:12%;margin-right:12%;margin-top:12%;margin-bottom:0;}
+                   .box-content {background-color:lightgray;margin-left:12%;margin-right:12%;margin-top:0;margin-bottom:12%;}
+                   p.indent_first_line {text-indent:30px;}
+                   a {text-decoration:none;color:black;}'''
 
     needs_subscription = True
 

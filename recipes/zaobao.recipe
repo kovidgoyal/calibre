@@ -32,21 +32,21 @@ class ZAOBAO(BasicNewsRecipe):
         dict(name='div', attrs={'width': '30%'}),
     ]
 
-    extra_css      = '\n\
-            @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}\n\
-            body{font-family: serif1, serif}\n\
-            .article_description{font-family: serif1, serif}\n\
-            p{font-family: serif1, serif}\n\
-            h1 {font-weight: bold; font-size: large;}\n\
-            h2 {font-size: large;}\n\
-            .title {font-size: large;}\n\
-            .article {font-size:medium}\n\
-            .navbar {font-size: small}\n\
-            .feed{font-size: medium}\n\
-            .small{font-size: small;padding-right: 8pt}\n\
-            .text{padding-right: 8pt}\n\
-            p{text-indent: 0cm}\n\
-            div#content{padding-right: 10pt}'
+    extra_css      = '''
+            @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+            body{font-family: serif1, serif}
+            .article_description{font-family: serif1, serif}
+            p{font-family: serif1, serif}
+            h1 {font-weight: bold; font-size: large;}
+            h2 {font-size: large;}
+            .title {font-size: large;}
+            .article {font-size:medium}
+            .navbar {font-size: small}
+            .feed{font-size: medium}
+            .small{font-size: small;padding-right: 8pt}
+            .text{padding-right: 8pt}
+            p{text-indent: 0cm}
+            div#content{padding-right: 10pt}'''
 
     INDEXES = [
         (u'\u65b0\u95fb\u56fe\u7247',

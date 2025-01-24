@@ -92,17 +92,17 @@ class Handelsblatt(BasicNewsRecipe):
         (re.compile(r'( data-src=")([^"]*")', re.IGNORECASE), lambda match: ' src="' + match.group(2))
     ]
 
-    extra_css = 'h2 {font-size: 1em; text-align: left} \
-                 h3 {font-size: 1em; text-align: left} \
-                 h4 {font-size: 1em; text-align: left; margin-bottom: 0em} \
-                 em {font-style: normal; font-weight: bold} \
-                 .vhb-subline {font-weight: normal; text-transform: uppercase} \
-                 .vhb-headline {font-size: 1.6em} \
-                 .vhb-teaser-head {margin-top: 1em; margin-bottom: 1em} \
-                 .vhb-hollow-area--innercontent {font-size: 0.6em} \
-                 .hcf-location-mark {font-weight: bold} \
-                 .lb-post-header {margin-top: 1em} \
-                 .panel-body p {margin-top: 0em}'
+    extra_css = '''h2 {font-size: 1em; text-align: left}
+                   h3 {font-size: 1em; text-align: left}
+                   h4 {font-size: 1em; text-align: left; margin-bottom: 0em}
+                   em {font-style: normal; font-weight: bold}
+                   .vhb-subline {font-weight: normal; text-transform: uppercase}
+                   .vhb-headline {font-size: 1.6em}
+                   .vhb-teaser-head {margin-top: 1em; margin-bottom: 1em}
+                   .vhb-hollow-area--innercontent {font-size: 0.6em}
+                   .hcf-location-mark {font-weight: bold}
+                   .lb-post-header {margin-top: 1em}
+                   .panel-body p {margin-top: 0em}'''
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

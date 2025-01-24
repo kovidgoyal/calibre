@@ -41,10 +41,10 @@ class AdvancedUserRecipe1450864843(BasicNewsRecipe):
 
     conversion_options = {'base_font_size': 12}
 
-    extra_css = 'h1 { font-size: 150%; font-weight: bold; } \
-                 h2 { font-size: 120%; font-weight: bold; } \
-                 h3 { font-size: 100%; font-style: italic; } \
-                 h4, h5, h6 { font-size: 100%; font-style: italic; }'
+    extra_css = '''h1 { font-size: 150%; font-weight: bold; }
+                   h2 { font-size: 120%; font-weight: bold; }
+                   h3 { font-size: 100%; font-style: italic; }
+                   h4, h5, h6 { font-size: 100%; font-style: italic; }'''
 
     def get_cover_url(self):
         self.cover_url = 'http://newsmail.cleartext.ch/referenz_tagesanzeiger.jpg'

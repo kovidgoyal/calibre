@@ -53,8 +53,8 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
-        'search=%s&limit=0,%s'
+        search_url = (u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02'
+                       '&search=%s&limit=0,%s')
         search_url = search_url % (quote(query), max_results)
 
         counter = max_results

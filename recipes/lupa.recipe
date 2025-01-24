@@ -19,9 +19,9 @@ class LupaCZ(BasicNewsRecipe):
     publication_type = 'newsportal'
     no_stylesheets = True
     remove_javascript = True
-    extra_css               = 'p.perex{font-size: 1.2em;margin: 0 0 10px 0;line-height: 1.4;padding: 0 0 10px 0;font-weight: bold;} \
-                               p.perex img {display:none;} \
-                               .urs p {margin: 0 0 0.8em 0;}'
+    extra_css               = '''p.perex{font-size: 1.2em;margin: 0 0 10px 0;line-height: 1.4;padding: 0 0 10px 0;font-weight: bold;}
+                                 p.perex img {display:none;}
+                                 .urs p {margin: 0 0 0.8em 0;}'''
 
     feeds = [
         (u'Zpr\xe1vi\u010dky', u'http://rss.lupa.cz/zpravicky'),

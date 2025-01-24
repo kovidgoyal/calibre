@@ -201,24 +201,24 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     conversion_options = {'smarten_punctuation': True}
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
-    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
-                 .introduction, .first { font-weight: bold; } \
-                 .cross-head { font-weight: bold; font-size: 125%; } \
-                 .cap, .caption { display: block; font-size: 80%; font-style: italic; } \
-                 .cap, .caption, .caption img, .caption span { display: block; text-align: center; margin: 5px auto; } \
-                 .byl, .byd, .byline img, .byline-name, .byline-title, .author-name, .author-position, \
-                    .correspondent-portrait img, .byline-lead-in, .name, .role, .bbc-role { display: block; \
-                    text-align: center; font-size: 80%; font-style: italic; margin: 1px auto; } \
-                 .story-date, .published, .datestamp { font-size: 80%; } \
-                 table { width: 100%; } \
-                 td img { display: block; margin: 5px auto; } \
-                 ul { padding-top: 10px; } \
-                 ol { padding-top: 10px; } \
-                 li { padding-top: 5px; padding-bottom: 5px; } \
-                 h1 { text-align: center; font-size: 175%; font-weight: bold; } \
-                 h2 { text-align: center; font-size: 150%; font-weight: bold; } \
-                 h3 { text-align: center; font-size: 125%; font-weight: bold; } \
-                 h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'
+    extra_css = '''body { font-family: verdana, helvetica, sans-serif; }
+                   .introduction, .first { font-weight: bold; }
+                   .cross-head { font-weight: bold; font-size: 125%; }
+                   .cap, .caption { display: block; font-size: 80%; font-style: italic; }
+                   .cap, .caption, .caption img, .caption span { display: block; text-align: center; margin: 5px auto; }
+                   .byl, .byd, .byline img, .byline-name, .byline-title, .author-name, .author-position,
+                      .correspondent-portrait img, .byline-lead-in, .name, .role, .bbc-role { display: block;
+                      text-align: center; font-size: 80%; font-style: italic; margin: 1px auto; }
+                   .story-date, .published, .datestamp { font-size: 80%; }
+                   table { width: 100%; }
+                   td img { display: block; margin: 5px auto; }
+                   ul { padding-top: 10px; }
+                   ol { padding-top: 10px; }
+                   li { padding-top: 5px; padding-bottom: 5px; }
+                   h1 { text-align: center; font-size: 175%; font-weight: bold; }
+                   h2 { text-align: center; font-size: 150%; font-weight: bold; }
+                   h3 { text-align: center; font-size: 125%; font-weight: bold; }
+                   h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'''
 
     # Remove various tag attributes to improve the look of the ebook pages.
     remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',

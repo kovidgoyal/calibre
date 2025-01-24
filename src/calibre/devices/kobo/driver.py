@@ -3025,16 +3025,16 @@ class KOBOTOUCH(KOBO):
         if show_debug:
             debug_print('KoboTouch:set_filesize_in_device_database contentID="%s"'%contentID)
 
-        test_query = 'SELECT ___FileSize '     \
-                        'FROM content '        \
-                        'WHERE ContentID = ? ' \
-                        ' AND ContentType = 6'
+        test_query = ('SELECT ___FileSize '
+                        'FROM content '
+                        'WHERE ContentID = ? '
+                        ' AND ContentType = 6')
         test_values = (contentID, )
 
-        updatequery = 'UPDATE content '         \
-                        'SET ___FileSize = ? '  \
-                        'WHERE ContentId = ? '  \
-                        'AND ContentType = 6'
+        updatequery = ('UPDATE content '
+                        'SET ___FileSize = ? '
+                        'WHERE ContentId = ? '
+                        'AND ContentType = 6')
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
@@ -3199,11 +3199,11 @@ class KOBOTOUCH(KOBO):
                       )
         shelf_type = 'UserTag'  # if self.supports_reading_list else None
         if self.dbversion < 64:
-            addquery += ' ("CreationDate","InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced")'\
-                        ' VALUES (?, ?, ?, ?, ?, ?, ?)'
+            addquery += ' ("CreationDate","InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced")'
+            addquery += ' VALUES (?, ?, ?, ?, ?, ?, ?)'
         else:
-            addquery += ' ("CreationDate", "InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced", "Id", "Type")'\
-                        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            addquery += ' ("CreationDate", "InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced", "Id", "Type")'
+            addquery += ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
             add_values = add_values +(bookshelf_name, shelf_type)
 
         if show_debug:

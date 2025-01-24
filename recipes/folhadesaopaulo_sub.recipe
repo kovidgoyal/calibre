@@ -11,8 +11,8 @@ class FSP(BasicNewsRecipe):
 
     title = u'Folha de S\xE3o Paulo'
     __author__ = 'Joao Eduardo Bertacchi - lc_addicted, 2020 Leonardo Amaral - leleobhz'
-    description = u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).' + \
-                  u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]'
+    description = (u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).'
+                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]')
 
     today = datetime.date.today()
 

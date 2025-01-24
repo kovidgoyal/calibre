@@ -81,11 +81,11 @@ class DiscoverMagazine(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
                           (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
 
-    extra_css = 'body { font-family: helvetica, sans-serif; } \
-                 .belowdeck {font-style: italic; padding=bottom: 10px; max-width: none} \
-                 .caption {font-style: italic; padding=bottom: 10px; max-width: none} \
-                 .caption1 {font-style: italic; padding=bottom: 10px; max-width: none} \
-                 h2 { text-align: left; font-size: 1em; font-weight: bold; }}'
+    extra_css = '''body { font-family: helvetica, sans-serif; }
+                   .belowdeck {font-style: italic; padding=bottom: 10px; max-width: none}
+                   .caption {font-style: italic; padding=bottom: 10px; max-width: none}
+                   .caption1 {font-style: italic; padding=bottom: 10px; max-width: none}
+                   h2 { text-align: left; font-size: 1em; font-weight: bold; }}'''
 
     def parse_index(self):
         # gets current month from homepage and append to index

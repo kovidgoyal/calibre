@@ -159,8 +159,8 @@ class Exit:
 class Helper:
 
     def __repr__(self):
-        return 'Type help() for interactive help, ' \
-               'or help(object) for help about object.'
+        return ('Type help() for interactive help, '
+                'or help(object) for help about object.')
 
     def __call__(self, *args, **kwds):
         import pydoc

@@ -66,7 +66,7 @@ class ConvertToTags:
                 'style-group', 'border-group','styles-in-body', 'paragraph-style-in-body',
                 'list-in-table', 'level-in-table', 'override-table','override-list',
                 )
-        self.__two_new_line = ('section', 'body', 'table', 'row' 'list-table')
+        self.__two_new_line = ('section', 'body', 'table', 'row', 'list-table')
         self.__state_dict = {
         'default'           : self.__default_func,
         'mi<tg<open______'  : self.__open_func,
