@@ -402,7 +402,8 @@ class Jump:
             jump_to_location(loc)
 
 
-jump = Jump()  # }}}
+jump = Jump()
+# }}}
 
 # Images {{{
 

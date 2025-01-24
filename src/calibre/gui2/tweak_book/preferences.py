@@ -470,7 +470,7 @@ class PreviewSettings(BasicSettings):  # {{{
 # }}}
 
 
-# ToolbarSettings  {{{
+# ToolbarSettings {{{
 
 
 class ToolbarList(QListWidget):

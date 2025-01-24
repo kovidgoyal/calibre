@@ -518,7 +518,7 @@ def create_margin_files(container):
 # }}}
 
 
-# Link handling  {{{
+# Link handling {{{
 def add_anchors_markup(root, uuid, anchors):
     body = last_tag(root)
     div = body.makeelement(

@@ -498,7 +498,7 @@ def create_theme(folder=None, parent=None):
         icon_resource_manager.set_theme()
 # }}}
 
-# Choose Theme  {{{
+# Choose Theme {{{
 
 
 def download_cover(cover_url, etag=None, cached=b''):

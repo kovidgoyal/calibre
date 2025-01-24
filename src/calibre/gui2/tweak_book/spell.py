@@ -1639,7 +1639,7 @@ class SpellCheck(Dialog):
         d.exec()
 # }}}
 
-# Find next occurrence  {{{
+# Find next occurrence {{{
 
 
 def find_next(word, locations, current_editor, current_editor_name,

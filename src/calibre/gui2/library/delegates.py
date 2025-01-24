@@ -151,7 +151,7 @@ class DateTimeEdit(DateTimeEditBase):  # {{{
 
 # }}}
 
-# Number Editor  {{{
+# Number Editor {{{
 
 
 def make_clearing_spinbox(spinbox):

@@ -839,7 +839,7 @@ class EbookViewer(MainWindow):
         return MainWindow.closeEvent(self, ev)
     # }}}
 
-    # Auto-hide mouse cursor  {{{
+    # Auto-hide mouse cursor {{{
     def setup_mouse_auto_hide(self):
         QApplication.instance().installEventFilter(self)
         self.cursor_hidden = False

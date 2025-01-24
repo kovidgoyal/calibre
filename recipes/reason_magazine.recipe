@@ -9,7 +9,7 @@ from calibre import prepare_string_for_xml
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-# {{{ parse article JSON
+# parse article JSON {{{
 def process_image_block(lines, block):
     caption = block.get('captionText')
     caption_lines = []

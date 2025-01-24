@@ -233,7 +233,7 @@ def books(ctx, rd, library_id):
 
 # }}}
 
-# Categories (Tag Browser)  {{{
+# Categories (Tag Browser) {{{
 
 
 @endpoint('/ajax/categories/{library_id=None}', postprocess=json)

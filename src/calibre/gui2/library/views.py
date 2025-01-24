@@ -454,7 +454,7 @@ class BooksView(QTableView):  # {{{
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
 
-        # {{{ Column Header setup
+        # Column Header setup {{{
         self.can_add_columns = True
         self.was_restored = False
         self.allow_save_state = True

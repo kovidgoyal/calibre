@@ -814,10 +814,8 @@ class InsertLink(Dialog):
 
 # }}}
 
-# Insert Semantics {{{
 
-
-class InsertSemantics(Dialog):
+class InsertSemantics(Dialog):  # {{{
 
     def __init__(self, container, parent=None):
         self.container = container

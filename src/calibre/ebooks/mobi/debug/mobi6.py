@@ -32,7 +32,7 @@ class TagX:  # {{{
     def __repr__(self):
         return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
                 self.num_values, bin(self.bitmask), self.eof)
-    # }}}
+# }}}
 
 
 class SecondaryIndexHeader:  # {{{
@@ -231,7 +231,7 @@ class IndexHeader:  # {{{
         a('Number of entries in the NCX: %d'% self.ncx_count)
 
         return '\n'.join(ans)
-    # }}}
+# }}}
 
 
 class Tag:  # {{{
