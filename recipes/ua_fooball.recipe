@@ -6,14 +6,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class UAFootball(BasicNewsRecipe):
 
-# Russian version
-#    title = 'UA-\u0424\u0443\u0442\u0431\u043E\u043B'
-#    language = 'ru_UK'
-#    feeds = [
-#        ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0444\u0443\u0442\u0431\u043E\u043B\u0430', 'https://www.ua-football.com/rss/all.xml')
-#        ]
+    # Russian version
+    # title = 'UA-\u0424\u0443\u0442\u0431\u043E\u043B'
+    # language = 'ru_UK'
+    # feeds = [
+    #     ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438 \u0444\u0443\u0442\u0431\u043E\u043B\u0430', 'https://www.ua-football.com/rss/all.xml')
+    # ]
 
-# Ukrainian version
+    # Ukrainian version
     title = 'UA-\u0424\u0443\u0442\u0431\u043E\u043B'
     description = ('\u0410\u043A\u0442\u0443\u0430\u043B\u044C\u043D\u0456 \u0442\u0435\u043C\u0438'
                    ' \u0444\u0443\u0442\u0431\u043E\u043B\u044C\u043D\u043E\u0433\u043E'
@@ -22,7 +22,7 @@ class UAFootball(BasicNewsRecipe):
     language = 'uk'
     feeds = [
         ('\u041D\u043E\u0432\u0438\u043D\u0438', 'https://www.ua-football.com/ua/rss/all.xml')
-        ]
+    ]
 
     __author__ = 'bugmen00t'
     publisher = '1766 TEAM EOOD'

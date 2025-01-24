@@ -56,9 +56,9 @@ def bilderstrecke(soup,tag):
 
     for v in struct:
         if isinstance(v, dict) and 'caption' in v and 'defaultUrl' in v:
-#            if type(struct[i-1])== str:
-#                head = soup.new_tag("h4")
-#                head.append(struct[i-1])
+            # if type(struct[i-1])== str:
+            #     head = soup.new_tag("h4")
+            #     head.append(struct[i-1])
             cap = soup.new_tag('p')
             cap.append(struct[int(v['caption'])])
             cap['class'] = 'body-elements__image-figcaption'
@@ -172,11 +172,11 @@ class FazNet(BasicNewsRecipe):
     else:
         def parse_index(self):
             test_article = 'https://www.faz.net/aktuell/stil/mode-im-em-jahr-wir-zeigen-wie-fussball-und-mode-zusammengehoeren-19766969.html'
-#            test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/film-eruption-ein-thriller-aus-dem-nachlass-von-michael-crichton-19770491.html'
-#            test_article = 'https://www.faz.net/aktuell/stil/mode-design/leonie-benesch-sandra-hueller-ist-eine-meiner-heldinnen-19671638.html'
-#            test_article = 'https://www.faz.net/aktuell/feuilleton/medien/sabine-postel-zum-siebzigsten-die-briten-nannten-sie-german-traktor-19708409.html'
-#            test_article = 'https://www.faz.net/aktuell/stil/mode-design/von-richert-beil-bis-william-fan-wer-kauft-denn-das-19666592.html'
- #           test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/rezensionen/sachbuch/tom-mustills-buch-die-sprache-der-wale-19657782.html'
+            # test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/film-eruption-ein-thriller-aus-dem-nachlass-von-michael-crichton-19770491.html'
+            # test_article = 'https://www.faz.net/aktuell/stil/mode-design/leonie-benesch-sandra-hueller-ist-eine-meiner-heldinnen-19671638.html'
+            # test_article = 'https://www.faz.net/aktuell/feuilleton/medien/sabine-postel-zum-siebzigsten-die-briten-nannten-sie-german-traktor-19708409.html'
+            # test_article = 'https://www.faz.net/aktuell/stil/mode-design/von-richert-beil-bis-william-fan-wer-kauft-denn-das-19666592.html'
+            # test_article = 'https://www.faz.net/aktuell/feuilleton/buecher/rezensionen/sachbuch/tom-mustills-buch-die-sprache-der-wale-19657782.html'
             if test_article:
                 return [('Articles', [{'title': 'Test article', 'url': test_article}])]
             soup = self.index_to_soup(self.INDEX)
@@ -214,7 +214,7 @@ class FazNet(BasicNewsRecipe):
             if len(par.contents) == 1:
                 cont = str(par.contents[0])
                 if re.search(r'^[1-9]\d* Bilder$',cont):
-#                    print(cont)
+                    # print(cont)
                     for tag in soup.findAll('script',attrs={'id':'__NUXT_DATA__','type':'application/json'}):
                         bilderstrecke(soup,tag)
                         break
