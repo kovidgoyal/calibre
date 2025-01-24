@@ -21,7 +21,7 @@ class elcorreo(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_empty_feeds = True
     resolve_internal_links = True
-    max_articles_per_feed = 25 # articles
+    max_articles_per_feed = 25  # articles
     compress_news_images = True
 
     recipe_specific_options = {

@@ -115,8 +115,8 @@ class ThumbnailCache:
                  thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
                  location=None,   # The location for this cache, if None cache_dir() is used
                  test_mode=False,  # Used for testing
-                 min_disk_cache=0, # If the size is set less than or equal to this value, the cache is disabled.
-                 version=0 # Increase this if the cache content format might have changed.
+                 min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
+                 version=0  # Increase this if the cache content format might have changed.
                  ):
         self.version = version
         self.location = os.path.join(location or cache_dir(), name)

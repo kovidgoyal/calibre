@@ -25,7 +25,7 @@ class CoverView(ConfigTabWidget, Ui_Form):
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
         r('cover_browser_narrow_view_position', gprefs,
-                            choices=[(_('Automatic'), 'automatic'), # Automatic must be first
+                            choices=[(_('Automatic'), 'automatic'),  # Automatic must be first
                                      (_('On top'), 'on_top'),
                                      (_('On right'), 'on_right')])
         r('cover_browser_title_template', db.prefs)

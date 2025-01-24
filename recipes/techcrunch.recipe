@@ -18,7 +18,7 @@ class AdvancedUserRecipe1718089036(BasicNewsRecipe):
 
     feeds = [
     ('TechCrunch', 'https://techcrunch.com/feed/'),
-    #Categories
+    # Categories
     ('Apps', 'https://techcrunch.com/category/apps/feed/'),
     ('Artificial Intelligence', 'https://techcrunch.com/category/artificial-intelligence/feed/'),
     ('Biotech', 'https://techcrunch.com/category/biotech-health/feed/'),
@@ -41,7 +41,7 @@ class AdvancedUserRecipe1718089036(BasicNewsRecipe):
     ('Tech Policy & Government', 'https://techcrunch.com/category/government-policy/feed/'),
     ('Transportation', 'https://techcrunch.com/category/transportation/feed/'),
     ('Venture Capital', 'https://techcrunch.com/category/venture/feed/'),
-    #Tags
+    # Tags
     ('Amazon', 'https://techcrunch.com/tag/amazon/feed/'),
     ('Apple', 'https://techcrunch.com/tag/apple/feed/'),
     ('Cloud Computing', 'https://techcrunch.com/tag/cloud-computing/feed/'),
@@ -52,6 +52,6 @@ class AdvancedUserRecipe1718089036(BasicNewsRecipe):
     ('Meta', 'https://techcrunch.com/tag/meta/feed/'),
     ('Microsoft', 'https://techcrunch.com/tag/microsoft/feed/'),
     ('TikTok', 'https://techcrunch.com/tag/tiktok/feed/'),
-    #Other
+    # Other
     ('Events Archive', 'https://techcrunch.com/events/feed/'),
 ]

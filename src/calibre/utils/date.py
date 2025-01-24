@@ -161,7 +161,7 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     o = qdate_or_qdatetime
     if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE
-    if hasattr(o, 'toUTC'): # QDateTime
+    if hasattr(o, 'toUTC'):  # QDateTime
         def c(o: QDateTime, tz=utc_tz):
             d, t = o.date(), o.time()
             try:

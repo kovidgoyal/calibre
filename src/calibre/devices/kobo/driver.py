@@ -1414,7 +1414,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_keywords          = 82
     min_dbversion_seriesid          = 136
     min_dbversion_bookstats         = 168
-    min_dbversion_real_bools        = 188 # newer (tolino) 5.x fw uses 0 and 1 as boolean values
+    min_dbversion_real_bools        = 188  # newer (tolino) 5.x fw uses 0 and 1 as boolean values
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
@@ -1443,9 +1443,9 @@ class KOBOTOUCH(KOBO):
     min_clara2e_fwversion           = (4, 33, 19759)
     min_fwversion_audiobooks        = (4, 29, 18730)
     min_fwversion_bookstats         = (4, 32, 19501)
-    min_clarabw_fwversion           = (4, 39, 22801) # not sure whether needed
-    min_claracolor_fwversion        = (4, 39, 22801) # not sure whether needed
-    min_libracolor_fwversion        = (4, 39, 22801) # not sure whether needed
+    min_clarabw_fwversion           = (4, 39, 22801)  # not sure whether needed
+    min_claracolor_fwversion        = (4, 39, 22801)  # not sure whether needed
+    min_libracolor_fwversion        = (4, 39, 22801)  # not sure whether needed
 
     has_kepubs = True
 

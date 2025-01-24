@@ -5,7 +5,7 @@ from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 # figure out your local edition id from the log of this recipe
-edi_id = 182 # NTR VIJAYAWADA - 182
+edi_id = 182  # NTR VIJAYAWADA - 182
 
 today = date.today().strftime('%d/%m/%Y')
 

@@ -50,7 +50,7 @@ class google_news_de(BasicNewsRecipe):
             url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
         link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
+        skip_sections =[  # add sections you want to skip
             '/video/', '/videos/', '/media/', 'podcast-'
         ]
         if any(x in link['href'] for x in skip_sections):

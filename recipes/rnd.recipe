@@ -63,20 +63,20 @@ class RND(BasicNewsRecipe):
  ('Wirtschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/wirtschaft/'),
  ('Sport', 'https://www.rnd.de/arc/outboundfeeds/rss/category/sport/'),
  ('Panorama', 'https://www.rnd.de/arc/outboundfeeds/rss/category/panorama/'),
- #('Promis', 'https://www.rnd.de/arc/outboundfeeds/rss/category/promis/'),
- #('Reise', 'https://www.rnd.de/arc/outboundfeeds/rss/category/reise/'),
- #('Medien', 'https://www.rnd.de/arc/outboundfeeds/rss/category/medien/'),
- #('Digital', 'https://www.rnd.de/arc/outboundfeeds/rss/category/digital/'),
- #('Kultur', 'https://www.rnd.de/arc/outboundfeeds/rss/category/kultur/'),
- #('Wissen', 'https://www.rnd.de/arc/outboundfeeds/rss/category/wissen/'),
- #('Familie', 'https://www.rnd.de/arc/outboundfeeds/rss/category/familie/'),
- #('Gesundheit',  'https://www.rnd.de/arc/outboundfeeds/rss/category/gesundheit/'),
- #('Lifestyle', 'https://www.rnd.de/arc/outboundfeeds/rss/category/lifestyle/'),
- #('Bauen & Wohnen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/bauen-und-wohnen/'),
- #('Geld & Finanzen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/geld-und-finanzen/'),
- #('Liebe & Partnerschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/liebe-und-partnerschaft/'),
- #('Beruf & Bildung',  'https://www.rnd.de/arc/outboundfeeds/rss/category/beruf-und-bildung/'),
- #('E-Mobility',  'https://www.rnd.de/arc/outboundfeeds/rss/category/e-mobility/')
+ # ('Promis', 'https://www.rnd.de/arc/outboundfeeds/rss/category/promis/'),
+ # ('Reise', 'https://www.rnd.de/arc/outboundfeeds/rss/category/reise/'),
+ # ('Medien', 'https://www.rnd.de/arc/outboundfeeds/rss/category/medien/'),
+ # ('Digital', 'https://www.rnd.de/arc/outboundfeeds/rss/category/digital/'),
+ # ('Kultur', 'https://www.rnd.de/arc/outboundfeeds/rss/category/kultur/'),
+ # ('Wissen', 'https://www.rnd.de/arc/outboundfeeds/rss/category/wissen/'),
+ # ('Familie', 'https://www.rnd.de/arc/outboundfeeds/rss/category/familie/'),
+ # ('Gesundheit',  'https://www.rnd.de/arc/outboundfeeds/rss/category/gesundheit/'),
+ # ('Lifestyle', 'https://www.rnd.de/arc/outboundfeeds/rss/category/lifestyle/'),
+ # ('Bauen & Wohnen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/bauen-und-wohnen/'),
+ # ('Geld & Finanzen',  'https://www.rnd.de/arc/outboundfeeds/rss/category/geld-und-finanzen/'),
+ # ('Liebe & Partnerschaft',  'https://www.rnd.de/arc/outboundfeeds/rss/category/liebe-und-partnerschaft/'),
+ # ('Beruf & Bildung',  'https://www.rnd.de/arc/outboundfeeds/rss/category/beruf-und-bildung/'),
+ # ('E-Mobility',  'https://www.rnd.de/arc/outboundfeeds/rss/category/e-mobility/')
  ]
 
     def parse_feeds(self):
@@ -116,5 +116,5 @@ class RND(BasicNewsRecipe):
         for keyword in unwanted_article_keywords:
             if keyword in raw:
                 print('Skipping unwanted article with keyword(s):',keyword)
-                #self.abort_article('Skipping unwanted article')
+                # self.abort_article('Skipping unwanted article')
         return raw

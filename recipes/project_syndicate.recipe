@@ -24,7 +24,7 @@ class projectsynd(BasicNewsRecipe):
     resolve_internal_links  = True
     remove_empty_feeds = True
     remove_attributes = ['style', 'height', 'width']
-    oldest_article = 7 # days
+    oldest_article = 7  # days
     storage = []
 
     articles_are_obfuscated = True

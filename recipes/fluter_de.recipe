@@ -20,7 +20,7 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
     language = 'de'
     encoding = 'UTF-8'
 
-    __author__ = 'Armin Geller' # 2013-02-05 V3
+    __author__ = 'Armin Geller'  # 2013-02-05 V3
 
     oldest_article = 14
     max_articles_per_feed = 50

@@ -680,7 +680,7 @@ if iswindows:
         except FileNotFoundError:
             return path
         except OSError as e:
-            if e.winerror == 123: # ERR_INVALID_NAME
+            if e.winerror == 123:  # ERR_INVALID_NAME
                 return path
             raise
 

@@ -130,15 +130,15 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         cursor = QTextCursor(self.document())
         bf = cursor.blockFormat()
 
-        #Block quotes can contain all elements so process it first, internally process recursively and return
+        # Block quotes can contain all elements so process it first, internally process recursively and return
         if self.highlightBlockQuote(text, cursor, bf):
             return
 
-        #If empty line no need to check for below elements just return
+        # If empty line no need to check for below elements just return
         if self.highlightEmptyLine(text, cursor, bf):
             return
 
-        #If horizontal line, look at pevious line to see if its a header, process and return
+        # If horizontal line, look at pevious line to see if its a header, process and return
         if self.highlightHorizontalLine(text, cursor, bf):
             return
 
@@ -186,9 +186,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             prev = prevBlock.text()
             prevAscii = str(prev.replace('\u2029','\n'))
             if self.offset == 0 and prevAscii.strip():
-                #print('Its a header')
+                # print('Its a header')
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
-                #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
+                # prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
                 formatRange = QTextLayout.FormatRange()
                 formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
                 formatRange.length = prevCursor.block().length()
@@ -205,9 +205,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def highlightHeader(self, text, cursor, bf):
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'],text):
-            #bf.setBackground(QBrush(QColor(7,54,65)))
-            #cursor.movePosition(QTextCursor.End)
-            #cursor.mergeBlockFormat(bf)
+            # bf.setBackground(QBrush(QColor(7,54,65)))
+            # cursor.movePosition(QTextCursor.End)
+            # cursor.mergeBlockFormat(bf)
             self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
             found = True
         return found
@@ -257,7 +257,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         return self._highlightBoldEmphasis(text[offset:], cursor, bf, offset, False, False)
 
     def _highlightBoldEmphasis(self, text, cursor, bf, offset, bold, emphasis):
-        #detect and apply imbricated Bold/Emphasis
+        # detect and apply imbricated Bold/Emphasis
         found = False
 
         def apply(match, bold, emphasis):

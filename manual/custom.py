@@ -33,7 +33,7 @@ def formatter_funcs():
 
     ans = {'doc': {}, 'sum': {}}
     with TemporaryDirectory() as tdir:
-        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        db = LibraryDatabase(tdir)  # needed to load formatter_funcs
         ffml = FFMLProcessor()
         all_funcs = formatter_functions().get_builtins()
         for func_name, func in all_funcs.items():

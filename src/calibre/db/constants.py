@@ -14,7 +14,7 @@ DATA_DIR_NAME = 'data'
 DATA_FILE_PATTERN = f'{DATA_DIR_NAME}/**/*'
 BOOK_ID_PATH_TEMPLATE = ' ({})'
 RESOURCE_URL_SCHEME = 'calres'
-TEMPLATE_ICON_INDICATOR = ' template ' # Item values cannot start or end with space
+TEMPLATE_ICON_INDICATOR = ' template '  # Item values cannot start or end with space
 
 
 @dataclass

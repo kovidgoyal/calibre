@@ -236,7 +236,7 @@ class Text(Element):
         # Or assume any gap = a space?
         if (self.top <= other.top and self.bottom >= other.bottom) \
           and abs(other.left - self.right) < 2.0:
-          #and abs(other.left - self.right) < self.average_character_width / 3.0:
+          # and abs(other.left - self.right) < self.average_character_width / 3.0:
             has_gap = 0
         else:  # Insert n spaces to fill gap.  Use TAB?  Columns?
             if other.left < self.right:
@@ -318,7 +318,7 @@ class Text(Element):
                   and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR:
                     has_float = '<span style="float:right">'
                     has_gap = 1
-                #else leave has_gap
+                # else leave has_gap
             old_float = re.match(r'^(.*)(<span style="float:right">.*)</span>\s*$', self.raw)
             if old_float:
                 # There is already a float as parts of a line are near the right.
@@ -336,11 +336,11 @@ class Text(Element):
                 self.text_as_string += ' '
                 self.raw += ' '
                 self.width += self.average_character_width
-                #self.final_width += self.average_character_width
+                # self.final_width += self.average_character_width
                 has_gap -= 1
 
         self.text_as_string += other.text_as_string
-        #self.width += other.width
+        # self.width += other.width
 
         # Try to merge href where there are 2 for the same place
         # Beware multiple hrefs on the same line, but for different places
@@ -372,9 +372,9 @@ class Text(Element):
                 # Move the <span... after the <a... and remove the </a>
                 self.raw = matchObj.group(1)+matchObj.group(3)+m2+matchObj.group(4)+m5+matchObj.group(6)
         # This needs more work
-        #if sub_super < 0:
+        # if sub_super < 0:
         #    other.raw = '<sup>' + other.raw + '</sup>'
-        #elif sub_super > 0:
+        # elif sub_super > 0:
         #    other.raw = '<sub>' + other.raw + '</sub>'
 
         if has_float:
@@ -383,7 +383,7 @@ class Text(Element):
         if has_float:
             self.raw += '</span>'
         self.set_av_char_width()
-        #self.last_left = other.left
+        # self.last_left = other.left
 
     def to_html(self):
         return self.raw
@@ -782,7 +782,7 @@ class Page:
               or text.top > self.height \
               or text.left > self.left+self.width \
               or text.left < self.left:
-              #and re.match(r'href=', text.raw) is None:
+              # and re.match(r'href=', text.raw) is None:
                 self.texts.remove(text)
             elif  (self.opts.pdf_header_skip <= 0 or text.top >= self.opts.pdf_header_skip) \
               and (self.opts.pdf_footer_skip <= 0 or text.top <= self.opts.pdf_footer_skip):
@@ -960,19 +960,19 @@ class Page:
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
               and lmargin <= rmargin + rmargin*CENTER_FACTOR \
               and '"float:right"' not in t.raw:
-               #and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
-               #and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
+               # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
+               # and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
             # Right aligned if left > FACTOR% of right
             elif lmargin > indent_max \
               and lmargin > rmargin*RIGHT_FACTOR:
-              #and t.right >= self.width - t.average_character_width:
+              # and t.right >= self.width - t.average_character_width:
                 # What about right-aligned but indented on right?
                 # What about indented rather than right-aligned?
                 t.align = 'R'
             if not self.contents:
               # We can get <a href=...Chapter...  Should this check be done?
-              #if 'href=' not in t.raw:
+              # if 'href=' not in t.raw:
                 # Check for Roman numerals as the only thing on a line
                 if re.match(r'^\s*[iIxXvV]+\s*$', t.text_as_string) is not None:
                     t.tag = 'h3'
@@ -1082,7 +1082,7 @@ class Page:
                         if last_frag is not None \
                           and stats.para_space > 0 \
                           and frag.bottom - last_frag.bottom > stats.para_space*SECTION_FACTOR:
-                          #and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
+                          # and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
                             frag.blank_line_before = 1
                 last_frag = frag
                 tind += 1
@@ -1104,8 +1104,8 @@ class Page:
                     # There could be fragments which are spread out, so join_fragments has not coalesced them
                     # Not sure that this would work as it relies on the first fragment matching regex
                     t = self.texts[0]
-                    #match = self.find_match(t)
-                    #while match is not None:
+                    # match = self.find_match(t)
+                    # while match is not None:
                     #    self.texts.remove(match)
                     #    match = self.find_match(t)
                     self.texts.remove(t)
@@ -1119,8 +1119,8 @@ class Page:
                 if re.match(opts.pdf_footer_regex, self.texts[-1].text_as_string) is not None :
                     # There could be fragments which are spread out, so join_fragments has not coalesced them
                     t = self.texts[-1]
-                    #match = self.find_match(t)
-                    #while match is not None:
+                    # match = self.find_match(t)
+                    # while match is not None:
                     #    self.texts.remove(match)
                     #    match = self.find_match(t)
                     self.texts.remove(t)
@@ -1140,7 +1140,7 @@ class Page:
 
     def find_margins(self, tops, indents, line_spaces, bottoms, rights):
 
-        #from collections import Counter
+        # from collections import Counter
 
         # Should check for left margin and indent for this page
         # Find the most used top, left margins, and gaps between lines
@@ -1149,7 +1149,7 @@ class Page:
         max_right = 0
         max_space = 0
         last_top = 0
-        #last_bottom = 0
+        # last_bottom = 0
         first = True
         for text in self.texts:
             top = text.top
@@ -1341,10 +1341,10 @@ class Page:
 
         self.check_centered(stats)
 
-        #self.elements = list(self.texts)
-        #for img in page.xpath('descendant::img'):
+        # self.elements = list(self.texts)
+        # for img in page.xpath('descendant::img'):
         #    self.elements.append(Image(img, self.opts, self.log, idc))
-        #self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
+        # self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
 
         return
         # NOT IMPLEMENTED
@@ -1391,7 +1391,7 @@ class Page:
             elif text.indented > 0:
                 ans[-1] += ' style="text-indent:'
                 ans[-1] += str(text.indented)
-                #ans[-1] += '1'
+                # ans[-1] += '1'
                 ans[-1] += 'em"'
             # The margins need more work.  e.g. can have indented + left + right
             elif text.margin_left > 0:
@@ -1427,7 +1427,7 @@ class Page:
 class PDFDocument:
 
     def __init__(self, xml, opts, log):
-        #from calibre.rpdb import set_trace;  set_trace()
+        # from calibre.rpdb import set_trace;  set_trace()
 
         self.opts, self.log = opts, log
 
@@ -1451,11 +1451,11 @@ class PDFDocument:
             self.font_map[self.fonts[-1].id] = self.fonts[-1]
 
         self.pages = []
-        #self.page_map = {}
+        # self.page_map = {}
 
         for page in self.root.xpath('//page'):
             page = Page(page, self.font_map, opts, log, idc)
-            #self.page_map[page.id] = page
+            # self.page_map[page.id] = page
             self.pages.append(page)
 
         self.tops = {}
@@ -1496,7 +1496,7 @@ class PDFDocument:
         # Join paragraphs across page boundaries
         self.merge_pages(idc)
 
-        #self.linearize()
+        # self.linearize()
         self.render()
 
     def collect_font_statistics(self):
@@ -1752,7 +1752,7 @@ class PDFDocument:
         bcount = 0
         for b in self.bottoms:
             if bcount < self.bottoms[b]:
-              #and b > self.stats.bottom*0.9:
+              # and b > self.stats.bottom*0.9:
                 bcount = self.bottoms[b]
             if b > self.stats.bottom:
                 self.stats.bottom = b
@@ -1801,7 +1801,7 @@ class PDFDocument:
                       or page.texts[head_ind].top > page.height/2:
                         break  # Short page
                     t = page.texts[head_ind].text_as_string
-                    #if len(page.texts) > 1 and page.texts[0].top == page.texts[1].top:
+                    # if len(page.texts) > 1 and page.texts[0].top == page.texts[1].top:
                     #    t += ' ' + page.texts[1].text_as_string
                     if len(head_text[head_ind]) == 0:
                         head_text[head_ind] = t
@@ -1834,7 +1834,7 @@ class PDFDocument:
                       or page.texts[-foot_ind-1].top < page.height/2:
                         break  # Short page
                     t = page.texts[-foot_ind-1].text_as_string
-                    #if len(page.texts) > 1 and page.texts[-1].top == page.texts[-2].top:
+                    # if len(page.texts) > 1 and page.texts[-1].top == page.texts[-2].top:
                     #    t += ' ' + page.texts[-2].text_as_string
                     if len(foot_text[foot_ind]) == 0:
                         foot_text[foot_ind] = t
@@ -2040,7 +2040,7 @@ class PDFDocument:
                 # Have we removed everything from this page (well, all texts and images)
                 if merged_page.is_empty:
                     # Empty page does/may not actually mean blank line
-                    #candidate.texts[-1].blank_line_before = 1
+                    # candidate.texts[-1].blank_line_before = 1
                     # If pages are merged, and the merged page gets removed (as here),
                     # and the next page is short (forced page break),
                     # then the merge would fail when this loop restarts.

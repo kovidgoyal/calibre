@@ -619,7 +619,7 @@ def create_copy_links(menu, data=None):
         all_links.append(url)
         copy_to_clipboard_action(text, url)
 
-    sep = menu.addSeparator() # Note: separators are really actions
+    sep = menu.addSeparator()  # Note: separators are really actions
 
     link_action(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     link_action(_('Link to show book details in a popup window'),

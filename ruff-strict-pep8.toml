@@ -38,6 +38,7 @@ select = [
     'RUF047',  # needless else
     'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
     'E111', 'E112', 'E113', 'E117',  # code indentation
+    'E114', 'E115', 'E116', 'E261', 'E262', 'E265',  # comment formating
 ]
 
 [lint.per-file-ignores]
@@ -45,8 +46,10 @@ select = [
 "manual/plugin_examples/*" = ['UP']
 "setup/commands.py" = ['RUF022']
 "src/calibre/*" = ['UP031']
+"src/calibre/devices/kobo/driver.py" = ['E116']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
 "src/calibre/ebooks/metadata/sources/*" = ['UP']
+"src/calibre/ebooks/pdf/reflow.py" = ['E114']
 "src/calibre/gui2/store/stores/*" = ['UP']
 "src/calibre/gui2/tts/manager.py" = ['UP037']
 "src/calibre/utils/copy_files.py" = ['UP037']

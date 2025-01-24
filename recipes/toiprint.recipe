@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 # Chennai - 'toich'; Chandigarh - 'toicgct'; Jaipur - 'toijc'; Kolkata - 'toikc';
 # There are others too, try to figure it out, visit toi epaper link.
 
-le = 'cap' # local edition;
+le = 'cap'  # local edition;
 
 date0 = date.today().strftime('%Y/%m/%d')
 

@@ -21,26 +21,26 @@ class AdvancedUserRecipe1718109535(BasicNewsRecipe):
 
     feeds          = [
         ('Game Guides', 'https://www.thegamer.com/feed/category/game-guides/'),
-        #AAA Games
+        # AAA Games
         ('AAA Games', 'https://www.thegamer.com/feed/aaa-games/'),
         ('AAA Games Features', 'https://www.thegamer.com/feed/aaa-games/features/'),
         ('AAA Games News', 'https://www.thegamer.com/feed/aaa-games/news/'),
         ('AAA Games Lists', 'https://www.thegamer.com/feed/aaa-games/lists/'),
-        #Live-Service Games
+        # Live-Service Games
         ('Live-Service Games', 'https://www.thegamer.com/feed/live-service-games/'),
         ('Live-Service Games Features', 'https://www.thegamer.com/feed/live-service-games/features/'),
         ('Live-Service Games News', 'https://www.thegamer.com/feed/live-service-games/news/'),
         ('Live-Service Games Lists', 'https://www.thegamer.com/feed/live-service-games/lists/'),
-        #Indie Games
+        # Indie Games
         ('Indie Games', 'https://www.thegamer.com/feed/indie-games/'),
         ('Indie Games Features', 'https://www.thegamer.com/feed/indie-games/features/'),
         ('Indie Games News', 'https://www.thegamer.com/feed/indie-games/news/'),
         ('Indie Games Lists', 'https://www.thegamer.com/feed/indie-games/lists/'),
-        #Streaming
+        # Streaming
         ('Streaming', 'https://www.thegamer.com/feed/streaming/'),
         ('Streaming Features', 'https://www.thegamer.com/feed/streaming/features/'),
         ('Streaming News', 'https://www.thegamer.com/feed/streaming/news/'),
-        #Movies & Shows
+        # Movies & Shows
         ('Movies & Shows', 'https://www.thegamer.com/feed/movies-tv-anime/'),
         ('Movies & Shows Features', 'https://www.thegamer.com/feed/movies-tv-anime/features/'),
         ('Movies & Shows News', 'https://www.thegamer.com/feed/movies-tv-anime/news/'),

@@ -21,8 +21,8 @@ class Salon_com(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    #auto_cleanup = True
-    #auto_cleanup_keep = '//div[@id="image-id"]'
+    # auto_cleanup = True
+    # auto_cleanup_keep = '//div[@id="image-id"]'
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
 
@@ -40,14 +40,14 @@ class Salon_com(BasicNewsRecipe):
     remove_attributes = ['lang', 'style']
 
     feeds = [
-        #('News', 'http://www.salon.com/category/news/feed/rss/'),
-        #('Politics', 'http://www.salon.com/category/politics/feed/rss/'),
-        #('Business', 'http://www.salon.com/category/business/feed/rss/'),
-        #('Technology', 'http://www.salon.com/category/technology/feed/rss/'),
-        #('Innovation', 'http://www.salon.com/category/innovation/feed/rss/'),
-        #('Sustainability', 'http://www.salon.com/category/sustainability/feed/rss/'),
-        #('Entertainment', 'http://www.salon.com/category/entertainment/feed/rss/'),
-        #('Life', 'http://www.salon.com/category/life/feed/rss/'),
+        # ('News', 'http://www.salon.com/category/news/feed/rss/'),
+        # ('Politics', 'http://www.salon.com/category/politics/feed/rss/'),
+        # ('Business', 'http://www.salon.com/category/business/feed/rss/'),
+        # ('Technology', 'http://www.salon.com/category/technology/feed/rss/'),
+        # ('Innovation', 'http://www.salon.com/category/innovation/feed/rss/'),
+        # ('Sustainability', 'http://www.salon.com/category/sustainability/feed/rss/'),
+        # ('Entertainment', 'http://www.salon.com/category/entertainment/feed/rss/'),
+        # ('Life', 'http://www.salon.com/category/life/feed/rss/'),
         #
         ('News and Politics', 'https://www.salon.com/category/news-and-politics/feed'),
         ('Culture', 'http://www.salon.com/category/culture/feed/'),

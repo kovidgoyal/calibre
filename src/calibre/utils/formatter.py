@@ -1403,7 +1403,7 @@ class _Interpreter:
         if res is None or not isinstance(res, (list, tuple, set, dict)):
             self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
         pat = re.compile(left, flags=re.I)
-        if isinstance(res, dict): # identifiers
+        if isinstance(res, dict):  # identifiers
             for k,v in res.items():
                 if re.search(pat, f'{k}:{v}'):
                     return '1'

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#from __future__ import unicode_literals, division, absolute_import, print_function
+# from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 __license__   = 'GPL v3'
@@ -58,8 +58,8 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
               ('DLF-Kultur Film / Serie', 'https://www.deutschlandfunkkultur.de/film-serie-100.rss'),
             ]
     keep_only_tags = [
-                        dict(name='nav', attrs={'class':'b-breadcrumbs'}), # DLF articles
-                        dict(name='article', attrs={'class':'b-article'}), # DLF articles
+                        dict(name='nav', attrs={'class':'b-breadcrumbs'}),  # DLF articles
+                        dict(name='article', attrs={'class':'b-article'}),  # DLF articles
                         dict(name='div', attrs={'class':[
                                                          'b-section-article-head-area',
                                                          'b-section-editor-content',
@@ -76,6 +76,6 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
                     dict(name='ul', attrs={'class':['b-social-icons']}),   # DLF articles
 
                     dict(name='ul', attrs={'class':['b-social-icons']}),      # DLF Kultur articles
-                    dict(name='div', attrs={'class':'b-footer-area-series'}), # DLF Kultur articles
+                    dict(name='div', attrs={'class':'b-footer-area-series'}),  # DLF Kultur articles
                     dict(name='div', attrs={'id':'weekender'})
                   ]

@@ -63,7 +63,7 @@ class AllGUIActions(InterfaceAction):
         m = self.qaction.menu()
         m.clear()
 
-        name_data = {} # A dict of display names to actions data
+        name_data = {}  # A dict of display names to actions data
 
         # Use model data from Preferences / Toolbars, with location 'toolbar' or
         # 'toolbar-device' depending on whether a device is connected.
@@ -71,7 +71,7 @@ class AllGUIActions(InterfaceAction):
         for model in (AllModel(location, self.gui), CurrentModel(location, self.gui)):
             for i in range(0, model.rowCount(None)):
                 dex = model.index(i)
-                name = model.names((dex,))[0] # this is the action name
+                name = model.names((dex,))[0]  # this is the action name
                 if name is not None and not name.startswith('---'):
                     name_data[model.data(dex, Qt.ItemDataRole.DisplayRole)] = {
                                     'action': model.name_to_action(name, self.gui),
@@ -116,7 +116,7 @@ class AllGUIActions(InterfaceAction):
         def add_action(menu, display_name):
             shortcuts = shortcut_map.get(display_name.lower(), '')
             act = name_data[display_name]['action']
-            if not hasattr(act, 'popup_type'): # FakeAction
+            if not hasattr(act, 'popup_type'):  # FakeAction
                 return
             menu_text = f'{display_name}{shortcuts}'
             icon = name_data[display_name]['icon']
@@ -137,7 +137,7 @@ class AllGUIActions(InterfaceAction):
         # Finally the real work, building the action menu. Partition long lists
         # of actions into mostly-equal-length sublists of some arbitrary length.
         def partition(names):
-            max_in_partition = 10 # arbitrary
+            max_in_partition = 10  # arbitrary
             if len(names) >= max_in_partition:
                 partition_count = ceil(len(names) / max_in_partition)
                 step = int(ceil(len(names) / partition_count))

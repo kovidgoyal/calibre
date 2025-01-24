@@ -23,7 +23,7 @@ class AdvancedUserRecipe1718126839(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Car Types
+        # Car Types
         ('Fast Cars', 'https://www.hotcars.com/feed/category/fast-cars/'),
         ('Classic Cars', 'https://www.hotcars.com/feed/tag/classic-cars/'),
         ('Muscle Cars', 'https://www.hotcars.com/feed/category/muscle-cars/'),
@@ -32,13 +32,13 @@ class AdvancedUserRecipe1718126839(BasicNewsRecipe):
         ('Mass Market Cars', 'https://www.hotcars.com/feed/category/mass-market-cars/'),
         ('Luxury Cars', 'https://www.hotcars.com/feed/tag/luxury-cars/'),
         ('Motorcycles', 'https://www.hotcars.com/feed/category/motorcycles/'),
-        #Hot Cars Exclusives
+        # Hot Cars Exclusives
         ('Hot Cars Exclusives', 'https://www.hotcars.com/feed/category/hotcars-exclusives/'),
         ('Car Reviews', 'https://www.hotcars.com/feed/category/car-reviews/'),
         ('Car Guides', 'https://www.hotcars.com/feed/category/car-guides/'),
         ('Car Renders', 'https://www.hotcars.com/feed/category/car-renders/'),
         ('Hot Cars Awards', 'https://www.hotcars.com/feed/category/hotcars-awards/'),
-        #Car Culture
+        # Car Culture
         ('News', 'https://www.hotcars.com/feed/category/news/'),
         ('JDM Life', 'https://www.hotcars.com/feed/category/jdm-life/'),
         ('Car TV', 'https://www.hotcars.com/feed/category/cars-on-tv/'),

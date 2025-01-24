@@ -20,18 +20,18 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Desktop
+        # Desktop
         ('Desktop', 'https://www.howtogeek.com/feed/category/desktop/'),
         ('Windows', 'https://www.howtogeek.com/feed/category/windows/'),
         ('Mac', 'https://www.howtogeek.com/feed/category/mac/'),
         ('Linux', 'https://www.howtogeek.com/feed/category/linux/'),
         ('Chromebook', 'https://www.howtogeek.com/feed/category/chromebook-chrome-os/'),
-        #Mobile
+        # Mobile
         ('Mobile', 'https://www.howtogeek.com/feed/category/mobile/'),
         ('Android', 'https://www.howtogeek.com/feed/category/android/'),
         ('iOS', 'https://www.howtogeek.com/feed/tag/ios/'),
         ('Cellular Carriers', 'https://www.howtogeek.com/feed/category/cellular-carriers/'),
-        #Hardware
+        # Hardware
         ('Hardware', 'https://www.howtogeek.com/feed/category/hardware/'),
         ('Computer Hardware', 'https://www.howtogeek.com/feed/category/hardware/'),
         ('Wifi & Networking', 'https://www.howtogeek.com/feed/category/wifi-routers/'),
@@ -39,7 +39,7 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
         ('eReaders', 'https://www.howtogeek.com/feed/category/ereaders/'),
         ('Audio', 'https://www.howtogeek.com/feed/category/audio/'),
         ('Televisions', 'https://www.howtogeek.com/feed/category/tv/'),
-        #Web
+        # Web
         ('Web', 'https://www.howtogeek.com/feed/category/web/'),
         ('Web Apps', 'https://www.howtogeek.com/feed/category/apps-web-apps/'),
         ('Social Media', 'https://www.howtogeek.com/feed/category/social-media/'),
@@ -48,11 +48,11 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
         ('Google', 'https://www.howtogeek.com/feed/category/google/'),
         ('Microsoft', 'https://www.howtogeek.com/feed/category/microsoft/'),
         ('Privacy & Security', 'https://www.howtogeek.com/feed/category/privacy-security/'),
-        #Cutting Edge
+        # Cutting Edge
         ('Cutting Edge', 'https://www.howtogeek.com/feed/category/cutting-edge/'),
         ('Virtual Reality', 'https://www.howtogeek.com/feed/category/virtual-reality/'),
         ('AI & Machine Learning', 'https://www.howtogeek.com/feed/category/ai-machine-learning/'),
-        #Lifestyle
+        # Lifestyle
         ('Lifestyle', 'https://www.howtogeek.com/feed/category/lifestyle/'),
         ('Gaming', 'https://www.howtogeek.com/feed/category/video-games/'),
         ('Streaming', 'https://www.howtogeek.com/feed/category/cord-cutting-streaming/'),
@@ -63,7 +63,7 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
         ('Buying Guides', 'https://www.howtogeek.com/feed/buying-guides/'),
         ('Deals', 'https://www.howtogeek.com/feed/tag/deals/'),
 
-        #Discontinued Feeds
-        #('Electric Vehicles', 'https://www.howtogeek.com/feed/category/electric-vehicles/'),
-        #('Cryptocurrency', 'https://www.howtogeek.com/feed/category/cryptocurrency/'),
+        # Discontinued Feeds
+        # ('Electric Vehicles', 'https://www.howtogeek.com/feed/category/electric-vehicles/'),
+        # ('Cryptocurrency', 'https://www.howtogeek.com/feed/category/cryptocurrency/'),
     ]

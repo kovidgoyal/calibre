@@ -18,7 +18,7 @@ def format_tickaroo_liveblog(soup):
     for div in soup.findAll('div', attrs={'class':'tik4-content-block tik4-content-block--rich-text tik4-content-block--position-2'}):
         div.insert_before(soup.new_tag('br'))
 
-    #format liveblogs
+    # format liveblogs
     for tag in soup.findAll('time'):
         ntag = soup.new_tag('br')
         tag.insert_before(ntag)
@@ -209,7 +209,7 @@ class FazNet(BasicNewsRecipe):
         if tag:
             story(soup,tag)
 
-        #Extract images and text from image galleries
+        # Extract images and text from image galleries
         for par in soup.findAll('p'):
             if len(par.contents) == 1:
                 cont = str(par.contents[0])
@@ -260,7 +260,7 @@ class FazNet(BasicNewsRecipe):
 
     def postprocess_html(self, soup, first_fetch):
 
-        #Position point between figure caption and figure credit, where needed
+        # Position point between figure caption and figure credit, where needed
         for tag in soup.findAll(attrs={'class':['body-elements__image-figcaption','header-teaser__image-details']}):
             if tag.string is None:
                 if tag.contents[0].string:

@@ -75,12 +75,12 @@ class Jadecoder(Unidecoder):
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
             self.kakasi = kakasi()
-            self.kakasi.setMode('H','a') # Hiragana to ascii, default: no conversion
-            self.kakasi.setMode('K','a') # Katakana to ascii, default: no conversion
-            self.kakasi.setMode('J','a') # Japanese to ascii, default: no conversion
-            self.kakasi.setMode('r','Hepburn') # default: use Hepburn Roman table
-            self.kakasi.setMode('s', True) # add space, default: no separator
-            self.kakasi.setMode('C', True) # capitalize, default: no capitalize
+            self.kakasi.setMode('H','a')  # Hiragana to ascii, default: no conversion
+            self.kakasi.setMode('K','a')  # Katakana to ascii, default: no conversion
+            self.kakasi.setMode('J','a')  # Japanese to ascii, default: no conversion
+            self.kakasi.setMode('r','Hepburn')  # default: use Hepburn Roman table
+            self.kakasi.setMode('s', True)  # add space, default: no separator
+            self.kakasi.setMode('C', True)  # capitalize, default: no capitalize
             self.conv = self.kakasi.getConverter()
 
     def decode(self, text):

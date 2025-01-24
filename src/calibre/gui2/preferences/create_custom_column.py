@@ -541,7 +541,7 @@ class CreateCustomColumn(QDialog):
             self.bool_button_group.setFocusProxy(button)
 
     def composite_show_in_comments_clicked(self, state):
-        if state == Qt.CheckState.Checked.value: # state is passed as an int
+        if state == Qt.CheckState.Checked.value:  # state is passed as an int
             self.composite_sort_by.setEnabled(False)
             self.composite_sort_by_label.setEnabled(False)
             self.composite_make_category.setEnabled(False)

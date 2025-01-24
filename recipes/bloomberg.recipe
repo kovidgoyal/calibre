@@ -58,7 +58,7 @@ class Bloomberg(BasicNewsRecipe):
         'Bloomberg delivers business and markets news, data, analysis, and video'
         ' to the world, featuring stories from Businessweek and Bloomberg News.'
     )
-    oldest_article = 1.2 # days
+    oldest_article = 1.2  # days
     resolve_internal_links = True
     remove_empty_feeds = True
     cover_url = 'https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ivUxvlPidC3M/v0/600x-1.jpg'

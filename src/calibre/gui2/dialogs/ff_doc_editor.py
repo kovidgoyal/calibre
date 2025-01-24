@@ -207,7 +207,7 @@ def main():
 
     with TemporaryDirectory() as tdir:
         app = Application([])
-        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        db = LibraryDatabase(tdir)  # needed to load formatter_funcs
         d = FFDocEditor(None)
         d.exec()
         del db

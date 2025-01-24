@@ -357,7 +357,7 @@ class BookInfo(QDialog, DropMixin):
         ret = QDialog.done(self, r)
         if self.slave_connected:
             self.view.model().new_bookdisplay_data.disconnect(self.slave)
-        self.slave_debounce_timer.stop() # OK if it isn't running
+        self.slave_debounce_timer.stop()  # OK if it isn't running
         self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
         return ret
@@ -383,7 +383,7 @@ class BookInfo(QDialog, DropMixin):
 
     def slave(self, mi):
         self._mi_for_debounce = mi
-        self.slave_debounce_timer.start() # start() will automatically reset the timer if it was already running
+        self.slave_debounce_timer.start()  # start() will automatically reset the timer if it was already running
 
     def _debounce_refresh(self):
         mi, self._mi_for_debounce = self._mi_for_debounce, None

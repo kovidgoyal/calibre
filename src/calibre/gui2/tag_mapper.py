@@ -488,7 +488,7 @@ class SaveLoadMixin:
                 self.PREFS_OBJECT[text] = self.rules
                 self.loaded_ruleset = text
                 self.ruleset_changed.emit()
-            elif text in self.PREFS_OBJECT: # Don't think we can get here because 'if rules:' is always True
+            elif text in self.PREFS_OBJECT:  # Don't think we can get here because 'if rules:' is always True
                 del self.PREFS_OBJECT[text]
                 if self.loaded_ruleset == text:
                     self.loaded_ruleset = ''

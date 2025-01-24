@@ -21,12 +21,12 @@ class AdvancedUserRecipe1718380039(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Transfer Rumours
+        # Transfer Rumours
         ('Transfer Rumours', 'https://footballleagueworld.co.uk/feed/transfer-rumours/'),
         ('Alex Scott', 'https://footballleagueworld.co.uk/feed/tag/alex-scott/'),
         ('James Ward-Prowse', 'https://footballleagueworld.co.uk/feed/tag/james-ward-prowse/'),
         ('Wilfried Gnonto', 'https://footballleagueworld.co.uk/feed/wilfried-gnonto/'),
-        #Championship
+        # Championship
         ('Championship', 'https://footballleagueworld.co.uk/feed/championship/'),
         ('Leeds United', 'https://footballleagueworld.co.uk/feed/tag/leeds-united/'),
         ('Leicester City', 'https://footballleagueworld.co.uk/feed/tag/leicester-city/'),
@@ -36,14 +36,14 @@ class AdvancedUserRecipe1718380039(BasicNewsRecipe):
         ('Southampton', 'https://footballleagueworld.co.uk/feed/tag/southampton/'),
         ('Sunderland', 'https://footballleagueworld.co.uk/feed/tag/sunderland/'),
         ('West Bromwich Albion', 'https://footballleagueworld.co.uk/feed/tag/west-bromwich-albion/'),
-        #League One
+        # League One
         ('Barnsley', 'https://footballleagueworld.co.uk/feed/tag/barnsley/'),
         ('Bolton Wanderers', 'https://footballleagueworld.co.uk/feed/tag/bolton-wanderers/'),
         ('Charlton Athletic', 'https://footballleagueworld.co.uk/feed/tag/charlton-athletic/'),
         ('Derby County', 'https://footballleagueworld.co.uk/feed/tag/derby-county/'),
         ('Portsmouth', 'https://footballleagueworld.co.uk/feed/tag/portsmouth/'),
         ('Reading', 'https://footballleagueworld.co.uk/feed/tag/reading/'),
-        #League Two
+        # League Two
         ('Bradford City', 'https://footballleagueworld.co.uk/feed/tag/bradford-city/'),
         ('Gillingham', 'https://footballleagueworld.co.uk/feed/tag/gillingham/'),
         ('Notts County', 'https://footballleagueworld.co.uk/feed/tag/notts-county/'),

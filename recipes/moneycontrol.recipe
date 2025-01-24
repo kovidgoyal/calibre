@@ -16,7 +16,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
-    oldest_article = 1 # days
+    oldest_article = 1  # days
 
     extra_css = '''
         img {display:block; margin:0 auto;}

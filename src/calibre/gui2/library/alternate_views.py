@@ -1005,7 +1005,7 @@ class GridView(QListView):
         if db is None:
             return None
         tc = self.thumbnail_cache
-        cdata, timestamp = tc[book_id] # None, None if not cached.
+        cdata, timestamp = tc[book_id]  # None, None if not cached.
         if timestamp is None:
             # Cover not in cache. Try to read the cover from the library.
             has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')

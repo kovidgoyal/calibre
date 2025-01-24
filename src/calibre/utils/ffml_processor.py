@@ -486,7 +486,7 @@ class FFMLProcessor:
 
 # ============== Internal methods =================
 
-    keywords = {'``':           NodeKinds.CODE_TEXT, # must be before '`'
+    keywords = {'``':           NodeKinds.CODE_TEXT,  # must be before '`'
                 '`':            NodeKinds.ITALIC_TEXT,
                 '[B]':          NodeKinds.BOLD_TEXT,
                 '[CODE]':       NodeKinds.CODE_BLOCK,

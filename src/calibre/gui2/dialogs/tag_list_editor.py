@@ -731,7 +731,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             tags = self.ordered_tags
 
         select_item = None
-        tooltips = ( # must be in the same order as the columns in the table
+        tooltips = (  # must be in the same order as the columns in the table
              _('Name of the item'),
              _('Count of books with this item'),
              _('Value of the item before it was edited'),

@@ -16,7 +16,7 @@ class scix(BasicNewsRecipe):
     )
     language = 'en'
     __author__ = 'unkn0wn'
-    oldest_article = 1 # days
+    oldest_article = 1  # days
     max_articles_per_feed = 50
     encoding = 'utf-8'
     remove_attributes = ['height', 'width']
@@ -51,8 +51,8 @@ class scix(BasicNewsRecipe):
             ('Tech Xplore', 'https://techxplore.com/rss-feed/'),
             ('Medical Xpress', 'https://medicalxpress.com/rss-feed/'),
             ('Phys.org', 'https://phys.org/rss-feed/')
-            #https://medicalxpress.com/feeds/
-            #https://techxplore.com/feeds/
+            # https://medicalxpress.com/feeds/
+            # https://techxplore.com/feeds/
         ]
 
     def preprocess_html(self, soup):

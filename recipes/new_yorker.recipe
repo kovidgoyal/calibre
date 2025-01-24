@@ -49,7 +49,7 @@ class NewYorker(BasicNewsRecipe):
     remove_attributes = ['style']
 
     def preprocess_html(self, soup):
-        w = '/w_320' # use '/w_640' for highres
+        w = '/w_320'  # use '/w_640' for highres
         for img in soup.findAll('img'):
             if img.has_attr('srcset'):
                 for x in img['srcset'].split():

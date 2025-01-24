@@ -19,7 +19,7 @@ class Politico(BasicNewsRecipe):
      ' intelligence about European politics and policy. Download Weekly.')
     publisher = 'Axel Springer SE.'
     category = 'news, politics, Europe'
-    oldest_article = 7 # days
+    oldest_article = 7  # days
     max_articles_per_feed = 20
     use_embedded_content = False
     no_stylesheets = True

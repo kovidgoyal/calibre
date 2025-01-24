@@ -14,8 +14,8 @@ class DRNyheder(BasicNewsRecipe):
         ('Udland', 'https://www.dr.dk/nyheder/service/feeds/udland'),
         ('Penge', 'https://www.dr.dk/nyheder/service/feeds/penge'),
         ('Politik', 'https://www.dr.dk/nyheder/service/feeds/politik'),
-        #('Sporten', 'https://www.dr.dk/nyheder/service/feeds/sporten'),
-        #('Seneste sport', 'https://www.dr.dk/nyheder/service/feeds/senestesport'),
+        # ('Sporten', 'https://www.dr.dk/nyheder/service/feeds/sporten'),
+        # ('Seneste sport', 'https://www.dr.dk/nyheder/service/feeds/senestesport'),
         ('Viden', 'https://www.dr.dk/nyheder/service/feeds/viden'),
         ('Kultur', 'https://www.dr.dk/nyheder/service/feeds/kultur'),
         ('Musik', 'https://www.dr.dk/nyheder/service/feeds/musik'),
@@ -42,8 +42,8 @@ class DRNyheder(BasicNewsRecipe):
     publication_type            = 'newspaper'
     encoding                    = 'utf8'
     language                    = 'da'
-    oldest_article              = 4 # 2 might be best
-    max_articles_per_feed       = 50 # 100 better, this is just for testing
+    oldest_article              = 4  # 2 might be best
+    max_articles_per_feed       = 50  # 100 better, this is just for testing
     no_stylesheets              = True
     use_embedded_content        = False
     auto_cleanup                = False
@@ -106,15 +106,15 @@ class DRNyheder(BasicNewsRecipe):
 
     keep_only_tags = [
 
-        dict(name='h1', attrs={'class': 'dre-article-title__heading'}), # Title
-        dict(name='div', attrs={'class': 'dre-article-byline'}), # Author
-        dict(name='figure', attrs={'class': 'dre-standard-article__figure'}), # Comment out to remove images
-        dict(name='p', attrs={'class': 'dre-article-body-paragraph'}), # All body text of the article
+        dict(name='h1', attrs={'class': 'dre-article-title__heading'}),  # Title
+        dict(name='div', attrs={'class': 'dre-article-byline'}),  # Author
+        dict(name='figure', attrs={'class': 'dre-standard-article__figure'}),  # Comment out to remove images
+        dict(name='p', attrs={'class': 'dre-article-body-paragraph'}),  # All body text of the article
         dict(name='article', attrs={'itemtype': 'http://schema.org/NewsArticle'}),
-        #dict(name="h1", attrs={'class': 'hydra-latest-news-page-short-news__title'}),
-        #dict(name="p", attrs={'class': 'hydra-latest-news-page-short-news__paragraph'}),
-        #dict(name="div", attrs={'class': 'dre-speech'}),
-        #dict(name="div", attrs={'itemprop': 'author'})
+        # dict(name="h1", attrs={'class': 'hydra-latest-news-page-short-news__title'}),
+        # dict(name="p", attrs={'class': 'hydra-latest-news-page-short-news__paragraph'}),
+        # dict(name="div", attrs={'class': 'dre-speech'}),
+        # dict(name="div", attrs={'itemprop': 'author'})
     ]
 
     remove_tags = [
@@ -123,8 +123,8 @@ class DRNyheder(BasicNewsRecipe):
             'hydra-latest-news-page-short-news__share', 'hydra-latest-news-page-short-news__a11y-container',
             'hydra-latest-news-page-short-news__meta', 'hydra-latest-news-page-short-news__image-slider', 'dre-byline__dates']}),
         dict(name='source'),
-        #dict(name='menu', attrs={'class': 'share'}),
-        #dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
+        # dict(name='menu', attrs={'class': 'share'}),
+        # dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
     ]
 
     # Fixes images having the wrong aspect ratio

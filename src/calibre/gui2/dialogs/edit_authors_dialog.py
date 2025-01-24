@@ -317,7 +317,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.notes_utilities.set_icon(note_item, id_, id_ in all_items_that_have_notes)
             row += 1
 
-        headers = { # this depends on the dict being ordered, which is true from python 3.7
+        headers = {  # this depends on the dict being ordered, which is true from python 3.7
             _('Author'): _('Name of the author'),
             _('Author sort'): _('Value used to sort this author'),
             _('Count'): _('Count of books with this author'),

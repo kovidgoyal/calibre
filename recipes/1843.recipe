@@ -274,7 +274,7 @@ class Economist(BasicNewsRecipe):
                     'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
             return soup
 
-    else: # Load articles from individual article pages {{{
+    else:  # Load articles from individual article pages {{{
 
         def __init__(self, *args, **kwargs):
             BasicNewsRecipe.__init__(self, *args, **kwargs)

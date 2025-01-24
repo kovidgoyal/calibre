@@ -23,7 +23,7 @@ class AdvancedUserRecipe1718105400(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Celebrity
+        # Celebrity
         ('Celebrity', 'https://www.thethings.com/feed/category/celebrity/'),
         ('Celebrity News', 'https://www.thethings.com/feed/category/celebrity-news/'),
 

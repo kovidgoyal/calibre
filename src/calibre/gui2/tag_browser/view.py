@@ -735,9 +735,9 @@ class TagsView(QTreeView):  # {{{
                 else:
                     # Already have an icon. User wants to change whether it applies to children
                     icon_file_name = desired_file_name
-                if index is None: # category icon
+                if index is None:  # category icon
                     self._model.set_custom_category_icon(key, str(icon_file_name))
-                else: # value icon
+                else:  # value icon
                     self._model.set_value_icon(key, item_val, icon_file_name, bool(for_children))
                 self.recount()
                 return

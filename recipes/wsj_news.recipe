@@ -25,7 +25,7 @@ class WSJ(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'url', 'title'}
     remove_empty_feeds = True
-    oldest_article = 1.2 # days
+    oldest_article = 1.2  # days
 
     recipe_specific_options = {
         'days': {

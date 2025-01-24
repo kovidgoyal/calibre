@@ -22,21 +22,21 @@ class AdvancedUserRecipe1718382046(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Gardening
+        # Gardening
         ('Gardening', 'https://www.backyardboss.net/feed/category/gardening/'),
         ('Outdoor Gardening', 'https://www.backyardboss.net/feed/category/gardening/outdoor-gardening/'),
         ('Indoor Gardening', 'https://www.backyardboss.net/feed/category/gardening/indoor-gardening/'),
         ('Fruits & Vegetables', 'https://www.backyardboss.net/feed/tag/gardening/fruits-and-vegetables/'),
         ('Houseplants', 'https://www.backyardboss.net/feed/category/gardening/houseplants/'),
         ('Plant Care', 'https://www.backyardboss.net/feed/category/gardening/plant-care/'),
-        #Backyard
+        # Backyard
         ('Backyard', 'https://www.backyardboss.net/feed/category/backyard/'),
         ('Home Improvement', 'https://www.backyardboss.net/feed/category/backyard/home-improvement/'),
         ('Lawn Care', 'https://www.backyardboss.net/feed/category/backyard/lawn-care/'),
         ('Landscaping', 'https://www.backyardboss.net/feed/category/backyard/landscape-industry/'),
         ('Barbecue', 'https://www.backyardboss.net/feed/category/backyard/bbq/'),
         ('Reviews', 'https://www.backyardboss.net/feed/category/backyard/reviews/'),
-        #DIY & Project
+        # DIY & Project
         ('DIY & Projects', 'https://www.backyardboss.net/feed/category/diy/'),
         ('How-To', 'https://www.backyardboss.net/feed/category/diy/how-to/'),
         ('Designs & Ideas', 'https://www.backyardboss.net/feed/category/diy/designs-and-ideas/'),
