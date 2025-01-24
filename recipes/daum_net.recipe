@@ -61,7 +61,7 @@ class MediaDaumRecipe(BasicNewsRecipe):
             lambda match: '<em>'),
         (re.compile(r'<i>(<br[^>]*>[ \t\r\n]*)*', re.DOTALL | re.IGNORECASE),
             lambda match: '<i>'),
-        (re.compile(u'(<br[^>]*>[ \t\r\n]*)*(\u25B6|\u25CF|\u261E|\u24D2|\(c\))*\[[^\]]*(\u24D2|\(c\)|\uAE30\uC0AC|\uC778\uAE30[^\]]*\uB274\uC2A4)[^\]]*\].*</div>', re.DOTALL | re.IGNORECASE),  # noqa: E501
+        (re.compile(u'(<br[^>]*>[ \t\r\n]*)*(\u25B6|\u25CF|\u261E|\u24D2|\(c\))*\[[^\]]*(\u24D2|\(c\)|\uAE30\uC0AC|\uC778\uAE30[^\]]*\uB274\uC2A4)[^\]]*\].*</div>', re.DOTALL | re.IGNORECASE),  # noqa: E501, W605
             lambda match: '</div>'),
     ]
 

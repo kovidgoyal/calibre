@@ -138,7 +138,7 @@ class TextileMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:
+        if self.remove_space_after_newline == True:  # noqa: E712
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -268,7 +268,7 @@ class TextileMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:
+                if self.style_italic == False:  # noqa: E712
                     if self.in_a_link:
                         text.append('_')
                         tags.append('_')
@@ -279,7 +279,7 @@ class TextileMLizer(OEB2HTML):
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:
+                if self.style_bold == False:  # noqa: E712
                     if self.in_a_link:
                         text.append('*')
                         tags.append('*')
@@ -290,13 +290,13 @@ class TextileMLizer(OEB2HTML):
                     self.style_bold = True
         if style['text-decoration'] == 'underline' or tag in ('u', 'ins'):
             if tag != 'a':
-                if self.style_under == False:
+                if self.style_under == False:  # noqa: E712
                     text.append('[+')
                     tags.append('+]')
                     self.style_embed.append('+')
                     self.style_under = True
         if style['text-decoration'] == 'line-through' or tag in ('strike', 'del', 's'):
-            if self.style_strike == False:
+            if self.style_strike == False:  # noqa: E712
                 text.append('[-')
                 tags.append('-]')
                 self.style_embed.append('-')
@@ -423,12 +423,12 @@ class TextileMLizer(OEB2HTML):
             tags.append('')
         elif tag == 'span':
             if style['font-variant'] == 'small-caps':
-                if self.style_smallcap == False:
+                if self.style_smallcap == False:  # noqa: E712
                     text.append('&')
                     tags.append('&')
                     self.style_smallcap = True
             else:
-                if self.in_a_link == False:
+                if self.in_a_link == False:  # noqa: E712
                     txt = '%'
                     if self.opts.keep_links:
                         txt += self.check_id_tag(attribs)

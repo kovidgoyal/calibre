@@ -650,7 +650,7 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None)
     opts = option_parser().parse_args([])
     app = Application([])
     # Create the actions that are placed into the editors toolbars
-    main = Main(opts)
+    main = Main(opts)  # noqa: F841
     if path_is_raw:
         raw = path_to_edit
     else:

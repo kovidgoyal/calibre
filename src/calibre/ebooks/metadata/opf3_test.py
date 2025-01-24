@@ -58,7 +58,7 @@ from calibre.ebooks.metadata.opf3 import (
 )
 
 # This import is needed to prevent a test from running slowly
-from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
+from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa: F401
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 read_user_categories, set_user_categories, read_link_maps, set_link_maps

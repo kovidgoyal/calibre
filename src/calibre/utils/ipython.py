@@ -172,14 +172,14 @@ def simple_repl(user_ns={}):
         setup_pyreadline()
     else:
         try:
-            import rlcompleter
+            import rlcompleter  # noqa: I001, F401
             import readline
             readline.parse_and_bind("tab: complete")
         except ImportError:
             pass
 
     user_ns = user_ns or {}
-    import sys, re
+    import sys, re  # noqa: I001, E401, F401
     for x in ('os', 'sys', 're'):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))
     user_ns['exit'] = Exit()

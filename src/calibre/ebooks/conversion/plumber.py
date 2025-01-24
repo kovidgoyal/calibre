@@ -1073,7 +1073,7 @@ OptionRecommendation(name='search_replace',
         self.flush()
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
-            from calibre.utils.fonts.scanner import font_scanner
+            from calibre.utils.fonts.scanner import font_scanner  # noqa: F401
         import logging
 
         import css_parser

@@ -266,14 +266,14 @@ class SearchFilter(SearchQueryParser):
                 accessor = q[locvalue]
                 if query == 'true':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == True:
+                        if accessor(sr) == True:  # noqa: E712
                             matches.add(sr)
                     elif accessor(sr) is not None:
                         matches.add(sr)
                     continue
                 if query == 'false':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == False:
+                        if accessor(sr) == False:  # noqa: E712
                             matches.add(sr)
                     elif accessor(sr) is None:
                         matches.add(sr)
