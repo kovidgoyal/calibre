@@ -17,7 +17,6 @@ try:
 except ImportError:
     import _winreg as winreg
 
-
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32
 HKEY = types.HKEY

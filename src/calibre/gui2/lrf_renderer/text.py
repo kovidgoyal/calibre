@@ -17,10 +17,16 @@ from polyglot.builtins import string_or_bytes
 
 def WEIGHT_MAP(wt):
     return int(wt / 10 - 1)
+
+
 def NULL(a, b):
     return a
+
+
 def COLOR(a, b):
     return QColor(*a)
+
+
 def WEIGHT(a, b):
     return WEIGHT_MAP(a)
 

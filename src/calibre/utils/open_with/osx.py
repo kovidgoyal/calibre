@@ -17,8 +17,8 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
-# Public UTI MAP {{{
 
+# Public UTI MAP {{{
 
 def generate_public_uti_map():
     from html5_parser import parse

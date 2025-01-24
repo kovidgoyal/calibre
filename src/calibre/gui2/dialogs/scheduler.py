@@ -86,8 +86,8 @@ class RecipesView(QTreeView):
         QTreeView.currentChanged(self, current, previous)
         self.parent().current_changed(current, previous)
 
-# Time/date widgets {{{
 
+# Time/date widgets {{{
 
 class Base(QWidget):
 

@@ -153,8 +153,8 @@ def get_ranges(headervalue, content_length):  # {{{
     return result
 # }}}
 
-# gzip transfer encoding {{{
 
+# gzip transfer encoding {{{
 
 def gzip_prefix():
     # See http://www.gzip.org/zlib/rfc-gzip.html

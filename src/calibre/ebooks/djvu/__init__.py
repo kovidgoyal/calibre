@@ -8,4 +8,3 @@ __docformat__ = 'restructuredtext en'
 '''
 Used for DJVU input
 '''
-

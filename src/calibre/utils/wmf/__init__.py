@@ -17,7 +17,6 @@ class NoRaster(Exception):
 
 
 class DIBHeader:
-
     '''
     See http://en.wikipedia.org/wiki/BMP_file_format
     '''

@@ -712,7 +712,6 @@ class ReadingTest(BaseTest):
         self.assertRaises(NotImplementedError, pmi.template_to_attribute, {}, {})
         self.assertRaises(NotImplementedError, pmi.smart_update, {})
 
-
     # }}}
 
     def test_marked_field(self):  # {{{

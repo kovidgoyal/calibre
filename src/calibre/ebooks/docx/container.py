@@ -25,8 +25,8 @@ from calibre.utils.zipfile import ZipFile
 def fromstring(raw, parser=None):
     return safe_xml_fromstring(raw)
 
-# Read metadata {{{
 
+# Read metadata {{{
 
 def read_doc_props(raw, mi, XPath):
     root = fromstring(raw)

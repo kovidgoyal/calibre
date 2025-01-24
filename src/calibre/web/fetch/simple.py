@@ -43,7 +43,6 @@ class FetchError(Exception):
 
 
 class closing:
-
     'Context to automatically close something at the end of a block.'
 
     def __init__(self, thing):

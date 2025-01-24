@@ -69,7 +69,6 @@ def hexs(string, sep=' '):
 
 
 class PackedData:
-
     '''
     Simplify unpacking of packed binary data structures
     '''
@@ -101,7 +100,6 @@ class PackedData:
 
 
 class PackedBlock(PackedData):
-
     '''
     Common header structure of container and entity blocks
     '''
@@ -119,7 +117,6 @@ class PackedBlock(PackedData):
 
 
 class Container(PackedBlock):
-
     '''
     Container file containing data entities
     '''
@@ -143,7 +140,6 @@ class Container(PackedBlock):
 
 
 class Entity(PackedBlock):
-
     '''
     Data entity inside a container
     '''
@@ -164,7 +160,6 @@ class Entity(PackedBlock):
 
 
 class PackedIon(PackedData):
-
     '''
     Packed structured binary data format used by KFX
     '''

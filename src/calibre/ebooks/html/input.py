@@ -24,7 +24,6 @@ from polyglot.urllib import urlparse, urlunparse
 
 
 class Link:
-
     '''
     Represents a link in a HTML file.
     '''
@@ -79,7 +78,6 @@ class IgnoreFile(Exception):
 
 
 class HTMLFile:
-
     '''
     Contains basic information about an HTML file. This
     includes a list of links to other files as well as

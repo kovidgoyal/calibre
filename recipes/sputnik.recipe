@@ -25,5 +25,4 @@ class Ria_eng(BasicNewsRecipe):
         'comment': description, 'tags': category, 'language': language
     }
 
-
     feeds = [(u'News', u'https://sputnikglobe.com/export/rss2/archive/index.xml')]

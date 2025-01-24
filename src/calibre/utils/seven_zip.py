@@ -52,7 +52,6 @@ def extract(path_or_stream, location):
 
 # Test {{{
 
-
 def test_basic():
     from tempfile import TemporaryDirectory
 

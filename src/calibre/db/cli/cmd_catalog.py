@@ -96,8 +96,6 @@ see the different options, specify the name of the output file and then the
     add_plugin_parser_options(fmt, parser)
 
     return parser
-
-
 # }}}
 
 

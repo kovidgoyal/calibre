@@ -89,5 +89,6 @@ def generate_template_language_help(language, log):
     a(POSTAMBLE)
     return ''.join(output)
 
+
 if __name__ == '__main__':
     generate_template_language_help()

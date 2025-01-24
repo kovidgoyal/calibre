@@ -222,8 +222,8 @@ def make_undoable(spinbox):
 
     return UndoableSpinbox
 
-# Title {{{
 
+# Title {{{
 
 class TitleEdit(EnLineEdit, ToMetadataMixin):
 
@@ -357,8 +357,8 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
 
 # }}}
 
-# Authors {{{
 
+# Authors {{{
 
 class AuthorsEdit(EditWithComplete, ToMetadataMixin):
 
@@ -622,8 +622,8 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
 # }}}
 
-# Series {{{
 
+# Series {{{
 
 class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
@@ -794,8 +794,8 @@ class BuddyLabel(QLabel):  # {{{
         self.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 # }}}
 
-# Formats {{{
 
+# Formats {{{
 
 class Format(QListWidgetItem):
 
@@ -1603,8 +1603,8 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
         self.update_recently_used()
 # }}}
 
-# Identifiers {{{
 
+# Identifiers {{{
 
 class Identifiers(Dialog):
 
@@ -1845,6 +1845,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         return False
 # }}}
 
+
 class IndicatorLineEdit(QLineEdit, LineEditIndicators):
     pass
 
@@ -1978,8 +1979,8 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
 # }}}
 
-# DateEdit {{{
 
+# DateEdit {{{
 
 class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
 

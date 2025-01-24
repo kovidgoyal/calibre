@@ -32,8 +32,8 @@ COMPILER_PATH = 'rapydscript/compiler.js.xz'
 def abspath(x):
     return os.path.realpath(os.path.abspath(x))
 
-# Update RapydScript {{{
 
+# Update RapydScript {{{
 
 def update_rapydscript():
     import lzma
@@ -49,8 +49,8 @@ def update_rapydscript():
         f.write(raw)
 # }}}
 
-# Compiler {{{
 
+# Compiler {{{
 
 def to_dict(obj):
     return dict(zip(list(obj.keys()), list(obj.values())))
@@ -508,8 +508,8 @@ def compile_srv():
 
 # }}}
 
-# Translations {{{
 
+# Translations {{{
 
 def create_pot(source_files):
     c = compiler()

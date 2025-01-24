@@ -8,6 +8,7 @@ def absurl(url):
     if url.startswith('/'):
         return 'https://www.afr.com' + url
 
+
 class afr(BasicNewsRecipe):
     title = 'Australian Financial Review'
     __author__ = 'unkn0wn'

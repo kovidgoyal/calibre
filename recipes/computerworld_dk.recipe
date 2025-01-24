@@ -51,4 +51,3 @@ class WwwComputerworld_dk(BasicNewsRecipe):
         ('IDG Kurser', 'http://job.idgkurser.dk/rss/'),
 
     ]
-

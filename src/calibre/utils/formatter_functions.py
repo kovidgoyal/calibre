@@ -1268,7 +1268,6 @@ the :ref:`select` function to get the modification time for a specific format. N
 that format names are always uppercase, as in EPUB.
 ''')
 
-
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
         try:
@@ -2534,7 +2533,6 @@ return the device name, otherwise return the empty string.[/] Each storage locat
 on a device has its own device name. The ``storage_location_key`` names are
 ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 ''')
-
 
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
         # We can't use get_database() here because we need the device manager.

@@ -136,8 +136,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
     return jobs, changed, bad
 # }}}
 
-# Bulk convert {{{
 
+# Bulk convert {{{
 
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
@@ -327,7 +327,6 @@ def fetch_scheduled_recipe(arg):  # {{{
         recs.append(('recipe_specific_option', serialized, OptionRecommendation.HIGH))
 
     return 'gui_convert_recipe', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
-
 # }}}
 
 

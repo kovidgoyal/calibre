@@ -15,6 +15,7 @@ def absurl(x):
         x = 'https://caravanmagazine.in' + x
     return x
 
+
 def safe_dict(data, *names):
     ans = data
     for x in names:
@@ -48,6 +49,7 @@ def parse_body(x):
             for p in x.get('content', {}):
                 yield from parse_body(p)
             yield '</p>'
+
 
 def parse_p(p):
     if p.get('type', '') == 'text':

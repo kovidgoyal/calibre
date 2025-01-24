@@ -99,7 +99,6 @@ def format_identifiers(x):
 
 
 class View:
-
     ''' A table view of the database, with rows and columns. Also supports
     filtering and sorting.  '''
 

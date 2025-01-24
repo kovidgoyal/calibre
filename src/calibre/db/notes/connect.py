@@ -25,6 +25,7 @@ from calibre.utils.icu import lower as icu_lower
 if iswindows:
     from calibre_extensions import winutil
 
+
 class cmt(str):
     pass
 

@@ -172,8 +172,8 @@ class ReadFrame:  # {{{
 
 # }}}
 
-# Sending frames {{{
 
+# Sending frames {{{
 
 def create_frame(fin, opcode, payload, mask=None, rsv=0):
     if isinstance(payload, str):
@@ -525,11 +525,10 @@ class DummyHandler:
     def handle_websocket_close(self, connection_id):
         pass
 
+
 # Testing {{{
 
-# Run this file with calibre-debug and use wstest to run the Autobahn test
-# suite
-
+# Run this file with calibre-debug and use wstest to run the Autobahn test suite
 
 class EchoHandler:
 

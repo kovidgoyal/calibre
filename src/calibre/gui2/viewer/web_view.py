@@ -56,8 +56,8 @@ from polyglot.functools import lru_cache
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
-# Override network access to load data from the book {{{
 
+# Override network access to load data from the book {{{
 
 def set_book_path(path, pathtoebook):
     set_book_path.pathtoebook = pathtoebook

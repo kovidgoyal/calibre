@@ -109,7 +109,6 @@ class Voice(NamedTuple):
         return (self.quality.value, self.basic_name.lower())
 
 
-
 def qvoice_to_voice(v: QVoice) -> QVoice:
     lang = canonicalize_lang(QLocale.languageToCode(v.language())) or 'und'
     country = QLocale.territoryToString(v.locale().territory())

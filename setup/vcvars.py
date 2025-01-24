@@ -128,7 +128,6 @@ def query_vcvarsall(is64bit=True):
             comn_tools[k] = int(m.group(1))
     comntools = sorted(comn_tools, key=comn_tools.__getitem__)[-1]
 
-
     def g(k):
         try:
             return env[k]

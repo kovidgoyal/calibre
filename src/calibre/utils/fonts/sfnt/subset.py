@@ -193,8 +193,8 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
     raw, new_sizes = sfnt()
     return raw, old_sizes, new_sizes
 
-# CLI {{{
 
+# CLI {{{
 
 def option_parser():
     import textwrap
@@ -307,8 +307,8 @@ if __name__ == '__main__':
     main(sys.argv)
 # }}}
 
-# Tests {{{
 
+# Tests {{{
 
 def test_mem():
     import gc
@@ -384,6 +384,5 @@ def all():
     print('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
-
 
 # }}}

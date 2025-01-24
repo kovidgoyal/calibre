@@ -19,7 +19,6 @@ from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
 
 
 class Catalog(QDialog, Ui_Dialog):
-
     ''' Catalog Dialog builder'''
 
     def __init__(self, parent, dbspec, ids, db):

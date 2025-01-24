@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 # cff_standard_strings {{{
 # The 391 Standard Strings as used in the CFF format.
 # from Adobe Technical None #5176, version 1.0, 18 March 1998
@@ -76,7 +75,6 @@ cff_standard_strings = [
 'Semibold'
 ]
 # }}}
-
 
 STANDARD_CHARSETS = [  # {{{
 # ISOAdobe
@@ -178,4 +176,3 @@ STANDARD_CHARSETS = [  # {{{
         'seveninferior', 'eightinferior', 'nineinferior', 'centinferior',
         'dollarinferior', 'periodinferior', 'commainferior'),
 ]  # }}}
-

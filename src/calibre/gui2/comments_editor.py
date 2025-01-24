@@ -327,6 +327,7 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
             ans = '<p>%s</p>'%ans
     return xml_replace_entities(ans)
 
+
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
@@ -1198,7 +1199,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
 
 # Highlighter {{{
-
 
 State_Text = -1
 State_DocType = 0

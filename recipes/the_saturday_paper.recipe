@@ -35,7 +35,6 @@ class SaturdayPaper(BasicNewsRecipe):
         {'name': 'div', 'class': 'end-matter'},
     ]
 
-
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.thesaturdaypaper.com.au/editions/')
         div = soup.find('div', attrs={'class':'article__image'})

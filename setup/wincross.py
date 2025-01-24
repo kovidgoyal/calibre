@@ -176,6 +176,7 @@ def download_item(dest_dir: str, file: File):
         raise SystemExit(f'The hash for {file.filename} does not match.'
                          f' {m.hexdigest()} != {file.sha256}')
 
+
 def cabinets_in_msi(path):
     raw = subprocess.check_output(['msiinfo', 'export', path, 'Media']).decode('utf-8')
     return re.findall(r'\S+\.cab', raw)

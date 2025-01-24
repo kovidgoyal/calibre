@@ -450,6 +450,7 @@ def my_unichr(num):
     except (ValueError, OverflowError):
         return '?'
 
+
 XML_ENTITIES = {
     '"' : '&quot;',
     "'" : '&apos;',
@@ -457,6 +458,7 @@ XML_ENTITIES = {
     '>' : '&gt;',
     '&' : '&amp;'
 }
+
 
 def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={}):
     '''

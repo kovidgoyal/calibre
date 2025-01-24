@@ -167,7 +167,6 @@ class FilesystemMatcher(Matcher):
 
 # Python implementation of the scoring algorithm {{{
 
-
 def calc_score_for_char(ctx, prev, current, distance):
     factor = 1.0
     ans = ctx.max_score_per_char
@@ -250,7 +249,6 @@ class PyScorer:
             self.max_score_per_char = (1.0 / len(item) + 1.0 / len(needle)) / 2.0
             self.memory = {}
             yield process_item(self, item, needle)
-
 
 # }}}
 

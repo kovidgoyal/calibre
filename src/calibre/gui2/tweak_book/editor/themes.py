@@ -341,8 +341,8 @@ def builtin_theme_names():
 def all_theme_names():
     return builtin_theme_names() + custom_theme_names()
 
-# Custom theme creation/editing {{{
 
+# Custom theme creation/editing {{{
 
 class CreateNewTheme(Dialog):
 
@@ -500,8 +500,8 @@ class Property(QWidget):
         self.data['underline'] = str(self.underline.currentText()) or None
         self.changed.emit()
 
-# Help text {{{
 
+# Help text {{{
 
 HELP_TEXT = _('''\
 <h2>Creating a custom theme</h2>

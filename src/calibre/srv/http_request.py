@@ -20,8 +20,8 @@ protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
-# Parse URI {{{
 
+# Parse URI {{{
 
 def parse_request_uri(uri):
     '''Parse a Request-URI into (scheme, authority, path).
@@ -125,7 +125,6 @@ def normalize_header_name(name):
 
 
 class HTTPHeaderParser:
-
     '''
     Parse HTTP headers. Use this class by repeatedly calling the created object
     with a single line at a time and checking the finished attribute. Can raise ValueError

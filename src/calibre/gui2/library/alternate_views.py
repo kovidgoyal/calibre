@@ -133,8 +133,8 @@ def image_to_data(image):  # {{{
     return ret
 # }}}
 
-# Drag 'n Drop {{{
 
+# Drag 'n Drop {{{
 
 def qt_item_view_base_class(self):
     for q in (QTableView, QListView, QTreeView):
@@ -331,8 +331,8 @@ def setup_dnd_interface(cls_or_self):
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
 # }}}
 
-# Manage slave views {{{
 
+# Manage slave views {{{
 
 def sync(func):
     @wraps(func)
@@ -436,8 +436,8 @@ class AlternateViews:
             self.current_view.marked_changed(old_marked, current_marked)
 # }}}
 
-# Rendering of covers {{{
 
+# Rendering of covers {{{
 
 class CoverDelegate(QStyledItemDelegate):
 

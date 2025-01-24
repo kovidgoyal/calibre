@@ -10,6 +10,7 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 class Salon_com(BasicNewsRecipe):
 
     title = 'Salon.com'

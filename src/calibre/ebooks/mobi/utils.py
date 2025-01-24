@@ -424,8 +424,8 @@ def mobify_image(data):
         data = png_data_to_gif_data(data)
     return data
 
-# Font records {{{
 
+# Font records {{{
 
 def read_font_record(data, extent=1040):
     '''

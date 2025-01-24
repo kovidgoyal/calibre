@@ -157,7 +157,6 @@ def _make_dir(suffix, prefix, base):
 
 
 class PersistentTemporaryFile:
-
     '''
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
@@ -208,7 +207,6 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
 
 
 class TemporaryDirectory:
-
     '''
     A temporary directory to be used in a with statement.
     '''

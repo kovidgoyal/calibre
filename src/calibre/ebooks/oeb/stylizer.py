@@ -438,6 +438,7 @@ def is_only_number(x: str) -> bool:
     except Exception:
         return False
 
+
 def is_svg_text_tag(x):
     return getattr(x, 'tag', '') in svg_text_tags
 

@@ -102,7 +102,6 @@ def iterdeclaration(decl):
 
 
 class Values(tuple):
-
     ''' A tuple of `css_parser.css.Value ` (and its subclasses) objects. Also has a
     `sheet_name` attribute that is the canonical name relative to which URLs
     for this property should be resolved. '''

@@ -40,7 +40,6 @@ class NegativeTextIndent(Exception):
 
 
 class RemoveFakeMargins:
-
     '''
     Remove left and right margins from paragraph/divs if the same margin is specified
     on almost all the elements at that level.

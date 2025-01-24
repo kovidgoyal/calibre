@@ -137,9 +137,8 @@ class DefaultAuthorLink(QWidget):  # {{{
         self.custom_url.setVisible(k == 'url')
 # }}}
 
+
 # IdLinksEditor {{{
-
-
 class IdLinksRuleEdit(Dialog):
 
     def __init__(self, key='', name='', template='', parent=None):
@@ -286,7 +285,6 @@ class QVDisplayedFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.new_api.set_pref('qv_display_fields', self.fields)
-
 # }}}
 
 
@@ -637,7 +635,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                                                        model=self.tb_categories_to_part_model))
         self.tb_partition_import_layout_button.clicked.connect(partial(self.import_layout,
                                                                        model=self.tb_categories_to_part_model))
-
 
         self.bd_vertical_cats_model = BDVerticalCats(self.gui.current_db, self.tb_hierarchy_tab.tb_hierarchical_cats)
         self.bd_vertical_cats_model.dataChanged.connect(self.changed_signal)

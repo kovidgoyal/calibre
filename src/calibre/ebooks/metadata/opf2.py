@@ -566,6 +566,7 @@ def dump_dict(cats):
     return json.dumps(object_to_unicode(cats), ensure_ascii=False,
             skipkeys=True)
 
+
 XPATH_NS = {
     'dc': 'http://purl.org/dc/elements/1.1/',
     'opf': 'http://www.idpf.org/2007/opf',

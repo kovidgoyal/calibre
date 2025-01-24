@@ -76,4 +76,3 @@ def load_font(stream_or_path):
         raw = raw.read()
     from calibre.utils.fonts.sfnt.container import Sfnt
     return Sfnt(raw)
-

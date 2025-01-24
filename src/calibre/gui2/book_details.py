@@ -408,8 +408,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
 
 # }}}
 
-# Context menu {{{
 
+# Context menu {{{
 
 def add_format_entries(menu, data, book_info, copy_menu, search_menu):
     from calibre.ebooks.oeb.polish.main import SUPPORTED
@@ -780,7 +780,6 @@ class CoverView(QWidget):  # {{{
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
 
-
         self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
@@ -1036,8 +1035,8 @@ class CoverView(QWidget):  # {{{
 
     # }}}
 
-# Book Info {{{
 
+# Book Info {{{
 
 class BookInfo(HTMLDisplay):
 
@@ -1315,6 +1314,7 @@ class DetailsLayout(QSplitter):  # {{{
         self.restore_splitter_state()  # only required on first call to do_layout, but ...
         cover.do_layout()
 # }}}
+
 
 # Drag 'n drop {{{
 

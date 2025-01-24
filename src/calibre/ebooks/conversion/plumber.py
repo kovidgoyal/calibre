@@ -78,7 +78,6 @@ ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 
 class Plumber:
-
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
     :method:`merge_ui_recommendations` and then :method:`run`. The plumber will

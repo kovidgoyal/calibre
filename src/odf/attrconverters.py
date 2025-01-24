@@ -65,8 +65,8 @@ def cnv_boolean(attribute, arg, element):
         return 'true'
     return 'false'
 
-# Potentially accept color values
 
+# Potentially accept color values
 
 def cnv_color(attribute, arg, element):
     ''' A RGB color in conformance with §5.9.11 of [XSL], that is a RGB color in notation “#rrggbb”, where
@@ -87,8 +87,8 @@ def cnv_data_source_has_labels(attribute, arg, element):
         raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
-# Understand different date formats
 
+# Understand different date formats
 
 def cnv_date(attribute, arg, element):
     ''' A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
@@ -241,8 +241,8 @@ def cnv_DrawNameRef(attribute, arg, element):
     except:
         return arg
 
-# Must accept list of Style objects
 
+# Must accept list of Style objects
 
 def cnv_NCNames(attribute, arg, element):
     return ' '.join(arg)
@@ -294,8 +294,8 @@ def cnv_textnoteclass(attribute, arg, element):
         raise ValueError(f"'{unicode_type(arg)}' not allowed")
     return unicode_type(arg)
 
-# Understand different time formats
 
+# Understand different time formats
 
 def cnv_time(attribute, arg, element):
     return unicode_type(arg)

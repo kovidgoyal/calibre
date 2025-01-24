@@ -204,7 +204,6 @@ def test_identify(tests):  # {{{
         log('\n\n')
 
     prints('Average time per query', sum(times)/len(times))
-
 # }}}
 
 

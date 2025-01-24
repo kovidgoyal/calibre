@@ -25,6 +25,7 @@ def generate_data():
         ans.append((x, nl(getattr(locale, x.upper()))))
     return ans
 
+
 def main():
     if sys.version_info[0] < 3:  # noqa: UP036
         raise RuntimeError('Must be run using python 3.x')

@@ -49,7 +49,6 @@ class BadZipfile(Exception):
 
 
 class LargeZipFile(Exception):
-
     '''
     Raised when writing a zipfile, the zipfile requires ZIP64 extensions
     and those extensions are disabled.
@@ -175,9 +174,8 @@ def decode_arcname(name):
                 name = name.decode('utf-8', 'replace')
     return name
 
-# Added by Kovid to reset timestamp to default if it overflows the DOS
-# limits
 
+# Added by Kovid to reset timestamp to default if it overflows the DOS limits
 
 def fixtimevar(val):
     if val < 0 or val > 0xffff:
@@ -310,7 +308,6 @@ def _EndRecData(fpin):
 
 
 class ZipInfo :
-
     '''Class with attributes describing each file in the ZIP archive.'''
 
     __slots__ = (
@@ -457,7 +454,6 @@ class ZipInfo :
 
 
 class _ZipDecrypter:
-
     '''Class to handle decryption of files stored within a ZIP archive.
 
     ZIP supports a password-based form of encryption. Even though known
@@ -516,7 +512,6 @@ class _ZipDecrypter:
 
 
 class ZipExtFile(io.BufferedIOBase):
-
     '''File-like object for reading an archive member.
        Is returned by ZipFile.open().
     '''
@@ -720,7 +715,6 @@ class ZipExtFile(io.BufferedIOBase):
 
 
 class ZipFile:
-
     ''' Class with methods to open, read, write, close, list and update zip files.
 
     z = ZipFile(file, mode="r", compression=ZIP_STORED, allowZip64=False)
@@ -1534,7 +1528,6 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
 
 
 class PyZipFile(ZipFile):
-
     '''Class to create ZIP archives with Python library files and packages.'''
 
     def writepy(self, pathname, basename=''):

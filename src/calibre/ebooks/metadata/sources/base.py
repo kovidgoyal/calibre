@@ -44,7 +44,6 @@ def cleanup_title(s):
 
 @total_ordering
 class InternalMetadataCompareKeyGen:
-
     '''
     Generate a sort key for comparison of the relevance of Metadata objects,
     given a search query. This is used only to compare results from the same

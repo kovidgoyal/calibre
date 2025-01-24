@@ -76,6 +76,7 @@ class AskLink(Dialog):  # {{{
     @property
     def url(self):
         return self.url_edit.text().strip()
+
 # }}}
 
 
@@ -211,7 +212,6 @@ class AskImage(Dialog):
     def bounding_size(self) -> tuple[int, int]:
         return (self.width.value() or sys.maxsize), (self.height.value() or sys.maxsize)
 # }}}
-
 
 
 class NoteEditorWidget(EditorWidget):

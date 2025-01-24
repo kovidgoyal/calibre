@@ -107,7 +107,6 @@ class CacheError(Exception):
 
 
 class ThumbnailCache:
-
     ' This is a persistent disk cache to speed up loading and resizing of covers '
 
     def __init__(self,

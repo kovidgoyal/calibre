@@ -193,7 +193,6 @@ class Saechsische(BasicNewsRecipe):
          #('Beruf & Bildung',  'https://www.saechsische.de/arc/outboundfeeds/rss/category/beruf-und-bildung')
     ]
 
-
     def parse_feeds(self):
       # Call parent's method.
       feeds = BasicNewsRecipe.parse_feeds(self)

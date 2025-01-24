@@ -59,4 +59,3 @@ class DeutscheWelle_sr(BasicNewsRecipe):
         (u'Nauka Tehnika Medicina', u'http://rss.dw-world.de/rdf/rss-ser-science'),
         (u'Kultura', u'feed:http://rss.dw-world.de/rdf/rss-ser-cul')
     ]
-

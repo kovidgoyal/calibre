@@ -17,4 +17,3 @@ class Kosmonauta(BasicNewsRecipe):
     remove_attributes = ['style']
     max_articles_per_feed = 100
     feeds = [(u'Kosmonauta.net', u'http://www.kosmonauta.net/feed')]
-

@@ -610,7 +610,6 @@ class Results(QTreeWidget):  # {{{
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
-
     def viewportEvent(self, ev):
         if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(ev)

@@ -79,7 +79,6 @@ class RND(BasicNewsRecipe):
  #('E-Mobility',  'https://www.rnd.de/arc/outboundfeeds/rss/category/e-mobility/')
  ]
 
-
     def parse_feeds(self):
       # Call parent's method.
       feeds = BasicNewsRecipe.parse_feeds(self)

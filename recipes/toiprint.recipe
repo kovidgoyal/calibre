@@ -23,6 +23,7 @@ date_ = dt.strftime('%d_%m_%Y')
 index = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' + date0
 img_index = 'https://cmsimages.timesgroup.com/image-resizer?epaper_s3_path=PublicationData/TOI/' + le + '/' + date0
 
+
 def handle_images(x, soup):
     img = soup.find('img')
     if img:
@@ -35,6 +36,7 @@ def handle_images(x, soup):
             x.insert_after(img_div)
     for lead in reversed(soup.findAll('div', attrs={'class':'lead'})):
         x.insert_after(lead)
+
 
 class toiprint(BasicNewsRecipe):
     title = 'TOI Print Edition'

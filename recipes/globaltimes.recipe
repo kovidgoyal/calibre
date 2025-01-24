@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 index = 'https://www.globaltimes.cn/'
 
+
 class GlobalTimes(BasicNewsRecipe):
     title = 'Global Times'
     __author__ = 'unkn0wn'

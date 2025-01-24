@@ -26,4 +26,3 @@ class EmptyCatalogException(Exception):
 
 class InvalidGenresSourceFieldException(Exception):
     pass
-

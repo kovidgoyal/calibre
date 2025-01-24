@@ -134,11 +134,13 @@ class UpdateEditorGeometry:
         initial_geometry.adjust(delta_x, 0, delta_width, 0)
         editor.setGeometry(initial_geometry)
 
+
 class EditableTextDelegate:
 
     def set_editor_data(self, editor, index):
         n = editor.metaObject().userProperty().name()
         editor.setProperty(n, get_val_for_textlike_columns(index))
+
 
 class DateTimeEdit(DateTimeEditBase):  # {{{
 
@@ -151,8 +153,8 @@ class DateTimeEdit(DateTimeEditBase):  # {{{
 
 # }}}
 
-# Number Editor {{{
 
+# Number Editor {{{
 
 def make_clearing_spinbox(spinbox):
 
@@ -184,8 +186,8 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # }}}
 
-# setter for text-like delegates. Return '' if CTRL is pushed {{{
 
+# setter for text-like delegates. Return '' if CTRL is pushed {{{
 
 def check_key_modifier(which_modifier):
     v = QApplication.keyboardModifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier)
@@ -203,7 +205,6 @@ def get_val_for_textlike_columns(index_):
 
 
 class StyledItemDelegate(QStyledItemDelegate):
-
     '''
     When closing an editor and opening another, Qt sometimes picks what appears
     to be a random line and column for the second editor. This function checks

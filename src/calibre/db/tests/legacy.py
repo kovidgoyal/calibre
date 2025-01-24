@@ -78,7 +78,6 @@ def run_funcs(self, db, ndb, funcs):
 
 
 class LegacyTest(BaseTest):
-
     ''' Test the emulation of the legacy interface. '''
 
     def test_library_wide_properties(self):  # {{{

@@ -104,6 +104,7 @@ def adjacent_quotes(first_string, second_string):
              or (last_char == '’' and first_char == '‘') \
              or (last_char == '”' and first_char == '“'))
 
+
 class Font:
 
     def __init__(self, spec):
@@ -112,6 +113,7 @@ class Font:
         self.size_em = 0.0
         self.color = spec.get('color')
         self.family = spec.get('family')
+
 
 class Element:
 
@@ -125,12 +127,14 @@ class Element:
     def __hash__(self):
         return hash(self.id)
 
+
 class DocStats:
 
     def __init__(self):
         self.top = self.bottom = self.left_min_odd = self.left_min_even = self.right \
           = self.line_space = self.para_space = self.indent_min_odd = self.indent_min_even = 0
         self.font_size = 0
+
 
 class Image(Element):
 
@@ -389,6 +393,7 @@ class Text(Element):
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
+
 class Paragraph(Text):
 
     def __init__(self, text, font_map, opts, log, idc):
@@ -426,6 +431,7 @@ class Paragraph(Text):
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
+
 class FontSizeStats(dict):
 
     def __init__(self, stats):
@@ -436,6 +442,7 @@ class FontSizeStats(dict):
             if chars >= self.chars_at_most_common_size:
                 self.most_common_size, self.chars_at_most_common_size = sz, chars
             self[sz] = chars/total
+
 
 class Interval:
 
@@ -462,12 +469,12 @@ class Interval:
     def __hash__(self):
         return hash('(%f,%f)'%self.left, self.right)
 
+
 class Column:
 
     # A column contains an element if the element bulges out to
     # the left or the right by at most HFUZZ*col width.
     HFUZZ = 0.2
-
 
     def __init__(self):
         self.left = self.right = self.top = self.bottom = 0
@@ -547,6 +554,7 @@ class Box(list):
                 ans.append(elem.to_html()+' ')
         ans.append('</%s>'%self.tag)
         return ans
+
 
 class ImageBox(Box):
 
@@ -640,7 +648,6 @@ class Region:
                             idx)
                 col.add(elem)
 
-
     def collect_stats(self):
         for column in self.columns:
             column.collect_stats()
@@ -722,7 +729,6 @@ class Region:
                 if elem.top_gap_ratio > 1.2 or is_indented:
                     self.boxes.append(Box())
                 self.boxes[-1].append(elem)
-
 
 
 class Page:
@@ -1351,7 +1357,6 @@ class Page:
             region.collect_stats()
             region.linearize()
 
-
     def to_html(self):
         # If ans.append is used, newlines are inserted between each element
         ans = []
@@ -1421,6 +1426,7 @@ class Page:
             iind += 1
 
         return ans
+
 
 class PDFDocument:
 
@@ -2069,7 +2075,6 @@ class PDFDocument:
                         self.elements.append(block)
                     last_block = block
                 last_region = region
-
 
     def render(self):
         #### Where does the title come from if not run from command line?

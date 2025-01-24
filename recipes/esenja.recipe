@@ -33,7 +33,6 @@ class Esensja(BasicNewsRecipe):
                    dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
                    dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
                    dict(id='komentarze')
-
                    ]
 
     extra_css = '''

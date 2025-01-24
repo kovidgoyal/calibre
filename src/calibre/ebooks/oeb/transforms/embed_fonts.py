@@ -86,7 +86,6 @@ def used_font(style, embedded_fonts):
 
 
 class EmbedFonts:
-
     '''
     Embed all referenced fonts, if found on system. Must be called after CSS flattening.
     '''

@@ -18,7 +18,6 @@ from polyglot.builtins import itervalues
 
 
 class Tool:
-
     '''
     The base class for individual tools in an Edit Book plugin. Useful members include:
 

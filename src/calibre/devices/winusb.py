@@ -44,7 +44,6 @@ except ImportError:
 
 # Data and function type definitions {{{
 
-
 class GUID(Structure):
     _fields_ = [
         ('data1', DWORD),
@@ -701,8 +700,8 @@ def get_volume_pathnames(volume_id, buf=None):
 
 # }}}
 
-# def scan_usb_devices(): {{{
 
+# def scan_usb_devices(): {{{
 
 _USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
 

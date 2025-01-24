@@ -58,7 +58,6 @@ def normalize_language(x: str) -> str:
 def serialize_recipe(urn, recipe_class):
     from xml.sax.saxutils import quoteattr
 
-
     def attr(n, d, normalize=lambda x: x):
         ans = getattr(recipe_class, n, d)
         if isinstance(ans, bytes):

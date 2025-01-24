@@ -265,8 +265,8 @@ class Cookie(SimpleCookie):
 def custom_fields_to_display(db):
     return frozenset(db.field_metadata.ignorable_field_keys())
 
-# Logging {{{
 
+# Logging {{{
 
 class ServerLog(ThreadSafeLog):
     exception_traceback_level = ThreadSafeLog.WARN

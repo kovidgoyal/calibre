@@ -28,8 +28,8 @@ category_icon_map = {
                     'languages'  : 'languages.png',
             }
 
-# Builtin metadata {{{
 
+# Builtin metadata {{{
 
 def _builtin_field_metadata():
     # This is a function so that changing the UI language allows newly created

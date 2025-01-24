@@ -13,7 +13,6 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 
 class TemplateLineEditor(QLineEdit):
-
     '''
     Extend the context menu of a QLineEdit to include more actions.
     '''

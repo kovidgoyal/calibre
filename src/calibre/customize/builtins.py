@@ -11,8 +11,8 @@ from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comi
 
 plugins = []
 
-# To archive plugins {{{
 
+# To archive plugins {{{
 
 class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
@@ -96,8 +96,8 @@ class TXT2TXTZ(FileTypePlugin):
 plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 # }}}
 
-# Metadata reader plugins {{{
 
+# Metadata reader plugins {{{
 
 class ComicMetadataReader(MetadataReaderPlugin):
 
@@ -434,8 +434,8 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and
 
 # }}}
 
-# Metadata writer plugins {{{
 
+# Metadata writer plugins {{{
 
 class EPUBMetadataWriter(MetadataWriterPlugin):
 
@@ -835,7 +835,6 @@ plugins += [
     USER_DEFINED,
 ]
 
-
 # }}}
 
 # New metadata download plugins {{{
@@ -850,8 +849,8 @@ plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary, BigBookSe
 
 # }}}
 
-# Interface Actions {{{
 
+# Interface Actions {{{
 
 class ActionAdd(InterfaceActionBase):
     name = 'Add Books'
@@ -1137,6 +1136,7 @@ class ActionAllActions(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.all_actions:AllGUIActions'
     description = _('Open a menu showing all installed GUI actions')
 
+
 class ActionVirtualLibrary(InterfaceActionBase):
     name = 'Virtual Library'
     actual_plugin = 'calibre.gui2.actions.virtual_library:VirtualLibraryAction'
@@ -1183,8 +1183,8 @@ plugins += [ActionAdd, ActionAllActions, ActionFetchAnnotations, ActionGenerateC
 
 # }}}
 
-# Preferences Plugins {{{
 
+# Preferences Plugins {{{
 
 class LookAndFeel(PreferencesPlugin):
     name = 'Look & Feel'
@@ -1460,8 +1460,8 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 
 # }}}
 
-# Store plugins {{{
 
+# Store plugins {{{
 
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'

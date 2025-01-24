@@ -19,8 +19,8 @@ from polyglot.builtins import iteritems, itervalues
 
 missing = object()
 
-# Convert data into values suitable for the db {{{
 
+# Convert data into values suitable for the db {{{
 
 def sqlite_datetime(x):
     return isoformat(x, sep=' ') if isinstance(x, datetime) else x
@@ -190,8 +190,8 @@ def get_adapter(name, metadata):
     return ans
 # }}}
 
-# One-One fields {{{
 
+# One-One fields {{{
 
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
@@ -265,8 +265,8 @@ def custom_series_index(book_id_val_map, db, field, *args):
     return {s[1] for s in sequence}
 # }}}
 
-# Many-One fields {{{
 
+# Many-One fields {{{
 
 def safe_lower(x):
     try:
@@ -392,8 +392,8 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     return dirtied
 # }}}
 
-# Many-Many fields {{{
 
+# Many-Many fields {{{
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a

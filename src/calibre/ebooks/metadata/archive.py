@@ -60,6 +60,7 @@ class KPFExtract(FileTypePlugin):
                 of.write(zf.read(candidates[0]))
         return of.name
 
+
 class RAR:
 
     def __init__(self, archive):

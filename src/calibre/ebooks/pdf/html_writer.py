@@ -45,9 +45,10 @@ from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes, iteritems
 from polyglot.urllib import urlparse
 
+# }}}
+
 OK, KILL_SIGNAL = range(0, 2)
 HANG_TIME = 60  # seconds
-# }}}
 
 
 # Utils {{{
@@ -131,6 +132,7 @@ def fix_fullscreen_images(container):
                 svg.set('width', '100vw')
                 svg.set('height', '100vh')
                 container.dirty(file_name)
+
 # }}}
 
 
@@ -480,6 +482,7 @@ def job_for_name(container, name, margins, page_layout):
         new_margins = QMarginsF(*resolve_margins(margins, page_layout))
         page_layout.setMargins(new_margins)
     return index_file, page_layout, name
+
 # }}}
 
 
@@ -515,6 +518,7 @@ def create_margin_files(container):
         if margins:
             margins = dict_to_margins(json.loads(margins))
         yield MarginFile(name, margins)
+
 # }}}
 
 
@@ -680,6 +684,7 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
         return loc.as_tuple
 
     pdf_doc.alter_links(replace_link, mark_links)
+
 # }}}
 
 
@@ -800,7 +805,6 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
 
 
 # Fonts {{{
-
 
 def all_glyph_ids_in_w_arrays(arrays, as_set=False):
     ans = set()

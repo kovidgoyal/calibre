@@ -98,7 +98,6 @@ class ReUpload(Command):  # {{{
             if os.path.exists(x):
                 os.remove(x)
 
-
 # }}}
 
 
@@ -158,7 +157,6 @@ def run_remote_upload(args):
         'ssh', '-x', f'{STAGING_USER}@{STAGING_HOST}', 'cd', STAGING_DIR, '&&',
         'python', 'hosting.py'
     ] + args)
-
 
 # }}}
 
@@ -313,7 +311,6 @@ class UploadInstallers(Command):  # {{{
     def upload_to_calibre(self):
         run_remote_upload(calibre_cmdline(__version__))
 
-
 # }}}
 
 
@@ -355,7 +352,6 @@ class UploadUserManual(Command):  # {{{
         )
         check_call('ssh main chown -R http:http /srv/manual'.split())
 
-
 # }}}
 
 
@@ -381,7 +377,6 @@ class UploadDemo(Command):  # {{{
         )
 
         check_call(f'scp /tmp/html-demo.zip main:{DOWNLOADS}/', shell=True)
-
 
 # }}}
 
@@ -409,6 +404,5 @@ class UploadToServer(Command):  # {{{
         check_call((
             f'ssh main /usr/local/bin/update-calibre-version.py {__version__} && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'
         ).split())
-
 
 # }}}

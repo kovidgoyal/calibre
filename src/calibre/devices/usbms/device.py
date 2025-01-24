@@ -73,7 +73,6 @@ class USBDevice:
 
 
 class Device(DeviceConfig, DevicePlugin):
-
     '''
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. Provides implementations for mounting/ejecting

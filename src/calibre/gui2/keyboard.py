@@ -115,7 +115,6 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         ac.setShortcuts(list(keys))
 
     return keys_map
-
 # }}}
 
 
@@ -194,8 +193,8 @@ class Manager(QObject):  # {{{
 
 # }}}
 
-# Model {{{
 
+# Model {{{
 
 class Node:
 
@@ -567,8 +566,8 @@ class Editor(QFrame):  # {{{
                 ans.append(ks)
         return tuple(ans)
 
-
 # }}}
+
 
 class Delegate(QStyledItemDelegate):  # {{{
 

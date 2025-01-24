@@ -757,7 +757,6 @@ class ThreadedPipeReader(PipeReader):
                 self.queue.put((data, is_stdout, None))
 
 
-
 def duration_of_raw_audio_data(data: bytes, sample_rate: int = HIGH_QUALITY_SAMPLE_RATE, bytes_per_sample: int = 2, num_channels: int = 1) -> float:
     total_num_of_samples = len(data) / bytes_per_sample
     num_of_samples_per_channel = total_num_of_samples / num_channels

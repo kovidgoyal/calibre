@@ -60,9 +60,8 @@ def get_details(browser, url, timeout):  # {{{
         raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
-
-
 # }}}
+
 
 xpath_cache = {}
 
@@ -196,7 +195,6 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
         break
 
     return mi
-
 
 # }}}
 

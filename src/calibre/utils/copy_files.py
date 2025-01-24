@@ -18,6 +18,7 @@ if iswindows:
 WINDOWS_SLEEP_FOR_RETRY_TIME = 2  # seconds
 WindowsFileId = tuple[int, int, int]
 
+
 class UnixFileCopier:
 
     def __init__(self, delete_all=False, allow_move=False):
@@ -73,7 +74,6 @@ def windows_lock_path_and_callback(path: str, f: Callable) -> None:
 
 
 class WindowsFileCopier:
-
     '''
     Locks all files before starting the copy, ensuring other processes cannot interfere
     '''

@@ -1012,7 +1012,6 @@ class TOCView(QWidget):  # {{{
     def undo(self):
         self.tocw.pop_history()
 
-
 # }}}
 
 

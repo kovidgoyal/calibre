@@ -1129,8 +1129,8 @@ class Container(ContainerBase):  # {{{
         return '\n'.join(mismatches)
 # }}}
 
-# EPUB {{{
 
+# EPUB {{{
 
 class InvalidEpub(InvalidBook):
     pass
@@ -1468,8 +1468,8 @@ class EpubContainer(Container):
 
 # }}}
 
-# AZW3 {{{
 
+# AZW3 {{{
 
 class InvalidMobi(InvalidBook):
     pass

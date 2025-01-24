@@ -109,7 +109,6 @@ else:
 
 # Advanced {{{
 
-
 def init_opt(widget, opt, layout):
     widget.name, widget.default_val = opt.name, opt.default
     if opt.longdoc:
@@ -446,11 +445,10 @@ class MainTab(QWidget):  # {{{
     def settings(self):
         return {'auth': self.opt_auth.isChecked(), 'port': self.opt_port.value()}
 
-
 # }}}
 
-# Users {{{
 
+# Users {{{
 
 class NewUser(QDialog):
 
@@ -899,7 +897,6 @@ class Users(QWidget):
 
     def display_user_data(self, username=None):
         self.user_display.show_user(username, self.user_data)
-
 
 # }}}
 

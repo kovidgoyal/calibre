@@ -197,8 +197,8 @@ class DBPrefs(dict):  # {{{
             return json.load(f, object_hook=from_json)
 # }}}
 
-# Extra collators {{{
 
+# Extra collators {{{
 
 def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
@@ -226,8 +226,8 @@ def icu_collator(s1, s2):
 
 # }}}
 
-# Unused aggregators {{{
 
+# Unused aggregators {{{
 
 def Concatenate(sep=','):
     '''String concatenation aggregator for sqlite'''

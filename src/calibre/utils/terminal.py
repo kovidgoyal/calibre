@@ -196,7 +196,6 @@ def windows_terminfo():
     from ctypes.wintypes import SHORT, WORD
 
     class COORD(Structure):
-
         '''struct in wincon.h'''
         _fields_ = [
             ('X', SHORT),
@@ -204,7 +203,6 @@ def windows_terminfo():
         ]
 
     class SMALL_RECT(Structure):
-
         '''struct in wincon.h.'''
         _fields_ = [
             ('Left', SHORT),
@@ -214,7 +212,6 @@ def windows_terminfo():
         ]
 
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-
         '''struct in wincon.h.'''
         _fields_ = [
             ('dwSize', COORD),

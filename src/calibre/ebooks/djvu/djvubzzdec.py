@@ -78,7 +78,6 @@ MAXLEN = 1024 ** 2
 
 
 class BZZDecoderError(Exception):
-
     '''This exception is raised when BZZDecode runs into trouble
     '''
 

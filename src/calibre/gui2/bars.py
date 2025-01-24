@@ -353,8 +353,8 @@ class MenuAction(QAction):  # {{{
         self.setText(self.clone.text())
 # }}}
 
-# MenuBar {{{
 
+# MenuBar {{{
 
 if ismacos:
     # On OS X we need special handling for the application global menu bar and

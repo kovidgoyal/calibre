@@ -43,7 +43,6 @@ def create_base_profile(cache_name='', allow_js=False):
     return ans
 
 
-
 class DownloadRequest(QObject):
 
     aborted_on_timeout: bool = False

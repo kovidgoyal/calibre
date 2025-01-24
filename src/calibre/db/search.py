@@ -28,8 +28,8 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 ACCENT_MATCH   = 3
 
-# Utils {{{
 
+# Utils {{{
 
 def _matchkind(query, case_sensitive=False):
     matchkind = CONTAINS_MATCH

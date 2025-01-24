@@ -14,6 +14,7 @@ def absurl(x):
         x = 'https://www.newyorker.com' + x
     return x
 
+
 class NewYorker(BasicNewsRecipe):
 
     title = 'The New Yorker Magazine'
@@ -128,7 +129,6 @@ class NewYorker(BasicNewsRecipe):
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                 feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         return feeds_dict.items()
-
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies

@@ -14,7 +14,6 @@ from polyglot.builtins import iteritems, itervalues
 
 
 class PageProperties:
-
     '''
     Class representing page level properties (page size/margins) read from
     sectPr elements.
@@ -104,7 +103,6 @@ class Style:
 
 
 class Styles:
-
     '''
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
     '''

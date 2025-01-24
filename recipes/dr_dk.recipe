@@ -104,7 +104,6 @@ class DRNyheder(BasicNewsRecipe):
             cover_url = cover_item['src']
         return cover_url
 
-
     keep_only_tags = [
 
         dict(name='h1', attrs={'class': 'dre-article-title__heading'}), # Title

@@ -475,8 +475,8 @@ class CNCX:  # {{{
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
 
-
 # }}}
+
 
 class ImageRecord:  # {{{
 
@@ -843,6 +843,5 @@ def inspect_mobi(mobi_file, ddir):
         os.mkdir(tdir)
         for rec in getattr(f, attr):
             rec.dump(tdir)
-
 
 # }}}

@@ -560,8 +560,8 @@ class OpenDocument:
             self.rebuild_caches()
         return self.element_dict.get(obj.qname, [])
 
-# Convenience functions
 
+# Convenience functions
 
 def OpenDocumentChart():
     ''' Creates a chart document '''

@@ -20,6 +20,7 @@ def E(parent, name, text='', **attrs):
     parent.append(ans)
     return ans
 
+
 def process_node(node, html_parent):
     ntype = node.get('type')
 
@@ -44,6 +45,7 @@ def process_node(node, html_parent):
 def ts_date(x):
     dt = datetime.fromtimestamp(x/1000 + time.timezone)
     return dt.strftime('%b %d, %Y at %I:%M %p')
+
 
 def load_article_from_json(raw, root):
     # open('/t/raw.json', 'w').write(raw)

@@ -119,8 +119,8 @@ class MetadataBackup(Thread):  # {{{
         with open(path, 'wb') as f:
             f.write(raw)
 
-
 # }}}
+
 
 # Global utility function for get_match here and in gui2/library.py
 # This is a global for performance

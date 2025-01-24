@@ -164,7 +164,6 @@ class ThreadSafePrefs(MutableMapping):
 
 
 class LibraryDatabase:
-
     ''' Emulate the old LibraryDatabase2 interface '''
 
     PATH_LIMIT = DB.PATH_LIMIT

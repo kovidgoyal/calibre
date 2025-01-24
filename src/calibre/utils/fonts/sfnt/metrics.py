@@ -10,7 +10,6 @@ from calibre.utils.fonts.utils import get_all_font_names
 
 
 class FontMetrics:
-
     '''
     Get various metrics for the specified sfnt. All the metrics are returned in
     units of pixels. To calculate a metric you have to specify the font size

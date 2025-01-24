@@ -65,7 +65,6 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
         newfile.seek(orig.tell(), 0)
 
         self._rolled = True
-
 # }}}
 
 

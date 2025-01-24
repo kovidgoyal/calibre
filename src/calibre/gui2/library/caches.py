@@ -24,7 +24,6 @@ class ThumbnailCache(TC):
 
 
 class CoverCache(dict):
-
     '''
     This is a RAM cache to speed up rendering of covers by storing them as
     QPixmaps. It is possible that it is called from multiple threads, thus the

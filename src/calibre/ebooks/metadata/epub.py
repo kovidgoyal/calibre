@@ -140,7 +140,6 @@ class OCFReader(OCF):
             return False
 
 
-
 class OCFZipReader(OCFReader):
 
     def __init__(self, stream, mode='r', root=None):

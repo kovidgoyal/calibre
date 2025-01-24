@@ -189,6 +189,7 @@ def sort_key_for_name_and_first_letter(x, hierarchical_categories=()):
     return (c if numeric_collation and c.isdigit() else '9999999999',
             collation_order(v2), sort_key(v1))
 
+
 def sort_key_for_name(x, hierarchical_categories=()):
     v = x.sort or x.name
     if x.category not in hierarchical_categories:

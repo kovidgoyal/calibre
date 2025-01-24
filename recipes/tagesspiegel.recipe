@@ -70,4 +70,3 @@ class TagesspiegelRss(BasicNewsRecipe):
         (u'Medien', u'http://www.tagesspiegel.de/contentexport/feed/medien'),
         (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
     ]
-

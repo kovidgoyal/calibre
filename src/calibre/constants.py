@@ -410,7 +410,6 @@ else:
         atexit.register(cleanup_cdir)
 # }}}
 
-
 is_running_from_develop = False
 if getattr(sys, 'frozen', False):
     try:

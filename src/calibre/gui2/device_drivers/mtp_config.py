@@ -219,8 +219,8 @@ class IgnoredDevices(QWidget):  # {{{
 
 # }}}
 
-# Rules {{{
 
+# Rules {{{
 
 class Rule(QWidget):
 

@@ -62,8 +62,8 @@ class NoWorkersAvailable(Exception):
     '''No worker threads available to process remaining requests.'''
     pass
 
-# classes
 
+# classes
 
 class WorkerThread(threading.Thread):
     '''Background thread connected to the requests/results queues.
@@ -235,8 +235,8 @@ class ThreadPool:
             except NoResultsPending:
                 break
 
-# helper functions
 
+# helper functions
 
 def makeRequests(callable, args_list, callback=None, exc_callback=None):
     '''Create several work requests for same callable with different arguments.
@@ -267,10 +267,10 @@ def makeRequests(callable, args_list, callback=None, exc_callback=None):
             )
     return requests
 
+
 ################
 # USAGE EXAMPLE
 ################
-
 
 if __name__ == '__main__':
     import random

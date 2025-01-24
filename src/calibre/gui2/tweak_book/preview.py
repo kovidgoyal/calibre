@@ -65,8 +65,8 @@ def get_data(name):
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
 
-# Parsing of html to add linenumbers {{{
 
+# Parsing of html to add linenumbers {{{
 
 def parse_html(raw):
     root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
@@ -175,8 +175,8 @@ class ParseWorker(Thread):
 parse_worker = ParseWorker()
 # }}}
 
-# Override network access to load data "live" from the editors {{{
 
+# Override network access to load data "live" from the editors {{{
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
@@ -237,7 +237,6 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
         if self.requests:
             return QTimer.singleShot(10, self.check_for_parse)
-
 
 # }}}
 

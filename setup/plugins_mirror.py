@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 # Imports {{{
 import argparse
 import ast
@@ -151,8 +150,8 @@ def load_plugins_index():
         raise
     return json.loads(bz2.decompress(raw))
 
-# Get metadata from plugin zip file {{{
 
+# Get metadata from plugin zip file {{{
 
 def convert_node(fields, x, names={}, import_data=None):
     name = x.__class__.__name__
@@ -357,8 +356,8 @@ def get_plugin_info(raw_zip):
                     return json.loads(res.stdout)
             raise
 
-
 # }}}
+
 
 def update_plugin_from_entry(plugin, entry):
     plugin['index_name'] = entry.name
@@ -706,7 +705,6 @@ def test_parse():  # {{{
         if new_url != full_url:
             print(f'new url ({aname}): {new_url} != {full_url} for plugin at: {url}')
             raise SystemExit(1)
-
 # }}}
 
 
@@ -740,7 +738,6 @@ class HelloWorld(FileTypePlugin):
         zf.writestr('very/ver.py', b'MV = (0, 7, 53)')
         zf.writestr('__init__.py', b'from xxx import yyy\nfrom very.lovely import HelloWorld')
     assert get_plugin_info(buf.getvalue()) == vals
-
 # }}}
 
 

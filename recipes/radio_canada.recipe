@@ -24,6 +24,7 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 class RadioCanada(BasicNewsRecipe):
     title            = 'Radio Canada'
     __author__       = 'quatorze, pticrix'

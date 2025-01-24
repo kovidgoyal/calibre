@@ -37,8 +37,8 @@ Elem = namedtuple('Elem',
 FlowInfo = namedtuple('FlowInfo',
         'type format dir fname')
 
-# locate beginning and ending positions of tag with specific aid attribute
 
+# locate beginning and ending positions of tag with specific aid attribute
 
 def locate_beg_end_of_tag(ml, aid):
     pattern = br'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid

@@ -99,7 +99,6 @@ class MIBUK(USBMS):
 
 
 class JETBOOK_MINI(USBMS):
-
     '''
     ['0x4b8',
   '0x507',
@@ -126,7 +125,6 @@ class JETBOOK_MINI(USBMS):
 
 
 class JETBOOK_COLOR(USBMS):
-
     '''
 set([('0x951',
       '0x160b',

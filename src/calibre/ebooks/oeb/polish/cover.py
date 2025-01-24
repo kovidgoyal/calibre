@@ -105,9 +105,9 @@ def mark_as_cover(container, name):
     else:
         mark_as_cover_epub(container, name)
 
+
 ###############################################################################
 # The delightful EPUB cover processing
-
 
 def is_raster_image(media_type):
     return media_type and media_type.lower() in {

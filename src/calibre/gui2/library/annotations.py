@@ -226,7 +226,6 @@ class AnnotsResultsDelegate(ResultsDelegate):
             text = parts[0]
         return False, before, text, after, bool(result.get('annotation', {}).get('notes'))
 
-
 # }}}
 
 

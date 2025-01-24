@@ -850,7 +850,6 @@ class PluginWidget(QWidget,Ui_Form):
 
 
 class CheckableTableWidgetItem(QTableWidgetItem):
-
     '''
     Borrowed from kiwidude
     '''
@@ -905,7 +904,6 @@ class ComboBox(NoWheelComboBox):
 
 
 class GenericRulesTable(QTableWidget):
-
     '''
     Generic methods for managing rows in a QTableWidget
     '''

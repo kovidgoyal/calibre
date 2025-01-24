@@ -327,7 +327,6 @@ def parse_smil_time(x):
     return seconds
 
 
-
 def transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map):
     root = container.parsed(name)
     text_tag, audio_tag = SMIL('text'), SMIL('audio')
@@ -587,7 +586,6 @@ def process_exploded_book(
 
     def needs_work(mt):
         return mt in OEB_STYLES or mt in OEB_DOCS or mt in ('image/svg+xml', 'application/smil', 'application/smil+xml')
-
 
     bookmark_data = None
     if save_bookmark_data:

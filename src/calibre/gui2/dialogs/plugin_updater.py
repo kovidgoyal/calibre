@@ -132,7 +132,6 @@ def get_installed_plugin_status(display_plugin):
 
 
 class ImageTitleLayout(QHBoxLayout):
-
     '''
     A reusable layout widget displaying an image followed by a title
     '''
@@ -158,7 +157,6 @@ class ImageTitleLayout(QHBoxLayout):
 
 
 class SizePersistedDialog(QDialog):
-
     '''
     This dialog is a base class for any dialogs that want their size/position
     restored when they are next opened.

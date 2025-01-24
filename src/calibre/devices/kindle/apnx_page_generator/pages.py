@@ -39,5 +39,3 @@ class Pages:
     @property
     def number_of_pages(self) -> int:
         return sum(len(pg.page_locations) for pg in self.__pages_groups)
-
-

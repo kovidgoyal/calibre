@@ -11,10 +11,12 @@ def resize(x):
     elif '?crop=' in x:
         return x + '&resize=600'
 
+
 def absurl(url):
     if url.startswith('/'):
         url = 'https://www.thetimes.com' + url
     return url
+
 
 class times(BasicNewsRecipe):
     title = 'The Times and Sunday Times'

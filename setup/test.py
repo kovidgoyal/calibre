@@ -65,7 +65,6 @@ class Test(BaseTest):
                 ffmpeg_dll_dir = os.path.join(SW, 'ffmpeg', 'bin')
                 os.add_dll_directory(ffmpeg_dll_dir)
 
-
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         if opts.test_name:

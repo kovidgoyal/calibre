@@ -77,7 +77,6 @@ if False:  # Added by Kovid
 
 
 class StyleToCSS:
-
     ''' The purpose of the StyleToCSS class is to contain the rules to convert
         ODF styles to CSS2. Since it needs the generic fonts, it would probably
         make sense to also contain the Styles in a dict as well..
@@ -378,7 +377,6 @@ special_styles = {
 
 
 class ODF2XHTML(handler.ContentHandler):
-
     ''' The ODF2XHTML parses an ODF file and produces XHTML'''
 
     def __init__(self, generate_css=True, embedable=False):
@@ -1665,7 +1663,6 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
 
 class ODF2XHTMLembedded(ODF2XHTML):
-
     ''' The ODF2XHTML parses an ODF file and produces XHTML'''
 
     def __init__(self, lines, generate_css=True, embedable=False):

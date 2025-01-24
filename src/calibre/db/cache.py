@@ -135,7 +135,6 @@ dynamic_category_preferences = frozenset({'grouped_search_make_user_categories',
 
 
 class Cache:
-
     '''
     An in-memory cache of the metadata.db file from a calibre library.
     This class also serves as a threadsafe API for accessing the database.

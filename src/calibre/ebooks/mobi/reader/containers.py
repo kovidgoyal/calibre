@@ -44,5 +44,3 @@ class Container:
             if imgtype != 'unknown':
                 return data, imgtype
         return None, None
-
-

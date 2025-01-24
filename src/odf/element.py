@@ -87,8 +87,8 @@ def _nssplit(qualifiedName):
 def _nsassign(namespace):
     return nsdict.setdefault(namespace,'ns' + unicode_type(len(nsdict)))
 
-# Exceptions
 
+# Exceptions
 
 class IllegalChild(Exception):
     ''' Complains if you add an element to a parent where it is not allowed '''

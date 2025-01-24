@@ -246,8 +246,8 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
 
 # }}}
 
-# Format text using templates {{{
 
+# Format text using templates {{{
 
 def sanitize(s):
     return unicodedata.normalize('NFC', clean_xml_chars(clean_ascii_chars(force_unicode(s or ''))))
@@ -355,8 +355,8 @@ def color(color_theme, name):
 
 # }}}
 
-# Styles {{{
 
+# Styles {{{
 
 class Style:
 

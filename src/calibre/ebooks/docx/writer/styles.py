@@ -199,6 +199,7 @@ LINE_STYLES = {
     'outset': 'outset',
 }
 
+
 def convert_underline(items):
     style = 'solid'
     has_underline = False

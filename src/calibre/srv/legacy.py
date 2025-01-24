@@ -118,7 +118,6 @@ def build_navigation(start, num, total, url_base):  # {{{
             E.tr(left_buttons, right_buttons),
             class_='buttons')
     return E.div(tagline, buttons, class_='navigation')
-
 # }}}
 
 

@@ -21,8 +21,8 @@ from polyglot.builtins import itervalues
 class NoFonts(ValueError):
     pass
 
-# Font dirs {{{
 
+# Font dirs {{{
 
 def default_font_dirs():
     return [
@@ -123,8 +123,8 @@ def font_dirs():
     return fc_list()
 # }}}
 
-# Build font family maps {{{
 
+# Build font family maps {{{
 
 def font_priority(font):
     '''

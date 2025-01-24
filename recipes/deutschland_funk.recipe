@@ -14,6 +14,7 @@ Fetch Deutschlandfunk & Deutschlandfunk Kultur
 ## Version:1.6
 ## New RSS source: https://www.deutschlandfunk.de/rss-angebot-102.html
 
+
 class AdvancedUserRecipe1432200863(BasicNewsRecipe):
 
     title            = 'Deutschlandfunk & Deutschlandfunk Kultur'
@@ -33,8 +34,6 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
                       .article-header-description {font-size: 1em; font-style: italic; font-weight: normal;margin-bottom: 1em}
                       .b-image-figure, .caption-figure.is-left, .b-image-credits {font-size: .75em; font-weight: normal;margin-bottom: .75em}
                       '''
-
-
 
     feeds = [
               ('DLF Nachrichten', 'https://www.deutschlandfunk.de/nachrichten-100.rss'),

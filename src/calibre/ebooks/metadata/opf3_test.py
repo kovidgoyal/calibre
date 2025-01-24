@@ -587,8 +587,8 @@ class TestOPF3(unittest.TestCase):
         self.ae('xxx/cover.jpg', apply_metadata(root, mi3, cover_data=b'x', cover_prefix='xxx'))
     # }}}
 
-# Run tests {{{
 
+# Run tests {{{
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TestOPF3)

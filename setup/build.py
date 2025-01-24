@@ -23,6 +23,7 @@ isunix = islinux or ismacos or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python{}{}.lib'.format(*sys.version_info[:2]))
 
+
 class CompileCommand(NamedTuple):
     cmd: list[str]
     src: str
@@ -145,7 +146,6 @@ def parse_extension(ext, compiling_for='native'):
     if compiling_for == 'windows':
         get_key = 'windows_'
 
-
     def get(k, default=''):
         ans = ext.pop(k, default)
         ans = ext.pop(get_key + k, ans)
@@ -240,7 +240,6 @@ class Environment(NamedTuple):
                 return x
             return self.lib_prefix+x+self.lib_suffix
         return list(map(map_name, libs))
-
 
 
 def init_env(debug=False, sanitize=False, compiling_for='native'):

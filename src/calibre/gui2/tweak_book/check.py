@@ -53,6 +53,7 @@ def prefix_for_level(level):
         text += ': '
     return text
 
+
 def build_error_message(error, with_level=False, with_line_numbers=False):
     prefix = ''
     filename = error.name
@@ -61,6 +62,7 @@ def build_error_message(error, with_level=False, with_line_numbers=False):
     if with_line_numbers and error.line:
         filename = f'{filename}:{error.line}'
     return f'{prefix}{error.msg}\xa0\xa0\xa0\xa0[{filename}]'
+
 
 class Delegate(QStyledItemDelegate):
 

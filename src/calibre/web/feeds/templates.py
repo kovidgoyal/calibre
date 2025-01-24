@@ -23,8 +23,8 @@ def attrs(*args, **kw):
         kw['class'] = ' '.join(args)
     return kw
 
-# Regular templates
 
+# Regular templates
 
 class Template:
 

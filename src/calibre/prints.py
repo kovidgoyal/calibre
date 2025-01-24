@@ -46,6 +46,7 @@ def prints(*a, **kw):
         except Exception:
             pass
 
+
 def debug_print(*args, **kw):
     '''
     Prints debug information to the console if debugging is enabled.

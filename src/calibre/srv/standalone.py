@@ -51,8 +51,6 @@ def daemonize():  # {{{
 
     # Redirect standard file descriptors.
     speedup.detach(os.devnull)
-
-
 # }}}
 
 

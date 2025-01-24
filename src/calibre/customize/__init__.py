@@ -475,6 +475,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
         :return: A :class:`calibre.ebooks.metadata.book.Metadata` object
         '''
         return None
+
 # }}}
 
 

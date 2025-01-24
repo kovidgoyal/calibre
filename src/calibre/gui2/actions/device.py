@@ -175,8 +175,8 @@ class ShareConnMenu(QMenu):  # {{{
     def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
 
-
 # }}}
+
 
 class SendToDeviceAction(InterfaceAction):
 

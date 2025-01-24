@@ -65,7 +65,6 @@ class PreferencesAction(InterfaceAction):
                                     triggered=partial(self.do_config, initial_plugin=(p.category, p.name),
                                                       close_after_initial=True))
 
-
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, PluginUpdaterDialog
         d = PluginUpdaterDialog(self.gui,

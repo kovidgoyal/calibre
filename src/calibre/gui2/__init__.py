@@ -302,7 +302,6 @@ QIcon.icon_as_png = icon_resource_manager.icon_as_png
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
 QIcon.cached_icon = icon_resource_manager.cached_icon
 
-
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
@@ -623,7 +622,6 @@ def _config():  # {{{
 
 
 config = _config()
-
 # }}}
 
 QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope, config_dir)
@@ -1604,6 +1602,7 @@ def open_local_file(path):
 
 
 _ea_lock = Lock()
+
 
 def simple_excepthook(t, v, tb):
     return sys.__excepthook__(t, v, tb)

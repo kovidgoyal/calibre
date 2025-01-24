@@ -426,6 +426,7 @@ class ImageView(QWidget, ImageDropMixin):
             draw_size(p, target, ow, oh)
 # }}}
 
+
 # CoverView {{{
 
 class RoundedPixmap(QGraphicsPixmapItem):
@@ -472,8 +473,8 @@ class CoverView(QGraphicsView, ImageDropMixin):
 
 # }}}
 
-# BasicList {{{
 
+# BasicList {{{
 
 class BasicListItem(QListWidgetItem):
 
@@ -1098,7 +1099,6 @@ class SplitterHandle(QSplitterHandle):
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
-
 
 
 class PaperSizes(QComboBox):  # {{{

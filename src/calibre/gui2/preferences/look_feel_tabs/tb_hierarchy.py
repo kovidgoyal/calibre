@@ -54,7 +54,6 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
 # }}}
 
 
-
 class TbHierarchyTab(ConfigTabWidget, Ui_Form):
 
     def genesis(self, gui):

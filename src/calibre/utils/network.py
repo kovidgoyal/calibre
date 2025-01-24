@@ -109,6 +109,7 @@ def internet_connected():
 
     return internet_connected.checker()
 
+
 def is_ipv6_addr(addr):
     import socket
     try:

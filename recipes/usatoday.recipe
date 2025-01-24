@@ -14,9 +14,11 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 def absurl(url):
     if url.startswith('/'):
         return 'https://www.usatoday.com' + url
+
 
 class USAToday(BasicNewsRecipe):
 

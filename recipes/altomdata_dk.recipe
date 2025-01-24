@@ -28,4 +28,3 @@ class WwwAltomdata_dk(BasicNewsRecipe):
         ('Kommentarer til Alt om DATA, Datatid TechLife', 'http://www.altomdata.dk/comments/feed'),
 
     ]
-

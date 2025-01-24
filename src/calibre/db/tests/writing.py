@@ -920,7 +920,6 @@ class WritingTest(BaseTest):
         cache.restore_annotations(1, list(opf.read_annotations()))
         amap = cache.annotations_map_for_book(1, 'moo')
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
-
     # }}}
 
     def test_changed_events(self):  # {{{
@@ -1043,7 +1042,6 @@ class WritingTest(BaseTest):
         self.assertDictEqual({'publisher': {'random': 'url2'}, 'tags': {'foobar': 'url'}},
                              mi.link_maps, "ProxyMetadata didn't return the right link map")
 
-
         # Now test deleting the links.
         links = cache.get_link_map('tags')
         to_del = {l:'' for l in links.keys()}
@@ -1054,6 +1052,4 @@ class WritingTest(BaseTest):
         cache.set_link_map('publisher', to_del)
         self.assertEqual({}, cache.get_link_map('publisher'), 'links on publisher were not deleted')
         self.assertEqual({}, cache.get_all_link_maps_for_book(1), 'Not all links for book were deleted')
-
-
     # }}}

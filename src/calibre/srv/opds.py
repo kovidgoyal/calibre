@@ -240,8 +240,8 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
 
     return ans
 
-
 # }}}
+
 
 default_feed_title = __appname__ + ' ' + _('Library')
 

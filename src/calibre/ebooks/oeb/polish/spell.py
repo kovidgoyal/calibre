@@ -162,9 +162,9 @@ def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
 _opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
+
 # We can only use barename() for tag names and simple attribute checks so that
 # this code matches up with the syntax highlighter base spell checking
-
 
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.iterdescendants('*'):

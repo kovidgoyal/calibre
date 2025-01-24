@@ -65,7 +65,6 @@ def cv(val):
 
 
 class Metadata:
-
     '''
     A class representing all the metadata for a book. The various standard metadata
     fields are available as attributes of this object. You can also stick

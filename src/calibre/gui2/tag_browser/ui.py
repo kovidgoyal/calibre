@@ -1099,5 +1099,4 @@ class TagBrowserWidget(QFrame):  # {{{
             return
         return QFrame.keyPressEvent(self, ev)
 
-
 # }}}

@@ -14,7 +14,6 @@ from calibre.utils.icu import primary_contains, primary_sort_key, strcmp
 
 
 class TagCategories(QDialog, Ui_TagCategories):
-
     '''
     The structure of user_categories stored in preferences is
       {cat_name: [ [name, category, v], [], [] ]}, cat_name: [ [name, cat, v] ...]}

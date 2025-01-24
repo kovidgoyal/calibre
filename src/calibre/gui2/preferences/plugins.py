@@ -218,8 +218,8 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
                 return plugin
         return None
 
-
 # }}}
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

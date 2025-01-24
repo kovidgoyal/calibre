@@ -41,6 +41,7 @@ def qurl_to_key(url: QUrl | str) -> str:
 
 Headers = list[tuple[str, str]]
 
+
 class Request(TypedDict):
     id: int
     url: str

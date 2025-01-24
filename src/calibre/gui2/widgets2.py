@@ -239,7 +239,6 @@ class CenteredToolButton(RightClickButton):
 
 
 class Dialog(QDialog):
-
     '''
     An improved version of Qt's QDialog class. This automatically remembers the
     last used size, automatically connects the signals for QDialogButtonBox,
@@ -874,7 +873,6 @@ class MessagePopup(QLabel):
     def position_in_parent(self):
         p = self.parent()
         self.move((p.width() - self.width()) // 2, self.OFFSET_FROM_TOP)
-
 
 
 if __name__ == '__main__':

@@ -245,7 +245,6 @@ class ThreadSafeWrapper(Log):
 
 
 class GUILog(ThreadSafeLog):
-
     '''
     Logs in HTML and plain text as unicode. Ideal for display in a GUI context.
     '''

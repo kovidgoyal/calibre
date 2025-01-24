@@ -34,8 +34,8 @@ class Plugin(_Plugin):
         self.width_pts = self.width * 72./self.dpi
         self.height_pts = self.height * 72./self.dpi
 
-# Input profiles {{{
 
+# Input profiles {{{
 
 class InputProfile(Plugin):
 

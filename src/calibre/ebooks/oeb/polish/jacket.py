@@ -105,4 +105,3 @@ def add_or_replace_jacket(container):
         container.insert_into_xml(container.opf_xpath('//opf:spine')[0], itemref,
                               index=index)
     return found
-

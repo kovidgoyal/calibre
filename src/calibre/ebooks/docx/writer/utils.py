@@ -13,8 +13,8 @@ def int_or_zero(raw):
     except (ValueError, TypeError, AttributeError):
         return 0
 
-# convert_color() {{{
 
+# convert_color() {{{
 
 def convert_color(value):
     if not value:

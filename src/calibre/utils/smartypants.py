@@ -877,7 +877,6 @@ def run_tests(return_tests=False):
             self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
             self.assertEqual(sp("'abc'"), '&#8216;abc&#8217;')
 
-
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestSmartypantsAllAttributes)
     if return_tests:
         return tests

@@ -103,8 +103,8 @@ class PreserveMIMEDefaults:  # {{{
                         raise
 # }}}
 
-# Uninstall script {{{
 
+# Uninstall script {{{
 
 UNINSTALL = '''\
 #!/bin/sh
@@ -236,8 +236,8 @@ CALIBRE_LINUX_INSTALLER_HEREDOC
 
 # }}}
 
-# Completion {{{
 
+# Completion {{{
 
 class ZshCompleter:  # {{{
 

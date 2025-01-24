@@ -603,8 +603,8 @@ if prefs['installation_uuid'] is None:
     import uuid
     prefs['installation_uuid'] = str(uuid.uuid4())
 
-# Read tweaks
 
+# Read tweaks
 
 def tweaks_file():
     return os.path.join(config_dir, 'tweaks.json')

@@ -69,7 +69,6 @@ class ReadFileWithProgressReporting:  # {{{
             )
         sys.stdout.flush()
 
-
 # }}}
 
 
@@ -92,7 +91,6 @@ class Base:  # {{{
         print(*args, **kwargs)
         print('_' * 50)
         sys.stdout.flush()
-
 
 # }}}
 
@@ -126,7 +124,6 @@ class SourceForge(Base):  # {{{
                 else:
                     break
             print('Uploaded in', int(time.time() - start), 'seconds\n\n')
-
 
 # }}}
 
@@ -259,7 +256,6 @@ class GitHub(Base):  # {{{
             self.fail(r, f'Failed to create release for version: {self.version}')
         return r.json()
 
-
 # }}}
 
 
@@ -388,9 +384,8 @@ def generate_index():  # {{{
                     f.write(index.encode('utf-8'))
             finally:
                 os.chdir('..')
-
-
 # }}}
+
 
 SERVER_BASE = '/srv/download/'
 
@@ -432,9 +427,6 @@ def upload_to_servers(files, version):  # {{{
     #             else:
     #                 break
     #         print('Uploaded in', int(time.time() - start), 'seconds\n\n')
-    #
-
-
 # }}}
 
 

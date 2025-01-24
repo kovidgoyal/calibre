@@ -12,6 +12,7 @@ from calibre import prepare_string_for_xml
 # This must be something that will never naturally occur in documentation
 MARKUP_ERROR = '*' + _('Template documentation markup error') + '*:'
 
+
 @unique
 class NodeKinds(IntEnum):
 
@@ -174,7 +175,6 @@ class UrlNode(Node):
 
     def escaped_url(self):
         return prepare_string_for_xml(self._url)
-
 
 
 class FFMLProcessor:

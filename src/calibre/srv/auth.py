@@ -215,7 +215,6 @@ class DigestAuth:  # {{{
 
 
 class AuthController:
-
     '''
     Implement Basic/Digest authentication for the Content server. Android browsers
     cannot handle HTTP AUTH when downloading files, as the download is handed

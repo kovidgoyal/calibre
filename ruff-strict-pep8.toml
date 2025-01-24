@@ -36,6 +36,7 @@ select = [
     'RUF055',  # unnecessary regex
     'RUF039',  # always use raw-string for regex
     'RUF047',  # needless else
+    'E302', 'E303', 'E304', 'E305', 'W391',  # blank-line standard
 ]
 
 [lint.per-file-ignores]
@@ -49,7 +50,7 @@ select = [
 "src/calibre/gui2/tts/manager.py" = ['UP037']
 "src/calibre/utils/copy_files.py" = ['UP037']
 "src/calibre/utils/smartypants.py" = ['RUF039', 'RUF055']
-"src/qt/*.py" = ['I']
+"src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 
 [lint.isort]

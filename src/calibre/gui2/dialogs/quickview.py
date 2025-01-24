@@ -36,7 +36,6 @@ from calibre.utils.iso8601 import UNDEFINED_DATE
 
 
 class TableItem(QTableWidgetItem):
-
     '''
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     '''

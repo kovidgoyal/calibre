@@ -45,7 +45,6 @@ def find_folders_under(root, db, add_root=True,  # {{{
         ans.remove(root)
 
     return ans
-
 # }}}
 
 
@@ -142,7 +141,6 @@ def books_in_folder(folder, one_per_folder,  # {{{
             books[key].add(path)
 
         return [FormatCollection(folder, x) for x in books.values() if x]
-
 # }}}
 
 

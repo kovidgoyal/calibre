@@ -6,6 +6,7 @@ def absurl(url):
     if url.startswith('/'):
         return 'https://www.livelaw.in' + url
 
+
 class livelaw(BasicNewsRecipe):
     title = 'Live Law'
     __author__ = 'unkn0wn'

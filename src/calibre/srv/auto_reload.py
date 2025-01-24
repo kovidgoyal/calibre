@@ -31,8 +31,8 @@ MAX_RETRIES = 10
 class NoAutoReload(EnvironmentError):
     pass
 
-# Filesystem watcher {{{
 
+# Filesystem watcher {{{
 
 class WatcherBase:
 
@@ -332,8 +332,8 @@ class Worker:
                 s.close()
         self.log.error('Restarted server did not start listening on:', self.port)
 
-# WebSocket reload notifier {{{
 
+# WebSocket reload notifier {{{
 
 class ReloadHandler(DummyHandler):
 

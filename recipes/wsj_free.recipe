@@ -28,6 +28,7 @@ except ImportError:
 
 needs_subscription = False
 
+
 class WSJ(BasicNewsRecipe):
 
     if needs_subscription:

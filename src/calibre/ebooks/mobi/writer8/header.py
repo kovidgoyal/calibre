@@ -15,10 +15,16 @@ from calibre.ebooks.mobi.utils import align_block
 from polyglot.builtins import as_bytes, iteritems
 
 NULL = 0xffffffff
+
+
 def zeroes(x):
     return (b'\x00' * x)
+
+
 def nulls(x):
     return (b'\xff' * x)
+
+
 def short(x):
     return pack(b'>H', x)
 

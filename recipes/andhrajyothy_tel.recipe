@@ -18,6 +18,7 @@ today = today.replace('/', '%2F')
 
 index = 'https://epaper.andhrajyothy.com'
 
+
 class andhra(BasicNewsRecipe):
     title = 'ఆంధ్రజ్యోతి - తెలంగాణ'
     language = 'te'

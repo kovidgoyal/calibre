@@ -78,6 +78,7 @@ def load_article_from_json(raw):
         body += process_node(node)
     return '<html><body><article>' + body + '</article></body></html>'
 
+
 def cleanup_html_article(root):
     main = root.xpath('//main')[0]
     body = root.xpath('//body')[0]
@@ -91,16 +92,19 @@ def cleanup_html_article(root):
     for x in root.xpath('//button'):
         x.getparent().remove(x)
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 def new_tag(soup, name, attrs=()):
     impl = getattr(soup, 'new_tag', None)
     if impl is not None:
         return impl(name, attrs=dict(attrs))
     return Tag(soup, name, attrs=attrs or None)
+
 
 def process_url(url):
     if url.startswith('/'):

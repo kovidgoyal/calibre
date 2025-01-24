@@ -157,7 +157,6 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
-
 def get_gpref(name: str, defval = None):
     gprefs = getattr(get_gpref, 'gprefs', None)
     if gprefs is None:
@@ -619,8 +618,8 @@ def render_categories(opts, db, category_data):
 def categories_as_json(ctx, rd, db, opts, vl):
     return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl=vl)
 
-# Test tag browser {{{
 
+# Test tag browser {{{
 
 def dump_categories_tree(data):
     root, items = data['root'], data['item_map']

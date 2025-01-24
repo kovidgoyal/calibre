@@ -29,7 +29,6 @@ def check_version_info():
         exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
 
 
-
 check_version_info()
 
 sys.path.insert(0, src_base)

@@ -12,6 +12,7 @@ def class_as_string(x):
         x = ' '.join(x)
     return x
 
+
 def class_startswith(*prefixes):
 
     def q(x):
@@ -23,6 +24,7 @@ def class_startswith(*prefixes):
         return False
 
     return dict(attrs={'class': q})
+
 
 def absolutize_url(url):
     if url.startswith('//'):

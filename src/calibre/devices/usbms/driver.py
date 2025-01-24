@@ -67,7 +67,6 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
-
     '''
     The base class for all USBMS devices. Implements the logic for
     sending/getting/updating metadata/caching metadata/etc.

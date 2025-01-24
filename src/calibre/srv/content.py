@@ -529,7 +529,6 @@ def data_file(rd, fname, path, stat_result):
     return rd.filesystem_file_with_custom_etag(share_open(path, 'rb'), stat_result.st_dev, stat_result.st_ino, stat_result.st_size, stat_result.st_mtime)
 
 
-
 @endpoint('/data-files/get/{book_id}/{relpath}/{library_id=None}', types={'book_id': int})
 def get_data_file(ctx, rd, book_id, relpath, library_id):
     db = get_db(ctx, rd, library_id)

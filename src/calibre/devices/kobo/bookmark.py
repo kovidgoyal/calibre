@@ -185,5 +185,4 @@ class Bookmark:  # {{{
 
         return ans
 
-
 # }}}

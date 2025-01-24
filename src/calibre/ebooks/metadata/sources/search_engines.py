@@ -118,7 +118,6 @@ def quote_term(x):
 
 # DDG + Wayback machine {{{
 
-
 def ddg_url_processor(url):
     return url
 
@@ -207,8 +206,8 @@ def ddg_develop():
             print()
 # }}}
 
-# Bing {{{
 
+# Bing {{{
 
 def bing_term(t):
     t = t.replace('"', '')
@@ -278,8 +277,8 @@ def bing_develop(terms='heroes abercrombie'):
             print()
 # }}}
 
-# Google {{{
 
+# Google {{{
 
 def google_term(t):
     t = t.replace('"', '')

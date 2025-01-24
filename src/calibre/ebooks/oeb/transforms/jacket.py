@@ -160,8 +160,8 @@ class Jacket(Base):
         if opts.insert_metadata:
             self.insert_metadata(metadata)
 
-# Render Jacket {{{
 
+# Render Jacket {{{
 
 def get_rating(rating, rchar, e_rchar):
     ans = ''

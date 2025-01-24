@@ -8,6 +8,7 @@ from calibre_extensions.progress_indicator import SpinAnimator, draw_snake_spinn
 
 draw_snake_spinner
 
+
 class WaitPanel(QWidget):
 
     def __init__(self, msg, parent=None, size=256, interval=10):

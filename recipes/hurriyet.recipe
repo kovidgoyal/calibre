@@ -64,4 +64,3 @@ class Hurriyet(BasicNewsRecipe):
         (u'Ankara', 'https://www.hurriyet.com.tr/rss/ankara'),
         (u'Ege', 'https://www.hurriyet.com.tr/rss/ege')
     ]
-

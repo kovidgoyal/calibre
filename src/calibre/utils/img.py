@@ -63,8 +63,8 @@ def load_jxr_data(data):
 
 # }}}
 
-# png <-> gif {{{
 
+# png <-> gif {{{
 
 def png_data_to_gif_data(data):
     from PIL import Image
@@ -103,8 +103,8 @@ def gif_data_to_png_data(data, discard_animation=False):
 
 # }}}
 
-# Loading images {{{
 
+# Loading images {{{
 
 def set_image_allocation_limit(size_in_mb=1024):
     with suppress(ImportError):  # for people running form source
@@ -162,8 +162,8 @@ def image_and_format_from_data(data):
     return r.read(), fmt
 # }}}
 
-# Saving images {{{
 
+# Saving images {{{
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     '''
@@ -302,8 +302,8 @@ def save_cover_data_to(
         f.write(image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data)
 # }}}
 
-# Overlaying images {{{
 
+# Overlaying images {{{
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     ' Blend the `img` onto a canvas with the specified background color and size '
@@ -370,8 +370,8 @@ def blend_image(img, bgcolor='#ffffff'):
     return canvas
 # }}}
 
-# Image borders {{{
 
+# Image borders {{{
 
 def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
     img = image_from_data(img)
@@ -394,8 +394,8 @@ def remove_borders_from_image(img, fuzz=None):
     return ans if ans.size() != img.size() else img
 # }}}
 
-# Cropping/scaling of images {{{
 
+# Cropping/scaling of images {{{
 
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -450,8 +450,8 @@ def crop_image(img, x, y, width, height):
 
 # }}}
 
-# Image transformations {{{
 
+# Image transformations {{{
 
 def grayscale_image(img):
     return imageops.grayscale(image_from_data(img))
@@ -536,8 +536,8 @@ def eink_dither_image(img):
 
 # }}}
 
-# Optimization of images {{{
 
+# Optimization of images {{{
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
@@ -660,7 +660,9 @@ def encode_jpeg(file_path, quality=80):
 
 def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
+
 # }}}
+
 
 # PIL images {{{
 def align8to32(bytes, width, mode):
@@ -793,6 +795,7 @@ def read_alt_text(pil_im_or_path, target_lang='') -> str:
     return ''
 
 # }}}
+
 
 def test():  # {{{
     from glob import glob

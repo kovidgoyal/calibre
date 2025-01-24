@@ -14,6 +14,7 @@ def re_html(y):
         return soup.text
     return ''
 
+
 def get_id(url):
     rq = browser().open(url)
     return re.search(r'\?p=(\S+)>', str(rq.info())).group(1)

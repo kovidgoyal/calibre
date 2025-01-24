@@ -50,15 +50,18 @@ def itaiji_init(self):
             if self._itaijidict is None:
                 self._itaijidict = pickle.loads(dictdata(Configurations.jisyo_itaiji))
 
+
 def kanwa_init(self):
     if self._jisyo_table is None:
         with self._lock:
             if self._jisyo_table is None:
                 self._jisyo_table = pickle.loads(dictdata(Configurations.jisyo_kanwa))
 
+
 Jisyo.__init__ = jisyo_init
 Itaiji.__init__ = itaiji_init
 Kanwa.__init__ = kanwa_init
+
 
 class Jadecoder(Unidecoder):
 

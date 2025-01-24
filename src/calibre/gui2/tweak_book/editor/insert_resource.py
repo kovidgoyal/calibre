@@ -95,8 +95,8 @@ class ChooseName(Dialog):  # {{{
         super().accept()
 # }}}
 
-# Images {{{
 
+# Images {{{
 
 class ImageDelegate(QStyledItemDelegate):
 
@@ -373,6 +373,7 @@ class InsertImage(Dialog):
     def filter_changed(self, *args):
         f = str(self.filter.text())
         self.fm.setFilterFixedString(f)
+
 # }}}
 
 

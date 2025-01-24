@@ -6,7 +6,6 @@ import os
 
 
 class ReadOnlyFileBuffer:
-
     ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
 
     def __init__(self, raw: bytes, name: str = ''):

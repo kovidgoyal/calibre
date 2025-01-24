@@ -74,7 +74,6 @@ class TheHindufeeds(BasicNewsRecipe):
             src.extract()
         return soup
 
-
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.thehindu.com/todays-paper/')
         if cover := soup.find(attrs={'class':'hindu-ad'}):

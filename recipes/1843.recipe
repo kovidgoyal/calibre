@@ -17,6 +17,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 use_archive = True
 
+
 def E(parent, name, text='', **attrs):
     ans = parent.makeelement(name, **attrs)
     ans.text = text
@@ -340,7 +341,6 @@ class Economist(BasicNewsRecipe):
                 return feeds
 
         # }}}
-
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))

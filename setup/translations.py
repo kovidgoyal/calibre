@@ -607,7 +607,6 @@ class Translations(POT):  # {{{
         if os.path.exists(destbase):
             shutil.rmtree(destbase)
         shutil.rmtree(self.cache_dir)
-
 # }}}
 
 
@@ -756,7 +755,6 @@ class GetTranslations(Translations):  # {{{
         cc('git add */*.po'.split())
         cc('git commit -am'.split() + [msg or 'Updated translations'])
         cc('git push'.split())
-
 # }}}
 
 
@@ -817,7 +815,6 @@ class ISO639(Command):  # {{{
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
-
 # }}}
 
 

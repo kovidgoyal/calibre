@@ -8,6 +8,7 @@ def absurl(url):
     if url.startswith('/'):
         return 'https://www.infzm.com' + url
 
+
 def json_to_html(raw, link):
     data = json.loads(raw)
     data = data['data']['content']
@@ -50,7 +51,6 @@ class infzm(BasicNewsRecipe):
         img {display:block; margin:0 auto;}
         .cm_pic_caption, .cm_pic_author { font-size:small; text-align:center; }
     '''
-
 
     def parse_index(self):
         index = 'https://www.infzm.com/'

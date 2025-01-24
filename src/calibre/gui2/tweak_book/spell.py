@@ -95,6 +95,7 @@ def country_map():
         _country_map = msgpack_loads(P('localization/iso3166.calibre_msgpack', data=True, allow_user_override=False))
     return _country_map
 
+
 def current_languages_dictionaries(reread=False):
     all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
     languages = defaultdict(lambda : defaultdict(set))
@@ -102,6 +103,7 @@ def current_languages_dictionaries(reread=False):
         for locale in d.locales | {d.primary_locale}:
             languages[locale.langcode][locale.countrycode].add(d)
     return languages
+
 
 class AddDictionary(QDialog):  # {{{
 
@@ -257,8 +259,8 @@ class AddDictionary(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
-# User Dictionaries {{{
 
+# User Dictionaries {{{
 
 class UserWordList(QListWidget):
 
@@ -521,8 +523,8 @@ class ManageUserDictionaries(Dialog):
         d = cls()
         d.exec()
 
-
 # }}}
+
 
 class ManageDictionaries(Dialog):  # {{{
 
@@ -715,8 +717,8 @@ class ManageDictionaries(Dialog):  # {{{
         d.exec()
 # }}}
 
-# Spell Check Dialog {{{
 
+# Spell Check Dialog {{{
 
 class WordsModel(QAbstractTableModel):
 
@@ -1639,8 +1641,8 @@ class SpellCheck(Dialog):
         d.exec()
 # }}}
 
-# Find next occurrence {{{
 
+# Find next occurrence {{{
 
 def find_next(word, locations, current_editor, current_editor_name,
               gui_parent, show_editor, edit_file):

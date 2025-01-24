@@ -123,8 +123,8 @@ class Record:  # {{{
                 self.uid, self.raw[:4], len(self.raw))
 # }}}
 
-# EXTH {{{
 
+# EXTH {{{
 
 class EXTHRecord:
 

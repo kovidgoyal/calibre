@@ -242,7 +242,6 @@ class Espresso(BasicNewsRecipe):
         raw = etree.tostring(root, encoding='unicode')
         return raw
 
-
     def eco_find_image_tables(self, soup):
         for x in soup.findAll('table', align=['right', 'center']):
             if len(x.findAll('font')) in (1, 2) and len(x.findAll('img')) == 1:

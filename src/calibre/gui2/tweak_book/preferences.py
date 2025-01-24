@@ -472,7 +472,6 @@ class PreviewSettings(BasicSettings):  # {{{
 
 # ToolbarSettings {{{
 
-
 class ToolbarList(QListWidget):
 
     def __init__(self, parent=None):

@@ -196,7 +196,6 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         return soup
 
-
     # Remove features not wanted and tweak HTML
     preprocess_regexps = [
         # Remove big blank spaces

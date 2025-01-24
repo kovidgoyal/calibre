@@ -54,8 +54,8 @@ def category_icon(category, meta):  # {{{
     return icon
 # }}}
 
-# Book metadata {{{
 
+# Book metadata {{{
 
 def book_to_json(ctx, rd, db, book_id,
                  get_category_urls=True, device_compatible=False, device_for_template=None):
@@ -233,8 +233,8 @@ def books(ctx, rd, library_id):
 
 # }}}
 
-# Categories (Tag Browser) {{{
 
+# Categories (Tag Browser) {{{
 
 @endpoint('/ajax/categories/{library_id=None}', postprocess=json)
 def categories(ctx, rd, library_id):
@@ -526,8 +526,8 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
         return result
 # }}}
 
-# Search {{{
 
+# Search {{{
 
 def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')

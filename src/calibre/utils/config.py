@@ -302,7 +302,6 @@ dynamic = DynamicConfig()
 
 
 class XMLConfig(dict):
-
     '''
     Similar to :class:`DynamicConfig`, except that it uses an XML storage
     backend instead of a pickle file.

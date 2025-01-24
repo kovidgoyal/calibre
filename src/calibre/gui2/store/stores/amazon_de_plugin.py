@@ -28,6 +28,5 @@ class AmazonKindleStore(Base, StorePlugin):
     pass
 
 
-
 if __name__ == '__main__':
     Base().develop_plugin()

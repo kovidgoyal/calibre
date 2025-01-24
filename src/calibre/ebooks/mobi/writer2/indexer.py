@@ -86,8 +86,8 @@ class TAGX:  # {{{
             self.add_tag(i)
         return self.header(1) + bytes(self.byts)
 
-
 # }}}
+
 
 # Index Entries {{{
 

@@ -285,8 +285,8 @@ def utcfromtimestamp(stamp):
 def timestampfromdt(dt, assume_utc=True):
     return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
-# Format date functions {{{
 
+# Format date functions {{{
 
 def fd_format_hour(dt, ampm, hr):
     l = len(hr)
@@ -389,8 +389,8 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
 # }}}
 
-# Clean date functions {{{
 
+# Clean date functions {{{
 
 def cd_has_hour(tt, dt):
     tt['hour'] = dt.hour
