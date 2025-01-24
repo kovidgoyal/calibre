@@ -499,7 +499,7 @@ class Styles:
             prefix = ef + '\n' + prefix
 
         ans = []
-        for (cls, css) in sorted(itervalues(self.classes), key=lambda x:x[0]):
+        for cls, css in sorted(itervalues(self.classes), key=lambda x:x[0]):
             b = (f'\t{k}: {v};' for k, v in iteritems(css))
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))

@@ -47,7 +47,7 @@ class GrantLand(BasicNewsRecipe):
 
         for category in self.CATEGORIES:
 
-            (cat_name, tag, max_articles) = category
+            cat_name, tag, max_articles = category
             self.log('Reading category:', cat_name)
             articles = []
 

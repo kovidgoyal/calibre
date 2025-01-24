@@ -444,8 +444,7 @@ class DeviceManager(Thread):  # {{{
             kls = None
             while True:
                 try:
-                    (kls,device_kind, folder_path) = \
-                                self.mount_connection_requests.get_nowait()
+                    kls, device_kind, folder_path = self.mount_connection_requests.get_nowait()
                 except queue.Empty:
                     break
             if kls is not None:
@@ -566,7 +565,7 @@ class DeviceManager(Thread):  # {{{
         mainlist = self.device.books(oncard=None, end_session=False)
         cardalist = self.device.books(oncard='carda')
         cardblist = self.device.books(oncard='cardb')
-        return (mainlist, cardalist, cardblist)
+        return mainlist, cardalist, cardblist
 
     def books(self, done, add_as_step_to_job=None):
         '''Return callable that returns the list of books on device as two booklists'''

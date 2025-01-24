@@ -783,7 +783,7 @@ class Textile:
         True
 
         '''
-        (scheme, netloc) = urlparse(url)[0:2]
+        scheme, netloc = urlparse(url)[0:2]
         return not scheme and not netloc
 
     def relURL(self, url):

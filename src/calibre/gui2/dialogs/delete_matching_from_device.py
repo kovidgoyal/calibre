@@ -86,8 +86,8 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.table.setRowCount(rows)
         row = 0
         for card in items:
-            (model,books) = items[card]
-            for (id,book) in books:
+            model, books = items[card]
+            for id,book in books:
                 item = QTableWidgetItem()
                 item.setFlags(Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsEnabled)
                 item.setCheckState(Qt.CheckState.Checked)
@@ -115,7 +115,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         for row in range(self.table.rowCount()):
             if self.table.item(row, 0).checkState() == Qt.CheckState.Unchecked:
                 continue
-            (model, id, path) = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
+            model, id, path = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
             path = str(path)
             self.result.append((model, id, path))
         return

@@ -185,7 +185,7 @@ class CheckLibrary:
         return False
 
     def process_book(self, lib, book_info):
-        (db_path, title_dir, book_id) = book_info
+        db_path, title_dir, book_id = book_info
         filenames = frozenset(f for f in os.listdir(os.path.join(lib, db_path))
                                if not self.ignore_name(f) and (
                                    os.path.splitext(f)[1] not in self.ignore_ext or

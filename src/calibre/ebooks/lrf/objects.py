@@ -1106,7 +1106,7 @@ class Button(LRFObject):
         for i in self.actions[button_type]:
             if i[0] == 1:
                 return i[1:][0]
-        return (None, None)
+        return None, None
 
     def __str__(self):
         s = '<Button objid="%s">\n'%(self.id,)

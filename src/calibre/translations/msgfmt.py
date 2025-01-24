@@ -250,7 +250,7 @@ def make_with_stats(filename, outfile):
 
 
 def run_batch(pairs):
-    for (filename, outfile) in pairs:
+    for filename, outfile in pairs:
         yield make_with_stats(filename, outfile)
 
 

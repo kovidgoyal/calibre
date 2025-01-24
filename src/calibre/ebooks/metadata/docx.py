@@ -30,7 +30,7 @@ def get_cover(docx):
             if width < 0 or height < 0:
                 continue
             if 0.8 <= height/width <= 1.8 and height*width >= 160000:
-                return (fmt, raw)
+                return fmt, raw
 
 
 def get_metadata(stream):

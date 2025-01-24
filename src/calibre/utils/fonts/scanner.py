@@ -288,7 +288,7 @@ class FontScanner(Thread):
                 continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])
             if generic_family in allowed_families or generic_family == preferred_families[0]:
-                return (family, faces)
+                return family, faces
             elif generic_family not in found:
                 found[generic_family] = (family, faces)
 

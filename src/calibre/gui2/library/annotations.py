@@ -170,7 +170,7 @@ def render_note_line(line):
         yield prepare_string_for_xml(line)
         return
     pos = 0
-    for (s, e) in urls:
+    for s,e in urls:
         if s > pos:
             yield prepare_string_for_xml(line[pos:s])
         yield '<a href="{0}">{0}</a>'.format(prepare_string_for_xml(line[s:e], True))

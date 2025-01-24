@@ -411,14 +411,14 @@ def oeb2html_no_css(oeb_book, log, opts):
     izer = OEB2HTMLNoCSSizer(log)
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images
 
 
 def oeb2html_inline_css(oeb_book, log, opts):
     izer = OEB2HTMLInlineCSSizer(log)
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images
 
 
 def oeb2html_class_css(oeb_book, log, opts):
@@ -426,4 +426,4 @@ def oeb2html_class_css(oeb_book, log, opts):
     setattr(opts, 'class_style', 'inline')
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images

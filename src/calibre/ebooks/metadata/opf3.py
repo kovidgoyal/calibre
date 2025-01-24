@@ -204,7 +204,7 @@ def read_refines(root):
 
 
 def refdef(prop, val, scheme=None):
-    return (prop, val, scheme)
+    return prop, val, scheme
 
 
 def set_refines(elem, existing_refines, *new_refines):

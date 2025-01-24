@@ -1001,7 +1001,7 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
             raise ValueError(_('{} requires 2 or 4 arguments').format(self.name))
 
         l = [v.strip() for v in val.split(',') if v.strip()]
-        (id_, __, regexp) = ident.partition(':')
+        id_, __, regexp = ident.partition(':')
         if not id_:
             return nfv
         for candidate in l:

@@ -78,7 +78,7 @@ class AM730(BasicNewsRecipe):
                 break
         if self.debug:
             print(articles)
-        return (sectionName,articles)
+        return sectionName, articles
 
     def parse_index(self):
         # hard code sections
@@ -91,7 +91,7 @@ class AM730(BasicNewsRecipe):
         ('旅遊.飲食','https://www.am730.com.hk/news/%E6%97%85%E9%81%8A.%E9%A3%B2%E9%A3%9F')
         ]       # articles =[]
         SectionsArticles=[]
-        for (title, url) in Sections:
+        for title, url in Sections:
             if self.debug:
                 print(title)
                 print(url)

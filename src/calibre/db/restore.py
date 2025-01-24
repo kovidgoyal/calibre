@@ -162,10 +162,10 @@ class Restore(Thread):
             self.tb = traceback.format_exc()
             if self.failed_dirs:
                 for x in self.failed_dirs:
-                    for (dirpath, tb) in self.failed_dirs:
+                    for dirpath, tb in self.failed_dirs:
                         self.tb += f'\n\n-------------\nFailed to restore: {dirpath}\n{tb}'
             if self.failed_restores:
-                for (book, tb) in self.failed_restores:
+                for book, tb in self.failed_restores:
                     self.tb += f'\n\n-------------\nFailed to restore: {book["path"]}\n{tb}'
 
     def load_preferences(self):

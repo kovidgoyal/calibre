@@ -551,7 +551,7 @@ class CatalogBuilder:
 
         authors = [(record['author'], record['author_sort']) for record in books_by_author]
         current_author = authors[0]
-        for (i, author) in enumerate(authors):
+        for i, author in enumerate(authors):
             if author != current_author and i:
                 if author[0] == current_author[0]:
                     if self.opts.fmt == 'mobi':
@@ -808,7 +808,7 @@ class CatalogBuilder:
         multiple_authors = False
         unique_authors = []
         individual_authors = set()
-        for (i, author) in enumerate(authors):
+        for i, author in enumerate(authors):
             if author != current_author:
                 # Note that current_author and author are tuples: (friendly, sort)
                 multiple_authors = True
@@ -1201,7 +1201,7 @@ class CatalogBuilder:
 
         def _format_tag_list(tags, indent=1, line_break=70, header='Tag list'):
             def _next_tag(sorted_tags):
-                for (i, tag) in enumerate(sorted_tags):
+                for i, tag in enumerate(sorted_tags):
                     if i < len(tags) - 1:
                         yield tag + ', '
                     else:
@@ -1845,7 +1845,7 @@ class CatalogBuilder:
 
         date_range_list = []
         today_time = nowf().replace(hour=23, minute=59, second=59)
-        for (i, date) in enumerate(self.DATE_RANGE):
+        for i, date in enumerate(self.DATE_RANGE):
             date_range_limit = self.DATE_RANGE[i]
             if i:
                 date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
@@ -2137,7 +2137,7 @@ class CatalogBuilder:
         # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
         master_genre_list = []
         for genre_tag_set in genre_list:
-            for (index, genre) in enumerate(genre_tag_set):
+            for index, genre in enumerate(genre_tag_set):
                 # print('genre: %s  \t  genre_tag_set[genre]: %s' % (genre, genre_tag_set[genre]))
 
                 # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
@@ -2150,7 +2150,7 @@ class CatalogBuilder:
                 books_by_current_author = 1
                 current_author = authors[0]
                 unique_authors = []
-                for (i, author) in enumerate(authors):
+                for i, author in enumerate(authors):
                     if author != current_author and i:
                         unique_authors.append((current_author[0], current_author[1], books_by_current_author))
                         current_author = author
@@ -2698,7 +2698,7 @@ class CatalogBuilder:
             _soup = BeautifulSoup('')
             genresTag = _soup.new_tag('p')
             gtc = 0
-            for (i, tag) in enumerate(sorted(book.get('genres', []))):
+            for i, tag in enumerate(sorted(book.get('genres', []))):
                 aTag = _soup.new_tag('a')
                 if self.opts.generate_genres:
                     try:
@@ -2835,7 +2835,7 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('Descriptions HTML'))
 
-        for (title_num, title) in enumerate(self.books_by_title):
+        for title_num, title in enumerate(self.books_by_title):
             self.update_progress_micro_step('%s %d of %d' %
                                             (_('Description HTML'),
                                             title_num, len(self.books_by_title)),
@@ -3167,7 +3167,7 @@ class CatalogBuilder:
         _add_to_series_by_letter(current_series_list)
 
         # Add *article* entries for each populated series title letter
-        for (i, books) in enumerate(series_by_letter):
+        for i, books in enumerate(series_by_letter):
             sec_id = '%sSeries-ID' % (title_letters[i].upper())
             if len(title_letters[i]) > 1:
                 fmt_string = _('Series beginning with %s')
@@ -3251,7 +3251,7 @@ class CatalogBuilder:
         _add_to_books_by_letter(current_book_list)
 
         # Add *article* entries for each populated title letter
-        for (i, books) in enumerate(books_by_letter):
+        for i, books in enumerate(books_by_letter):
             sec_id = '%sTitles-ID' % (title_letters[i].upper())
             if len(title_letters[i]) > 1:
                 fmt_string = _('Titles beginning with %s')
@@ -3384,7 +3384,7 @@ class CatalogBuilder:
         master_date_range_list = []
         today = datetime.datetime.now()
         today_time = datetime.datetime(today.year, today.month, today.day)
-        for (i, date) in enumerate(self.DATE_RANGE):
+        for i, date in enumerate(self.DATE_RANGE):
             if i:
                 date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
             else:
@@ -3493,7 +3493,7 @@ class CatalogBuilder:
         master_date_range_list = []
         today = datetime.datetime.now()
         today_time = datetime.datetime(today.year, today.month, today.day)
-        for (i, date) in enumerate(self.DATE_RANGE):
+        for i, date in enumerate(self.DATE_RANGE):
             if i:
                 date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
             else:
@@ -3816,7 +3816,7 @@ class CatalogBuilder:
         title_words = title_sort(title).split()
         translated = []
 
-        for (i, word) in enumerate(title_words):
+        for i, word in enumerate(title_words):
             # Leading numbers optionally translated to text equivalent
             # Capitalize leading sort word
             if i == 0:
@@ -3931,7 +3931,7 @@ class CatalogBuilder:
         self.update_progress_full_step(_('Thumbnails'))
         thumbs = ['thumbnail_default.jpg']
         image_dir = '%s/images' % self.catalog_path
-        for (i, title) in enumerate(self.books_by_title):
+        for i, title in enumerate(self.books_by_title):
             # Update status
             self.update_progress_micro_step('%s %d of %d' %
                 (_('Thumbnail'), i, len(self.books_by_title)),

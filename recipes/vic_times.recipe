@@ -253,6 +253,6 @@ class TimesColonist(BasicNewsRecipe):
 
     def parse_index(self):
         ans = []
-        for (url, title) in self.section_list:
+        for url, title in self.section_list:
             ans = self.add_section_index(ans, url, title)
         return ans

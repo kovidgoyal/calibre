@@ -1829,7 +1829,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                     return True
             except Exception:
                 pass
-        for (key, prefix) in (
+        for key, prefix in (
             ('doi', 'https://dx.doi.org/'),
             ('doi', 'https://doi.org/'),
             ('arxiv', 'https://arxiv.org/abs/'),

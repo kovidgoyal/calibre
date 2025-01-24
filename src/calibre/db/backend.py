@@ -697,7 +697,7 @@ class DB:
         self.deleted_fields = []
         with self.conn:
             # Delete previously marked custom columns
-            for (num, label) in self.conn.get(
+            for num, label in self.conn.get(
                     'SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
                 table, lt = self.custom_table_names(num)
                 self.execute('''\
@@ -2455,9 +2455,7 @@ class DB:
         ts = now.isoformat()
         timestamp = (now - EPOCH).total_seconds()
         for annot_id in annot_ids:
-            for (raw_annot_data, annot_type) in self.execute(
-                'SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)
-            ):
+            for raw_annot_data, annot_type in self.execute('SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)):
                 try:
                     annot_data = json.loads(raw_annot_data)
                 except Exception:

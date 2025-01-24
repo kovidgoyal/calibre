@@ -1261,16 +1261,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def card_prefix(self, end_session=True):
         self._debug()
-        return (None, None)
+        return None, None
 
     @synchronous('sync_lock')
     def total_space(self, end_session=True):
         self._debug()
         opcode, result = self._call_client('TOTAL_SPACE', {})
         if opcode == 'OK':
-            return (result['total_space_on_device'], 0, 0)
+            return result['total_space_on_device'], 0, 0
         # protocol error if we get here
-        return (0, 0, 0)
+        return 0, 0, 0
 
     @synchronous('sync_lock')
     def free_space(self, end_session=True):
@@ -1280,7 +1280,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('free space:', result['free_space_on_device'])
             return (result['free_space_on_device'], 0, 0)
         # protocol error if we get here
-        return (0, 0, 0)
+        return 0, 0, 0
 
     @synchronous('sync_lock')
     def books(self, oncard=None, end_session=True):
@@ -1591,7 +1591,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def prepare_addable_books(self, paths, this_book=None, total_books=None):
         for idx, path in enumerate(paths):
-            (ign, ext) = os.path.splitext(path)
+            ign, ext = os.path.splitext(path)
             with PersistentTemporaryFile(suffix=ext) as tf:
                 self.get_file(path, tf, this_book=this_book, total_books=total_books)
                 paths[idx] = tf.name
@@ -1630,12 +1630,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _check_if_format_send_needed(self, db, id_, book):
         if not self.will_ask_for_update_books:
-            return (None, False)
+            return None, False
 
         from calibre.utils.date import isoformat, parse_date
         try:
             if not hasattr(book, '_format_mtime_'):
-                return (None, False)
+                return None, False
 
             ext = posixpath.splitext(book.lpath)[1][1:]
             fmt_metadata = db.new_api.format_metadata(id_, ext)
@@ -1647,17 +1647,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self._show_message(_('You have book formats in your library '
                                              'with dates in the future. See calibre '
                                              'for details'))
-                    return (None, True)
+                    return None, True
 
                 cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=True)
                 self._debug(book.title, 'cal_mtime', calibre_mtime, 'cc_mtime', cc_mtime)
                 if cc_mtime < calibre_mtime:
                     book.set('_format_mtime_', isoformat(self.now))
-                    return (posixpath.basename(book.lpath), False)
+                    return posixpath.basename(book.lpath), False
         except:
             self._debug('exception checking if must send format', book.title)
             traceback.print_exc()
-        return (None, False)
+        return None, False
 
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book, first_call):

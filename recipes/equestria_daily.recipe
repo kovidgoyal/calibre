@@ -51,7 +51,7 @@ class AdvancedUserRecipe1639926896(BasicNewsRecipe):
             lines = description.split('\n')
             return '\n'.join([line.strip() for line in lines if len(line.strip()) > 0])
 
-        for (section_name, section_url_name) in self.sections:
+        for section_name, section_url_name in self.sections:
             soup = self.index_to_soup(
                 f'https://www.equestriadaily.com/search/label/{section_url_name}?max-results={self.max_articles_per_feed}')
             articles = soup.select('div.post.hentry')

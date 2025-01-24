@@ -53,7 +53,7 @@ class SaturdayPaper(BasicNewsRecipe):
 
         articles = []
 
-        for (feed, link) in feeds:
+        for feed, link in feeds:
             soup = self.index_to_soup(link)
             news = []
 

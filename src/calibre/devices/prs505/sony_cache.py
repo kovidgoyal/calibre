@@ -687,7 +687,7 @@ class XMLCache:
         if 'id' not in record.attrib:
             num = self.max_id(record.getroottree().getroot())
             record.set('id', str(num+1))
-        return (gtz_count, ltz_count, use_tz_var)
+        return gtz_count, ltz_count, use_tz_var
     # }}}
 
     # Writing the XML files {{{

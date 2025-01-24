@@ -90,7 +90,7 @@ def create_profile():
     if ans is None:
         ans = create_profile.ans = QWebEngineProfile(QApplication.instance())
         setup_profile(ans)
-        for (name, code) in stylelint_js():
+        for name, code in stylelint_js():
             s = QWebEngineScript()
             s.setName(name)
             s.setSourceCode(code)

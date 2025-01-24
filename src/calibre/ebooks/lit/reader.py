@@ -864,7 +864,7 @@ class LitFile:
     def get_atoms(self, entry):
         name = '/'.join(('/data', entry.internal, 'atom'))
         if name not in self.entries:
-            return ({}, {})
+            return {}, {}
         data = self.get_file(name)
         nentries, data = u32(data), data[4:]
         tags = {}
@@ -878,7 +878,7 @@ class LitFile:
         if len(tags) != nentries:
             self._warn('damaged or invalid atoms tag table')
         if len(data) < 4:
-            return (tags, {})
+            return tags, {}
         attrs = {}
         nentries, data = u32(data), data[4:]
         for i in range(1, nentries + 1):
@@ -890,7 +890,7 @@ class LitFile:
             attrs[i], data = data[:size], data[size:]
         if len(attrs) != nentries:
             self._warn('damaged or invalid atoms attributes table')
-        return (tags, attrs)
+        return tags, attrs
 
 
 class LitContainer:

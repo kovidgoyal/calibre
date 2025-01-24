@@ -193,7 +193,7 @@ def condense_edge(vals):
     if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
         return
     ce = {}
-    for (x, y) in [('left', 'right'), ('top', 'bottom')]:
+    for x,y in [('left', 'right'), ('top', 'bottom')]:
         if edges[x] == edges[y]:
             ce[x] = edges[x]
         else:

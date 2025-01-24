@@ -85,7 +85,7 @@ class IlPost(BasicNewsRecipe):
                     'title': title,
                     'description': desc
                 })
-        return (name, entries)
+        return name, entries
 
     def parse_index(self):
         feeds = []

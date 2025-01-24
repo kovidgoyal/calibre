@@ -77,7 +77,7 @@ def parse_multipart_byterange(buf, content_type):  # {{{
         if len(ret) != content_length:
             raise ValueError('Malformed sub-part, length of body not equal to length specified in Content-Range')
         buf.readline()
-        return (start, ret)
+        return start, ret
     while True:
         data = parse_part()
         if data is None:

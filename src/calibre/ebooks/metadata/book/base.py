@@ -668,7 +668,7 @@ class Metadata:
         Returns the tuple (display_name, formatted_value)
         '''
         name, val, ign, ign = self.format_field_extended(key, series_with_index)
-        return (name, val)
+        return name, val
 
     def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
@@ -803,7 +803,7 @@ class Metadata:
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
-                (name, val) = self.format_field(key)
+                name, val = self.format_field(key)
                 fmt(name, str(val))
         return '\n'.join(ans)
 
@@ -832,7 +832,7 @@ class Metadata:
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
-                (name, val) = self.format_field(key)
+                name, val = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
             ans[i] = '<tr><td><b>%s</b></td><td>%s</td></tr>'%x

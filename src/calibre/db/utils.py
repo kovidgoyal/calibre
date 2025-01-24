@@ -201,7 +201,7 @@ class ThumbnailCache:
                     try:
                         uuid, book_id = line.partition(' ')[0::2]
                         book_id = int(book_id)
-                        return (uuid, book_id)
+                        return uuid, book_id
                     except Exception:
                         return None
                 invalidate = {record(x) for x in raw.splitlines()}

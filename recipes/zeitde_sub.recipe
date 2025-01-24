@@ -224,7 +224,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
         # doing regular expression filtering
         for path in walk('.'):
-            (shortname, extension) = os.path.splitext(path)
+            shortname, extension = os.path.splitext(path)
             if extension.lower() in ('.html', '.htm', '.xhtml'):
                 with open(path, 'r+b') as f:
                     raw = f.read()

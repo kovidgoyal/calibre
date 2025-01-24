@@ -712,7 +712,7 @@ class TagsView(QTreeView):  # {{{
                         self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[2], False)
                         self.recount()
                     return
-                (icon_file_name, for_children) = extra if extra is not None else (None, None)
+                icon_file_name, for_children = extra if extra is not None else (None, None)
                 item_val, desired_file_name = make_icon_name(key, index)
                 if icon_file_name is None:
                     # User wants to specify a specific icon
@@ -1283,7 +1283,7 @@ class TagsView(QTreeView):  # {{{
                 if key not in ('search', 'formats') and not key.startswith('@'):
                     def get_rule_data(tag, key):
                         if tag is None:
-                            return (None, None, None)
+                            return None, None, None
                         name = tag.original_name
                         cat_rules = self._model.value_icons.get(key, {})
                         icon_name, for_child = cat_rules.get(name, (None, None))

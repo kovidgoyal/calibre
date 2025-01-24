@@ -309,7 +309,7 @@ class CanWestPaper(BasicNewsRecipe):
             for wdiv in mainsoup.findAll(attrs={'class': ['headline', 'featurecontent']}):
                 handle_article(wdiv, key)
 
-        for (k, url) in self.postmedia_index_pages:
+        for k,url in self.postmedia_index_pages:
             parse_web_index(k, url)
         ans = [(key, articles[key]) for key in ans if key in articles]
         return ans

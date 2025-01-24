@@ -282,7 +282,7 @@ class SMTP:
         self.debug = debug_to
         self.esmtp_features = {}
         if host:
-            (code, msg) = self.connect(host, port)
+            code, msg = self.connect(host, port)
             if code != 220:
                 raise SMTPConnectError(code, msg)
         if local_hostname is not None:
@@ -346,10 +346,10 @@ class SMTP:
             self.debug('connect:', (host, port))
         self._host = host
         self.sock = self._get_socket(host, port, self.timeout)
-        (code, msg) = self.getreply()
+        code, msg = self.getreply()
         if self.debuglevel > 0:
             self.debug('connect:', msg)
-        return (code, msg)
+        return code, msg
 
     def send(self, str):
         '''Send `str' to the server.'''
@@ -432,9 +432,9 @@ class SMTP:
         host.
         '''
         self.putcmd('helo', name or self.local_hostname)
-        (code, msg) = self.getreply()
+        code, msg = self.getreply()
         self.helo_resp = msg
-        return (code, msg)
+        return code, msg
 
     def ehlo(self, name=''):
         ''' SMTP 'ehlo' command.
@@ -443,7 +443,7 @@ class SMTP:
         '''
         self.esmtp_features = {}
         self.putcmd(self.ehlo_msg, name or self.local_hostname)
-        (code, msg) = self.getreply()
+        code, msg = self.getreply()
         # According to RFC1869 some (badly written)
         # MTA's will disconnect on an ehlo. Toss an exception if
         # that happens -ddm
@@ -452,7 +452,7 @@ class SMTP:
             raise SMTPServerDisconnected('Server not connected')
         self.ehlo_resp = msg
         if code != 250:
-            return (code, msg)
+            return code, msg
         self.does_esmtp = 1
         # parse the ehlo response -ddm
         resp = self.ehlo_resp.split('\n')
@@ -484,7 +484,7 @@ class SMTP:
                             + ' ' + params
                 else:
                     self.esmtp_features[feature] = params
-        return (code, msg)
+        return code, msg
 
     def has_extn(self, opt):
         '''Does the server support a given SMTP service extension?'''
@@ -529,7 +529,7 @@ class SMTP:
         response code received when the all data is sent.
         '''
         self.putcmd('data')
-        (code, repl) = self.getreply()
+        code, repl = self.getreply()
         if self.debuglevel > 0:
             self.debug('data:', (code, repl))
         if code != 354:
@@ -540,10 +540,10 @@ class SMTP:
                 q = q + CRLF
             q = q + '.' + CRLF
             self.send(q)
-            (code, msg) = self.getreply()
+            code, msg = self.getreply()
             if self.debuglevel > 0:
                 self.debug('data:', (code, msg))
-            return (code, msg)
+            return code, msg
 
     def verify(self, address):
         '''SMTP 'verify' command -- checks for address validity.'''
@@ -572,7 +572,7 @@ class SMTP:
         '''
         if self.helo_resp is None and self.ehlo_resp is None:
             if not (200 <= self.ehlo()[0] <= 299):
-                (code, resp) = self.helo()
+                code, resp = self.helo()
                 if not (200 <= code <= 299):
                     raise SMTPHeloError(code, resp)
 
@@ -633,27 +633,27 @@ class SMTP:
                 break
 
         if authmethod == AUTH_CRAM_MD5:
-            (code, resp) = self.docmd('AUTH', AUTH_CRAM_MD5)
+            code, resp = self.docmd('AUTH', AUTH_CRAM_MD5)
             if code == 503:
                 # 503 == 'Error: already authenticated'
-                return (code, resp)
-            (code, resp) = self.docmd(encode_cram_md5(resp, user, password))
+                return code, resp
+            code, resp = self.docmd(encode_cram_md5(resp, user, password))
         elif authmethod == AUTH_PLAIN:
-            (code, resp) = self.docmd('AUTH',
+            code, resp = self.docmd('AUTH',
                 AUTH_PLAIN + ' ' + encode_plain(user, password))
         elif authmethod == AUTH_LOGIN:
-            (code, resp) = self.docmd('AUTH',
+            code, resp = self.docmd('AUTH',
                 '{} {}'.format(AUTH_LOGIN, encode_base64(user, eol='')))
             if code != 334:
                 raise SMTPAuthenticationError(code, resp)
-            (code, resp) = self.docmd(encode_base64(password, eol=''))
+            code, resp = self.docmd(encode_base64(password, eol=''))
         elif authmethod is None:
             raise SMTPException('No suitable authentication method found.')
         if code not in (235, 503):
             # 235 == 'Authentication successful'
             # 503 == 'Error: already authenticated'
             raise SMTPAuthenticationError(code, resp)
-        return (code, resp)
+        return code, resp
 
     def starttls(self, context=None):
         '''Puts the connection to the SMTP server into TLS mode.
@@ -675,7 +675,7 @@ class SMTP:
         self.ehlo_or_helo_if_needed()
         if not self.has_extn('starttls'):
             raise SMTPException('STARTTLS extension not supported by server.')
-        (resp, reply) = self.docmd('STARTTLS')
+        resp, reply = self.docmd('STARTTLS')
         if resp == 220:
             if not _have_ssl:
                 raise RuntimeError('No SSL support included in this Python')
@@ -697,7 +697,7 @@ class SMTP:
             # 501 Syntax error (no parameters allowed)
             # 454 TLS not available due to temporary reason
             raise SMTPResponseException(resp, reply)
-        return (resp, reply)
+        return resp, reply
 
     def sendmail(self, from_addr, to_addrs, msg, mail_options=[],
                  rcpt_options=[]):
@@ -766,7 +766,7 @@ class SMTP:
             for option in mail_options:
                 esmtp_opts.append(option)
 
-        (code, resp) = self.mail(from_addr, esmtp_opts)
+        code, resp = self.mail(from_addr, esmtp_opts)
         if code != 250:
             self.rset()
             raise SMTPSenderRefused(code, resp, from_addr)
@@ -774,14 +774,14 @@ class SMTP:
         if isinstance(to_addrs, string_or_bytes):
             to_addrs = [to_addrs]
         for each in to_addrs:
-            (code, resp) = self.rcpt(each, rcpt_options)
+            code, resp = self.rcpt(each, rcpt_options)
             if (code != 250) and (code != 251):
                 senderrs[each] = (code, resp)
         if len(senderrs) == len(to_addrs):
             # the server refused all our recipients
             self.rset()
             raise SMTPRecipientsRefused(senderrs)
-        (code, resp) = self.data(msg)
+        code, resp = self.data(msg)
         if code != 250:
             self.rset()
             raise SMTPDataError(code, resp)
@@ -885,10 +885,10 @@ class LMTP(SMTP):
                 self.sock.close()
             self.sock = None
             raise
-        (code, msg) = self.getreply()
+        code, msg = self.getreply()
         if self.debuglevel > 0:
             self.debug('connect:', msg)
-        return (code, msg)
+        return code, msg
 
 
 # Test the sendmail method, which tests most of the others.

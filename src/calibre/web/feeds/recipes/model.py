@@ -211,7 +211,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         script_ids = []
         for urn, title_script in iteritems(script_urn_map):
             id_ = int(urn[len('custom:'):])
-            (title, script) = title_script
+            title, script = title_script
             script_ids.append((id_, title, script))
 
         update_custom_recipes(script_ids)

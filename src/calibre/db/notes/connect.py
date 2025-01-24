@@ -280,7 +280,7 @@ class Notes:
         if field_name:
             return {item_id for (item_id,) in conn.execute('SELECT item FROM notes_db.notes WHERE colname=?', (field_name,))}
         ans = defaultdict(set)
-        for (note_id, field_name) in conn.execute('SELECT item, colname FROM notes_db.notes'):
+        for note_id, field_name in conn.execute('SELECT item, colname FROM notes_db.notes'):
             ans[field_name].add(note_id)
         return ans
 

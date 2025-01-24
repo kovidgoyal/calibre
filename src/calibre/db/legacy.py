@@ -721,8 +721,8 @@ class LibraryDatabase:
         if isinstance(ans, tuple):
             ans = list(ans)
         if data['datatype'] != 'series':
-            return (ans, None)
-        return (ans, self.new_api.field_for(self.custom_field_name(label, num) + '_index', book_id))
+            return ans, None
+        return ans, self.new_api.field_for(self.custom_field_name(label, num) + '_index', book_id)
 
     def get_next_cc_series_num_for(self, series, label=None, num=None):
         data = self.backend.custom_field_metadata(label, num)

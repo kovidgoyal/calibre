@@ -326,7 +326,7 @@ class FeedCollection(list):
         for j, f in enumerate(self):
             for i, a in enumerate(f):
                 if a is article:
-                    return (j, i)
+                    return j, i
 
     def restore_duplicates(self):
         temp = []

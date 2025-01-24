@@ -123,7 +123,7 @@ class DownloadRequest(QObject):
             'final_url': qurl_to_string(self.reply.url()), 'headers': []
         }
         h = result['headers']
-        for (k, v) in self.reply.rawHeaderPairs():
+        for k,v in self.reply.rawHeaderPairs():
             h.append((bytes(k).decode('utf-8', 'replace'), bytes(v).decode('utf-8', 'replace')))
         if code := self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute):
             result['http_code'] = code
@@ -206,7 +206,7 @@ class FetchBackend(QNetworkAccessManager):
         timeout = req['timeout']
         rq.setTransferTimeout(int(timeout * 1000))
         rq.setRawHeader(b'User-Agent', self.current_user_agent().encode())
-        for (name, val) in req['headers']:
+        for name, val in req['headers']:
             ex = rq.rawHeader(name)
             if len(ex):
                 val = bytes(ex).decode() + ', ' + val

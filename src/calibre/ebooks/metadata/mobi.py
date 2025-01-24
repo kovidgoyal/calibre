@@ -299,7 +299,7 @@ class MetadataUpdater:
         return pdbrecords
 
     def update_pdbrecords(self, updated_pdbrecords):
-        for (i, pdbrecord) in enumerate(updated_pdbrecords):
+        for i,pdbrecord in enumerate(updated_pdbrecords):
             self.data[78+i*8:78+i*8 + 4] = pack('>L',pdbrecord)
 
         # Refresh local copy

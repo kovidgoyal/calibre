@@ -52,10 +52,10 @@ class CheckBrackets:
                     self.open_brack(line)
                 if self.__token_info == 'cb<nu<clos-brack':
                     if not self.close_brack(line):
-                        return (False, "closed bracket doesn't match, line %s" % line_count)
+                        return False, "closed bracket doesn't match, line %s" % line_count
 
         if self.__bracket_count != 0:
             msg = ("At end of file open and closed brackets don't match\n"
                         'total number of brackets is %s') % self.__bracket_count
-            return (False, msg)
-        return (True, 'Brackets match!')
+            return False, msg
+        return True, 'Brackets match!'

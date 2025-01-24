@@ -174,7 +174,7 @@ class Device(DeviceConfig, DevicePlugin):
             casz = self._windows_space(self._card_a_prefix)[0]
             cbsz = self._windows_space(self._card_b_prefix)[0]
 
-        return (msz, casz, cbsz)
+        return msz, casz, cbsz
 
     def free_space(self, end_session=True):
         msz = casz = cbsz = 0
@@ -193,7 +193,7 @@ class Device(DeviceConfig, DevicePlugin):
             casz = self._windows_space(self._card_a_prefix)[1]
             cbsz = self._windows_space(self._card_b_prefix)[1]
 
-        return (msz, casz, cbsz)
+        return msz, casz, cbsz
 
     def windows_filter_pnp_id(self, pnp_id):
         return False

@@ -232,7 +232,7 @@ def get_metadata_(src, encoding=None):
             mi.tags = tags
 
     # IDENTIFIERS
-    for (k,v) in iteritems(meta_tag_ids):
+    for k,v in iteritems(meta_tag_ids):
         v = [x.strip() for x in v if x.strip()]
         if v:
             mi.set_identifier(k, v[0])

@@ -145,7 +145,7 @@ class Browser:
 
         def has_header(x: str) -> bool:
             x = x.lower()
-            for (h, v) in headers:
+            for h,v in headers:
                 if h.lower() == x:
                     return True
             return False

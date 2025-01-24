@@ -300,7 +300,7 @@ class Styles(etree.XSLTExtension):
 
         with open(name, 'wb') as f:
             f.write(as_bytes(self.CSS))
-            for (w, sel) in [(self.text_styles, 'ts'), (self.block_styles,
+            for w,sel in [(self.text_styles, 'ts'), (self.block_styles,
                 'bs')]:
                 for i, s in enumerate(w):
                     if not s:

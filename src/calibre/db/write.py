@@ -40,16 +40,16 @@ series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
 
 def get_series_values(val):
     if not val:
-        return (val, None)
+        return val, None
     match = series_index_pat.match(val.strip())
     if match is not None:
         idx = match.group(2)
         try:
             idx = float(idx)
-            return (match.group(1).strip(), idx)
+            return match.group(1).strip(), idx
         except:
             pass
-    return (val, None)
+    return val, None
 
 
 def multiple_text(sep, ui_sep, x):

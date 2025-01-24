@@ -32,7 +32,7 @@ OPF_TEMPLATE = '''
 
 
 def create_manifest_item(name, data=b'', properties=None):
-    return (name, data, properties)
+    return name, data, properties
 
 
 cmi = create_manifest_item

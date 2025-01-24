@@ -49,7 +49,7 @@ punct_table = {
 
 
 def fix_punct(line):
-    for (key, value) in punct_table.items():
+    for key, value in punct_table.items():
         line = line.replace(key, value)
     return line
 

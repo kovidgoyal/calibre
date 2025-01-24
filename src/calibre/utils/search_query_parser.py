@@ -435,7 +435,7 @@ class SearchQueryParser:
             raise ParseException(_('Recursive saved search: {0}').format(query))
         self.searches_seen.add(search_name_lower)
         query = self._get_saved_search_text(query)
-        return (query, search_name_lower)
+        return query, search_name_lower
 
     def _get_saved_search_text(self, query):
         try:

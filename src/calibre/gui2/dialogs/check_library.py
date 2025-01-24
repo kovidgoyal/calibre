@@ -432,11 +432,11 @@ class CheckLibraryDialog(QDialog):
                 c = node.child(i).checkState(2)
                 checked = checked or c == Qt.CheckState.Checked
                 all_checked = all_checked and c == Qt.CheckState.Checked
-            return (checked, all_checked)
+            return checked, all_checked
 
         def any_child_delete_checked():
             for parent in self.top_level_items.values():
-                (c, _) = is_child_delete_checked(parent)
+                c, _ = is_child_delete_checked(parent)
                 if c:
                     return True
             return False
@@ -464,7 +464,7 @@ class CheckLibraryDialog(QDialog):
         else:
             for parent in self.top_level_items.values():
                 if parent.data(2, Qt.ItemDataRole.UserRole) == self.is_deletable:
-                    (child_chkd, all_chkd) = is_child_delete_checked(parent)
+                    child_chkd, all_chkd = is_child_delete_checked(parent)
                     if all_chkd and child_chkd:
                         check_state = Qt.CheckState.Checked
                     elif child_chkd:

@@ -2823,7 +2823,7 @@ class KOBOTOUCH(KOBO):
             # Did we actually want to letterbox?
             if not letterbox:
                 canvas_size = kobo_size
-        return (kobo_size, canvas_size)
+        return kobo_size, canvas_size
 
     def _create_cover_data(
         self, cover_data, resize_to, minify_to, kobo_size,

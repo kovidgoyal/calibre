@@ -69,7 +69,7 @@ class LoadParser(handler.ContentHandler):
             self.data = []
         # Create the element
         attrdict = {}
-        for (att,value) in attrs.items():
+        for att,value in attrs.items():
             attrdict[att] = value
         try:
             e = Element(qname=tag, qattributes=attrdict, check_grammar=False)

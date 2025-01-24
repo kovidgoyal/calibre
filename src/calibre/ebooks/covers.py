@@ -192,7 +192,7 @@ class Block:
 
     @position.setter
     def position(self, new_pos):
-        (x, y) = new_pos
+        x, y = new_pos
         self._position = Point(x, y)
         if self.layouts:
             self.layouts[0].setPosition(QPointF(x, y))

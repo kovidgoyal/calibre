@@ -100,10 +100,10 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             return head.rsplit('. By ', 1)
         matches = self.title_author_re.findall(head)
         if matches and len(matches[0]) == 3:
-            (title_1, author, title_2) = matches[0]
+            title_1, author, title_2 = matches[0]
             title = ': '.join((title_1, title_2))
-            return (title, author)
-        return (head, None)
+            return title, author
+        return head, None
 
     # Return the list of articles from blocks in the content of an index/listing page
     def parse_content(self, soup):
@@ -117,7 +117,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         for article in content.findAll('div', class_='listing-block'):
             for a in article.findAll('a', href=True):
                 for h in a.findAll('h3'):
-                    (title, author) = self.title_author(h.getText())
+                    title, author = self.title_author(h.getText())
                     content_articles.append(self.article_entry(
                         title=title,
                         url=self.abs_url(a.get('href')),
@@ -155,7 +155,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 self.log('Subpages found:', href, len(content))
                 articles.extend(content)
             else:
-                (title, author) = self.title_author(a.getText())
+                title, author = self.title_author(a.getText())
                 articles.append(self.article_entry(
                     title=title,
                     url=self.abs_url(a.get('href')),
@@ -176,7 +176,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         # 4. The about pages
         abouts = []
-        for (title, url) in self.about_pages.items():
+        for title, url in self.about_pages.items():
             abouts.append({
                 'title': title,
                 'url': url,
@@ -190,7 +190,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for h in soup.findAll('h1'):
-            (title, author) = self.title_author(h.getText())
+            title, author = self.title_author(h.getText())
             self.log('Replacing h3 "', h.getText(), '" with "', title, '"')
             h.string = title
 

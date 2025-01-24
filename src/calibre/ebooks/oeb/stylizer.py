@@ -396,15 +396,15 @@ class Stylizer:
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
             self.logger.warn('CSS import of missing file %r' % path)
-            return (None, None)
+            return None, None
         item = hrefs[path]
         if item.media_type not in OEB_STYLES:
             self.logger.warn('CSS import of non-CSS file %r' % path)
-            return (None, None)
+            return None, None
         data = item.data.cssText
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        return ('utf-8', data)
+        return 'utf-8', data
 
     def style(self, element):
         try:

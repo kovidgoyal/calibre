@@ -56,7 +56,7 @@ class MetadataBackup(Thread):  # {{{
         while self.keep_running:
             try:
                 time.sleep(2)  # Limit to one book per two seconds
-                (id_, sequence) = self.db.get_a_dirtied_book()
+                id_, sequence = self.db.get_a_dirtied_book()
                 if id_ is None:
                     continue
                 # print('writer thread', id_, sequence)
@@ -381,10 +381,10 @@ class ResultCache(SearchQueryParser):  # {{{
         relop = None
         for k in self.date_search_relops.keys():
             if query.startswith(k):
-                (p, relop) = self.date_search_relops[k]
+                p, relop = self.date_search_relops[k]
                 query = query[p:]
         if relop is None:
-            (p, relop) = self.date_search_relops['=']
+            p, relop = self.date_search_relops['=']
 
         if query in self.local_today:
             qd = now()
@@ -464,10 +464,10 @@ class ResultCache(SearchQueryParser):  # {{{
             relop = None
             for k in self.numeric_search_relops.keys():
                 if query.startswith(k):
-                    (p, relop) = self.numeric_search_relops[k]
+                    p, relop = self.numeric_search_relops[k]
                     query = query[p:]
             if relop is None:
-                (p, relop) = self.numeric_search_relops['=']
+                p, relop = self.numeric_search_relops['=']
 
             if dt == 'int':
                 def cast(x):
@@ -541,7 +541,7 @@ class ResultCache(SearchQueryParser):  # {{{
             if len(q) != 2:
                 raise ParseException(
                  _('Invalid query format for colon-separated search: {0}').format(query))
-            (keyq, valq) = q
+            keyq, valq = q
             keyq_mkind, keyq = self._matchkind(keyq)
             valq_mkind, valq = self._matchkind(valq)
         else:

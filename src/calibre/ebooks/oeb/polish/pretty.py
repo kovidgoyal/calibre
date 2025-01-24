@@ -75,7 +75,7 @@ def pretty_opf(root):
             i = spine_ids.get(x.get('id', None), 1000000000)
         else:
             i = sort_key(href)
-        return (cat, i)
+        return cat, i
 
     for manifest in root.xpath('//opf:manifest', namespaces=OPF_NAMESPACES):
         try:

@@ -783,7 +783,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             for i in range(parent.childCount()):
                 item = parent.child(i)
                 if str(item.data(0, NAME_ROLE) or '') == name:
-                    return (category, i)
+                    return category, i
         return (None, -1)
 
     def merge_files(self):

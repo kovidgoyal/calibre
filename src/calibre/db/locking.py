@@ -125,7 +125,7 @@ class SHLock:  # {{{
                     # If there are waiting shared locks, issue them
                     # all and them wake everyone up.
                     if self._shared_queue:
-                        for (thread, waiter) in self._shared_queue:
+                        for thread, waiter in self._shared_queue:
                             self.is_shared += 1
                             self._shared_owners[thread] = 1
                             waiter.notify()
@@ -133,7 +133,7 @@ class SHLock:  # {{{
                     # Otherwise, if there are waiting exclusive locks,
                     # they get first dibbs on the lock.
                     elif self._exclusive_queue:
-                        (thread, waiter) = self._exclusive_queue.pop(0)
+                        thread, waiter = self._exclusive_queue.pop(0)
                         self._exclusive_owner = thread
                         self.is_exclusive += 1
                         waiter.notify()
@@ -149,7 +149,7 @@ class SHLock:  # {{{
                     # If there are waiting exclusive locks,
                     # they get first dibbs on the lock.
                     if self._exclusive_queue:
-                        (thread, waiter) = self._exclusive_queue.pop(0)
+                        thread, waiter = self._exclusive_queue.pop(0)
                         self._exclusive_owner = thread
                         self.is_exclusive += 1
                         waiter.notify()

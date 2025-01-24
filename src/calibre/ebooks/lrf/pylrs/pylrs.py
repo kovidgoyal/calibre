@@ -189,7 +189,7 @@ class Delegator:
         return applied
 
     def applySettings(self, settings, testValid=False):
-        for (setting, value) in settings.items():
+        for setting, value in settings.items():
             self.applySetting(setting, value, testValid)
             # if setting not in self.delegatedSettingsDict:
             #     raise LrsError("setting %s not valid" % setting)
@@ -232,7 +232,7 @@ class LrsAttributes:
         if alsoAllow is None:
             alsoAllow = []
         self.attrs = defaults.copy()
-        for (name, value) in settings.items():
+        for name, value in settings.items():
             if name not in self.attrs and name not in alsoAllow:
                 raise LrsError('%s does not support setting %s' %
                         (self.__class__.__name__, name))
@@ -1615,7 +1615,7 @@ class Button(LrsObject, LrsContainer):
         raise LrsError('%s has no PushButton or JumpTo subs'%self.__class__.__name__)
 
     def toLrf(self, lrfWriter):
-        (refobj, refpage) = self.findJumpToRefs()
+        refobj, refpage = self.findJumpToRefs()
         # print('Button writing JumpTo refobj=', jumpto.refobj, ', and refpage=', jumpto.refpage)
         button = LrfObject('Button', self.objId)
         button.appendLrfTag(LrfTag('buttonflags', 0x10))  # pushbutton
@@ -1842,7 +1842,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         oldTextStyle = self.findCurrentTextStyle()
 
         # set the attributes we want changed
-        for (name, value) in tuple(iteritems(self.attrs)):
+        for name, value in tuple(iteritems(self.attrs)):
             if name in oldTextStyle.attrs and oldTextStyle.attrs[name] == self.attrs[name]:
                 self.attrs.pop(name)
             else:
@@ -1864,7 +1864,7 @@ class Span(LrsSimpleChar1, LrsContainer):
 
     def toElement(self, se):
         element = Element('Span')
-        for (key, value) in self.attrs.items():
+        for key, value in self.attrs.items():
             element.set(key, str(value))
 
         appendTextElements(element, self.contents, se)

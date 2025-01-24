@@ -31,7 +31,7 @@ class Reader:
             if codelen <= 8:
                 assert term
             maxcode = ((maxcode + 1) << (32 - codelen)) - 1
-            return (codelen, term, maxcode)
+            return codelen, term, maxcode
         self.dict1 = tuple(map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1)))
 
         dict2 = struct.unpack_from(b'>64L', huff, off2)
