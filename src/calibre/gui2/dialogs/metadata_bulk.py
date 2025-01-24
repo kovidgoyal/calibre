@@ -965,7 +965,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     break
                 mi.append(self.db.new_api.get_proxy_metadata(_id))
         except Exception as e:
-            prints(f'TemplateLineEditor: exception fetching metadata: {e!s}')
+            prints(f'TemplateLineEditor: exception fetching metadata: {e}')
             mi = None
         t = TemplateDialog(self, self.s_r_template.text(), mi=mi)
         t.setWindowTitle(_('Edit search/replace template'))

@@ -75,12 +75,12 @@ class Pocket(BasicNewsRecipe):
     def get_auth_uri(self):
         '''Quick function to return the authentication part of the url'''
         uri = ''
-        uri = u'{0}&apikey={1!s}'.format(uri, self.apikey)
+        uri = u'{0}&apikey={1}'.format(uri, self.apikey)
         if self.username is None or self.password is None:
             self.user_error('Username or password is blank.')
         else:
-            uri = u'{0}&username={1!s}'.format(uri, self.username)
-            uri = u'{0}&password={1!s}'.format(uri, self.password)
+            uri = u'{0}&username={1}'.format(uri, self.username)
+            uri = u'{0}&password={1}'.format(uri, self.password)
         return uri
 
     def get_pull_articles_uri(self):
@@ -88,7 +88,7 @@ class Pocket(BasicNewsRecipe):
         uri = u'{0}&state={1}'.format(uri, u'unread')
         uri = u'{0}&contentType={1}'.format(uri, u'article')
         uri = u'{0}&sort={1}'.format(uri, self.sort_method)
-        uri = u'{0}&count={1!s}'.format(uri, self.max_articles_per_feed)
+        uri = u'{0}&count={1}'.format(uri, self.max_articles_per_feed)
         if self.only_pull_tag is not None:
             uri = u'{0}&tag={1}'.format(uri, self.only_pull_tag)
         return uri

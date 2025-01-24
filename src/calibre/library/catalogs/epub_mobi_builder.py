@@ -557,10 +557,10 @@ class CatalogBuilder:
                     if self.opts.fmt == 'mobi':
                         # Exit if building MOBI
                         error_msg = _('<p>Inconsistent author sort values for author<br/>' +
-                                      f"'{author[0]!s}':</p>" +
-                                      f'<p><center><b>{author[1]!s}</b> != <b>{current_author[1]!s}</b></center></p>' +
+                                      f"'{author[0]}':</p>" +
+                                      f'<p><center><b>{author[1]}</b> != <b>{current_author[1]}</b></center></p>' +
                                       '<p>Unable to build MOBI catalog.<br/>' +
-                                      f"Select all books by '{author[0]!s}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>")  # noqa: E501
+                                      f"Select all books by '{author[0]}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n<p>")  # noqa: E501
 
                         self.opts.log.warn('\n*** Metadata error ***')
                         self.opts.log.warn(error_msg)
@@ -573,8 +573,8 @@ class CatalogBuilder:
                         if not self.error:
                             self.error.append('Author sort mismatch')
 
-                        error_msg = _(f"Warning: Inconsistent author sort values for author '{author[0]!s}':\n" +
-                                      f' {author[1]!s} != {current_author[1]!s}\n')
+                        error_msg = _(f"Warning: Inconsistent author sort values for author '{author[0]}':\n" +
+                                      f' {author[1]} != {current_author[1]}\n')
                         self.opts.log.warn('\n*** Metadata warning ***')
                         self.opts.log.warn(error_msg)
                         self.error.append(error_msg)
@@ -793,7 +793,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
-            fs = '{:<6}{:<%d} {:<%d} {!s}' % (len(lt), len(las))
+            fs = '{:<6}{:<%d} {:<%d} {}' % (len(lt), len(las))
             print(fs.format('', 'Title', 'Author', 'Series'))
             for i in books_by_author:
                 print(fs.format('', i['title'], i['author_sort'], i['series']))

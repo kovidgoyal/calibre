@@ -92,7 +92,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                     display_name = section_name.replace('-', ' ').title()
                     articles.append((display_name, feed_articles[:self.max_articles_per_feed]))
             except Exception as e:
-                self.log.error(f'Error processing {section_name}: {e!s}')
+                self.log.error(f'Error processing {section_name}: {e}')
                 continue
 
         return articles
@@ -133,7 +133,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                             'description': ''
                         })
                 except Exception as e:
-                    self.log.error(f'Error getting H1 title for {article_url}: {e!s}')
+                    self.log.error(f'Error getting H1 title for {article_url}: {e}')
                     continue
 
         return feed_articles

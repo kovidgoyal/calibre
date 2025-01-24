@@ -682,7 +682,7 @@ class ManageDictionaries(Dialog):  # {{{
             x.setData(0, Qt.ItemDataRole.FontRole, bf if x is item else None)
         lc = str(item.parent().data(0, Qt.ItemDataRole.UserRole))
         pl = dprefs['preferred_locales']
-        pl[lc] = f'{lc}-{item.data(0, Qt.ItemDataRole.UserRole)!s}'
+        pl[lc] = f'{lc}-{item.data(0, Qt.ItemDataRole.UserRole)}'
         dprefs['preferred_locales'] = pl
 
     def init_dictionary(self, item):

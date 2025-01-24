@@ -30,7 +30,7 @@ class TemplateLineEditor(QLineEdit):
                 mi.append(db.new_api.get_metadata(_id))
             self.mi = mi
         except Exception as e:
-            prints(f'TemplateLineEditor: exception fetching metadata: {e!s}')
+            prints(f'TemplateLineEditor: exception fetching metadata: {e}')
             self.mi = None
         self.setClearButtonEnabled(True)
 

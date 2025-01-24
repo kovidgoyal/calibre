@@ -125,7 +125,7 @@ class ArretSurImages(BasicNewsRecipe):
                 else:
                     print("Échec de l'authentification - Vérifiez vos identifiants")
             except Exception as e:
-                print(f"Erreur lors de l'authentification: {e!s}")
+                print(f"Erreur lors de l'authentification: {e}")
         return br
 
     def get_article_url(self, article):
@@ -162,7 +162,7 @@ class ArretSurImages(BasicNewsRecipe):
                 </html>
             '''
         except Exception as e:
-            print(f'Erreur preprocessing HTML: {e!s}')
+            print(f'Erreur preprocessing HTML: {e}')
             return raw_html
 
     def preprocess_html(self, soup):
@@ -186,11 +186,11 @@ class ArretSurImages(BasicNewsRecipe):
                                 else:
                                     tag.replace_with(img_tag)
                         except Exception as e:
-                            print(f'Erreur processing image: {e!s}')
+                            print(f'Erreur processing image: {e}')
                             tag.decompose()
                 else:
                     tag.decompose()
             return soup
         except Exception as e:
-            print(f'Erreur preprocessing HTML: {e!s}')
+            print(f'Erreur preprocessing HTML: {e}')
             return soup
