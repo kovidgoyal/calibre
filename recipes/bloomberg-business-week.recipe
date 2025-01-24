@@ -125,7 +125,7 @@ class Bloomberg(BasicNewsRecipe):
 
         if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
             subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join(list(data['abstract'])) + '</li></ul></div>'
-        elif 'summary' in data and data['summary']:
+        elif data.get('summary'):
             subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
 
         if 'byline' in data and data['byline'] is not None:

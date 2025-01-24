@@ -120,7 +120,7 @@ class TLS(BasicNewsRecipe):
             if prim['byline']['text']:
                 auth = '<p class="auth"><a href="{}">'.format(prim['byline']['link']) + prim['byline']['text'] + '</a></p>\n'
 
-            if 'bookdetails' in prim and prim['bookdetails']:
+            if prim.get('bookdetails'):
                 bks += '<br>'
                 for a in prim['bookdetails']:
                     for x, y in a.items():
@@ -135,7 +135,7 @@ class TLS(BasicNewsRecipe):
 
         if 'article_data_leadimage' in data:
             i = data['article_data_leadimage']
-            if 'full_image' in i and i['full_image']:
+            if i.get('full_image'):
                 lede = '<br><img src="{}"><div class="figc">{}</div>'.format(
                     i['full_image'] + '?w600', i['imagecaption'] + ' <i>' \
                         + i['imagecredit'] + '</i>'

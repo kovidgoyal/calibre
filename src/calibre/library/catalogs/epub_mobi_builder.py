@@ -2734,7 +2734,7 @@ class CatalogBuilder:
         # Thumb
         _soup = BeautifulSoup('<html>', selfClosingTags=['img'])
         thumb = _soup.new_tag('img')
-        if 'cover' in book and book['cover']:
+        if book.get('cover'):
             thumb['src'] = '../images/thumbnail_%d.jpg' % int(book['id'])
         else:
             thumb['src'] = '../images/thumbnail_default.jpg'
