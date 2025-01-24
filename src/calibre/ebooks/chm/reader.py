@@ -141,14 +141,14 @@ class CHMReader(CHMFile):
             else:
                 frag = None
             name = self._deentity(li.object('param', {'name': 'Name'})[0]['value'])
-            # print '========>', name
+            # print('========>', name)
             toc.add_item(href, frag, name, play_order=self._playorder)
             self._playorder += 1
             if li.ul:
                 child = self._parse_toc(li.ul)
                 child.parent = toc
                 toc.append(child)
-        # print toc
+        # print(toc)
         return toc
 
     def ResolveObject(self, path):

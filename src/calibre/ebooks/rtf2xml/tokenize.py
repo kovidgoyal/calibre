@@ -204,7 +204,7 @@ class Tokenize:
 # import sys
 # def main(args=sys.argv):
     # if len(args) < 2:
-        # print 'No file'
+        # print('No file')
         # return
     # file = 'data_tokens.txt'
     # if len(args) == 3:

@@ -1344,7 +1344,7 @@ class Page(LrsObject, LrsContainer):
             if hasattr(content, 'getReferencedObjIds'):
                 pageContent.update(content.getReferencedObjIds())
 
-        # print 'page contents:', pageContent
+        # print('page contents:', pageContent)
         # ObjectList not needed and causes slowdown in SONY LRF renderer
         # p.appendLrfTag(LrfTag("ObjectList", pageContent))
         p.appendLrfTag(LrfTag('Link', self.pageStyle.objId))
@@ -1620,7 +1620,7 @@ class Button(LrsObject, LrsContainer):
 
     def toLrf(self, lrfWriter):
         (refobj, refpage) = self.findJumpToRefs()
-        # print 'Button writing JumpTo refobj=', jumpto.refobj, ', and refpage=', jumpto.refpage
+        # print('Button writing JumpTo refobj=', jumpto.refobj, ', and refpage=', jumpto.refpage)
         button = LrfObject('Button', self.objId)
         button.appendLrfTag(LrfTag('buttonflags', 0x10))  # pushbutton
         button.appendLrfTag(LrfTag('PushButtonStart'))

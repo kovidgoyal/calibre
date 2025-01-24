@@ -439,7 +439,7 @@ def mi_to_html(
 
     ans = ['<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
         classname(fieldl), html) for fieldl, html in ans]
-    # print '\n'.join(ans)
+    # print('\n'.join(ans))
     direction = 'rtl' if rtl else 'ltr'
     rans = f'<table class="fields" style="direction: {direction}; '
     if not for_qt:

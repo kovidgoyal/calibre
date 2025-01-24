@@ -149,7 +149,7 @@ class Bookmark:  # {{{
         for row in cursor:
             self.last_read = row['DateLastRead']
             self.percent_read = 100 if (row['ReadStatus'] == 2) else row['___PercentRead']
-            # print row[1]
+            # print(row[1])
         cursor.close()
 
 #                self.last_read_location = self.last_read - self.pdf_page_offset

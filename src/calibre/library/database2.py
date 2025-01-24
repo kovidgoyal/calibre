@@ -839,9 +839,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         with self.dirtied_lock:
             dc_sequence = self.dirtied_cache.get(book_id, None)
-            # print 'clear_dirty: check book', book_id, dc_sequence
+            # print('clear_dirty: check book', book_id, dc_sequence)
             if dc_sequence is None or sequence is None or dc_sequence == sequence:
-                # print 'needs to be cleaned'
+                # print('needs to be cleaned')
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
                 self.conn.commit()
@@ -850,7 +850,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 except:
                     pass
             elif dc_sequence is not None:
-                # print 'book needs to be done again'
+                # print('book needs to be done again')
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
@@ -908,12 +908,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.update_last_modified(book_ids)
         for book in book_ids:
             with self.dirtied_lock:
-                # print 'dirtied: check id', book
+                # print('dirtied: check id', book)
                 if book in self.dirtied_cache:
                     self.dirtied_cache[book] = self.dirtied_sequence
                     self.dirtied_sequence += 1
                     continue
-                # print 'book not already dirty'
+                # print('book not already dirty')
 
                 self.conn.execute(
                     'INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
@@ -964,7 +964,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # thread has not done the work between the put and the get_metadata
         with self.dirtied_lock:
             sequence = self.dirtied_cache.get(idx, None)
-        # print 'get_md_for_dump', idx, sequence
+        # print('get_md_for_dump', idx, sequence)
         try:
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
@@ -1864,7 +1864,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 md.append((category, cat['rec_index'],
                            cat['is_multiple'].get('cache_to_list', None),
                            cat['datatype'] == 'composite'))
-        # print 'end phase "collection":', time.clock() - last, 'seconds'
+        # print('end phase "collection":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Now scan every book looking for category items.
@@ -1932,7 +1932,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         except:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
-        # print 'end phase "books":', time.clock() - last, 'seconds'
+        # print('end phase "books":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Now do news
@@ -1953,7 +1953,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
             tcategories['news'][r[1]] = item
 
-        # print 'end phase "news":', time.clock() - last, 'seconds'
+        # print('end phase "news":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Build the real category list by iterating over the temporary copy
@@ -2038,7 +2038,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         use_sort_as_name=use_sort_as_name)
                                     for r in items]
 
-        # print 'end phase "tags list":', time.clock() - last, 'seconds'
+        # print('end phase "tags list":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Needed for legacy databases that have multiple ratings that
@@ -2181,8 +2181,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
-        # print 'last phase ran in:', time.clock() - last, 'seconds'
-        # print 'get_categories ran in:', time.clock() - start, 'seconds'
+        # print('last phase ran in:', time.clock() - last, 'seconds')
+        # print('get_categories ran in:', time.clock() - start, 'seconds')
 
         return categories
 

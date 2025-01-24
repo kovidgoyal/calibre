@@ -37,7 +37,7 @@ class DjvuChunk:
         self.dataend = pos + self.size - (8 if inclheader else 0)
         if self.type == b'FORM':
             oldpos, pos = pos, pos+4
-            # print oldpos, pos
+            # print(oldpos, pos)
             self.subtype = buf[oldpos:pos]
             # self.headersize += 4
         self.datastart = pos

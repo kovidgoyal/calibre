@@ -59,7 +59,7 @@ class MetadataBackup(Thread):  # {{{
                 (id_, sequence) = self.db.get_a_dirtied_book()
                 if id_ is None:
                     continue
-                # print 'writer thread', id_, sequence
+                # print('writer thread', id_, sequence)
             except:
                 # Happens during interpreter shutdown
                 break

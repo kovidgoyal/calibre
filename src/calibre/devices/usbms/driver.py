@@ -247,7 +247,7 @@ class USBMS(CLI, Device):
                     if idx is not None:
                         bl_cache[lpath] = None
                         if self.update_metadata_item(bl[idx]):
-                            # print 'update_metadata_item returned true'
+                            # print('update_metadata_item returned true')
                             changed = True
                     else:
                         if bl.add_book(self.book_from_path(prefix, lpath),

@@ -188,7 +188,7 @@ class Hex2Utf8:
             self.__dingbats_dict.update(ms_dingbats_dict)
         # load dictionary for caps, and make a string for the replacement
         self.__caps_uni_dict = char_map_obj.get_char_map(map='caps_uni')
-        # # print self.__caps_uni_dict
+        # # print(self.__caps_uni_dict)
         # don't think I'll need this
         # keys = self.__caps_uni_dict.keys()
         # self.__caps_uni_replace = '|'.join(keys)
@@ -478,7 +478,7 @@ class Hex2Utf8:
             if in caps, convert. Otherwise, print out.
         '''
         text = line[17:-1]
-        # print line
+        # print(line)
         if self.__current_dict_name in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
             the_string = ''
             for letter in text:
@@ -494,7 +494,7 @@ class Hex2Utf8:
                 else:
                     the_string += converted
             self.__write_obj.write('tx<nu<__________<%s\n' % the_string)
-            # print the_string
+            # print(the_string)
         else:
             if self.__caps_list[-1] == 'true' \
                 and self.__convert_caps\

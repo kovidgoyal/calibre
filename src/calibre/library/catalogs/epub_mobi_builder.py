@@ -1354,7 +1354,7 @@ class CatalogBuilder:
         # massaged = re.sub("&", "&#38;", massaged)
 
         if massaged.strip() and dest:
-            # print traceback.print_stack(limit=3)
+            # print(traceback.print_stack(limit=3))
             return self.generate_short_description(massaged.strip(), dest=dest)
         else:
             return None
@@ -2032,7 +2032,7 @@ class CatalogBuilder:
         bookmarked_books = []
         for bm_book in self.bookmarked_books:
             book = self.bookmarked_books[bm_book]
-            # print 'bm_book: %s' % bm_book
+            # print('bm_book: %s' % bm_book)
             book[1]['bookmark_timestamp'] = book[0].timestamp
             try:
                 book[1]['percent_read'] = min(float(100 * book[0].last_read / book[0].book_length), 100)
@@ -2139,7 +2139,7 @@ class CatalogBuilder:
         master_genre_list = []
         for genre_tag_set in genre_list:
             for (index, genre) in enumerate(genre_tag_set):
-                # print 'genre: %s  \t  genre_tag_set[genre]: %s' % (genre, genre_tag_set[genre])
+                # print('genre: %s  \t  genre_tag_set[genre]: %s' % (genre, genre_tag_set[genre]))
 
                 # Create sorted_authors[0] = friendly, [1] = author_sort for NCX creation
                 authors = []
@@ -3396,7 +3396,7 @@ class CatalogBuilder:
             for book in self.books_by_date_range:
                 book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
                 if (today_time - book_time).days <= date_range_limit:
-                    # print 'generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days)
+                    # print('generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days))
                     current_titles_list.append(book['title'])
                 else:
                     break
@@ -3505,7 +3505,7 @@ class CatalogBuilder:
             for book in self.bookmarked_books_by_date_read:
                 bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
                 if (today_time - bookmark_time).days <= date_range_limit:
-                    # print 'generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days)
+                    # print('generate_ncx_by_date_added: %s added %d days ago' % (book['title'], (today_time-book_time).days))
                     current_titles_list.append(book['title'])
                 else:
                     break

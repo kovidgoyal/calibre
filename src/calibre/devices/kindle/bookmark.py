@@ -61,11 +61,11 @@ class Bookmark:  # {{{
                 bpl = bpar_offset + 4
                 bpar_len, = unpack('>I', data[bpl:bpl+4])
                 bpar_len += 8
-                # print 'bpar_len: 0x%x' % bpar_len
+                # print('bpar_len: 0x%x' % bpar_len)
                 eo = bpar_offset + bpar_len
 
                 # Walk bookmark entries
-                # print ' --- %s --- ' % self.path
+                # print(' --- %s --- ' % self.path)
                 current_entry = 1
                 sig = data[eo:eo+4]
                 previous_block = None
@@ -80,7 +80,7 @@ class Bookmark:  # {{{
                         current_block = 'data_header'
                         # entry_type = "data_header"
                         location, = unpack('>I', data[eo+0x34:eo+0x38])
-                        # print 'data_header location: %d' % location
+                        # print('data_header location: %d' % location)
                     else:
                         current_block = 'text_block'
                         if previous_block == 'empty_data':
@@ -112,11 +112,11 @@ class Bookmark:  # {{{
                         start, = unpack('>I', data[eo+8:eo+12])
                         user_notes[start] = user_notes[end_loc]
                         '''
-                        print " %s: swapping 0x%x (%d) to 0x%x (%d)" % (user_notes[end_loc]['type'],
+                        print(" %s: swapping 0x%x (%d) to 0x%x (%d)" % (user_notes[end_loc]['type'],
                                                                     end_loc,
                                                                     end_loc/MAGIC_MOBI_CONSTANT + 1,
                                                                     start,
-                                                                    start//MAGIC_MOBI_CONSTANT + 1)
+                                                                    start//MAGIC_MOBI_CONSTANT + 1))
                         '''
                         user_notes[start]['displayed_location'] = start // MAGIC_MOBI_CONSTANT + 1
                         user_notes.pop(end_loc)
@@ -125,7 +125,7 @@ class Bookmark:  # {{{
                         # be the same - cheat by nudging -1
                         # Skip bookmark for last_read_location
                         if end_loc != self.last_read:
-                            # print ' adding Bookmark at 0x%x (%d)' % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1)
+                            # print(' adding Bookmark at 0x%x (%d)' % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1))
                             displayed_location = end_loc // MAGIC_MOBI_CONSTANT + 1
                             user_notes[end_loc - 1] = dict(id=self.id,
                                                            displayed_location=displayed_location,

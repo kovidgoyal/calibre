@@ -66,7 +66,7 @@ class OurDailyBread(BasicNewsRecipe):
                 div.set('class', 'calibre-inserted-psalm')
                 hr = div.makeelement('hr')
                 div.insert(0, hr)
-                # print html.tostring(div)
+                # print(html.tostring(div))
                 raw = html.tostring(root, encoding='unicode')
         return raw
 

@@ -423,14 +423,14 @@ def upload_to_servers(files, version):  # {{{
     #     print('Uploading to server:', server)
     #     server = '%s.calibre-ebook.com' % server
     #     # Copy the generated index files
-    #     print ('Copying generated index')
+    #     print('Copying generated index')
     #     check_call(['rsync', '-hza', '-e', 'ssh -x', '--include', '*.html',
     #                 '--filter', '-! */', base, 'root@%s:%s' % (server, rdir)])
     #     # Copy the release files
     #     rdir = '%s%s/' % (rdir, version)
     #     for x in files:
     #         start = time.time()
-    #         print ('Uploading', x)
+    #         print('Uploading', x)
     #         for i in range(5):
     #             try:
     #                 check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
@@ -438,11 +438,11 @@ def upload_to_servers(files, version):  # {{{
     #             except KeyboardInterrupt:
     #                 raise SystemExit(1)
     #             except:
-    #                 print ('\nUpload failed, trying again in 30 seconds')
+    #                 print('\nUpload failed, trying again in 30 seconds')
     #                 time.sleep(30)
     #             else:
     #                 break
-    #         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
+    #         print('Uploaded in', int(time.time() - start), 'seconds\n\n')
     #
 
 

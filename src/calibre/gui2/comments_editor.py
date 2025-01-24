@@ -1521,8 +1521,8 @@ class Editor(QWidget):  # {{{
         self.editor.html = v
 
     def change_tab(self, index):
-        # print 'reloading:', (index and self.wyswyg_dirty) or (not index and
-        #        self.source_dirty)
+        # print('reloading:', (index and self.wyswyg_dirty) or (not index and
+        #        self.source_dirty))
         if index == 1:  # changing to code view
             if self.wyswyg_dirty:
                 self.code_edit.setPlainText(self.editor.html)
@@ -1598,4 +1598,4 @@ if __name__ == '__main__':
     i = 'file:///home/kovid/work/calibre/resources/images/'
     w.html = f'<p>Testing <img src="{i}/donate.png"> img and another <img src="{i}/lt.png">file</p>'
     app.exec()
-    # print w.html
+    # print(w.html)

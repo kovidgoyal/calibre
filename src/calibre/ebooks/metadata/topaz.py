@@ -281,7 +281,7 @@ class MetadataUpdater:
         offset += 1
         self.md_header['num_recs'] = ord(self.data[offset:offset+1])
         offset += 1
-        # print 'self.md_header: %s' % self.md_header
+        # print('self.md_header: %s' % self.md_header)
 
         self.metadata = {}
         self.md_seq = []

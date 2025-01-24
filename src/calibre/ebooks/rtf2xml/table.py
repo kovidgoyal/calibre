@@ -552,7 +552,7 @@ class Table:
             line = line_to_read
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state[-1])
-            # print self.__state[-1]
+            # print(self.__state[-1])
             if action is None:
                 sys.stderr.write('No matching state in module table.py\n')
                 sys.stderr.write(self.__state[-1] + '\n')

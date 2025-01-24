@@ -142,6 +142,6 @@ class PressePortalDE(BasicNewsRecipe):
         # and split this at the symbol '.' (if there) : ('3120111',)
         # from this take the first tuple. '3120111'
         side = (url.rpartition('/')[-1]).rsplit('.', 1)[0]
-        # print 'ConvertPrintURL from :  ' + url + '/n to ' + side
+        # print('ConvertPrintURL from :  ' + url + '/n to ' + side)
         printurl = 'http://www.presseportal.de/print/' + side + '-print.html'
         return printurl

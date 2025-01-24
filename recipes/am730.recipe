@@ -53,7 +53,7 @@ class AM730(BasicNewsRecipe):
         return self.masthead_url
 
     def getAMSectionArticles(self, sectionName,url):
-        # print sectionName
+        # print(sectionName)
         soup = self.index_to_soup(url)
         articles = []
         for aTag in soup.findAll('a',attrs={'class':'newsimglink'}):
@@ -67,7 +67,7 @@ class AM730(BasicNewsRecipe):
                 print(title)
             try:
                 if articles.index({'title':title,'url':href})>=0:
-                    # print 'already added'
+                    # print('already added')
                     continue  # already added
             except:
                 pass

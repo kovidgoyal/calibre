@@ -321,7 +321,7 @@ class KOBO(USBMS):
                     playlist_map[lpath].append('Recommendation')
 
                 path = self.normalize_path(path)
-                # print 'Normalized FileName: ' + path
+                # print('Normalized FileName: ' + path)
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:
@@ -332,7 +332,7 @@ class KOBO(USBMS):
                             # Try the Touch version if the image does not exist
                             imagename = self.normalize_path(self._main_prefix + KOBO_ROOT_DIR_NAME + '/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
 
-                        # print 'Image name Normalized: ' + imagename
+                        # print('Image name Normalized: ' + imagename)
                         if not os.path.exists(imagename):
                             debug_print('Strange - The image name does not exist - title: ', title)
                         if imagename is not None:
@@ -340,7 +340,7 @@ class KOBO(USBMS):
                     if (ContentType != '6' and MimeType != 'Shortcover'):
                         if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
                             if self.update_metadata_item(bl[idx]):
-                                # print 'update_metadata_item returned true'
+                                # print('update_metadata_item returned true')
                                 changed = True
                         else:
                             debug_print('    Strange:  The file: ', prefix, lpath, ' does not exist!')
@@ -364,7 +364,7 @@ class KOBO(USBMS):
                                         'mime: ', mime, 'date: ', date, 'ContentType: ', ContentType, 'ImageID: ', ImageID)
                             raise
 
-                    # print 'Update booklist'
+                    # print('Update booklist')
                     book.device_collections = playlist_map.get(lpath,[])  # if lpath in playlist_map else []
 
                     if bl.add_book(book, replace_metadata=False):
@@ -452,8 +452,8 @@ class KOBO(USBMS):
                 need_sync = True
                 del bl[idx]
 
-        # print 'count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
-        #      (len(bl_cache), len(bl), need_sync)
+        # print('count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
+        #      (len(bl_cache), len(bl), need_sync))
         if need_sync:  # self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, bl))
@@ -551,7 +551,7 @@ class KOBO(USBMS):
                 fpath = self.normalize_path(fpath)
 
                 if os.path.exists(fpath):
-                    # print 'Image File Exists: ' + fpath
+                    # print('Image File Exists: ' + fpath)
                     os.unlink(fpath)
 
     def delete_books(self, paths, end_session=True):
@@ -561,33 +561,33 @@ class KOBO(USBMS):
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
-            # print 'Delete file normalized path: ' + path
+            # print('Delete file normalized path: ' + path)
             extension =  os.path.splitext(path)[1]
             ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path)
 
             ContentID = self.contentid_from_path(path, ContentType)
 
             ImageID = self.delete_via_sql(ContentID, ContentType)
-            # print ' We would now delete the Images for' + ImageID
+            # print(' We would now delete the Images for' + ImageID)
             self.delete_images(ImageID, path)
 
             if os.path.exists(path):
                 # Delete the ebook
-                # print 'Delete the ebook: ' + path
+                # print('Delete the ebook: ' + path)
                 os.unlink(path)
 
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
                     if os.path.exists(filepath + ext):
-                        # print 'Filename: ' + filename
+                        # print('Filename: ' + filename)
                         os.unlink(filepath + ext)
                     if os.path.exists(path + ext):
-                        # print 'Filename: ' + filename
+                        # print('Filename: ' + filename)
                         os.unlink(path + ext)
 
                 if self.SUPPORTS_SUB_DIRS:
                     try:
-                        # print 'removed'
+                        # print('removed')
                         os.removedirs(os.path.dirname(path))
                     except Exception:
                         pass
@@ -601,9 +601,9 @@ class KOBO(USBMS):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device metadata listing...'))
             for bl in booklists:
                 for book in bl:
-                    # print 'Book Path: ' + book.path
+                    # print('Book Path: ' + book.path)
                     if path.endswith(book.path):
-                        # print '    Remove: ' + book.path
+                        # print('    Remove: ' + book.path)
                         bl.remove_book(book)
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
@@ -634,12 +634,12 @@ class KOBO(USBMS):
                 prints('in add_books_to_metadata. Prefix is None!', path,
                         self._main_prefix)
                 continue
-            # print 'Add book to metadata: '
-            # print 'prefix: ' + prefix
+            # print('Add book to metadata: ')
+            # print('prefix: ' + prefix)
             lpath = path.partition(prefix)[2]
             if lpath.startswith('/') or lpath.startswith('\\'):
                 lpath = lpath[1:]
-            # print 'path: ' + lpath
+            # print('path: ' + lpath)
             book = self.book_class(prefix, lpath, info.title, other=info)
             if book.size is None or book.size == 0:
                 book.size = os.stat(self.normalize_path(path)).st_size
@@ -686,13 +686,13 @@ class KOBO(USBMS):
     def get_content_type_from_extension(self, extension):
         if extension == '.kobo':
             # Kobo books do not have book files.  They do have some images though
-            # print 'kobo book'
+            # print('kobo book')
             ContentType = 6
         elif extension == '.pdf' or extension == '.epub':
-            # print 'ePub or pdf'
+            # print('ePub or pdf')
             ContentType = 16
         elif extension == '.rtf' or extension == '.txt' or extension == '.htm' or extension == '.html':
-            # print 'txt'
+            # print('txt')
             if self.fwversion == (1,0) or self.fwversion == (1,4) or self.fwversion == (1,7,4):
                 ContentType = 999
             else:
@@ -708,14 +708,14 @@ class KOBO(USBMS):
             print('path from_contentid cardb')
         elif oncard == 'carda':
             path = path.replace('file:///mnt/sd/', self._card_a_prefix)
-            # print 'SD Card: ' + path
+            # print('SD Card: ' + path)
         else:
             if ContentType == '6' and MimeType == 'Shortcover':
                 # This is a hack as the kobo files do not exist
                 # but the path is required to make a unique id
                 # for calibre's reference
                 path = self._main_prefix + path + '.kobo'
-                # print 'Path: ' + path
+                # print('Path: ' + path)
             elif (ContentType == '6' or ContentType == '10') and (
                 MimeType == 'application/x-kobo-epub+zip' or (
                 MimeType == 'application/epub+zip' and self.isTolinoDevice())
@@ -724,12 +724,12 @@ class KOBO(USBMS):
                     path = self._main_prefix + path.replace('file:///mnt/onboard/', '')
                 else:
                     path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/kepub/' + path
-                # print 'Internal: ' + path
+                # print('Internal: ' + path)
             else:
                 # if path.startswith('file:///mnt/onboard/'):
                 path = path.replace('file:///mnt/onboard/', self._main_prefix)
                 path = path.replace('/mnt/onboard/', self._main_prefix)
-                # print 'Internal: ' + path
+                # print('Internal: ' + path)
 
         return path
 
@@ -1820,7 +1820,7 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
 
                 path = self.normalize_path(path)
-                # print 'Normalized FileName: ' + path
+                # print('Normalized FileName: ' + path)
 
                 # Collect the Kobo metadata
                 authors_list = [a.strip() for a in authors.split('&')] if authors is not None else [_('Unknown')]
@@ -1929,7 +1929,7 @@ class KOBOTOUCH(KOBO):
                         debug_print('    bookshelves:', bookshelves)
                         debug_print('    kobo_collections:', kobo_collections)
 
-                    # print 'Update booklist'
+                    # print('Update booklist')
                     book.device_collections = playlist_map.get(lpath,[])  # if lpath in playlist_map else []
                     book.current_shelves    = bookshelves
                     book.kobo_collections   = kobo_collections
@@ -2144,8 +2144,8 @@ class KOBOTOUCH(KOBO):
                 else:
                     debug_print("KoboTouch:books - Book in mtadata.calibre, on file system but not database - bl[idx].title:'%s'"%bl[idx].title)
 
-        # print 'count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
-        #      (len(bl_cache), len(bl), need_sync)
+        # print('count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
+        #      (len(bl_cache), len(bl), need_sync))
         # Bypassing the KOBO sync_booklists as that does things we don't need to do
         # Also forcing sync to see if this solves issues with updating shelves and matching books.
         if need_sync or True:  # self.count_found_in_bl != len(bl) or need_sync:
@@ -2208,7 +2208,7 @@ class KOBOTOUCH(KOBO):
                 path = path.replace('file:///mnt/onboard/', self._main_prefix)
                 path = path.replace('file:///mnt/sd/', self._card_a_prefix)
                 path = path.replace('/mnt/onboard/', self._main_prefix)
-                # print 'Internal: ' + path
+                # print('Internal: ' + path)
 
         return path
 

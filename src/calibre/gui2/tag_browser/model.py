@@ -581,7 +581,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             traceback.print_stack()
             return
         # traceback.print_stack()
-        # print ()
+        # print()
         self._build_in_progress = True
         self.beginResetModel()
         self._run_rebuild(state_map=state_map)
@@ -1284,7 +1284,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.convert_requested.emit(book_ids, fmt)
 
     def handle_drop(self, on_node, ids):
-        # print 'Dropped ids:', ids, on_node.tag
+        # print('Dropped ids:', ids, on_node.tag)
         key = on_node.tag.category
         if key == 'formats':
             self.handle_drop_on_format(on_node.tag.name, ids)
