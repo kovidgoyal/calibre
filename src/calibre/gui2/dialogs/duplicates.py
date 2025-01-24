@@ -146,7 +146,7 @@ class DuplicatesQuestion(QDialog):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             check = '✓' if x.checkState(0) == Qt.CheckState.Checked else '✗'
-            title = f'{check} {str(x.text(0))}'
+            title = f'{check} {x.text(0)!s}'
             dups = []
             for child in (x.child(j) for j in range(x.childCount())):
                 dups.append('\t' + str(child.text(0)))

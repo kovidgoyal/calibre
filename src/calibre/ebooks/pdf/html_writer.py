@@ -745,7 +745,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
             if not isinstance(result, dict):
                 raise ValueError('Not a dict')
         except Exception:
-            log.warn(f'Could not do page number mapping, got unexpected result: {repr(result)}')
+            log.warn(f'Could not do page number mapping, got unexpected result: {result!r}')
         else:
             default_map = {int(k): int(v) for k, v in iteritems(result)}
     return default_map

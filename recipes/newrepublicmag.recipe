@@ -252,7 +252,7 @@ fragment ArticlePageFields on Article {
                 </span>
             </div>
             {lede_image_html}
-            {str(body_soup)}
+            {body_soup!s}
             {author_bios_html}
             </article>
         </body></html>'''

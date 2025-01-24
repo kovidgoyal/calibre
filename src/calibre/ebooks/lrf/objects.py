@@ -86,7 +86,7 @@ class LRFObject:
             if h[1] != '' and h[0] != '':
                 setattr(self, h[0], val)
         else:
-            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {str(tag)}')
+            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {tag!s}')
 
     def __iter__(self):
         yield from range(0)
@@ -129,7 +129,7 @@ class LRFContentObject(LRFObject):
                 func, args = action[0], (action[1],)
             getattr(self, func)(tag, *args)
         else:
-            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {str(tag)}')
+            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {tag!s}')
 
     def __iter__(self):
         yield from self._contents

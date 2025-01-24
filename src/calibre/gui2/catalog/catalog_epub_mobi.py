@@ -552,7 +552,7 @@ class PluginWidget(QWidget,Ui_Form):
         if False and self.DEBUG:
             print('opts_dict')
             for opt in sorted(opts_dict.keys(), key=sort_key):
-                print(f' {opt}: {repr(opts_dict[opt])}')
+                print(f' {opt}: {opts_dict[opt]!r}')
         return opts_dict
 
     def populate_combo_boxes(self):

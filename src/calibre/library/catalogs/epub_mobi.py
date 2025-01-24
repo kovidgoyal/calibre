@@ -387,7 +387,7 @@ class EPUB_MOBI(CatalogPlugin):
                        'output_profile', 'prefix_rules', 'preset', 'read_book_marker',
                        'search_text', 'sort_by', 'sort_descriptions_by_author', 'sync',
                        'thumb_width', 'use_existing_cover', 'wishlist_tag']:
-                build_log.append(f'  {key}: {repr(opts_dict[key])}')
+                build_log.append(f'  {key}: {opts_dict[key]!r}')
         if opts.verbose:
             log('\n'.join(line for line in build_log))
 

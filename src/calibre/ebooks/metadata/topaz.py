@@ -168,7 +168,7 @@ class MetadataUpdater:
     def dump_metadata(self):
         ''' Diagnostic '''
         for tag in self.metadata:
-            print(f'{tag}: {repr(self.metadata[tag])}')
+            print(f'{tag}: {self.metadata[tag]!r}')
 
     def encode_vwi(self,value):
         ans = []

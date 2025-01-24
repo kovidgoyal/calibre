@@ -205,7 +205,7 @@ class Tag:
         s = 'Tag %04X ' % self.id
         if self.name:
             s += self.name
-        s += f' at {self.offset:08X}, contents: {repr(self.contents)}'
+        s += f' at {self.offset:08X}, contents: {self.contents!r}'
         return s
 
     @property
