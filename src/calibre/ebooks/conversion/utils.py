@@ -260,8 +260,8 @@ class HeuristicProcessor:
             [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False,
                        'Searching for simple numeric headings', 'plain_number'],  # Numeric Chapters, no dot or colon
             [r"\s*[^'\"]?([A-Z#]+(\s|-){0,3}){1,5}\s*", False, True, False, False,
-                          'Searching for chapters with Uppercase Characters', 'uppercase']  # Uppercase Chapters
-            ]
+                          'Searching for chapters with Uppercase Characters', 'uppercase'],  # Uppercase Chapters
+        ]
 
         def recurse_patterns(html, analyze):
             # Start with most typical chapter headings, get more aggressive until one works

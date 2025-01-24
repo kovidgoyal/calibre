@@ -1475,7 +1475,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.opentag('a', {
             'href': f'#footnote-{self.currentnote}',
             'class': 'citation',
-            'id':f'citation-{self.currentnote}'
+            'id':f'citation-{self.currentnote}',
         })
 #        self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the

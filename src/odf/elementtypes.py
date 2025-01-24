@@ -337,5 +337,5 @@ empty_elements = (
     (TEXTNS,'user-index-mark'),
     (TEXTNS,'user-index-mark-end'),
     (TEXTNS,'user-index-mark-start'),
-    (TEXTNS,'variable-decl')
+    (TEXTNS,'variable-decl'),
 )

@@ -29,7 +29,7 @@ module_lists = {
     ),
     'dbus': (
         'QtDBus',
-    )
+    ),
 }
 
 

@@ -234,9 +234,9 @@ per_language_title_sort_articles = {
                 'Della\\s+', 'Dello\\s+', "Dell'", 'Dell´'),
         # Portuguese
         'por': (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
-                  r'Uma\s+', r'Umas\s+', ),
+                  r'Uma\s+', r'Umas\s+'),
         # Romanian
-        'ron': (r'Un\s+', r'O\s+', r'Nişte\s+', ),
+        'ron': (r'Un\s+', r'O\s+', r'Nişte\s+'),
         # German
         'deu': (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
                   r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
@@ -246,16 +246,16 @@ per_language_title_sort_articles = {
                   r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
                   r"'t\s+"),
         # Swedish
-        'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
+        'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+'),
         # Turkish
-        'tur': (r'Bir\s+', ),
+        'tur': (r'Bir\s+',),
         # Afrikaans
-        'afr': (r"'n\s+", r'Die\s+', ),
+        'afr': (r"'n\s+", r'Die\s+'),
         # Greek
         'ell': (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
-                  r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
+                  r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+"),
         # Hungarian
-        'hun': (r'A\s+', r'Az\s+', r'Egy\s+',),
+        'hun': (r'A\s+', r'Az\s+', r'Egy\s+'),
 }
 default_language_for_title_sort = None
 title_sort_articles = r'^(A|The|An)\s+'

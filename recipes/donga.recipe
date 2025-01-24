@@ -12,16 +12,16 @@ sections = [
     ('의학과학', 'science'),
     ('문화연예', 'culture'),
     ('스포츠', 'sports'),
-    ('사람속으로', 'inmul')
+    ('사람속으로', 'inmul'),
     # Following sections are marked as marked optional
     # as default. Uncomment to enable.
-    # , (u'건강', 'health')
-    # , (u'레저', 'leisure')
-    # , (u'도서', 'book')
-    # , (u'공연', 'show')
-    # , (u'여성', 'woman')
-    # , (u'여행', 'travel')
-    # , (u'생활정보', 'lifeinfo')
+    # (u'건강', 'health'),
+    # (u'레저', 'leisure'),
+    # (u'도서', 'book'),
+    # (u'공연', 'show'),
+    # (u'여성', 'woman'),
+    # (u'여행', 'travel'),
+    # (u'생활정보', 'lifeinfo'),
 ]
 
 

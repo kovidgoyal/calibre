@@ -40,11 +40,11 @@ class iProfesional(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-                       dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()})
+                       dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()}),
                      ]
     remove_tags = [
         dict(name=['meta', 'link', 'base', 'embed', 'object', 'iframe'])]

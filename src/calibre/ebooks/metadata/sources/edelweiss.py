@@ -386,24 +386,24 @@ if __name__ == '__main__':
         (  # A title and author search
          {'title': "The Husband's Secret", 'authors':['Liane Moriarty']},
          [title_test("The Husband's Secret", exact=True),
-                authors_test(['Liane Moriarty'])]
+          authors_test(['Liane Moriarty'])]
         ),
 
         (  # An isbn present in edelweiss
          {'identifiers':{'isbn': '9780312621360'}, },
          [title_test('Flame: A Sky Chasers Novel', exact=True),
-                authors_test(['Amy Kathleen Ryan'])]
+          authors_test(['Amy Kathleen Ryan'])]
         ),
 
         # Multiple authors and two part title and no general description
         ({'identifiers':{'edelweiss':'0321180607'}},
-        [title_test(
-        'XQuery From the Experts: A Guide to the W3C XML Query Language'
-        , exact=True), authors_test([
+        [title_test('XQuery From the Experts: A Guide to the W3C XML Query Language', exact=True),
+         authors_test([
             'Howard Katz', 'Don Chamberlin', 'Denise Draper', 'Mary Fernandez',
             'Michael Kay', 'Jonathan Robie', 'Michael Rys', 'Jerome Simeon',
-            'Jim Tivy', 'Philip Wadler']), pubdate_test(2003, 8, 22),
-            comments_test('Jérôme Siméon'), lambda mi: bool(mi.comments and 'No title summary' not in mi.comments)
+            'Jim Tivy', 'Philip Wadler']),
+         pubdate_test(2003, 8, 22),
+         comments_test('Jérôme Siméon'), lambda mi: bool(mi.comments and 'No title summary' not in mi.comments)
         ]),
     ]
     start, stop = 0, len(tests)

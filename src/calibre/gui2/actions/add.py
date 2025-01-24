@@ -48,8 +48,8 @@ class AddAction(InterfaceAction):
 
     name = 'Add Books'
     action_spec = (_('Add books'), 'add_book.png',
-            _('Add books to the calibre library/device from files on your computer')
-            , _('A'))
+            _('Add books to the calibre library/device from files on your computer'),
+            _('A'))
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Add books from a single folder')

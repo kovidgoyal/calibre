@@ -57,11 +57,11 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         (u'world News', u'http://www.mirror.co.uk/news/world-news/rss.xml'),
         (u'Sports', u'http://www.mirror.co.uk/sport/rss.xml'),
         (u'3AM', u'http://www.mirror.co.uk/3am/rss.xml'),
-        (u'Lifestyle', u'http://www.mirror.co.uk/lifestyle/rss.xml')
+        (u'Lifestyle', u'http://www.mirror.co.uk/lifestyle/rss.xml'),
 
 
         # example of commented out feed not needed
-        # ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+        # (u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml'),
     ]
     extra_css = '''
     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
