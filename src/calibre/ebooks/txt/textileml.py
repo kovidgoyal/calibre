@@ -116,7 +116,7 @@ class TextileMLizer(OEB2HTML):
         # blank paragraph
         text = re.sub(r'\n(p.*\.)\n', r'\n\1 \n\n', text)
         # blank paragraph
-        text = re.sub('\n\xa0', r'\np. ', text)
+        text = text.replace('\n\xa0', '\np. ')
         # blank paragraph
         text = re.sub('\np[<>=]{1,2}?\\. \xa0', r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)

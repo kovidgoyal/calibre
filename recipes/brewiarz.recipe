@@ -5,7 +5,6 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 
 import datetime
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

@@ -6,7 +6,6 @@
 __license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
 __copyright__   = 'tomashnyk@gmail.com'
 
-import re
 
 # This imports the version bundled with Calibre
 import lxml
