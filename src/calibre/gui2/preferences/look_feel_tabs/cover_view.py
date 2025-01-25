@@ -51,7 +51,15 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
             'list. This option has no effect when using the Wide user interface layout.'))
 
     def edit_cb_title_template(self):
-        t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), fm=self.gui.current_db.field_metadata)
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        mi = None
+        db = self.gui.current_db.new_api
+        if rows:
+            ids = list(map(self.gui.library_view.model().id, rows))
+            mi = []
+            for bk in ids[0:min(10, len(ids))]:
+                mi.append(db.get_proxy_metadata(bk))
+        t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), mi=mi, fm=db.field_metadata)
         t.setWindowTitle(_('Edit template for caption'))
         if t.exec():
             self.opt_cover_browser_title_template.setText(t.rule[1])
