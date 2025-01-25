@@ -46,7 +46,7 @@ def what_section(url):
 class LATimes(BasicNewsRecipe):
     title = 'Los Angeles Times'
     __author__ = 'Jose Ortiz'
-    description = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
+    description = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa: E501
     category = 'news, politics, USA, Los Angeles, world'
     oldest_article = 1
     max_articles_per_feed = 200

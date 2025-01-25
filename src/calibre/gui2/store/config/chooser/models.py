@@ -154,9 +154,9 @@ class Matches(QAbstractItemModel):
                 if result.drm_free_only:
                     return ('<p>' + _('This store only distributes e-books without DRM.') + '</p>')
                 else:
-                    return ('<p>' + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa
+                    return ('<p>' + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa: E501
             elif col == 3:
-                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')  # noqa
+                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')  # noqa: E501
             elif col == 4:
                 if result.affiliate:
                     return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
@@ -251,13 +251,13 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
-             'affiliate': lambda x: x.affiliate,
-             'description': lambda x: x.description.lower(),
-             'drm': lambda x: not x.drm_free_only,
-             'enabled': lambda x: not is_disabled(x),
-             'format': lambda x: ','.join(x.formats).lower(),
-             'headquarters': lambda x: x.headquarters.lower(),
-             'name': lambda x : x.name.lower(),
+            'affiliate': lambda x: x.affiliate,
+            'description': lambda x: x.description.lower(),
+            'drm': lambda x: not x.drm_free_only,
+            'enabled': lambda x: not is_disabled(x),
+            'format': lambda x: ','.join(x.formats).lower(),
+            'headquarters': lambda x: x.headquarters.lower(),
+            'name': lambda x: x.name.lower(),
         }
         q['formats'] = q['format']
         upf = prefs['use_primary_find_in_search']
@@ -266,14 +266,14 @@ class SearchFilter(SearchQueryParser):
                 accessor = q[locvalue]
                 if query == 'true':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == True:  # noqa
+                        if accessor(sr) == True:  # noqa: E712
                             matches.add(sr)
                     elif accessor(sr) is not None:
                         matches.add(sr)
                     continue
                 if query == 'false':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == False:  # noqa
+                        if accessor(sr) == False:  # noqa: E712
                             matches.add(sr)
                     elif accessor(sr) is None:
                         matches.add(sr)

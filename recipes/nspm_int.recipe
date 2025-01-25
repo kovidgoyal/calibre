@@ -22,12 +22,12 @@ class Nspm_int(BasicNewsRecipe):
     delay = 2
     publication_type = 'magazine'
     masthead_url = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: "Times New Roman", serif}
                                 .article_description{font-family: Arial, sans-serif}
                                 img{margin-top:0.5em; margin-bottom: 0.7em}
                                 .author{color: #990000; font-weight: bold}
-                                .author,.createdate{font-size: 0.9em} """
+                                .author,.createdate{font-size: 0.9em} '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True

@@ -15,31 +15,31 @@ from calibre.ptempfile import TemporaryDirectory
 from polyglot.builtins import as_bytes
 
 block_level_tags = (
-      'address',
-      'body',
-      'blockquote',
-      'center',
-      'dir',
-      'div',
-      'dl',
-      'fieldset',
-      'form',
-      'h1',
-      'h2',
-      'h3',
-      'h4',
-      'h5',
-      'h6',
-      'hr',
-      'isindex',
-      'menu',
-      'noframes',
-      'noscript',
-      'ol',
-      'p',
-      'pre',
-      'table',
-      'ul',
+    'address',
+    'body',
+    'blockquote',
+    'center',
+    'dir',
+    'div',
+    'dl',
+    'fieldset',
+    'form',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'hr',
+    'isindex',
+    'menu',
+    'noframes',
+    'noscript',
+    'ol',
+    'p',
+    'pre',
+    'table',
+    'ul',
 )
 
 
@@ -77,7 +77,7 @@ class EPUBOutput(OutputFormatPlugin):
         ),
 
         OptionRecommendation(name='no_default_epub_cover', recommended_value=False,
-            help=_('Normally, if the input file has no cover and you don\'t'
+            help=_("Normally, if the input file has no cover and you don't"
             ' specify one, a default cover is generated with the title, '
             'authors, etc. This option disables the generation of this cover.')
         ),
@@ -452,7 +452,7 @@ class EPUBOutput(OutputFormatPlugin):
                     br.tag = XHTML('p')
                     br.text = '\u00a0'
                     style = br.get('style', '').split(';')
-                    style = list(filter(None, map(lambda x: x.strip(), style)))
+                    style = list(filter(None, (x.strip() for x in style)))
                     style.append('margin:0pt; border:0pt')
                     # If the prior tag is a block (including a <br> we replaced)
                     # then this <br> replacement should have a 1-line height.
@@ -503,7 +503,7 @@ class EPUBOutput(OutputFormatPlugin):
                     tag.tag = XHTML('div')
 
             # ADE fails to render non breaking hyphens/soft hyphens/zero width spaces
-            special_chars = re.compile('[\u200b\u00ad]')
+            special_chars = re.compile(r'[\u200b\u00ad]')
             for elem in root.iterdescendants('*'):
                 if elem.text:
                     elem.text = special_chars.sub('', elem.text)

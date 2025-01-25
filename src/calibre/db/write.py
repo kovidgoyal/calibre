@@ -19,8 +19,8 @@ from polyglot.builtins import iteritems, itervalues
 
 missing = object()
 
-# Convert data into values suitable for the db {{{
 
+# Convert data into values suitable for the db {{{
 
 def sqlite_datetime(x):
     return isoformat(x, sep=' ') if isinstance(x, datetime) else x
@@ -40,16 +40,16 @@ series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
 
 def get_series_values(val):
     if not val:
-        return (val, None)
+        return val, None
     match = series_index_pat.match(val.strip())
     if match is not None:
         idx = match.group(2)
         try:
             idx = float(idx)
-            return (match.group(1).strip(), idx)
+            return match.group(1).strip(), idx
         except:
             pass
-    return (val, None)
+    return val, None
 
 
 def multiple_text(sep, ui_sep, x):
@@ -129,7 +129,7 @@ def clean_identifier(typ, val):
 
 def adapt_identifiers(to_tuple, x):
     if not isinstance(x, dict):
-        x = {k:v for k, v in (y.partition(':')[0::2] for y in to_tuple(x))}
+        x = dict(y.partition(':')[0::2] for y in to_tuple(x))
     ans = {}
     for k, v in iteritems(x):
         k, v = clean_identifier(k, v)
@@ -190,8 +190,8 @@ def get_adapter(name, metadata):
     return ans
 # }}}
 
-# One-One fields {{{
 
+# One-One fields {{{
 
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
@@ -265,8 +265,8 @@ def custom_series_index(book_id_val_map, db, field, *args):
     return {s[1] for s in sequence}
 # }}}
 
-# Many-One fields {{{
 
+# Many-One fields {{{
 
 def safe_lower(x):
     try:
@@ -392,8 +392,8 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     return dirtied
 # }}}
 
-# Many-Many fields {{{
 
+# Many-Many fields {{{
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a

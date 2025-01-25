@@ -9,10 +9,10 @@ class VillageVoice(BasicNewsRecipe):
 
     title = 'Village Voice'
     feeds = [
-        ("Complete Issue", "http://villagevoice.com/syndication/issue"),
-        ("News", "http://villagevoice.com/syndication/section/news"),
-        ("Music", "http://villagevoice.com/syndication/section/music"),
-        ("Movies", "http://villagevoice.com/syndication/section/film"),
+        ('Complete Issue', 'http://villagevoice.com/syndication/issue'),
+        ('News', 'http://villagevoice.com/syndication/section/news'),
+        ('Music', 'http://villagevoice.com/syndication/section/music'),
+        ('Movies', 'http://villagevoice.com/syndication/section/film'),
         # ("Restaurants", "http://villagevoice.com/syndication/section/dining"),
         # ("Music Events", "http://villagevoice.com/syndication/events?type=music"),
         # ("Calendar Events", "http://villagevoice.com/syndication/events"),
@@ -22,7 +22,7 @@ class VillageVoice(BasicNewsRecipe):
 
     auto_cleanup = True
     max_articles_per_feed = 50
-    masthead_url = "http://assets.villagevoice.com/img/citylogo.png"
+    masthead_url = 'http://assets.villagevoice.com/img/citylogo.png'
     language = 'en'
     __author__ = 'Barty'
 

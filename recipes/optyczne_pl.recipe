@@ -13,7 +13,6 @@ class OptyczneRecipe(BasicNewsRecipe):
     description = u'Najlepsze testy obiektywów, testy aparatów cyfrowych i testy lornetek w sieci!'
     cover_url = ''
     remove_empty_feeds = True
-    no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100
     recursions = 0

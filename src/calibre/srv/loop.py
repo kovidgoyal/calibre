@@ -42,14 +42,14 @@ from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'
-IPPROTO_IPV6 = getattr(socket, "IPPROTO_IPV6", 41)
+IPPROTO_IPV6 = getattr(socket, 'IPPROTO_IPV6', 41)
 
 
 class ReadBuffer:  # {{{
 
     ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
 
-    __slots__ = ('ba', 'buf', 'read_pos', 'write_pos', 'full_state')
+    __slots__ = ('ba', 'buf', 'full_state', 'read_pos', 'write_pos')
 
     def __init__(self, size=4096):
         self.ba = bytearray(size)
@@ -465,7 +465,7 @@ class ServerLoop:
             self.control_out.close()
 
     def __str__(self):
-        return f"{self.__class__.__name__}({self.bind_address!r})"
+        return f'{self.__class__.__name__}({self.bind_address!r})'
     __repr__ = __str__
 
     @property
@@ -482,19 +482,19 @@ class ServerLoop:
         except socket.gaierror:
             if ':' in host:
                 info = [(socket.AF_INET6, socket.SOCK_STREAM,
-                        0, "", self.bind_address + (0, 0))]
+                        0, '', self.bind_address + (0, 0))]
             else:
                 info = [(socket.AF_INET, socket.SOCK_STREAM,
-                        0, "", self.bind_address)]
+                        0, '', self.bind_address)]
 
         self.socket = None
-        msg = "No socket could be created"
+        msg = 'No socket could be created'
         for res in info:
             af, socktype, proto, canonname, sa = res
             try:
                 self.bind(af, socktype, proto)
             except OSError as serr:
-                msg = f"{msg} -- ({sa}: {as_unicode(serr)})"
+                msg = f'{msg} -- ({sa}: {as_unicode(serr)})'
                 if self.socket:
                     self.socket.close()
                 self.socket = None
@@ -556,7 +556,7 @@ class ServerLoop:
             self.shutdown()
 
     def serve_forever(self):
-        """ Listen for incoming connections. """
+        ''' Listen for incoming connections. '''
         self.initialize_socket()
         self.serve()
 

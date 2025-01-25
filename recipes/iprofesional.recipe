@@ -25,7 +25,7 @@ class iProfesional(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.iprofesional.com/img/header/logoiprofesional.png'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: "Open Sans", sans-serif}
                                img{margin-bottom: 0.4em; display:block}
                                .tituloprincipal{font-family: WhitneyBold, Arial, sans-serif;
@@ -33,18 +33,18 @@ class iProfesional(BasicNewsRecipe):
                                                 font-size: x-large;
                                                 display: block; margin-bottom: 1em;}
                                .bajadanh{font-size: small; display: block; margin-bottom: 1em;}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
     keep_only_tags = [
-                       dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()})
-                       ,dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()})
+                       dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()}),
+                       dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()}),
                      ]
     remove_tags = [
         dict(name=['meta', 'link', 'base', 'embed', 'object', 'iframe'])]

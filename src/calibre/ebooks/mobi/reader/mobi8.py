@@ -37,8 +37,8 @@ Elem = namedtuple('Elem',
 FlowInfo = namedtuple('FlowInfo',
         'type format dir fname')
 
-# locate beginning and ending positions of tag with specific aid attribute
 
+# locate beginning and ending positions of tag with specific aid attribute
 
 def locate_beg_end_of_tag(ml, aid):
     pattern = br'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid
@@ -272,7 +272,7 @@ class Mobi8Reader:
                     flowpart = from_svg
                 else:
                     format = 'file'
-                    dir = "images"
+                    dir = 'images'
                     fname = 'svgimg' + nstr + '.svg'
             else:
                 # search for CDATA and if exists inline it
@@ -286,7 +286,7 @@ class Mobi8Reader:
                     # css - assume as standalone css file
                     typ = 'css'
                     format = 'file'
-                    dir = "styles"
+                    dir = 'styles'
                     fname = nstr + '.css'
 
             self.flows[j] = flowpart
@@ -430,7 +430,7 @@ class Mobi8Reader:
                     pass  # Ignore these records
                 elif typ == b'FONT':
                     font = read_font_record(data)
-                    href = "fonts/%05d.%s" % (fname_idx, font['ext'])
+                    href = 'fonts/%05d.%s' % (fname_idx, font['ext'])
                     if font['err']:
                         self.log.warn('Reading font record %d failed: %s'%(
                             fname_idx, font['err']))

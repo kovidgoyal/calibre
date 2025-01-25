@@ -183,9 +183,18 @@ class SearchFinished:
 class SearchResult:
 
     __slots__ = (
-        'search_query', 'before', 'text', 'after', 'q', 'spine_idx',
-        'index', 'file_name', 'is_hidden', 'offset', 'toc_nodes',
-        'result_num'
+        'after',
+        'before',
+        'file_name',
+        'index',
+        'is_hidden',
+        'offset',
+        'q',
+        'result_num',
+        'search_query',
+        'spine_idx',
+        'text',
+        'toc_nodes',
     )
 
     def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):
@@ -275,7 +284,7 @@ def searchable_text_for_name(name):
         if children:
             for child in reversed(children):
                 a((child, ignore_text_in_node_and_children, in_ruby))
-    for (tail, body) in removed_tails:
+    for tail, body in removed_tails:
         if tail is not None:
             body['l'] = tail
     return ''.join(ans), anchor_offset_map
@@ -410,7 +419,7 @@ def search_in_name(name, search_query, ctx_size=75):
                 return spans.append((s, s + l))
             primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
-    for (start, end) in miter():
+    for start, end in miter():
         before = raw[max(0, start-ctx_size):start]
         after = raw[end:end+ctx_size]
         yield before, raw[start:end], after, start
@@ -600,7 +609,6 @@ class Results(QTreeWidget):  # {{{
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         self.context_menu.popup(self.mapToGlobal(point))
         return True
-
 
     def viewportEvent(self, ev):
         if hasattr(self, 'gesture_manager'):

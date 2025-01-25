@@ -49,7 +49,7 @@ class RMF24_opinie(BasicNewsRecipe):
         (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
         [
             (r'<h2>Zdj.cie</h2>', lambda match: ''),
-            (r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">', lambda match: 'REMOVE">'),  # noqa
+            (r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">', lambda match: 'REMOVE">'),  # noqa: E501
             (r'<a href="http://www.facebook.com/pages/RMF24pl/.*?>RMF24.pl</a> on Facebook</div>',
              lambda match: '</div>')
         ]

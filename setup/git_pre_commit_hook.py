@@ -23,8 +23,8 @@ message with the summary of the closed bug.
 
 
 LAUNCHPAD = os.path.expanduser('~/work/env/launchpad.py')
-LAUNCHPAD_BUG = 'https://bugs.launchpad.net/calibre/+bug/%s'
-GITHUB_BUG = 'https://api.github.com/repos/kovidgoyal/calibre/issues/%s'
+LAUNCHPAD_BUG = 'https://bugs.launchpad.net/calibre/+bug/{}'
+GITHUB_BUG = 'https://api.github.com/repos/kovidgoyal/calibre/issues/{}'
 BUG_PAT = r'(Fix|Implement|Fixes|Fixed|Implemented|See)\s+#(\d+)'
 
 socket.setdefaulttimeout(90)
@@ -44,23 +44,23 @@ class Bug:
 
         if int(bug) > 100000:  # Launchpad bug
             try:
-                raw = urllib.request.urlopen(LAUNCHPAD_BUG % bug).read()
+                raw = urllib.request.urlopen(LAUNCHPAD_BUG.format(bug)).read()
                 h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
                 summary = html.tostring(h1, method='text', encoding=str).strip()
             except:
                 summary = 'Private bug'
         else:
-            summary = json.loads(urllib.request.urlopen(GITHUB_BUG % bug).read())['title']
+            summary = json.loads(urllib.request.urlopen(GITHUB_BUG.format(bug)).read())['title']
         if summary:
             print('Working on bug:', summary)
             if int(bug) > 100000 and action != 'See':
                 self.close_bug(bug, action)
-                return match.group() + f' [{summary}]({LAUNCHPAD_BUG % bug})'
-            return match.group() + ' (%s)' % summary
+                return match.group() + f' [{summary}]({LAUNCHPAD_BUG.format(bug)})'
+            return match.group() + f' ({summary})'
         return match.group()
 
     def close_bug(self, bug, action):
-        print('Closing bug #%s' % bug)
+        print(f'Closing bug #{bug}')
         suffix = (
             'The fix will be in the next release. '
             'calibre is usually released every alternate Friday.'

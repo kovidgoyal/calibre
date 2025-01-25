@@ -87,7 +87,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.source_widgets = []
         self.dest_widgets = []
-        for i in range(0, len(self.dest_fields)-1):
+        for i in range(len(self.dest_fields)-1):
             w = TemplateLineEditor(self)
             self.source_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
@@ -290,7 +290,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def ok_clicked(self):
         pb = []
         comments_in_dests = False
-        for i in range(0, len(self.source_widgets)):
+        for i in range(len(self.source_widgets)):
             s = str(self.source_widgets[i].text())
             if s:
                 d = self.dest_widgets[i].currentIndex()

@@ -83,7 +83,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
                         replacement = ' id="%s"' % (aid + '-' + aid_anchor_suffix)
                     tag = within_tag_aid_position_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         parts[i] = part
 
     # we can safely remove all of the Kindlegen generated data-AmznPageBreak
@@ -101,7 +101,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
             if tag.startswith('<'):
                 srcpieces[j] = within_tag_AmznPageBreak_position_pattern.sub(
                     lambda m:' style="page-break-after:%s"'%m.group(1), tag)
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         parts[i] = part
 
 
@@ -145,7 +145,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
 
         for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
-            if tag.startswith('<im') or tag.startswith('<svg:image'):
+            if tag.startswith(('<im', '<svg:image')):
                 for m in img_index_pattern.finditer(tag):
                     num = int(m.group(1), 32)
                     href = resource_map[num-1]
@@ -156,7 +156,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                         log.warn('Referenced image %s was not recognized '
                                 'as a valid image in %s' % (num, tag))
                 srcpieces[j] = tag
-        flow = "".join(srcpieces)
+        flow = ''.join(srcpieces)
 
         # replacements inside css url():
         srcpieces = url_pattern.split(flow)
@@ -195,7 +195,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                 tag = url_css_index_pattern.sub(replacement, tag, 1)
 
             srcpieces[j] = tag
-        flow = "".join(srcpieces)
+        flow = ''.join(srcpieces)
 
         # flow pattern not inside url()
         srcpieces = re.split(tag_pattern, flow)
@@ -217,7 +217,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                             replacement = '"../' + fi.dir + '/' + fi.fname + '"'
                             tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
-        flow = "".join(srcpieces)
+        flow = ''.join(srcpieces)
 
         flows.append(flow)
 
@@ -253,7 +253,7 @@ def insert_flows_into_markup(parts, flows, mobi8_reader, log):
                             replacement = '"../' + fi.dir + '/' + fi.fname + '"'
                             tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         # store away modified version
         parts[i] = part
 
@@ -286,7 +286,7 @@ def insert_images_into_markup(parts, resource_map, log):
                         log.warn('Referenced image %s was not recognized as '
                                 'a valid image in %s' % (num, tag))
                 srcpieces[j] = tag
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         # store away modified version
         parts[i] = part
 
@@ -309,7 +309,7 @@ def insert_images_into_markup(parts, resource_map, log):
                         log.warn('Referenced image %s was not recognized as '
                                 'a valid image in %s' % (num, tag))
                 srcpieces[j] = tag
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         # store away modified version
         parts[i] = part
 
@@ -328,7 +328,7 @@ def upshift_markup(parts):
                 tag = tag.replace('preserveaspectratio','preserveAspectRatio')
                 tag = tag.replace('viewbox','viewBox')
             srcpieces[j] = tag
-        part = "".join(srcpieces)
+        part = ''.join(srcpieces)
         # store away modified version
         parts[i] = part
 

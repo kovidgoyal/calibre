@@ -65,7 +65,6 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
         newfile.seek(orig.tell(), 0)
 
         self._rolled = True
-
 # }}}
 
 
@@ -116,7 +115,7 @@ class Saver(QObject):
             self.pool.shutdown()
         self.setParent(None)
         self.jobs = self.pool = self.plugboards = self.template_functions = self.library_id =\
-                self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
+                self.collected_data = self.all_book_ids = self.pd = self.db = None
         self.deleteLater()
 
     def book_id_data(self, book_id):

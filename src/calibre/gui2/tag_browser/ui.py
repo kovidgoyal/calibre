@@ -97,7 +97,7 @@ class TagBrowserMixin:  # {{{
         if idx is not None and idx.isValid():
             col = idx.column()
             model = self.library_view.model()
-            if col in range(0, len(model.column_map)):
+            if col in range(len(model.column_map)):
                 current_cat = model.column_map[col]
                 if current_cat in ('authors', 'series', 'publisher', 'tags') or current_cat in cust_cats:
                     cdn = cat_display_name(current_cat) or current_cat
@@ -105,7 +105,7 @@ class TagBrowserMixin:  # {{{
                     proxy_md = db.new_api.get_proxy_metadata(db.id(idx.row()))
                     items = proxy_md.get(current_cat)
                     if isinstance(items, str):
-                        items = list((items,))
+                        items = [items]
                     if items:
                         items_title = _('{category} for current book').format(category=cdn)
                         if len(items) > 4:
@@ -170,7 +170,7 @@ class TagBrowserMixin:  # {{{
         current_row_id = self.library_view.current_id
         self.library_view.model().refresh(reset=True)
         self.library_view.model().research(reset=False)
-        self.library_view.current_id = current_row_id # the setter checks for None
+        self.library_view.current_id = current_row_id  # the setter checks for None
 
     def do_restriction_error(self, e):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -893,7 +893,7 @@ class TagBrowserWidget(QFrame):  # {{{
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser set focus',
-                _("Give the Tag browser keyboard focus"), default_keys=(),
+                _('Give the Tag browser keyboard focus'), default_keys=(),
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.give_tb_focus)
 
@@ -1098,6 +1098,5 @@ class TagBrowserWidget(QFrame):  # {{{
             ev.accept()
             return
         return QFrame.keyPressEvent(self, ev)
-
 
 # }}}

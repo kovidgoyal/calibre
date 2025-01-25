@@ -1,6 +1,6 @@
-"""
+'''
 Container-/OPF-based input OEBBook reader.
-"""
+'''
 
 
 __license__   = 'GPL v3'
@@ -59,36 +59,36 @@ __all__ = ['OEBReader']
 
 
 class OEBReader:
-    """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
+    '''Read an OEBPS 1.x or OPF/OPS 2.0 file collection.'''
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
 
     Container = DirContainer
-    """Container type used to access book files.  Override in sub-classes."""
+    '''Container type used to access book files.  Override in sub-classes.'''
 
     DEFAULT_PROFILE = 'PRS505'
-    """Default renderer profile for content read with this Reader."""
+    '''Default renderer profile for content read with this Reader.'''
 
     TRANSFORMS = []
-    """List of transforms to apply to content read with this Reader."""
+    '''List of transforms to apply to content read with this Reader.'''
 
     @classmethod
     def config(cls, cfg):
-        """Add any book-reading options to the :class:`Config` object
+        '''Add any book-reading options to the :class:`Config` object
         :param:`cfg`.
-        """
+        '''
         return
 
     @classmethod
     def generate(cls, opts):
-        """Generate a Reader instance from command-line options."""
+        '''Generate a Reader instance from command-line options.'''
         return cls()
 
     def __call__(self, oeb, path):
-        """Read the book at :param:`path` into the :class:`OEBBook` object
+        '''Read the book at :param:`path` into the :class:`OEBBook` object
         :param:`oeb`.
-        """
+        '''
         self.oeb = oeb
         self.logger = self.log = oeb.logger
         oeb.container = self.Container(path, self.logger)
@@ -368,7 +368,7 @@ class OEBReader:
                     self.oeb.log.warn('The item %s is not a XML document.'
                         ' Removing it from spine.'%item.href)
         if len(spine) == 0:
-            raise OEBError("Spine is empty")
+            raise OEBError('Spine is empty')
         self._spine_add_extra()
         for val in xpath(opf, '/o2:package/o2:spine/@page-progression-direction'):
             if val in {'ltr', 'rtl'}:

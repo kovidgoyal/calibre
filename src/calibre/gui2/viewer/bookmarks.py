@@ -121,7 +121,7 @@ class BookmarkManager(QWidget):
         l.addWidget(bl, 0, 0, 1, -1)
         bl.itemClicked.connect(self.item_activated)
         bl.bookmark_activated.connect(self.item_activated)
-        bl.changed.connect(lambda : self.edited.emit(self.get_bookmarks()))
+        bl.changed.connect(lambda: self.edited.emit(self.get_bookmarks()))
         bl.ac_edit.triggered.connect(self.edit_bookmark)
         bl.ac_delete.triggered.connect(self.delete_bookmark)
 

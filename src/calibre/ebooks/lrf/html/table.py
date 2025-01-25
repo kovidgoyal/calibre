@@ -145,7 +145,7 @@ class Cell:
             if not token.strip():
                 continue
             word = token.split()
-            word = word[0] if word else ""
+            word = word[0] if word else ''
             fl, ft, fr, fb = font.getbbox(word)
             width = fr - fl
             if width > mwidth:
@@ -213,7 +213,7 @@ class Row:
     def __init__(self, conv, row, css, colpad):
         self.cells = []
         self.colpad = colpad
-        cells = row.findAll(re.compile('td|th', re.IGNORECASE))
+        cells = row.findAll(re.compile(r'td|th', re.IGNORECASE))
         self.targets = []
         for cell in cells:
             ccss = conv.tag_css(cell, css)[0]
@@ -244,7 +244,7 @@ class Row:
         i = -1
         cell = None
         for cell in self.cells:
-            for k in range(0, cell.colspan):
+            for k in range(cell.colspan):
                 if i == col:
                     break
                 i += 1

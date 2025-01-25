@@ -123,25 +123,25 @@ class TXTMLizer:
         text = text.replace('\f+', ' ')
 
         # Single line paragraph.
-        text = re.sub('(?<=.)\n(?=.)', ' ', text)
+        text = re.sub(r'(?<=.)\n(?=.)', ' ', text)
 
         # Remove multiple spaces.
-        text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub(r'[ ]{2,}', ' ', text)
 
         # Remove excessive newlines.
-        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub(r'\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
-            text = re.sub('\n{2,}', '\n', text)
+            text = re.sub(r'\n{2,}', '\n', text)
             text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '%s\n\n' % mo.group('t'), text)
             text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '{}\n\n\n\n\n\n{}'.format(mo.group('b'), mo.group('t')), text)
         else:
-            text = re.sub('\n{7,}', '\n\n\n\n\n\n', text)
+            text = re.sub(r'\n{7,}', '\n\n\n\n\n\n', text)
 
         # Replace spaces at the beginning and end of lines
         # We don't replace tabs because those are only added
         # when remove paragraph spacing is enabled.
-        text = re.sub('(?imu)^[ ]+', '', text)
-        text = re.sub('(?imu)[ ]+$', '', text)
+        text = re.sub(r'(?imu)^[ ]+', '', text)
+        text = re.sub(r'(?imu)[ ]+$', '', text)
 
         # Remove empty space and newlines at the beginning of the document.
         text = re.sub(r'(?u)^[ \n]+', '', text)

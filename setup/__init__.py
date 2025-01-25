@@ -17,7 +17,7 @@ import time
 from contextlib import contextmanager
 from functools import lru_cache
 
-iswindows = re.search('win(32|64)', sys.platform)
+iswindows = re.search(r'win(32|64)', sys.platform)
 ismacos = 'darwin' in sys.platform
 isfreebsd = 'freebsd' in sys.platform
 isnetbsd = 'netbsd' in sys.platform
@@ -46,10 +46,10 @@ def newer(targets, sources):
     for f in targets:
         if not os.path.exists(f):
             return True
-    ttimes = map(lambda x: os.stat(x).st_mtime, targets)
+    ttimes = (os.stat(x).st_mtime for x in targets)
     oldest_target = min(ttimes)
     try:
-        stimes = map(lambda x: os.stat(x).st_mtime, sources)
+        stimes = (os.stat(x).st_mtime for x in sources)
         newest_source = max(stimes)
     except FileNotFoundError:
         newest_source = oldest_target +1
@@ -126,7 +126,7 @@ def initialize_constants():
     with open(os.path.join(SRC, 'calibre/constants.py'), 'rb') as f:
         src = f.read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
-    __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
+    __version__ = '.'.join([nv.group(1), nv.group(2), nv.group(3)])
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
     with open(os.path.join(SRC, 'calibre/linux.py'), 'rb') as sf:

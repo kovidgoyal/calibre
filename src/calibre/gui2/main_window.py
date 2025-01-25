@@ -26,7 +26,6 @@ Launch the Graphical User Interface
 
 
 class GarbageCollector(QObject):
-
     '''
     Disable automatic garbage collection and instead collect manually
     every INTERVAL milliseconds.

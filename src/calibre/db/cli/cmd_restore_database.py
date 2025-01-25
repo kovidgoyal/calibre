@@ -78,6 +78,6 @@ def main(opts, args, dbctx):
             name = 'calibre_db_restore_report.txt'
             open('calibre_db_restore_report.txt',
                   'wb').write(r.report.encode('utf-8'))
-            prints('Some errors occurred. A detailed report was ' 'saved to', name)
+            prints('Some errors occurred. A detailed report was saved to', name)
 
     return 0

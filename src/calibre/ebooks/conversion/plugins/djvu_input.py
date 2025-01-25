@@ -28,7 +28,7 @@ class DJVUInput(InputFormatPlugin):
             raise ValueError('The DJVU file contains no text, only images, probably page scans.'
                     ' calibre only supports conversion of DJVU files with actual text in them.')
 
-        html = convert_basic(raw_text.replace(b"\n", b' ').replace(
+        html = convert_basic(raw_text.replace(b'\n', b' ').replace(
             b'\037', b'\n\n'))
         # Run the HTMLized text through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format

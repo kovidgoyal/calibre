@@ -22,7 +22,7 @@ def iso_codes_data():
 
 class ISOData(Command):
     description = 'Get ISO codes name localization data'
-    top_level_filename =  'iso-codes-main'
+    top_level_filename = 'iso-codes-main'
     _zip_data = None
 
     def add_options(self, parser):

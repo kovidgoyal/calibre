@@ -12,8 +12,8 @@ class Volkskrant(BasicNewsRecipe):
     country = 'RO'
     category = 'news, politics, Romania'
     resolve_internal_links = True
-    remove_tags_before = { 'class': 'col-span-8' }
-    remove_tags_after = { 'class': 'col-span-8' }
+    remove_tags_before = {'class': 'col-span-8'}
+    remove_tags_after = {'class': 'col-span-8'}
     remove_tags = [
         dict(
             attrs={
@@ -33,7 +33,7 @@ class Volkskrant(BasicNewsRecipe):
         dict(id=['comments']),
         dict(name=['script', 'noscript', 'style']),
     ]
-    remove_attributes = ["class", "id", "name", "style"]
+    remove_attributes = ['class', 'id', 'name', 'style']
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}

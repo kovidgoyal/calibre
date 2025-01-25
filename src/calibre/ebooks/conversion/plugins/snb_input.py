@@ -12,7 +12,7 @@ HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html;
 
 
 def html_encode(s):
-    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')  # noqa
+    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')  # noqa: E501
 
 
 class SNBInput(InputFormatPlugin):
@@ -33,28 +33,30 @@ class SNBInput(InputFormatPlugin):
         from calibre.ebooks.snb.snbfile import SNBFile
         from calibre.utils.xml_parse import safe_xml_fromstring
 
-        log.debug("Parsing SNB file...")
+        log.debug('Parsing SNB file...')
         snbFile = SNBFile()
         try:
             snbFile.Parse(stream)
         except:
-            raise ValueError("Invalid SNB file")
+            raise ValueError('Invalid SNB file')
         if not snbFile.IsValid():
-            log.debug("Invalid SNB file")
-            raise ValueError("Invalid SNB file")
-        log.debug("Handle meta data ...")
+            log.debug('Invalid SNB file')
+            raise ValueError('Invalid SNB file')
+        log.debug('Handle meta data ...')
         from calibre.ebooks.conversion.plumber import create_oebbook
         oeb = create_oebbook(log, None, options,
                 encoding=options.input_encoding, populate=False)
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta is not None:
             meta = safe_xml_fromstring(meta)
-            l = {'title'    : './/head/name',
+            l = {
+                  'title'    : './/head/name',
                   'creator'  : './/head/author',
                   'language' : './/head/language',
                   'generator': './/head/generator',
                   'publisher': './/head/publisher',
-                  'cover'    : './/head/cover', }
+                  'cover'    : './/head/cover',
+            }
             d = {}
             for item in l:
                 node = meta.find(l[item])

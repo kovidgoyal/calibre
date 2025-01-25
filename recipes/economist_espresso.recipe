@@ -57,8 +57,8 @@ def load_article_from_json(raw, root):
     data = json.loads(raw)
     body = root.xpath('//body')[0]
     article = E(body, 'article')
-    E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
-    E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+    E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
+    E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
     E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
     E(article, 'div', data['byline'], style='font-style: italic; color:#202020;')
     main_image_url = safe_dict(data, 'image', 'main', 'url').get('canonical')
@@ -130,7 +130,7 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={
                 'class': [
                     'dblClkTrk', 'ec-article-info', 'share_inline_header',
@@ -172,7 +172,7 @@ class Espresso(BasicNewsRecipe):
 
     def parse_index(self):
         query = {
-            'query': 'query EspressoQuery($ref:String!){espresso:canonical(ref:$ref){...EspressoFragment __typename}}fragment EspressoFragment on Content{id type hasPart(size:1 sort:"datePublished:desc"){parts{id type rubric:description hasPart(sort:"publication.context.position:asc,datePublished:desc"){parts{...ArticleFragment __typename}__typename}__typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa
+            'query': 'query EspressoQuery($ref:String!){espresso:canonical(ref:$ref){...EspressoFragment __typename}}fragment EspressoFragment on Content{id type hasPart(size:1 sort:"datePublished:desc"){parts{id type rubric:description hasPart(sort:"publication.context.position:asc,datePublished:desc"){parts{...ArticleFragment __typename}__typename}__typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa: E501
             'operationName': 'EspressoQuery',
             'variables': '{"ref":"/content/jakj5ed3rml75i8j0d5i74p8adf6eem4"}',
         }
@@ -189,13 +189,13 @@ class Espresso(BasicNewsRecipe):
         self.description = data['rubric']
 
         ans = []
-        for part in safe_dict(data, "hasPart", "parts"):
-            title = safe_dict(part, "title")
+        for part in safe_dict(data, 'hasPart', 'parts'):
+            title = safe_dict(part, 'title')
             pt = PersistentTemporaryFile('.html')
             pt.write(json.dumps(part).encode('utf-8'))
             pt.close()
             url = 'file:///' + pt.name
-            ans.append({"title": title, "url": url})
+            ans.append({'title': title, 'url': url})
         return [('Espresso', ans)]
 
     def preprocess_html(self, soup):
@@ -241,7 +241,6 @@ class Espresso(BasicNewsRecipe):
             x.set('style', 'color:#404040;')
         raw = etree.tostring(root, encoding='unicode')
         return raw
-
 
     def eco_find_image_tables(self, soup):
         for x in soup.findAll('table', align=['right', 'center']):

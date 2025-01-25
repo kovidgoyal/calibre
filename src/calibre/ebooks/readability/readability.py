@@ -19,24 +19,24 @@ def tounicode(tree_or_node, **kwargs):
 
 
 REGEXES = {
-    'unlikelyCandidatesRe': re.compile('combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',re.I),  # noqa
-    'okMaybeItsACandidateRe': re.compile('and|article|body|column|main|shadow',re.I),
-    'positiveRe': re.compile('article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
-    'negativeRe': re.compile('combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa
-    'divToPElementsRe': re.compile('<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
-    # 'replaceBrsRe': re.compile('(<br[^>]*>[ \n\r\t]*){2,}',re.I),
-    # 'replaceFontsRe': re.compile('<(\/?)font[^>]*>',re.I),
-    # 'trimRe': re.compile('^\s+|\s+$/'),
-    # 'normalizeRe': re.compile('\s{2,}/'),
-    # 'killBreaksRe': re.compile('(<br\s*\/?>(\s|&nbsp;?)*){1,}/'),
-    # 'videoRe': re.compile('http:\/\/(www\.)?(youtube|vimeo)\.com', re.I),
+    'unlikelyCandidatesRe': re.compile(r'combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',re.I),  # noqa: E501
+    'okMaybeItsACandidateRe': re.compile(r'and|article|body|column|main|shadow',re.I),
+    'positiveRe': re.compile(r'article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
+    'negativeRe': re.compile(r'combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa: E501
+    'divToPElementsRe': re.compile(r'<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
+    # 'replaceBrsRe': re.compile(r'(<br[^>]*>[ \n\r\t]*){2,}',re.I),
+    # 'replaceFontsRe': re.compile(r'<(/?)font[^>]*>',re.I),
+    # 'trimRe': re.compile(r'^\s+|\s+$/'),
+    # 'normalizeRe': re.compile(r'\s{2,}/'),
+    # 'killBreaksRe': re.compile(r'(<br\s*/?>(\s|&nbsp;?)*){1,}/'),
+    # 'videoRe': re.compile(r'http://(www\.)?(youtube|vimeo)\.com', re.I),
     # skipFootnoteLink:    /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
 }
 
 
 def describe(node, depth=1):
     if not hasattr(node, 'tag'):
-        return "[%s]" % type(node)
+        return '[%s]' % type(node)
     name = node.tag
     if node.get('id', ''):
         name += '#'+node.get('id')
@@ -61,13 +61,13 @@ def to_int(x):
 
 
 def clean(text):
-    text = re.sub('\\s*\n\\s*', '\n', text)
-    text = re.sub('[ \t]{2,}', ' ', text)
+    text = re.sub(r'\s*\n\s*', '\n', text)
+    text = re.sub(r'[ \t]{2,}', ' ', text)
     return text.strip()
 
 
 def text_length(i):
-    return len(clean(i.text_content() or ""))
+    return len(clean(i.text_content() or ''))
 
 
 class Unparsable(ValueError):
@@ -135,13 +135,13 @@ class Document:
                     article = self.get_article(candidates, best_candidate)
                 else:
                     if ruthless:
-                        self.log.debug("ruthless removal did not work. ")
+                        self.log.debug('ruthless removal did not work. ')
                         ruthless = False
-                        self.debug("ended up stripping too much - going for a safer _parse")
+                        self.debug('ended up stripping too much - going for a safer _parse')
                         # try again
                         continue
                     else:
-                        self.log.debug("Ruthless and lenient parsing did not work. Returning raw html")
+                        self.log.debug('Ruthless and lenient parsing did not work. Returning raw html')
                         article = self.html.find('body')
                         if article is None:
                             article = self.html
@@ -175,9 +175,9 @@ class Document:
             if sibling in self.keep_elements:
                 append = True
 
-            if sibling.tag == "p":
+            if sibling.tag == 'p':
                 link_density = self.get_link_density(sibling)
-                node_content = sibling.text or ""
+                node_content = sibling.text or ''
                 node_length = len(node_content)
 
                 if node_length > 80 and link_density < 0.25:
@@ -188,14 +188,14 @@ class Document:
             if append:
                 parent.append(sibling)
         # if output is not None:
-        #   output.append(best_elem)
+        #     output.append(best_elem)
         return output.find('body')
 
     def select_best_candidate(self, candidates):
         sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)
         for candidate in sorted_candidates[:5]:
             elem = candidate['elem']
-            self.debug("Top 5 : {:6.3f} {}".format(candidate['content_score'], describe(elem)))
+            self.debug('Top 5 : {:6.3f} {}'.format(candidate['content_score'], describe(elem)))
 
         if len(sorted_candidates) == 0:
             return None
@@ -205,10 +205,10 @@ class Document:
 
     def get_link_density(self, elem):
         link_length = 0
-        for i in elem.findall(".//a"):
+        for i in elem.findall('.//a'):
             link_length += text_length(i)
         # if len(elem.findall(".//div") or elem.findall(".//p")):
-        #   link_length = link_length
+        #     link_length = link_length
         total_length = text_length(elem)
         return float(link_length) / max(total_length, 1)
 
@@ -218,13 +218,13 @@ class Document:
         # self.debug(str([describe(node) for node in self.tags(self.html, "div")]))
 
         ordered = []
-        for elem in self.tags(self.html, "p", "pre", "td"):
+        for elem in self.tags(self.html, 'p', 'pre', 'td'):
             parent_node = elem.getparent()
             if parent_node is None:
                 continue
             grand_parent_node = parent_node.getparent()
 
-            inner_text = clean(elem.text_content() or "")
+            inner_text = clean(elem.text_content() or '')
             inner_text_len = len(inner_text)
 
             # If this paragraph is less than 25 characters, don't even count it.
@@ -243,7 +243,7 @@ class Document:
             content_score += len(inner_text.split(','))
             content_score += min((inner_text_len / 100), 3)
             # if elem not in candidates:
-            #   candidates[elem] = self.score_node(elem)
+            #     candidates[elem] = self.score_node(elem)
 
             # WTF? candidates[elem]['content_score'] += content_score
             candidates[parent_node]['content_score'] += content_score
@@ -256,7 +256,7 @@ class Document:
             candidate = candidates[elem]
             ld = self.get_link_density(elem)
             score = candidate['content_score']
-            self.debug(f"Candid: {score:6.3f} {describe(elem)} link density {ld:.3f} -> {score*(1-ld):6.3f}")
+            self.debug(f'Candid: {score:6.3f} {describe(elem)} link density {ld:.3f} -> {score*(1-ld):6.3f}')
             candidate['content_score'] *= (1 - ld)
 
         return candidates
@@ -282,13 +282,13 @@ class Document:
     def score_node(self, elem):
         content_score = self.class_weight(elem)
         name = elem.tag.lower()
-        if name == "div":
+        if name == 'div':
             content_score += 5
-        elif name in ["pre", "td", "blockquote"]:
+        elif name in ['pre', 'td', 'blockquote']:
             content_score += 3
-        elif name in ["address", "ol", "ul", "dl", "dd", "dt", "li", "form"]:
+        elif name in ['address', 'ol', 'ul', 'dl', 'dd', 'dt', 'li', 'form']:
             content_score -= 3
-        elif name in ["h1", "h2", "h3", "h4", "h5", "h6", "th"]:
+        elif name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th']:
             content_score -= 5
         return {
             'content_score': content_score,
@@ -303,10 +303,10 @@ class Document:
         for elem in self.html.iter():
             if elem in self.keep_elements:
                 continue
-            s = "{} {}".format(elem.get('class', ''), elem.get('id', ''))
+            s = '{} {}'.format(elem.get('class', ''), elem.get('id', ''))
             # self.debug(s)
             if REGEXES['unlikelyCandidatesRe'].search(s) and (not REGEXES['okMaybeItsACandidateRe'].search(s)) and elem.tag != 'body':
-                self.debug("Removing unlikely candidate - %s" % describe(elem))
+                self.debug('Removing unlikely candidate - %s' % describe(elem))
                 elem.drop_tree()
 
     def transform_misused_divs_into_paragraphs(self):
@@ -314,8 +314,8 @@ class Document:
             # transform <div>s that do not contain other block elements into <p>s
             if not REGEXES['divToPElementsRe'].search(str(''.join(map(tounicode, list(elem))))):
                 # self.debug("Altering %s to p" % (describe(elem)))
-                elem.tag = "p"
-                # print("Fixed element "+describe(elem))
+                elem.tag = 'p'
+                # print('Fixed element '+describe(elem))
 
         for elem in self.tags(self.html, 'div'):
             if elem.text and elem.text.strip():
@@ -323,7 +323,7 @@ class Document:
                 p.text = elem.text
                 elem.text = None
                 elem.insert(0, p)
-                # print("Appended "+tounicode(p)+" to "+describe(elem))
+                # print('Appended '+tounicode(p)+' to '+describe(elem))
 
             for pos, child in reversed(list(enumerate(elem))):
                 if child.tail and child.tail.strip():
@@ -331,7 +331,7 @@ class Document:
                     p.text = child.tail
                     child.tail = None
                     elem.insert(pos + 1, p)
-                    # print("Inserted "+tounicode(p)+" to "+describe(elem))
+                    # print('Inserted '+tounicode(p)+' to '+describe(elem))
                 if child.tag == 'br':
                     # print('Dropped <br> at '+describe(elem))
                     child.drop_tree()
@@ -346,15 +346,15 @@ class Document:
 
     def sanitize(self, node, candidates):
         MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
-        for header in self.tags(node, "h1", "h2", "h3", "h4", "h5", "h6"):
+        for header in self.tags(node, 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             if self.class_weight(header) < 0 or self.get_link_density(header) > 0.33:
                 header.drop_tree()
 
-        for elem in self.tags(node, "form", "iframe", "textarea"):
+        for elem in self.tags(node, 'form', 'iframe', 'textarea'):
             elem.drop_tree()
         allowed = {}
         # Conditionally clean <table>s, <ul>s, and <div>s
-        for el in self.reverse_tags(node, "table", "ul", "div"):
+        for el in self.reverse_tags(node, 'table', 'ul', 'div'):
             if el in allowed or el in self.keep_elements:
                 continue
             weight = self.class_weight(el)
@@ -366,14 +366,14 @@ class Document:
             tag = el.tag
 
             if weight + content_score < 0:
-                self.debug("Cleaned %s with score %6.3f and weight %-3s" %
+                self.debug('Cleaned %s with score %6.3f and weight %-3s' %
                     (describe(el), content_score, weight, ))
                 el.drop_tree()
-            elif el.text_content().count(",") < 10:
+            elif el.text_content().count(',') < 10:
                 counts = {}
                 for kind in ['p', 'img', 'li', 'a', 'embed', 'input']:
                     counts[kind] = len(el.findall('.//%s' %kind))
-                counts["li"] -= 100
+                counts['li'] -= 100
 
                 content_length = text_length(el)  # Count the text length excluding any surrounding whitespace
                 link_density = self.get_link_density(el)
@@ -384,55 +384,55 @@ class Document:
                     else:
                         content_score = 0
                 # if parent_node is not None:
-                    # pweight = self.class_weight(parent_node) + content_score
-                    # pname = describe(parent_node)
+                #     pweight = self.class_weight(parent_node) + content_score
+                #     pname = describe(parent_node)
                 # else:
-                    # pweight = 0
-                    # pname = "no parent"
+                #     pweight = 0
+                #     pname = "no parent"
                 to_remove = False
-                reason = ""
+                reason = ''
 
                 # if el.tag == 'div' and counts["img"] >= 1:
-                #   continue
-                if counts["p"] and counts["img"] > counts["p"]:
-                    reason = "too many images (%s)" % counts["img"]
+                #     continue
+                if counts['p'] and counts['img'] > counts['p']:
+                    reason = 'too many images (%s)' % counts['img']
                     to_remove = True
-                elif counts["li"] > counts["p"] and tag != "ul" and tag != "ol":
-                    reason = "more <li>s than <p>s"
+                elif counts['li'] > counts['p'] and tag != 'ul' and tag != 'ol':
+                    reason = 'more <li>s than <p>s'
                     to_remove = True
-                elif counts["input"] > (counts["p"] / 3):
-                    reason = "less than 3x <p>s than <input>s"
+                elif counts['input'] > (counts['p'] / 3):
+                    reason = 'less than 3x <p>s than <input>s'
                     to_remove = True
-                elif content_length < (MIN_LEN) and (counts["img"] == 0 or counts["img"] > 2):
-                    reason = "too short content length %s without a single image" % content_length
+                elif content_length < (MIN_LEN) and (counts['img'] == 0 or counts['img'] > 2):
+                    reason = 'too short content length %s without a single image' % content_length
                     to_remove = True
                 elif weight < 25 and link_density > 0.2:
-                    reason = f"too many links {link_density:.3f} for its weight {weight}"
+                    reason = f'too many links {link_density:.3f} for its weight {weight}'
                     to_remove = True
                 elif weight >= 25 and link_density > 0.5:
-                    reason = f"too many links {link_density:.3f} for its weight {weight}"
+                    reason = f'too many links {link_density:.3f} for its weight {weight}'
                     to_remove = True
-                elif (counts["embed"] == 1 and content_length < 75) or counts["embed"] > 1:
-                    reason = "<embed>s with too short content length, or too many <embed>s"
+                elif (counts['embed'] == 1 and content_length < 75) or counts['embed'] > 1:
+                    reason = '<embed>s with too short content length, or too many <embed>s'
                     to_remove = True
-#               if el.tag == 'div' and counts['img'] >= 1 and to_remove:
-#                   imgs = el.findall('.//img')
-#                   valid_img = False
-#                   self.debug(tounicode(el))
-#                   for img in imgs:
-#
-#                       height = img.get('height')
-#                       text_length = img.get('text_length')
-#                       self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
-#                       if to_int(height) >= 100 or to_int(text_length) >= 100:
-#                           valid_img = True
-#                           self.debug("valid image" + tounicode(img))
-#                           break
-#                   if valid_img:
-#                       to_remove = False
-#                       self.debug("Allowing %s" %el.text_content())
-#                       for desnode in self.tags(el, "table", "ul", "div"):
-#                           allowed[desnode] = True
+                # if el.tag == 'div' and counts['img'] >= 1 and to_remove:
+                #     imgs = el.findall('.//img')
+                #     valid_img = False
+                #     self.debug(tounicode(el))
+                #     for img in imgs:
+                #
+                #         height = img.get('height')
+                #         text_length = img.get('text_length')
+                #         self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
+                #         if to_int(height) >= 100 or to_int(text_length) >= 100:
+                #             valid_img = True
+                #             self.debug("valid image" + tounicode(img))
+                #             break
+                #     if valid_img:
+                #         to_remove = False
+                #         self.debug("Allowing %s" %el.text_content())
+                #         for desnode in self.tags(el, "table", "ul", "div"):
+                #             allowed[desnode] = True
 
                     # find x non empty preceding and succeeding siblings
                     i, j = 0, 0
@@ -455,14 +455,14 @@ class Document:
                             if j == x:
                                 break
                     # self.debug(str(siblings))
-                    if siblings and sum(siblings) > 1000 :
+                    if siblings and sum(siblings) > 1000:
                         to_remove = False
-                        self.debug("Allowing %s" % describe(el))
-                        for desnode in self.tags(el, "table", "ul", "div"):
+                        self.debug('Allowing %s' % describe(el))
+                        for desnode in self.tags(el, 'table', 'ul', 'div'):
                             allowed[desnode] = True
 
                 if to_remove:
-                    self.debug("Cleaned %6.3f %s with weight %s cause it has %s." %
+                    self.debug('Cleaned %6.3f %s with weight %s cause it has %s.' %
                         (content_score, describe(el), weight, reason))
                     # print(tounicode(el))
                     # self.debug("pname %s pweight %.3f" %(pname, pweight))

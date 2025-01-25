@@ -21,7 +21,8 @@ from setup import SRC, Command, isbsd, isfreebsd, ishaiku, islinux, ismacos, isw
 
 isunix = islinux or ismacos or isbsd or ishaiku
 
-py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
+py_lib = os.path.join(sys.prefix, 'libs', 'python{}{}.lib'.format(*sys.version_info[:2]))
+
 
 class CompileCommand(NamedTuple):
     cmd: list[str]
@@ -61,7 +62,7 @@ class Extension:
         self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
         self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
         self.needs_exceptions = d['needs_exceptions'] = kwargs.get('needs_exceptions', False)
-        self.qt_modules = d['qt_modules'] = kwargs.get('qt_modules', ["widgets"])
+        self.qt_modules = d['qt_modules'] = kwargs.get('qt_modules', ['widgets'])
         self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
         self.lib_dirs = d['lib_dirs'] = absolutize(kwargs.get('lib_dirs', []))
         self.extra_objs = d['extra_objs'] = absolutize(kwargs.get('extra_objs', []))
@@ -83,7 +84,7 @@ def lazy_load(name):
     try:
         return getattr(build_environment, name)
     except AttributeError:
-        raise ImportError('The setup.build_environment module has no symbol named: %s' % name)
+        raise ImportError(f'The setup.build_environment module has no symbol named: {name}')
 
 
 def expand_file_list(items, is_paths=True, cross_compile_for='native'):
@@ -121,7 +122,7 @@ def is_ext_allowed(cross_compile_for: str, ext: Extension) -> bool:
         if islinux and only == cross_compile_for:
             return True
         only = set(only.split())
-        q = set(filter(lambda x: globals()["is" + x], ["bsd", "freebsd", "haiku", "linux", "macos", "windows"]))
+        q = set(filter(lambda x: globals()['is' + x], ['bsd', 'freebsd', 'haiku', 'linux', 'macos', 'windows']))
         return len(q.intersection(only)) > 0
     return True
 
@@ -144,7 +145,6 @@ def parse_extension(ext, compiling_for='native'):
         get_key = 'haiku_'
     if compiling_for == 'windows':
         get_key = 'windows_'
-
 
     def get(k, default=''):
         ans = ext.pop(k, default)
@@ -240,7 +240,6 @@ class Environment(NamedTuple):
                 return x
             return self.lib_prefix+x+self.lib_suffix
         return list(map(map_name, libs))
-
 
 
 def init_env(debug=False, sanitize=False, compiling_for='native'):
@@ -521,7 +520,7 @@ class Build(Command):
         def get(src: str, env: Environment, for_tooling: bool = False) -> CompileCommand:
             compiler = env.cxx if ext.needs_cxx else env.cc
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+env.obj_suffix)
-            inf = env.cc_input_cpp_flag if src.endswith('.cpp') or src.endswith('.cxx') else env.cc_input_c_flag
+            inf = env.cc_input_cpp_flag if src.endswith(('.cpp', '.cxx')) else env.cc_input_c_flag
             sinc = [inf, src]
             if env.cc_output_flag.startswith('/'):
                 if for_tooling:  # clangd gets confused by cl.exe style source and output flags
@@ -539,10 +538,10 @@ class Build(Command):
                 extern_decl = 'extern "C"' if ext.needs_cxx else ''
                 cflags = [
                     '-DCALIBRE_MODINIT_FUNC='
-                    '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type)]
+                    f'{extern_decl} __attribute__ ((visibility ("default"))) {return_type}']
             if ext.needs_cxx and ext.needs_cxx_std:
-                if env.cc_output_flag.startswith('/') and ext.needs_cxx == "11":
-                    ext.needs_cxx = "14"
+                if env.cc_output_flag.startswith('/') and ext.needs_cxx == '11':
+                    ext.needs_cxx = '14'
                 cflags.append(env.std_prefix + 'c++' + ext.needs_cxx_std)
 
             if ext.needs_c_std and not env.std_prefix.startswith('/'):
@@ -608,17 +607,17 @@ class Build(Command):
                     os.remove(x)
 
     def check_call(self, *args, **kwargs):
-        """print cmdline if an error occurred
+        '''print cmdline if an error occurred
 
         If something is missing (cmake e.g.) you get a non-informative error
          self.check_call(qmc + [ext.name+'.pro'])
          so you would have to look at the source to see the actual command.
-        """
+        '''
         try:
             subprocess.check_call(*args, **kwargs)
         except:
-            cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
-            print("Error while executing: %s\n" % (cmdline))
+            cmdline = ' '.join([f'"{arg}"' if ' ' in arg else arg for arg in args[0]])
+            print(f'Error while executing: {cmdline}\n')
             raise
 
     def build_headless(self):
@@ -657,7 +656,7 @@ class Build(Command):
         os.chdir(bdir)
         try:
             self.check_call(cmd + ['-S', os.path.dirname(sources[0])])
-            self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
+            self.check_call([self.env.make] + ['-j{}'.format(cpu_count or 1)])
         finally:
             os.chdir(cwd)
         os.rename(self.j(bdir, 'libheadless.so'), target)
@@ -734,7 +733,7 @@ sip-file = {os.path.basename(sipf)!r}
             env = os.environ.copy()
             if is_macos_universal_build:
                 env['ARCHS'] = 'x86_64 arm64'
-            self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]), env=env)
+            self.check_call([self.env.make] + ([] if iswindows else ['-j{}'.format(os.cpu_count() or 1)]), env=env)
             e = 'pyd' if iswindows else 'so'
             m = glob.glob(f'{ext.name}/{ext.name}.*{e}')
             if not m:

@@ -38,8 +38,8 @@ class JETBOOK(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Jetbook Storage Card'
 
-    EBOOK_DIR_MAIN = "Books"
-    EBOOK_DIR_CARD_A = "Books"
+    EBOOK_DIR_MAIN = 'Books'
+    EBOOK_DIR_CARD_A = 'Books'
     SUPPORTS_SUB_DIRS = True
 
     JETBOOK_FILE_NAME_PATTERN = re.compile(
@@ -99,14 +99,13 @@ class MIBUK(USBMS):
 
 
 class JETBOOK_MINI(USBMS):
-
     '''
     ['0x4b8',
-  '0x507',
-  '0x100',
-  'ECTACO',
-  'ECTACO ATA/ATAPI Bridge (Bulk-Only)',
-  'Rev.0.20']
+     '0x507',
+     '0x100',
+     'ECTACO',
+     'ECTACO ATA/ATAPI Bridge (Bulk-Only)',
+     'Rev.0.20']
     '''
     FORMATS     = ['fb2', 'txt']
 
@@ -126,14 +125,13 @@ class JETBOOK_MINI(USBMS):
 
 
 class JETBOOK_COLOR(USBMS):
-
     '''
-set([(u'0x951',
-      u'0x160b',
-      u'0x0',
-      u'Freescale',
-      u'Mass Storage Device',
-      u'0802270905553')])
+    set(['0x951',
+         '0x160b',
+         '0x0',
+         'Freescale',
+         'Mass Storage Device',
+         '0802270905553'])
     '''
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'djvu']

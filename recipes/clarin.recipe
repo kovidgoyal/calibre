@@ -44,7 +44,7 @@ class Clarin(BasicNewsRecipe):
     # To get all the data (images)
     auto_cleanup = False
 
-    extra_css = """
+    extra_css = '''
       h1#title {
         line-height: 1em;
         margin: 0 0 .5em 0;
@@ -64,7 +64,7 @@ class Clarin(BasicNewsRecipe):
         font-size: .9em;
         margin-bottom: .5em;
       }
-    """
+    '''
 
     conversion_options = {
       'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -85,11 +85,11 @@ class Clarin(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     keep_only_tags = [
-      dict(name='p'  , attrs={'class'   : 'volanta'}),
-      dict(name='h1' , attrs={'id': 'title'}),
-      dict(name='div', attrs={'class'   : 'bajada'}),
-      dict(name='div', attrs={'id'   : 'galeria-trigger'}),
-      dict(name='div', attrs={'class'   : 'body-nota'})
+      dict(name='p',   attrs={'class': 'volanta'}),
+      dict(name='h1',  attrs={'id':    'title'}),
+      dict(name='div', attrs={'class': 'bajada'}),
+      dict(name='div', attrs={'id':    'galeria-trigger'}),
+      dict(name='div', attrs={'class': 'body-nota'})
 
     ]
 
@@ -138,7 +138,7 @@ class Clarin(BasicNewsRecipe):
                                      'ingresar_ingresar_email_paseInputComponent': self.username,
                                      'ingresar_ingresar_palabraClave_paseInputComponent': self.password,
                                      'ingresar_ingresar_ingresar_paseButton': 'Ingresar',
-                                     'javax.faces.ViewState': 'e1s1'  # noqa
+                                     'javax.faces.ViewState': 'e1s1'
                                      })
             br.open(self.LOGIN, data)
         return br

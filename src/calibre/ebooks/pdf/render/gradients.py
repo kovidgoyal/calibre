@@ -79,7 +79,7 @@ class LinearGradientPattern(Dictionary):
                         matrix):
         start = gradient.start()
         stop = gradient.finalStop()
-        stops = list(map(lambda x: [x[0], x[1].getRgbF()], gradient.stops()))
+        stops = [[x[0], x[1].getRgbF()] for x in gradient.stops()]
         spread = gradient.spread()
         if spread != gradient.PadSpread:
             inv = matrix.inverted()[0]

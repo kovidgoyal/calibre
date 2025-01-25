@@ -28,9 +28,9 @@ def get_cover(pheader, eheader):
 
 
 def get_metadata(stream, extract_cover=True):
-    """
+    '''
     Return metadata as a L{MetaInfo} object
-    """
+    '''
     mi = MetaInformation(None, [_('Unknown')])
     stream.seek(0)
 
@@ -68,7 +68,7 @@ def set_metadata(stream, mi):
     if pheader.section_data(0) != 132:
         return
 
-    sections = [pheader.section_data(x) for x in range(0, pheader.section_count())]
+    sections = [pheader.section_data(x) for x in range(pheader.section_count())]
     hr = HeaderRecord(sections[0])
 
     if hr.compression not in (2, 10):

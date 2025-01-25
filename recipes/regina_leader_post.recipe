@@ -19,61 +19,61 @@ class CanWestPaper(BasicNewsRecipe):
     # #    url_prefix = 'http://www.timescolonist.com'
     # #    description = u'News from Victoria, BC'
     # #    fp_tag = 'CAN_TC'
-    #
+
     # un-comment the following four lines for the Vancouver Province
     # #    title = u'Vancouver Province'
     # #    url_prefix = 'http://www.theprovince.com'
     # #    description = u'News from Vancouver, BC'
     # #    fp_tag = 'CAN_VP'
-    #
+
     # un-comment the following four lines for the Vancouver Sun
     # #    title = u'Vancouver Sun'
     # #    url_prefix = 'http://www.vancouversun.com'
     # #    description = u'News from Vancouver, BC'
     # #    fp_tag = 'CAN_VS'
-    #
+
     # un-comment the following four lines for the Edmonton Journal
     # #    title = u'Edmonton Journal'
     # #    url_prefix = 'http://www.edmontonjournal.com'
     # #    description = u'News from Edmonton, AB'
     # #    fp_tag = 'CAN_EJ'
-    #
+
     # un-comment the following four lines for the Calgary Herald
     # #    title = u'Calgary Herald'
     # #    url_prefix = 'http://www.calgaryherald.com'
     # #    description = u'News from Calgary, AB'
     # #    fp_tag = 'CAN_CH'
-    #
+
     # un-comment the following four lines for the Regina Leader-Post
     title = u'Regina Leader-Post'
     url_prefix = 'http://www.leaderpost.com'
     description = u'News from Regina, SK'
     fp_tag = ''
 
-#     un-comment the following four lines for the Saskatoon Star-Phoenix
-# #    title = u'Saskatoon Star-Phoenix'
-# #    url_prefix = 'http://www.thestarphoenix.com'
-# #    description = u'News from Saskatoon, SK'
-# #    fp_tag = ''
-#
-#     un-comment the following four lines for the Windsor Star
-# #    title = u'Windsor Star'
-# #    url_prefix = 'http://www.windsorstar.com'
-# #    description = u'News from Windsor, ON'
-# #    fp_tag = 'CAN_'
-#
-#     un-comment the following four lines for the Ottawa Citizen
-# #    title = u'Ottawa Citizen'
-# #    url_prefix = 'http://www.ottawacitizen.com'
-# #    description = u'News from Ottawa, ON'
-# #    fp_tag = 'CAN_OC'
-#
-#     un-comment the following four lines for the Montreal Gazette
-# #    title = u'Montreal Gazette'
-# #    url_prefix = 'http://www.montrealgazette.com'
-# #    description = u'News from Montreal, QC'
-# #    fp_tag = 'CAN_MG'
-#
+    # un-comment the following four lines for the Saskatoon Star-Phoenix
+    # #    title = u'Saskatoon Star-Phoenix'
+    # #    url_prefix = 'http://www.thestarphoenix.com'
+    # #    description = u'News from Saskatoon, SK'
+    # #    fp_tag = ''
+
+    # un-comment the following four lines for the Windsor Star
+    # #    title = u'Windsor Star'
+    # #    url_prefix = 'http://www.windsorstar.com'
+    # #    description = u'News from Windsor, ON'
+    # #    fp_tag = 'CAN_'
+
+    # un-comment the following four lines for the Ottawa Citizen
+    # #    title = u'Ottawa Citizen'
+    # #    url_prefix = 'http://www.ottawacitizen.com'
+    # #    description = u'News from Ottawa, ON'
+    # #    fp_tag = 'CAN_OC'
+
+    # un-comment the following four lines for the Montreal Gazette
+    # #    title = u'Montreal Gazette'
+    # #    url_prefix = 'http://www.montrealgazette.com'
+    # #    description = u'News from Montreal, QC'
+    # #    fp_tag = 'CAN_MG'
+
     language = 'en_CA'
     __author__ = 'Nick Redding'
     no_stylesheets = True
@@ -113,8 +113,7 @@ class CanWestPaper(BasicNewsRecipe):
         except:
             while daysback < 7:
                 cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-                    str((date.today() - timedelta(days=daysback)).day) + \
-                    '/lg/' + self.fp_tag + '.jpg'
+                    str((date.today() - timedelta(days=daysback)).day) + '/lg/' + self.fp_tag + '.jpg'
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
@@ -123,24 +122,24 @@ class CanWestPaper(BasicNewsRecipe):
                     continue
                 break
         if daysback == 7:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = None
         return cover
 
     def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\x91", "‘", string)
+        fixed = string.replace('\x91', '‘')
         # Replace rsquo (\x92)
-        fixed = re.sub("\x92", "’", fixed)
+        fixed = fixed.replace('\x92', '’')
         # Replace ldquo (\x93)
-        fixed = re.sub("\x93", "“", fixed)
+        fixed = fixed.replace('\x93', '“')
         # Replace rdquo (\x94)
-        fixed = re.sub("\x94", "”", fixed)
+        fixed = fixed.replace('\x94', '”')
         # Replace ndash (\x96)
-        fixed = re.sub("\x96", "–", fixed)
+        fixed = fixed.replace('\x96', '–')
         # Replace mdash (\x97)
-        fixed = re.sub("\x97", "—", fixed)
-        fixed = re.sub("&#x2019;", "’", fixed)
+        fixed = fixed.replace('\x97', '—')
+        fixed = fixed.replace('&#x2019;', '’')
         return fixed
 
     def massageNCXText(self, description):
@@ -180,14 +179,14 @@ class CanWestPaper(BasicNewsRecipe):
         ans = ['News']
 
         # Find each instance of class="sectiontitle", class="featurecontent"
-        for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
+        for divtag in soup.findAll('div', attrs={'class': ['section_title02', 'featurecontent']}):
             if 'section_title' in ''.join(divtag['class']):
                 # div contains section title
                 if not divtag.h3:
                     continue
                 key = self.tag_to_string(divtag.h3, False)
                 ans.append(key)
-                self.log("Section name %s" % key)
+                self.log('Section name %s' % key)
                 continue
             # div contains article data
             h1tag = divtag.find('h1')

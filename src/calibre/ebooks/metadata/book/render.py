@@ -111,7 +111,7 @@ def mi_to_html(
         link_note_icon_size=16
     ):
 
-    link_markup =  '↗️'
+    link_markup = '↗️'
     if for_qt:
         s = link_note_icon_size
         link_markup = f'<img valign="bottom" src="calibre-icon:///external-link.png" width={s} height={s}>'
@@ -355,7 +355,7 @@ def mi_to_html(
                     val = _(
                         '%(sidx)s of <a href="%(href)s" title="%(tt)s">'
                         '<span class="%(cls)s">%(series)s</span></a>') % dict(
-                            sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
+                            sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls='series_name',
                             series=p(series), href=search_action_with_data(st, series, book_id, field),
                             tt=p(_('Click to see books in this series')))
                     val += add_other_links(field, series)
@@ -439,7 +439,7 @@ def mi_to_html(
 
     ans = ['<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
         classname(fieldl), html) for fieldl, html in ans]
-    # print '\n'.join(ans)
+    # print('\n'.join(ans))
     direction = 'rtl' if rtl else 'ltr'
     rans = f'<table class="fields" style="direction: {direction}; '
     if not for_qt:

@@ -121,7 +121,7 @@ class Font:
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
         self.subset_tag = str(
-            re.sub('.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
+            re.sub(r'.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
         )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
         try:
@@ -205,7 +205,7 @@ class Font:
         widths = {g:w for g, w in iteritems(widths) if w != most_common}
 
         groups = Array()
-        for k, g in groupby(enumerate(widths), lambda i_x:i_x[0]-i_x[1]):
+        for k, g in groupby(enumerate(widths), lambda i_x: i_x[0]-i_x[1]):
             group = list(map(itemgetter(1), g))
             gwidths = [widths[g] for g in group]
             if len(set(gwidths)) == 1 and len(group) > 1:

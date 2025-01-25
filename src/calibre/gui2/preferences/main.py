@@ -44,8 +44,8 @@ from calibre.gui2.preferences import AbortCommit, AbortInitialize, get_plugin, i
 
 ICON_SIZE = 32
 
-# Title Bar {{{
 
+# Title Bar {{{
 
 class Message(QWidget):
 
@@ -214,7 +214,6 @@ class Browser(QScrollArea):  # {{{
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)
         self._layout.addStretch(1)
-
 
 # }}}
 

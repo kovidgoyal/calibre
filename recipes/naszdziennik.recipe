@@ -9,7 +9,7 @@ class naszdziennik(BasicNewsRecipe):
     title = u'Nasz Dziennik'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    description = u'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # noqa
+    description = u'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # noqa: E501
     masthead_url = 'http://www.naszdziennik.pl/images/logo-male.png'
     max_articles_per_feed = 100
     remove_javascript = True
@@ -60,7 +60,7 @@ class naszdziennik(BasicNewsRecipe):
                 article_title_datetime.find('h4'))
             # zebrane elementy dodajemy do listy zadeklarowanej w linijce 44
             articles[section].append(
-                {'title': article_title,  'url': article_url, 'date': article_date})
+                {'title': article_title, 'url': article_url, 'date': article_date})
         # po dodaniu wszystkich artykułów dodajemy sekcje do listy feedów,
         # korzystając z list sekcji znajdujących się w słowniku
         for section in sections:

@@ -41,6 +41,7 @@ def qurl_to_key(url: QUrl | str) -> str:
 
 Headers = list[tuple[str, str]]
 
+
 class Request(TypedDict):
     id: int
     url: str
@@ -122,7 +123,7 @@ class DownloadRequest(QObject):
             'final_url': qurl_to_string(self.reply.url()), 'headers': []
         }
         h = result['headers']
-        for (k, v) in self.reply.rawHeaderPairs():
+        for k,v in self.reply.rawHeaderPairs():
             h.append((bytes(k).decode('utf-8', 'replace'), bytes(v).decode('utf-8', 'replace')))
         if code := self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute):
             result['http_code'] = code
@@ -205,7 +206,7 @@ class FetchBackend(QNetworkAccessManager):
         timeout = req['timeout']
         rq.setTransferTimeout(int(timeout * 1000))
         rq.setRawHeader(b'User-Agent', self.current_user_agent().encode())
-        for (name, val) in req['headers']:
+        for name, val in req['headers']:
             ex = rq.rawHeader(name)
             if len(ex):
                 val = bytes(ex).decode() + ', ' + val
@@ -334,7 +335,7 @@ def develop(url: str) -> None:
     from calibre.gui2 import must_use_qt, setup_unix_signals
     must_use_qt()
     app = QApplication.instance()
-    app.signal_received = lambda : app.exit(1)
+    app.signal_received = lambda: app.exit(1)
     setup_unix_signals(app)
     backend = FetchBackend()
     num_left = 0

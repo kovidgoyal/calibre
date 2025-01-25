@@ -117,20 +117,20 @@ def error_codes(*errnames):
     return ans
 
 
-socket_errors_eintr = error_codes("EINTR", "WSAEINTR")
+socket_errors_eintr = error_codes('EINTR', 'WSAEINTR')
 
 socket_errors_socket_closed = error_codes(  # errors indicating a disconnected connection
-    "EPIPE",
-    "EBADF", "WSAEBADF",
-    "ENOTSOCK", "WSAENOTSOCK",
-    "ENOTCONN", "WSAENOTCONN",
-    "ESHUTDOWN", "WSAESHUTDOWN",
-    "ETIMEDOUT", "WSAETIMEDOUT",
-    "ECONNREFUSED", "WSAECONNREFUSED",
-    "ECONNRESET", "WSAECONNRESET",
-    "ECONNABORTED", "WSAECONNABORTED",
-    "ENETRESET", "WSAENETRESET",
-    "EHOSTDOWN", "EHOSTUNREACH",
+    'EPIPE',
+    'EBADF', 'WSAEBADF',
+    'ENOTSOCK', 'WSAENOTSOCK',
+    'ENOTCONN', 'WSAENOTCONN',
+    'ESHUTDOWN', 'WSAESHUTDOWN',
+    'ETIMEDOUT', 'WSAETIMEDOUT',
+    'ECONNREFUSED', 'WSAECONNREFUSED',
+    'ECONNRESET', 'WSAECONNRESET',
+    'ECONNABORTED', 'WSAECONNABORTED',
+    'ENETRESET', 'WSAENETRESET',
+    'EHOSTDOWN', 'EHOSTUNREACH',
 )
 socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
@@ -154,14 +154,14 @@ def create_sock_pair():
 
 
 def parse_http_list(header_val):
-    """Parse lists as described by RFC 2068 Section 2.
+    '''Parse lists as described by RFC 2068 Section 2.
 
     In particular, parse comma-separated lists where the elements of
     the list may include quoted-strings.  A quoted-string could
     contain a comma.  A non-quoted string could have quotes in the
     middle.  Neither commas nor quotes count if they are escaped.
     Only double-quotes count, not single-quotes.
-    """
+    '''
     if isinstance(header_val, bytes):
         slash, dquote, comma = b'\\",'
         empty = b''
@@ -265,8 +265,8 @@ class Cookie(SimpleCookie):
 def custom_fields_to_display(db):
     return frozenset(db.field_metadata.ignorable_field_keys())
 
-# Logging {{{
 
+# Logging {{{
 
 class ServerLog(ThreadSafeLog):
     exception_traceback_level = ThreadSafeLog.WARN

@@ -18,4 +18,3 @@ class PajamasMedia(BasicNewsRecipe):
          'http://feeds.feedburner.com/PajamasMedia'),
 
     ]
-

@@ -56,7 +56,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
             if result == QDialog.DialogCode.Accepted:
                 # if not convert_existing(parent, db, [book_id], d.output_format):
-                #    continue
+                #     continue
 
                 mi = db.get_metadata(book_id, True)
                 in_file = PersistentTemporaryFile('.'+d.input_format)
@@ -110,7 +110,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
             warning_dialog(parent, _('Could not convert'), '<p>'+ _(
                 'Could not convert <b>%s</b> as it has no e-book files. If you '
                 'think it should have files, but calibre is not finding '
-                'them, that is most likely because you moved the book\'s '
+                "them, that is most likely because you moved the book's "
                 'files around outside of calibre. You will need to find those files '
                 'and re-add them to calibre.')%title, show=True)
         else:
@@ -136,8 +136,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
     return jobs, changed, bad
 # }}}
 
-# Bulk convert {{{
 
+# Bulk convert {{{
 
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
@@ -327,7 +327,6 @@ def fetch_scheduled_recipe(arg):  # {{{
         recs.append(('recipe_specific_option', serialized, OptionRecommendation.HIGH))
 
     return 'gui_convert_recipe', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
-
 # }}}
 
 

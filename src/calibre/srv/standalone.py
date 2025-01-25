@@ -36,7 +36,7 @@ def daemonize():  # {{{
         raise SystemExit('fork #1 failed: %s' % as_unicode(e))
 
     # decouple from parent environment
-    os.chdir("/")
+    os.chdir('/')
     os.setsid()
     os.umask(0)
 
@@ -51,8 +51,6 @@ def daemonize():  # {{{
 
     # Redirect standard file descriptors.
     speedup.detach(os.devnull)
-
-
 # }}}
 
 

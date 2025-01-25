@@ -32,7 +32,7 @@ class TCRCompressor:
         The intent is to create more unused codes.
         '''
         possible_codes = []
-        a_code = set(re.findall(b'(?ms).', self.coded_txt))
+        a_code = set(re.findall(br'(?ms).', self.coded_txt))
 
         for code in a_code:
             single_code = set(re.findall(b'(?ms)%s.' % re.escape(code), self.coded_txt))
@@ -57,7 +57,7 @@ class TCRCompressor:
         '''
         Create new codes from codes that occur in pairs often.
         '''
-        possible_new_codes = list(set(re.findall(b'(?ms)..', self.coded_txt)))
+        possible_new_codes = list(set(re.findall(br'(?ms)..', self.coded_txt)))
         new_codes_count = []
 
         for c in possible_new_codes:
@@ -74,7 +74,7 @@ class TCRCompressor:
     def compress(self, txt):
         self._reset()
 
-        self.codes = list(set(re.findall(b'(?ms).', txt)))
+        self.codes = list(set(re.findall(br'(?ms).', txt)))
 
         # Replace the text with their corresponding code
         # FIXME: python3 is native bytearray, but all we want are bytes
@@ -105,7 +105,7 @@ class TCRCompressor:
 
         # Generate the code dictionary.
         code_dict = []
-        for i in range(0, 256):
+        for i in range(256):
             if i in self.unused_codes:
                 code_dict.append(b'\0')
             else:

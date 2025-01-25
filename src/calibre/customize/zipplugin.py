@@ -118,8 +118,8 @@ def load_translations(namespace, zfp):
             _translations_cache[zfp] = None
             return
         with zipfile.ZipFile(zfp) as zf:
-            mo_path = zipfile.Path(zf, f"translations/{lang}.mo")
-            if not mo_path.exists() and "_" in lang:
+            mo_path = zipfile.Path(zf, f'translations/{lang}.mo')
+            if not mo_path.exists() and '_' in lang:
                 mo_path = zipfile.Path(zf, f"translations/{lang.split('_')[0]}.mo")
             if mo_path.exists():
                 mo = mo_path.read_bytes()
@@ -138,8 +138,13 @@ def load_translations(namespace, zfp):
 class CalibrePluginLoader:
 
     __slots__ = (
-        'plugin_name', 'fullname_in_plugin', 'zip_file_path', '_is_package', 'names',
-        'filename', 'all_names'
+        '_is_package',
+        'all_names',
+        'filename',
+        'fullname_in_plugin',
+        'names',
+        'plugin_name',
+        'zip_file_path',
     )
 
     def __init__(self, plugin_name, fullname_in_plugin, zip_file_path, names, filename, is_package, all_names):

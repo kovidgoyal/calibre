@@ -63,7 +63,7 @@ def load_article_from_json(raw, root):
     body = root.xpath('//body')[0]
     article = E(body, 'article')
     E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
-    E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+    E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
     E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
     try:
         date = data['dateModified']
@@ -97,8 +97,8 @@ def process_web_node(node):
             return f'<p>{node.get("textHtml")}</p>'
         return f'<p>{node.get("text", "")}</p>'
     elif ntype == 'IMAGE':
-        alt = "" if node.get("altText") is None else node.get("altText")
-        cap = ""
+        alt = '' if node.get('altText') is None else node.get('altText')
+        cap = ''
         if node.get('caption'):
             if node['caption'].get('textHtml') is not None:
                 cap = node['caption']['textHtml']
@@ -123,7 +123,7 @@ def load_article_from_web_json(raw):
     data = json.loads(raw)['props']['pageProps']['cp2Content']
     body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
     body += f'<h1>{data["headline"]}</h1>'
-    if data.get("rubric") and data.get("rubric") is not None:
+    if data.get('rubric') and data.get('rubric') is not None:
         body += f'<div style="font-style: italic; color:#202020;">{data.get("rubric", "")}</div>'
     try:
         date = data['dateModified']
@@ -186,7 +186,7 @@ class Economist(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
-    __author__ = "Kovid Goyal"
+    __author__ = 'Kovid Goyal'
     description = (
         'Global news and current affairs from a European'
         ' perspective. Best downloaded on Friday mornings (GMT)'
@@ -199,7 +199,7 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={'id': 'player'}),
         dict(attrs={
                 'class': [
@@ -252,7 +252,7 @@ class Economist(BasicNewsRecipe):
     def get_browser(self, *args, **kwargs):
         if self.from_archive:
             kwargs['user_agent'] = (
-                'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Lamarr' # noqa
+                'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Lamarr'
             )
             br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         else:
@@ -266,11 +266,11 @@ class Economist(BasicNewsRecipe):
         if edition_date and isinstance(edition_date, str):
             return parse_only_date(edition_date, as_utc=False)
         try:
-            url = self.browser.open("https://www.economist.com/printedition").geturl()
+            url = self.browser.open('https://www.economist.com/printedition').geturl()
         except Exception as e:
             self.log('Failed to fetch publication date with error: ' + str(e))
             return super().publication_date()
-        return parse_only_date(url.split("/")[-1], as_utc=False)
+        return parse_only_date(url.split('/')[-1], as_utc=False)
 
     def economist_test_article(self):
         return [('Articles', [{'title':'test',
@@ -311,7 +311,7 @@ class Economist(BasicNewsRecipe):
         # return self.economist_test_article()
         # url = 'https://www.economist.com/weeklyedition/archive'
         query = {
-            'query': 'query LatestWeeklyAutoEditionQuery($ref:String!){canonical(ref:$ref){hasPart(from:0 size:1 sort:"datePublished:desc"){parts{...WeeklyEditionFragment __typename}__typename}__typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa
+            'query': 'query LatestWeeklyAutoEditionQuery($ref:String!){canonical(ref:$ref){hasPart(from:0 size:1 sort:"datePublished:desc"){parts{...WeeklyEditionFragment __typename}__typename}__typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa: E501
             'operationName': 'LatestWeeklyAutoEditionQuery',
             'variables': '{"ref":"/content/d06tg8j85rifiq3oo544c6b9j61dno2n"}',
         }
@@ -319,7 +319,7 @@ class Economist(BasicNewsRecipe):
             content_id = self.get_content_id(edition_date)
             if content_id:
                 query = {
-                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa
+                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa: E501
                     'operationName': 'SpecificWeeklyEditionQuery',
                     'variables': '{{"path":"{}"}}'.format(content_id),
                 }
@@ -339,9 +339,9 @@ class Economist(BasicNewsRecipe):
     def economist_parse_index(self, raw):
         # edition_date = self.recipe_specific_options.get('date')
         # if edition_date and isinstance(edition_date, str):
-            # data = json.loads(raw)['data']['section']
+        #     data = json.loads(raw)['data']['section']
         # else:
-            # data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        #     data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')
@@ -364,25 +364,25 @@ class Economist(BasicNewsRecipe):
         self.log('Got cover:', self.cover_url, '\n', self.description)
 
         feeds_dict = defaultdict(list)
-        for part in safe_dict(data, "hasPart", "parts"):
+        for part in safe_dict(data, 'hasPart', 'parts'):
             try:
                 section = part['articleSection']['internal'][0]['title']
             except Exception:
                 section = safe_dict(part, 'print', 'section', 'title') or 'section'
             if section not in feeds_dict:
                 self.log(section)
-            title = safe_dict(part, "title")
-            desc = safe_dict(part, "rubric") or ''
-            sub = safe_dict(part, "flyTitle") or ''
+            title = safe_dict(part, 'title')
+            desc = safe_dict(part, 'rubric') or ''
+            sub = safe_dict(part, 'flyTitle') or ''
             if sub and section != sub:
                 desc = sub + ' :: ' + desc
             pt = PersistentTemporaryFile('.html')
             pt.write(json.dumps(part).encode('utf-8'))
             pt.close()
             url = 'file:///' + pt.name
-            feeds_dict[section].append({"title": title, "url": url, "description": desc})
+            feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
             self.log('\t', title, '\n\t\t', desc)
-        return [(section, articles) for section, articles in feeds_dict.items()]
+        return list(feeds_dict.items())
 
     def populate_article_metadata(self, article, soup, first):
         if not self.from_archive:
@@ -409,9 +409,9 @@ class Economist(BasicNewsRecipe):
         load_article_from_json(raw, root)
 
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
-                        + 'This article is supposed to be read in a browser' \
-                            + '</em></article></body></html>'
+            return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
 
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))
@@ -513,22 +513,22 @@ class Economist(BasicNewsRecipe):
         return self.economist_return_index(ans)
 
     def economist_parse_web_index(self, soup):
-        script_tag = soup.find("script", id="__NEXT_DATA__")
+        script_tag = soup.find('script', id='__NEXT_DATA__')
         if script_tag is not None:
             data = json.loads(script_tag.string)
             # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-            self.description = safe_dict(data, "props", "pageProps", "content", "headline")
-            self.timefmt = ' [' + safe_dict(data, "props", "pageProps", "content", "formattedIssueDate") + ']'
-            self.cover_url = safe_dict(data, "props", "pageProps", "content", "cover", "url").replace(
+            self.description = safe_dict(data, 'props', 'pageProps', 'content', 'headline')
+            self.timefmt = ' [' + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate') + ']'
+            self.cover_url = safe_dict(data, 'props', 'pageProps', 'content', 'cover', 'url').replace(
                 'economist.com/', 'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/').replace('SQ_', '')
             self.log('Got cover:', self.cover_url)
 
             feeds = []
 
             for part in safe_dict(
-                data, "props", "pageProps", "content", "headerSections"
-            ) + safe_dict(data, "props", "pageProps", "content", "sections"):
-                section = safe_dict(part, "name") or ''
+                data, 'props', 'pageProps', 'content', 'headerSections'
+            ) + safe_dict(data, 'props', 'pageProps', 'content', 'sections'):
+                section = safe_dict(part, 'name') or ''
                 if not section:
                     continue
                 self.log(section)
@@ -536,12 +536,12 @@ class Economist(BasicNewsRecipe):
                 articles = []
 
                 for ar in part['articles']:
-                    title = safe_dict(ar, "headline") or ''
-                    url = process_url(safe_dict(ar, "url") or '')
+                    title = safe_dict(ar, 'headline') or ''
+                    url = process_url(safe_dict(ar, 'url') or '')
                     if not title or not url:
                         continue
-                    desc = safe_dict(ar, "rubric") or ''
-                    sub = safe_dict(ar, "flyTitle") or ''
+                    desc = safe_dict(ar, 'rubric') or ''
+                    sub = safe_dict(ar, 'flyTitle') or ''
                     if sub and section != sub:
                         desc = sub + ' :: ' + desc
                     self.log('\t', title, '\n\t', desc, '\n\t\t', url)
@@ -555,12 +555,9 @@ class Economist(BasicNewsRecipe):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root_ = parse(raw)
         if '/interactive/' in url:
-            return (
-                '<html><body><article><h1>'
-                + root_.xpath('//h1')[0].text + '</h1><em>'
-                + 'This article is supposed to be read in a browser'
-                + '</em></article></body></html>'
-            )
+            return ('<html><body><article><h1>' + root_.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser'
+                    '</em></article></body></html>')
 
         script = root_.xpath('//script[@id="__NEXT_DATA__"]')
 

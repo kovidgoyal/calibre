@@ -6,7 +6,6 @@ import os
 
 
 class ReadOnlyFileBuffer:
-
     ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
 
     def __init__(self, raw: bytes, name: str = ''):
@@ -196,7 +195,7 @@ def svg_path_to_painter_path(d):
                 raise ValueError('Extra parameters after close path command')
             elif last_cmd in (
                 lineto_abs, lineto_rel, hline_abs, hline_rel, vline_abs,
-                vline_rel, curveto_abs, curveto_rel,smoothcurveto_abs,
+                vline_rel, curveto_abs, curveto_rel, smoothcurveto_abs,
                 smoothcurveto_rel, quadcurveto_abs, quadcurveto_rel,
                 smoothquadcurveto_abs, smoothquadcurveto_rel
             ):

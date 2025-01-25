@@ -48,7 +48,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        """Récupère dynamiquement l'URL de la dernière une"""
+        '''Récupère dynamiquement l'URL de la dernière une'''
         br = self.get_browser()
         try:
             soup = self.index_to_soup(br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read())
@@ -61,7 +61,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
                 elif img and img.get('src'):
                     return 'https://boutique.lecanardenchaine.fr' + img['src']
 
-            self.log.info('Aucune couverture trouvée, utilisation de l\'image par défaut')
+            self.log.info("Aucune couverture trouvée, utilisation de l'image par défaut")
             return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
         except Exception:
             self.log.exception('Erreur lors de la récupération de la couverture')
@@ -90,7 +90,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
         feeds = []
 
         for section_title, section_url in self.SECTIONS.items():
-            print(f"Exploration de la rubrique : {section_title}")
+            print(f'Exploration de la rubrique : {section_title}')
             articles = []
             try:
                 url = 'https://www.lecanardenchaine.fr' + section_url
@@ -119,10 +119,10 @@ class LeCanardEnchaine(BasicNewsRecipe):
 
                 if unique_articles:
                     feeds.append((section_title, unique_articles))
-                    print(f"  {len(unique_articles)} articles trouvés")
+                    print(f'  {len(unique_articles)} articles trouvés')
 
             except Exception as e:
-                print(f"Erreur sur {section_title}: {str(e)}")
+                print(f'Erreur sur {section_title}: {e}')
 
         return feeds
 

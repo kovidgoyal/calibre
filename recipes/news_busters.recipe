@@ -7,7 +7,7 @@ class NewsBusters(BasicNewsRecipe):
     __author__ = 'jde'
     oldest_article = 1  # day
     max_articles_per_feed = 100
-    cover_url = "http://newsbusters.org/sites/all/themes/genesis_nb/images/nb-mrc.png"
+    cover_url = 'http://newsbusters.org/sites/all/themes/genesis_nb/images/nb-mrc.png'
     language = 'en'
     encoding = 'utf8'
     needs_subscription = False

@@ -193,7 +193,7 @@ def condense_edge(vals):
     if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
         return
     ce = {}
-    for (x, y) in [('left', 'right'), ('top', 'bottom')]:
+    for x,y in [('left', 'right'), ('top', 'bottom')]:
         if edges[x] == edges[y]:
             ce[x] = edges[x]
         else:
@@ -343,7 +343,7 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_edge_normalization(self):
             def edge_dict(prefix, expected):
-                return {f'{prefix}-{edge}' : x for edge, x in zip(EDGES, expected)}
+                return {f'{prefix}-{edge}': x for edge, x in zip(EDGES, expected)}
             for raw, expected in iteritems({
                 '2px': ('2px', '2px', '2px', '2px'),
                 '1em 2em': ('1em', '2em', '1em', '2em'),
@@ -356,7 +356,7 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_list_style_normalization(self):
             def ls_dict(expected):
-                ans = {'list-style-%s' % x : DEFAULTS['list-style-%s' % x] for x in ('type', 'image', 'position')}
+                ans = {'list-style-%s' % x: DEFAULTS['list-style-%s' % x] for x in ('type', 'image', 'position')}
                 for k, v in iteritems(expected):
                     ans['list-style-%s' % k] = v
                 return ans
@@ -385,17 +385,17 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_edge_condensation(self):
             for s, v in iteritems({
-                (1, 1, 3) : None,
-                (1, 2, 3, 4) : '2pt 3pt 4pt 1pt',
-                (1, 2, 3, 2) : '2pt 3pt 2pt 1pt',
-                (1, 2, 1, 3) : '2pt 1pt 3pt',
-                (1, 2, 1, 2) : '2pt 1pt',
-                (1, 1, 1, 1) : '1pt',
-                ('2%', '2%', '2%', '2%') : '2%',
-                tuple('0 0 0 0'.split()) : '0',
+                (1, 1, 3): None,
+                (1, 2, 3, 4): '2pt 3pt 4pt 1pt',
+                (1, 2, 3, 2): '2pt 3pt 2pt 1pt',
+                (1, 2, 1, 3): '2pt 1pt 3pt',
+                (1, 2, 1, 2): '2pt 1pt',
+                (1, 1, 1, 1): '1pt',
+                ('2%', '2%', '2%', '2%'): '2%',
+                tuple('0 0 0 0'.split()): '0',
             }):
                 for prefix in ('margin', 'padding'):
-                    css = {f'{prefix}-{x}' : str(y)+'pt' if isinstance(y, numbers.Number) else y
+                    css = {f'{prefix}-{x}': str(y)+'pt' if isinstance(y, numbers.Number) else y
                             for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
                     css = '; '.join((f'{k}:{v}' for k, v in iteritems(css)))
                     style = parseStyle(css)

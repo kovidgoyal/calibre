@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LePeupleBreton(BasicNewsRecipe):
     title = 'Le Peuple Breton'
     __author__ = 'Lionel Plais'
-    description = u'Aujourd\'hui, être libre c\'est être informé'
+    description = u"Aujourd'hui, être libre c'est être informé"
     oldest_article = 90
     language = 'fr'
     cover_img_url = 'http://lepeuplebreton.bzh/wp-content/uploads/2017/11/le-peuple-breton-logo.jpg'

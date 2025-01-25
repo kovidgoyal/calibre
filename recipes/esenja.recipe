@@ -33,7 +33,6 @@ class Esensja(BasicNewsRecipe):
                    dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
                    dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
                    dict(id='komentarze')
-
                    ]
 
     extra_css = '''
@@ -45,19 +44,16 @@ class Esensja(BasicNewsRecipe):
                             '''
 
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
-                          ]
+                          (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.esensja.pl/magazyn/')
-        a = soup.find('a', attrs={'href': re.compile('.*/index.html')})
+        a = soup.find('a', attrs={'href': re.compile(r'.*/index.html')})
         year = a['href'].split('/')[0]
         month = a['href'].split('/')[1]
         self.HREF = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/iso/'
         soup = self.index_to_soup(self.HREF + '01.html')
-        self.cover_url = 'http://www.esensja.pl/magazyn/' + \
-            year + '/' + month + '/img/ilustr/cover_b.jpg'
+        self.cover_url = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/img/ilustr/cover_b.jpg'
         feeds = []
         chapter = ''
         subchapter = ''
@@ -149,7 +145,7 @@ class Esensja(BasicNewsRecipe):
             info = tag.find(attrs={'class': 'img_info'})
             text = str(tag)
             if not src:
-                src = re.search('src="[^"]*?"', text)
+                src = re.search(r'src="[^"]*?"', text)
                 if src:
                     src = src.group(0)
                     src = src[5:].replace('//', '/')

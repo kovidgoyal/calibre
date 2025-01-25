@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 def absurl(url):
     if url.startswith('/'):
-        url =  'https://www.spectator.co.uk' + url
+        url = 'https://www.spectator.co.uk' + url
     return url
 
 
@@ -37,7 +37,7 @@ class spectator(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name = ['svg', 'button']),
+        dict(name=['svg', 'button']),
         classes(
             'entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content '
             'subscription-banner '

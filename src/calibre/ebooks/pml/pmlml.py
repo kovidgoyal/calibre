@@ -34,10 +34,10 @@ TAG_MAP = {
 }
 
 STYLES = [
-    ('font-weight', {'bold' : 'B', 'bolder' : 'B'}),
-    ('font-style', {'italic' : 'i'}),
-    ('text-decoration', {'underline' : 'u'}),
-    ('text-align', {'right' : 'r', 'center' : 'c'}),
+    ('font-weight', {'bold': 'B', 'bolder': 'B'}),
+    ('font-style', {'italic': 'i'}),
+    ('text-decoration', {'underline': 'u'}),
+    ('text-align', {'right': 'r', 'center': 'c'}),
 ]
 
 BLOCK_TAGS = [
@@ -196,27 +196,27 @@ class PMLMLizer:
 
         # Turn all characters that cannot be represented by themself into their
         # PML code equivalent
-        text = re.sub('[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
+        text = re.sub(r'[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
 
         # Remove excess spaces at beginning and end of lines
-        text = re.sub('(?m)^[ ]+', '', text)
-        text = re.sub('(?m)[ ]+$', '', text)
+        text = re.sub(r'(?m)^[ ]+', '', text)
+        text = re.sub(r'(?m)[ ]+$', '', text)
 
         # Remove excessive spaces
-        text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub(r'[ ]{2,}', ' ', text)
 
         # Condense excessive \c empty line sequences.
         text = re.sub(r'(\\c\s*\\c\s*){2,}', r'\\c \n\\c\n', text)
 
         # Remove excessive newlines.
-        text = re.sub('\n[ ]+\n', '\n\n', text)
+        text = re.sub(r'\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
-            text = re.sub('\n{2,}', '\n', text)
+            text = re.sub(r'\n{2,}', '\n', text)
             # Only indent lines that don't have special formatting
-            text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
+            text = re.sub(r'(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
                           if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
         else:
-            text = re.sub('\n{3,}', '\n\n', text)
+            text = re.sub(r'\n{3,}', '\n\n', text)
 
         return text
 
@@ -356,7 +356,7 @@ class PMLMLizer:
         text += self.close_tags(tags)
 
         # if tag in SEPARATE_TAGS:
-        #    text.append('\n\n')
+        #     text.append('\n\n')
 
         if style['page-break-after'] == 'always':
             text.append(r'\p')

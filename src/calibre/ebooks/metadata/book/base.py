@@ -25,7 +25,7 @@ SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 
 def human_readable(size, precision=2):
-    """ Convert a size in bytes into megabytes """
+    ''' Convert a size in bytes into megabytes '''
     ans = size/(1024*1024)
     if ans < 0.1:
         return '<0.1 MB'
@@ -65,7 +65,6 @@ def cv(val):
 
 
 class Metadata:
-
     '''
     A class representing all the metadata for a book. The various standard metadata
     fields are available as attributes of this object. You can also stick
@@ -214,7 +213,7 @@ class Metadata:
             if f['datatype'] == 'composite' and f['#value#'] is None:
                 self.get(field)
 
-    def deepcopy(self, class_generator=lambda : Metadata(None)):
+    def deepcopy(self, class_generator=lambda: Metadata(None)):
         ''' Do not use this method unless you know what you are doing, if you
         want to create a simple clone of this object, use :meth:`deepcopy_metadata`
         instead. Class_generator must be a function that returns an instance
@@ -448,7 +447,7 @@ class Metadata:
         if field is not None:
             if not field.startswith('#'):
                 raise AttributeError(
-                        'Custom field name %s must begin with \'#\''%repr(field))
+                        "Custom field name %s must begin with '#'"%repr(field))
             if metadata is None:
                 traceback.print_stack()
                 return
@@ -669,7 +668,7 @@ class Metadata:
         Returns the tuple (display_name, formatted_value)
         '''
         name, val, ign, ign = self.format_field_extended(key, series_with_index)
-        return (name, val)
+        return name, val
 
     def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
@@ -703,8 +702,7 @@ class Metadata:
                 res = cmeta['is_multiple']['list_to_ui'].join(res)
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
-                    res = res + \
-                        ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                    res = res + ' [%s]'%self.format_series_index(val=self.get_extra(key))
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
@@ -773,7 +771,7 @@ class Metadata:
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
-            fmt('Author(s)',  authors_to_string(self.authors) +
+            fmt('Author(s)', authors_to_string(self.authors) +
                ((' [' + self.author_sort + ']')
                 if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
@@ -804,7 +802,7 @@ class Metadata:
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
-                (name, val) = self.format_field(key)
+                name, val = self.format_field(key)
                 fmt(name, str(val))
         return '\n'.join(ans)
 
@@ -833,7 +831,7 @@ class Metadata:
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
-                (name, val) = self.format_field(key)
+                name, val = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
             ans[i] = '<tr><td><b>%s</b></td><td>%s</td></tr>'%x

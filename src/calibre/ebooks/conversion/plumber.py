@@ -78,7 +78,6 @@ ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 
 class Plumber:
-
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
     :method:`merge_ui_recommendations` and then :method:`run`. The plumber will
@@ -187,7 +186,7 @@ OptionRecommendation(name='disable_font_rescaling',
 OptionRecommendation(name='minimum_line_height',
             recommended_value=120.0, level=OptionRecommendation.LOW,
             help=_(
-            'The minimum line height, as a percentage of the element\'s '
+            "The minimum line height, as a percentage of the element's "
             'calculated font size. calibre will ensure that every element '
             'has a line height of at least this setting, irrespective of '
             'what the input document specifies. Set to zero to disable. '
@@ -1073,7 +1072,7 @@ OptionRecommendation(name='search_replace',
         self.flush()
         if self.opts.embed_all_fonts or self.opts.embed_font_family:
             # Start the threaded font scanner now, for performance
-            from calibre.utils.fonts.scanner import font_scanner  # noqa
+            from calibre.utils.fonts.scanner import font_scanner  # noqa: F401
         import logging
 
         import css_parser

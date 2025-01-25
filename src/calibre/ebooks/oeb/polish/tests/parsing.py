@@ -132,7 +132,7 @@ def entities(test, parse_function):
     markup = '<html><p>&nbsp;&apos;</p>'
     root = parse_function(markup)
     err = 'Entities not handled, parsed markup:\n' + etree.tostring(root, encoding='unicode')
-    test.assertEqual('\xa0\'', root.xpath('//*[local-name()="p"]')[0].text, err)
+    test.assertEqual("\xa0'", root.xpath('//*[local-name()="p"]')[0].text, err)
 
 
 def multiple_html_and_body(test, parse_function):

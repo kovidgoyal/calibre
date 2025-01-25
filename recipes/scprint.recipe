@@ -5,7 +5,7 @@ class SCPrintMagazine(BasicNewsRecipe):
     title = u'SC Print Magazine'
     __author__ = u'Tony Maro'
     description = u'Last print version of the data security magazine'
-    INDEX = "http://www.scmagazineus.com/issuearchive/"
+    INDEX = 'http://www.scmagazineus.com/issuearchive/'
     no_stylesheets = True
     language = 'en'
     keep_only_tags = [dict(id=['article', 'review'])]
@@ -52,9 +52,9 @@ class SCPrintMagazine(BasicNewsRecipe):
                                 if mylink.get('href'):
                                     artlink = mylink['href']
                                     artlink = artlink.replace(
-                                        "/article", "/printarticle")
+                                        '/article', '/printarticle')
                                     artlink = artlink.replace(
-                                        "/review", "/printreview")
+                                        '/review', '/printreview')
                                     deck = onearticle.find(
                                         'div', attrs={'class': 'deck'})
                                     if deck is not None:
@@ -72,7 +72,7 @@ class SCPrintMagazine(BasicNewsRecipe):
         br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtEmail'] = self.username
         br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtPassword'] = self.password
         raw = br.submit(
-            "ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$btnLogin").read()
+            'ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$btnLogin').read()
         if 'Logout</a>' not in raw:
             raise LoginFailed(
                 _('Failed to log in, check your username and password for'

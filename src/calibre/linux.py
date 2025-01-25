@@ -22,24 +22,24 @@ from polyglot.builtins import iteritems
 
 entry_points = {
         'console_scripts': [
-             'ebook-device         = calibre.devices.cli:main',
-             'ebook-meta           = calibre.ebooks.metadata.cli:main',
-             'ebook-convert        = calibre.ebooks.conversion.cli:main',
-             'ebook-polish         = calibre.ebooks.oeb.polish.main:main',
-             'markdown-calibre     = markdown.__main__:run',
-             'web2disk             = calibre.web.fetch.simple:main',
-             'calibre-server       = calibre.srv.standalone:main',
-             'lrf2lrs              = calibre.ebooks.lrf.lrfparser:main',
-             'lrs2lrf              = calibre.ebooks.lrf.lrs.convert_from:main',
-             'calibre-debug        = calibre.debug:main',
-             'calibredb            = calibre.db.cli.main:main',
-             'calibre-parallel     = calibre.utils.ipc.worker:main',
-             'calibre-customize    = calibre.customize.ui:main',
-             'calibre-complete     = calibre.utils.complete:main',
-             'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
-             'calibre-smtp         = calibre.utils.smtp:main',
+            'ebook-device         = calibre.devices.cli:main',
+            'ebook-meta           = calibre.ebooks.metadata.cli:main',
+            'ebook-convert        = calibre.ebooks.conversion.cli:main',
+            'ebook-polish         = calibre.ebooks.oeb.polish.main:main',
+            'markdown-calibre     = markdown.__main__:run',
+            'web2disk             = calibre.web.fetch.simple:main',
+            'calibre-server       = calibre.srv.standalone:main',
+            'lrf2lrs              = calibre.ebooks.lrf.lrfparser:main',
+            'lrs2lrf              = calibre.ebooks.lrf.lrs.convert_from:main',
+            'calibre-debug        = calibre.debug:main',
+            'calibredb            = calibre.db.cli.main:main',
+            'calibre-parallel     = calibre.utils.ipc.worker:main',
+            'calibre-customize    = calibre.customize.ui:main',
+            'calibre-complete     = calibre.utils.complete:main',
+            'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
+            'calibre-smtp         = calibre.utils.smtp:main',
         ],
-        'gui_scripts' : [
+        'gui_scripts': [
             __appname__+' = calibre.gui_launch:calibre',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
             'ebook-viewer = calibre.gui_launch:ebook_viewer',
@@ -103,8 +103,8 @@ class PreserveMIMEDefaults:  # {{{
                         raise
 # }}}
 
-# Uninstall script {{{
 
+# Uninstall script {{{
 
 UNINSTALL = '''\
 #!/bin/sh
@@ -236,8 +236,8 @@ CALIBRE_LINUX_INSTALLER_HEREDOC
 
 # }}}
 
-# Completion {{{
 
+# Completion {{{
 
 class ZshCompleter:  # {{{
 
@@ -287,7 +287,7 @@ class ZshCompleter:  # {{{
                 if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
-                    arg += "(%s)"%'|'.join(opt.choices)
+                    arg += '(%s)'%'|'.join(opt.choices)
                 elif set(file_map).intersection(set(opt._long_opts)):
                     k = tuple(set(file_map).intersection(set(opt._long_opts)))
                     exts = file_map[k[0]]
@@ -295,9 +295,9 @@ class ZshCompleter:  # {{{
                         exts = ('*.%s'%x for x in sorted(exts + [x.upper() for x in exts]))
                         arg += "'_files -g \"%s\"'" % ' '.join(exts)
                     else:
-                        arg += "_files"
+                        arg += '_files'
                 elif (opt.dest in {'pidfile', 'attachment'}):
-                    arg += "_files"
+                    arg += '_files'
                 elif set(opf_opts).intersection(set(opt._long_opts)):
                     arg += "'_files -g \"*.opf\"'"
                 elif set(cover_opts).intersection(set(opt._long_opts)):
@@ -408,17 +408,17 @@ class ZshCompleter:  # {{{
         w('\n_ebook_convert() {')
         w('\n  local iarg oarg context state_descr state line\n  typeset -A opt_args\n  local ret=1')
         w("\n  _arguments '1: :_ebc_input_args' '*::ebook-convert output:->args' && ret=0")
-        w("\n  case $state in \n  (args)")
+        w('\n  case $state in \n  (args)')
         w('\n    iarg=${line[1]##*.}; ')
         w("\n    _arguments '1: :_ebc_output_args' '*::ebook-convert options:->args' && ret=0")
-        w("\n     case $state in \n    (args)")
+        w('\n     case $state in \n    (args)')
 
         w('\n      oarg=${line[1]##*.}')
         w('\n      iarg="_ebc_input_opts_${(L)iarg}"; oarg="_ebc_output_opts_${(L)oarg}"')
         w('\n      _call_function - $iarg; _call_function - $oarg; _ebc_common_opts; ret=0')
         w('\n    ;;\n    esac')
 
-        w("\n  ;;\n  esac\n  return ret")
+        w('\n  ;;\n  esac\n  return ret')
         w('\n}\n')
 
     def do_ebook_edit(self, f):
@@ -489,7 +489,7 @@ _ebook_edit() {{
         w('    "--version:Show version"\n')
         for command, desc in iteritems(descs):
             w('    "%s:%s"\n'%(
-                command, desc.replace(':', '\\:').replace('"', '\'')))
+                command, desc.replace(':', '\\:').replace('"', "'")))
         w('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
@@ -1031,7 +1031,7 @@ def opts_and_words(name, op, words, takes_files=False):
     esac
 
 }
-complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
+complete -F _'''%(opts, words) + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
@@ -1052,7 +1052,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
          ;;
     '''
     extras = []
-    for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
+    for eopts, eexts in ((cover_opts, '${pics}'), (opf_opts, "'@(opf)'")):
         for opt in eopts:
             extras.append(special_exts_template%(opt, eexts))
     extras = '\n'.join(extras)
@@ -1085,7 +1085,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
 }
 complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n").encode('utf-8')
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 VIEWER = '''\
@@ -1156,7 +1156,7 @@ def get_appdata():
             'summary':_('The one stop solution to all your e-book needs'),
             'description':(
                 _('calibre is the one stop solution to all your e-book needs.'),
-                _('You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various e-book formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in Content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.')  # noqa
+                _('You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various e-book formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in Content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.')  # noqa: E501
             ),
             'screenshots':(
                 (1408, 792, 'https://lh4.googleusercontent.com/-bNE1hc_3pIc/UvHLwKPGBPI/AAAAAAAAASA/8oavs_c6xoU/w1408-h792-no/main-default.png',),
@@ -1172,7 +1172,7 @@ def get_appdata():
             'summary':_('Edit the text and styles inside e-books'),
             'description':(
                 _('The calibre E-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
-                _('It can edit books in both the EPUB and AZW3 (Kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa
+                _('It can edit books in both the EPUB and AZW3 (Kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa: E501
             ),
             'screenshots':(
                 (1408, 792, 'https://lh5.googleusercontent.com/-M2MAVc3A8e4/UvHMWqGRa8I/AAAAAAAAATA/cecQeWUYBVs/w1408-h792-no/edit-default.png',),

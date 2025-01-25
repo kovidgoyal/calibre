@@ -35,7 +35,7 @@ class DziennikPolski24(BasicNewsRecipe):
 
     keep_only_tags = [
 
-        dict(name='div', attrs={'class': ['toolbar']}), dict(name='h1'), dict(name='h2', attrs={'class': ['teaser']}), dict(name='div', attrs={'class': ['picture']}), dict(name='div', attrs={'id': ['showContent']}), dict(name='div', attrs={'class': ['paging']}), dict(name='div', attrs={'class': ['wykupTresc']})  # noqa
+        dict(name='div', attrs={'class': ['toolbar']}), dict(name='h1'), dict(name='h2', attrs={'class': ['teaser']}), dict(name='div', attrs={'class': ['picture']}), dict(name='div', attrs={'id': ['showContent']}), dict(name='div', attrs={'class': ['paging']}), dict(name='div', attrs={'class': ['wykupTresc']})  # noqa: E501
     ]
 
     remove_tags = [
@@ -120,7 +120,7 @@ class DziennikPolski24(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open('http://www.dziennikpolski24.pl/pl/moje-konto/950606-loguj.html')
             br.select_form(nr=1)
-            br["user_login[login]"] = self.username
+            br['user_login[login]'] = self.username
             br['user_login[pass]'] = self.password
             br.submit()
         return br

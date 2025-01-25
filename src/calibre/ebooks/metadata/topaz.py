@@ -52,20 +52,20 @@ class StreamSlicer:
                 start, stop = stop, start
             size = stop - start
             if size <= 0:
-                return b""
+                return b''
             stream.seek(base + start)
             data = stream.read(size)
             if stride != 1:
                 data = data[::stride]
             return data
-        raise TypeError("stream indices must be integers")
+        raise TypeError('stream indices must be integers')
 
     def __setitem__(self, key, value):
         stream = self._stream
         base = self.start
         if isinstance(key, numbers.Integral):
             if len(value) != 1:
-                raise ValueError("key and value lengths must match")
+                raise ValueError('key and value lengths must match')
             stream.seek(base + key)
             return stream.write(value)
         if isinstance(key, slice):
@@ -76,10 +76,10 @@ class StreamSlicer:
             if stride != 1:
                 value = value[::stride]
             if len(value) != size:
-                raise ValueError("key and value lengths must match")
+                raise ValueError('key and value lengths must match')
             stream.seek(base + start)
             return stream.write(value)
-        raise TypeError("stream indices must be integers")
+        raise TypeError('stream indices must be integers')
 
     def update(self, data_blocks):
         # Rewrite the stream
@@ -144,33 +144,33 @@ class MetadataUpdater:
 
     def dump_headers(self):
         ''' Diagnostic '''
-        print("\ndump_headers():")
+        print('\ndump_headers():')
         for tag in self.topaz_headers:
-            print("%s: " % (tag))
+            print('%s: ' % (tag))
             num_recs = len(self.topaz_headers[tag]['blocks'])
-            print(" num_recs: %d" % num_recs)
+            print(' num_recs: %d' % num_recs)
             if num_recs:
-                print(" starting offset: 0x%x" % self.topaz_headers[tag]['blocks'][0]['offset'])
+                print(' starting offset: 0x%x' % self.topaz_headers[tag]['blocks'][0]['offset'])
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
-        FILTER=''.join([(len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x) or '.' for x in range(256)])
+        FILTER=''.join([((len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x)) or '.' for x in range(256)])
         N=0
         result=''
         while src:
-            s,src = src[:length],src[length:]
-            hexa = ' '.join(["%02X"%ord(x) for x in s])
+            s, src = src[:length],src[length:]
+            hexa = ' '.join(['%02X'%ord(x) for x in s])
             s = s.translate(FILTER)
-            result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+            result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
             N+=length
         print(result)
 
     def dump_metadata(self):
         ''' Diagnostic '''
         for tag in self.metadata:
-            print(f'{tag}: {repr(self.metadata[tag])}')
+            print(f'{tag}: {self.metadata[tag]!r}')
 
-    def encode_vwi(self,value):
+    def encode_vwi(self, value):
         ans = []
         multi_byte = (value > 0x7f)
         while value:
@@ -238,8 +238,8 @@ class MetadataUpdater:
                 offset += consumed
                 len_comp, consumed = self.decode_vwi(self.data[offset:offset+4])
                 offset += consumed
-                blocks[val] = dict(offset=hdr_offset,len_uncomp=len_uncomp,len_comp=len_comp)
-            topaz_headers[tag] = dict(blocks=blocks)
+                blocks[val] = {'offset': hdr_offset,'len_uncomp': len_uncomp,'len_comp': len_comp}
+            topaz_headers[tag] = {'blocks': blocks}
             th_seq.append(tag)
         self.eoth = self.data[offset]
         offset += 1
@@ -281,7 +281,7 @@ class MetadataUpdater:
         offset += 1
         self.md_header['num_recs'] = ord(self.data[offset:offset+1])
         offset += 1
-        # print "self.md_header: %s" % self.md_header
+        # print('self.md_header: %s' % self.md_header)
 
         self.metadata = {}
         self.md_seq = []
@@ -333,7 +333,7 @@ class MetadataUpdater:
         self.original_md_len = original_md_len
         return ths.getvalue().encode('iso-8859-1')
 
-    def update(self,mi):
+    def update(self, mi):
         # Collect the original metadata
         self.get_original_metadata()
 
@@ -394,7 +394,7 @@ if __name__ == '__main__':
         stream = io.BytesIO()
         with open(sys.argv[1], 'rb') as data:
             stream.write(data.read())
-        mi = MetaInformation(title="Updated Title", authors=['Author, Random'])
+        mi = MetaInformation(title='Updated Title', authors=['Author, Random'])
         set_metadata(stream, mi)
 
         # Write the result

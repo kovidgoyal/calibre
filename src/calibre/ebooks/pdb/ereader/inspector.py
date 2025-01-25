@@ -114,7 +114,7 @@ def section_lengths(header):
     print('Section Sizes')
     print('')
 
-    for i in range(0, header.section_count()):
+    for i in range(header.section_count()):
         size = len(header.section_data(i))
         if size > 65505:
             message = '<--- Over!'

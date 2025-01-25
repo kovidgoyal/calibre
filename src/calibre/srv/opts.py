@@ -43,7 +43,7 @@ raw_options = (
     None,
 
     _('Time (in seconds) to wait for a response from the server when making queries'),
-    'ajax_timeout',  60.0,
+    'ajax_timeout', 60.0,
     None,
 
     _('Total time in seconds to wait for clean shutdown'),
@@ -253,7 +253,7 @@ def boolean_option(add_option, opt):
 
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser
-    parser =  OptionParser(usage)
+    parser = OptionParser(usage)
     for opt in itervalues(options):
         add_option = partial(parser.add_option, dest=opt.name, help=opt_to_cli_help(opt), default=opt.default)
         if opt.default is True or opt.default is False:

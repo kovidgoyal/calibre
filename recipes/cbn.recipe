@@ -31,7 +31,6 @@ class CBN(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     no_stylesheets = True
-    language = 'en'
     encoding = 'iso-8859-1'
     conversion_options = {'linearize_tables': True}
 

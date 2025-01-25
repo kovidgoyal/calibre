@@ -31,7 +31,7 @@ class ShowTemplateTesterAction(InterfaceAction):
         #                 text=self.non_modal_window_title,
         #                 icon='debug.png',
         #                 triggered=partial(self.show_template_editor, modal=False))
-        self.non_modal_dialogs = list()
+        self.non_modal_dialogs = []
 
     def last_template_text(self):
         return self.previous_text

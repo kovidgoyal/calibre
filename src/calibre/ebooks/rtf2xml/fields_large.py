@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class FieldsLarge:
-    r"""
+    r'''
 =========================
 Logic
 =========================
@@ -92,7 +92,7 @@ Examples
         language="1024">1</inline></field></para>
         </paragraph-definition>
         </field-block>
-    """
+    '''
 
     def __init__(self,
             in_file,
@@ -100,7 +100,7 @@ Examples
             copy=None,
             run_level=1,
             ):
-        """
+        '''
         Required:
             'file'--file to parse
         Optional:
@@ -109,7 +109,7 @@ Examples
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -117,9 +117,9 @@ Examples
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__text_string = ''
         self.__field_instruction_string = ''
         self.__marker = 'mi<mk<inline-fld\n'
@@ -136,7 +136,7 @@ Examples
         'cw<fd<field_____'  : self.__found_field_func,
         }
         self.__field_dict = {
-        'cw<fd<field-inst'  :   self.__found_field_instruction_func,
+        'cw<fd<field-inst'  : self.__found_field_instruction_func,
         'cw<fd<field_____'  : self.__found_field_func,
         'cw<pf<par-end___'  : self.__par_in_field_func,
         'cw<sc<section___'  : self.__sec_in_field_func,
@@ -151,7 +151,7 @@ Examples
         self.__field_string = []  # list of field strings
 
     def __before_body_func(self, line):
-        """
+        '''
         Required:
             line --line ro parse
         Returns:
@@ -159,27 +159,27 @@ Examples
         Logic:
             Check for the beginninf of the body. If found, changed the state.
             Always write out the line.
-        """
+        '''
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
         self.__write_obj.write(line)
 
     def __in_body_func(self, line):
-        """
+        '''
         Required:
             line --line to parse
         Returns:
             nothing. (Writes a line to the output file, or performs other actions.)
         Logic:
             Check of the beginning of a field. Always output the line.
-        """
+        '''
         action = self.__in_body_dict.get(self.__token_info)
         if action:
             action(line)
         self.__write_obj.write(line)
 
     def __found_field_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -187,7 +187,7 @@ Examples
         Logic:
             Set the values for parsing the field. Four lists have to have
             items appended to them.
-        """
+        '''
         self.__state = 'field'
         self.__cb_count = 0
         ob_count = self.__ob_count
@@ -197,7 +197,7 @@ Examples
         self.__par_in_field.append(0)
 
     def __in_field_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -206,7 +206,7 @@ Examples
             Check for the end of the field; a paragraph break; a section break;
             the beginning of another field; or the beginning of the field
             instruction.
-        """
+        '''
         if self.__cb_count == self.__field_count[-1]:
             self.__field_string[-1] += line
             self.__end_field_func()
@@ -218,7 +218,7 @@ Examples
                 self.__field_string[-1] += line
 
     def __par_in_field_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -226,12 +226,12 @@ Examples
         Logic:
             Write the line to the output file and set the last item in the
             paragraph in field list to true.
-        """
+        '''
         self.__field_string[-1] += line
         self.__par_in_field[-1] = 1
 
     def __sec_in_field_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -239,12 +239,12 @@ Examples
         Logic:
             Write the line to the output file and set the last item in the
             section in field list to true.
-        """
+        '''
         self.__field_string[-1] += line
         self.__sec_in_field[-1] = 1
 
     def __found_field_instruction_func(self, line):
-        """
+        '''
         Requires:
             line -- line to parse
         Returns:
@@ -252,13 +252,13 @@ Examples
         Change the state to field instruction. Set the open bracket count of
         the beginning of this field so  you know when it ends. Set the closed
         bracket count to 0 so you don't prematureley exit this state.
-        """
+        '''
         self.__state = 'field_instruction'
         self.__field_instruction_count = self.__ob_count
         self.__cb_count = 0
 
     def __field_instruction_func(self, line):
-        """
+        '''
         Requires:
             line --line to parse
         Returns:
@@ -267,7 +267,7 @@ Examples
             Collect all the lines until the end of the field is reached.
             Process these lines with the module rtr.field_strings.
             Check if the field instruction is 'Symbol' (really UTF-8).
-        """
+        '''
         if self.__cb_count == self.__field_instruction_count:
             # The closing bracket should be written, since the opening bracket
             # was written
@@ -284,7 +284,7 @@ Examples
             self.__field_instruction_string += line
 
     def __end_field_func(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -301,7 +301,7 @@ Examples
             If the filed list contains more strings, add the latest
             (processed) string to the last string in the list. Otherwise,
             write the string to the output file.
-        """
+        '''
         last_bracket = self.__field_count.pop()
         instruction = self.__field_instruction.pop()
         inner_field_string = self.__field_string.pop()
@@ -313,23 +313,22 @@ Examples
             inner_field_string = '%scb<nu<clos-brack<%s\n' % \
             (instruction, last_bracket)
         elif sec_in_field or par_in_field:
-            inner_field_string = \
-            'mi<mk<fldbkstart\n'\
-            'mi<tg<open-att__<field-block<type>%s\n%s'\
-            'mi<mk<fldbk-end_\n' \
-            'mi<tg<close_____<field-block\n'\
-            'mi<mk<fld-bk-end\n' \
-            % (instruction, inner_field_string)
+            inner_field_string = (
+            'mi<mk<fldbkstart\n'
+            'mi<tg<open-att__<field-block<type>%s\n%s'
+            'mi<mk<fldbk-end_\n'
+            'mi<tg<close_____<field-block\n'
+            'mi<mk<fld-bk-end\n'
+            ) % (instruction, inner_field_string)
         # write a marker to show an inline field for later parsing
         else:
-            inner_field_string = \
-            '%s' \
-            'mi<tg<open-att__<field<type>%s\n%s'\
-            'mi<tg<close_____<field\n'\
-            % (self.__marker, instruction, inner_field_string)
+            inner_field_string = (
+            '%s'
+            'mi<tg<open-att__<field<type>%s\n%s'
+            'mi<tg<close_____<field\n'
+            ) % (self.__marker, instruction, inner_field_string)
         if sec_in_field:
-            inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + \
-            'mi<mk<sec-fd-end\n'
+            inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + 'mi<mk<sec-fd-end\n'
         if par_in_field:
             inner_field_string = 'mi<mk<par-in-fld\n' + inner_field_string
         if len(self.__field_string) == 0:
@@ -343,7 +342,7 @@ Examples
         self.__write_obj.write(the_string)
 
     def fix_fields(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -353,7 +352,7 @@ Examples
             the state. If the state is before the body, look for the
             beginning of the body.
             If the state is body, send the line to the body method.
-        """
+        '''
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
@@ -375,6 +374,6 @@ Examples
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "fields_large.data")
+            copy_obj.copy_file(self.__write_to, 'fields_large.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

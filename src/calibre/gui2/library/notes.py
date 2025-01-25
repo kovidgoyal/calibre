@@ -350,7 +350,6 @@ class SearchInput(QWidget):
         r.restriction_changed.connect(self.search_changed)
         l.addWidget(r)
 
-
     @property
     def current_query(self):
         return {

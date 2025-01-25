@@ -34,7 +34,7 @@ def uniq(vals):
     vals = vals or ()
     seen = set()
     seen_add = seen.add
-    return list(x for x in vals if x not in seen and not seen_add(x))
+    return [x for x in vals if x not in seen and not seen_add(x)]
 
 
 def dump_dict(cats):
@@ -135,7 +135,7 @@ def items_with_property(root, q, prefixes=None):
     if prefixes is None:
         prefixes = read_prefixes(root)
     q = expand_prefix(q, known_prefixes).lower()
-    for item in XPath("./opf:manifest/opf:item[@properties]")(root):
+    for item in XPath('./opf:manifest/opf:item[@properties]')(root):
         for prop in (item.get('properties') or '').lower().split():
             prop = expand_prefix(prop, prefixes)
             if prop == q:
@@ -191,8 +191,8 @@ def ensure_prefix(root, prefixes, prefix, value=None):
 
 # }}}
 
-# Refines {{{
 
+# Refines {{{
 
 def read_refines(root):
     ans = defaultdict(list)
@@ -204,7 +204,7 @@ def read_refines(root):
 
 
 def refdef(prop, val, scheme=None):
-    return (prop, val, scheme)
+    return prop, val, scheme
 
 
 def set_refines(elem, existing_refines, *new_refines):
@@ -221,8 +221,8 @@ def set_refines(elem, existing_refines, *new_refines):
         p.insert(p.index(elem)+1, r)
 # }}}
 
-# Identifiers {{{
 
+# Identifiers {{{
 
 def parse_identifier(ident, val, refines):
     idid = ident.get('id')
@@ -330,8 +330,8 @@ set_uuid = identifier_writer('uuid')
 
 # }}}
 
-# Title {{{
 
+# Title {{{
 
 def find_main_title(root, refines, remove_blanks=False):
     first_title = main_title = None
@@ -404,8 +404,8 @@ def set_title(root, prefixes, refines, title, title_sort=None):
 
 # }}}
 
-# Languages {{{
 
+# Languages {{{
 
 def read_languages(root, prefixes, refines):
     ans = []
@@ -434,8 +434,8 @@ def set_languages(root, prefixes, refines, languages):
         metadata.append(l)
 # }}}
 
-# Creator/Contributor {{{
 
+# Creator/Contributor {{{
 
 Author = namedtuple('Author', 'name sort seq', defaults=(0,))
 
@@ -558,8 +558,8 @@ def set_book_producers(root, prefixes, refines, producers):
             metadata.append(m)
 # }}}
 
-# Dates {{{
 
+# Dates {{{
 
 def parse_date(raw, is_w3cdtf=False):
     raw = raw.strip()
@@ -668,8 +668,8 @@ def set_last_modified(root, prefixes, refines, val=None):
     meta.text = val
 # }}}
 
-# Comments {{{
 
+# Comments {{{
 
 def read_comments(root, prefixes, refines):
     ans = ''
@@ -691,8 +691,8 @@ def set_comments(root, prefixes, refines, val):
             m.append(c)
 # }}}
 
-# Publisher {{{
 
+# Publisher {{{
 
 @simple_text
 def read_publisher(root, prefixes, refines):
@@ -713,8 +713,8 @@ def set_publisher(root, prefixes, refines, val):
             m.append(c)
 # }}}
 
-# Tags {{{
 
+# Tags {{{
 
 def read_tags(root, prefixes, refines):
     ans = []
@@ -737,8 +737,8 @@ def set_tags(root, prefixes, refines, val):
                 m.append(c)
 # }}}
 
-# Rating {{{
 
+# Rating {{{
 
 def read_rating(root, prefixes, refines):
     pq = '%s:rating' % CALIBRE_PREFIX
@@ -780,8 +780,8 @@ def set_rating(root, prefixes, refines, val):
         create_rating(root, prefixes, '%.2g' % float(val))
 # }}}
 
-# Series {{{
 
+# Series {{{
 
 def read_series(root, prefixes, refines):
     series_index = 1.0
@@ -825,8 +825,8 @@ def set_series(root, prefixes, refines, series, series_index):
         create_series(root, refines, series, fmt_sidx(series_index))
 # }}}
 
-# User metadata {{{
 
+# User metadata {{{
 
 def dict_reader(name, load=json.loads, try2=True):
     pq = f'{CALIBRE_PREFIX}:{name}'
@@ -951,17 +951,17 @@ def set_user_metadata(root, prefixes, refines, val):
         nval = {}
         for name, fm in val.items():
             fm = fm.copy()
-            if (fm.get('datatype', 'text') == 'composite' and
-                not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
-                    fm['#value#'] = ''
+            if (fm.get('datatype', 'text') == 'composite'
+              and not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
+                fm['#value#'] = ''
             encode_is_multiple(fm)
             nval[name] = fm
         set_user_metadata3(root, prefixes, refines, nval)
 
 # }}}
 
-# Covers {{{
 
+# Covers {{{
 
 def read_raster_cover(root, prefixes, refines):
 
@@ -1008,8 +1008,8 @@ def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href)
 
 # }}}
 
-# Reading/setting Metadata objects {{{
 
+# Reading/setting Metadata objects {{{
 
 def first_spine_item(root, prefixes, refines):
     for i in XPath('./opf:spine/opf:itemref/@idref')(root):

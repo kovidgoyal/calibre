@@ -9,7 +9,7 @@ from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
-ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
+ADOBE_OBFUSCATION = 'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
 
 
@@ -46,7 +46,7 @@ class EPUBInput(InputFormatPlugin):
         from lxml import etree
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
-            idpf_key = re.sub('[\u0020\u0009\u000d\u000a]', '', idpf_key)
+            idpf_key = re.sub(r'[\u0020\u0009\u000d\u000a]', '', idpf_key)
             idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in opf.identifier_iter():
@@ -244,7 +244,7 @@ class EPUBInput(InputFormatPlugin):
             with open('META-INF/container.xml', 'rb') as f:
                 root = safe_xml_fromstring(f.read())
                 for r in root.xpath('//*[local-name()="rootfile"]'):
-                    if attr(r, 'media-type') != "application/oebps-package+xml":
+                    if attr(r, 'media-type') != 'application/oebps-package+xml':
                         continue
                     path = attr(r, 'full-path')
                     if not path:

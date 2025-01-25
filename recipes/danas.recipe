@@ -17,7 +17,7 @@ class Danas(BasicNewsRecipe):
     __author__ = 'Darko Miletic'
     description = 'Dnevne novine sa vestima iz sveta, politike, ekonomije, kulture, sporta, Beograda, Novog Sada i cele Srbije.'
     publisher = 'DAN GRAF d.o.o.'
-    category = 'danas Dnevne novine politika drustvo ekonomija svet sport beograd vojvodina periskop terazije Beograd Srbija Novi Sad Nis Kragujevac Vojvodina politics Serbia'  # noqa
+    category = 'danas Dnevne novine politika drustvo ekonomija svet sport beograd vojvodina periskop terazije Beograd Srbija Novi Sad Nis Kragujevac Vojvodina politics Serbia'  # noqa: E501
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = False
@@ -31,11 +31,11 @@ class Danas(BasicNewsRecipe):
     auto_cleanup = True
     auto_cleanup_keep = '//div[@class="post-intro-above"] //h1[@class="post-title"] | //div[@class="post-intro-title"] | //div[@class="post-meta-wrapper"]'
     resolve_internal_links = True
-    extra_css = """
+    extra_css = '''
                                 .author{font-size: small}
                                 .published {font-size: small}
                                 img{margin-bottom: 0.8em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description,
@@ -66,7 +66,7 @@ class Danas(BasicNewsRecipe):
                   'avgust', 'septembar', 'oktobar', 'novembar', 'decembar']
         td = date.today()
         monthname = months[td.month - 1]
-        lurl = td.strftime("https://www.danas.rs/naslovna/naslovna-strana-za-%d-" + monthname + "-%Y/")
+        lurl = td.strftime('https://www.danas.rs/naslovna/naslovna-strana-za-%d-' + monthname + '-%Y/')
         soup = self.index_to_soup(lurl)
         al = soup.find('div', attrs={'class':'corax-image'})
         if al and al.img:

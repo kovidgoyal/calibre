@@ -38,9 +38,9 @@ class ABCNews(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-#    auto_cleanup   = True # enable this as a backup option if recipe stops working
+    # auto_cleanup   = True # enable this as a backup option if recipe stops working
 
-#    use_embedded_content = False # if set to true will assume that all the article content is within the feed (i.e. won't try to fetch more data)
+    # use_embedded_content = False # if set to true will assume that all the article content is within the feed (i.e. won't try to fetch more data)
 
     no_stylesheets = True
     remove_javascript = True
@@ -57,7 +57,7 @@ class ABCNews(BasicNewsRecipe):
     # Clear out all the unwanted html tags:
     # ************************************
     remove_tags = [
-#        dict(name='aside', attrs={'name': re.compile(aside_reg_exp, re.IGNORECASE)})
+        # dict(name='aside', attrs={'name': re.compile(aside_reg_exp, re.IGNORECASE)})
         {
             'name': ['meta', 'link', 'noscript', 'aside']
         },
@@ -98,12 +98,12 @@ class ABCNews(BasicNewsRecipe):
         ('Health', 'https://www.abc.net.au/news/feed/9167762/rss.xml'),
         ('Arts and Entertainment', 'https://www.abc.net.au/news/feed/472/rss.xml'),
         ('Fact Check', 'https://www.abc.net.au/news/feed/5306468/rss.xml'),
-#        ('Adelaide', 'https://www.abc.net.au/news/feed/8057540/rss.xml'), #enable by removing # at start of line
-#        ('Brisbane', 'https://www.abc.net.au/news/feed/8053540/rss.xml'), #enable by removing # at start of line
-#        ('Canberra', 'https://www.abc.net.au/news/feed/8057234/rss.xml'), #enable by removing # at start of line
-#        ('Darwin', 'https://www.abc.net.au/news/feed/8057648/rss.xml'), #enable by removing # at start of line
-#        ('Hobart', 'https://www.abc.net.au/news/feed/8054562/rss.xml'), #enable by removing # at start of line
-#        ('Melbourne', 'https://www.abc.net.au/news/feed/8057136/rss.xml'), #enable by removing # at start of line
-#        ('Perth', 'https://www.abc.net.au/news/feed/8057096/rss.xml'), #enable by removing # at start of line
-#        ('Sydney', 'https://www.abc.net.au/news/feed/8055316/rss.xml'), #enable by removing # at start of line
+        # ('Adelaide', 'https://www.abc.net.au/news/feed/8057540/rss.xml'), #enable by removing # at start of line
+        # ('Brisbane', 'https://www.abc.net.au/news/feed/8053540/rss.xml'), #enable by removing # at start of line
+        # ('Canberra', 'https://www.abc.net.au/news/feed/8057234/rss.xml'), #enable by removing # at start of line
+        # ('Darwin', 'https://www.abc.net.au/news/feed/8057648/rss.xml'), #enable by removing # at start of line
+        # ('Hobart', 'https://www.abc.net.au/news/feed/8054562/rss.xml'), #enable by removing # at start of line
+        # ('Melbourne', 'https://www.abc.net.au/news/feed/8057136/rss.xml'), #enable by removing # at start of line
+        # ('Perth', 'https://www.abc.net.au/news/feed/8057096/rss.xml'), #enable by removing # at start of line
+        # ('Sydney', 'https://www.abc.net.au/news/feed/8055316/rss.xml'), #enable by removing # at start of line
     ]

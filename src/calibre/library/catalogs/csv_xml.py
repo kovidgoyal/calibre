@@ -17,7 +17,6 @@ from calibre.utils.localization import _
 
 
 class CSV_XML(CatalogPlugin):
-
     'CSV/XML catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -71,20 +70,20 @@ class CSV_XML(CatalogPlugin):
             opts_dict = vars(opts)
             log(f"{self.name}('{current_library}'): Generating {self.fmt.upper()}")
             if opts.connected_device['is_device_connected']:
-                log(" connected_device: %s" % opts.connected_device['name'])
+                log(' connected_device: %s' % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
             if opts_dict['ids']:
-                log(" Book count: %d" % len(opts_dict['ids']))
+                log(' Book count: %d' % len(opts_dict['ids']))
                 if opts_dict['search_text']:
-                    log(" (--search ignored when a subset of the database is specified)")
+                    log(' (--search ignored when a subset of the database is specified)')
 
             if opts_dict['fields']:
                 if opts_dict['fields'] == 'all':
-                    log(" Fields: %s" % ', '.join(FIELDS[1:]))
+                    log(' Fields: %s' % ', '.join(FIELDS[1:]))
                 else:
-                    log(" Fields: %s" % opts_dict['fields'])
+                    log(' Fields: %s' % opts_dict['fields'])
 
         # If a list of ids are provided, don't use search_text
         if opts.ids:
@@ -160,7 +159,7 @@ class CSV_XML(CatalogPlugin):
                     if isinstance(item, str):
                         opening_tag = re.search(r'<(\w+)( |>)', item)
                         if opening_tag:
-                            closing_tag = re.search(r'<\/%s>$' % opening_tag.group(1), item)
+                            closing_tag = re.search(r'</%s>$' % opening_tag.group(1), item)
                             if closing_tag:
                                 item = html2text(item)
 

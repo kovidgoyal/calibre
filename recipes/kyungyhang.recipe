@@ -21,7 +21,7 @@ class Kyungyhang(BasicNewsRecipe):
     remove_javascript = True
 
     preprocess_regexps = [
-        (re.compile("<div class='ad_movFocus'.*</html>",
+        (re.compile(r"<div class='ad_movFocus'.*</html>",
                     re.DOTALL | re.IGNORECASE), lambda match: '</html>'),
     ]
 

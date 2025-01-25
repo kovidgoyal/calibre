@@ -299,7 +299,7 @@ class CollectionsBookList(BookList):
                 if all_by_title not in collections:
                     collections[all_by_title] = {}
                 collections[all_by_title][lpath] = (book, tsval, asval)
-            for (n, sb) in all_by_something:
+            for n,sb in all_by_something:
                 if n not in collections:
                     collections[n] = {}
                 collections[n][lpath] = (book, book.get(sb, ''), tsval)

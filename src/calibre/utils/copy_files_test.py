@@ -119,5 +119,6 @@ class TestCopyFiles(unittest.TestCase):
                 self.assertFalse(tuple(walk(self.d())))
             self.ae(before, frozenset(walk(src)), 'Source files were deleted despite there being an error')
 
+
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCopyFiles)

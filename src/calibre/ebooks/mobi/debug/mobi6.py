@@ -32,7 +32,7 @@ class TagX:  # {{{
     def __repr__(self):
         return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
                 self.num_values, bin(self.bitmask), self.eof)
-    # }}}
+# }}}
 
 
 class SecondaryIndexHeader:  # {{{
@@ -231,7 +231,7 @@ class IndexHeader:  # {{{
         a('Number of entries in the NCX: %d'% self.ncx_count)
 
         return '\n'.join(ans)
-    # }}}
+# }}}
 
 
 class Tag:  # {{{
@@ -242,12 +242,12 @@ class Tag:  # {{{
     '''
 
     TAG_MAP = {
-            1: ('offset', 'Offset in HTML'),
-            2: ('size', 'Size in HTML'),
-            3: ('label_offset', 'Label offset in CNCX'),
-            4: ('depth', 'Depth of this entry in TOC'),
-            5: ('class_offset', 'Class offset in CNCX'),
-            6: ('pos_fid', 'File Index'),
+            1 : ('offset', 'Offset in HTML'),
+            2 : ('size', 'Size in HTML'),
+            3 : ('label_offset', 'Label offset in CNCX'),
+            4 : ('depth', 'Depth of this entry in TOC'),
+            5 : ('class_offset', 'Class offset in CNCX'),
+            6 : ('pos_fid', 'File Index'),
 
             11: ('secondary', '[unknown, unknown, '
                 'tag type from TAGX in primary index header]'),
@@ -256,14 +256,14 @@ class Tag:  # {{{
             22: ('first_child_index', 'First child'),
             23: ('last_child_index', 'Last child'),
 
-            69 : ('image_index', 'Offset from first image record to the'
+            69: ('image_index', 'Offset from first image record to the'
                                 ' image record associated with this entry'
                                 ' (masthead for periodical or thumbnail for'
                                 ' article entry).'),
-            70 : ('desc_offset', 'Description offset in cncx'),
-            71 : ('author_offset', 'Author offset in cncx'),
-            72 : ('image_caption_offset', 'Image caption offset in cncx'),
-            73 : ('image_attr_offset', 'Image attribution offset in cncx'),
+            70: ('desc_offset', 'Description offset in cncx'),
+            71: ('author_offset', 'Author offset in cncx'),
+            72: ('image_caption_offset', 'Image caption offset in cncx'),
+            73: ('image_attr_offset', 'Image attribution offset in cncx'),
 
     }
 
@@ -405,7 +405,7 @@ class IndexRecord:  # {{{
 
     def get_parent(self, index):
         if index.depth < 1:
-            return None
+            return
         parent_depth = index.depth - 1
         for p in self.indices:
             if p.depth != parent_depth:
@@ -475,8 +475,8 @@ class CNCX:  # {{{
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
 
-
 # }}}
+
 
 class ImageRecord:  # {{{
 
@@ -843,6 +843,5 @@ def inspect_mobi(mobi_file, ddir):
         os.mkdir(tdir)
         for rec in getattr(f, attr):
             rec.dump(tdir)
-
 
 # }}}

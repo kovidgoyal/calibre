@@ -6,7 +6,7 @@ from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = 'zotzo'
 __docformat__ = 'restructuredtext en'
-"""
+'''
 http://fifthdown.blogs.nytimes.com/
 http://offthedribble.blogs.nytimes.com/
 http://thequad.blogs.nytimes.com/
@@ -16,7 +16,7 @@ http://bats.blogs.nytimes.com/
 http://straightsets.blogs.nytimes.com/
 http://formulaone.blogs.nytimes.com/
 http://onpar.blogs.nytimes.com/
-"""
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -32,7 +32,6 @@ class NYTimesSports(BasicNewsRecipe):
     max_articles_per_feed = 25
     use_embedded_content = False
     no_stylesheets = True
-    language = 'en'
     delay = 1
 
     feeds = [

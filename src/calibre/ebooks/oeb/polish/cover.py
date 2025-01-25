@@ -105,9 +105,9 @@ def mark_as_cover(container, name):
     else:
         mark_as_cover_epub(container, name)
 
+
 ###############################################################################
 # The delightful EPUB cover processing
-
 
 def is_raster_image(media_type):
     return media_type and media_type.lower() in {
@@ -379,7 +379,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
                     with open(cover_path, 'rb') as csrc:
                         width, height = identify(csrc)[1:]
             except:
-                container.log.exception("Failed to get width and height of cover")
+                container.log.exception('Failed to get width and height of cover')
             ar = 'xMidYMid meet' if keep_aspect else 'none'
             templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
             templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))

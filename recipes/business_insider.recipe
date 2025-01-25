@@ -22,10 +22,10 @@ class Business_insider(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://static.businessinsider.com/assets/images/logos/tbi_print.jpg'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

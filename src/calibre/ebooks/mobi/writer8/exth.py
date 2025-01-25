@@ -142,7 +142,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         datestr = str(metadata['timestamp'][0])
 
     if datestr is None:
-        raise ValueError("missing date or timestamp")
+        raise ValueError('missing date or timestamp')
 
     datestr = datestr.encode('utf-8')
     exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))

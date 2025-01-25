@@ -18,12 +18,10 @@ class Descopera(BasicNewsRecipe):
     oldest_article = 5
     language = 'ro'
     max_articles_per_feed = 100
-    no_stylesheets = True
     use_embedded_content = False
     category = 'Ziare,Reviste,Descopera'
     encoding = 'utf-8'
     cover_url = 'http://www.descopera.ro/images/header_images/logo.gif'
-    use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True

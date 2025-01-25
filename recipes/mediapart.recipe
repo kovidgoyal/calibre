@@ -14,7 +14,7 @@
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
-__copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 2016, Daniel Bonnery; 2009, Mathieu Godlewski; 2010-2012, Louis Gesbert'  # noqa
+__copyright__ = '2021, Loïc Houpert <houpertloic at gmail .com>. Adapted from: 2016, Daniel Bonnery; 2009, Mathieu Godlewski; 2010-2012, Louis Gesbert'
 '''
 Mediapart
 '''
@@ -49,7 +49,7 @@ class Mediapart(BasicNewsRecipe):
 
     conversion_options = {'smarten_punctuation': True}
 
-    masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
+    masthead_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png'
 
     ignore_duplicate_articles = {'title'}
     resolve_internal_links  = True
@@ -65,7 +65,7 @@ class Mediapart(BasicNewsRecipe):
             url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
         link = soup.find('a', href=True)
-        skip_sections =[ # add sections you want to skip
+        skip_sections =[  # add sections you want to skip
             '/video/', '/videos/', '/media/'
         ]
         if any(x in link['href'] for x in skip_sections):
@@ -95,7 +95,7 @@ class Mediapart(BasicNewsRecipe):
         for feed in feeds:
             feed_name = feed.title.lower()
             for article in feed.articles:
-                if feed_name != 'autres'  and feed_name not in article.url:
+                if feed_name != 'autres' and feed_name not in article.url:
                     feed.articles.remove(article)
                 if feed_name == 'autres' and any(section in article.url for section in self.sections):
                     feed.articles.remove(article)

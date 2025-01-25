@@ -25,9 +25,9 @@ class MReplace(UserDict):
         if len(self.data) > 0:
             keys = sorted(self.data, key=len, reverse=True)
             if isinstance(keys[0], bytes):
-                tmp = b"(%s)" % b"|".join(map(re.escape, keys))
+                tmp = b'(%s)' % b'|'.join(map(re.escape, keys))
             else:
-                tmp = "(%s)" % "|".join(map(re.escape, keys))
+                tmp = '(%s)' % '|'.join(map(re.escape, keys))
             if self.re != tmp:
                 self.re = tmp
                 if self.case_sensitive:

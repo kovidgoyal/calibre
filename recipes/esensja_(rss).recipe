@@ -23,9 +23,7 @@ class EsensjaRSS(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(
-                              u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
-                          ]
+                          (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
     remove_attributes = ['style', 'bgcolor', 'alt', 'color']
     keep_only_tags = [dict(attrs={'class': 'sekcja'}), ]
     remove_tags_after = dict(id='tekst')
@@ -53,9 +51,9 @@ class EsensjaRSS(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX)
         cover = soup.find(id='panel_1')
-        self.cover_url = self.INDEX + \
-            cover.find('a')['href'].replace(
-                'index.html', '') + 'img/ilustr/cover_b.jpg'
+        self.cover_url = (self.INDEX
+            + cover.find('a')['href'].replace('index.html', '')
+            + 'img/ilustr/cover_b.jpg')
         return getattr(self, 'cover_url', self.cover_url)
 
     def append_page(self, soup, appendtag):
@@ -95,7 +93,7 @@ class EsensjaRSS(BasicNewsRecipe):
             info = tag.find(attrs={'class': 'img_info'})
             text = str(tag)
             if not src:
-                src = re.search('src="[^"]*?"', text)
+                src = re.search(r'src="[^"]*?"', text)
                 if src:
                     src = src.group(0)
                     src = src[5:].replace('//', '/')

@@ -11,7 +11,7 @@ class SmashingMagazine (BasicNewsRecipe):
     __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
     title = u'Smashing Magazine'
-    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'  # noqa
+    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'  # noqa: E501
     language = 'en'
     tags = 'web development, software'
     oldest_article = 7

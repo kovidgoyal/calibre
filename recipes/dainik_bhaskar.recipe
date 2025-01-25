@@ -23,7 +23,7 @@ class DainikBhaskar(BasicNewsRecipe):
         soup = self.index_to_soup('https://epaper.bhaskar.com/')
         tag = soup.find(attrs={'class': 'scaleDiv'})
         if tag:
-            self.cover_url = tag.find('img')['src'].replace("_ss.jpg", "_l.jpg")
+            self.cover_url = tag.find('img')['src'].replace('_ss.jpg', '_l.jpg')
         return super().get_cover_url()
 
     keep_only_tags = [

@@ -27,18 +27,18 @@ class Guardian(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='div', attrs={
-             'id': ["content", "article_header", "main-article-info", ]}),
+             'id': ['content', 'article_header', 'main-article-info', ]}),
     ]
     remove_tags = [
         dict(name='div', attrs={
-             'class': ["video-content", "videos-third-column"]}),
+             'class': ['video-content', 'videos-third-column']}),
         dict(name='div', attrs={
-             'id': ["article-toolbox", "subscribe-feeds", ]}),
+             'id': ['article-toolbox', 'subscribe-feeds', ]}),
         dict(name='div', attrs={
-             'class': ["promo-component bookshop-books-promo bookshop-books"]}),
-        dict(name='ul', attrs={'class': ["pagination"]}),
-        dict(name='ul', attrs={'id': ["content-actions"]}),
-        dict(name='li', attrs={'id': ["product-image"]}),
+             'class': ['promo-component bookshop-books-promo bookshop-books']}),
+        dict(name='ul', attrs={'class': ['pagination']}),
+        dict(name='ul', attrs={'id': ['content-actions']}),
+        dict(name='li', attrs={'id': ['product-image']}),
     ]
     use_embedded_content = False
 

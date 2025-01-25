@@ -36,9 +36,8 @@ class DeGentenaarOnline(BasicNewsRecipe):
         '--comment', description, '--category', category, '--publisher', publisher
     ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + \
-        category + \
-        '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+    html2epub_options = ('publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category +
+        '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "')
 
     keep_only_tags = [dict(name='span', attrs={
                            'id': ['lblArticleTitle', 'lblArticleIntroduction', 'lblArticleMainText']})]
@@ -63,7 +62,7 @@ class DeGentenaarOnline(BasicNewsRecipe):
         return url.replace('/Detail.aspx?articleid', '/PrintArticle.aspx?ArticleID')
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        return article.get('guid', None)
 
     def preprocess_html(self, soup):
         del soup.body['onload']
@@ -77,9 +76,9 @@ class DeGentenaarOnline(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         return soup

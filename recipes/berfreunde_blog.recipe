@@ -25,7 +25,6 @@ class bergfreunde_blog(BasicNewsRecipe):
     __author__ = 'VoHe'
     no_stylesheets = True
     remove_javascript = True
-    remove_javascript = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
 

@@ -25,7 +25,7 @@ class ComputerWeekly(BasicNewsRecipe):
         ('Financial services IT news', 'https://www.computerweekly.com/rss/Financial-services-IT-news.xml'),
         ('Public sector IT news', 'https://www.computerweekly.com/rss/Public-sector-IT-news.xml'),
         ('Enterprise software', 'https://www.computerweekly.com/rss/Enterprise-software.xml'),
-        ('SME IT news' , 'https://www.computerweekly.com/rss/SME-IT-news.xml'),
+        ('SME IT news', 'https://www.computerweekly.com/rss/SME-IT-news.xml'),
         ('Datacenter and cloud computing', 'https://www.computerweekly.com/rss/Datacentre-and-cloud-computing.xml'),
         ('Storage', 'https://www.computerweekly.com/rss/Storage.xml'),
         ('Information Management', 'https://www.computerweekly.com/rss/Information-management.xml'),

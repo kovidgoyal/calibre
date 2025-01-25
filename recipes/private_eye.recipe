@@ -77,10 +77,10 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         try:
             day, month, year = next_issue_text.split(' ')
             day = ''.join(c for c in day if c.isdigit())
-            pub_date = datetime.strptime(" ".join((day, month, year)), "%d %B %Y") - timedelta(12)
+            pub_date = datetime.strptime(' '.join((day, month, year)), '%d %B %Y') - timedelta(12)
             self.log('pub-date:', pub_date)
-            self.conversion_options.update({'pubdate': datetime.strftime(pub_date, "%d %B %Y").lstrip("0")})
-            title = self.title + " " + datetime.strftime(pub_date, "%Y-%m-%d")
+            self.conversion_options.update({'pubdate': datetime.strftime(pub_date, '%d %B %Y').lstrip('0')})
+            title = self.title + ' ' + datetime.strftime(pub_date, '%Y-%m-%d')
             self.conversion_options.update({'title': title})
             self.conversion_options.update({'title_sort': title})
         except (TypeError, ValueError):
@@ -124,24 +124,24 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     def preprocess_html(self, soup):
         # Remove <a> tag link to crossword image
         for tag in soup.findAll('a', {'href': re.compile(r'/pictures/crossword/')}):
-            self.log("Removing link to crossword image...")
+            self.log('Removing link to crossword image...')
             tag.unwrap()
 
         # Remove align tag in crossword image (so float right works)
         for tag in soup.findAll('img', {'src': re.compile(r'/pictures/crossword/')}):
-            if "align" in tag.attrs:
-                self.log("Removing crossword image align attribute...")
+            if 'align' in tag.attrs:
+                self.log('Removing crossword image align attribute...')
                 del tag.attrs['align']
 
         return soup
 
     # We remove vast swathes of HTML which is not part of the articles.
     # Remove sibling content
-    remove_tags_before =  [
-        {'name': 'div', 'class': "article"},
-        {'name': 'div', 'id': "page"},
-        {'name': 'div', 'id': "page-wide"},
-        {'name': 'div', 'id': "content"},
+    remove_tags_before = [
+        {'name': 'div', 'class': 'article'},
+        {'name': 'div', 'id': 'page'},
+        {'name': 'div', 'id': 'page-wide'},
+        {'name': 'div', 'id': 'content'},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
     ]
     remove_tags_after = remove_tags_before.copy()
@@ -161,9 +161,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'attrs': {'id': 'about-covers'}},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
         {'name': 'iframe'},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/lightbox/')}},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/news_ticker/')}},
-        {'name': 'link', 'attrs': {'href': re.compile('/javastyle/media-queries-')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/lightbox/')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/news_ticker/')}},
+        {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/media-queries-')}},
     ]
 
     # Convert headers to h1, strapline to h4

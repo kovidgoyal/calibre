@@ -36,8 +36,8 @@ class ElPeriodico_cat(BasicNewsRecipe):
         '--comment', description, '--category', category, '--publisher', publisher
     ]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = ('publisher="' + publisher +
+        '"\ncomments="' + description + '"\ntags="' + category + '"')
 
     feeds = [(u'Portada', u'http://www.elperiodico.com/es/rss/rss_portada.xml'),
              (u'Internacional', u'http://elperiodico.com/es/rss/internacional/rss.xml'),
@@ -66,7 +66,7 @@ class ElPeriodico_cat(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mcharset)
         for item in soup.findAll(style=True):
             del item['style']

@@ -134,7 +134,7 @@ if __name__ == '__main__':
 class BBC(BasicNewsRecipe):
     title = 'BBC News (fast)'
     __author__ = 'Kovid Goyal'
-    description = 'Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and regional perspectives. Also entertainment, business, science, technology and health news.'  # noqa
+    description = 'Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and regional perspectives. Also entertainment, business, science, technology and health news.'  # noqa: E501
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True

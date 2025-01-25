@@ -15,8 +15,8 @@ class AllGUIActions(InterfaceAction):
 
     name = 'All GUI actions'
     action_spec = (_('All actions'), 'wizard.png',
-                   _("Show a menu of all available actions, including from third party plugins.\nThis menu "
-                     "is not available when looking at books on a device"), None)
+                   _('Show a menu of all available actions, including from third party plugins.\nThis menu '
+                     'is not available when looking at books on a device'), None)
 
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
@@ -34,7 +34,7 @@ class AllGUIActions(InterfaceAction):
                         menu=self.hidden_menu,
                         unique_name='Main window layout',
                         shortcut='Ctrl+F1',
-                        text=_("Show a menu of all available actions."),
+                        text=_('Show a menu of all available actions.'),
                         icon='wizard.png',
                         triggered=self.show_menu)
 
@@ -63,15 +63,15 @@ class AllGUIActions(InterfaceAction):
         m = self.qaction.menu()
         m.clear()
 
-        name_data = {} # A dict of display names to actions data
+        name_data = {}  # A dict of display names to actions data
 
         # Use model data from Preferences / Toolbars, with location 'toolbar' or
         # 'toolbar-device' depending on whether a device is connected.
         location = 'toolbar' + ('-device' if self.gui.location_manager.has_device else '')
         for model in (AllModel(location, self.gui), CurrentModel(location, self.gui)):
-            for i in range(0, model.rowCount(None)):
+            for i in range(model.rowCount(None)):
                 dex = model.index(i)
-                name = model.names((dex,))[0] # this is the action name
+                name = model.names((dex,))[0]  # this is the action name
                 if name is not None and not name.startswith('---'):
                     name_data[model.data(dex, Qt.ItemDataRole.DisplayRole)] = {
                                     'action': model.name_to_action(name, self.gui),
@@ -81,8 +81,8 @@ class AllGUIActions(InterfaceAction):
 
         # Get display names of builtin and user plugins. We tell the difference
         # using the class full module name. Plugins start with 'calibre_plugins'
-        builtin_actions = list()
-        user_plugins = list()
+        builtin_actions = []
+        user_plugins = []
         for display_name, act_data in name_data.items():
             act = model.name_to_action(act_data['action_name'], self.gui)
             if act is not None:
@@ -106,7 +106,7 @@ class AllGUIActions(InterfaceAction):
         for n,v in kbd.keys_map.items():
             act_name = kbd.shortcuts[n]['name'].lower()
             if act_name in lower_names:
-                shortcuts = list(sc.toString() for sc in v)
+                shortcuts = [sc.toString() for sc in v]
                 shortcut_map[act_name] = f'\t{", ".join(shortcuts)}'
 
         # This function constructs a menu action, dealing with the action being
@@ -116,7 +116,7 @@ class AllGUIActions(InterfaceAction):
         def add_action(menu, display_name):
             shortcuts = shortcut_map.get(display_name.lower(), '')
             act = name_data[display_name]['action']
-            if not hasattr(act, 'popup_type'): # FakeAction
+            if not hasattr(act, 'popup_type'):  # FakeAction
                 return
             menu_text = f'{display_name}{shortcuts}'
             icon = name_data[display_name]['icon']
@@ -137,7 +137,7 @@ class AllGUIActions(InterfaceAction):
         # Finally the real work, building the action menu. Partition long lists
         # of actions into mostly-equal-length sublists of some arbitrary length.
         def partition(names):
-            max_in_partition = 10 # arbitrary
+            max_in_partition = 10  # arbitrary
             if len(names) >= max_in_partition:
                 partition_count = ceil(len(names) / max_in_partition)
                 step = int(ceil(len(names) / partition_count))

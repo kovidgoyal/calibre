@@ -18,7 +18,7 @@ def unique_name(name, used_names):
     else:
         ext = os.path.splitext(name)[1][:3]
         base_name = name[:22]
-        for i in range(0, 9999):
+        for i in range(9999):
             name = '{}-{}.{}'.format(str(i).rjust('0', 4)[:4], base_name, ext)
             if name not in used_names:
                 break

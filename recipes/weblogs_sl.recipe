@@ -29,58 +29,58 @@ class weblogssl(BasicNewsRecipe):
     no_stylesheets = True
 
     # Si no se quiere recuperar todos los blogs se puede suprimir la descarga del que se desee poniendo
-    # un caracter # por delante, es decir,  # ,(u'Applesfera', u'http://feeds.weblogssl.com/applesfera')
+    # un caracter # por delante, es decir,  # (u'Applesfera', u'http://feeds.weblogssl.com/applesfera'),
     # haría que no se descargase Applesfera.
 
     feeds              = [
-        (u'Xataka', u'http://feeds.weblogssl.com/xataka2')
-        ,(u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil')
-        ,(u'Xataka Foto', u'http://feeds.weblogssl.com/xatakafoto')
-        ,(u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid')
-        ,(u'Xataka Smart Home', u'http://feeds.weblogssl.com/Xatakahome')
-        ,(u'Xataka Windows', u'http://feeds.weblogssl.com/xatakawindows')
-        ,(u'Xataka Ciencia', u'http://feeds.weblogssl.com/xatakaciencia')
-        ,(u'Applesfera', u'http://feeds.weblogssl.com/applesfera')
-        ,(u'Vida Extra', u'http://feeds.weblogssl.com/vidaextra')
-        ,(u'Genbeta', u'http://feeds.weblogssl.com/genbeta')
-        ,(u'Genbeta Dev', u'http://feeds.weblogssl.com/genbetadev')
-        ,(u'Magnet', u'http://feeds.weblogssl.com/xatakamagnet2')
+        (u'Xataka', u'http://feeds.weblogssl.com/xataka2'),
+        (u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil'),
+        (u'Xataka Foto', u'http://feeds.weblogssl.com/xatakafoto'),
+        (u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid'),
+        (u'Xataka Smart Home', u'http://feeds.weblogssl.com/Xatakahome'),
+        (u'Xataka Windows', u'http://feeds.weblogssl.com/xatakawindows'),
+        (u'Xataka Ciencia', u'http://feeds.weblogssl.com/xatakaciencia'),
+        (u'Applesfera', u'http://feeds.weblogssl.com/applesfera'),
+        (u'Vida Extra', u'http://feeds.weblogssl.com/vidaextra'),
+        (u'Genbeta', u'http://feeds.weblogssl.com/genbeta'),
+        (u'Genbeta Dev', u'http://feeds.weblogssl.com/genbetadev'),
+        (u'Magnet', u'http://feeds.weblogssl.com/xatakamagnet2'),
 
 
-        ,(u'Tendencias', u'http://feeds.weblogssl.com/trendencias')
-        ,(u'Tendencias Belleza', u'http://feeds.weblogssl.com/trendenciasbelleza')
-        ,(u'Tendencias Hombre', u'http://feeds.weblogssl.com/trendenciashombre')
-        ,(u'Tendencias Lifestyle', u'http://feeds.weblogssl.com/trendenciaslifestyle')
-        ,(u'Directo al paladar', u'http://feeds.weblogssl.com/directoalpaladar')
-        ,(u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas')
-        ,(u'Vit\xf3nica', u'http://feeds.weblogssl.com/vitonica')
-        ,(u'Decoesfera', u'http://feeds.weblogssl.com/decoesfera')
-        ,(u'Embelezzia', u'http://feeds.weblogssl.com/embelezzia')
-        ,(u'Pop rosa', u'http://feeds.weblogssl.com/poprosa')
+        (u'Tendencias', u'http://feeds.weblogssl.com/trendencias'),
+        (u'Tendencias Belleza', u'http://feeds.weblogssl.com/trendenciasbelleza'),
+        (u'Tendencias Hombre', u'http://feeds.weblogssl.com/trendenciashombre'),
+        (u'Tendencias Lifestyle', u'http://feeds.weblogssl.com/trendenciaslifestyle'),
+        (u'Directo al paladar', u'http://feeds.weblogssl.com/directoalpaladar'),
+        (u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas'),
+        (u'Vit\xf3nica', u'http://feeds.weblogssl.com/vitonica'),
+        (u'Decoesfera', u'http://feeds.weblogssl.com/decoesfera'),
+        (u'Embelezzia', u'http://feeds.weblogssl.com/embelezzia'),
+        (u'Pop rosa', u'http://feeds.weblogssl.com/poprosa'),
 
-        ,(u'Motorpasi\xf3n', u'http://feeds.weblogssl.com/motorpasion')
-        ,(u'Motorpasi\xf3n Moto', u'http://feeds.weblogssl.com/motorpasionmoto')
-        ,(u'Motorpasi\xf3n Futuro', u'http://feeds.weblogssl.com/motorpasionfuturo')
+        (u'Motorpasi\xf3n', u'http://feeds.weblogssl.com/motorpasion'),
+        (u'Motorpasi\xf3n Moto', u'http://feeds.weblogssl.com/motorpasionmoto'),
+        (u'Motorpasi\xf3n Futuro', u'http://feeds.weblogssl.com/motorpasionfuturo'),
 
-        ,(u'Blog de Cine', u'http://feeds.weblogssl.com/blogdecine')
-        ,(u'Vaya tele', u'http://feeds.weblogssl.com/vayatele2')
-        ,(u'Diario del viajero', u'http://feeds.weblogssl.com/diariodelviajero')
-        ,(u'Papel en blanco', u'http://feeds.weblogssl.com/papelenblanco')
+        (u'Blog de Cine', u'http://feeds.weblogssl.com/blogdecine'),
+        (u'Vaya tele', u'http://feeds.weblogssl.com/vayatele2'),
+        (u'Diario del viajero', u'http://feeds.weblogssl.com/diariodelviajero'),
+        (u'Papel en blanco', u'http://feeds.weblogssl.com/papelenblanco'),
 
-        ,(u'El blog salm\xf3n', u'http://feeds.weblogssl.com/elblogsalmon2')
-        ,(u'Pymes y aut\xf3nomos', u'http://feeds.weblogssl.com/pymesyautonomos')
-        ,(u'Ahorro diario', u'http://feeds.weblogssl.com/ahorrodiario')
+        (u'El blog salm\xf3n', u'http://feeds.weblogssl.com/elblogsalmon2'),
+        (u'Pymes y aut\xf3nomos', u'http://feeds.weblogssl.com/pymesyautonomos'),
+        (u'Ahorro diario', u'http://feeds.weblogssl.com/ahorrodiario'),
 
-        ,(u'Xataka México', u'http://feeds.weblogssl.com/xatakamx')
-        ,(u'Xataka Android México', u'http://feeds.weblogssl.com/xatakandroidmx')
-        ,(u'Vida Extra México', u'http://feeds.weblogssl.com/vidaextramx')
-        ,(u'Xataka Colombia', u'http://feeds.weblogssl.com/xatakaco')
+        (u'Xataka México', u'http://feeds.weblogssl.com/xatakamx'),
+        (u'Xataka Android México', u'http://feeds.weblogssl.com/xatakandroidmx'),
+        (u'Vida Extra México', u'http://feeds.weblogssl.com/vidaextramx'),
+        (u'Xataka Colombia', u'http://feeds.weblogssl.com/xatakaco'),
 
-        ,(u'Directo al paladar México', u'http://feeds.weblogssl.com/directoalpaladarmx')
-        ,(u'Vit\xf3nica México', u'http://feeds.weblogssl.com/vitonicamx')
-        ,(u'Tendencias Hombre México', u'http://feeds.weblogssl.com/trendenciashombremx')
+        (u'Directo al paladar México', u'http://feeds.weblogssl.com/directoalpaladarmx'),
+        (u'Vit\xf3nica México', u'http://feeds.weblogssl.com/vitonicamx'),
+        (u'Tendencias Hombre México', u'http://feeds.weblogssl.com/trendenciashombremx'),
 
-        ,(u'Motorpasi\xf3n México', u'http://feeds.weblogssl.com/motorpasionmx')
+        (u'Motorpasi\xf3n México', u'http://feeds.weblogssl.com/motorpasionmx'),
     ]
 
     keep_only_tags     = [
@@ -101,7 +101,7 @@ class weblogssl(BasicNewsRecipe):
                           dict(name='div', attrs={'id':'comments'})
                          ]
 
-    remove_tags_after  = dict(name='div' , attrs={'id':'comments'})
+    remove_tags_after  = dict(name='div', attrs={'id':'comments'})
 
     def print_version(self, url):
         if url.startswith('http://www'):

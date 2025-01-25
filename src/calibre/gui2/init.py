@@ -122,8 +122,8 @@ class LibraryViewMixin:  # {{{
                     v.set_current_row(0)
                     if v is self.library_view and v.row_count() == 0:
                         self.book_details.reset_info()
+# }}}
 
-    # }}}
 
 class UpdateLabel(QLabel):  # {{{
 
@@ -135,13 +135,14 @@ class UpdateLabel(QLabel):  # {{{
         pass
 # }}}
 
+
 class VersionLabel(QLabel):  # {{{
 
     def __init__(self, parent):
         QLabel.__init__(self, parent)
         self.mouse_over = False
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip(_('See what\'s new in this calibre release'))
+        self.setToolTip(_("See what's new in this calibre release"))
 
     def mouseReleaseEvent(self, ev):
         open_url(localize_website_link('https://calibre-ebook.com/whats-new'))
@@ -171,6 +172,7 @@ class VersionLabel(QLabel):  # {{{
             p.end()
         return QLabel.paintEvent(self, ev)
 # }}}
+
 
 class StatusBar(QStatusBar):  # {{{
 
@@ -237,8 +239,8 @@ class StatusBar(QStatusBar):  # {{{
 
     def clear_message(self):
         self.clearMessage()
-
 # }}}
+
 
 class GridViewButton(LayoutButton):  # {{{
 
@@ -270,9 +272,8 @@ class GridViewButton(LayoutButton):  # {{{
     def restore_state(self):
         if gprefs.get('grid view visible', False):
             self.toggle()
-
-
 # }}}
+
 
 class SearchBarButton(LayoutButton):  # {{{
 
@@ -304,9 +305,8 @@ class SearchBarButton(LayoutButton):  # {{{
 
     def restore_state(self):
         self.setChecked(bool(gprefs.get('search bar visible', True)))
-
-
 # }}}
+
 
 class VLTabs(QTabBar):  # {{{
 
@@ -486,6 +486,7 @@ class VLTabs(QTabBar):  # {{{
         self.rebuild()
 
 # }}}
+
 
 class StatusBarButton(QToolButton):
 
@@ -798,5 +799,4 @@ class LayoutMixin:  # {{{
         selected = len(v.selectionModel().selectedRows())
         library_total, total, current = v.model().counts()
         self.status_bar.update_state(library_total, total, current, selected)
-
 # }}}

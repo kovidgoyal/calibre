@@ -30,7 +30,7 @@ IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 
 def encode_datetime(dateval):
     if dateval is None:
-        return "None"
+        return 'None'
     if not isinstance(dateval, datetime):
         dateval = datetime.combine(dateval, time())
     if hasattr(dateval, 'tzinfo') and dateval.tzinfo is None:
@@ -157,8 +157,7 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
-
-def get_gpref(name: str, defval = None):
+def get_gpref(name: str, defval=None):
     gprefs = getattr(get_gpref, 'gprefs', None)
     if gprefs is None:
         from calibre.utils.config import JSONConfig
@@ -186,7 +185,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db
                 break
             pt = node_to_tag_map[pid]
             pd = tag_map[id(pt)][1]
-            val_icon,for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
+            val_icon, for_children = value_icons.get(pd['category'], {}).get(name_for_icon(pd), (None, False))
             if val_icon is not None and for_children:
                 break
             par = pd
@@ -213,7 +212,7 @@ CategoriesSettings = namedtuple(
 
 class GroupedSearchTerms:
 
-    __slots__ = ('keys', 'vals', 'hash')
+    __slots__ = ('hash', 'keys', 'vals')
 
     def __init__(self, src):
         self.keys = frozenset(src)
@@ -283,7 +282,7 @@ def categories_settings(query, db, gst_container=GroupedSearchTerms):
 
 
 def create_toplevel_tree(category_data, items, field_metadata, opts, db):
-    # Create the basic tree, containing all top level categories , user
+    # Create the basic tree, containing all top level categories, user
     # categories and grouped search terms
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
@@ -610,17 +609,17 @@ def render_categories(opts, db, category_data):
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
-        root['children'] = list(filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children']))
+        root['children'] = list(filter((lambda child: items[child['id']]['category'] not in opts.hidden_categories), root['children']))
     if opts.hide_empty_categories:
-        root['children'] = list(filter((lambda child:items[child['id']]['count'] > 0), root['children']))
+        root['children'] = list(filter((lambda child: items[child['id']]['count'] > 0), root['children']))
     return {'root':root, 'item_map': items}
 
 
 def categories_as_json(ctx, rd, db, opts, vl):
     return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts), vl=vl)
 
-# Test tag browser {{{
 
+# Test tag browser {{{
 
 def dump_categories_tree(data):
     root, items = data['root'], data['item_map']

@@ -28,7 +28,7 @@ def isbn_test(isbn):
         misbn = check_isbn(mi.isbn)
         if misbn and misbn == isbn_:
             return True
-        prints('ISBN test failed. Expected: \'%s\' found \'%s\''%(isbn_, misbn))
+        prints("ISBN test failed. Expected: '%s' found '%s'"%(isbn_, misbn))
         return False
 
     return test
@@ -43,7 +43,7 @@ def title_test(title, exact=False):
         if (exact and mt == title) or \
                 (not exact and title in mt):
             return True
-        prints('Title test failed. Expected: \'%s\' found \'%s\''%(title, mt))
+        prints("Title test failed. Expected: '%s' found '%s'"%(title, mt))
         return False
 
     return test
@@ -70,7 +70,7 @@ def authors_test(authors, subset=False):
             return True
         if au == authors:
             return True
-        prints('Author test failed. Expected: \'%s\' found \'%s\''%(authors, au))
+        prints("Author test failed. Expected: '%s' found '%s'"%(authors, au))
         return False
 
     return test
@@ -83,7 +83,7 @@ def tags_test(tags):
         t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
-        prints('Tags test failed. Expected: \'%s\' found \'%s\''%(tags, t))
+        prints("Tags test failed. Expected: '%s' found '%s'"%(tags, t))
         return False
 
     return test
@@ -97,10 +97,10 @@ def series_test(series, series_index):
         if (ms == series) and (series_index == mi.series_index):
             return True
         if mi.series:
-            prints('Series test failed. Expected: \'%s [%d]\' found \'%s[%d]\''%
+            prints("Series test failed. Expected: '%s [%d]' found '%s[%d]'"%
                         (series, series_index, ms, mi.series_index))
         else:
-            prints('Series test failed. Expected: \'%s [%d]\' found no series'%
+            prints("Series test failed. Expected: '%s [%d]' found no series"%
                         (series, series_index))
         return False
 
@@ -204,7 +204,6 @@ def test_identify(tests):  # {{{
         log('\n\n')
 
     prints('Average time per query', sum(times)/len(times))
-
 # }}}
 
 

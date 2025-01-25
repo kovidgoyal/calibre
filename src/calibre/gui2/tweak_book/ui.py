@@ -401,7 +401,7 @@ class Main(MainWindow):
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_save_copy_edit = treg('save.png', _('Save a &copy and edit in new window'), partial(self.boss._save_copy, 'edit'), 'save-copy-edit',
-                                          'Ctrl+Shift+S', _( 'Save a copy of the book and edit it in a new window'))
+                                          'Ctrl+Shift+S', _('Save a copy of the book and edit it in a new window'))
         self.action_save_copy_replace = treg('save.png', _('Save a &copy and edit here'), partial(self.boss._save_copy, 'replace'),
                                              'save-copy-replace', 'Ctrl+Alt+Shift+S', _('Save a copy of the book and edit it in this window'))
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
@@ -561,7 +561,7 @@ class Main(MainWindow):
             'edit-clear.png', _('Close tabs to the &right'), self.central.close_to_right_of_current_editor, 'close-tabs-to-right-of', 'Ctrl+Shift+W', _(
                 'Close tabs to the right of the current tab'))
         self.action_help = treg(
-            'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
+            'help.png', _('User &Manual'), lambda: open_url(QUrl(localize_user_manual_link(
                 'https://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
                 'Show User Manual'))
         self.action_browse_images = treg(
@@ -658,7 +658,7 @@ class Main(MainWindow):
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
         e.addSeparator()
-        for name in sorted(actions, key=lambda x:sort_key(actions[x].text())):
+        for name in sorted(actions, key=lambda x: sort_key(actions[x].text())):
             ac = actions[name]
             if name.endswith('-dock'):
                 e.addAction(ac)
@@ -694,7 +694,7 @@ class Main(MainWindow):
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
-            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(str(x.text()))):
+            for ac in sorted(self.plugin_menu_actions, key=lambda x: sort_key(str(x.text()))):
                 e.addAction(ac)
 
         e = b.addMenu(_('&Help'))

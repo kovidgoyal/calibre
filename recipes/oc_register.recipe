@@ -36,18 +36,18 @@ class OrangeCountyRegister(BasicNewsRecipe):
 
     def parsePage(self, index):
         if self.debugMessages is True:
-            print("\n\nStarting " + self.feeds[index][0])
+            print('\n\nStarting ' + self.feeds[index][0])
         articleList = []
         soup = self.index_to_soup(self.feeds[index][1])
         # Have this index page now.
         # look for a.article-title
         # If any, the description is <div class="excerpt">
-        for newsentry in soup.findAll("a", {"class": "article-title"}):
+        for newsentry in soup.findAll('a', {'class': 'article-title'}):
             print('Next up:')
             print(newsentry)
-            title = newsentry["title"]
+            title = newsentry['title']
             url = newsentry['href']
-            print("Title: ")
+            print('Title: ')
             print(title)
             print('URL')
             print(url)
@@ -66,19 +66,19 @@ class OrangeCountyRegister(BasicNewsRecipe):
     def extract_readable_article(self, html, url):
         cleanedHTML = super(OrangeCountyRegister,
                             self).extract_readable_article(html, url)
-        print("Processing html for author")
+        print('Processing html for author')
         # Find the attribs...
         attribDict = self.htmlToAttribsDict(html)
-        print("dict is type...")
+        print('dict is type...')
         print(type(attribDict))
         author = attribDict.get('Byline')
         if author is not None:
             # add author code after <body>
-            print("Adding author in meta")
+            print('Adding author in meta')
             print(author)
             cleanedHTML = cleanedHTML.replace(
-                "<body>",
-                "<body>\n<div class=\"metaAuthor\" value=\"" + author + "\"></div>\n"
+                '<body>',
+                '<body>\n<div class="metaAuthor" value="' + author + '"></div>\n'
             )
         else:
             print('no author found')
@@ -92,7 +92,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
     def htmlToAttribsDict(self, rawHTML):
         tokenStart = 'dataLayer.push({'
         tokenEnd = '});'
-        print("1")
+        print('1')
         startJSON = rawHTML.find(tokenStart)
         if (startJSON < 0):
             return
@@ -101,13 +101,13 @@ class OrangeCountyRegister(BasicNewsRecipe):
         if (endJSON < 0):
             return
         JSON = JSONBeginning[:endJSON + 1]
-        JSONQuoted = JSON.replace("'", "\"")
+        JSONQuoted = JSON.replace("'", '"')
         try:
             metadata = json.loads(JSONQuoted)
             pprint(metadata)
             return metadata
         except ValueError:
-            print("Could not decode JSON:")
+            print('Could not decode JSON:')
             print(JSONQuoted)
         return None
 
@@ -126,7 +126,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
         # articleList = []
         ans = []
         feedsCount = len(self.feeds)
-        for x in range(0, feedsCount - 1):  # should be ,4
+        for x in range(feedsCount - 1):  # should be ,4
             feedarticles = self.parsePage(x)
             if feedarticles is not None:
                 ans.append((self.feeds[x][0], feedarticles))

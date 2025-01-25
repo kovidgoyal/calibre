@@ -75,8 +75,8 @@ def dock_defs():
     def d(title, name, area, allowed=Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea):
         ans[name] = Dock(name + '-dock', title, area, allowed)
 
-    d(_('Table of Contents'), 'toc', Qt.DockWidgetArea.LeftDockWidgetArea),
-    d(_('Lookup'), 'lookup', Qt.DockWidgetArea.RightDockWidgetArea),
+    d(_('Table of Contents'), 'toc', Qt.DockWidgetArea.LeftDockWidgetArea)
+    d(_('Lookup'), 'lookup', Qt.DockWidgetArea.RightDockWidgetArea)
     d(_('Bookmarks'), 'bookmarks', Qt.DockWidgetArea.RightDockWidgetArea)
     d(_('Search'), 'search', Qt.DockWidgetArea.LeftDockWidgetArea)
     d(_('Inspector'), 'inspector', Qt.DockWidgetArea.RightDockWidgetArea, Qt.DockWidgetArea.AllDockWidgetAreas)
@@ -420,21 +420,21 @@ class EbookViewer(MainWindow):
                 self.image_popup()
             else:
                 error_dialog(self, _('Invalid image'), _(
-                    "Failed to load the image {}").format(name), show=True)
+                    'Failed to load the image {}').format(name), show=True)
         else:
             error_dialog(self, _('Image not found'), _(
-                    "Failed to find the image {}").format(name), show=True)
+                    'Failed to find the image {}').format(name), show=True)
 
     def copy_image(self, name):
         path = get_path_for_name(name)
         if not path:
             return error_dialog(self, _('Image not found'), _(
-                "Failed to find the image {}").format(name), show=True)
+                'Failed to find the image {}').format(name), show=True)
         try:
             img = image_from_path(path)
         except Exception:
             return error_dialog(self, _('Invalid image'), _(
-                "Failed to load the image {}").format(name), show=True)
+                'Failed to load the image {}').format(name), show=True)
         url = QUrl.fromLocalFile(path)
         md = QMimeData()
         md.setImageData(img)
@@ -839,7 +839,7 @@ class EbookViewer(MainWindow):
         return MainWindow.closeEvent(self, ev)
     # }}}
 
-    # Auto-hide mouse cursor  {{{
+    # Auto-hide mouse cursor {{{
     def setup_mouse_auto_hide(self):
         QApplication.instance().installEventFilter(self)
         self.cursor_hidden = False

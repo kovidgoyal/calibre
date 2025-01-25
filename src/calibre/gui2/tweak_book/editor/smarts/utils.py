@@ -16,6 +16,8 @@ def get_text_around_cursor(editor, before=True):
 
 
 get_text_before_cursor = get_text_around_cursor
+
+
 def get_text_after_cursor(editor):
     return get_text_around_cursor(editor, before=False)
 

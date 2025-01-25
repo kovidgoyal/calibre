@@ -107,7 +107,6 @@ class CacheError(Exception):
 
 
 class ThumbnailCache:
-
     ' This is a persistent disk cache to speed up loading and resizing of covers '
 
     def __init__(self,
@@ -116,8 +115,8 @@ class ThumbnailCache:
                  thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
                  location=None,   # The location for this cache, if None cache_dir() is used
                  test_mode=False,  # Used for testing
-                 min_disk_cache=0, # If the size is set less than or equal to this value, the cache is disabled.
-                 version=0 # Increase this if the cache content format might have changed.
+                 min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
+                 version=0  # Increase this if the cache content format might have changed.
                  ):
         self.version = version
         self.location = os.path.join(location or cache_dir(), name)
@@ -202,7 +201,7 @@ class ThumbnailCache:
                     try:
                         uuid, book_id = line.partition(' ')[0::2]
                         book_id = int(book_id)
-                        return (uuid, book_id)
+                        return uuid, book_id
                     except Exception:
                         return None
                 invalidate = {record(x) for x in raw.splitlines()}
@@ -226,7 +225,7 @@ class ThumbnailCache:
         except OSError as err:
             self.log('Failed to read thumbnail cache dir:', as_unicode(err))
 
-        self.items = OrderedDict(sorted(items, key=lambda x:order.get(x[0], 0)))
+        self.items = OrderedDict(sorted(items, key=lambda x: order.get(x[0], 0)))
         self._apply_size()
 
     def _invalidate_sizes(self):

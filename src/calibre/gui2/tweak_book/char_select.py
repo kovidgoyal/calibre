@@ -140,7 +140,7 @@ class CategoryModel(QAbstractItemModel):
     (_('Ethiopic extended A'), (0xAB00, 0xAB2F)),
     (_('Meroitic cursive'), (0x109A0, 0x109FF)),
     (_('Meroitic hieroglyphs'), (0x10980, 0x1099F)),
-    (_('N\'Ko'), (0x7C0, 0x7FF)),
+    (_("N'Ko"), (0x7C0, 0x7FF)),
     (_('Osmanya'), (0x10480, 0x104AF)),
     (_('Tifinagh'), (0x2D30, 0x2D7F)),
     (_('Vai'), (0xA500, 0xA63F)),

@@ -43,7 +43,6 @@ class FetchError(Exception):
 
 
 class closing:
-
     'Context to automatically close something at the end of a block.'
 
     def __init__(self, thing):
@@ -124,7 +123,7 @@ def default_is_link_wanted(url, tag):
 
 class RecursiveFetcher:
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
-                ('.exe\\s*$', '.mp3\\s*$', '.ogg\\s*$', '^\\s*mailto:', '^\\s*$'))
+                (r'.exe\s*$', r'.mp3\s*$', r'.ogg\s*$', r'^\s*mailto:', r'^\s*$'))
     # ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
     #                       (
     #
@@ -545,7 +544,7 @@ class RecursiveFetcher:
                     dsrc = self.fetch_url(iurl)
                     newbaseurl = dsrc.newurl
                     if len(dsrc) == 0 or \
-                       len(re.compile(b'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
+                       len(re.compile(br'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
                         raise ValueError('No content at URL %r'%iurl)
                     if callable(self.encoding):
                         dsrc = self.encoding(dsrc)

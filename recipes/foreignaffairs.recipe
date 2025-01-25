@@ -37,20 +37,20 @@ def get_issue_data(br, log, node_id='1126213', year='2020', volnum='99', issue_v
         return {
             'from': 0,
             'post_filter': {'bool': q},
-            "_source": {
-                "includes": [
-                    "nid", 'path', 'title', 'field_subtitle', 'field_display_authors',
+            '_source': {
+                'includes': [
+                    'nid', 'path', 'title', 'field_subtitle', 'field_display_authors',
                     'fa_node_type_or_subtype',
 
                     'field_issue_sspecial_articles__nid',
                     'field_issue_sspecial_header'
                 ]
             },
-            "query": {
-                "match_all": {}
+            'query': {
+                'match_all': {}
             },
-            'sort': [{'field_sequence': "asc"}, {'fa_normalized_date': "desc"}],
-            "size": size,
+            'sort': [{'field_sequence': 'asc'}, {'fa_normalized_date': 'desc'}],
+            'size': size,
         }
 
     def get_data(data):
@@ -171,9 +171,9 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         cov = main.find('img', attrs={'srcset': lambda x: x and 'Cover.jpg' in x})
         if cov:
             self.cover_url = re.sub(
-                r"_webp_issue_small_\dx",
-                "_webp_issue_large_2x",
-                cov["srcset"].split()[0]
+                r'_webp_issue_small_\dx',
+                '_webp_issue_large_2x',
+                cov['srcset'].split()[0]
             )
 
         cls = soup.find('link', attrs={'rel':'shortlink'})['href']
@@ -188,7 +188,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         for by in soup.findAll(**classes('topper__byline topper__date font-style-italic')):
             by.name = 'div'
         for img in soup.find_all('img', attrs={'srcset': True}):
-            img['src'] = re.sub(r"_webp_small_\dx", "_webp_large_1x",img['srcset'].split()[0])
+            img['src'] = re.sub(r'_webp_small_\dx', '_webp_large_1x', img['srcset'].split()[0])
         return soup
 
     def get_browser(self):

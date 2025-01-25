@@ -9,7 +9,7 @@ class TheDailyWTF(BasicNewsRecipe):
     title = u'The Daily WTF'
     publisher = u'Mark Bowytz'
     __author__ = 'Jelle van der Waa'
-    description = 'The Daily WTF is your how-not-to guide for developing software. We recount tales of disastrous development, from project management gone spectacularly bad to inexplicable coding choices.'  # noqa
+    description = 'The Daily WTF is your how-not-to guide for developing software. We recount tales of disastrous development, from project management gone spectacularly bad to inexplicable coding choices.'  # noqa: E501
     category = 'software, programming'
     cover_url = 'http://thedailywtf.com/content/images/wtf-logo.png'
     oldest_article = 7

@@ -1,6 +1,6 @@
-"""
+'''
 Pocket Calibre Recipe v1.5
-"""
+'''
 import json
 import operator
 
@@ -53,15 +53,15 @@ class Pocket(BasicNewsRecipe):
     articles = []
 
     def get_browser(self, *args, **kwargs):
-        """
+        '''
         We need to pretend to be a recent version of safari for the mac to
         prevent User-Agent checks Pocket api requires username and password so
         fail loudly if it's missing from the config.
-        """
+        '''
         br = BasicNewsRecipe.get_browser(self,
-                                         user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; \
-                        en-us) AppleWebKit/533.19.4 (KHTML, like Gecko) \
-                        Version/5.0.3 Safari/533.19.4')
+                                         user_agent='''Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-us)
+                        AppleWebKit/533.19.4 (KHTML, like Gecko)
+                        Version/5.0.3 Safari/533.19.4''')
         if self.username is not None and self.password is not None:
             br.open(self.legacy_login_url)
             br.select_form(nr=0)
@@ -69,33 +69,33 @@ class Pocket(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         else:
-            self.user_error("This Recipe requires authentication")
+            self.user_error('This Recipe requires authentication')
         return br
 
     def get_auth_uri(self):
-        """Quick function to return the authentication part of the url"""
-        uri = ""
-        uri = u'{0}&apikey={1!s}'.format(uri, self.apikey)
+        '''Quick function to return the authentication part of the url'''
+        uri = ''
+        uri = u'{0}&apikey={1}'.format(uri, self.apikey)
         if self.username is None or self.password is None:
-            self.user_error("Username or password is blank.")
+            self.user_error('Username or password is blank.')
         else:
-            uri = u'{0}&username={1!s}'.format(uri, self.username)
-            uri = u'{0}&password={1!s}'.format(uri, self.password)
+            uri = u'{0}&username={1}'.format(uri, self.username)
+            uri = u'{0}&password={1}'.format(uri, self.password)
         return uri
 
     def get_pull_articles_uri(self):
-        uri = ""
+        uri = ''
         uri = u'{0}&state={1}'.format(uri, u'unread')
         uri = u'{0}&contentType={1}'.format(uri, u'article')
         uri = u'{0}&sort={1}'.format(uri, self.sort_method)
-        uri = u'{0}&count={1!s}'.format(uri, self.max_articles_per_feed)
+        uri = u'{0}&count={1}'.format(uri, self.max_articles_per_feed)
         if self.only_pull_tag is not None:
             uri = u'{0}&tag={1}'.format(uri, self.only_pull_tag)
         return uri
 
     def parse_index(self):
         pocket_feed = []
-        fetch_url = u"{0}?{1}{2}".format(
+        fetch_url = u'{0}?{1}{2}'.format(
             self.read_api_url,
             self.get_auth_uri(),
             self.get_pull_articles_uri()
@@ -106,7 +106,7 @@ class Pocket(BasicNewsRecipe):
         if len(pocket_feed) < self.minimum_articles:
             self.mark_as_read_after_dl = False
             self.user_error(
-                "Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
+                'Only {0} articles retrieved, minimum_articles not reached'.format(len(pocket_feed)))
 
         for pocket_article in pocket_feed.items():
             self.articles.append({
@@ -119,7 +119,7 @@ class Pocket(BasicNewsRecipe):
                 'sort':         pocket_article[1]['sort_id']
             })
         self.articles = sorted(self.articles, key=operator.itemgetter('sort'))
-        return [("My Pocket Articles for {0}".format(strftime('[%I:%M %p]')), self.articles)]
+        return [('My Pocket Articles for {0}'.format(strftime('[%I:%M %p]')), self.articles)]
 
     def mark_as_read(self, mark_list):
         actions_list = []
@@ -147,18 +147,15 @@ class Pocket(BasicNewsRecipe):
     def cleanup(self):
         if self.mark_as_read_after_dl:
             self.mark_as_read([x['item_id'] for x in self.articles])
-        else:
-            pass
 
     def default_cover(self, cover_file):
-        """
+        '''
         Create a generic cover for recipes that don't have a cover
         This override adds time to the cover
-        """
+        '''
         try:
             from calibre.ebooks.covers import calibre_cover2
-            title = self.title if isinstance(self.title, type(u'')) else \
-                self.title.decode('utf-8', 'replace')
+            title = self.title if isinstance(self.title, type(u'')) else self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')
             img_data = calibre_cover2(title, date, time)

@@ -56,7 +56,7 @@ class Bloomberg(BasicNewsRecipe):
     masthead_url = 'https://assets.bwbx.io/s3/javelin/public/hub/images/BW-Logo-Black-cc9035fbb3.svg'
     description = (
         'Bloomberg Businessweek helps global leaders stay ahead with insights and in-depth analysis on the people,'
-        ' companies, events, and trends shaping today\'s complex, global economy.'
+        " companies, events, and trends shaping today's complex, global economy."
     )
     remove_empty_feeds = True
 
@@ -124,8 +124,8 @@ class Bloomberg(BasicNewsRecipe):
             cat = '<div class="cat">' + data['primaryCategory'] + '</div>'
 
         if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
-            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join([x for x in data['abstract']]) + '</li></ul></div>'
-        elif 'summary' in data and data['summary']:
+            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join(list(data['abstract'])) + '</li></ul></div>'
+        elif data.get('summary'):
             subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
 
         if 'byline' in data and data['byline'] is not None:

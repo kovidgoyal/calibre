@@ -215,24 +215,24 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     'separator', 'break', 'continue', 'return', 'in', 'inlist',
                     'inlist_field', 'def', 'fed', 'limit']
 
-    KEYWORDS_PYTHON = ["and", "as", "assert", "break", "class", "continue", "def",
-                       "del", "elif", "else", "except", "exec", "finally", "for", "from",
-                       "global", "if", "import", "in", "is", "lambda", "not", "or",
-                       "pass", "print", "raise", "return", "try", "while", "with",
-                       "yield"]
+    KEYWORDS_PYTHON = ['and', 'as', 'assert', 'break', 'class', 'continue', 'def',
+                       'del', 'elif', 'else', 'except', 'exec', 'finally', 'for', 'from',
+                       'global', 'if', 'import', 'in', 'is', 'lambda', 'not', 'or',
+                       'pass', 'print', 'raise', 'return', 'try', 'while', 'with',
+                       'yield']
 
-    BUILTINS_PYTHON = ["abs", "all", "any", "basestring", "bool", "callable", "chr",
-                       "classmethod", "cmp", "compile", "complex", "delattr", "dict",
-                       "dir", "divmod", "enumerate", "eval", "execfile", "exit", "file",
-                       "filter", "float", "frozenset", "getattr", "globals", "hasattr",
-                       "hex", "id", "int", "isinstance", "issubclass", "iter", "len",
-                       "list", "locals", "long", "map", "max", "min", "object", "oct",
-                       "open", "ord", "pow", "property", "range", "reduce", "repr",
-                       "reversed", "round", "set", "setattr", "slice", "sorted",
-                       "staticmethod", "str", "sum", "super", "tuple", "type", "unichr",
-                       "unicode", "vars", "xrange", "zip"]
+    BUILTINS_PYTHON = ['abs', 'all', 'any', 'basestring', 'bool', 'callable', 'chr',
+                       'classmethod', 'cmp', 'compile', 'complex', 'delattr', 'dict',
+                       'dir', 'divmod', 'enumerate', 'eval', 'execfile', 'exit', 'file',
+                       'filter', 'float', 'frozenset', 'getattr', 'globals', 'hasattr',
+                       'hex', 'id', 'int', 'isinstance', 'issubclass', 'iter', 'len',
+                       'list', 'locals', 'long', 'map', 'max', 'min', 'object', 'oct',
+                       'open', 'ord', 'pow', 'property', 'range', 'reduce', 'repr',
+                       'reversed', 'round', 'set', 'setattr', 'slice', 'sorted',
+                       'staticmethod', 'str', 'sum', 'super', 'tuple', 'type', 'unichr',
+                       'unicode', 'vars', 'xrange', 'zip']
 
-    CONSTANTS_PYTHON = ["False", "True", "None", "NotImplemented", "Ellipsis"]
+    CONSTANTS_PYTHON = ['False', 'True', 'None', 'NotImplemented', 'Ellipsis']
 
     def __init__(self, parent=None, builtin_functions=None):
         super().__init__(parent)
@@ -249,38 +249,38 @@ class TemplateHighlighter(QSyntaxHighlighter):
             r.append((re.compile(a), b))
 
         if not for_python:
-            a(r"\b[a-zA-Z]\w*\b(?!\(|\s+\()"
-              r"|\$+#?[a-zA-Z]\w*",
-              "identifier")
-            a(r"^program:", "keymode")
-            a("|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_GPM]), "keyword")
-            a("|".join([r"\b%s\b" % builtin for builtin in
+            a(r'\b[a-zA-Z]\w*\b(?!\(|\s+\()'
+              r'|\$+#?[a-zA-Z]\w*',
+              'identifier')
+            a(r'^program:', 'keymode')
+            a('|'.join([r'\b%s\b' % keyword for keyword in self.KEYWORDS_GPM]), 'keyword')
+            a('|'.join([r'\b%s\b' % builtin for builtin in
                             (builtin_functions if builtin_functions else
                                                 formatter_functions().get_builtins())]),
-                "builtin")
-            a(r"""(?<!:)'[^']*'|"[^"]*\"""", "string")
+                'builtin')
+            a(r'''(?<!:)'[^']*'|"[^"]*\"''', 'string')
         else:
-            a(r"^python:", "keymode")
-            a("|".join([r"\b%s\b" % keyword for keyword in self.KEYWORDS_PYTHON]), "keyword")
-            a("|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS_PYTHON]), "builtin")
-            a("|".join([r"\b%s\b" % constant for constant in self.CONSTANTS_PYTHON]), "constant")
-            a(r"\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b", "pyqt")
-            a(r"@\w+(\.\w+)?\b", "decorator")
+            a(r'^python:', 'keymode')
+            a('|'.join([r'\b%s\b' % keyword for keyword in self.KEYWORDS_PYTHON]), 'keyword')
+            a('|'.join([r'\b%s\b' % builtin for builtin in self.BUILTINS_PYTHON]), 'builtin')
+            a('|'.join([r'\b%s\b' % constant for constant in self.CONSTANTS_PYTHON]), 'constant')
+            a(r'\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b', 'pyqt')
+            a(r'@\w+(\.\w+)?\b', 'decorator')
 
             stringRe = r'''(["'])(?:(?!\1)[^\\]|\\.)*\1'''
-            a(stringRe, "string")
+            a(stringRe, 'string')
             self.stringRe = re.compile(stringRe)
-            self.checkTripleInStringRe = re.compile(r"""((?:"|'){3}).*?\1""")
+            self.checkTripleInStringRe = re.compile(r'''((?:"|'){3}).*?\1''')
             self.tripleSingleRe = re.compile(r"""'''(?!")""")
             self.tripleDoubleRe = re.compile(r'''"""(?!')''')
         a(
-            r"\b[+-]?[0-9]+[lL]?\b"
-            r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
-            r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b",
-            "number")
+            r'\b[+-]?[0-9]+[lL]?\b'
+            r'|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b'
+            r'|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b',
+            'number')
 
-        a(r'\(', "lparen")
-        a(r'\)', "rparen")
+        a(r'\(', 'lparen')
+        a(r'\)', 'rparen')
         self.Rules = tuple(r)
 
     def initialize_formats(self):
@@ -292,43 +292,43 @@ class TemplateHighlighter(QSyntaxHighlighter):
             font.setPointSize(size)
             font_name = font.family()
         config = self.Config = {}
-        config["fontfamily"] = font_name
+        config['fontfamily'] = font_name
         app_palette = QApplication.instance().palette()
         is_dark = QApplication.instance().is_dark_theme
 
         all_formats = (
             # name, color, bold, italic
-            ("normal", None, False, False),
-            ("keyword", app_palette.color(QPalette.ColorRole.Link).name(), True, False),
-            ("builtin", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
-            ("constant", app_palette.color(QPalette.ColorRole.Link).name(), False, False),
-            ("identifier", None, False, True),
-            ("comment", '#00c700' if is_dark else "#007F00", False, True),
-            ("string", '#b6b600' if is_dark else "#808000", False, False),
-            ("number", '#d96d00' if is_dark else "#924900", False, False),
-            ("decorator", "#FF8000", False, True),
-            ("pyqt", None, False, False),
-            ("lparen", None, True, True),
-            ("rparen", None, True, True))
+            ('normal', None, False, False),
+            ('keyword', app_palette.color(QPalette.ColorRole.Link).name(), True, False),
+            ('builtin', app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ('constant', app_palette.color(QPalette.ColorRole.Link).name(), False, False),
+            ('identifier', None, False, True),
+            ('comment', '#00c700' if is_dark else '#007F00', False, True),
+            ('string', '#b6b600' if is_dark else '#808000', False, False),
+            ('number', '#d96d00' if is_dark else '#924900', False, False),
+            ('decorator', '#FF8000', False, True),
+            ('pyqt', None, False, False),
+            ('lparen', None, True, True),
+            ('rparen', None, True, True))
 
         for name, color, bold, italic in all_formats:
-            config["%sfontcolor" % name] = color
-            config["%sfontbold" % name] = bold
-            config["%sfontitalic" % name] = italic
+            config['%sfontcolor' % name] = color
+            config['%sfontbold' % name] = bold
+            config['%sfontitalic' % name] = italic
         base_format = QTextCharFormat()
-        base_format.setFontFamilies([config["fontfamily"]])
-        config["fontsize"] = size
-        base_format.setFontPointSize(config["fontsize"])
+        base_format.setFontFamilies([config['fontfamily']])
+        config['fontsize'] = size
+        base_format.setFontPointSize(config['fontsize'])
 
         self.Formats = {}
         for name, color, bold, italic in all_formats:
             format_ = QTextCharFormat(base_format)
-            color = config["%sfontcolor" % name]
+            color = config['%sfontcolor' % name]
             if color:
                 format_.setForeground(QColor(color))
-            if config["%sfontbold" % name]:
+            if config['%sfontbold' % name]:
                 format_.setFontWeight(QFont.Weight.Bold)
-            format_.setFontItalic(config["%sfontitalic" % name])
+            format_.setFontItalic(config['%sfontitalic' % name])
             self.Formats[name] = format_
 
     def find_paren(self, bn, pos):
@@ -345,12 +345,12 @@ class TemplateHighlighter(QSyntaxHighlighter):
         bn = self.currentBlock().blockNumber()
         textLength = len(text)
 
-        self.setFormat(0, textLength, self.Formats["normal"])
+        self.setFormat(0, textLength, self.Formats['normal'])
 
         if not text:
             pass
-        elif text[0] == "#":
-            self.setFormat(0, textLength, self.Formats["comment"])
+        elif text[0] == '#':
+            self.setFormat(0, textLength, self.Formats['comment'])
             return
 
         for regex, format_ in self.Rules:
@@ -374,7 +374,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             t = re.sub(self.stringRe, self.replace_strings_with_dash, text)
             sharp_pos = t.find('#')
             if sharp_pos >= 0:  # Do we still have a #?
-                self.setFormat(sharp_pos, len(text), self.Formats["comment"])
+                self.setFormat(sharp_pos, len(text), self.Formats['comment'])
 
         self.setCurrentBlockState(NORMAL)
 
@@ -389,10 +389,10 @@ class TemplateHighlighter(QSyntaxHighlighter):
                     if i == -1:
                         i = len(text)
                         self.setCurrentBlockState(state)
-                    self.setFormat(0, i + 3, self.Formats["string"])
+                    self.setFormat(0, i + 3, self.Formats['string'])
                 elif i > -1:
                     self.setCurrentBlockState(state)
-                    self.setFormat(i, len(text), self.Formats["string"])
+                    self.setFormat(i, len(text), self.Formats['string'])
 
         if self.generate_paren_positions:
             t = str(text)
@@ -770,14 +770,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         tv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         tv.setRowCount(len(mi))
         # Use our own widget to get rid of elision. setTextElideMode() doesn't work
-        for r in range(0, len(mi)):
+        for r in range(len(mi)):
             w = QLineEdit(tv)
             w.setReadOnly(True)
             w.setText(mi[r].get('title', _('No title provided')))
             tv.setCellWidget(r, 0, w)
             tb = QToolButton()
             tb.setContentsMargins(0, 0, 0, 0)
-            tb.setIcon(QIcon.ic("edit_input.png"))
+            tb.setIcon(QIcon.ic('edit_input.png'))
             tb.setToolTip(_('Open Edit metadata on this book'))
             tb.clicked.connect(partial(self.metadata_button_clicked, r))
             tb.setEnabled(mi[r].get('id', -1) >= 0)
@@ -958,7 +958,7 @@ def evaluate(book, context):
         self.textbox.set_clicked_line_numbers(set())
 
     def set_all_button_pressed(self):
-        self.textbox.set_clicked_line_numbers({i for i in range(1, self.textbox.blockCount()+1)})
+        self.textbox.set_clicked_line_numbers(set(range(1, self.textbox.blockCount()+1)))
 
     def toggle_button_pressed(self):
         ln = self.breakpoint_line_box.value()
@@ -1011,7 +1011,6 @@ def evaluate(book, context):
                 self.icon_files.adjustSize()
         except:
             traceback.print_exc()
-        return
 
     def update_filename_box(self):
         self.icon_files.clear()
@@ -1145,7 +1144,7 @@ def evaluate(book, context):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.template_value.columnCount()):
+        for c in range(self.template_value.columnCount()):
             self.table_column_widths.append(self.template_value.columnWidth(c))
 
     def save_geometry(self):
@@ -1289,7 +1288,7 @@ class BreakReporterBase(QDialog):
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def get_field_keys(self):

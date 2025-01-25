@@ -71,31 +71,31 @@ class Newsweek(BasicNewsRecipe):
                 strong = p.find('strong')
                 if strong:
                     newest = re.compile(
-                        "Tekst pochodzi z najnowszego numeru Tygodnika Newsweek")
+                        r'Tekst pochodzi z najnowszego numeru Tygodnika Newsweek')
                     if newest.search(str(strong)):
                         strong.extract()
                         continue
 
                 itunes = p.find('a')
                 if itunes:
-                    reurl = re.compile("itunes.apple.com")
+                    reurl = re.compile(r'itunes.apple.com')
                     if reurl.search(str(itunes['href'])):
                         p.extract()
                         continue
 
                 imagedesc = p.find('div', attrs={'class': 'image-desc'})
                 if imagedesc:
-                    redesc = re.compile("Okładka numeru")
+                    redesc = re.compile(r'Okładka numeru')
                     if (redesc.search(str(imagedesc))):
                         p.extract()
                         continue
 
             # get actual contents
             for content in article_div.contents:
-                strs.append("".join(str(content)))
+                strs.append(''.join(str(content)))
 
         # return contents as a string
-        return u"".join(strs)
+        return u''.join(strs)
 
     #
     # Articles can be divided into several pages, this method parses them recursevely
@@ -108,7 +108,7 @@ class Newsweek(BasicNewsRecipe):
 
         matches = re.search(r'<article>(.*)</article>', source, re.DOTALL)
         if matches is None:
-            print("no article tag found, returning...")
+            print('no article tag found, returning...')
             return
 
         main_section = BeautifulSoup(matches.group(0))

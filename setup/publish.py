@@ -67,9 +67,7 @@ class Stage2(Command):
         for installer in installer_names(include_source=False):
             installer = self.j(self.d(self.SRC), installer)
             if not os.path.exists(installer) or os.path.getsize(installer) < 10000:
-                raise SystemExit(
-                    'The installer %s does not exist' % os.path.basename(installer)
-                )
+                raise SystemExit(f'The installer {os.path.basename(installer)} does not exist')
 
 
 class Stage3(Command):
@@ -129,8 +127,7 @@ class PublishBetas(Command):
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
         subprocess.check_call((
-            'rsync --partial -rh --info=progress2 --delete-after %s/ download.calibre-ebook.com:/srv/download/betas/'
-            % dist
+            f'rsync --partial -rh --info=progress2 --delete-after {dist}/ download.calibre-ebook.com:/srv/download/betas/'
         ).split())
 
 
@@ -203,8 +200,8 @@ class Manual(Command):
             jobs.append(create_job([
                 sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'),
                 language, self.j(tdir, language)
-            ], '\n\n**************** Building translations for: %s' % language))
-        self.info('Building manual for %d languages' % len(jobs))
+            ], f'\n\n**************** Building translations for: {language}'))
+        self.info(f'Building manual for {len(jobs)} languages')
         subprocess.check_call(jobs[0].cmd)
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
@@ -223,8 +220,8 @@ class Manual(Command):
                 if x and not os.path.exists(x):
                     os.symlink('.', x)
             self.info(
-                'Built manual for %d languages in %s minutes' %
-                (len(jobs), int((time.time() - st) / 60.))
+                'Built manual for {} languages in {} minutes'
+                .format(len(jobs), int((time.time() - st) / 60.))
             )
         finally:
             os.chdir(cwd)
@@ -237,13 +234,13 @@ class Manual(Command):
         from polyglot.http_server import HTTPServer, SimpleHTTPRequestHandler
         HandlerClass = SimpleHTTPRequestHandler
         ServerClass = HTTPServer
-        Protocol = "HTTP/1.0"
+        Protocol = 'HTTP/1.0'
         server_address = ('127.0.0.1', 8000)
 
         HandlerClass.protocol_version = Protocol
         httpd = ServerClass(server_address, HandlerClass)
 
-        print("Serving User Manual on localhost:8000")
+        print('Serving User Manual on localhost:8000')
         from calibre.gui2 import open_url
         open_url('http://localhost:8000')
         httpd.serve_forever()
@@ -299,7 +296,7 @@ class ManPages(Command):
         for l in languages:
             jobs.append(create_job(
                 [sys.executable, self.j(base, 'build.py'), '--man-pages', l, dest],
-                '\n\n**************** Building translations for: %s' % l)
+                f'\n\n**************** Building translations for: {l}')
             )
         self.info(f'\tCreating man pages in {dest} for {len(jobs)} languages...')
         subprocess.check_call(jobs[0].cmd)

@@ -82,7 +82,7 @@ class PhilosophyNow(BasicNewsRecipe):
                 if section_title not in feeds:
                     feeds[section_title] = []
                 feeds[section_title] += articles
-        ans = [(key, val) for key, val in feeds.items()]
+        ans = list(feeds.items())
         return ans
 
     # PN changes the content it delivers based on cookies, so the

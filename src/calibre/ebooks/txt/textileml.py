@@ -83,7 +83,7 @@ class TextileMLizer(OEB2HTML):
                         text = re.sub(r'"(.+)":'+i+r'(\s)', r'\1\2', text)
             for i in self.our_ids:
                 if i not in self.our_links:
-                    text = re.sub(r'%?\('+i+'\\)\xa0?%?', r'', text)
+                    text = re.sub(r'%?\('+i+'\\)\xa0?%?', '', text)
 
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, [r'\*', '_', r'\*'])
@@ -95,13 +95,13 @@ class TextileMLizer(OEB2HTML):
         # remove empty spans
         text = re.sub(r'%\xa0+', r'%', text)
         # remove empty spans - MAY MERGE SOME ?
-        text = re.sub(r'%%', r'', text)
+        text = text.replace('%%', '')
         # remove spans from tagged output
         text = re.sub(r'%([_+*-]+)%', r'\1', text)
         # remove spaces before a newline
         text = re.sub(r' +\n', r'\n', text)
         # remove newlines at top of file
-        text = re.sub(r'^\n+', r'', text)
+        text = re.sub(r'^\n+', '', text)
         # correct blockcode paras
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
         # correct blockquote paras
@@ -109,16 +109,16 @@ class TextileMLizer(OEB2HTML):
 
         # reduce blank lines
         text = re.sub(r'\n{3}', r'\n\np. \n\n', text)
-        text = re.sub('%\n(p[<>=]{1,2}\\.|p\\.)', r'%\n\n\1', text)
+        text = re.sub(r'%\n(p[<>=]{1,2}\.|p\.)', r'%\n\n\1', text)
         # Check span following blank para
         text = re.sub(r'\n+ +%', r' %', text)
-        text = re.sub('p[<>=]{1,2}\\.\n\n?', r'', text)
+        text = re.sub(r'p[<>=]{1,2}\.\n\n?', '', text)
         # blank paragraph
         text = re.sub(r'\n(p.*\.)\n', r'\n\1 \n\n', text)
         # blank paragraph
-        text = re.sub('\n\xa0', r'\np. ', text)
+        text = text.replace('\n\xa0', '\np. ')
         # blank paragraph
-        text = re.sub('\np[<>=]{1,2}?\\. \xa0', r'\np. ', text)
+        text = re.sub(r'\np[<>=]{1,2}?\\. \xa0', r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.|h.*\.)', r'\n\2', text)
         # sort out spaces in tables
@@ -138,7 +138,7 @@ class TextileMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:  # noqa
+        if self.remove_space_after_newline == True:  # noqa: E712
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -268,7 +268,7 @@ class TextileMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:  # noqa
+                if self.style_italic == False:  # noqa: E712
                     if self.in_a_link:
                         text.append('_')
                         tags.append('_')
@@ -279,7 +279,7 @@ class TextileMLizer(OEB2HTML):
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:  # noqa
+                if self.style_bold == False:  # noqa: E712
                     if self.in_a_link:
                         text.append('*')
                         tags.append('*')
@@ -290,13 +290,13 @@ class TextileMLizer(OEB2HTML):
                     self.style_bold = True
         if style['text-decoration'] == 'underline' or tag in ('u', 'ins'):
             if tag != 'a':
-                if self.style_under == False:  # noqa
+                if self.style_under == False:  # noqa: E712
                     text.append('[+')
                     tags.append('+]')
                     self.style_embed.append('+')
                     self.style_under = True
         if style['text-decoration'] == 'line-through' or tag in ('strike', 'del', 's'):
-            if self.style_strike == False:  # noqa
+            if self.style_strike == False:  # noqa: E712
                 text.append('[-')
                 tags.append('-]')
                 self.style_embed.append('-')
@@ -402,7 +402,7 @@ class TextileMLizer(OEB2HTML):
             txt = self.build_block('', style, attribs, stylizer)
             txt += '. '
             if txt != '\n. ':
-                txt = re.sub('\n', '', txt)
+                txt = txt.replace('\n', '')
                 text.append(txt)
             tags.append('|\n')
         elif tag == 'td':
@@ -423,12 +423,12 @@ class TextileMLizer(OEB2HTML):
             tags.append('')
         elif tag == 'span':
             if style['font-variant'] == 'small-caps':
-                if self.style_smallcap == False:  # noqa
+                if self.style_smallcap == False:  # noqa: E712
                     text.append('&')
                     tags.append('&')
                     self.style_smallcap = True
             else:
-                if self.in_a_link == False:  # noqa
+                if self.in_a_link == False:  # noqa: E712
                     txt = '%'
                     if self.opts.keep_links:
                         txt += self.check_id_tag(attribs)

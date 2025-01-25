@@ -95,8 +95,8 @@ class ChooseName(Dialog):  # {{{
         super().accept()
 # }}}
 
-# Images {{{
 
+# Images {{{
 
 class ImageDelegate(QStyledItemDelegate):
 
@@ -373,6 +373,7 @@ class InsertImage(Dialog):
     def filter_changed(self, *args):
         f = str(self.filter.text())
         self.fm.setFilterFixedString(f)
+
 # }}}
 
 
@@ -516,7 +517,7 @@ class NewBook(Dialog):  # {{{
 
 
 if __name__ == '__main__':
-    app = QApplication([])  # noqa
+    app = QApplication([])  # noqa: F841
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
     set_current_container(get_container(sys.argv[-1]))

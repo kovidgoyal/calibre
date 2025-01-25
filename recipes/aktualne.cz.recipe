@@ -32,7 +32,7 @@ class aktualneRecipe(BasicNewsRecipe):
     remove_attributes = []
     remove_tags_before = dict(name='h1', attrs={'class': ['titulek-clanku']})
     filter_regexps = [r'img.aktualne.centrum.cz']
-    remove_tags = [dict(name='div',   attrs={'id': ['social-bookmark']}),
+    remove_tags = [dict(name='div', attrs={'id': ['social-bookmark']}),
                    dict(name='div', attrs={'class': ['box1', 'svazane-tagy']}),
                    dict(name='div', attrs={'class': 'itemcomment id0'}),
                    dict(name='div', attrs={'class': 'hlavicka'}),

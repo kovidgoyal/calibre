@@ -60,6 +60,7 @@ class KPFExtract(FileTypePlugin):
                 of.write(zf.read(candidates[0]))
         return of.name
 
+
 class RAR:
 
     def __init__(self, archive):
@@ -242,7 +243,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
     if fmt == 'rar':
         from calibre.utils.unrar import headers
         for h in headers(path):
-            items[h['filename']] = lambda : partial(h.get, 'file_time', 0)
+            items[h['filename']] = lambda: partial(h.get, 'file_time', 0)
     else:
         from zipfile import ZipFile
         with ZipFile(path) as zf:

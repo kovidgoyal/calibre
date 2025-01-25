@@ -24,10 +24,10 @@ class NezavisneNovine(BasicNewsRecipe):
     cover_url = strftime(
         'http://pdf.nezavisne.com/slika/novina/nezavisne_novine.jpg?v=%Y%m%d')
     masthead_url = 'http://www.nezavisne.com/slika/osnova/nezavisne-novine-logo.gif'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

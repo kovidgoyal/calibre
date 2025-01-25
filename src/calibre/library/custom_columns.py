@@ -184,10 +184,10 @@ class CustomColumns:
         self.custom_data_adapters = {
                 'float': adapt_number,
                 'int':   adapt_number,
-                'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
+                'rating':lambda x,d: x if x is None else min(10., max(0., float(x))),
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
-                'datetime' : adapt_datetime,
+                'datetime': adapt_datetime,
                 'text':adapt_text,
                 'series':adapt_text,
                 'enumeration': adapt_enum
@@ -257,11 +257,11 @@ class CustomColumns:
             if ans is UNDEFINED_DATE:
                 ans = None
         if data['datatype'] != 'series':
-            return (ans, None)
+            return ans, None
         ign,lt = self.custom_table_names(data['num'])
         extra = self.conn.get('''SELECT extra FROM %s
                                  WHERE book=?'''%lt, (idx,), all=False)
-        return (ans, extra)
+        return ans, extra
 
     # convenience methods for tag editing
     def get_custom_items_with_ids(self, label=None, num=None):
@@ -547,7 +547,7 @@ class CustomColumns:
         val = self.custom_data_adapters[data['datatype']](val, data)
 
         if data['datatype'] == 'series' and extra is None:
-            (val, extra) = self._get_series_values(val)
+            val, extra = self._get_series_values(val)
             if extra is None:
                 extra = 1.0
 
@@ -628,7 +628,7 @@ class CustomColumns:
 
     def clean_custom(self):
         st = ('DELETE FROM {table} WHERE (SELECT COUNT(id) FROM {lt} WHERE'
-           ' {lt}.value={table}.id) < 1;')
+            ' {lt}.value={table}.id) < 1;')
         statements = []
         for data in self.custom_column_num_map.values():
             if data['normalized']:
@@ -674,7 +674,7 @@ class CustomColumns:
             editable=True, display={}):
         if not label:
             raise ValueError(_('No label was provided'))
-        if re.match('^\\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+        if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
             raise ValueError('%r is not a supported data type'%datatype)

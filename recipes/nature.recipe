@@ -40,14 +40,14 @@ class Nature(BasicNewsRecipe):
     no_javascript = True
     no_stylesheets = True
 
-    keep_only_tags = [dict(name="article")]
+    keep_only_tags = [dict(name='article')]
 
     remove_tags = [
         classes(
-            "u-hide-print hide-print c-latest-content__item c-context-bar "
-            "c-pdf-button__container u-js-hide"
+            'u-hide-print hide-print c-latest-content__item c-context-bar '
+            'c-pdf-button__container u-js-hide'
         ),
-        dict(name="img", attrs={"class": ["visually-hidden"]}),
+        dict(name='img', attrs={'class': ['visually-hidden']}),
     ]
 
     def parse_index(self):
@@ -56,15 +56,15 @@ class Nature(BasicNewsRecipe):
             'img', attrs={'data-test': check_words('issue-cover-image')}
         )['src']
         try:
-            self.cover_url = re.sub(r"\bw\d+\b", "w1000", self.cover_url)  # enlarge cover size resolution
+            self.cover_url = re.sub(r'\bw\d+\b', 'w1000', self.cover_url)  # enlarge cover size resolution
         except:
-            """
+            '''
             failed, img src might have changed, use default width 200
-            """
+            '''
             pass
 
         section_tags = soup.find_all(
-            "section", attrs={"data-container-type": "issue-section-list"}
+            'section', attrs={'data-container-type': 'issue-section-list'}
         )
 
         sections = defaultdict(list)

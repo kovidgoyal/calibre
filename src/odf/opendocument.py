@@ -18,7 +18,7 @@
 #
 
 
-__doc__="""Use OpenDocument to generate your documents."""
+__doc__='''Use OpenDocument to generate your documents.'''
 
 import mimetypes
 import sys
@@ -65,29 +65,29 @@ UNIXPERMS = 0o100644 << 16  # -rw-r--r--
 IS_FILENAME = 0
 IS_IMAGE = 1
 # We need at least Python 2.2
-assert sys.version_info[0]>=2 and sys.version_info[1] >= 2
+assert sys.version_info >= (2, 2)
 
 # sys.setrecursionlimit(100)
 # The recursion limit is set conservative so mistakes like
 # s=content() s.addElement(s) won't eat up too much processor time.
 
 odmimetypes = {
- 'application/vnd.oasis.opendocument.text':                  '.odt',
- 'application/vnd.oasis.opendocument.text-template':         '.ott',
- 'application/vnd.oasis.opendocument.graphics':              '.odg',
- 'application/vnd.oasis.opendocument.graphics-template':     '.otg',
- 'application/vnd.oasis.opendocument.presentation':          '.odp',
- 'application/vnd.oasis.opendocument.presentation-template': '.otp',
- 'application/vnd.oasis.opendocument.spreadsheet':           '.ods',
- 'application/vnd.oasis.opendocument.spreadsheet-template':  '.ots',
- 'application/vnd.oasis.opendocument.chart':                 '.odc',
- 'application/vnd.oasis.opendocument.chart-template':        '.otc',
- 'application/vnd.oasis.opendocument.image':                 '.odi',
- 'application/vnd.oasis.opendocument.image-template':        '.oti',
- 'application/vnd.oasis.opendocument.formula':               '.odf',
- 'application/vnd.oasis.opendocument.formula-template':      '.otf',
- 'application/vnd.oasis.opendocument.text-master':           '.odm',
- 'application/vnd.oasis.opendocument.text-web':              '.oth',
+    'application/vnd.oasis.opendocument.text':                  '.odt',
+    'application/vnd.oasis.opendocument.text-template':         '.ott',
+    'application/vnd.oasis.opendocument.graphics':              '.odg',
+    'application/vnd.oasis.opendocument.graphics-template':     '.otg',
+    'application/vnd.oasis.opendocument.presentation':          '.odp',
+    'application/vnd.oasis.opendocument.presentation-template': '.otp',
+    'application/vnd.oasis.opendocument.spreadsheet':           '.ods',
+    'application/vnd.oasis.opendocument.spreadsheet-template':  '.ots',
+    'application/vnd.oasis.opendocument.chart':                 '.odc',
+    'application/vnd.oasis.opendocument.chart-template':        '.otc',
+    'application/vnd.oasis.opendocument.image':                 '.odi',
+    'application/vnd.oasis.opendocument.image-template':        '.oti',
+    'application/vnd.oasis.opendocument.formula':               '.odf',
+    'application/vnd.oasis.opendocument.formula-template':      '.otf',
+    'application/vnd.oasis.opendocument.text-master':           '.odm',
+    'application/vnd.oasis.opendocument.text-web':              '.oth',
 }
 
 
@@ -99,19 +99,19 @@ class OpaqueObject:
 
 
 class OpenDocument:
-    """ A class to hold the content of an OpenDocument document
+    ''' A class to hold the content of an OpenDocument document
         Use the xml method to write the XML
         source to the screen or to a file
         d = OpenDocument(mimetype)
         fd.write(d.xml())
-    """
+    '''
     thumbnail = None
 
     def __init__(self, mimetype, add_generator=True):
         self.mimetype = mimetype
         self.childobjects = []
         self._extra = []
-        self.folder = ""  # Always empty for toplevel documents
+        self.folder = ''  # Always empty for toplevel documents
         self.topnode = Document(mimetype=self.mimetype)
         self.topnode.ownerDocument = self
 
@@ -151,8 +151,8 @@ class OpenDocument:
         self._styles_ooo_fix = {}
 
     def build_caches(self, element):
-        """ Called from element.py
-        """
+        ''' Called from element.py
+        '''
         if element.qname not in self.element_dict:
             self.element_dict[element.qname] = []
         self.element_dict[element.qname].append(element)
@@ -191,9 +191,9 @@ class OpenDocument:
             f.close()
 
     def xml(self):
-        """ Generates the full document as an XML file
+        ''' Generates the full document as an XML file
             Always written as a bytestream in UTF-8 encoding
-        """
+        '''
         self.__replaceGenerator()
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
@@ -201,9 +201,9 @@ class OpenDocument:
         return xml.getvalue()
 
     def contentxml(self):
-        """ Generates the content.xml file
+        ''' Generates the content.xml file
             Always written as a bytestream in UTF-8 encoding
-        """
+        '''
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
         x = DocumentContent()
@@ -226,38 +226,38 @@ class OpenDocument:
         return xml.getvalue()
 
     def __manifestxml(self):
-        """ Generates the manifest.xml file
+        ''' Generates the manifest.xml file
             The self.manifest isn't available unless the document is being saved
-        """
+        '''
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
-        self.manifest.toXml(0,xml)
+        self.manifest.toXml(0, xml)
         return xml.getvalue()
 
     def metaxml(self):
-        """ Generates the meta.xml file """
+        ''' Generates the meta.xml file '''
         self.__replaceGenerator()
         x = DocumentMeta()
         x.addElement(self.meta)
         xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
-        x.toXml(0,xml)
+        x.toXml(0, xml)
         return xml.getvalue()
 
     def settingsxml(self):
-        """ Generates the settings.xml file """
+        ''' Generates the settings.xml file '''
         x = DocumentSettings()
         x.addElement(self.settings)
         xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
-        x.toXml(0,xml)
+        x.toXml(0, xml)
         return xml.getvalue()
 
     def _parseoneelement(self, top, stylenamelist):
-        """ Finds references to style objects in master-styles
+        ''' Finds references to style objects in master-styles
             and add the style name to the style list if not already there.
             Recursive
-        """
+        '''
         for e in top.childNodes:
             if e.nodeType == element.Node.ELEMENT_NODE:
                 for styleref in (
@@ -280,10 +280,10 @@ class OpenDocument:
         return stylenamelist
 
     def _used_auto_styles(self, segments):
-        """ Loop through the masterstyles elements, and find the automatic
+        ''' Loop through the masterstyles elements, and find the automatic
             styles that are used. These will be added to the automatic-styles
             element in styles.xml
-        """
+        '''
         stylenamelist = []
         for top in segments:
             stylenamelist = self._parseoneelement(top, stylenamelist)
@@ -294,7 +294,7 @@ class OpenDocument:
         return stylelist
 
     def stylesxml(self):
-        """ Generates the styles.xml file """
+        ''' Generates the styles.xml file '''
         xml=PolyglotStringIO()
         xml.write(_XMLPROLOGUE)
         x = DocumentStyles()
@@ -313,11 +313,11 @@ class OpenDocument:
         return xml.getvalue()
 
     def addPicture(self, filename, mediatype=None, content=None):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'
             If passed a file ptr, mediatype must be set
-        """
+        '''
         if content is None:
             if mediatype is None:
                 mediatype, encoding = mimetypes.guess_type(filename)
@@ -329,7 +329,7 @@ class OpenDocument:
                     ext=''
             else:
                 ext = mimetypes.guess_extension(mediatype)
-            manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
+            manifestfn = f'Pictures/{(time.time()*10000000000):0.0f}{ext}'
             self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
         else:
             manifestfn = filename
@@ -337,12 +337,12 @@ class OpenDocument:
         return manifestfn
 
     def addPictureFromFile(self, filename, mediatype=None):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'.
             If mediatype is not given, it will be guessed from the filename
             extension.
-        """
+        '''
         if mediatype is None:
             mediatype, encoding = mimetypes.guess_type(filename)
         if mediatype is None:
@@ -353,26 +353,26 @@ class OpenDocument:
                 ext=''
         else:
             ext = mimetypes.guess_extension(mediatype)
-        manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
+        manifestfn = f'Pictures/{(time.time()*10000000000):0.0f}{ext}'
         self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
         return manifestfn
 
     def addPictureFromString(self, content, mediatype):
-        """ Add a picture
+        ''' Add a picture
             It uses the same convention as OOo, in that it saves the picture in
             the zipfile in the subdirectory 'Pictures'. The content variable
             is a string that contains the binary image data. The mediatype
             indicates the image format.
-        """
+        '''
         ext = mimetypes.guess_extension(mediatype)
-        manifestfn = f"Pictures/{(time.time()*10000000000):0.0f}{ext}"
+        manifestfn = f'Pictures/{(time.time()*10000000000):0.0f}{ext}'
         self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
         return manifestfn
 
     def addThumbnail(self, filecontent=None):
-        """ Add a fixed thumbnail
+        ''' Add a fixed thumbnail
             The thumbnail in the library is big, so this is pretty useless.
-        """
+        '''
         if filecontent is None:
             import thumbnail
             self.thumbnail = thumbnail.thumbnail()
@@ -380,20 +380,20 @@ class OpenDocument:
             self.thumbnail = filecontent
 
     def addObject(self, document, objectname=None):
-        """ Adds an object (subdocument). The object must be an OpenDocument class
+        ''' Adds an object (subdocument). The object must be an OpenDocument class
             The return value will be the folder in the zipfile the object is stored in
-        """
+        '''
         self.childobjects.append(document)
         if objectname is None:
-            document.folder = "%s/Object %d" % (self.folder, len(self.childobjects))
+            document.folder = f'{self.folder}/Object {len(self.childobjects)}'
         else:
             document.folder = objectname
-        return ".%s" % document.folder
+        return f'.{document.folder}'
 
     def _savePictures(self, object, folder):
         for arcname, picturerec in object.Pictures.items():
             what_it_is, fileobj, mediatype = picturerec
-            self.manifest.addElement(manifest.FileEntry(fullpath=f"{folder}{arcname}", mediatype=mediatype))
+            self.manifest.addElement(manifest.FileEntry(fullpath=f'{folder}{arcname}', mediatype=mediatype))
             if what_it_is == IS_FILENAME:
                 self._z.write(fileobj, arcname, zipfile.ZIP_STORED)
             else:
@@ -402,47 +402,47 @@ class OpenDocument:
                 zi.external_attr = UNIXPERMS
                 self._z.writestr(zi, fileobj)
         # According to section 17.7.3 in ODF 1.1, the pictures folder should not have a manifest entry
-#       if hasPictures:
-#           self.manifest.addElement(manifest.FileEntry(fullpath="%sPictures/" % folder, mediatype=""))
+        # if hasPictures:
+        #     self.manifest.addElement(manifest.FileEntry(fullpath=f"{folder}Pictures/", mediatype=""))
         # Look in subobjects
         subobjectnum = 1
         for subobject in object.childobjects:
-            self._savePictures(subobject,'%sObject %d/' % (folder, subobjectnum))
+            self._savePictures(subobject, f'{folder}Object {subobjectnum}/')
             subobjectnum += 1
 
     def __replaceGenerator(self):
-        """ Section 3.1.1: The application MUST NOT export the original identifier
+        ''' Section 3.1.1: The application MUST NOT export the original identifier
             belonging to the application that created the document.
-        """
+        '''
         for m in self.meta.childNodes[:]:
             if m.qname == (METANS, 'generator'):
                 self.meta.removeChild(m)
         self.meta.addElement(meta.Generator(text=TOOLSVERSION))
 
     def save(self, outputfile, addsuffix=False):
-        """ Save the document under the filename.
+        ''' Save the document under the filename.
             If the filename is '-' then save to stdout
-        """
+        '''
         if outputfile == '-':
-            outputfp = zipfile.ZipFile(sys.stdout,"w")
+            outputfp = zipfile.ZipFile(sys.stdout, 'w')
         else:
             if addsuffix:
-                outputfile = outputfile + odmimetypes.get(self.mimetype,'.xxx')
-            outputfp = zipfile.ZipFile(outputfile, "w")
+                outputfile = outputfile + odmimetypes.get(self.mimetype, '.xxx')
+            outputfp = zipfile.ZipFile(outputfile, 'w')
         self.__zipwrite(outputfp)
         outputfp.close()
 
     def write(self, outputfp):
-        """ User API to write the ODF file to an open file descriptor
+        ''' User API to write the ODF file to an open file descriptor
             Writes the ZIP format
-        """
-        zipoutputfp = zipfile.ZipFile(outputfp,"w")
+        '''
+        zipoutputfp = zipfile.ZipFile(outputfp,'w')
         self.__zipwrite(zipoutputfp)
 
     def __zipwrite(self, outputfp):
-        """ Write the document to an open file pointer
+        ''' Write the document to an open file pointer
             This is where the real work is done
-        """
+        '''
         self._z = outputfp
         self._now = time.localtime()[:6]
         self.manifest = manifest.Manifest()
@@ -453,23 +453,23 @@ class OpenDocument:
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, self.mimetype)
 
-        self._saveXmlObjects(self,"")
+        self._saveXmlObjects(self,'')
 
         # Write pictures
-        self._savePictures(self,"")
+        self._savePictures(self,'')
 
         # Write the thumbnail
         if self.thumbnail is not None:
-            self.manifest.addElement(manifest.FileEntry(fullpath="Thumbnails/", mediatype=''))
-            self.manifest.addElement(manifest.FileEntry(fullpath="Thumbnails/thumbnail.png", mediatype=''))
-            zi = zipfile.ZipInfo("Thumbnails/thumbnail.png", self._now)
+            self.manifest.addElement(manifest.FileEntry(fullpath='Thumbnails/', mediatype=''))
+            self.manifest.addElement(manifest.FileEntry(fullpath='Thumbnails/thumbnail.png', mediatype=''))
+            zi = zipfile.ZipInfo('Thumbnails/thumbnail.png', self._now)
             zi.compress_type = zipfile.ZIP_DEFLATED
             zi.external_attr = UNIXPERMS
             self._z.writestr(zi, self.thumbnail)
 
         # Write any extra files
         for op in self._extra:
-            if op.filename == "META-INF/documentsignatures.xml":
+            if op.filename == 'META-INF/documentsignatures.xml':
                 continue  # Don't save signatures
             self.manifest.addElement(manifest.FileEntry(fullpath=op.filename, mediatype=op.mediatype))
             zi = zipfile.ZipInfo(op.filename.encode('utf-8'), self._now)
@@ -478,7 +478,7 @@ class OpenDocument:
             if op.content is not None:
                 self._z.writestr(zi, op.content)
         # Write manifest
-        zi = zipfile.ZipInfo("META-INF/manifest.xml", self._now)
+        zi = zipfile.ZipInfo('META-INF/manifest.xml', self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, self.__manifestxml())
@@ -488,35 +488,35 @@ class OpenDocument:
 
     def _saveXmlObjects(self, object, folder):
         if self == object:
-            self.manifest.addElement(manifest.FileEntry(fullpath="/", mediatype=object.mimetype))
+            self.manifest.addElement(manifest.FileEntry(fullpath='/', mediatype=object.mimetype))
         else:
             self.manifest.addElement(manifest.FileEntry(fullpath=folder, mediatype=object.mimetype))
         # Write styles
-        self.manifest.addElement(manifest.FileEntry(fullpath="%sstyles.xml" % folder, mediatype="text/xml"))
-        zi = zipfile.ZipInfo("%sstyles.xml" % folder, self._now)
+        self.manifest.addElement(manifest.FileEntry(fullpath=f'{folder}styles.xml', mediatype='text/xml'))
+        zi = zipfile.ZipInfo(f'{folder}styles.xml', self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, object.stylesxml())
 
         # Write content
-        self.manifest.addElement(manifest.FileEntry(fullpath="%scontent.xml" % folder, mediatype="text/xml"))
-        zi = zipfile.ZipInfo("%scontent.xml" % folder, self._now)
+        self.manifest.addElement(manifest.FileEntry(fullpath=f'{folder}content.xml', mediatype='text/xml'))
+        zi = zipfile.ZipInfo(f'{folder}content.xml', self._now)
         zi.compress_type = zipfile.ZIP_DEFLATED
         zi.external_attr = UNIXPERMS
         self._z.writestr(zi, object.contentxml())
 
         # Write settings
         if object.settings.hasChildNodes():
-            self.manifest.addElement(manifest.FileEntry(fullpath="%ssettings.xml" % folder, mediatype="text/xml"))
-            zi = zipfile.ZipInfo("%ssettings.xml" % folder, self._now)
+            self.manifest.addElement(manifest.FileEntry(fullpath=f'{folder}settings.xml', mediatype='text/xml'))
+            zi = zipfile.ZipInfo(f'{folder}settings.xml', self._now)
             zi.compress_type = zipfile.ZIP_DEFLATED
             zi.external_attr = UNIXPERMS
             self._z.writestr(zi, object.settingsxml())
 
         # Write meta
         if self == object:
-            self.manifest.addElement(manifest.FileEntry(fullpath="meta.xml", mediatype="text/xml"))
-            zi = zipfile.ZipInfo("meta.xml", self._now)
+            self.manifest.addElement(manifest.FileEntry(fullpath='meta.xml', mediatype='text/xml'))
+            zi = zipfile.ZipInfo('meta.xml', self._now)
             zi.compress_type = zipfile.ZIP_DEFLATED
             zi.external_attr = UNIXPERMS
             self._z.writestr(zi, object.metaxml())
@@ -524,47 +524,47 @@ class OpenDocument:
         # Write subobjects
         subobjectnum = 1
         for subobject in object.childobjects:
-            self._saveXmlObjects(subobject, '%sObject %d/' % (folder, subobjectnum))
+            self._saveXmlObjects(subobject, f'{folder}Object {subobjectnum}/')
             subobjectnum += 1
 
 # Document's DOM methods
     def createElement(self, element):
-        """ Inconvenient interface to create an element, but follows XML-DOM.
+        ''' Inconvenient interface to create an element, but follows XML-DOM.
             Does not allow attributes as argument, therefore can't check grammar.
-        """
+        '''
         return element(check_grammar=False)
 
     def createTextNode(self, data):
-        """ Method to create a text node """
+        ''' Method to create a text node '''
         return element.Text(data)
 
     def createCDATASection(self, data):
-        """ Method to create a CDATA section """
+        ''' Method to create a CDATA section '''
         return element.CDATASection(data)
 
     def getMediaType(self):
-        """ Returns the media type """
+        ''' Returns the media type '''
         return self.mimetype
 
     def getStyleByName(self, name):
-        """ Finds a style object based on the name """
+        ''' Finds a style object based on the name '''
         ncname = make_NCName(name)
         if self._styles_dict == {}:
             self.rebuild_caches()
         return self._styles_dict.get(ncname, None)
 
     def getElementsByType(self, element):
-        """ Gets elements based on the type, which is function from text.py, draw.py etc. """
+        ''' Gets elements based on the type, which is function from text.py, draw.py etc. '''
         obj = element(check_grammar=False)
         if self.element_dict == {}:
             self.rebuild_caches()
         return self.element_dict.get(obj.qname, [])
 
+
 # Convenience functions
 
-
 def OpenDocumentChart():
-    """ Creates a chart document """
+    ''' Creates a chart document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.chart')
     doc.chart = Chart()
     doc.body.addElement(doc.chart)
@@ -572,7 +572,7 @@ def OpenDocumentChart():
 
 
 def OpenDocumentDrawing():
-    """ Creates a drawing document """
+    ''' Creates a drawing document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.graphics')
     doc.drawing = Drawing()
     doc.body.addElement(doc.drawing)
@@ -580,7 +580,7 @@ def OpenDocumentDrawing():
 
 
 def OpenDocumentImage():
-    """ Creates an image document """
+    ''' Creates an image document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.image')
     doc.image = Image()
     doc.body.addElement(doc.image)
@@ -588,7 +588,7 @@ def OpenDocumentImage():
 
 
 def OpenDocumentPresentation():
-    """ Creates a presentation document """
+    ''' Creates a presentation document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.presentation')
     doc.presentation = Presentation()
     doc.body.addElement(doc.presentation)
@@ -596,7 +596,7 @@ def OpenDocumentPresentation():
 
 
 def OpenDocumentSpreadsheet():
-    """ Creates a spreadsheet document """
+    ''' Creates a spreadsheet document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.spreadsheet')
     doc.spreadsheet = Spreadsheet()
     doc.body.addElement(doc.spreadsheet)
@@ -604,7 +604,7 @@ def OpenDocumentSpreadsheet():
 
 
 def OpenDocumentText():
-    """ Creates a text document """
+    ''' Creates a text document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.text')
     doc.text = Text()
     doc.body.addElement(doc.text)
@@ -612,7 +612,7 @@ def OpenDocumentText():
 
 
 def OpenDocumentTextMaster():
-    """ Creates a text master document """
+    ''' Creates a text master document '''
     doc = OpenDocument('application/vnd.oasis.opendocument.text-master')
     doc.text = Text()
     doc.body.addElement(doc.text)
@@ -646,9 +646,9 @@ def __loadxmlparts(z, manifest, doc, objectpath):
 
 
 def load(odffile):
-    """ Load an ODF file into memory
+    ''' Load an ODF file into memory
         Returns a reference to the structure
-    """
+    '''
     z = zipfile.ZipFile(odffile)
     try:
         mimetype = z.read('mimetype')
@@ -658,21 +658,21 @@ def load(odffile):
 
     # Look in the manifest file to see if which of the four files there are
     manifestpart = z.read('META-INF/manifest.xml')
-    manifest =  manifestlist(manifestpart)
+    manifest = manifestlist(manifestpart)
     __loadxmlparts(z, manifest, doc, '')
     for mentry,mvalue in manifest.items():
-        if mentry[:9] == "Pictures/" and len(mentry) > 9:
+        if mentry[:9] == 'Pictures/' and len(mentry) > 9:
             doc.addPicture(mvalue['full-path'], mvalue['media-type'], z.read(mentry))
-        elif mentry == "Thumbnails/thumbnail.png":
+        elif mentry == 'Thumbnails/thumbnail.png':
             doc.addThumbnail(z.read(mentry))
         elif mentry in ('settings.xml', 'meta.xml', 'content.xml', 'styles.xml'):
             pass
         # Load subobjects into structure
-        elif mentry[:7] == "Object " and len(mentry) < 11 and mentry[-1] == "/":
+        elif mentry[:7] == 'Object ' and len(mentry) < 11 and mentry[-1] == '/':
             subdoc = OpenDocument(mvalue['media-type'], add_generator=False)
-            doc.addObject(subdoc, "/" + mentry[:-1])
+            doc.addObject(subdoc, '/' + mentry[:-1])
             __loadxmlparts(z, manifest, subdoc, mentry)
-        elif mentry[:7] == "Object ":
+        elif mentry[:7] == 'Object ':
             pass  # Don't load subobjects as opaque objects
         else:
             if mvalue['full-path'][-1] == '/':

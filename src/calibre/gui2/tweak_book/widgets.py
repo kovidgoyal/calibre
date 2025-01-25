@@ -287,8 +287,8 @@ class ImportForeign(Dialog):  # {{{
         return src, dest
 # }}}
 
-# Quick Open {{{
 
+# Quick Open {{{
 
 def make_highlighted_text(emph, text, positions):
     positions = sorted(set(positions) - {-1})
@@ -509,15 +509,15 @@ class QuickOpen(Dialog):
     @classmethod
     def test(cls):
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.getcwd(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(os.getcwd(), lambda x: not x.endswith('.pyc'))
         d = cls(items)
         d.exec()
         print(d.selected_result)
 
 # }}}
 
-# Filterable names list {{{
 
+# Filterable names list {{{
 
 class NamesDelegate(QStyledItemDelegate):
 
@@ -619,8 +619,8 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 
 # }}}
 
-# Insert Link {{{
 
+# Insert Link {{{
 
 class AnchorsModel(QAbstractListModel):
 
@@ -814,10 +814,8 @@ class InsertLink(Dialog):
 
 # }}}
 
-# Insert Semantics {{{
 
-
-class InsertSemantics(Dialog):
+class InsertSemantics(Dialog):  # {{{
 
     def __init__(self, container, parent=None):
         self.container = container
@@ -1112,8 +1110,8 @@ class FilterCSS(Dialog):  # {{{
 
 # }}}
 
-# Add Cover {{{
 
+# Add Cover {{{
 
 class CoverView(QWidget):
 

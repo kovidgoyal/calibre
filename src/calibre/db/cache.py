@@ -135,7 +135,6 @@ dynamic_category_preferences = frozenset({'grouped_search_make_user_categories',
 
 
 class Cache:
-
     '''
     An in-memory cache of the metadata.db file from a calibre library.
     This class also serves as a threadsafe API for accessing the database.
@@ -1093,7 +1092,7 @@ class Cache:
                 # We can't clear the composite caches because a read lock is set.
                 # As a consequence the value of a composite column that calls
                 # virtual_libraries() might be wrong. Oh well. Log and keep running.
-                print('Couldn\'t get write lock after vls_for_books_cache was loaded', file=sys.stderr)
+                print("Couldn't get write lock after vls_for_books_cache was loaded", file=sys.stderr)
                 traceback.print_exc()
 
         if get_cover:
@@ -2114,7 +2113,7 @@ class Cache:
 
     @read_api
     def has_id(self, book_id):
-        ' Return True iff the specified book_id exists in the db '''
+        ' Return True iff the specified book_id exists in the db '
         return book_id in self.fields['title'].table.book_col_map
 
     @write_api

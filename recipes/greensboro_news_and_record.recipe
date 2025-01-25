@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewsandRecord(BasicNewsRecipe):
     title = u'Greensboro News & Record'
-    description = "News from Greensboro, North Carolina"
+    description = 'News from Greensboro, North Carolina'
     __author__ = 'Walt Anthony'
     publisher = 'News & Record and Landmark Media Enterprises, LLC'
     category = 'news, USA'
@@ -27,11 +27,11 @@ class NewsandRecord(BasicNewsRecipe):
 
     feeds = [
         ('News', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=news,news/*&f=rss'),
-        ('Greensboro News', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=news/local,news/crime,news/goverment,news/schools,news/rockingham_county,news/local,news/crime,news/goverment,news/schools,news/rockingham_county/*&f=rss'),  # noqa
+        ('Greensboro News', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=news/local,news/crime,news/goverment,news/schools,news/rockingham_county,news/local,news/crime,news/goverment,news/schools,news/rockingham_county/*&f=rss'),  # noqa: E501
         ('Business', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=business,business/*&f=rss'),
-        ('Local Business', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=business/local_business,business/local_business/*&f=rss'),  # noqa
+        ('Local Business', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=business/local_business,business/local_business/*&f=rss'),  # noqa: E501
         ('Sports', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=sports,sports/*&f=rss'),
-        ('College Sports', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=sports/college,sports/college/*&f=rss'),  # noqa
-        ('Sports Extra', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=blogs/sports_extra,blogs/sports_extra/*&f=rss'),  # noqa
+        ('College Sports', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=sports/college,sports/college/*&f=rss'),  # noqa: E501
+        ('Sports Extra', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=blogs/sports_extra,blogs/sports_extra/*&f=rss'),  # noqa: E501
         ('Life', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=life,life/*&f=rss'),
     ]

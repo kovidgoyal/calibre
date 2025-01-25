@@ -198,7 +198,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                 user_entities[match.group(1)] = val
             if user_entities:
                 pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
-                data = pat.sub(lambda m:user_entities[m.group(1)], data)
+                data = pat.sub(lambda m: user_entities[m.group(1)], data)
 
     if preprocessor is not None:
         data = preprocessor(data)

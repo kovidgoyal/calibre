@@ -35,7 +35,7 @@ from .namespaces import OFFICENS
 
 
 class LoadParser(handler.ContentHandler):
-    """ Extract headings from content.xml of an ODT file """
+    ''' Extract headings from content.xml of an ODT file '''
     triggers = (
        (OFFICENS, 'automatic-styles'), (OFFICENS, 'body'),
        (OFFICENS, 'font-face-decls'), (OFFICENS, 'master-styles'),
@@ -56,7 +56,7 @@ class LoadParser(handler.ContentHandler):
     def startElementNS(self, tag, qname, attrs):
         if tag in self.triggers:
             self.parse = True
-        if self.doc._parsing != "styles.xml" and tag == (OFFICENS, 'font-face-decls'):
+        if self.doc._parsing != 'styles.xml' and tag == (OFFICENS, 'font-face-decls'):
             self.parse = False
         if self.parse is False:
             return
@@ -69,13 +69,13 @@ class LoadParser(handler.ContentHandler):
             self.data = []
         # Create the element
         attrdict = {}
-        for (att,value) in attrs.items():
+        for att,value in attrs.items():
             attrdict[att] = value
         try:
             e = Element(qname=tag, qattributes=attrdict, check_grammar=False)
             self.curr = e
         except AttributeError as v:
-            print("Error: %s" % v)
+            print(f'Error: {v}')
 
         if tag == (OFFICENS, 'automatic-styles'):
             e = self.doc.automaticstyles
@@ -91,7 +91,7 @@ class LoadParser(handler.ContentHandler):
             e = self.doc.settings
         elif tag == (OFFICENS,'styles'):
             e = self.doc.styles
-        elif self.doc._parsing == "styles.xml" and tag == (OFFICENS, 'font-face-decls'):
+        elif self.doc._parsing == 'styles.xml' and tag == (OFFICENS, 'font-face-decls'):
             e = self.doc.fontfacedecls
         elif hasattr(self,'parent'):
             self.parent.addElement(e, check_grammar=False)

@@ -27,7 +27,6 @@ class Tehelka(BasicNewsRecipe):
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
 
-
     feeds          = [
         ('Tehelka', 'http://tehelka.com/rss'),
     ]

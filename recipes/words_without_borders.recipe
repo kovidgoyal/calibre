@@ -19,7 +19,7 @@ class AdvancedUserRecipe1308302002(BasicNewsRecipe):
     remove_tags_after = [
         {'class': 'addthis_toolbox addthis_default_style no_print'}]
     remove_tags = [{'class': ['posterous_quote_citation', 'button']}]
-    extra_css             = """
-                               h1{font-family: Georgia,serif; font-size: large}h2{font-family: Georgia,serif; font-size: large} """
+    extra_css             = '''
+                               h1{font-family: Georgia,serif; font-size: large}h2{font-family: Georgia,serif; font-size: large} '''
 
     feeds = [(u'wwb', u'http://feeds.feedburner.com/wwborders?format=xml')]

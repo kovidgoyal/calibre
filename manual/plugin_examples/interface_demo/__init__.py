@@ -76,5 +76,3 @@ class InterfacePluginDemo(InterfaceActionBase):
         ac = self.actual_plugin_
         if ac is not None:
             ac.apply_settings()
-
-

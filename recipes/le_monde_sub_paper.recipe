@@ -51,7 +51,7 @@ class LeMondeAbonne(BasicNewsRecipe):
     zipurl_format = 'http://medias.lemonde.fr/abonnes/editionelectronique/%Y%m%d/html/%y%m%d.zip'
     coverurl_format = '/img/%y%m%d01.jpg'
     masthead_url = 'http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Le_monde_logo.svg/800px-Le_monde_logo.svg.png'
-    path_format = "%y%m%d"
+    path_format = '%y%m%d'
 
     keep_only_tags = [
         dict(name=['h1']),
@@ -66,7 +66,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'po-copy'})
     ]
 
-    article_id_pattern = re.compile("[0-9]+\\.html")
+    article_id_pattern = re.compile(r'[0-9]+\.html')
     article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
 
     def get_browser(self):
@@ -92,7 +92,7 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         for i in range(7):
             self.ltime = time.gmtime(second)
-            self.timefmt = time.strftime(" %A %d %B %Y",
+            self.timefmt = time.strftime(' %A %d %B %Y',
                                          self.ltime).decode(preferred_encoding)
             url = time.strftime(self.zipurl_format, self.ltime)
             try:
@@ -113,7 +113,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         zfile.close()
 
         path = os.path.join(
-            self.output_dir, time.strftime(self.path_format, self.ltime), "data"
+            self.output_dir, time.strftime(self.path_format, self.ltime), 'data'
         )
 
         self.articles_path = path
@@ -121,7 +121,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         files = os.listdir(path)
 
         nb_index_files = len([
-            name for name in files if re.match("frame_gauche_[0-9]+.html", name)
+            name for name in files if re.match(r'frame_gauche_[0-9]+.html', name)
         ])
 
         flux = []
@@ -129,39 +129,39 @@ class LeMondeAbonne(BasicNewsRecipe):
         article_url = time.strftime(self.article_url_format, self.ltime)
 
         for i in range(nb_index_files):
-            filename = os.path.join(path, "selection_%d.html" % (i + 1))
+            filename = os.path.join(path, 'selection_%d.html' % (i + 1))
             with open(filename, 'rb') as tmp:
                 soup = self.index_to_soup(tmp.read())
             title = soup.find('span').contents[0]
-            if title == "Une":
-                title = "À la une"
-            if title == "Evenement":
+            if title == 'Une':
+                title = 'À la une'
+            if title == 'Evenement':
                 title = "L'événement"
-            if title == "Planete":
-                title = "Planète"
-            if title == "Economie - Entreprises":
-                title = "Économie"
+            if title == 'Planete':
+                title = 'Planète'
+            if title == 'Economie - Entreprises':
+                title = 'Économie'
             if title == "L'Oeil du Monde":
                 title = "L'œil du Monde"
-            if title == "Enquete":
-                title = "Enquête"
-            if title == "Editorial - Analyses":
-                title = "Horizons"
-            if title == "Le Monde Economie":
-                title = "Économie"
-            if title == "Lettre et chronique":
-                title = "Idées"
-            if title == "Le Monde Géo et politique":
-                title = "Géopolitique"
-            if title == "Météo - Jeux - Ecrans":
-                title = "Économie & Entreprise"
+            if title == 'Enquete':
+                title = 'Enquête'
+            if title == 'Editorial - Analyses':
+                title = 'Horizons'
+            if title == 'Le Monde Economie':
+                title = 'Économie'
+            if title == 'Lettre et chronique':
+                title = 'Idées'
+            if title == 'Le Monde Géo et politique':
+                title = 'Géopolitique'
+            if title == 'Météo - Jeux - Ecrans':
+                title = 'Économie & Entreprise'
             tmp.close()
 
-            filename = os.path.join(path, "frame_gauche_%d.html" % (i + 1))
+            filename = os.path.join(path, 'frame_gauche_%d.html' % (i + 1))
             with open(filename, 'rb') as tmp:
                 soup = self.index_to_soup(tmp.read())
             articles = []
-            for link in soup.findAll("a"):
+            for link in soup.findAll('a'):
                 article_file = link['href']
                 article_id = self.article_id_pattern.search(article_file).group()
                 article = {

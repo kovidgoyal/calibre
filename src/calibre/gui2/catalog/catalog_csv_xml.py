@@ -68,7 +68,7 @@ class PluginWidget(QWidget):
         self.db_fields.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.db_fields.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
         self.db_fields.setAlternatingRowColors(True)
-        self.db_fields.setObjectName("db_fields")
+        self.db_fields.setObjectName('db_fields')
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(la), h.addStretch(10)

@@ -50,12 +50,12 @@ class TagesspiegelRss(BasicNewsRecipe):
         return cover
 
     keep_only_tags = [
-        dict(name = 'header', attrs={'class':'Bo'}),
-        dict(name = 'div', attrs={'id':'story-elements'})
+        dict(name='header', attrs={'class':'Bo'}),
+        dict(name='div', attrs={'id':'story-elements'})
     ]
 
     remove_tags = [
-        dict(name = 'aside'),
+        dict(name='aside'),
         classes('iqd_mainAd Bs')
     ]
 
@@ -70,4 +70,3 @@ class TagesspiegelRss(BasicNewsRecipe):
         (u'Medien', u'http://www.tagesspiegel.de/contentexport/feed/medien'),
         (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
     ]
-

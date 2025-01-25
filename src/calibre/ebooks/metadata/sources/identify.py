@@ -62,8 +62,8 @@ def is_worker_alive(workers):
 
 # }}}
 
-# Merge results from different sources {{{
 
+# Merge results from different sources {{{
 
 class xISBN(Thread):
 

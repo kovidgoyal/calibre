@@ -21,7 +21,7 @@ class AdventureGamers(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     INDEX = u'http://www.adventuregamers.com'
-    extra_css             = """
+    extra_css             = '''
                                 .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
                                 .pageheader_title,.page_title{font-size: xx-large; color: #394128}
                                 .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
@@ -32,7 +32,7 @@ class AdventureGamers(BasicNewsRecipe):
                                 .score_header{font-size: large; color: #50544A}
                                 img{margin-bottom: 1em;}
                                 body{font-family: 'Open Sans',Helvetica,Arial,sans-serif}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

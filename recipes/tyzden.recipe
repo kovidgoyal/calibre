@@ -50,7 +50,7 @@ class Tyzden(BasicNewsRecipe):
             'attrs': {
                 'class': re.compile(r'\barticle\b')}}, ]
 
-    extra_css = """.theme-highlight {
+    extra_css = '''.theme-highlight {
         color: #999;
         text-decoration: none;
     }
@@ -90,7 +90,7 @@ class Tyzden(BasicNewsRecipe):
     .teaser__title .highlight {
         color: #000;
     }
-    """
+    '''
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

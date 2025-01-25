@@ -19,7 +19,7 @@ def ipaddr_sort_key(ipaddr):
 
 
 def get_all_ip_addresses():
-    ipaddrs = list()
+    ipaddrs = []
     for iface in itervalues(get_all_ips()):
         for addrs in iface:
             if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':

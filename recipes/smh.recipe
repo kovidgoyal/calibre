@@ -1,50 +1,50 @@
-__license__ = "GPL v3"
-__copyright__ = "2010-2011, Darko Miletic <darko.miletic at gmail.com>"
-"""
+__license__ = 'GPL v3'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
 smh.com.au
-"""
+'''
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Smh_au(BasicNewsRecipe):
-    title = "The Sydney Morning Herald"
-    __author__ = "Darko Miletic"
-    description = "Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news."  # noqa
-    publisher = "Fairfax Digital"
-    category = "news, politics, Australia, Sydney"
+    title = 'The Sydney Morning Herald'
+    __author__ = 'Darko Miletic'
+    description = 'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'  # noqa: E501
+    publisher = 'Fairfax Digital'
+    category = 'news, politics, Australia, Sydney'
     oldest_article = 2
     max_articles_per_feed = 200
     no_stylesheets = True
-    ignore_duplicate_articles = {"title", "url"}
+    ignore_duplicate_articles = {'title', 'url'}
     use_embedded_content = False
-    encoding = "utf-8"
+    encoding = 'utf-8'
 
-    language = "en_AU"
+    language = 'en_AU'
     remove_empty_feeds = True
-    masthead_url = "http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg"
-    publication_type = "newspaper"
+    masthead_url = 'http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg'
+    publication_type = 'newspaper'
 
-    keep_only_tags = [dict(name="article")]
+    keep_only_tags = [dict(name='article')]
     remove_tags = [
-        dict(name=["button"]),
-        dict(id=["saveTooltip"]),
-        dict(attrs={"class": "noPrint"}),
+        dict(name=['button']),
+        dict(id=['saveTooltip']),
+        dict(attrs={'class': 'noPrint'}),
     ]
 
     # https://www.smh.com.au/rssheadlines
     feeds = [
-        ("Latest News", "https://www.smh.com.au/rss/feed.xml"),
-        ("Federal Politics", "https://www.smh.com.au/rss/politics/federal.xml"),
-        ("NSW News", "https://www.smh.com.au/rss/national/nsw.xml"),
-        ("World", "https://www.smh.com.au/rss/world.xml"),
-        ("National", "https://www.smh.com.au/rss/national.xml"),
-        ("Business", "https://www.smh.com.au/rss/business.xml"),
-        ("Culture", "https://www.smh.com.au/rss/culture.xml"),
-        ("Technology", "https://www.smh.com.au/rss/technology.xml"),
-        ("Environment", "https://www.smh.com.au/rss/environment.xml"),
-        ("Lifestyle", "https://www.smh.com.au/rss/lifestyle.xml"),
-        ("Property", "https://www.smh.com.au/rss/property.xml"),
-        ("Sport", "https://www.smh.com.au/rss/sport.xml"),
-        ("Ruby League", "https://www.smh.com.au/rss/sport/nrl.xml"),
-        ("AFL", "https://www.smh.com.au/rss/sport/afl.xml"),
+        ('Latest News', 'https://www.smh.com.au/rss/feed.xml'),
+        ('Federal Politics', 'https://www.smh.com.au/rss/politics/federal.xml'),
+        ('NSW News', 'https://www.smh.com.au/rss/national/nsw.xml'),
+        ('World', 'https://www.smh.com.au/rss/world.xml'),
+        ('National', 'https://www.smh.com.au/rss/national.xml'),
+        ('Business', 'https://www.smh.com.au/rss/business.xml'),
+        ('Culture', 'https://www.smh.com.au/rss/culture.xml'),
+        ('Technology', 'https://www.smh.com.au/rss/technology.xml'),
+        ('Environment', 'https://www.smh.com.au/rss/environment.xml'),
+        ('Lifestyle', 'https://www.smh.com.au/rss/lifestyle.xml'),
+        ('Property', 'https://www.smh.com.au/rss/property.xml'),
+        ('Sport', 'https://www.smh.com.au/rss/sport.xml'),
+        ('Ruby League', 'https://www.smh.com.au/rss/sport/nrl.xml'),
+        ('AFL', 'https://www.smh.com.au/rss/sport/afl.xml'),
     ]

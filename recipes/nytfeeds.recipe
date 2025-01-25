@@ -92,7 +92,7 @@ class NytFeeds(BasicNewsRecipe):
             if c.lower() == 'yes':
                 self.compress_news_images = True
 
-    extra_css = """
+    extra_css = '''
         .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
@@ -100,7 +100,7 @@ class NytFeeds(BasicNewsRecipe):
         .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
         img { display:block; margin:0 auto; }
-    """
+    '''
 
     @property
     def nyt_parser(self):

@@ -80,15 +80,15 @@ class LrsParser:
 
     def text_tag_to_element(self, tag):
         map = {
-               'span'    : Span,
-               'italic'  : Italic,
-               'bold'    : Bold,
-               'empline' : EmpLine,
-               'sup'     : Sup,
-               'sub'     : Sub,
-               'cr'      : CR,
-               'drawchar': DropCaps,
-               }
+            'span'    : Span,
+            'italic'  : Italic,
+            'bold'    : Bold,
+            'empline' : EmpLine,
+            'sup'     : Sup,
+            'sub'     : Sub,
+            'cr'      : CR,
+            'drawchar': DropCaps,
+        }
         if tag.name == 'charbutton':
             return CharButton(self.parsed_objects[tag.get('refobj')], None)
         if tag.name == 'plot':
@@ -108,7 +108,7 @@ class LrsParser:
 
     def process_paragraph(self, tag):
         p = Paragraph()
-        contents = [i for i in tag.contents]
+        contents = list(tag.contents)
         if contents:
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
@@ -252,7 +252,7 @@ class LrsParser:
             tag = base.find(tagname.lower())
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')  # noqa
+            tag = (self.tag_to_string(tag), tag.get('reading') if 'reading' in tag else '')
             return tag
 
         title          = me(bookinfo, 'Title')
@@ -327,7 +327,7 @@ def main(args=sys.argv, logger=None):
         warnings.defaultaction = 'error'
 
     logger.info('Parsing LRS file...')
-    converter =  LrsParser(open(args[1], 'rb'), logger)
+    converter = LrsParser(open(args[1], 'rb'), logger)
     logger.info('Writing to output file...')
     converter.render(opts.output, to_lrs=opts.lrs)
     logger.info('Output written to '+opts.output)

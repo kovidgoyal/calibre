@@ -62,7 +62,7 @@ class PluginWidget(QWidget, Ui_Form):
             opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
                 getattr(self, opt[0]).setCurrentIndex(opt_value)
-            elif opt[0] in ['impcit', 'addfiles'] :
+            elif opt[0] in ['impcit', 'addfiles']:
                 getattr(self, opt[0]).setChecked(opt_value)
             else:
                 getattr(self, opt[0]).setText(opt_value)
@@ -88,10 +88,10 @@ class PluginWidget(QWidget, Ui_Form):
         # 'bibfile_enc','bibfile_enctag' stores as int (Indexes)
         for opt in self.OPTION_FIELDS:
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
-                opt_value = getattr(self,opt[0]).currentIndex()
-            elif opt[0] in ['impcit', 'addfiles'] :
+                opt_value = getattr(self, opt[0]).currentIndex()
+            elif opt[0] in ['impcit', 'addfiles']:
                 opt_value = getattr(self, opt[0]).isChecked()
-            else :
+            else:
                 opt_value = str(getattr(self, opt[0]).text())
             gprefs.set(self.name + '_' + opt[0], opt_value)
 

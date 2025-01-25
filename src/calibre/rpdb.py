@@ -22,14 +22,14 @@ QUESTION = '\x00\x01\x02'
 
 class RemotePdb(pdb.Pdb):
 
-    def __init__(self, addr="127.0.0.1", port=4444, skip=None):
+    def __init__(self, addr='127.0.0.1', port=4444, skip=None):
         # Open a reusable socket to allow for reloads
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
         self.sock.bind((addr, port))
         self.sock.listen(1)
         with suppress(OSError):
-            print("pdb is running on %s:%d" % (addr, port), file=sys.stderr)
+            print('pdb is running on %s:%d' % (addr, port), file=sys.stderr)
         clientsocket, address = self.sock.accept()
         clientsocket.setblocking(True)
         self.clientsocket = clientsocket
@@ -64,7 +64,7 @@ class RemotePdb(pdb.Pdb):
 
     def do_clear(self, arg):
         if not arg:
-            ans = self.ask_question("Clear all breaks? [y/n]: ")
+            ans = self.ask_question('Clear all breaks? [y/n]: ')
             if ans.strip().lower() in {'y', 'yes'}:
                 self.clear_all_breaks()
                 self.prints('All breaks cleared')
@@ -129,7 +129,7 @@ def cli(port=4444):
         atexit.register(readline.write_history_file, histfile)
         p = pdb.Pdb()
         readline.set_completer(p.complete)
-        readline.parse_and_bind("tab: complete")
+        readline.parse_and_bind('tab: complete')
 
     sock.setblocking(True)
     with suppress(KeyboardInterrupt):

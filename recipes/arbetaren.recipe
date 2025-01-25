@@ -18,8 +18,6 @@ class Arbetaren_SE(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'sv'
     auto_cleanup   = True
-    auto_cleanup_keep = '//div[@class="thumbnail"]'
-    auto_cleanup_keep = '//div[@id="article-image"]'
-    auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
+    auto_cleanup_keep = '//div[@class="thumbnail"]|//div[@id="article-image"]|//span[@class="important"]'
 
     feeds = [(u'Nyheter', u'https://www.arbetaren.se/feed')]

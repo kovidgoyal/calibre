@@ -47,7 +47,6 @@ class inc42(BasicNewsRecipe):
                 feeds.append((section, articles))
         return feeds
 
-
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src':True}):
             img['src'] = img['data-src']

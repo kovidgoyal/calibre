@@ -118,7 +118,6 @@ def quote_term(x):
 
 # DDG + Wayback machine {{{
 
-
 def ddg_url_processor(url):
     return url
 
@@ -165,7 +164,7 @@ def wayback_url_processor(url):
     if url.startswith('/'):
         # Use original URL instead of absolutizing to wayback URL as wayback is
         # slow
-        m = re.search('https?:', url)
+        m = re.search(r'https?:', url)
         if m is None:
             url = 'https://web.archive.org' + url
         else:
@@ -207,8 +206,8 @@ def ddg_develop():
             print()
 # }}}
 
-# Bing {{{
 
+# Bing {{{
 
 def bing_term(t):
     t = t.replace('"', '')
@@ -225,7 +224,7 @@ def resolve_bing_wrapper_page(url, br, log):
     raw = br.open_novisit(url).read().decode('utf-8', 'replace')
     m = re.search(r'var u = "(.+)"', raw)
     if m is None:
-        log('Failed to resolve bing wrapper page for url: ' +  url)
+        log('Failed to resolve bing wrapper page for url: ' + url)
         return url
     log('Resolved bing wrapped URL: ' + url + ' to ' + m.group(1))
     return m.group(1)
@@ -278,8 +277,8 @@ def bing_develop(terms='heroes abercrombie'):
             print()
 # }}}
 
-# Google {{{
 
+# Google {{{
 
 def google_term(t):
     t = t.replace('"', '')

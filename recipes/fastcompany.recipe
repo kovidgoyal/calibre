@@ -45,15 +45,15 @@ class FastCompany(BasicNewsRecipe):
     feeds = [(u'All News', u'http://feeds.feedburner.com/fastcompany/headlines')]
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        return article.get('guid', None)
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang'] = self.lang
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=UTF-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll('a'):

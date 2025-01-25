@@ -23,9 +23,9 @@ class Checker:
 
 
 class PrintCheckLibraryResultsTest(unittest.TestCase):
-    """
+    '''
     Asserts the format of the output to the CLI to avoid regressions
-    """
+    '''
 
     check = ('dummy_check', 'Dummy Check')
 
@@ -38,11 +38,11 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), b'')
 
     def test_human_readable_output(self):
-        """
+        '''
         Basic check of the human-readable output.
 
         Does not test: the full line format, truncation
-        """
+        '''
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
@@ -62,9 +62,9 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(result[-1], '')
 
     def test_basic_csv_output(self):
-        """
+        '''
         Test simple csv output
-        """
+        '''
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
@@ -76,9 +76,9 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 
     def test_escaped_csv_output(self):
-        """
+        '''
         Test more complex csv output
-        """
+        '''
         data = [['I, Caesar', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)

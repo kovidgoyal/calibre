@@ -45,8 +45,7 @@ class NRCNext(BasicNewsRecipe):
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):
-            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/helekrant/epub/nn_%s.epub' \
-                  % today.strftime('%Y%m%d')
+            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/helekrant/epub/nn_%s.epub' % today.strftime('%Y%m%d')
             self.log('Trying to download epub from:', url)
             try:
                 response3 = br.open(url, timeout=60)
@@ -62,7 +61,7 @@ class NRCNext(BasicNewsRecipe):
         zfile = zipfile.ZipFile(BytesIO(epubraw), 'r')
         zfile.extractall(self.output_dir)
         namelist = zfile.namelist()
-        emre = re.compile("&lt;em(?:.*)&gt;(.*)&lt;/em&gt;")
+        emre = re.compile(r'&lt;em(?:.*)&gt;(.*)&lt;/em&gt;')
         subst = '\\1'
         for name in namelist:
             _, ext = os.path.splitext(name)

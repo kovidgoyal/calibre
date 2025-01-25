@@ -23,14 +23,14 @@ class AdvancedUserRecipe1718381004(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #WWE
+        # WWE
         ('World Wrestling Entertainment', 'https://www.thesportster.com/feed/category/wwe/'),
         ('WWE News', 'https://www.thesportster.com/feed/category/news/'),
         ('WWE Lists', 'https://www.thesportster.com/feed/category/wrestling/'),
         ('WWE Real American Wrestling', 'https://www.thesportster.com/feed/category/wwe-raw/'),
         ('WWE SmackDown', 'https://www.thesportster.com/feed/category/wwe-smackdown/'),
         ('WWE NXT', 'https://www.thesportster.com/feed/category/wwe-nxt/'),
-        #AEW
+        # AEW
         ('All Elite Wrestling', 'https://www.thesportster.com/feed/category/aew/'),
         ('AEW News', 'https://www.thesportster.com/feed/category/news/'),
         ('AEW Lists', 'https://www.thesportster.com/feed/category/wrestling/'),

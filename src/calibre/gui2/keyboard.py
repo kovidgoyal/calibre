@@ -115,7 +115,6 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         ac.setShortcuts(list(keys))
 
     return keys_map
-
 # }}}
 
 
@@ -194,8 +193,8 @@ class Manager(QObject):  # {{{
 
 # }}}
 
-# Model {{{
 
+# Model {{{
 
 class Node:
 
@@ -318,10 +317,8 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             sc = node.data
             un = sc['unique_name']
             if sc['set_to_default']:
-                if un in kmap:
-                    del kmap[un]
-                if un in options_map:
-                    del options_map[un]
+                kmap.pop(un, None)
+                options_map.pop(un, None)
             else:
                 if sc['persist_shortcut']:
                     options_map[un] = options_map.get(un, {})
@@ -462,7 +459,7 @@ class Editor(QFrame):  # {{{
 
         self.done_button = doneb = QPushButton(_('Done'), self)
         l.addWidget(doneb, 0, 2, 1, 1)
-        doneb.clicked.connect(lambda : self.editing_done.emit(self))
+        doneb.clicked.connect(lambda: self.editing_done.emit(self))
         l.setColumnStretch(0, 100)
 
         self.custom_toggled(False)
@@ -569,8 +566,8 @@ class Editor(QFrame):  # {{{
                 ans.append(ks)
         return tuple(ans)
 
-
 # }}}
+
 
 class Delegate(QStyledItemDelegate):  # {{{
 
@@ -598,7 +595,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         else:
             # Group
             html = data.data
-        doc =  QTextDocument()
+        doc = QTextDocument()
         doc.setHtml(html)
         return doc
 

@@ -49,4 +49,4 @@ class Nu(BasicNewsRecipe):
              (u'Podcast Algemeen nieuws', u'http://www.nu.nl/podcast.php')]
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        return article.get('guid', None)

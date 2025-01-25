@@ -14,7 +14,7 @@ class WSJ(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = (
         'The Print Edition of WSJ. The Wall Street Journal is your source for breaking news, analysis and insights from the U.S. and '
-        'around the world, the world\'s leading business and finance publication.'
+        "around the world, the world's leading business and finance publication."
     )
     language = 'en_US'
     masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
@@ -143,7 +143,7 @@ class WSJ(BasicNewsRecipe):
         br.addheaders += [
             ('Accept-Encoding', 'gzip'),
             ('cache-control', 'no-cache'),
-            ('x-api-key', ('e''b''2''4''0''8''c''d''2''7''f''8''9''1''3''d''4''2''1''f''a''3''d''5''c''3''d''0''7''c''c''f''0''3''4''c''b''4''4''8')),
+            ('x-api-key', ('eb2408cd27f8913d421fa3d5c3d07ccf034cb448')),
         ]
         return br
 

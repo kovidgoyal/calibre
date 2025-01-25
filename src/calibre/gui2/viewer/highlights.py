@@ -441,7 +441,7 @@ class Highlights(QTreeWidget):
         else:
             if cr < 0:
                 cr = -1
-            indices = chain(range(cr + 1, count), range(0, cr + 1))
+            indices = chain(range(cr + 1, count), range(cr + 1))
         for i in indices:
             h = items[i].data(0, highlight_role)
             if pat.search(h['highlighted_text']) is not None or pat.search(h.get('notes') or '') is not None:

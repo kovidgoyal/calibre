@@ -68,7 +68,7 @@ class Develop(Command):
                       dest='fatal_errors', help='If set die on post install errors.')
         parser.add_option('--no-postinstall', action='store_false',
             dest='postinstall', default=True,
-            help='Don\'t run post install actions like creating MAN pages, setting'+
+            help="Don't run post install actions like creating MAN pages, setting"+
                     ' up desktop integration and so on')
 
     def add_options(self, parser):
@@ -288,14 +288,14 @@ class Install(Develop):
 class Sdist(Command):
 
     description = 'Create a source distribution'
-    DEST = os.path.join('dist', '%s-%s.tar.xz'%(__appname__, __version__))
+    DEST = os.path.join('dist', f'{__appname__}-{__version__}.tar.xz')
 
     def run(self, opts):
         if not self.e(self.d(self.DEST)):
             os.makedirs(self.d(self.DEST))
         tdir = tempfile.mkdtemp()
         atexit.register(shutil.rmtree, tdir)
-        tdir = self.j(tdir, 'calibre-%s' % __version__)
+        tdir = self.j(tdir, f'calibre-{__version__}')
         self.info('\tRunning git export...')
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
@@ -336,7 +336,7 @@ class Sdist(Command):
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
         shutil.rmtree(os.path.join(tdir, '.github'))
-        subprocess.check_call(['tar', '--mtime=now', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
+        subprocess.check_call(['tar', '--mtime=now', '-cf', self.a(dest), f'calibre-{__version__}'], cwd=self.d(tdir))
         self.info('\tCompressing tarfile...')
         if os.path.exists(self.a(self.DEST)):
             os.remove(self.a(self.DEST))
@@ -388,7 +388,7 @@ class Bootstrap(Command):
             st = time.time()
             clone_cmd.insert(2, '--depth=1')
             subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
-            print('Downloaded translations in %d seconds' % int(time.time() - st))
+            print('Downloaded translations in {} seconds'.format(int(time.time() - st)))
         else:
             if os.path.exists(tdir):
                 subprocess.check_call(['git', 'pull'], cwd=tdir)
@@ -396,4 +396,4 @@ class Bootstrap(Command):
                 subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
 
     def run(self, opts):
-        self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)
+        self.info(f'\n\nAll done! You should now be able to run "{sys.executable} setup.py install" to install calibre')

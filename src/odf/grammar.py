@@ -18,10 +18,10 @@
 #
 
 
-__doc__=""" In principle the OpenDocument schema converted to python structures.
+__doc__=''' In principle the OpenDocument schema converted to python structures.
 Currently it contains the legal child elements of a given element.
 To be used for validation check in the API
-"""
+'''
 
 from .namespaces import (
     ANIMNS,
@@ -74,57 +74,57 @@ from .namespaces import (
 #
 
 allowed_children = {
-        (DCNS,'creator') : (
+        (DCNS,'creator'): (
         ),
-        (DCNS,'date') : (
+        (DCNS,'date'): (
         ),
-        (DCNS,'description') : (
+        (DCNS,'description'): (
         ),
-        (DCNS,'language') : (
+        (DCNS,'language'): (
         ),
-        (DCNS,'subject') : (
+        (DCNS,'subject'): (
         ),
-        (DCNS,'title') : (
+        (DCNS,'title'): (
         ),
-# Completes Dublin Core start
-        # (DCNS,'contributor') : (
+    # Completes Dublin Core start
+        # (DCNS,'contributor'): (
         # ),
-        # (DCNS,'coverage') : (
+        # (DCNS,'coverage'): (
         # ),
-        # (DCNS,'format') : (
+        # (DCNS,'format'): (
         # ),
-        # (DCNS,'identifier') : (
+        # (DCNS,'identifier'): (
         # ),
-        # (DCNS,'publisher') : (
+        # (DCNS,'publisher'): (
         # ),
-        # (DCNS,'relation') : (
+        # (DCNS,'relation'): (
         # ),
-        # (DCNS,'rights') : (
+        # (DCNS,'rights'): (
         # ),
-        # (DCNS,'source') : (
+        # (DCNS,'source'): (
         # ),
-        # (DCNS,'type') : (
+        # (DCNS,'type'): (
         # ),
-# Completes Dublin Core end
-        (MATHNS,'math') : None,
+    # Completes Dublin Core end
+        (MATHNS,'math'): None,
 
-        (XFORMSNS,'model') : None,
+        (XFORMSNS,'model'): None,
 
-        (ANIMNS,'animate') : (
+        (ANIMNS,'animate'): (
         ),
-        (ANIMNS,'animateColor') : (
+        (ANIMNS,'animateColor'): (
         ),
-        (ANIMNS,'animateMotion') : (
+        (ANIMNS,'animateMotion'): (
         ),
-        (ANIMNS,'animateTransform') : (
+        (ANIMNS,'animateTransform'): (
         ),
-        (ANIMNS,'audio') : (
+        (ANIMNS,'audio'): (
         ),
-        (ANIMNS,'command') : (
+        (ANIMNS,'command'): (
                 (ANIMNS,'param'),
         ),
-# allowed_children
-        (ANIMNS,'iterate') : (
+    # allowed_children
+        (ANIMNS,'iterate'): (
                 (ANIMNS,'animate'),
                 (ANIMNS,'animateColor'),
                 (ANIMNS,'animateMotion'),
@@ -137,7 +137,7 @@ allowed_children = {
                 (ANIMNS,'set'),
                 (ANIMNS,'transitionFilter'),
         ),
-        (ANIMNS,'par') : (
+        (ANIMNS,'par'): (
                 (ANIMNS,'animate'),
                 (ANIMNS,'animateColor'),
                 (ANIMNS,'animateMotion'),
@@ -150,10 +150,10 @@ allowed_children = {
                 (ANIMNS,'set'),
                 (ANIMNS,'transitionFilter'),
         ),
-# allowed_children
-        (ANIMNS,'param') : (
+    # allowed_children
+        (ANIMNS,'param'): (
         ),
-        (ANIMNS,'seq') : (
+        (ANIMNS,'seq'): (
                 (ANIMNS,'animate'),
                 (ANIMNS,'animateColor'),
                 (ANIMNS,'animateMotion'),
@@ -166,19 +166,19 @@ allowed_children = {
                 (ANIMNS,'set'),
                 (ANIMNS,'transitionFilter'),
         ),
-        (ANIMNS,'set') : (
+        (ANIMNS,'set'): (
         ),
-        (ANIMNS,'transitionFilter') : (
+        (ANIMNS,'transitionFilter'): (
         ),
-        (CHARTNS,'axis') : (
+        (CHARTNS,'axis'): (
                 (CHARTNS,'categories'),
                 (CHARTNS,'grid'),
                 (CHARTNS,'title'),
         ),
-# allowed_children
-        (CHARTNS,'categories') : (
+    # allowed_children
+        (CHARTNS,'categories'): (
         ),
-        (CHARTNS,'chart') : (
+        (CHARTNS,'chart'): (
                 (CHARTNS,'footer'),
                 (CHARTNS,'legend'),
                 (CHARTNS,'plot-area'),
@@ -186,25 +186,25 @@ allowed_children = {
                 (CHARTNS,'title'),
                 (TABLENS,'table'),
         ),
-        (CHARTNS,'data-point') : (
+        (CHARTNS,'data-point'): (
         ),
-        (CHARTNS,'domain') : (
+        (CHARTNS,'domain'): (
         ),
-        (CHARTNS,'error-indicator') : (
+        (CHARTNS,'error-indicator'): (
         ),
-        (CHARTNS,'floor') : (
+        (CHARTNS,'floor'): (
         ),
-        (CHARTNS,'footer') : (
+        (CHARTNS,'footer'): (
                 (TEXTNS,'p'),
         ),
-        (CHARTNS,'grid') : (
+        (CHARTNS,'grid'): (
         ),
-        (CHARTNS,'legend') : (
+        (CHARTNS,'legend'): (
         ),
-# allowed_children
-        (CHARTNS,'mean-value') : (
+    # allowed_children
+        (CHARTNS,'mean-value'): (
         ),
-        (CHARTNS,'plot-area') : (
+        (CHARTNS,'plot-area'): (
                 (CHARTNS,'axis'),
                 (CHARTNS,'floor'),
                 (CHARTNS,'series'),
@@ -214,88 +214,88 @@ allowed_children = {
                 (CHARTNS,'wall'),
                 (DR3DNS,'light'),
         ),
-        (CHARTNS,'regression-curve') : (
+        (CHARTNS,'regression-curve'): (
         ),
-        (CHARTNS,'series') : (
+        (CHARTNS,'series'): (
                 (CHARTNS,'data-point'),
                 (CHARTNS,'domain'),
                 (CHARTNS,'error-indicator'),
                 (CHARTNS,'mean-value'),
                 (CHARTNS,'regression-curve'),
         ),
-        (CHARTNS,'stock-gain-marker') : (
+        (CHARTNS,'stock-gain-marker'): (
         ),
-        (CHARTNS,'stock-loss-marker') : (
+        (CHARTNS,'stock-loss-marker'): (
         ),
-# allowed_children
-        (CHARTNS,'stock-range-line') : (
+    # allowed_children
+        (CHARTNS,'stock-range-line'): (
         ),
-        (CHARTNS,'subtitle') : (
+        (CHARTNS,'subtitle'): (
                 (TEXTNS,'p'),
         ),
-        (CHARTNS,'symbol-image') : (
+        (CHARTNS,'symbol-image'): (
         ),
-        (CHARTNS,'title') : (
+        (CHARTNS,'title'): (
                 (TEXTNS,'p'),
         ),
-        (CHARTNS,'wall') : (
+        (CHARTNS,'wall'): (
         ),
-        (CONFIGNS,'config-item') : (
+        (CONFIGNS,'config-item'): (
         ),
-        (CONFIGNS,'config-item-map-entry') : (
+        (CONFIGNS,'config-item-map-entry'): (
                 (CONFIGNS,'config-item'),
                 (CONFIGNS,'config-item-map-indexed'),
                 (CONFIGNS,'config-item-map-named'),
                 (CONFIGNS,'config-item-set'),
         ),
-        (CONFIGNS,'config-item-map-indexed') : (
+        (CONFIGNS,'config-item-map-indexed'): (
                 (CONFIGNS,'config-item-map-entry'),
         ),
-        (CONFIGNS,'config-item-map-named') : (
+        (CONFIGNS,'config-item-map-named'): (
                 (CONFIGNS,'config-item-map-entry'),
         ),
-# allowed_children
-        (CONFIGNS,'config-item-set') : (
+    # allowed_children
+        (CONFIGNS,'config-item-set'): (
                 (CONFIGNS,'config-item'),
                 (CONFIGNS,'config-item-map-indexed'),
                 (CONFIGNS,'config-item-map-named'),
                 (CONFIGNS,'config-item-set'),
         ),
-        (MANIFESTNS,'algorithm') : (
+        (MANIFESTNS,'algorithm'): (
         ),
-        (MANIFESTNS,'encryption-data') : (
+        (MANIFESTNS,'encryption-data'): (
                 (MANIFESTNS,'algorithm'),
                 (MANIFESTNS,'key-derivation'),
         ),
-        (MANIFESTNS,'file-entry') : (
+        (MANIFESTNS,'file-entry'): (
                 (MANIFESTNS,'encryption-data'),
         ),
-        (MANIFESTNS,'key-derivation') : (
+        (MANIFESTNS,'key-derivation'): (
         ),
-        (MANIFESTNS,'manifest') : (
+        (MANIFESTNS,'manifest'): (
                 (MANIFESTNS,'file-entry'),
         ),
-        (NUMBERNS,'am-pm') : (
+        (NUMBERNS,'am-pm'): (
         ),
-        (NUMBERNS,'boolean') : (
+        (NUMBERNS,'boolean'): (
         ),
-# allowed_children
-        (NUMBERNS,'boolean-style') : (
+    # allowed_children
+        (NUMBERNS,'boolean-style'): (
                 (NUMBERNS,'boolean'),
                 (NUMBERNS,'text'),
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-        (NUMBERNS,'currency-style') : (
+        (NUMBERNS,'currency-style'): (
                 (NUMBERNS,'currency-symbol'),
                 (NUMBERNS,'number'),
                 (NUMBERNS,'text'),
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-        (NUMBERNS,'currency-symbol') : (
+        (NUMBERNS,'currency-symbol'): (
         ),
-        (NUMBERNS,'date-style') : (
+        (NUMBERNS,'date-style'): (
                 (NUMBERNS,'am-pm'),
                 (NUMBERNS,'day'),
                 (NUMBERNS,'day-of-week'),
@@ -311,27 +311,27 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
-        (NUMBERNS,'day') : (
+    # allowed_children
+        (NUMBERNS,'day'): (
         ),
-        (NUMBERNS,'day-of-week') : (
+        (NUMBERNS,'day-of-week'): (
         ),
-        (NUMBERNS,'embedded-text') : (
+        (NUMBERNS,'embedded-text'): (
         ),
-        (NUMBERNS,'era') : (
+        (NUMBERNS,'era'): (
         ),
-        (NUMBERNS,'fraction') : (
+        (NUMBERNS,'fraction'): (
         ),
-        (NUMBERNS,'hours') : (
+        (NUMBERNS,'hours'): (
         ),
-        (NUMBERNS,'minutes') : (
+        (NUMBERNS,'minutes'): (
         ),
-        (NUMBERNS,'month') : (
+        (NUMBERNS,'month'): (
         ),
-        (NUMBERNS,'number') : (
+        (NUMBERNS,'number'): (
                 (NUMBERNS,'embedded-text'),
         ),
-        (NUMBERNS,'number-style') : (
+        (NUMBERNS,'number-style'): (
                 (NUMBERNS,'fraction'),
                 (NUMBERNS,'number'),
                 (NUMBERNS,'scientific-number'),
@@ -339,31 +339,31 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
-        (NUMBERNS,'percentage-style') : (
+    # allowed_children
+        (NUMBERNS,'percentage-style'): (
                 (NUMBERNS,'number'),
                 (NUMBERNS,'text'),
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-        (NUMBERNS,'quarter') : (
+        (NUMBERNS,'quarter'): (
         ),
-        (NUMBERNS,'scientific-number') : (
+        (NUMBERNS,'scientific-number'): (
         ),
-        (NUMBERNS,'seconds') : (
+        (NUMBERNS,'seconds'): (
         ),
-        (NUMBERNS,'text') : (
+        (NUMBERNS,'text'): (
         ),
-        (NUMBERNS,'text-content') : (
+        (NUMBERNS,'text-content'): (
         ),
-        (NUMBERNS,'text-style') : (
+        (NUMBERNS,'text-style'): (
                 (NUMBERNS,'text'),
                 (NUMBERNS,'text-content'),
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
-        (NUMBERNS,'time-style') : (
+    # allowed_children
+        (NUMBERNS,'time-style'): (
                 (NUMBERNS,'am-pm'),
                 (NUMBERNS,'hours'),
                 (NUMBERNS,'minutes'),
@@ -372,20 +372,20 @@ allowed_children = {
                 (STYLENS,'map'),
                 (STYLENS,'text-properties'),
         ),
-# allowed_children
-        (NUMBERNS,'week-of-year') : (
+    # allowed_children
+        (NUMBERNS,'week-of-year'): (
         ),
-        (NUMBERNS,'year') : (
+        (NUMBERNS,'year'): (
         ),
-        (DR3DNS,'cube') : (
+        (DR3DNS,'cube'): (
         ),
-        (DR3DNS,'extrude') : (
+        (DR3DNS,'extrude'): (
         ),
-        (DR3DNS,'light') : (
+        (DR3DNS,'light'): (
         ),
-        (DR3DNS,'rotate') : (
+        (DR3DNS,'rotate'): (
         ),
-        (DR3DNS,'scene') : (
+        (DR3DNS,'scene'): (
                 (DR3DNS,'cube'),
                 (DR3DNS,'extrude'),
                 (DR3DNS,'light'),
@@ -395,31 +395,31 @@ allowed_children = {
                 (SVGNS,'title'),
                 (SVGNS,'desc'),
         ),
-        (DR3DNS,'sphere') : (
+        (DR3DNS,'sphere'): (
         ),
-        (DRAWNS,'a') : (
+        (DRAWNS,'a'): (
                 (DRAWNS,'frame'),
         ),
-# allowed_children
-        (DRAWNS,'applet') : (
+    # allowed_children
+        (DRAWNS,'applet'): (
                 (DRAWNS,'param'),
         ),
-        (DRAWNS,'area-circle') : (
+        (DRAWNS,'area-circle'): (
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'area-polygon') : (
+        (DRAWNS,'area-polygon'): (
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'area-rectangle') : (
+        (DRAWNS,'area-rectangle'): (
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'caption') : (
+        (DRAWNS,'caption'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -427,7 +427,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'circle') : (
+        (DRAWNS,'circle'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -435,8 +435,8 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
-        (DRAWNS,'connector') : (
+    # allowed_children
+        (DRAWNS,'connector'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -444,16 +444,16 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'contour-path') : (
+        (DRAWNS,'contour-path'): (
         ),
-        (DRAWNS,'contour-polygon') : (
+        (DRAWNS,'contour-polygon'): (
         ),
-        (DRAWNS,'control') : (
+        (DRAWNS,'control'): (
                 (DRAWNS,'glue-point'),
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'custom-shape') : (
+        (DRAWNS,'custom-shape'): (
                 (DRAWNS,'enhanced-geometry'),
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
@@ -462,8 +462,8 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
-        (DRAWNS,'ellipse') : (
+    # allowed_children
+        (DRAWNS,'ellipse'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -471,18 +471,18 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'enhanced-geometry') : (
+        (DRAWNS,'enhanced-geometry'): (
                 (DRAWNS,'equation'),
                 (DRAWNS,'handle'),
         ),
-        (DRAWNS,'equation') : (
+        (DRAWNS,'equation'): (
         ),
-# allowed_children
-        (DRAWNS,'fill-image') : (
+    # allowed_children
+        (DRAWNS,'fill-image'): (
         ),
-        (DRAWNS,'floating-frame') : (
+        (DRAWNS,'floating-frame'): (
         ),
-        (DRAWNS,'frame') : (
+        (DRAWNS,'frame'): (
                 (DRAWNS,'applet'),
                 (DRAWNS,'contour-path'),
                 (DRAWNS,'contour-polygon'),
@@ -498,8 +498,8 @@ allowed_children = {
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-# allowed_children
-        (DRAWNS,'g') : (
+    # allowed_children
+        (DRAWNS,'g'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
                 (DRAWNS,'circle'),
@@ -522,33 +522,33 @@ allowed_children = {
                 (SVGNS,'title'),
                 (OFFICENS,'event-listeners'),
         ),
-        (DRAWNS,'glue-point') : (
+        (DRAWNS,'glue-point'): (
         ),
-        (DRAWNS,'gradient') : (
+        (DRAWNS,'gradient'): (
         ),
-        (DRAWNS,'handle') : (
+        (DRAWNS,'handle'): (
         ),
-        (DRAWNS,'hatch') : (
+        (DRAWNS,'hatch'): (
         ),
-# allowed_children
-        (DRAWNS,'image') : (
+    # allowed_children
+        (DRAWNS,'image'): (
                 (OFFICENS,'binary-data'),
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'image-map') : (
+        (DRAWNS,'image-map'): (
                 (DRAWNS,'area-circle'),
                 (DRAWNS,'area-polygon'),
                 (DRAWNS,'area-rectangle'),
         ),
-        (DRAWNS,'layer') : (
+        (DRAWNS,'layer'): (
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'layer-set') : (
+        (DRAWNS,'layer-set'): (
                 (DRAWNS,'layer'),
         ),
-        (DRAWNS,'line') : (
+        (DRAWNS,'line'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -556,9 +556,9 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'marker') : (
+        (DRAWNS,'marker'): (
         ),
-        (DRAWNS,'measure') : (
+        (DRAWNS,'measure'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (TEXTNS,'list'),
@@ -566,17 +566,17 @@ allowed_children = {
                 (SVGNS,'title'),
                 (SVGNS,'desc'),
         ),
-        (DRAWNS,'object') : (
+        (DRAWNS,'object'): (
                 (MATHNS,'math'),
                 (OFFICENS,'document'),
         ),
-# allowed_children
-        (DRAWNS,'object-ole') : (
+    # allowed_children
+        (DRAWNS,'object-ole'): (
                 (OFFICENS,'binary-data'),
         ),
-        (DRAWNS,'opacity') : (
+        (DRAWNS,'opacity'): (
         ),
-        (DRAWNS,'page') : (
+        (DRAWNS,'page'): (
                 (ANIMNS,'animate'),
                 (ANIMNS,'animateColor'),
                 (ANIMNS,'animateMotion'),
@@ -609,14 +609,14 @@ allowed_children = {
                 (PRESENTATIONNS,'animations'),
                 (PRESENTATIONNS,'notes'),
         ),
-# allowed_children
-        (DRAWNS,'page-thumbnail') : (
+    # allowed_children
+        (DRAWNS,'page-thumbnail'): (
                 (SVGNS,'desc'),
                 (SVGNS,'title'),
         ),
-        (DRAWNS,'param') : (
+        (DRAWNS,'param'): (
         ),
-        (DRAWNS,'path') : (
+        (DRAWNS,'path'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -624,10 +624,10 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'plugin') : (
+        (DRAWNS,'plugin'): (
                 (DRAWNS,'param'),
         ),
-        (DRAWNS,'polygon') : (
+        (DRAWNS,'polygon'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'title'),
@@ -635,7 +635,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'polyline') : (
+        (DRAWNS,'polyline'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -643,8 +643,8 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-# allowed_children
-        (DRAWNS,'rect') : (
+    # allowed_children
+        (DRAWNS,'rect'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -652,7 +652,7 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'regular-polygon') : (
+        (DRAWNS,'regular-polygon'): (
                 (DRAWNS,'glue-point'),
                 (OFFICENS,'event-listeners'),
                 (SVGNS,'desc'),
@@ -660,9 +660,9 @@ allowed_children = {
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (DRAWNS,'stroke-dash') : (
+        (DRAWNS,'stroke-dash'): (
         ),
-        (DRAWNS,'text-box') : (
+        (DRAWNS,'text-box'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -699,16 +699,16 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
-        (FORMNS,'button') : (
+    # allowed_children
+        (FORMNS,'button'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'checkbox') : (
+        (FORMNS,'checkbox'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'column') : (
+        (FORMNS,'column'): (
                 (FORMNS,'checkbox'),
                 (FORMNS,'combobox'),
                 (FORMNS,'date'),
@@ -718,27 +718,27 @@ allowed_children = {
                 (FORMNS,'text'),
                 (FORMNS,'textarea'),
         ),
-        (FORMNS,'combobox') : (
+        (FORMNS,'combobox'): (
                 (FORMNS,'item'),
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'connection-resource') : (
+        (FORMNS,'connection-resource'): (
         ),
-        (FORMNS,'date') : (
+        (FORMNS,'date'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'file') : (
+        (FORMNS,'file'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'fixed-text') : (
+        (FORMNS,'fixed-text'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-# allowed_children
-        (FORMNS,'form') : (
+    # allowed_children
+        (FORMNS,'form'): (
                 (FORMNS,'button'),
                 (FORMNS,'checkbox'),
                 (FORMNS,'combobox'),
@@ -765,39 +765,39 @@ allowed_children = {
                 (FORMNS,'value-range'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'formatted-text') : (
+        (FORMNS,'formatted-text'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'frame') : (
+        (FORMNS,'frame'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'generic-control') : (
+        (FORMNS,'generic-control'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'grid') : (
+        (FORMNS,'grid'): (
                 (FORMNS,'column'),
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'hidden') : (
+        (FORMNS,'hidden'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'image') : (
+        (FORMNS,'image'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-# allowed_children
-        (FORMNS,'image-frame') : (
+    # allowed_children
+        (FORMNS,'image-frame'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'item') : (
+        (FORMNS,'item'): (
         ),
-        (FORMNS,'list-property') : (
+        (FORMNS,'list-property'): (
                 (FORMNS,'list-value'),
                 (FORMNS,'list-value'),
                 (FORMNS,'list-value'),
@@ -806,87 +806,87 @@ allowed_children = {
                 (FORMNS,'list-value'),
                 (FORMNS,'list-value'),
         ),
-        (FORMNS,'list-value') : (
+        (FORMNS,'list-value'): (
         ),
-        (FORMNS,'listbox') : (
+        (FORMNS,'listbox'): (
                 (FORMNS,'option'),
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'number') : (
+        (FORMNS,'number'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'option') : (
+        (FORMNS,'option'): (
         ),
-        (FORMNS,'password') : (
+        (FORMNS,'password'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'properties') : (
+        (FORMNS,'properties'): (
                 (FORMNS,'list-property'),
                 (FORMNS,'property'),
         ),
-        (FORMNS,'property') : (
+        (FORMNS,'property'): (
         ),
-        (FORMNS,'radio') : (
+        (FORMNS,'radio'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'text') : (
+        (FORMNS,'text'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'textarea') : (
+        (FORMNS,'textarea'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
                 (TEXTNS,'p'),
         ),
-        (FORMNS,'time') : (
+        (FORMNS,'time'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (FORMNS,'value-range') : (
+        (FORMNS,'value-range'): (
                 (FORMNS,'properties'),
                 (OFFICENS,'event-listeners'),
         ),
-        (METANS,'auto-reload') : (
+        (METANS,'auto-reload'): (
         ),
-        (METANS,'creation-date') : (
+        (METANS,'creation-date'): (
         ),
-        (METANS,'date-string') : (
+        (METANS,'date-string'): (
         ),
-        (METANS,'document-statistic') : (
+        (METANS,'document-statistic'): (
         ),
-        (METANS,'editing-cycles') : (
+        (METANS,'editing-cycles'): (
         ),
-        (METANS,'editing-duration') : (
+        (METANS,'editing-duration'): (
         ),
-        (METANS,'generator') : (
+        (METANS,'generator'): (
         ),
-        (METANS,'hyperlink-behaviour') : (
+        (METANS,'hyperlink-behaviour'): (
         ),
-        (METANS,'initial-creator') : (
+        (METANS,'initial-creator'): (
         ),
-        (METANS,'keyword') : (
+        (METANS,'keyword'): (
         ),
-        (METANS,'print-date') : (
+        (METANS,'print-date'): (
         ),
-        (METANS,'printed-by') : (
+        (METANS,'printed-by'): (
         ),
-        (METANS,'template') : (
+        (METANS,'template'): (
         ),
-        (METANS,'user-defined') : (
+        (METANS,'user-defined'): (
         ),
-# allowed_children
-        (OFFICENS,'annotation') : (
+    # allowed_children
+        (OFFICENS,'annotation'): (
                 (DCNS,'creator'),
                 (DCNS,'date'),
                 (METANS,'date-string'),
                 (TEXTNS,'list'),
                 (TEXTNS,'p'),
         ),
-        (OFFICENS,'automatic-styles') : (
+        (OFFICENS,'automatic-styles'): (
                 (NUMBERNS,'boolean-style'),
                 (NUMBERNS,'currency-style'),
                 (NUMBERNS,'date-style'),
@@ -898,9 +898,9 @@ allowed_children = {
                 (STYLENS,'style'),
                 (TEXTNS,'list-style'),
         ),
-        (OFFICENS,'binary-data') : (
+        (OFFICENS,'binary-data'): (
         ),
-        (OFFICENS,'body') : (
+        (OFFICENS,'body'): (
                 (OFFICENS,'chart'),
                 (OFFICENS,'drawing'),
                 (OFFICENS,'image'),
@@ -908,12 +908,12 @@ allowed_children = {
                 (OFFICENS,'spreadsheet'),
                 (OFFICENS,'text'),
         ),
-        (OFFICENS,'change-info') : (
+        (OFFICENS,'change-info'): (
                 (DCNS,'creator'),
                 (DCNS,'date'),
                 (TEXTNS,'p'),
         ),
-        (OFFICENS,'chart') : (
+        (OFFICENS,'chart'): (
                 (CHARTNS,'chart'),
                 (TABLENS,'calculation-settings'),
                 (TABLENS,'consolidation'),
@@ -929,9 +929,9 @@ allowed_children = {
                 (TEXTNS,'user-field-decls'),
                 (TEXTNS,'variable-decls'),
         ),
-        (OFFICENS,'dde-source') : (
+        (OFFICENS,'dde-source'): (
         ),
-        (OFFICENS,'document') : (
+        (OFFICENS,'document'): (
                 (OFFICENS,'automatic-styles'),
                 (OFFICENS,'body'),
                 (OFFICENS,'font-face-decls'),
@@ -941,25 +941,25 @@ allowed_children = {
                 (OFFICENS,'settings'),
                 (OFFICENS,'styles'),
         ),
-        (OFFICENS,'document-content') : (
+        (OFFICENS,'document-content'): (
                 (OFFICENS,'automatic-styles'),
                 (OFFICENS,'body'),
                 (OFFICENS,'font-face-decls'),
                 (OFFICENS,'scripts'),
         ),
-        (OFFICENS,'document-meta') : (
+        (OFFICENS,'document-meta'): (
                 (OFFICENS,'meta'),
         ),
-        (OFFICENS,'document-settings') : (
+        (OFFICENS,'document-settings'): (
                 (OFFICENS,'settings'),
         ),
-        (OFFICENS,'document-styles') : (
+        (OFFICENS,'document-styles'): (
                 (OFFICENS,'automatic-styles'),
                 (OFFICENS,'font-face-decls'),
                 (OFFICENS,'master-styles'),
                 (OFFICENS,'styles'),
         ),
-        (OFFICENS,'drawing') : (
+        (OFFICENS,'drawing'): (
                 (DRAWNS,'page'),
                 (TABLENS,'calculation-settings'),
                 (TABLENS,'consolidation'),
@@ -975,45 +975,45 @@ allowed_children = {
                 (TEXTNS,'user-field-decls'),
                 (TEXTNS,'variable-decls'),
         ),
-        (OFFICENS,'event-listeners') : (
+        (OFFICENS,'event-listeners'): (
                 (PRESENTATIONNS,'event-listener'),
                 (SCRIPTNS,'event-listener'),
         ),
-        (OFFICENS,'font-face-decls') : (
+        (OFFICENS,'font-face-decls'): (
                 (STYLENS,'font-face'),
         ),
-# allowed_children
-        (OFFICENS,'forms') : (
+    # allowed_children
+        (OFFICENS,'forms'): (
                 (XFORMSNS,'model'),
                 (FORMNS,'form'),
         ),
-        (OFFICENS,'image') : (
+        (OFFICENS,'image'): (
                 (DRAWNS,'frame'),
         ),
-        (OFFICENS,'master-styles') : (
+        (OFFICENS,'master-styles'): (
                 (DRAWNS,'layer-set'),
                 (STYLENS,'handout-master'),
                 (STYLENS,'master-page'),
                 (TABLENS,'table-template'),
         ),
-        (OFFICENS,'meta') : (
+        (OFFICENS,'meta'): (
                 (DCNS,'creator'),
                 (DCNS,'date'),
                 (DCNS,'description'),
                 (DCNS,'language'),
                 (DCNS,'subject'),
                 (DCNS,'title'),
-# Completes Dublin Core start
-#               (DCNS,'contributor'),
-#               (DCNS,'coverage'),
-#               (DCNS,'format'),
-#               (DCNS,'identifier'),
-#               (DCNS,'publisher'),
-#               (DCNS,'relation'),
-#               (DCNS,'rights'),
-#               (DCNS,'source'),
-#               (DCNS,'type'),
-# Completes Dublin Core end
+        # Completes Dublin Core start
+                # (DCNS,'contributor'),
+                # (DCNS,'coverage'),
+                # (DCNS,'format'),
+                # (DCNS,'identifier'),
+                # (DCNS,'publisher'),
+                # (DCNS,'relation'),
+                # (DCNS,'rights'),
+                # (DCNS,'source'),
+                # (DCNS,'type'),
+        # Completes Dublin Core end
                 (METANS,'auto-reload'),
                 (METANS,'creation-date'),
                 (METANS,'document-statistic'),
@@ -1028,7 +1028,7 @@ allowed_children = {
                 (METANS,'template'),
                 (METANS,'user-defined'),
         ),
-        (OFFICENS,'presentation') : (
+        (OFFICENS,'presentation'): (
                 (DRAWNS,'page'),
                 (PRESENTATIONNS,'date-time-decl'),
                 (PRESENTATIONNS,'footer-decl'),
@@ -1048,17 +1048,17 @@ allowed_children = {
                 (TEXTNS,'user-field-decls'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
-        (OFFICENS,'script') : None,
+    # allowed_children
+        (OFFICENS,'script'): None,
 
-        (OFFICENS,'scripts') : (
+        (OFFICENS,'scripts'): (
                 (OFFICENS,'event-listeners'),
                 (OFFICENS,'script'),
         ),
-        (OFFICENS,'settings') : (
+        (OFFICENS,'settings'): (
                 (CONFIGNS,'config-item-set'),
         ),
-        (OFFICENS,'spreadsheet') : (
+        (OFFICENS,'spreadsheet'): (
                 (TABLENS,'calculation-settings'),
                 (TABLENS,'consolidation'),
                 (TABLENS,'content-validations'),
@@ -1075,7 +1075,7 @@ allowed_children = {
                 (TEXTNS,'user-field-decls'),
                 (TEXTNS,'variable-decls'),
         ),
-        (OFFICENS,'styles') : (
+        (OFFICENS,'styles'): (
                 (NUMBERNS,'boolean-style'),
                 (NUMBERNS,'currency-style'),
                 (NUMBERNS,'date-style'),
@@ -1100,7 +1100,7 @@ allowed_children = {
                 (TEXTNS,'notes-configuration'),
                 (TEXTNS,'outline-style'),
         ),
-        (OFFICENS,'text') : (
+        (OFFICENS,'text'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -1153,7 +1153,7 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-        (PRESENTATIONNS,'animation-group') : (
+        (PRESENTATIONNS,'animation-group'): (
                 (PRESENTATIONNS,'dim'),
                 (PRESENTATIONNS,'hide-shape'),
                 (PRESENTATIONNS,'hide-text'),
@@ -1161,7 +1161,7 @@ allowed_children = {
                 (PRESENTATIONNS,'show-shape'),
                 (PRESENTATIONNS,'show-text'),
         ),
-        (PRESENTATIONNS,'animations') : (
+        (PRESENTATIONNS,'animations'): (
                 (PRESENTATIONNS,'animation-group'),
                 (PRESENTATIONNS,'dim'),
                 (PRESENTATIONNS,'hide-shape'),
@@ -1170,32 +1170,32 @@ allowed_children = {
                 (PRESENTATIONNS,'show-shape'),
                 (PRESENTATIONNS,'show-text'),
         ),
-        (PRESENTATIONNS,'date-time') : (
+        (PRESENTATIONNS,'date-time'): (
         ),
-        (PRESENTATIONNS,'date-time-decl') : (
+        (PRESENTATIONNS,'date-time-decl'): (
         ),
-        (PRESENTATIONNS,'dim') : (
+        (PRESENTATIONNS,'dim'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (PRESENTATIONNS,'event-listener') : (
+        (PRESENTATIONNS,'event-listener'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (PRESENTATIONNS,'footer') : (
+        (PRESENTATIONNS,'footer'): (
         ),
-        (PRESENTATIONNS,'footer-decl') : (
+        (PRESENTATIONNS,'footer-decl'): (
         ),
-        (PRESENTATIONNS,'header') : (
+        (PRESENTATIONNS,'header'): (
         ),
-        (PRESENTATIONNS,'header-decl') : (
+        (PRESENTATIONNS,'header-decl'): (
         ),
-        (PRESENTATIONNS,'hide-shape') : (
+        (PRESENTATIONNS,'hide-shape'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (PRESENTATIONNS,'hide-text') : (
+        (PRESENTATIONNS,'hide-text'): (
                 (PRESENTATIONNS,'sound'),
         ),
-# allowed_children
-        (PRESENTATIONNS,'notes') : (
+    # allowed_children
+        (PRESENTATIONNS,'notes'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
                 (DRAWNS,'circle'),
@@ -1215,40 +1215,40 @@ allowed_children = {
                 (DRAWNS,'regular-polygon'),
                 (OFFICENS,'forms'),
         ),
-        (PRESENTATIONNS,'placeholder') : (
+        (PRESENTATIONNS,'placeholder'): (
         ),
-        (PRESENTATIONNS,'play') : (
+        (PRESENTATIONNS,'play'): (
         ),
-        (PRESENTATIONNS,'settings') : (
+        (PRESENTATIONNS,'settings'): (
                 (PRESENTATIONNS,'show'),
         ),
-        (PRESENTATIONNS,'show') : (
+        (PRESENTATIONNS,'show'): (
         ),
-        (PRESENTATIONNS,'show-shape') : (
+        (PRESENTATIONNS,'show-shape'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (PRESENTATIONNS,'show-text') : (
+        (PRESENTATIONNS,'show-text'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (PRESENTATIONNS,'sound') : (
+        (PRESENTATIONNS,'sound'): (
         ),
-        (SCRIPTNS,'event-listener') : (
+        (SCRIPTNS,'event-listener'): (
         ),
-        (STYLENS,'background-image') : (
+        (STYLENS,'background-image'): (
                 (OFFICENS,'binary-data'),
         ),
-        (STYLENS,'chart-properties') : (
+        (STYLENS,'chart-properties'): (
                 (CHARTNS,'symbol-image'),
         ),
-        (STYLENS,'column') : (
+        (STYLENS,'column'): (
         ),
-        (STYLENS,'column-sep') : (
+        (STYLENS,'column-sep'): (
         ),
-        (STYLENS,'columns') : (
+        (STYLENS,'columns'): (
                 (STYLENS,'column'),
                 (STYLENS,'column-sep'),
         ),
-        (STYLENS,'default-style') : (
+        (STYLENS,'default-style'): (
                 (STYLENS,'chart-properties'),
                 (STYLENS,'drawing-page-properties'),
                 (STYLENS,'graphic-properties'),
@@ -1261,16 +1261,16 @@ allowed_children = {
                 (STYLENS,'table-row-properties'),
                 (STYLENS,'text-properties'),
         ),
-        (STYLENS,'drawing-page-properties') : (
+        (STYLENS,'drawing-page-properties'): (
                 (PRESENTATIONNS,'sound'),
         ),
-        (STYLENS,'drop-cap') : (
+        (STYLENS,'drop-cap'): (
         ),
-        (STYLENS,'font-face') : (
+        (STYLENS,'font-face'): (
                 (SVGNS,'definition-src'),
                 (SVGNS,'font-face-src'),
         ),
-        (STYLENS,'footer') : (
+        (STYLENS,'footer'): (
                 (STYLENS,'region-center'),
                 (STYLENS,'region-left'),
                 (STYLENS,'region-right'),
@@ -1297,8 +1297,8 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
-        (STYLENS,'footer-left') : (
+    # allowed_children
+        (STYLENS,'footer-left'): (
                 (STYLENS,'region-center'),
                 (STYLENS,'region-left'),
                 (STYLENS,'region-right'),
@@ -1325,18 +1325,18 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-        (STYLENS,'footer-style') : (
+        (STYLENS,'footer-style'): (
                 (STYLENS,'header-footer-properties'),
         ),
-        (STYLENS,'footnote-sep') : (
+        (STYLENS,'footnote-sep'): (
         ),
-        (STYLENS,'graphic-properties') : (
+        (STYLENS,'graphic-properties'): (
                 (STYLENS,'background-image'),
                 (STYLENS,'columns'),
                 (TEXTNS,'list-style'),
         ),
-# allowed_children
-        (STYLENS,'handout-master') : (
+    # allowed_children
+        (STYLENS,'handout-master'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
                 (DRAWNS,'circle'),
@@ -1355,7 +1355,7 @@ allowed_children = {
                 (DRAWNS,'rect'),
                 (DRAWNS,'regular-polygon'),
         ),
-        (STYLENS,'header') : (
+        (STYLENS,'header'): (
                 (STYLENS,'region-center'),
                 (STYLENS,'region-left'),
                 (STYLENS,'region-right'),
@@ -1382,11 +1382,11 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-# allowed_children
-        (STYLENS,'header-footer-properties') : (
+    # allowed_children
+        (STYLENS,'header-footer-properties'): (
                 (STYLENS,'background-image'),
         ),
-        (STYLENS,'header-left') : (
+        (STYLENS,'header-left'): (
                 (STYLENS,'region-center'),
                 (STYLENS,'region-left'),
                 (STYLENS,'region-right'),
@@ -1413,14 +1413,14 @@ allowed_children = {
                 (TEXTNS,'user-index'),
                 (TEXTNS,'variable-decls'),
         ),
-        (STYLENS,'header-style') : (
+        (STYLENS,'header-style'): (
                 (STYLENS,'header-footer-properties'),
         ),
-        (STYLENS,'list-level-properties') : (
+        (STYLENS,'list-level-properties'): (
         ),
-        (STYLENS,'map') : (
+        (STYLENS,'map'): (
         ),
-        (STYLENS,'master-page') : (
+        (STYLENS,'master-page'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
                 (DRAWNS,'circle'),
@@ -1446,42 +1446,42 @@ allowed_children = {
                 (STYLENS,'header-left'),
                 (STYLENS,'style'),
         ),
-        (STYLENS,'page-layout') : (
+        (STYLENS,'page-layout'): (
                 (STYLENS,'footer-style'),
                 (STYLENS,'header-style'),
                 (STYLENS,'page-layout-properties'),
         ),
-        (STYLENS,'page-layout-properties') : (
+        (STYLENS,'page-layout-properties'): (
                 (STYLENS,'background-image'),
                 (STYLENS,'columns'),
                 (STYLENS,'footnote-sep'),
         ),
-# allowed_children
-        (STYLENS,'paragraph-properties') : (
+    # allowed_children
+        (STYLENS,'paragraph-properties'): (
                 (STYLENS,'background-image'),
                 (STYLENS,'drop-cap'),
                 (STYLENS,'tab-stops'),
         ),
-        (STYLENS,'presentation-page-layout') : (
+        (STYLENS,'presentation-page-layout'): (
                 (PRESENTATIONNS,'placeholder'),
         ),
-        (STYLENS,'region-center') : (
+        (STYLENS,'region-center'): (
                 (TEXTNS,'p'),
         ),
-        (STYLENS,'region-left') : (
+        (STYLENS,'region-left'): (
                 (TEXTNS,'p'),
         ),
-        (STYLENS,'region-right') : (
+        (STYLENS,'region-right'): (
                 (TEXTNS,'p'),
         ),
-        (STYLENS,'ruby-properties') : (
+        (STYLENS,'ruby-properties'): (
         ),
-        (STYLENS,'section-properties') : (
+        (STYLENS,'section-properties'): (
                 (STYLENS,'background-image'),
                 (STYLENS,'columns'),
                 (TEXTNS,'notes-configuration'),
         ),
-        (STYLENS,'style') : (
+        (STYLENS,'style'): (
                 (STYLENS,'chart-properties'),
                 (STYLENS,'drawing-page-properties'),
                 (STYLENS,'graphic-properties'),
@@ -1495,90 +1495,90 @@ allowed_children = {
                 (STYLENS,'table-row-properties'),
                 (STYLENS,'text-properties'),
         ),
-        (STYLENS,'tab-stop') : (
+        (STYLENS,'tab-stop'): (
         ),
-        (STYLENS,'tab-stops') : (
+        (STYLENS,'tab-stops'): (
                 (STYLENS,'tab-stop'),
         ),
-# allowed_children
-        (STYLENS,'table-cell-properties') : (
+    # allowed_children
+        (STYLENS,'table-cell-properties'): (
                 (STYLENS,'background-image'),
         ),
-        (STYLENS,'table-column-properties') : (
+        (STYLENS,'table-column-properties'): (
         ),
-        (STYLENS,'table-properties') : (
+        (STYLENS,'table-properties'): (
                 (STYLENS,'background-image'),
         ),
-        (STYLENS,'table-row-properties') : (
+        (STYLENS,'table-row-properties'): (
                 (STYLENS,'background-image'),
         ),
-        (STYLENS,'text-properties') : (
+        (STYLENS,'text-properties'): (
         ),
-        (SVGNS,'definition-src') : (
+        (SVGNS,'definition-src'): (
         ),
-        (SVGNS,'desc') : (
+        (SVGNS,'desc'): (
         ),
-        (SVGNS,'font-face-format') : (
+        (SVGNS,'font-face-format'): (
         ),
-        (SVGNS,'font-face-name') : (
+        (SVGNS,'font-face-name'): (
         ),
-        (SVGNS,'font-face-src') : (
+        (SVGNS,'font-face-src'): (
                 (SVGNS,'font-face-name'),
                 (SVGNS,'font-face-uri'),
         ),
-        (SVGNS,'font-face-uri') : (
+        (SVGNS,'font-face-uri'): (
                 (SVGNS,'font-face-format'),
         ),
-        (SVGNS,'linearGradient') : (
+        (SVGNS,'linearGradient'): (
                 (SVGNS,'stop'),
         ),
-        (SVGNS,'radialGradient') : (
+        (SVGNS,'radialGradient'): (
                 (SVGNS,'stop'),
         ),
-        (SVGNS,'stop') : (
+        (SVGNS,'stop'): (
         ),
-        (SVGNS,'title') : (
+        (SVGNS,'title'): (
         ),
-        (TABLENS,'body') : (
+        (TABLENS,'body'): (
         ),
-        (TABLENS,'calculation-settings') : (
+        (TABLENS,'calculation-settings'): (
                 (TABLENS,'iteration'),
                 (TABLENS,'null-date'),
         ),
-# allowed_children
-        (TABLENS,'cell-address') : (
+    # allowed_children
+        (TABLENS,'cell-address'): (
         ),
-        (TABLENS,'cell-content-change') : (
+        (TABLENS,'cell-content-change'): (
                 (OFFICENS,'change-info'),
                 (TABLENS,'cell-address'),
                 (TABLENS,'deletions'),
                 (TABLENS,'dependencies'),
                 (TABLENS,'previous'),
         ),
-        (TABLENS,'cell-content-deletion') : (
+        (TABLENS,'cell-content-deletion'): (
                 (TABLENS,'cell-address'),
                 (TABLENS,'change-track-table-cell'),
         ),
-        (TABLENS,'cell-range-source') : (
+        (TABLENS,'cell-range-source'): (
         ),
-        (TABLENS,'change-deletion') : (
+        (TABLENS,'change-deletion'): (
         ),
-        (TABLENS,'change-track-table-cell') : (
+        (TABLENS,'change-track-table-cell'): (
                 (TEXTNS,'p'),
         ),
-        (TABLENS,'consolidation') : (
+        (TABLENS,'consolidation'): (
         ),
-        (TABLENS,'content-validation') : (
+        (TABLENS,'content-validation'): (
                 (OFFICENS,'event-listeners'),
                 (TABLENS,'error-macro'),
                 (TABLENS,'error-message'),
                 (TABLENS,'help-message'),
         ),
-# allowed_children
-        (TABLENS,'content-validations') : (
+    # allowed_children
+        (TABLENS,'content-validations'): (
                 (TABLENS,'content-validation'),
         ),
-        (TABLENS,'covered-table-cell') : (
+        (TABLENS,'covered-table-cell'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -1618,51 +1618,51 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
-        (TABLENS,'cut-offs') : (
+    # allowed_children
+        (TABLENS,'cut-offs'): (
                 (TABLENS,'insertion-cut-off'),
                 (TABLENS,'movement-cut-off'),
         ),
-        (TABLENS,'data-pilot-display-info') : (
+        (TABLENS,'data-pilot-display-info'): (
         ),
-        (TABLENS,'data-pilot-field') : (
+        (TABLENS,'data-pilot-field'): (
                 (TABLENS,'data-pilot-field-reference'),
                 (TABLENS,'data-pilot-groups'),
                 (TABLENS,'data-pilot-level'),
         ),
-        (TABLENS,'data-pilot-field-reference') : (
+        (TABLENS,'data-pilot-field-reference'): (
         ),
-        (TABLENS,'data-pilot-group') : (
+        (TABLENS,'data-pilot-group'): (
                 (TABLENS,'data-pilot-group-member'),
         ),
-        (TABLENS,'data-pilot-group-member') : (
+        (TABLENS,'data-pilot-group-member'): (
         ),
-        (TABLENS,'data-pilot-groups') : (
+        (TABLENS,'data-pilot-groups'): (
                 (TABLENS,'data-pilot-group'),
         ),
-        (TABLENS,'data-pilot-layout-info') : (
+        (TABLENS,'data-pilot-layout-info'): (
         ),
-        (TABLENS,'data-pilot-level') : (
+        (TABLENS,'data-pilot-level'): (
                 (TABLENS,'data-pilot-display-info'),
                 (TABLENS,'data-pilot-layout-info'),
                 (TABLENS,'data-pilot-members'),
                 (TABLENS,'data-pilot-sort-info'),
                 (TABLENS,'data-pilot-subtotals'),
         ),
-        (TABLENS,'data-pilot-member') : (
+        (TABLENS,'data-pilot-member'): (
         ),
-        (TABLENS,'data-pilot-members') : (
+        (TABLENS,'data-pilot-members'): (
                 (TABLENS,'data-pilot-member'),
         ),
-        (TABLENS,'data-pilot-sort-info') : (
+        (TABLENS,'data-pilot-sort-info'): (
         ),
-        (TABLENS,'data-pilot-subtotal') : (
+        (TABLENS,'data-pilot-subtotal'): (
         ),
-        (TABLENS,'data-pilot-subtotals') : (
+        (TABLENS,'data-pilot-subtotals'): (
                 (TABLENS,'data-pilot-subtotal'),
         ),
-# allowed_children
-        (TABLENS,'data-pilot-table') : (
+    # allowed_children
+        (TABLENS,'data-pilot-table'): (
                 (TABLENS,'data-pilot-field'),
                 (TABLENS,'database-source-query'),
                 (TABLENS,'database-source-sql'),
@@ -1670,10 +1670,10 @@ allowed_children = {
                 (TABLENS,'source-cell-range'),
                 (TABLENS,'source-service'),
         ),
-        (TABLENS,'data-pilot-tables') : (
+        (TABLENS,'data-pilot-tables'): (
                 (TABLENS,'data-pilot-table'),
         ),
-        (TABLENS,'database-range') : (
+        (TABLENS,'database-range'): (
                 (TABLENS,'database-source-query'),
                 (TABLENS,'database-source-sql'),
                 (TABLENS,'database-source-table'),
@@ -1681,127 +1681,127 @@ allowed_children = {
                 (TABLENS,'sort'),
                 (TABLENS,'subtotal-rules'),
         ),
-        (TABLENS,'database-ranges') : (
+        (TABLENS,'database-ranges'): (
                 (TABLENS,'database-range'),
         ),
-        (TABLENS,'database-source-query') : (
+        (TABLENS,'database-source-query'): (
         ),
-        (TABLENS,'database-source-sql') : (
+        (TABLENS,'database-source-sql'): (
         ),
-        (TABLENS,'database-source-table') : (
+        (TABLENS,'database-source-table'): (
         ),
-# allowed_children
-        (TABLENS,'dde-link') : (
+    # allowed_children
+        (TABLENS,'dde-link'): (
                 (OFFICENS,'dde-source'),
                 (TABLENS,'table'),
         ),
-        (TABLENS,'dde-links') : (
+        (TABLENS,'dde-links'): (
                 (TABLENS,'dde-link'),
         ),
-        (TABLENS,'deletion') : (
+        (TABLENS,'deletion'): (
                 (OFFICENS,'change-info'),
                 (TABLENS,'cut-offs'),
                 (TABLENS,'deletions'),
                 (TABLENS,'dependencies'),
         ),
-        (TABLENS,'deletions') : (
+        (TABLENS,'deletions'): (
                 (TABLENS,'cell-content-deletion'),
                 (TABLENS,'change-deletion'),
         ),
-        (TABLENS,'dependencies') : (
+        (TABLENS,'dependencies'): (
                 (TABLENS,'dependency'),
         ),
-        (TABLENS,'dependency') : (
+        (TABLENS,'dependency'): (
         ),
-        (TABLENS,'detective') : (
+        (TABLENS,'detective'): (
                 (TABLENS,'highlighted-range'),
                 (TABLENS,'operation'),
         ),
-# allowed_children
-        (TABLENS,'error-macro') : (
+    # allowed_children
+        (TABLENS,'error-macro'): (
         ),
-        (TABLENS,'error-message') : (
+        (TABLENS,'error-message'): (
                 (TEXTNS,'p'),
         ),
-        (TABLENS,'even-columns') : (
+        (TABLENS,'even-columns'): (
         ),
-        (TABLENS,'even-rows') : (
+        (TABLENS,'even-rows'): (
         ),
-        (TABLENS,'filter') : (
+        (TABLENS,'filter'): (
                 (TABLENS,'filter-and'),
                 (TABLENS,'filter-condition'),
                 (TABLENS,'filter-or'),
         ),
-        (TABLENS,'filter-and') : (
+        (TABLENS,'filter-and'): (
                 (TABLENS,'filter-condition'),
                 (TABLENS,'filter-or'),
         ),
-        (TABLENS,'filter-condition') : (
+        (TABLENS,'filter-condition'): (
         ),
-        (TABLENS,'filter-or') : (
+        (TABLENS,'filter-or'): (
                 (TABLENS,'filter-and'),
                 (TABLENS,'filter-condition'),
         ),
-# allowed_children
-        (TABLENS,'first-column') : (
+    # allowed_children
+        (TABLENS,'first-column'): (
         ),
-        (TABLENS,'first-row') : (
+        (TABLENS,'first-row'): (
         ),
-        (TABLENS,'help-message') : (
+        (TABLENS,'help-message'): (
                 (TEXTNS,'p'),
         ),
-        (TABLENS,'highlighted-range') : (
+        (TABLENS,'highlighted-range'): (
         ),
-        (TABLENS,'insertion') : (
+        (TABLENS,'insertion'): (
                 (OFFICENS,'change-info'),
                 (TABLENS,'deletions'),
                 (TABLENS,'dependencies'),
         ),
-        (TABLENS,'insertion-cut-off') : (
+        (TABLENS,'insertion-cut-off'): (
         ),
-        (TABLENS,'iteration') : (
+        (TABLENS,'iteration'): (
         ),
-        (TABLENS,'label-range') : (
+        (TABLENS,'label-range'): (
         ),
-        (TABLENS,'label-ranges') : (
+        (TABLENS,'label-ranges'): (
                 (TABLENS,'label-range'),
         ),
-        (TABLENS,'last-column') : (
+        (TABLENS,'last-column'): (
         ),
-        (TABLENS,'last-row') : (
+        (TABLENS,'last-row'): (
         ),
-        (TABLENS,'movement') : (
+        (TABLENS,'movement'): (
                 (OFFICENS,'change-info'),
                 (TABLENS,'deletions'),
                 (TABLENS,'dependencies'),
                 (TABLENS,'source-range-address'),
                 (TABLENS,'target-range-address'),
         ),
-        (TABLENS,'movement-cut-off') : (
+        (TABLENS,'movement-cut-off'): (
         ),
-        (TABLENS,'named-expression') : (
+        (TABLENS,'named-expression'): (
         ),
-        (TABLENS,'named-expressions') : (
+        (TABLENS,'named-expressions'): (
                 (TABLENS,'named-expression'),
                 (TABLENS,'named-range'),
         ),
-# allowed_children
-        (TABLENS,'named-range') : (
+    # allowed_children
+        (TABLENS,'named-range'): (
         ),
-        (TABLENS,'null-date') : (
+        (TABLENS,'null-date'): (
         ),
-        (TABLENS,'odd-columns') : (
+        (TABLENS,'odd-columns'): (
         ),
-        (TABLENS,'odd-rows') : (
+        (TABLENS,'odd-rows'): (
         ),
-        (TABLENS,'operation') : (
+        (TABLENS,'operation'): (
         ),
-        (TABLENS,'previous') : (
+        (TABLENS,'previous'): (
                 (TABLENS,'change-track-table-cell'),
         ),
-        (TABLENS,'scenario') : (
+        (TABLENS,'scenario'): (
         ),
-        (TABLENS,'shapes') : (
+        (TABLENS,'shapes'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'caption'),
                 (DRAWNS,'circle'),
@@ -1820,32 +1820,32 @@ allowed_children = {
                 (DRAWNS,'rect'),
                 (DRAWNS,'regular-polygon'),
         ),
-# allowed_children
-        (TABLENS,'sort') : (
+    # allowed_children
+        (TABLENS,'sort'): (
                 (TABLENS,'sort-by'),
         ),
-        (TABLENS,'sort-by') : (
+        (TABLENS,'sort-by'): (
         ),
-        (TABLENS,'sort-groups') : (
+        (TABLENS,'sort-groups'): (
         ),
-        (TABLENS,'source-cell-range') : (
+        (TABLENS,'source-cell-range'): (
                 (TABLENS,'filter'),
         ),
-        (TABLENS,'source-range-address') : (
+        (TABLENS,'source-range-address'): (
         ),
-        (TABLENS,'source-service') : (
+        (TABLENS,'source-service'): (
         ),
-        (TABLENS,'subtotal-field') : (
+        (TABLENS,'subtotal-field'): (
         ),
-        (TABLENS,'subtotal-rule') : (
+        (TABLENS,'subtotal-rule'): (
                 (TABLENS,'subtotal-field'),
         ),
-        (TABLENS,'subtotal-rules') : (
+        (TABLENS,'subtotal-rules'): (
                 (TABLENS,'sort-groups'),
                 (TABLENS,'subtotal-rule'),
         ),
-# allowed_children
-        (TABLENS,'table') : (
+    # allowed_children
+        (TABLENS,'table'): (
                 (OFFICENS,'dde-source'),
                 (OFFICENS,'forms'),
                 (TEXTNS,'soft-page-break'),
@@ -1861,7 +1861,7 @@ allowed_children = {
                 (TABLENS,'table-rows'),
                 (TABLENS,'table-source'),
         ),
-        (TABLENS,'table-cell') : (
+        (TABLENS,'table-cell'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -1901,44 +1901,44 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-# allowed_children
-        (TABLENS,'table-column') : (
+    # allowed_children
+        (TABLENS,'table-column'): (
         ),
-        (TABLENS,'table-column-group') : (
+        (TABLENS,'table-column-group'): (
                 (TABLENS,'table-column'),
                 (TABLENS,'table-column-group'),
                 (TABLENS,'table-columns'),
                 (TABLENS,'table-header-columns'),
         ),
-        (TABLENS,'table-columns') : (
+        (TABLENS,'table-columns'): (
                 (TABLENS,'table-column'),
         ),
-        (TABLENS,'table-header-columns') : (
+        (TABLENS,'table-header-columns'): (
                 (TABLENS,'table-column'),
         ),
-        (TABLENS,'table-header-rows') : (
+        (TABLENS,'table-header-rows'): (
                 (TABLENS,'table-row'),
                 (TEXTNS,'soft-page-break'),
         ),
-        (TABLENS,'table-row') : (
+        (TABLENS,'table-row'): (
                 (TABLENS,'covered-table-cell'),
                 (TABLENS,'table-cell'),
         ),
-        (TABLENS,'table-row-group') : (
+        (TABLENS,'table-row-group'): (
                 (TABLENS,'table-header-rows'),
                 (TABLENS,'table-row'),
                 (TABLENS,'table-row-group'),
                 (TABLENS,'table-rows'),
                 (TEXTNS,'soft-page-break'),
         ),
-        (TABLENS,'table-rows') : (
+        (TABLENS,'table-rows'): (
                 (TABLENS,'table-row'),
                 (TEXTNS,'soft-page-break'),
         ),
-# allowed_children
-        (TABLENS,'table-source') : (
+    # allowed_children
+        (TABLENS,'table-source'): (
         ),
-        (TABLENS,'table-template') : (
+        (TABLENS,'table-template'): (
                 (TABLENS,'body'),
                 (TABLENS,'even-columns'),
                 (TABLENS,'even-rows'),
@@ -1949,16 +1949,16 @@ allowed_children = {
                 (TABLENS,'odd-columns'),
                 (TABLENS,'odd-rows'),
         ),
-        (TABLENS,'target-range-address') : (
+        (TABLENS,'target-range-address'): (
         ),
-        (TABLENS,'tracked-changes') : (
+        (TABLENS,'tracked-changes'): (
                 (TABLENS,'cell-content-change'),
                 (TABLENS,'deletion'),
                 (TABLENS,'insertion'),
                 (TABLENS,'movement'),
         ),
-# allowed_children
-        (TEXTNS,'a') : (
+    # allowed_children
+        (TEXTNS,'a'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2086,110 +2086,110 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
-        (TEXTNS,'alphabetical-index') : (
+    # allowed_children
+        (TEXTNS,'alphabetical-index'): (
                 (TEXTNS,'alphabetical-index-source'),
                 (TEXTNS,'index-body'),
         ),
-        (TEXTNS,'alphabetical-index-auto-mark-file') : (
+        (TEXTNS,'alphabetical-index-auto-mark-file'): (
         ),
-        (TEXTNS,'alphabetical-index-entry-template') : (
+        (TEXTNS,'alphabetical-index-entry-template'): (
                 (TEXTNS,'index-entry-chapter'),
                 (TEXTNS,'index-entry-page-number'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-        (TEXTNS,'alphabetical-index-mark') : (
+        (TEXTNS,'alphabetical-index-mark'): (
         ),
-        (TEXTNS,'alphabetical-index-mark-end') : (
+        (TEXTNS,'alphabetical-index-mark-end'): (
         ),
-        (TEXTNS,'alphabetical-index-mark-start') : (
+        (TEXTNS,'alphabetical-index-mark-start'): (
         ),
-        (TEXTNS,'alphabetical-index-source') : (
+        (TEXTNS,'alphabetical-index-source'): (
                 (TEXTNS,'alphabetical-index-entry-template'),
                 (TEXTNS,'index-title-template'),
         ),
-        (TEXTNS,'author-initials') : (
+        (TEXTNS,'author-initials'): (
         ),
-        (TEXTNS,'author-name') : (
+        (TEXTNS,'author-name'): (
         ),
-        (TEXTNS,'bibliography') : (
+        (TEXTNS,'bibliography'): (
                 (TEXTNS,'bibliography-source'),
                 (TEXTNS,'index-body'),
         ),
-        (TEXTNS,'bibliography-configuration') : (
+        (TEXTNS,'bibliography-configuration'): (
                 (TEXTNS,'sort-key'),
         ),
-        (TEXTNS,'bibliography-entry-template') : (
+        (TEXTNS,'bibliography-entry-template'): (
                 (TEXTNS,'index-entry-bibliography'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
         ),
-# allowed_children
-        (TEXTNS,'bibliography-mark') : (
+    # allowed_children
+        (TEXTNS,'bibliography-mark'): (
         ),
-        (TEXTNS,'bibliography-source') : (
+        (TEXTNS,'bibliography-source'): (
                 (TEXTNS,'bibliography-entry-template'),
                 (TEXTNS,'index-title-template'),
         ),
-        (TEXTNS,'bookmark') : (
+        (TEXTNS,'bookmark'): (
         ),
-        (TEXTNS,'bookmark-end') : (
+        (TEXTNS,'bookmark-end'): (
         ),
-        (TEXTNS,'bookmark-ref') : (
+        (TEXTNS,'bookmark-ref'): (
         ),
-        (TEXTNS,'bookmark-start') : (
+        (TEXTNS,'bookmark-start'): (
         ),
-        (TEXTNS,'change') : (
+        (TEXTNS,'change'): (
         ),
-        (TEXTNS,'change-end') : (
+        (TEXTNS,'change-end'): (
         ),
-        (TEXTNS,'change-start') : (
+        (TEXTNS,'change-start'): (
         ),
-        (TEXTNS,'changed-region') : (
+        (TEXTNS,'changed-region'): (
                 (TEXTNS,'deletion'),
                 (TEXTNS,'format-change'),
                 (TEXTNS,'insertion'),
         ),
-        (TEXTNS,'chapter') : (
+        (TEXTNS,'chapter'): (
         ),
-        (TEXTNS,'character-count') : (
+        (TEXTNS,'character-count'): (
         ),
-        (TEXTNS,'conditional-text') : (
+        (TEXTNS,'conditional-text'): (
         ),
-        (TEXTNS,'creation-date') : (
+        (TEXTNS,'creation-date'): (
         ),
-        (TEXTNS,'creation-time') : (
+        (TEXTNS,'creation-time'): (
         ),
-        (TEXTNS,'creator') : (
+        (TEXTNS,'creator'): (
         ),
-        (TEXTNS,'database-display') : (
+        (TEXTNS,'database-display'): (
                 (FORMNS,'connection-resource'),
         ),
-        (TEXTNS,'database-name') : (
+        (TEXTNS,'database-name'): (
                 (FORMNS,'connection-resource'),
         ),
-        (TEXTNS,'database-next') : (
+        (TEXTNS,'database-next'): (
                 (FORMNS,'connection-resource'),
         ),
-        (TEXTNS,'database-row-number') : (
+        (TEXTNS,'database-row-number'): (
                 (FORMNS,'connection-resource'),
         ),
-        (TEXTNS,'database-row-select') : (
+        (TEXTNS,'database-row-select'): (
                 (FORMNS,'connection-resource'),
         ),
-        (TEXTNS,'date') : (
+        (TEXTNS,'date'): (
         ),
-        (TEXTNS,'dde-connection') : (
+        (TEXTNS,'dde-connection'): (
         ),
-        (TEXTNS,'dde-connection-decl') : (
+        (TEXTNS,'dde-connection-decl'): (
         ),
-        (TEXTNS,'dde-connection-decls') : (
+        (TEXTNS,'dde-connection-decls'): (
                 (TEXTNS,'dde-connection-decl'),
         ),
-# allowed_children
-        (TEXTNS,'deletion') : (
+    # allowed_children
+        (TEXTNS,'deletion'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2227,24 +2227,24 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-        (TEXTNS,'description') : (
+        (TEXTNS,'description'): (
         ),
-        (TEXTNS,'editing-cycles') : (
+        (TEXTNS,'editing-cycles'): (
         ),
-        (TEXTNS,'editing-duration') : (
+        (TEXTNS,'editing-duration'): (
         ),
-        (TEXTNS,'execute-macro') : (
+        (TEXTNS,'execute-macro'): (
                 (OFFICENS,'event-listeners'),
         ),
-        (TEXTNS,'expression') : (
+        (TEXTNS,'expression'): (
         ),
-        (TEXTNS,'file-name') : (
+        (TEXTNS,'file-name'): (
         ),
-        (TEXTNS,'format-change') : (
+        (TEXTNS,'format-change'): (
                 (OFFICENS,'change-info'),
         ),
-# allowed_children
-        (TEXTNS,'h') : (
+    # allowed_children
+        (TEXTNS,'h'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2372,29 +2372,29 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
-        (TEXTNS,'hidden-paragraph') : (
+    # allowed_children
+        (TEXTNS,'hidden-paragraph'): (
         ),
-        (TEXTNS,'hidden-text') : (
+        (TEXTNS,'hidden-text'): (
         ),
-        (TEXTNS,'illustration-index') : (
+        (TEXTNS,'illustration-index'): (
                 (TEXTNS,'illustration-index-source'),
                 (TEXTNS,'index-body'),
         ),
-        (TEXTNS,'illustration-index-entry-template') : (
+        (TEXTNS,'illustration-index-entry-template'): (
                 (TEXTNS,'index-entry-page-number'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-        (TEXTNS,'illustration-index-source') : (
+        (TEXTNS,'illustration-index-source'): (
                 (TEXTNS,'illustration-index-entry-template'),
                 (TEXTNS,'index-title-template'),
         ),
-        (TEXTNS,'image-count') : (
+        (TEXTNS,'image-count'): (
         ),
-# allowed_children
-        (TEXTNS,'index-body') : (
+    # allowed_children
+        (TEXTNS,'index-body'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2432,29 +2432,29 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-        (TEXTNS,'index-entry-bibliography') : (
+        (TEXTNS,'index-entry-bibliography'): (
         ),
-        (TEXTNS,'index-entry-chapter') : (
+        (TEXTNS,'index-entry-chapter'): (
         ),
-        (TEXTNS,'index-entry-link-end') : (
+        (TEXTNS,'index-entry-link-end'): (
         ),
-        (TEXTNS,'index-entry-link-start') : (
+        (TEXTNS,'index-entry-link-start'): (
         ),
-        (TEXTNS,'index-entry-page-number') : (
+        (TEXTNS,'index-entry-page-number'): (
         ),
-        (TEXTNS,'index-entry-span') : (
+        (TEXTNS,'index-entry-span'): (
         ),
-        (TEXTNS,'index-entry-tab-stop') : (
+        (TEXTNS,'index-entry-tab-stop'): (
         ),
-        (TEXTNS,'index-entry-text') : (
+        (TEXTNS,'index-entry-text'): (
         ),
-        (TEXTNS,'index-source-style') : (
+        (TEXTNS,'index-source-style'): (
         ),
-        (TEXTNS,'index-source-styles') : (
+        (TEXTNS,'index-source-styles'): (
                 (TEXTNS,'index-source-style'),
         ),
-# allowed_children
-        (TEXTNS,'index-title') : (
+    # allowed_children
+        (TEXTNS,'index-title'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2492,69 +2492,69 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-        (TEXTNS,'index-title-template') : (
+        (TEXTNS,'index-title-template'): (
         ),
-        (TEXTNS,'initial-creator') : (
+        (TEXTNS,'initial-creator'): (
         ),
-        (TEXTNS,'insertion') : (
+        (TEXTNS,'insertion'): (
                 (OFFICENS,'change-info'),
         ),
-        (TEXTNS,'keywords') : (
+        (TEXTNS,'keywords'): (
         ),
-        (TEXTNS,'line-break') : (
+        (TEXTNS,'line-break'): (
         ),
-        (TEXTNS,'linenumbering-configuration') : (
+        (TEXTNS,'linenumbering-configuration'): (
                 (TEXTNS,'linenumbering-separator'),
         ),
-        (TEXTNS,'linenumbering-separator') : (
+        (TEXTNS,'linenumbering-separator'): (
         ),
-        (TEXTNS,'list') : (
+        (TEXTNS,'list'): (
                 (TEXTNS,'list-header'),
                 (TEXTNS,'list-item'),
         ),
-        (TEXTNS,'list-header') : (
+        (TEXTNS,'list-header'): (
                 (TEXTNS,'h'),
                 (TEXTNS,'list'),
                 (TEXTNS,'number'),
                 (TEXTNS,'p'),
                 (TEXTNS,'soft-page-break'),
         ),
-        (TEXTNS,'list-item') : (
+        (TEXTNS,'list-item'): (
                 (TEXTNS,'h'),
                 (TEXTNS,'list'),
                 (TEXTNS,'number'),
                 (TEXTNS,'p'),
                 (TEXTNS,'soft-page-break'),
         ),
-        (TEXTNS,'list-level-style-bullet') : (
+        (TEXTNS,'list-level-style-bullet'): (
                 (STYLENS,'list-level-properties'),
                 (STYLENS,'text-properties'),
         ),
-        (TEXTNS,'list-level-style-image') : (
+        (TEXTNS,'list-level-style-image'): (
                 (OFFICENS,'binary-data'),
                 (STYLENS,'list-level-properties'),
         ),
-        (TEXTNS,'list-level-style-number') : (
+        (TEXTNS,'list-level-style-number'): (
                 (STYLENS,'list-level-properties'),
                 (STYLENS,'text-properties'),
         ),
-        (TEXTNS,'list-style') : (
+        (TEXTNS,'list-style'): (
                 (TEXTNS,'list-level-style-bullet'),
                 (TEXTNS,'list-level-style-image'),
                 (TEXTNS,'list-level-style-number'),
         ),
-        (TEXTNS,'measure') : (
+        (TEXTNS,'measure'): (
         ),
-        (TEXTNS,'modification-date') : (
+        (TEXTNS,'modification-date'): (
         ),
-        (TEXTNS,'modification-time') : (
+        (TEXTNS,'modification-time'): (
         ),
-        (TEXTNS,'note') : (
+        (TEXTNS,'note'): (
                 (TEXTNS,'note-body'),
                 (TEXTNS,'note-citation'),
         ),
-# allowed_children
-        (TEXTNS,'note-body') : (
+    # allowed_children
+        (TEXTNS,'note-body'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2591,50 +2591,50 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-        (TEXTNS,'note-citation') : (
+        (TEXTNS,'note-citation'): (
         ),
-        (TEXTNS,'note-continuation-notice-backward') : (
+        (TEXTNS,'note-continuation-notice-backward'): (
         ),
-        (TEXTNS,'note-continuation-notice-forward') : (
+        (TEXTNS,'note-continuation-notice-forward'): (
         ),
-        (TEXTNS,'note-ref') : (
+        (TEXTNS,'note-ref'): (
         ),
-        (TEXTNS,'notes-configuration') : (
+        (TEXTNS,'notes-configuration'): (
                 (TEXTNS,'note-continuation-notice-backward'),
                 (TEXTNS,'note-continuation-notice-forward'),
         ),
-        (TEXTNS,'number') : (
+        (TEXTNS,'number'): (
         ),
-        (TEXTNS,'numbered-paragraph') : (
+        (TEXTNS,'numbered-paragraph'): (
                 (TEXTNS,'h'),
                 (TEXTNS,'number'),
                 (TEXTNS,'p'),
         ),
-        (TEXTNS,'object-count') : (
+        (TEXTNS,'object-count'): (
         ),
-        (TEXTNS,'object-index') : (
+        (TEXTNS,'object-index'): (
                 (TEXTNS,'index-body'),
                 (TEXTNS,'object-index-source'),
         ),
-        (TEXTNS,'object-index-entry-template') : (
+        (TEXTNS,'object-index-entry-template'): (
                 (TEXTNS,'index-entry-page-number'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-        (TEXTNS,'object-index-source') : (
+        (TEXTNS,'object-index-source'): (
                 (TEXTNS,'index-title-template'),
                 (TEXTNS,'object-index-entry-template'),
         ),
-        (TEXTNS,'outline-level-style') : (
+        (TEXTNS,'outline-level-style'): (
                 (STYLENS,'list-level-properties'),
                 (STYLENS,'text-properties'),
         ),
-        (TEXTNS,'outline-style') : (
+        (TEXTNS,'outline-style'): (
                 (TEXTNS,'outline-level-style'),
         ),
-# allowed_children
-        (TEXTNS,'p') : (
+    # allowed_children
+        (TEXTNS,'p'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2761,45 +2761,45 @@ allowed_children = {
                 (TEXTNS,'variable-set'),
                 (TEXTNS,'word-count'),
         ),
-        (TEXTNS,'page') : (
+        (TEXTNS,'page'): (
         ),
-        (TEXTNS,'page-count') : (
+        (TEXTNS,'page-count'): (
         ),
-        (TEXTNS,'page-continuation') : (
+        (TEXTNS,'page-continuation'): (
         ),
-        (TEXTNS,'page-number') : (
+        (TEXTNS,'page-number'): (
         ),
-        (TEXTNS,'page-sequence') : (
+        (TEXTNS,'page-sequence'): (
                 (TEXTNS,'page'),
         ),
-        (TEXTNS,'page-variable-get') : (
+        (TEXTNS,'page-variable-get'): (
         ),
-        (TEXTNS,'page-variable-set') : (
+        (TEXTNS,'page-variable-set'): (
         ),
-        (TEXTNS,'paragraph-count') : (
+        (TEXTNS,'paragraph-count'): (
         ),
-        (TEXTNS,'placeholder') : (
+        (TEXTNS,'placeholder'): (
         ),
-        (TEXTNS,'print-date') : (
+        (TEXTNS,'print-date'): (
         ),
-        (TEXTNS,'print-time') : (
+        (TEXTNS,'print-time'): (
         ),
-        (TEXTNS,'printed-by') : (
+        (TEXTNS,'printed-by'): (
         ),
-        (TEXTNS,'reference-mark') : (
+        (TEXTNS,'reference-mark'): (
         ),
-        (TEXTNS,'reference-mark-end') : (
+        (TEXTNS,'reference-mark-end'): (
         ),
-# allowed_children
-        (TEXTNS,'reference-mark-start') : (
+    # allowed_children
+        (TEXTNS,'reference-mark-start'): (
         ),
-        (TEXTNS,'reference-ref') : (
+        (TEXTNS,'reference-ref'): (
         ),
-        (TEXTNS,'ruby') : (
+        (TEXTNS,'ruby'): (
                 (TEXTNS,'ruby-base'),
                 (TEXTNS,'ruby-text'),
         ),
-        (TEXTNS,'ruby-base') : (
+        (TEXTNS,'ruby-base'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2926,14 +2926,14 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
-        (TEXTNS,'ruby-text') : (
+    # allowed_children
+        (TEXTNS,'ruby-text'): (
         ),
-        (TEXTNS,'s') : (
+        (TEXTNS,'s'): (
         ),
-        (TEXTNS,'script') : (
+        (TEXTNS,'script'): (
         ),
-        (TEXTNS,'section') : (
+        (TEXTNS,'section'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -2972,56 +2972,56 @@ allowed_children = {
                 (TEXTNS,'table-of-content'),
                 (TEXTNS,'user-index'),
         ),
-        (TEXTNS,'section-source') : (
+        (TEXTNS,'section-source'): (
         ),
-        (TEXTNS,'sender-city') : (
+        (TEXTNS,'sender-city'): (
         ),
-        (TEXTNS,'sender-company') : (
+        (TEXTNS,'sender-company'): (
         ),
-        (TEXTNS,'sender-country') : (
+        (TEXTNS,'sender-country'): (
         ),
-# allowed_children
-        (TEXTNS,'sender-email') : (
+    # allowed_children
+        (TEXTNS,'sender-email'): (
         ),
-        (TEXTNS,'sender-fax') : (
+        (TEXTNS,'sender-fax'): (
         ),
-        (TEXTNS,'sender-firstname') : (
+        (TEXTNS,'sender-firstname'): (
         ),
-        (TEXTNS,'sender-initials') : (
+        (TEXTNS,'sender-initials'): (
         ),
-        (TEXTNS,'sender-lastname') : (
+        (TEXTNS,'sender-lastname'): (
         ),
-        (TEXTNS,'sender-phone-private') : (
+        (TEXTNS,'sender-phone-private'): (
         ),
-        (TEXTNS,'sender-phone-work') : (
+        (TEXTNS,'sender-phone-work'): (
         ),
-        (TEXTNS,'sender-position') : (
+        (TEXTNS,'sender-position'): (
         ),
-        (TEXTNS,'sender-postal-code') : (
+        (TEXTNS,'sender-postal-code'): (
         ),
-        (TEXTNS,'sender-state-or-province') : (
+        (TEXTNS,'sender-state-or-province'): (
         ),
-        (TEXTNS,'sender-street') : (
+        (TEXTNS,'sender-street'): (
         ),
-        (TEXTNS,'sender-title') : (
+        (TEXTNS,'sender-title'): (
         ),
-        (TEXTNS,'sequence') : (
+        (TEXTNS,'sequence'): (
         ),
-        (TEXTNS,'sequence-decl') : (
+        (TEXTNS,'sequence-decl'): (
         ),
-        (TEXTNS,'sequence-decls') : (
+        (TEXTNS,'sequence-decls'): (
                 (TEXTNS,'sequence-decl'),
         ),
-        (TEXTNS,'sequence-ref') : (
+        (TEXTNS,'sequence-ref'): (
         ),
-        (TEXTNS,'sheet-name') : (
+        (TEXTNS,'sheet-name'): (
         ),
-        (TEXTNS,'soft-page-break') : (
+        (TEXTNS,'soft-page-break'): (
         ),
-        (TEXTNS,'sort-key') : (
+        (TEXTNS,'sort-key'): (
         ),
-# allowed_children
-        (TEXTNS,'span') : (
+    # allowed_children
+        (TEXTNS,'span'): (
                 (DR3DNS,'scene'),
                 (DRAWNS,'a'),
                 (DRAWNS,'caption'),
@@ -3148,34 +3148,34 @@ allowed_children = {
                 (TEXTNS,'variable-input'),
                 (TEXTNS,'variable-set'),
         ),
-# allowed_children
-        (TEXTNS,'subject') : (
+    # allowed_children
+        (TEXTNS,'subject'): (
         ),
-        (TEXTNS,'tab') : (
+        (TEXTNS,'tab'): (
         ),
-        (TEXTNS,'table-count') : (
+        (TEXTNS,'table-count'): (
         ),
-        (TEXTNS,'table-formula') : (
+        (TEXTNS,'table-formula'): (
         ),
-        (TEXTNS,'table-index') : (
+        (TEXTNS,'table-index'): (
                 (TEXTNS,'index-body'),
                 (TEXTNS,'table-index-source'),
         ),
-        (TEXTNS,'table-index-entry-template') : (
+        (TEXTNS,'table-index-entry-template'): (
                 (TEXTNS,'index-entry-page-number'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-        (TEXTNS,'table-index-source') : (
+        (TEXTNS,'table-index-source'): (
                 (TEXTNS,'index-title-template'),
                 (TEXTNS,'table-index-entry-template'),
         ),
-        (TEXTNS,'table-of-content') : (
+        (TEXTNS,'table-of-content'): (
                 (TEXTNS,'index-body'),
                 (TEXTNS,'table-of-content-source'),
         ),
-        (TEXTNS,'table-of-content-entry-template') : (
+        (TEXTNS,'table-of-content-entry-template'): (
                 (TEXTNS,'index-entry-chapter'),
                 (TEXTNS,'index-entry-link-end'),
                 (TEXTNS,'index-entry-link-start'),
@@ -3184,76 +3184,77 @@ allowed_children = {
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-        (TEXTNS,'table-of-content-source') : (
+        (TEXTNS,'table-of-content-source'): (
                 (TEXTNS,'index-source-styles'),
                 (TEXTNS,'index-title-template'),
                 (TEXTNS,'table-of-content-entry-template'),
         ),
-        (TEXTNS,'template-name') : (
+        (TEXTNS,'template-name'): (
         ),
-        (TEXTNS,'text-input') : (
+        (TEXTNS,'text-input'): (
         ),
-        (TEXTNS,'time') : (
+        (TEXTNS,'time'): (
         ),
-        (TEXTNS,'title') : (
+        (TEXTNS,'title'): (
         ),
-        (TEXTNS,'toc-mark') : (
+        (TEXTNS,'toc-mark'): (
         ),
-        (TEXTNS,'toc-mark-end') : (
+        (TEXTNS,'toc-mark-end'): (
         ),
-        (TEXTNS,'toc-mark-start') : (
+        (TEXTNS,'toc-mark-start'): (
         ),
-# allowed_children
-        (TEXTNS,'tracked-changes') : (
+    # allowed_children
+        (TEXTNS,'tracked-changes'): (
                 (TEXTNS,'changed-region'),
         ),
-        (TEXTNS,'user-defined') : (
+        (TEXTNS,'user-defined'): (
         ),
-        (TEXTNS,'user-field-decl') : (
+        (TEXTNS,'user-field-decl'): (
         ),
-        (TEXTNS,'user-field-decls') : (
+        (TEXTNS,'user-field-decls'): (
                 (TEXTNS,'user-field-decl'),
         ),
-        (TEXTNS,'user-field-get') : (
+        (TEXTNS,'user-field-get'): (
         ),
-        (TEXTNS,'user-field-input') : (
+        (TEXTNS,'user-field-input'): (
         ),
-        (TEXTNS,'user-index') : (
+        (TEXTNS,'user-index'): (
                 (TEXTNS,'index-body'),
                 (TEXTNS,'user-index-source'),
         ),
-        (TEXTNS,'user-index-entry-template') : (
+        (TEXTNS,'user-index-entry-template'): (
                 (TEXTNS,'index-entry-chapter'),
                 (TEXTNS,'index-entry-page-number'),
                 (TEXTNS,'index-entry-span'),
                 (TEXTNS,'index-entry-tab-stop'),
                 (TEXTNS,'index-entry-text'),
         ),
-# allowed_children
-        (TEXTNS,'user-index-mark') : (
+    # allowed_children
+        (TEXTNS,'user-index-mark'): (
         ),
-        (TEXTNS,'user-index-mark-end') : (
+        (TEXTNS,'user-index-mark-end'): (
         ),
-        (TEXTNS,'user-index-mark-start') : (
+        (TEXTNS,'user-index-mark-start'): (
         ),
-        (TEXTNS,'user-index-source') : (
+        (TEXTNS,'user-index-source'): (
                 (TEXTNS,'index-source-styles'),
                 (TEXTNS,'index-title-template'),
                 (TEXTNS,'user-index-entry-template'),
         ),
-        (TEXTNS,'variable-decl') : (
+        (TEXTNS,'variable-decl'): (
         ),
-        (TEXTNS,'variable-decls') : (
+        (TEXTNS,'variable-decls'): (
                 (TEXTNS,'variable-decl'),
         ),
-        (TEXTNS,'variable-get') : (
+        (TEXTNS,'variable-get'): (
         ),
-        (TEXTNS,'variable-input') : (
+        (TEXTNS,'variable-input'): (
         ),
-        (TEXTNS,'variable-set') : (
+        (TEXTNS,'variable-set'): (
         ),
-        (TEXTNS,'word-count') : (
+        (TEXTNS,'word-count'): (
         ),
+    # allowed_children
 }
 
 #
@@ -3267,17 +3268,17 @@ allows_text = (
         (DCNS,'language'),
         (DCNS,'subject'),
         (DCNS,'title'),
-# Completes Dublin Core start
-#       (DCNS,'contributor'),
-#       (DCNS,'coverage'),
-#       (DCNS,'format'),
-#       (DCNS,'identifier'),
-#       (DCNS,'publisher'),
-#       (DCNS,'relation'),
-#       (DCNS,'rights'),
-#       (DCNS,'source'),
-#       (DCNS,'type'),
-# Completes Dublin Core end
+    # Completes Dublin Core start
+        # (DCNS,'contributor'),
+        # (DCNS,'coverage'),
+        # (DCNS,'format'),
+        # (DCNS,'identifier'),
+        # (DCNS,'publisher'),
+        # (DCNS,'relation'),
+        # (DCNS,'rights'),
+        # (DCNS,'source'),
+        # (DCNS,'type'),
+    # Completes Dublin Core end
         (FORMNS,'item'),
         (FORMNS,'option'),
         (MATHNS,'math'),
@@ -3285,7 +3286,7 @@ allows_text = (
         (METANS,'date-string'),
         (METANS,'editing-cycles'),
         (METANS,'editing-duration'),
-# allows_text
+    # allows_text
         (METANS,'generator'),
         (METANS,'initial-creator'),
         (METANS,'keyword'),
@@ -3328,7 +3329,7 @@ allows_text = (
         (TEXTNS,'hidden-paragraph'),
         (TEXTNS,'hidden-text'),
         (TEXTNS,'image-count'),
-# allowed_children
+    # allows_text
         (TEXTNS,'index-entry-span'),
         (TEXTNS,'index-title-template'),
         (TEXTNS,'initial-creator'),
@@ -3376,7 +3377,7 @@ allows_text = (
         (TEXTNS,'sequence'),
         (TEXTNS,'sequence-ref'),
         (TEXTNS,'sheet-name'),
-# allowed_children
+    # allows_text
         (TEXTNS,'span'),
         (TEXTNS,'subject'),
         (TEXTNS,'table-count'),
@@ -3392,6 +3393,7 @@ allows_text = (
         (TEXTNS,'variable-input'),
         (TEXTNS,'variable-set'),
         (TEXTNS,'word-count'),
+    # allows_text
 )
 
 # Only the elements with at least one required attribute is listed
@@ -3420,7 +3422,7 @@ required_attributes = {
         (ANIMNS,'set'): (
                 (SMILNS,'attributeName'),
         ),
-# required_attributes
+    # required_attributes
         (ANIMNS,'transitionFilter'): (
                 (SMILNS,'type'),
         ),
@@ -3446,7 +3448,7 @@ required_attributes = {
         (CONFIGNS,'config-item-set'): (
                 (CONFIGNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (NUMBERNS,'boolean-style'): (
                 (STYLENS,'name'),
         ),
@@ -3482,7 +3484,7 @@ required_attributes = {
                 (SVGNS,'viewBox'),
                 (SVGNS,'d'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'a'): (
                 (XLINKNS,'href'),
         ),
@@ -3531,7 +3533,7 @@ required_attributes = {
                 (DRAWNS,'id'),
                 (DRAWNS,'escape-direction'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'gradient'): (
                 (DRAWNS,'style'),
         ),
@@ -3579,7 +3581,7 @@ required_attributes = {
                 (DRAWNS,'points'),
                 (SVGNS,'viewBox'),
         ),
-# required_attributes
+    # required_attributes
         (DRAWNS,'polyline'): (
                 (DRAWNS,'points'),
                 (SVGNS,'viewBox'),
@@ -3626,7 +3628,7 @@ required_attributes = {
         (FORMNS,'hidden'): (
                 (FORMNS,'id'),
         ),
-# required_attributes
+    # required_attributes
         (FORMNS,'image'): (
                 (FORMNS,'id'),
         ),
@@ -3666,24 +3668,24 @@ required_attributes = {
         (FORMNS,'value-range'): (
                 (FORMNS,'id'),
         ),
-        (MANIFESTNS,'algorithm') : (
+        (MANIFESTNS,'algorithm'): (
                 (MANIFESTNS,'algorithm-name'),
                 (MANIFESTNS,'initialisation-vector'),
         ),
-        (MANIFESTNS,'encryption-data') : (
+        (MANIFESTNS,'encryption-data'): (
                 (MANIFESTNS,'checksum-type'),
                 (MANIFESTNS,'checksum'),
         ),
-        (MANIFESTNS,'file-entry') : (
+        (MANIFESTNS,'file-entry'): (
                 (MANIFESTNS,'full-path'),
                 (MANIFESTNS,'media-type'),
         ),
-        (MANIFESTNS,'key-derivation') : (
+        (MANIFESTNS,'key-derivation'): (
                 (MANIFESTNS,'key-derivation-name'),
                 (MANIFESTNS,'salt'),
                 (MANIFESTNS,'iteration-count'),
         ),
-# required_attributes
+    # required_attributes
         (METANS,'template'): (
                 (XLINKNS,'href'),
         ),
@@ -3709,7 +3711,7 @@ required_attributes = {
                 (DRAWNS,'color'),
                 (DRAWNS,'shape-id'),
         ),
-# required_attributes
+    # required_attributes
         (PRESENTATIONNS,'event-listener'): (
                 (PRESENTATIONNS,'action'),
                 (SCRIPTNS,'event-name'),
@@ -3756,7 +3758,7 @@ required_attributes = {
         (STYLENS,'column'): (
                 (STYLENS,'rel-width'),
         ),
-# required_attributes
+    # required_attributes
         (STYLENS,'column-sep'): (
                 (STYLENS,'width'),
         ),
@@ -3804,7 +3806,7 @@ required_attributes = {
         (SVGNS,'stop'): (
                 (SVGNS,'offset'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'body'): (
                 (TEXTNS,'style-name'),
         ),
@@ -3836,7 +3838,7 @@ required_attributes = {
                 (TABLENS,'enabled'),
                 (TABLENS,'display-member-mode'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'data-pilot-field'): (
                 (TABLENS,'source-field-name'),
         ),
@@ -3875,7 +3877,7 @@ required_attributes = {
         (TABLENS,'database-range'): (
                 (TABLENS,'target-range-address'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'database-source-query'): (
                 (TABLENS,'query-name'),
                 (TABLENS,'database-name'),
@@ -3922,7 +3924,7 @@ required_attributes = {
                 (TABLENS,'position'),
                 (TABLENS,'id'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'label-range'): (
                 (TABLENS,'label-cell-range-address'),
                 (TABLENS,'data-cell-range-address'),
@@ -3955,7 +3957,7 @@ required_attributes = {
                 (TABLENS,'index'),
                 (TABLENS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TABLENS,'scenario'): (
                 (TABLENS,'is-active'),
                 (TABLENS,'scenario-ranges'),
@@ -3991,7 +3993,7 @@ required_attributes = {
         (TEXTNS,'a'): (
                 (XLINKNS,'href'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'alphabetical-index'): (
                 (TEXTNS,'name'),
         ),
@@ -4024,7 +4026,7 @@ required_attributes = {
         (TEXTNS,'bookmark'): (
                 (TEXTNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'bookmark-end'): (
                 (TEXTNS,'name'),
         ),
@@ -4071,7 +4073,7 @@ required_attributes = {
         (TEXTNS,'dde-connection'): (
                 (TEXTNS,'connection-name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'dde-connection-decl'): (
                 (OFFICENS,'dde-topic'),
                 (OFFICENS,'dde-application'),
@@ -4119,7 +4121,7 @@ required_attributes = {
         (TEXTNS,'list-style'): (
                 (STYLENS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'measure'): (
                 (TEXTNS,'kind'),
         ),
@@ -4169,7 +4171,7 @@ required_attributes = {
                 (TEXTNS,'display-outline-level'),
                 (TEXTNS,'name'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'sort-key'): (
                 (TEXTNS,'key'),
         ),
@@ -4214,7 +4216,7 @@ required_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'outline-level'),
         ),
-# required_attributes
+    # required_attributes
         (TEXTNS,'user-index-mark'): (
                 (TEXTNS,'index-name'),
                 (TEXTNS,'string-value'),
@@ -4243,6 +4245,7 @@ required_attributes = {
         (TEXTNS,'variable-set'): (
                 (TEXTNS,'name'),
         ),
+    # required_attributes
 }
 
 # Empty list means the element has no allowed attributes
@@ -4261,29 +4264,29 @@ allowed_attributes = {
         ),
         (DCNS,'title'):(
         ),
-# Completes Dublin Core start
-#       (DCNS,'contributor') : (
-#       ),
-#       (DCNS,'coverage') : (
-#       ),
-#       (DCNS,'format') : (
-#       ),
-#       (DCNS,'identifier') : (
-#       ),
-#       (DCNS,'publisher') : (
-#       ),
-#       (DCNS,'relation') : (
-#       ),
-#       (DCNS,'rights') : (
-#       ),
-#       (DCNS,'source') : (
-#       ),
-#       (DCNS,'type') : (
-#       ),
-# Completes Dublin Core end
+    # Completes Dublin Core start
+        # (DCNS,'contributor'): (
+        # ),
+        # (DCNS,'coverage'): (
+        # ),
+        # (DCNS,'format'): (
+        # ),
+        # (DCNS,'identifier'): (
+        # ),
+        # (DCNS,'publisher'): (
+        # ),
+        # (DCNS,'relation'): (
+        # ),
+        # (DCNS,'rights'): (
+        # ),
+        # (DCNS,'source'): (
+        # ),
+        # (DCNS,'type'): (
+        # ),
+    # Completes Dublin Core end
         (MATHNS,'math'): None,
         (XFORMSNS,'model'): None,
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animate'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4311,7 +4314,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
                 (SMILNS,'values'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateColor'):(
                 (ANIMNS,'color-interpolation'),
                 (ANIMNS,'color-interpolation-direction'),
@@ -4341,7 +4344,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
                 (SMILNS,'values'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateMotion'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4371,7 +4374,7 @@ allowed_attributes = {
                 (SVGNS,'origin'),
                 (SVGNS,'path'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'animateTransform'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4397,7 +4400,7 @@ allowed_attributes = {
                 (SMILNS,'values'),
                 (SVGNS,'type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'audio'):(
                 (ANIMNS,'audio-level'),
                 (ANIMNS,'id'),
@@ -4428,7 +4431,7 @@ allowed_attributes = {
                 (ANIMNS,'id'),
                 (PRESENTATIONNS,'master-element'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'iterate'):(
                 (ANIMNS,'id'),
                 (ANIMNS,'iterate-interval'),
@@ -4477,7 +4480,7 @@ allowed_attributes = {
                 (SMILNS,'restart'),
                 (PRESENTATIONNS,'master-element'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'param'):(
                 (ANIMNS,'name'),
                 (ANIMNS,'value'),
@@ -4525,7 +4528,7 @@ allowed_attributes = {
                 (SMILNS,'to'),
 
         ),
-# allowed_attributes
+    # allowed_attributes
         (ANIMNS,'transitionFilter'):(
                 (ANIMNS,'formula'),
                 (ANIMNS,'sub-item'),
@@ -4556,7 +4559,7 @@ allowed_attributes = {
                 (SMILNS,'values'),
 
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'axis'):(
                 (CHARTNS,'style-name'),
                 (CHARTNS,'dimension'),
@@ -4587,7 +4590,7 @@ allowed_attributes = {
                 (SVGNS,'width'),
                 (CHARTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'footer'):(
                 (SVGNS,'y'),
                 (SVGNS,'x'),
@@ -4643,7 +4646,7 @@ allowed_attributes = {
         (CHARTNS,'stock-gain-marker'):(
                 (CHARTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (CHARTNS,'stock-loss-marker'):(
                 (CHARTNS,'style-name'),
         ),
@@ -4685,7 +4688,7 @@ allowed_attributes = {
         (CONFIGNS,'config-item-set'):(
                 (CONFIGNS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'am-pm'):(
         ),
         (NUMBERNS,'boolean'):(
@@ -4719,7 +4722,7 @@ allowed_attributes = {
                 (NUMBERNS,'country'),
                 (NUMBERNS,'language'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'date-style'):(
                 (NUMBERNS,'transliteration-language'),
                 (STYLENS,'name'),
@@ -4759,7 +4762,7 @@ allowed_attributes = {
         (NUMBERNS,'hours'):(
                 (NUMBERNS,'style'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'minutes'):(
                 (NUMBERNS,'style'),
         ),
@@ -4788,7 +4791,7 @@ allowed_attributes = {
                 (STYLENS,'volatile'),
                 (NUMBERNS,'transliteration-country'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (NUMBERNS,'percentage-style'):(
                 (NUMBERNS,'transliteration-language'),
                 (STYLENS,'name'),
@@ -4894,7 +4897,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'class-names'),
                 (DRAWNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DR3DNS,'scene'):(
                 (DR3DNS,'ambient-color'),
                 (DR3DNS,'distance'),
@@ -5142,7 +5145,7 @@ allowed_attributes = {
                 (DRAWNS,'id'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'ellipse'):(
                 (DRAWNS,'layer'),
                 (DRAWNS,'start-angle'),
@@ -5173,7 +5176,7 @@ allowed_attributes = {
                 (SVGNS,'x'),
                 (DRAWNS,'text-style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'enhanced-geometry'):(
                 (DRAWNS,'extrusion-rotation-center'),
                 (DRAWNS,'extrusion-shininess'),
@@ -5219,7 +5222,7 @@ allowed_attributes = {
                 (DRAWNS,'glue-point-type'),
                 (DRAWNS,'text-path'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'equation'):(
                 (DRAWNS,'formula'),
                 (DRAWNS,'name'),
@@ -5270,7 +5273,7 @@ allowed_attributes = {
                 (TEXTNS,'anchor-page-number'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'g'):(
                 (DRAWNS,'id'),
                 (DRAWNS,'caption-id'),
@@ -5343,7 +5346,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (DRAWNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'layer-set'):(
         ),
         (DRAWNS,'line'):(
@@ -5375,7 +5378,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (SVGNS,'viewBox'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'measure'):(
                 (TABLENS,'end-cell-address'),
                 (DRAWNS,'layer'),
@@ -5465,7 +5468,7 @@ allowed_attributes = {
                 (DRAWNS,'name'),
                 (DRAWNS,'value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'path'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5523,7 +5526,7 @@ allowed_attributes = {
                 (SVGNS,'viewBox'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'polyline'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5573,7 +5576,7 @@ allowed_attributes = {
                 (TEXTNS,'anchor-page-number'),
                 (TEXTNS,'anchor-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (DRAWNS,'regular-polygon'):(
                 (TABLENS,'table-background'),
                 (DRAWNS,'layer'),
@@ -5619,7 +5622,7 @@ allowed_attributes = {
                 (FONS,'max-width'),
                 (TEXTNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'button'):(
                 (FORMNS,'tab-stop'),
                 (FORMNS,'focus-on-click'),
@@ -5691,7 +5694,7 @@ allowed_attributes = {
                 (FORMNS,'current-value'),
                 (FORMNS,'size'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'connection-resource'):(
                 (XLINKNS,'href'),
         ),
@@ -5741,7 +5744,7 @@ allowed_attributes = {
                 (FORMNS,'printable'),
                 (FORMNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'form'):(
                 (XLINKNS,'actuate'),
                 (XLINKNS,'href'),
@@ -5798,7 +5801,7 @@ allowed_attributes = {
                 (FORMNS,'printable'),
                 (FORMNS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'generic-control'):(
                 (FORMNS,'control-implementation'),
                 (XFORMSNS,'bind'),
@@ -5861,7 +5864,7 @@ allowed_attributes = {
         (FORMNS,'list-value'):(
                 (OFFICENS,'string-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (FORMNS,'listbox'):(
                 (FORMNS,'tab-stop'),
                 (FORMNS,'bound-column'),
@@ -6023,27 +6026,27 @@ allowed_attributes = {
                 (FORMNS,'id'),
                 (FORMNS,'step-size'),
         ),
-        (MANIFESTNS,'algorithm') : (
+        (MANIFESTNS,'algorithm'): (
                 (MANIFESTNS,'algorithm-name'),
                 (MANIFESTNS,'initialisation-vector'),
         ),
-        (MANIFESTNS,'encryption-data') : (
+        (MANIFESTNS,'encryption-data'): (
                 (MANIFESTNS,'checksum-type'),
                 (MANIFESTNS,'checksum'),
         ),
-        (MANIFESTNS,'file-entry') : (
+        (MANIFESTNS,'file-entry'): (
                 (MANIFESTNS,'full-path'),
                 (MANIFESTNS,'media-type'),
                 (MANIFESTNS,'size'),
         ),
-        (MANIFESTNS,'key-derivation') : (
+        (MANIFESTNS,'key-derivation'): (
                 (MANIFESTNS,'key-derivation-name'),
                 (MANIFESTNS,'salt'),
                 (MANIFESTNS,'iteration-count'),
         ),
         (MANIFESTNS,'manifest'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (METANS,'auto-reload'):(
                 (METANS,'delay'),
                 (XLINKNS,'actuate'),
@@ -6078,7 +6081,7 @@ allowed_attributes = {
         ),
         (METANS,'generator'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (METANS,'hyperlink-behaviour'):(
                 (OFFICENS,'target-frame-name'),
                 (XLINKNS,'show'),
@@ -6174,7 +6177,7 @@ allowed_attributes = {
         ),
         (OFFICENS,'image'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (OFFICENS,'master-styles'):(
         ),
         (OFFICENS,'meta'):(
@@ -6245,7 +6248,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'speed'),
                 (DRAWNS,'shape-id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (PRESENTATIONNS,'hide-text'):(
                 (PRESENTATIONNS,'direction'),
                 (PRESENTATIONNS,'effect'),
@@ -6273,7 +6276,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'speed'),
                 (DRAWNS,'shape-id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (PRESENTATIONNS,'settings'):(
                 (PRESENTATIONNS,'animations'),
                 (PRESENTATIONNS,'endless'),
@@ -6319,7 +6322,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'play-full'),
                 (XLINKNS,'show'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (SCRIPTNS,'event-listener'):(
                 (SCRIPTNS,'language'),
                 (SCRIPTNS,'macro-name'),
@@ -6412,7 +6415,7 @@ allowed_attributes = {
         (STYLENS,'default-style'):(
                 (STYLENS,'family'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'drawing-page-properties'): (
                 (DRAWNS,'fill'),
                 (DRAWNS,'fill-color'),
@@ -6455,7 +6458,7 @@ allowed_attributes = {
                 (STYLENS,'style-name'),
                 (STYLENS,'lines'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'font-face'):(
                 (STYLENS,'font-adornments'),
                 (STYLENS,'font-charset'),
@@ -6513,7 +6516,7 @@ allowed_attributes = {
                 (STYLENS,'line-style'),
                 (STYLENS,'adjustment'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'graphic-properties'): (
                 (DR3DNS,'ambient-color'),
                 (DR3DNS,'back-scale'),
@@ -6568,7 +6571,7 @@ allowed_attributes = {
                 (DRAWNS,'fill-image-ref-point-x'),
                 (DRAWNS,'fill-image-ref-point-y'),
                 (DRAWNS,'fill-image-width'),
-# allowed_attributes
+    # allowed_attributes
                 (DRAWNS,'fit-to-contour'),
                 (DRAWNS,'fit-to-size'),
                 (DRAWNS,'frame-display-border'),
@@ -6621,7 +6624,7 @@ allowed_attributes = {
                 (DRAWNS,'visible-area-top'),
                 (DRAWNS,'visible-area-width'),
                 (DRAWNS,'wrap-influence-on-position'),
-# allowed_attributes
+    # allowed_attributes
                 (FONS,'background-color'),
                 (FONS,'border'),
                 (FONS,'border-bottom'),
@@ -6696,7 +6699,7 @@ allowed_attributes = {
                 (PRESENTATIONNS,'use-header-name'),
                 (PRESENTATIONNS,'use-date-time-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'header'):(
                 (STYLENS,'display'),
         ),
@@ -6732,7 +6735,7 @@ allowed_attributes = {
         ),
         (STYLENS,'header-style'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'list-level-properties'): (
                 (FONS,'height'),
                 (FONS,'text-align'),
@@ -6761,7 +6764,7 @@ allowed_attributes = {
                 (STYLENS,'name'),
                 (STYLENS,'page-usage'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'page-layout-properties'): (
                 (FONS,'background-color'),
                 (FONS,'border'),
@@ -6811,7 +6814,7 @@ allowed_attributes = {
                 (STYLENS,'table-centering'),
                 (STYLENS,'writing-mode'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'paragraph-properties'): (
                 (FONS,'background-color'),
                 (FONS,'border'),
@@ -6870,7 +6873,7 @@ allowed_attributes = {
                 (STYLENS,'display-name'),
                 (STYLENS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'region-center'):(
         ),
         (STYLENS,'region-left'):(
@@ -6902,7 +6905,7 @@ allowed_attributes = {
                 (STYLENS,'display-name'),
                 (STYLENS,'parent-style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'tab-stop'):(
                 (STYLENS,'leader-text-style'),
                 (STYLENS,'leader-width'),
@@ -6951,7 +6954,7 @@ allowed_attributes = {
                 (STYLENS,'text-align-source'),
                 (STYLENS,'vertical-align'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'table-column-properties'): (
                 (FONS,'break-after'),
                 (FONS,'break-before'),
@@ -6988,7 +6991,7 @@ allowed_attributes = {
                 (STYLENS,'row-height'),
                 (STYLENS,'use-optimal-row-height'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (STYLENS,'text-properties'): (
                 (FONS,'background-color'),
                 (FONS,'color'),
@@ -7074,7 +7077,7 @@ allowed_attributes = {
         (SVGNS,'font-face-format'):(
                 (SVGNS,'string'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (SVGNS,'font-face-name'):(
                 (SVGNS,'name'),
         ),
@@ -7115,7 +7118,7 @@ allowed_attributes = {
         ),
         (SVGNS,'title'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'body'):(
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
@@ -7185,7 +7188,7 @@ allowed_attributes = {
         ),
         (TABLENS,'content-validations'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'covered-table-cell'):(
                 (TABLENS,'protect'),
                 (OFFICENS,'string-value'),
@@ -7222,7 +7225,7 @@ allowed_attributes = {
                 (TABLENS,'member-type'),
                 (TABLENS,'type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-group'):(
                 (TABLENS,'name'),
         ),
@@ -7245,7 +7248,7 @@ allowed_attributes = {
         (TABLENS,'data-pilot-level'):(
                 (TABLENS,'show-empty'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-member'):(
                 (TABLENS,'show-details'),
                 (TABLENS,'name'),
@@ -7274,7 +7277,7 @@ allowed_attributes = {
                 (TABLENS,'show-filter-button'),
                 (TABLENS,'grand-total'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'data-pilot-tables'):(
         ),
         (TABLENS,'database-range'):(
@@ -7295,7 +7298,7 @@ allowed_attributes = {
                 (TABLENS,'query-name'),
                 (TABLENS,'database-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'database-source-sql'):(
                 (TABLENS,'parse-sql-statement'),
                 (TABLENS,'database-name'),
@@ -7318,7 +7321,7 @@ allowed_attributes = {
                 (TABLENS,'type'),
                 (TABLENS,'id'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'deletions'):(
         ),
         (TABLENS,'dependencies'):(
@@ -7344,7 +7347,7 @@ allowed_attributes = {
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'filter'):(
                 (TABLENS,'target-range-address'),
                 (TABLENS,'display-duplicates'),
@@ -7370,7 +7373,7 @@ allowed_attributes = {
                 (TEXTNS,'paragraph-style-name'),
                 (TEXTNS,'style-name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'help-message'):(
                 (TABLENS,'display'),
                 (TABLENS,'title'),
@@ -7399,7 +7402,7 @@ allowed_attributes = {
                 (TABLENS,'maximum-difference'),
                 (TABLENS,'steps'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'label-range'):(
                 (TABLENS,'label-cell-range-address'),
                 (TABLENS,'data-cell-range-address'),
@@ -7501,7 +7504,7 @@ allowed_attributes = {
                 (TABLENS,'end-table'),
                 (TABLENS,'start-column'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'source-service'):(
                 (TABLENS,'user-name'),
                 (TABLENS,'source-name'),
@@ -7548,7 +7551,7 @@ allowed_attributes = {
                 (TABLENS,'formula'),
                 (OFFICENS,'time-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TABLENS,'table-column'):(
                 (TABLENS,'style-name'),
                 (TABLENS,'default-cell-style-name'),
@@ -7606,7 +7609,7 @@ allowed_attributes = {
         (TABLENS,'tracked-changes'):(
                 (TABLENS,'track-changes'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'a'):(
                 (TEXTNS,'visited-style-name'),
                 (OFFICENS,'name'),
@@ -7641,7 +7644,7 @@ allowed_attributes = {
                 (TEXTNS,'key2-phonetic'),
                 (TEXTNS,'string-value-phonetic'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'alphabetical-index-mark-end'):(
                 (TEXTNS,'id'),
         ),
@@ -7670,7 +7673,7 @@ allowed_attributes = {
                 (TEXTNS,'main-entry-style-name'),
                 (TEXTNS,'use-keys-as-entries'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'author-initials'):(
                 (TEXTNS,'fixed'),
         ),
@@ -7696,7 +7699,7 @@ allowed_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'bibliography-type'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'bibliography-mark'):(
                 (TEXTNS,'address'),
                 (TEXTNS,'annote'),
@@ -7746,7 +7749,7 @@ allowed_attributes = {
         (TEXTNS,'bookmark-start'):(
                 (TEXTNS,'name'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'change'):(
                 (TEXTNS,'change-id'),
         ),
@@ -7815,7 +7818,7 @@ allowed_attributes = {
                 (TEXTNS,'database-name'),
                 (TEXTNS,'condition'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'date'):(
                 (TEXTNS,'date-value'),
                 (TEXTNS,'fixed'),
@@ -7866,7 +7869,7 @@ allowed_attributes = {
                 (TEXTNS,'fixed'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'format-change'):(
         ),
         (TEXTNS,'h'):(
@@ -7914,7 +7917,7 @@ allowed_attributes = {
                 (TEXTNS,'style-name'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'index-entry-link-end'):(
                 (TEXTNS,'style-name'),
         ),
@@ -7956,7 +7959,7 @@ allowed_attributes = {
         ),
         (TEXTNS,'insertion'):(
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'keywords'):(
                 (TEXTNS,'fixed'),
         ),
@@ -8011,7 +8014,7 @@ allowed_attributes = {
                 (STYLENS,'num-letter-sync'),
                 (TEXTNS,'start-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'list-style'):(
                 (TEXTNS,'consecutive-numbering'),
                 (STYLENS,'display-name'),
@@ -8080,7 +8083,7 @@ allowed_attributes = {
                 (TEXTNS,'name'),
                 (TEXTNS,'protection-key'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'object-index-entry-template'):(
                 (TEXTNS,'style-name'),
         ),
@@ -8201,7 +8204,7 @@ allowed_attributes = {
         (TEXTNS,'sender-country'):(
                 (TEXTNS,'fixed'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'sender-email'):(
                 (TEXTNS,'fixed'),
         ),
@@ -8264,7 +8267,7 @@ allowed_attributes = {
                 (TEXTNS,'sort-ascending'),
                 (TEXTNS,'key'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'span'):(
                 (TEXTNS,'style-name'),
                 (TEXTNS,'class-names'),
@@ -8296,7 +8299,7 @@ allowed_attributes = {
                 (TEXTNS,'caption-sequence-format'),
                 (TEXTNS,'relative-tab-stop-position'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'table-of-content'):(
                 (TEXTNS,'protected'),
                 (TEXTNS,'style-name'),
@@ -8372,7 +8375,7 @@ allowed_attributes = {
                 (TEXTNS,'name'),
                 (TEXTNS,'display'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'user-field-input'):(
                 (STYLENS,'data-style-name'),
                 (TEXTNS,'name'),
@@ -8402,7 +8405,7 @@ allowed_attributes = {
                 (TEXTNS,'id'),
                 (TEXTNS,'outline-level'),
         ),
-# allowed_attributes
+    # allowed_attributes
         (TEXTNS,'user-index-source'):(
                 (TEXTNS,'copy-outline-levels'),
                 (TEXTNS,'index-name'),
@@ -8445,5 +8448,5 @@ allowed_attributes = {
                 (TEXTNS,'formula'),
                 (OFFICENS,'time-value'),
         ),
-# allowed_attributes
+    # allowed_attributes
 }

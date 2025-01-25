@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 class STHKRecipe(BasicNewsRecipe):
     title = '星島日報 (香港)'
     __author__ = 'unkn0wn'
-    description = 'The Sing Tao Daily is among Hong Kong\'s oldest Chinese language newspapers. (https://std.stheadline.com/)'
+    description = "The Sing Tao Daily is among Hong Kong's oldest Chinese language newspapers. (https://std.stheadline.com/)"
     category = 'Chinese, News, Hong Kong'
     language = 'zh'
     encoding = 'utf-8'

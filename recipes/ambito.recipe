@@ -28,9 +28,9 @@ class Ambito(BasicNewsRecipe):
     language = 'es_AR'
     publication_type = 'newsportal'
     masthead_url = 'https://www.ambito.com/css-custom/239/images/logo-239-2020v2.svg'
-    extra_css = """
+    extra_css = '''
         body{font-family: Roboto, sans-serif}
-    """
+    '''
 
     conversion_options = {
         'comment': description,

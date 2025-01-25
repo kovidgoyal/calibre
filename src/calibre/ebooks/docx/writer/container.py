@@ -70,7 +70,7 @@ def create_skeleton(opts, namespaces=None):
         E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
         E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
         E.cols(**{w('space'):'720'}),
-        E.docGrid(**{w('linePitch'):"360"}),
+        E.docGrid(**{w('linePitch'):'360'}),
     ))
 
     dn = {k:v for k, v in iteritems(namespaces) if k in tuple('wra') + ('wp',)}
@@ -79,15 +79,15 @@ def create_skeleton(opts, namespaces=None):
         E.docDefaults(
             E.rPrDefault(
                 E.rPr(
-                    E.rFonts(**{w('asciiTheme'):"minorHAnsi", w('eastAsiaTheme'):"minorEastAsia", w('hAnsiTheme'):"minorHAnsi", w('cstheme'):"minorBidi"}),
+                    E.rFonts(**{w('asciiTheme'):'minorHAnsi', w('eastAsiaTheme'):'minorEastAsia', w('hAnsiTheme'):'minorHAnsi', w('cstheme'):'minorBidi'}),
                     E.sz(**{w('val'):'22'}),
                     E.szCs(**{w('val'):'22'}),
-                    E.lang(**{w('val'):'en-US', w('eastAsia'):"en-US", w('bidi'):"ar-SA"})
+                    E.lang(**{w('val'):'en-US', w('eastAsia'):'en-US', w('bidi'):'ar-SA'})
                 )
             ),
             E.pPrDefault(
                 E.pPr(
-                    E.spacing(**{w('after'):"0", w('line'):"276", w('lineRule'):"auto"})
+                    E.spacing(**{w('after'):'0', w('line'):'276', w('lineRule'):'auto'})
                 )
             )
         )
@@ -173,25 +173,25 @@ class DOCX:
         E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None:self.namespace.namespaces['ct']})
         types = E.Types()
         for partname, mt in iteritems({
-            "/word/footnotes.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml",
-            "/word/document.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml",
-            "/word/numbering.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml",
-            "/word/styles.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml",
-            "/word/endnotes.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml",
-            "/word/settings.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml",
-            "/word/theme/theme1.xml": "application/vnd.openxmlformats-officedocument.theme+xml",
-            "/word/fontTable.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml",
-            "/word/webSettings.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml",
-            "/docProps/core.xml": "application/vnd.openxmlformats-package.core-properties+xml",
-            "/docProps/app.xml": "application/vnd.openxmlformats-officedocument.extended-properties+xml",
+            '/word/footnotes.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml',
+            '/word/document.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml',
+            '/word/numbering.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml',
+            '/word/styles.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml',
+            '/word/endnotes.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml',
+            '/word/settings.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml',
+            '/word/theme/theme1.xml': 'application/vnd.openxmlformats-officedocument.theme+xml',
+            '/word/fontTable.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml',
+            '/word/webSettings.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml',
+            '/docProps/core.xml': 'application/vnd.openxmlformats-package.core-properties+xml',
+            '/docProps/app.xml': 'application/vnd.openxmlformats-officedocument.extended-properties+xml',
         }):
             types.append(E.Override(PartName=partname, ContentType=mt))
         added = {'png', 'gif', 'jpeg', 'jpg', 'svg', 'xml'}
         for ext in added:
             types.append(E.Default(Extension=ext, ContentType=guess_type('a.'+ext)[0]))
         for ext, mt in iteritems({
-            "rels": "application/vnd.openxmlformats-package.relationships+xml",
-            "odttf": "application/vnd.openxmlformats-officedocument.obfuscatedFont",
+            'rels': 'application/vnd.openxmlformats-package.relationships+xml',
+            'odttf': 'application/vnd.openxmlformats-officedocument.obfuscatedFont',
         }):
             added.add(ext)
             types.append(E.Default(Extension=ext, ContentType=mt))
@@ -242,7 +242,7 @@ class DOCX:
     def convert_metadata(self, mi):
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['cp'], nsmap={x:namespaces[x] for x in 'cp dc dcterms xsi'.split()})
-        cp = E.coreProperties(E.revision("1"), E.lastModifiedBy('calibre'))
+        cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
         ts = utcnow().isoformat(native_string_type('T')).rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
             x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})

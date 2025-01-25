@@ -25,14 +25,14 @@ class FreeInquiry(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
     needs_subscription = True
-    extra_css             = """
+    extra_css             = '''
                             .entry-header{
                                           text-transform: uppercase;
                                           vertical-align: baseline;
                                           display: inline;
                                          }
                             ul li{display: inline}
-                            """
+                            '''
 
     remove_tags = [
         classes(
@@ -76,7 +76,7 @@ class FreeInquiry(BasicNewsRecipe):
                                 url = ''
                             seen.add(url)
                             self.log('Found article:', art_title)
-                            yield{
+                            yield {
                                 'title': art_title,
                                 'url': url,
                                 'description': desc

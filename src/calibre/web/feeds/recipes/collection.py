@@ -58,7 +58,6 @@ def normalize_language(x: str) -> str:
 def serialize_recipe(urn, recipe_class):
     from xml.sax.saxutils import quoteattr
 
-
     def attr(n, d, normalize=lambda x: x):
         ans = getattr(recipe_class, n, d)
         if isinstance(ans, bytes):
@@ -76,15 +75,15 @@ def serialize_recipe(urn, recipe_class):
     if rso:
         options = f' options={quoteattr(json.dumps(rso))}'
     return ('  <recipe id={id} title={title} author={author} language={language}'
-            ' needs_subscription={needs_subscription} description={description}{options}/>').format(**{
-        'id'                 : quoteattr(str(urn)),
-        'title'              : attr('title', _('Unknown')),
-        'author'             : attr('__author__', default_author),
-        'language'           : attr('language', 'und', normalize_language),
-        'needs_subscription' : quoteattr(ns),
-        'description'        : attr('description', ''),
-        'options'            : options,
-        })
+            ' needs_subscription={needs_subscription} description={description}{options}/>').format(
+                id=quoteattr(str(urn)),
+                title=attr('title', _('Unknown')),
+                author=attr('__author__', default_author),
+                language=attr('language', 'und', normalize_language),
+                needs_subscription=quoteattr(ns),
+                description=attr('description', ''),
+                options=options,
+            )
 
 
 def serialize_collection(mapping_of_recipe_classes):
@@ -352,7 +351,7 @@ class SchedulerConfig:
             if last_downloaded is None:
                 last_downloaded = EPOCH
             sr = E.scheduled_recipe({
-                'id' : recipe.get('id'),
+                'id': recipe.get('id'),
                 'title': recipe.get('title'),
                 'last_downloaded':isoformat(last_downloaded),
                 }, self.serialize_schedule(schedule_type, schedule))
@@ -366,10 +365,10 @@ class SchedulerConfig:
                 if x.get('id') == urn:
                     self.root.remove(x)
             cs = E.recipe_customization({
-                'keep_issues' : str(val.keep_issues),
-                'id' : urn,
-                'add_title_tag' : 'yes' if val.add_title_tag else 'no',
-                'custom_tags' : ','.join(val.custom_tags),
+                'keep_issues': str(val.keep_issues),
+                'id': urn,
+                'add_title_tag': 'yes' if val.add_title_tag else 'no',
+                'custom_tags': ','.join(val.custom_tags),
                 'recipe_specific_options': json.dumps(val.recipe_specific_options or {}),
                 })
             self.root.append(cs)

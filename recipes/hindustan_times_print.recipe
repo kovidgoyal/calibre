@@ -8,6 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 index = 'https://epaper.hindustantimes.com'
 
+
 class ht(BasicNewsRecipe):
     title = 'Hindustan Times Print Edition'
     language = 'en_IN'
@@ -97,9 +98,8 @@ class ht(BasicNewsRecipe):
                     continue
                 desc = page_no
                 self.log('\t', title, ' ', desc)
-                feeds_dict[section].append({"title": title, "description": desc, "url": url})
-        return [(section, articles) for section, articles in feeds_dict.items()]
-
+                feeds_dict[section].append({'title': title, 'description': desc, 'url': url})
+        return list(feeds_dict.items())
 
     def preprocess_raw_html(self, raw, *a):
         data = json.loads(raw)

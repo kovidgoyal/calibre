@@ -29,7 +29,7 @@ class TheEconomicTimes(BasicNewsRecipe):
     language = 'en_IN'
     publication_type = 'newspaper'
     masthead_url = 'http://timesofindia.indiatimes.com/photo.cms?msid=2419189'
-    extra_css              = """
+    extra_css              = '''
                                  body{font-family: Arial,Helvetica,sans-serif}
                                  .foto_mg{font-size: 60%;
                                           font-weight: 700;}
@@ -37,7 +37,7 @@ class TheEconomicTimes(BasicNewsRecipe):
                                  artdate{font-size: 60%}
                                  artag{font-size: 60%}
                                  div.storycontent{padding-top: 10px}
-                             """
+                             '''
     conversion_options = {'comment': description,
                           'tags': category,
                           'publisher': publisher,
@@ -73,7 +73,7 @@ class TheEconomicTimes(BasicNewsRecipe):
             return citem['content']
 
     def get_article_url(self, article):
-        rurl = article.get('guid',  None)
+        rurl = article.get('guid', None)
         if '/articleshow/' in rurl:
             return rurl
 

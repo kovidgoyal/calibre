@@ -29,7 +29,7 @@ def main():
     stats = os.path.join(gettempdir(), 'read_db.stats')
     pr = cProfile.Profile()
     initdb('~/test library')
-    all_ids = db.new_api.all_book_ids()  # noqa
+    all_ids = db.new_api.all_book_ids()
     pr.enable()
     for book_id in all_ids:
         db.new_api._composite_for('#isbn', book_id)

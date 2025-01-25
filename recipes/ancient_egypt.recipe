@@ -12,7 +12,7 @@ class ancientegypt(BasicNewsRecipe):
     language = 'en'
     __author__ = 'unkn0wn'
     description = (
-        'Ancient Egypt is the world\'s leading Egyptology magazine, exploring the history, people and culture of the Nile Valley. '
+        "Ancient Egypt is the world's leading Egyptology magazine, exploring the history, people and culture of the Nile Valley. "
         'Now in a larger format with a fresh new design, AE brings you the latest news and discoveries, and feature articles covering '
         'more than 5000 years of Egyptian history. Published bimonthly.'
     )

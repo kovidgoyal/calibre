@@ -20,13 +20,14 @@ def generate_data():
     ans = []
     for x, limit in (('day', 8), ('mon', 13)):
         for attr in ('ab' + x, x):
-            ans.append((attr, tuple(map(nl, (getattr(locale, '%s_%d' % (attr.upper(), i)) for i in range(1, limit)))))),
+            ans.append((attr, tuple(map(nl, (getattr(locale, f'{attr.upper()}_{i}') for i in range(1, limit))))))
     for x in ('d_t_fmt', 'd_fmt', 't_fmt', 't_fmt_ampm', 'radixchar', 'thousep', 'yesexpr', 'noexpr'):
         ans.append((x, nl(getattr(locale, x.upper()))))
     return ans
 
+
 def main():
-    if sys.version_info[0] < 3:
+    if sys.version_info[0] < 3:  # noqa: UP036
         raise RuntimeError('Must be run using python 3.x')
     locale.setlocale(locale.LC_ALL, '')
     dest = os.path.abspath(__file__)

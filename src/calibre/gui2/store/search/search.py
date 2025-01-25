@@ -155,9 +155,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setColumnWidth(0, 85)
         total = total - 85
         # Title / Author
-        self.results_view.setColumnWidth(1,int(total*.40))
+        self.results_view.setColumnWidth(1, int(total*.40))
         # Price
-        self.results_view.setColumnWidth(2,int(total*.12))
+        self.results_view.setColumnWidth(2, int(total*.12))
         # DRM
         self.results_view.setColumnWidth(3, int(total*.15))
         # Store / Formats
@@ -181,7 +181,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Prevent hitting the enter key twice in quick succession causing
         # the search to start and stop
         self.search.setEnabled(False)
-        QTimer.singleShot(1000, lambda :self.search.setEnabled(True))
+        QTimer.singleShot(1000, lambda: self.search.setEnabled(True))
 
     def do_search(self):
         # Stop all running threads.
@@ -198,7 +198,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query.append('author2:"%s"' % str(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
             query.append(str(self.search_edit.text()))
-        query = " ".join(query)
+        query = ' '.join(query)
         if not query.strip():
             error_dialog(self, _('No query'),
                         _('You must enter a title, author or keyword to'
@@ -248,7 +248,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
-        query = re.sub(r'(^|\s|")(and|not|or|a|the|is|of)(\s|$|")', r' ', query)
+        query = re.sub(r'(^|\s|")(and|not|or|a|the|is|of)(\s|$|")', ' ', query)
         # Remove "
         query = query.replace('"', '')
         # Remove excess whitespace.
@@ -385,7 +385,7 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.results_view.model().add_result(res, store_plugin)
 
         if not self.search_pool.threads_running() and not self.results_view.model().has_results():
-            info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
+            info_dialog(self, _('No matches'), _("Couldn't find any books matching your query."), show=True, show_copy_button=False)
 
     def update_book_total(self, total):
         self.total.setText('%s' % total)

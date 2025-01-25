@@ -23,10 +23,10 @@ from polyglot.binary import as_base64_unicode
 from polyglot.queue import Empty, Queue
 
 HANDSHAKE_STR = (
-    "HTTP/1.1 101 Switching Protocols\r\n"
-    "Upgrade: WebSocket\r\n"
-    "Connection: Upgrade\r\n"
-    "Sec-WebSocket-Accept: %s\r\n\r\n"
+    'HTTP/1.1 101 Switching Protocols\r\n'
+    'Upgrade: WebSocket\r\n'
+    'Connection: Upgrade\r\n'
+    'Sec-WebSocket-Accept: %s\r\n\r\n'
 )
 GUID_STR = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 
@@ -172,8 +172,8 @@ class ReadFrame:  # {{{
 
 # }}}
 
-# Sending frames {{{
 
+# Sending frames {{{
 
 def create_frame(fin, opcode, payload, mask=None, rsv=0):
     if isinstance(payload, str):
@@ -525,11 +525,10 @@ class DummyHandler:
     def handle_websocket_close(self, connection_id):
         pass
 
+
 # Testing {{{
 
-# Run this file with calibre-debug and use wstest to run the Autobahn test
-# suite
-
+# Run this file with calibre-debug and use wstest to run the Autobahn test suite
 
 class EchoHandler:
 

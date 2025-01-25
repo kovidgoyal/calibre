@@ -36,9 +36,9 @@ class AfriqueXXIRecipe(BasicNewsRecipe):
     '''
 
     def default_cover(self, cover_file):
-        """
+        '''
         Crée une couverture personnalisée avec le logo
-        """
+        '''
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
@@ -54,7 +54,7 @@ class AfriqueXXIRecipe(BasicNewsRecipe):
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]
-            date_str = f"{weekday} {today.day} {month} {today.year}"
+            date_str = f'{weekday} {today.day} {month} {today.year}'
             edition = today.strftime('Édition de %Hh')
 
             # Image de base

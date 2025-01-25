@@ -22,7 +22,7 @@ class EchoMsk(BasicNewsRecipe):
 
     remove_tags_after = dict(name='article')
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='span', attrs={'class': 'sc-7b4cbb79-0 guzUFC'}),
         dict(name='div', attrs={'class': 'sc-f94c4ef5-0 frGiYu'}),
         dict(name='div', attrs={'class': 'sc-f94c4ef5-0 frGiYu'})

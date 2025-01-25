@@ -66,7 +66,7 @@ def serialize_string(key, val):
 
 
 def serialize_file_types(file_types):
-    key = b"FILE_TYPES"
+    key = b'FILE_TYPES'
     buf = [struct.pack('=B%dsH' % len(key), len(key), key, len(file_types))]
 
     def add(x):
@@ -347,7 +347,7 @@ def test(helper=HELPER):
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     echo = '\U0001f431 Hello world!'
     secret = os.urandom(32).replace(b'\0', b' ')
-    data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
+    data = serialize_string('PIPENAME', pipename) + serialize_string('ECHO', echo) + serialize_secret(secret)
     server = PipeServer(pipename)
     server.start()
     p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)

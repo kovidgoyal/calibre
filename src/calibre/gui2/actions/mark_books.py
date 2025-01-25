@@ -37,7 +37,7 @@ class MarkWithTextDialog(QDialog):
 
         history = textbox.all_items
         button_rows = min(4, len(history)-1)
-        for i in range(0, button_rows):
+        for i in range(button_rows):
             if i == 0:
                 layout.addWidget(QLabel(_('Recently used values:')), 0, 0, 1, 2)
             button = QPushButton()
@@ -149,7 +149,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         num = len(frozenset(marked_ids).intersection(db.new_api.all_book_ids()))
         text = _('Show marked book') if num == 1 else (_('Show marked books') + (' (%d)' % num))
         self.show_marked_action.setText(text)
-        counts = dict()
+        counts = {}
         for v in marked_ids.values():
             counts[v] = counts.get(v, 0) + 1
         labels = sorted(counts.keys(), key=sort_key)

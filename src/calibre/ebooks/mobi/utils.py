@@ -424,8 +424,8 @@ def mobify_image(data):
         data = png_data_to_gif_data(data)
     return data
 
-# Font records {{{
 
+# Font records {{{
 
 def read_font_record(data, extent=1040):
     '''
@@ -647,4 +647,4 @@ def convert_color_for_font_tag(val):
     def clamp(x):
         return min(x, max(0, x), 1)
     rgb = map(clamp, rgba[:3])
-    return '#' + ''.join(map(lambda x:'%02x' % int(x * 255), rgb))
+    return '#' + ''.join('%02x' % int(x * 255) for x in rgb)

@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-""" The GUI """
+''' The GUI '''
 
 import glob
 import os
@@ -302,7 +302,6 @@ QIcon.icon_as_png = icon_resource_manager.icon_as_png
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
 QIcon.cached_icon = icon_resource_manager.cached_icon
 
-
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
@@ -469,7 +468,7 @@ def create_defs():
     defs['books_autoscroll_time'] = 2.0
     defs['edit_metadata_single_use_2_cols_for_custom_fields'] = True
     defs['edit_metadata_elide_labels'] = True
-    defs['edit_metadata_elision_point'] = "right"
+    defs['edit_metadata_elision_point'] = 'right'
     defs['edit_metadata_bulk_cc_label_length'] = 25
     defs['edit_metadata_single_cc_label_length'] = 12
     defs['edit_metadata_templates_only_F2_on_booklist'] = False
@@ -623,7 +622,6 @@ def _config():  # {{{
 
 
 config = _config()
-
 # }}}
 
 QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope, config_dir)
@@ -1030,7 +1028,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
     if quality is None:
-        if format.upper() == "PNG":
+        if format.upper() == 'PNG':
             # For some reason on windows with Qt 5.6 using a quality of 90
             # generates invalid PNG data. Many other quality values work
             # but we use -1 for the default quality which is most likely to
@@ -1259,7 +1257,7 @@ class Application(QApplication):
             # Qt 5.10.1 on Linux resets the global font on first event loop tick.
             # So workaround it by setting the font once again in a timer.
             font_from_prefs = self.font()
-            QTimer.singleShot(0, lambda : QApplication.setFont(font_from_prefs))
+            QTimer.singleShot(0, lambda: QApplication.setFont(font_from_prefs))
         self.line_height = max(12, QFontMetrics(self.font()).lineSpacing())
 
         dl = QLocale(get_lang())
@@ -1551,7 +1549,7 @@ def open_url(qurl):
             # QDesktopServices::openUrl()
             ensure_app()
             cmd = ['xdg-open', qurl.toLocalFile() if qurl.isLocalFile() else qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)]
-            if isfrozen and QApplication.instance().platformName() == "wayland":
+            if isfrozen and QApplication.instance().platformName() == 'wayland':
                 # See https://bugreports.qt.io/browse/QTBUG-119438
                 run_cmd(cmd)
                 ok = True
@@ -1604,6 +1602,7 @@ def open_local_file(path):
 
 
 _ea_lock = Lock()
+
 
 def simple_excepthook(t, v, tb):
     return sys.__excepthook__(t, v, tb)
@@ -1693,7 +1692,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
         font = QApplication.instance().font()
     fm = (font if isinstance(font, QFontMetrics) else QFontMetrics(font))
     delta = 4
-    ellipsis = '\u2026'
+    ellipsis = '…'
 
     def remove_middle(x):
         mid = len(x) // 2

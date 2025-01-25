@@ -89,7 +89,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     outer['To'] = to
     outer['Subject'] = subject
     outer['Date'] = formatdate(localtime=True)
-    outer['Message-Id'] = f"<{uuid.uuid4()}@{get_msgid_domain(from_)}>"
+    outer['Message-Id'] = f'<{uuid.uuid4()}@{get_msgid_domain(from_)}>'
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:
@@ -341,7 +341,7 @@ def main(args=sys.argv):
 def config(defaults=None):
     from calibre.utils.config import Config, StringConfig
     desc = _('Control email delivery')
-    c = Config('smtp',desc) if defaults is None else StringConfig(defaults,desc)
+    c = Config('smtp', desc) if defaults is None else StringConfig(defaults, desc)
     c.add_opt('from_')
     c.add_opt('accounts', default={})
     c.add_opt('subjects', default={})

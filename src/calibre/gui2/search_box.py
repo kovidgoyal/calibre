@@ -66,7 +66,7 @@ class SearchLineEdit(QLineEdit):  # {{{
         if self.as_url is not None:
             url = self.as_url(self.text())
             if url:
-                menu.addAction(_('Copy search as URL'), lambda : QApplication.clipboard().setText(url))
+                menu.addAction(_('Copy search as URL'), lambda: QApplication.clipboard().setText(url))
         menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
         menu.exec(ev.globalPos())
 
@@ -363,9 +363,7 @@ class SearchBoxMixin:  # {{{
         self.search.clear()
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
-        shortcuts = list(
-                map(lambda x:str(x.toString(QKeySequence.SequenceFormat.PortableText)),
-                QKeySequence.keyBindings(QKeySequence.StandardKey.Find)))
+        shortcuts = [str(x.toString(QKeySequence.SequenceFormat.PortableText)) for x in QKeySequence.keyBindings(QKeySequence.StandardKey.Find)]
         shortcuts += ['/', 'Alt+S']
         self.keyboard.register_shortcut('start search', _('Start search'),
                 default_keys=shortcuts, action=self.action_focus_search)

@@ -20,13 +20,13 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
     language = 'de'
     encoding = 'UTF-8'
 
-    __author__ = 'Armin Geller' # 2013-02-05 V3
+    __author__ = 'Armin Geller'  # 2013-02-05 V3
 
     oldest_article = 14
     max_articles_per_feed = 50
     auto_cleanup = False
 
-    feeds =  [
+    feeds = [
               (u'Inhalt:', u'https://www.fluter.de/rss.xml')
              ]
 
@@ -38,6 +38,6 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
                     dict(name='h2', attrs={'class':'element-invisible'})
                   ]
 
-    extra_css =  '''
+    extra_css = '''
                  .field-group-format, .group_additional_info, .additional-info {display: inline-block; min-width: 8rem; text-align: center}
                  '''

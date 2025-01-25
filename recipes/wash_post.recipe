@@ -16,7 +16,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheWashingtonPost(BasicNewsRecipe):
     title = 'The Washington Post'
     __author__ = 'Darko Miletic, unkn0wn'
-    description = 'Leading source for news, video and opinion on politics, business, world and national news, science, travel, entertainment and more. Our local coverage includes reporting on education, crime, weather, traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing, entertainment information and restaurant reviews.'  # noqa
+    description = 'Leading source for news, video and opinion on politics, business, world and national news, science, travel, entertainment and more. Our local coverage includes reporting on education, crime, weather, traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing, entertainment information and restaurant reviews.'  # noqa: E501
     publisher = 'The Washington Post Company'
     category = 'news, politics, USA'
     oldest_article = 1.2
@@ -87,8 +87,8 @@ class TheWashingtonPost(BasicNewsRecipe):
 
         author = ''
         if 'credits' in data:
-            author = '<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) \
-                 + '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>'
+            author = ('<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) +
+                      '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>')
 
         body = ''
         for x in data['content_elements']:

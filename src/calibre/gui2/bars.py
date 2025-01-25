@@ -273,8 +273,8 @@ class ToolBar(QToolBar):  # {{{
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if md.hasFormat("application/calibre+from_library") or \
-           md.hasFormat("application/calibre+from_device"):
+        if md.hasFormat('application/calibre+from_library') or \
+           md.hasFormat('application/calibre+from_device'):
             event.setDropAction(Qt.DropAction.CopyAction)
             event.accept()
             return
@@ -292,8 +292,8 @@ class ToolBar(QToolBar):  # {{{
             w = self.widgetForAction(ac)
             if w is not None:
                 if (md.hasFormat(
-                    "application/calibre+from_library") or md.hasFormat(
-                    "application/calibre+from_device")) and \
+                    'application/calibre+from_library') or md.hasFormat(
+                    'application/calibre+from_device')) and \
                         w.geometry().contains(event.pos()) and \
                         isinstance(w, QToolButton) and not w.isChecked():
                     allowed = True
@@ -353,8 +353,8 @@ class MenuAction(QAction):  # {{{
         self.setText(self.clone.text())
 # }}}
 
-# MenuBar {{{
 
+# MenuBar {{{
 
 if ismacos:
     # On OS X we need special handling for the application global menu bar and
@@ -482,9 +482,9 @@ if ismacos:
                 self.edit_menu = QMenu()
                 self.edit_action = QAction(_('Edit'), self)
                 self.edit_action.setMenu(self.edit_menu)
-                ac(_('Copy'), QKeySequence.StandardKey.Copy),
-                ac(_('Paste'), QKeySequence.StandardKey.Paste),
-                ac(_('Select all'), QKeySequence.StandardKey.SelectAll),
+                ac(_('Copy'), QKeySequence.StandardKey.Copy)
+                ac(_('Paste'), QKeySequence.StandardKey.Paste)
+                ac(_('Select all'), QKeySequence.StandardKey.SelectAll)
                 mb.addAction(self.edit_action)
                 self.added_actions = [self.edit_action]
             else:

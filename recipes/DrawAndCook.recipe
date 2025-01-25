@@ -28,7 +28,7 @@ class DrawAndCook(BasicNewsRecipe):
     def parse_index(self):
         feeds = []
         for title, url in [
-            ("They Draw and Cook", "http://www.theydrawandcook.com/")
+            ('They Draw and Cook', 'http://www.theydrawandcook.com/')
         ]:
             articles = self.make_links(url)
             if articles:

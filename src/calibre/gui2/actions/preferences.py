@@ -46,7 +46,7 @@ class PreferencesAction(InterfaceAction):
     def initialization_complete(self):
         # Add the individual preferences to the menu.
         # First, sort them into the same order as shown in the preferences dialog
-        plugins = sorted([p for p in preferences_plugins()],
+        plugins = sorted(preferences_plugins(),
                          key=lambda p: p.category_order * 100 + p.name_order)
 
         pm = self.preferences_menu
@@ -64,7 +64,6 @@ class PreferencesAction(InterfaceAction):
                                     icon=QIcon.ic(p.icon), shortcut=None, shortcut_name=p.gui_name,
                                     triggered=partial(self.do_config, initial_plugin=(p.category, p.name),
                                                       close_after_initial=True))
-
 
     def get_plugins(self):
         from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, PluginUpdaterDialog

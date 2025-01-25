@@ -170,7 +170,7 @@ def render_note_line(line):
         yield prepare_string_for_xml(line)
         return
     pos = 0
-    for (s, e) in urls:
+    for s,e in urls:
         if s > pos:
             yield prepare_string_for_xml(line[pos:s])
         yield '<a href="{0}">{0}</a>'.format(prepare_string_for_xml(line[s:e], True))
@@ -226,7 +226,6 @@ class AnnotsResultsDelegate(ResultsDelegate):
             text = parts[0]
         return False, before, text, after, bool(result.get('annotation', {}).get('notes'))
 
-
 # }}}
 
 
@@ -269,7 +268,7 @@ def css_for_highlight_style(style):
     elif 'background-color' in style:
         ans = 'background-color: ' + style['background-color']
         if 'color' in style:
-            ans += '; color: ' + style["color"]
+            ans += '; color: ' + style['color']
     elif kind == 'decoration':
         which = style.get('which')
         if which is not None:

@@ -8,7 +8,7 @@ from struct import error, unpack
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.builtins import string_or_bytes
 
-""" Recognize image file formats and sizes based on their first few bytes."""
+''' Recognize image file formats and sizes based on their first few bytes.'''
 
 HSIZE = 120
 
@@ -70,7 +70,7 @@ def _identify(stream):
             # PNG
             s = head[16:24] if size >= 24 and head[12:16] == b'IHDR' else head[8:16]
             try:
-                width, height = unpack(b">LL", s)
+                width, height = unpack(b'>LL', s)
             except error:
                 return fmt, width, height
         elif fmt == 'jpeg':
@@ -85,7 +85,7 @@ def _identify(stream):
         elif fmt == 'gif':
             # GIF
             try:
-                width, height = unpack(b"<HH", head[6:10])
+                width, height = unpack(b'<HH', head[6:10])
             except error:
                 return fmt, width, height
         elif size >= 56 and fmt == 'jpeg2000':
@@ -111,9 +111,9 @@ def test(f):
 
 @test
 def jpeg(h):
-    """JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
+    '''JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
     the original code was failing with some jpegs that included ICC_PROFILE
-    data, for example: http://nationalpostnews.files.wordpress.com/2013/03/budget.jpeg?w=300&h=1571)"""
+    data, for example: http://nationalpostnews.files.wordpress.com/2013/03/budget.jpeg?w=300&h=1571)'''
     if h[6:10] in (b'JFIF', b'Exif'):
         return 'jpeg'
     if h[:2] == b'\xff\xd8':
@@ -169,20 +169,20 @@ def jpeg_dimensions(stream):
 
 @test
 def png(h):
-    if h[:8] == b"\211PNG\r\n\032\n":
+    if h[:8] == b'\211PNG\r\n\032\n':
         return 'png'
 
 
 @test
 def gif(h):
-    """GIF ('87 and '89 variants)"""
+    '''GIF ('87 and '89 variants)'''
     if h[:6] in (b'GIF87a', b'GIF89a'):
         return 'gif'
 
 
 @test
 def tiff(h):
-    """TIFF (can be in Motorola or Intel byte order)"""
+    '''TIFF (can be in Motorola or Intel byte order)'''
     if h[:2] in (b'MM', b'II'):
         if h[2:4] == b'\xbc\x01':
             return 'jxr'
@@ -197,14 +197,14 @@ def webp(h):
 
 @test
 def rgb(h):
-    """SGI image library"""
+    '''SGI image library'''
     if h[:2] == b'\001\332':
         return 'rgb'
 
 
 @test
 def pbm(h):
-    """PBM (portable bitmap)"""
+    '''PBM (portable bitmap)'''
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'14' and h[2] in b' \t\n\r':
         return 'pbm'
@@ -212,7 +212,7 @@ def pbm(h):
 
 @test
 def pgm(h):
-    """PGM (portable graymap)"""
+    '''PGM (portable graymap)'''
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'25' and h[2] in b' \t\n\r':
         return 'pgm'
@@ -220,7 +220,7 @@ def pgm(h):
 
 @test
 def ppm(h):
-    """PPM (portable pixmap)"""
+    '''PPM (portable pixmap)'''
     if len(h) >= 3 and \
         h[0] == b'P' and h[1] in b'36' and h[2] in b' \t\n\r':
         return 'ppm'
@@ -228,14 +228,14 @@ def ppm(h):
 
 @test
 def rast(h):
-    """Sun raster file"""
+    '''Sun raster file'''
     if h[:4] == b'\x59\xA6\x6A\x95':
         return 'rast'
 
 
 @test
 def xbm(h):
-    """X bitmap (X10 or X11)"""
+    '''X bitmap (X10 or X11)'''
     s = b'#define '
     if h[:len(s)] == s:
         return 'xbm'

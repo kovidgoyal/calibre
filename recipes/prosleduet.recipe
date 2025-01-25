@@ -26,12 +26,12 @@ class ProSleduet(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'container'})
 
-    remove_tags =   [
+    remove_tags = [
         dict(name='div', attrs={'class': 'ya-share2 ya-share2_inited'})
         ]
 
     feeds = [
-#        ('\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u0435 \u0441\u043B\u0435\u0434\u0443\u0435\u0442', 'https://prosleduet.media/feed/'),
+        # ('\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u0435 \u0441\u043B\u0435\u0434\u0443\u0435\u0442', 'https://prosleduet.media/feed/'),
         ('\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://prosleduet.media/category/news/feed/'),
         ('\u041B\u044E\u0434\u0438', 'https://prosleduet.media/category/people/feed/'),
         ('\u0421\u044E\u0436\u0435\u0442\u044B', 'https://prosleduet.media/category/syuzhety/feed/'),

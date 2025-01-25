@@ -14,7 +14,7 @@ class AListApart (BasicNewsRecipe):
     __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
     title = u'A List Apart'
-    description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'  # noqa
+    description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'  # noqa: E501
     language = 'en'
     tags = 'web development, software'
     oldest_article = 120

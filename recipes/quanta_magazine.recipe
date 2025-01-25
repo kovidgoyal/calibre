@@ -7,25 +7,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Quanta(BasicNewsRecipe):
-    title = "Quanta Magazine"
+    title = 'Quanta Magazine'
     __author__ = 'lui1'
-    description = "Articles from the magazine. Please set to download weekly."
+    description = 'Articles from the magazine. Please set to download weekly.'
 
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'en'
     encoding = 'UTF-8'
-    publication_type = "blog"
-    cover_url = "https://d2r55xnwy6nx47.cloudfront.net/uploads/2017/05/logo.png"
+    publication_type = 'blog'
+    cover_url = 'https://d2r55xnwy6nx47.cloudfront.net/uploads/2017/05/logo.png'
 
     feeds = [
         ('Articles', 'https://api.quantamagazine.org/feed/'),
     ]
 
     keep_only_tags = [
-        dict(name="div", attrs={"id": "postBody"}),
+        dict(name='div', attrs={'id': 'postBody'}),
     ]
 
     remove_tags = [
-        dict(name="div", attrs={"class": "post__sidebar__content"}),
+        dict(name='div', attrs={'class': 'post__sidebar__content'}),
     ]

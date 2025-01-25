@@ -14,7 +14,7 @@ class newslaundry(BasicNewsRecipe):
     encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True
-    oldest_article = 7 # days
+    oldest_article = 7  # days
     resolve_internal_links = True
 
     ignore_duplicate_articles = {'url'}
@@ -34,5 +34,5 @@ class newslaundry(BasicNewsRecipe):
 
     def print_version(self, url):
         if 'hindi.newslaundry' in url:
-            self.abort_article('Skipping hindi article') # remove this line if you want hindi articles.
+            self.abort_article('Skipping hindi article')  # remove this line if you want hindi articles.
         return url

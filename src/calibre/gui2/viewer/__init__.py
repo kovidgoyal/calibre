@@ -56,7 +56,6 @@ def url_for_book_in_library():
     return ans
 
 
-
 class PerformanceMonitor:
 
     def __init__(self):

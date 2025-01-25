@@ -37,14 +37,14 @@ class WiredDailyNews(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
     publication_type = 'newsportal'
-    extra_css = """
+    extra_css = '''
         .entry-header{
                         text-transform: uppercase;
                         vertical-align: baseline;
                         display: inline;
                         }
         ul li{display: inline}
-    """
+    '''
 
     recipe_specific_options = {
         'days': {

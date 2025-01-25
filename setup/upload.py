@@ -28,8 +28,8 @@ if __name__ == '__main__':
 from setup import Command, __appname__, __version__, installer_names
 
 DOWNLOADS = '/srv/main/downloads'
-HTML2LRF = "calibre/ebooks/lrf/html/demo"
-TXT2LRF = "src/calibre/ebooks/lrf/txt/demo"
+HTML2LRF = 'calibre/ebooks/lrf/html/demo'
+TXT2LRF = 'src/calibre/ebooks/lrf/txt/demo'
 STAGING_HOST = 'download.calibre-ebook.com'
 BACKUP_HOST = 'code.calibre-ebook.com'
 STAGING_USER = BACKUP_USER = 'root'
@@ -72,9 +72,9 @@ def upload_signatures():
                 f.write(fingerprint)
             scp.append(sha512)
         for srv in 'code main'.split():
-            check_call(scp + ['{0}:/srv/{0}/signatures/'.format(srv)])
+            check_call(scp + [f'{srv}:/srv/{srv}/signatures/'])
             check_call(
-                ['ssh', srv, 'chown', '-R', 'http:http', '/srv/%s/signatures' % srv]
+                ['ssh', srv, 'chown', '-R', 'http:http', f'/srv/{srv}/signatures']
             )
     finally:
         shutil.rmtree(tdir)
@@ -97,7 +97,6 @@ class ReUpload(Command):  # {{{
         for x in installer_names():
             if os.path.exists(x):
                 os.remove(x)
-
 
 # }}}
 
@@ -159,7 +158,6 @@ def run_remote_upload(args):
         'python', 'hosting.py'
     ] + args)
 
-
 # }}}
 
 
@@ -199,9 +197,7 @@ def upload_to_fosshub():
     entries = []
     for fname in files:
         desc = installer_description(fname)
-        url = 'https://download.calibre-ebook.com/{}/{}'.format(
-            __version__, os.path.basename(fname)
-        )
+        url = f'https://download.calibre-ebook.com/{__version__}/{os.path.basename(fname)}'
         entries.append({
             'fileUrl': url,
             'type': desc,
@@ -315,7 +311,6 @@ class UploadInstallers(Command):  # {{{
     def upload_to_calibre(self):
         run_remote_upload(calibre_cmdline(__version__))
 
-
 # }}}
 
 
@@ -357,7 +352,6 @@ class UploadUserManual(Command):  # {{{
         )
         check_call('ssh main chown -R http:http /srv/manual'.split())
 
-
 # }}}
 
 
@@ -367,23 +361,22 @@ class UploadDemo(Command):  # {{{
 
     def run(self, opts):
         check_call(
-            '''ebook-convert %s/demo.html /tmp/html2lrf.lrf '''
+            '''ebook-convert {}/demo.html /tmp/html2lrf.lrf '''
             '''--title='Demonstration of html2lrf' --authors='Kovid Goyal' '''
             '''--header '''
             '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
             '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
-            '''''' % self.j(self.SRC, HTML2LRF),
+            ''''''.format(self.j(self.SRC, HTML2LRF)),
             shell=True
         )
 
         lrf = self.j(self.SRC, 'calibre', 'ebooks', 'lrf', 'html', 'demo')
         check_call(
-            'cd %s && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf' % lrf,
+            f'cd {lrf} && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf',
             shell=True
         )
 
         check_call(f'scp /tmp/html-demo.zip main:{DOWNLOADS}/', shell=True)
-
 
 # }}}
 
@@ -409,9 +402,7 @@ class UploadToServer(Command):  # {{{
             ('ssh code /apps/update-calibre-version.py ' + __version__).split()
         )
         check_call((
-            'ssh main /usr/local/bin/update-calibre-version.py %s && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'
-            % __version__
+            f'ssh main /usr/local/bin/update-calibre-version.py {__version__} && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'
         ).split())
-
 
 # }}}

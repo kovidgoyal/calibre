@@ -163,8 +163,8 @@ def show_report(changed, title, report, parent, show_current_diff):
     if d.show_changes:
         show_current_diff(allow_revert=True)
 
-# CompressImages {{{
 
+# CompressImages {{{
 
 class ImageItemDelegate(QStyledItemDelegate):
 
@@ -275,7 +275,6 @@ class CompressImages(Dialog):
         if not self.webp.enable_lossy.isChecked():
             return None
         return self.webp.jq.value()
-
 
 
 class CompressImagesProgress(Dialog):

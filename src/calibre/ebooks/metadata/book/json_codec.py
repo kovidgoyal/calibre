@@ -21,7 +21,7 @@ from polyglot.builtins import as_bytes, iteritems, itervalues
 
 def string_to_datetime(src):
     from calibre.utils.iso8601 import parse_iso8601
-    if src != "None":
+    if src != 'None':
         try:
             return parse_iso8601(src)
         except Exception:
@@ -32,13 +32,13 @@ def string_to_datetime(src):
 def datetime_to_string(dateval):
     from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
     if dateval is None:
-        return "None"
+        return 'None'
     if not isinstance(dateval, datetime):
         dateval = datetime.combine(dateval, time())
     if hasattr(dateval, 'tzinfo') and dateval.tzinfo is None:
         dateval = dateval.replace(tzinfo=local_tz)
     if dateval <= UNDEFINED_DATE:
-        return "None"
+        return 'None'
     return isoformat(dateval)
 
 
@@ -96,20 +96,20 @@ def encode_is_multiple(fm):
         if dt == 'composite':
             fm['is_multiple'] = ','
         else:
-            fm['is_multiple'] =  '|'
+            fm['is_multiple'] = '|'
     else:
         fm['is_multiple'] = None
         fm['is_multiple2'] = {}
 
 
 def decode_is_multiple(fm):
-    im = fm.get('is_multiple2',  None)
+    im = fm.get('is_multiple2', None)
     if im:
         fm['is_multiple'] = im
         del fm['is_multiple2']
     else:
         # Must migrate the is_multiple from char to dict
-        im = fm.get('is_multiple',  {})
+        im = fm.get('is_multiple', {})
         if im:
             dt = fm.get('datatype', None)
             if dt == 'composite':

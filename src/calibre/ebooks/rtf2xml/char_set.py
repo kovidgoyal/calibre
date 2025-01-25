@@ -1,4 +1,4 @@
-char_set = """
+char_set = '''
 <ms_standard>
 NON-BREAKING HYPEHN:_:8290:&#x2011;
 LEFT DOUBLE QUOTATION MARK:ldblquote:8220:&#x201C;
@@ -16705,4 +16705,4 @@ HORIZONTAL TABULATION:TAB :9:&#x0009;
 NULL:\xef:0:&#xnull;
 </single_set>
 </unused>
-"""
+'''

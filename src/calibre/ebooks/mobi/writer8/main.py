@@ -241,7 +241,7 @@ class KF8Writer:
                 p = svg.getparent()
                 pos = p.index(svg)
                 img = etree.Element(XHTML('img'),
-                        src="kindle:flow:%s?mime=image/svg+xml"%to_ref(idx))
+                        src='kindle:flow:%s?mime=image/svg+xml'%to_ref(idx))
                 p.insert(pos, img)
                 extract(svg)
 

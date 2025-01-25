@@ -8,6 +8,7 @@ from threading import Lock
 
 overseers = []
 
+
 def cleanup_overseers():
     browsers = tuple(filter(None, (x() for x in overseers)))
     del overseers[:]

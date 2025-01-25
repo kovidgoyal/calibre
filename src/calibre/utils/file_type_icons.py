@@ -52,6 +52,3 @@ EXT_MAP = {
     'docx'    : 'docx',
     'opml'    : 'opml',
 }
-
-
-

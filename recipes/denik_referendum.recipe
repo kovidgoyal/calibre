@@ -25,4 +25,4 @@ class denikReferendumRecipe(BasicNewsRecipe):
     remove_tags = [dict(name='div', attrs={'class': ['box boxLine', 'box noprint', 'box']}),
                    dict(name='h3', attrs={'class': 'head alt'})]
 
-    keep_only_tags = [dict(name='div',   attrs={'id': ['content']})]
+    keep_only_tags = [dict(name='div', attrs={'id': ['content']})]

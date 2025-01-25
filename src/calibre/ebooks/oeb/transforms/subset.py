@@ -123,7 +123,6 @@ def elem_style(style_rules, cls, inherited_style):
 
 
 class SubsetFonts:
-
     '''
     Subset all embedded fonts. Must be run after CSS flattening, as it requires
     CSS normalization and flattening to work.
@@ -302,7 +301,7 @@ class SubsetFonts:
 
     def find_chars(self, elem, style):
         ans = set()
-        transform = lambda x: x  # noqa
+        transform = lambda x: x  # noqa: E731
         tt = style.get('text-transform')
         if tt:
             if tt in ('uppercase', 'capitalize'):

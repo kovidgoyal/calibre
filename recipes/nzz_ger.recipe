@@ -97,7 +97,6 @@ class Nzz(BasicNewsRecipe):
 
         return url
 
-
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)

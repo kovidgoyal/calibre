@@ -133,7 +133,7 @@ class Charset(list):
         super().__init__()
         self.standard_charset = offset if offset in {0, 1, 2} else None
         if is_CID and self.standard_charset is not None:
-            raise ValueError("CID font must not use a standard charset")
+            raise ValueError('CID font must not use a standard charset')
         if self.standard_charset is None:
             self.append(b'.notdef')
             fmt = unpack_from(b'>B', raw, offset)[0]

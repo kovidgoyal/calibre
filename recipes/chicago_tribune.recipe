@@ -67,7 +67,6 @@ class ChicagoTribune(BasicNewsRecipe):
             feeds.append({'title': title, 'url': url})
         return [('Articles', feeds)]
 
-
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']

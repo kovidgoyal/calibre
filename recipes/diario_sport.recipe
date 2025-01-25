@@ -20,7 +20,7 @@ class DiarioSport(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'id': ['noticiasMedio']})]
 
     remove_tags = [
-        dict(name=['object', 'link', 'script', 'ul']), dict(name='div', attrs={'id': ['scrAdSense', 'herramientas2', 'participacion', 'participacion2', 'bloque1resultados', 'bloque2resultados', 'cont_vinyetesAnt', 'tinta', 'noticiasSuperior', 'cintillopublicidad2']}), dict( name='p', attrs={'class': ['masinformacion', 'hora']}), dict(name='a', attrs={'class': ["'link'"]}), dict(name='div', attrs={'class': ['addthis_toolbox addthis_default_style', 'firma', 'pretitularnoticia']}), dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']})  # noqa
+        dict(name=['object', 'link', 'script', 'ul']), dict(name='div', attrs={'id': ['scrAdSense', 'herramientas2', 'participacion', 'participacion2', 'bloque1resultados', 'bloque2resultados', 'cont_vinyetesAnt', 'tinta', 'noticiasSuperior', 'cintillopublicidad2']}), dict(name='p', attrs={'class': ['masinformacion', 'hora']}), dict(name='a', attrs={'class': ["'link'"]}), dict(name='div', attrs={'class': ['addthis_toolbox addthis_default_style', 'firma', 'pretitularnoticia']}), dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']})  # noqa: E501
     ]
 
     def preprocess_html(self, soup):

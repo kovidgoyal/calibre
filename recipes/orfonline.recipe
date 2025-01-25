@@ -20,7 +20,6 @@ class ORF(BasicNewsRecipe):
     masthead_url = 'https://www.orfonline.org/wp-content/uploads/2015/09/Logo_ORF_JPEG.jpg'
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url', 'title'}
-    remove_empty_feeds = True
     oldest_article = 7
     simultaneous_downloads = 1
 

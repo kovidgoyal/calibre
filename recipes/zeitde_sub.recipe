@@ -7,9 +7,9 @@ __copyright__ = '2010, Steffen Siebert <calibre at steffensiebert.de>'
 __docformat__ = 'restructuredtext de'
 __version__ = '1.5'
 
-"""
+'''
 Die Zeit EPUB
-"""
+'''
 
 import io
 import os
@@ -48,7 +48,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
     preprocess_regexps = [
         # filtering for correct dashes ("Gedankenstrich" and "bis")
-        (re.compile(u' (-|\u2212)(?=[ ,])'), lambda match: u' \u2013'),
+        (re.compile(u' (-|\u2212)(?=[ ,])'), lambda match: u' \u2013'),  # noqa: RUF039
         (re.compile(r'(?<=\d)-(?=\d)'), lambda match: u'\u2013'),  # number-number
         (re.compile(r'(?<=\d,)-(?= ?\u20AC)'), lambda match: u'\u2013'),  # ,- Euro
         # fix the number dash number dash for the title image that was broken
@@ -123,16 +123,16 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         (re.compile(r'\.\.\. (?=[\u00AB\u2039,])'), lambda match: '...'),
         # fix missing spaces between numbers and any sort of units, possibly
         # with dot
-        (re.compile(r'(?<=\d)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),  # noqa
-        (re.compile(r'(?<=\d\.)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),  # noqa
+        (re.compile(r'(?<=\d)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),  # noqa: E501
+        (re.compile(r'(?<=\d\.)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),  # noqa: E501
         # fix wrong spaces
         # at beginning of paragraphs
         (re.compile(
             r'(?<=<p class="absatz">[A-ZÄÖÜ]) (?=[a-zäöü\-])'), lambda match: ''),
         # before closing quotation
-        (re.compile(u' \u00AB'), lambda match: u'\u00AB '),
+        (re.compile(u' \u00AB'), lambda match: u'\u00AB '),  # noqa: RUF039
         # after opening quotation
-        (re.compile(u'\u00BB '), lambda match: u' \u00BB'),
+        (re.compile(u'\u00BB '), lambda match: u' \u00BB'),  # noqa: RUF039
         # filtering for spaces in large numbers for better readability
         # end of the number with some character following
         (re.compile(r'(?<=\d\d)(?=\d\d\d[ ,;\)<\?!-])'),
@@ -151,25 +151,25 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         # filtering for unicode characters that are missing on the Kindle,
         # try to replace them with meaningful work-arounds
         # subscript-0
-        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 40%;">0</span>'),
+        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 40%;">0</span>'),  # noqa: RUF039
         # subscript-1
-        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 40%;">1</span>'),
+        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 40%;">1</span>'),  # noqa: RUF039
         # subscript-2
-        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 40%;">2</span>'),
+        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 40%;">2</span>'),  # noqa: RUF039
         # subscript-3
-        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 40%;">3</span>'),
+        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 40%;">3</span>'),  # noqa: RUF039
         # subscript-4
-        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 40%;">4</span>'),
+        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 40%;">4</span>'),  # noqa: RUF039
         # subscript-5
-        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 40%;">5</span>'),
+        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 40%;">5</span>'),  # noqa: RUF039
         # subscript-6
-        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 40%;">6</span>'),
+        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 40%;">6</span>'),  # noqa: RUF039
         # subscript-7
-        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 40%;">7</span>'),
+        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 40%;">7</span>'),  # noqa: RUF039
         # subscript-8
-        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 40%;">8</span>'),
+        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 40%;">8</span>'),  # noqa: RUF039
         # subscript-9
-        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 40%;">9</span>'),
+        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 40%;">9</span>'),  # noqa: RUF039
         # always chance CO2
         (re.compile(r'CO2'), lambda match: 'CO<span style="font-size: 40%;">2</span>'),  # CO2
         # remove *** paragraphs
@@ -184,7 +184,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     ]
 
     def build_index(self):
-        url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
+        url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
         browser = self.get_browser()
 
         # new login process
@@ -199,12 +199,10 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         #    '.*E-Paper.*'))  # used to be '.*Abo-Bereich.*'
         # browser.follow_link(abolink)
         # find page for latest issue
-        latestlink = browser.find_link(text_regex=re.compile(
-            '.*ZUR AKTUELLEN AUSGABE.*'))
+        latestlink = browser.find_link(text_regex=re.compile(r'.*ZUR AKTUELLEN AUSGABE.*'))
         browser.follow_link(latestlink)
         # now find the correct file, we will still use the ePub file
-        epublink = browser.find_link(text_regex=re.compile(
-            '.*EPUB F.*R E-READER LADEN.*'))  # change from '.*EPUB FÜR E-READER LADEN.*' in May 2017
+        epublink = browser.find_link(text_regex=re.compile(r'.*EPUB F.*R E-READER LADEN.*'))  # change from '.*EPUB FÜR E-READER LADEN.*' in May 2017
         response = browser.follow_link(epublink)
         self.report_progress(1, _('next step'))
 
@@ -226,7 +224,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
         # doing regular expression filtering
         for path in walk('.'):
-            (shortname, extension) = os.path.splitext(path)
+            shortname, extension = os.path.splitext(path)
             if extension.lower() in ('.html', '.htm', '.xhtml'):
                 with open(path, 'r+b') as f:
                     raw = f.read()
@@ -241,7 +239,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.report_progress(
             0, _('trying to download cover image (titlepage)'))
         self.download_cover()
-        self.conversion_options["cover"] = self.cover_path
+        self.conversion_options['cover'] = self.cover_path
 
         return index
 
@@ -250,7 +248,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.log.warning('Downloading cover')
         try:
             self.log.warning('Trying PDF-based cover')
-            url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
+            url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
             browser = self.get_browser()
 
             # new login process
@@ -265,12 +263,10 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             #    '.*Abo-Bereich.*'))
             # browser.follow_link(abolink)
             # find page for latest issue
-            latestlink = browser.find_link(text_regex=re.compile(
-                '.*ZUR AKTUELLEN AUSGABE.*'))
+            latestlink = browser.find_link(text_regex=re.compile(r'.*ZUR AKTUELLEN AUSGABE.*'))
             browser.follow_link(latestlink)
             # actual cover search
-            pdflink = browser.find_link(text_regex=re.compile(
-                '.*GESAMT-PDF LADEN.*'))
+            pdflink = browser.find_link(text_regex=re.compile(r'.*GESAMT-PDF LADEN.*'))
             cover_url = urlparse(pdflink.base_url)[0] + '://' + urlparse(pdflink.base_url)[1] + '' + (
                 urlparse(pdflink.url)[2]).replace('ePaper_', '').replace('.pdf', '_001.pdf')
             self.log.warning('PDF link found:')

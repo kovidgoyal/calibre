@@ -23,8 +23,8 @@ def attrs(*args, **kw):
         kw['class'] = ' '.join(args)
     return kw
 
-# Regular templates
 
+# Regular templates
 
 class Template:
 
@@ -106,7 +106,7 @@ class IndexTemplate(Template):
                     href='feed_%d/index.html'%i)), id='feed_%d'%i)
                 ul.append(li)
         div = DIV(
-                PT(IMG(src=masthead,alt="masthead"),style='text-align:center'),
+                PT(IMG(src=masthead, alt='masthead'), style='text-align:center'),
                 PT(date, style='text-align:right'),
                 ul,
                 attrs(rescale=100))
@@ -132,7 +132,7 @@ class FeedTemplate(Template):
             link = A(_('Next section'), href='../feed_%d/index.html'%(f+1))
             link.tail = ' | '
             navbar.append(link)
-        link = A(_('Main menu'), href="../index.html")
+        link = A(_('Main menu'), href='../index.html')
         link.tail = ' | '
         navbar.append(link)
         if f > 0:
@@ -249,11 +249,11 @@ class TouchscreenIndexTemplate(Template):
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
         self.IS_HTML = False
         date = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-        masthead_p = etree.Element("p")
-        masthead_p.set("style","text-align:center")
-        masthead_img = etree.Element("img")
-        masthead_img.set("src",masthead)
-        masthead_img.set("alt","masthead")
+        masthead_p = etree.Element('p')
+        masthead_p.set('style','text-align:center')
+        masthead_img = etree.Element('img')
+        masthead_img.set('src',masthead)
+        masthead_img.set('alt','masthead')
         masthead_p.append(masthead_img)
 
         head = HEAD(TITLE(title))
@@ -262,12 +262,12 @@ class TouchscreenIndexTemplate(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
 
-        toc = TABLE(attrs('toc'),width="100%",border="0",cellpadding="3px")
+        toc = TABLE(attrs('toc'),width='100%',border='0',cellpadding='3px')
         for i, feed in enumerate(feeds):
             if len(feed):
                 tr = TR()
                 tr.append(TD(attrs(rescale=120), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD('%s' % len(feed.articles), style="text-align:right"))
+                tr.append(TD('%s' % len(feed.articles), style='text-align:right'))
                 toc.append(tr)
         div = DIV(
                 masthead_p,
@@ -284,7 +284,7 @@ class TouchscreenFeedTemplate(Template):
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
         from calibre.utils.cleantext import clean_xml_chars
 
-        def trim_title(title,clip=18):
+        def trim_title(title, clip=18):
             if len(title)>clip:
                 tokens = title.split(' ')
                 new_title_tokens = []
@@ -317,7 +317,7 @@ class TouchscreenFeedTemplate(Template):
         navbar_tr.append(TD(attrs('feed_prev'),link))
 
         # Up to Sections
-        link = A(_('Sections'), href="../index.html")
+        link = A(_('Sections'), href='../index.html')
         navbar_tr.append(TD(attrs('feed_up'),link))
 
         # Next Section
@@ -330,7 +330,7 @@ class TouchscreenFeedTemplate(Template):
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t
         bottom_navbar = copy.copy(navbar_t)
-        # print "\n%s\n" % etree.tostring(navbar_t, pretty_print=True)
+        # print('\n%s\n' % etree.tostring(navbar_t, pretty_print=True))
 
         # Build the page
         head = HEAD(TITLE(feed.title))
@@ -423,6 +423,6 @@ class TouchscreenNavBarTemplate(Template):
         navbar_tr.append(TD(attrs('article_next'),link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
-        # print "\n%s\n" % etree.tostring(navbar, pretty_print=True)
+        # print('\n%s\n' % etree.tostring(navbar, pretty_print=True))
 
         self.root = HTML(head, BODY(navbar))

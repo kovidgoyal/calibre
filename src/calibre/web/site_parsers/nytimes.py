@@ -270,8 +270,8 @@ def extract_html(soup, url):
     if '/interactive/' in url:
         return (
             '<html><body><p><em>'
-            + 'This is an interactive article, which is supposed to be read in a browser.'
-            + '</p></em></body></html>'
+            'This is an interactive article, which is supposed to be read in a browser.'
+            '</p></em></body></html>'
         )
     script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
     script = str(script)

@@ -71,14 +71,12 @@ class HNWithCommentsLink(BasicNewsRecipe):
         for td in main.findAll('td', 'default'):
             comhead = td.find('span', 'comhead')
             if comhead:
-                com_title = u'<h4>' + \
-                    self.tag_to_string(comhead).replace(
-                        ' | link', '') + u'</h4>'
+                com_title = u'<h4>' + self.tag_to_string(comhead).replace(' | link', '') + u'</h4>'
                 comhead.parent.extract()
                 br = td.find('br')
                 if br:
                     br.extract()
-                reply = td.find('a', attrs={'href': re.compile('^reply?')})
+                reply = td.find('a', attrs={'href': re.compile(r'^reply?')})
                 if reply:
                     reply.parent.extract()
                 td.name = 'div'
@@ -86,8 +84,8 @@ class HNWithCommentsLink(BasicNewsRecipe):
                 td['style'] = 'padding-left: ' + str(indent_width) + 'px'
                 comments = comments + com_title + td.prettify()
 
-        body = u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link + \
-            u'</a><br/><strong>' + subtext + u'</strong></p>' + title_content + u'<br/>'
+        body = (u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link +
+                u'</a><br/><strong>' + subtext + u'</strong></p>' + title_content + u'<br/>')
         body = body + comments
         return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
 
@@ -114,8 +112,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
             else:
                 content = self.get_readable_content(url)
 
-        # content = re.sub(r'</body>\s*</html>\s*$', '', content) + \
-        #    article.summary + '</body></html>'
+        # content = re.sub(r'</body>\s*</html>\s*$', '', content) + article.summary + '</body></html>'
 
         if not isinstance(content, bytes):
             content = content.encode('utf-8')
@@ -136,7 +133,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         article.text_summary = self.prettyify_url(article.url)
         article.summary = article.text_summary
 
-#    def parse_index(self):
-#        feeds = []
-#        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
-#        return feeds
+    # def parse_index(self):
+    #     feeds = []
+    #     feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
+    #     return feeds

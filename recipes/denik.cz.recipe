@@ -23,8 +23,8 @@ class ceskyDenikRecipe(BasicNewsRecipe):
     cover_url = 'http://g.denik.cz/images/loga/denik.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = """
-                            """
+    extra_css             = '''
+                            '''
 
     remove_tags = []
     keep_only_tags = [dict(name='div', attrs={'class': 'content'})]

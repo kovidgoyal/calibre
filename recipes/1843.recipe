@@ -17,6 +17,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 use_archive = True
 
+
 def E(parent, name, text='', **attrs):
     ans = parent.makeelement(name, **attrs)
     ans.text = text
@@ -60,8 +61,8 @@ if use_archive:
         data = json.loads(raw)
         body = root.xpath('//body')[0]
         article = E(body, 'article')
-        E(article, 'div', data['flyTitle'] , style='color: red; font-size:small; font-weight:bold;')
-        E(article, 'h1', data['title'], title=safe_dict(data, "url", "canonical") or '')
+        E(article, 'div', data['flyTitle'], style='color: red; font-size:small; font-weight:bold;')
+        E(article, 'h1', data['title'], title=safe_dict(data, 'url', 'canonical') or '')
         E(article, 'div', data['rubric'], style='font-style: italic; color:#202020;')
         try:
             date = data['dateModified']
@@ -95,7 +96,7 @@ else:
         for child in tuple(body):
             body.remove(child)
         article = E(body, 'article')
-        E(article, 'div', replace_entities(data['subheadline']) , style='color: red; font-size:small; font-weight:bold;')
+        E(article, 'div', replace_entities(data['subheadline']), style='color: red; font-size:small; font-weight:bold;')
         E(article, 'h1', replace_entities(data['headline']))
         E(article, 'div', replace_entities(data['description']), style='font-style: italic; color:#202020;')
         if data['dateline'] is None:
@@ -157,7 +158,7 @@ class Economist(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
-    __author__ = "Kovid Goyal"
+    __author__ = 'Kovid Goyal'
     description = (
         'Published since September 1843 to take part in “a severe contest between intelligence, which presses forward, and '
         'an unworthy, timid ignorance obstructing our progress.”'
@@ -170,7 +171,7 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={
                 'class': [
                     'dblClkTrk', 'ec-article-info', 'share_inline_header',
@@ -224,13 +225,13 @@ class Economist(BasicNewsRecipe):
         def parse_index(self):
             # return self.economist_test_article()
             soup = self.index_to_soup('https://www.economist.com/hidden-content/1843magazine-hub')
-            script_tag = soup.find("script", id="__NEXT_DATA__")
+            script_tag = soup.find('script', id='__NEXT_DATA__')
             if script_tag is None:
                 raise ValueError('No script tag with JSON data found in the weeklyedition archive')
             data = json.loads(script_tag.string)
             content_id = data['props']['pageProps']['content'][0]['tegID'].split('/')[-1]
             query = {
-                'query': 'query HubsDataQuery($id:String!$size:Int!){canonical(ref:$id){id headline description url{canonical __typename}image{ident{url{canonical __typename}width height __typename}__typename}text(mode:"hub" format:"json")hasPart(size:$size){parts{id title:headline isPartOf{context{title:headline __typename}__typename}hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}__typename}}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa
+                'query': 'query HubsDataQuery($id:String!$size:Int!){canonical(ref:$id){id headline description url{canonical __typename}image{ident{url{canonical __typename}width height __typename}__typename}text(mode:"hub" format:"json")hasPart(size:$size){parts{id title:headline isPartOf{context{title:headline __typename}__typename}hasPart{parts{...ArticleFragment isPartOf{id context{title:headline flyTitle:subheadline rubric:description dateline image{...ImageMainFragment ...ImagePromoFragment __typename}__typename}__typename}__typename}__typename}__typename}__typename}__typename}}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa: E501
                 'operationName': 'HubsDataQuery',
                 'variables': '{{"id":"/content/{}","size":40}}'.format(content_id),
             }
@@ -247,22 +248,22 @@ class Economist(BasicNewsRecipe):
             self.description = data['description']
 
             feeds_dict = defaultdict(list)
-            for part in safe_dict(data, "hasPart", "parts"):
+            for part in safe_dict(data, 'hasPart', 'parts'):
                 section = part['title']
                 self.log(section)
-                for art in safe_dict(part, "hasPart", "parts"):
-                    title = safe_dict(art, "title")
-                    desc = safe_dict(art, "rubric") or ''
-                    sub = safe_dict(art, "flyTitle") or ''
+                for art in safe_dict(part, 'hasPart', 'parts'):
+                    title = safe_dict(art, 'title')
+                    desc = safe_dict(art, 'rubric') or ''
+                    sub = safe_dict(art, 'flyTitle') or ''
                     if sub and section != sub:
                         desc = sub + ' :: ' + desc
                     pt = PersistentTemporaryFile('.html')
                     pt.write(json.dumps(art).encode('utf-8'))
                     pt.close()
                     url = 'file:///' + pt.name
-                    feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                    feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
                     self.log('\t', title, '\n\t\t', desc)
-            return [(section, articles) for section, articles in feeds_dict.items()]
+            return list(feeds_dict.items())
 
         def populate_article_metadata(self, article, soup, first):
             article.url = soup.find('h1')['title']
@@ -273,7 +274,7 @@ class Economist(BasicNewsRecipe):
                     'economist.com/cdn-cgi/image/width=600,quality=80,format=auto/')
             return soup
 
-    else: # Load articles from individual article pages {{{
+    else:  # Load articles from individual article pages {{{
 
         def __init__(self, *args, **kwargs):
             BasicNewsRecipe.__init__(self, *args, **kwargs)
@@ -311,26 +312,26 @@ class Economist(BasicNewsRecipe):
             return ans
 
         def economist_parse_index(self, soup):
-            script_tag = soup.find("script", id="__NEXT_DATA__")
+            script_tag = soup.find('script', id='__NEXT_DATA__')
             if script_tag is not None:
                 data = json.loads(script_tag.string)
                 # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-                self.title = safe_dict(data, "props", "pageProps", "content", "headline")
+                self.title = safe_dict(data, 'props', 'pageProps', 'content', 'headline')
                 # self.cover_url = 'https://mma.prnewswire.com/media/2275620/The_Economist_The_World_Ahead_2024.jpg?w=600'
 
                 feeds = []
 
-                for coll in safe_dict(data, "props", "pageProps", "content", "collections"):
-                    section = safe_dict(coll, "headline") or ''
+                for coll in safe_dict(data, 'props', 'pageProps', 'content', 'collections'):
+                    section = safe_dict(coll, 'headline') or ''
                     self.log(section)
                     articles = []
-                    for part in safe_dict(coll, "hasPart", "parts"):
-                        title = safe_dict(part, "headline") or ''
-                        url = safe_dict(part, "url", "canonical") or ''
+                    for part in safe_dict(coll, 'hasPart', 'parts'):
+                        title = safe_dict(part, 'headline') or ''
+                        url = safe_dict(part, 'url', 'canonical') or ''
                         if not title or not url:
                             continue
-                        desc = safe_dict(part, "description") or ''
-                        sub = safe_dict(part, "subheadline") or ''
+                        desc = safe_dict(part, 'description') or ''
+                        sub = safe_dict(part, 'subheadline') or ''
                         if sub:
                             desc = sub + ' :: ' + desc
                         self.log('\t', title, '\n\t', desc, '\n\t\t', url)
@@ -340,7 +341,6 @@ class Economist(BasicNewsRecipe):
                 return feeds
 
         # }}}
-
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
@@ -358,9 +358,9 @@ class Economist(BasicNewsRecipe):
                     cleanup_html_article(root)
 
         if '/interactive/' in url:
-            return '<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>' \
-                        + 'This article is supposed to be read in a browser' \
-                            + '</em></article></body></html>'
+            return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
 
         for div in root.xpath('//div[@class="lazy-image"]'):
             noscript = list(div.iter('noscript'))

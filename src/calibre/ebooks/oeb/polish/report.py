@@ -270,7 +270,7 @@ def css_data(container, book_locale, result_data, *args):
                     html_sheets[name].append(
                         css_rules(name, parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules, style.sourceline - 1))
 
-    rule_map = defaultdict(lambda : defaultdict(list))
+    rule_map = defaultdict(lambda: defaultdict(list))
 
     def rules_in_sheet(sheet):
         for rule in sheet:
@@ -323,11 +323,11 @@ def css_data(container, book_locale, result_data, *args):
 
         return (MatchLocation(tag_text(elem), elem.sourceline) for elem in matches)
 
-    class_map = defaultdict(lambda : defaultdict(list))
+    class_map = defaultdict(lambda: defaultdict(list))
 
     for name, inline_sheets in iteritems(html_sheets):
         root = container.parsed(name)
-        cmap = defaultdict(lambda : defaultdict(list))
+        cmap = defaultdict(lambda: defaultdict(list))
         for elem in root.xpath('//*[@class]'):
             for cls in elem.get('class', '').split():
                 cmap[cls][elem] = []

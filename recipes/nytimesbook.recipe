@@ -24,7 +24,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
 
-    extra_css = """
+    extra_css = '''
         .byl, .time { font-size:small; color:#202020; }
         .cap { font-size:small; text-align:center; }
         .cred { font-style:italic; font-size:small; }
@@ -32,7 +32,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         .sc { font-variant: small-caps; }
         .lbl { font-size:small; color:#404040; }
         img { display:block; margin:0 auto; }
-    """
+    '''
 
     articles_are_obfuscated = use_wayback_machine
 

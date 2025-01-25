@@ -197,8 +197,8 @@ class DBPrefs(dict):  # {{{
             return json.load(f, object_hook=from_json)
 # }}}
 
-# Extra collators {{{
 
+# Extra collators {{{
 
 def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
@@ -226,8 +226,8 @@ def icu_collator(s1, s2):
 
 # }}}
 
-# Unused aggregators {{{
 
+# Unused aggregators {{{
 
 def Concatenate(sep=','):
     '''String concatenation aggregator for sqlite'''
@@ -697,7 +697,7 @@ class DB:
         self.deleted_fields = []
         with self.conn:
             # Delete previously marked custom columns
-            for (num, label) in self.conn.get(
+            for num, label in self.conn.get(
                     'SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
                 table, lt = self.custom_table_names(num)
                 self.execute('''\
@@ -1516,8 +1516,8 @@ class DB:
     @property
     def custom_tables(self):
         return {x[0] for x in self.conn.get(
-            'SELECT name FROM sqlite_master WHERE type=\'table\' AND '
-            '(name GLOB \'custom_column_*\' OR name GLOB \'books_custom_column_*\')')}
+            "SELECT name FROM sqlite_master WHERE type='table' AND "
+            "(name GLOB 'custom_column_*' OR name GLOB 'books_custom_column_*')")}
 
     @classmethod
     def exists_at(cls, path):
@@ -2399,7 +2399,7 @@ class DB:
                 text = "snippet({fts_table}, 0, ?, ?, '…', {snippet_size})".format(
                         fts_table=fts_table, snippet_size=max(1, min(snippet_size, 64)))
             else:
-                text = f"highlight({fts_table}, 0, ?, ?)"
+                text = f'highlight({fts_table}, 0, ?, ?)'
             data.append(highlight_start)
             data.append(highlight_end)
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
@@ -2455,9 +2455,7 @@ class DB:
         ts = now.isoformat()
         timestamp = (now - EPOCH).total_seconds()
         for annot_id in annot_ids:
-            for (raw_annot_data, annot_type) in self.execute(
-                'SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)
-            ):
+            for raw_annot_data, annot_type in self.execute('SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)):
                 try:
                     annot_data = json.loads(raw_annot_data)
                 except Exception:

@@ -25,18 +25,18 @@ from calibre.utils.resources import get_path as P
 class Sfnt:
 
     TABLE_MAP = {
-        b'head' : HeadTable,
-        b'hhea' : HorizontalHeader,
-        b'vhea' : VerticalHeader,
-        b'maxp' : MaxpTable,
-        b'loca' : LocaTable,
-        b'glyf' : GlyfTable,
-        b'cmap' : CmapTable,
-        b'CFF ' : CFFTable,
-        b'kern' : KernTable,
-        b'GSUB' : GSUBTable,
-        b'OS/2' : OS2Table,
-        b'post' : PostTable,
+        b'head': HeadTable,
+        b'hhea': HorizontalHeader,
+        b'vhea': VerticalHeader,
+        b'maxp': MaxpTable,
+        b'loca': LocaTable,
+        b'glyf': GlyfTable,
+        b'cmap': CmapTable,
+        b'CFF ': CFFTable,
+        b'kern': KernTable,
+        b'GSUB': GSUBTable,
+        b'OS/2': OS2Table,
+        b'post': PostTable,
     }
 
     def __init__(self, raw_or_get_table):
@@ -87,7 +87,7 @@ class Sfnt:
         #     b'hmtx', b'LTSH', b'VDMX', b'hdmx', b'cmap', b'fpgm', b'prep',
         #     b'cvt ', b'loca', b'glyf', b'CFF ', b'kern', b'name', b'post',
         #     b'gasp', b'PCLT', b'DSIG'))}
-        # keys.sort(key=lambda x:order.get(x, 1000))
+        # keys.sort(key=lambda x: order.get(x, 1000))
         # for x in keys:
         #     yield x
 

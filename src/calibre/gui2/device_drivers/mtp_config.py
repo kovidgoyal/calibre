@@ -219,8 +219,8 @@ class IgnoredDevices(QWidget):  # {{{
 
 # }}}
 
-# Rules {{{
 
+# Rules {{{
 
 class Rule(QWidget):
 
@@ -445,7 +445,7 @@ class MTPConfig(QTabWidget):
         bb.rejected.connect(d.reject)
         l.addWidget(bb)
         bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-        bb.clicked.connect(lambda :
+        bb.clicked.connect(lambda:
                 QApplication.clipboard().setText(v.toPlainText()))
         d.exec()
 

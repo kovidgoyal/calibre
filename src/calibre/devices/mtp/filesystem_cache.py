@@ -22,6 +22,7 @@ from calibre.utils.icu import lower, sort_key
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
+
 def convert_timestamp(md):
     try:
         if isinstance(md, tuple):
@@ -176,7 +177,7 @@ class FileOrFolder:
         line = '%s%s %s [id:%s %s]'%(prefix, c, self.name, self.object_id, data)
         prints(line, file=out)
         for c in (self.folders, self.files):
-            for e in sorted(c, key=lambda x:sort_key(x.name)):
+            for e in sorted(c, key=lambda x: sort_key(x.name)):
                 e.dump(prefix=prefix+'  ', out=out)
 
     def list(self, recurse=False):

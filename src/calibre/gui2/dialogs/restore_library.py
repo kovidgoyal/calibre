@@ -97,7 +97,7 @@ def restore_database(db, parent=None):
             _('Your list of books, with all their metadata is '
                 'stored in a single file, called a database. '
                 'In addition, metadata for each individual '
-                'book is stored in that books\' folder, as '
+                "book is stored in that books' folder, as "
                 'a backup.'
                 '<p>This operation will rebuild '
                 'the database from the individual book '

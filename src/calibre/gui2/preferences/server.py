@@ -69,7 +69,7 @@ if iswindows and not isportable:
 
     def startup_shortcut_path():
         startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
-        return os.path.join(startup_path, "calibre.lnk")
+        return os.path.join(startup_path, 'calibre.lnk')
 
     def create_shortcut(shortcut_path, target, description, *args):
         quoted_args = None
@@ -108,7 +108,6 @@ else:
 
 
 # Advanced {{{
-
 
 def init_opt(widget, opt, layout):
     widget.name, widget.default_val = opt.name, opt.default
@@ -210,7 +209,7 @@ class Path(QWidget):
         self.b = b = QToolButton(self)
         l.addWidget(b)
         b.setIcon(QIcon.ic('document_open.png'))
-        b.setToolTip(_("Browse for the file"))
+        b.setToolTip(_('Browse for the file'))
         b.clicked.connect(self.choose)
         init_opt(self, opt, layout)
 
@@ -446,11 +445,10 @@ class MainTab(QWidget):  # {{{
     def settings(self):
         return {'auth': self.opt_auth.isChecked(), 'port': self.opt_port.value()}
 
-
 # }}}
 
-# Users {{{
 
+# Users {{{
 
 class NewUser(QDialog):
 
@@ -789,7 +787,7 @@ class User(QWidget):
         else:
             m = _('{} is currently allowed access to all libraries')
             b = _('Restrict the &libraries {} can access').format(self.username)
-        self.restrict_button.setText(b),
+        self.restrict_button.setText(b)
         self.access_label.setText(m.format(username))
 
     def show_user(self, username=None, user_data=None):
@@ -899,7 +897,6 @@ class Users(QWidget):
 
     def display_user_data(self, username=None):
         self.user_display.show_user(username, self.user_data)
-
 
 # }}}
 

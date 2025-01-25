@@ -33,11 +33,11 @@ class Reuters(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'url', 'title'}
 
-    extra_css = """
+    extra_css = '''
         .label, .auth { font-size:small; color:#202020; }
         .figc { font-size:small; }
         img {display:block; margin:0 auto;}
-    """
+    '''
 
     recipe_specific_options = {
         'days': {
@@ -140,7 +140,7 @@ class Reuters(BasicNewsRecipe):
                 for y in x['templates']:
                     if 'author' in y['cid']:
                         body += '<p>'
-                        auths = [x for x in y.get('authors_names', [])]
+                        auths = list(y.get('authors_names', []))
                         if auths:
                             body += (
                                 '<div class="auth">' + 'By ' + ', '.join(auths) + '</div>'

@@ -11,8 +11,6 @@ class DeutscheWelle(BasicNewsRecipe):
     max_articles_per_feed = 200
     no_stylesheets = True
     remove_javascript = True
-    no_stylesheets = True
-    remove_javascript = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']

@@ -108,7 +108,7 @@ class Detect:
     def __init__(self, stream):
         self.stream = stream or sys.stdout
         self.is_binary = is_binary(self.stream)
-        self.isatty = getattr(self.stream, 'isatty', lambda : False)()
+        self.isatty = getattr(self.stream, 'isatty', lambda: False)()
         force_ansi = 'CALIBRE_FORCE_ANSI' in os.environ
         if not self.isatty and force_ansi:
             self.isatty = True
@@ -196,32 +196,29 @@ def windows_terminfo():
     from ctypes.wintypes import SHORT, WORD
 
     class COORD(Structure):
-
-        """struct in wincon.h"""
+        '''struct in wincon.h'''
         _fields_ = [
             ('X', SHORT),
             ('Y', SHORT),
         ]
 
     class SMALL_RECT(Structure):
-
-        """struct in wincon.h."""
+        '''struct in wincon.h.'''
         _fields_ = [
-            ("Left", SHORT),
-            ("Top", SHORT),
-            ("Right", SHORT),
-            ("Bottom", SHORT),
+            ('Left', SHORT),
+            ('Top', SHORT),
+            ('Right', SHORT),
+            ('Bottom', SHORT),
         ]
 
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-
-        """struct in wincon.h."""
+        '''struct in wincon.h.'''
         _fields_ = [
-            ("dwSize", COORD),
-            ("dwCursorPosition", COORD),
-            ("wAttributes", WORD),
-            ("srWindow", SMALL_RECT),
-            ("dwMaximumWindowSize", COORD),
+            ('dwSize', COORD),
+            ('dwCursorPosition', COORD),
+            ('wAttributes', WORD),
+            ('srWindow', SMALL_RECT),
+            ('dwMaximumWindowSize', COORD),
         ]
     csbi = CONSOLE_SCREEN_BUFFER_INFO()
     import msvcrt
@@ -286,7 +283,7 @@ def test():
     text = [colored(t, fg=t)+'. '+colored(t, fg=t, bold=True)+'.' for t in
             ('red', 'yellow', 'green', 'white', 'cyan', 'magenta', 'blue',)]
     s.write('\n'.join(text))
-    u = '\u041c\u0438\u0445\u0430\u0438\u043b fällen'
+    u = 'Михаил fällen'
     print()
     s.write(u)
     print()

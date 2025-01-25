@@ -15,7 +15,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     index = 'http://www.dobreprogramy.pl/'
     no_stylesheets = True
     language = 'pl'
-    extra_css = '.title {font-size:22px;}'
+    extra_css = '.title {font-size:22px;}, h1 { font-size:130% }'
     oldest_article = 8
     max_articles_per_feed = 100
     remove_attrs = ['style', 'width', 'height']
@@ -23,7 +23,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
         type(u'')(r'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>')), lambda match: '')]
     keep_only_tags = [dict(name='h1'), dict(
         attrs={'class': ['entry single']}), dict(id='phContent_divArticle')]
-    remove_tags = [dict(attrs={'class': ['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master', 'social nested-grid  grid-margin-px15-top clearfix no-mobile', 'page-info text-h4 font-heading grid-margin-px15-top color-annotation clearfix', 'series grid-margin-px30-top']}), dict(id='komentarze'), dict(id='phContent_ctl02_sBreadcrumb'), dict(name='iframe')]  # noqa
+    remove_tags = [dict(attrs={'class': ['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master', 'social nested-grid  grid-margin-px15-top clearfix no-mobile', 'page-info text-h4 font-heading grid-margin-px15-top color-annotation clearfix', 'series grid-margin-px30-top']}), dict(id='komentarze'), dict(id='phContent_ctl02_sBreadcrumb'), dict(name='iframe')]  # noqa: E501
 
     feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
              ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]
@@ -41,7 +41,3 @@ class Dobreprogramy_pl(BasicNewsRecipe):
             if not r.string:
                 r.extract()
         return soup
-
-    extra_css = '''
-        h1 { font-size:130% }
-    '''

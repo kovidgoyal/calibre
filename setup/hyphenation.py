@@ -84,7 +84,7 @@ class Hyphenation(ReVendor):
     NAME = 'hyphenation'
     TAR_NAME = 'hyphenation dictionaries'
     VERSION = 'master'
-    DOWNLOAD_URL = 'https://github.com/LibreOffice/dictionaries/archive/%s.tar.gz' % VERSION
+    DOWNLOAD_URL = f'https://github.com/LibreOffice/dictionaries/archive/{VERSION}.tar.gz'
     CAN_USE_SYSTEM_VERSION = False
 
     def run(self, opts):

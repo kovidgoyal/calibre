@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__license__ = "GPL v3"
+__license__ = 'GPL v3'
 
 import json
 from datetime import datetime
@@ -9,29 +9,29 @@ from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class ScientificAmerican(BasicNewsRecipe):
-    title = "Scientific American"
-    description = "Popular Science. Monthly magazine. Should be downloaded around the middle of each month."
-    category = "science"
-    __author__ = "Kovid Goyal"
+    title = 'Scientific American'
+    description = 'Popular Science. Monthly magazine. Should be downloaded around the middle of each month.'
+    category = 'science'
+    __author__ = 'Kovid Goyal'
     no_stylesheets = True
-    language = "en"
-    publisher = "Nature Publishing Group"
+    language = 'en'
+    publisher = 'Nature Publishing Group'
     remove_empty_feeds = True
     remove_javascript = True
-    timefmt = " [%B %Y]"
-    remove_attributes = ["height", "width"]
+    timefmt = ' [%B %Y]'
+    remove_attributes = ['height', 'width']
     masthead_url = (
-        "https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png"
+        'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
     )
-    extra_css = """
+    extra_css = '''
         [class^="article_dek-"] { font-style:italic; color:#202020; }
         [class^="article_authors-"] {font-size:small; color:#202020; }
         [class^="article__image-"], [class^="lead_image-"], .calibre-nuked-tag-figcaption { font-size:small; }
         [class^="bio-"] { font-size:small; color:#404040; }
         em, blockquote { color:#202020; }
-    """
+    '''
 
-    needs_subscription = "optional"
+    needs_subscription = 'optional'
 
     keep_only_tags = [
         prefixed_classes(
@@ -59,10 +59,10 @@ class ScientificAmerican(BasicNewsRecipe):
     def get_browser(self, *args):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
-            br.open("https://www.scientificamerican.com/account/login/")
-            br.select_form(predicate=lambda f: f.attrs.get("id") == "login")
-            br["emailAddress"] = self.username
-            br["password"] = self.password
+            br.open('https://www.scientificamerican.com/account/login/')
+            br.select_form(predicate=lambda f: f.attrs.get('id') == 'login')
+            br['emailAddress'] = self.username
+            br['password'] = self.password
             br.submit()
         return br
 
@@ -87,50 +87,50 @@ class ScientificAmerican(BasicNewsRecipe):
         if d and isinstance(d, str):
             issue = d
         else:
-            fp_soup = self.index_to_soup("https://www.scientificamerican.com")
+            fp_soup = self.index_to_soup('https://www.scientificamerican.com')
             curr_issue_link = fp_soup.find(**prefixed_classes('latest_issue_links-'))
             if not curr_issue_link:
-                self.abort_recipe_processing("Unable to find issue link")
-            issue = 'https://www.scientificamerican.com' + curr_issue_link.a["href"]
+                self.abort_recipe_processing('Unable to find issue link')
+            issue = 'https://www.scientificamerican.com' + curr_issue_link.a['href']
 
         soup = self.index_to_soup(issue)
-        script = soup.find("script", id="__DATA__")
+        script = soup.find('script', id='__DATA__')
         if not script:
-            self.abort_recipe_processing("Unable to find script")
+            self.abort_recipe_processing('Unable to find script')
 
-        JSON = script.contents[0].split('JSON.parse(`')[1].replace("\\\\", "\\")
+        JSON = script.contents[0].split('JSON.parse(`')[1].replace('\\\\', '\\')
         data = json.JSONDecoder().raw_decode(JSON)[0]
         issue_info = (
             data
-            .get("initialData", {})
-            .get("issueData", {})
+            .get('initialData', {})
+            .get('issueData', {})
         )
         if not issue_info:
-            self.abort_recipe_processing("Unable to find issue info")
+            self.abort_recipe_processing('Unable to find issue info')
 
-        self.cover_url = issue_info["image_url"] + "?w=800"
+        self.cover_url = issue_info['image_url'] + '?w=800'
 
-        edition_date = datetime.strptime(issue_info["issue_date"], "%Y-%m-%d")
-        self.timefmt = f" [{edition_date:%B %Y}]"
+        edition_date = datetime.strptime(issue_info['issue_date'], '%Y-%m-%d')
+        self.timefmt = f' [{edition_date:%B %Y}]'
 
         feeds = {}
-        for section in issue_info.get("article_previews", {}):
-            for article in issue_info.get("article_previews", {}).get(section, []):
-                self.log('\t', article["title"])
+        for section in issue_info.get('article_previews', {}):
+            for article in issue_info.get('article_previews', {}).get(section, []):
+                self.log('\t', article['title'])
                 if section.startswith('featur'):
                     feed_name = section.capitalize()
                 else:
-                    feed_name = article["category"]
+                    feed_name = article['category']
                 if feed_name not in feeds:
                     feeds[feed_name] = []
                 feeds[feed_name].append(
                     {
-                        "title": article["title"],
-                        "url": urljoin(
-                            "https://www.scientificamerican.com/article/",
-                            article["slug"],
+                        'title': article['title'],
+                        'url': urljoin(
+                            'https://www.scientificamerican.com/article/',
+                            article['slug'],
                         ),
-                        "description": article["summary"],
+                        'description': article['summary'],
                     }
                 )
         sorted_feeds = dict(sorted(feeds.items(), key=lambda x: (not x[0].startswith('Featur'), x[0])))

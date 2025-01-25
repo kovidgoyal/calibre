@@ -50,15 +50,18 @@ def itaiji_init(self):
             if self._itaijidict is None:
                 self._itaijidict = pickle.loads(dictdata(Configurations.jisyo_itaiji))
 
+
 def kanwa_init(self):
     if self._jisyo_table is None:
         with self._lock:
             if self._jisyo_table is None:
                 self._jisyo_table = pickle.loads(dictdata(Configurations.jisyo_kanwa))
 
+
 Jisyo.__init__ = jisyo_init
 Itaiji.__init__ = itaiji_init
 Kanwa.__init__ = kanwa_init
+
 
 class Jadecoder(Unidecoder):
 
@@ -70,21 +73,21 @@ class Jadecoder(Unidecoder):
         # words. Sigh.
         # https://codeberg.org/miurahr/pykakasi/issues/172
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            warnings.simplefilter('ignore')
             self.kakasi = kakasi()
-            self.kakasi.setMode("H","a") # Hiragana to ascii, default: no conversion
-            self.kakasi.setMode("K","a") # Katakana to ascii, default: no conversion
-            self.kakasi.setMode("J","a") # Japanese to ascii, default: no conversion
-            self.kakasi.setMode("r","Hepburn") # default: use Hepburn Roman table
-            self.kakasi.setMode("s", True) # add space, default: no separator
-            self.kakasi.setMode("C", True) # capitalize, default: no capitalize
+            self.kakasi.setMode('H','a')  # Hiragana to ascii, default: no conversion
+            self.kakasi.setMode('K','a')  # Katakana to ascii, default: no conversion
+            self.kakasi.setMode('J','a')  # Japanese to ascii, default: no conversion
+            self.kakasi.setMode('r','Hepburn')  # default: use Hepburn Roman table
+            self.kakasi.setMode('s', True)  # add space, default: no separator
+            self.kakasi.setMode('C', True)  # capitalize, default: no capitalize
             self.conv = self.kakasi.getConverter()
 
     def decode(self, text):
         try:
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
+                warnings.simplefilter('ignore')
                 text = self.conv.do(text)
         except Exception:
             pass
-        return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
+        return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)

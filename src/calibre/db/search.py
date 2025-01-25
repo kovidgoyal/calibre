@@ -28,8 +28,8 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 ACCENT_MATCH   = 3
 
-# Utils {{{
 
+# Utils {{{
 
 def _matchkind(query, case_sensitive=False):
     matchkind = CONTAINS_MATCH
@@ -416,7 +416,7 @@ class SavedSearchQueries:  # {{{
             self._db = weakref.ref(db)
         except TypeError:
             # db could be None
-            self._db = lambda : None
+            self._db = lambda: None
         self.load_from_db()
 
     def load_from_db(self):
@@ -657,7 +657,7 @@ class Parser(SearchQueryParser):  # {{{
 
         if location == 'template':
             try:
-                template, sep, query = regex.split('#@#:([tdnb]):', query, flags=regex.IGNORECASE)
+                template, sep, query = regex.split(r'#@#:([tdnb]):', query, flags=regex.IGNORECASE)
                 if sep:
                     sep = sep.lower()
                 else:

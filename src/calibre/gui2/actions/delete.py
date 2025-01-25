@@ -438,7 +438,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
             try:
                 view.model().delete_books_by_id(to_delete_ids)
             except OSError as err:
-                err.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
+                err.locking_violation_msg = _("Could not change on-disk location of this book's files.")
                 raise
             self.library_ids_deleted2(to_delete_ids, next_id=next_id, can_undo=True)
         else:

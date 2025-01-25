@@ -36,4 +36,4 @@ class Hankyoreh21(BasicNewsRecipe):
 
     def get_article_url(self, article):
         org_url = BasicNewsRecipe.get_article_url(self, article)
-        return "http://h21.hani.co.kr" + org_url if org_url[0] == '/' else org_url
+        return 'http://h21.hani.co.kr' + org_url if org_url[0] == '/' else org_url

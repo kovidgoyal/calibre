@@ -187,7 +187,7 @@ class ContentTest(LibraryBaseTest):
             s = BytesIO(content)
             s.name = filename
             mi = get_metadata(s, stream_type='txt')
-            ae(data,  {'title': mi.title, 'book_id': data['book_id'], 'authors': mi.authors, 'languages': mi.languages, 'id': '1', 'filename': filename})
+            ae(data, {'title': mi.title, 'book_id': data['book_id'], 'authors': mi.authors, 'languages': mi.languages, 'id': '1', 'filename': filename})
             r, q = make_request(conn, '/get/txt/{}'.format(data['book_id']), username='12', password='test', prefix='')
             ae(r.status, OK)
             ae(q, content)

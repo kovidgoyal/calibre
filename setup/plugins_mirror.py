@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 # Imports {{{
 import argparse
 import ast
@@ -62,7 +61,7 @@ socket.setdefaulttimeout(30)
 
 
 def read(url, get_info=False):  # {{{
-    if url.startswith("file://"):
+    if url.startswith('file://'):
         return urlopen(url).read()
     opener = build_opener()
     opener.addheaders = [
@@ -151,8 +150,8 @@ def load_plugins_index():
         raise
     return json.loads(bz2.decompress(raw))
 
-# Get metadata from plugin zip file {{{
 
+# Get metadata from plugin zip file {{{
 
 def convert_node(fields, x, names={}, import_data=None):
     name = x.__class__.__name__
@@ -222,7 +221,7 @@ def get_import_data(name, mod, zf, names):
             return module
         raise ValueError(f'Failed to find name: {name!r} in module: {mod!r}')
     else:
-        raise ValueError('Failed to find module: %r' % mod)
+        raise ValueError(f'Failed to find module: {mod!r}')
 
 
 def parse_metadata(raw, namelist, zf):
@@ -327,7 +326,7 @@ def parse_plugin(raw, names, zf):
 
 def get_plugin_init(zf):
     metadata = None
-    names = {x.decode('utf-8') if isinstance(x, bytes) else x : x for x in zf.namelist()}
+    names = {x.decode('utf-8') if isinstance(x, bytes) else x: x for x in zf.namelist()}
     inits = [x for x in names if x.rpartition('/')[-1] == '__init__.py']
     inits.sort(key=lambda x:x.count('/'))
     if inits and inits[0] == '__init__.py':
@@ -357,8 +356,8 @@ def get_plugin_info(raw_zip):
                     return json.loads(res.stdout)
             raise
 
-
 # }}}
+
 
 def update_plugin_from_entry(plugin, entry):
     plugin['index_name'] = entry.name
@@ -372,14 +371,14 @@ def fetch_plugin(old_index, entry):
     raw = read(entry.url).decode('utf-8', 'replace')
     url, name = parse_plugin_zip_url(raw)
     if url is None:
-        raise ValueError('Failed to find zip file URL for entry: %s' % repr(entry))
+        raise ValueError(f'Failed to find zip file URL for entry: {entry!r}')
     plugin = lm_map.get(entry.thread_id, None)
 
     if plugin is not None:
         # Previously downloaded plugin
         lm = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6])
         request = Request(url)
-        request.get_method = lambda : 'HEAD'
+        request.get_method = lambda: 'HEAD'
         with closing(urlopen(request)) as response:
             info = response.info()
         slm = datetime(*parsedate(info.get('Last-Modified'))[:6])
@@ -392,7 +391,7 @@ def fetch_plugin(old_index, entry):
     slm = datetime(*parsedate(info.get('Last-Modified'))[:6])
     plugin = get_plugin_info(raw)
     plugin['last_modified'] = slm.isoformat()
-    plugin['file'] = 'staging_%s.zip' % entry.thread_id
+    plugin['file'] = f'staging_{entry.thread_id}.zip'
     plugin['size'] = len(raw)
     plugin['original_url'] = url
     update_plugin_from_entry(plugin, entry)
@@ -456,32 +455,32 @@ def fetch_plugins(old_index):
 
 
 def plugin_to_index(plugin, count):
-    title = '<h3><img src="plugin-icon.png"><a href={} title="Plugin forum thread">{}</a></h3>'.format(  # noqa
+    title = '<h3><img src="plugin-icon.png"><a href={} title="Plugin forum thread">{}</a></h3>'.format(
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
-        'Version: <b>%s</b>' % escape('.'.join(map(str, plugin['version']))),
-        'Released: <b>%s</b>' % escape(released),
-        'Author: %s' % escape(plugin['author']),
-        'calibre: %s' % escape('.'.join(map(str, plugin['minimum_calibre_version']))),
-        'Platforms: %s' % escape(', '.join(sorted(plugin['supported_platforms']) or ['all'])),
+        'Version: <b>{}</b>'.format(escape('.'.join(map(str, plugin['version'])))),
+        'Released: <b>{}</b>'.format(escape(released)),
+        'Author: {}'.format(escape(plugin['author'])),
+        'calibre: {}'.format(escape('.'.join(map(str, plugin['minimum_calibre_version'])))),
+        'Platforms: {}'.format(escape(', '.join(sorted(plugin['supported_platforms']) or ['all']))),
     ]
     if plugin['uninstall']:
-        details.append('Uninstall: %s' % escape(', '.join(plugin['uninstall'])))
+        details.append('Uninstall: {}'.format(escape(', '.join(plugin['uninstall']))))
     if plugin['donate']:
-        details.append('<a href=%s title="Donate">Donate</a>' % quoteattr(plugin['donate']))
+        details.append('<a href={} title="Donate">Donate</a>'.format(quoteattr(plugin['donate'])))
     block = []
     for li in details:
         if li.startswith('calibre:'):
             block.append('<br>')
-        block.append('<li>%s</li>' % li)
-    block = '<ul>%s</ul>' % ('\n'.join(block))
-    downloads = ('\xa0<span class="download-count">[%d total downloads]</span>' % count) if count else ''
+        block.append(f'<li>{li}</li>')
+    block = '<ul>{}</ul>'.format('\n'.join(block))
+    downloads = (f'\xa0<span class="download-count">[{count} total downloads]</span>') if count else ''
     zipfile = '<div class="end"><a href={} title="Download plugin" download={}>Download plugin \u2193</a>{}</div>'.format(
         quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''
     if desc:
-        desc = '<p>%s</p>' % desc
+        desc = f'<p>{desc}</p>'
     return f'{title}\n{desc}\n{block}\n{zipfile}\n\n'
 
 
@@ -520,7 +519,7 @@ h1 { text-align: center }
 <div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
 %s
 </body>
-</html>''' % ('\n'.join(plugins))
+</html>''' % ('\n'.join(plugins))  # noqa: UP031
     raw = index.encode('utf-8')
     try:
         with open('index.html', 'rb') as f:
@@ -554,7 +553,7 @@ h1 { text-align: center }
 </table>
 </body>
 </html>
-    ''' % ('\n'.join(pstats))
+    ''' % ('\n'.join(pstats))  # noqa: UP031
     raw = stats.encode('utf-8')
     try:
         with open('stats.html', 'rb') as f:
@@ -706,7 +705,6 @@ def test_parse():  # {{{
         if new_url != full_url:
             print(f'new url ({aname}): {new_url} != {full_url} for plugin at: {url}')
             raise SystemExit(1)
-
 # }}}
 
 
@@ -722,7 +720,7 @@ class HelloWorld(FileTypePlugin):
     name                = _('name') # Name of the plugin
     description         = {1, 2}
     supported_platforms = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
-    author              = u'Acme Inc.' # The author of this plugin
+    author              = 'Acme Inc.' # The author of this plugin
     version             = {1:'a', 'b':2}
     file_types          = set(['epub', 'mobi']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
@@ -740,7 +738,6 @@ class HelloWorld(FileTypePlugin):
         zf.writestr('very/ver.py', b'MV = (0, 7, 53)')
         zf.writestr('__init__.py', b'from xxx import yyy\nfrom very.lovely import HelloWorld')
     assert get_plugin_info(buf.getvalue()) == vals
-
 # }}}
 
 

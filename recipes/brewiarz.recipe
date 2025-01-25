@@ -5,7 +5,6 @@ from __future__ import print_function
 __license__   = 'GPL v3'
 
 import datetime
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -23,40 +22,39 @@ class brewiarz(BasicNewsRecipe):
     next_days = 1
 
     def parse_index(self):
-        dec2rom_dict = {"01": "i", "02": "ii", "03": "iii", "04": "iv",
-                        "05": "v", "06": "vi", "07": "vii", "08": "viii",
-                        "09": "ix", "10": "x", "11": "xi", "12": "xii"}
+        dec2rom_dict = {'01': 'i', '02': 'ii', '03': 'iii', '04': 'iv',
+                        '05': 'v', '06': 'vi', '07': 'vii', '08': 'viii',
+                        '09': 'ix', '10': 'x', '11': 'xi', '12': 'xii'}
 
-        weekday_dict = {"Sunday": "Niedziela", "Monday": "Poniedziałek", "Tuesday": "Wtorek",
-                        "Wednesday": "Środa", "Thursday": "Czwartek", "Friday": "Piątek", "Saturday": "Sobota"}
+        weekday_dict = {'Sunday': 'Niedziela', 'Monday': 'Poniedziałek', 'Tuesday': 'Wtorek',
+                        'Wednesday': 'Środa', 'Thursday': 'Czwartek', 'Friday': 'Piątek', 'Saturday': 'Sobota'}
 
         now = datetime.datetime.now()
 
         feeds = []
-        for i in range(0, self.next_days):
+        for i in range(self.next_days):
             url_date = now + datetime.timedelta(days=i)
-            url_date_month = url_date.strftime("%m")
+            url_date_month = url_date.strftime('%m')
             url_date_month_roman = dec2rom_dict[url_date_month]
-            url_date_day = url_date.strftime("%d")
-            url_date_year = url_date.strftime("%Y")[2:]
-            url_date_weekday = url_date.strftime("%A")
+            url_date_day = url_date.strftime('%d')
+            url_date_year = url_date.strftime('%Y')[2:]
+            url_date_weekday = url_date.strftime('%A')
             url_date_weekday_pl = weekday_dict[url_date_weekday]
 
-            url = "http://brewiarz.pl/" + url_date_month_roman + "_" + \
-                url_date_year + "/" + url_date_day + url_date_month + "/index.php3"
+            url = ('http://brewiarz.pl/' + url_date_month_roman + '_' +
+                   url_date_year + '/' + url_date_day + url_date_month + '/index.php3')
             articles = self.parse_pages(url)
             if articles:
-                title = url_date_weekday_pl + " " + url_date_day + \
-                    "." + url_date_month + "." + url_date_year
+                title = (url_date_weekday_pl + ' ' + url_date_day +
+                         '.' + url_date_month + '.' + url_date_year)
                 feeds.append((title, articles))
             else:
                 sectors = self.get_sectors(url)
                 for subpage in sectors:
-                    title = url_date_weekday_pl + " " + url_date_day + "." + \
-                        url_date_month + "." + url_date_year + " - " + subpage.string
-                    url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + \
-                        "/" + url_date_day + url_date_month + \
-                        "/" + subpage['href']
+                    title = (url_date_weekday_pl + ' ' + url_date_day + '.' +
+                             url_date_month + '.' + url_date_year + ' - ' + subpage.string)
+                    url = ('http://brewiarz.pl/' + url_date_month_roman + '_' + url_date_year +
+                           '/' + url_date_day + url_date_month + '/' + subpage['href'])
                     print(url)
                     articles = self.parse_pages(url)
                     if articles:
@@ -91,9 +89,8 @@ class brewiarz(BasicNewsRecipe):
                     sublinks = ol.findAll(name='a')
                     for sublink in sublinks:
                         link_title = self.tag_to_string(
-                            link) + " - " + self.tag_to_string(sublink)
-                        link_url_print = re.sub(
-                            'php3', 'php3?kr=_druk&wr=lg&', sublink['href'])
+                            link) + ' - ' + self.tag_to_string(sublink)
+                        link_url_print = sublink['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
@@ -102,8 +99,7 @@ class brewiarz(BasicNewsRecipe):
                         continue
                     else:
                         link_title = self.tag_to_string(link)
-                        link_url_print = re.sub(
-                            'php3', 'php3?kr=_druk&wr=lg&', link['href'])
+                        link_url_print = link['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
@@ -145,7 +141,7 @@ class brewiarz(BasicNewsRecipe):
                     if x == tag:
                         break
                 else:
-                    print("Can't find", tag, "in", tag.parent)
+                    print("Can't find", tag, 'in', tag.parent)
                     continue
                 for r in reversed(tag.contents):
                     tag.parent.insert(i, r)

@@ -17,6 +17,7 @@ def get_story(story):
         for x in story['story-elements']:
             yield from get_story(x)
 
+
 def img(img):
     yield '<p>'
     if 'image-s3-key' in img:
@@ -24,6 +25,7 @@ def img(img):
     if 'title' in img:
         yield '<div class="cap">' + img['title'] + '</div>'
     yield '</p>'
+
 
 class himal(BasicNewsRecipe):
     title = 'Himal Southasian'

@@ -60,7 +60,7 @@ class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 cover_url = ''.join(data.xpath('.//div[@class="img-wrapper"]/a/img/@src'))
-                title =  ''.join(data.xpath('.//div[@class="img-wrapper"]/a/img/@alt')).strip()
+                title = ''.join(data.xpath('.//div[@class="img-wrapper"]/a/img/@alt')).strip()
                 author = ''.join(data.xpath('.//a[@class="author"]/text()'))
                 price = ''.join(data.xpath('.//div[@class="type-wrapper"]/ul/li[child::span[text()="eBook"]]/a/text()'))
                 format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))

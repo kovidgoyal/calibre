@@ -177,7 +177,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             converted_func, extra_job_args=[], rows_are_ids=False):
         for func, args, desc, fmt, id, temp_files in jobs:
             func, _, parts = func.partition(':')
-            parts = {x for x in parts.split(';')}
+            parts = set(parts.split(';'))
             input_file = args[0]
             input_fmt = os.path.splitext(input_file)[1]
             core_usage = 1

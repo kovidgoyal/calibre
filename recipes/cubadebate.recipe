@@ -21,10 +21,10 @@ class CubaDebate(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'http://www.cubadebate.cu/wp-content/themes/cubadebate/images/logo.gif'
     publication_type = 'newsportal'
-    extra_css             = """
+    extra_css             = '''
                                #BlogTitle{font-size: xx-large; font-weight: bold}
                                body{font-family: Verdana, Arial, Tahoma, sans-serif}
-                            """
+                            '''
 
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher

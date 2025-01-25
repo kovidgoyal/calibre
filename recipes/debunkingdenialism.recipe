@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Bellingcat(BasicNewsRecipe):
     title = 'Debunking Denialism'
     __author__ = 'bugmen00t'
-    description = 'Debunking Denialism is a website dedicated to the refutation of pseudoscience and denialism by applying scientific skepticism and defending evidence-based science. Fighting pseudoscience and quackery with reason and evidence.'  # noqa
+    description = 'Debunking Denialism is a website dedicated to the refutation of pseudoscience and denialism by applying scientific skepticism and defending evidence-based science. Fighting pseudoscience and quackery with reason and evidence.'  # noqa: E501
     publisher = 'Debunking Denialism'
     category = 'blog'
     cover_url = u'https://i0.wp.com/debunkingdenialism.com/wp-content/uploads/2017/06/cropped-newestblavatar.jpg'

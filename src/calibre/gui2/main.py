@@ -92,7 +92,7 @@ def find_portable_library():
 
     if len(lib) > 74:
         error_dialog(None, _('Path too long'),
-            _("Path to Calibre Portable (%s) "
+            _('Path to Calibre Portable (%s) '
                 'too long. It must be less than 59 characters.')%base, show=True)
         raise AbortInit()
 
@@ -433,7 +433,7 @@ def run_gui_(opts, args, app, gui_debug=None):
             winutil.prepare_for_restart()
             with open(debugfile, 'r+b') as f:
                 raw = f.read()
-                raw = re.sub(b'(?<!\r)\n', b'\r\n', raw)
+                raw = re.sub(br'(?<!\r)\n', br'\r\n', raw)
                 f.seek(0)
                 f.truncate()
                 f.write(raw)

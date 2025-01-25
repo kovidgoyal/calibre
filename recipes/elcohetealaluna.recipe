@@ -28,12 +28,12 @@ class elcohetealaluna(BasicNewsRecipe):
     compress_news_images = True
     masthead_url         = 'https://www.elcohetealaluna.com/wp-content/uploads/2018/06/logo-menu.png'
 
-    extra_css            = """
+    extra_css            = '''
         body{font-family: Georgia, Times, "Times New Roman", serif}
         h1,h2,.post-author-name{font-family: Oswald, sans-serif}
         h2{color: gray}
         img{margin-top:1em; margin-bottom: 1em; display:block}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

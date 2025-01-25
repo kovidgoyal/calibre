@@ -26,8 +26,8 @@ def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
 def find_vswhere():
     for which in (CSIDL_PROGRAM_FILESX86, CSIDL_PROGRAM_FILES):
         root = get_program_files_location(which)
-        vswhere = os.path.join(root, "Microsoft Visual Studio", "Installer",
-                               "vswhere.exe")
+        vswhere = os.path.join(root, 'Microsoft Visual Studio', 'Installer',
+                               'vswhere.exe')
         if os.path.exists(vswhere):
             return vswhere
     raise SystemExit('Could not find vswhere.exe')
@@ -41,24 +41,24 @@ def get_output(*cmd):
 def find_visual_studio():
     path = get_output(
         find_vswhere(),
-        "-latest",
-        "-requires",
-        "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-        "-property",
-        "installationPath",
-        "-products",
-        "*"
+        '-latest',
+        '-requires',
+        'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+        '-property',
+        'installationPath',
+        '-products',
+        '*'
     ).strip()
-    return os.path.join(path, "VC", "Auxiliary", "Build")
+    return os.path.join(path, 'VC', 'Auxiliary', 'Build')
 
 
 @lru_cache
 def find_msbuild():
     base_path = get_output(
         find_vswhere(),
-        "-latest",
-        "-requires", "Microsoft.Component.MSBuild",
-        "-property", 'installationPath'
+        '-latest',
+        '-requires', 'Microsoft.Component.MSBuild',
+        '-property', 'installationPath'
     ).strip()
     return glob(os.path.join(
         base_path, 'MSBuild', '*', 'Bin', 'MSBuild.exe'))[0]
@@ -66,10 +66,10 @@ def find_msbuild():
 
 def find_vcvarsall():
     productdir = find_visual_studio()
-    vcvarsall = os.path.join(productdir, "vcvarsall.bat")
+    vcvarsall = os.path.join(productdir, 'vcvarsall.bat')
     if os.path.isfile(vcvarsall):
         return vcvarsall
-    raise SystemExit("Unable to find vcvarsall.bat in productdir: " +
+    raise SystemExit('Unable to find vcvarsall.bat in productdir: ' +
                      productdir)
 
 
@@ -92,9 +92,9 @@ def query_process(cmd, is64bit):
     try:
         stdout, stderr = popen.communicate()
         if popen.wait() != 0:
-            raise RuntimeError(stderr.decode("mbcs"))
+            raise RuntimeError(stderr.decode('mbcs'))
 
-        stdout = stdout.decode("mbcs")
+        stdout = stdout.decode('mbcs')
         for line in stdout.splitlines():
             if '=' not in line:
                 continue
@@ -127,7 +127,6 @@ def query_vcvarsall(is64bit=True):
         if m is not None:
             comn_tools[k] = int(m.group(1))
     comntools = sorted(comn_tools, key=comn_tools.__getitem__)[-1]
-
 
     def g(k):
         try:

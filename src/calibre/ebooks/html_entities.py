@@ -2194,8 +2194,8 @@ def find_tests():
             t('a&amp;b&lt;c', 'a&b<c')
             t('a&acE;b', 'a∾̳b')
             t('a&#1234;b', 'aӒb')
-            t('a&#X1234;b', 'a\u1234b')
-            t('a&#x1034fA;b', 'a\U001034fAb')
+            t('a&#X1234;b', 'aሴb')
+            t('a&#x1034fA;b', 'a\U001034FAb')
             t('a&#0;b&#x000;c', 'abc')
             x('&amp;&lt;&gt;&apos;&quot;', '&amp;&lt;&gt;&apos;&quot;')
 

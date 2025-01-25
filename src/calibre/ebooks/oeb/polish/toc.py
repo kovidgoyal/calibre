@@ -93,7 +93,7 @@ class TOC:
 
     @property
     def depth(self):
-        """The maximum depth of the navigation tree rooted at this node."""
+        '''The maximum depth of the navigation tree rooted at this node.'''
         try:
             return max(node.depth for node in self) + 1
         except ValueError:
@@ -871,7 +871,7 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
         E.body(
             E.h2(title),
             E.ul(),
-            id="calibre_generated_inline_toc",
+            id='calibre_generated_inline_toc',
         )
     )
 

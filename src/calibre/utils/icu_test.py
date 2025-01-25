@@ -35,7 +35,7 @@ class TestICU(unittest.TestCase):
         german = '''Sonntag Montag Dienstag Januar Februar März Fuße Fluße Flusse flusse fluße flüße flüsse'''.split()
         german_good = '''Dienstag Februar flusse Flusse fluße Fluße flüsse flüße Fuße Januar März Montag Sonntag'''.split()
         french = '''dimanche lundi mardi janvier février mars déjà Meme deja même dejà bpef bœg Boef Mémé bœf boef bnef pêche pèché pêché pêche pêché'''.split()
-        french_good = '''bnef boef Boef bœf bœg bpef deja dejà déjà dimanche février janvier lundi mardi mars Meme Mémé même pèché pêche pêche pêché pêché'''.split()  # noqa
+        french_good = '''bnef boef Boef bœf bœg bpef deja dejà déjà dimanche février janvier lundi mardi mars Meme Mémé même pèché pêche pêche pêché pêché'''.split()  # noqa: E501
 
         # Test corner cases
         sort_key = icu.sort_key
@@ -85,7 +85,7 @@ class TestICU(unittest.TestCase):
         for x in ('', None, False, 1):
             self.ae(x, icu.capitalize(x))
 
-        for x in ('a', 'Alice\'s code', 'macdonald\'s machIne', '02 the wars'):
+        for x in ('a', "Alice's code", "macdonald's machIne", '02 the wars'):
             self.ae(icu.upper(x), x.upper())
             self.ae(icu.lower(x), x.lower())
             # ICU's title case algorithm is different from ours, when there are
@@ -114,9 +114,9 @@ class TestICU(unittest.TestCase):
         self.assertFalse(icu.contains('xxx', 'xx'))
         self.assertTrue(icu.primary_contains('pena', 'peña'))
         x = icu.primary_collator()
-        self.ae(x.get_attribute(icu._icu.UCOL_STRENGTH), icu._icu.UCOL_PRIMARY),
+        self.ae(x.get_attribute(icu._icu.UCOL_STRENGTH), icu._icu.UCOL_PRIMARY)
         self.ae((0, 4), icu.primary_no_punc_find('pena"', 'peña'))
-        self.ae((0, 13), icu.primary_no_punc_find("typographers", 'typographer’s'))
+        self.ae((0, 13), icu.primary_no_punc_find('typographers', 'typographer’s'))
         self.ae((0, 7), icu.primary_no_punc_find('abcd', 'a\u00adb\u200cc\u200dd'))
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
         # test find all
@@ -206,7 +206,7 @@ class TestICU(unittest.TestCase):
         from calibre.spell.break_iterator import split_into_words as split
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
             self.ae(split(str(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
-        self.ae(split('I I\'m'), ['I', "I'm"])
+        self.ae(split("I I'm"), ['I', "I'm"])
         self.ae(split('out-of-the-box'), ['out-of-the-box'])
         self.ae(split('-one two-'), ['-one', 'two-'])
         self.ae(split('-one a-b-c-d e'), ['-one', 'a-b-c-d', 'e'])

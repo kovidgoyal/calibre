@@ -35,8 +35,8 @@ class Hurriyet(BasicNewsRecipe):
     compress_news_images = True
 
     # some mild formatting
-    extra_css = """.news-media { clear: left; }
-           .news-detail-title { clear:left; }"""
+    extra_css = '''.news-media { clear: left; }
+           .news-detail-title { clear:left; }'''
 
     keep_only_tags = [
         # title
@@ -64,4 +64,3 @@ class Hurriyet(BasicNewsRecipe):
         (u'Ankara', 'https://www.hurriyet.com.tr/rss/ankara'),
         (u'Ege', 'https://www.hurriyet.com.tr/rss/ege')
     ]
-

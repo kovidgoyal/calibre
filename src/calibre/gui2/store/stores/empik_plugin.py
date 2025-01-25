@@ -78,9 +78,9 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//div[@class="price ta-price-tile "]/text()'))
 
                 # with closing(br.open('https://empik.com' + id.strip(), timeout=timeout/4)) as nf:
-                #    idata = html.fromstring(nf.read())
-                #    crawled = idata.xpath('.//a[(@class="chosen hrefstyle") or (@class="connectionsLink hrefstyle")]/text()')
-                #    formats = ','.join([re.sub('ebook, ','', x.strip()) for x in crawled if 'ebook' in x])
+                #     idata = html.fromstring(nf.read())
+                #     crawled = idata.xpath('.//a[(@class="chosen hrefstyle") or (@class="connectionsLink hrefstyle")]/text()')
+                #     formats = ','.join([re.sub(r'ebook, ','', x.strip()) for x in crawled if 'ebook' in x])
 
                 counter -= 1
 

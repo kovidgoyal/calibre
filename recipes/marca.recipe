@@ -23,12 +23,12 @@ class Marca(BasicNewsRecipe):
     language = 'es'
     publication_type = 'newsportal'
     masthead_url = 'http://estaticos.marca.com/deporte/img/v3.0/img_marca-com.png'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: Tahoma,Geneva,sans-serif}
                                 h1,h2,h3,h4,h5,h6{font-family: 'LatoBlack',Tahoma,Geneva,sans-serif}
                                 .cab_articulo h4 {font-family: Georgia,"Times New Roman",Times,serif}
                                 .antetitulo{text-transform: uppercase}
-                            """
+                            '''
 
     feeds = [(u'Portada', u'http://estaticos.marca.com/rss/portada.xml')]
 
@@ -46,4 +46,4 @@ class Marca(BasicNewsRecipe):
         return soup
 
     def get_article_url(self, article):
-        return article.get('guid',  None)
+        return article.get('guid', None)

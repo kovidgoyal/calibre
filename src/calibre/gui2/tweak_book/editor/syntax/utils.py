@@ -47,6 +47,3 @@ def format_for_pygments_token(theme, cache, token):
         return ans
     cache[token] = ans = NULL_FMT
     return ans
-
-
-

@@ -58,7 +58,7 @@ def search_ec(query, max_results=10, timeout=60, write_html_to=''):
         s.author = ' & '.join(x['name'] for x in book['authors'])
         s.price = book['price']
         s.detail_item = absolutize(book['book_url'])
-        s.ebooks_com_api_url = 'https://www.ebooks.com/api/book/?bookId={}&countryCode={}'.format(book["id"], cc)
+        s.ebooks_com_api_url = 'https://www.ebooks.com/api/book/?bookId={}&countryCode={}'.format(book['id'], cc)
         s.drm = SearchResult.DRM_UNKNOWN
         yield s
 

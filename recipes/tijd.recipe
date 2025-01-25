@@ -76,12 +76,12 @@ class DeTijd(BasicNewsRecipe):
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
         mlang = new_tag(
-            soup, 'meta', [("http-equiv", "Content-Language"),
-                           ("content", self.lang)]
+            soup, 'meta', [('http-equiv', 'Content-Language'),
+                           ('content', self.lang)]
         )
         mcharset = new_tag(
-            soup, 'meta', [("http-equiv", "Content-Type"),
-                           ("content", "text/html; charset=utf-8")]
+            soup, 'meta', [('http-equiv', 'Content-Type'),
+                           ('content', 'text/html; charset=utf-8')]
         )
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)

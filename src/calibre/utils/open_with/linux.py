@@ -228,7 +228,7 @@ def find_programs(extensions):
             continue
         if data is not None and mime_types.intersection(data['MimeType']):
             ans.append(process_desktop_file(data))
-    ans.sort(key=lambda d:sort_key(d.get('Name')))
+    ans.sort(key=lambda d: sort_key(d.get('Name')))
     return ans
 
 

@@ -23,8 +23,8 @@ def process_node(node):
             return f'<p>{node.get("textHtml")}</p>'
         return f'<p>{node.get("text", "")}</p>'
     elif ntype == 'IMAGE':
-        alt = "" if node.get("altText") is None else node.get("altText")
-        cap = ""
+        alt = '' if node.get('altText') is None else node.get('altText')
+        cap = ''
         if node.get('caption'):
             if node['caption'].get('textHtml') is not None:
                 cap = node['caption']['textHtml']
@@ -78,6 +78,7 @@ def load_article_from_json(raw):
         body += process_node(node)
     return '<html><body><article>' + body + '</article></body></html>'
 
+
 def cleanup_html_article(root):
     main = root.xpath('//main')[0]
     body = root.xpath('//body')[0]
@@ -91,16 +92,19 @@ def cleanup_html_article(root):
     for x in root.xpath('//button'):
         x.getparent().remove(x)
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 def new_tag(soup, name, attrs=()):
     impl = getattr(soup, 'new_tag', None)
     if impl is not None:
         return impl(name, attrs=dict(attrs))
     return Tag(soup, name, attrs=attrs or None)
+
 
 def process_url(url):
     if url.startswith('/'):
@@ -112,12 +116,12 @@ class econ_search(BasicNewsRecipe):
     title = 'The Economist - Search'
     language = 'en'
     encoding = 'utf-8'
-    __author__ = "unkn0wn"
+    __author__ = 'unkn0wn'
     description = (
         'Use the Advanced section of the recipe to search.'
     )
 
-    remove_attributes = ['style', 'height', 'width']
+    remove_attributes = ['data-reactid', 'style', 'height', 'width']
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     extra_css = '''
@@ -128,7 +132,7 @@ class econ_search(BasicNewsRecipe):
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
-        dict(attrs={'aria-label': "Article Teaser"}),
+        dict(attrs={'aria-label': 'Article Teaser'}),
         dict(attrs={'id':'player'}),
         dict(attrs={
                 'class': [
@@ -150,15 +154,13 @@ class econ_search(BasicNewsRecipe):
         )
     ]
     keep_only_tags = [dict(name='article', id=lambda x: not x)]
-    no_stylesheets = True
-    remove_attributes = ['data-reactid', 'width', 'height']
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 3
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = (
-            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Lamarr' # noqa
+            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Lamarr'
         )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
@@ -167,12 +169,9 @@ class econ_search(BasicNewsRecipe):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         root_ = parse(raw)
         if '/interactive/' in url:
-            return (
-                '<html><body><article><h1>'
-                + root_.xpath('//h1')[0].text + '</h1><em>'
-                + 'This article is supposed to be read in a browser'
-                + '</em></article></body></html>'
-            )
+            return ('<html><body><article><h1>' + root_.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
 
         script = root_.xpath('//script[@id="__NEXT_DATA__"]')
 

@@ -15,8 +15,6 @@ class BusinessStandardPrint(BasicNewsRecipe):
     language = 'en_IN'
     masthead_url = 'https://bsmedia.business-standard.com/include/_mod/site/html5/images/business-standard-logo.png'
     encoding = 'utf-8'
-    resolve_internal_links = True
-    remove_empty_feeds = True
 
     no_stylesheets = True
     remove_javascript = True
@@ -64,7 +62,7 @@ class BusinessStandardPrint(BasicNewsRecipe):
         if dt.weekday() == 6:
             self.log.warn(
                 'Business Standard Does Not Have A Print Publication On Sunday. The Reports'
-                ' And Columns On This Page Today Appeared In The Newspaper\'s Saturday Edition.'
+                " And Columns On This Page Today Appeared In The Newspaper's Saturday Edition."
             )
         url = 'https://apibs.business-standard.com/category/today-paper?sortBy=' + today
         raw = self.index_to_soup(url, raw=True)

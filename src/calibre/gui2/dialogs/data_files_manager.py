@@ -168,7 +168,7 @@ class Files(QAbstractListModel):
         if row >= len(self.files):
             return None
         if role == Qt.ItemDataRole.DisplayRole:
-            name =  self.file_display_name(row)
+            name = self.file_display_name(row)
             e = self.item_at(row)
             date = datetime.fromtimestamp(e.stat_result.st_mtime)
             l2 = human_readable(e.stat_result.st_size) + date.strftime(' [%Y/%m/%d]')
@@ -415,7 +415,7 @@ class DataFilesManager(Dialog):
         if q:
             return error_dialog(
                 self, _('Cannot add'), _(
-                    'Cannot add these data files to the book because they are already in the book\'s data files folder'
+                    "Cannot add these data files to the book because they are already in the book's data files folder"
                 ), show=True, det_msg='\n'.join(q))
 
         m = {f'{DATA_DIR_NAME}/{os.path.basename(x)}': x for x in files}

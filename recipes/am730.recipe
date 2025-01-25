@@ -34,7 +34,7 @@ class AM730(BasicNewsRecipe):
     description = 'http://www.am730.com.hk'
     category = 'Chinese, News, Hong Kong'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/en/5/58/Am730_Hong_Kong_newspaper_logo.png'
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa: E501
     remove_tags =[dict(name='div',attrs={'class':'col-xs-12 col-sm-1 col-md-1 share-button'}),
                 dict(name='div',attrs={'class':'logo-container print-logo'}),
                 dict(name='div',attrs={'id':'galleria'})]
@@ -53,12 +53,12 @@ class AM730(BasicNewsRecipe):
         return self.masthead_url
 
     def getAMSectionArticles(self, sectionName,url):
-        # print sectionName
+        # print(sectionName)
         soup = self.index_to_soup(url)
         articles = []
         for aTag in soup.findAll('a',attrs={'class':'newsimglink'}):
             href = aTag.get('href',False)
-            if not href.encode("utf-8").startswith(url.encode("utf-8")) :
+            if not href.encode('utf-8').startswith(url.encode('utf-8')):
                 continue  # not in same section
 
             title = href.split('/')[-1].split('-')[0]
@@ -67,7 +67,7 @@ class AM730(BasicNewsRecipe):
                 print(title)
             try:
                 if articles.index({'title':title,'url':href})>=0:
-                    # print 'already added'
+                    # print('already added')
                     continue  # already added
             except:
                 pass
@@ -78,7 +78,7 @@ class AM730(BasicNewsRecipe):
                 break
         if self.debug:
             print(articles)
-        return (sectionName,articles)
+        return sectionName, articles
 
     def parse_index(self):
         # hard code sections
@@ -89,12 +89,12 @@ class AM730(BasicNewsRecipe):
         ('體育','https://www.am730.com.hk/news/%E9%AB%94%E8%82%B2'),
         ('娛樂','https://www.am730.com.hk/news/%E5%A8%9B%E6%A8%82'),
         ('旅遊.飲食','https://www.am730.com.hk/news/%E6%97%85%E9%81%8A.%E9%A3%B2%E9%A3%9F')
-         ]       # articles =[]
+        ]       # articles =[]
         SectionsArticles=[]
-        for (title, url) in Sections:
+        for title, url in Sections:
             if self.debug:
                 print(title)
                 print(url)
             SectionsArticles.append(self.getAMSectionArticles(title,url))
-#        feeds.append(articles[0]['url'])
+        # feeds.append(articles[0]['url'])
         return SectionsArticles

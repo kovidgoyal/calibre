@@ -359,7 +359,6 @@ def windows_nlinks(path):
 
 
 class WindowsAtomicFolderMove:
-
     '''
     Move all the files inside a specified folder in an atomic fashion,
     preventing any other process from locking a file while the operation is
@@ -416,7 +415,7 @@ class WindowsAtomicFolderMove:
 
                 self.close_handles()
                 if e.winerror == winutil.ERROR_SHARING_VIOLATION:
-                    err = IOError(errno.EACCES,
+                    err = OSError(errno.EACCES,
                             _('File is open in another process'))
                     err.filename = f
                     raise err
@@ -681,7 +680,7 @@ if iswindows:
         except FileNotFoundError:
             return path
         except OSError as e:
-            if e.winerror == 123: # ERR_INVALID_NAME
+            if e.winerror == 123:  # ERR_INVALID_NAME
                 return path
             raise
 

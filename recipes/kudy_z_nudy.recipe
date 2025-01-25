@@ -22,15 +22,15 @@ class kudyznudyRecipe(BasicNewsRecipe):
     cover_url = 'http://www.kudyznudy.cz/App_Themes/KzN/Images/Containers/Header/HeaderLogoKZN.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = """
-                            """
+    extra_css             = '''
+                            '''
 
     remove_attributes = []
     remove_tags_before = dict(
         name='div', attrs={'class': ['C_WholeContentPadding']})
     remove_tags_after = dict(
         name='div', attrs={'class': ['SurroundingsContainer']})
-    remove_tags = [dict(name='div',   attrs={
+    remove_tags = [dict(name='div', attrs={
                         'class': ['Details', 'buttons', 'SurroundingsContainer', 'breadcrumb']})]
 
     keep_only_tags = []

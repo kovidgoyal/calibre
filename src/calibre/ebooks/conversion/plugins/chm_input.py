@@ -1,7 +1,7 @@
 ''' CHM File decoding support '''
 __license__ = 'GPL v3'
-__copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
-                 ' and Alex Bramley <a.bramley at gmail.com>.'
+__copyright__  = ('2008, Kovid Goyal <kovid at kovidgoyal.net>, '
+                  'and Alex Bramley <a.bramley at gmail.com>.')
 
 import os
 
@@ -127,12 +127,12 @@ class CHMInput(InputFormatPlugin):
                             strip_encoding_pats=True, resolve_entities=True)[0]
         hhcroot = html.fromstring(hhcdata)
         toc = self._process_nodes(hhcroot)
-        # print("=============================")
-        # print("Printing hhcroot")
+        # print('=============================')
+        # print('Printing hhcroot')
         # print(etree.tostring(hhcroot, pretty_print=True))
-        # print("=============================")
+        # print('=============================')
         log.debug('Found %d section nodes' % toc.count())
-        htmlpath = os.path.splitext(hhcpath)[0] + ".html"
+        htmlpath = os.path.splitext(hhcpath)[0] + '.html'
         base = os.path.dirname(os.path.abspath(htmlpath))
 
         def unquote(x):

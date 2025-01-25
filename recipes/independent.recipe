@@ -22,15 +22,14 @@ class TheIndependentNew(BasicNewsRecipe):
 
     title = u'The Independent'
     __author__ = 'Krittika Goyal'
-    description             = 'The latest in UK News and World News from The \
-                               Independent. Wide range of international and local news, sports \
-                               news, commentary and opinion pieces.Independent News - Breaking news \
-                               that matters. Your daily comprehensive news source - The \
-                               Independent Newspaper'
+    description             = ('The latest in UK News and World News from The '
+                               'Independent. Wide range of international and local news, sports '
+                               'news, commentary and opinion pieces.Independent News - Breaking news '
+                               'that matters. Your daily comprehensive news source - The '
+                               'Independent Newspaper')
     publisher = 'The Independent'
     oldest_article = 2.0
     ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds = True
     category = 'news, UK'
     no_stylesheets = True
     use_embedded_content = False

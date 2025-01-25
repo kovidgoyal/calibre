@@ -23,36 +23,36 @@ class AdvancedUserRecipe1718384518(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Phones
+        # Phones
         ('Phones', 'https://www.androidpolice.com/feed/phones/'),
         ('News about Phones', 'https://www.androidpolice.com/feed/phones-news/'),
         ('Guides about Phones', 'https://www.androidpolice.com/feed/phones-guide/'),
         ('Phones Features', 'https://www.androidpolice.com/feed/phones-features/'),
         ('Phones & Accessory Reviews', 'https://www.androidpolice.com/feed/phones-reviews/'),
-        #Google
+        # Google
         ('Google', 'https://www.androidpolice.com/feed/google/'),
         ('News about Google', 'https://www.androidpolice.com/feed/news-google/'),
         ('Google Applications', 'https://www.androidpolice.com/feed/tag/google-app/'),
         ('Guides about Google', 'https://www.androidpolice.com/feed/guides-google/'),
         ('Features about Google', 'https://www.androidpolice.com/feed/features-google/'),
-        #Operating Systems
+        # Operating Systems
         ('Operating Systems', 'https://www.androidpolice.com/feed/operating-systems/'),
         ('News about Operating Systems', 'https://www.androidpolice.com/feed/news-operating-systems/'),
         ('Guides about Operating Systems', 'https://www.androidpolice.com/feed/guides-operating-systems/'),
         ('Features on Operating Systems', 'https://www.androidpolice.com/feed/features-operating-systems/'),
-        #Chromebooks
+        # Chromebooks
         ('Chromebooks', 'https://www.androidpolice.com/feed/laptops/'),
         ('News about Chromebooks', 'https://www.androidpolice.com/feed/news-chromebooks/'),
         ('Guides about Chromebooks', 'https://www.androidpolice.com/feed/guides-chromebooks/'),
         ('Chromebook & Laptop Reviews', 'https://www.androidpolice.com/feed/reviews-chromebooks/'),
-        #Gadgets
+        # Gadgets
         ('Gadgets', 'https://www.androidpolice.com/feed/gadgets/'),
         ('Smartwatches & Wearables', 'https://www.androidpolice.com/feed/wearables/'),
         ('Audio', 'https://www.androidpolice.com/feed/tag/audio/'),
         ('Accessories', 'https://www.androidpolice.com/feed/accessories/'),
         ('Smart Home', 'https://www.androidpolice.com/feed/smart-home/'),
         ('Applications & Games', 'https://www.androidpolice.com/feed/applications-games/'),
-        #Reviews
+        # Reviews
         ('Reviews', 'https://www.androidpolice.com/feed/reviews/'),
         ('Phones & Accessory Reviews', 'https://www.androidpolice.com/feed/phones-reviews/'),
         ('Smartwatch & Wearable Reviews', 'https://www.androidpolice.com/feed/wearable-reviews/'),

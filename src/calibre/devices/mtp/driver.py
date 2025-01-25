@@ -50,7 +50,6 @@ class MTP_DEVICE(BASE):
 
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
-    CAN_SET_METADATA = []
     NEWS_IN_FOLDER = True
     MAX_PATH_LEN = 230
     THUMBNAIL_HEIGHT = DEFAULT_THUMBNAIL_HEIGHT
@@ -487,7 +486,7 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Transferring books to device...'))
         i, total = 0, len(files)
 
-        routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
+        routing = dict(self.get_pref('rules'))
 
         for infile, fname, mi in zip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)

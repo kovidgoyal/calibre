@@ -41,7 +41,7 @@ class firstpost(BasicNewsRecipe):
         # 'photos', 'entertainment', 'living', 'education', 'sports', 'firstcricket',
     ]
 
-    oldest_article = 1.2 # days
+    oldest_article = 1.2  # days
     for sec in sections:
         a = 'https://www.firstpost.com/rss/{}.xml'
         feeds.append((sec.capitalize(), a.format(sec)))

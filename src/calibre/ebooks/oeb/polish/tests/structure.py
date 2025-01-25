@@ -28,11 +28,11 @@ OPF_TEMPLATE = '''
     <manifest>{manifest}</manifest>
     <spine>{spine}</spine>
     <guide>{guide}</guide>
-</package>''' % CALIBRE_PREFIX  # noqa
+</package>''' % CALIBRE_PREFIX
 
 
 def create_manifest_item(name, data=b'', properties=None):
-    return (name, data, properties)
+    return name, data, properties
 
 
 cmi = create_manifest_item
@@ -93,7 +93,7 @@ class Structure(BaseTest):
         self.assertTrue(len(get_toc(c)))  # detect NCX toc even in epub 3 files
         c.add_file('nav.html', b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
                    b'<body><nav epub:type="toc"><ol><li><a href="start.xhtml">EPUB 3 nav</a></li></ol></nav></body></html>',
-                   process_manifest_item=lambda item:item.set('properties', 'nav'))
+                   process_manifest_item=lambda item: item.set('properties', 'nav'))
         toc = get_toc(c)
         self.assertTrue(len(toc))
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
@@ -133,7 +133,7 @@ class Structure(BaseTest):
                    b'<body><nav epub:type="landmarks"><ol><li><a epub:type="x" href="../xxx.html#moo">XXX </a></li>'
                    b'<li><a href="../a.html"> YYY </a></li>'
                    b'</ol></nav></body></html>',
-                   process_manifest_item=lambda item:item.set('properties', 'nav'))
+                   process_manifest_item=lambda item: item.set('properties', 'nav'))
         self.assertEqual([
             {'dest':'xxx.html', 'frag':'moo', 'type':'x', 'title':'XXX'}, {'dest':'a.html', 'frag':'', 'type':'', 'title':'YYY'}
         ], get_landmarks(c))

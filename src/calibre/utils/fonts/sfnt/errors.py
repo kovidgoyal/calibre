@@ -12,4 +12,3 @@ class UnsupportedFont(ValueError):
 
 class NoGlyphs(ValueError):
     pass
-

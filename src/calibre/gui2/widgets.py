@@ -426,6 +426,7 @@ class ImageView(QWidget, ImageDropMixin):
             draw_size(p, target, ow, oh)
 # }}}
 
+
 # CoverView {{{
 
 class RoundedPixmap(QGraphicsPixmapItem):
@@ -472,8 +473,8 @@ class CoverView(QGraphicsView, ImageDropMixin):
 
 # }}}
 
-# BasicList {{{
 
+# BasicList {{{
 
 class BasicListItem(QListWidgetItem):
 
@@ -918,24 +919,24 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
     Rules = ()
     Formats = {}
 
-    KEYWORDS = ["and", "as", "assert", "break", "class", "continue", "def",
-        "del", "elif", "else", "except", "exec", "finally", "for", "from",
-        "global", "if", "import", "in", "is", "lambda", "not", "or",
-        "pass", "print", "raise", "return", "try", "while", "with",
-        "yield"]
+    KEYWORDS = ['and', 'as', 'assert', 'break', 'class', 'continue', 'def',
+        'del', 'elif', 'else', 'except', 'exec', 'finally', 'for', 'from',
+        'global', 'if', 'import', 'in', 'is', 'lambda', 'not', 'or',
+        'pass', 'print', 'raise', 'return', 'try', 'while', 'with',
+        'yield']
 
-    BUILTINS = ["abs", "all", "any", "basestring", "bool", "callable", "chr",
-        "classmethod", "cmp", "compile", "complex", "delattr", "dict",
-        "dir", "divmod", "enumerate", "eval", "execfile", "exit", "file",
-        "filter", "float", "frozenset", "getattr", "globals", "hasattr",
-        "hex", "id", "int", "isinstance", "issubclass", "iter", "len",
-        "list", "locals", "long", "map", "max", "min", "object", "oct",
-        "open", "ord", "pow", "property", "range", "reduce", "repr",
-        "reversed", "round", "set", "setattr", "slice", "sorted",
-        "staticmethod", "str", "sum", "super", "tuple", "type", "unichr",
-        "unicode", "vars", "xrange", "zip"]
+    BUILTINS = ['abs', 'all', 'any', 'basestring', 'bool', 'callable', 'chr',
+        'classmethod', 'cmp', 'compile', 'complex', 'delattr', 'dict',
+        'dir', 'divmod', 'enumerate', 'eval', 'execfile', 'exit', 'file',
+        'filter', 'float', 'frozenset', 'getattr', 'globals', 'hasattr',
+        'hex', 'id', 'int', 'isinstance', 'issubclass', 'iter', 'len',
+        'list', 'locals', 'long', 'map', 'max', 'min', 'object', 'oct',
+        'open', 'ord', 'pow', 'property', 'range', 'reduce', 'repr',
+        'reversed', 'round', 'set', 'setattr', 'slice', 'sorted',
+        'staticmethod', 'str', 'sum', 'super', 'tuple', 'type', 'unichr',
+        'unicode', 'vars', 'xrange', 'zip']
 
-    CONSTANTS = ["False", "True", "None", "NotImplemented", "Ellipsis"]
+    CONSTANTS = ['False', 'True', 'None', 'NotImplemented', 'Ellipsis']
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -951,26 +952,26 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
             r.append((a, b))
 
         a(re.compile(
-                "|".join([r"\b%s\b" % keyword for keyword in cls.KEYWORDS])),
-                "keyword")
+                '|'.join([r'\b%s\b' % keyword for keyword in cls.KEYWORDS])),
+                'keyword')
         a(re.compile(
-                "|".join([r"\b%s\b" % builtin for builtin in cls.BUILTINS])),
-                "builtin")
+                '|'.join([r'\b%s\b' % builtin for builtin in cls.BUILTINS])),
+                'builtin')
         a(re.compile(
-                "|".join([r"\b%s\b" % constant
-                for constant in cls.CONSTANTS])), "constant")
+                '|'.join([r'\b%s\b' % constant
+                for constant in cls.CONSTANTS])), 'constant')
         a(re.compile(
-                r"\b[+-]?[0-9]+[lL]?\b"
-                r"|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b"
-                r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
-                "number")
+                r'\b[+-]?[0-9]+[lL]?\b'
+                r'|\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b'
+                r'|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b'),
+                'number')
         a(re.compile(
-                r"\bPyQt6\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt")
-        a(re.compile(r"\b@\w+\b"), "decorator")
-        stringRe = re.compile(r"""(?:'[^']*?'|"[^"]*?")""")
-        a(stringRe, "string")
+                r'\bPyQt6\b|\bQt?[A-Z][a-z]\w+\b'), 'pyqt')
+        a(re.compile(r'\b@\w+\b'), 'decorator')
+        stringRe = re.compile(r'''(?:'[^']*?'|"[^"]*?")''')
+        a(stringRe, 'string')
         cls.stringRe = re.compile(r"""(:?"["]".*?"["]"|'''.*?''')""")
-        a(cls.stringRe, "string")
+        a(cls.stringRe, 'string')
         cls.tripleSingleRe = re.compile(r"""'''(?!")""")
         cls.tripleDoubleRe = re.compile(r'''"""(?!')''')
         cls.Rules = tuple(r)
@@ -982,16 +983,16 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         p = QApplication.instance().palette()
         is_dark = QApplication.instance().is_dark_theme
         for name, color, bold, italic in (
-                ("normal", None, False, False),
-                ("keyword", p.color(QPalette.ColorRole.Link).name(), True, False),
-                ("builtin", p.color(QPalette.ColorRole.Link).name(), False, False),
-                ("constant", p.color(QPalette.ColorRole.Link).name(), False, False),
-                ("decorator", "#0000E0", False, False),
-                ("comment", '#00c700' if is_dark else "#007F00", False, True),
-                ("string", '#b6b600' if is_dark else "#808000", False, False),
-                ("number", '#d96d00' if is_dark else "#924900", False, False),
-                ("error", "#FF0000", False, False),
-                ("pyqt", "#50621A", False, False)):
+                ('normal', None, False, False),
+                ('keyword', p.color(QPalette.ColorRole.Link).name(), True, False),
+                ('builtin', p.color(QPalette.ColorRole.Link).name(), False, False),
+                ('constant', p.color(QPalette.ColorRole.Link).name(), False, False),
+                ('decorator', '#0000E0', False, False),
+                ('comment', '#00c700' if is_dark else '#007F00', False, True),
+                ('string', '#b6b600' if is_dark else '#808000', False, False),
+                ('number', '#d96d00' if is_dark else '#924900', False, False),
+                ('error', '#FF0000', False, False),
+                ('pyqt', '#50621A', False, False)):
 
             fmt = QTextCharFormat(baseFormat)
             if color is not None:
@@ -1009,18 +1010,17 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         prevState = self.previousBlockState()
 
         self.setFormat(0, textLength,
-                       self.Formats["normal"])
+                       self.Formats['normal'])
 
-        if text.startswith("Traceback") or text.startswith("Error: "):
+        if text.startswith(('Traceback', 'Error: ')):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
-                           self.Formats["error"])
+                           self.Formats['error'])
             return
-        if prevState == ERROR and \
-           not (text.startswith('>>>') or text.startswith("#")):
+        if prevState == ERROR and not text.startswith(('>>>', '#')):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
-                           self.Formats["error"])
+                           self.Formats['error'])
             return
 
         for regex, fmt in PythonHighlighter.Rules:
@@ -1032,8 +1032,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         # PythonHighlighter.Rules.append((re.compile(r"#.*"), "comment"))
         if not text:
             pass
-        elif text[0] == "#":
-            self.setFormat(0, len(text), self.Formats["comment"])
+        elif text[0] == '#':
+            self.setFormat(0, len(text), self.Formats['comment'])
         else:
             stack = []
             for i, c in enumerate(text):
@@ -1042,8 +1042,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                         stack.pop()
                     else:
                         stack.append(c)
-                elif c == "#" and len(stack) == 0:
-                    self.setFormat(i, len(text), self.Formats["comment"])
+                elif c == '#' and len(stack) == 0:
+                    self.setFormat(i, len(text), self.Formats['comment'])
                     break
 
         self.setCurrentBlockState(NORMAL)
@@ -1061,11 +1061,11 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                     i = len(text)
                     self.setCurrentBlockState(state)
                 self.setFormat(0, i + 3,
-                               self.Formats["string"])
+                               self.Formats['string'])
             elif i > -1:
                 self.setCurrentBlockState(state)
                 self.setFormat(i, len(text),
-                               self.Formats["string"])
+                               self.Formats['string'])
 
     def rehighlight(self):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
@@ -1098,7 +1098,6 @@ class SplitterHandle(QSplitterHandle):
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
-
 
 
 class PaperSizes(QComboBox):  # {{{

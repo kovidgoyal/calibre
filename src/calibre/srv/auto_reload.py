@@ -31,8 +31,8 @@ MAX_RETRIES = 10
 class NoAutoReload(EnvironmentError):
     pass
 
-# Filesystem watcher {{{
 
+# Filesystem watcher {{{
 
 class WatcherBase:
 
@@ -157,7 +157,7 @@ elif iswindows:
         def loop(self):
             for w in self.watchers:
                 w.start()
-            with HandleInterrupt(lambda : self.modified_queue.put(None)):
+            with HandleInterrupt(lambda: self.modified_queue.put(None)):
                 while True:
                     path = self.modified_queue.get()
                     if path is None:
@@ -332,8 +332,8 @@ class Worker:
                 s.close()
         self.log.error('Restarted server did not start listening on:', self.port)
 
-# WebSocket reload notifier {{{
 
+# WebSocket reload notifier {{{
 
 class ReloadHandler(DummyHandler):
 

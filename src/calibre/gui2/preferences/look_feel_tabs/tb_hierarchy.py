@@ -37,11 +37,11 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
             ans = [[k, False] for k in cats]
             self.changed = True
         elif pref_data_override:
-            ph = {k:v for k,v in pref_data_override}
+            ph = dict(pref_data_override)
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:
-            hier_cats =  self.db.prefs.get('categories_using_hierarchy') or ()
+            hier_cats = self.db.prefs.get('categories_using_hierarchy') or ()
             for key in cats:
                 ans.append([key, key in hier_cats])
         self.beginResetModel()
@@ -52,7 +52,6 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
         if self.changed:
             self.db.prefs.set('categories_using_hierarchy', [k for k,v in self.fields if v])
 # }}}
-
 
 
 class TbHierarchyTab(ConfigTabWidget, Ui_Form):
@@ -127,7 +126,7 @@ class TbHierarchyTab(ConfigTabWidget, Ui_Form):
         # Walk the items in the list box building the (node -> node) graph of
         # the option order
         node = 0
-        for i in range(0, 4):
+        for i in range(4):
             v = self.tb_search_order.item(i).data(Qt.ItemDataRole.UserRole)
             # JSON dumps converts integer keys to strings, so do it explicitly
             t[str(node)] = v

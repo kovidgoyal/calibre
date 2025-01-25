@@ -24,23 +24,23 @@ class HeadTable(UnknownTable):
         super().__init__(*args, **kwargs)
 
         field_types = (
-                '_version_number' , 'l',
-                '_font_revision'  , 'l',
-                'checksum_adjustment' , 'L',
-                'magic_number' , 'L',
-                'flags' , 'H',
-                'units_per_em' , 'H',
-                '_created' , 'q',
-                '_modified' , 'q',
-                'x_min' , 'h',
-                'y_min' , 'h',
-                'x_max' , 'h',
-                'y_max' , 'h',
-                'mac_style' , 'H',
-                'lowest_rec_ppem' , 'H',
-                'font_direction_hint' , 'h',
-                'index_to_loc_format' , 'h',
-                'glyph_data_format'   , 'h'
+                '_version_number', 'l',
+                '_font_revision', 'l',
+                'checksum_adjustment', 'L',
+                'magic_number', 'L',
+                'flags', 'H',
+                'units_per_em', 'H',
+                '_created', 'q',
+                '_modified', 'q',
+                'x_min', 'h',
+                'y_min', 'h',
+                'x_max', 'h',
+                'y_max', 'h',
+                'mac_style', 'H',
+                'lowest_rec_ppem', 'H',
+                'font_direction_hint', 'h',
+                'index_to_loc_format', 'h',
+                'glyph_data_format', 'h'
         )
 
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
@@ -88,7 +88,7 @@ class HorizontalHeader(UnknownTable):
 
     version_number = FixedProperty('_version_number')
     field_types = (
-        '_version_number' , 'l',
+        '_version_number', 'l',
         'ascender', 'h',
         'descender', 'h',
         'line_gap', 'h',
@@ -137,7 +137,7 @@ class VerticalHeader(UnknownTable):
 
     version_number = FixedProperty('_version_number')
     field_types = (
-        '_version_number' , 'l',
+        '_version_number', 'l',
         'ascender', 'h',
         'descender', 'h',
         'line_gap', 'h',
@@ -189,7 +189,7 @@ class OS2Table(UnknownTable):
             return
         ver, = unpack_from(b'>H', self.raw)
         field_types = [
-            'version' , 'H',
+            'version', 'H',
             'average_char_width', 'h',
             'weight_class', 'H',
             'width_class', 'H',

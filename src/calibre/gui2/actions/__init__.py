@@ -31,7 +31,7 @@ def toolbar_widgets_for_action(gui, action):
             # The button might be hidden
             if not w.isVisible():
                 continue
-            yield(w)
+            yield w
         except Exception:
             continue
 
@@ -85,7 +85,6 @@ def menu_action_unique_name(plugin, unique_name):
 
 
 class InterfaceAction(QObject):
-
     '''
     A plugin representing an "action" that can be taken in the graphical user
     interface. All the items in the toolbar and context menus are implemented
@@ -444,6 +443,7 @@ class InterfaceAction(QObject):
         long periods of time.
         '''
         pass
+
 
 class InterfaceActionWithLibraryDrop(InterfaceAction):
     '''

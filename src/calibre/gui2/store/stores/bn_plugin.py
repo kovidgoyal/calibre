@@ -83,7 +83,7 @@ def search_bn(query, max_results=10, timeout=60, write_html_to=''):
 class BNStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = "https://bn.com"
+        url = 'https://bn.com'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))

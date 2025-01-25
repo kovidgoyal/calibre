@@ -169,7 +169,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             pnp_ids = frozenset(self.wpd.enumerate_devices())
         except:
-            p("Failed to get list of PNP ids on system")
+            p('Failed to get list of PNP ids on system')
             p(traceback.format_exc())
             return False
 

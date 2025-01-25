@@ -28,10 +28,10 @@ class Folha_de_s_paulo(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
     masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

@@ -138,7 +138,7 @@ def get_metadata(stream, cover=True):
         au = string_to_authors(au)
     mi = MetaInformation(title, au)
     # if isbn is not None:
-    #    mi.isbn = isbn
+    #     mi.isbn = isbn
 
     creator = info.get('Creator', None)
     if creator:

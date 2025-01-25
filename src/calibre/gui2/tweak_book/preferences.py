@@ -87,7 +87,7 @@ class BasicSettings(QWidget):  # {{{
                 raise TypeError('Unknown setting type for setting: %s' % name)
         else:
             if getter is None or setter is None:
-                raise ValueError("getter or setter not provided for: %s" % name)
+                raise ValueError('getter or setter not provided for: %s' % name)
         self._prevent_changed = True
         setter(widget, inval)
         self._prevent_changed = False
@@ -136,7 +136,7 @@ class BasicSettings(QWidget):  # {{{
             order_map = {x:i for i, x in enumerate(val)}
             items = list(w.defaults)
             limit = len(items)
-            items.sort(key=lambda x:order_map.get(x, limit))
+            items.sort(key=lambda x: order_map.get(x, limit))
             w.clear()
             for x in items:
                 i = QListWidgetItem(w)
@@ -470,8 +470,7 @@ class PreviewSettings(BasicSettings):  # {{{
 # }}}
 
 
-# ToolbarSettings  {{{
-
+# ToolbarSettings {{{
 
 class ToolbarList(QListWidget):
 

@@ -14,9 +14,10 @@ def absurl(x):
         x = 'https://www.newyorker.com' + x
     return x
 
+
 class NewYorker(BasicNewsRecipe):
 
-    title = "The New Yorker Magazine"
+    title = 'The New Yorker Magazine'
     description = "Articles of the week's New Yorker magazine"
     language = 'en_US'
     __author__ = 'Kovid Goyal'
@@ -48,7 +49,7 @@ class NewYorker(BasicNewsRecipe):
     remove_attributes = ['style']
 
     def preprocess_html(self, soup):
-        w = '/w_320' # use '/w_640' for highres
+        w = '/w_320'  # use '/w_640' for highres
         for img in soup.findAll('img'):
             if img.has_attr('srcset'):
                 for x in img['srcset'].split():
@@ -68,16 +69,16 @@ class NewYorker(BasicNewsRecipe):
         return soup
 
     # def preprocess_image(self, img_data, image_url):
-        # from PIL import Image
-        # from calibre import fit_image
-        # from io import BytesIO
-        # img = Image.open(BytesIO(img_data)).convert('RGB')
-        # scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
-        # if scaled:
-            # img = img.resize((nwidth, nheight))
-        # buf = BytesIO()
-        # img.save(buf, format='JPEG')
-        # return buf.getvalue()
+    #     from PIL import Image
+    #     from calibre import fit_image
+    #     from io import BytesIO
+    #     img = Image.open(BytesIO(img_data)).convert('RGB')
+    #     scaled, nwidth, nheight = fit_image(img.width, img.height, 1024, 1024)
+    #     if scaled:
+    #         img = img.resize((nwidth, nheight))
+    #     buf = BytesIO()
+    #     img.save(buf, format='JPEG')
+    #     return buf.getvalue()
 
     recipe_specific_options = {
         'date': {
@@ -99,9 +100,9 @@ class NewYorker(BasicNewsRecipe):
             self.log('Found cover:', self.cover_url)
             try:
                 # the src original resolution w_280 was too low, replace w_280 with w_560
-                cover_url_width_index = self.cover_url.find("w_")
+                cover_url_width_index = self.cover_url.find('w_')
                 old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
-                self.cover_url = self.cover_url.replace(old_width, "w_640")
+                self.cover_url = self.cover_url.replace(old_width, 'w_640')
             except Exception:
                 self.log('Failed enlarging cover img, using the original one')
 
@@ -126,9 +127,8 @@ class NewYorker(BasicNewsRecipe):
                 if rub:
                     desc = self.tag_to_string(rub) + ' | ' + desc
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         return feeds_dict.items()
-
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies

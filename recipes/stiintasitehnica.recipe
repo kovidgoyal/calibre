@@ -33,7 +33,7 @@ class Stiintasitehnica(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='span', attrs={'class': ['redEar']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='div', attrs={'class': ['panel-overlay']}), dict(name='div', attrs={ 'id': ['pointer']}), dict(name='img', attrs={'class': ['nav-next', 'nav-prev']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='hr', attrs={'class': ['dotted']})  # noqa
+        dict(name='span', attrs={'class': ['redEar']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='div', attrs={'class': ['panel-overlay']}), dict(name='div', attrs={'id': ['pointer']}), dict(name='img', attrs={'class': ['nav-next', 'nav-prev']}), dict(name='table', attrs={'class': ['connect_widget_interactive_area']}), dict(name='hr', attrs={'class': ['dotted']})  # noqa: E501
     ]
 
     remove_tags_after = [

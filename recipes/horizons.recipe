@@ -47,7 +47,7 @@ class horizons(BasicNewsRecipe):
             url = d
         else:
             soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
-            a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0] #use 1 for previous edition
+            a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0]  # use 1 for previous edition
             url = a['href']
             if url.startswith('/'):
                 url = 'https://www.cirsd.org' + url

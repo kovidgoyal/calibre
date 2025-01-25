@@ -256,16 +256,16 @@ class ContentTest(LibraryBaseTest):
             bc = data['tree']['c'][1]['c']
             self.ae(bc, body_children)
 
-        t('<p>a<!--c-->t</p>l', [{"n":"p","x":"a","l":"l","c":[{"s":"c","x":"c","l":"t"}]}])
-        t('<p class="foo" id="bar">a', [{"n":"p","x":"a","a":[['class','foo'],['id','bar']]}])
+        t('<p>a<!--c-->t</p>l', [{'n':'p','x':'a','l':'l','c':[{'s':'c','x':'c','l':'t'}]}])
+        t('<p class="foo" id="bar">a', [{'n':'p','x':'a','a':[['class','foo'],['id','bar']]}])
         t(
             '<svg xlink:href="h"></svg>', [{'n': 'svg', 's': 1, 'a': [['href', 'h', 2]]}],
             ('http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink')
         )
         text = '🐈\n\t\\mūs"'
-        t(f"<p id='{text}'>Peña", [{"n":"p","x":"Peña","a":[['id',text]]}])
+        t(f"<p id='{text}'>Peña", [{'n':'p','x':'Peña','a':[['id',text]]}])
         text = 'a' * (127 * 1024)
-        t('<p>{0}<p>{0}'.format(text), [{"n":"p","x":text}, {'n':'p','x':text}])
+        t('<p>{0}<p>{0}'.format(text), [{'n':'p','x':text}, {'n':'p','x':text}])
     # }}}
 
     def test_last_read_cache(self):  # {{{

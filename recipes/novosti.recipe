@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Novosti(BasicNewsRecipe):
     title = 'Vecernje Novosti'
     __author__ = 'Darko Miletic'
-    description = 'U početku su bile istinske večernje novine - pokrenute u vreme Tršćanske krize, Italijansko-jugoslovenskog konflikta oko grada Trsta - ali su brzo izrasle u dnevni informativno-politički list, koji već godinama ima najveći tiraž u Srbiji.'  # noqa
+    description = 'U početku su bile istinske večernje novine - pokrenute u vreme Tršćanske krize, Italijansko-jugoslovenskog konflikta oko grada Trsta - ali su brzo izrasle u dnevni informativno-politički list, koji već godinama ima najveći tiraž u Srbiji.'  # noqa: E501
     publisher = 'Kompanija Novosti'
     category = 'news, politics, Serbia'
     oldest_article = 2
@@ -24,18 +24,18 @@ class Novosti(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'newspaper'
     masthead_url = 'http://www.novosti.rs/images/basic/logo-print.png'
-    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+    extra_css             = ''' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 .author{font-size: small}
                                 .articleLead{font-size: large; font-weight: bold}
                                 img{display: block; margin-bottom: 1em; margin-top: 1em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
 
     keep_only_tags = [dict(attrs={'class': [
                            'articleTitle', 'articleInfo', 'articleLead', 'singlePhoto fl', 'articleBody']})]

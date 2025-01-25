@@ -69,7 +69,7 @@ class Hoy(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['dir'] = self.direction
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mcharset)
         for item in soup.findAll(style=True):
             del item['style']

@@ -22,10 +22,10 @@ class AdvancedUserRecipe1718128185(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #News feeds
+        # News feeds
         ('Car News', 'https://www.topspeed.com/feed/category/car-news/'),
         ('Motorcycle News', 'https://www.topspeed.com/feed/category/motorcycle-news/'),
-        #Guides & Reviews feeds
+        # Guides & Reviews feeds
         ('Car Reviews', 'https://www.topspeed.com/feed/category/car-reviews/'),
         ('Vehicle Comparisons', 'https://www.topspeed.com/feed/category/vehicle-comparisons/'),
         ('Car Guides', 'https://www.topspeed.com/feed/category/car-guides/'),

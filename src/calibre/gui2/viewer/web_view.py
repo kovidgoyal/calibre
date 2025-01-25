@@ -56,8 +56,8 @@ from polyglot.functools import lru_cache
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
-# Override network access to load data from the book {{{
 
+# Override network access to load data from the book {{{
 
 def set_book_path(path, pathtoebook):
     set_book_path.pathtoebook = pathtoebook
@@ -112,7 +112,7 @@ def background_image(encoded_fname=''):
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
     except FileNotFoundError:
-        if fname.startswith('https://') or fname.startswith('http://'):
+        if fname.startswith(('https://', 'http://')):
             from calibre import browser
             br = browser()
             try:
@@ -140,14 +140,14 @@ def handle_mathjax_request(rq, name):
             with open(path, 'rb') as f:
                 raw = f.read()
         except OSError as err:
-            prints(f"Failed to get mathjax file: {name} with error: {err}", file=sys.stderr)
+            prints(f'Failed to get mathjax file: {name} with error: {err}', file=sys.stderr)
             rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
             return
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
     else:
-        prints(f"Failed to get mathjax file: {name} outside mathjax directory", file=sys.stderr)
+        prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
         rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
@@ -212,7 +212,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        prints(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}")
+        prints(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}')
 
 # }}}
 
@@ -263,7 +263,6 @@ class ViewerBridge(Bridge):
     search_result_not_found = from_js(object)
     search_result_discovered = from_js(object)
     find_next = from_js(object)
-    quit = from_js()
     update_current_toc_nodes = from_js(object)
     toggle_full_screen = from_js()
     report_cfi = from_js(object, object)
@@ -477,7 +476,6 @@ class WebView(RestartingWebEngineView):
     new_bookmark = pyqtSignal(object)
     toggle_inspector = pyqtSignal()
     toggle_lookup = pyqtSignal(object)
-    quit = pyqtSignal()
     update_current_toc_nodes = pyqtSignal(object)
     toggle_full_screen = pyqtSignal()
     ask_for_open = pyqtSignal(object)
@@ -634,7 +632,7 @@ class WebView(RestartingWebEngineView):
         self.dead_renderer_error_shown = True
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed.'
-            ' You should try restarting the viewer.') , show=True)
+            ' You should try restarting the viewer.'), show=True)
 
     def event(self, event):
         if event.type() == QEvent.Type.ChildPolished:

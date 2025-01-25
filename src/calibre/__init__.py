@@ -256,20 +256,20 @@ def get_parsed_proxy(typ='http', debug=True):
     proxy = proxies.get(typ, None)
     if proxy:
         pattern = re.compile((
-            '(?:ptype://)?'
-            '(?:(?P<user>\\w+):(?P<pass>.*)@)?'
-            '(?P<host>[\\w\\-\\.]+)'
-            '(?::(?P<port>\\d+))?').replace('ptype', typ)
+            r'(?:ptype://)?'
+            r'(?:(?P<user>\w+):(?P<pass>.*)@)?'
+            r'(?P<host>[\w\-\.]+)'
+            r'(?::(?P<port>\d+))?').replace('ptype', typ)
         )
 
         match = pattern.match(proxies[typ])
         if match:
             try:
                 ans = {
-                        'host' : match.group('host'),
-                        'port' : match.group('port'),
-                        'user' : match.group('user'),
-                        'pass' : match.group('pass')
+                        'host': match.group('host'),
+                        'port': match.group('port'),
+                        'user': match.group('user'),
+                        'pass': match.group('pass')
                     }
                 if ans['port']:
                     ans['port'] = int(ans['port'])
@@ -450,13 +450,15 @@ def my_unichr(num):
     except (ValueError, OverflowError):
         return '?'
 
+
 XML_ENTITIES = {
-    '"' : '&quot;',
-    "'" : '&apos;',
-    '<' : '&lt;',
-    '>' : '&gt;',
-    '&' : '&amp;'
+    '"': '&quot;',
+    "'": '&apos;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;'
 }
+
 
 def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={}):
     '''
@@ -560,15 +562,15 @@ def url_slash_cleaner(url):
 
 
 def human_readable(size, sep=' '):
-    """ Convert a size in bytes into a human readable form """
-    divisor, suffix = 1, "B"
+    ''' Convert a size in bytes into a human readable form '''
+    divisor, suffix = 1, 'B'
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
         if size < (1 << ((i + 1) * 10)):
             divisor, suffix = (1 << (i * 10)), candidate
             break
     size = str(float(size)/divisor)
-    if size.find(".") > -1:
-        size = size[:size.find(".")+2]
+    if size.find('.') > -1:
+        size = size[:size.find('.')+2]
     if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix

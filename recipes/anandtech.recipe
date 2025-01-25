@@ -39,4 +39,4 @@ class anan(BasicNewsRecipe):
 
     def print_version(self, url):
         # return url.replace("0Cshow0C", "0Cprint0C") # 2013-09-07 AGE: update
-        return url.replace("/show/", "/print/")  # 2014-02-27 AGE: update
+        return url.replace('/show/', '/print/')  # 2014-02-27 AGE: update

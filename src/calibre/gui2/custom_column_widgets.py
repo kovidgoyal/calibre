@@ -847,12 +847,12 @@ def comments_factory(db, key, parent):
 
 
 widgets = {
-        'bool' : Bool,
-        'rating' : Rating,
+        'bool': Bool,
+        'rating': Rating,
         'int': Int,
         'float': Float,
         'datetime': DateTime,
-        'text' : Text,
+        'text': Text,
         'comments': comments_factory,
         'series': Series,
         'enumeration': Enumeration
@@ -887,12 +887,12 @@ def get_field_list(db, use_defaults=False, pref_data_override=None):
         for k in fields:
             if k not in result:
                 result[k] = True
-        return [(k,v) for k,v in result.items()]
+        return list(result.items())
 
 
 def get_custom_columns_to_display_in_editor(db):
-    return list([k[0] for k in
-        get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]])
+    return [k[0] for k in
+        get_field_list(db, use_defaults=db.prefs['edit_metadata_ignore_display_order']) if k[1]]
 
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
@@ -1050,12 +1050,12 @@ class BulkBase(Base):
         if is_bool:
             self.set_no_button = QToolButton(parent)
             self.set_no_button.setIcon(QIcon.ic('list_remove.png'))
-            self.set_no_button.clicked.connect(lambda:self.main_widget.setCurrentIndex(1))
+            self.set_no_button.clicked.connect(lambda: self.main_widget.setCurrentIndex(1))
             self.set_no_button.setToolTip(_('Set {0} to No').format(self.col_metadata['name']))
             l.insertWidget(1, self.set_no_button)
             self.set_yes_button = QToolButton(parent)
             self.set_yes_button.setIcon(QIcon.ic('ok.png'))
-            self.set_yes_button.clicked.connect(lambda:self.main_widget.setCurrentIndex(0))
+            self.set_yes_button.clicked.connect(lambda: self.main_widget.setCurrentIndex(0))
             self.set_yes_button.setToolTip(_('Set {0} to Yes').format(self.col_metadata['name']))
             l.insertWidget(1, self.set_yes_button)
         if add_edit_tags_button[0]:
@@ -1327,12 +1327,12 @@ class BulkSeries(BulkBase):
         self.series_start_number = QDoubleSpinBox(parent)
         self.series_start_number.setMinimum(0.0)
         self.series_start_number.setMaximum(9999999.0)
-        self.series_start_number.setProperty("value", 1.0)
+        self.series_start_number.setProperty('value', 1.0)
         layout.addWidget(self.series_start_number)
         self.series_increment = QDoubleSpinBox(parent)
         self.series_increment.setMinimum(0.00)
         self.series_increment.setMaximum(99999.0)
-        self.series_increment.setProperty("value", 1.0)
+        self.series_increment.setProperty('value', 1.0)
         self.series_increment.setToolTip('<p>' + _(
             'The amount by which to increment the series number '
             'for successive books. Only applicable when using '
@@ -1547,7 +1547,7 @@ class BulkText(BulkBase):
             self.main_widget.setMinimumContentsLength(25)
         self.ignore_change_signals = False
         self.parent = parent
-        self.finish_ui_setup(parent, add_edit_tags_button=(is_tags,self.edit_add))
+        self.finish_ui_setup(parent, add_edit_tags_button=(is_tags, self.edit_add))
 
     def set_to_undefined(self):
         self.main_widget.clearEditText()
@@ -1629,12 +1629,12 @@ class BulkText(BulkBase):
 
 
 bulk_widgets = {
-        'bool' : BulkBool,
-        'rating' : BulkRating,
+        'bool': BulkBool,
+        'rating': BulkRating,
         'int': BulkInt,
         'float': BulkFloat,
         'datetime': BulkDateTime,
-        'text' : BulkText,
+        'text': BulkText,
         'series': BulkSeries,
         'enumeration': BulkEnumeration,
 }

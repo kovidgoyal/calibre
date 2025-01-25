@@ -10,7 +10,7 @@ class lexfridman(BasicNewsRecipe):
         'philosophy and the nature of intelligence, consciousness, love, and power. Lex is an AI '
         'researcher at MIT and beyond. Download monthly.'
     )
-    oldest_article = 30 # days
+    oldest_article = 30  # days
     __author__ = 'unkn0wn'
     language = 'en'
     encoding = 'utf-8'

@@ -37,7 +37,6 @@ class PDFMetadata:  # {{{
 
 # Page layout {{{
 
-
 def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
     width, sep, height = spec.lower().partition('x')
     if height:

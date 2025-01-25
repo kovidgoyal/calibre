@@ -13,16 +13,16 @@ class ESO(BasicNewsRecipe):
     remove_empty_feeds = True
     use_embedded_content = False
     cover_url = 'https://www.eso.org/public/archives/logos/medium/eso-logo-black-outline.jpg'
-    keep_only_tags = [dict(attrs={'class': 'subcl'})]
+    keep_only_tags = [
+        dict(attrs={'class': 'subcl'}),
+        dict(name='div',attrs={'class':'col-md-9 left-column'}),
+    ]
     remove_tags = [dict(id='lang_row'), dict(
         attrs={'class': ['pr_typeid', 'pr_news_feature_link', 'outreach_usage', 'hidden']})]
     feeds = [
     (u'Wiadomo\u015bci', u'http://www.eso.org/public/poland/news/feed/'),
     (u'Og\u0142oszenia', u'http://www.eso.org/public/poland/announcements/feed/'),
     (u'Zdj\u0119cie tygodnia', u'http://www.eso.org/public/poland/images/potw/feed/')]
-
-    keep_only_tags = [
-        dict(name='div',attrs={'class':'col-md-9 left-column'})]
 
     def preprocess_html(self, soup):
         for a in soup.findAll('a', href=True):

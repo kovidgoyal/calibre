@@ -196,9 +196,9 @@ def make_undoable(spinbox):
             m = QMenu(self)
             if hasattr(self, 'setDateTime'):
                 m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
-                            lambda : self.setDateTime(self.minimumDateTime()))
+                            lambda: self.setDateTime(self.minimumDateTime()))
                 m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
-                            lambda : self.setDateTime(QDateTime.currentDateTime()))
+                            lambda: self.setDateTime(QDateTime.currentDateTime()))
             m.addAction(_('&Undo') + access_key(QKeySequence.StandardKey.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
             m.addAction(_('&Redo') + access_key(QKeySequence.StandardKey.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
@@ -222,8 +222,8 @@ def make_undoable(spinbox):
 
     return UndoableSpinbox
 
-# Title {{{
 
+# Title {{{
 
 class TitleEdit(EnLineEdit, ToMetadataMixin):
 
@@ -357,8 +357,8 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
 
 # }}}
 
-# Authors {{{
 
+# Authors {{{
 
 class AuthorsEdit(EditWithComplete, ToMetadataMixin):
 
@@ -407,7 +407,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
                 try:
                     self.commit(self.db, self.id_)
                 except OSError as e:
-                    e.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
+                    e.locking_violation_msg = _("Could not change on-disk location of this book's files.")
                     raise
                 self.db.commit()
                 self.original_val = self.current_val
@@ -479,7 +479,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
             'For example Charles Dickens should be sorted as Dickens, '
             'Charles.\nIf the box is colored green, then text matches '
-            'the individual author\'s sort strings. If it is colored '
+            "the individual author's sort strings. If it is colored "
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
     FIELD_NAME = 'author_sort'
@@ -622,8 +622,8 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
 # }}}
 
-# Series {{{
 
+# Series {{{
 
 class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
@@ -794,8 +794,8 @@ class BuddyLabel(QLabel):  # {{{
         self.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 # }}}
 
-# Formats {{{
 
+# Formats {{{
 
 class Format(QListWidgetItem):
 
@@ -1022,19 +1022,17 @@ class FormatsManager(QWidget):
                 db.add_format(id_, ext, spool, notify=False,
                         index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
-        db_extensions = {fl.lower() for fl in (dbfmts.split(',') if dbfmts
-            else [])}
+        db_extensions = {fl.lower() for fl in (dbfmts.split(',') if dbfmts else [])}
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions and ext in self.original_val:
                 db.remove_format(id_, ext, notify=False, index_is_id=True)
 
         self.changed = False
-        return
 
     def add_format(self, *args):
         files = choose_files_and_remember_all_files(
-                self, 'add formats dialog', _("Choose formats for ") + self.dialog.title.current_val,
+                self, 'add formats dialog', _('Choose formats for ') + self.dialog.title.current_val,
                 [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
 
@@ -1202,7 +1200,7 @@ class Cover(ImageView):  # {{{
         self.select_cover_button = CB(_('&Browse'), 'document_open.png', self.select_cover)
         self.trim_cover_button = b = CB(_('Trim bord&ers'), 'trim.png')
         b.setToolTip(_(
-            'Automatically detect and remove extra space at the cover\'s edges.\n'
+            "Automatically detect and remove extra space at the cover's edges.\n"
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
         b.m = m = QMenu(b)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
@@ -1282,12 +1280,12 @@ class Cover(ImageView):  # {{{
                 return
             cover = None
             try:
-                with open(_file, "rb") as f:
+                with open(_file, 'rb') as f:
                     cover = f.read()
             except OSError as e:
                 d = error_dialog(
                         self, _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
+                        _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />'+str(e))
                 d.exec()
             if cover:
                 orig = self.current_val
@@ -1295,8 +1293,8 @@ class Cover(ImageView):  # {{{
                 if self.current_val is None:
                     self.current_val = orig
                     error_dialog(self,
-                        _("Not a valid picture"),
-                            _file + _(" is not a valid picture"), show=True)
+                        _('Not a valid picture'),
+                            _file + _(' is not a valid picture'), show=True)
 
     def remove_cover(self, *args):
         self.current_val = None
@@ -1603,8 +1601,8 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
         self.update_recently_used()
 # }}}
 
-# Identifiers {{{
 
+# Identifiers {{{
 
 class Identifiers(Dialog):
 
@@ -1616,7 +1614,7 @@ class Identifiers(Dialog):
         self.l = l = QVBoxLayout(self)
 
         self.la = la = QLabel(_(
-            'Edit the book\'s identifiers. Every identifier must be on a separate line, and have the form type:value'))
+            "Edit the book's identifiers. Every identifier must be on a separate line, and have the form type:value"))
         la.setWordWrap(True)
         self.text = t = QPlainTextEdit(self)
         l.addWidget(la), l.addWidget(t)
@@ -1750,7 +1748,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         if identifier_found:
             return
         text = str(QApplication.clipboard().text()).strip()
-        if text.startswith('http://') or text.startswith('https://'):
+        if text.startswith(('http://', 'https://')):
             return self.paste_prefix('url')
         try:
             prefix = gprefs['paste_isbn_prefixes'][0]
@@ -1796,14 +1794,14 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         rules = msprefs['id_link_rules']
         if rules:
             formatter = EvalFormatter()
-            vals = {'id' : '__ID_REGEX_PLACEHOLDER__'}
+            vals = {'id': '__ID_REGEX_PLACEHOLDER__'}
             for key in rules.keys():
                 rule = rules[key]
                 for name, template in rule:
                     try:
                         url_pattern = formatter.safe_format(template, vals, '', vals)
                         url_pattern = re.escape(url_pattern).replace('__ID_REGEX_PLACEHOLDER__', '(?P<new_id>.+)')
-                        if url_pattern.startswith('http:') or url_pattern.startswith('https:'):
+                        if url_pattern.startswith(('http:', 'https:')):
                             url_pattern = '(?:http|https):' + url_pattern.partition(':')[2]
                         new_id = re.compile(url_pattern)
                         new_id = new_id.search(text).group('new_id')
@@ -1829,7 +1827,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                     return True
             except Exception:
                 pass
-        for (key, prefix) in (
+        for key, prefix in (
             ('doi', 'https://dx.doi.org/'),
             ('doi', 'https://doi.org/'),
             ('arxiv', 'https://arxiv.org/abs/'),
@@ -1844,6 +1842,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
 
         return False
 # }}}
+
 
 class IndicatorLineEdit(QLineEdit, LineEditIndicators):
     pass
@@ -1978,8 +1977,8 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
 # }}}
 
-# DateEdit {{{
 
+# DateEdit {{{
 
 class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
 

@@ -44,7 +44,7 @@ def create_checkbox(title, tt, state):
 
 
 class TabbedDeviceConfig(QTabWidget):
-    """
+    '''
     This is a generic Tabbed Device config widget. It designed for devices with more
     complex configuration. But, it is backwards compatible to the standard device
     configuration widget.
@@ -63,7 +63,7 @@ class TabbedDeviceConfig(QTabWidget):
     DeviceConfigTab, for each set of options. Within the tabs, group boxes, subclassed
     from DeviceOptionsGroupBox, are created to further group the options. The group
     boxes can be coded to support any control type and dependencies between them.
-    """
+    '''
 
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
@@ -89,8 +89,8 @@ class TabbedDeviceConfig(QTabWidget):
             self.all_formats = set(self.all_formats) | set(BOOK_EXTENSIONS)
 
         self.base = QWidget(self)
-#         self.insertTab(0, self.base, _('Configure %s') % self.device.current_friendly_name)
-        self.insertTab(0, self.base, _("File formats"))
+        # self.insertTab(0, self.base, _('Configure %s') % self.device.current_friendly_name)
+        self.insertTab(0, self.base, _('File formats'))
         l = self.base.l = QGridLayout(self.base)
         self.base.setLayout(l)
 
@@ -99,23 +99,23 @@ class TabbedDeviceConfig(QTabWidget):
             self.formats.hide()
 
         self.opt_use_subdirs = create_checkbox(
-                                           _("Use sub-folders"),
+                                           _('Use sub-folders'),
                                            _('Place files in sub-folders if the device supports them'),
                                            device_settings.use_subdirs
                                            )
         self.opt_read_metadata = create_checkbox(
-                                             _("Read metadata from files on device"),
+                                             _('Read metadata from files on device'),
                                              _('Read metadata from files on device'),
                                              device_settings.read_metadata
                                              )
 
         self.template = TemplateConfig(device_settings.save_template)
         self.opt_use_author_sort = create_checkbox(
-                                             _("Use author sort for author"),
-                                             _("Use author sort for author"),
+                                             _('Use author sort for author'),
+                                             _('Use author sort for author'),
                                              device_settings.read_metadata
                                              )
-        self.opt_use_author_sort.setObjectName("opt_use_author_sort")
+        self.opt_use_author_sort.setObjectName('opt_use_author_sort')
         self.base.la = la = QLabel(_(
             'Choose the formats to send to the %s')%self.device_name)
         la.setWordWrap(True)
@@ -166,7 +166,7 @@ class TabbedDeviceConfig(QTabWidget):
         try:
             return super().__getattr__(attr_name)
         except AttributeError as ae:
-            for i in range(0, self.count()):
+            for i in range(self.count()):
                 atab = self.widget(i)
                 try:
                     return getattr(atab, attr_name)
@@ -216,7 +216,7 @@ class TabbedDeviceConfig(QTabWidget):
         return True
 
     def commit(self):
-        debug_print("TabbedDeviceConfig::commit: start")
+        debug_print('TabbedDeviceConfig::commit: start')
         p = self.device._configProxy()
 
         p['format_map'] = self.formats.format_map
@@ -261,19 +261,19 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
     def __init__(self, extra_customization_message, extra_customization_choices, device_settings):
         super().__init__()
 
-        debug_print("ExtraCustomization.__init__ - extra_customization_message=", extra_customization_message)
-        debug_print("ExtraCustomization.__init__ - extra_customization_choices=", extra_customization_choices)
-        debug_print("ExtraCustomization.__init__ - device_settings.extra_customization=", device_settings.extra_customization)
-        debug_print("ExtraCustomization.__init__ - device_settings=", device_settings)
+        debug_print('ExtraCustomization.__init__ - extra_customization_message=', extra_customization_message)
+        debug_print('ExtraCustomization.__init__ - extra_customization_choices=', extra_customization_choices)
+        debug_print('ExtraCustomization.__init__ - device_settings.extra_customization=', device_settings.extra_customization)
+        debug_print('ExtraCustomization.__init__ - device_settings=', device_settings)
         self.extra_customization_message = extra_customization_message
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
 
-        options_group = QGroupBox(_("Extra driver customization options"), self)
+        options_group = QGroupBox(_('Extra driver customization options'), self)
         self.l.addWidget(options_group)
         self.extra_layout = QGridLayout()
-        self.extra_layout.setObjectName("extra_layout")
+        self.extra_layout.setObjectName('extra_layout')
         options_group.setLayout(self.extra_layout)
 
         if extra_customization_message:
@@ -346,7 +346,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
         ec = []
         if self.extra_customization_message:
             if isinstance(self.extra_customization_message, list):
-                for i in range(0, len(self.extra_customization_message)):
+                for i in range(len(self.extra_customization_message)):
                     if self.opt_extra_customization[i] is None:
                         ec.append(None)
                         continue
@@ -365,18 +365,18 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
     @property
     def has_extra_customizations(self):
-        debug_print("ExtraCustomization::has_extra_customizations - self.extra_customization_message", self.extra_customization_message)
+        debug_print('ExtraCustomization::has_extra_customizations - self.extra_customization_message', self.extra_customization_message)
         return self.extra_customization_message and len(self.extra_customization_message) > 0
 
 # }}}
 
 
 class DeviceOptionsGroupBox(QGroupBox):
-    """
+    '''
     This is a container for the individual options for a device driver.
-    """
+    '''
 
-    def __init__(self, parent, device=None, title=_("Unknown")):
+    def __init__(self, parent, device=None, title=_('Unknown')):
         QGroupBox.__init__(self, parent)
 
         self.device = device
@@ -391,10 +391,10 @@ if __name__ == '__main__':
     s.scan()
     app = Application([])
     dev = KOBO(None)
-    debug_print("KOBO:", KOBO)
-#     dev.startup()
-#     cd = dev.detect_managed_devices(s.devices)
-#     dev.open(cd, 'test')
+    debug_print('KOBO:', KOBO)
+    # dev.startup()
+    # cd = dev.detect_managed_devices(s.devices)
+    # dev.open(cd, 'test')
     cw = dev.config_widget()
     d = QDialog()
     d.l = QVBoxLayout()

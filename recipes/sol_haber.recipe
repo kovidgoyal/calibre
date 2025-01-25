@@ -22,7 +22,7 @@ class SolHaberRecipe(BasicNewsRecipe):
 
     language = 'tr'
     __author__ = 'Onur Güngör'
-    description = 'Hayata soL''dan bakın..'
+    description = "Hayata soL'dan bakın.."
     publisher = 'soL Haber'
     tags = 'news, haberler, siyaset, türkiye, turkey, politics'
 
@@ -46,12 +46,12 @@ class SolHaberRecipe(BasicNewsRecipe):
     start_date = (datetime.date.today() -
                   datetime.timedelta(days=1)).isoformat()
 
-    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],  # noqa
+    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],  # noqa: E501
                       ['Haberler', 'http://haber.sol.org.tr/arsiv?icerik=haber&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
                           (start_date, end_date)],
                       ['soL postal', 'http://haber.sol.org.tr/arsiv?icerik=postal&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
                           (start_date, end_date)],
-                      ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]  # noqa
+                      ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]  # noqa: E501
 
     # Disable stylesheets from site.
     no_stylesheets = True
@@ -69,15 +69,15 @@ class SolHaberRecipe(BasicNewsRecipe):
         dict(name='div', attrs={'class': re.compile(storybody_reg_exp, re.IGNORECASE)})]
 
     def get_masthead_title(self):
-        return self.title + "(" + self.end_date + ")"
+        return self.title + '(' + self.end_date + ')'
 
     def parse_index(self):
 
         result = []
-        articles_dict = dict()
+        articles_dict = {}
 
-        author_regexp = re.compile('^http://.*?/yazarlar/(.*?)/.*$')
-        category_regexp = re.compile('^http://.*?/(.+?)/.*$')
+        author_regexp = re.compile(r'^http://.*?/yazarlar/(.*?)/.*$')
+        category_regexp = re.compile(r'^http://.*?/(.+?)/.*$')
 
         for section_tuple in self.section_tuples:
 

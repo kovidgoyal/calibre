@@ -25,11 +25,11 @@ class Pecat_rs(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     needs_subscription = 'optional'
     publication_type = 'magazine'
-    extra_css                 = """
+    extra_css                 = '''
                                 body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 img{display: block; margin-bottom: 1em; margin-top: 1em}
                                 p{display: block; margin-bottom: 1em; margin-top: 1em}
-                                """
+                                '''
 
     conversion_options = {
         'comment': description, 'tags': 'politika, Srbija', 'publisher': 'Pecat', 'language': language

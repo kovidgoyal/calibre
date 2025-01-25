@@ -28,8 +28,8 @@ class ScottHanselman(BasicNewsRecipe):
         '--comment', description, '--category', category, '--publisher', publisher, '--author', author
     ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
-        description + '"\ntags="' + category + '"\nauthors="' + author + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + \
+        '"\ntags="' + category + '"\nauthors="' + author + '"'
 
     remove_tags = [
         dict(name=['object', 'link']), dict(

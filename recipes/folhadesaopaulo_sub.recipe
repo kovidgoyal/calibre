@@ -11,8 +11,8 @@ class FSP(BasicNewsRecipe):
 
     title = u'Folha de S\xE3o Paulo'
     __author__ = 'Joao Eduardo Bertacchi - lc_addicted, 2020 Leonardo Amaral - leleobhz'
-    description = u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).' + \
-                  u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]'
+    description = (u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).'
+                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]')
 
     today = datetime.date.today()
 
@@ -49,7 +49,7 @@ class FSP(BasicNewsRecipe):
     # this solves the problem with truncated content in Kindle
     conversion_options = {'linearize_tables': True}
 
-    extra_css = """
+    extra_css = '''
 #articleNew { font: 18px Times New Roman,verdana,arial; }
 img { background: none !important; float: none; margin: 0px; }
 .newstexts { list-style-type: none; height: 20px; margin: 15px 0 10px 0; }
@@ -82,14 +82,14 @@ img { background: none !important; float: none; margin: 0px; }
 .divisor { text-indent: -9999px; border-bottom: 1px solid #ccc; height: 1px; margin: 0; }
 .star { background: none !important; height: 15px; }
 .articleGraphic { margin-bottom: 20px; }
-"""
+'''
 
     # This is the code for login, here a mini browser is called and id entered
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://login.folha.com.br/login')
-            br.select_form(action="https://login.folha.com.br/login")
+            br.select_form(action='https://login.folha.com.br/login')
             br['email'] = self.username
             br['password'] = self.password
             br.submit()
@@ -109,7 +109,7 @@ img { background: none !important; float: none; margin: 0px; }
 
         for post in soup.findAll('a'):
             strpost = str(post)
-            if re.match('<a href="https://www1.folha.uol.com.br/.*/"><svg aria-hidden="true" class="icon icon--star"', strpost):
+            if re.match(r'<a href="https://www1.folha.uol.com.br/.*/"><svg aria-hidden="true" class="icon icon--star"', strpost):
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()
@@ -125,7 +125,7 @@ img { background: none !important; float: none; margin: 0px; }
                 break
             elif strpost.startswith('<a href'):
                 url = post['href']
-                if url.startswith('http://www1.folha.uol.com.br/') or url.startswith('https://www1.folha.uol.com.br/') :
+                if url.startswith(('http://www1.folha.uol.com.br/', 'https://www1.folha.uol.com.br/')):
                     title = self.tag_to_string(post)
                     self.log()
                     self.log('--> post:  ', post)

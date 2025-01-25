@@ -10,5 +10,3 @@ def format_bytes(byts):
     byts = bytearray(byts)
     byts = [hex(b)[2:] for b in byts]
     return ' '.join(byts)
-
-

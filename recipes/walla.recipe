@@ -9,7 +9,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     title = u'Walla'
     language = 'he'
     __author__ = 'marbs & barakplasma'
-    extra_css = 'body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa
+    extra_css = 'body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa: E501
     simultaneous_downloads = 5
     timefmt = '[%d/%m/%y %H:%M]'
     oldest_article = 1
@@ -19,7 +19,6 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         dict(name='p', attrs={'class': 'subtitle'}),
         dict(name='p', attrs={'class': 'article_speakable'}),
     ]
-    max_articles_per_feed = 100
 
     feeds = [
         (u'חדשות', u'https://rss.walla.co.il/feed/1?type=main'),

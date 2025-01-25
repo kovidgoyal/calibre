@@ -161,7 +161,7 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     o = qdate_or_qdatetime
     if o is None or is_date_undefined(qdate_or_qdatetime):
         return UNDEFINED_DATE
-    if hasattr(o, 'toUTC'): # QDateTime
+    if hasattr(o, 'toUTC'):  # QDateTime
         def c(o: QDateTime, tz=utc_tz):
             d, t = o.date(), o.time()
             try:
@@ -285,8 +285,8 @@ def utcfromtimestamp(stamp):
 def timestampfromdt(dt, assume_utc=True):
     return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
-# Format date functions {{{
 
+# Format date functions {{{
 
 def fd_format_hour(dt, ampm, hr):
     l = len(hr)
@@ -384,13 +384,13 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
     repl_func = partial(fd_repl_func, dt, 'ap' in format.lower())
     return re.sub(
-        '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        r'(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
 # }}}
 
-# Clean date functions {{{
 
+# Clean date functions {{{
 
 def cd_has_hour(tt, dt):
     tt['hour'] = dt.hour
@@ -460,7 +460,7 @@ def clean_date_for_sort(dt, fmt=None):
           'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
 
     repl_func = partial(cd_repl_func, tt, dt)
-    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
+    re.sub(r'(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
     return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
                       minute=tt['min'], second=tt['sec'], microsecond=0)
 # }}}

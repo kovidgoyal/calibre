@@ -16,7 +16,7 @@ class IlMessaggero(BasicNewsRecipe):
     __author__ = 'Gabriele Marini'
     description = 'Italian News'
 
-#    cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
+    # cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
     title = u'Il Messaggero'
     publisher = 'Caltagirone Editore'
     category = 'News, politics, culture, economy, general interest'
@@ -36,22 +36,21 @@ class IlMessaggero(BasicNewsRecipe):
                       dict(name='h2', attrs={
                           'class': ['sottotitLettura', 'grigio16']}),
                       dict(name='span', attrs={'class': 'testoArticoloG'}),
-                      dict(name='div',  attrs={'id': 'testodim'})
+                      dict(name='div', attrs={'id': 'testodim'})
                       ]
 
     def get_cover_url(self):
         cover = None
         st = time.localtime()
         year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
-        cover = 'http://carta.ilmessaggero.it/' + year + \
-            month + day + '/jpeg/MSGR_20_CITTA_1.jpg'
+        month = '%.2d' % st.tm_mon
+        day = '%.2d' % st.tm_mday
+        cover = 'http://carta.ilmessaggero.it/' + year + month + day + '/jpeg/MSGR_20_CITTA_1.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             cover = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
 
         return cover

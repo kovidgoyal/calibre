@@ -86,14 +86,14 @@ class TextureChooser(QDialog):
         images = [{
             'fname': ':'+os.path.basename(x),
             'path': x,
-            'name': ' '.join(map(lambda s: s.capitalize(), os.path.splitext(os.path.basename(x))[0].split('_')))
+            'name': ' '.join(s.capitalize() for s in os.path.splitext(os.path.basename(x))[0].split('_'))
         } for x in glob.glob(I('textures/*.png'))] + [{
             'fname': os.path.basename(x),
             'path': x,
             'name': os.path.splitext(os.path.basename(x))[0],
         } for x in glob.glob(os.path.join(self.tdir, '*')) if x.rpartition('.')[-1].lower() in {'jpeg', 'png', 'jpg'}]
 
-        images.sort(key=lambda x:sort_key(x['name']))
+        images.sort(key=lambda x: sort_key(x['name']))
 
         for i in images:
             self.create_item(i)
@@ -165,7 +165,7 @@ class TextureChooser(QDialog):
 
 
 if __name__ == '__main__':
-    app = QApplication([])  # noqa
+    app = QApplication([])  # noqa: F841
     d = TextureChooser()
     d.exec()
     print(d.texture)

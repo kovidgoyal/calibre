@@ -20,28 +20,28 @@ class AdvancedUserRecipe1716102924(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #PC & Mobile
+        # PC & Mobile
         ('PC & Mobile', 'https://www.makeuseof.com/feed/category/pc-mobile/'),
         ('Windows', 'https://www.makeuseof.com/feed/category/windows/'),
         ('Mac', 'https://www.makeuseof.com/feed/category/mac/'),
         ('Linux', 'https://www.makeuseof.com/feed/category/linux/'),
         ('Android', 'https://www.makeuseof.com/feed/category/google-android/'),
         ('iOS', 'https://www.makeuseof.com/feed/category/ios/'),
-        #Internet
+        # Internet
         ('Internet', 'https://www.makeuseof.com/feed/category/web-based/'),
         ('Social Media', 'https://www.makeuseof.com/feed/category/social-media/'),
         ('Security', 'https://www.makeuseof.com/feed/category/security/'),
         ('Programming', 'https://www.makeuseof.com/feed/category/programming/'),
-        #Productivity
+        # Productivity
         ('Productivity', 'https://www.makeuseof.com/feed/category/productivity/'),
         ('Creative', 'https://www.makeuseof.com/feed/category/creative/'),
         ('DIY', 'https://www.makeuseof.com/feed/category/diy-projects/'),
-        #Lifestyle
+        # Lifestyle
         ('Lifestyle', 'https://www.makeuseof.com/feed/category/lifestyle/'),
         ('Smart Home', 'https://www.makeuseof.com/feed/category/smart-home/'),
         ('Gaming', 'https://www.makeuseof.com/feed/category/games/'),
         ('Entertainment', 'https://www.makeuseof.com/feed/category/entertainment/'),
-        #Technology Explained
+        # Technology Explained
         ('Technology Explained', 'https://www.makeuseof.com/feed/category/technology-explained/'),
         ('Artificial Intelligence', 'https://www.makeuseof.com/feed/tag/artificial-intelligence/'),
         ('Tech Jargon', 'https://www.makeuseof.com/feed/tag/pc-jargon-terminology/'),

@@ -245,7 +245,7 @@ class KINDLE(USBMS):
         if mc_path:
             timestamp = utcfromtimestamp(os.path.getmtime(mc_path))
             bookmarked_books['clippings'] = self.UserAnnotation(type='kindle_clippings',
-                                              value=dict(path=mc_path, timestamp=timestamp))
+                                              value={'path': mc_path, 'timestamp': timestamp})
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -264,12 +264,12 @@ class KINDLE(USBMS):
 
         # Add the last-read location
         if bookmark.book_format == 'pdf':
-            markup = _("%(time)s<br />Last page read: %(loc)d (%(pr)d%%)") % dict(
+            markup = _('%(time)s<br />Last page read: %(loc)d (%(pr)d%%)') % dict(
                     time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
         else:
-            markup = _("%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)") % dict(
+            markup = _('%(time)s<br />Last page read: Location %(loc)d (%(pr)d%%)') % dict(
                     time=strftime('%x', timestamp.timetuple()),
                     loc=last_read_location,
                     pr=percent_read)
@@ -312,7 +312,7 @@ class KINDLE(USBMS):
                 divTag.insert(dtc, annot)
                 dtc += 1
 
-        ka_soup.insert(0,divTag)
+        ka_soup.insert(0, divTag)
         return ka_soup
 
     def add_annotation_to_library(self, db, db_id, annotation):
@@ -610,7 +610,7 @@ class KINDLE2(KINDLE):
 
         # Create the sidecar folder if necessary
         if (self.sidecar_apnx):
-            path = os.path.join(os.path.dirname(filepath), filename+".sdr")
+            path = os.path.join(os.path.dirname(filepath), filename+'.sdr')
 
             if not os.path.exists(path):
                 os.makedirs(path)
@@ -636,7 +636,7 @@ class KINDLE2(KINDLE):
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:
-                            print("Invalid method choice for this book (%r), ignoring." % temp)
+                            print('Invalid method choice for this book (%r), ignoring.' % temp)
                     except:
                         print('Could not retrieve override method choice, using default.')
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)

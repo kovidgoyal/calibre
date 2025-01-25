@@ -16,15 +16,15 @@ from calibre import sanitize_file_name
 from calibre.constants import iswindows
 from calibre.db import FTSQueryError
 from calibre.db.annotations import unicode_normalize
+from calibre.db.constants import NOTES_DB_NAME, NOTES_DIR_NAME
+from calibre.db.notes.schema_upgrade import SchemaUpgrade
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 
-from .schema_upgrade import SchemaUpgrade
-from ..constants import NOTES_DB_NAME, NOTES_DIR_NAME
-
 if iswindows:
     from calibre_extensions import winutil
+
 
 class cmt(str):
     pass
@@ -83,7 +83,7 @@ class Notes:
     def reopen(self, backend):
         conn = backend.get_connection()
         conn.notes_dbpath = os.path.join(self.notes_dir, NOTES_DB_NAME)
-        conn.execute("ATTACH DATABASE ? AS notes_db", (conn.notes_dbpath,))
+        conn.execute('ATTACH DATABASE ? AS notes_db', (conn.notes_dbpath,))
         self.allowed_fields = set()
         triggers = []
         for table in backend.tables.values():
@@ -280,7 +280,7 @@ class Notes:
         if field_name:
             return {item_id for (item_id,) in conn.execute('SELECT item FROM notes_db.notes WHERE colname=?', (field_name,))}
         ans = defaultdict(set)
-        for (note_id, field_name) in conn.execute('SELECT item, colname FROM notes_db.notes'):
+        for note_id, field_name in conn.execute('SELECT item, colname FROM notes_db.notes'):
             ans[field_name].add(note_id)
         return ans
 

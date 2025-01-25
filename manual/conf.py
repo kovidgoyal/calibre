@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # calibre documentation build configuration file, created by
 # sphinx-quickstart.py on Sun Mar 23 01:23:55 2008.
 #
@@ -47,11 +45,11 @@ templates_path = ['templates']
 source_suffix = {'.rst': 'restructuredtext'}
 
 # The master toctree document.
-master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
+master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa: F821
 # kill the warning about index/simple_index not being in a toctree
 exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rst']
 exclude_patterns.append('cli-options-header.rst')
-if tags.has('gettext'):  # noqa
+if tags.has('gettext'):  # noqa: F821
     # Do not exclude anything as the strings must be translated. This will
     # generate a warning about the documents not being in a toctree, just ignore
     # it.
@@ -64,7 +62,7 @@ language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
 def generated_langs():
     try:
         return os.listdir(os.path.join(base, 'generated'))
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise
     return ()
@@ -99,13 +97,13 @@ today_fmt = '%B %d, %Y'
 unused_docs = ['global', 'cli/global']
 
 locale_dirs = ['locale/']
-title = '%s User Manual' % __appname__
+title = f'{__appname__} User Manual'
 needs_localization = language not in {'en', 'eng'}
 if needs_localization:
     import gettext
     try:
         t = gettext.translation('simple_index', locale_dirs[0], [language])
-    except IOError:
+    except OSError:
         pass
     else:
         title = t.gettext(title)
@@ -176,7 +174,7 @@ def sort_languages(x):
     lc, name = x
     if lc == language:
         return ''
-    return sort_key(type(u'')(name))
+    return sort_key(str(name))
 
 
 website = 'https://calibre-ebook.com'
@@ -193,13 +191,13 @@ extlinks = {
 }
 del sort_languages, get_language
 
-epub_author      = u'Kovid Goyal'
-epub_publisher   = u'Kovid Goyal'
-epub_copyright   = u'© {} Kovid Goyal'.format(date.today().year)
-epub_description = u'Comprehensive documentation for calibre'
-epub_identifier  = u'https://manual.calibre-ebook.com'
-epub_scheme      = u'url'
-epub_uid         = u'S54a88f8e9d42455e9c6db000e989225f'
+epub_author      = 'Kovid Goyal'
+epub_publisher   = 'Kovid Goyal'
+epub_copyright   = f'© {date.today().year} Kovid Goyal'
+epub_description = 'Comprehensive documentation for calibre'
+epub_identifier  = 'https://manual.calibre-ebook.com'
+epub_scheme      = 'url'
+epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
 epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')
@@ -255,5 +253,5 @@ latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
     'papersize':'letterpaper',
-    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),
+    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),  # noqa: UP031
 }

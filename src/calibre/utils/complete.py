@@ -59,9 +59,9 @@ def get_opts_from_parser(parser, prefix):
 
 
 def send(ans):
-    pat = re.compile('([^0-9a-zA-Z_./-])')
+    pat = re.compile(r'([^0-9a-zA-Z_./-])')
     for x in sorted(set(ans)):
-        x = pat.sub(lambda m : '\\'+m.group(1), x)
+        x = pat.sub(lambda m: '\\'+m.group(1), x)
         if x.endswith('\\ '):
             x = x[:-2]+' '
         prints(x)

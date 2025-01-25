@@ -102,7 +102,7 @@ class FetchAnnotationsAction(InterfaceAction):
                 path = get_device_path_from_id(id)
                 mi = db.get_metadata(id, index_is_id=True)
                 a_path = device.create_annotations_path(mi, device_path=path)
-                path_map[id] = dict(path=a_path, fmts=get_formats(id))
+                path_map[id] = {'path': a_path, 'fmts': get_formats(id)}
             return path_map
 
         device = self.gui.device_manager.device

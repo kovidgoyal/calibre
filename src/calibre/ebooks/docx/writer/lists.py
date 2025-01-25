@@ -121,7 +121,7 @@ class Level:
         makeelement(makeelement(lvl, 'w:pPr'), 'w:ind', w_hanging='360', w_left=str(1152 + self.ilvl * 360))
         if self.num_fmt == 'bullet':
             ff = {'\uf0b7':'Symbol', '\uf0a7':'Wingdings'}.get(self.lvl_text, 'Courier New')
-            makeelement(makeelement(lvl, 'w:rPr'), 'w:rFonts', w_ascii=ff, w_hAnsi=ff, w_hint="default")
+            makeelement(makeelement(lvl, 'w:rPr'), 'w:rFonts', w_ascii=ff, w_hAnsi=ff, w_hint='default')
 
 
 class ListsManager:

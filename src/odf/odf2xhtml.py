@@ -77,11 +77,10 @@ if False:  # Added by Kovid
 
 
 class StyleToCSS:
-
-    """ The purpose of the StyleToCSS class is to contain the rules to convert
+    ''' The purpose of the StyleToCSS class is to contain the rules to convert
         ODF styles to CSS2. Since it needs the generic fonts, it would probably
         make sense to also contain the Styles in a dict as well..
-    """
+    '''
 
     def __init__(self):
         # Font declarations
@@ -92,79 +91,79 @@ class StyleToCSS:
 
         self.ruleconversions = {
             (DRAWNS,'fill-image-name'): self.c_drawfillimage,
-            (FONS,"background-color"): self.c_fo,
-            (FONS,"border"): self.c_fo,
-            (FONS,"border-bottom"): self.c_fo,
-            (FONS,"border-left"): self.c_fo,
-            (FONS,"border-right"): self.c_fo,
-            (FONS,"border-top"): self.c_fo,
-            (FONS,"break-after"): self.c_break,  # Added by Kovid
-            (FONS,"break-before"): self.c_break,  # Added by Kovid
-            (FONS,"color"): self.c_fo,
-            (FONS,"font-family"): self.c_fo,
-            (FONS,"font-size"): self.c_fo,
-            (FONS,"font-style"): self.c_fo,
-            (FONS,"font-variant"): self.c_fo,
-            (FONS,"font-weight"): self.c_fo,
-            (FONS,"line-height"): self.c_fo,
-            (FONS,"margin"): self.c_fo,
-            (FONS,"margin-bottom"): self.c_fo,
-            (FONS,"margin-left"): self.c_fo,
-            (FONS,"margin-right"): self.c_fo,
-            (FONS,"margin-top"): self.c_fo,
-            (FONS,"min-height"): self.c_fo,
-            (FONS,"padding"): self.c_fo,
-            (FONS,"padding-bottom"): self.c_fo,
-            (FONS,"padding-left"): self.c_fo,
-            (FONS,"padding-right"): self.c_fo,
-            (FONS,"padding-top"): self.c_fo,
-            (FONS,"page-width"): self.c_page_width,
-            (FONS,"page-height"): self.c_page_height,
-            (FONS,"text-align"): self.c_text_align,
-            (FONS,"text-indent") :self.c_fo,
-            (TABLENS,'border-model') :self.c_border_model,
-            (STYLENS,'column-width') : self.c_width,
-            (STYLENS,"font-name"): self.c_fn,
+            (FONS,'background-color'): self.c_fo,
+            (FONS,'border'): self.c_fo,
+            (FONS,'border-bottom'): self.c_fo,
+            (FONS,'border-left'): self.c_fo,
+            (FONS,'border-right'): self.c_fo,
+            (FONS,'border-top'): self.c_fo,
+            (FONS,'break-after'): self.c_break,  # Added by Kovid
+            (FONS,'break-before'): self.c_break,  # Added by Kovid
+            (FONS,'color'): self.c_fo,
+            (FONS,'font-family'): self.c_fo,
+            (FONS,'font-size'): self.c_fo,
+            (FONS,'font-style'): self.c_fo,
+            (FONS,'font-variant'): self.c_fo,
+            (FONS,'font-weight'): self.c_fo,
+            (FONS,'line-height'): self.c_fo,
+            (FONS,'margin'): self.c_fo,
+            (FONS,'margin-bottom'): self.c_fo,
+            (FONS,'margin-left'): self.c_fo,
+            (FONS,'margin-right'): self.c_fo,
+            (FONS,'margin-top'): self.c_fo,
+            (FONS,'min-height'): self.c_fo,
+            (FONS,'padding'): self.c_fo,
+            (FONS,'padding-bottom'): self.c_fo,
+            (FONS,'padding-left'): self.c_fo,
+            (FONS,'padding-right'): self.c_fo,
+            (FONS,'padding-top'): self.c_fo,
+            (FONS,'page-width'): self.c_page_width,
+            (FONS,'page-height'): self.c_page_height,
+            (FONS,'text-align'): self.c_text_align,
+            (FONS,'text-indent'):self.c_fo,
+            (TABLENS,'border-model'):self.c_border_model,
+            (STYLENS,'column-width'): self.c_width,
+            (STYLENS,'font-name'): self.c_fn,
             (STYLENS,'horizontal-pos'): self.c_hp,
             (STYLENS,'text-position'): self.c_text_position,
             (STYLENS,'text-line-through-style'): self.c_text_line_through_style,
             (STYLENS,'text-underline-style'): self.c_text_underline_style,
-            (STYLENS,'width') : self.c_width,
+            (STYLENS,'width'): self.c_width,
             # FIXME Should do style:vertical-pos here
         }
 
     def save_font(self, name, family, generic):
-        """ It is possible that the HTML browser doesn't know how to
+        ''' It is possible that the HTML browser doesn't know how to
             show a particular font. Fortunately ODF provides generic fallbacks.
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
             This method put the font and fallback into a dictionary
-        """
-        htmlgeneric = "sans-serif"
-        if generic == "roman":
-            htmlgeneric = "serif"
-        elif generic == "swiss":
-            htmlgeneric = "sans-serif"
-        elif generic == "modern":
-            htmlgeneric = "monospace"
-        elif generic == "decorative":
-            htmlgeneric = "sans-serif"
-        elif generic == "script":
-            htmlgeneric = "monospace"
-        elif generic == "system":
-            htmlgeneric = "serif"
+        '''
+        htmlgeneric = 'sans-serif'
+        if generic == 'roman':
+            htmlgeneric = 'serif'
+        elif generic == 'swiss':
+            htmlgeneric = 'sans-serif'
+        elif generic == 'modern':
+            htmlgeneric = 'monospace'
+        elif generic == 'decorative':
+            htmlgeneric = 'sans-serif'
+        elif generic == 'script':
+            htmlgeneric = 'monospace'
+        elif generic == 'system':
+            htmlgeneric = 'serif'
         self.fontdict[name] = (family, htmlgeneric)
 
     def c_drawfillimage(self, ruleset, sdict, rule, val):
-        """ Fill a figure with an image. Since CSS doesn't let you resize images
+        ''' Fill a figure with an image. Since CSS doesn't let you resize images
             this should really be implemented as an absolutely position <img>
             with a width and a height
-        """
-        sdict['background-image'] = "url('%s')" % self.fillimages[val]
+        '''
+        sdict['background-image'] = "url('{}')".format(self.fillimages[val])
 
     def c_fo(self, ruleset, sdict, rule, val):
-        """ XSL formatting attributes """
+        ''' XSL formatting attributes '''
         selector = rule[1]
         sdict[selector] = val
 
@@ -176,37 +175,37 @@ class StyleToCSS:
         sdict[property] = values.get(val, 'auto')
 
     def c_border_model(self, ruleset, sdict, rule, val):
-        """ Convert to CSS2 border model """
+        ''' Convert to CSS2 border model '''
         if val == 'collapsing':
             sdict['border-collapse'] ='collapse'
         else:
             sdict['border-collapse'] ='separate'
 
     def c_width(self, ruleset, sdict, rule, val):
-        """ Set width of box """
+        ''' Set width of box '''
         sdict['width'] = val
 
     def c_text_align(self, ruleset, sdict, rule, align):
-        """ Text align """
-        if align == "start":
-            align = "left"
-        if align == "end":
-            align = "right"
+        ''' Text align '''
+        if align == 'start':
+            align = 'left'
+        if align == 'end':
+            align = 'right'
         sdict['text-align'] = align
 
     def c_fn(self, ruleset, sdict, rule, fontstyle):
-        """ Generate the CSS font family
+        ''' Generate the CSS font family
             A generic font can be found in two ways. In a <style:font-face>
             element or as a font-family-generic attribute in text-properties.
-        """
+        '''
         generic = ruleset.get((STYLENS,'font-family-generic'))
         if generic is not None:
             self.save_font(fontstyle, fontstyle, generic)
         family, htmlgeneric = self.fontdict.get(fontstyle, (fontstyle, 'serif'))
-        sdict['font-family'] = '%s, %s'  % (family, htmlgeneric)
+        sdict['font-family'] = f'{family}, {htmlgeneric}'
 
     def c_text_position(self, ruleset, sdict, rule, tp):
-        """ Text position. This is used e.g. to make superscript and subscript
+        ''' Text position. This is used e.g. to make superscript and subscript
             This attribute can have one or two values.
 
             The first value must be present and specifies the vertical
@@ -223,15 +222,15 @@ class StyleToCSS:
             used. Although this value may change the font height that
             is displayed, it never changes the current font height that
             is used for additional calculations.
-        """
+        '''
         textpos = tp.split(' ')
-        if len(textpos) == 2 and textpos[0] != "0%":
+        if len(textpos) == 2 and textpos[0] != '0%':
             # Bug in OpenOffice. If vertical-align is 0% - ignore the text size.
             sdict['font-size'] = textpos[1]
-        if textpos[0] == "super":
-            sdict['vertical-align'] = "33%"
-        elif textpos[0] == "sub":
-            sdict['vertical-align'] = "-33%"
+        if textpos[0] == 'super':
+            sdict['vertical-align'] = '33%'
+        elif textpos[0] == 'sub':
+            sdict['vertical-align'] = '-33%'
         else:
             sdict['vertical-align'] = textpos[0]
 
@@ -241,70 +240,70 @@ class StyleToCSS:
         # collect the information.
         wrap = ruleset.get((STYLENS,'wrap'),'parallel')
         # Can have: from-left, left, center, right, from-inside, inside, outside
-        if hpos == "center":
-            sdict['margin-left'] = "auto"
-            sdict['margin-right'] = "auto"
+        if hpos == 'center':
+            sdict['margin-left'] = 'auto'
+            sdict['margin-right'] = 'auto'
         # else:
         #     # force it to be *something* then delete it
         #     sdict['margin-left'] = sdict['margin-right'] = ''
         #     del sdict['margin-left'], sdict['margin-right']
 
-        if hpos in ("right","outside"):
-            if wrap in ("left", "parallel","dynamic"):
-                sdict['float'] = "right"
-            elif wrap == "run-through":
-                sdict['position'] = "absolute"  # Simulate run-through
-                sdict['top'] = "0"
-                sdict['right'] = "0"
+        if hpos in ('right','outside'):
+            if wrap in ('left', 'parallel','dynamic'):
+                sdict['float'] = 'right'
+            elif wrap == 'run-through':
+                sdict['position'] = 'absolute'  # Simulate run-through
+                sdict['top'] = '0'
+                sdict['right'] = '0'
             else:  # No wrapping
-                sdict['margin-left'] = "auto"
-                sdict['margin-right'] = "0px"
-        elif hpos in ("left", "inside"):
-            if wrap in ("right", "parallel","dynamic"):
-                sdict['float'] = "left"
-            elif wrap == "run-through":
-                sdict['position'] = "absolute"  # Simulate run-through
-                sdict['top'] = "0"
-                sdict['left'] = "0"
+                sdict['margin-left'] = 'auto'
+                sdict['margin-right'] = '0px'
+        elif hpos in ('left', 'inside'):
+            if wrap in ('right', 'parallel','dynamic'):
+                sdict['float'] = 'left'
+            elif wrap == 'run-through':
+                sdict['position'] = 'absolute'  # Simulate run-through
+                sdict['top'] = '0'
+                sdict['left'] = '0'
             else:  # No wrapping
-                sdict['margin-left'] = "0px"
-                sdict['margin-right'] = "auto"
-        elif hpos in ("from-left", "from-inside"):
-            if wrap in ("right", "parallel"):
-                sdict['float'] = "left"
+                sdict['margin-left'] = '0px'
+                sdict['margin-right'] = 'auto'
+        elif hpos in ('from-left', 'from-inside'):
+            if wrap in ('right', 'parallel'):
+                sdict['float'] = 'left'
             else:
-                sdict['position'] = "relative"  # No wrapping
+                sdict['position'] = 'relative'  # No wrapping
                 if (SVGNS,'x') in ruleset:
                     sdict['left'] = ruleset[(SVGNS,'x')]
 
     def c_page_width(self, ruleset, sdict, rule, val):
-        """ Set width of box
+        ''' Set width of box
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
+        '''
         sdict['width'] = val
 
     def c_text_underline_style(self, ruleset, sdict, rule, val):
-        """ Set underline decoration
+        ''' Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
-        if val and val != "none":
-            sdict['text-decoration'] = "underline"
+        '''
+        if val and val != 'none':
+            sdict['text-decoration'] = 'underline'
 
     def c_text_line_through_style(self, ruleset, sdict, rule, val):
-        """ Set underline decoration
+        ''' Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        """
-        if val and val != "none":
-            sdict['text-decoration'] = "line-through"
+        '''
+        if val and val != 'none':
+            sdict['text-decoration'] = 'line-through'
 
     def c_page_height(self, ruleset, sdict, rule, val):
-        """ Set height of box """
+        ''' Set height of box '''
         sdict['height'] = val
 
     def convert_styles(self, ruleset):
-        """ Rule is a tuple of (namespace, name). If the namespace is '' then
+        ''' Rule is a tuple of (namespace, name). If the namespace is '' then
             it is already CSS2
-        """
+        '''
         sdict = {}
         for rule,val in ruleset.items():
             if rule[0] == '':
@@ -333,7 +332,7 @@ class TagStack:
         return item[1]
 
     def rfindattr(self, attr):
-        """ Find a tag with the given attribute """
+        ''' Find a tag with the given attribute '''
         for tag, attrs in self.stack:
             if attr in attrs:
                 return attrs[attr]
@@ -348,26 +347,26 @@ class TagStack:
 
 
 special_styles = {
-   'S-Emphasis':'em',
-   'S-Citation':'cite',
-   'S-Strong_20_Emphasis':'strong',
-   'S-Variable':'var',
-   'S-Definition':'dfn',
-   'S-Teletype':'tt',
-   'P-Heading_20_1':'h1',
-   'P-Heading_20_2':'h2',
-   'P-Heading_20_3':'h3',
-   'P-Heading_20_4':'h4',
-   'P-Heading_20_5':'h5',
-   'P-Heading_20_6':'h6',
-#  'P-Caption':'caption',
-   'P-Addressee':'address',
-#  'P-List_20_Heading':'dt',
-#  'P-List_20_Contents':'dd',
-   'P-Preformatted_20_Text':'pre',
-#  'P-Table_20_Heading':'th',
-#  'P-Table_20_Contents':'td',
-#  'P-Text_20_body':'p'
+    'S-Emphasis':'em',
+    'S-Citation':'cite',
+    'S-Strong_20_Emphasis':'strong',
+    'S-Variable':'var',
+    'S-Definition':'dfn',
+    'S-Teletype':'tt',
+    'P-Heading_20_1':'h1',
+    'P-Heading_20_2':'h2',
+    'P-Heading_20_3':'h3',
+    'P-Heading_20_4':'h4',
+    'P-Heading_20_5':'h5',
+    'P-Heading_20_6':'h6',
+    # 'P-Caption':'caption',
+    'P-Addressee':'address',
+    # 'P-List_20_Heading':'dt',
+    # 'P-List_20_Contents':'dd',
+    'P-Preformatted_20_Text':'pre',
+    # 'P-Table_20_Heading':'th',
+    # 'P-Table_20_Contents':'td',
+    # 'P-Text_20_body':'p'
 }
 
 # -----------------------------------------------------------------------------
@@ -378,14 +377,13 @@ special_styles = {
 
 
 class ODF2XHTML(handler.ContentHandler):
-
-    """ The ODF2XHTML parses an ODF file and produces XHTML"""
+    ''' The ODF2XHTML parses an ODF file and produces XHTML'''
 
     def __init__(self, generate_css=True, embedable=False):
         # Tags
         self.generate_css = generate_css
         self.frame_stack = []
-        self.list_number_map = defaultdict(lambda : 1)
+        self.list_number_map = defaultdict(lambda: 1)
         self.list_id_map = {}
         self.list_class_stack = []
         self.elements = {
@@ -398,7 +396,7 @@ class ODF2XHTML(handler.ContentHandler):
         (DRAWNS, 'frame'): (self.s_draw_frame, self.e_draw_frame),
         (DRAWNS, 'image'): (self.s_draw_image, None),
         (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
-        (DRAWNS, "layer-set"):(self.s_ignorexml, None),
+        (DRAWNS, 'layer-set'):(self.s_ignorexml, None),
         (DRAWNS, 'object'): (self.s_draw_object, None),
         (DRAWNS, 'object-ole'): (self.s_draw_object_ole, None),
         (DRAWNS, 'page'): (self.s_draw_page, self.e_draw_page),
@@ -407,47 +405,47 @@ class ODF2XHTML(handler.ContentHandler):
         (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
         (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
         (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
-        (NUMBERNS, "boolean-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "currency-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "date-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "number-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "text-style"):(self.s_ignorexml, None),
-        (OFFICENS, "annotation"):(self.s_ignorexml, None),
-        (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
-        (OFFICENS, "document"):(self.s_office_document_content, self.e_office_document_content),
-        (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
-        (OFFICENS, "forms"):(self.s_ignorexml, None),
-        (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
-        (OFFICENS, "meta"):(self.s_ignorecont, None),
-        (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
-        (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
-        (OFFICENS, "styles"):(self.s_office_styles, None),
-        (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
-        (OFFICENS, "scripts"):(self.s_ignorexml, None),
-        (OFFICENS, "settings"):(self.s_ignorexml, None),
-        (PRESENTATIONNS, "notes"):(self.s_ignorexml, None),
-#       (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
-        (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
-        (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
-        (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "font-face"):(self.s_style_font_face, None),
-#       (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
-#       (STYLENS, "footer-style"):(self.s_style_footer_style, None),
-        (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "handout-master"):(self.s_ignorexml, None),
-#       (STYLENS, "header"):(self.s_style_header, self.e_style_header),
-#       (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
-#       (STYLENS, "header-style"):(self.s_style_header_style, None),
-        (STYLENS, "master-page"):(self.s_style_master_page, None),
-        (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
-#       (STYLENS, "page-layout"):(self.s_ignorexml, None),
-        (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "style"):(self.s_style_style, self.e_style_style),
-        (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
-        (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
+        (NUMBERNS, 'boolean-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'currency-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'date-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'number-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'text-style'):(self.s_ignorexml, None),
+        (OFFICENS, 'annotation'):(self.s_ignorexml, None),
+        (OFFICENS, 'automatic-styles'):(self.s_office_automatic_styles, None),
+        (OFFICENS, 'document'):(self.s_office_document_content, self.e_office_document_content),
+        (OFFICENS, 'document-content'):(self.s_office_document_content, self.e_office_document_content),
+        (OFFICENS, 'forms'):(self.s_ignorexml, None),
+        (OFFICENS, 'master-styles'):(self.s_office_master_styles, None),
+        (OFFICENS, 'meta'):(self.s_ignorecont, None),
+        (OFFICENS, 'presentation'):(self.s_office_presentation, self.e_office_presentation),
+        (OFFICENS, 'spreadsheet'):(self.s_office_spreadsheet, self.e_office_spreadsheet),
+        (OFFICENS, 'styles'):(self.s_office_styles, None),
+        (OFFICENS, 'text'):(self.s_office_text, self.e_office_text),
+        (OFFICENS, 'scripts'):(self.s_ignorexml, None),
+        (OFFICENS, 'settings'):(self.s_ignorexml, None),
+        (PRESENTATIONNS, 'notes'):(self.s_ignorexml, None),
+        # (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+        (STYLENS, 'default-page-layout'):(self.s_ignorexml, None),
+        (STYLENS, 'default-style'):(self.s_style_default_style, self.e_style_default_style),
+        (STYLENS, 'drawing-page-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'font-face'):(self.s_style_font_face, None),
+        # (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
+        # (STYLENS, "footer-style"):(self.s_style_footer_style, None),
+        (STYLENS, 'graphic-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'handout-master'):(self.s_ignorexml, None),
+        # (STYLENS, "header"):(self.s_style_header, self.e_style_header),
+        # (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "header-style"):(self.s_style_header_style, None),
+        (STYLENS, 'master-page'):(self.s_style_master_page, None),
+        (STYLENS, 'page-layout-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'page-layout'):(self.s_style_page_layout, self.e_style_page_layout),
+        # (STYLENS, "page-layout"):(self.s_ignorexml, None),
+        (STYLENS, 'paragraph-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'style'):(self.s_style_style, self.e_style_style),
+        (STYLENS, 'table-cell-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'table-column-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'table-properties'):(self.s_style_handle_properties, None),
+        (STYLENS, 'text-properties'):(self.s_style_handle_properties, None),
         (SVGNS, 'desc'): (self.s_ignorexml, None),
         (TABLENS, 'covered-table-cell'): (self.s_ignorexml, None),
         (TABLENS, 'table-cell'): (self.s_table_table_cell, self.e_table_table_cell),
@@ -455,9 +453,9 @@ class ODF2XHTML(handler.ContentHandler):
         (TABLENS, 'table-row'): (self.s_table_table_row, self.e_table_table_row),
         (TABLENS, 'table'): (self.s_table_table, self.e_table_table),
         (TEXTNS, 'a'): (self.s_text_a, self.e_text_a),
-        (TEXTNS, "alphabetical-index-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "bibliography-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "bibliography-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'alphabetical-index-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'bibliography-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'bibliography-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'bookmark'): (self.s_text_bookmark, None),
         (TEXTNS, 'bookmark-start'): (self.s_text_bookmark, None),
         (TEXTNS, 'reference-mark-start'): (self.s_text_bookmark, None),  # Added by Kovid
@@ -465,52 +463,52 @@ class ODF2XHTML(handler.ContentHandler):
         (TEXTNS, 'reference-ref'): (self.s_text_bookmark_ref, self.e_text_a),  # Added by Kovid
         (TEXTNS, 'bookmark-ref-start'): (self.s_text_bookmark_ref, None),
         (TEXTNS, 'h'): (self.s_text_h, self.e_text_h),
-        (TEXTNS, "illustration-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'illustration-index-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'line-break'):(self.s_text_line_break, None),
-        (TEXTNS, "linenumbering-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "list"):(self.s_text_list, self.e_text_list),
-        (TEXTNS, "list-item"):(self.s_text_list_item, self.e_text_list_item),
-        (TEXTNS, "list-level-style-bullet"):(self.s_text_list_level_style_bullet, self.e_text_list_level_style_bullet),
-        (TEXTNS, "list-level-style-number"):(self.s_text_list_level_style_number, self.e_text_list_level_style_number),
-        (TEXTNS, "list-style"):(None, None),
-        (TEXTNS, "note"):(self.s_text_note, None),
-        (TEXTNS, "note-body"):(self.s_text_note_body, self.e_text_note_body),
-        (TEXTNS, "note-citation"):(None, self.e_text_note_citation),
-        (TEXTNS, "notes-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "object-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'linenumbering-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'list'):(self.s_text_list, self.e_text_list),
+        (TEXTNS, 'list-item'):(self.s_text_list_item, self.e_text_list_item),
+        (TEXTNS, 'list-level-style-bullet'):(self.s_text_list_level_style_bullet, self.e_text_list_level_style_bullet),
+        (TEXTNS, 'list-level-style-number'):(self.s_text_list_level_style_number, self.e_text_list_level_style_number),
+        (TEXTNS, 'list-style'):(None, None),
+        (TEXTNS, 'note'):(self.s_text_note, None),
+        (TEXTNS, 'note-body'):(self.s_text_note_body, self.e_text_note_body),
+        (TEXTNS, 'note-citation'):(None, self.e_text_note_citation),
+        (TEXTNS, 'notes-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'object-index-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'p'): (self.s_text_p, self.e_text_p),
         (TEXTNS, 's'): (self.s_text_s, None),
         (TEXTNS, 'span'): (self.s_text_span, self.e_text_span),
         (TEXTNS, 'tab'): (self.s_text_tab, None),
-        (TEXTNS, "table-index-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "table-of-content-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "user-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'table-index-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'table-of-content-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'user-index-source'):(self.s_text_x_source, self.e_text_x_source),
         }
         if embedable:
             self.make_embedable()
         self._resetobject()
 
     def set_plain(self):
-        """ Tell the parser to not generate CSS """
+        ''' Tell the parser to not generate CSS '''
         self.generate_css = False
 
     def set_embedable(self):
-        """ Tells the converter to only output the parts inside the <body>"""
-        self.elements[(OFFICENS, "text")] = (None,None)
-        self.elements[(OFFICENS, "spreadsheet")] = (None,None)
-        self.elements[(OFFICENS, "presentation")] = (None,None)
-        self.elements[(OFFICENS, "document-content")] = (None,None)
+        ''' Tells the converter to only output the parts inside the <body>'''
+        self.elements[(OFFICENS, 'text')] = (None,None)
+        self.elements[(OFFICENS, 'spreadsheet')] = (None,None)
+        self.elements[(OFFICENS, 'presentation')] = (None,None)
+        self.elements[(OFFICENS, 'document-content')] = (None,None)
 
     def add_style_file(self, stylefilename, media=None):
-        """ Add a link to an external style file.
+        ''' Add a link to an external style file.
             Also turns of the embedding of styles in the HTML
-        """
+        '''
         self.use_internal_css = False
         self.stylefilename = stylefilename
         if media:
             self.metatags.append(f'<link rel="stylesheet" type="text/css" href="{stylefilename}" media="{media}"/>\n')
         else:
-            self.metatags.append('<link rel="stylesheet" type="text/css" href="%s"/>\n' % (stylefilename))
+            self.metatags.append(f'<link rel="stylesheet" type="text/css" href="{stylefilename}"/>\n')
 
     def _resetfootnotes(self):
         # Footnotes and endnotes
@@ -558,30 +556,30 @@ class ODF2XHTML(handler.ContentHandler):
             self.writeout(escape(d))
 
     def opentag(self, tag, attrs={}, block=False):
-        """ Create an open HTML tag """
+        ''' Create an open HTML tag '''
         self.htmlstack.append((tag,attrs,block))
         a = []
         for key,val in attrs.items():
             a.append(f'''{key}={quoteattr(val)}''')
         if len(a) == 0:
-            self.writeout("<%s>" % tag)
+            self.writeout(f'<{tag}>')
         else:
-            self.writeout("<{} {}>".format(tag, " ".join(a)))
+            self.writeout('<{} {}>'.format(tag, ' '.join(a)))
         if block:
-            self.writeout("\n")
+            self.writeout('\n')
 
     def closetag(self, tag, block=True):
-        """ Close an open HTML tag """
+        ''' Close an open HTML tag '''
         self.htmlstack.pop()
-        self.writeout("</%s>" % tag)
+        self.writeout(f'</{tag}>')
         if block:
-            self.writeout("\n")
+            self.writeout('\n')
 
     def emptytag(self, tag, attrs={}):
         a = []
         for key,val in attrs.items():
             a.append(f'''{key}={quoteattr(val)}''')
-        self.writeout("<{} {}/>\n".format(tag, " ".join(a)))
+        self.writeout('<{} {}/>\n'.format(tag, ' '.join(a)))
 
 # --------------------------------------------------
 # Interface to parser
@@ -597,7 +595,7 @@ class ODF2XHTML(handler.ContentHandler):
             if method:
                 self.handle_starttag(tag, method, attrs)
             else:
-                self.unknown_starttag(tag,attrs)
+                self.unknown_starttag(tag, attrs)
         self.tagstack.push(tag, attrs)
 
     def endElementNS(self, tag, qname):
@@ -612,7 +610,7 @@ class ODF2XHTML(handler.ContentHandler):
 
 # --------------------------------------------------
     def handle_starttag(self, tag, method, attrs):
-        method(tag,attrs)
+        method(tag, attrs)
 
     def handle_endtag(self, tag, attrs, method):
         method(tag, attrs)
@@ -624,30 +622,30 @@ class ODF2XHTML(handler.ContentHandler):
         pass
 
     def s_ignorexml(self, tag, attrs):
-        """ Ignore this xml element and all children of it
+        ''' Ignore this xml element and all children of it
             It will automatically stop ignoring
-        """
+        '''
         self.processelem = False
 
     def s_ignorecont(self, tag, attrs):
-        """ Stop processing the text nodes """
+        ''' Stop processing the text nodes '''
         self.processcont = False
 
     def s_processcont(self, tag, attrs):
-        """ Start processing the text nodes """
+        ''' Start processing the text nodes '''
         self.processcont = True
 
     def classname(self, attrs):
-        """ Generate a class name from a style name """
+        ''' Generate a class name from a style name '''
         c = attrs.get((TEXTNS,'style-name'),'')
-        c = c.replace(".","_")
+        c = c.replace('.','_')
         return c
 
     def get_anchor(self, name):
-        """ Create a unique anchor id for a href name """
+        ''' Create a unique anchor id for a href name '''
         if name not in self.anchors:
             # Changed by Kovid
-            self.anchors[name] = "anchor%d" % (len(self.anchors) + 1)
+            self.anchors[name] = 'anchor{}'.format(len(self.anchors) + 1)
         return self.anchors.get(name)
 
     def purgedata(self):
@@ -659,174 +657,174 @@ class ODF2XHTML(handler.ContentHandler):
 #
 # -----------------------------------------------------------------------------
     def e_dc_title(self, tag, attrs):
-        """ Get the title from the meta data and create a HTML <title>
-        """
+        ''' Get the title from the meta data and create a HTML <title>
+        '''
         self.title = ''.join(self.data)
-        # self.metatags.append('<title>%s</title>\n' % escape(self.title))
+        # self.metatags.append('<title>{}</title>\n'.format(escape(self.title)))
         self.data = []
 
     def e_dc_metatag(self, tag, attrs):
-        """ Any other meta data is added as a <meta> element
-        """
+        ''' Any other meta data is added as a <meta> element
+        '''
         self.metatags.append('<meta name="{}" content={}/>\n'.format(tag[1], quoteattr(''.join(self.data))))
         self.data = []
 
     def e_dc_contentlanguage(self, tag, attrs):
-        """ Set the content language. Identifies the targeted audience
-        """
+        ''' Set the content language. Identifies the targeted audience
+        '''
         self.language = ''.join(self.data)
-        self.metatags.append('<meta http-equiv="content-language" content="%s"/>\n' % escape(self.language))
+        self.metatags.append(f'<meta http-equiv="content-language" content="{escape(self.language)}"/>\n')
         self.data = []
 
     def e_dc_creator(self, tag, attrs):
-        """ Set the content creator. Identifies the targeted audience
-        """
+        ''' Set the content creator. Identifies the targeted audience
+        '''
         self.creator = ''.join(self.data)
-        self.metatags.append('<meta http-equiv="creator" content="%s"/>\n' % escape(self.creator))
+        self.metatags.append(f'<meta http-equiv="creator" content="{escape(self.creator)}"/>\n')
         self.data = []
 
     def s_custom_shape(self, tag, attrs):
-        """ A <draw:custom-shape> is made into a <div> in HTML which is then styled
-        """
+        ''' A <draw:custom-shape> is made into a <div> in HTML which is then styled
+        '''
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
-        name = "G-" + attrs.get((DRAWNS,'style-name'), "")
+        name = 'G-' + attrs.get((DRAWNS,'style-name'), '')
         if name == 'G-':
-            name = "PR-" + attrs.get((PRESENTATIONNS,'style-name'), "")
-        name = name.replace(".","_")
-        if anchor_type == "paragraph":
+            name = 'PR-' + attrs.get((PRESENTATIONNS,'style-name'), '')
+        name = name.replace('.','_')
+        if anchor_type == 'paragraph':
             style = 'position:absolute;'
         elif anchor_type == 'char':
-            style = "position:absolute;"
+            style = 'position:absolute;'
         elif anchor_type == 'as-char':
             htmltag = 'div'
             style = ''
         else:
-            style = "position: absolute;"
-        if (SVGNS,"width") in attrs:
-            style = style + "width:" + attrs[(SVGNS,"width")] + ";"
-        if (SVGNS,"height") in attrs:
-            style = style + "height:" +  attrs[(SVGNS,"height")] + ";"
-        if (SVGNS,"x") in attrs:
-            style = style + "left:" +  attrs[(SVGNS,"x")] + ";"
-        if (SVGNS,"y") in attrs:
-            style = style + "top:" +  attrs[(SVGNS,"y")] + ";"
+            style = 'position: absolute;'
+        if (SVGNS,'width') in attrs:
+            style = style + 'width:' + attrs[(SVGNS,'width')] + ';'
+        if (SVGNS,'height') in attrs:
+            style = style + 'height:' + attrs[(SVGNS,'height')] + ';'
+        if (SVGNS,'x') in attrs:
+            style = style + 'left:' + attrs[(SVGNS,'x')] + ';'
+        if (SVGNS,'y') in attrs:
+            style = style + 'top:' + attrs[(SVGNS,'y')] + ';'
         if self.generate_css:
             self.opentag(htmltag, {'class': name, 'style': style})
         else:
             self.opentag(htmltag)
 
     def e_custom_shape(self, tag, attrs):
-        """ End the <draw:frame>
-        """
+        ''' End the <draw:frame>
+        '''
         self.closetag('div')
 
     def s_draw_frame(self, tag, attrs):
-        """ A <draw:frame> is made into a <div> in HTML which is then styled
-        """
+        ''' A <draw:frame> is made into a <div> in HTML which is then styled
+        '''
         self.frame_stack.append([])
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
-        name = "G-" + attrs.get((DRAWNS,'style-name'), "")
+        name = 'G-' + attrs.get((DRAWNS,'style-name'), '')
         if name == 'G-':
-            name = "PR-" + attrs.get((PRESENTATIONNS,'style-name'), "")
-        name = name.replace(".","_")
-        if anchor_type == "paragraph":
+            name = 'PR-' + attrs.get((PRESENTATIONNS,'style-name'), '')
+        name = name.replace('.','_')
+        if anchor_type == 'paragraph':
             style = 'position:relative;'
         elif anchor_type == 'char':
-            style = "position:relative;"
+            style = 'position:relative;'
         elif anchor_type == 'as-char':
             htmltag = 'div'
             style = ''
         else:
-            style = "position:absolute;"
-        if (SVGNS,"width") in attrs:
-            style = style + "width:" + attrs[(SVGNS,"width")] + ";"
-        if (SVGNS,"height") in attrs:
-            style = style + "height:" +  attrs[(SVGNS,"height")] + ";"
-        if (SVGNS,"x") in attrs:
-            style = style + "left:" +  attrs[(SVGNS,"x")] + ";"
-        if (SVGNS,"y") in attrs:
-            style = style + "top:" +  attrs[(SVGNS,"y")] + ";"
+            style = 'position:absolute;'
+        if (SVGNS,'width') in attrs:
+            style = style + 'width:' + attrs[(SVGNS,'width')] + ';'
+        if (SVGNS,'height') in attrs:
+            style = style + 'height:' + attrs[(SVGNS,'height')] + ';'
+        if (SVGNS,'x') in attrs:
+            style = style + 'left:' + attrs[(SVGNS,'x')] + ';'
+        if (SVGNS,'y') in attrs:
+            style = style + 'top:' + attrs[(SVGNS,'y')] + ';'
         if self.generate_css:
             self.opentag(htmltag, {'class': name, 'style': style})
         else:
             self.opentag(htmltag)
 
     def e_draw_frame(self, tag, attrs):
-        """ End the <draw:frame>
-        """
+        ''' End the <draw:frame>
+        '''
         self.closetag('div')
         self.frame_stack.pop()
 
     def s_draw_fill_image(self, tag, attrs):
-        name = attrs.get((DRAWNS,'name'), "NoName")
-        imghref = attrs[(XLINKNS,"href")]
+        name = attrs.get((DRAWNS,'name'), 'NoName')
+        imghref = attrs[(XLINKNS,'href')]
         imghref = self.rewritelink(imghref)
         self.cs.fillimages[name] = imghref
 
     def rewritelink(self, imghref):
-        """ Intended to be overloaded if you don't store your pictures
+        ''' Intended to be overloaded if you don't store your pictures
             in a Pictures subfolder
-        """
+        '''
         return imghref
 
     def s_draw_image(self, tag, attrs):
-        """ A <draw:image> becomes an <img/> element
-        """
+        ''' A <draw:image> becomes an <img/> element
+        '''
         if self.frame_stack:
             if self.frame_stack[-1]:
                 return
             self.frame_stack[-1].append('img')
         parent = self.tagstack.stackparent()
         anchor_type = parent.get((TEXTNS,'anchor-type'))
-        imghref = attrs[(XLINKNS,"href")]
+        imghref = attrs[(XLINKNS,'href')]
         imghref = self.rewritelink(imghref)
-        htmlattrs = {'alt':"", 'src':imghref}
+        htmlattrs = {'alt':'', 'src':imghref}
         if self.generate_css:
-            if anchor_type != "char":
-                htmlattrs['style'] = "display: block;"
+            if anchor_type != 'char':
+                htmlattrs['style'] = 'display: block;'
         self.emptytag('img', htmlattrs)
 
     def s_draw_object(self, tag, attrs):
-        """ A <draw:object> is embedded object in the document (e.g. spreadsheet in presentation).
-        """
+        ''' A <draw:object> is embedded object in the document (e.g. spreadsheet in presentation).
+        '''
         return  # Added by Kovid
-        objhref = attrs[(XLINKNS,"href")]
+        objhref = attrs[(XLINKNS,'href')]
         # Remove leading "./": from "./Object 1" to "Object 1"
-#       objhref = objhref [2:]
+        # objhref = objhref [2:]
 
         # Not using os.path.join since it fails to find the file on Windows.
-#       objcontentpath = '/'.join([objhref, 'content.xml'])
+        # objcontentpath = '/'.join([objhref, 'content.xml'])
 
         for c in self.document.childnodes:
             if c.folder == objhref:
                 self._walknode(c.topnode)
 
     def s_draw_object_ole(self, tag, attrs):
-        """ A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
-        """
+        ''' A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
+        '''
         try:
-            class_id = attrs[(DRAWNS,"class-id")]
+            class_id = attrs[(DRAWNS,'class-id')]
         except KeyError:  # Added by Kovid to ignore <draw> without the right
             return       # attributes
-        if class_id and class_id.lower() == "00020803-0000-0000-c000-000000000046":  # Microsoft Graph 97 Chart
+        if class_id and class_id.lower() == '00020803-0000-0000-c000-000000000046':  # Microsoft Graph 97 Chart
             tagattrs = {'name':'object_ole_graph', 'class':'ole-graph'}
             self.opentag('a', tagattrs)
             self.closetag('a', tagattrs)
 
     def s_draw_page(self, tag, attrs):
-        """ A <draw:page> is a slide in a presentation. We use a <fieldset> element in HTML.
+        ''' A <draw:page> is a slide in a presentation. We use a <fieldset> element in HTML.
             Therefore if you convert a ODP file, you get a series of <fieldset>s.
             Override this for your own purpose.
-        """
-        name = attrs.get((DRAWNS,'name'), "NoName")
-        stylename = attrs.get((DRAWNS,'style-name'), "")
-        stylename = stylename.replace(".","_")
-        masterpage = attrs.get((DRAWNS,'master-page-name'),"")
-        masterpage = masterpage.replace(".","_")
+        '''
+        name = attrs.get((DRAWNS,'name'), 'NoName')
+        stylename = attrs.get((DRAWNS,'style-name'), '')
+        stylename = stylename.replace('.','_')
+        masterpage = attrs.get((DRAWNS,'master-page-name'),'')
+        masterpage = masterpage.replace('.','_')
         if self.generate_css:
-            self.opentag('fieldset', {'class':f"DP-{stylename} MP-{masterpage}"})
+            self.opentag('fieldset', {'class':f'DP-{stylename} MP-{masterpage}'})
         else:
             self.opentag('fieldset')
         self.opentag('legend')
@@ -838,20 +836,20 @@ class ODF2XHTML(handler.ContentHandler):
 
     def s_draw_textbox(self, tag, attrs):
         style = ''
-        if (FONS,"min-height") in attrs:
-            style = style + "min-height:" +  attrs[(FONS,"min-height")] + ";"
+        if (FONS,'min-height') in attrs:
+            style = style + 'min-height:' + attrs[(FONS,'min-height')] + ';'
         self.opentag('div')
-#       self.opentag('div', {'style': style})
+        # self.opentag('div', {'style': style})
 
     def e_draw_textbox(self, tag, attrs):
-        """ End the <draw:text-box>
-        """
+        ''' End the <draw:text-box>
+        '''
         self.closetag('div')
 
     def html_body(self, tag, attrs):
         self.writedata()
         if self.generate_css and self.use_internal_css:
-            self.opentag('style', {'type':"text/css"}, True)
+            self.opentag('style', {'type':'text/css'}, True)
             self.writeout('/*<![CDATA[*/\n')
             self.generate_stylesheet()
             self.writeout('/*]]>*/\n')
@@ -864,7 +862,7 @@ class ODF2XHTML(handler.ContentHandler):
     # Specifying an explicit bg color prevents ebook readers
     # from successfully inverting colors
     # Added styling for endnotes
-    default_styles = """
+    default_styles = '''
 img { width: 100%; height: 100%; }
 * { padding: 0; margin: 0; }
 body { margin: 0 1em; }
@@ -875,7 +873,7 @@ dl.notes dt { font-size: large }
 dl.notes dt a { text-decoration: none }
 dl.notes dd { page-break-after: always }
 dl.notes dd:last-of-type { page-break-after: avoid }
-"""
+'''
 
     def generate_stylesheet(self):
         for name in self.stylestack:
@@ -923,10 +921,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                     yield k, v
 
         for css2, names in css_styles.items():
-            self.writeout("%s {\n" % ', '.join(names))
+            self.writeout('{} {{\n'.format(', '.join(names)))
             for style, val in filter_margins(css2):
-                self.writeout(f"\t{style}: {val};\n")
-            self.writeout("}\n")
+                self.writeout(f'\t{style}: {val};\n')
+            self.writeout('}\n')
 
     def generate_footnotes(self):
         if self.currentnote == 0:
@@ -937,16 +935,16 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.writeout(_('Notes'))
         self.closetag('h1')
         self.opentag('dl', {'class':'notes'})
-        for key in range(1,self.currentnote+1):
+        for key in range(1, self.currentnote+1):
             note = self.notedict[key]
-#       for key,note in self.notedict.items():
-            self.opentag('dt', {'id':"footnote-%d" % key})
-#           self.opentag('sup')
-#           self.writeout(escape(note['citation']))
-#           self.closetag('sup', False)
+        # for key,note in self.notedict.items():
+            self.opentag('dt', {'id':f'footnote-{key}'})
+            # self.opentag('sup')
+            # self.writeout(escape(note['citation']))
+            # self.closetag('sup', False)
             self.writeout('[')
-            self.opentag('a', {'href': "#citation-%d" % key})
-            self.writeout("←%d" % key)
+            self.opentag('a', {'href': f'#citation-{key}'})
+            self.writeout(f'←{key}')
             self.closetag('a')
             self.writeout(']\xa0')
             self.closetag('dt')
@@ -957,35 +955,35 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
     def s_office_automatic_styles(self, tag, attrs):
         if self.xmlfile == 'styles.xml':
-            self.autoprefix = "A"
+            self.autoprefix = 'A'
         else:
-            self.autoprefix = ""
+            self.autoprefix = ''
 
     def s_office_document_content(self, tag, attrs):
-        """ First tag in the content.xml file"""
+        ''' First tag in the content.xml file'''
         self.writeout('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" ')
         self.writeout('"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n')
-        self.opentag('html', {'xmlns':"http://www.w3.org/1999/xhtml"}, True)
+        self.opentag('html', {'xmlns':'http://www.w3.org/1999/xhtml'}, True)
         self.opentag('head', block=True)
-        self.emptytag('meta', {'http-equiv':"Content-Type", 'content':"text/html;charset=UTF-8"})
+        self.emptytag('meta', {'http-equiv':'Content-Type', 'content':'text/html;charset=UTF-8'})
         for metaline in self.metatags:
             self.writeout(metaline)
-        self.writeout('<title>%s</title>\n' % escape(self.title))
+        self.writeout(f'<title>{escape(self.title)}</title>\n')
 
     def e_office_document_content(self, tag, attrs):
-        """ Last tag """
+        ''' Last tag '''
         self.closetag('html')
 
     def s_office_master_styles(self, tag, attrs):
-        """ """
+        ''' '''
 
     def s_office_presentation(self, tag, attrs):
-        """ For some odd reason, OpenOffice Impress doesn't define a default-style
+        ''' For some odd reason, OpenOffice Impress doesn't define a default-style
             for the 'paragraph'. We therefore force a standard when we see
             it is a presentation
-        """
-        self.styledict['p'] = {(FONS,'font-size'): "24pt"}
-        self.styledict['presentation'] = {(FONS,'font-size'): "24pt"}
+        '''
+        self.styledict['p'] = {(FONS,'font-size'): '24pt'}
+        self.styledict['presentation'] = {(FONS,'font-size'): '24pt'}
         self.html_body(tag, attrs)
 
     def e_office_presentation(self, tag, attrs):
@@ -1000,10 +998,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('body')
 
     def s_office_styles(self, tag, attrs):
-        self.autoprefix = ""
+        self.autoprefix = ''
 
     def s_office_text(self, tag, attrs):
-        """ OpenDocument text """
+        ''' OpenDocument text '''
         self.styledict['frame'] = {(STYLENS,'wrap'): 'parallel'}
         self.html_body(tag, attrs)
 
@@ -1012,9 +1010,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('body')
 
     def s_style_handle_properties(self, tag, attrs):
-        """ Copy all attributes to a struct.
+        ''' Copy all attributes to a struct.
             We will later convert them to CSS2
-        """
+        '''
         if self.currentstyle is None:  # Added by Kovid
             return
 
@@ -1027,31 +1025,31 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         'table-row':'tr','graphic':'graphic'}
 
     def s_style_default_style(self, tag, attrs):
-        """ A default style is like a style on an HTML tag
-        """
+        ''' A default style is like a style on an HTML tag
+        '''
         family = attrs[(STYLENS,'family')]
         htmlfamily = self.familymap.get(family,'unknown')
         self.currentstyle = htmlfamily
-#       self.stylestack.append(self.currentstyle)
+        # self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def e_style_default_style(self, tag, attrs):
         self.currentstyle = None
 
     def s_style_font_face(self, tag, attrs):
-        """ It is possible that the HTML browser doesn't know how to
+        ''' It is possible that the HTML browser doesn't know how to
             show a particular font. Luckily ODF provides generic fallbacks
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
-        """
-        name = attrs[(STYLENS,"name")]
-        family = attrs[(SVGNS,"font-family")]
-        generic = attrs.get((STYLENS,'font-family-generic'),"")
+        '''
+        name = attrs[(STYLENS,'name')]
+        family = attrs[(SVGNS,'font-family')]
+        generic = attrs.get((STYLENS,'font-family-generic'),'')
         self.cs.save_font(name, family, generic)
 
     def s_style_footer(self, tag, attrs):
-        self.opentag('div', {'id':"footer"})
+        self.opentag('div', {'id':'footer'})
         self.purgedata()
 
     def e_style_footer(self, tag, attrs):
@@ -1060,12 +1058,12 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_style_footer_style(self, tag, attrs):
-        self.currentstyle = "@print #footer"
+        self.currentstyle = '@print #footer'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def s_style_header(self, tag, attrs):
-        self.opentag('div', {'id':"header"})
+        self.opentag('div', {'id':'header'})
         self.purgedata()
 
     def e_style_header(self, tag, attrs):
@@ -1074,46 +1072,46 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_style_header_style(self, tag, attrs):
-        self.currentstyle = "@print #header"
+        self.currentstyle = '@print #header'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def s_style_default_page_layout(self, tag, attrs):
-        """ Collect the formatting for the default page layout style.
-        """
-        self.currentstyle = "@page"
+        ''' Collect the formatting for the default page layout style.
+        '''
+        self.currentstyle = '@page'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def s_style_page_layout(self, tag, attrs):
-        """ Collect the formatting for the page layout style.
+        ''' Collect the formatting for the page layout style.
             This won't work in CSS 2.1, as page identifiers are not allowed.
             It is legal in CSS3, but the rest of the application doesn't specify when to use what page layout
-        """
+        '''
         name = attrs[(STYLENS,'name')]
-        name = name.replace(".","_")
-        self.currentstyle = ".PL-" + name
+        name = name.replace('.','_')
+        self.currentstyle = '.PL-' + name
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def e_style_page_layout(self, tag, attrs):
-        """ End this style
-        """
+        ''' End this style
+        '''
         self.currentstyle = None
 
     def s_style_master_page(self, tag, attrs):
-        """ Collect the formatting for the page layout style.
-        """
+        ''' Collect the formatting for the page layout style.
+        '''
         name = attrs[(STYLENS,'name')]
-        name = name.replace(".","_")
+        name = name.replace('.','_')
 
-        self.currentstyle = ".MP-" + name
+        self.currentstyle = '.MP-' + name
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {('','position'):'relative'}
         # Then load the pagelayout style if we find it
         pagelayout = attrs.get((STYLENS,'page-layout-name'), None)
         if pagelayout:
-            pagelayout = ".PL-" + pagelayout
+            pagelayout = '.PL-' + pagelayout
             if pagelayout in self.styledict:
                 styles = self.styledict[pagelayout]
                 for style, val in styles.items():
@@ -1125,24 +1123,24 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     # Short prefixes for class selectors
     _familyshort = {'drawing-page':'DP', 'paragraph':'P', 'presentation':'PR',
         'text':'S', 'section':'D',
-         'table':'T', 'table-cell':'TD', 'table-column':'TC',
-         'table-row':'TR', 'graphic':'G'}
+        'table':'T', 'table-cell':'TD', 'table-column':'TC',
+        'table-row':'TR', 'graphic':'G'}
 
     def s_style_style(self, tag, attrs):
-        """ Collect the formatting for the style.
+        ''' Collect the formatting for the style.
             Styles have scope. The same name can be used for both paragraph and
             character styles Since CSS has no scope we use a prefix. (Not elegant)
             In ODF a style can have a parent, these parents can be chained.
             We may not have encountered the parent yet, but if we have, we resolve it.
-        """
+        '''
         name = attrs[(STYLENS,'name')]
-        name = name.replace(".","_")
+        name = name.replace('.','_')
         family = attrs[(STYLENS,'family')]
         htmlfamily = self.familymap.get(family,'unknown')
         sfamily = self._familyshort.get(family,'X')
-        name = f"{self.autoprefix}{sfamily}-{name}"
+        name = f'{self.autoprefix}{sfamily}-{name}'
         parent = attrs.get((STYLENS,'parent-style-name'))
-        self.currentstyle = special_styles.get(name,"."+name)
+        self.currentstyle = special_styles.get(name,'.'+name)
         self.stylestack.append(self.currentstyle)
         if self.currentstyle not in self.styledict:
             self.styledict[self.currentstyle] = {}
@@ -1151,9 +1149,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
         # Then load the parent style if we find it
         if parent:
-            parent = parent.replace(".", "_")
-            parent = f"{sfamily}-{parent}"
-            parent = special_styles.get(parent, "."+parent)
+            parent = parent.replace('.', '_')
+            parent = f'{sfamily}-{parent}'
+            parent = special_styles.get(parent, '.'+parent)
             if parent in self.styledict:
                 styles = self.styledict[parent]
                 for style, val in styles.items():
@@ -1162,30 +1160,30 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self.styledict[self.currentstyle]['__parent-style-name'] = parent
 
     def e_style_style(self, tag, attrs):
-        """ End this style
-        """
+        ''' End this style
+        '''
         self.currentstyle = None
 
     def s_table_table(self, tag, attrs):
-        """ Start a table
-        """
+        ''' Start a table
+        '''
         c = attrs.get((TABLENS,'style-name'), None)
         if c and self.generate_css:
-            c = c.replace(".","_")
-            self.opentag('table',{'class': "T-%s" % c})
+            c = c.replace('.','_')
+            self.opentag('table',{'class': f'T-{c}'})
         else:
             self.opentag('table')
         self.purgedata()
 
     def e_table_table(self, tag, attrs):
-        """ End a table
-        """
+        ''' End a table
+        '''
         self.writedata()
         self.closetag('table')
         self.purgedata()
 
     def s_table_table_cell(self, tag, attrs):
-        """ Start a table cell """
+        ''' Start a table cell '''
         # FIXME: number-columns-repeated § 8.1.3
         # repeated = int(attrs.get( (TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
@@ -1198,60 +1196,60 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
         c = attrs.get((TABLENS,'style-name'))
         if c:
-            htmlattrs['class'] = 'TD-%s' % c.replace(".","_")
+            htmlattrs['class'] = 'TD-{}'.format(c.replace('.','_'))
         self.opentag('td', htmlattrs)
         self.purgedata()
 
     def e_table_table_cell(self, tag, attrs):
-        """ End a table cell """
+        ''' End a table cell '''
         self.writedata()
         self.closetag('td')
         self.purgedata()
 
     def s_table_table_column(self, tag, attrs):
-        """ Start a table column """
+        ''' Start a table column '''
         c = attrs.get((TABLENS,'style-name'), None)
         repeated = int(attrs.get((TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
         if c:
-            htmlattrs['class'] = "TC-%s" % c.replace(".","_")
+            htmlattrs['class'] = 'TC-{}'.format(c.replace('.','_'))
         for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
 
     def s_table_table_row(self, tag, attrs):
-        """ Start a table row """
+        ''' Start a table row '''
         # FIXME: table:number-rows-repeated
         c = attrs.get((TABLENS,'style-name'), None)
         htmlattrs = {}
         if c:
-            htmlattrs['class'] = "TR-%s" % c.replace(".","_")
+            htmlattrs['class'] = 'TR-{}'.format(c.replace('.','_'))
         self.opentag('tr', htmlattrs)
         self.purgedata()
 
     def e_table_table_row(self, tag, attrs):
-        """ End a table row """
+        ''' End a table row '''
         self.writedata()
         self.closetag('tr')
         self.purgedata()
 
     def s_text_a(self, tag, attrs):
-        """ Anchors start """
+        ''' Anchors start '''
         self.writedata()
-        href = attrs[(XLINKNS,"href")].split("|")[0]
-        if href[:1] == "#":  # Changed by Kovid
-            href = "#" + self.get_anchor(href[1:])
+        href = attrs[(XLINKNS,'href')].split('|')[0]
+        if href[:1] == '#':  # Changed by Kovid
+            href = '#' + self.get_anchor(href[1:])
         self.opentag('a', {'href':href})
         self.purgedata()
 
     def e_text_a(self, tag, attrs):
-        """ End an anchor or bookmark reference """
+        ''' End an anchor or bookmark reference '''
         self.writedata()
         self.closetag('a', False)
         self.purgedata()
 
     def s_text_bookmark(self, tag, attrs):
-        """ Bookmark definition """
+        ''' Bookmark definition '''
         name = attrs[(TEXTNS,'name')]
         html_id = self.get_anchor(name)
         self.writedata()
@@ -1260,15 +1258,15 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_bookmark_ref(self, tag, attrs):
-        """ Bookmark reference """
+        ''' Bookmark reference '''
         name = attrs[(TEXTNS,'ref-name')]
-        html_id = "#" + self.get_anchor(name)
+        html_id = '#' + self.get_anchor(name)
         self.writedata()
         self.opentag('a', {'href':html_id})
         self.purgedata()
 
     def s_text_h(self, tag, attrs):
-        """ Headings start """
+        ''' Headings start '''
         level = int(attrs[(TEXTNS,'outline-level')])
         if level > 6:
             level = 6  # Heading levels go only to 6 in XHTML
@@ -1276,20 +1274,20 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             level = 1
         self.headinglevels[level] = self.headinglevels[level] + 1
         name = self.classname(attrs)
-        for x in range(level + 1,10):
+        for x in range(level + 1, 10):
             self.headinglevels[x] = 0
-        special = special_styles.get("P-"+name)
+        special = special_styles.get('P-'+name)
         if special or not self.generate_css:
-            self.opentag('h%s' % level)
+            self.opentag(f'h{level}')
         else:
-            self.opentag('h%s' % level, {'class':"P-%s" % name})
+            self.opentag(f'h{level}', {'class':f'P-{name}'})
         self.purgedata()
 
     def e_text_h(self, tag, attrs):
-        """ Headings end
+        ''' Headings end
             Side-effect: If there is no title in the metadata, then it is taken
             from the first heading of any level.
-        """
+        '''
         self.writedata()
         level = int(attrs[(TEXTNS,'outline-level')])
         if level > 6:
@@ -1297,45 +1295,45 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         if level < 1:
             level = 1
         lev = self.headinglevels[1:level+1]
-        outline = '.'.join(map(str,lev))
+        outline = '.'.join(map(str, lev))
         heading = ''.join(self.data)
         if self.title == '':
             self.title = heading
         # Changed by Kovid
         tail = ''.join(self.data)
-        anchor = self.get_anchor(f"{outline}.{tail}")
+        anchor = self.get_anchor(f'{outline}.{tail}')
         anchor2 = self.get_anchor(tail)  # Added by kovid to fix #7506
         self.opentag('a', {'id': anchor})
         self.closetag('a', False)
         self.opentag('a', {'id': anchor2})
         self.closetag('a', False)
-        self.closetag('h%s' % level)
+        self.closetag(f'h{level}')
         self.purgedata()
 
     def s_text_line_break(self, tag, attrs):
-        """ Force a line break (<br/>) """
+        ''' Force a line break (<br/>) '''
         self.writedata()
         self.emptytag('br')
         self.purgedata()
 
     def s_text_list(self, tag, attrs):
-        """ Start a list (<ul> or <ol>)
+        ''' Start a list (<ul> or <ol>)
             To know which level we're at, we have to count the number
             of <text:list> elements on the tagstack.
-        """
+        '''
         name = attrs.get((TEXTNS,'style-name'))
         continue_numbering = attrs.get((TEXTNS, 'continue-numbering')) == 'true'
         continue_list = attrs.get((TEXTNS, 'continue-list'))
         list_id = attrs.get(('http://www.w3.org/XML/1998/namespace', 'id'))
         level = self.tagstack.count_tags(tag) + 1
         if name:
-            name = name.replace(".","_")
+            name = name.replace('.','_')
         else:
             # FIXME: If a list is contained in a table cell or text box,
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr((TEXTNS,'style-name'))
-        list_class = "%s_%d" % (name, level)
+        list_class = f'{name}_{level}'
         tag_name = self.listtypes.get(list_class,'ul')
         number_class = tag_name + list_class
         if list_id:
@@ -1355,29 +1353,29 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             attrs = {'start': unicode_type(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
-        self.opentag('%s' % tag_name, attrs)
+        self.opentag(str(tag_name), attrs)
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
-        """ End a list """
+        ''' End a list '''
         self.writedata()
         if self.list_class_stack:
             self.list_class_stack.pop()
         name = attrs.get((TEXTNS,'style-name'))
         level = self.tagstack.count_tags(tag) + 1
         if name:
-            name = name.replace(".","_")
+            name = name.replace('.','_')
         else:
             # FIXME: If a list is contained in a table cell or text box,
             # the list level must return to 1, even though the table or
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr((TEXTNS,'style-name'))
-        list_class = "%s_%d" % (name, level)
+        list_class = f'{name}_{level}'
         self.closetag(self.listtypes.get(list_class,'ul'))
         self.purgedata()
 
     def s_text_list_item(self, tag, attrs):
-        """ Start list item """
+        ''' Start list item '''
         number_class = self.list_class_stack[-1] if self.list_class_stack else None
         if number_class:
             self.list_number_map[number_class] += 1
@@ -1385,27 +1383,27 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_list_item(self, tag, attrs):
-        """ End list item """
+        ''' End list item '''
         self.writedata()
         self.closetag('li')
         self.purgedata()
 
     def s_text_list_level_style_bullet(self, tag, attrs):
-        """ CSS doesn't have the ability to set the glyph
+        ''' CSS doesn't have the ability to set the glyph
             to a particular character, so we just go through
             the available glyphs
-        """
+        '''
         name = self.tagstack.rfindattr((STYLENS,'name'))
         level = attrs[(TEXTNS,'level')]
         self.prevstyle = self.currentstyle
-        list_class = f"{name}_{level}"
+        list_class = f'{name}_{level}'
         self.listtypes[list_class] = 'ul'
-        self.currentstyle = ".{}_{}".format(name.replace(".","_"), level)
+        self.currentstyle = '.{}_{}'.format(name.replace('.','_'), level)
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
         level = int(level)
-        listtype = ("square", "disc", "circle")[level % 3]
+        listtype = ('square', 'disc', 'circle')[level % 3]
         self.styledict[self.currentstyle][('','list-style-type')] = listtype
 
     def e_text_list_level_style_bullet(self, tag, attrs):
@@ -1415,28 +1413,28 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def s_text_list_level_style_number(self, tag, attrs):
         name = self.tagstack.stackparent()[(STYLENS,'name')]
         level = attrs[(TEXTNS,'level')]
-        num_format = attrs.get((STYLENS,'num-format'),"1")
+        num_format = attrs.get((STYLENS,'num-format'),'1')
         start_value = attrs.get((TEXTNS, 'start-value'), '1')
-        list_class = f"{name}_{level}"
+        list_class = f'{name}_{level}'
         self.prevstyle = self.currentstyle
-        self.currentstyle = ".{}_{}".format(name.replace(".","_"), level)
+        self.currentstyle = '.{}_{}'.format(name.replace('.','_'), level)
         if start_value != '1':
             self.list_starts[self.currentstyle] = start_value
         self.listtypes[list_class] = 'ol'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
-        if num_format == "1":
-            listtype = "decimal"
-        elif num_format == "I":
-            listtype = "upper-roman"
-        elif num_format == "i":
-            listtype = "lower-roman"
-        elif num_format == "A":
-            listtype = "upper-alpha"
-        elif num_format == "a":
-            listtype = "lower-alpha"
+        if num_format == '1':
+            listtype = 'decimal'
+        elif num_format == 'I':
+            listtype = 'upper-roman'
+        elif num_format == 'i':
+            listtype = 'lower-roman'
+        elif num_format == 'A':
+            listtype = 'upper-alpha'
+        elif num_format == 'a':
+            listtype = 'lower-alpha'
         else:
-            listtype = "decimal"
+            listtype = 'decimal'
         self.styledict[self.currentstyle][('','list-style-type')] = listtype
 
     def e_text_list_level_style_number(self, tag, attrs):
@@ -1453,7 +1451,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def e_text_note(self, tag, attrs):
         pass
 
-    def collectnote(self,s):
+    def collectnote(self, s):
         if s != '':
             self.notebody.append(s)
 
@@ -1473,11 +1471,11 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.notedict[self.currentnote]['citation'] = mark
         self.opentag('sup')
         self.opentag('a', {
-            'href': "#footnote-%s" % self.currentnote,
+            'href': f'#footnote-{self.currentnote}',
             'class': 'citation',
-            'id':'citation-%s' % self.currentnote
+            'id':f'citation-{self.currentnote}',
         })
-#        self.writeout( escape(mark) )
+        # self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
         # marker is reused in the source. Therefore we force numeric markers
         self.writeout(str(self.currentnote))
@@ -1485,29 +1483,29 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('sup')
 
     def s_text_p(self, tag, attrs):
-        """ Paragraph
-        """
+        ''' Paragraph
+        '''
         htmlattrs = {}
-        specialtag = "p"
+        specialtag = 'p'
         c = attrs.get((TEXTNS,'style-name'), None)
         if c:
-            c = c.replace(".","_")
-            specialtag = special_styles.get("P-"+c)
+            c = c.replace('.','_')
+            specialtag = special_styles.get('P-'+c)
             if specialtag is None:
                 specialtag = 'p'
                 if self.generate_css:
-                    htmlattrs['class'] = "P-%s" % c
+                    htmlattrs['class'] = f'P-{c}'
         self.opentag(specialtag, htmlattrs)
         self.purgedata()
 
     def e_text_p(self, tag, attrs):
-        """ End Paragraph
-        """
-        specialtag = "p"
+        ''' End Paragraph
+        '''
+        specialtag = 'p'
         c = attrs.get((TEXTNS,'style-name'), None)
         if c:
-            c = c.replace(".","_")
-            specialtag = special_styles.get("P-"+c)
+            c = c.replace('.','_')
+            specialtag = special_styles.get('P-'+c)
             if specialtag is None:
                 specialtag = 'p'
         self.writedata()
@@ -1522,9 +1520,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         # element instead of being part of the text flow.
         # We don't use an entity for the nbsp as the contents of self.data will
         # be escaped on writeout.
-        """ Generate a number of spaces. We use the non breaking space for
+        ''' Generate a number of spaces. We use the non breaking space for
         the text:s ODF element.
-        """
+        '''
         try:
             c = int(attrs.get((TEXTNS, 'c'), 1))
         except:
@@ -1533,9 +1531,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.data.append('\u00a0'*c)
 
     def s_text_span(self, tag, attrs):
-        """ The <text:span> element matches the <span> element in HTML. It is
+        ''' The <text:span> element matches the <span> element in HTML. It is
             typically used to properties of the text.
-        """
+        '''
         self.writedata()
         c = attrs.get((TEXTNS,'style-name'), None)
         htmlattrs = {}
@@ -1543,26 +1541,26 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         # Apparently LibreOffice does this.
         special = 'span'
         if c:
-            c = c.replace(".","_")
-            special = special_styles.get("S-"+c)
+            c = c.replace('.','_')
+            special = special_styles.get('S-'+c)
             if special is None:
                 special = 'span'
                 if self.generate_css:
-                    htmlattrs['class'] = "S-%s" % c
+                    htmlattrs['class'] = f'S-{c}'
 
         self.opentag(special, htmlattrs)
         self.purgedata()
 
     def e_text_span(self, tag, attrs):
-        """ End the <text:span> """
+        ''' End the <text:span> '''
         self.writedata()
         c = attrs.get((TEXTNS,'style-name'), None)
         # Changed by Kovid to handle inline special styles defined on <text:span> tags.
         # Apparently LibreOffice does this.
         special = 'span'
         if c:
-            c = c.replace(".","_")
-            special = special_styles.get("S-"+c)
+            c = c.replace('.','_')
+            special = special_styles.get('S-'+c)
             if special is None:
                 special = 'span'
 
@@ -1570,22 +1568,22 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_tab(self, tag, attrs):
-        """ Move to the next tabstop. We ignore this in HTML
-        """
+        ''' Move to the next tabstop. We ignore this in HTML
+        '''
         self.writedata()
         self.writeout(' ')
         self.purgedata()
 
     def s_text_x_source(self, tag, attrs):
-        """ Various indexes and tables of contents. We ignore those.
-        """
+        ''' Various indexes and tables of contents. We ignore those.
+        '''
         self.writedata()
         self.purgedata()
         self.s_ignorexml(tag, attrs)
 
     def e_text_x_source(self, tag, attrs):
-        """ Various indexes and tables of contents. We ignore those.
-        """
+        ''' Various indexes and tables of contents. We ignore those.
+        '''
         self.writedata()
         self.purgedata()
 
@@ -1596,9 +1594,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     # -----------------------------------------------------------------------------
 
     def load(self, odffile):
-        """ Loads a document into the parser and parses it.
+        ''' Loads a document into the parser and parses it.
             The argument can either be a filename or a document in memory.
-        """
+        '''
         self.lines = []
         self._wfunc = self._wlines
         if isinstance(odffile, (bytes, str)) or hasattr(odffile, 'read'):  # Added by Kovid
@@ -1617,18 +1615,18 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.characters(str(node))
 
     def odf2xhtml(self, odffile):
-        """ Load a file and return the XHTML
-        """
+        ''' Load a file and return the XHTML
+        '''
         self.load(odffile)
         return self.xhtml()
 
-    def _wlines(self,s):
+    def _wlines(self, s):
         if s:
             self.lines.append(s)
 
     def xhtml(self):
-        """ Returns the xhtml
-        """
+        ''' Returns the xhtml
+        '''
         return ''.join(self.lines)
 
     def _writecss(self, s):
@@ -1639,7 +1637,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         pass
 
     def css(self):
-        """ Returns the CSS content """
+        ''' Returns the CSS content '''
         self._csslines = []
         self._wfunc = self._writecss
         self.generate_stylesheet()
@@ -1649,24 +1647,23 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         return res
 
     def save(self, outputfile, addsuffix=False):
-        """ Save the HTML under the filename.
+        ''' Save the HTML under the filename.
             If the filename is '-' then save to stdout
             We have the last style filename in self.stylefilename
-        """
+        '''
         if outputfile == '-':
             import sys  # Added by Kovid
             outputfp = sys.stdout
         else:
             if addsuffix:
-                outputfile = outputfile + ".html"
-            outputfp = open(outputfile, "wb")
+                outputfile = outputfile + '.html'
+            outputfp = open(outputfile, 'wb')
         outputfp.write(self.xhtml().encode('us-ascii','xmlcharrefreplace'))
         outputfp.close()
 
 
 class ODF2XHTMLembedded(ODF2XHTML):
-
-    """ The ODF2XHTML parses an ODF file and produces XHTML"""
+    ''' The ODF2XHTML parses an ODF file and produces XHTML'''
 
     def __init__(self, lines, generate_css=True, embedable=False):
         self._resetobject()
@@ -1675,61 +1672,61 @@ class ODF2XHTMLembedded(ODF2XHTML):
         # Tags
         self.generate_css = generate_css
         self.elements = {
-#        (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
-#        (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
-#        (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
-#        (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
-#        (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
+        # (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
+        # (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
+        # (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
         (DRAWNS, 'frame'): (self.s_draw_frame, self.e_draw_frame),
         (DRAWNS, 'image'): (self.s_draw_image, None),
         (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
-        (DRAWNS, "layer-set"):(self.s_ignorexml, None),
+        (DRAWNS, 'layer-set'):(self.s_ignorexml, None),
         (DRAWNS, 'page'): (self.s_draw_page, self.e_draw_page),
         (DRAWNS, 'object'): (self.s_draw_object, None),
         (DRAWNS, 'object-ole'): (self.s_draw_object_ole, None),
         (DRAWNS, 'text-box'): (self.s_draw_textbox, self.e_draw_textbox),
-#        (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
-#        (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
-        (NUMBERNS, "boolean-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "currency-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "date-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "number-style"):(self.s_ignorexml, None),
-        (NUMBERNS, "text-style"):(self.s_ignorexml, None),
-#        (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
-#        (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
-        (OFFICENS, "forms"):(self.s_ignorexml, None),
-#        (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
-        (OFFICENS, "meta"):(self.s_ignorecont, None),
-#        (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
-#        (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
-#        (OFFICENS, "styles"):(self.s_office_styles, None),
-#        (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
-        (OFFICENS, "scripts"):(self.s_ignorexml, None),
-        (PRESENTATIONNS, "notes"):(self.s_ignorexml, None),
-# (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
-#        (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
-#        (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
-#        (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "font-face"):(self.s_style_font_face, None),
-# (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
-# (STYLENS, "footer-style"):(self.s_style_footer_style, None),
-#        (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "handout-master"):(self.s_ignorexml, None),
-# (STYLENS, "header"):(self.s_style_header, self.e_style_header),
-# (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
-# (STYLENS, "header-style"):(self.s_style_header_style, None),
-#        (STYLENS, "master-page"):(self.s_style_master_page, None),
-#        (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
-# (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
-#        (STYLENS, "page-layout"):(self.s_ignorexml, None),
-#        (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "style"):(self.s_style_style, self.e_style_style),
-#        (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
-#        (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
+        # (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
+        # (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
+        (NUMBERNS, 'boolean-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'currency-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'date-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'number-style'):(self.s_ignorexml, None),
+        (NUMBERNS, 'text-style'):(self.s_ignorexml, None),
+        # (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
+        # (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
+        (OFFICENS, 'forms'):(self.s_ignorexml, None),
+        # (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
+        (OFFICENS, 'meta'):(self.s_ignorecont, None),
+        # (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
+        # (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
+        # (OFFICENS, "styles"):(self.s_office_styles, None),
+        # (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
+        (OFFICENS, 'scripts'):(self.s_ignorexml, None),
+        (PRESENTATIONNS, 'notes'):(self.s_ignorexml, None),
+        # (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+        # (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
+        # (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
+        # (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "font-face"):(self.s_style_font_face, None),
+        # (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
+        # (STYLENS, "footer-style"):(self.s_style_footer_style, None),
+        # (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "handout-master"):(self.s_ignorexml, None),
+        # (STYLENS, "header"):(self.s_style_header, self.e_style_header),
+        # (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "header-style"):(self.s_style_header_style, None),
+        # (STYLENS, "master-page"):(self.s_style_master_page, None),
+        # (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
+        # (STYLENS, "page-layout"):(self.s_ignorexml, None),
+        # (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "style"):(self.s_style_style, self.e_style_style),
+        # (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
+        # (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
         (SVGNS, 'desc'): (self.s_ignorexml, None),
         (TABLENS, 'covered-table-cell'): (self.s_ignorexml, None),
         (TABLENS, 'table-cell'): (self.s_table_table_cell, self.e_table_table_cell),
@@ -1737,29 +1734,29 @@ class ODF2XHTMLembedded(ODF2XHTML):
         (TABLENS, 'table-row'): (self.s_table_table_row, self.e_table_table_row),
         (TABLENS, 'table'): (self.s_table_table, self.e_table_table),
         (TEXTNS, 'a'): (self.s_text_a, self.e_text_a),
-        (TEXTNS, "alphabetical-index-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "bibliography-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "bibliography-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'alphabetical-index-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'bibliography-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'bibliography-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'h'): (self.s_text_h, self.e_text_h),
-        (TEXTNS, "illustration-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'illustration-index-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'line-break'):(self.s_text_line_break, None),
-        (TEXTNS, "linenumbering-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "list"):(self.s_text_list, self.e_text_list),
-        (TEXTNS, "list-item"):(self.s_text_list_item, self.e_text_list_item),
-        (TEXTNS, "list-level-style-bullet"):(self.s_text_list_level_style_bullet, self.e_text_list_level_style_bullet),
-        (TEXTNS, "list-level-style-number"):(self.s_text_list_level_style_number, self.e_text_list_level_style_number),
-        (TEXTNS, "list-style"):(None, None),
-        (TEXTNS, "note"):(self.s_text_note, None),
-        (TEXTNS, "note-body"):(self.s_text_note_body, self.e_text_note_body),
-        (TEXTNS, "note-citation"):(None, self.e_text_note_citation),
-        (TEXTNS, "notes-configuration"):(self.s_ignorexml, None),
-        (TEXTNS, "object-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'linenumbering-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'list'):(self.s_text_list, self.e_text_list),
+        (TEXTNS, 'list-item'):(self.s_text_list_item, self.e_text_list_item),
+        (TEXTNS, 'list-level-style-bullet'):(self.s_text_list_level_style_bullet, self.e_text_list_level_style_bullet),
+        (TEXTNS, 'list-level-style-number'):(self.s_text_list_level_style_number, self.e_text_list_level_style_number),
+        (TEXTNS, 'list-style'):(None, None),
+        (TEXTNS, 'note'):(self.s_text_note, None),
+        (TEXTNS, 'note-body'):(self.s_text_note_body, self.e_text_note_body),
+        (TEXTNS, 'note-citation'):(None, self.e_text_note_citation),
+        (TEXTNS, 'notes-configuration'):(self.s_ignorexml, None),
+        (TEXTNS, 'object-index-source'):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'p'): (self.s_text_p, self.e_text_p),
         (TEXTNS, 's'): (self.s_text_s, None),
         (TEXTNS, 'span'): (self.s_text_span, self.e_text_span),
         (TEXTNS, 'tab'): (self.s_text_tab, None),
-        (TEXTNS, "table-index-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "table-of-content-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "user-index-source"):(self.s_text_x_source, self.e_text_x_source),
-        (TEXTNS, "page-number"):(None, None),
+        (TEXTNS, 'table-index-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'table-of-content-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'user-index-source'):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'page-number'):(None, None),
         }

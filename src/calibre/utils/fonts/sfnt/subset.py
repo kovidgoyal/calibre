@@ -193,8 +193,8 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
     raw, new_sizes = sfnt()
     return raw, old_sizes, new_sizes
 
-# CLI {{{
 
+# CLI {{{
 
 def option_parser():
     import textwrap
@@ -225,7 +225,7 @@ def print_stats(old_stats, new_stats):
     prints('='*80)
     old_total = sum(itervalues(old_stats))
     new_total = sum(itervalues(new_stats))
-    tables = sorted(old_stats, key=lambda x:old_stats[x],
+    tables = sorted(old_stats, key=lambda x: old_stats[x],
             reverse=True)
     for table in tables:
         osz = old_stats[table]
@@ -254,7 +254,7 @@ def main(args):
     with open(iff, 'rb') as f:
         orig = f.read()
 
-    chars = [x for x in chars.split(',')]
+    chars = chars.split(',')
     individual, ranges = set(), set()
 
     def not_single(c):
@@ -300,16 +300,15 @@ def main(args):
 
 if __name__ == '__main__':
     try:
-        import init_calibre
-        init_calibre
+        import init_calibre  # noqa: F401
     except ImportError:
         pass
     import sys
     main(sys.argv)
 # }}}
 
-# Tests {{{
 
+# Tests {{{
 
 def test_mem():
     import gc
@@ -364,7 +363,7 @@ def all():
                 failed.append((font['full_name'], font['path'], str(e)))
             else:
                 averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
-                print('Reduced to:', '%.1f'%averages[-1] , '%')
+                print('Reduced to:', '%.1f'%averages[-1], '%')
     if unsupported:
         print('\n\nUnsupported:')
         for name, path, err in unsupported:
@@ -385,6 +384,5 @@ def all():
     print('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
-
 
 # }}}

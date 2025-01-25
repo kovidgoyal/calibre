@@ -23,18 +23,18 @@ class NjuzNet(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'newsportal'
     masthead_url = 'http://www.njuz.net/njuznet.jpg'
-    extra_css             = """
+    extra_css             = '''
                                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 body{font-family: serif1, serif}
                                .articledescription{font-family: serif1, serif}
                                .wp-caption-text{font-size: x-small}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
 
     keep_only_tags = [
         dict(attrs={'id': 'entryMeta'}), dict(attrs={'class': 'post'})

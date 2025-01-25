@@ -110,7 +110,7 @@ class AlMonitor(BasicNewsRecipe):
             title = title[0:120] + '...'
         href = link.get('href')
         if not href:
-            self._p("BAD HREF: " + str(link))
+            self._p('BAD HREF: ' + str(link))
             return
         self.queue_article_link(section, href, title)
 
@@ -158,7 +158,7 @@ class AlMonitor(BasicNewsRecipe):
 
         age = (datetime.datetime.now() - date).days
         if (age > self.oldest_article):
-            return "too old"
+            return 'too old'
         return False
 
     def scrape_article_date(self, soup):
@@ -174,7 +174,7 @@ class AlMonitor(BasicNewsRecipe):
     def date_from_string(self, datestring):
         try:
             # eg: Posted September 17, 2014
-            dt = datetime.datetime.strptime(datestring, "Posted %B %d, %Y")
+            dt = datetime.datetime.strptime(datestring, 'Posted %B %d, %Y')
         except:
             dt = None
 
@@ -203,11 +203,10 @@ class AlMonitor(BasicNewsRecipe):
         return self.tag_to_string(n).strip()
 
     def _dbg_soup_node(self, node):
-        s = '   cls: ' + str(node.get('class')).strip() + \
-            '  id: ' + str(node.get('id')).strip() + \
-            '  role: ' + str(node.get('role')).strip() + \
-            ' txt: ' + self.text(node)
-        return s
+        return ('   cls: ' + str(node.get('class')).strip() +
+                '  id: ' + str(node.get('id')).strip() +
+                '  role: ' + str(node.get('role')).strip() +
+                ' txt: ' + self.text(node))
 
     def _p(self, msg):
         curframe = inspect.currentframe()

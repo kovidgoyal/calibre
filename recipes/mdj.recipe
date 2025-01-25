@@ -15,10 +15,10 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('Local News', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/local&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
+        ('Local News', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/local&amp;l=50&amp;s=start_time&amp;sd=desc'),
         ('Sports', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=sports&amp;l=50&amp;s=start_time&amp;sd=desc'),
         ('Obits', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=obituaries&amp;l=50&amp;s=start_time&amp;sd=desc'),
-        ('Editorial & oped', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/mdj_editorials&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
-        ('Lifestyle', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/lifestyle&amp;l=50&amp;s=start_time&amp;sd=desc'),  # noqa
-        ('Blogs', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/blogs&amp;l=50&amp;s=start_time&amp;sd=desc')  # noqa
+        ('Editorial & oped', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/mdj_editorials&amp;l=50&amp;s=start_time&amp;sd=desc'),
+        ('Lifestyle', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/lifestyle&amp;l=50&amp;s=start_time&amp;sd=desc'),
+        ('Blogs', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/blogs&amp;l=50&amp;s=start_time&amp;sd=desc')
     ]

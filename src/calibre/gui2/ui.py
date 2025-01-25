@@ -112,7 +112,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         EbookDownloadMixin
         ):
-
     'The main GUI'
 
     proceed_requested = pyqtSignal(object, object)
@@ -765,7 +764,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 item_val = itemx[4:]
             else:
                 prints('Ignoring invalid item hexval', itemx, file=sys.stderr)
-                return
 
             def doit():
                 nonlocal item_id, item_val
@@ -1010,7 +1008,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if db.new_api.pref('virtual_lib_on_startup'):
                 self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
             self.rebuild_vl_tabs()
-            self._restore_tb_expansion_state() # Do this before plugins library_changed()
+            self._restore_tb_expansion_state()  # Do this before plugins library_changed()
             for action in self.iactions.values():
                 try:
                     action.library_changed(db)

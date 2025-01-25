@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ZeroDeuxRecipe(BasicNewsRecipe):
     title = 'Zérodeux'
     __author__ = 'Kabonix'
-    description = 'Revue d\'art contemporain trimestrielle'
+    description = "Revue d'art contemporain trimestrielle"
     publisher = 'Zérodeux'
     category = 'art, contemporary art, criticism'
     language = 'fr'

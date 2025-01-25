@@ -15,25 +15,25 @@ from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
 MREADER = {
-    'PNPdPPrs' : get_eReader,
-    'PNRdPPrs' : get_eReader,
-    'DataPlkr' : get_plucker,
-    'BOOKMTIT' : get_Haodoo,
-    'BOOKMTIU' : get_Haodoo,
+    'PNPdPPrs': get_eReader,
+    'PNRdPPrs': get_eReader,
+    'DataPlkr': get_plucker,
+    'BOOKMTIT': get_Haodoo,
+    'BOOKMTIU': get_Haodoo,
 }
 
 from calibre.ebooks.metadata.ereader import set_metadata as set_eReader
 
 MWRITER = {
-    'PNPdPPrs' : set_eReader,
-    'PNRdPPrs' : set_eReader,
+    'PNPdPPrs': set_eReader,
+    'PNRdPPrs': set_eReader,
 }
 
 
 def get_metadata(stream, extract_cover=True):
-    """
+    '''
     Return metadata as a L{MetaInfo} object
-    """
+    '''
 
     pheader = PdbHeaderReader(stream)
 
@@ -59,4 +59,4 @@ def set_metadata(stream, mi):
         MetadataWriter(stream, mi)
 
     stream.seek(0)
-    stream.write(re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace') + b'\x00')
+    stream.write(re.sub(r'[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace') + b'\x00')

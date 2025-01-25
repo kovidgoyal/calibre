@@ -280,7 +280,7 @@ class CellStyle(Style):
             for x in edges:
                 val = getattr(self, 'cell_padding_%s' % x)
                 if val not in (inherit, 'auto'):
-                    c['padding-%s' % x] =  val
+                    c['padding-%s' % x] = val
                 elif val is inherit and x in {'left', 'right'}:
                     c['padding-%s' % x] = '%.3gpt' % (115/20)
             # In Word, tables are apparently rendered with some default top and

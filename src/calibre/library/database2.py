@@ -440,10 +440,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         lines.extend([custom_map[x] for x in custom_cols])
 
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
-             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
-             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-             'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
+            'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
+            'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
+            'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
+            'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
 
         for k,v in iteritems(self.FIELD_MAP):
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -839,9 +839,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         with self.dirtied_lock:
             dc_sequence = self.dirtied_cache.get(book_id, None)
-            # print 'clear_dirty: check book', book_id, dc_sequence
+            # print('clear_dirty: check book', book_id, dc_sequence)
             if dc_sequence is None or sequence is None or dc_sequence == sequence:
-                # print 'needs to be cleaned'
+                # print('needs to be cleaned')
                 self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
                         (book_id,))
                 self.conn.commit()
@@ -850,7 +850,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 except:
                     pass
             elif dc_sequence is not None:
-                # print 'book needs to be done again'
+                # print('book needs to be done again')
                 pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
@@ -908,12 +908,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.update_last_modified(book_ids)
         for book in book_ids:
             with self.dirtied_lock:
-                # print 'dirtied: check id', book
+                # print('dirtied: check id', book)
                 if book in self.dirtied_cache:
                     self.dirtied_cache[book] = self.dirtied_sequence
                     self.dirtied_sequence += 1
                     continue
-                # print 'book not already dirty'
+                # print('book not already dirty')
 
                 self.conn.execute(
                     'INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
@@ -937,8 +937,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # reason.
                 id_ = list(self.dirtied_cache.keys())[random.randint(0, l-1)]
                 sequence = self.dirtied_cache[id_]
-                return (id_, sequence)
-            return (None, None)
+                return id_, sequence
+            return None, None
 
     def dirty_queue_length(self):
         return len(self.dirtied_cache)
@@ -964,7 +964,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # thread has not done the work between the put and the get_metadata
         with self.dirtied_lock:
             sequence = self.dirtied_cache.get(idx, None)
-        # print 'get_md_for_dump', idx, sequence
+        # print('get_md_for_dump', idx, sequence)
         try:
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
@@ -979,7 +979,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
             pass
-        return (path, mi, sequence)
+        return path, mi, sequence
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False,
                      get_user_categories=True, cover_as_data=False):
@@ -1402,8 +1402,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if dest:
                 if samefile(path, dest):
                     # Ensure that the file has the same case as dest
@@ -1458,8 +1458,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
-                raise Exception("Error, you must pass the dest as a path when"
-                        " using windows_atomic_move")
+                raise Exception('Error, you must pass the dest as a path when'
+                        ' using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
@@ -1864,7 +1864,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 md.append((category, cat['rec_index'],
                            cat['is_multiple'].get('cache_to_list', None),
                            cat['datatype'] == 'composite'))
-        # print 'end phase "collection":', time.clock() - last, 'seconds'
+        # print('end phase "collection":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Now scan every book looking for category items.
@@ -1896,7 +1896,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item.rc += 1
                         continue
                     try:
-                        (item_id, sort_val) = tid_cat[val]  # let exceptions fly
+                        item_id, sort_val = tid_cat[val]  # let exceptions fly
                         item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, sort_val)
@@ -1918,7 +1918,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 tid_cat[val] = (val, val)
                     for val in vals:
                         try:
-                            (item_id, sort_val) = tid_cat[val]  # let exceptions fly
+                            item_id, sort_val = tid_cat[val]  # let exceptions fly
                             item = tcats_cat.get(val, None)
                             if not item:
                                 item = tag_class(val, sort_val)
@@ -1932,7 +1932,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         except:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
-        # print 'end phase "books":', time.clock() - last, 'seconds'
+        # print('end phase "books":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Now do news
@@ -1953,7 +1953,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
             tcategories['news'][r[1]] = item
 
-        # print 'end phase "news":', time.clock() - last, 'seconds'
+        # print('end phase "news":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Build the real category list by iterating over the temporary copy
@@ -1989,7 +1989,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if datatype == 'rating':
                 def formatter(x):
                     return ('★' * int(x // 2))
-                def avgr(x):  # noqa
+                def avgr(x):
                     return x.n
                 # eliminate the zero ratings line as well as count == 0
                 items = [v for v in tcategories[category].values() if v.c > 0 and v.n != 0]
@@ -2030,7 +2030,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 use_sort_as_name = False
             is_editable = (category not in ['news', 'rating', 'languages'] and
-                                datatype != "composite")
+                                datatype != 'composite')
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s,
                                         category=category,
@@ -2038,7 +2038,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         use_sort_as_name=use_sort_as_name)
                                     for r in items]
 
-        # print 'end phase "tags list":', time.clock() - last, 'seconds'
+        # print('end phase "tags list":', time.clock() - last, 'seconds')
         # last = time.clock()
 
         # Needed for legacy databases that have multiple ratings that
@@ -2119,7 +2119,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
+            taglist[c] = {icu_lower(t.name): t for t in categories[c]}
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -2165,7 +2165,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     sorted(items, key=lambda x: sort_key(x.sort))
             else:
                 categories[cat_name] = \
-                    sorted(items, key=lambda x:x.avg_rating, reverse=True)
+                    sorted(items, key=lambda x: x.avg_rating, reverse=True)
 
         # ### Finally, the saved searches category ####
         items = []
@@ -2181,8 +2181,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
-        # print 'last phase ran in:', time.clock() - last, 'seconds'
-        # print 'get_categories ran in:', time.clock() - start, 'seconds'
+        # print('last phase ran in:', time.clock() - last, 'seconds')
+        # print('get_categories ran in:', time.clock() - start, 'seconds')
 
         return categories
 
@@ -2509,7 +2509,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for bk in books_to_refresh:
                     ss = self.author_sort_from_book(id, index_is_id=True)
                     aus = self.author_sort(bk, index_is_id=True)
-                    if strcmp(aus, ss) ==  0:
+                    if strcmp(aus, ss) == 0:
                         self._update_author_in_cache(bk, ss, final_authors)
         # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
@@ -3187,7 +3187,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_series(self, id, series, notify=True, commit=True, allow_case_change=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
-        (series, idx) = self._get_series_values(series)
+        series, idx = self._get_series_values(series)
         books_to_refresh = {id}
         if series:
             case_change = False
@@ -3545,8 +3545,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             paths    = [duplicate[0] for duplicate in duplicates]
             formats  = [duplicate[1] for duplicate in duplicates]
             metadata = [duplicate[2] for duplicate in duplicates]
-            return (paths, formats, metadata), (ids if return_ids else
-                    len(ids))
+            return (paths, formats, metadata), (ids if return_ids else len(ids))
         return None, (ids if return_ids else len(ids))
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,

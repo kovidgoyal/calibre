@@ -90,7 +90,7 @@ def get_system_locale():
 
 def sanitize_lang(lang):
     if lang:
-        match = re.match('[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
+        match = re.match(r'[a-z]{2,3}(_[A-Z]{2}){0,1}', lang)
         if match:
             lang = match.group()
     if lang == 'zh':
@@ -340,13 +340,13 @@ set_translators.lang = None
 
 _iso639 = None
 _extra_lang_codes = {
-        'pt_BR' : _('Brazilian Portuguese'),
-        'zh_CN' : _('Simplified Chinese'),
-        'zh_TW' : _('Traditional Chinese'),
-        'bn_IN' : _('Indian Bengali'),
-        'bn_BD' : _('Bangladeshi Bengali'),
-        'en'    : _('English'),
-        'und'   : _('Unknown')
+        'pt_BR': _('Brazilian Portuguese'),
+        'zh_CN': _('Simplified Chinese'),
+        'zh_TW': _('Traditional Chinese'),
+        'bn_IN': _('Indian Bengali'),
+        'bn_BD': _('Bangladeshi Bengali'),
+        'en'   : _('English'),
+        'und'  : _('Unknown')
         }
 
 if False:

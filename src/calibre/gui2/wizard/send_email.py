@@ -42,11 +42,11 @@ class TestEmail(QDialog):
     def __init__(self, pa, parent):
         QDialog.__init__(self, parent)
         self.test_func = parent.test_email_settings
-        self.setWindowTitle(_("Test email settings"))
+        self.setWindowTitle(_('Test email settings'))
         self.setWindowIcon(QIcon.ic('config.ui'))
         l = QVBoxLayout(self)
         opts = smtp_prefs().parse()
-        self.from_ = la = QLabel(_("Send test mail from %s to:")%opts.from_)
+        self.from_ = la = QLabel(_('Send test mail from %s to:')%opts.from_)
         l.addWidget(la)
         self.to = le = QLineEdit(self)
         if pa:
@@ -111,7 +111,7 @@ class RelaySetup(QDialog):
         bb.rejected.connect(self.reject)
         self.tl = QLabel(('<p>'+_('Setup sending email using') +
                 ' <b>{name}</b><p>' +
-            _('If you don\'t have an account, you can sign up for a free {name} email '
+            _("If you don't have an account, you can sign up for a free {name} email "
             'account at <a href="https://{url}">{url}</a>. {extra}')).format(
                 **service))
         l.addWidget(self.tl, 0, 0, 3, 0)
@@ -204,7 +204,7 @@ class SendEmail(QWidget, Ui_Form):
             button = getattr(self, 'relay_use_'+x)
             button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
-         lambda state : self.relay_password.setEchoMode(
+         lambda state: self.relay_password.setEchoMode(
              QLineEdit.EchoMode.Password if
              state == 0 else QLineEdit.EchoMode.Normal))
         self.test_email_button.clicked.connect(self.test_email)

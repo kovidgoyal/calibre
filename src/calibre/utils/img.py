@@ -63,8 +63,8 @@ def load_jxr_data(data):
 
 # }}}
 
-# png <-> gif {{{
 
+# png <-> gif {{{
 
 def png_data_to_gif_data(data):
     from PIL import Image
@@ -103,8 +103,8 @@ def gif_data_to_png_data(data, discard_animation=False):
 
 # }}}
 
-# Loading images {{{
 
+# Loading images {{{
 
 def set_image_allocation_limit(size_in_mb=1024):
     with suppress(ImportError):  # for people running form source
@@ -162,8 +162,8 @@ def image_and_format_from_data(data):
     return r.read(), fmt
 # }}}
 
-# Saving images {{{
 
+# Saving images {{{
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     '''
@@ -302,8 +302,8 @@ def save_cover_data_to(
         f.write(image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data)
 # }}}
 
-# Overlaying images {{{
 
+# Overlaying images {{{
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     ' Blend the `img` onto a canvas with the specified background color and size '
@@ -370,8 +370,8 @@ def blend_image(img, bgcolor='#ffffff'):
     return canvas
 # }}}
 
-# Image borders {{{
 
+# Image borders {{{
 
 def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
     img = image_from_data(img)
@@ -394,8 +394,8 @@ def remove_borders_from_image(img, fuzz=None):
     return ans if ans.size() != img.size() else img
 # }}}
 
-# Cropping/scaling of images {{{
 
+# Cropping/scaling of images {{{
 
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -450,8 +450,8 @@ def crop_image(img, x, y, width, height):
 
 # }}}
 
-# Image transformations {{{
 
+# Image transformations {{{
 
 def grayscale_image(img):
     return imageops.grayscale(image_from_data(img))
@@ -536,8 +536,8 @@ def eink_dither_image(img):
 
 # }}}
 
-# Optimization of images {{{
 
+# Optimization of images {{{
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
@@ -660,15 +660,17 @@ def encode_jpeg(file_path, quality=80):
 
 def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
+
 # }}}
+
 
 # PIL images {{{
 def align8to32(bytes, width, mode):
-    """
+    '''
     converts each scanline of data from 8 bit to 32 bit aligned
-    """
+    '''
 
-    bits_per_pixel = {"1": 1, "L": 8, "P": 8, "I;16": 16}[mode]
+    bits_per_pixel = {'1': 1, 'L': 8, 'P': 8, 'I;16': 16}[mode]
 
     # calculate bytes per line and the extra padding if needed
     bits_per_line = bits_per_pixel * width
@@ -682,34 +684,34 @@ def align8to32(bytes, width, mode):
         return bytes
 
     new_data = [
-        bytes[i * bytes_per_line : (i + 1) * bytes_per_line] + b"\x00" * extra_padding
+        bytes[i * bytes_per_line : (i + 1) * bytes_per_line] + b'\x00' * extra_padding
         for i in range(len(bytes) // bytes_per_line)
     ]
 
-    return b"".join(new_data)
+    return b''.join(new_data)
 
 
 def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     data = None
     colortable = None
-    if im.mode == "RGBA":
+    if im.mode == 'RGBA':
         fmt = QImage.Format.Format_RGBA8888
-        data = im.tobytes("raw", "RGBA")
-    elif im.mode == "1":
+        data = im.tobytes('raw', 'RGBA')
+    elif im.mode == '1':
         fmt = QImage.Format.Format_Mono
-    elif im.mode == "L":
+    elif im.mode == 'L':
         fmt = QImage.Format.Format_Indexed8
         colortable = [qRgba(i, i, i, 255) & 0xFFFFFFFF for i in range(256)]
-    elif im.mode == "P":
+    elif im.mode == 'P':
         fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
         colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
-    elif im.mode == "I;16":
+    elif im.mode == 'I;16':
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16
     else:
         fmt = QImage.Format.Format_RGBX8888
-        data = im.convert("RGBA").tobytes("raw", "RGBA")
+        data = im.convert('RGBA').tobytes('raw', 'RGBA')
 
     size = im.size
     data = data or align8to32(im.tobytes(), size[0], im.mode)
@@ -726,15 +728,15 @@ def read_xmp_from_pil_image(im) -> str:
     xml = ''
     if fmt == 'jpeg':
         for segment, content in im.applist:
-            if segment == "APP1":
-                marker, xmp_tags = content.split(b"\x00")[:2]
-                if marker == b"http://ns.adobe.com/xap/1.0/":
+            if segment == 'APP1':
+                marker, xmp_tags = content.split(b'\x00')[:2]
+                if marker == b'http://ns.adobe.com/xap/1.0/':
                     xml = xmp_tags
                     break
     elif fmt == 'png':
         xml = im.info.get('XML:com.adobe.xmp', '')
     elif fmt == 'webp':
-        xml = im.info.get("xmp", '')
+        xml = im.info.get('xmp', '')
     elif fmt == 'tiff':
         xml = im.tag_v2.get(700, '')
     return xml
@@ -794,6 +796,7 @@ def read_alt_text(pil_im_or_path, target_lang='') -> str:
 
 # }}}
 
+
 def test():  # {{{
     from glob import glob
 
@@ -814,7 +817,7 @@ def test():  # {{{
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
-        save_image(img, 'test.webp',  compression_quality=100)
+        save_image(img, 'test.webp', compression_quality=100)
         ret = optimize_webp('test.webp')
         if ret is not None:
             raise SystemExit('optimize_webp failed: %s' % ret)

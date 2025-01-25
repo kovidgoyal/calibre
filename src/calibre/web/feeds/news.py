@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Defines various abstract base classes that can be subclassed to create powerful news fetching recipes.
 '''
-__docformat__ = "restructuredtext en"
+__docformat__ = 'restructuredtext en'
 
 
 import io
@@ -38,8 +38,7 @@ from polyglot.builtins import string_or_bytes
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def prefixed_classes(classes):
@@ -624,7 +623,7 @@ class BasicNewsRecipe(Recipe):
         for key in article.keys():
             if key.endswith('_origlink'):
                 url = article[key]
-                if url and (url.startswith('http://') or url.startswith('https://')):
+                if url and (url.startswith(('http://', 'https://'))):
                     return url
         ans = article.get('link', None)
         if not ans and getattr(article, 'links', None):
@@ -1109,7 +1108,6 @@ class BasicNewsRecipe(Recipe):
                 article = self.feed_objects[f].articles[a]
             except:
                 self.log.exception('Failed to get article object for postprocessing')
-                pass
             else:
                 self.populate_article_metadata(article, ans, first_fetch)
         return ans
@@ -1159,7 +1157,7 @@ class BasicNewsRecipe(Recipe):
         templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.get_extra_css() or '')
         timefmt = self.timefmt
-        return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
+        return templ.generate(self.title, 'mastheadImage.jpg', timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
     @classmethod
@@ -1183,7 +1181,7 @@ class BasicNewsRecipe(Recipe):
             from calibre.utils.cleantext import clean_xml_chars
 
             # Truncating the string could cause a dangling UTF-16 half-surrogate, which will cause lxml to barf, clean it
-            ans = clean_xml_chars(ans) + '\u2026'
+            ans = clean_xml_chars(ans) + '…'
         return ans
 
     def feed2index(self, f, feeds):
@@ -1389,7 +1387,7 @@ class BasicNewsRecipe(Recipe):
                 break
 
         for f, feed in enumerate(feeds):
-            html = self.feed2index(f,feeds)
+            html = self.feed2index(f, feeds)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)
@@ -1478,7 +1476,7 @@ class BasicNewsRecipe(Recipe):
         try:
             self._download_masthead(url)
         except:
-            self.log.exception("Failed to download supplied masthead_url")
+            self.log.exception('Failed to download supplied masthead_url')
 
     def resolve_masthead(self):
         self.masthead_path = None
@@ -1493,7 +1491,7 @@ class BasicNewsRecipe(Recipe):
             # Failure sets self.masthead_path to None
             self.download_masthead(murl)
         if self.masthead_path is None:
-            self.log.info("Synthesizing mastheadImage")
+            self.log.info('Synthesizing mastheadImage')
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             try:
                 self.default_masthead_image(self.masthead_path)
@@ -1597,7 +1595,7 @@ class BasicNewsRecipe(Recipe):
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
             if self.default_cover(pf):
-                cpath =  pf.name
+                cpath = pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
@@ -1731,7 +1729,7 @@ class BasicNewsRecipe(Recipe):
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        if traceback and re.search('^AbortArticle:', traceback, flags=re.M) is not None:
+        if traceback and re.search(r'^AbortArticle:', traceback, flags=re.M) is not None:
             self.log.warn('Aborted download of article:', request.article.title,
                           'from', request.article.url)
             self.report_progress(float(self.jobs_done)/len(self.jobs),
@@ -1862,7 +1860,7 @@ class BasicNewsRecipe(Recipe):
             item.extract()
             divtag = soup.new_tag('div')
             brtag  = soup.new_tag('br')
-            oldParent.insert(myIndex,divtag)
+            oldParent.insert(myIndex, divtag)
             divtag.append(item)
             divtag.append(brtag)
         return soup

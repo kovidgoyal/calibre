@@ -9,4 +9,3 @@ __docformat__ = 'restructuredtext en'
 '''
 libmtp based drivers for MTP devices on Unix like platforms.
 '''
-

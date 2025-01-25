@@ -15,7 +15,7 @@ def classes(classes):
 
 class lepoint(BasicNewsRecipe):
 
-    title = 'L\'express'
+    title = "L'express"
     __author__ = 'calibre'
     description = 'Actualités'
     publisher = 'LExpress.fr'
@@ -73,6 +73,6 @@ class lepoint(BasicNewsRecipe):
         try:
             br.open(masthead)
         except:
-            self.log("\nCover unavailable")
+            self.log('\nCover unavailable')
             masthead = None
         return masthead

@@ -57,4 +57,4 @@ class AdvancedUserRecipe1271637235(BasicNewsRecipe):
     remove_tags.append(dict(name='id', attrs={'class': 'footer'}))
 
     remove_tags.append(
-        dict(name="ul", attrs={'id': 'banner-highlights-images'}))
+        dict(name='ul', attrs={'id': 'banner-highlights-images'}))

@@ -5,16 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Gerendi Sandor Attila'
 __docformat__ = 'restructuredtext en'
 
-"""
+'''
 RTF tokenizer and token parser. v.1.0 (1/17/2010)
 Author: Gerendi Sandor Attila
 
 At this point this will tokenize a RTF file then rebuild it from the tokens.
 In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compliant.
-"""
+'''
 
 
-class tokenDelimitatorStart():
+class tokenDelimitatorStart:
 
     def __init__(self):
         pass
@@ -26,7 +26,7 @@ class tokenDelimitatorStart():
         return '{'
 
 
-class tokenDelimitatorEnd():
+class tokenDelimitatorEnd:
 
     def __init__(self):
         pass
@@ -38,7 +38,7 @@ class tokenDelimitatorEnd():
         return '}'
 
 
-class tokenControlWord():
+class tokenControlWord:
 
     def __init__(self, name, separator=''):
         self.name = name
@@ -51,7 +51,7 @@ class tokenControlWord():
         return self.name + self.separator
 
 
-class tokenControlWordWithNumericArgument():
+class tokenControlWordWithNumericArgument:
 
     def __init__(self, name, argument, separator=''):
         self.name = name
@@ -65,7 +65,7 @@ class tokenControlWordWithNumericArgument():
         return self.name + repr(self.argument) + self.separator
 
 
-class tokenControlSymbol():
+class tokenControlSymbol:
 
     def __init__(self, name):
         self.name = name
@@ -77,7 +77,7 @@ class tokenControlSymbol():
         return self.name
 
 
-class tokenData():
+class tokenData:
 
     def __init__(self, data):
         self.data = data
@@ -89,20 +89,20 @@ class tokenData():
         return self.data
 
 
-class tokenBinN():
+class tokenBinN:
 
     def __init__(self, data, separator=''):
         self.data = data
         self.separator = separator
 
     def toRTF(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
+        return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
     def __repr__(self):
-        return "\\bin" + repr(len(self.data)) + self.separator + self.data
+        return '\\bin' + repr(len(self.data)) + self.separator + self.data
 
 
-class token8bitChar():
+class token8bitChar:
 
     def __init__(self, data):
         self.data = data
@@ -114,7 +114,7 @@ class token8bitChar():
         return "\\'" + self.data
 
 
-class tokenUnicode():
+class tokenUnicode:
 
     def __init__(self, data, separator='', current_ucn=1, eqList=[]):
         self.data = data
@@ -127,7 +127,7 @@ class tokenUnicode():
         ucn = self.current_ucn
         if len(self.eqList) < ucn:
             ucn = len(self.eqList)
-            result =  tokenControlWordWithNumericArgument('\\uc', ucn).toRTF() + result
+            result = tokenControlWordWithNumericArgument('\\uc', ucn).toRTF() + result
         i = 0
         for eq in self.eqList:
             if i >= ucn:
@@ -155,7 +155,7 @@ def isString(buffer, string):
     return buffer == string
 
 
-class RtfTokenParser():
+class RtfTokenParser:
 
     def __init__(self, tokens):
         self.tokens = tokens
@@ -253,10 +253,10 @@ class RtfTokenParser():
         result = []
         for token in self.tokens:
             result.append(token.toRTF())
-        return "".join(result)
+        return ''.join(result)
 
 
-class RtfTokenizer():
+class RtfTokenizer:
 
     def __init__(self, rtfData):
         self.rtfData = []
@@ -321,7 +321,7 @@ class RtfTokenizer():
                                 break
                             l = l + 1
                             i = i + 1
-                            if l > 10 :
+                            if l > 10:
                                 raise Exception('Error (at:%d): Too many digits in control word numeric argument.'%[tokenStart])
 
                         if not consumed:
@@ -334,7 +334,7 @@ class RtfTokenizer():
                     controlWord = self.rtfData[tokenStart: tokenEnd]
                     if tokenEnd < i:
                         value = int(self.rtfData[tokenEnd: i])
-                        if isString(controlWord, "\\bin"):
+                        if isString(controlWord, '\\bin'):
                             i = i + value
                             self.tokens.append(tokenBinN(self.rtfData[tokenStart:i], separator))
                         else:
@@ -359,13 +359,13 @@ class RtfTokenizer():
         result = []
         for token in self.tokens:
             result.append(token.toRTF())
-        return "".join(result)
+        return ''.join(result)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
-        print("Usage %prog rtfFileToConvert")
+        print('Usage %prog rtfFileToConvert')
         sys.exit()
     with open(sys.argv[1], 'rb') as f:
         data = f.read()

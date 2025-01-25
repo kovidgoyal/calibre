@@ -27,20 +27,20 @@ class LinuxNetworkStatus:
         #
         # There is no difference in terms of “features” provided between
         # the two APIs from our point of view.
-        self.xdp_call = lambda : new_method_call(DBusAddress(
+        self.xdp_call = lambda: new_method_call(DBusAddress(
             '/org/freedesktop/portal/desktop',
             bus_name='org.freedesktop.portal.Desktop',
-            interface="org.freedesktop.portal.NetworkMonitor"), 'GetConnectivity')
-        self.nm_call = lambda : Properties(DBusAddress('/org/freedesktop/NetworkManager',
+            interface='org.freedesktop.portal.NetworkMonitor'), 'GetConnectivity')
+        self.nm_call = lambda: Properties(DBusAddress('/org/freedesktop/NetworkManager',
                 bus_name='org.freedesktop.NetworkManager',
-                interface="org.freedesktop.NetworkManager")).get('Connectivity')
+                interface='org.freedesktop.NetworkManager')).get('Connectivity')
 
         if self.xdp() is not None:
             self.get_connectivity = self.xdp
         elif self.nm() is not None:
             self.get_connectivity = self.nm
         else:
-            self.get_connectivity = lambda : 4
+            self.get_connectivity = lambda: 4
 
     def connect(self, which='SESSION'):
         from jeepney.io.blocking import open_dbus_connection
@@ -108,6 +108,7 @@ def internet_connected():
         DummyNetworkStatus()
 
     return internet_connected.checker()
+
 
 def is_ipv6_addr(addr):
     import socket

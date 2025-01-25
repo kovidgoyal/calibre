@@ -16,7 +16,7 @@ class AdvancedUserRecipe(BasicNewsRecipe):
     cover_url = 'http://www.medienmilch.de/typo3temp/pics/Brigitte-Logo_d5feb4a6e4.jpg'
     masthead_url = 'http://www.medienmilch.de/typo3temp/pics/Brigitte-Logo_d5feb4a6e4.jpg'
 
-    remove_tags = [dict(attrs={'class': ['linklist', 'head', 'indent right relatedContent', 'artikel-meta segment', 'segment', 'comment commentFormWrapper segment borderBG', 'segment borderBG comments', 'segment borderBG box', 'center', 'segment nextPageLink', 'inCar']}),  # noqa
+    remove_tags = [dict(attrs={'class': ['linklist', 'head', 'indent right relatedContent', 'artikel-meta segment', 'segment', 'comment commentFormWrapper segment borderBG', 'segment borderBG comments', 'segment borderBG box', 'center', 'segment nextPageLink', 'inCar']}),  # noqa: E501
                    dict(id=['header', 'artTools', 'context', 'interact',
                             'footer-navigation', 'bwNet', 'copy', 'keyboardNavigationHint']),
                    dict(name=['hjtrs', 'kud'])]

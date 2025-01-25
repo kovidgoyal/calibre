@@ -12,14 +12,14 @@ def classes(classes):
 
 def absolutize(href):
     if href.startswith('/'):
-        href =  'https://www.lrb.co.uk' + href
+        href = 'https://www.lrb.co.uk' + href
     return href
 
 
 class LondonReviewOfBooksPayed(BasicNewsRecipe):
     title = 'London Review of Books'
     __author__ = 'Kovid Goyal'
-    description = 'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'  # noqa
+    description = 'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'  # noqa: E501
     category = 'news, literature, UK'
     publisher = 'LRB Ltd.'
     language = 'en_GB'

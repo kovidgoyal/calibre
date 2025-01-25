@@ -26,9 +26,8 @@ class iHeuteRecipe(BasicNewsRecipe):
     no_stylesheets = True
 
     remove_attributes = ['width', 'height']
-    remove_tags = [dict(name='div',   attrs={'id': ['zooming']}),
-                   dict(name='div',   attrs={
-                        'class': ['related', 'mapa-wrapper']}),
+    remove_tags = [dict(name='div', attrs={'id': ['zooming']}),
+                   dict(name='div', attrs={'class': ['related', 'mapa-wrapper']}),
                    dict(name='table', attrs={'id': ['opener-img', 'portal']}),
                    dict(name='table', attrs={'class': ['video-16ku9']})]
     remove_tags_after = [
@@ -39,7 +38,7 @@ class iHeuteRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         print_url = url
-        split_url = url.split("?")
+        split_url = url.split('?')
         if (split_url[0].rfind('dilbert.asp') != -1):  # dilbert komix
             print_url = print_url.replace('.htm', '.gif&tisk=1')
             print_url = print_url.replace('.asp', '.aspx')

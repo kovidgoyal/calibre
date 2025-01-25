@@ -28,7 +28,6 @@ class Unpackable:
 
 
 class SimpleListTable(list):
-
     'A table that contains a list of subtables'
 
     child_class = None
@@ -53,7 +52,6 @@ class SimpleListTable(list):
 
 
 class ListTable(OrderedDict):
-
     'A table that contains an ordered mapping of table tag to subtable'
 
     child_class = None

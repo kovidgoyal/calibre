@@ -77,7 +77,7 @@ class LocaTable(UnknownTable):
             self.fmt = four_byte_type_code()
             vals = array.array(self.fmt, vals)
 
-        if sys.byteorder != "big":
+        if sys.byteorder != 'big':
             vals.byteswap()
         self.raw = vals.tobytes()
     subset = update

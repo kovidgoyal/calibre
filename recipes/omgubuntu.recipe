@@ -5,8 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class OMGUbuntu(BasicNewsRecipe):
-    title = u"Omg! Ubuntu!"
-    description = u"Online news site covering Ubuntu activities. Recipe pulls articles from past 7 days."
+    title = u'Omg! Ubuntu!'
+    description = u'Online news site covering Ubuntu activities. Recipe pulls articles from past 7 days.'
     language = 'en'
     oldest_article = 7
     max_articles_per_feed = 100

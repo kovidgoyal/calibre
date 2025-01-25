@@ -48,4 +48,3 @@ def set_guide_item(container, item_type, title, name, frag=None):
             else:
                 container.remove_from_xml(m)
     container.dirty(container.opf_name)
-

@@ -23,20 +23,20 @@ class AdvancedUserRecipe1716109041(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #News feeds
+        # News feeds
         ('Trailers', 'https://movieweb.com/feed/trailers/'),
         ('Movie News', 'https://movieweb.com/feed/movie-news/'),
         ('TV News', 'https://movieweb.com/feed/tv-news/'),
         ('Marvel Cinematic Universe News', 'https://movieweb.com/feed/mcu-news/'),
         ('DC Universe News', 'https://movieweb.com/feed/tag/dcu-news/'),
-        #Genre feeds
+        # Genre feeds
         ('Action', 'https://movieweb.com/feed/tag/action/'),
         ('Comedy', 'https://movieweb.com/feed/tag/comedy/'),
         ('Fantasy', 'https://movieweb.com/feed/tag/fantasy/'),
         ('Horror', 'https://movieweb.com/feed/tag/horror/'),
         ('Sci-Fi', 'https://movieweb.com/feed/tag/sci-fi/'),
         ('Western', 'https://movieweb.com/feed/tag/western/'),
-        #What to Watch feeds
+        # What to Watch feeds
         ('Apple TV+', 'https://movieweb.com/feed/tag/apple-tv-plus/'),
         ('Criterion Collection', 'https://movieweb.com/feed/tag/criterion-collection/'),
         ('Disney+', 'https://movieweb.com/feed/tag/disney-plus/'),

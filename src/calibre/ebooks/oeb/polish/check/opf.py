@@ -214,7 +214,7 @@ class MultipleCovers(BaseError):
         self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
 
     def __call__(self, container):
-        items = [e for e in container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')]
+        items = list(container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]'))
         [container.remove_from_xml(e) for e in items[1:]]
         container.dirty(self.name)
         return True

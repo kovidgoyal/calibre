@@ -13,13 +13,13 @@ class GithubBlog(BasicNewsRecipe):
     oldest_article = 14
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'col-12 offset-lg-1 col-lg-10 col-xl-7 mt-5 mt-lg-10 mb-6 mb-lg-8' }),
-        dict(name='section', attrs={'class': lambda x: x and 'post__content' in x.split(' ') })
+        dict(name='div', attrs={'class': 'col-12 offset-lg-1 col-lg-10 col-xl-7 mt-5 mt-lg-10 mb-6 mb-lg-8'}),
+        dict(name='section', attrs={'class': lambda x: x and 'post__content' in x.split(' ')})
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': lambda x: x and 'post-tags' in x.split(' ') }),
-        dict(name='ul', attrs={'class': lambda x: x and 'post-hero__categories' in x.split(' ') })
+        dict(name='div', attrs={'class': lambda x: x and 'post-tags' in x.split(' ')}),
+        dict(name='ul', attrs={'class': lambda x: x and 'post-hero__categories' in x.split(' ')})
     ]
 
     preprocess_regexps = [

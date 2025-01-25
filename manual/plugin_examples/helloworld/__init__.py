@@ -13,13 +13,13 @@ from calibre.customize import FileTypePlugin
 
 class HelloWorld(FileTypePlugin):
 
-    name                = 'Hello World Plugin' # Name of the plugin
+    name                = 'Hello World Plugin'  # Name of the plugin
     description         = 'Set the publisher to Hello World for all new conversions'
-    supported_platforms = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
-    author              = 'Acme Inc.' # The author of this plugin
+    supported_platforms = ['windows', 'osx', 'linux']  # Platforms this plugin will run on
+    author              = 'Acme Inc.'  # The author of this plugin
     version             = (1, 0, 0)   # The version number of this plugin
-    file_types          = {'epub', 'mobi'} # The file types that this plugin will be applied to
-    on_postprocess      = True # Run this plugin after conversion is complete
+    file_types          = {'epub', 'mobi'}  # The file types that this plugin will be applied to
+    on_postprocess      = True  # Run this plugin after conversion is complete
     minimum_calibre_version = (0, 7, 53)
 
     def run(self, path_to_ebook):

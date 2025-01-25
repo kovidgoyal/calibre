@@ -29,7 +29,7 @@ class nepszabadsag(BasicNewsRecipe):
     remove_attributes = []
     remove_tags_before = dict(name='div', attrs={'class': ['d-source']})
     remove_tags_after = dict(name='div', attrs={'class': ['tags']})
-    remove_tags = [dict(name='div',   attrs={'class': ['h']}),
+    remove_tags = [dict(name='div', attrs={'class': ['h']}),
                    dict(name='tfoot')]
 
     keep_only_tags = [dict(name='table', attrs={'class': 'article-box'})]

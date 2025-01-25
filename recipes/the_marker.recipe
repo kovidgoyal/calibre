@@ -45,5 +45,5 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         rg = re.compile(re1 + re2, re.IGNORECASE | re.DOTALL)
         m = rg.search(txt)
         if m:
-            # print 'bad link'
+            # print('bad link')
             return 1

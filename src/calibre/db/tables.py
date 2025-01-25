@@ -20,6 +20,7 @@ from polyglot.builtins import iteritems, itervalues
 def identity(x):
     return x
 
+
 def c_parse(val):
     try:
         year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)
@@ -90,7 +91,6 @@ class Table:
 
 
 class VirtualTable(Table):
-
     '''
     A dummy table used for fields that only exist in memory like ondevice
     '''
@@ -102,7 +102,6 @@ class VirtualTable(Table):
 
 
 class OneToOneTable(Table):
-
     '''
     Represents data that is unique per book (it may not actually be unique) but
     each item is assigned to a book in a one-to-one mapping. For example: uuid,
@@ -197,7 +196,6 @@ class CompositeTable(OneToOneTable):
 
 
 class ManyToOneTable(Table):
-
     '''
     Represents data where one data item can map to many books, for example:
     series or publisher.
@@ -234,7 +232,7 @@ class ManyToOneTable(Table):
             bcm[book] = item_id
 
     def fix_link_table(self, db):
-        linked_item_ids = {item_id for item_id in itervalues(self.book_col_map)}
+        linked_item_ids = set(itervalues(self.book_col_map))
         extra_item_ids = linked_item_ids - set(self.id_map)
         if extra_item_ids:
             for item_id in extra_item_ids:
@@ -409,7 +407,6 @@ class RatingTable(ManyToOneTable):
 
 
 class ManyToManyTable(ManyToOneTable):
-
     '''
     Represents data that has a many-to-many mapping with books. i.e. each book
     can have more than one value and each value can be mapped to more than one

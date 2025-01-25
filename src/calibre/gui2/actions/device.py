@@ -59,7 +59,7 @@ class ShareConnMenu(QMenu):  # {{{
             _('Start Content server'))
         connect_lambda(self.toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
         self.open_server_in_browser_action = self.addAction(
-            QIcon.ic('forward.png'), _("Visit Content server in browser"))
+            QIcon.ic('forward.png'), _('Visit Content server in browser'))
         connect_lambda(self.open_server_in_browser_action.triggered, self, lambda self: open_in_browser())
         self.open_server_in_browser_action.setVisible(False)
         self.control_smartdevice_action = \
@@ -175,8 +175,8 @@ class ShareConnMenu(QMenu):  # {{{
     def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
 
-
 # }}}
+
 
 class SendToDeviceAction(InterfaceAction):
 

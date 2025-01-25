@@ -316,7 +316,7 @@ def set_sync_override(allowed):
 
 
 def blank_html():
-    msg = _('Double click on a word in the book\'s text to look it up.')
+    msg = _("Double click on a word in the book's text to look it up.")
     html = '<p>' + msg
     app = QApplication.instance()
     if app.is_dark_theme:

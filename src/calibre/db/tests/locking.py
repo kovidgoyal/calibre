@@ -22,7 +22,7 @@ def wait_for(period):
 
 
 class TestLock(BaseTest):
-    """Tests for db locking """
+    '''Tests for db locking '''
 
     def test_owns_locks(self):
         lock = SHLock()

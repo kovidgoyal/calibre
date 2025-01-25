@@ -368,19 +368,19 @@ class MobiReader:
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<\?xml[^>]*>', '', self.processed_html)
-        self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', r'', self.processed_html)
+        self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', '', self.processed_html)
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(
-            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', r'\g<para>'+r'\g<styletags>', self.processed_html)
+            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', r'\g<para>\g<styletags>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', r'\g<styletags>'+r'\g<para>', self.processed_html)
+            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', r'\g<styletags>\g<para>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', r'\g<para>'+r'\g<blockquote>', self.processed_html)
+            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', r'\g<para>\g<blockquote>', self.processed_html)
         self.processed_html = re.sub(
-            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', r'\g<blockquote>'+r'\g<para>', self.processed_html)
+            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', r'\g<blockquote>\g<para>', self.processed_html)
         bods = htmls = 0
-        for x in re.finditer('</body>|</html>', self.processed_html):
+        for x in re.finditer(r'</body>|</html>', self.processed_html):
             if x == '</body>':
                 bods +=1
             else:
@@ -393,8 +393,7 @@ class MobiReader:
             self.processed_html = self.processed_html.replace('</html>', '')
 
     def remove_random_bytes(self, html):
-        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07',
-                    '', html)
+        return re.sub(r'\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07', '', html)
 
     def ensure_unit(self, raw, unit='px'):
         if re.search(r'\d+$', raw) is not None:
@@ -535,7 +534,7 @@ class MobiReader:
                             try:
                                 nval = float(val[:-2])
                                 nval *= 16 * (168.451/72)  # Assume this was set using the Kindle profile
-                                attrib[attr] = "%dpx"%int(nval)
+                                attrib[attr] = '%dpx'%int(nval)
                             except:
                                 del attrib[attr]
                         elif val.lower().endswith('%'):
@@ -560,7 +559,7 @@ class MobiReader:
             if 'filepos' in attrib:
                 filepos = attrib.pop('filepos')
                 try:
-                    attrib['href'] = "#filepos%d" % int(filepos)
+                    attrib['href'] = '#filepos%d' % int(filepos)
                 except ValueError:
                     pass
             if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos') and

@@ -24,17 +24,17 @@ class AdvancedUserRecipe1718370158(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Features
+        # Features
         ('Analysis', 'https://simpleflying.com/feed/category/analysis/'),
         ('History', 'https://simpleflying.com/feed/category/history/'),
         ('Exclusives', 'https://simpleflying.com/feed/category/exclusives/'),
-        #By Region
+        # By Region
         ('Asia', 'https://simpleflying.com/feed/category/asia/'),
         ('Europe', 'https://simpleflying.com/feed/category/europe/'),
         ('North America', 'https://simpleflying.com/feed/category/north-america/'),
         ('Africa', 'https://simpleflying.com/feed/category/africa/'),
         ('Rest of World', 'https://simpleflying.com/feed/category/rest-of-world/'),
-        #Travel
+        # Travel
         ('Trip Reports', 'https://simpleflying.com/feed/category/trip-reports/'),
         ('Passanger Experience', 'https://simpleflying.com/feed/category/passenger-experience/'),
 

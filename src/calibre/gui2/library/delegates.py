@@ -134,11 +134,13 @@ class UpdateEditorGeometry:
         initial_geometry.adjust(delta_x, 0, delta_width, 0)
         editor.setGeometry(initial_geometry)
 
+
 class EditableTextDelegate:
 
     def set_editor_data(self, editor, index):
         n = editor.metaObject().userProperty().name()
         editor.setProperty(n, get_val_for_textlike_columns(index))
+
 
 class DateTimeEdit(DateTimeEditBase):  # {{{
 
@@ -151,8 +153,8 @@ class DateTimeEdit(DateTimeEditBase):  # {{{
 
 # }}}
 
-# Number Editor  {{{
 
+# Number Editor {{{
 
 def make_clearing_spinbox(spinbox):
 
@@ -184,8 +186,8 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # }}}
 
-# setter for text-like delegates. Return '' if CTRL is pushed {{{
 
+# setter for text-like delegates. Return '' if CTRL is pushed {{{
 
 def check_key_modifier(which_modifier):
     v = QApplication.keyboardModifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier)
@@ -203,7 +205,6 @@ def get_val_for_textlike_columns(index_):
 
 
 class StyledItemDelegate(QStyledItemDelegate):
-
     '''
     When closing an editor and opening another, Qt sometimes picks what appears
     to be a random line and column for the second editor. This function checks
@@ -560,7 +561,7 @@ class CcTextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDeleg
                 editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
-            complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
+            complete_items = sorted(m.db.all_custom(label=key), key=sort_key)
             editor.update_items_cache(complete_items)
         else:
             editor = QLineEdit(parent)
@@ -609,7 +610,6 @@ class CcLongTextDelegate(StyledItemDelegate):  # {{{
         d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
-        return None
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
@@ -664,7 +664,6 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
                                base_url=base_url)
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, (d.text), Qt.ItemDataRole.EditRole)
-        return None
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
@@ -815,7 +814,6 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         d = editor.exec()
         if d:
             m.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
-        return None
 
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.ItemDataRole.EditRole)
@@ -923,7 +921,7 @@ class CcTemplateDelegate(StyledItemDelegate):  # {{{
         else:
             text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
         editor = TemplateDialog(parent, text, mi)
-        editor.setWindowTitle(_("Edit template"))
+        editor.setWindowTitle(_('Edit template'))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopDistance(20)
         d = editor.exec()

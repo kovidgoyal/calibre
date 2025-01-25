@@ -5,9 +5,11 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 Hamilton Spectator Calibre Recipe
 '''
 
+
 def absurl(url):
     if url.startswith('/'):
         return 'https://www.thespec.com' + url
+
 
 class HamiltonSpectator(BasicNewsRecipe):
     title = u'Hamilton Spectator'

@@ -12,7 +12,6 @@ class Colta(BasicNewsRecipe):
     publisher = 'OpenSpace.ru'
     category = 'news'
     cover_url = u'http://www.colta.ru/assets/logo-afb684c3d35fc1f6f103f9fb638c8ec1.png'
-    language = 'ru'
     no_stylesheets = True
     remove_javascript = True
 

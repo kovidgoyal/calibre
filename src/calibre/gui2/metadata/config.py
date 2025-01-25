@@ -30,7 +30,7 @@ class FieldsModel(FM):  # {{{
         for x in fields:
             if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
-        self.fields.sort(key=lambda x:self.descs.get(x, x))
+        self.fields.sort(key=lambda x: self.descs.get(x, x))
         self.endResetModel()
 
     def state(self, field, defaults=False):

@@ -45,8 +45,8 @@ class MarkdownEditDialog(QDialog):
 
     def __init__(self, parent, text, column_name=None, base_url=None):
         QDialog.__init__(self, parent)
-        self.setObjectName("MarkdownEditDialog")
-        self.setWindowTitle(_("Edit Markdown"))
+        self.setObjectName('MarkdownEditDialog')
+        self.setWindowTitle(_('Edit Markdown'))
         self.verticalLayout = l = QVBoxLayout(self)
         self.textbox = editor = Editor(self)
         editor.set_base_url(base_url)
@@ -60,7 +60,7 @@ class MarkdownEditDialog(QDialog):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        self.textbox.markdown =text
+        self.textbox.markdown = text
         # self.textbox.wyswyg_dirtied()
 
         if column_name:

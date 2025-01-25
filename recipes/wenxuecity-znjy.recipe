@@ -46,7 +46,7 @@ class TheCND(BasicNewsRecipe):
                                 self.tag_to_string(a.parent))
             date = '%(y)s/%(m)02d/%(d)02d' % {'y': dateReg.group(3),
                                               'm': int(dateReg.group(1)), 'd': int(dateReg.group(2))}
-            if date not in articles:  # noqa
+            if date not in articles:
                 articles[date] = []
             articles[date].append(
                 {'title': title, 'url': url, 'description': '', 'date': ''})
@@ -63,4 +63,3 @@ class TheCND(BasicNewsRecipe):
     def populate_article_metadata(self, article, soup, first):
         header = soup.find('h3')
         self.log('header: ' + self.tag_to_string(header))
-        pass

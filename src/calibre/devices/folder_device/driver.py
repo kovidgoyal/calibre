@@ -92,7 +92,7 @@ class FOLDER_DEVICE(USBMS):
         self.report_progress = report_progress
 
     def card_prefix(self, end_session=True):
-        return (None, None)
+        return None, None
 
     def eject(self):
         self.is_connected = False

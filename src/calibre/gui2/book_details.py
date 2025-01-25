@@ -408,8 +408,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
 
 # }}}
 
-# Context menu {{{
 
+# Context menu {{{
 
 def add_format_entries(menu, data, book_info, copy_menu, search_menu):
     from calibre.ebooks.oeb.polish.main import SUPPORTED
@@ -479,10 +479,10 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
     if field and item_name:
         m = menu.addMenu(QIcon.ic('external-link'), _('Associated link'))
-        m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda : book_info.link_clicked.emit(link))
-        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda : book_info.link_removal_requested.emit(field, item_name))
+        m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda: book_info.link_clicked.emit(link))
+        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda: book_info.link_removal_requested.emit(field, item_name))
     else:
-        menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda : book_info.link_clicked.emit(link))
+        menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda: book_info.link_clicked.emit(link))
 
 
 def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
@@ -524,7 +524,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             menu.addAction(ac)
         # See if we need to add a click associated link menu line for the author
         link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
-        link = link_map.get("authors", {}).get(author)
+        link = link_map.get('authors', {}).get(author)
         if link:
             add_link_submenu(menu, link, book_info, 'authors', author)
     elif dt in ('path', 'devpath'):
@@ -542,7 +542,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         if path:
             path = os.path.join(path, DATA_DIR_NAME)
             ac.current_url = path
-            ac.setText(_('The location of the book\'s data files'))
+            ac.setText(_("The location of the book's data files"))
             copy_menu.addAction(ac)
     else:
         field = data.get('field')
@@ -619,7 +619,7 @@ def create_copy_links(menu, data=None):
         all_links.append(url)
         copy_to_clipboard_action(text, url)
 
-    sep = menu.addSeparator() # Note: separators are really actions
+    sep = menu.addSeparator()  # Note: separators are really actions
 
     link_action(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     link_action(_('Link to show book details in a popup window'),
@@ -643,13 +643,13 @@ def create_copy_links(menu, data=None):
                                          note_data['searchable_text'].partition('\n')[2], sep)
             if field.startswith('#'):
                 field = '_' + field[1:]
-            url = f"calibre://show-note/{library_id}/{field}/id_{item_id}"
+            url = f'calibre://show-note/{library_id}/{field}/id_{item_id}'
             link_action(_('Link to show note in calibre'), url)
         else:
             field = data.get('field')
             if data['type'] == 'author':
                 field = 'authors'
-            if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
+            if (field and field in ('tags', 'series', 'publisher', 'authors')) or is_category(field):
                 name = data['name' if data['type'] == 'author' else 'value']
                 eq = f'{field}:"={name}"'.encode().hex()
                 link_action(_('Link to show books matching {} in calibre').format(name),
@@ -779,7 +779,6 @@ class CoverView(QWidget):  # {{{
         self.animation.setDuration(1000)
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
-
 
         self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         self.pixmap = self.default_pixmap
@@ -1036,8 +1035,8 @@ class CoverView(QWidget):  # {{{
 
     # }}}
 
-# Book Info {{{
 
+# Book Info {{{
 
 class BookInfo(HTMLDisplay):
 
@@ -1315,6 +1314,7 @@ class DetailsLayout(QSplitter):  # {{{
         self.restore_splitter_state()  # only required on first call to do_layout, but ...
         cover.do_layout()
 # }}}
+
 
 # Drag 'n drop {{{
 

@@ -137,9 +137,8 @@ class DefaultAuthorLink(QWidget):  # {{{
         self.custom_url.setVisible(k == 'url')
 # }}}
 
+
 # IdLinksEditor {{{
-
-
 class IdLinksRuleEdit(Dialog):
 
     def __init__(self, key='', name='', template='', parent=None):
@@ -201,7 +200,7 @@ class IdLinksEditor(Dialog):
         for k, lx in iteritems(msprefs['id_link_rules']):
             for n, t in lx:
                 items.append((k, n, t))
-        items.sort(key=lambda x:sort_key(x[1]))
+        items.sort(key=lambda x: sort_key(x[1]))
         self.table = t = QTableWidget(len(items), 3, self)
         t.setHorizontalHeaderLabels([_('Key'), _('Name'), _('Template')])
         for r, (key, val, template) in enumerate(items):
@@ -236,7 +235,7 @@ class IdLinksEditor(Dialog):
     def edit_rule(self, r=-1):
         key = name = template = ''
         if r > -1:
-            key, name, template = map(lambda c: self.table.item(r, c).text(), range(3))
+            key, name, template = (self.table.item(r, c).text() for c in range(3))
         d = IdLinksRuleEdit(key, name, template, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             if r < 0:
@@ -286,7 +285,6 @@ class QVDisplayedFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.new_api.set_pref('qv_display_fields', self.fields)
-
 # }}}
 
 
@@ -353,7 +351,7 @@ class TBPartitionedFields(DisplayedFields):  # {{{
             ans = [[k, True] for k in cats.keys()]
             self.changed = True
         elif pref_data_override:
-            po = {k:v for k,v in pref_data_override}
+            po = dict(pref_data_override)
             ans = [[k, po.get(k, True)] for k in cats.keys()]
             self.changed = True
         else:
@@ -389,11 +387,11 @@ class BDVerticalCats(DisplayedFields):  # {{{
             ans = [[k, False] for k in cats]
             self.changed = True
         elif pref_data_override:
-            ph = {k:v for k,v in pref_data_override}
+            ph = dict(pref_data_override)
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:
-            vertical_cats =  self.db.prefs.get('book_details_vertical_categories') or ()
+            vertical_cats = self.db.prefs.get('book_details_vertical_categories') or ()
             for key in cats:
                 ans.append([key, key in vertical_cats])
         self.beginResetModel()
@@ -637,7 +635,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                                                        model=self.tb_categories_to_part_model))
         self.tb_partition_import_layout_button.clicked.connect(partial(self.import_layout,
                                                                        model=self.tb_categories_to_part_model))
-
 
         self.bd_vertical_cats_model = BDVerticalCats(self.gui.current_db, self.tb_hierarchy_tab.tb_hierarchical_cats)
         self.bd_vertical_cats_model.dataChanged.connect(self.changed_signal)

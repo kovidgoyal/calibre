@@ -5,7 +5,7 @@ class Star (BasicNewsRecipe):
 
     title = u'Star Gazetesi'
     __author__ = u'thomass'
-    description = 'Yeni Türkiye''nin Gazetesi'
+    description = "Yeni Türkiye'nin Gazetesi"
     oldest_article = 1
     max_articles_per_feed = 10
     no_stylesheets = True
@@ -19,37 +19,37 @@ class Star (BasicNewsRecipe):
     compress_news_images = True
 
     # h1 and h2 tag classes respectively
-    extra_css  = ".title-1 {font-size: 20px; color: #ed0000; text-align: center;}"
-    extra_css += ".title-2 {font-size: 16px;}"
+    extra_css  = '.title-1 {font-size: 20px; color: #ed0000; text-align: center;}'
+    extra_css += '.title-2 {font-size: 16px;}'
 
     keep_only_tags = [
-        dict(name="h1", attrs={"class": "title-1"}),
-        dict(name="h2", attrs={"class": "title-2"}),
-        dict(name="div", attrs={"class": "time"}),
-        dict(name="img", attrs={"class": "margin-bottom-lg"}),
-        dict(name="div", attrs={"class": "detay"}),
+        dict(name='h1', attrs={'class': 'title-1'}),
+        dict(name='h2', attrs={'class': 'title-2'}),
+        dict(name='div', attrs={'class': 'time'}),
+        dict(name='img', attrs={'class': 'margin-bottom-lg'}),
+        dict(name='div', attrs={'class': 'detay'}),
     ]
 
     feeds = [
-        ("MANSET", "http://www.star.com.tr/rss/mansetler.xml"),
-        ("GÜNCEL", "http://www.star.com.tr/rss/guncel.xml"),
-        ("POLİTİKA", "http://www.star.com.tr/rss/politika.xml"),
-        ("EKONOMİ", "http://www.star.com.tr/rss/ekonomi.xml"),
-        ("DÜNYA", "http://www.star.com.tr/rss/dunya.xml"),
-        ("SON DAKİKA", "http://www.star.com.tr/rss/sondakika.xml"),
-        ("YAZARLAR", "http://www.star.com.tr/rss/yazarlar.xml"),
-        ("SPOR", "http://www.star.com.tr/rss/spor.xml"),
-        ("SİNEMA", "http://www.star.com.tr/rss/sinema.xml"),
-        ("SANAT", "http://www.star.com.tr/rss/sanat.xml"),
-        ("MAGAZİN", "http://www.star.com.tr/rss/magazin.xml"),
-        ("MEDYA", "http://www.star.com.tr/rss/medya.xml"),
-        ("SAĞLIK", "http://www.star.com.tr/rss/saglik.xml"),
-        ("TEKNOLOJİ", "http://www.star.com.tr/rss/teknoloji.xml"),
-        ("AÇIK GÖRÜŞ", "http://www.star.com.tr/rss/acikgorus.xml"),
-        ("PAZAR", "http://www.star.com.tr/rss/pazar.xml"),
-        ("CUMARTESİ", "http://www.star.com.tr/rss/cumartesi.xml"),
-        ("DİZİ", "http://www.star.com.tr/rss/dizi.xml"),
-        ("ANKARA", "http://www.star.com.tr/rss/ankara.xml"),
-        ("MEMURLAR", "http://www.star.com.tr/rss/memurlar.xml"),
-        ("OTO HAYAT", "http://www.star.com.tr/rss/otohayat.xml"),
+        ('MANSET', 'http://www.star.com.tr/rss/mansetler.xml'),
+        ('GÜNCEL', 'http://www.star.com.tr/rss/guncel.xml'),
+        ('POLİTİKA', 'http://www.star.com.tr/rss/politika.xml'),
+        ('EKONOMİ', 'http://www.star.com.tr/rss/ekonomi.xml'),
+        ('DÜNYA', 'http://www.star.com.tr/rss/dunya.xml'),
+        ('SON DAKİKA', 'http://www.star.com.tr/rss/sondakika.xml'),
+        ('YAZARLAR', 'http://www.star.com.tr/rss/yazarlar.xml'),
+        ('SPOR', 'http://www.star.com.tr/rss/spor.xml'),
+        ('SİNEMA', 'http://www.star.com.tr/rss/sinema.xml'),
+        ('SANAT', 'http://www.star.com.tr/rss/sanat.xml'),
+        ('MAGAZİN', 'http://www.star.com.tr/rss/magazin.xml'),
+        ('MEDYA', 'http://www.star.com.tr/rss/medya.xml'),
+        ('SAĞLIK', 'http://www.star.com.tr/rss/saglik.xml'),
+        ('TEKNOLOJİ', 'http://www.star.com.tr/rss/teknoloji.xml'),
+        ('AÇIK GÖRÜŞ', 'http://www.star.com.tr/rss/acikgorus.xml'),
+        ('PAZAR', 'http://www.star.com.tr/rss/pazar.xml'),
+        ('CUMARTESİ', 'http://www.star.com.tr/rss/cumartesi.xml'),
+        ('DİZİ', 'http://www.star.com.tr/rss/dizi.xml'),
+        ('ANKARA', 'http://www.star.com.tr/rss/ankara.xml'),
+        ('MEMURLAR', 'http://www.star.com.tr/rss/memurlar.xml'),
+        ('OTO HAYAT', 'http://www.star.com.tr/rss/otohayat.xml'),
     ]

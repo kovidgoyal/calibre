@@ -43,7 +43,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     name = 'Oldie Online'
     series = 'The ' + name
     now = datetime.now().strftime(' %Y-%m')
-    title = series + now
+    title = series + now  # noqa: PIE794
     title_sort = name + now + ', The'
     conversion_options = {
         'authors':      'The Oldie',
@@ -90,9 +90,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     # oldie links/headings often contain the author (in one of various formats
     # 1. Title. By author
-    #.2. Title by author: subtitle
+    # 2. Title by author: subtitle
     # 3. Title: author: subtitle
-    title_author_re = re.compile('^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
+    title_author_re = re.compile(r'^(.*?)(?:(?: by )|(?:: ))(.*?): (.*?)$')
 
     # Separate author from title (where it is specified)
     def title_author(self, head):
@@ -100,10 +100,10 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             return head.rsplit('. By ', 1)
         matches = self.title_author_re.findall(head)
         if matches and len(matches[0]) == 3:
-            (title_1, author, title_2) = matches[0]
+            title_1, author, title_2 = matches[0]
             title = ': '.join((title_1, title_2))
-            return (title, author)
-        return (head, None)
+            return title, author
+        return head, None
 
     # Return the list of articles from blocks in the content of an index/listing page
     def parse_content(self, soup):
@@ -117,11 +117,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         for article in content.findAll('div', class_='listing-block'):
             for a in article.findAll('a', href=True):
                 for h in a.findAll('h3'):
-                    (title, author) = self.title_author(h.getText())
+                    title, author = self.title_author(h.getText())
                     content_articles.append(self.article_entry(
-                        title = title,
-                        url = self.abs_url(a.get('href')),
-                        author = author,
+                        title=title,
+                        url=self.abs_url(a.get('href')),
+                        author=author,
                     ))
                     break
                 else:
@@ -155,11 +155,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 self.log('Subpages found:', href, len(content))
                 articles.extend(content)
             else:
-                (title, author) = self.title_author(a.getText())
+                title, author = self.title_author(a.getText())
                 articles.append(self.article_entry(
-                    title = title,
-                    url = self.abs_url(a.get('href')),
-                    author = author,
+                    title=title,
+                    url=self.abs_url(a.get('href')),
+                    author=author,
                 ))
 
         if not articles:
@@ -176,7 +176,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         # 4. The about pages
         abouts = []
-        for (title, url) in self.about_pages.items():
+        for title, url in self.about_pages.items():
             abouts.append({
                 'title': title,
                 'url': url,
@@ -190,12 +190,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for h in soup.findAll('h1'):
-            (title, author) = self.title_author(h.getText())
+            title, author = self.title_author(h.getText())
             self.log('Replacing h3 "', h.getText(), '" with "', title, '"')
             h.string = title
 
         return soup
-
 
     # Remove features not wanted and tweak HTML
     preprocess_regexps = [
@@ -213,37 +212,37 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 r'(?<=[^\.\s])\s*</p>\s*<p>',
                 re.DOTALL | re.IGNORECASE
             ),
-            lambda match: ' ' # space
+            lambda match: ' '  # space
         ),
     ]
 
     # We remove vast swathes of HTML which is not part of the articles.
-    remove_tags_before =  [
-        {'name': 'div', 'class': "container"},
-        {'name': 'div', 'class': "content-wrapper"},
-        {'name': 'div', 'class': "only-in-the-magazine"},
+    remove_tags_before = [
+        {'name': 'div', 'class': 'container'},
+        {'name': 'div', 'class': 'content-wrapper'},
+        {'name': 'div', 'class': 'only-in-the-magazine'},
     ]
     remove_tags_after = [
-        {'name': 'div', 'class': "container"},
-        {'name': 'div', 'class': "content-wrapper"},
-        {'name': 'h2', 'string': "Find out more about The Oldie"},
+        {'name': 'div', 'class': 'container'},
+        {'name': 'div', 'class': 'content-wrapper'},
+        {'name': 'h2', 'string': 'Find out more about The Oldie'},
     ]
     # Remove non-sibling content
     remove_tags = [
-        {'name': 'nav', 'class': "categories"},
-        {'name': 'div', 'class': "internal-placeholders"},
-        {'name': 'div', 'class': "leaderboard"},
-        {'name': 'div', 'class': "share"},
-        {'name': 'div', 'class': "most-popular"},
-        {'name': 'div', 'class': "article-convert"},
+        {'name': 'nav', 'class': 'categories'},
+        {'name': 'div', 'class': 'internal-placeholders'},
+        {'name': 'div', 'class': 'leaderboard'},
+        {'name': 'div', 'class': 'share'},
+        {'name': 'div', 'class': 'most-popular'},
+        {'name': 'div', 'class': 'article-convert'},
         # {'name': 'p', 'class': "article-convert"},
         # {'name': 'p', 'class': "meta"},
         {'name': 'hr'},
-        {'name': 'a', 'class': "view-full-screen"},
-        {'name': 'div', 'class': "image-counter"},
-        {'name': 'h2', 'string': "Find out more about The Oldie"},
-        {'name': 'a', 'href': re.compile(r"^https?:\/\/issuu.com\/")},
-        {'name': 'img', 'src': re.compile(r"\/assets\/images\/icons\/icon-")},
+        {'name': 'a', 'class': 'view-full-screen'},
+        {'name': 'div', 'class': 'image-counter'},
+        {'name': 'h2', 'string': 'Find out more about The Oldie'},
+        {'name': 'a', 'href': re.compile(r'^https?:\/\/issuu.com\/')},
+        {'name': 'img', 'src': re.compile(r'\/assets\/images\/icons\/icon-')},
     ]
 
     # The following extra css is to tweak the formatting of various elements of various article pages.

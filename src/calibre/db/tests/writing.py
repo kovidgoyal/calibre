@@ -790,7 +790,7 @@ class WritingTest(BaseTest):
             self.assertNotIn(uid, t.id_map)
             self.assertNotIn(uid, t.col_book_map)
             for bid in (1, 2, 3):
-                ae(c.field_for('publisher', bid), "mūs")
+                ae(c.field_for('publisher', bid), 'mūs')
             c.close()
 
         cache = self.init_cache()
@@ -829,7 +829,7 @@ class WritingTest(BaseTest):
         changes = []
         cache.backend.conn.setupdatehook(lambda typ, dbname, tblname, rowid: changes.append(rowid))
         prefs = cache.backend.prefs
-        prefs['test mutable'] =  [1, 2, 3]
+        prefs['test mutable'] = [1, 2, 3]
         self.assertEqual(len(changes), 1)
         a = prefs['test mutable']
         a.append(4)
@@ -920,7 +920,6 @@ class WritingTest(BaseTest):
         cache.restore_annotations(1, list(opf.read_annotations()))
         amap = cache.annotations_map_for_book(1, 'moo')
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
-
     # }}}
 
     def test_changed_events(self):  # {{{
@@ -1019,30 +1018,29 @@ class WritingTest(BaseTest):
         cache.set_field('publisher', {1:'random'})
         cache.set_link_map('publisher', {'random': 'url2'})
         links = cache.get_all_link_maps_for_book(1)
-        self.assertSetEqual({v for v in links.keys()}, {'tags', 'publisher'}, 'Wrong link keys')
-        self.assertSetEqual({v for v in links['tags'].keys()}, {'foo', }, 'Should be "foo"')
-        self.assertSetEqual({v for v in links['publisher'].keys()}, {'random', }, 'Should be "random"')
+        self.assertSetEqual(set(links.keys()), {'tags', 'publisher'}, 'Wrong link keys')
+        self.assertSetEqual(set(links['tags'].keys()), {'foo', }, 'Should be "foo"')
+        self.assertSetEqual(set(links['publisher'].keys()), {'random', }, 'Should be "random"')
         self.assertEqual('url', links['tags']['foo'], 'link for tag foo is wrong')
         self.assertEqual('url2', links['publisher']['random'], 'link for publisher random is wrong')
 
         # Check that renaming a tag keeps the link and clears the link map cache for the book
-        self.assertTrue(1 in cache.link_maps_cache, "book not in link_map_cache")
+        self.assertTrue(1 in cache.link_maps_cache, 'book not in link_map_cache')
         tag_id = cache.get_item_id('tags', 'foo')
         cache.rename_items('tags', {tag_id: 'foobar'})
-        self.assertTrue(1 not in cache.link_maps_cache, "book still in link_map_cache")
+        self.assertTrue(1 not in cache.link_maps_cache, 'book still in link_map_cache')
         links = cache.get_link_map('tags')
-        self.assertTrue('foobar' in links, "rename foo lost the link")
-        self.assertEqual(links['foobar'], 'url', "The link changed contents")
+        self.assertTrue('foobar' in links, 'rename foo lost the link')
+        self.assertEqual(links['foobar'], 'url', 'The link changed contents')
         links = cache.get_all_link_maps_for_book(1)
-        self.assertTrue(1 in cache.link_maps_cache, "book not put back into link_map_cache")
+        self.assertTrue(1 in cache.link_maps_cache, 'book not put back into link_map_cache')
         self.assertDictEqual({'publisher': {'random': 'url2'}, 'tags': {'foobar': 'url'}},
-                             links, "book links incorrect after tag rename")
+                             links, 'book links incorrect after tag rename')
 
         # Check ProxyMetadata
         mi = cache.get_proxy_metadata(1)
         self.assertDictEqual({'publisher': {'random': 'url2'}, 'tags': {'foobar': 'url'}},
                              mi.link_maps, "ProxyMetadata didn't return the right link map")
-
 
         # Now test deleting the links.
         links = cache.get_link_map('tags')
@@ -1054,6 +1052,4 @@ class WritingTest(BaseTest):
         cache.set_link_map('publisher', to_del)
         self.assertEqual({}, cache.get_link_map('publisher'), 'links on publisher were not deleted')
         self.assertEqual({}, cache.get_all_link_maps_for_book(1), 'Not all links for book were deleted')
-
-
     # }}}

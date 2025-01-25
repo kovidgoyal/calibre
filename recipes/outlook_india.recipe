@@ -8,7 +8,7 @@ class outlook(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = (
         'Outlook covers the latest India news, analysis, business news and long-form stories on culture,'
-        ' money market and personal finance. Read India\'s best online magazine.'
+        " money market and personal finance. Read India's best online magazine."
     )
     language = 'en_IN'
     use_embedded_content = False

@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class MercoPress(BasicNewsRecipe):
     title = u'Merco Press'
-    description = u"Read News, Stories and Insight Analysis from Latin America and Mercosur. Politics, Economy, Business and Investments in South America."
+    description = u'Read News, Stories and Insight Analysis from Latin America and Mercosur. Politics, Economy, Business and Investments in South America.'
     cover_url = 'http://en.mercopress.com/web/img/en/mercopress-logo.gif'
 
     __author__ = 'Russell Phillips'

@@ -12,7 +12,6 @@ from calibre.utils.wmf import create_bmp_from_dib, to_png
 
 
 class WMFHeader:
-
     '''
     For header documentation, see
     http://www.skynet.ie/~caolan/publink/libwmf/libwmf/doc/ora-wmf.html

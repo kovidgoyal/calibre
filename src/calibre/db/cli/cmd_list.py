@@ -97,7 +97,7 @@ def implementation(
                     data[field] = {k: cover(db, k) for k in book_ids}
                     continue
             data[field] = db.all_field_for(field, book_ids)
-    return {'book_ids': book_ids, "data": data, 'metadata': metadata, 'fields':fields}
+    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields':fields}
 
 
 def stringify(data, metadata, for_machine):
@@ -205,7 +205,7 @@ def do_list(
     from calibre.utils.terminal import ColoredStream, geometry
 
     output_table = prepare_output_table(fields, book_ids, data, metadata)
-    widths = list(map(lambda x: 0, fields))
+    widths = [0 for x in fields]
 
     for record in output_table:
         for j in range(len(fields)):
@@ -215,7 +215,7 @@ def do_list(
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = list(map(lambda x: min(x + 1, field_width), widths))
+    base_widths = [min(x + 1, field_width) for x in widths]
 
     while sum(base_widths) < screen_width:
         adjusted = False

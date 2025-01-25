@@ -5,12 +5,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1639926896(BasicNewsRecipe):
-    __author__ = "Aisteru"
-    __copyright__ = "2021, Timothée Andres <timothee dot andres at gmail dot com>"
+    __author__ = 'Aisteru'
+    __copyright__ = '2021, Timothée Andres <timothee dot andres at gmail dot com>'
     __license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
 
-    title = "Equestria Daily"
-    description = "Everything new in Equestria and beyond!"
+    title = 'Equestria Daily'
+    description = 'Everything new in Equestria and beyond!'
     language = 'en'
 
     # Max. supported by website: 50
@@ -29,13 +29,13 @@ class AdvancedUserRecipe1639926896(BasicNewsRecipe):
 
     # To discard posts under a certain section, simply comment the whole line
     sections = [
-        ("Art", 'Art'),
-        ("News", 'News'),
-        ("Fics", 'Fanfiction'),
-        ("Media", 'Media'),
-        ("Comics", 'Comic'),
-        ("Community", 'Community'),
-        ("Editorial", 'Editorial'),
+        ('Art', 'Art'),
+        ('News', 'News'),
+        ('Fics', 'Fanfiction'),
+        ('Media', 'Media'),
+        ('Comics', 'Comic'),
+        ('Community', 'Community'),
+        ('Editorial', 'Editorial'),
     ]
 
     def get_masthead_url(self):
@@ -51,7 +51,7 @@ class AdvancedUserRecipe1639926896(BasicNewsRecipe):
             lines = description.split('\n')
             return '\n'.join([line.strip() for line in lines if len(line.strip()) > 0])
 
-        for (section_name, section_url_name) in self.sections:
+        for section_name, section_url_name in self.sections:
             soup = self.index_to_soup(
                 f'https://www.equestriadaily.com/search/label/{section_url_name}?max-results={self.max_articles_per_feed}')
             articles = soup.select('div.post.hentry')

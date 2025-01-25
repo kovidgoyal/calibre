@@ -40,7 +40,6 @@ class NegativeTextIndent(Exception):
 
 
 class RemoveFakeMargins:
-
     '''
     Remove left and right margins from paragraph/divs if the same margin is specified
     on almost all the elements at that level.
@@ -88,8 +87,7 @@ class RemoveFakeMargins:
                 except:
                     pass
                 else:
-                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or
-                            isinstance(ti, numbers.Number) and ti < 0):
+                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0)):
                         raise NegativeTextIndent()
                 return style.marginLeft, style.marginRight, style
         return '', '', None

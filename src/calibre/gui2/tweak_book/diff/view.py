@@ -181,7 +181,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def calculate_metrics(self):
         fm = self.fontMetrics()
-        self.number_width = max(map(lambda x:fm.horizontalAdvance(str(x)), range(10)))
+        self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
         self.space_width = fm.horizontalAdvance(' ')
 
     def show_context_menu(self, pos):
@@ -388,7 +388,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             if min(y_top, y_bot) > floor:
                 break
             if y_top != y_bot:
-                painter.fillRect(0,  int(y_top), int(w), int(y_bot - y_top), self.diff_backgrounds[kind])
+                painter.fillRect(0, int(y_top), int(w), int(y_bot - y_top), self.diff_backgrounds[kind])
             lines.append((y_top, y_bot, kind))
             if top in self.images:
                 img, maxw = self.images[top][:2]
@@ -531,7 +531,7 @@ class DiffSplit(QSplitter):  # {{{
 
         self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self, show_open_in_editor=show_open_in_editor)
         self.addWidget(self.left), self.addWidget(self.right)
-        self.split_words = re.compile(r"\w+|\W", re.UNICODE)
+        self.split_words = re.compile(r'\w+|\W', re.UNICODE)
         self.clear()
 
     def createHandle(self):

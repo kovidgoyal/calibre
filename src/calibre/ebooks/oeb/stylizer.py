@@ -66,7 +66,7 @@ FONT_SIZE_NAMES = {
 }
 
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
-IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa
+IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa: E501
 
 
 def media_ok(raw):
@@ -184,7 +184,7 @@ class StylizerRules:
             if size == 'smallest':
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%.1frem" % (self.profile.fnames[size] / float(self.profile.fbase))
+                style['font-size'] = '%.1frem' % (self.profile.fnames[size] / float(self.profile.fbase))
         if '-epub-writing-mode' in style:
             for x in ('-webkit-writing-mode', 'writing-mode'):
                 style[x] = style.get(x, style['-epub-writing-mode'])
@@ -396,15 +396,15 @@ class Stylizer:
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
             self.logger.warn('CSS import of missing file %r' % path)
-            return (None, None)
+            return None, None
         item = hrefs[path]
         if item.media_type not in OEB_STYLES:
             self.logger.warn('CSS import of non-CSS file %r' % path)
-            return (None, None)
+            return None, None
         data = item.data.cssText
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        return ('utf-8', data)
+        return 'utf-8', data
 
     def style(self, element):
         try:
@@ -421,7 +421,7 @@ class Stylizer:
                     style['font-size'].endswith('pt'):
                 style = copy.copy(style)
                 size = float(style['font-size'][:-2])
-                style['font-size'] = "%.2fpt" % (size * font_scale)
+                style['font-size'] = '%.2fpt' % (size * font_scale)
             style = ';\n    '.join(': '.join(item) for item in style.items())
             rules.append(f'{selector} {{\n    {style};\n}}')
         return '\n'.join(rules)
@@ -437,6 +437,7 @@ def is_only_number(x: str) -> bool:
         return True
     except Exception:
         return False
+
 
 def is_svg_text_tag(x):
     return getattr(x, 'tag', '') in svg_text_tags
@@ -628,7 +629,7 @@ class Style:
                 if not isinstance(result, numbers.Number):
                     return base
                 if result < 0:
-                    result = normalize_fontsize("smaller", base)
+                    result = normalize_fontsize('smaller', base)
             if factor:
                 result = factor * base
             return result
@@ -854,7 +855,7 @@ class Style:
 
     def __str__(self):
         items = sorted(iteritems(self._style))
-        return '; '.join(f"{key}: {val}" for key, val in items)
+        return '; '.join(f'{key}: {val}' for key, val in items)
 
     def cssdict(self):
         return dict(self._style)

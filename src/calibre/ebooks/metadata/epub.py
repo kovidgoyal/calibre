@@ -42,14 +42,14 @@ class Container(dict):
             return
         container = safe_xml_fromstring(stream.read())
         if container.get('version', None) != '1.0':
-            raise EPubException("unsupported version of OCF")
+            raise EPubException('unsupported version of OCF')
         rootfiles = container.xpath('./*[local-name()="rootfiles"]')
         if not rootfiles:
-            raise EPubException("<rootfiles/> element missing")
+            raise EPubException('<rootfiles/> element missing')
         for rootfile in rootfiles[0].xpath('./*[local-name()="rootfile"]'):
             mt, fp = rootfile.get('media-type'), rootfile.get('full-path')
             if not mt or not fp:
-                raise EPubException("<rootfile/> element malformed")
+                raise EPubException('<rootfile/> element malformed')
 
             if file_exists and not file_exists(fp):
                 # Some Kobo epubs have multiple rootfile entries, but only one
@@ -98,16 +98,16 @@ class OCFReader(OCF):
             if mimetype != OCF.MIMETYPE:
                 print('WARNING: Invalid mimetype declaration', mimetype)
         except:
-            print('WARNING: Epub doesn\'t contain a valid mimetype declaration')
+            print("WARNING: Epub doesn't contain a valid mimetype declaration")
 
         try:
             with closing(self.open(OCF.CONTAINER_PATH)) as f:
                 self.container = Container(f, self.exists)
         except KeyError:
-            raise EPubException("missing OCF container.xml file")
+            raise EPubException('missing OCF container.xml file')
         self.opf_path = self.container[OPF.MIMETYPE]
         if not self.opf_path:
-            raise EPubException("missing OPF package file entry in container")
+            raise EPubException('missing OPF package file entry in container')
         self._opf_cached = self._encryption_meta_cached = None
 
     @property
@@ -117,7 +117,7 @@ class OCFReader(OCF):
                 with closing(self.open(self.opf_path)) as f:
                     self._opf_cached = OPF(f, self.root, populate_spine=False)
             except KeyError:
-                raise EPubException("missing OPF package file")
+                raise EPubException('missing OPF package file')
         return self._opf_cached
 
     @property
@@ -140,7 +140,6 @@ class OCFReader(OCF):
             return False
 
 
-
 class OCFZipReader(OCFReader):
 
     def __init__(self, stream, mode='r', root=None):
@@ -150,7 +149,7 @@ class OCFZipReader(OCFReader):
             try:
                 self.archive = ZipFile(stream, mode=mode)
             except BadZipfile:
-                raise EPubException("not a ZIP .epub OCF container")
+                raise EPubException('not a ZIP .epub OCF container')
         self.root = root
         if self.root is None:
             name = getattr(stream, 'name', False)
@@ -219,12 +218,12 @@ def render_cover(cpage, zf, reader=None):
                 # In the case of manga, the first spine item may be an image
                 # already, so treat it as a raster cover.
                 file_format = what_image_type(cpage)
-                if file_format == "jpeg":
+                if file_format == 'jpeg':
                     # Only JPEG is allowed since elsewhere we assume raster covers
                     # are JPEG.  In principle we could convert other image formats
                     # but this is already an out-of-spec case that happens to
                     # arise in books from some stores.
-                    with open(cpage, "rb") as source:
+                    with open(cpage, 'rb') as source:
                         return source.read()
 
             return render_html_svg_workaround(cpage, default_log, root=tdir)
@@ -260,7 +259,7 @@ def get_cover(raster_cover, first_spine_item, reader):
 
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a :class:`Metadata` object """
+    ''' Return metadata as a :class:`Metadata` object '''
     stream.seek(0)
     reader = get_zip_reader(stream)
     opfbytes = reader.read_bytes(reader.opf_path)

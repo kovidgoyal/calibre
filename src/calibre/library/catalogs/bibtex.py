@@ -127,15 +127,15 @@ class BIBTEX(CatalogPlugin):
             # Define starting chain or if book valid strict and not book return a Fail string
 
             bibtex_entry = []
-            if mode != "misc" and check_entry_book_valid(entry) :
+            if mode != 'misc' and check_entry_book_valid(entry):
                 bibtex_entry.append('@book{')
-            elif mode != "book" :
+            elif mode != 'book':
                 bibtex_entry.append('@misc{')
-            else :
+            else:
                 # case strict book
                 return ''
 
-            if citation_bibtex :
+            if citation_bibtex:
                 # Citation tag
                 bibtex_entry.append(make_bibtex_citation(entry, template_citation,
                     bibtexdict))
@@ -143,7 +143,7 @@ class BIBTEX(CatalogPlugin):
 
             for field in fields:
                 if field.startswith('#'):
-                    item = db.get_field(entry['id'],field,index_is_id=True)
+                    item = db.get_field(entry['id'], field, index_is_id=True)
                     m = db.new_api.field_metadata[field]
                     if isinstance(item, (bool, numbers.Number)):
                         item = repr(item)
@@ -160,28 +160,28 @@ class BIBTEX(CatalogPlugin):
                 if item is None:
                     continue
                 try:
-                    if len(item) == 0 :
+                    if len(item) == 0:
                         continue
                 except TypeError:
                     pass
 
-                if field == 'authors' :
+                if field == 'authors':
                     bibtex_entry.append('author = "%s"' % bibtexdict.bibtex_author_format(item))
 
-                elif field == 'id' :
+                elif field == 'id':
                     bibtex_entry.append('calibreid = "%s"' % int(item))
 
-                elif field == 'rating' :
+                elif field == 'rating':
                     bibtex_entry.append('rating = "%s"' % int(item))
 
-                elif field == 'size' :
+                elif field == 'size':
                     bibtex_entry.append(f'{field} = "{int(item)} octets"')
 
-                elif field == 'tags' :
+                elif field == 'tags':
                     # A list to flatten
                     bibtex_entry.append('tags = "%s"' % bibtexdict.utf8ToBibtex(', '.join(item)))
 
-                elif field == 'comments' :
+                elif field == 'comments':
                     # \n removal
                     item = item.replace('\r\n', ' ')
                     item = item.replace('\n', ' ')
@@ -191,14 +191,14 @@ class BIBTEX(CatalogPlugin):
                     try:
                         item = html2text(item)
                     except:
-                        log.warn("Failed to convert comments to text")
+                        log.warn('Failed to convert comments to text')
                     bibtex_entry.append('note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
-                elif field == 'isbn' :
+                elif field == 'isbn':
                     # Could be 9, 10 or 13 digits
                     bibtex_entry.append('isbn = "%s"' % format_isbn(item))
 
-                elif field == 'formats' :
+                elif field == 'formats':
                     # Add file path if format is selected
                     formats = [format.rpartition('.')[2].lower() for format in item]
                     bibtex_entry.append('formats = "%s"' % ', '.join(formats))
@@ -207,15 +207,15 @@ class BIBTEX(CatalogPlugin):
                             for format in item]
                         bibtex_entry.append('file = "%s"' % ', '.join(files))
 
-                elif field == 'series_index' :
+                elif field == 'series_index':
                     bibtex_entry.append('volume = "%s"' % int(item))
 
-                elif field == 'timestamp' :
+                elif field == 'timestamp':
                     bibtex_entry.append('timestamp = "%s"' % isoformat(item).partition('T')[0])
 
-                elif field == 'pubdate' :
+                elif field == 'pubdate':
                     bibtex_entry.append('year = "%s"' % item.year)
-                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
+                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime('%b', item)))
 
                 elif field.startswith('#') and isinstance(item, string_or_bytes):
                     bibtex_entry.append('custom_{} = "{}"'.format(field[1:],
@@ -233,47 +233,47 @@ class BIBTEX(CatalogPlugin):
 
         def check_entry_book_valid(entry):
             # Check that the required fields are ok for a book entry
-            for field in ['title', 'authors', 'publisher'] :
-                if entry[field] is None or len(entry[field]) == 0 :
+            for field in ['title', 'authors', 'publisher']:
+                if entry[field] is None or len(entry[field]) == 0:
                     return False
-            if entry['pubdate'] is None :
+            if entry['pubdate'] is None:
                 return False
-            else :
+            else:
                 return True
 
         def make_bibtex_citation(entry, template_citation, bibtexclass):
 
             # define a function to replace the template entry by its value
-            def tpl_replace(objtplname) :
+            def tpl_replace(objtplname):
 
                 tpl_field = re.sub(r'[\{\}]', '', objtplname.group())
 
-                if tpl_field in TEMPLATE_ALLOWED_FIELDS :
-                    if tpl_field in ['pubdate', 'timestamp'] :
+                if tpl_field in TEMPLATE_ALLOWED_FIELDS:
+                    if tpl_field in ['pubdate', 'timestamp']:
                         tpl_field = isoformat(entry[tpl_field]).partition('T')[0]
-                    elif tpl_field in ['tags', 'authors'] :
-                        tpl_field =entry[tpl_field][0]
-                    elif tpl_field in ['id', 'series_index'] :
+                    elif tpl_field in ['tags', 'authors']:
+                        tpl_field = entry[tpl_field][0]
+                    elif tpl_field in ['id', 'series_index']:
                         tpl_field = str(entry[tpl_field])
-                    else :
+                    else:
                         tpl_field = entry[tpl_field]
                     return ascii_text(tpl_field)
                 else:
                     return ''
 
-            if len(template_citation) >0 :
+            if len(template_citation) >0:
                 tpl_citation = bibtexclass.utf8ToBibtex(
                     bibtexclass.ValidateCitationKey(re.sub(r'\{[^{}]*\}',
                         tpl_replace, template_citation)))
 
-                if len(tpl_citation) >0 :
+                if len(tpl_citation) >0:
                     return tpl_citation
 
-            if len(entry["isbn"]) > 0 :
-                template_citation = '%s' % re.sub(r'[\D]','', entry["isbn"])
+            if len(entry['isbn']) > 0:
+                template_citation = '%s' % re.sub(r'[\D]','', entry['isbn'])
 
-            else :
-                template_citation = '%s' % str(entry["id"])
+            else:
+                template_citation = '%s' % str(entry['id'])
 
             return bibtexclass.ValidateCitationKey(template_citation)
 
@@ -291,42 +291,42 @@ class BIBTEX(CatalogPlugin):
             bibfile_enctag = bibfile_enctag[opts.bibfile_enctag]
             bib_entry = bib_entry[opts.bib_entry]
         except:
-            if opts.bibfile_enc in bibfile_enc :
+            if opts.bibfile_enc in bibfile_enc:
                 bibfile_enc = opts.bibfile_enc
-            else :
-                log.warn("Incorrect --choose-encoding flag, revert to default")
+            else:
+                log.warn('Incorrect --choose-encoding flag, revert to default')
                 bibfile_enc = bibfile_enc[0]
-            if opts.bibfile_enctag in bibfile_enctag :
+            if opts.bibfile_enctag in bibfile_enctag:
                 bibfile_enctag = opts.bibfile_enctag
-            else :
-                log.warn("Incorrect --choose-encoding-configuration flag, revert to default")
+            else:
+                log.warn('Incorrect --choose-encoding-configuration flag, revert to default')
                 bibfile_enctag = bibfile_enctag[0]
-            if opts.bib_entry in bib_entry :
+            if opts.bib_entry in bib_entry:
                 bib_entry = opts.bib_entry
-            else :
-                log.warn("Incorrect --entry-type flag, revert to default")
+            else:
+                log.warn('Incorrect --entry-type flag, revert to default')
                 bib_entry = bib_entry[0]
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log(f"{self.name}(): Generating {self.fmt}")
+            log(f'{self.name}(): Generating {self.fmt}')
             if opts.connected_device['is_device_connected']:
-                log(" connected_device: %s" % opts.connected_device['name'])
+                log(' connected_device: %s' % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
             if opts_dict['ids']:
-                log(" Book count: %d" % len(opts_dict['ids']))
+                log(' Book count: %d' % len(opts_dict['ids']))
                 if opts_dict['search_text']:
-                    log(" (--search ignored when a subset of the database is specified)")
+                    log(' (--search ignored when a subset of the database is specified)')
 
             if opts_dict['fields']:
                 if opts_dict['fields'] == 'all':
-                    log(" Fields: %s" % ', '.join(FIELDS[1:]))
+                    log(' Fields: %s' % ', '.join(FIELDS[1:]))
                 else:
-                    log(" Fields: %s" % opts_dict['fields'])
+                    log(' Fields: %s' % opts_dict['fields'])
 
-            log(f" Output file will be encoded in {bibfile_enc} with {bibfile_enctag} flag")
+            log(f' Output file will be encoded in {bibfile_enc} with {bibfile_enctag} flag')
 
             log(" BibTeX entry type is {} with a citation like '{}' flag".format(bib_entry, opts_dict['bib_cit']))
 
@@ -349,33 +349,33 @@ class BIBTEX(CatalogPlugin):
         bibtexc = BibTeX()
 
         # Entries writing after Bibtex formatting (or not)
-        if bibfile_enc != 'ascii' :
+        if bibfile_enc != 'ascii':
             bibtexc.ascii_bibtex = False
-        else :
+        else:
             bibtexc.ascii_bibtex = True
 
         # Check citation choice and go to default in case of bad CLI
-        if isinstance(opts.impcit, string_or_bytes) :
-            if opts.impcit == 'False' :
+        if isinstance(opts.impcit, string_or_bytes):
+            if opts.impcit == 'False':
                 citation_bibtex= False
-            elif opts.impcit == 'True' :
+            elif opts.impcit == 'True':
                 citation_bibtex= True
-            else :
-                log.warn("Incorrect --create-citation, revert to default")
+            else:
+                log.warn('Incorrect --create-citation, revert to default')
                 citation_bibtex= True
-        else :
+        else:
             citation_bibtex= opts.impcit
 
         # Check add file entry and go to default in case of bad CLI
-        if isinstance(opts.addfiles, string_or_bytes) :
-            if opts.addfiles == 'False' :
+        if isinstance(opts.addfiles, string_or_bytes):
+            if opts.addfiles == 'False':
                 addfiles_bibtex = False
-            elif opts.addfiles == 'True' :
+            elif opts.addfiles == 'True':
                 addfiles_bibtex = True
-            else :
-                log.warn("Incorrect --add-files-path, revert to default")
+            else:
+                log.warn('Incorrect --add-files-path, revert to default')
                 addfiles_bibtex= True
-        else :
+        else:
             addfiles_bibtex = opts.addfiles
 
         # Preprocess for error and light correction
@@ -388,10 +388,10 @@ class BIBTEX(CatalogPlugin):
             nb_entries = len(data)
 
             # check in book strict if all is ok else throw a warning into log
-            if bib_entry == 'book' :
+            if bib_entry == 'book':
                 nb_books = len(list(filter(check_entry_book_valid, data)))
-                if nb_books < nb_entries :
-                    log.warn("Only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                if nb_books < nb_entries:
+                    log.warn('Only %d entries in %d are book compatible' % (nb_books, nb_entries))
                     nb_entries = nb_books
 
             # If connected device, add 'On Device' values to data
@@ -401,7 +401,7 @@ class BIBTEX(CatalogPlugin):
 
             # outfile.write('%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
             outfile.write('@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
-                % (nb_entries, strftime("%A, %d. %B %Y %H:%M")))
+                % (nb_entries, strftime('%A, %d. %B %Y %H:%M')))
 
             for entry in data:
                 outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,

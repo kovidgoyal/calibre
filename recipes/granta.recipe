@@ -47,18 +47,18 @@ def multiply_with_unknown_component(first_comp, second_comp, result):
 
 
 def solve_captcha(captcha):
-    # # Convert from a word problem into a numeric problem
+    # Convert from a word problem into a numeric problem
     numeric_problem = ''
     for part in captcha.split(' '):
         numeric_problem = numeric_problem + str(text2num(part))
 
     # Parse into parts
     pattern = re.compile(
-            u'(?P<first_component>[0-9]+)?'
-            u'\\s*(?P<operator>[+×−])\\s*'
-            u'(?P<second_component>[0-9]+)'
-            u'\\s*(=)\\s*'
-            u'(?P<result>[0-9]+)?', re.UNICODE)
+            r'(?P<first_component>[0-9]+)?'
+            u'\\s*(?P<operator>[+×−])\\s*'  # noqa: RUF039
+            r'(?P<second_component>[0-9]+)'
+            r'\s*(=)\s*'
+            r'(?P<result>[0-9]+)?', re.UNICODE)
 
     calculationParts = re.search(pattern, numeric_problem)
     if calculationParts is None:
@@ -138,14 +138,14 @@ Magnitude = {
 
 
 def text2num(s):
-    a = re.split(r"[\s-]+", s)
+    a = re.split(r'[\s-]+', s)
     n = 0
     g = 0
     for w in a:
         x = Small.get(w, None)
         if x is not None:
             g += x
-        elif w == "hundred" and g != 0:
+        elif w == 'hundred' and g != 0:
             g *= 100
         else:
             x = Magnitude.get(w, None)
@@ -195,7 +195,7 @@ class Granta(BasicNewsRecipe):
                 if captcha_question is not None:
                     captcha = str(solve_captcha(captcha_question))
 
-            br.select_form(method="post", action="https://granta.com/")
+            br.select_form(method='post', action='https://granta.com/')
             br['username'] = self.username
             br['password'] = self.password
             br['capcha'] = captcha

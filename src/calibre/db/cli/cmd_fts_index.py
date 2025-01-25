@@ -179,7 +179,7 @@ def main(opts, args, dbctx):
             parts = x.split(':', 1)
             book_id = int(parts[0])
             if len(parts) == 1:
-                return book_id,
+                return (book_id,)
             fmts = tuple(x.upper() for x in parts[1].split(','))
             return (book_id,) + fmts
 

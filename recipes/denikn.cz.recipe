@@ -11,11 +11,11 @@ CZ_MONTHS = ['led', 'úno', 'bře', 'dub', 'kvě', 'čen', 'čec', 'srp', 'zář
 
 
 def cz_title_time():
-    """
+    '''
     Helper function to return date with czech locale.
     Uses hardcoded lookup table of day and month names as strftime requires
     locale change that is not thread safe.
-    """
+    '''
     today = datetime.today()
     weekday = CZ_DAYS[today.weekday()]
     month = CZ_MONTHS[today.month-1]
@@ -26,9 +26,9 @@ def cz_title_time():
 
 
 class DenikNRecipe(BasicNewsRecipe):
-    """
+    '''
     Recipe for the RSS feed of https://denikn.cz/
-    """
+    '''
 
     title = u'Deník N'
     __author__ = 'Robert Mihaly'

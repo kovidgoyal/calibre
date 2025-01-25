@@ -20,7 +20,6 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     encoding = 'GB2312'
-    language = 'zh'
     conversion_options = {'linearize_tables': True}
     masthead_url = 'http://www.people.com.cn/img/2010wb/images/logo.gif'
 
@@ -89,11 +88,11 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     #     dict(name='p'),
     # ]
     remove_tags = [
-        dict(name='div', class_="channel cf")
+        dict(name='div', class_='channel cf')
     ]
 
-    remove_tags_before = [dict(name='div', class_="layout rm_txt cf")]
-    remove_tags_after = [dict(name='div', class_="edit cf")]
+    remove_tags_before = [dict(name='div', class_='layout rm_txt cf')]
+    remove_tags_after = [dict(name='div', class_='edit cf')]
 
     def append_page(self, soup, appendtag, position):
         pager = soup.find('img', attrs={'src': '/img/next_b.gif'})
@@ -129,12 +128,12 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         year = time.strftime('%Y')
         month = time.strftime('%m')
         day = time.strftime('%d')
-        cover = 'http://paper.people.com.cn/rmrb/images/' + year + '-' + \
-            month + '/' + day + '/01/rmrb' + year + month + day + '01_b.jpg'
+        cover = ('http://paper.people.com.cn/rmrb/images/' + year + '-'
+                 + month + '/' + day + '/01/rmrb' + year + month + day + '01_b.jpg')
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            self.log("\nCover unavailable: " + cover)
+            self.log('\nCover unavailable: ' + cover)
             cover = None
         return cover

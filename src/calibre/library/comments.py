@@ -11,7 +11,7 @@ from calibre.utils.html2text import html2text
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
-lost_cr_pat = re.compile('([a-z])([\\.\\?!])([A-Z])')
+lost_cr_pat = re.compile(r'([a-z])([\.\?!])([A-Z])')
 lost_cr_exception_pat = re.compile(r'(Ph\.D)|(D\.Phil)|((Dr|Mr|Mrs|Ms)\.[A-Z])')
 sanitize_pat = re.compile(r'<script|<table|<tr|<td|<th|<style|<iframe',
         re.IGNORECASE)
@@ -91,7 +91,7 @@ def comments_to_html(comments):
     all_tokens = list(soup.contents)
     inline_tags = ('br', 'b', 'i', 'em', 'strong', 'span', 'font', 'a', 'hr')
     for token in all_tokens:
-        if isinstance(token,  (CData, Comment, Declaration, ProcessingInstruction)):
+        if isinstance(token, (CData, Comment, Declaration, ProcessingInstruction)):
             continue
         if isinstance(token, NavigableString):
             if not open_pTag:

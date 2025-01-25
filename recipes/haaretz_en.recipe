@@ -33,13 +33,13 @@ class Haaretz_en(BasicNewsRecipe):
     PREFIX = 'https://www.haaretz.com'
     LOGIN = 'https://services.haaretz.com/ms-sso/loginUrlEncoded'
     LOGOUT = 'https://services.haaretz.com/ms-sso/logout'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: Merriweather, "Helvetica Neue", Helvetica, Arial, sans-serif }
                                 div.mx time{display: none}
                                 div.my time{display: none}
                                 div.mq time{display: none}
                                 div.mr time{display: none}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'publisher': publisher, 'language': language

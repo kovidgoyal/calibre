@@ -11,10 +11,13 @@ from struct import pack
 from calibre.ebooks.mobi.utils import CNCX, align_block, encint
 from calibre.ebooks.mobi.writer8.header import Header
 
-TagMeta_ = namedtuple('TagMeta',
-        'name number values_per_entry bitmask end_flag')
+TagMeta_ = namedtuple('TagMeta', 'name number values_per_entry bitmask end_flag')
+
+
 def TagMeta(x):
     return TagMeta_(*x)
+
+
 EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 
 # map of mask to number of shifts needed, works with 1 bit and two-bit wide masks
@@ -278,8 +281,8 @@ class ChunkIndex(Index):
 class GuideIndex(Index):
 
     tag_types = tuple(map(TagMeta, (
-        ('title',           1, 1, 1, 0),
-        ('pos_fid',         6, 2, 2, 0),
+        ('title',   1, 1, 1, 0),
+        ('pos_fid', 6, 2, 2, 0),
         EndTagTable
     )))
 
@@ -296,7 +299,6 @@ class GuideIndex(Index):
 
 
 class NCXIndex(Index):
-
     ''' The commented out parts have been seen in NCX indexes from MOBI 6
     periodicals. Since we have no MOBI 8 periodicals to reverse engineer, leave
     it for now. '''

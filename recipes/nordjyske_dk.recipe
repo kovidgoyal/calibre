@@ -38,4 +38,3 @@ class Nordjyske_dk(BasicNewsRecipe):
         ('Aalborg', 'http://nordjyske.dk/rss/aalborg'),
 
     ]
-

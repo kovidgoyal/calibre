@@ -65,7 +65,7 @@ class Article:
     def formatted_date(self):
 
         if self._formatted_date is None:
-            self._formatted_date = strftime(" [%a, %d %b %H:%M]",
+            self._formatted_date = strftime(' [%a, %d %b %H:%M]',
                     t=self.localtime.timetuple())
         return self._formatted_date
 
@@ -104,7 +104,7 @@ Has content : %s
 
     def is_same_as(self, other_article):
         # if self.title != getattr(other_article, 'title', False):
-        #    return False
+        #     return False
         if self.url:
             return self.url == getattr(other_article, 'url', False)
         return self.content == getattr(other_article, 'content', False)
@@ -326,7 +326,7 @@ class FeedCollection(list):
         for j, f in enumerate(self):
             for i, a in enumerate(f):
                 if a is article:
-                    return (j, i)
+                    return j, i
 
     def restore_duplicates(self):
         temp = []

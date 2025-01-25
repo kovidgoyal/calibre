@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TulsaWorld(BasicNewsRecipe):
     title = 'Tulsa World'
     __author__ = 'Darko Miletic'
-    description = 'Find breaking news, local news, Oklahoma weather, sports, business, entertainment, lifestyle, opinion, government, movies, books, jobs, education, blogs, video & multimedia.'  # noqa
+    description = 'Find breaking news, local news, Oklahoma weather, sports, business, entertainment, lifestyle, opinion, government, movies, books, jobs, education, blogs, video & multimedia.'  # noqa: E501
     publisher = 'World Publishing Co.'
     oldest_article = 2
     max_articles_per_feed = 200
@@ -24,8 +24,8 @@ class TulsaWorld(BasicNewsRecipe):
     country = 'US'
     auto_cleanup=True
     remove_empty_feeds = True
-    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'  # noqa
-    extra_css = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '  # noqa
+    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'  # noqa: E501
+    extra_css = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '  # noqa: E501
 
     conversion_options = {
         'comment': description, 'publisher': publisher, 'language': language

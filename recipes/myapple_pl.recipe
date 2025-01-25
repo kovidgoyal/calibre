@@ -12,7 +12,6 @@ class MyAppleRecipe(BasicNewsRecipe):
     description = u' Największy w Polsce serwis zajmujący się tematyką związaną z Apple i wszelkimi produktami tej firmy.'
     cover_url = ''
     remove_empty_feeds = True
-    no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100000
     recursions = 0

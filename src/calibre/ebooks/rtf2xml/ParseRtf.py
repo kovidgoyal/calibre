@@ -57,13 +57,13 @@ from calibre.ebooks.rtf2xml.old_rtf import OldRtf
 
 from . import open_for_read, open_for_write
 
-"""
+'''
 Here is an example script using the ParseRTF module directly
 #!/usr/bin/env python
 
 def Handle_Main():
     # Handles options and creates a parse object
-    parse_obj =ParseRtf.ParseRtf(
+    parse_obj = ParseRtf.ParseRtf(
             in_file = 'in.rtf',
             # All values from here on are optional
             # determine the output file
@@ -98,27 +98,27 @@ def Handle_Main():
         sys.stderr.write(msg)
     except ParseRtf.RtfInvalidCodeException, msg:
         sys.stderr.write(msg)
-"""
+'''
 
 
 class InvalidRtfException(Exception):
-    """
+    '''
     handle invalid RTF
-    """
+    '''
     pass
 
 
 class RtfInvalidCodeException(Exception):
-    """
+    '''
     handle bugs in program
-    """
+    '''
     pass
 
 
 class ParseRtf:
-    """
+    '''
     Main class for controlling the rest of the parsing.
-    """
+    '''
 
     def __init__(self,
                 in_file,
@@ -142,7 +142,7 @@ class ParseRtf:
                 char_data='',
                 default_encoding='cp1252',
                 ):
-        """
+        '''
         Requires:
         'file' --file to parse
         'char_data' --file containing character maps
@@ -157,14 +157,14 @@ class ParseRtf:
             'check_brackets' -- make sure the brackets match up after each run
             through a file. Only for debugging.
         Returns: Nothing
-        """
+        '''
 
         self.__file = in_file
         self.__out_file = out_file
         self.__out_dir = out_dir
         self.__temp_dir = out_dir
         self.__dtd_path = dtd
-        self.__check_file(in_file,"file_to_parse")
+        self.__check_file(in_file,'file_to_parse')
         self.__char_data = char_data
         self.__debug_dir = deb_dir
         self.__check_dir(self.__temp_dir)
@@ -186,12 +186,12 @@ class ParseRtf:
         self.__default_encoding = default_encoding
 
     def __check_file(self, the_file, type):
-        """Check to see if files exist"""
+        '''Check to see if files exist'''
         if hasattr(the_file, 'read'):
             return
         if the_file is None:
-            if type == "file_to_parse":
-                msg = "\nYou must provide a file for the script to work"
+            if type == 'file_to_parse':
+                msg = '\nYou must provide a file for the script to work'
             raise RtfInvalidCodeException(msg)
         elif os.path.exists(the_file):
             pass  # do nothing
@@ -200,24 +200,24 @@ class ParseRtf:
             raise RtfInvalidCodeException(msg)
 
     def __check_dir(self, the_dir):
-        """Check to see if directory exists"""
-        if not the_dir :
+        '''Check to see if directory exists'''
+        if not the_dir:
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            msg = "\n%s is not a directory" % the_dir
+            msg = '\n%s is not a directory' % the_dir
             raise RtfInvalidCodeException(msg)
         return 1
 
     def parse_rtf(self):
-        """
+        '''
         Parse the file by calling on other classes.
         Requires:
             Nothing
         Returns:
             A parsed file in XML, either to standard output or to a file,
             depending on the value of 'output' when the instance was created.
-        """
+        '''
         self.__temp_file = self.__make_temp_file(self.__file)
         # if the self.__deb_dir is true, then create a copy object,
         # set the directory to write to, remove files, and copy
@@ -228,7 +228,7 @@ class ParseRtf:
                     )
             copy_obj.set_dir(self.__debug_dir)
             copy_obj.remove_files()
-            copy_obj.copy_file(self.__temp_file, "original_file")
+            copy_obj.copy_file(self.__temp_file, 'original_file')
         # Function to check if bracket are well handled
         if self.__debug_dir or self.__run_level > 2:
             self.__check_brack_obj = check_brackets.CheckBrackets(
@@ -415,8 +415,7 @@ class ParseRtf:
         old_rtf = old_rtf_obj.check_if_old_rtf()
         if old_rtf:
             if self.__run_level > 5:
-                msg = 'Older RTF\n' \
-                'self.__run_level is "%s"\n' % self.__run_level
+                msg = 'Older RTF\nself.__run_level is "%s"\n' % self.__run_level
                 raise RtfInvalidCodeException(msg)
             if self.__run_level > 1:
                 sys.stderr.write('File could be older RTF...\n')
@@ -495,7 +494,7 @@ class ParseRtf:
         table_info_obj.insert_info()
         self.__bracket_match('table__data_info')
         if self.__form_lists:
-            make_list_obj =  make_lists.MakeLists(
+            make_list_obj = make_lists.MakeLists(
                 in_file=self.__temp_file,
                 bug_handler=RtfInvalidCodeException,
                 copy=self.__copy,
@@ -506,7 +505,7 @@ class ParseRtf:
             make_list_obj.make_lists()
             self.__bracket_match('form_lists_info')
         if self.__headings_to_sections:
-            headings_to_sections_obj =  headings_to_sections.HeadingsToSections(
+            headings_to_sections_obj = headings_to_sections.HeadingsToSections(
                 in_file=self.__temp_file,
                 bug_handler=RtfInvalidCodeException,
                 copy=self.__copy,
@@ -576,7 +575,7 @@ class ParseRtf:
 
     def __bracket_match(self, file_name):
         if self.__run_level > 2:
-            good_br, msg =  self.__check_brack_obj.check_brackets()
+            good_br, msg = self.__check_brack_obj.check_brackets()
             if good_br:
                 pass
                 # sys.stderr.write( msg + ' in ' + file_name + "\n")
@@ -590,9 +589,9 @@ class ParseRtf:
         if int(num) > self.__exit_level:
             self.__exit_level = num
 
-    def __make_temp_file(self,file):
-        """Make a temporary file to parse"""
-        write_file="rtf_write_file"
+    def __make_temp_file(self, file):
+        '''Make a temporary file to parse'''
+        write_file='rtf_write_file'
         read_obj = file if hasattr(file, 'read') else open_for_read(file)
         with open_for_write(write_file) as write_obj:
             for line in read_obj:

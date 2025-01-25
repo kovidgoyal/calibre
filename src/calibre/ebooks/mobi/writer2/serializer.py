@@ -163,7 +163,7 @@ class Serializer:
                 continue
 
             buf.write(b'<reference type="')
-            if ref.type.startswith('other.') :
+            if ref.type.startswith('other.'):
                 self.serialize_text(ref.type.replace('other.',''), quot=True)
             else:
                 self.serialize_text(ref.type, quot=True)
@@ -223,7 +223,7 @@ class Serializer:
                 buf.write(b'<mbp:pagebreak />')
                 self.id_offsets[urlnormalize(href)] = buf.tell()
 
-            if tocref.klass == "periodical":
+            if tocref.klass == 'periodical':
                 buf.write(b'<div> <div height="1em"></div>')
             else:
                 t = tocref.title
@@ -362,7 +362,7 @@ class Serializer:
         text = text.replace('&', '&amp;')
         text = text.replace('<', '&lt;')
         text = text.replace('>', '&gt;')
-        text = text.replace('\u00AD', '')  # Soft-hyphen
+        text = text.replace('\u00ad', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
         if isinstance(text, str):

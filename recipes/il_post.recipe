@@ -14,27 +14,27 @@ from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-dates = [ date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d') ]
+dates = [date.today().strftime('%Y/%m/%d'), (date.today() - timedelta(1)).strftime('%Y/%m/%d')]
 
 # ----------- CUSTOMIZATION OPTIONS START -----------
 
 # Comment (add # in front) to disable the sections you are not interested in
 # Commenta (aggiungi # davanti alla riga) per disabilitare le sezioni che non vuoi scaricare
 sections = [
-    ("Italia", "https://www.ilpost.it/italia/"),
-    ("Mondo", "https://www.ilpost.it/mondo/"),
-    ("Politica", "https://www.ilpost.it/politica/"),
-    ("Tecnologia", "https://www.ilpost.it/tecnologia/"),
-    ("Internet", "https://www.ilpost.it/internet/"),
-    ("Scienza", "https://www.ilpost.it/scienza/"),
-    ("Cultura", "https://www.ilpost.it/cultura/"),
-    ("Economia", "https://www.ilpost.it/economia/"),
-    ("Sport", "https://www.ilpost.it/sport/"),
-    ("Media", "https://www.ilpost.it/media/"),
-    ("Moda", "https://www.ilpost.it/moda/"),
-    ("Libri", "https://www.ilpost.it/libri/"),
-    ("Auto", "https://www.ilpost.it/auto/"),
-    ("Konrad", "https://www.ilpost.it/europa/"),
+    ('Italia', 'https://www.ilpost.it/italia/'),
+    ('Mondo', 'https://www.ilpost.it/mondo/'),
+    ('Politica', 'https://www.ilpost.it/politica/'),
+    ('Tecnologia', 'https://www.ilpost.it/tecnologia/'),
+    ('Internet', 'https://www.ilpost.it/internet/'),
+    ('Scienza', 'https://www.ilpost.it/scienza/'),
+    ('Cultura', 'https://www.ilpost.it/cultura/'),
+    ('Economia', 'https://www.ilpost.it/economia/'),
+    ('Sport', 'https://www.ilpost.it/sport/'),
+    ('Media', 'https://www.ilpost.it/media/'),
+    ('Moda', 'https://www.ilpost.it/moda/'),
+    ('Libri', 'https://www.ilpost.it/libri/'),
+    ('Auto', 'https://www.ilpost.it/auto/'),
+    ('Konrad', 'https://www.ilpost.it/europa/'),
 ]
 
 # ----------- CUSTOMIZATION OPTIONS OVER -----------
@@ -45,16 +45,16 @@ class IlPost(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __copyright__ = '2019, Marco Scirea <marco.prolog at gmail.com>'
 
-    title = "Il Post"
-    language = "it"
+    title = 'Il Post'
+    language = 'it'
     description = (
         'Puoi decidere quali sezioni scaricare modificando la ricetta.'
         ' Di default le immagini sono convertite in scala di grigio per risparmiare spazio,'
-        ' la ricetta puo\' essere configurata per tenerle a colori'
+        " la ricetta puo' essere configurata per tenerle a colori"
     )
-    tags = "news"
+    tags = 'news'
     masthead_url = 'https://www.ilpost.it/error/images/ilpost.svg'
-    ignore_duplicate_articles = {"title", "url"}
+    ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     extra_css = ' .wp-caption-text { font-size:small; } '
     keep_only_tags = [dict(name='main', attrs={'id':lambda x: x and x.startswith('index_main-content__')})]
@@ -81,11 +81,11 @@ class IlPost(BasicNewsRecipe):
                     continue
                 self.log('\t', title)
                 entries.append({
-                    "url": link["href"],
-                    "title": title,
-                    "description": desc
+                    'url': link['href'],
+                    'title': title,
+                    'description': desc
                 })
-        return (name, entries)
+        return name, entries
 
     def parse_index(self):
         feeds = []

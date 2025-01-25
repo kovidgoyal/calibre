@@ -24,14 +24,14 @@ class AdvancedUserRecipe1718106336(BasicNewsRecipe):
 
     feeds          = [
         ('Game News', 'https://gamerant.com/feed/gaming/'),
-        #Platforms
+        # Platforms
         ('Platforms', 'https://gamerant.com/feed/platforms/'),
         ('Playstation', 'https://gamerant.com/feed/tag/playstation/'),
         ('Xbox', 'https://gamerant.com/feed/tag/xbox/'),
         ('Nintendo', 'https://gamerant.com/feed/tag/nintendo/'),
         ('PC Gaming', 'https://gamerant.com/feed/tag/pc/'),
         ('Mobile Gaming', 'https://gamerant.com/feed/tag/mobile/'),
-        #Game Rant Originals
+        # Game Rant Originals
         ('Game Rant Originals', 'https://gamerant.com/feed/originals/'),
         ('Editorials', 'https://gamerant.com/feed/editorial/'),
         ('Game Reviews', 'https://gamerant.com/feed/game-reviews/'),

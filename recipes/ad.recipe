@@ -85,9 +85,10 @@ class ADRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         parts = url.split('/')
-        print_url = 'http://' + parts[2] + '/' + parts[3] + '/' + parts[4] + '/' + parts[5] + '/' \
-            + parts[10] + '/' + parts[7] + '/print/' + \
-            parts[8] + '/' + parts[9] + '/' + parts[13]
+        print_url = 'http://' + '/'.join([
+            parts[2], parts[3], parts[4], parts[5], parts[10],
+            parts[7], 'print', parts[8], parts[9], parts[13],
+        ])
 
         return print_url
 

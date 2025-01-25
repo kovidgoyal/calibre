@@ -16,18 +16,18 @@ from . import open_for_read
 
 
 class OldRtf:
-    """
+    '''
     Check to see if the RTF is an older version
     Logic:
     If allowable control word/properties happen in text without being enclosed
     in brackets the file will be considered old rtf
-    """
+    '''
 
     def __init__(self, in_file,
                 bug_handler,
                 run_level,
                 ):
-        """
+        '''
         Required:
             'file'--file to parse
             'table_data' -- a dictionary for each table.
@@ -37,36 +37,36 @@ class OldRtf:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__run_level = run_level
         self.__allowable = [
-            'annotation' ,
-            'blue______'  ,
+            'annotation',
+            'blue______',
             'bold______',
             'caps______',
-            'char-style' ,
-            'dbl-strike' ,
+            'char-style',
+            'dbl-strike',
             'emboss____',
-            'engrave___' ,
+            'engrave___',
             'font-color',
-            'font-down_' ,
+            'font-down_',
             'font-size_',
             'font-style',
             'font-up___',
-            'footnot-mk' ,
-            'green_____' ,
+            'footnot-mk',
+            'green_____',
             'hidden____',
             'italics___',
             'outline___',
             'red_______',
-            'shadow____' ,
+            'shadow____',
             'small-caps',
             'strike-thr',
             'subscript_',
-            'superscrip' ,
-            'underlined' ,
+            'superscrip',
+            'underlined',
         ]
         self.__action_dict = {
             'before_body'   : self.__before_body_func,
@@ -86,7 +86,7 @@ class OldRtf:
                 return 'old_rtf'
             else:
                 self.__found_new += 1
-        elif self.__token_info ==  'cw<pf<par-def___':
+        elif self.__token_info == 'cw<pf<par-def___':
             self.__state = 'after_pard'
 
     def __before_body_func(self, line):
@@ -99,13 +99,13 @@ class OldRtf:
             self.__state = 'in_body'
 
     def check_if_old_rtf(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
             True if file is older RTf
             False if file is newer RTF
-        """
+        '''
         self.__initiate_values()
         line_num = 0
         with open_for_read(self.__file) as read_obj:

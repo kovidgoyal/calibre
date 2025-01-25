@@ -22,7 +22,7 @@ class Seminar(BasicNewsRecipe):
         soup = self.index_to_soup('https://www.india-seminar.com/')
         citem = soup.find('img', src=lambda x: x and 'covers' in x)
         if citem:
-            cover_url = "https://www.india-seminar.com/" + citem['src']
+            cover_url = 'https://www.india-seminar.com/' + citem['src']
         return cover_url
 
     def parse_index(self):

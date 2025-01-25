@@ -53,8 +53,8 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
-        'search=%s&limit=0,%s'
+        search_url = (u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02'
+                       '&search=%s&limit=0,%s')
         search_url = search_url % (quote(query), max_results)
 
         counter = max_results
@@ -62,7 +62,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         br.addheaders.append(['Accept-Encoding','gzip'])
 
         with closing(br.open(search_url, timeout=timeout)) as r:
-            ungzipResponse(r,br)
+            ungzipResponse(r, br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
             doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
@@ -111,16 +111,16 @@ def format_price_in_RUR(price):
     @return: formatted price if possible otherwise original value
     @rtype: unicode
     '''
-    if price and re.match(r"^\d*?\.\d*?$", price):
+    if price and re.match(r'^\d*?\.\d*?$', price):
         try:
-            price = u'{:,.2F} \u20BD'.format(float(price))  # \u20BD => руб.
+            price = u'{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except:
             pass
     return price
 
 
-def ungzipResponse(r,b):
+def ungzipResponse(r, b):
     headers = r.info()
     if headers.get('Content-Encoding', '')=='gzip':
         import gzip

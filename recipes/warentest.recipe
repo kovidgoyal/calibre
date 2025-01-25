@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Warentest(BasicNewsRecipe):
     title = u'Warentest'
     language = 'de'
-    description = 'Stiftung Warentest is a German consumer organisation and foundation involved in investigating and comparing goods and services in an unbiased way'  # noqa
+    description = 'Stiftung Warentest is a German consumer organisation and foundation involved in investigating and comparing goods and services in an unbiased way'  # noqa: E501
     __author__ = 'asdfdsfksd'
     needs_subscription = False
     max_articles_per_feed = 100

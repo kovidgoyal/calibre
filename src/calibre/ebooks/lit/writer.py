@@ -61,11 +61,11 @@ HTML_MAP = invert_tag_map(maps.HTML_MAP)
 
 LIT_MAGIC = b'ITOLITLS'
 
-LITFILE_GUID = "{0A9007C1-4076-11D3-8789-0000F8105754}"
-PIECE3_GUID = "{0A9007C3-4076-11D3-8789-0000F8105754}"
-PIECE4_GUID = "{0A9007C4-4076-11D3-8789-0000F8105754}"
-DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
-LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
+LITFILE_GUID = '{0A9007C1-4076-11D3-8789-0000F8105754}'
+PIECE3_GUID = '{0A9007C3-4076-11D3-8789-0000F8105754}'
+PIECE4_GUID = '{0A9007C4-4076-11D3-8789-0000F8105754}'
+DESENCRYPT_GUID = '{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}'
+LZXCOMPRESS_GUID = '{0A9007C6-4076-11D3-8789-0000F8105754}'
 
 
 def packguid(guid):
@@ -73,7 +73,7 @@ def packguid(guid):
         guid[20:22], guid[22:24], guid[25:27], guid[27:29], \
         guid[29:31], guid[31:33], guid[33:35], guid[35:37]
     values = [int(value, 16) for value in values]
-    return pack("<LHHBBBBBBBB", *values)
+    return pack('<LHHBBBBBBBB', *values)
 
 
 FLAG_OPENING = (1 << 0)
@@ -93,25 +93,28 @@ ULL_NEG1 = 0xffffffffffffffff
 ROOT_OFFSET = 1284508585713721976
 ROOT_SIZE = 4165955342166943123
 
-BLOCK_CAOL = \
-    b"\x43\x41\x4f\x4c\x02\x00\x00\x00" \
-    b"\x50\x00\x00\x00\x37\x13\x03\x00" \
-    b"\x00\x00\x00\x00\x00\x20\x00\x00" \
-    b"\x00\x02\x00\x00\x00\x00\x10\x00" \
-    b"\x00\x00\x02\x00\x00\x00\x00\x00" \
-    b"\x00\x00\x00\x00\x00\x00\x00\x00"
-BLOCK_ITSF = \
-    b"\x49\x54\x53\x46\x04\x00\x00\x00" \
-    b"\x20\x00\x00\x00\x01\x00\x00\x00"
-
-MSDES_CONTROL = \
-    b"\x03\x00\x00\x00\x29\x17\x00\x00" \
-    b"\x01\x00\x00\x00\xa5\xa5\x00\x00"
-LZXC_CONTROL = \
-    b"\x07\x00\x00\x00\x4c\x5a\x58\x43" \
-    b"\x03\x00\x00\x00\x04\x00\x00\x00" \
-    b"\x04\x00\x00\x00\x02\x00\x00\x00" \
-    b"\x00\x00\x00\x00\x00\x00\x00\x00"
+BLOCK_CAOL = (
+    b'\x43\x41\x4f\x4c\x02\x00\x00\x00'
+    b'\x50\x00\x00\x00\x37\x13\x03\x00'
+    b'\x00\x00\x00\x00\x00\x20\x00\x00'
+    b'\x00\x02\x00\x00\x00\x00\x10\x00'
+    b'\x00\x00\x02\x00\x00\x00\x00\x00'
+    b'\x00\x00\x00\x00\x00\x00\x00\x00'
+)
+BLOCK_ITSF = (
+    b'\x49\x54\x53\x46\x04\x00\x00\x00'
+    b'\x20\x00\x00\x00\x01\x00\x00\x00'
+)
+MSDES_CONTROL = (
+    b'\x03\x00\x00\x00\x29\x17\x00\x00'
+    b'\x01\x00\x00\x00\xa5\xa5\x00\x00'
+)
+LZXC_CONTROL = (
+    b'\x07\x00\x00\x00\x4c\x5a\x58\x43'
+    b'\x03\x00\x00\x00\x04\x00\x00\x00'
+    b'\x04\x00\x00\x00\x02\x00\x00\x00'
+    b'\x00\x00\x00\x00\x00\x00\x00\x00'
+)
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
@@ -275,8 +278,8 @@ class ReBinary:
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.logger.warn("More than six anchors in file %r. "
-                "Some links may not work properly." % self.item.href)
+            self.logger.warn('More than six anchors in file %r. '
+                'Some links may not work properly.' % self.item.href)
         data = io.BytesIO()
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -469,8 +472,8 @@ class LitWriter:
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self._logger.warn("File %r of unknown media-type %r "
-                    "excluded from output." % (item.href, item.media_type))
+                self._logger.warn('File %r of unknown media-type %r '
+                    'excluded from output.' % (item.href, item.media_type))
                 continue
             name = '/data/' + item.id
             data = item.data
@@ -579,7 +582,7 @@ class LitWriter:
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
         msdes.deskey(tempkey, msdes.EN0)
-        self._add_file('/DRMStorage/DRMSealed', msdes.des(b"\0" * 16))
+        self._add_file('/DRMStorage/DRMSealed', msdes.des(b'\0' * 16))
         self._bookkey = b'\0' * 8
         self._add_file('/DRMStorage/ValidationStream', b'MSReader', 3)
 
@@ -651,11 +654,11 @@ class LitWriter:
         hash = mssha1.new()
         for data in hashdata:
             if prepad > 0:
-                data = (b"\000" * prepad) + data
+                data = (b'\000' * prepad) + data
                 prepad = 0
             postpad = 64 - (len(data) % 64)
             if postpad < 64:
-                data = data + (b"\000" * postpad)
+                data = data + (b'\000' * postpad)
             hash.update(data)
         digest = hash.digest()
         if not isinstance(digest, bytes):

@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Coda(BasicNewsRecipe):
     title = 'Coda'
     __author__ = 'bugmen00t'
-    description = 'Coda Story reports on major currents shaping our world from disinformation to authoritarian technologies to the war on science. Coda stays on these stories to reveal why they matter, how they are connected and where they are heading next.'  # noqa
+    description = 'Coda Story reports on major currents shaping our world from disinformation to authoritarian technologies to the war on science. Coda stays on these stories to reveal why they matter, how they are connected and where they are heading next.'  # noqa: E501
     publisher = 'Natalia Antelava & Ilan Greenberg'
     category = 'blog'
     cover_url = u'https://www.codastory.com/wp-content/uploads/2021/05/AT_thumbnail_512x512.png'

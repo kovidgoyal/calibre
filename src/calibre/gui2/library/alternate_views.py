@@ -133,8 +133,8 @@ def image_to_data(image):  # {{{
     return ret
 # }}}
 
-# Drag 'n Drop {{{
 
+# Drag 'n Drop {{{
 
 def qt_item_view_base_class(self):
     for q in (QTableView, QListView, QTreeView):
@@ -331,8 +331,8 @@ def setup_dnd_interface(cls_or_self):
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
 # }}}
 
-# Manage slave views {{{
 
+# Manage slave views {{{
 
 def sync(func):
     @wraps(func)
@@ -436,8 +436,8 @@ class AlternateViews:
             self.current_view.marked_changed(old_marked, current_marked)
 # }}}
 
-# Rendering of covers {{{
 
+# Rendering of covers {{{
 
 class CoverDelegate(QStyledItemDelegate):
 
@@ -1005,7 +1005,7 @@ class GridView(QListView):
         if db is None:
             return None
         tc = self.thumbnail_cache
-        cdata, timestamp = tc[book_id] # None, None if not cached.
+        cdata, timestamp = tc[book_id]  # None, None if not cached.
         if timestamp is None:
             # Cover not in cache. Try to read the cover from the library.
             has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
@@ -1180,7 +1180,7 @@ class GridView(QListView):
         # Create a range based selector for each set of contiguous rows
         # as supplying selectors for each individual row causes very poor
         # performance if a large number of rows has to be selected.
-        for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
+        for k, g in itertools.groupby(enumerate(rows), lambda i_x: i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
             sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), QItemSelectionModel.SelectionFlag.Select)
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)

@@ -17,7 +17,6 @@ try:
 except ImportError:
     import _winreg as winreg
 
-
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32
 HKEY = types.HKEY
@@ -43,7 +42,7 @@ RRF_ZEROONFAILURE = 0x20000000
 
 
 class FILETIME(ctypes.Structure):
-    _fields_ = [("dwLowDateTime", DWORD), ("dwHighDateTime", DWORD)]
+    _fields_ = [('dwLowDateTime', DWORD), ('dwHighDateTime', DWORD)]
 
 
 def default_errcheck(result, func, args):

@@ -74,7 +74,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     job_done  = pyqtSignal(int)
 
     def __init__(self):
-        self.header_titles = _('Job'), _('Status'), _('Progress'), _('Running time'), _('Start time'),
+        self.header_titles = _('Job'), _('Status'), _('Progress'), _('Running time'), _('Start time')
         QAbstractTableModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
 
@@ -417,8 +417,8 @@ class FilterModel(QSortFilterProxyModel):  # {{{
 
 # }}}
 
-# Jobs UI {{{
 
+# Jobs UI {{{
 
 class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
 
@@ -732,8 +732,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def hide_all(self, *args):
-        self.model.hide_jobs(list(range(0,
-            self.model.rowCount(QModelIndex()))))
+        self.model.hide_jobs(list(range(self.model.rowCount(QModelIndex()))))
         self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def show_hidden(self, *args):

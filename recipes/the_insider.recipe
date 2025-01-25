@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheInsider(BasicNewsRecipe):
     title = 'The Insider'
-    cover_url = 'https://s3-us-west-2.amazonaws.com/anchor-generated-image-bank/production/podcast_uploaded_nologo400/10331708/10331708-1604408816914-d03520fb339d5.jpg'  # noqa
+    cover_url = 'https://s3-us-west-2.amazonaws.com/anchor-generated-image-bank/production/podcast_uploaded_nologo400/10331708/10331708-1604408816914-d03520fb339d5.jpg'  # noqa: E501
     __author__ = 'bugmen00t'
     description = 'Расследования Репортажи Аналитика'
     publisher = 'theins.ru'

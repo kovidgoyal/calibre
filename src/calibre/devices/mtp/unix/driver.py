@@ -234,7 +234,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             storage = sorted_storage(self.dev.storage_info)
         except self.libmtp.MTPError as e:
-            if "The device has no storage information." in str(e):
+            if 'The device has no storage information.' in str(e):
                 # This happens on newer Android devices while waiting for
                 # the user to allow access. Apparently what happens is
                 # that when the user clicks allow, the device disconnects

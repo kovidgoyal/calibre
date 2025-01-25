@@ -93,11 +93,11 @@ class POT(Command):  # {{{
 
         ans = []
         for lineno, msg in msgs:
-            ans.append('#: %s:%d'%(path, lineno))
+            ans.append(f'#: {path}:{lineno}')
             slash = codepoint_to_chr(92)
             msg = msg.replace(slash, slash*2).replace('"', r'\"').replace('\n',
                     r'\n').replace('\r', r'\r').replace('\t', r'\t')
-            ans.append('msgid "%s"'%msg)
+            ans.append(f'msgid "{msg}"')
             ans.append('msgstr ""')
             ans.append('')
 
@@ -135,8 +135,8 @@ class POT(Command):  # {{{
                     lines = f.read().decode('utf-8').splitlines()
                     for i in range(len(lines)):
                         line = lines[i].strip()
-                        if line == '[calibre.%s]' % slug:
-                            lines.insert(i+1, 'file_filter = manual/<lang>/%s.po' % bname)
+                        if line == f'[calibre.{slug}]':
+                            lines.insert(i+1, f'file_filter = manual/<lang>/{bname}.po')
                             f.seek(0), f.truncate(), f.write('\n'.join(lines).encode('utf-8'))
                             break
                     else:
@@ -171,14 +171,14 @@ class POT(Command):  # {{{
     def pot_header(self, appname=__appname__, version=__version__):
         return textwrap.dedent('''\
         # Translation template file..
-        # Copyright (C) %(year)s Kovid Goyal
-        # Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
+        # Copyright (C) {year} Kovid Goyal
+        # Kovid Goyal <kovid@kovidgoyal.net>, {year}.
         #
         msgid ""
         msgstr ""
-        "Project-Id-Version: %(appname)s %(version)s\\n"
-        "POT-Creation-Date: %(time)s\\n"
-        "PO-Revision-Date: %(time)s\\n"
+        "Project-Id-Version: {appname} {version}\\n"
+        "POT-Creation-Date: {time}\\n"
+        "PO-Revision-Date: {time}\\n"
         "Last-Translator: Automatically generated\\n"
         "Language-Team: LANGUAGE\\n"
         "MIME-Version: 1.0\\n"
@@ -187,7 +187,7 @@ class POT(Command):  # {{{
         "Content-Type: text/plain; charset=UTF-8\\n"
         "Content-Transfer-Encoding: 8bit\\n"
 
-        ''')%dict(appname=appname, version=version,
+        ''').format(appname=appname, version=version,
                 year=time.strftime('%Y'),
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
@@ -357,7 +357,7 @@ class Translations(POT):  # {{{
         l = {}
         lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
         exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
-        lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
+        lcdata = {k:dict(v) for k, v in l['data']}
         self.info('Compiling main UI translation files...')
         fmap = {f:self.mo_file(f) for f in self.po_files()}
         files = [(f, fmap[f][1]) for f in self.po_files()]
@@ -397,12 +397,12 @@ class Translations(POT):  # {{{
             iso_data.extract_po_files('iso_639-3', tdir)
             for f, (locale, dest) in iteritems(fmap):
                 iscpo = {'zh_HK':'zh_CN'}.get(locale, locale)
-                iso639 = self.j(tdir, '%s.po'%iscpo)
+                iso639 = self.j(tdir, f'{iscpo}.po')
                 if os.path.exists(iso639):
                     files.append((iso639, self.j(self.d(dest), 'iso639.mo')))
                 else:
                     iscpo = iscpo.partition('_')[0]
-                    iso639 = self.j(tdir, '%s.po'%iscpo)
+                    iso639 = self.j(tdir, f'{iscpo}.po')
                     if os.path.exists(iso639):
                         files.append((iso639, self.j(self.d(dest), 'iso639.mo')))
                     elif locale not in skip_iso:
@@ -566,7 +566,7 @@ class Translations(POT):  # {{{
         srcbase = self.j(self.d(self.SRC), 'translations', 'manual')
         destbase = self.j(self.d(self.SRC), 'manual', 'locale')
         complete = {}
-        all_stats = defaultdict(lambda : {'translated': 0, 'untranslated': 0})
+        all_stats = defaultdict(lambda: {'translated': 0, 'untranslated': 0})
         files = []
         for x in os.listdir(srcbase):
             q = self.j(srcbase, x)
@@ -607,7 +607,6 @@ class Translations(POT):  # {{{
         if os.path.exists(destbase):
             shutil.rmtree(destbase)
         shutil.rmtree(self.cache_dir)
-
 # }}}
 
 
@@ -756,7 +755,6 @@ class GetTranslations(Translations):  # {{{
         cc('git add */*.po'.split())
         cc('git commit -am'.split() + [msg or 'Updated translations'])
         cc('git push'.split())
-
 # }}}
 
 
@@ -817,7 +815,6 @@ class ISO639(Command):  # {{{
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
-
 # }}}
 
 

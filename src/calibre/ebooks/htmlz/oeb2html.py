@@ -269,7 +269,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             tag = 'div'
             # Add page-break-brefore: always because renders typically treat a new file (we're merging files)
             # as a page break and remove all other page break types that might be set.
-            style_a = 'page-break-before: always; %s' % re.sub('page-break-[^:]+:[^;]+;?', '', style_a)
+            style_a = 'page-break-before: always; %s' % re.sub(r'page-break-[^:]+:[^;]+;?', '', style_a)
         # Remove unnecessary spaces.
         style_a = re.sub(r'\s{2,}', ' ', style_a).strip()
         tags.append(tag)
@@ -338,7 +338,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         if self.opts.htmlz_class_style == 'external':
             css = '<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
-            css =  '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
+            css = '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
         title = '<title>%s</title>' % prepare_string_for_xml(self.book_title)
         output = ['<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'] + \
             [css] + [title, '</head><body>'] + output + ['</body></html>']
@@ -411,14 +411,14 @@ def oeb2html_no_css(oeb_book, log, opts):
     izer = OEB2HTMLNoCSSizer(log)
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images
 
 
 def oeb2html_inline_css(oeb_book, log, opts):
     izer = OEB2HTMLInlineCSSizer(log)
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images
 
 
 def oeb2html_class_css(oeb_book, log, opts):
@@ -426,4 +426,4 @@ def oeb2html_class_css(oeb_book, log, opts):
     setattr(opts, 'class_style', 'inline')
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
-    return (html, images)
+    return html, images

@@ -22,10 +22,10 @@ if islinux:
     import ctypes
 
     class SOCKADDR_NL(ctypes.Structure):
-        _fields_ = [("nl_family", ctypes.c_ushort),
-                    ("nl_pad",    ctypes.c_ushort),
-                    ("nl_pid",    ctypes.c_int),
-                    ("nl_groups", ctypes.c_int)]
+        _fields_ = [('nl_family', ctypes.c_ushort),
+                    ('nl_pad',    ctypes.c_ushort),
+                    ('nl_pid',    ctypes.c_int),
+                    ('nl_groups', ctypes.c_int)]
 
     def getsockfamily(fd):
         addr = SOCKADDR_NL(0, 0, 0, 0)
@@ -44,7 +44,7 @@ if islinux:
         del pre_activated_socket
         has_preactivated_support = True
 
-        def pre_activated_socket():  # noqa
+        def pre_activated_socket():
             num = systemd.sd_listen_fds(1)  # Remove systemd env vars so that child processes do not inherit them
             if num > 1:
                 raise OSError('Too many file descriptors received from systemd')

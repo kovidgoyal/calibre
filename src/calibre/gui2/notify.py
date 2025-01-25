@@ -125,12 +125,12 @@ class DBUSNotifier(Notifier):
             self.address, 'AddNotification', 'sa{sv}', (
                 str(replaces_id or 0),
                 {
-                "title": ('s', summary),
-                "body": ('s', body),
-                "icon": (
+                'title': ('s', summary),
+                'body': ('s', body),
+                'icon': (
                     '(sv)',
                     (
-                        "bytes",
+                        'bytes',
                         ('ay', icon(data=True))
                     )
                 ),
@@ -275,7 +275,8 @@ def hello():
 def develop_win():
     from calibre_extensions.wintoast import initialize_toast, notify
     initialize_toast(__appname__, MAIN_APP_UID)
-    notify("calibre notification", "hello world", icon())
+    notify('calibre notification', 'hello world', icon())
+
 
 if __name__ == '__main__':
     hello()

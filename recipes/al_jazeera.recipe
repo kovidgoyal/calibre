@@ -21,9 +21,9 @@ class AlJazeera(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    extra_css              = """
+    extra_css              = '''
                                 body{font-family: Arial,sans-serif}
-                             """
+                             '''
     conversion_options = {
         'comment': description, 'tags': category,
         'publisher': publisher, 'language': language
@@ -55,7 +55,7 @@ class AlJazeera(BasicNewsRecipe):
               u'http://www.aljazeera.com/xml/rss/all.xml')]
 
     def get_article_url(self, article):
-        artlurl = article.get('link',  None)
+        artlurl = article.get('link', None)
         return artlurl
 
     def preprocess_html(self, soup):

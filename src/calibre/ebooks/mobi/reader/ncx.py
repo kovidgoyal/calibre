@@ -24,10 +24,10 @@ tag_fieldname_map = {
         22: ['child1',0],
         23: ['childn',0],
         69: ['image_index',0],
-        70 : ['desc_offset', 0],  # 'Description offset in cncx'
-        71 : ['author_offset', 0],  # 'Author offset in cncx'
-        72 : ['image_caption_offset', 0],  # 'Image caption offset in cncx',
-        73 : ['image_attr_offset', 0],  # 'Image attribution offset in cncx',
+        70: ['desc_offset', 0],  # 'Description offset in cncx'
+        71: ['author_offset', 0],  # 'Author offset in cncx'
+        72: ['image_caption_offset', 0],  # 'Image caption offset in cncx',
+        73: ['image_attr_offset', 0],  # 'Image attribution offset in cncx',
 
 }
 
@@ -35,13 +35,13 @@ default_entry = {
                     'pos':  -1,
                     'len':  0,
                     'noffs': -1,
-                    'text' : "Unknown Text",
-                    'hlvl' : -1,
-                    'kind' : "Unknown Class",
-                    'pos_fid' : None,
-                    'parent' : -1,
-                    'child1' : -1,
-                    'childn' : -1,
+                    'text': 'Unknown Text',
+                    'hlvl': -1,
+                    'kind': 'Unknown Class',
+                    'pos_fid': None,
+                    'parent': -1,
+                    'child1': -1,
+                    'childn': -1,
                     'description': None,
                     'author': None,
                     'image_caption': None,

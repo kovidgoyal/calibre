@@ -5,16 +5,14 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic History'
-    description = (
-        'From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
-        'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore.'
-    )
+    description = ('From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
+                   'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore. '
+                   'Inspiring people to care about the planet since 1888')
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
     category = 'science, nat geo'
     __author__ = 'Kovid Goyal, unkn0wn'
-    description = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     no_stylesheets = True
     use_embedded_content = False
@@ -43,14 +41,14 @@ class NatGeo(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         return self.natgeo_parser.extract_html(raw_html)
 
-    extra_css = """
+    extra_css = '''
         blockquote { color:#404040; }
         .byline, i { font-style:italic; color:#202020; }
         .cap { font-size:small; }
         img {display:block; margin:0 auto;}
         .cred { font-style:italic; font-size:small; color:#404040; }
         .auth, .time, .sub { font-size:small; color:#5c5c5c; }
-    """
+    '''
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://ngsingleissues.nationalgeographic.com/history')

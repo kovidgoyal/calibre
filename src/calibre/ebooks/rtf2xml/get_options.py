@@ -10,9 +10,9 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-"""
+'''
 Gets options for main part of script
-"""
+'''
 import os
 import sys
 
@@ -33,43 +33,43 @@ class GetOptions:
         self.__bug_handler = bug_handler
 
     def get_options(self):
-        """
+        '''
         return valid, output, help, show_warnings, debug, file
-        """
+        '''
         return_options = self.__get_config_options()
         options_dict = {
-                        'dir'               :       [1],
-                        'help'              :       [0, 'h'],
-                        'show-warnings'     :       [0],
-                        'caps'              :       [0,],
-                        'no-caps'           :       [0],
-                        'symbol'            :       [0],
-                        'no-symbol'         :       [0],
-                        'windings'          :       [0],
-                        'no-wingdings'      :       [0],
-                        'zapf'              :       [0],
-                        'no-zapf'           :       [0],
-                        'font'              :       [0],
-                        'no-font'           :       [0],
-                        'dtd'               :       [1],
-                        'no-dtd'            :       [0],
-                        'version'           :       [0],
-                        'output'            :       [1, 'o'],
-                        'no-namespace'      :       [0],
-                        'level'             :       [1],
-                        'indent'            :       [1],
-                        'no-lists'          :       [0],
-                        'lists'             :       [0],
-                        'group-styles'      :       [0],
-                        'no-group-styles'   :       [0],
-                        'group-borders'      :       [0],
-                        'no-group-borders'   :       [0],
-                        'headings-to-sections'  :   [0],
-                        'no-headings-to-sections'   :   [0],
-                        'empty-para'  :       [0],
-                        'no-empty-para' :      [0],
-                        'format'            :       [1, 'f'],
-                        'config'            :       [0],
+                        'dir'                       : [1],
+                        'help'                      : [0, 'h'],
+                        'show-warnings'             : [0],
+                        'caps'                      : [0,],
+                        'no-caps'                   : [0],
+                        'symbol'                    : [0],
+                        'no-symbol'                 : [0],
+                        'windings'                  : [0],
+                        'no-wingdings'              : [0],
+                        'zapf'                      : [0],
+                        'no-zapf'                   : [0],
+                        'font'                      : [0],
+                        'no-font'                   : [0],
+                        'dtd'                       : [1],
+                        'no-dtd'                    : [0],
+                        'version'                   : [0],
+                        'output'                    : [1, 'o'],
+                        'no-namespace'              : [0],
+                        'level'                     : [1],
+                        'indent'                    : [1],
+                        'no-lists'                  : [0],
+                        'lists'                     : [0],
+                        'group-styles'              : [0],
+                        'no-group-styles'           : [0],
+                        'group-borders'             : [0],
+                        'no-group-borders'          : [0],
+                        'headings-to-sections'      : [0],
+                        'no-headings-to-sections'   : [0],
+                        'empty-para'                : [0],
+                        'no-empty-para'             : [0],
+                        'format'                    : [1, 'f'],
+                        'config'                    : [0],
                 }
         options_obj = options_trem.ParseOptions(
                         system_string=self.__system_arguments,
@@ -107,11 +107,8 @@ class GetOptions:
             return_options['out-file'] = options['output']
         else:
             pass
-            """
-            sys.stderr.write(
-                'You must provide an output file with the \'o\' option\n')
-            return_options['valid'] = 0
-            """
+            # sys.stderr.write("You must provide an output file with the 'o' option\n")
+            # return_options['valid'] = 0
         if 'level' in the_keys:
             return_options['level'] = options['level']
         the_level = return_options.get('level')
@@ -129,8 +126,8 @@ class GetOptions:
         if 'format' in the_keys:
             format = options['format']
             if format not in acceptable:
-                sys.stderr.write('--format must take either \'sdoc\' or '
-                        '\'tei\'\n')
+                sys.stderr.write("--format must take either 'sdoc' or "
+                        "'tei'\n")
                 return_options['valid'] = 0
                 return return_options
             else:
@@ -225,14 +222,12 @@ class GetOptions:
             else:
                 return_options['out-file'] = '%s.xml' % the_file_name
         if not smart_output and not return_options['out-file']:
-            """
-            sys.stderr.write(
-                'Please provide and file to output with the -o option.\n'
-                'Or set \'<smart-output value = "true"/>\'.\n'
-                'in the configuration file.\n'
-                )
-            return_options['valid'] = 0
-            """
+            # sys.stderr.write(
+            #     'Please provide and file to output with the -o option.\n'
+            #     'Or set \'<smart-output value = "true"/>\'.\n'
+            #     'in the configuration file.\n'
+            #     )
+            # return_options['valid'] = 0
             pass
         if 'indent' in the_keys:
             try:
@@ -242,28 +237,26 @@ class GetOptions:
                 sys.stderr.write('--indent must take an integer')
                 return_options['valid'] = 0
         # check for format and pyxml
-        """
-        the_format = return_options.get('format')
-        if the_format != 'raw':
-            no_pyxml = return_options.get('no-pyxml')
-            if no_pyxml:
-                sys.stderr.write('You want to convert your file to "%s".\n'
-                        'Sorry, but you must have pyxml installed\n'
-                        'in order to convert your document to anything but raw XML.\n'
-                        'Please do not use the --format option.\n\n'
-                        % the_format
-                    )
-                return_options['valid'] = 0
-            xslt_proc = return_options.get('xslt-processor')
-            if xslt_proc == None and not no_pyxml:
-                sys.stderr.write('You want to convert your file to "%s".\n'
-                        'Sorry, but you must have an xslt processor set up\n'
-                        'in order to conevert your document to anything but raw XML.\n'
-                        'Please use --format raw.\n\n'
-                        % the_format
-                        )
-                return_options['valid'] = 0
-        """
+        # the_format = return_options.get('format')
+        # if the_format != 'raw':
+        #     no_pyxml = return_options.get('no-pyxml')
+        #     if no_pyxml:
+        #         sys.stderr.write('You want to convert your file to "%s".\n'
+        #                 'Sorry, but you must have pyxml installed\n'
+        #                 'in order to convert your document to anything but raw XML.\n'
+        #                 'Please do not use the --format option.\n\n'
+        #                 % the_format
+        #             )
+        #         return_options['valid'] = 0
+        #     xslt_proc = return_options.get('xslt-processor')
+        #     if xslt_proc == None and not no_pyxml:
+        #         sys.stderr.write('You want to convert your file to "%s".\n'
+        #                 'Sorry, but you must have an xslt processor set up\n'
+        #                 'in order to conevert your document to anything but raw XML.\n'
+        #                 'Please use --format raw.\n\n'
+        #                 % the_format
+        #                 )
+        #         return_options['valid'] = 0
         return return_options
 
     def __get_config_options(self):

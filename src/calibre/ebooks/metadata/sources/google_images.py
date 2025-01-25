@@ -58,7 +58,6 @@ def parse_google_markup(raw):
     return list(ans)
 
 
-
 class GoogleImages(Source):
 
     name = 'Google Images'

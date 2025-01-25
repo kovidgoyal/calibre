@@ -1,4 +1,4 @@
-""" Hyphenation, using Frank Liang's algorithm.
+''' Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes
     a string (the word), and returns a list of parts that can be separated by hyphens.
@@ -12,7 +12,7 @@
 
     Ned Batchelder, July 2007.
     This Python code is in the public domain.
-"""
+'''
 
 import re
 
@@ -29,13 +29,13 @@ class Hyphenator:
         self.exceptions = {}
         for ex in exceptions.split():
             # Convert the hyphenated pattern into a point array for use later.
-            self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r"[a-z]", ex)]
+            self.exceptions[ex.replace('-', '')] = [0] + [int(h == '-') for h in re.split(r'[a-z]', ex)]
 
     def _insert_pattern(self, pattern):
         # Convert a pattern like 'a1bc3d4' into a string of chars 'abcd'
         # and a list of points [ 1, 0, 3, 4 ].
-        chars = re.sub('[0-9]', '', pattern)
-        points = [int(d or 0) for d in re.split("[.a-z]", pattern)]
+        chars = re.sub(r'[0-9]', '', pattern)
+        points = [int(d or 0) for d in re.split(r'[.a-z]', pattern)]
 
         # Insert the pattern into the tree.  Each character finds a dict
         # another level down in the tree, and leaf nodes have the list of
@@ -48,9 +48,9 @@ class Hyphenator:
         t[None] = points
 
     def hyphenate_word(self, word):
-        """ Given a word, returns a list of pieces, broken at the possible
+        ''' Given a word, returns a list of pieces, broken at the possible
             hyphenation points.
-        """
+        '''
         # Short words aren't hyphenated.
         if len(word) <= 4:
             return [word]
@@ -86,7 +86,7 @@ class Hyphenator:
 patterns = (
 # Knuth and Liang's original hyphenation patterns from classic TeX.
 # In the public domain.
-"""
+'''
 .ach4 .ad4der .af1t .al3t .am5at .an5c .ang4 .ani5m .ant4 .an3te .anti5s .ar5s
 .ar4tie .ar4ty .as3c .as1p .as1s .aster5 .atom5 .au1d .av4i .awn4 .ba4g .ba5na
 .bas4e .ber4 .be5ra .be3sm .be5sto .bri2 .but4ti .cam4pe .can5c .capa5b .car5ol
@@ -436,7 +436,7 @@ ympa3 yn3chr yn5d yn5g yn5ic 5ynx y1o4 yo5d y4o5g yom4 yo5net y4ons y4os y4ped
 yper5 yp3i y3po y4poc yp2ta y5pu yra5m yr5ia y3ro yr4r ys4c y3s2e ys3ica ys3io
 3ysis y4so yss4 ys1t ys3ta ysur4 y3thin yt3ic y1w za1 z5a2b zar2 4zb 2ze ze4n
 ze4p z1er ze3ro zet4 2z1i z4il z4is 5zl 4zm 1zo zo4m zo5ol zte4 4z1z2 z4zy
-"""
+'''
 # Extra patterns, from ushyphmax.tex, dated 2005-05-30.
 # Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
 # Copying and distribution of this file, with or without modification,
@@ -446,7 +446,7 @@ ze4p z1er ze3ro zet4 2z1i z4il z4is 5zl 4zm 1zo zo4m zo5ol zte4 4z1z2 z4zy
 # These patterns are based on the Hyphenation Exception Log
 # published in TUGboat, Volume 10 (1989), No. 3, pp. 337-341,
 # and a large number of incorrectly hyphenated words not yet published.
-"""
+'''
 .con5gr .de5riva .dri5v4 .eth1y6l1 .eu4ler .ev2 .ever5si5b .ga4s1om1 .ge4ome
 .ge5ot1 .he3mo1 .he3p6a .he3roe .in5u2t .kil2n3i .ko6r1te1 .le6ices .me4ga1l
 .met4ala .mim5i2c1 .mi1s4ers .ne6o3f .noe1th .non1e2m .poly1s .post1am .pre1am
@@ -502,13 +502,13 @@ uea1m u2r1al. uri4al. us2er. v1ativ v1oir5du1 va6guer vaude3v 1verely. v1er1eig
 ves1tite vi1vip3a3r voice1p waste3w6a2 wave1g4 w3c week1n wide5sp wo4k1en
 wrap3aro writ6er. x1q xquis3 y5che3d ym5e5try y1stro yes5ter1y z3ian. z3o1phr
 z2z3w
-""")
+''')
 
-exceptions = """
+exceptions = '''
 as-so-ciate as-so-ciates dec-li-na-tion oblig-a-tory phil-an-thropic present
 presents project projects reci-procity re-cog-ni-zance ref-or-ma-tion
 ret-ri-bu-tion ta-ble
-"""
+'''
 
 hyphenator = Hyphenator(patterns, exceptions)
 hyphenate_word = hyphenator.hyphenate_word

@@ -20,12 +20,12 @@ class AdvancedUserRecipe1718387215(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #Segments
+        # Segments
         ('Devices', 'https://www.pocket-lint.com/feed/devices-segment/'),
         ('Entertainment', 'https://www.pocket-lint.com/feed/entertainment-segment/'),
         ('Lifestyle', 'https://www.pocket-lint.com/feed/lifestyle-segment/'),
         ('Audio Video', 'https://www.pocket-lint.com/feed/audio-video-segment/'),
-        #Segments
+        # Segments
         ('News', 'https://www.pocket-lint.com/feed/news/'),
         ('Features', 'https://www.pocket-lint.com/feed/features/'),
         ('Editorials', 'https://www.pocket-lint.com/feed/editorials/'),
@@ -33,13 +33,13 @@ class AdvancedUserRecipe1718387215(BasicNewsRecipe):
         ('Lists', 'https://www.pocket-lint.com/feed/lists/'),
         ('Guides', 'https://www.pocket-lint.com/feed/guides/'),
         ('Hubs', 'https://www.pocket-lint.com/feed/hubs/'),
-        #Best Products
+        # Best Products
         ('Reviews', 'https://www.pocket-lint.com/feed/reviews/'),
         ('Buyer’s Guides', 'https://www.pocket-lint.com/feed/buyers-guides/'),
         ('Comparisons', 'https://www.pocket-lint.com/feed/comparisons/'),
         ('Gift Guides', 'https://www.pocket-lint.com/feed/gift-guides/'),
         ('Deals', 'https://www.pocket-lint.com/feed/deals/'),
-        #Topics
+        # Topics
         ('Apps', 'https://www.pocket-lint.com/feed/apps/'),
         ('Augmented Reality & Virtual Reality', 'https://www.pocket-lint.com/feed/ar-vr/'),
         ('Cameras', 'https://www.pocket-lint.com/feed/cameras/'),

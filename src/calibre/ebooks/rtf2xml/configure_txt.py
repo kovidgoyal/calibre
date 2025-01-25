@@ -12,14 +12,14 @@ class Configure:
                     debug_dir=None,
                     show_config_file=None,
                     ):
-        """
+        '''
         Requires:
             file --file to be read
             output --file to output to
         Returns:
             Nothing. Outputs a file
         Logic:
-        """
+        '''
         self.__configuration_file = configuration_file
         self.__debug_dir = debug_dir
         self.__bug_handler = bug_handler
@@ -48,7 +48,7 @@ class Configure:
                     continue
                 fields = line.split('=')
                 if len(fields) != 2:
-                    msg =  line
+                    msg = line
                     msg += ('Error in configuration.txt, line %s\n' % line_num)
                     msg += ('Options take the form of option = value.\n')
                     msg += ('Please correct the configuration file "%s" before continuing\n'

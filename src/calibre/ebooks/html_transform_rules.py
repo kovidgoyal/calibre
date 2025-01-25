@@ -380,7 +380,7 @@ class Rule:
             self.css_selector = '.' + q
             self.selector = self.css
         elif mt == 'not_has_class':
-            self.css_selector = f":not(.{q})"
+            self.css_selector = f':not(.{q})'
             self.selector = self.css
         elif mt == 'contains_text':
             self.xpath_selector = XPath(f'//*[contains(text(), {text_as_xpath_literal(q)})]')
@@ -627,7 +627,7 @@ def test(return_tests=False):  # {{{
             self.assertTrue(t('add_attrs', "class='c' data-m=n")(p))
             self.ae(p.items(), [('class', 'c'), ('data-m', 'n')])
             p = r('<p a=1>')[0]
-            self.assertTrue(t('add_attrs', "a=2")(p))
+            self.assertTrue(t('add_attrs', 'a=2')(p))
             self.ae(p.items(), [('a', '2')])
 
             p = r('<p>t<span>s')[0]

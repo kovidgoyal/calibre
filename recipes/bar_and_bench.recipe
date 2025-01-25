@@ -26,7 +26,7 @@ class bar(BasicNewsRecipe):
         prefixed_classes(
             'text-story-m_story-tags__ story-footer-module__metype__'
         ),
-        dict(name = 'svg')
+        dict(name='svg')
     ]
 
     def preprocess_html(self, soup):

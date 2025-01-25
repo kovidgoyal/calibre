@@ -24,6 +24,7 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 class RadioCanada(BasicNewsRecipe):
     title            = 'Radio Canada'
     __author__       = 'quatorze, pticrix'
@@ -47,28 +48,28 @@ class RadioCanada(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        classes('text-fluid1' # title
-                ' group/signature' # author (top)
-                ' sc-jbo7hw-6 cemuXe sc-1ejcmnj-0 bKbDpQ' # whole article block
-                ' sc-jbo7hw-4 gPWroG' # individual paragraphs
-                ' sc-jbo7hw-3 GgmiC' # section title (h2 headings)
-                ' sc-1tkrlyq-0 sc-1tkrlyq-1 eJZZNJ dthPak sc-1fmq1ly-0 hGSCGE' # images
-                ' sc-1tkrlyq-2 gucMx transition-opacity ease-out' # images
-                ' sc-ic6be9-0 eZGuin' # figure/picture caption
+        classes('text-fluid1'  # title
+                ' group/signature'  # author (top)
+                ' sc-jbo7hw-6 cemuXe sc-1ejcmnj-0 bKbDpQ'  # whole article block
+                ' sc-jbo7hw-4 gPWroG'  # individual paragraphs
+                ' sc-jbo7hw-3 GgmiC'  # section title (h2 headings)
+                ' sc-1tkrlyq-0 sc-1tkrlyq-1 eJZZNJ dthPak sc-1fmq1ly-0 hGSCGE'  # images
+                ' sc-1tkrlyq-2 gucMx transition-opacity ease-out'  # images
+                ' sc-ic6be9-0 eZGuin'  # figure/picture caption
                 ' blockquote'
                  ),
     ]
 
     remove_tags    = [
-            classes('print:hidden' # whatever is deemed not necessary while printing
-                    ' xsOnly:hidden' # whetever is deemed not necessary on very small screens
-                    ' sc-jbo7hw-0 dQmOIK' # ads
-                    ' sc-1f1cagl-0 hvyKh' # buttons? (full-screen, contact author)
-                    ' sc-jbo7hw-2' # link to full dossier and insights
-                    ' sc-fqkvVR crilYZ rcplayer-show' # video player
-                    ' framed' # "À lire aussi" (might be desirable in some cases?)
-                    ' bg-gray100 light:bg-gray100 dark:bg-gray999 lg:mt-10 print:hidden' # "À la une" (links to other current events) and more
-                    ' sc-pahfbg-0 beUHeC' # Infolettre
+            classes('print:hidden'  # whatever is deemed not necessary while printing
+                    ' xsOnly:hidden'  # whetever is deemed not necessary on very small screens
+                    ' sc-jbo7hw-0 dQmOIK'  # ads
+                    ' sc-1f1cagl-0 hvyKh'  # buttons? (full-screen, contact author)
+                    ' sc-jbo7hw-2'  # link to full dossier and insights
+                    ' sc-fqkvVR crilYZ rcplayer-show'  # video player
+                    ' framed'  # "À lire aussi" (might be desirable in some cases?)
+                    ' bg-gray100 light:bg-gray100 dark:bg-gray999 lg:mt-10 print:hidden'  # "À la une" (links to other current events) and more
+                    ' sc-pahfbg-0 beUHeC'  # Infolettre
                     ),
             dict(name='aside')
     ]
@@ -103,7 +104,7 @@ class RadioCanada(BasicNewsRecipe):
         ('Grands titres',   'https://ici.radio-canada.ca/rss/771'),
         ('Football',        'https://ici.radio-canada.ca/rss/1000057'),
         ('Hockey',          'https://ici.radio-canada.ca/rss/1000056'),
-        ('Olympiques',        'https://ici.radio-canada.ca/rss/64852'),
+        ('Olympiques',      'https://ici.radio-canada.ca/rss/64852'),
         ('Podium',          'https://ici.radio-canada.ca/rss/555082'),
         ('Soccer',          'https://ici.radio-canada.ca/rss/1000058'),
         ('Tennis',          'https://ici.radio-canada.ca/rss/1000059'),
@@ -151,16 +152,16 @@ class RadioCanada(BasicNewsRecipe):
     # The following was copied and adapted as per the following post:
     # https://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
     # Credit goes to user Starson17
-    def parse_feeds (self):
-      feeds = BasicNewsRecipe.parse_feeds(self)
-      for feed in feeds:
-        for article in feed.articles[:]:
-            if ('VIDEO' in article.title.upper() or
-                'OHDIO' in article.title.upper() or
-                '/emissions/' in article.url or
-                '/segments/' in article.url or
-                '/entrevue/' in article.url or
-                '/ohdio/' in article.url
-                ):
-                feed.articles.remove(article)
-      return feeds
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if ('VIDEO' in article.title.upper() or
+                    'OHDIO' in article.title.upper() or
+                    '/emissions/' in article.url or
+                    '/segments/' in article.url or
+                    '/entrevue/' in article.url or
+                    '/ohdio/' in article.url
+                    ):
+                    feed.articles.remove(article)
+        return feeds

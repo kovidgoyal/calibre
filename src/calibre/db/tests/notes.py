@@ -22,6 +22,7 @@ def test_notes_restore(self: 'NotesTest'):
     doc2 = 'simple notes for an author2'
     cache.set_notes_for('authors', authors[1], doc2, resource_hashes=(h2,))
 
+
 def test_notes_api(self: 'NotesTest'):
     cache, notes = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))
@@ -80,6 +81,7 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(len(os.listdir(notes.retired_dir)), 0)
     cache.set_notes_for('authors', authors[0], '', resource_hashes=())
     self.ae(len(os.listdir(notes.retired_dir)), 1)
+
 
 def test_cache_api(self: 'NotesTest'):
     cache, notes = self.create_notes_db()

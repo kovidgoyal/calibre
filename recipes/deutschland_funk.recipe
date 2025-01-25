@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#from __future__ import unicode_literals, division, absolute_import, print_function
+# from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
 __license__   = 'GPL v3'
@@ -13,6 +13,7 @@ Fetch Deutschlandfunk & Deutschlandfunk Kultur
 ## Last Edited:  2023-04-26
 ## Version:1.6
 ## New RSS source: https://www.deutschlandfunk.de/rss-angebot-102.html
+
 
 class AdvancedUserRecipe1432200863(BasicNewsRecipe):
 
@@ -28,13 +29,11 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup     = False
 
-    extra_css      =  '''
+    extra_css      = '''
                       h1, h2 {font-size: 1.6em; text-align: left}
                       .article-header-description {font-size: 1em; font-style: italic; font-weight: normal;margin-bottom: 1em}
                       .b-image-figure, .caption-figure.is-left, .b-image-credits {font-size: .75em; font-weight: normal;margin-bottom: .75em}
                       '''
-
-
 
     feeds = [
               ('DLF Nachrichten', 'https://www.deutschlandfunk.de/nachrichten-100.rss'),
@@ -59,8 +58,8 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
               ('DLF-Kultur Film / Serie', 'https://www.deutschlandfunkkultur.de/film-serie-100.rss'),
             ]
     keep_only_tags = [
-                        dict(name='nav', attrs={'class':'b-breadcrumbs'}), # DLF articles
-                        dict(name='article', attrs={'class':'b-article'}), # DLF articles
+                        dict(name='nav', attrs={'class':'b-breadcrumbs'}),  # DLF articles
+                        dict(name='article', attrs={'class':'b-article'}),  # DLF articles
                         dict(name='div', attrs={'class':[
                                                          'b-section-article-head-area',
                                                          'b-section-editor-content',
@@ -77,6 +76,6 @@ class AdvancedUserRecipe1432200863(BasicNewsRecipe):
                     dict(name='ul', attrs={'class':['b-social-icons']}),   # DLF articles
 
                     dict(name='ul', attrs={'class':['b-social-icons']}),      # DLF Kultur articles
-                    dict(name='div', attrs={'class':'b-footer-area-series'}), # DLF Kultur articles
+                    dict(name='div', attrs={'class':'b-footer-area-series'}),  # DLF Kultur articles
                     dict(name='div', attrs={'id':'weekender'})
                   ]

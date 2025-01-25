@@ -27,7 +27,6 @@ class LeMonde(BasicNewsRecipe):
 
     oldest_article = 1
     no_stylesheets = True
-    remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     reverse_article_order = True
     remove_empty_feeds = True
@@ -178,10 +177,10 @@ class LeMonde(BasicNewsRecipe):
         # soup = self.index_to_soup('https://www.lemonde.fr/')
         # a = soup.find('a', {'id': 'jelec_link', 'style': True})
         # if a and a['style']:
-            # url = a['style'].split('/')
-            # if len(url) > 5 and url[3].isdigit():
-                # overwrite guess if actual cover ID was found
-                # cover_id = url[3]
+        #     url = a['style'].split('/')
+        #     if len(url) > 5 and url[3].isdigit():
+        #         overwrite guess if actual cover ID was found
+        #         cover_id = url[3]
         return 'https://www.lemonde.fr/thumbnail/journal/' + cover_id + '/1000/1490'
 
     def get_article_url(self, article):

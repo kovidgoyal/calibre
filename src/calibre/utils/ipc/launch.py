@@ -174,20 +174,20 @@ class Worker:
             priority = prefs['worker_process_priority']
         cmd = [exe] if isinstance(exe, string_or_bytes) else exe
         args = {
-                'env' : env,
-                'cwd' : _cwd,
+                'env': env,
+                'cwd': _cwd,
                 }
         if iswindows:
             priority = {
-                    'high'   : subprocess.HIGH_PRIORITY_CLASS,
-                    'normal' : subprocess.NORMAL_PRIORITY_CLASS,
-                    'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
+                    'high'  : subprocess.HIGH_PRIORITY_CLASS,
+                    'normal': subprocess.NORMAL_PRIORITY_CLASS,
+                    'low'   : subprocess.IDLE_PRIORITY_CLASS}[priority]
             args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
         else:
             niceness = {
-                    'normal' : 0,
-                    'low'    : 10,
-                    'high'   : 20,
+                    'normal': 0,
+                    'low'   : 10,
+                    'high'  : 20,
             }[priority]
             args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
         ret = None

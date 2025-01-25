@@ -105,7 +105,7 @@ class NamedEntities(BaseError):
         for name, mt in iteritems(container.mime_map):
             if mt in check_types:
                 raw = container.raw_data(name)
-                nraw = replace_pat.sub(lambda m:html5_entities[m.group(1)], raw)
+                nraw = replace_pat.sub(lambda m: html5_entities[m.group(1)], raw)
                 if raw != nraw:
                     changed = True
                     with container.open(name, 'wb') as f:

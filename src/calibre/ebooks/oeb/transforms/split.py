@@ -131,7 +131,7 @@ class Split:
                 continue
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(key=lambda x:int(x.get('pb_order')))
+        page_breaks.sort(key=lambda x: int(x.get('pb_order')))
         page_break_ids, page_breaks_ = [], []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
@@ -312,7 +312,7 @@ class FlowSplitter:
     def split_text(self, text, root, size):
         self.log.debug('\t\t\tSplitting text of length: %d'%len(text))
         rest = text.replace('\r', '')
-        parts = re.split('\n\n', rest)
+        parts = rest.split('\n\n')
         self.log.debug('\t\t\t\tFound %d parts'%len(parts))
         if max(map(len, parts)) > size:
             raise SplitError('Cannot split as file contains a <pre> tag '
@@ -426,7 +426,7 @@ class FlowSplitter:
         '''
         if not self.was_split:
             return
-        self.anchor_map = collections.defaultdict(lambda :self.base%0)
+        self.anchor_map = collections.defaultdict(lambda: self.base%0)
         self.files = []
 
         for i, tree in enumerate(self.trees):

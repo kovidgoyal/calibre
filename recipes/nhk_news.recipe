@@ -36,4 +36,3 @@ class ReutersJa(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'data-src':True}):
             img['src'] = img['data-src']
         return soup
-

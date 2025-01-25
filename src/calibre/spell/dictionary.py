@@ -32,16 +32,15 @@ not_present = object()
 
 class UserDictionary:
 
-    __slots__ = ('name', 'is_active', 'words')
+    __slots__ = ('is_active', 'name', 'words')
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.is_active = kwargs['is_active']
-        self.words = {(w, langcode) for w, langcode in kwargs['words']}
+        self.words = set(kwargs['words'])
 
     def serialize(self):
-        return {'name':self.name, 'is_active': self.is_active, 'words':[
-            (w, l) for w, l in self.words]}
+        return {'name':self.name, 'is_active': self.is_active, 'words': list(self.words)}
 
 
 _builtins = _custom = None
@@ -91,7 +90,7 @@ def custom_dictionaries(reread=False):
             if ploc.countrycode is None:
                 continue
             dics.append(Dictionary(
-                ploc, frozenset(filter(lambda x:x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
+                ploc, frozenset(filter(lambda x: x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom
@@ -194,7 +193,7 @@ def load_dictionary(dictionary):
 class Dictionaries:
 
     def __init__(self):
-        self.remove_hyphenation = re.compile('[\u2010-]+')
+        self.remove_hyphenation = re.compile(r'[\u2010-]+')
         self.negative_pat = re.compile(r'-[.\d+]')
         self.fix_punctuation_pat = re.compile(r'''[:.]''')
         self.dictionaries = {}

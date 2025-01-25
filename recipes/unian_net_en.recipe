@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Unian(BasicNewsRecipe):
     title = 'UNIAN'
     description = ('UNIAN (Ukrainian Independent News Agency of News) is the largest independent news agency,'
-                   ' first in Ukraine, founded in 1993, remaining the leader among the country\'s news media,'
+                   " first in Ukraine, founded in 1993, remaining the leader among the country's news media,"
                    ' being the most cited source of news from across Ukraine.')
     __author__ = 'bugmen00t'
     publication_type = 'newspaper'

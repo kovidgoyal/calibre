@@ -73,21 +73,21 @@ class SHLock:  # {{{
 
     def __init__(self):
         self._lock = Lock()
-        #  When a shared lock is held, is_shared will give the cumulative
-        #  number of locks and _shared_owners maps each owning thread to
-        #  the number of locks is holds.
+        # When a shared lock is held, is_shared will give the cumulative
+        # number of locks and _shared_owners maps each owning thread to
+        # the number of locks is holds.
         self.is_shared = 0
         self._shared_owners = {}
-        #  When an exclusive lock is held, is_exclusive will give the number
-        #  of locks held and _exclusive_owner will give the owning thread
+        # When an exclusive lock is held, is_exclusive will give the number
+        # of locks held and _exclusive_owner will give the owning thread
         self.is_exclusive = 0
         self._exclusive_owner = None
-        #  When someone is forced to wait for a lock, they add themselves
-        #  to one of these queues along with a "waiter" condition that
-        #  is used to wake them up.
+        # When someone is forced to wait for a lock, they add themselves
+        # to one of these queues along with a "waiter" condition that
+        # is used to wake them up.
         self._shared_queue = []
         self._exclusive_queue = []
-        #  This is for recycling waiter objects.
+        # This is for recycling waiter objects.
         self._free_waiters = []
 
     def acquire(self, blocking=True, shared=False):
@@ -111,29 +111,29 @@ class SHLock:  # {{{
 
     def release(self):
         ''' Release the lock. '''
-        #  This decrements the appropriate lock counters, and if the lock
-        #  becomes free, it looks for a queued thread to hand it off to.
-        #  By doing the handoff here we ensure fairness.
+        # This decrements the appropriate lock counters, and if the lock
+        # becomes free, it looks for a queued thread to hand it off to.
+        # By doing the handoff here we ensure fairness.
         me = current_thread()
         with self._lock:
             if self.is_exclusive:
                 if self._exclusive_owner is not me:
-                    raise LockingError("release() called on unheld lock")
+                    raise LockingError('release() called on unheld lock')
                 self.is_exclusive -= 1
                 if not self.is_exclusive:
                     self._exclusive_owner = None
-                    #  If there are waiting shared locks, issue them
-                    #  all and them wake everyone up.
+                    # If there are waiting shared locks, issue them
+                    # all and them wake everyone up.
                     if self._shared_queue:
-                        for (thread, waiter) in self._shared_queue:
+                        for thread, waiter in self._shared_queue:
                             self.is_shared += 1
                             self._shared_owners[thread] = 1
                             waiter.notify()
                         del self._shared_queue[:]
-                    #  Otherwise, if there are waiting exclusive locks,
-                    #  they get first dibbs on the lock.
+                    # Otherwise, if there are waiting exclusive locks,
+                    # they get first dibbs on the lock.
                     elif self._exclusive_queue:
-                        (thread, waiter) = self._exclusive_queue.pop(0)
+                        thread, waiter = self._exclusive_queue.pop(0)
                         self._exclusive_owner = thread
                         self.is_exclusive += 1
                         waiter.notify()
@@ -143,30 +143,30 @@ class SHLock:  # {{{
                     if self._shared_owners[me] == 0:
                         del self._shared_owners[me]
                 except KeyError:
-                    raise LockingError("release() called on unheld lock")
+                    raise LockingError('release() called on unheld lock')
                 self.is_shared -= 1
                 if not self.is_shared:
-                    #  If there are waiting exclusive locks,
-                    #  they get first dibbs on the lock.
+                    # If there are waiting exclusive locks,
+                    # they get first dibbs on the lock.
                     if self._exclusive_queue:
-                        (thread, waiter) = self._exclusive_queue.pop(0)
+                        thread, waiter = self._exclusive_queue.pop(0)
                         self._exclusive_owner = thread
                         self.is_exclusive += 1
                         waiter.notify()
                     else:
                         assert not self._shared_queue
             else:
-                raise LockingError("release() called on unheld lock")
+                raise LockingError('release() called on unheld lock')
 
     def _acquire_shared(self, blocking=True):
         me = current_thread()
-        #  Each case: acquiring a lock we already hold.
+        # Each case: acquiring a lock we already hold.
         if self.is_shared and me in self._shared_owners:
             self.is_shared += 1
             self._shared_owners[me] += 1
             return True
-        #  If the lock is already spoken for by an exclusive, add us
-        #  to the shared queue and it will give us the lock eventually.
+        # If the lock is already spoken for by an exclusive, add us
+        # to the shared queue and it will give us the lock eventually.
         if self.is_exclusive or self._exclusive_queue:
             if self._exclusive_owner is me:
                 raise DowngradeLockError("can't downgrade SHLock object")
@@ -186,7 +186,7 @@ class SHLock:  # {{{
 
     def _acquire_exclusive(self, blocking=True):
         me = current_thread()
-        #  Each case: acquiring a lock we already hold.
+        # Each case: acquiring a lock we already hold.
         if self._exclusive_owner is me:
             assert self.is_exclusive
             self.is_exclusive += 1
@@ -194,8 +194,8 @@ class SHLock:  # {{{
         # Do not allow upgrade of lock
         if self.is_shared and me in self._shared_owners:
             raise LockingError("can't upgrade SHLock object")
-        #  If the lock is already spoken for, add us to the exclusive queue.
-        #  This will eventually give us the lock when it's our turn.
+        # If the lock is already spoken for, add us to the exclusive queue.
+        # This will eventually give us the lock when it's our turn.
         if self.is_shared or self.is_exclusive:
             if not blocking:
                 return False

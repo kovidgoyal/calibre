@@ -6,7 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
 
-from calibre.ebooks.docx.block_styles import LINE_STYLES, binary_property, inherit, read_shd, simple_color, simple_float  # noqa
+from calibre.ebooks.docx.block_styles import LINE_STYLES, binary_property, inherit, read_shd, simple_color, simple_float
 
 # Read from XML {{{
 

@@ -67,7 +67,6 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
-
     '''
     The base class for all USBMS devices. Implements the logic for
     sending/getting/updating metadata/caching metadata/etc.
@@ -235,7 +234,7 @@ class USBMS(CLI, Device):
         def update_booklist(filename, path, prefix):
             changed = False
             # Ignore AppleDouble files
-            if filename.startswith("._"):
+            if filename.startswith('._'):
                 return False
             if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:
@@ -247,7 +246,7 @@ class USBMS(CLI, Device):
                     if idx is not None:
                         bl_cache[lpath] = None
                         if self.update_metadata_item(bl[idx]):
-                            # print 'update_metadata_item returned true'
+                            # print('update_metadata_item returned true')
                             changed = True
                     else:
                         if bl.add_book(self.book_from_path(prefix, lpath),
@@ -387,7 +386,7 @@ class USBMS(CLI, Device):
                         self._main_prefix)
                 continue
             lpath = path.partition(prefix)[2]
-            if lpath.startswith('/') or lpath.startswith('\\'):
+            if lpath.startswith(('/', '\\')):
                 lpath = lpath[1:]
             book = self.book_class(prefix, lpath, other=info)
             if book.size is None:

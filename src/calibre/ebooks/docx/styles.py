@@ -14,7 +14,6 @@ from polyglot.builtins import iteritems, itervalues
 
 
 class PageProperties:
-
     '''
     Class representing page level properties (page size/margins) read from
     sectPr elements.
@@ -104,7 +103,6 @@ class Style:
 
 
 class Styles:
-
     '''
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
     '''
@@ -501,7 +499,7 @@ class Styles:
             prefix = ef + '\n' + prefix
 
         ans = []
-        for (cls, css) in sorted(itervalues(self.classes), key=lambda x:x[0]):
+        for cls, css in sorted(itervalues(self.classes), key=lambda x:x[0]):
             b = (f'\t{k}: {v};' for k, v in iteritems(css))
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))

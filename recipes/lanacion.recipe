@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Lanacion(BasicNewsRecipe):
     title = 'La Nacion'
     __author__ = 'Darko Miletic'
-    description = "lanacion.com - Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
+    description = 'lanacion.com - Informacion actualizada las 24 horas, con noticias de Argentina y del mundo'
     publisher = 'La Nacion S.A.'
     category = 'news, politics, Argentina'
     oldest_article = 1
@@ -22,13 +22,13 @@ class Lanacion(BasicNewsRecipe):
     publication_type = 'newspaper'
     remove_empty_feeds = True
     masthead_url = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln-home.gif'
-    extra_css             = """
+    extra_css             = '''
                                 h1{font-family: TheSans,Arial,sans-serif}
                                 body{font-family: Arial,sans-serif}
                                 img{display: block}
                                 .firma,.fecha{font-size: small}
                                 .epigrafe-columna{font-size: x-small}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -36,7 +36,7 @@ class Lanacion(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['iframe', 'embed', 'object', 'meta', 'link', 'button']), dict(attrs={'id': [
-            'herramientas-sociales', 'comunidad', 'ranking-nota', 'footer']}), dict(attrs={'class': ['mas-sobre-tema', 'cinturon-notas floatFix', 'cinturon-notas']})  # noqa
+            'herramientas-sociales', 'comunidad', 'ranking-nota', 'footer']}), dict(attrs={'class': ['mas-sobre-tema', 'cinturon-notas floatFix', 'cinturon-notas']})  # noqa: E501
     ]
 
     remove_tags_before = dict(attrs={'id': 'nota'})

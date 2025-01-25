@@ -76,10 +76,10 @@ def test_clean_xml_chars():
 def unescape(text, rm=False, rchar=''):
     def fixup(m, rm=rm, rchar=rchar):
         text = m.group(0)
-        if text[:2] == "&#":
+        if text[:2] == '&#':
             # character reference
             try:
-                if text[:3] == "&#x":
+                if text[:3] == '&#x':
                     return codepoint_to_chr(int(text[3:-1], 16))
                 else:
                     return codepoint_to_chr(int(text[2:-1]))
@@ -94,4 +94,4 @@ def unescape(text, rm=False, rchar=''):
         if rm:
             return rchar  # replace by char
         return text  # leave as is
-    return re.sub("&#?\\w+;", fixup, text)
+    return re.sub(r'&#?\w+;', fixup, text)

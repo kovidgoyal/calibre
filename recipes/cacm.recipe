@@ -5,8 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class CACM(BasicNewsRecipe):
-    title = "ACM CACM Magazine"
-    description = "Published on day 1 of every month."
+    title = 'ACM CACM Magazine'
+    description = 'Published on day 1 of every month.'
     language = 'en'
     oldest_article = 30
     max_articles_per_feed = 100
@@ -17,16 +17,16 @@ class CACM(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        """
+        '''
         Parse out cover URL from cover page.
         Example:
         From: https://cacm.acm.org/system/assets/0004/2570/April2022.Cover.1000x1338.large.jpg?1647524668&1647524668
         Get:  https://cacm.acm.org/system/assets/0004/2570/April2022.Cover.1000x1338.jpg
-        """
+        '''
 
-        soup = self.index_to_soup("https://cacm.acm.org/")
-        a_img = soup.find("a", class_="menuCover")
-        img_url = a_img.img["src"]
-        img_url = img_url.split("?")[0]
-        img_url = img_url.replace(".large", "")
+        soup = self.index_to_soup('https://cacm.acm.org/')
+        a_img = soup.find('a', class_='menuCover')
+        img_url = a_img.img['src']
+        img_url = img_url.split('?')[0]
+        img_url = img_url.replace('.large', '')
         return img_url

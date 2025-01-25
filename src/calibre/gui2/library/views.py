@@ -454,7 +454,7 @@ class BooksView(QTableView):  # {{{
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
 
-        # {{{ Column Header setup
+        # Column Header setup {{{
         self.can_add_columns = True
         self.was_restored = False
         self.allow_save_state = True
@@ -751,7 +751,7 @@ class BooksView(QTableView):  # {{{
 
             ac = getattr(m, 'column_mouse_move_action', None)
             if ac is None:
-                ac = m.column_mouse_move_action = m.addAction(_("Allow moving columns with the mouse"),
+                ac = m.column_mouse_move_action = m.addAction(_('Allow moving columns with the mouse'),
                           partial(self.column_header_context_handler, action='lock', column=col, view=view))
                 ac.setCheckable(True)
             ac.setChecked(view.column_header.sectionsMovable())
@@ -1335,7 +1335,7 @@ class BooksView(QTableView):  # {{{
     def visible_columns(self):
         h = self.horizontalHeader()
         logical_indices = (x for x in range(h.count()) if not h.isSectionHidden(x))
-        rmap = {i:x for i, x in enumerate(self.column_map)}
+        rmap = dict(enumerate(self.column_map))
         return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
     def refresh_book_details(self, force=False):

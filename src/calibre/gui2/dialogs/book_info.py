@@ -206,7 +206,7 @@ class BookInfo(QDialog, DropMixin):
 
         self.details = Details(parent.book_details.book_info, self,
                                allow_context_menu=library_path is None,
-                               is_locked = dialog_number == DialogNumbers.Locked)
+                               is_locked=dialog_number == DialogNumbers.Locked)
         self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
@@ -260,8 +260,8 @@ class BookInfo(QDialog, DropMixin):
             mi = dbn.get_metadata(book_id, get_cover=False)
             mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
             mi.path = None
-            mi.format_files = dict()
-            mi.formats = list()
+            mi.format_files = {}
+            mi.formats = []
             mi.marked = ''
             mi.field_metadata = db.field_metadata
             mi.external_library_path = library_path
@@ -357,7 +357,7 @@ class BookInfo(QDialog, DropMixin):
         ret = QDialog.done(self, r)
         if self.slave_connected:
             self.view.model().new_bookdisplay_data.disconnect(self.slave)
-        self.slave_debounce_timer.stop() # OK if it isn't running
+        self.slave_debounce_timer.stop()  # OK if it isn't running
         self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
         return ret
@@ -383,7 +383,7 @@ class BookInfo(QDialog, DropMixin):
 
     def slave(self, mi):
         self._mi_for_debounce = mi
-        self.slave_debounce_timer.start() # start() will automatically reset the timer if it was already running
+        self.slave_debounce_timer.start()  # start() will automatically reset the timer if it was already running
 
     def _debounce_refresh(self):
         mi, self._mi_for_debounce = self._mi_for_debounce, None

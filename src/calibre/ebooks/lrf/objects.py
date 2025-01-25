@@ -75,7 +75,7 @@ class LRFObject:
             self.handle_tag(tag, stream)
 
     def parse_bg_image(self, tag, f):
-        self.bg_image_mode, self.bg_image_id = struct.unpack("<HI", tag.contents)
+        self.bg_image_mode, self.bg_image_id = struct.unpack('<HI', tag.contents)
 
     def handle_tag(self, tag, stream, tag_map=None):
         if tag_map is None:
@@ -86,7 +86,7 @@ class LRFObject:
             if h[1] != '' and h[0] != '':
                 setattr(self, h[0], val)
         else:
-            raise LRFParseError(f"Unknown tag in {self.__class__.__name__}: {str(tag)}")
+            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {tag}')
 
     def __iter__(self):
         yield from range(0)
@@ -129,7 +129,7 @@ class LRFContentObject(LRFObject):
                 func, args = action[0], (action[1],)
             getattr(self, func)(tag, *args)
         else:
-            raise LRFParseError(f"Unknown tag in {self.__class__.__name__}: {str(tag)}")
+            raise LRFParseError(f'Unknown tag in {self.__class__.__name__}: {tag}')
 
     def __iter__(self):
         yield from self._contents
@@ -173,12 +173,12 @@ class LRFStream(LRFObject):
                 l = 0x400
             self.stream = self.descramble_buffer(self.stream, l, key)
         if self.stream_flags & 0x100 !=0:
-            decomp_size = struct.unpack("<I", self.stream[:4])[0]
+            decomp_size = struct.unpack('<I', self.stream[:4])[0]
             self.stream = zlib.decompress(self.stream[4:])
             if len(self.stream) != decomp_size:
-                raise LRFParseError("Stream decompressed size is wrong!")
+                raise LRFParseError('Stream decompressed size is wrong!')
         if stream.read(2) != b'\x06\xF5':
-            print("Warning: corrupted end-of-stream tag at %08X; skipping it"%(stream.tell()-2))
+            print('Warning: corrupted end-of-stream tag at %08X; skipping it'%(stream.tell()-2))
         self.end_stream(None, None)
 
 
@@ -237,7 +237,7 @@ class PageAttr(StyleObject, LRFObject):
         0xF52B: ['pageposition', 'W', {0: 'any', 1:'upper', 2: 'lower'}],
         0xF52A: ['setemptyview', 'W', {1: 'show', 0: 'empty'}],
         0xF5DA: ['setwaitprop', 'W', {1: 'replay', 2: 'noreplay'}],
-        0xF529: ['', "parse_bg_image"],
+        0xF529: ['', 'parse_bg_image'],
       }
     tag_map.update(LRFObject.tag_map)
 
@@ -338,11 +338,11 @@ class Page(LRFStream):
       }
     tag_map.update(PageAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
-    style = property(fget=lambda self : self._document.objects[self.style_id])
-    evenheader = property(fget=lambda self : self._document.objects[self.style.evenheaderid])
-    evenfooter = property(fget=lambda self : self._document.objects[self.style.evenfooterid])
-    oddheader  = property(fget=lambda self : self._document.objects[self.style.oddheaderid])
-    oddfooter  = property(fget=lambda self : self._document.objects[self.style.oddfooterid])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
+    evenheader = property(fget=lambda self: self._document.objects[self.style.evenheaderid])
+    evenfooter = property(fget=lambda self: self._document.objects[self.style.evenfooterid])
+    oddheader  = property(fget=lambda self: self._document.objects[self.style.oddheaderid])
+    oddfooter  = property(fget=lambda self: self._document.objects[self.style.oddfooterid])
 
     class Content(LRFContentObject):
         tag_map = {
@@ -366,7 +366,7 @@ class Page(LRFStream):
 
         def page_div(self, tag):
             self.close_blockspace()
-            pars = struct.unpack("<HIHI", tag.contents)
+            pars = struct.unpack('<HIHI', tag.contents)
             self._contents.append(PageDiv(*pars))
 
         def x_space(self, tag):
@@ -383,7 +383,7 @@ class Page(LRFStream):
 
         def ruled_line(self, tag):
             self.close_blockspace()
-            pars = struct.unpack("<HHHI", tag.contents)
+            pars = struct.unpack('<HHHI', tag.contents)
             self._contents.append(RuledLine(*pars))
 
         def wait(self, tag):
@@ -440,12 +440,12 @@ class BlockAttr(StyleObject, LRFObject):
         0xF531: ['blockwidth', 'W'],
         0xF532: ['blockheight', 'W'],
         0xF533: ['blockrule', 'W', {
-            0x14: "horz-fixed",
-            0x12: "horz-adjustable",
-            0x41: "vert-fixed",
-            0x21: "vert-adjustable",
-            0x44: "block-fixed",
-            0x22: "block-adjustable"}],
+            0x14: 'horz-fixed',
+            0x12: 'horz-adjustable',
+            0x41: 'vert-fixed',
+            0x21: 'vert-adjustable',
+            0x44: 'block-fixed',
+            0x22: 'block-adjustable'}],
         0xF534: ['bgcolor', 'D', Color],
         0xF535: ['layout', 'W', {0x41: 'TbRl', 0x34: 'LrTb'}],
         0xF536: ['framewidth', 'W'],
@@ -531,7 +531,7 @@ class TextCSS:
 
 class TextAttr(StyleObject, LRFObject, TextCSS):
 
-    FONT_MAP = collections.defaultdict(lambda : 'serif')
+    FONT_MAP = collections.defaultdict(lambda: 'serif')
     for key, value in PRS500_PROFILE.default_fonts.items():
         FONT_MAP[value] = key
 
@@ -571,15 +571,15 @@ class Block(LRFStream, TextCSS):
     extra_attrs = [i[0] for i in BlockAttr.tag_map.values()]
     extra_attrs.extend([i[0] for i in TextAttr.tag_map.values()])
 
-    style = property(fget=lambda self : self._document.objects[self.style_id])
-    textstyle = property(fget=lambda self : self._document.objects[self.textstyle_id])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
+    textstyle = property(fget=lambda self: self._document.objects[self.textstyle_id])
 
     def initialize(self):
         self.attrs = {}
         stream = io.BytesIO(self.stream)
         tag = Tag(stream)
         if tag.id != 0xF503:
-            raise LRFParseError("Bad block content")
+            raise LRFParseError('Bad block content')
         obj = self._document.objects[tag.dword]
         if isinstance(obj, SimpleText):
             self.name = 'SimpleTextBlock'
@@ -595,7 +595,7 @@ class Block(LRFStream, TextCSS):
         elif isinstance(obj, Button):
             self.name = 'ButtonBlock'
         else:
-            raise LRFParseError("Unexpected block type: "+obj.__class__.__name__)
+            raise LRFParseError('Unexpected block type: '+obj.__class__.__name__)
 
         self.content = obj
 
@@ -638,9 +638,9 @@ class Text(LRFStream):
     tag_map.update(TextAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
 
-    style = property(fget=lambda self : self._document.objects[self.style_id])
+    style = property(fget=lambda self: self._document.objects[self.style_id])
 
-    text_map = {0x22: '"', 0x26: '&amp;', 0x27: '\'', 0x3c: '&lt;', 0x3e: '&gt;'}
+    text_map = {0x22: '"', 0x26: '&amp;', 0x27: "'", 0x3c: '&lt;', 0x3e: '&gt;'}
     entity_pattern = re.compile(r'&amp;(\S+?);')
 
     text_tags = {
@@ -709,7 +709,7 @@ class Text(LRFStream):
     lineposition_map = {1:'before', 2:'after'}
 
     def add_text(self, text):
-        s = str(text, "utf-16-le")
+        s = str(text, 'utf-16-le')
         if s:
             s = s.translate(self.text_map)
             self.content.append(self.entity_pattern.sub(entity_to_unicode_in_python, s))
@@ -789,7 +789,7 @@ class Text(LRFStream):
                                         self_closing=True))
 
     def plot(self, tag, stream):
-        xsize, ysize, refobj, adjustment = struct.unpack("<HHII", tag.contents)
+        xsize, ysize, refobj, adjustment = struct.unpack('<HHII', tag.contents)
         plot = self.__class__.TextTag('Plot',
             {'xsize': xsize, 'ysize': ysize, 'refobj':refobj,
              'adjustment':self.adjustment_map[adjustment]}, self_closing=True)
@@ -926,13 +926,13 @@ class Image(LRFObject):
       }
 
     def parse_image_rect(self, tag, f):
-        self.x0, self.y0, self.x1, self.y1 = struct.unpack("<HHHH", tag.contents)
+        self.x0, self.y0, self.x1, self.y1 = struct.unpack('<HHHH', tag.contents)
 
     def parse_image_size(self, tag, f):
-        self.xsize, self.ysize = struct.unpack("<HH", tag.contents)
+        self.xsize, self.ysize = struct.unpack('<HH', tag.contents)
 
-    encoding = property(fget=lambda self : self._document.objects[self.refstream].encoding)
-    data = property(fget=lambda self : self._document.objects[self.refstream].stream)
+    encoding = property(fget=lambda self: self._document.objects[self.refstream].encoding)
+    data = property(fget=lambda self: self._document.objects[self.refstream].stream)
 
     def __str__(self):
         return '<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
@@ -954,7 +954,7 @@ class Canvas(LRFStream):
         0xF551: ['canvaswidth', 'W'],
         0xF552: ['canvasheight', 'W'],
         0xF5DA: ['', 'parse_waits'],
-        0xF533: ['blockrule', 'W', {0x44: "block-fixed", 0x22: "block-adjustable"}],
+        0xF533: ['blockrule', 'W', {0x44: 'block-fixed', 0x22: 'block-adjustable'}],
         0xF534: ['bgcolor', 'D', Color],
         0xF535: ['layout', 'W', {0x41: 'TbRl', 0x34: 'LrTb'}],
         0xF536: ['framewidth', 'W'],
@@ -983,7 +983,7 @@ class Canvas(LRFStream):
             try:
                 self._contents.append(
                     PutObj(self._document.objects,
-                        *struct.unpack("<HHI", tag.contents)))
+                        *struct.unpack('<HHI', tag.contents)))
             except struct.error:
                 print('Canvas object has errors, skipping.')
 
@@ -1021,7 +1021,7 @@ class ImageStream(LRFStream):
 
     tag_map.update(LRFStream.tag_map)
 
-    encoding = property(fget=lambda self : self.imgext[self.stream_flags & 0xFF].upper())
+    encoding = property(fget=lambda self: self.imgext[self.stream_flags & 0xFF].upper())
 
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
@@ -1087,7 +1087,7 @@ class Button(LRFObject):
         self.actions[self.button_type] = []
 
     def parse_jump_to(self, tag, f):
-        self.actions[self.button_type].append((1, struct.unpack("<II", tag.contents)))
+        self.actions[self.button_type].append((1, struct.unpack('<II', tag.contents)))
 
     def parse_send_message(self, tag, f):
         params = (tag.word, Tag.string_parser(f), Tag.string_parser(f))
@@ -1100,13 +1100,13 @@ class Button(LRFObject):
         self.actions[self.button_type].append((4,))
 
     def parse_run(self, tag, f):
-        self.actions[self.button_type].append((5, struct.unpack("<HI", tag.contents)))
+        self.actions[self.button_type].append((5, struct.unpack('<HI', tag.contents)))
 
     def jump_action(self, button_type):
         for i in self.actions[button_type]:
             if i[0] == 1:
                 return i[1:][0]
-        return (None, None)
+        return None, None
 
     def __str__(self):
         s = '<Button objid="%s">\n'%(self.id,)
@@ -1122,8 +1122,8 @@ class Button(LRFObject):
         s += '</Button>\n'
         return s
 
-    refpage = property(fget=lambda self : self.jump_action(2)[0])
-    refobj = property(fget=lambda self : self.jump_action(2)[1])
+    refpage = property(fget=lambda self: self.jump_action(2)[0])
+    refobj = property(fget=lambda self: self.jump_action(2)[1])
 
 
 class Window(LRFObject):
@@ -1173,7 +1173,7 @@ class BookAttr(StyleObject, LRFObject):
       }
     tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
-    binding_map = {1: 'Lr', 16 : 'Rl'}
+    binding_map = {1: 'Lr', 16: 'Rl'}
 
     def __init__(self, document, stream, id, scramble_key, boundary):
         self.font_link_list = []
@@ -1211,13 +1211,13 @@ class TOCObject(LRFStream):
 
     def initialize(self):
         stream = io.BytesIO(self.stream or b'')
-        c = struct.unpack("<H", stream.read(2))[0]
+        c = struct.unpack('<H', stream.read(2))[0]
         stream.seek(4*(c+1))
         self._contents = []
         while c > 0:
-            refpage = struct.unpack("<I", stream.read(4))[0]
-            refobj  = struct.unpack("<I", stream.read(4))[0]
-            cnt = struct.unpack("<H", stream.read(2))[0]
+            refpage = struct.unpack('<I', stream.read(4))[0]
+            refobj  = struct.unpack('<I', stream.read(4))[0]
+            cnt = struct.unpack('<H', stream.read(2))[0]
             raw = stream.read(cnt)
             label = raw.decode('utf_16_le')
             self._contents.append(TocLabel(refpage, refobj, label))
@@ -1273,8 +1273,8 @@ def get_object(document, stream, id, offset, size, scramble_key):
     start_tag = Tag(stream)
     if start_tag.id != 0xF500:
         raise LRFParseError('Bad object start')
-    obj_id, obj_type = struct.unpack("<IH", start_tag.contents)
+    obj_id, obj_type = struct.unpack('<IH', start_tag.contents)
     if obj_type < len(object_map) and object_map[obj_type] is not None:
         return object_map[obj_type](document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
 
-    raise LRFParseError("Unknown object type: %02X!" % obj_type)
+    raise LRFParseError('Unknown object type: %02X!' % obj_type)

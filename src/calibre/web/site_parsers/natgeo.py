@@ -105,6 +105,7 @@ def parse_body(x):
             if isinstance(y, dict):
                 yield from parse_body(y)
 
+
 def parse_bdy(item):
     c = item['cntnt']
     if item.get('type') == 'inline':
@@ -129,6 +130,7 @@ def parse_bdy(item):
         else:
             yield '<{tag}>{markup}</{tag}>'.format(
                 tag=item['type'], markup=c['mrkup'])
+
 
 def parse_article(edg):
     sc = edg['schma']

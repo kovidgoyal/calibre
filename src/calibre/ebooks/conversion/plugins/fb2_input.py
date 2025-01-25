@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
-"""
+'''
 Convert .fb2 files to .lrf
-"""
+'''
 import os
 import re
 
@@ -91,7 +91,7 @@ class FB2Input(InputFormatPlugin):
         log.debug('Converting XML to HTML...')
         with open(P('templates/fb2.xsl'), 'rb') as f:
             ss = f.read().decode('utf-8')
-        ss = ss.replace("__FB_NS__", fb_ns)
+        ss = ss.replace('__FB_NS__', fb_ns)
         if options.no_inline_fb2_toc:
             log('Disabling generation of inline FB2 TOC')
             ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',
@@ -105,7 +105,7 @@ class FB2Input(InputFormatPlugin):
         # Handle links of type note and cite
         notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
         cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
-        all_ids = {x for x in result.xpath('//*/@id')}
+        all_ids = set(result.xpath('//*/@id'))
         for cite, a in iteritems(cites):
             note = notes.get(cite, None)
             if note:

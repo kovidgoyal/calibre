@@ -13,24 +13,19 @@
 
 
 class GetCharMap:
-    """
+    '''
 
     Return the character map for the given value
 
-    """
+    '''
 
     def __init__(self, bug_handler, char_file):
-        """
-
+        '''
         Required:
-
             'char_file'--the file with the mappings
-
         Returns:
-
             nothing
-
-            """
+        '''
         self.__char_file = char_file
         self.__bug_handler = bug_handler
 

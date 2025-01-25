@@ -51,27 +51,27 @@ class MarkdownMLizer(OEB2HTML):
 
     def tidy_up(self, text):
         # Remove blank space form beginning of paragraph.
-        text = re.sub('(?msu)^[ ]{1,3}', '', text)
+        text = re.sub(r'(?msu)^[ ]{1,3}', '', text)
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
-        text = re.sub('(?msu)^[ ]', '    ', text)
+        text = re.sub(r'(?msu)^[ ]', '    ', text)
 
         # Remove tabs that aren't at the beginning of a line
         new_text = []
         for l in text.splitlines():
-            start = re.match('\t+', l)
+            start = re.match(r'\t+', l)
             if start:
                 start = start.group()
             else:
                 start = ''
-            l = re.sub('\t', '', l)
+            l = l.replace('\t', '')
             new_text.append(start + l)
         text = '\n'.join(new_text)
 
         # Remove spaces from blank lines.
-        text = re.sub('(?msu)^[ ]+$', '', text)
+        text = re.sub(r'(?msu)^[ ]+$', '', text)
 
         # Reduce blank lines
-        text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
+        text = re.sub(r'(?msu)\n{7,}', '\n' * 6, text)
 
         # Remove blank lines at beginning and end of document.
         text = re.sub(r'^\s*', '', text)
@@ -86,7 +86,7 @@ class MarkdownMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:  # noqa
+        if self.remove_space_after_newline == True:  # noqa: E712
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -148,13 +148,13 @@ class MarkdownMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:  # noqa
+                if self.style_italic == False:  # noqa: E712
                     text.append('*')
                     tags.append('*')
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:  # noqa
+                if self.style_bold == False:  # noqa: E712
                     text.append('**')
                     tags.append('**')
                     self.style_bold = True

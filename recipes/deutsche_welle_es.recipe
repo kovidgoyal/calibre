@@ -54,7 +54,6 @@ class DeutscheWelle_es(BasicNewsRecipe):
         ('Conozca Alemania', 'http://rss.dw-world.de/rdf/rss-sp-con')
     ]
 
-
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
             img['src'] = img['srcset'].split()[6]

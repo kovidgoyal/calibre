@@ -50,14 +50,14 @@ PROP_METADATA_VALUE = b'P307'
 PROP_IMAGE = b'P417'
 
 METADATA_PROPERTIES = {
-    b'P10' : "languages",
-    b'P153': "title",
-    b'P154': "description",
-    b'P222': "author",
-    b'P232': "publisher",
+    b'P10' : 'languages',
+    b'P153': 'title',
+    b'P154': 'description',
+    b'P222': 'author',
+    b'P232': 'publisher',
 }
 
-COVER_KEY = "cover_image_base64"
+COVER_KEY = 'cover_image_base64'
 
 
 def hexs(string, sep=' '):
@@ -69,7 +69,6 @@ def hexs(string, sep=' '):
 
 
 class PackedData:
-
     '''
     Simplify unpacking of packed binary data structures
     '''
@@ -101,7 +100,6 @@ class PackedData:
 
 
 class PackedBlock(PackedData):
-
     '''
     Common header structure of container and entity blocks
     '''
@@ -119,7 +117,6 @@ class PackedBlock(PackedData):
 
 
 class Container(PackedBlock):
-
     '''
     Container file containing data entities
     '''
@@ -143,7 +140,6 @@ class Container(PackedBlock):
 
 
 class Entity(PackedBlock):
-
     '''
     Data entity inside a container
     '''
@@ -164,7 +160,6 @@ class Entity(PackedBlock):
 
 
 class PackedIon(PackedData):
-
     '''
     Packed structured binary data format used by KFX
     '''
@@ -248,7 +243,7 @@ class PackedIon(PackedData):
 def property_name(property_number):
     # This should be changed to translate property numbers to the proper
     # strings using a symbol table
-    return b"P%d" % property_number
+    return b'P%d' % property_number
 
 
 def extract_metadata(container_data):

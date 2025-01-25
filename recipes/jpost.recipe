@@ -25,7 +25,6 @@ class JerusalemPost(BasicNewsRecipe):
 
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
-    no_stylesheets = True
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')

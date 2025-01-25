@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ArretSurImages(BasicNewsRecipe):
     title = 'Arrêt sur Images'
-    description = 'Site français d\'analyse des médias'
+    description = "Site français d'analyse des médias"
     language = 'fr'
     encoding = 'utf-8'
     needs_subscription = True
@@ -27,9 +27,9 @@ class ArretSurImages(BasicNewsRecipe):
     ]
 
     def default_cover(self, cover_file):
-        """
+        '''
         Crée une couverture personnalisée avec le logo ASI
-        """
+        '''
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
@@ -45,7 +45,7 @@ class ArretSurImages(BasicNewsRecipe):
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]
-            date_str = f"{weekday} {today.day} {month} {today.year}"
+            date_str = f'{weekday} {today.day} {month} {today.year}'
             edition = today.strftime('Édition de %Hh')
 
             img = QImage(1400, 1920, QImage.Format_RGB888)
@@ -123,9 +123,9 @@ class ArretSurImages(BasicNewsRecipe):
                     br.addheaders += [('Authorization', f'Bearer {auth_response["access_token"]}')]
                     print('Authentification réussie')
                 else:
-                    print('Échec de l\'authentification - Vérifiez vos identifiants')
+                    print("Échec de l'authentification - Vérifiez vos identifiants")
             except Exception as e:
-                print(f'Erreur lors de l\'authentification: {str(e)}')
+                print(f"Erreur lors de l'authentification: {e}")
         return br
 
     def get_article_url(self, article):
@@ -162,7 +162,7 @@ class ArretSurImages(BasicNewsRecipe):
                 </html>
             '''
         except Exception as e:
-            print(f'Erreur preprocessing HTML: {str(e)}')
+            print(f'Erreur preprocessing HTML: {e}')
             return raw_html
 
     def preprocess_html(self, soup):
@@ -186,11 +186,11 @@ class ArretSurImages(BasicNewsRecipe):
                                 else:
                                     tag.replace_with(img_tag)
                         except Exception as e:
-                            print(f'Erreur processing image: {str(e)}')
+                            print(f'Erreur processing image: {e}')
                             tag.decompose()
                 else:
                     tag.decompose()
             return soup
         except Exception as e:
-            print(f'Erreur preprocessing HTML: {str(e)}')
+            print(f'Erreur preprocessing HTML: {e}')
             return soup

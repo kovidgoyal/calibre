@@ -108,7 +108,7 @@ class ChooseMultiSort(Dialog):
             if i != 0:
                 t += ' :: '
             q = bytes.hex(k.encode('utf-8'))
-            dname = prepare_string_for_xml(name).replace(" ", "&nbsp;")
+            dname = prepare_string_for_xml(name).replace(' ', '&nbsp;')
             t += f' <a href="{q}" style="text-decoration: none">{dname}&nbsp;{symbol}</a>'
         if t:
             t = _('Effective sort') + ': ' + t

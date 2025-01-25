@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 # Chennai - 'toich'; Chandigarh - 'toicgct'; Jaipur - 'toijc'; Kolkata - 'toikc';
 # There are others too, try to figure it out, visit toi epaper link.
 
-le = 'cap' # local edition;
+le = 'cap'  # local edition;
 
 date0 = date.today().strftime('%Y/%m/%d')
 
@@ -23,6 +23,7 @@ date_ = dt.strftime('%d_%m_%Y')
 index = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' + date0
 img_index = 'https://cmsimages.timesgroup.com/image-resizer?epaper_s3_path=PublicationData/TOI/' + le + '/' + date0
 
+
 def handle_images(x, soup):
     img = soup.find('img')
     if img:
@@ -35,6 +36,7 @@ def handle_images(x, soup):
             x.insert_after(img_div)
     for lead in reversed(soup.findAll('div', attrs={'class':'lead'})):
         x.insert_after(lead)
+
 
 class toiprint(BasicNewsRecipe):
     title = 'TOI Print Edition'
@@ -61,8 +63,8 @@ class toiprint(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        cover = 'https://asset.harnscloud.com/PublicationData/TOI/' + le + '/' \
-            + date0 + '/Page/' + date_ + '_001_' + le + '.jpg'
+        cover = ('https://asset.harnscloud.com/PublicationData/TOI/'
+                 + le + '/' + date0 + '/Page/' + date_ + '_001_' + le + '.jpg')
         self.log('cover_url ', cover)
         return cover
 
@@ -97,7 +99,7 @@ class toiprint(BasicNewsRecipe):
                     else:
                         desc = 'Page No.' + url.split('_')[-3] + ' | ' + art.get('ColumnTitle', '')
                     self.log('\t', title, '\n\t', desc.replace('\n', ''))
-                    feeds_dict[section].append({"title": title, "url": url, "description": desc})
+                    feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
         def sort_key(x):
             section = x[0]
             try:
@@ -133,17 +135,18 @@ class toiprint(BasicNewsRecipe):
                 body += '<p class="auth"><i>' + x['ZoneText'] + '</i></p>'
             elif x['TagName'] == 'Photographs':
                 pag = x['ZoneID'].split('_')[-4]
-                body += '<div><img src="{}"></div>'.format(img_index + '/Photographs/' + pag + '/' \
-                     + x['ZoneID'] + '.jpg&bucket=andre-toi-out&q=50')
+                body += '<div><img src="{}"></div>'.format(
+                    '/'.join([img_index, 'Photographs', pag, x['ZoneID']]) + '.jpg&bucket=andre-toi-out&q=50'
+                )
             elif x['TagName'] == 'ImageCaption':
                 body += '<div class="cap">' + x['ZoneText'] + '</div><p>'
             elif x['TagName'] == 'Lead':
                 body += '<div class="lead"><p><i>' + x['ZoneText'] + '</i></p></div><p>'
             elif 'ZoneText' in x:
                 body += '<p><i>' + x['ZoneText'] + '</i></p>'
-        return '<html><body><div>' \
-                    + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<br>') \
-                        + '</div></body></html>'
+        return ('<html><body><div>'
+                + body.replace('<br>', '<p>').replace('<br/>', '<p>').replace('&lt;br&gt;', '<p>').replace('\n', '<br>') +
+                '</div></body></html>')
 
     def preprocess_html(self, soup):
         h1 = soup.find('h1')

@@ -189,7 +189,7 @@ class Bookmarks(BadLink):
     HELP = _(
         'This file stores the bookmarks and last opened information from'
         ' the calibre E-book viewer. You can remove it if you do not'
-        ' need that information, or don\'t want to share it with'
+        " need that information, or don't want to share it with"
         ' other people you send this book to.')
     INDIVIDUAL_FIX = _('Remove this file')
     level = INFO
@@ -454,7 +454,7 @@ def check_external_links(container, progress_callback=(lambda num, total:None), 
                 done.append(None)
                 progress_callback(len(done), len(external_links))
 
-    workers = [Thread(name="CheckLinks", target=check_links) for i in range(min(10, len(external_links)))]
+    workers = [Thread(name='CheckLinks', target=check_links) for i in range(min(10, len(external_links)))]
     for w in workers:
         w.daemon = True
         w.start()

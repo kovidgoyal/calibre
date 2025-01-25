@@ -103,7 +103,7 @@ def clean_final(interval=24 * 60 * 60):
     fdir = os.path.join(books_cache_dir(), 'f')
     for x in os.listdir(fdir):
         try:
-            tm = os.path.getmtime(os.path.join(fdir, x,  'calibre-book-manifest.json'))
+            tm = os.path.getmtime(os.path.join(fdir, x, 'calibre-book-manifest.json'))
         except OSError:
             continue
         if now - tm >= interval:

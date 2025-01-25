@@ -44,8 +44,8 @@ class ComicInput(InputFormatPlugin):
         OptionRecommendation(name='landscape', recommended_value=False,
             help=_("Don't split landscape images into two portrait images")),
         OptionRecommendation(name='wide', recommended_value=False,
-            help=_("Keep aspect ratio and scale image using screen height as "
-            "image width for viewing in landscape mode.")),
+            help=_('Keep aspect ratio and scale image using screen height as '
+            'image width for viewing in landscape mode.')),
         OptionRecommendation(name='right2left', recommended_value=False,
               help=_('Used for right-to-left publications like manga. '
               'Causes landscape pages to be split into portrait pages '
@@ -62,7 +62,7 @@ class ComicInput(InputFormatPlugin):
                 'are converted to. You can experiment to see which format gives '
                 'you optimal size and look on your device.')),
         OptionRecommendation(name='no_process', recommended_value=False,
-              help=_("Apply no processing to the image")),
+              help=_('Apply no processing to the image')),
         OptionRecommendation(name='dont_grayscale', recommended_value=False,
             help=_('Do not convert the image to grayscale (black and white)')),
         OptionRecommendation(name='comic_image_size', recommended_value=None,
@@ -77,11 +77,11 @@ class ComicInput(InputFormatPlugin):
 
     recommendations = {
         ('margin_left', 0, OptionRecommendation.HIGH),
-        ('margin_top',  0, OptionRecommendation.HIGH),
+        ('margin_top', 0, OptionRecommendation.HIGH),
         ('margin_right', 0, OptionRecommendation.HIGH),
         ('margin_bottom', 0, OptionRecommendation.HIGH),
         ('insert_blank_line', False, OptionRecommendation.HIGH),
-        ('remove_paragraph_spacing',  False, OptionRecommendation.HIGH),
+        ('remove_paragraph_spacing', False, OptionRecommendation.HIGH),
         ('change_justification', 'left', OptionRecommendation.HIGH),
         ('dont_split_on_pagebreaks', True, OptionRecommendation.HIGH),
         ('chapter', None, OptionRecommendation.HIGH),

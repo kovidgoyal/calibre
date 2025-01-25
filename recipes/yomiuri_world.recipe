@@ -21,9 +21,9 @@ class YOLNews(BasicNewsRecipe):
     encoding = 'UTF-8'
     index = 'http://www.yomiuri.co.jp/world/'
     remove_javascript = True
-    masthead_title = u"YOMIURI ONLINE"
+    masthead_title = u'YOMIURI ONLINE'
 
-    keep_only_tags = [{'class': "article text-resizeable"}]
+    keep_only_tags = [{'class': 'article text-resizeable'}]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)

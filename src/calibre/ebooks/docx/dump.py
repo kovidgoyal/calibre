@@ -17,7 +17,7 @@ from calibre.utils.zipfile import ZipFile
 
 def pretty_all_xml_in_dir(path):
     for f in walk(path):
-        if f.endswith('.xml') or f.endswith('.rels'):
+        if f.endswith(('.xml', '.rels')):
             with open(f, 'r+b') as stream:
                 raw = stream.read()
                 if raw:

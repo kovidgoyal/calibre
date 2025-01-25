@@ -61,9 +61,9 @@ see the different options, specify the name of the output file and then the
         default=None,
         dest='ids',
         help=_(
-            "Comma-separated list of database IDs to catalog.\n"
-            "If declared, --search is ignored.\n"
-            "Default: all"
+            'Comma-separated list of database IDs to catalog.\n'
+            'If declared, --search is ignored.\n'
+            'Default: all'
         )
     )
     parser.add_option(
@@ -72,10 +72,10 @@ see the different options, specify the name of the output file and then the
         default=None,
         dest='search_text',
         help=_(
-            "Filter the results by the search query. "
-            "For the format of the search query, please see "
-            "the search-related documentation in the User Manual.\n"
-            "Default: no filtering"
+            'Filter the results by the search query. '
+            'For the format of the search query, please see '
+            'the search-related documentation in the User Manual.\n'
+            'Default: no filtering'
         )
     )
     parser.add_option(
@@ -96,8 +96,6 @@ see the different options, specify the name of the output file and then the
     add_plugin_parser_options(fmt, parser)
 
     return parser
-
-
 # }}}
 
 

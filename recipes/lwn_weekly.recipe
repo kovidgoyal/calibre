@@ -137,14 +137,14 @@ class WeeklyLWN(BasicNewsRecipe):
                     article_title = _('Undefined article title')
 
                 if subsection:
-                    section_title = "%s: %s" % (section, subsection)
+                    section_title = '%s: %s' % (section, subsection)
                 else:
                     section_title = section
 
                 # Most articles have anchors in their titles, *except* the
                 # security vulnerabilities
                 article_anchor = curr.find(
-                    name='a', attrs={'href': re.compile('^/Articles/')})
+                    name='a', attrs={'href': re.compile(r'^/Articles/')})
 
                 if article_anchor:
                     article_url = article_anchor.get('href')
@@ -170,7 +170,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 })
 
             else:
-                self.log.error("lwn_weekly.recipe: something bad happened; should not be able to reach this")
+                self.log.error('lwn_weekly.recipe: something bad happened; should not be able to reach this')
 
         ans = [(section2, articles[section2])
                for section2 in ans if section2 in articles]

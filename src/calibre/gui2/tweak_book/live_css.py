@@ -109,7 +109,7 @@ class Heading(QWidget):  # {{{
 
 class Cell:  # {{{
 
-    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch', 'is_overriden')
+    __slots__ = ('color_role', 'is_overriden', 'override_color', 'rect', 'right_align', 'swatch', 'text')
 
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine | Qt.TextFlag.TextIncludeTrailingSpaces
@@ -375,18 +375,18 @@ class Box(QWidget):
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
         m = QMenu(self)
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda : QApplication.instance().clipboard().setText(block))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: QApplication.instance().clipboard().setText(block))
         all_lines = []
         for w in self.widgets:
             all_lines += w.lines_for_copy
         all_text = '\n'.join(all_lines).replace('\xa0', ' ')
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda : QApplication.instance().clipboard().setText(all_text))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: QApplication.instance().clipboard().setText(all_text))
         m.exec(ev.globalPos())
 
 
 class Property:
 
-    __slots__ = 'name', 'value', 'important', 'color', 'specificity', 'is_overriden'
+    __slots__ = ('color', 'important', 'is_overriden', 'name', 'specificity', 'value')
 
     def __init__(self, prop, specificity=()):
         self.name, self.value, self.important, self.color = prop

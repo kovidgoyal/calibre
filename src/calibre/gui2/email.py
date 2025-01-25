@@ -536,12 +536,12 @@ class EmailMixin:  # {{{
                 get_fmts, self.email_sent, self.job_manager)
         if sent_mails:
             self.status_bar.show_message(_('Sent news to')+' '+
-                    ', '.join(sent_mails),  3000)
+                    ', '.join(sent_mails), 3000)
 
 # }}}
 
 
 if __name__ == '__main__':
     from qt.core import QApplication
-    app = QApplication([])  # noqa
+    app = QApplication([])  # noqa: F841
     print(select_recipients())

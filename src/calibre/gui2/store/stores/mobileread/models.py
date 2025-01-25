@@ -152,9 +152,9 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
-             'author': lambda x: x.author.lower(),
-             'format': attrgetter('formats'),
-             'title': lambda x: x.title.lower(),
+            'author': lambda x: x.author.lower(),
+            'format': attrgetter('formats'),
+            'title': lambda x: x.title.lower(),
         }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]

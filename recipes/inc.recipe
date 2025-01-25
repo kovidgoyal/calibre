@@ -40,7 +40,7 @@ class IncMagazineRecipe(BasicNewsRecipe):
     def get_browser(self):
         def has_login_name(form):
             try:
-                form.find_control(name="email")
+                form.find_control(name='email')
             except:
                 return False
             else:

@@ -25,16 +25,16 @@ class CNetJapan(BasicNewsRecipe):
             lambda match: '<!-- removed -->'),
     ]
 
-    remove_tags_before = dict(id="contents_l")
+    remove_tags_before = dict(id='contents_l')
     remove_tags = [
-        {'class': "social_bkm_share"},
-        {'class': "social_bkm_print"},
-        {'class': "block20 clearfix"},
-        dict(name="div", attrs={'id': 'bookreview'}),
-        {'class': "tag_left_ttl"},
-        {'class': "tag_right"}
+        {'class': 'social_bkm_share'},
+        {'class': 'social_bkm_print'},
+        {'class': 'block20 clearfix'},
+        dict(name='div', attrs={'id': 'bookreview'}),
+        {'class': 'tag_left_ttl'},
+        {'class': 'tag_right'}
     ]
-    remove_tags_after = {'class': "block20"}
+    remove_tags_after = {'class': 'block20'}
 
     def parse_feeds(self):
 

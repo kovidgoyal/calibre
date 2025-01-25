@@ -166,7 +166,7 @@ class Route:
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
             raise route_error('Function must take %d non-default arguments' % (len(self.names) + 2))
         if argspec.args[2:len(self.names)+2] != self.names:
-            raise route_error('Function\'s argument names do not match the variable names in the route')
+            raise route_error("Function's argument names do not match the variable names in the route")
         if not frozenset(self.type_checkers).issubset(frozenset(self.names)):
             raise route_error('There exist type checkers that do not correspond to route variables: %r' % (set(self.type_checkers) - set(self.names)))
         self.min_size = found_optional_part if found_optional_part is not False else len(matchers)

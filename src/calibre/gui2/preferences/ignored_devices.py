@@ -90,7 +90,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def commit(self):
         devs = {}
-        for i in range(0, self.devices.count()):
+        for i in range(self.devices.count()):
             e = self.devices.item(i)
             dev, uid = e.data(Qt.ItemDataRole.UserRole)
             if dev not in devs:

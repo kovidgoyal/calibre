@@ -21,7 +21,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
     remove_images = False
 
     def get_cover_url(self):
-        """Récupère dynamiquement l'URL de la dernière une depuis MLP"""
+        '''Récupère dynamiquement l'URL de la dernière une depuis MLP'''
         br = self.get_browser()
         try:
             # Accéder à la page du magazine sur MLP
@@ -38,7 +38,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                     self.log('Cover URL found:', cover_url)
                     return cover_url
 
-            self.log('Aucune couverture trouvée, utilisation de l\'image par défaut')
+            self.log("Aucune couverture trouvée, utilisation de l'image par défaut")
             return 'https://www.alternatives-economiques.fr/sites/all/themes/alternatives-economiques-main/assets/logo-alternatives-economiques.svg'
 
         except Exception as e:
@@ -92,7 +92,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                     display_name = section_name.replace('-', ' ').title()
                     articles.append((display_name, feed_articles[:self.max_articles_per_feed]))
             except Exception as e:
-                self.log.error(f'Error processing {section_name}: {str(e)}')
+                self.log.error(f'Error processing {section_name}: {e}')
                 continue
 
         return articles
@@ -133,7 +133,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                             'description': ''
                         })
                 except Exception as e:
-                    self.log.error(f'Error getting H1 title for {article_url}: {str(e)}')
+                    self.log.error(f'Error getting H1 title for {article_url}: {e}')
                     continue
 
         return feed_articles

@@ -37,7 +37,7 @@ class TAGX:  # {{{
     BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
     BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
 
-    NUM_VALUES = defaultdict(lambda :1)
+    NUM_VALUES = defaultdict(lambda:1)
     NUM_VALUES[11] = 3
     NUM_VALUES[0] = 0
 
@@ -64,7 +64,7 @@ class TAGX:  # {{{
         '''
         TAGX block for the Primary index header of a periodical
         '''
-        for i in (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72,73, 0):
+        for i in (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72, 73, 0):
             self.add_tag(i)
         return self.header(2) + bytes(self.byts)
 
@@ -86,8 +86,8 @@ class TAGX:  # {{{
             self.add_tag(i)
         return self.header(1) + bytes(self.byts)
 
-
 # }}}
+
 
 # Index Entries {{{
 
@@ -108,7 +108,7 @@ class IndexEntry:
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}  # noqa
+    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset

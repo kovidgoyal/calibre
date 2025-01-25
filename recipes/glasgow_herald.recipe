@@ -11,7 +11,6 @@ class GlasgowHerald(BasicNewsRecipe):
     title = u'Glasgow Herald'
     oldest_article = 1
     max_articles_per_feed = 100
-    no_stylesheets = True
     language = 'en_GB'
 
     __author__ = 'Kovid Goyal'

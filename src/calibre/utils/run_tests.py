@@ -65,7 +65,7 @@ def find_tests_in_package(package, excludes=('main.py',)):
     excludes = set(excludes) | {x + 'c' for x in excludes}
     seen = set()
     for x in items:
-        if (x.endswith('.py') or x.endswith('.pyc')) and x not in excludes:
+        if (x.endswith(('.py', '.pyc'))) and x not in excludes:
             q = x.rpartition('.')[0]
             if q in seen:
                 continue
@@ -324,7 +324,7 @@ def run_test(test_name, verbosity=4, buffer=False):
     # calibre-debug -t test_name
     which_tests = None
     if test_name.startswith('@'):
-        which_tests = test_name[1:],
+        which_tests = test_name[1:], None
     tests = find_tests(which_tests)
     if test_name != 'all':
         if test_name.startswith('.'):

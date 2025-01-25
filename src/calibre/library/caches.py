@@ -56,10 +56,10 @@ class MetadataBackup(Thread):  # {{{
         while self.keep_running:
             try:
                 time.sleep(2)  # Limit to one book per two seconds
-                (id_, sequence) = self.db.get_a_dirtied_book()
+                id_, sequence = self.db.get_a_dirtied_book()
                 if id_ is None:
                     continue
-                # print 'writer thread', id_, sequence
+                # print('writer thread', id_, sequence)
             except:
                 # Happens during interpreter shutdown
                 break
@@ -119,8 +119,8 @@ class MetadataBackup(Thread):  # {{{
         with open(path, 'wb') as f:
             f.write(raw)
 
-
 # }}}
+
 
 # Global utility function for get_match here and in gui2/library.py
 # This is a global for performance
@@ -191,7 +191,7 @@ class CacheRow(list):  # {{{
                 mi = self.db.get_metadata(id_, index_is_id=True,
                                           get_user_categories=False)
                 for c in self._composites:
-                    self[c] =  mi.get(self._composites[c])
+                    self[c] = mi.get(self._composites[c])
         if col == self._series_sort_col and self._series_sort is None:
             if self[self._series_col]:
                 self._series_sort = title_sort(self[self._series_col])
@@ -206,7 +206,7 @@ class CacheRow(list):  # {{{
 
     def refresh_composites(self):
         for c in self._composites:
-            self[c] =  None
+            self[c] = None
         self._must_do = True
 
 # }}}
@@ -381,10 +381,10 @@ class ResultCache(SearchQueryParser):  # {{{
         relop = None
         for k in self.date_search_relops.keys():
             if query.startswith(k):
-                (p, relop) = self.date_search_relops[k]
+                p, relop = self.date_search_relops[k]
                 query = query[p:]
         if relop is None:
-            (p, relop) = self.date_search_relops['=']
+            p, relop = self.date_search_relops['=']
 
         if query in self.local_today:
             qd = now()
@@ -395,7 +395,7 @@ class ResultCache(SearchQueryParser):  # {{{
         elif query in self.local_thismonth:
             qd = now()
             field_count = 2
-        elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
+        elif query.endswith((self.local_daysago, self.untrans_daysago)):
             num = query[0:-(self.untrans_daysago_len if query.endswith(self.untrans_daysago) else self.local_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))
@@ -464,10 +464,10 @@ class ResultCache(SearchQueryParser):  # {{{
             relop = None
             for k in self.numeric_search_relops.keys():
                 if query.startswith(k):
-                    (p, relop) = self.numeric_search_relops[k]
+                    p, relop = self.numeric_search_relops[k]
                     query = query[p:]
             if relop is None:
-                (p, relop) = self.numeric_search_relops['=']
+                p, relop = self.numeric_search_relops['=']
 
             if dt == 'int':
                 def cast(x):
@@ -541,7 +541,7 @@ class ResultCache(SearchQueryParser):  # {{{
             if len(q) != 2:
                 raise ParseException(
                  _('Invalid query format for colon-separated search: {0}').format(query))
-            (keyq, valq) = q
+            keyq, valq = q
             keyq_mkind, keyq = self._matchkind(keyq)
             valq_mkind, valq = self._matchkind(valq)
         else:

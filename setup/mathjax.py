@@ -18,7 +18,7 @@ class MathJax(ReVendor):
     NAME = 'mathjax'
     TAR_NAME = 'MathJax'
     VERSION = '3.1.4'
-    DOWNLOAD_URL = 'https://github.com/mathjax/MathJax/archive/%s.tar.gz' % VERSION
+    DOWNLOAD_URL = f'https://github.com/mathjax/MathJax/archive/{VERSION}.tar.gz'
 
     def add_file_pre(self, name, raw):
         self.h.update(raw)

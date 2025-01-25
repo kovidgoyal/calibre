@@ -217,7 +217,7 @@ class TestHTTP(BaseTest):
             self.ae(r.getheader('Location'), '/somewhere-else')
             self.ae(b'', r.read())
 
-            server.change_handler(lambda data:data.path[0] + data.read().decode('ascii'))
+            server.change_handler(lambda data: data.path[0] + data.read().decode('ascii'))
             conn = server.connect(timeout=base_timeout * 5)
 
             # Test simple GET
@@ -311,7 +311,7 @@ class TestHTTP(BaseTest):
         from calibre.srv.http_response import parse_multipart_byterange
 
         def handler(conn):
-            return conn.generate_static_output('test', lambda : ''.join(conn.path))
+            return conn.generate_static_output('test', lambda: ''.join(conn.path))
         with NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf, \
                 TestServer(handler, timeout=1, compress_min_size=0) as server:
             fdata = (string.ascii_letters * 100).encode('ascii')
@@ -344,7 +344,7 @@ class TestHTTP(BaseTest):
             def edfunc():
                 num_calls[0] += 1
                 return b'data'
-            server.change_handler(lambda conn:conn.etagged_dynamic_response("xxx", edfunc))
+            server.change_handler(lambda conn: conn.etagged_dynamic_response('xxx', edfunc))
             conn = server.connect()
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
@@ -412,7 +412,7 @@ class TestHTTP(BaseTest):
                 # Test sending of larger file
                 start_time = monotonic()
                 lf.seek(0)
-                data =  lf.read()
+                data = lf.read()
                 server.change_handler(lambda conn: lf)
                 conn = server.connect(timeout=1)
                 conn.request('GET', '/test')

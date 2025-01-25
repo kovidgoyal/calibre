@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class CiperChile(BasicNewsRecipe):
     title = 'CIPER Chile'
     __author__ = 'Darko Miletic'
-    description = 'El Centro de Investigacion e Informacion Periodistica (CIPER) es una institucion independiente que desarrolla reportajes de investigacion de acuerdo a principios de maxima calidad e integridad profesional. Para lograr dicho objetivo, los profesionales de CIPER incorporan a las tecnicas propias del reporteo el uso sistematico de las leyes chilenas que norman el libre acceso a la informacion, de manera que los documentos que se obtengan por esta via esten puestos a disposicion del publico sin restricciones.'  # noqa
+    description = 'El Centro de Investigacion e Informacion Periodistica (CIPER) es una institucion independiente que desarrolla reportajes de investigacion de acuerdo a principios de maxima calidad e integridad profesional. Para lograr dicho objetivo, los profesionales de CIPER incorporan a las tecnicas propias del reporteo el uso sistematico de las leyes chilenas que norman el libre acceso a la informacion, de manera que los documentos que se obtengan por esta via esten puestos a disposicion del publico sin restricciones.'  # noqa: E501
     publisher = 'CIPER'
     category = 'news, politics, Chile'
     oldest_article = 15
@@ -23,14 +23,14 @@ class CiperChile(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'blog'
     masthead_url = 'http://ciperchile.cl/wp-content/themes/cipertheme/css/ui/ciper-logo.png'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,sans-serif}
                                .excerpt{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: 1.25em}
                                .author{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: small}
                                .date{font-family: Georgia,"Times New Roman",Times,serif; font-size: small; color: grey}
                                .epigrafe{font-size: small; color: grey}
                                img{margin-bottom: 0.4em; display:block}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

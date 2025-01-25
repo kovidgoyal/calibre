@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 
-"""
+'''
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.
-"""
+'''
 import codecs
 import io
 import os
@@ -15,7 +15,7 @@ from polyglot.builtins import iteritems, string_or_bytes
 
 from .pylrfopt import tagListOptimizer
 
-PYLRF_VERSION = "1.0"
+PYLRF_VERSION = '1.0'
 
 #
 # Acknowledgement:
@@ -79,7 +79,7 @@ class LrfError(Exception):
 
 
 def writeByte(f, byte):
-    f.write(struct.pack("<B", byte))
+    f.write(struct.pack('<B', byte))
 
 
 def writeWord(f, word):
@@ -87,31 +87,31 @@ def writeWord(f, word):
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
     if int(word) < 0:
         raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
-    f.write(struct.pack("<H", int(word)))
+    f.write(struct.pack('<H', int(word)))
 
 
 def writeSignedWord(f, sword):
-    f.write(struct.pack("<h", int(float(sword))))
+    f.write(struct.pack('<h', int(float(sword))))
 
 
 def writeWords(f, *words):
-    f.write(struct.pack("<%dH" % len(words), *words))
+    f.write(struct.pack('<%dH' % len(words), *words))
 
 
 def writeDWord(f, dword):
-    f.write(struct.pack("<I", int(dword)))
+    f.write(struct.pack('<I', int(dword)))
 
 
 def writeDWords(f, *dwords):
-    f.write(struct.pack("<%dI" % len(dwords), *dwords))
+    f.write(struct.pack('<%dI' % len(dwords), *dwords))
 
 
 def writeQWord(f, qword):
-    f.write(struct.pack("<Q", qword))
+    f.write(struct.pack('<Q', qword))
 
 
 def writeZeros(f, nZeros):
-    f.write(b"\0" * nZeros)
+    f.write(b'\0' * nZeros)
 
 
 def writeString(f, s):
@@ -125,7 +125,7 @@ def writeIdList(f, idList):
 
 def writeColor(f, color):
     # TODO: allow color names, web format
-    f.write(struct.pack(">I", int(color, 0)))
+    f.write(struct.pack('>I', int(color, 0)))
 
 
 def writeLineWidth(f, width):
@@ -135,7 +135,7 @@ def writeLineWidth(f, width):
 def writeUnicode(f, string, encoding):
     if isinstance(string, bytes):
         string = string.decode(encoding)
-    string = string.encode("utf-16-le")
+    string = string.encode('utf-16-le')
     length = len(string)
     if length > 65535:
         raise LrfError('Cannot write strings longer than 65535 characters.')
@@ -147,20 +147,20 @@ def writeRaw(f, string, encoding):
     if isinstance(string, bytes):
         string = string.decode(encoding)
 
-    string = string.encode("utf-16-le")
+    string = string.encode('utf-16-le')
     writeString(f, string)
 
 
 def writeRubyAA(f, rubyAA):
     ralign, radjust = rubyAA
-    radjust = {"line-edge":0x10, "none":0}[radjust]
-    ralign = {"start":1, "center":2}[ralign]
+    radjust = {'line-edge':0x10, 'none':0}[radjust]
+    ralign = {'start':1, 'center':2}[ralign]
     writeWord(f, ralign | radjust)
 
 
 def writeBgImage(f, bgInfo):
     imode, iid = bgInfo
-    imode = {"pfix": 0, "fix":1, "tile":2, "centering":3}[imode]
+    imode = {'pfix': 0, 'fix':1, 'tile':2, 'centering':3}[imode]
     writeWord(f, imode)
     writeDWord(f, iid)
 
@@ -168,7 +168,7 @@ def writeBgImage(f, bgInfo):
 def writeEmpDots(f, dotsInfo, encoding):
     refDotsFont, dotsFontName, dotsCode = dotsInfo
     writeDWord(f, refDotsFont)
-    LrfTag("fontfacename", dotsFontName).write(f, encoding)
+    LrfTag('fontfacename', dotsFontName).write(f, encoding)
     writeWord(f, int(dotsCode, 0))
 
 
@@ -180,7 +180,7 @@ def writeRuledLine(f, lineInfo):
     writeColor(f, lineColor)
 
 
-LRF_SIGNATURE = b"L\x00R\x00F\x00\x00\x00"
+LRF_SIGNATURE = b'L\x00R\x00F\x00\x00\x00'
 
 # XOR_KEY = 48
 XOR_KEY = 65024  # that's what lrf2lrs says -- not used, anyway...
@@ -217,7 +217,7 @@ OBJECT_TYPE_ENCODING = dict(
         TOC=0x1E
 )
 
-LINE_TYPE_ENCODING =  {
+LINE_TYPE_ENCODING = {
         'none':0, 'solid':0x10, 'dashed':0x20, 'double':0x30, 'dotted':0x40
 }
 
@@ -226,10 +226,10 @@ BINDING_DIRECTION_ENCODING = dict(Lr=1, Rl=16)
 
 TAG_INFO = dict(
         rawtext=(0, writeRaw),
-        ObjectStart=(0xF500, "<IH"),
+        ObjectStart=(0xF500, '<IH'),
         ObjectEnd=(0xF501,),
         # InfoLink (0xF502)
-        Link=(0xF503, "<I"),
+        Link=(0xF503, '<I'),
         StreamSize=(0xF504, writeDWord),
         StreamData=(0xF505, writeString),
         StreamEnd=(0xF506,),
@@ -267,14 +267,13 @@ TAG_INFO = dict(
         setemptyview=(0xF52A, {'show':1, 'empty':0}, writeWord),
         pageposition=(0xF52B, {'any':0,'upper':1, 'lower':2}, writeWord),
         evensidemargin=(0xF52C, writeWord),
-        framemode=(0xF52E,
-                           {'None':0, 'curve':2, 'square':1}, writeWord),
+        framemode=(0xF52E, {'None':0, 'curve':2, 'square':1}, writeWord),
         blockwidth=(0xF531, writeWord),
         blockheight=(0xF532, writeWord),
-        blockrule=(0xF533, {"horz-fixed":0x14, "horz-adjustable":0x12,
-                                 "vert-fixed":0x41, "vert-adjustable":0x21,
-                                 "block-fixed":0x44, "block-adjustable":0x22},
-                                 writeWord),
+        blockrule=(0xF533, {'horz-fixed':0x14, 'horz-adjustable':0x12,
+                            'vert-fixed':0x41, 'vert-adjustable':0x21,
+                            'block-fixed':0x44, 'block-adjustable':0x22},
+                                writeWord),
         bgcolor=(0xF534, writeColor),
         layout=(0xF535, {'TbRl':0x41, 'LrTb':0x34}, writeWord),
         framewidth=(0xF536, writeWord),
@@ -289,11 +288,11 @@ TAG_INFO = dict(
         minipageheight=(0xF542, writeWord),
         yspace=(0xF546, writeWord),
         xspace=(0xF547, writeWord),
-        PutObj=(0xF549, "<HHI"),
-        ImageRect=(0xF54A, "<HHHH"),
-        ImageSize=(0xF54B, "<HH"),
-        RefObjId=(0xF54C, "<I"),
-        PageDiv=(0xF54E, "<HIHI"),
+        PutObj=(0xF549, '<HHI'),
+        ImageRect=(0xF54A, '<HHHH'),
+        ImageSize=(0xF54B, '<HH'),
+        RefObjId=(0xF54C, '<I'),
+        PageDiv=(0xF54E, '<HIHI'),
         StreamFlags=(0xF554, writeWord),
         Comment=(0xF555, writeUnicode),
         FontFilename=(0xF559, writeUnicode),
@@ -304,7 +303,7 @@ TAG_INFO = dict(
         PushButtonEnd=(0xF567,),
         buttonactions=(0xF56A,),
         endbuttonactions=(0xF56B,),
-        jumpto=(0xF56C, "<II"),
+        jumpto=(0xF56C, '<II'),
         RuledLine=(0xF573, writeRuledLine),
         rubyaa=(0xF575, writeRubyAA),
         rubyoverhang=(0xF576, {'none':0, 'auto':1}, writeWord),
@@ -312,8 +311,8 @@ TAG_INFO = dict(
         empdots=(0xF578, writeEmpDots),
         emplineposition=(0xF579, {'before':1, 'after':2}, writeWord),
         emplinetype=(0xF57A, LINE_TYPE_ENCODING, writeWord),
-        ChildPageTree=(0xF57B, "<I"),
-        ParentPageTree=(0xF57C, "<I"),
+        ChildPageTree=(0xF57B, '<I'),
+        ParentPageTree=(0xF57C, '<I'),
         Italic=(0xF581,),
         ItalicEnd=(0xF582,),
         pstart=(0xF5A1, writeDWord),  # what goes in the dword? refesound
@@ -348,7 +347,7 @@ TAG_INFO = dict(
         BoxEnd=(0xF5C7,),
         Space=(0xF5CA, writeSignedWord),
         textstring=(0xF5CC, writeUnicode),
-        Plot=(0xF5D1, "<HHII"),
+        Plot=(0xF5D1, '<HHII'),
         CR=(0xF5D2,),
         RegisterFont=(0xF5D8, writeDWord),
         setwaitprop=(0xF5DA, {'replay':1, 'noreplay':2}, writeWord),
@@ -375,14 +374,14 @@ class LrfTag:
         try:
             tagInfo = TAG_INFO[name]
         except KeyError:
-            raise LrfError("tag name %s not recognized" % name)
+            raise LrfError('tag name %s not recognized' % name)
 
         self.name = name
         self.type = tagInfo[0]
         self.format = tagInfo[1:]
 
         if len(parameters) > 1:
-            raise LrfError("only one parameter allowed on tag %s" % name)
+            raise LrfError('only one parameter allowed on tag %s' % name)
 
         if len(parameters) == 0:
             self.parameter = None
@@ -397,7 +396,7 @@ class LrfTag:
         if p is None:
             return
 
-        # print "   Writing tag", self.name
+        # print('   Writing tag', self.name)
         for f in self.format:
             if isinstance(f, dict):
                 p = f[p]
@@ -409,7 +408,7 @@ class LrfTag:
             else:
                 if f in [writeUnicode, writeRaw, writeEmpDots]:
                     if encoding is None:
-                        raise LrfError("Tag requires encoding")
+                        raise LrfError('Tag requires encoding')
                     f(lrf, p, encoding)
                 else:
                     f(lrf, p)
@@ -455,12 +454,12 @@ class LrfStreamBase:
             if optimize and uncompLen <= len(compStreamBuffer) + 4:
                 flags &= ~STREAM_COMPRESSED
             else:
-                streamBuffer = struct.pack("<I", uncompLen) + compStreamBuffer
+                streamBuffer = struct.pack('<I', uncompLen) + compStreamBuffer
 
-        return [LrfTag("StreamFlags", flags & 0x01FF),
-                LrfTag("StreamSize", len(streamBuffer)),
-                LrfTag("StreamData", streamBuffer),
-                LrfTag("StreamEnd")]
+        return [LrfTag('StreamFlags', flags & 0x01FF),
+                LrfTag('StreamSize', len(streamBuffer)),
+                LrfTag('StreamData', streamBuffer),
+                LrfTag('StreamEnd')]
 
 
 class LrfTagStream(LrfStreamBase):
@@ -493,7 +492,7 @@ class LrfFileStream(LrfStreamBase):
 
     def __init__(self, streamFlags, filename):
         LrfStreamBase.__init__(self, streamFlags)
-        with open(filename, "rb") as f:
+        with open(filename, 'rb') as f:
             self.streamData = f.read()
 
 
@@ -501,7 +500,7 @@ class LrfObject:
 
     def __init__(self, name, objId):
         if objId <= 0:
-            raise LrfError("invalid objId for " + name)
+            raise LrfError('invalid objId for ' + name)
 
         self.name = name
         self.objId = objId
@@ -509,10 +508,10 @@ class LrfObject:
         try:
             self.type = OBJECT_TYPE_ENCODING[name]
         except KeyError:
-            raise LrfError("object name %s not recognized" % name)
+            raise LrfError('object name %s not recognized' % name)
 
     def __str__(self):
-        return 'LRFObject: ' + self.name + ", " + str(self.objId)
+        return 'LRFObject: ' + self.name + ', ' + str(self.objId)
 
     def appendLrfTag(self, tag):
         self.tags.append(tag)
@@ -533,55 +532,55 @@ class LrfObject:
             if name == 'rubyAlignAndAdjust':
                 continue
             if name in {
-                    "bgimagemode", "bgimageid", "rubyalign", "rubyadjust",
-                    "empdotscode", "empdotsfontname", "refempdotsfont"}:
+                    'bgimagemode', 'bgimageid', 'rubyalign', 'rubyadjust',
+                    'empdotscode', 'empdotsfontname', 'refempdotsfont'}:
                 composites[name] = value
             else:
                 self.append(LrfTag(name, value))
 
-        if "rubyalign" in composites or "rubyadjust" in composites:
-            ralign = composites.get("rubyalign", "none")
-            radjust = composites.get("rubyadjust", "start")
-            self.append(LrfTag("rubyaa", (ralign, radjust)))
+        if 'rubyalign' in composites or 'rubyadjust' in composites:
+            ralign = composites.get('rubyalign', 'none')
+            radjust = composites.get('rubyadjust', 'start')
+            self.append(LrfTag('rubyaa', (ralign, radjust)))
 
-        if "bgimagemode" in composites or "bgimageid" in composites:
-            imode = composites.get("bgimagemode", "fix")
-            iid = composites.get("bgimageid", 0)
+        if 'bgimagemode' in composites or 'bgimageid' in composites:
+            imode = composites.get('bgimagemode', 'fix')
+            iid = composites.get('bgimageid', 0)
 
             # for some reason, page style uses 0 for "fix"
             # we call this pfix to differentiate it
-            if genClass == "PageStyle" and imode == "fix":
-                imode = "pfix"
+            if genClass == 'PageStyle' and imode == 'fix':
+                imode = 'pfix'
 
-            self.append(LrfTag("bgimage", (imode, iid)))
+            self.append(LrfTag('bgimage', (imode, iid)))
 
-        if "empdotscode" in composites or "empdotsfontname" in composites or \
-                "refempdotsfont" in composites:
-            dotscode = composites.get("empdotscode", "0x002E")
-            dotsfontname = composites.get("empdotsfontname",
-                    "Dutch801 Rm BT Roman")
-            refdotsfont = composites.get("refempdotsfont", 0)
-            self.append(LrfTag("empdots", (refdotsfont, dotsfontname,
+        if 'empdotscode' in composites or 'empdotsfontname' in composites or \
+                'refempdotsfont' in composites:
+            dotscode = composites.get('empdotscode', '0x002E')
+            dotsfontname = composites.get('empdotsfontname',
+                    'Dutch801 Rm BT Roman')
+            refdotsfont = composites.get('refempdotsfont', 0)
+            self.append(LrfTag('empdots', (refdotsfont, dotsfontname,
                 dotscode)))
 
     def write(self, lrf, encoding=None):
-        # print "Writing object", self.name
-        LrfTag("ObjectStart", (self.objId, self.type)).write(lrf)
+        # print('Writing object', self.name)
+        LrfTag('ObjectStart', (self.objId, self.type)).write(lrf)
 
         for tag in self.tags:
             tag.write(lrf, encoding)
 
-        LrfTag("ObjectEnd").write(lrf)
+        LrfTag('ObjectEnd').write(lrf)
 
 
 class LrfToc(LrfObject):
-    """
+    '''
         Table of contents.  Format of toc is:
         [ (pageid, objid, string)...]
-    """
+    '''
 
     def __init__(self, objId, toc, se):
-        LrfObject.__init__(self, "TOC", objId)
+        LrfObject.__init__(self, 'TOC', objId)
         streamData = self._makeTocStream(toc, se)
         self._makeStreamTags(streamData)
 
@@ -606,9 +605,9 @@ class LrfToc(LrfObject):
         for entry in toc:
             pageId, objId, label = entry
             if pageId <= 0:
-                raise LrfError("page id invalid in toc: " + label)
+                raise LrfError('page id invalid in toc: ' + label)
             if objId <= 0:
-                raise LrfError("textblock id invalid in toc: " + label)
+                raise LrfError('textblock id invalid in toc: ' + label)
 
             writeDWord(stream, pageId)
             writeDWord(stream, objId)
@@ -644,9 +643,9 @@ class LrfWriter:
         self.height = 800
         self.colorDepth = 24
         self.tocObjId = 0
-        self.docInfoXml = ""
-        self.thumbnailEncoding = "JPEG"
-        self.thumbnailData = b""
+        self.docInfoXml = ''
+        self.thumbnailEncoding = 'JPEG'
+        self.thumbnailData = b''
         self.objects = []
         self.objectTable = []
 
@@ -670,7 +669,7 @@ class LrfWriter:
 
     def setRootObject(self, obj):
         if self.rootObjId != 0:
-            raise LrfError("root object already set")
+            raise LrfError('root object already set')
 
         self.rootObjId = obj.objId
         self.rootObj = obj
@@ -679,16 +678,16 @@ class LrfWriter:
         if self.rootObj is None:
             raise LrfError("can't register font -- no root object")
 
-        self.rootObj.append(LrfTag("RegisterFont", id))
+        self.rootObj.append(LrfTag('RegisterFont', id))
 
     def setTocObject(self, obj):
         if self.tocObjId != 0:
-            raise LrfError("toc object already set")
+            raise LrfError('toc object already set')
 
         self.tocObjId = obj.objId
 
     def setThumbnailFile(self, filename, encoding=None):
-        with open(filename, "rb") as f:
+        with open(filename, 'rb') as f:
             self.thumbnailData = f.read()
 
         if encoding is None:
@@ -696,7 +695,7 @@ class LrfWriter:
 
         encoding = encoding.upper()
         if encoding not in IMAGE_TYPE_ENCODING:
-            raise LrfError("unknown image type: " + encoding)
+            raise LrfError('unknown image type: ' + encoding)
 
         self.thumbnailEncoding = encoding
 
@@ -708,7 +707,7 @@ class LrfWriter:
 
     def writeFile(self, lrf):
         if self.rootObjId == 0:
-            raise LrfError("no root object has been set")
+            raise LrfError('no root object has been set')
 
         self.writeHeader(lrf)
         self.writeObjects(lrf)
@@ -730,7 +729,7 @@ class LrfWriter:
         writeZeros(lrf, 20)  # 0x30 unknown
         writeDWord(lrf, self.tocObjId)
         writeDWord(lrf, 0)  # 0x48 tocObjectOffset -- will be updated
-        docInfoXml = codecs.BOM_UTF8 + self.docInfoXml.encode("utf-8")
+        docInfoXml = codecs.BOM_UTF8 + self.docInfoXml.encode('utf-8')
         compDocInfo = zlib.compress(docInfoXml)
         writeWord(lrf, len(compDocInfo) + 4)
         writeWord(lrf, IMAGE_TYPE_ENCODING[self.thumbnailEncoding])
@@ -767,7 +766,7 @@ class LrfWriter:
                 lrf.seek(0, 2)
                 break
         else:
-            raise LrfError("toc object not in object table")
+            raise LrfError('toc object not in object table')
 
     def writeObjectTable(self, lrf):
         for tableEntry in self.objectTable:

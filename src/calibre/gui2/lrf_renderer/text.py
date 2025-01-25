@@ -17,10 +17,16 @@ from polyglot.builtins import string_or_bytes
 
 def WEIGHT_MAP(wt):
     return int(wt / 10 - 1)
+
+
 def NULL(a, b):
     return a
+
+
 def COLOR(a, b):
     return QColor(*a)
+
+
 def WEIGHT(a, b):
     return WEIGHT_MAP(a)
 
@@ -100,7 +106,7 @@ class FontLoader:
 
 
 class Style:
-    map = collections.defaultdict(lambda : NULL)
+    map = collections.defaultdict(lambda: NULL)
 
     def __init__(self, style, dpi):
         self.fdpi = dpi/720
@@ -118,7 +124,7 @@ class Style:
 
 class TextStyle(Style):
 
-    map = collections.defaultdict(lambda : NULL,
+    map = collections.defaultdict(lambda: NULL,
         fontsize=operator.mul,
         fontwidth=operator.mul,
         fontweight=WEIGHT,
@@ -150,7 +156,7 @@ class TextStyle(Style):
 
 
 class BlockStyle(Style):
-    map = collections.defaultdict(lambda : NULL,
+    map = collections.defaultdict(lambda: NULL,
         bgcolor=COLOR,
         framecolor=COLOR,
         )
@@ -172,11 +178,11 @@ class TextBlock:
 
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
     XML_ENTITIES = {
-            "apos" : "'",
-            "quot" : '"',
-            "amp" : "&",
-            "lt" : "<",
-            "gt" : ">"
+            'apos': "'",
+            'quot': '"',
+            'amp' : '&',
+            'lt'  : '<',
+            'gt'  : '>'
     }
 
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger,

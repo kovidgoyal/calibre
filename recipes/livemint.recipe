@@ -42,7 +42,7 @@ class LiveMint(BasicNewsRecipe):
             if 'MINT_FRONT_1' in x['src']:
                 return 'https://epaper.livemint.com' + x['src'].replace('-S', '')
 
-    extra_css = """
+    extra_css = '''
         img {margin:0 auto;}
         .psTopLogoItem img, .ecologoStory { width:100; }
         #img-cap {font-size:small; text-align:center;}
@@ -51,7 +51,7 @@ class LiveMint(BasicNewsRecipe):
         }
         em, blockquote {color:#202020;}
         .moreAbout, .articleInfo, .metaData, .psTopicsHeading, .topicsTag, .auth {font-size:small;}
-    """
+    '''
 
     keep_only_tags = [
         dict(

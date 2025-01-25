@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 index = 'https://www.globaltimes.cn/'
 
+
 class GlobalTimes(BasicNewsRecipe):
     title = 'Global Times'
     __author__ = 'unkn0wn'
@@ -19,7 +20,7 @@ class GlobalTimes(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_empty_feeds = True
     resolve_internal_links = True
-    oldest_article = 1 # days
+    oldest_article = 1  # days
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://en.kiosko.net/cn/np/cn_global_times.html')

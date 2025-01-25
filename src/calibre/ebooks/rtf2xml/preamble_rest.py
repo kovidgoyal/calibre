@@ -19,12 +19,12 @@ from . import open_for_read, open_for_write
 
 
 class Preamble:
-    """
+    '''
     Fix the reamaing parts of the preamble. This module does very little. It
     makes sure that no text gets put in the revision of list table. In the
     future, when I understand how to interpret the revision table and list
     table, I will make these methods more functional.
-    """
+    '''
 
     def __init__(self, file,
                 bug_handler,
@@ -34,7 +34,7 @@ class Preamble:
                 copy=None,
                 temp_dir=None,
                 ):
-        """
+        '''
         Required:
             file--file to parse
             platform --Windows or Macintosh
@@ -46,7 +46,7 @@ class Preamble:
             directory from which the script is run.)
         Returns:
             nothing
-            """
+        '''
         self.__file=file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -54,27 +54,27 @@ class Preamble:
         self.__code_page = code_page
         self.__platform = platform
         if temp_dir:
-            self.__write_to = os.path.join(temp_dir,"info_table_info.data")
+            self.__write_to = os.path.join(temp_dir,'info_table_info.data')
         else:
-            self.__write_to = "info_table_info.data"
+            self.__write_to = 'info_table_info.data'
 
     def __initiate_values(self):
-        """
+        '''
         Initiate all values.
-        """
+        '''
         self.__state = 'default'
         self.__text_string = ''
         self.__state_dict = {
         'default'   : self.__default_func,
         'revision'  : self.__revision_table_func,
-        'list_table'  : self.__list_table_func,
-        'body'        : self.__body_func,
+        'list_table': self.__list_table_func,
+        'body'      : self.__body_func,
         }
         self.__default_dict = {
-        'mi<mk<rtfhed-beg'      : self.__found_rtf_head_func,
-        'mi<mk<listabbeg_'      : self.__found_list_table_func,
-        'mi<mk<revtbl-beg'      : self.__found_revision_table_func,
-        'mi<mk<body-open_'      : self.__found_body_func,
+        'mi<mk<rtfhed-beg'  : self.__found_rtf_head_func,
+        'mi<mk<listabbeg_'  : self.__found_list_table_func,
+        'mi<mk<revtbl-beg'  : self.__found_revision_table_func,
+        'mi<mk<body-open_'  : self.__found_body_func,
         }
 
     def __default_func(self, line):
@@ -85,7 +85,7 @@ class Preamble:
             self.__write_obj.write(line)
 
     def __found_rtf_head_func(self, line):
-        """
+        '''
         Requires:
             line -- the line to parse
         Returns:
@@ -93,7 +93,7 @@ class Preamble:
         Logic:
             Write to the output file the default font info, the code page
             info, and the platform info.
-        """
+        '''
         self.__write_obj.write(
             'mi<tg<empty-att_<rtf-definition'
             '<default-font>%s<code-page>%s'
@@ -131,7 +131,7 @@ class Preamble:
         self.__write_obj.write(line)
 
     def fix_preamble(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -140,7 +140,7 @@ class Preamble:
             Read one line in at a time. Determine what action to take based on
             the state. The state can either be default, the revision table, or
             the list table.
-        """
+        '''
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
@@ -153,6 +153,6 @@ class Preamble:
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
-            copy_obj.copy_file(self.__write_to, "preamble_div.data")
+            copy_obj.copy_file(self.__write_to, 'preamble_div.data')
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

@@ -11,7 +11,6 @@ class DesiringGodEnglish(BasicNewsRecipe):
 
     cover_url = 'http://cdn0.desiringgod.org/images/layout/breadcrumbs_dg_mark.png'
     masthead_url = 'http://cdn0.desiringgod.org/images/layout/breadcrumbs_dg_mark.png'
-    language = 'en'
     oldest_article = 7
     max_articles_per_feed = 50
     auto_cleanup = True

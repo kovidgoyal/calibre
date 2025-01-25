@@ -61,9 +61,9 @@ from . import open_for_read
 
 
 class DefaultEncoding:
-    """
+    '''
     Find the default encoding for the doc
-    """
+    '''
 
     # Note: not all those encoding are really supported by rtf2xml
     # See http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx

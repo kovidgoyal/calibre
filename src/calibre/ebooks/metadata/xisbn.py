@@ -13,7 +13,6 @@ from calibre import browser
 
 
 class xISBN:
-
     '''
     This class is used to find the ISBN numbers of "related" editions of a
     book, given its ISBN. Useful when querying services for metadata by ISBN,

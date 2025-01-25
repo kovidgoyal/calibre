@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Dzieje(BasicNewsRecipe):
     title = u'dzieje.pl'
     __author__ = 'fenuks'
-    description = 'Dzieje.pl - najlepszy portal informacyjno-edukacyjny dotyczący historii Polski XX wieku. Archiwalne fotografie, filmy, katalog postaci, quizy i konkursy.'  # noqa
+    description = 'Dzieje.pl - najlepszy portal informacyjno-edukacyjny dotyczący historii Polski XX wieku. Archiwalne fotografie, filmy, katalog postaci, quizy i konkursy.'  # noqa: E501
     cover_url = 'http://www.dzieje.pl/sites/default/files/dzieje_logo.png'
     category = 'history'
     language = 'pl'
@@ -31,7 +31,7 @@ class Dzieje(BasicNewsRecipe):
                 soup2 = self.index_to_soup(url)
                 pagetext = soup2.find(
                     id='content-area').find(attrs={'class': 'content'})
-                for r in pagetext.findAll(attrs={'class': ['fieldgroup group-groupkul', 'fieldgroup group-zdjeciekult', 'fieldgroup group-zdjecieciekaw', 'fieldgroup group-zdjecieksiazka', 'fieldgroup group-zdjeciedu', 'field field-type-filefield field-field-zdjecieglownawyd']}):  # noqa
+                for r in pagetext.findAll(attrs={'class': ['fieldgroup group-groupkul', 'fieldgroup group-zdjeciekult', 'fieldgroup group-zdjecieciekaw', 'fieldgroup group-zdjecieksiazka', 'fieldgroup group-zdjeciedu', 'field field-type-filefield field-field-zdjecieglownawyd']}):  # noqa: E501
                     r.extract()
                 comments = pagetext.findAll(
                     text=lambda text: isinstance(text, Comment))
@@ -63,20 +63,20 @@ class Dzieje(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        feeds.append((u"Wiadomości", self.find_articles(
+        feeds.append((u'Wiadomości', self.find_articles(
             'http://dzieje.pl/wiadomosci')))
-        feeds.append((u"Kultura i sztuka", self.find_articles(
+        feeds.append((u'Kultura i sztuka', self.find_articles(
             'http://dzieje.pl/kulturaisztuka')))
-        feeds.append((u"Film", self.find_articles('http://dzieje.pl/kino')))
-        feeds.append((u"Rozmaitości historyczne",
+        feeds.append((u'Film', self.find_articles('http://dzieje.pl/kino')))
+        feeds.append((u'Rozmaitości historyczne',
                       self.find_articles('http://dzieje.pl/rozmaitości')))
         feeds.append(
-            (u"Książka", self.find_articles('http://dzieje.pl/ksiazka')))
+            (u'Książka', self.find_articles('http://dzieje.pl/ksiazka')))
         feeds.append(
-            (u"Wystawa", self.find_articles('http://dzieje.pl/wystawa')))
-        feeds.append((u"Edukacja", self.find_articles(
+            (u'Wystawa', self.find_articles('http://dzieje.pl/wystawa')))
+        feeds.append((u'Edukacja', self.find_articles(
             'http://dzieje.pl/edukacja')))
-        feeds.append((u"Dzieje się", self.find_articles(
+        feeds.append((u'Dzieje się', self.find_articles(
             'http://dzieje.pl/wydarzenia')))
         return feeds
 

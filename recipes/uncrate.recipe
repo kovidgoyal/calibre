@@ -20,7 +20,7 @@ def new_tag(soup, name, attrs=()):
 class Uncrate(BasicNewsRecipe):
     title = 'Uncrate'
     __author__ = 'Darko Miletic'
-    description = 'Uncrate is a web magazine for guys who love stuff. Our team digs up the best gadgets, clothes, cars, DVDs and more. New items are posted daily. Enjoy responsively.'  # noqa
+    description = 'Uncrate is a web magazine for guys who love stuff. Our team digs up the best gadgets, clothes, cars, DVDs and more. New items are posted daily. Enjoy responsively.'  # noqa: E501
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -55,9 +55,9 @@ class Uncrate(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         mlang = new_tag(soup, 'meta', [
-                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
         mcharset = new_tag(soup, 'meta', [
-                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
+                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll(style=True):

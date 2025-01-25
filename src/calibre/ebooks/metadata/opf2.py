@@ -529,9 +529,9 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
     for name, fm in all_user_metadata.items():
         try:
             fm = copy.copy(fm)
-            if (fm.get('datatype', 'text') == 'composite' and
-                not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
-                    fm['#value#'] = ''
+            if (fm.get('datatype', 'text') == 'composite'
+              and not fm.get('display', {}).get('composite_store_template_value_in_opf', True)):
+                fm['#value#'] = ''
             encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
@@ -566,9 +566,10 @@ def dump_dict(cats):
     return json.dumps(object_to_unicode(cats), ensure_ascii=False,
             skipkeys=True)
 
+
 XPATH_NS = {
-    'dc': "http://purl.org/dc/elements/1.1/",
-    'opf': "http://www.idpf.org/2007/opf",
+    'dc' : 'http://purl.org/dc/elements/1.1/',
+    'opf': 'http://www.idpf.org/2007/opf',
     're' : 'http://exslt.org/regular-expressions'
 }
 XPath = functools.partial(etree.XPath, namespaces=XPATH_NS)
@@ -578,9 +579,9 @@ class OPF:  # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
     NAMESPACES       = {
-                        None: "http://www.idpf.org/2007/opf",
-                        'dc': "http://purl.org/dc/elements/1.1/",
-                        'opf': "http://www.idpf.org/2007/opf",
+                        None: 'http://www.idpf.org/2007/opf',
+                        'dc': 'http://purl.org/dc/elements/1.1/',
+                        'opf': 'http://www.idpf.org/2007/opf',
                        }
     META             = '{%s}meta' % NAMESPACES['opf']
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
@@ -842,7 +843,7 @@ class OPF:  # {{{
     def create_guide_element(self):
         e = etree.SubElement(self.root, '{%s}guide'%self.NAMESPACES['opf'])
         e.text = '\n        '
-        e.tail =  '\n'
+        e.tail = '\n'
         return e
 
     def remove_guide(self):
@@ -1432,9 +1433,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
         '''
-        entries = list(map(lambda x: x if os.path.isabs(x[0]) else
-                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
-                      entries))
+        entries = [x if os.path.isabs(x[0]) else
+                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]) for x in entries]
         self.manifest = Manifest.from_paths(entries)
         self.manifest.set_basedir(self.base_path)
 
@@ -1464,8 +1464,8 @@ class OPFCreator(Metadata):
 
         `entries`: List of paths
         '''
-        entries = list(map(lambda x: x if os.path.isabs(x) else
-                      os.path.abspath(os.path.join(self.base_path, x)), entries))
+        entries = [x if os.path.isabs(x) else
+                      os.path.abspath(os.path.join(self.base_path, x)) for x in entries]
         self.spine = Spine.from_paths(entries, self.manifest)
 
     def set_toc(self, toc):
@@ -1645,8 +1645,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         mi.uuid = str(uuid.uuid4())
 
     if not mi.book_producer:
-        mi.book_producer = __appname__ + ' (%s) '%__version__ + \
-            '[https://calibre-ebook.com]'
+        mi.book_producer = __appname__ + ' (%s) '%__version__ + '[https://calibre-ebook.com]'
 
     if not mi.languages:
         lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
@@ -1841,7 +1840,7 @@ def suite():
 
         def testWriting(self):
             for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
-                        ('author_sort', "Kitchen"), ('tags', ['Three']),
+                        ('author_sort', 'Kitchen'), ('tags', ['Three']),
                         ('isbn', 'a'), ('rating', 3), ('series_index', 1),
                         ('title_sort', 'ts')]:
                 setattr(self.opf, *test)

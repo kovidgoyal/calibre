@@ -514,9 +514,9 @@ def set_note(ctx, rd, field, item_id, library_id):
         db_replacements[key] = f'{RESOURCE_URL_SCHEME}://{scheme}/{digest}'
     db_html = srv_html = html
     if db_replacements:
-        db_html = re.sub('|'.join(map(re.escape, db_replacements)), lambda m: db_replacements[m.group()], html)
+        db_html = re.sub(r'|'.join(map(re.escape, db_replacements)), lambda m: db_replacements[m.group()], html)
     if srv_replacements:
-        srv_html = re.sub('|'.join(map(re.escape, srv_replacements)), lambda m: srv_replacements[m.group()], html)
+        srv_html = re.sub(r'|'.join(map(re.escape, srv_replacements)), lambda m: srv_replacements[m.group()], html)
     db.set_notes_for(field, item_id, db_html, searchable_text, resources)
     rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
     return srv_html
@@ -527,7 +527,6 @@ def data_file(rd, fname, path, stat_result):
     rd.outheaders['Content-Disposition'] = '''{}; filename="{}"; filename*=utf-8''{}'''.format(
         cd, fname_for_content_disposition(fname), fname_for_content_disposition(fname, as_encoded_unicode=True))
     return rd.filesystem_file_with_custom_etag(share_open(path, 'rb'), stat_result.st_dev, stat_result.st_ino, stat_result.st_size, stat_result.st_mtime)
-
 
 
 @endpoint('/data-files/get/{book_id}/{relpath}/{library_id=None}', types={'book_id': int})

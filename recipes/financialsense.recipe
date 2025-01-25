@@ -22,12 +22,12 @@ class FinancialSense(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.financialsense.com/sites/default/files/logo.jpg'
-    extra_css             = """
+    extra_css             = '''
                                body{font-family: Arial,"Helvetica Neue",Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                                h2{color: gray}
                                .name{margin-right: 5em}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

@@ -49,8 +49,8 @@ class LRFDocument(LRFMetaFile):
     def _parse_objects(self):
         self.objects = {}
         self._file.seek(self.object_index_offset)
-        obj_array = array.array("I", self._file.read(4*4*self.number_of_objects))
-        if ord(array.array("i",[1]).tobytes()[0:1])==0:  # big-endian
+        obj_array = array.array('I', self._file.read(4*4*self.number_of_objects))
+        if ord(array.array('i',[1]).tobytes()[0:1])==0:  # big-endian
             obj_array.byteswap()
         for i in range(self.number_of_objects):
             if not self.keep_parsing:
@@ -163,7 +163,7 @@ def main(args=sys.argv, logger=None):
         parser.print_help()
         return 1
     if opts.out is None:
-        opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+".lrs")
+        opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+'.lrs')
     logger.info(_('Parsing LRF...'))
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()

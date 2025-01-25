@@ -3,11 +3,11 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-"""
+'''
 Provides a command-line interface to ebook devices.
 
 For usage information run the script.
-"""
+'''
 
 import os
 import sys
@@ -37,14 +37,14 @@ class FileFormatter:
 
     @property
     def mode_string(self):
-        """ The mode string for this file. There are only two modes read-only and read-write """
-        mode, x = "-", "-"
+        ''' The mode string for this file. There are only two modes read-only and read-write '''
+        mode, x = '-', '-'
         if self.is_dir:
-            mode, x = "d", "x"
+            mode, x = 'd', 'x'
         if self.is_readonly:
-            mode += "r-"+x+"r-"+x+"r-"+x
+            mode += 'r-'+x+'r-'+x+'r-'+x
         else:
-            mode += "rw"+x+"rw"+x+"rw"+x
+            mode += 'rw'+x+'rw'+x+'rw'+x
         return mode
 
     @property
@@ -57,41 +57,41 @@ class FileFormatter:
 
     @property
     def name_in_color(self):
-        """ The name in ANSI text. Directories are blue, ebooks are green """
+        ''' The name in ANSI text. Directories are blue, ebooks are green '''
         cname = self.name
-        blue, green, normal = "", "", ""
+        blue, green, normal = '', '', ''
         if self.term:
             blue, green, normal = self.term.BLUE, self.term.GREEN, self.term.NORMAL
         if self.is_dir:
             cname = blue + self.name + normal
         else:
-            ext = self.name[self.name.rfind("."):]
-            if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"):
+            ext = self.name[self.name.rfind('.'):]
+            if ext in ('.pdf', '.rtf', '.lrf', '.lrx', '.txt'):
                 cname = green + self.name + normal
         return cname
 
     @property
     def human_readable_size(self):
-        """ File size in human readable form """
+        ''' File size in human readable form '''
         return human_readable(self.size)
 
     @property
     def modification_time(self):
-        """ Last modified time in the Linux ls -l format """
-        return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
+        ''' Last modified time in the Linux ls -l format '''
+        return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.wtime))
 
     @property
     def creation_time(self):
-        """ Last modified time in the Linux ls -l format """
-        return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
+        ''' Last modified time in the Linux ls -l format '''
+        return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.ctime))
 
 
 def info(dev):
     info = dev.get_device_information()
-    print("Device name:     ", info[0])
-    print("Device version:  ", info[1])
-    print("Software version:", info[2])
-    print("Mime type:       ", info[3])
+    print('Device name:     ', info[0])
+    print('Device version:  ', info[1])
+    print('Software version:', info[2])
+    print('Mime type:       ', info[3])
 
 
 def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
@@ -115,12 +115,12 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
         return rowwidths
 
     output = PolyglotStringIO()
-    if path.endswith("/") and len(path) > 1:
+    if path.endswith('/') and len(path) > 1:
         path = path[:-1]
     dirs = dev.list(path, recurse)
     for dir in dirs:
         if recurse:
-            prints(dir[0] + ":", file=output)
+            prints(dir[0] + ':', file=output)
         lsoutput, lscoloutput = [], []
         files = dir[1]
         maxlen = 0
@@ -141,7 +141,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 size = str(file.size)
                 if human_readable_size:
                     size = file.human_readable_size
-                prints(file.mode_string, ("%"+str(maxlen)+"s")%size, file.modification_time, name, file=output)
+                prints(file.mode_string, ('%'+str(maxlen)+'s')%size, file.modification_time, name, file=output)
         if not ll and len(lsoutput) > 0:
             trytable = []
             for colwidth in range(MINIMUM_COL_WIDTH, cols):
@@ -163,10 +163,10 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
             for r in range(len(trytable)):
                 for c in range(len(trytable[r])):
                     padding = rowwidths[c] - len(trytable[r][c])
-                    prints(trytablecol[r][c], "".ljust(padding), end=' ', file=output)
+                    prints(trytablecol[r][c], ''.ljust(padding), end=' ', file=output)
                 prints(file=output)
         prints(file=output)
-    listing = output.getvalue().rstrip() + "\n"
+    listing = output.getvalue().rstrip() + '\n'
     output.close()
     return listing
 
@@ -183,13 +183,13 @@ def main():
     from calibre.utils.terminal import geometry
     cols = geometry()[0]
 
-    parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand "+
-            "is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject, test_file\n\n"+
-    "For help on a particular command: %prog command", version=__appname__+" version: " + __version__)
-    parser.add_option("--log-packets", help="print out packet stream to stdout. "+
-                    "The numbers in the left column are byte offsets that allow the packet size to be read off easily.",
-    dest="log_packets", action="store_true", default=False)
-    parser.remove_option("-h")
+    parser = OptionParser(usage='usage: %prog [options] command args\n\ncommand '+
+            'is one of: info, books, df, ls, cp, mkdir, touch, cat, rm, eject, test_file\n\n'+
+    'For help on a particular command: %prog command', version=__appname__+' version: ' + __version__)
+    parser.add_option('--log-packets', help='print out packet stream to stdout. '+
+                    'The numbers in the left column are byte offsets that allow the packet size to be read off easily.',
+    dest='log_packets', action='store_true', default=False)
+    parser.remove_option('-h')
     parser.disable_interspersed_args()  # Allow unrecognized options
     options, args = parser.parse_args()
 
@@ -238,55 +238,55 @@ def main():
             break
 
     try:
-        if command == "df":
+        if command == 'df':
             total = dev.total_space(end_session=False)
             free = dev.free_space()
-            where = ("Memory", "Card A", "Card B")
-            print("Filesystem\tSize \tUsed \tAvail \tUse%")
+            where = ('Memory', 'Card A', 'Card B')
+            print('Filesystem\tSize \tUsed \tAvail \tUse%')
             for i in range(3):
-                print("%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
-                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%"))
+                print('%-10s\t%s\t%s\t%s\t%s'%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),
+                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+'%'))
         elif command == 'eject':
             dev.eject()
-        elif command == "books":
-            print("Books in main memory:")
+        elif command == 'books':
+            print('Books in main memory:')
             for book in dev.books():
                 print(book)
-            print("\nBooks on storage carda:")
+            print('\nBooks on storage carda:')
             for book in dev.books(oncard='carda'):
                 print(book)
-            print("\nBooks on storage cardb:")
+            print('\nBooks on storage cardb:')
             for book in dev.books(oncard='cardb'):
                 print(book)
-        elif command == "mkdir":
-            parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a folder on the device\n\npath must begin with / or card:/")
+        elif command == 'mkdir':
+            parser = OptionParser(usage='usage: %prog mkdir [options] path\nCreate a folder on the device\n\npath must begin with / or card:/')
             if len(args) != 1:
                 parser.print_help()
                 sys.exit(1)
             dev.mkdir(args[0])
-        elif command == "ls":
-            parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/")
+        elif command == 'ls':
+            parser = OptionParser(usage='usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/')
             parser.add_option(
-                "-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.",  # noqa
-                dest="ll", action="store_true", default=False)
-            parser.add_option("-R", help="Recursively list subfolders encountered. /dev and /proc are omitted",
-                              dest="recurse", action="store_true", default=False)
-            parser.remove_option("-h")
-            parser.add_option("-h", "--human-readable", help="show sizes in human readable format", dest="hrs", action="store_true", default=False)
+                '-l', help='In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.',  # noqa: E501
+                dest='ll', action='store_true', default=False)
+            parser.add_option('-R', help='Recursively list subfolders encountered. /dev and /proc are omitted',
+                              dest='recurse', action='store_true', default=False)
+            parser.remove_option('-h')
+            parser.add_option('-h', '--human-readable', help='show sizes in human readable format', dest='hrs', action='store_true', default=False)
             options, args = parser.parse_args(args)
             if len(args) != 1:
                 parser.print_help()
                 return 1
             print(ls(dev, args[0], recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols), end=' ')
-        elif command == "info":
+        elif command == 'info':
             info(dev)
-        elif command == "cp":
-            usage="usage: %prog cp [options] source destination\nCopy files to/from the device\n\n"+\
-            "One of source or destination must be a path on the device. \n\nDevice paths have the form\n"+\
-            "dev:mountpoint/my/path\n"+\
-            "where mountpoint is one of / or carda: or cardb:/\n\n"+\
-            "source must point to a file for which you have read permissions\n"+\
-            "destination must point to a file or folder for which you have write permissions"
+        elif command == 'cp':
+            usage=('usage: %prog cp [options] source destination\nCopy files to/from the device\n\n'
+                   'One of source or destination must be a path on the device. \n\nDevice paths have the form\n'
+                   'dev:mountpoint/my/path\n'
+                   'where mountpoint is one of / or carda: or cardb:/\n\n'
+                   'source must point to a file for which you have read permissions\n'
+                   'destination must point to a file or folder for which you have write permissions')
             parser = OptionParser(usage=usage)
             parser.add_option('-f', '--force', dest='force', action='store_true', default=False,
                               help='Overwrite the destination file if it exists already.')
@@ -294,15 +294,15 @@ def main():
             if len(args) != 2:
                 parser.print_help()
                 return 1
-            if args[0].startswith("dev:"):
+            if args[0].startswith('dev:'):
                 outfile = args[1]
                 path = args[0][4:]
-                if path.endswith("/"):
+                if path.endswith('/'):
                     path = path[:-1]
                 if os.path.isdir(outfile):
-                    outfile = os.path.join(outfile, path[path.rfind("/")+1:])
+                    outfile = os.path.join(outfile, path[path.rfind('/')+1:])
                 try:
-                    outfile = open(outfile, "wb")
+                    outfile = open(outfile, 'wb')
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -310,9 +310,9 @@ def main():
                 dev.get_file(path, outfile)
                 fsync(outfile)
                 outfile.close()
-            elif args[1].startswith("dev:"):
+            elif args[1].startswith('dev:'):
                 try:
-                    infile = open(args[0], "rb")
+                    infile = open(args[0], 'rb')
                 except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
@@ -322,31 +322,31 @@ def main():
             else:
                 parser.print_help()
                 return 1
-        elif command == "cat":
+        elif command == 'cat':
             outfile = sys.stdout
             parser = OptionParser(
-                usage="usage: %prog cat path\nShow file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
+                usage='usage: %prog cat path\nShow file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/')
             options, args = parser.parse_args(args)
             if len(args) != 1:
                 parser.print_help()
                 return 1
-            if args[0].endswith("/"):
+            if args[0].endswith('/'):
                 path = args[0][:-1]
             else:
                 path = args[0]
             outfile = sys.stdout
             dev.get_file(path, outfile)
-        elif command == "rm":
-            parser = OptionParser(usage="usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty folder on the device "+
-                                  "and must begin with / or card:/\n\n"+
-                                  "rm will DELETE the file. Be very CAREFUL")
+        elif command == 'rm':
+            parser = OptionParser(usage='usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty folder on the device '+
+                                  'and must begin with / or card:/\n\n'+
+                                  'rm will DELETE the file. Be very CAREFUL')
             options, args = parser.parse_args(args)
             if len(args) != 1:
                 parser.print_help()
                 return 1
             dev.rm(args[0])
-        elif command == "touch":
-            parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+  # noqa
+        elif command == 'touch':
+            parser = OptionParser(usage='usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n'+  # noqa: E501
             "Unfortunately, I can't figure out how to update file times on the device, so if path already exists, touch does nothing")
             options, args = parser.parse_args(args)
             if len(args) != 1:
@@ -354,7 +354,7 @@ def main():
                 return 1
             dev.touch(args[0])
         elif command == 'test_file':
-            parser = OptionParser(usage=("usage: %prog test_file path\n"
+            parser = OptionParser(usage=('usage: %prog test_file path\n'
                 'Open device, copy file specified by path to device and '
                 'then eject device.'))
             options, args = parser.parse_args(args)
@@ -373,7 +373,7 @@ def main():
                 dev.close()
             return 1
     except DeviceLocked:
-        print("The device is locked. Use the --unlock option", file=sys.stderr)
+        print('The device is locked. Use the --unlock option', file=sys.stderr)
     except (ArgumentError, DeviceError) as e:
         print(e, file=sys.stderr)
         return 1

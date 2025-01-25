@@ -13,10 +13,10 @@ from ctypes import windll, wintypes
 
 class GUID(ctypes.Structure):
     _fields_ = [
-        ("data1", wintypes.DWORD),
-        ("data2", wintypes.WORD),
-        ("data3", wintypes.WORD),
-        ("data4", wintypes.BYTE * 8)]
+        ('data1', wintypes.DWORD),
+        ('data2', wintypes.WORD),
+        ('data3', wintypes.WORD),
+        ('data4', wintypes.BYTE * 8)]
 
     def __init__(self, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8):
         self.data1 = l

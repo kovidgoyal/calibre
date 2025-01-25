@@ -11,7 +11,6 @@ from calibre.customize import Plugin
 
 
 class ConversionOption:
-
     '''
     Class representing conversion options
     '''
@@ -127,7 +126,6 @@ def gui_configuration_widget(name, parent, get_option_by_name,
 
 
 class InputFormatPlugin(Plugin):
-
     '''
     InputFormatPlugins are responsible for converting a document into
     HTML+OPF+CSS+etc.
@@ -275,7 +273,6 @@ class InputFormatPlugin(Plugin):
 
 
 class OutputFormatPlugin(Plugin):
-
     '''
     OutputFormatPlugins are responsible for converting an OEB document
     (OPF+HTML) into an output e-book.

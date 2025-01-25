@@ -24,7 +24,7 @@ class GitVersion(Command):
             nv = nv.replace('-', '.')
         except subprocess.CalledProcessError:
             raise SystemExit('Error: not a git checkout')
-        newsrc = re.sub(r'(git_version   = ).*', r'\1%s' % repr(nv), src)
+        newsrc = re.sub(r'(git_version   = ).*', rf'\1{nv!r}', src)
         self.info('new version is:', nv)
 
         with open(constants_file, 'wb') as f:

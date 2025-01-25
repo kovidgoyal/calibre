@@ -1,51 +1,51 @@
 # -*- mode: python; coding: utf-8; -*-
 # vim: set syntax=python fileencoding=utf-8
 
-__license__ = "GPL v3"
-__copyright__ = "2023, Tomás Di Domenico <tdido at tdido.eu>"
+__license__ = 'GPL v3'
+__copyright__ = '2023, Tomás Di Domenico <tdido at tdido.eu>'
 
-"""
+'''
 www.eldiplo.org
-"""
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElDiplo2023(BasicNewsRecipe):
-    title = "Le Monde Diplomatique - cono sur"
-    __author__ = "Tomás Di Domenico"
-    description = "Publicación de Le Monde Diplomatique para el cono sur."
-    publisher = "Capital Intelectual"
-    category = "News, Politics, Argentina, Uruguay, Paraguay, South America, World"
+    title = 'Le Monde Diplomatique - cono sur'
+    __author__ = 'Tomás Di Domenico'
+    description = 'Publicación de Le Monde Diplomatique para el cono sur.'
+    publisher = 'Capital Intelectual'
+    category = 'News, Politics, Argentina, Uruguay, Paraguay, South America, World'
     oldest_article = 31
     no_stylesheets = True
-    encoding = "utf8"
+    encoding = 'utf8'
     use_embedded_content = False
-    language = "es_AR"
+    language = 'es_AR'
     remove_empty_feeds = True
-    publication_type = "magazine"
+    publication_type = 'magazine'
     delay = 1
     simultaneous_downloads = 1
     timeout = 8
     needs_subscription = True
-    ignore_duplicate_articles = {"url"}
+    ignore_duplicate_articles = {'url'}
     temp_files = []
     fetch_retries = 10
     handle_gzip = True
     compress_news_images = True
     scale_news_images_to_device = True
     masthead_url = (
-        "https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png"
+        'https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png'
     )
-    INDEX = "https://www.eldiplo.org/"
+    INDEX = 'https://www.eldiplo.org/'
 
-    conversion_options = {"series": "El Dipló", "publisher": publisher, "base_font_size": 8, "tags": category}
+    conversion_options = {'series': 'El Dipló', 'publisher': publisher, 'base_font_size': 8, 'tags': category}
 
-    keep_only_tags = [dict(name=["article"])]
+    keep_only_tags = [dict(name=['article'])]
 
-    remove_tags = [dict(name=["button"])]
+    remove_tags = [dict(name=['button'])]
 
-    extra_css = """
+    extra_css = '''
         .entry-title {
             text-align: center;
         }
@@ -67,59 +67,59 @@ class ElDiplo2023(BasicNewsRecipe):
             padding-left: 10%;
             padding-right: 10%;
         }
-    """
+    '''
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            br.select_form(id="loginform")
-            br["log"] = self.username
-            br["pwd"] = self.password
+            br.select_form(id='loginform')
+            br['log'] = self.username
+            br['pwd'] = self.password
             br.submit()
         return br
 
     def get_cover_url(self):
         soup_index = self.index_to_soup(self.INDEX)
-        tag_sumario = soup_index.find("span", text="Sumario")
-        url_sumario = "https://www.eldiplo.org" + tag_sumario.parent["href"]
+        tag_sumario = soup_index.find('span', text='Sumario')
+        url_sumario = 'https://www.eldiplo.org' + tag_sumario.parent['href']
 
         soup = self.index_to_soup(url_sumario)
 
-        container = soup.find("div", class_="px-16")
-        url = container.find("img")["src"]
+        container = soup.find('div', class_='px-16')
+        url = container.find('img')['src']
 
-        return getattr(self, "cover_url", url)
+        return getattr(self, 'cover_url', url)
 
     def _process_article(self, article):
-        url = article.find("a", href=True, attrs={"class": "title"})["href"]
-        title = self.tag_to_string(article).replace("Editorial", "Editorial: ")
+        url = article.find('a', href=True, attrs={'class': 'title'})['href']
+        title = self.tag_to_string(article).replace('Editorial', 'Editorial: ')
         try:
-            title, authors = title.split(", por")
-            authors = f"por {authors}"
+            title, authors = title.split(', por')
+            authors = f'por {authors}'
         except ValueError:
-            authors = ""
-        self.log("title: ", title, " url: ", url)
-        return {"title": title, "url": url, "description": authors, "date": ""}
+            authors = ''
+        self.log('title: ', title, ' url: ', url)
+        return {'title': title, 'url': url, 'description': authors, 'date': ''}
 
     def preprocess_html(self, soup):
-        font_size = "90%"
+        font_size = '90%'
 
         # make the footnotes smaller
-        for p in soup.find("div", id="nota_pie").findChildren("p", recursive=False):
-            p["style"] = f"font-size: {font_size};"
+        for p in soup.find('div', id='nota_pie').findChildren('p', recursive=False):
+            p['style'] = f'font-size: {font_size};'
 
         return soup
 
     def parse_index(self):
         soup_index = self.index_to_soup(self.INDEX)
 
-        tag_sumario = soup_index.find("span", text="Sumario")
+        tag_sumario = soup_index.find('span', text='Sumario')
 
         if tag_sumario is None:
             return None
 
-        url_sumario = "https://www.eldiplo.org" + tag_sumario.parent["href"]
+        url_sumario = 'https://www.eldiplo.org' + tag_sumario.parent['href']
         self.log(url_sumario)
 
         soup_sumario = self.index_to_soup(url_sumario)
@@ -128,20 +128,20 @@ class ElDiplo2023(BasicNewsRecipe):
         articles = []
         dossiers = []
 
-        sumario = soup_sumario.find("div", class_="sumario")
+        sumario = soup_sumario.find('div', class_='sumario')
 
-        for section in sumario.find_all("div", recursive=False):
-            classes = section.attrs["class"]
+        for section in sumario.find_all('div', recursive=False):
+            classes = section.attrs['class']
 
-            if "dossier" in classes:
-                dtitle = self.tag_to_string(section.find("h3"))
+            if 'dossier' in classes:
+                dtitle = self.tag_to_string(section.find('h3'))
                 darticles = []
-                for article in section.find_all("div", recursive=False):
+                for article in section.find_all('div', recursive=False):
                     darticles.append(self._process_article(article))
                 dossiers.append((dtitle, darticles))
             else:
                 articles.append(self._process_article(section))
-        feeds.append(("Artículos", articles))
+        feeds.append(('Artículos', articles))
         feeds += dossiers
 
         return feeds

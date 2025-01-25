@@ -19,7 +19,7 @@ def absurl(x):
     if x.startswith('//'):
         x = 'http:' + x
     elif not x.startswith('http'):
-        x = "http://www.technologyreview.com" + x
+        x = 'http://www.technologyreview.com' + x
     return x
 
 
@@ -58,8 +58,8 @@ class MitTechnologyReview(BasicNewsRecipe):
         prefixed_classes('contentHeader contentArticleHeader contentBody')
     ]
     remove_tags = [
-        dict(name="aside"),
-        dict(name="svg"),
+        dict(name='aside'),
+        dict(name='svg'),
         prefixed_classes(
             'image__placeholder sliderAd__wrapper eyebrow__wrap-- screen-reader-text'
         ),
@@ -83,7 +83,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         if script := soup.find('script', id='preload'):
             raw = script.contents[0]
             m = re.search(r'\"children\":\[{\"name\":\"magazine-hero\"', raw)
-            spl = re.split(r"(?=\{)", raw[m.start():], 1)[1]
+            spl = re.split(r'(?=\{)', raw[m.start():], 1)[1]
             data = json.JSONDecoder().raw_decode(spl)[0]
             self.cover_url = data['children'][0]['config']['src'] + '?fit=572,786'
             self.timefmt = ' [' + data['config']['issueDate'] + ']'
@@ -94,7 +94,7 @@ class MitTechnologyReview(BasicNewsRecipe):
         feeds = OrderedDict()
 
         classNamePrefixes = [
-            "magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"
+            'magazineHero__letter--', 'teaserItem__title', 'teaserItem--aside__title'
         ]
         for div in soup.findAll(
             attrs={
@@ -151,7 +151,7 @@ class MitTechnologyReview(BasicNewsRecipe):
                 if section_title not in feeds:
                     feeds[section_title] = []
                 feeds[section_title] += articles
-        ans = [(key, val) for key, val in feeds.items()]
+        ans = list(feeds.items())
         return ans
 
     def preprocess_html(self, soup):

@@ -8,13 +8,14 @@ def absurl(url):
     if url.startswith('/'):
         return 'https://www.afr.com' + url
 
+
 class afr(BasicNewsRecipe):
     title = 'Australian Financial Review'
     __author__ = 'unkn0wn'
     description = (
         'For more than 65 years The Australian Financial Review has been the authority on business,'
         ' finance and investment news in Australia. It has a reputation for independent, award-winning '
-        'journalism and is essential reading for Australia\'s business and investor community.'
+        "journalism and is essential reading for Australia's business and investor community."
     )
     masthead_url = 'https://www.nineforbrands.com.au/wp-content/uploads/2020/08/AFR-DHOSP-Logo-black-RGB.png'
     encoding = 'utf-8'
@@ -24,7 +25,6 @@ class afr(BasicNewsRecipe):
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 25
     no_stylesheets = True
-    remove_empty_feeds = True
     remove_attributes = ['style', 'height', 'width']
 
     keep_only_tags = [
@@ -39,7 +39,7 @@ class afr(BasicNewsRecipe):
         dict(name=['button', 'aside', 'svg']),
     ]
 
-    remove_tags_after= [ dict(name='aside', attrs={'id':'stickyContainer'})]
+    remove_tags_after= [dict(name='aside', attrs={'id':'stickyContainer'})]
 
     extra_css = '''
         #img-cap {font-size:small; text-align:center;}

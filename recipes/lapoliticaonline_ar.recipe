@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaPoliticaOnline_AR(BasicNewsRecipe):
     title = 'La Politica Online'
     __author__ = 'Darko Miletic'
-    description = "Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
+    description = 'Informacion actualizada las 24 horas, con noticias de Argentina y del mundo'
     publisher = 'La Politica Online SA'
     category = 'news, politics, Argentina'
     oldest_article = 1
@@ -22,13 +22,13 @@ class LaPoliticaOnline_AR(BasicNewsRecipe):
     publication_type = 'newspaper'
     remove_empty_feeds = True
     masthead_url = 'http://www.lapoliticaonline.com/0/img/header/logo.gif'
-    extra_css             = """
+    extra_css             = '''
                                 .title,.vsmcontent{font-family: Georgia,"Times New Roman",Times,serif}
                                 body{font-family: Arial,Helvetica,sans-serif}
                                 .galleryfooter{font-size: small; color: gainsboro;}
                                 img{display: block}
                                 .title{font-size: x-large; font-weight: bold; line-height: 2em;}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language

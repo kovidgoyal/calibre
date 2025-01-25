@@ -2,7 +2,7 @@ import sys
 
 
 class ParseOptions:
-    """
+    '''
         Requires:
            system_string --The string from the command line
            options_dict -- a dictionary with the key equal to the opition, and
@@ -29,29 +29,29 @@ class ParseOptions:
                 print arguments
             The result will be:
                 {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
-        """
+        '''
 
     def __init__(self, system_string, options_dict):
         self.__system_string = system_string[1:]
         long_list  = self.__make_long_list_func(options_dict)
-        # # print long_list
+        # print(long_list)
         short_list = self.__make_short_list_func(options_dict)
-        # # print short_list
+        # print(short_list)
         self.__legal_options = long_list + short_list
-        # # print self.__legal_options
+        # print(self.__legal_options)
         self.__short_long_dict = self.__make_short_long_dict_func(options_dict)
-        # # print self.__short_long_dict
+        # print(self.__short_long_dict)
         self.__opt_with_args = self.__make_options_with_arg_list(options_dict)
-        # # print self.__opt_with_args
+        # print(self.__opt_with_args)
         self.__options_okay = 1
 
     def __make_long_list_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict -- the dictionary mapping options to a list
         Returns:
             a list of legal options
-        """
+        '''
         legal_list = []
         keys = options_dict.keys()
         for key in keys:
@@ -60,12 +60,12 @@ class ParseOptions:
         return legal_list
 
     def __make_short_list_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a list of legal short options
-        """
+        '''
         legal_list = []
         keys = options_dict.keys()
         for key in keys:
@@ -77,14 +77,14 @@ class ParseOptions:
         return legal_list
 
     def __make_short_long_dict_func(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a dictionary with keys of short options and values of long options
         Logic:
             read through the options dictionary and pair short options with long options
-        """
+        '''
         short_long_dict = {}
         keys = options_dict.keys()
         for key in keys:
@@ -98,12 +98,12 @@ class ParseOptions:
         return short_long_dict
 
     def __make_options_with_arg_list(self, options_dict):
-        """
+        '''
         Required:
             options_dict --the dictionary mapping options to a list
         Returns:
             a list of options that take arguments.
-        """
+        '''
         opt_with_arg = []
         keys = options_dict.keys()
         for key in keys:
@@ -116,14 +116,14 @@ class ParseOptions:
         return opt_with_arg
 
     def __sub_short_with_long(self):
-        """
+        '''
         Required:
             nothing
         Returns:
             a new system string
         Logic:
             iterate through the system string and replace short options with long options
-        """
+        '''
         new_string = []
         sub_list = self.__short_long_dict.keys()
         for item in self.__system_string:
@@ -133,7 +133,7 @@ class ParseOptions:
         return new_string
 
     def __pair_arg_with_option(self):
-        """
+        '''
         Required:
             nothing
         Returns
@@ -142,7 +142,7 @@ class ParseOptions:
             iterate through the system string, and match arguments with options:
                 old_list = ['--foo', 'bar']
                 new_list = ['--foo=bar'
-        """
+        '''
         opt_len = len(self.__system_string)
         new_system_string = []
         counter = 0
@@ -184,7 +184,7 @@ class ParseOptions:
         return new_system_string
 
     def __get_just_options(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -194,7 +194,7 @@ class ParseOptions:
             option. The options are everything in the system string before the
             last option.
             Check to see that the options contain no arguments.
-        """
+        '''
         highest = 0
         counter = 0
         found_options = 0
@@ -217,7 +217,7 @@ class ParseOptions:
         return just_options, arguments
 
     def __is_legal_option_func(self):
-        """
+        '''
         Requires:
             nothing
         Returns:
@@ -225,7 +225,7 @@ class ParseOptions:
         Logic:
             Check each value in the newly creatd options list to see if it
             matches what the user describes as a legal option.
-        """
+        '''
         illegal_options = []
         for arg in self.__system_string:
             if '=' in arg:
@@ -256,16 +256,16 @@ class ParseOptions:
 
     def parse_options(self):
         self.__system_string = self.__sub_short_with_long()
-        # # print 'subbed list is  %s' % self.__system_string
+        # print('subbed list is  %s' % self.__system_string)
         self.__system_string = self.__pair_arg_with_option()
-        # # print 'list with pairing is %s' % self.__system_string
+        # print('list with pairing is %s' % self.__system_string)
         options, arguments  = self.__get_just_options()
-        # # print 'options are %s ' % options
-        # # print 'arguments are %s ' % arguments
+        # print('options are %s ' % options)
+        # print('arguments are %s ' % arguments)
         self.__is_legal_option_func()
         if self.__options_okay:
             options_dict = self.__make_options_dict(options)
-            # # print options_dict
+            # print(options_dict)
             return options_dict, arguments
         else:
             return 0,0
@@ -282,7 +282,5 @@ if __name__ == '__main__':
             )
     options, the_args = test_obj.parse_options()
     print(options, the_args)
-    """
-    this_options = ['--foo', '-o']
-    this_opt_with_args = ['--foo']
-    """
+    # this_options = ['--foo', '-o']
+    # this_opt_with_args = ['--foo']

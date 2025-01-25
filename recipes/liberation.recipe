@@ -21,11 +21,13 @@ def resize(x):
         if '_750' in k:
             return v
 
+
 m_fr = {
     1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
     5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
     9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
 }
+
 
 def json_to_html(raw):
     data = json.loads(raw)
@@ -78,9 +80,9 @@ class Liberation(BasicNewsRecipe):
     title = 'Libération'
     __author__ = 'unkn0wn'
     description = (
-        'Libération est un quotidien d\'information libre, vigilant et engagé. L\'objectif de Libération est de '
+        "Libération est un quotidien d'information libre, vigilant et engagé. L'objectif de Libération est de "
         'fournir une information complète et vérifiée, dans tous les domaines. Sans préjugés, ni complaisance, '
-        'ses enquêtes reportages et analyses s\'emploient à comprendre et à décrire l\'actualité et à révéler '
+        "ses enquêtes reportages et analyses s'emploient à comprendre et à décrire l'actualité et à révéler "
         'les mutations des sociétés et des cultures.'
     )
     language = 'fr'
@@ -136,9 +138,9 @@ class Liberation(BasicNewsRecipe):
         b64 = base64.b64decode(self.key)
         query = {
             'website': 'liberation',
-            'website_url': '{}'.format(slug),
+            'website_url': str(slug),
             'published': 'true',
-            '_sourceInclude': '_id,content_restrictions.content_code,credits,promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,promo_items.basic.height,promo_items.basic.width,promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,promo_items.lead_art.height,promo_items.lead_art.width,promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,source.additional_properties.legacy_url,content_elements,source.source_id,taxonomy.primary_section.additional_properties.original._admin.alias_ids,taxonomy.primary_section.additional_properties.original.navigation.nav_title,taxonomy.primary_section._id,taxonomy.primary_section.name,taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,headlines.basic,source.additional_properties.legacy_url,source.source_type,first_publish_date,display_date,canonical_url' # noqa
+            '_sourceInclude': '_id,content_restrictions.content_code,credits,promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,promo_items.basic.height,promo_items.basic.width,promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,promo_items.lead_art.height,promo_items.lead_art.width,promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,source.additional_properties.legacy_url,content_elements,source.source_id,taxonomy.primary_section.additional_properties.original._admin.alias_ids,taxonomy.primary_section.additional_properties.original.navigation.nav_title,taxonomy.primary_section._id,taxonomy.primary_section.name,taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,headlines.basic,source.additional_properties.legacy_url,source.source_type,first_publish_date,display_date,canonical_url'  # noqa: E501
         }
         headers = {
             'cache-control': 'public, max-age=5',
@@ -148,7 +150,7 @@ class Liberation(BasicNewsRecipe):
         }
         api = 'https://arc.api.liberation.fr/content/v4/?' + urlencode(query, safe='()!', quote_via=quote)
         rq = Request(
-            url= api,
+            url=api,
             headers=headers
         )
         raw = br.open(rq).read()

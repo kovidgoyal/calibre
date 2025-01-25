@@ -14,7 +14,7 @@ __appname__   = 'calibre'
 numeric_version = (7, 24, 101)
 __version__   = '.'.join(map(str, numeric_version))
 git_version   = None
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+__author__    = 'Kovid Goyal <kovid@kovidgoyal.net>'
 
 '''
 Various run time constants.
@@ -409,7 +409,6 @@ else:
                 pass
         atexit.register(cleanup_cdir)
 # }}}
-
 
 is_running_from_develop = False
 if getattr(sys, 'frozen', False):

@@ -82,10 +82,10 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     price = ''.join(data.xpath('.//strong[@class="nprice"]/text()'))
 
                     cover_url = ''.join(data.xpath('.//picture[@class="cover"]/img/@data-src'))
-                    cover_url = re.sub(r'%2F', '/', cover_url)
-                    cover_url = re.sub(r'widthMax=235&heightMax=335', 'widthMax=64&heightMax=64', cover_url)
+                    cover_url = cover_url.replace('%2F', '/')
+                    cover_url = cover_url.replace('widthMax=235&heightMax=335', 'widthMax=64&heightMax=64')
                     title = ''.join(data.xpath('.//a[@class="title"]/text()'))
-                    title = re.sub(r' – ebook', '', title)
+                    title = title.replace(' – ebook', '')
                     author = ', '.join(data.xpath('.//div[@class="col-7"]//h4//a/text()'))
                     formats = ', '.join(data.xpath('.//ul[@class="formats"]/li//b/text()'))
                     DrmFree = data.xpath('.//ul[@class="formats"]/li//b[contains(@title, "znak")]')

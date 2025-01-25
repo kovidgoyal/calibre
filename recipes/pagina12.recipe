@@ -33,7 +33,7 @@ class Pagina12(BasicNewsRecipe):
     articles_are_obfuscated = True
     temp_files              = []
     fetch_retries           = 10
-    extra_css            = """
+    extra_css            = '''
         body{font-family: "Open Sans", sans-serif}
         .article-date{font-size: small; margin-bottom: 1em;}
         .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em;}
@@ -43,7 +43,7 @@ class Pagina12(BasicNewsRecipe):
         img{margin-top:1em; margin-bottom: 1em; display:block}
         .article-text p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
         .article-prefix{font-family: "Archivo Narrow",Helvetica,sans-serif; font-size: small; text-transform: uppercase;}
-    """
+    '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -76,22 +76,22 @@ class Pagina12(BasicNewsRecipe):
         return br
 
     feeds = [
-      (u'Diario de hoy'     , u'https://www.pagina12.com.ar/rss/edicion-impresa'),
-      (u'Espectaculos'      , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
-      (u'Radar'             , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
-      (u'Radar libros'      , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
-      (u'Cash'              , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
-      (u'NO'                , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
-      (u'Las 12'            , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
-      (u'Soy'               , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
-      (u'M2'                , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
-      (u'Rosario 12'        , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
+      (u'Diario de hoy',    u'https://www.pagina12.com.ar/rss/edicion-impresa'),
+      (u'Espectaculos',     u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
+      (u'Radar',            u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
+      (u'Radar libros',     u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
+      (u'Cash',             u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
+      (u'NO',               u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
+      (u'Las 12',           u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
+      (u'Soy',              u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
+      (u'M2',               u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
+      (u'Rosario 12',       u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
     ]
 
     def get_cover_url(self):
         lurl = strftime('https://www.pagina12.com.ar/edicion-impresa/%d-%m-%Y')
         soup = self.index_to_soup(lurl)
-        mydiv = soup.find('div', {'class' : lambda x: x and 'printed-edition-cover' in x.split()})
+        mydiv = soup.find('div', {'class': lambda x: x and 'printed-edition-cover' in x.split()})
         if mydiv:
             for image in mydiv.findAll('img'):
                 if image['src'].startswith('https://images.pagina12.com.ar/styles/width700/public/'):
@@ -112,6 +112,6 @@ class Pagina12(BasicNewsRecipe):
                 self.temp_files.append(tfile)
                 result = tfile.name
             except:
-                self.info("Retrying download...")
+                self.info('Retrying download...')
             count += 1
         return result

@@ -13,6 +13,6 @@ class FactCheckOrg(BasicNewsRecipe):
     masthead_url = 'http://factcheck.org/wp-content/themes/Streamline/images/headernew.jpg'
     cover_url = 'http://factcheck.org/wp-content/themes/Streamline/images/headernew.jpg'
 
-    remove_tags = [dict({'id': ['footer', 'footerabout', 'sidebar']})]
+    remove_tags = [{'id': ['footer', 'footerabout', 'sidebar']}]
 
     feeds = [(u'Factcheck', u'feed://www.factcheck.org/feed/')]

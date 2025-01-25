@@ -327,6 +327,7 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
             ans = '<p>%s</p>'%ans
     return xml_replace_entities(ans)
 
+
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
@@ -1199,7 +1200,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
 # Highlighter {{{
 
-
 State_Text = -1
 State_DocType = 0
 State_Comment = 1
@@ -1219,16 +1219,16 @@ class Highlighter(QSyntaxHighlighter):
         self.colors = {}
         self.colors['doctype']        = QColor(192, 192, 192)
         self.colors['entity']         = QColor(128, 128, 128)
-        self.colors['comment']        = QColor(35, 110,  37)
+        self.colors['comment']        = QColor(35,  110,  37)
         if is_dark_theme():
             from calibre.gui2.palette import dark_link_color
             self.colors['tag']            = QColor(186,  78, 188)
-            self.colors['attrname']       = QColor(193,  119, 60)
+            self.colors['attrname']       = QColor(193, 119,  60)
             self.colors['attrval']        = dark_link_color
         else:
             self.colors['tag']            = QColor(136,  18, 128)
             self.colors['attrname']       = QColor(153,  69,   0)
-            self.colors['attrval']        = QColor(36,  36, 170)
+            self.colors['attrval']        = QColor(36,   36, 170)
 
     def highlightBlock(self, text):
         state = self.previousBlockState()
@@ -1241,7 +1241,7 @@ class Highlighter(QSyntaxHighlighter):
             if state == State_Comment:
                 start = pos
                 while pos < len_:
-                    if text[pos:pos+3] == "-->":
+                    if text[pos:pos+3] == '-->':
                         pos += 3
                         state = State_Text
                         break
@@ -1398,10 +1398,10 @@ class Highlighter(QSyntaxHighlighter):
                 while pos < len_:
                     ch = text[pos]
                     if ch == '<':
-                        if text[pos:pos+4] == "<!--":
+                        if text[pos:pos+4] == '<!--':
                             state = State_Comment
                         else:
-                            if text[pos:pos+9].upper() == "<!DOCTYPE":
+                            if text[pos:pos+9].upper() == '<!DOCTYPE':
                                 state = State_DocType
                             else:
                                 state = State_TagStart
@@ -1521,8 +1521,7 @@ class Editor(QWidget):  # {{{
         self.editor.html = v
 
     def change_tab(self, index):
-        # print 'reloading:', (index and self.wyswyg_dirty) or (not index and
-        #        self.source_dirty)
+        # print('reloading:', (index and self.wyswyg_dirty) or (not index and self.source_dirty))
         if index == 1:  # changing to code view
             if self.wyswyg_dirty:
                 self.code_edit.setPlainText(self.editor.html)
@@ -1598,4 +1597,4 @@ if __name__ == '__main__':
     i = 'file:///home/kovid/work/calibre/resources/images/'
     w.html = f'<p>Testing <img src="{i}/donate.png"> img and another <img src="{i}/lt.png">file</p>'
     app.exec()
-    # print w.html
+    # print(w.html)

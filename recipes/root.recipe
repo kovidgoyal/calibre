@@ -31,9 +31,9 @@ class AdvancedUserRecipe1289939440(BasicNewsRecipe):
     ]
 
     preprocess_regexps = [
-        (re.compile(u'<p class="perex[^"]*">[^<]*<img[^>]*>',
+        (re.compile(r'<p class="perex[^"]*">[^<]*<img[^>]*>',
                     re.DOTALL), lambda match: '<p class="intro">'),
-        (re.compile(u'<h3><a name="tucnak">Tričko tučňák.*</body>',
+        (re.compile(u'<h3><a name="tucnak">Tričko tučňák.*</body>',  # noqa: RUF039
                     re.DOTALL), lambda match: '<!--deleted-->')
     ]
 

@@ -58,7 +58,7 @@ class Bloomberg(BasicNewsRecipe):
         'Bloomberg delivers business and markets news, data, analysis, and video'
         ' to the world, featuring stories from Businessweek and Bloomberg News.'
     )
-    oldest_article = 1.2 # days
+    oldest_article = 1.2  # days
     resolve_internal_links = True
     remove_empty_feeds = True
     cover_url = 'https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ivUxvlPidC3M/v0/600x-1.jpg'
@@ -134,8 +134,8 @@ class Bloomberg(BasicNewsRecipe):
             cat = '<div class="cat">' + data['primaryCategory'] + '</div>'
 
         if 'abstract' in data and data['abstract'] and data['abstract'] is not None:
-            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join([x for x in data['abstract']]) + '</li></ul></div>'
-        elif 'summary' in data and data['summary']:
+            subhead = '<div class="subhead"><ul><li>' + '</li><li>'.join(list(data['abstract'])) + '</li></ul></div>'
+        elif data.get('summary'):
             subhead = '<div class="subhead"><p>' + data['summary'] + '</p></div>'
 
         if 'byline' in data and data['byline'] is not None:

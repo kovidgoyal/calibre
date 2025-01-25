@@ -43,7 +43,6 @@ def create_base_profile(cache_name='', allow_js=False):
     return ans
 
 
-
 class DownloadRequest(QObject):
 
     aborted_on_timeout: bool = False
@@ -119,13 +118,12 @@ class Worker(QWebEnginePage):
                     self.runjs('window.get_messages()', self.dispatch_messages)
             else:
                 print(f'{source_id}:{line_num}:{message}')
-            return
 
     def dispatch_messages(self, messages: list) -> None:
         if not sip.isdeleted(self):
             self.messages_dispatch.emit(messages)
 
-    def runjs(self, js: str, callback = None) -> None:
+    def runjs(self, js: str, callback=None) -> None:
         if callback is None:
             self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:

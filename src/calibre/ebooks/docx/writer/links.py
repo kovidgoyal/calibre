@@ -36,7 +36,7 @@ class TOCItem:
     def serialize(self, body, makeelement):
         p = makeelement(body, 'w:p', append=False)
         ppr = makeelement(p, 'w:pPr')
-        makeelement(ppr, 'w:pStyle', w_val="Normal")
+        makeelement(ppr, 'w:pStyle', w_val='Normal')
         makeelement(ppr, 'w:ind', w_left='0', w_firstLineChars='0', w_firstLine='0', w_leftChars=str(200 * self.level))
         if self.is_first:
             makeelement(ppr, 'w:pageBreakBefore', w_val='off')

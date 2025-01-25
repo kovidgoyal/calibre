@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1467715002(BasicNewsRecipe):
     title = 'Breaking Mad'
     __author__ = 'bugmen00t'
-    description = 'Breaking Mad - пока смерть не насмешит нас. Breakingmad - это агрегатор самых странных и драматичных новостей с жизнеутверждающим эффектом. Breakingmad - это все, что вы должны знать о России и не только.'  # noqa
+    description = 'Breaking Mad - пока смерть не насмешит нас. Breakingmad - это агрегатор самых странных и драматичных новостей с жизнеутверждающим эффектом. Breakingmad - это все, что вы должны знать о России и не только.'  # noqa: E501
     publisher = 'BreakingMad'
     category = 'news'
     cover_url = u'http://breakingmad.me/images/logo.png'

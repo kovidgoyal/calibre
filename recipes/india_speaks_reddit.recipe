@@ -20,4 +20,3 @@ class IndiaSpeaksReddit(BasicNewsRecipe):
     feeds          = [
         ('India Speaks Reddit main feed', 'https://www.reddit.com/r/IndiaSpeaks.rss'),
     ]
-

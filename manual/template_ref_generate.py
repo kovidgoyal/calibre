@@ -61,7 +61,7 @@ def generate_template_language_help(language, log):
     a = output.append
 
     with TemporaryDirectory() as tdir:
-        db = LibraryDatabase(tdir) # needed to load formatter_funcs
+        db = LibraryDatabase(tdir)  # needed to load formatter_funcs
         ffml = FFMLProcessor()
         all_funcs = formatter_functions().get_builtins()
         categories = defaultdict(dict)
@@ -88,6 +88,7 @@ def generate_template_language_help(language, log):
 
     a(POSTAMBLE)
     return ''.join(output)
+
 
 if __name__ == '__main__':
     generate_template_language_help()

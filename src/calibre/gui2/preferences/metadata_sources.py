@@ -172,8 +172,8 @@ class FieldsModel(QAbstractListModel):  # {{{
                 'comments': _('Comments'),
                 'pubdate': _('Published date'),
                 'publisher': _('Publisher'),
-                'rating' : _('Rating'),
-                'tags' : _('Tags'),
+                'rating': _('Rating'),
+                'tags': _('Tags'),
                 'title': _('Title'),
                 'series': ngettext('Series', 'Series', 1),
                 'languages': _('Languages'),
@@ -195,7 +195,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         for x in fields:
             if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
-        self.fields.sort(key=lambda x:self.descs.get(x, x))
+        self.fields.sort(key=lambda x: self.descs.get(x, x))
         self.endResetModel()
 
     def state(self, field, defaults=False):

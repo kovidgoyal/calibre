@@ -79,7 +79,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
-        print(f"Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}", file=sys.stderr)
+        print(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}', file=sys.stderr)
 
 
 class Render(QWebEnginePage):
@@ -145,7 +145,7 @@ class Render(QWebEnginePage):
                     margins = QMarginsF(*data['margins'])
                 if 'size' in data:
                     sz = data['size']
-                    if type(getattr(QPageSize, sz, None)) is type(QPageSize.PageSizeId.A4):  # noqa
+                    if type(getattr(QPageSize, sz, None)) is type(QPageSize.PageSizeId.A4):
                         page_size = QPageSize(getattr(QPageSize, sz))
                     else:
                         from calibre.ebooks.pdf.image_writer import parse_pdf_page_size

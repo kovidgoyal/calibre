@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Pescanik(BasicNewsRecipe):
     title = u'Peščanik'
     __author__ = 'Darko Miletic'
-    description = u'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'  # noqa
+    description = u'Peščanik je udruženje građana osnovano 2006. godine. Glavni proizvod Peščanika je radio emisija koja je emitovana na Radiju B92 od 02.02.2000. do 16.06.2011, a od septembra 2011. se emituje na osam radio stanica u Srbiji, Crnoj Gori i BiH'  # noqa: E501
     publisher = u'Peščanik'
     category = 'news, politics, Serbia'
     oldest_article = 10
@@ -24,17 +24,17 @@ class Pescanik(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'newsportal'
     masthead_url = 'http://pescanik.net/wp-content/uploads/2011/10/logo1.png'
-    extra_css             = """
+    extra_css             = '''
                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Verdana,Arial,Tahoma,sans1,sans-serif}
                                #BlogTitle{font-size: xx-large; font-weight: bold}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
     remove_tags = [
         dict(name=['object', 'link', 'meta', 'script', 'iframe', 'embed'])]
     keep_only_tags = [

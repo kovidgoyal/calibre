@@ -22,11 +22,11 @@ class AdvancedUserRecipe1718385916(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        #News & Deals
+        # News & Deals
         ('News', 'https://www.xda-developers.com/feed/news/'),
         ('Computing News', 'https://www.xda-developers.com/feed/category/computing-news/'),
         ('Today’s Deals', 'https://www.xda-developers.com/feed/deals/'),
-        #Reviews
+        # Reviews
         ('Reviews', 'https://www.xda-developers.com/feed/reviews/'),
         ('Laptop Reviews', 'https://www.xda-developers.com/feed/category/computing-reviews/'),
         ('CPU Reviews', 'https://www.xda-developers.com/feed/cpu-reviews/'),
@@ -34,9 +34,9 @@ class AdvancedUserRecipe1718385916(BasicNewsRecipe):
         ('SSD Reviews', 'https://www.xda-developers.com/feed/ssd-reviews/'),
         ('Phone Reviews', 'https://www.xda-developers.com/feed/phone-reviews/'),
         ('XDA’s Product Review Awards', 'https://www.xda-developers.com/feed/awards/'),
-        #Best Guides
+        # Best Guides
         ("Buyer's Guides", 'https://www.xda-developers.com/feed/buying-guides/'),
-        #Tutorials
+        # Tutorials
         ('Tutorials', 'https://www.xda-developers.com/feed/tutorials/'),
         ('Windows Tutorials', 'https://www.xda-developers.com/feed/windows-tutorials/'),
         ('MacOS Tutorials', 'https://www.xda-developers.com/feed/macos-tutorials/'),

@@ -35,7 +35,6 @@ class Harpers(BasicNewsRecipe):
     remove_tags = [
         classes('header-controls')
     ]
-    remove_attributes = ["style", "width", "height"]
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -64,8 +63,8 @@ class Harpers(BasicNewsRecipe):
     }
 
     def parse_index(self):
-        issues_soup = self.index_to_soup("https://harpers.org/issues/")
-        a_ele = issues_soup.select_one("div.issue-card a")
+        issues_soup = self.index_to_soup('https://harpers.org/issues/')
+        a_ele = issues_soup.select_one('div.issue-card a')
         self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class':'issue-title'})) + ']'
         url = a_ele['href']
 

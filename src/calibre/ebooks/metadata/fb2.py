@@ -2,8 +2,8 @@
 
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
-                '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
+__copyright__ = ('2011, Roman Mukhin <ramses_ru at hotmail.com>, '
+                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>')
 '''Read meta information from fb2 files'''
 
 import os
@@ -179,7 +179,7 @@ def _parse_authors(root, ctx):
 
 
 def _parse_author(elm_author, ctx):
-    """ Returns a list of display author and sortable author"""
+    ''' Returns a list of display author and sortable author'''
 
     xp_templ = 'normalize-space(fb:%s/text())'
 

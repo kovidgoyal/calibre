@@ -22,7 +22,7 @@ _patterns = None
 
 class Patterns:
 
-    __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat', 'fr_elision_pat')
+    __slots__ = ('digit_pat', 'fr_elision_pat', 'sanitize_invisible_pat', 'split_pat')
 
     def __init__(self):
         import regex
@@ -36,7 +36,7 @@ class Patterns:
         # French words with prefixes are reduced to the stem word, so that the
         # words appear only once in the word list
         self.fr_elision_pat = regex.compile(
-            "^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
+            r"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
 
 
 def patterns():
@@ -56,7 +56,7 @@ class CharCounter:
 
 class Location:
 
-    __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item', 'elided_prefix')
+    __slots__ = ('elided_prefix', 'file_name', 'location_node', 'node_item', 'original_word', 'sourceline')
 
     def __init__(self, file_name=None, elided_prefix='', original_word=None, location_node=None, node_item=(None, None)):
         self.file_name, self.elided_prefix, self.original_word = file_name, elided_prefix, original_word
@@ -162,9 +162,9 @@ def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
 _opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
+
 # We can only use barename() for tag names and simple attribute checks so that
 # this code matches up with the syntax highlighter base spell checking
-
 
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.iterdescendants('*'):

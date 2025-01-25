@@ -131,7 +131,7 @@ class TestAuth(BaseTest):
         opts = Options(userdb=':memory:')
         Data = namedtuple('Data', 'username')
         with TemporaryDirectory() as base:
-            l1, l2, l3 = map(lambda x: os.path.join(base, 'l' + x), '123')
+            l1, l2, l3 = (os.path.join(base, 'l' + x) for x in '123')
             for l in (l1, l2, l3):
                 create_backend(l).close()
             ctx = Handler((l1, l2, l3), opts).router.ctx
@@ -214,19 +214,19 @@ class TestAuth(BaseTest):
                 return test(conn, '/closed', headers={'Authorization':digest(**args)}, **kw)
 
             # Check modified nonce fails
-            fail_test(conn, lambda da:setattr(da, 'nonce', 'xyz'))
-            fail_test(conn, lambda da:setattr(da, 'nonce', 'x' + da.nonce))
+            fail_test(conn, lambda da: setattr(da, 'nonce', 'xyz'))
+            fail_test(conn, lambda da: setattr(da, 'nonce', 'x' + da.nonce))
 
             # Check mismatched uri fails
-            fail_test(conn, lambda da:setattr(da, 'uri', '/'))
-            fail_test(conn, lambda da:setattr(da, 'uri', '/closed2'))
-            fail_test(conn, lambda da:setattr(da, 'uri', '/closed/2'))
+            fail_test(conn, lambda da: setattr(da, 'uri', '/'))
+            fail_test(conn, lambda da: setattr(da, 'uri', '/closed2'))
+            fail_test(conn, lambda da: setattr(da, 'uri', '/closed/2'))
 
             # Check that incorrect user/password fails
-            fail_test(conn, lambda da:setattr(da, 'pw', '/'))
-            fail_test(conn, lambda da:setattr(da, 'username', '/'))
-            fail_test(conn, lambda da:setattr(da, 'username', ''))
-            fail_test(conn, lambda da:setattr(da, 'pw', ''))
+            fail_test(conn, lambda da: setattr(da, 'pw', '/'))
+            fail_test(conn, lambda da: setattr(da, 'username', '/'))
+            fail_test(conn, lambda da: setattr(da, 'username', ''))
+            fail_test(conn, lambda da: setattr(da, 'pw', ''))
             fail_test(conn, lambda da:(setattr(da, 'pw', ''), setattr(da, 'username', '')))
 
             # Check against python's stdlib

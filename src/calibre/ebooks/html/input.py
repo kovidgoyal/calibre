@@ -24,7 +24,6 @@ from polyglot.urllib import urlparse, urlunparse
 
 
 class Link:
-
     '''
     Represents a link in a HTML file.
     '''
@@ -79,7 +78,6 @@ class IgnoreFile(Exception):
 
 
 class HTMLFile:
-
     '''
     Contains basic information about an HTML file. This
     includes a list of links to other files as well as
@@ -91,7 +89,7 @@ class HTMLFile:
 
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
     HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
-    TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
+    TITLE_PAT = re.compile(r'<title>([^<>]+)</title>', re.IGNORECASE)
     LINK_PAT  = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
     re.DOTALL|re.IGNORECASE)
@@ -256,7 +254,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
     '''
     assert max_levels >= 0
     level = 0
-    flat =  [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
+    flat = [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
     seen = {flat[0].path}
     next_level = list(flat)
     while level < max_levels and len(next_level) > 0:

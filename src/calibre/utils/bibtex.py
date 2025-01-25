@@ -1,4 +1,4 @@
-""" Collection of python utility-methodes commonly used by other
+''' Collection of python utility-methodes commonly used by other
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/
     from Tom Gross <itconsense@gmail.com>
@@ -58,7 +58,7 @@
       OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
       DAMAGE.
-    """
+'''
 
 __author__  = 'sengian <sengian1 at gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -2553,21 +2553,21 @@ class BibTeX:
         self.ascii_bibtex = True
         # This substitution is based on the description of cite key restrictions at
         # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
-        self.invalid_cit = re.compile('[ "@\',\\#}{~%&$^]')
+        self.invalid_cit = re.compile(r'[ "@\',\#}{~%&$^]')
         self.upper = re.compile('[' +
             string.ascii_uppercase + ']')
-        self.escape = re.compile('[#&%_]')
+        self.escape = re.compile(r'[#&%_]')
 
     def ValidateCitationKey(self, text):
-        """
+        '''
         Removes characters not allowed in BibTeX keys
-        """
+        '''
         return self.invalid_cit.sub('', text)
 
     def braceUppercase(self, text):
-        """
+        '''
         Convert uppercase letters to bibtex encoded uppercase
-        """
+        '''
         return self.upper.sub(lambda m: '{%s}' % m.group(), text)
 
     def resolveEntities(self, text):
@@ -2579,36 +2579,36 @@ class BibTeX:
         return text.replace('$}{$', '')
 
     def escapeSpecialCharacters(self, text):
-        """
+        '''
         Latex escaping some (not all) special characters
-        """
+        '''
         text = text.replace('\\', '\\\\')
         text = text.replace('~', '{\\char`\\~}')  # TILDE
         return self.escape.sub(lambda m: '\\%s' % m.group(), text)
 
     # Calibre functions: Option to go to official ASCII Bibtex or unofficial UTF-8
     def utf8ToBibtex(self, text):
-        """
+        '''
         Go from an unicode entry to ASCII Bibtex format without encoding
-        """
+        '''
         if len(text) == 0:
             return ''
         text = self.resolveEntities(text)
         text = self.escapeSpecialCharacters(text)
-        if self.ascii_bibtex :
+        if self.ascii_bibtex:
             text = self.resolveUnicode(text)
         return text
 
     def bibtex_author_format(self, item):
-        """
+        '''
         Format authors for Bibtex compliance (get a list as input)
-        """
-        return self.utf8ToBibtex(' and '.join([author for author in item]))
+        '''
+        return self.utf8ToBibtex(' and '.join(item))
 
     def stripUnmatchedSyntax(self, text, open_character, close_character):
-        """
+        '''
         Strips unmatched BibTeX syntax
-        """
+        '''
         stack = []
         assert len(open_character) == 1 and len(close_character) == 1
         remove = []

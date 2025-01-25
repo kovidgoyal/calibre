@@ -62,7 +62,7 @@ class LigatureSubstitution(UnknownLookupSubTable):
     def read_ligature(self, data):
         lig_glyph, count = data.unpack('HH')
         components = data.unpack('%dH'%(count-1), single_special=False)
-        return (lig_glyph, components)
+        return lig_glyph, components
 
     def all_substitutions(self, glyph_ids):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)

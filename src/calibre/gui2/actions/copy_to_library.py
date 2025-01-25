@@ -334,7 +334,6 @@ class DuplicatesQuestion(QDialog):  # {{{
     @property
     def ids(self):
         return {int(i.data(Qt.ItemDataRole.UserRole)) for i in self.items if i.checkState() == Qt.CheckState.Checked}
-
 # }}}
 
 

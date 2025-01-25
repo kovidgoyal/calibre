@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
@@ -27,7 +26,7 @@ def clone_node(node, parent):
 def merge():
     base = os.path.dirname(os.path.abspath(__file__))
     ans = etree.fromstring(
-        '<svg xmlns="%s" xmlns:xlink="%s"/>' % (SVG_NS, XLINK_NS),
+        f'<svg xmlns="{SVG_NS}" xmlns:xlink="{XLINK_NS}"/>',
         parser=etree.XMLParser(
             recover=True, no_network=True, resolve_entities=False
         )
@@ -43,14 +42,14 @@ def merge():
                 recover=True, no_network=True, resolve_entities=False
             )
         )
-        symbol = ans.makeelement('{%s}symbol' % SVG_NS)
+        symbol = ans.makeelement('{%s}symbol' % SVG_NS)  # noqa: UP031
         symbol.set('viewBox', svg.get('viewBox'))
         symbol.set('id', 'icon-' + f.rpartition('.')[0])
         for child in svg.iterchildren('*'):
             clone_node(child, symbol)
         ans.append(symbol)
     ans = etree.tostring(ans, encoding='unicode', pretty_print=True, with_tail=False)
-    ans = re.sub('<svg[^>]+>', '<svg style="display:none">', ans, count=1)
+    ans = re.sub(r'<svg[^>]+>', '<svg style="display:none">', ans, count=1)
     return ans
 
 

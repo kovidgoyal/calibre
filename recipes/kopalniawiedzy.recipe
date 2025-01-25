@@ -25,13 +25,13 @@ class KopalniaWiedzy(BasicNewsRecipe):
                    {'name': 'div', 'attrs': {'class': 'article-time-and-cat'}}, {'name': 'p', 'attrs': {'class': 'tags'}}]
     remove_tags_after = dict(attrs={'class': 'ad-square'})
     keep_only_tags = [
-        dict(name="div", attrs={'class': 'article-text text-small'})]
+        dict(name='div', attrs={'class': 'article-text text-small'})]
     extra_css = '.topimage {margin-top: 30px}'
 
     preprocess_regexps = [
-        (re.compile(u'<a .* rel="lightboxText" .*><img (.*)></a>'),
+        (re.compile(r'<a .* rel="lightboxText" .*><img (.*)></a>'),
          lambda match: '<img class="topimage" ' + match.group(1) + '>'),
-        (re.compile(u'<br  /><br  />'),
+        (re.compile(r'<br  /><br  />'),
          lambda match: '<br/>')
     ]
 

@@ -277,7 +277,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
     # Build a list of 'equal' first letters by noticing changes
     # in ICU's 'ordinal' for the first letter.
     from collections import OrderedDict
-    items = sorted(items, key=lambda x:sort_key(key(x)), reverse=reverse)
+    items = sorted(items, key=lambda x: sort_key(key(x)), reverse=reverse)
     ans = OrderedDict()
     last_c, last_ordnum = ' ', 0
     for item in items:

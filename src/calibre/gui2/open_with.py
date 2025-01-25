@@ -161,7 +161,7 @@ if iswindows:
 
     del run_program
 
-    def run_program(entry, path, parent):  # noqa
+    def run_program(entry, path, parent):
         import re
         cmdline = entry_to_cmdline(entry, path)
         flags = subprocess.CREATE_DEFAULT_ERROR_MODE | subprocess.CREATE_NEW_PROCESS_GROUP

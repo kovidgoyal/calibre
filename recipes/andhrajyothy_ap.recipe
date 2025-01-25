@@ -5,7 +5,7 @@ from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 
 # figure out your local edition id from the log of this recipe
-edi_id = 182 # NTR VIJAYAWADA - 182
+edi_id = 182  # NTR VIJAYAWADA - 182
 
 today = date.today().strftime('%d/%m/%Y')
 
@@ -17,6 +17,7 @@ dt = date(year, month, day)
 today = today.replace('/', '%2F')
 
 index = 'https://epaper.andhrajyothy.com'
+
 
 class andhra(BasicNewsRecipe):
     title = 'ఆంధ్రజ్యోతి - ఆంధ్రప్రదేశ్'
@@ -50,7 +51,7 @@ class andhra(BasicNewsRecipe):
         self.log('## For your local edition id, modify this recipe to match your edi_id from the cities below\n')
         for edi in edi_data:
             if edi['org_location'] in {'Magazines', 'Navya Daily'}:
-                    continue
+                continue
             self.log(edi['org_location'])
             cities = []
             for edi_loc in edi['editionlocation']:
@@ -75,8 +76,8 @@ class andhra(BasicNewsRecipe):
                 url = str(snaps['OrgId'])
                 if snaps['ObjectType'] == 4:
                     continue
-                feeds_dict[section].append({"title": '', "url": url})
-        return [(section, articles) for section, articles in feeds_dict.items()]
+                feeds_dict[section].append({'title': '', 'url': url})
+        return list(feeds_dict.items())
 
     def preprocess_raw_html(self, raw, *a):
         data = json.loads(raw)

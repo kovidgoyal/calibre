@@ -14,7 +14,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class NikkeiNet_paper_subscription(BasicNewsRecipe):
     title = u'\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\uFF08\u671D\u520A\u30FB\u5915\u520A\uFF09'
     __author__ = 'Ado Nishimura'
-    description = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa
+    description = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa: E501
     needs_subscription = True
     oldest_article = 1
     max_articles_per_feed = 30
@@ -26,67 +26,67 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
     masthead_url = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
     cover_margins = (10, 188, '#ffffff')
 
-    remove_tags_before = {'class': "cmn-indent"}
+    remove_tags_before = {'class': 'cmn-indent'}
     remove_tags = [
         #                       {'class':"cmn-article_move"},
         #                       {'class':"cmn-pr_list"},
         #                       {'class':"cmnc-zoom"},
-        {'class': "cmn-hide"},
+        {'class': 'cmn-hide'},
         {'name': 'form'},
         {'class': 'cmn-print_headline cmn-clearfix'},
         {'id': 'ABOUT_NIKKEI'},
     ]
-    remove_tags_after = {'class': "cmn-indent"}
+    remove_tags_after = {'class': 'cmn-indent'}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
 
         if self.username is not None and self.password is not None:
-            print("-------------------------open top page-------------------------------------")
+            print('-------------------------open top page-------------------------------------')
             br.open('http://www.nikkei.com/')
-            print("-------------------------open first login form-----------------------------")
+            print('-------------------------open first login form-----------------------------')
             try:
                 url = list(br.links(
-                    url_regex="www.nikkei.com/etc/accounts/login"))[0].url
+                    url_regex='www.nikkei.com/etc/accounts/login'))[0].url
             except IndexError:
-                print("Found IndexError")
+                print('Found IndexError')
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             br.open(url)
-            print("-------------------------JS redirect(send autoPostForm)--------------------")
+            print('-------------------------JS redirect(send autoPostForm)--------------------')
             br.select_form(name='autoPostForm')
             br.submit()
             # response = br.response()
-            print("-------------------------got login form------------------------------------")
+            print('-------------------------got login form------------------------------------')
             br.select_form(name='LA7010Form01')
             br['LA7010Form01:LA7010Email'] = self.username
             br['LA7010Form01:LA7010Password'] = self.password
             br.submit(id='LA7010Form01:submitBtn')
-            print("-------------------------JS redirect---------------------------------------")
+            print('-------------------------JS redirect---------------------------------------')
             br.select_form(nr=0)
             br.submit()
 
         return br
 
     def cleanup(self):
-        print("-------------------------logout--------------------------------------------")
+        print('-------------------------logout--------------------------------------------')
         self.browser.open('https://regist.nikkei.com/ds/etc/accounts/logout')
 
     def parse_index(self):
-        print("-------------------------get index of paper--------------------------------")
+        print('-------------------------get index of paper--------------------------------')
         result = []
         soup = self.index_to_soup('http://www.nikkei.com/paper/')
-        sections = soup.findAll(attrs={'class': re.compile(".*cmn-article_title.*")})
+        sections = soup.findAll(attrs={'class': re.compile(r'.*cmn-article_title.*')})
 
         for sect in sections:
-            sect_title = sect.find(attrs={'class' : re.compile(".*cmnc-((large)|(middle)|(small)).*")})
+            sect_title = sect.find(attrs={'class': re.compile(r'.*cmnc-((large)|(middle)|(small)).*')})
             if sect_title is None:
                 continue
             sect_title = sect_title.contents[0]
             sect_result = []
             url = sect.a['href']
-            url = re.sub("/article/", "/print-article/", url)
+            url = url.replace('/article/', '/print-article/')
             url = 'http://www.nikkei.com' + url
             sect_result.append(dict(title=sect_title, url=url, date='',description='', content=''))
             result.append([sect_title, sect_result])
@@ -95,11 +95,11 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
     def populate_article_metadata(self, article, soup, first):
         try:
             elms = soup.findAll(
-                'div', {"class": "cmn-article_text JSID_key_fonttxt"})
+                'div', {'class': 'cmn-article_text JSID_key_fonttxt'})
             elm_text = u'◆'.join(
                 [self.tag_to_string(elm).strip() for elm in elms])
             elm_text = unicodedata.normalize('NFKC', elm_text)
             article.summary = article.text_summary = elm_text
         except:
-            self.log("Error: Failed to get article summary.")
+            self.log('Error: Failed to get article summary.')
             return

@@ -444,8 +444,7 @@ class DeviceManager(Thread):  # {{{
             kls = None
             while True:
                 try:
-                    (kls,device_kind, folder_path) = \
-                                self.mount_connection_requests.get_nowait()
+                    kls, device_kind, folder_path = self.mount_connection_requests.get_nowait()
                 except queue.Empty:
                     break
             if kls is not None:
@@ -566,7 +565,7 @@ class DeviceManager(Thread):  # {{{
         mainlist = self.device.books(oncard=None, end_session=False)
         cardalist = self.device.books(oncard='carda')
         cardblist = self.device.books(oncard='cardb')
-        return (mainlist, cardalist, cardblist)
+        return mainlist, cardalist, cardblist
 
     def books(self, done, add_as_step_to_job=None):
         '''Return callable that returns the list of books on device as two booklists'''
@@ -785,7 +784,7 @@ class DeviceMenu(QMenu):  # {{{
         self.set_default_menu.setIcon(QIcon.ic('config.png'))
 
         basic_actions = [
-                ('main:', False, False,  'reader.png',
+                ('main:', False, False, 'reader.png',
                     _('Send to main memory')),
                 ('carda:0', False, False, 'sd.png',
                     _('Send to storage card A')),
@@ -794,16 +793,16 @@ class DeviceMenu(QMenu):  # {{{
         ]
 
         delete_actions = [
-                ('main:', True, False,   'reader.png',
+                ('main:', True, False, 'reader.png',
                     _('Main memory')),
-                ('carda:0', True, False,  'sd.png',
+                ('carda:0', True, False, 'sd.png',
                     _('Storage card A')),
-                ('cardb:0', True, False,  'sd.png',
+                ('cardb:0', True, False, 'sd.png',
                     _('Storage card B')),
         ]
 
         specific_actions = [
-                ('main:', False, True,  'reader.png',
+                ('main:', False, True, 'reader.png',
                     _('Main memory')),
                 ('carda:0', False, True, 'sd.png',
                     _('Storage card A')),
@@ -1438,9 +1437,9 @@ class DeviceMixin:  # {{{
             dynamic.set('catalogs_to_be_synced', set())
             if files:
                 remove = []
-                space = {self.location_manager.free[0] : None,
-                    self.location_manager.free[1] : 'carda',
-                    self.location_manager.free[2] : 'cardb'}
+                space = {self.location_manager.free[0]: None,
+                    self.location_manager.free[1]: 'carda',
+                    self.location_manager.free[2]: 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
@@ -1516,9 +1515,9 @@ class DeviceMixin:  # {{{
             self.news_to_be_synced = set()
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
-                space = {self.location_manager.free[0] : None,
-                    self.location_manager.free[1] : 'carda',
-                    self.location_manager.free[2] : 'cardb'}
+                space = {self.location_manager.free[0]: None,
+                    self.location_manager.free[1]: 'carda',
+                    self.location_manager.free[2]: 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 try:
                     total_size = sum(os.stat(f).st_size for f in files)
@@ -1530,7 +1529,7 @@ class DeviceMixin:  # {{{
                         pass
                     total_size = self.location_manager.free[0]
                 loc = tweaks['send_news_to_device_location']
-                loc_index = {"carda": 1, "cardb": 2}.get(loc, 0)
+                loc_index = {'carda': 1, 'cardb': 2}.get(loc, 0)
                 if self.location_manager.free[loc_index] > total_size + (1024**2):
                     # Send news to main memory if enough space available
                     # as some devices like the Nook Color cannot handle
@@ -1900,7 +1899,7 @@ class DeviceMixin:  # {{{
         books_with_future_dates = []
         first_call_to_synchronize_with_db = [True]
 
-        def update_book(id_, book) :
+        def update_book(id_, book):
             if not update_metadata:
                 return
             mi = db.get_metadata(id_, index_is_id=True, get_cover=get_covers)

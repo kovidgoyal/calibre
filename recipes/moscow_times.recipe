@@ -10,8 +10,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Moscowtimes(BasicNewsRecipe):
     title = 'The Moscow Times (light version)'
     __author__ = 'Darko Miletic and Sujata Raman'
-    description = 'The Moscow Times is a daily English-language newspaper featuring objective, reliable news on business, politics, sports and culture in Moscow, in Russia and the former Soviet Union (CIS).'  # noqa
-    category = 'Russia, Moscow, Russian news, Moscow news, Russian newspaper, daily news, independent news, reliable news, USSR, Soviet Union, CIS, Russian politics, Russian business, Russian culture, Russian opinion, St Petersburg, Saint Petersburg'  # noqa
+    description = 'The Moscow Times is a daily English-language newspaper featuring objective, reliable news on business, politics, sports and culture in Moscow, in Russia and the former Soviet Union (CIS).'  # noqa: E501
+    category = 'Russia, Moscow, Russian news, Moscow news, Russian newspaper, daily news, independent news, reliable news, USSR, Soviet Union, CIS, Russian politics, Russian business, Russian culture, Russian opinion, St Petersburg, Saint Petersburg'  # noqa: E501
     publisher = 'The Moscow Times'
     language = 'en_RU'
     oldest_article = 2

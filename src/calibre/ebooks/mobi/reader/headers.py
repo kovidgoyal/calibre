@@ -26,7 +26,7 @@ def uniq(vals):
     vals = vals or ()
     seen = set()
     seen_add = seen.add
-    return list(x for x in vals if x not in seen and not seen_add(x))
+    return [x for x in vals if x not in seen and not seen_add(x)]
 
 
 class EXTHHeader:  # {{{
@@ -45,7 +45,7 @@ class EXTHHeader:  # {{{
         self.page_progression_direction = None
         self.primary_writing_mode = None
 
-        self.decode = lambda x : clean_ascii_chars(x.decode(codec, 'replace'))
+        self.decode = lambda x: clean_ascii_chars(x.decode(codec, 'replace'))
 
         while left > 0:
             left -= 1
@@ -108,7 +108,7 @@ class EXTHHeader:  # {{{
                 except Exception:
                     pass
             # else:
-            #    print 'unknown record', idx, repr(content)
+            #     print('unknown record', idx, repr(content))
         if title:
             self.mi.title = replace_entities(clean_xml_chars(clean_ascii_chars(title)))
 
@@ -184,7 +184,7 @@ class EXTHHeader:  # {{{
             if self.kf8_header == NULL_INDEX:
                 self.kf8_header = None
         # else:
-        #    print 'unhandled metadata record', idx, repr(content)
+        #     print('unhandled metadata record', idx, repr(content))
 # }}}
 
 

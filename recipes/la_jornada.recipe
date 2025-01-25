@@ -33,10 +33,10 @@ class LaJornada_mx(BasicNewsRecipe):
     use_embedded_content = False
     language = 'es_MX'
     remove_empty_feeds = True
-    cover_url = strftime("http://www.jornada.com.mx/%Y/%m/%d/portada.pdf")
+    cover_url = strftime('http://www.jornada.com.mx/%Y/%m/%d/portada.pdf')
     masthead_url = 'http://www.jornada.com.mx/v7.0/imagenes/la-jornada-trans.png'
     publication_type = 'newspaper'
-    extra_css             = """
+    extra_css             = '''
                                 body{font-family: "Times New Roman",serif }
                                 .cabeza{font-size: xx-large; font-weight: bold }
                                 .documentFirstHeading{font-size: xx-large; font-weight: bold }
@@ -54,7 +54,7 @@ class LaJornada_mx(BasicNewsRecipe):
                                 .text{margin-top: 1.4em}
                                 p.inicial{display: inline; font-size: xx-large; font-weight: bold}
                                 p.s-s{display: inline; text-indent: 0}
-                            """
+                            '''
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
@@ -111,7 +111,7 @@ class LaJornada_mx(BasicNewsRecipe):
 
     def get_article_url(self, article):
         # Get link to original article URL
-        rurl = article.get('guid',  None)
+        rurl = article.get('guid', None)
         if not rurl:
             # Use the "link" attribute as failover
             return article.get('link', None)

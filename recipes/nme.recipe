@@ -27,7 +27,6 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     simultaneous_downloads = 20
     use_embedded_content = False
     recursions = 0
-    auto_cleanup = True
 
     feeds = [
         (u'NME News', u'http://www.nme.com/news/feed'),

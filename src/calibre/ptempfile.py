@@ -1,9 +1,9 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-"""
+'''
 Provides platform independent temporary files that persist even after
 being closed.
-"""
+'''
 import atexit
 import os
 import tempfile
@@ -157,16 +157,15 @@ def _make_dir(suffix, prefix, base):
 
 
 class PersistentTemporaryFile:
-
-    """
+    '''
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
-    """
+    '''
     _file = None
 
-    def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
+    def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
         if prefix is None:
-            prefix = ""
+            prefix = ''
         if dir is None:
             dir = base_dir()
         fd, name = _make_file(suffix, prefix, dir)
@@ -208,7 +207,6 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
 
 
 class TemporaryDirectory:
-
     '''
     A temporary directory to be used in a with statement.
     '''
@@ -233,7 +231,7 @@ class TemporaryDirectory:
 
 class TemporaryFile:
 
-    def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
+    def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
         if prefix is None:
             prefix = ''
         if suffix is None:
@@ -256,7 +254,7 @@ class TemporaryFile:
 
 class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
 
-    def __init__(self, max_size=0, suffix="", prefix="", dir=None, mode='w+b',
+    def __init__(self, max_size=0, suffix='', prefix='', dir=None, mode='w+b',
             bufsize=-1):
         if prefix is None:
             prefix = ''

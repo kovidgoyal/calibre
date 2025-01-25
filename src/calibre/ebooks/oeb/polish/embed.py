@@ -58,8 +58,8 @@ def stretch_as_number(val):
         pass
     try:
         return ('ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed',
-         'normal', 'semi-expanded', 'expanded', 'extra-expanded',
-         'ultra-expanded').index(val)
+                'normal', 'semi-expanded', 'expanded', 'extra-expanded',
+                'ultra-expanded').index(val)
     except Exception:
         return 4  # normal
 

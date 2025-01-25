@@ -69,11 +69,11 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
 class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
-            'bool2' : (
+            'bool2': (
                     (_('is true'), 'is true',),
                     (_('is false'), 'is not true'),
             ),
-            'bool' : (
+            'bool': (
                     (_('is true'), 'is true',),
                     (_('is not true'), 'is not true'),
                     (_('is false'), 'is false'),
@@ -81,22 +81,22 @@ class ConditionEditor(QWidget):  # {{{
                     (_('is undefined'), 'is undefined'),
                     (_('is defined'), 'is defined'),
             ),
-            'ondevice' : (
+            'ondevice': (
                     (_('is true'), 'is set',),
                     (_('is false'), 'is not set'),
             ),
-            'identifiers' : (
+            'identifiers': (
                 (_('has id'), 'has id'),
                 (_('does not have id'), 'does not have id'),
             ),
-            'int' : (
+            'int': (
                 (_('is equal to'), 'eq'),
                 (_('is less than'), 'lt'),
                 (_('is greater than'), 'gt'),
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set')
             ),
-            'datetime' : (
+            'datetime': (
                 (_('is equal to'), 'eq'),
                 (_('is earlier than'), 'lt'),
                 (_('is later than'), 'gt'),
@@ -108,7 +108,7 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is more days from now than'), 'newer future days'),
                 (_('is fewer days from now than'), 'older future days')
             ),
-            'multiple' : (
+            'multiple': (
                 (_('has'), 'has'),
                 (_('does not have'), 'does not have'),
                 (_('has pattern'), 'has pattern'),
@@ -116,13 +116,13 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-            'multiple_no_isset' : (
+            'multiple_no_isset': (
                 (_('has'), 'has'),
                 (_('does not have'), 'does not have'),
                 (_('has pattern'), 'has pattern'),
                 (_('does not have pattern'), 'does not have pattern'),
             ),
-            'single'   : (
+            'single': (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
                 (_('contains'), 'contains'),
@@ -132,7 +132,7 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-            'single_no_isset'   : (
+            'single_no_isset': (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
                 (_('contains'), 'contains'),
@@ -233,11 +233,10 @@ class ConditionEditor(QWidget):  # {{{
     @property
     def condition(self):
 
-        c, a, v = (self.current_col, self.current_action,
-                self.current_val)
+        c, a, v = (self.current_col, self.current_action, self.current_val)
         if not c or not a:
             return None
-        return (c, a, v)
+        return c, a, v
 
     @condition.setter
     def condition(self, condition):
@@ -444,8 +443,6 @@ class RuleEditor(QDialog):  # {{{
                 ' first rule to match will be used.')))
             self.l3 = l3 = QLabel(_('of the column:'))
             l.addWidget(l3, 2, 2)
-        else:
-            pass
 
         self.column_box = QComboBox(self)
         l.addWidget(self.column_box, 3, 0 if self.rule_kind == 'color' else 2)
@@ -680,7 +677,6 @@ class RuleEditor(QDialog):  # {{{
         except:
             import traceback
             traceback.print_exc()
-        return
 
     def get_filenames_from_box(self):
         if self.doing_multiple:
@@ -866,7 +862,7 @@ class RulesModel(QAbstractListModel):  # {{{
                 col = self.fm[col]['name']
             return self.rule_to_html(kind, col, rule)
         if role == Qt.ItemDataRole.UserRole:
-            return (kind, col, rule)
+            return kind, col, rule
 
     def add_rule(self, kind, col, rule, selected_row=None):
         self.beginResetModel()
@@ -1281,7 +1277,7 @@ class EditRules(QWidget):  # {{{
 
     def move_rows(self, moving_up=True):
         sm = self.rules_view.selectionModel()
-        rows = sorted(list(sm.selectedRows()), reverse=not moving_up)
+        rows = sorted(sm.selectedRows(), reverse=not moving_up)
         if rows:
             if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):
                 return

@@ -144,7 +144,7 @@ IN_COMMENT_CONTENT = 5
 
 class CSSState:
 
-    __slots__ = ('parse', 'blocks')
+    __slots__ = ('blocks', 'parse')
 
     def __init__(self):
         self.parse  = NORMAL
@@ -163,7 +163,7 @@ class CSSState:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return f"CSSState(parse={self.parse}, blocks={self.blocks})"
+        return f'CSSState(parse={self.parse}, blocks={self.blocks})'
     __str__ = __repr__
 
 

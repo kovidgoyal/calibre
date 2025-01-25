@@ -24,4 +24,3 @@ class WwwAvisen_dk(BasicNewsRecipe):
     feeds = [
                 ('Nyheder fra Avisen.dk', 'http://www.avisen.dk/rss.aspx'),
     ]
-

@@ -389,7 +389,7 @@ arguments.[/] Can take any number of arguments. In most cases you can use the
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         i = 0
         res = ''
-        for i in range(0, len(args)):
+        for i in range(len(args)):
             res += args[i]
         return res
 
@@ -722,7 +722,7 @@ separated by ``separator``.
     def evaluate(self, formatter, kwargs, mi, locals, name, separator):
         res = getattr(mi, name, None)
         if not isinstance(res, list):
-            return "%s is not a list" % name
+            return '%s is not a list' % name
         return separator.join(res)
 
 
@@ -998,14 +998,14 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
             fv = args[0]
             nfv = args[1]
         else:
-            raise ValueError(_("{} requires 2 or 4 arguments").format(self.name))
+            raise ValueError(_('{} requires 2 or 4 arguments').format(self.name))
 
         l = [v.strip() for v in val.split(',') if v.strip()]
-        (id_, __, regexp) = ident.partition(':')
+        id_, __, regexp = ident.partition(':')
         if not id_:
             return nfv
         for candidate in l:
-            i, __, v =  candidate.partition(':')
+            i, __, v = candidate.partition(':')
             if v and i == id_:
                 if not regexp or re.search(regexp, v, flags=re.I):
                     return candidate if fv_is_id else fv
@@ -1054,7 +1054,7 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
         def repl(mo):
             res = ''
             if mo and mo.lastindex:
-                for dex in range(0, mo.lastindex):
+                for dex in range(mo.lastindex):
                     gv = mo.group(dex+1)
                     if gv is None:
                         continue
@@ -1268,7 +1268,6 @@ the :ref:`select` function to get the modification time for a specific format. N
 that format names are always uppercase, as in EPUB.
 ''')
 
-
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
         try:
@@ -1387,7 +1386,7 @@ items from ``start_index`` to ``end_index``.[/] The first item is number zero. I
 an index is negative, then it counts from the end of the list. As a special
 case, an end_index of zero is assumed to be the length of the list.
 
-Examples assuming that the tags column (which is comma-separated) contains "A, B ,C":
+Examples assuming that the tags column (which is comma-separated) contains "A, B, C":
 [LIST]
 [*]``{tags:sublist(0,1,\,)}`` returns "A"
 [*]``{tags:sublist(-1,0,\,)}`` returns "C"
@@ -1864,7 +1863,7 @@ program:
     list_join('#@#', $authors, '&', list_re($#genre, ',', '^(.).*$', 'Genre: \\1'),  ',')
 [/CODE]
 ''')  # not translated as \1 gets mistranslated as a control char in transifex
-      # for some reason. And yes, the double backslash is required, for some reason.
+    # for some reason. And yes, the double backslash is required, for some reason.
 
     def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
         if len(args) % 2 != 0:
@@ -1873,7 +1872,7 @@ program:
                   "associated separator"))
 
         # Starting in python 3.7 dicts preserve order so we don't need OrderedDict
-        result = dict()
+        result = {}
         i = 0
         while i < len(args):
             lst = [v.strip() for v in args[i].split(args[i+1]) if v.strip()]
@@ -1952,7 +1951,7 @@ range(1, 5, 2, 1) -> error(limit exceeded)
         r = range(start_val, stop_val, step_val)
         if len(r) > limit_val:
             raise ValueError(
-                _("{0}: length ({1}) longer than limit ({2})").format(
+                _('{0}: length ({1}) longer than limit ({2})').format(
                             'range', len(r), str(limit_val)))
         return ', '.join([str(v) for v in r])
 
@@ -2041,8 +2040,8 @@ by ``separator``, as are the items in the returned list.
     def evaluate(self, formatter, kwargs, mi, locals, value, direction, separator):
         res = [l.strip() for l in value.split(separator) if l.strip()]
         if separator == ',':
-            return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
-        return separator.join(sorted(res, key=sort_key, reverse=direction != "0"))
+            return ', '.join(sorted(res, key=sort_key, reverse=direction != '0'))
+        return separator.join(sorted(res, key=sort_key, reverse=direction != '0'))
 
 
 class BuiltinListEquals(BuiltinFormatterFunction):
@@ -2115,7 +2114,7 @@ uses ``re_group(item, search_re, template ...)`` when doing the replacements.
             def repl(mo):
                 newval = ''
                 if mo and mo.lastindex:
-                    for dex in range(0, mo.lastindex):
+                    for dex in range(mo.lastindex):
                         gv = mo.group(dex+1)
                         if gv is None:
                             continue
@@ -2227,7 +2226,7 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
             raise e
         except Exception as e:
             traceback.print_exc()
-            raise ValueError(_("{0}: error: {1}").format('date_arithmetic', str(e)))
+            raise ValueError(_('{0}: error: {1}').format('date_arithmetic', str(e)))
 
 
 class BuiltinLanguageStrings(BuiltinFormatterFunction):
@@ -2535,7 +2534,6 @@ on a device has its own device name. The ``storage_location_key`` names are
 ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 ''')
 
-
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
         # We can't use get_database() here because we need the device manager.
         # In other words, the function really does need the GUI
@@ -2626,14 +2624,14 @@ This function works only in the GUI and the content server.
         if res is None:
             if is_undefined == '1':
                 return 'Yes'
-            return ""
+            return ''
         if not isinstance(res, bool):
             raise ValueError(_('check_yes_no requires the field be a Yes/No custom column'))
         if is_false == '1' and not res:
             return 'Yes'
         if is_true == '1' and res:
             return 'Yes'
-        return ""
+        return ''
 
 
 class BuiltinRatingToStars(BuiltinFormatterFunction):
@@ -3169,7 +3167,7 @@ This function works only in the GUI and the content server.
             return '1' if note is not None else ''
         try:
             notes_for_book = db.items_with_notes_in_book(mi.id)
-            values = [v for v in notes_for_book.get(field_name, {}).values()]
+            values = list(notes_for_book.get(field_name, {}).values())
             return db.field_metadata[field_name]['is_multiple'].get('list_to_ui', ', ').join(values)
         except Exception as e:
             traceback.print_exc()

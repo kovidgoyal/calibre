@@ -1,6 +1,6 @@
-"""
+'''
 newrepublic.com
-"""
+'''
 import json
 from functools import cmp_to_key
 from urllib.parse import urlencode, urljoin, urlparse, urlsplit
@@ -10,16 +10,16 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.date import parse_date
 from calibre.web.feeds.news import BasicNewsRecipe
 
-_issue_url = ""  # example: https://newrepublic.com/magazine/may-2023
+_issue_url = ''  # example: https://newrepublic.com/magazine/may-2023
 
 
 def sort_section(a, b, sections_sort):
     try:
-        a_index = sections_sort.index(a["section"])
+        a_index = sections_sort.index(a['section'])
     except ValueError:
         a_index = 999
     try:
-        b_index = sections_sort.index(b["section"])
+        b_index = sections_sort.index(b['section'])
     except ValueError:
         b_index = 999
 
@@ -27,31 +27,31 @@ def sort_section(a, b, sections_sort):
         return -1
     if a_index > b_index:
         return 1
-    if a["section"] == b["section"]:
-        return -1 if a["date"] < b["date"] else 1
-    return -1 if a["section"] < b["section"] else 1
+    if a['section'] == b['section']:
+        return -1 if a['date'] < b['date'] else 1
+    return -1 if a['section'] < b['section'] else 1
 
 
 class NewRepublicMagazine(BasicNewsRecipe):
-    title = "The New Republic Magazine"
-    language = "en"
-    __author__ = "ping"
+    title = 'The New Republic Magazine'
+    language = 'en'
+    __author__ = 'ping'
     description = (
-        "Founded in 1914, The New Republic is a media organization dedicated to addressing "
-        "today’s most critical issues. https://newrepublic.com/magazine"
+        'Founded in 1914, The New Republic is a media organization dedicated to addressing '
+        'today’s most critical issues. https://newrepublic.com/magazine'
     )
-    publication_type = "magazine"
+    publication_type = 'magazine'
     use_embedded_content = False
-    masthead_url = "https://images.newrepublic.com/f5acdc0030e3212e601040dd24d5c2c0c684b15f.png?w=512&q=65&dpi=1&fit=crop&crop=faces&h=256"
-    remove_attributes = ["height", "width"]
-    ignore_duplicate_articles = {"title", "url"}
+    masthead_url = 'https://images.newrepublic.com/f5acdc0030e3212e601040dd24d5c2c0c684b15f.png?w=512&q=65&dpi=1&fit=crop&crop=faces&h=256'
+    remove_attributes = ['height', 'width']
+    ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     compress_news_images_auto_size = 6
     requires_version = (5, 0, 0)
 
-    BASE_URL = "https://newrepublic.com"
+    BASE_URL = 'https://newrepublic.com'
 
-    extra_css = """
+    extra_css = '''
     h1.headline { margin-bottom: 0.4rem; }
     h2.subheadline { font-style: italic; margin-bottom: 1rem; font-weight: normal; }
     .article-meta {  margin-bottom: 1rem; }
@@ -64,15 +64,15 @@ class NewRepublicMagazine(BasicNewsRecipe):
     }
     .lede-media .caption, .article-embed .caption { font-size: 0.8rem; }
     div.author-bios { margin-top: 2rem; font-style: italic; border-top: solid 1px dimgray; }
-    """
+    '''
 
     def _article_endpoint(self, nid):
-        """
+        '''
         Graphql endpoint to fetch full article
         :param nid:
         :return:
-        """
-        query = """
+        '''
+        query = '''
 query ($id: ID, $nid: ID) {
   Article(id: $id, nid: $nid) {
     ...ArticlePageFields
@@ -157,12 +157,12 @@ fragment ArticlePageFields on Article {
     slug
     label
   }
-}"""
-        params = {"query": query, "variables": json.dumps({"nid": str(nid)})}
-        return f"https://newrepublic.com/graphql?{urlencode(params)}"
+}'''
+        params = {'query': query, 'variables': json.dumps({'nid': str(nid)})}
+        return f'https://newrepublic.com/graphql?{urlencode(params)}'
 
     def _resize_image(self, image_url, width, height):
-        """
+        '''
         Rewrite the image url to fetch a device appropriate sized one instead
         of the full-res one
 
@@ -170,76 +170,76 @@ fragment ArticlePageFields on Article {
         :param width:
         :param height:
         :return:
-        """
+        '''
         crop_params = {
-            "auto": "compress",
-            "ar": f"{width}:{height}",
-            "fm": "jpg",
-            "fit": "crop",
-            "crop": "faces",
-            "ixlib": "react-9.0.2",
-            "dpr": 1,
-            "q": 65,
-            "w": self.scale_news_images[0] if self.scale_news_images else 800,
+            'auto': 'compress',
+            'ar': f'{width}:{height}',
+            'fm': 'jpg',
+            'fit': 'crop',
+            'crop': 'faces',
+            'ixlib': 'react-9.0.2',
+            'dpr': 1,
+            'q': 65,
+            'w': self.scale_news_images[0] if self.scale_news_images else 800,
         }
         url_tuple = urlsplit(image_url)
-        return f"{url_tuple.scheme}://{url_tuple.netloc}{url_tuple.path}?{urlencode(crop_params)}"
+        return f'{url_tuple.scheme}://{url_tuple.netloc}{url_tuple.path}?{urlencode(crop_params)}'
 
     def populate_article_metadata(self, article, soup, first):
         # pick up the og link from preprocess_raw_html() and set it as url instead of the api endpoint
-        og_link = soup.select("[data-og-link]")
+        og_link = soup.select('[data-og-link]')
         if og_link:
-            article.url = og_link[0]["data-og-link"]
+            article.url = og_link[0]['data-og-link']
 
     def preprocess_raw_html(self, raw_html, url):
         # formulate the api response into html
-        article = json.loads(raw_html)["data"]["Article"]
+        article = json.loads(raw_html)['data']['Article']
         # Example: 2022-08-12T10:00:00.000Z
-        date_published_loc = parse_date(article["publishedAt"])
+        date_published_loc = parse_date(article['publishedAt'])
         # authors
-        author_bios_html = ""
+        author_bios_html = ''
         post_authors = []
         try:
-            post_authors = [a["name"] for a in article.get("authors", [])]
+            post_authors = [a['name'] for a in article.get('authors', [])]
             if post_authors:
-                author_bios_html = "".join(
-                    [a.get("blurb", "") for a in article.get("authors", [])]
+                author_bios_html = ''.join(
+                    [a.get('blurb', '') for a in article.get('authors', [])]
                 )
                 author_bios_html = f'<div class="author-bios">{author_bios_html}</div>'
         except (KeyError, TypeError):
             pass
 
         # lede image
-        lede_image_html = ""
-        if article.get("ledeImage"):
-            img = article["ledeImage"]
+        lede_image_html = ''
+        if article.get('ledeImage'):
+            img = article['ledeImage']
             lede_img_url = self._resize_image(
-                urljoin(self.BASE_URL, img["src"]), img["width"], img["height"]
+                urljoin(self.BASE_URL, img['src']), img['width'], img['height']
             )
-            lede_image_caption = ""
-            if article.get("ledeImageRealCaption"):
+            lede_image_caption = ''
+            if article.get('ledeImageRealCaption'):
                 lede_image_caption = (
                     f'<span class="caption">{article["ledeImageRealCaption"]}>/span>'
                 )
-            lede_image_html = f"""<p class="lede-media">
+            lede_image_html = f'''<p class="lede-media">
                 <img src="{lede_img_url}">{lede_image_caption}
-                </p>"""
+                </p>'''
 
-        body_soup = BeautifulSoup(article["body"], features="html.parser")
-        for img in body_soup.find_all("img", attrs={"data-serialized": True}):
+        body_soup = BeautifulSoup(article['body'], features='html.parser')
+        for img in body_soup.find_all('img', attrs={'data-serialized': True}):
             try:
-                img_info = json.loads(img["data-serialized"])
+                img_info = json.loads(img['data-serialized'])
                 img_src = self._resize_image(
-                    urljoin(self.BASE_URL, img_info["src"]),
-                    img_info["width"],
-                    img_info["height"],
+                    urljoin(self.BASE_URL, img_info['src']),
+                    img_info['width'],
+                    img_info['height'],
                 )
-                img["src"] = img_src
-                del img["data-serialized"]
-            except:  # noqa
+                img['src'] = img_src
+                del img['data-serialized']
+            except:
                 pass
 
-        return f"""<html>
+        return f'''<html>
         <head><title>{article["cleanTitle"]}</title></head>
         <body>
             <article data-og-link="{article["urlFull"]}">
@@ -252,37 +252,37 @@ fragment ArticlePageFields on Article {
                 </span>
             </div>
             {lede_image_html}
-            {str(body_soup)}
+            {body_soup!s}
             {author_bios_html}
             </article>
-        </body></html>"""
+        </body></html>'''
 
     def parse_index(self):
         br = self.get_browser()
-        params = ""
+        params = ''
         if _issue_url:
-            month = urlparse(_issue_url).path.split("/")[-1]
+            month = urlparse(_issue_url).path.split('/')[-1]
             params = f'?{urlencode({"magazineTag": month})}'
-        res = br.open_novisit(f"https://newrepublic.com/api/content/magazine{params}")
-        magazine = json.loads(res.read().decode("utf-8"))["data"]
+        res = br.open_novisit(f'https://newrepublic.com/api/content/magazine{params}')
+        magazine = json.loads(res.read().decode('utf-8'))['data']
         self.log.debug(f'Found issue: {magazine["metaData"]["issueTag"]["text"]}')
         self.timefmt = f': {magazine["metaData"]["issueTag"]["text"]}'
-        self.cover_url = urljoin(self.BASE_URL, magazine["metaData"]["image"]["src"])
+        self.cover_url = urljoin(self.BASE_URL, magazine['metaData']['image']['src'])
 
         feed_articles = []
         for k, articles in magazine.items():
-            if not (k.startswith("magazine") and articles):
+            if not (k.startswith('magazine') and articles):
                 continue
             try:
                 for article in articles:
                     self.log.debug(f'Found article: {article["title"]}')
                     feed_articles.append(
                         {
-                            "url": self._article_endpoint(article["nid"]),
-                            "title": article["title"].replace("\n", " "),
-                            "description": article.get("deck", ""),
-                            "date": article["publishedAt"],
-                            "section": k[len("magazine") :],
+                            'url': self._article_endpoint(article['nid']),
+                            'title': article['title'].replace('\n', ' '),
+                            'description': article.get('deck', ''),
+                            'date': article['publishedAt'],
+                            'section': k[len('magazine') :],
                         }
                     )
             except TypeError:
@@ -290,24 +290,24 @@ fragment ArticlePageFields on Article {
                 pass
 
         sort_sections = [
-            "Cover",
-            "Editorsnote",
-            "Features",
-            "StateOfTheNation",
-            "ResPublica",
-            "Columns",
-            "Upfront",
-            "Backstory",
-            "SignsAndWonders",
-            "Usandtheworld",
-            "Booksandthearts",
-            "Poetry",
-            "Exposure",
+            'Cover',
+            'Editorsnote',
+            'Features',
+            'StateOfTheNation',
+            'ResPublica',
+            'Columns',
+            'Upfront',
+            'Backstory',
+            'SignsAndWonders',
+            'Usandtheworld',
+            'Booksandthearts',
+            'Poetry',
+            'Exposure',
         ]
         sort_category_key = cmp_to_key(lambda a, b: sort_section(a, b, sort_sections))
         return [
             (
-                magazine["metaData"]["issueTag"]["text"],
+                magazine['metaData']['issueTag']['text'],
                 sorted(feed_articles, key=sort_category_key),
             )
         ]

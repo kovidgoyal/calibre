@@ -49,9 +49,7 @@ def sanitize_path():
                 needed_paths.append(p)
                 executables.remove(x)
     sw = os.environ['SW']
-    paths = r'{0}\private\python\bin {0}\private\python\Lib\site-packages\pywin32_system32 {0}\bin {0}\qt\bin C:\Windows\System32'.format(
-        sw
-    ).split() + needed_paths
+    paths = rf'{sw}\private\python\bin {sw}\private\python\Lib\site-packages\pywin32_system32 {sw}\bin {sw}\qt\bin C:\Windows\System32'.split() + needed_paths
     os.environ['PATH'] = os.pathsep.join(paths)
     print('PATH:', os.environ['PATH'])
 
@@ -100,7 +98,7 @@ def main():
     else:
         if len(sys.argv) == 1:
             raise SystemExit('Usage: win-ci.py sw|build|test')
-        raise SystemExit('%r is not a valid action' % sys.argv[-1])
+        raise SystemExit('{!r} is not a valid action'.format(sys.argv[-1]))
 
 
 if __name__ == '__main__':

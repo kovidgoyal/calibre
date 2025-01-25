@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 
 
 __license__ = 'GPL v3'
@@ -27,7 +26,7 @@ for name, src in sources.items():
     os.chdir(iconset)
     try:
         for sz in (16, 32, 128, 256, 512, 1024):
-            iname = 'icon_{0}x{0}.png'.format(sz)
+            iname = f'icon_{sz}x{sz}.png'
             iname2x = 'icon_{0}x{0}@2x.png'.format(sz // 2)
             if src.endswith('.svg'):
                 subprocess.check_call(['rsvg-convert', src, '-w', str(sz), '-h', str(sz), '-o', iname])
@@ -36,7 +35,7 @@ for name, src in sources.items():
                 if sz == 512:
                     shutil.copy2(src, iname)
                 else:
-                    subprocess.check_call(['convert', src, '-resize', '{0}x{0}'.format(sz), iname])
+                    subprocess.check_call(['convert', src, '-resize', f'{sz}x{sz}', iname])
             if sz > 16:
                 shutil.copy2(iname, iname2x)
             if sz > 512:

@@ -14,7 +14,6 @@ from calibre.utils.icu import primary_contains, primary_sort_key, strcmp
 
 
 class TagCategories(QDialog, Ui_TagCategories):
-
     '''
     The structure of user_categories stored in preferences is
       {cat_name: [ [name, category, v], [], [] ]}, cat_name: [ [name, cat, v] ...]}
@@ -230,7 +229,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def fill_applied_items(self):
         ccn = self.current_cat_name
         if ccn:
-            self.applied_items = [v for v in self.user_categories[ccn]]
+            self.applied_items = list(self.user_categories[ccn])
             self.applied_items.sort(key=self.item_sort_key)
         else:
             self.applied_items = []

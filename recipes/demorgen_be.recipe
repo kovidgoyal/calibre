@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""
+'''
 demorgen.be
-"""
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,7 +13,7 @@ class DeMorganBe(BasicNewsRecipe):
     description = 'News from Belgium in Dutch'
     oldest_article = 1
     language = 'nl_BE'
-    encoding = "utf-8"
+    encoding = 'utf-8'
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
@@ -23,10 +23,10 @@ class DeMorganBe(BasicNewsRecipe):
     masthead_url = 'https://www.demorgen.be/_next/static/media/demorgen_logo.dce579e2.svg'
     cover_url = 'https://usercontent.one/wp/www.insidejazz.be/wp-content/uploads/2018/11/pic0143.png'
 
-    extra_css = """
+    extra_css = '''
         time, [data-test-id:"article-label"], [data-test-id:"article-sublabel"], [[data-test-id:"article-author"]] { font-size:small; }
         [data-test-id:"header-intro"] { font-style: italic; }
-    """
+    '''
 
     keep_only_tags = [
         dict(name='article', attrs={'id': 'article-content'}),

@@ -12,6 +12,7 @@ from calibre import prepare_string_for_xml
 # This must be something that will never naturally occur in documentation
 MARKUP_ERROR = '*' + _('Template documentation markup error') + '*:'
 
+
 @unique
 class NodeKinds(IntEnum):
 
@@ -176,9 +177,8 @@ class UrlNode(Node):
         return prepare_string_for_xml(self._url)
 
 
-
 class FFMLProcessor:
-    r"""
+    r'''
     This class is parser for the Formatter Function Markup Language (FFML). It
     provides output methods for RST and HTML.
 
@@ -191,18 +191,18 @@ class FFMLProcessor:
     - pushing the "FFML documentation" button in the "Formatter function
       documentation editor". How to access the editor is described in "General
       information" dialog mentioned above.
-    """
+    '''
 
 # ====== API ======
 
     def print_node_tree(self, node, indent=0):
-        """
+        '''
         Pretty print a Formatter Function Markup Language (FFML) parse tree.
 
         :param node:   The root of the tree you want printed.
         :param indent: The indent level of the tree. The outermost root should
                        have an indent of zero.
-        """
+        '''
         if node.node_kind() in (NodeKinds.TEXT, NodeKinds.CODE_TEXT, NodeKinds.CHARACTER,
                                 NodeKinds.CODE_BLOCK, NodeKinds.ITALIC_TEXT,
                                 NodeKinds.GUI_LABEL, NodeKinds.BOLD_TEXT):
@@ -215,7 +215,7 @@ class FFMLProcessor:
             self.print_node_tree(n, indent+1)
 
     def parse_document(self, doc, name, safe=True):
-        """
+        '''
         Given a Formatter Function Markup Language (FFML) document, return
         a parse tree for that document.
 
@@ -226,7 +226,7 @@ class FFMLProcessor:
                       recover using the Engiish version as well as display an error.
 
         :return:       a parse tree for the document
-        """
+        '''
         def initialize(txt):
             self.input_line = 1
             self.input = txt
@@ -273,7 +273,7 @@ class FFMLProcessor:
             return add_exception_text(DocumentNode(), e, doc)
 
     def tree_to_html(self, tree, depth=0):
-        """
+        '''
         Given a Formatter Function Markup Language (FFML) parse tree, return
         a string containing the HTML for that tree.
 
@@ -281,7 +281,7 @@ class FFMLProcessor:
         :param depth:  the recursion level. This is used for debugging.
 
         :return:       a string containing the HTML text
-        """
+        '''
         result = ''
         if tree.node_kind() == NodeKinds.TEXT:
             result += tree.escaped_text()
@@ -320,7 +320,7 @@ class FFMLProcessor:
         return result
 
     def document_to_html(self, document, name, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in HTML format.
 
@@ -332,12 +332,12 @@ class FFMLProcessor:
 
         :return: a string containing the HTML
 
-        """
+        '''
         tree = self.parse_document(document, name, safe=safe)
         return self.tree_to_html(tree, 0)
 
     def document_to_summary_html(self, document, name, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in HTML format.
 
@@ -349,7 +349,7 @@ class FFMLProcessor:
 
         :return: a string containing the HTML
 
-        """
+        '''
         document = document.strip()
         sum_tag = document.find('[/]')
         if sum_tag > 0:
@@ -362,7 +362,7 @@ class FFMLProcessor:
         return result
 
     def tree_to_rst(self, tree, indent, result=None):
-        """
+        '''
         Given a Formatter Function Markup Language (FFML) parse tree, return
         a string containing the RST (sphinx reStructuredText) for that tree.
 
@@ -372,7 +372,7 @@ class FFMLProcessor:
                        the RST output indented.
 
         :return:       a string containing the RST text
-        """
+        '''
 
         def indent_text(txt):
             nonlocal result
@@ -428,7 +428,7 @@ class FFMLProcessor:
         return result
 
     def document_to_rst(self, document, name, indent=0, prefix=None, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document in RST (sphinx reStructuredText) format.
 
@@ -446,14 +446,14 @@ class FFMLProcessor:
 
         :return: a string containing the RST text
 
-        """
+        '''
         doc = self.tree_to_rst(self.parse_document(document, name, safe=safe), indent)
         if prefix is not None:
             doc = prefix + doc.lstrip('  ' * indent)
         return doc
 
     def document_to_summary_rst(self, document, name, indent=0, prefix=None, safe=True):
-        """
+        '''
         Given a document in the Formatter Function Markup Language (FFML), return
         that document's summary in RST (sphinx reStructuredText) format.
 
@@ -471,7 +471,7 @@ class FFMLProcessor:
 
         :return: a string containing the RST text
 
-        """
+        '''
         document = document.strip()
         sum_tag = document.find('[/]')
         if sum_tag > 0:
@@ -486,7 +486,7 @@ class FFMLProcessor:
 
 # ============== Internal methods =================
 
-    keywords = {'``':           NodeKinds.CODE_TEXT, # must be before '`'
+    keywords = {'``':           NodeKinds.CODE_TEXT,  # must be before '`'
                 '`':            NodeKinds.ITALIC_TEXT,
                 '[B]':          NodeKinds.BOLD_TEXT,
                 '[CODE]':       NodeKinds.CODE_BLOCK,

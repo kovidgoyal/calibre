@@ -151,7 +151,7 @@ class NotesTableWidgetItem(QTableWidgetItem):
         return self._sort_val < other._sort_val
 
 
-class NotesUtilities():
+class NotesUtilities:
 
     def __init__(self, table, category, item_id_getter):
         self.table = table
@@ -513,7 +513,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.setEnabled(not item.is_deleted)
 
         if self.category is not None:
-            ca = m.addAction(_("Search the library for {0}").format(item_name))
+            ca = m.addAction(_('Search the library for {0}').format(item_name))
             ca.setIcon(QIcon.cached_icon('lt.png'))
             ca.triggered.connect(partial(self.search_for_books, item))
             ca.setEnabled(not item.is_deleted)
@@ -605,7 +605,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         find_text = str(self.search_box.currentText())
         if not find_text:
             return
-        for _ in range(0, self.table.rowCount()):
+        for _ in range(self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()):
                 self.table.setCurrentItem(self.table.item(r, VALUE_COLUMN))
@@ -731,7 +731,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             tags = self.ordered_tags
 
         select_item = None
-        tooltips = ( # must be in the same order as the columns in the table
+        tooltips = (  # must be in the same order as the columns in the table
              _('Name of the item'),
              _('Count of books with this item'),
              _('Value of the item before it was edited'),
@@ -849,7 +849,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def table_column_resized(self, *args):
         self.table_column_widths = []
-        for c in range(0, self.table.columnCount()):
+        for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def resizeEvent(self, *args):
@@ -863,7 +863,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
             w //= self.table.columnCount()
-            for c in range(0, self.table.columnCount()):
+            for c in range(self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
     def start_editing(self, on_row):
@@ -916,8 +916,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         new_text = str(edited_item.text())
         if self.is_enumerated and new_text not in self.enum_permitted_values:
             error_dialog(self, _('Item is not a permitted value'), '<p>' + _(
-                "This column has a fixed set of permitted values. The entered "
-                "text must be one of ({0}).").format(', '.join(self.enum_permitted_values)) +
+                'This column has a fixed set of permitted values. The entered '
+                'text must be one of ({0}).').format(', '.join(self.enum_permitted_values)) +
                 '</p>', show=True)
             with block_signals(self.table):
                 edited_item.setText(self.text_before_editing)

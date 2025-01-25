@@ -78,7 +78,6 @@ def run_funcs(self, db, ndb, funcs):
 
 
 class LegacyTest(BaseTest):
-
     ''' Test the emulation of the legacy interface. '''
 
     def test_library_wide_properties(self):  # {{{
@@ -356,9 +355,9 @@ class LegacyTest(BaseTest):
     def test_legacy_adding_books(self):  # {{{
         'Test various adding/deleting books methods'
         import sqlite3
-        con = sqlite3.connect(":memory:")
+        con = sqlite3.connect(':memory:')
         try:
-            con.execute("create virtual table recipe using fts5(name, ingredients)")
+            con.execute('create virtual table recipe using fts5(name, ingredients)')
         except Exception:
             self.skipTest('python sqlite3 module does not have FTS5 support')
         con.close()
@@ -463,7 +462,7 @@ class LegacyTest(BaseTest):
             'find_books_in_directory', 'import_book_directory', 'import_book_directory_multiple', 'recursive_import',
 
             # Internal API
-            'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
+            'clean_user_categories', 'cleanup_tags', 'books_list_filter', 'conn', 'connect', 'construct_file_name',
             'construct_path_name', 'clear_dirtied', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_books_referencing',

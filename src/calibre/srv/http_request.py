@@ -20,11 +20,11 @@ protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
+
 # Parse URI {{{
 
-
 def parse_request_uri(uri):
-    """Parse a Request-URI into (scheme, authority, path).
+    '''Parse a Request-URI into (scheme, authority, path).
 
     Note that Request-URI's must be one of::
 
@@ -42,7 +42,7 @@ def parse_request_uri(uri):
         path_segments = segment *( "/" segment )
         segment       = *pchar *( ";" param )
         param         = *pchar
-    """
+    '''
     if uri == b'*':
         return None, None, uri
 
@@ -68,9 +68,9 @@ def parse_request_uri(uri):
 def parse_uri(uri, parse_query=True, unquote_func=unquote):
     scheme, authority, path = parse_request_uri(uri)
     if path is None:
-        raise HTTPSimpleResponse(http_client.BAD_REQUEST, "No path component")
+        raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'No path component')
     if b'#' in path:
-        raise HTTPSimpleResponse(http_client.BAD_REQUEST, "Illegal #fragment in Request-URI.")
+        raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Illegal #fragment in Request-URI.')
 
     if scheme:
         try:
@@ -125,7 +125,6 @@ def normalize_header_name(name):
 
 
 class HTTPHeaderParser:
-
     '''
     Parse HTTP headers. Use this class by repeatedly calling the created object
     with a single line at a time and checking the finished attribute. Can raise ValueError
@@ -134,7 +133,7 @@ class HTTPHeaderParser:
     Headers which are repeated are folded together using a comma if their
     specification so dictates.
     '''
-    __slots__ = ('hdict', 'lines', 'finished')
+    __slots__ = ('finished', 'hdict', 'lines')
 
     def __init__(self):
         self.hdict = MultiDict()
@@ -269,10 +268,10 @@ class HTTPRequest(Connection):
             rp = int(req_protocol[5]), int(req_protocol[7])
             self.method = method.decode('ascii').upper()
         except Exception:
-            return self.simple_response(http_client.BAD_REQUEST, "Malformed Request-Line")
+            return self.simple_response(http_client.BAD_REQUEST, 'Malformed Request-Line')
 
         if self.method not in HTTP_METHODS:
-            return self.simple_response(http_client.BAD_REQUEST, "Unknown HTTP method")
+            return self.simple_response(http_client.BAD_REQUEST, 'Unknown HTTP method')
 
         try:
             self.request_protocol = protocol_map[rp]
@@ -311,36 +310,36 @@ class HTTPRequest(Connection):
         request_content_length = int(inheaders.get('Content-Length', 0))
         if request_content_length > self.max_request_body_size:
             return self.simple_response(http_client.REQUEST_ENTITY_TOO_LARGE,
-                "The entity sent with the request exceeds the maximum "
-                "allowed bytes (%d)." % self.max_request_body_size)
+                'The entity sent with the request exceeds the maximum '
+                'allowed bytes (%d).' % self.max_request_body_size)
         # Persistent connection support
         if self.response_protocol is HTTP11:
             # Both server and client are HTTP/1.1
-            if inheaders.get("Connection", "") == "close":
+            if inheaders.get('Connection', '') == 'close':
                 self.close_after_response = True
         else:
             # Either the server or client (or both) are HTTP/1.0
-            if inheaders.get("Connection", "") != "Keep-Alive":
+            if inheaders.get('Connection', '') != 'Keep-Alive':
                 self.close_after_response = True
 
         # Transfer-Encoding support
         te = ()
         if self.response_protocol is HTTP11:
-            rte = inheaders.get("Transfer-Encoding")
+            rte = inheaders.get('Transfer-Encoding')
             if rte:
-                te = [x.strip().lower() for x in rte.split(",") if x.strip()]
+                te = [x.strip().lower() for x in rte.split(',') if x.strip()]
         chunked_read = False
         if te:
             for enc in te:
-                if enc == "chunked":
+                if enc == 'chunked':
                     chunked_read = True
                 else:
                     # Note that, even if we see "chunked", we must reject
                     # if there is an extension we don't recognize.
-                    return self.simple_response(http_client.NOT_IMPLEMENTED, "Unknown transfer encoding: %r" % enc)
+                    return self.simple_response(http_client.NOT_IMPLEMENTED, 'Unknown transfer encoding: %r' % enc)
 
-        if inheaders.get("Expect", '').lower() == "100-continue":
-            buf = BytesIO((HTTP11 + " 100 Continue\r\n\r\n").encode('ascii'))
+        if inheaders.get('Expect', '').lower() == '100-continue':
+            buf = BytesIO((HTTP11 + ' 100 Continue\r\n\r\n').encode('ascii'))
             return self.set_state(WRITE, self.write_continue, buf, inheaders, request_content_length, chunked_read)
         self.forwarded_for = inheaders.get('X-Forwarded-For')
 

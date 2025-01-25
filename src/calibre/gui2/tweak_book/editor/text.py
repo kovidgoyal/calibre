@@ -282,7 +282,7 @@ class TextEdit(PlainTextEdit):
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         fm = self.fontMetrics()
-        self.number_width = max(map(lambda x:fm.horizontalAdvance(str(x)), range(10)))
+        self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
         self.size_hint = QSize(self.expected_geometry[0] * fm.averageCharWidth(), self.expected_geometry[1] * fm.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
@@ -937,7 +937,7 @@ class TextEdit(PlainTextEdit):
             c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
             href = prepare_string_for_xml(href, True)
             if fullpage:
-                template =  '''\
+                template = '''\
 <div style="page-break-before:always; page-break-after:always; page-break-inside:avoid">\
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" \
 version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectRatio="{a}">\

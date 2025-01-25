@@ -22,7 +22,6 @@ Option = namedtuple('Option', 'option, default, dest, action, help')
 
 
 class EPUB_MOBI(CatalogPlugin):
-
     'EPUB catalog generator'
 
     name = 'Catalog_EPUB_MOBI'
@@ -33,8 +32,8 @@ class EPUB_MOBI(CatalogPlugin):
     version = (1, 0, 0)
     file_types = {'azw3', 'epub', 'mobi'}
 
-    THUMB_SMALLEST = "1.0"
-    THUMB_LARGEST = "3.0"
+    THUMB_SMALLEST = '1.0'
+    THUMB_LARGEST = '3.0'
 
     cli_options = [Option('--catalog-title',  # {{{
                           default='My Books',
@@ -78,8 +77,8 @@ class EPUB_MOBI(CatalogPlugin):
                           "(('Archived books','#status','Archived'),)\n"
                           "will exclude a book with a value of 'Archived' in the custom column 'status'.\n"
                           "When multiple rules are defined, all rules will be applied.\n"
-                          "Default: \n" + '"' + '%default' + '"' + "\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
+                          "Default: \n" + '"' + '%default' + '"' + '\n'
+                          'Applies to: AZW3, EPUB, MOBI output formats')),
                    Option('--generate-authors',
                           default=False,
                           dest='generate_authors',
@@ -156,14 +155,14 @@ class EPUB_MOBI(CatalogPlugin):
                                  "Default: '%default'\n"
                                  "Applies to: AZW3, EPUB, MOBI output formats")),
                    Option('--prefix-rules',
-                          default="(('Read books','tags','+','\u2713'),('Wishlist item','tags','Wishlist','\u00d7'))",
+                          default="(('Read books','tags','+','✓'),('Wishlist item','tags','Wishlist','×'))",
                           dest='prefix_rules',
                           action=None,
                           help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
                           "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
                           "When multiple rules are defined, the first matching rule will be used.\n"
-                          "Default:\n" + '"' + '%default' + '"' + "\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
+                          "Default:\n" + '"' + '%default' + '"' + '\n'
+                          'Applies to: AZW3, EPUB, MOBI output formats')),
                    Option('--preset',
                           default=None,
                           dest='preset',
@@ -197,11 +196,11 @@ class EPUB_MOBI(CatalogPlugin):
 
         # If preset specified from the cli, insert stored options from JSON file
         if hasattr(opts, 'preset') and opts.preset:
-            available_presets = JSONConfig("catalog_presets")
+            available_presets = JSONConfig('catalog_presets')
             if opts.preset not in available_presets:
                 if available_presets:
                     print(_('Error: Preset "{}" not found.').format(opts.preset))
-                    print(_('Stored presets: {}').format(', '.join([p for p in sorted(available_presets.keys())])))
+                    print(_('Stored presets: {}').format(', '.join(sorted(available_presets.keys()))))
                 else:
                     print(_('Error: No stored presets.'))
                 return 1
@@ -249,15 +248,15 @@ class EPUB_MOBI(CatalogPlugin):
             opts.connected_kindle = True
             if opts.connected_device['serial'] and \
                opts.connected_device['serial'][:4] in ['B004', 'B005']:
-                op = "kindle_dx"
+                op = 'kindle_dx'
             else:
-                op = "kindle"
+                op = 'kindle'
 
         opts.description_clip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.author_clip = 100 if op.endswith('dx') or 'kindle' not in op else 60
         opts.output_profile = op
 
-        opts.basename = "Catalog"
+        opts.basename = 'Catalog'
         opts.cli_environment = not hasattr(opts, 'sync')
 
         # Hard-wired to always sort descriptions by author, with series after non-series
@@ -289,21 +288,21 @@ class EPUB_MOBI(CatalogPlugin):
                      'x' * (len(opts.connected_device['serial']) - 4)))
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append("  mount point: %s" % storage)
+                        build_log.append('  mount point: %s' % storage)
             else:
                 build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
                 try:
                     for storage in opts.connected_device['storage']:
                         if storage:
-                            build_log.append("  mount point: %s" % storage)
+                            build_log.append('  mount point: %s' % storage)
                 except:
-                    build_log.append("  (no mount points)")
+                    build_log.append('  (no mount points)')
         else:
             build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
-            build_log.append(" book count: %d" % len(opts_dict['ids']))
+            build_log.append(' book count: %d' % len(opts_dict['ids']))
 
         sections_list = []
         if opts.generate_authors:
@@ -331,14 +330,14 @@ class EPUB_MOBI(CatalogPlugin):
                 sections_list = ['Authors', 'Titles', 'Series', 'Genres', 'Recently Added', 'Descriptions']
             else:
                 opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
-                return ["No Included Sections", "No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
+                return ['No Included Sections', "No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
         if opts.fmt == 'mobi' and sections_list == ['Descriptions']:
             warning = _("\n*** Adding 'By authors' section required for MOBI output ***")
             opts.log.warn(warning)
             sections_list.insert(0, 'Authors')
             opts.generate_authors = True
 
-        opts.log(" Sections: %s" % ', '.join(sections_list))
+        opts.log(' Sections: %s' % ', '.join(sections_list))
         opts.section_list = sections_list
 
         # Limit thumb_width to 1.0" - 2.0"
@@ -349,36 +348,36 @@ class EPUB_MOBI(CatalogPlugin):
             if float(opts.thumb_width) > float(self.THUMB_LARGEST):
                 log.warning(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_LARGEST}'")
                 opts.thumb_width = self.THUMB_LARGEST
-            opts.thumb_width = "%.2f" % float(opts.thumb_width)
+            opts.thumb_width = '%.2f' % float(opts.thumb_width)
         except Exception:
             log.error(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_SMALLEST}'")
-            opts.thumb_width = "1.0"
+            opts.thumb_width = '1.0'
 
         # eval prefix_rules if passed from command line
         if type(opts.prefix_rules) is not tuple:
             try:
                 opts.prefix_rules = eval(opts.prefix_rules)
             except:
-                log.error("malformed --prefix-rules: %s" % opts.prefix_rules)
+                log.error('malformed --prefix-rules: %s' % opts.prefix_rules)
                 raise
             for rule in opts.prefix_rules:
                 if len(rule) != 4:
-                    log.error("incorrect number of args for --prefix-rules: %s" % repr(rule))
+                    log.error('incorrect number of args for --prefix-rules: %s' % repr(rule))
 
         # eval exclusion_rules if passed from command line
         if type(opts.exclusion_rules) is not tuple:
             try:
                 opts.exclusion_rules = eval(opts.exclusion_rules)
             except:
-                log.error("malformed --exclusion-rules: %s" % opts.exclusion_rules)
+                log.error('malformed --exclusion-rules: %s' % opts.exclusion_rules)
                 raise
             for rule in opts.exclusion_rules:
                 if len(rule) != 3:
-                    log.error("incorrect number of args for --exclusion-rules: %s" % repr(rule))
+                    log.error('incorrect number of args for --exclusion-rules: %s' % repr(rule))
 
         # Display opts
         keys = sorted(opts_dict.keys())
-        build_log.append(" opts:")
+        build_log.append(' opts:')
         for key in keys:
             if key in ['catalog_title', 'author_clip', 'connected_kindle', 'creator',
                        'cross_reference_authors', 'description_clip', 'exclude_book_marker',
@@ -387,7 +386,7 @@ class EPUB_MOBI(CatalogPlugin):
                        'output_profile', 'prefix_rules', 'preset', 'read_book_marker',
                        'search_text', 'sort_by', 'sort_descriptions_by_author', 'sync',
                        'thumb_width', 'use_existing_cover', 'wishlist_tag']:
-                build_log.append(f"  {key}: {repr(opts_dict[key])}")
+                build_log.append(f'  {key}: {opts_dict[key]!r}')
         if opts.verbose:
             log('\n'.join(line for line in build_log))
 
@@ -397,7 +396,7 @@ class EPUB_MOBI(CatalogPlugin):
         self.opts = opts
 
         if opts.verbose:
-            log.info(" Begin catalog source generation (%s)" %
+            log.info(' Begin catalog source generation (%s)' %
                      str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # Launch the Catalog builder
@@ -406,12 +405,12 @@ class EPUB_MOBI(CatalogPlugin):
         try:
             catalog.build_sources()
             if opts.verbose:
-                log.info(" Completed catalog source generation (%s)\n"  %
+                log.info(' Completed catalog source generation (%s)\n'  %
                          str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
         except (AuthorSortMismatchException, EmptyCatalogException) as e:
-            log.error(" *** Terminated catalog generation: %s ***" % e)
+            log.error(' *** Terminated catalog generation: %s ***' % e)
         except:
-            log.error(" unhandled exception in catalog generator")
+            log.error(' unhandled exception in catalog generator')
             raise
 
         else:
@@ -420,9 +419,7 @@ class EPUB_MOBI(CatalogPlugin):
                 OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
-            """
-            >>> Use to debug generated catalog code before pipeline conversion <<<
-            """
+            # >>> Use to debug generated catalog code before pipeline conversion <<<
             GENERATE_DEBUG_EPUB = False
             if GENERATE_DEBUG_EPUB:
                 catalog_debug_path = os.path.join(os.path.expanduser('~'), 'Desktop', 'Catalog debug')
@@ -433,7 +430,7 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('debug_pipeline', dp,
                     OptionRecommendation.HIGH))
 
-            if opts.output_profile and opts.output_profile.startswith("kindle"):
+            if opts.output_profile and opts.output_profile.startswith('kindle'):
                 recommendations.append(('output_profile', opts.output_profile,
                     OptionRecommendation.HIGH))
                 recommendations.append(('book_producer', opts.output_profile,
@@ -459,14 +456,14 @@ class EPUB_MOBI(CatalogPlugin):
                 pass
 
             if self.opts.use_existing_cover and not existing_cover:
-                log.warning("no existing catalog cover found")
+                log.warning('no existing catalog cover found')
 
             if self.opts.use_existing_cover and existing_cover:
                 recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
-                log.info("using existing catalog cover")
+                log.info('using existing catalog cover')
             else:
                 from calibre.ebooks.covers import calibre_cover2
-                log.info("replacing catalog cover")
+                log.info('replacing catalog cover')
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
                 new_cover = calibre_cover2(opts.catalog_title, 'calibre')
                 new_cover_path.write(new_cover)
@@ -499,7 +496,7 @@ class EPUB_MOBI(CatalogPlugin):
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path, 'input.epub'))
 
             if opts.verbose:
-                log.info(" Catalog creation complete (%s)\n" %
+                log.info(' Catalog creation complete (%s)\n' %
                      str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # returns to gui2.actions.catalog:catalog_generated()

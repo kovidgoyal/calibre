@@ -26,151 +26,153 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : {0xc02  : HTC_BCDS,
-                       0xc01  : HTC_BCDS,
-                       0xff9  : HTC_BCDS,
-                       0xc86  : HTC_BCDS,
-                       0xc87  : HTC_BCDS,
-                       0xc8d  : HTC_BCDS,
-                       0xc91  : HTC_BCDS,
-                       0xc92  : HTC_BCDS,
-                       0xc97  : HTC_BCDS,
-                       0xc99  : HTC_BCDS,
-                       0xca2  : HTC_BCDS,
-                       0xca3  : HTC_BCDS,
-                       0xca4  : HTC_BCDS,
-                       0xca9  : HTC_BCDS,
-                       0xcac  : HTC_BCDS,
-                       0xcba  : HTC_BCDS,
-                       0xccf  : HTC_BCDS,
-                       0xcd6  : HTC_BCDS,
-                       0xce5  : HTC_BCDS,
-                       0xcec  : HTC_BCDS,
-                       0x0cf5 : HTC_BCDS,
-                       0x2910 : HTC_BCDS,
-                       0xe77  : HTC_BCDS,
-                       0x0001 : [0x255],
+            0x0bb4: {
+                0xc02 : HTC_BCDS,
+                0xc01 : HTC_BCDS,
+                0xff9 : HTC_BCDS,
+                0xc86 : HTC_BCDS,
+                0xc87 : HTC_BCDS,
+                0xc8d : HTC_BCDS,
+                0xc91 : HTC_BCDS,
+                0xc92 : HTC_BCDS,
+                0xc97 : HTC_BCDS,
+                0xc99 : HTC_BCDS,
+                0xca2 : HTC_BCDS,
+                0xca3 : HTC_BCDS,
+                0xca4 : HTC_BCDS,
+                0xca9 : HTC_BCDS,
+                0xcac : HTC_BCDS,
+                0xcba : HTC_BCDS,
+                0xccf : HTC_BCDS,
+                0xcd6 : HTC_BCDS,
+                0xce5 : HTC_BCDS,
+                0xcec : HTC_BCDS,
+                0x0cf5: HTC_BCDS,
+                0x2910: HTC_BCDS,
+                0xe77 : HTC_BCDS,
+                0x0001: [0x255],
             },
 
             # Eken
-            0x040d : {0x8510 : [0x0001], 0x0851 : [0x1]},
+            0x040d: {0x8510: [0x0001], 0x0851: [0x1]},
 
             # Trekstor
-            0x1e68 : {
-                0x006a : [0x0231],
-                0x0062 : [0x222],  # Surftab ventos https://bugs.launchpad.net/bugs/1204885
+            0x1e68: {
+                0x006a: [0x0231],
+                0x0062: [0x222],  # Surftab ventos https://bugs.launchpad.net/bugs/1204885
             },
 
             # Motorola
-            0x22b8 : {
-                0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
-                0x2de8 : [0x229],
-                0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
-                0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
-                0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
-                0x70c6 : [0x226], 0x70c7: [0x226],
-                0x4316 : [0x216],
-                0x4317 : [0x216],
-                0x42d6 : [0x216],
-                0x42d7 : [0x216],
-                0x42f7 : [0x216],
-                0x4365 : [0x216],
-                0x4366 : [0x216],
-                0x4371 : [0x216],
+            0x22b8: {
+                0x41d9: [0x216], 0x2d61: [0x100], 0x2d67: [0x100],
+                0x2de8: [0x229],
+                0x41db: [0x216], 0x4285: [0x216], 0x42a3: [0x216],
+                0x4286: [0x216], 0x42b3: [0x216], 0x42b4: [0x216],
+                0x7086: [0x0226], 0x70a8: [0x9999], 0x42c4: [0x216],
+                0x70c6: [0x226], 0x70c7: [0x226],
+                0x4316: [0x216],
+                0x4317: [0x216],
+                0x42d6: [0x216],
+                0x42d7: [0x216],
+                0x42f7: [0x216],
+                0x4365: [0x216],
+                0x4366: [0x216],
+                0x4371: [0x216],
             },
             # Freescale
-            0x15a2 : {
-                0x0c01 : [0x226]
+            0x15a2: {
+                0x0c01: [0x226]
             },
 
             # Alcatel
-            0x05c6 : {
-                0x9018 : [0x0226],
+            0x05c6: {
+                0x9018: [0x0226],
             },
 
             # Sony Ericsson
             0xfce : {
-                0xa173 : [0x216],
-                0xd12e : [0x0100],
-                0xe156 : [0x226],
-                0xe15d : [0x226],
-                0xe14f : [0x0226],
-                0x614f : [0x0226, 0x100],
-                0x6156 : [0x0226, 0x100],
-                },
+                0xa173: [0x216],
+                0xd12e: [0x0100],
+                0xe156: [0x226],
+                0xe15d: [0x226],
+                0xe14f: [0x0226],
+                0x614f: [0x0226, 0x100],
+                0x6156: [0x0226, 0x100],
+            },
 
             # Google
-            0x18d1 : {
-                0x0001 : [0x0222, 0x0223, 0x230, 0x255, 0x9999],
-                0x0002 : [0x9999],
-                0x0003 : [0x0230, 0x9999],
-                0x4e11 : [0x0100, 0x226, 0x227],
-                0x4e12 : [0x0100, 0x226, 0x227],
-                0x4e21 : [0x0100, 0x226, 0x227, 0x231],
-                0x4e22 : [0x0100, 0x226, 0x227, 0x231],
-                0xb058 : [0x0222, 0x226, 0x227],
-                0x0ff9 : [0x0226],
-                0xc91  : HTC_BCDS,
-                0xdddd : [0x216],
-                0x0d01 : [0x9999],
-                0x0d02 : [0x9999],
-                0x2d01 : [0x9999],
-                0xdeed : [0x231, 0x226],
+            0x18d1: {
+                0x0001: [0x0222, 0x0223, 0x230, 0x255, 0x9999],
+                0x0002: [0x9999],
+                0x0003: [0x0230, 0x9999],
+                0x4e11: [0x0100, 0x226, 0x227],
+                0x4e12: [0x0100, 0x226, 0x227],
+                0x4e21: [0x0100, 0x226, 0x227, 0x231],
+                0x4e22: [0x0100, 0x226, 0x227, 0x231],
+                0xb058: [0x0222, 0x226, 0x227],
+                0x0ff9: [0x0226],
+                0xc91 : HTC_BCDS,
+                0xdddd: [0x216],
+                0x0d01: [0x9999],
+                0x0d02: [0x9999],
+                0x2d01: [0x9999],
+                0xdeed: [0x231, 0x226],
             },
 
             # Samsung
-            0x04e8 : {0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
-                       0x681c : [0x0222, 0x0223, 0x0224, 0x0400],
-                       0x6640 : [0x0100],
-                       0x685b : [0x0400, 0x0226],
-                       0x685e : [0x0400, 0x226],
-                       0x6860 : [0x0400],
-                       0x6863 : [0x226],
-                       0x6877 : [0x0400],
-                       0x689e : [0x0400],
-                       0xdeed : [0x0222],
-                       0x1234 : [0x0400],
-                     },
+            0x04e8: {
+                0x681d: [0x0222, 0x0223, 0x0224, 0x0400],
+                0x681c: [0x0222, 0x0223, 0x0224, 0x0400],
+                0x6640: [0x0100],
+                0x685b: [0x0400, 0x0226],
+                0x685e: [0x0400, 0x226],
+                0x6860: [0x0400],
+                0x6863: [0x226],
+                0x6877: [0x0400],
+                0x689e: [0x0400],
+                0xdeed: [0x0222],
+                0x1234: [0x0400],
+            },
 
             # Viewsonic/Vizio
-            0x0489 : {
-                    0xc000 : [0x0226],
-                    0xc001 : [0x0226],
-                    0xc004 : [0x0226],
-                    0x8801 : [0x0226, 0x0227],
-                    0xe115 : [0x0216],  # PocketBook A10
+            0x0489: {
+                0xc000: [0x0226],
+                0xc001: [0x0226],
+                0xc004: [0x0226],
+                0x8801: [0x0226, 0x0227],
+                0xe115: [0x0216],  # PocketBook A10
             },
 
             # Another Viewsonic
-            0x0bb0 : {
-                    0x2a2b : [0x0226, 0x0227],
+            0x0bb0: {
+                0x2a2b: [0x0226, 0x0227],
             },
 
             # Acer
-            0x502 : {0x3203 : [0x0100, 0x224]},
+            0x502 : {0x3203: [0x0100, 0x224]},
 
             # Dell
-            0x413c : {0xb007 : [0x0100, 0x0224, 0x0226]},
+            0x413c: {0xb007: [0x0100, 0x0224, 0x0226]},
 
             # LG
-            0x1004 : {
-                    0x61c5 : [0x100, 0x226, 0x227, 0x229, 0x9999],
-                    0x61cc : [0x226, 0x227, 0x9999, 0x100],
-                    0x61ce : [0x226, 0x227, 0x9999, 0x100],
-                    0x618e : [0x226, 0x227, 0x9999, 0x100],
-                    0x6205 : [0x226, 0x227, 0x9999, 0x100],
-                    0x6234 : [0x231],
+            0x1004: {
+                    0x61c5: [0x100, 0x226, 0x227, 0x229, 0x9999],
+                    0x61cc: [0x226, 0x227, 0x9999, 0x100],
+                    0x61ce: [0x226, 0x227, 0x9999, 0x100],
+                    0x618e: [0x226, 0x227, 0x9999, 0x100],
+                    0x6205: [0x226, 0x227, 0x9999, 0x100],
+                    0x6234: [0x231],
                     },
 
             # Archos
-            0x0e79 : {
-                0x1400 : [0x0222, 0x0216],
-                0x1408 : [0x0222, 0x0216],
-                0x1411 : [0x216],
-                0x1417 : [0x0216],
-                0x1419 : [0x0216],
-                0x1420 : [0x0216],
-                0x1422 : [0x0216]
+            0x0e79: {
+                0x1400: [0x0222, 0x0216],
+                0x1408: [0x0222, 0x0216],
+                0x1411: [0x216],
+                0x1417: [0x0216],
+                0x1419: [0x0216],
+                0x1420: [0x0216],
+                0x1422: [0x0216]
             },
 
             # Huawei
@@ -178,44 +180,44 @@ class ANDROID(USBMS):
             # 0x45e : { 0x00e1 : [0x007], },
 
             # T-Mobile
-            0x0408 : {0x03ba : [0x0109], },
+            0x0408: {0x03ba: [0x0109]},
 
             # Xperia
-            0x13d3 : {0x3304 : [0x0001, 0x0002]},
+            0x13d3: {0x3304: [0x0001, 0x0002]},
 
             # ZTE
-            0x19d2 : {0x1353 : [0x226], 0x1351 : [0x227]},
+            0x19d2: {0x1353: [0x226], 0x1351: [0x227]},
 
             # Advent
-            0x0955 : {0x7100 : [0x9999]},  # This is the same as the Notion Ink Adam
+            0x0955: {0x7100: [0x9999]},  # This is the same as the Notion Ink Adam
 
             # Kobo
-            0x2237: {0x2208 : [0x0226]},
+            0x2237: {0x2208: [0x0226]},
 
             # Lenovo
-            0x17ef : {
-                    0x7421 : [0x0216],
-                    0x741b : [0x9999],
-                    0x7640 : [0x0255],
+            0x17ef: {
+                    0x7421: [0x0216],
+                    0x741b: [0x9999],
+                    0x7640: [0x0255],
             },
 
             # Pantech
-            0x10a9 : {0x6050 : [0x227]},
+            0x10a9: {0x6050: [0x227]},
 
             # Prestigio and Teclast
-            0x2207 : {0 : [0x222], 0x10 : [0x222]},
+            0x2207: {0: [0x222], 0x10: [0x222]},
 
             # OPPO
-            0x22d9 : {0x2768: [0x228]},
+            0x22d9: {0x2768: [0x228]},
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
     EXTRA_CUSTOMIZATION_MESSAGE = [_('Comma separated list of folders to '
-            'send e-books to on the device\'s <b>main memory</b>. The first one that exists will '
+            "send e-books to on the device's <b>main memory</b>. The first one that exists will "
             'be used'),
             _('Comma separated list of folders to '
-            'send e-books to on the device\'s <b>storage cards</b>. The first one that exists will '
+            "send e-books to on the device's <b>storage cards</b>. The first one that exists will "
             'be used')
             ]
 

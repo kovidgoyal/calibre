@@ -27,7 +27,7 @@ def classes(classes):
 class CnetNews(BasicNewsRecipe):
     title = 'CNET News'
     __author__ = 'Kovid Goyal'
-    description = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'  # noqa
+    description = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'  # noqa: E501
     publisher = 'CNET'
     category = 'news, IT, USA'
     encoding = 'utf-8'
@@ -56,7 +56,7 @@ class CnetNews(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1'),
         dict(section='author'),
-        dict(id=["article-body", 'cnetReview']),
+        dict(id=['article-body', 'cnetReview']),
         dict(attrs={'class': 'deal-content'}),
     ]
 

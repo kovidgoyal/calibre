@@ -11,17 +11,17 @@ ACM Queue Magazine
 
 
 class QueueAcmOrg(BasicNewsRecipe):
-    title = "ACM Queue Magazine"
+    title = 'ACM Queue Magazine'
     __author__ = 'yodha8'
-    description = "Queue is the ACM magazine for practicing software engineers. Published once every 2 months. Example: Jan-Feb."
+    description = 'Queue is the ACM magazine for practicing software engineers. Published once every 2 months. Example: Jan-Feb.'
     oldest_article = 60
     max_articles_per_feed = 50
     auto_cleanup = True
     language = 'en'
-    cover_url = "https://queue.acm.org/img/acmqueue_logo.gif"
+    cover_url = 'https://queue.acm.org/img/acmqueue_logo.gif'
 
     feeds = [
-        ("All Queue Content", "https://queue.acm.org/rss/feeds/queuecontent.xml"),
+        ('All Queue Content', 'https://queue.acm.org/rss/feeds/queuecontent.xml'),
     ]
 
     def get_cover_url(self):

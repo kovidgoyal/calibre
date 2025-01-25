@@ -1484,7 +1484,7 @@ class Boss(QObject):
         if not name:
             return
         editor = self.open_editor_for_name(name)
-        if anchor and hasattr(editor, 'go_to_anchor') :
+        if anchor and hasattr(editor, 'go_to_anchor'):
             if editor.go_to_anchor(anchor):
                 self.gui.preview.pending_go_to_anchor = anchor
             elif show_anchor_not_found:

@@ -228,7 +228,7 @@ class Image(Stream):
 
     def add_extra_keys(self, d):
         d['Type'] = Name('XObject')
-        d['Subtype']=  Name('Image')
+        d['Subtype']= Name('Image')
         d['Width'] = self.width
         d['Height'] = self.height
         if self.depth == 1:
@@ -260,14 +260,14 @@ class PDFStream:
 
     PATH_OPS = {
         # stroke fill   fill-rule
-        (False, False, 'winding')  : 'n',
-        (False, False, 'evenodd')  : 'n',
-        (False, True,  'winding')  : 'f',
-        (False, True,  'evenodd')  : 'f*',
-        (True,  False, 'winding')  : 'S',
-        (True,  False, 'evenodd')  : 'S',
-        (True,  True,  'winding')  : 'B',
-        (True,  True,  'evenodd')  : 'B*',
+        (False, False, 'winding'): 'n',
+        (False, False, 'evenodd'): 'n',
+        (False, True,  'winding'): 'f',
+        (False, True,  'evenodd'): 'f*',
+        (True,  False, 'winding'): 'S',
+        (True,  False, 'evenodd'): 'S',
+        (True,  True,  'winding'): 'B',
+        (True,  True,  'evenodd'): 'B*',
     }
 
     def __init__(self, stream, page_size, compress=False, mark_links=False,

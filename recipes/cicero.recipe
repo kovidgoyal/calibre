@@ -15,27 +15,27 @@ class BasicUserRecipe1316245412(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = False
 
-#    remove_javascript = True
+    # remove_javascript = True
 
     remove_tags = [
-        dict(name='div', attrs={'id': ["header", "navigation", "skip-link",
-                                       "header-print", "header-print-url", "meta-toolbar", "footer"]}),
-        dict(name='div', attrs={'class': ["region region-sidebar-first column sidebar", "breadcrumb",
-                                          "breadcrumb-title", "meta", "comment-wrapper",
-                                          "field field-name-field-show-teaser-right field-type-list-boolean field-label-above",
-                                          "page-header",
-                                          "view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-1",
-                                          "pagination",
-                                          "view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-1",
-                                          "view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-2",  # 2011-09-23
-                                          "view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-2",  # 2011-09-23
+        dict(name='div', attrs={'id': ['header', 'navigation', 'skip-link',
+                                       'header-print', 'header-print-url', 'meta-toolbar', 'footer']}),
+        dict(name='div', attrs={'class': ['region region-sidebar-first column sidebar', 'breadcrumb',
+                                          'breadcrumb-title', 'meta', 'comment-wrapper',
+                                          'field field-name-field-show-teaser-right field-type-list-boolean field-label-above',
+                                          'page-header',
+                                          'view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-1',
+                                          'pagination',
+                                          'view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-1',
+                                          'view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-2',  # 2011-09-23
+                                          'view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-2',  # 2011-09-23
                                           ]}),
-        dict(name='div', attrs={'title': ["Dossier Auswahl"]}),
-        dict(name='h2', attrs={'class': ["title comment-form"]}),
+        dict(name='div', attrs={'title': ['Dossier Auswahl']}),
+        dict(name='h2', attrs={'class': ['title comment-form']}),
         dict(name='form', attrs={
-             'class': ["comment-form user-info-from-cookie"]}),
+             'class': ['comment-form user-info-from-cookie']}),
         dict(name='table', attrs={
-             'class': ["mcx-social-horizontal", "page-header"]}),
+             'class': ['mcx-social-horizontal', 'page-header']}),
     ]
 
     feeds = [
@@ -51,6 +51,6 @@ class BasicUserRecipe1316245412(BasicNewsRecipe):
     def print_version(self, url):
         return url + '?print'
 
-#    def get_cover_url(self):
-# return 'http://www.cicero.de/sites/all/themes/cicero/logo.png' # need to
-# find a good logo on their home page!
+    # def get_cover_url(self):
+    #     return 'http://www.cicero.de/sites/all/themes/cicero/logo.png' # need to
+    #     find a good logo on their home page!

@@ -71,5 +71,5 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id_
-#                 s.formats = None
+                # s.formats = None
                 yield s

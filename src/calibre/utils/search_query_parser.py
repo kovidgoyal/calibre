@@ -47,7 +47,7 @@ class SavedSearchQueries:
             self.queries = db.pref(self.opt_name, {})
         else:
             self.queries = {}
-            self._db = lambda : None
+            self._db = lambda: None
 
     @property
     def db(self):
@@ -158,11 +158,11 @@ class Parser:
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (r'[()]', lambda x,t: (Parser.OPCODE, t)),
-            (r'@.+?:[^")\s]+', lambda x,t: (Parser.WORD, str(t))),
-            (r'[^"()\s]+', lambda x,t: (Parser.WORD, str(t))),
+            (r'[()]',           lambda x,t: (Parser.OPCODE, t)),
+            (r'@.+?:[^")\s]+',  lambda x,t: (Parser.WORD, str(t))),
+            (r'[^"()\s]+',      lambda x,t: (Parser.WORD, str(t))),
             (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (r'\s+',              None)
+            (r'\s+',            None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):
@@ -195,7 +195,7 @@ class Parser:
     def tokenize(self, expr):
         # convert docstrings to base64 to avoid all processing. Change the docstring
         # indicator to something unique with no characters special to the parser.
-        expr = re.sub('(""")(..*?)(""")',
+        expr = re.sub(r'(""")(..*?)(""")',
                   lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep,
                   expr, flags=re.DOTALL)
 
@@ -294,7 +294,7 @@ class ParseException(Exception):
     def msg(self):
         if len(self.args) > 0:
             return self.args[0]
-        return ""
+        return ''
 
 
 class SearchQueryParser:
@@ -424,8 +424,8 @@ class SearchQueryParser:
         #  return self.universal_set().difference(self.evaluate(argument[0]))
         return candidates.difference(self.evaluate(argument[0], candidates))
 
-#     def evaluate_parenthesis(self, argument, candidates):
-#         return self.evaluate(argument[0], candidates)
+    # def evaluate_parenthesis(self, argument, candidates):
+    #     return self.evaluate(argument[0], candidates)
 
     def _check_saved_search_recursion(self, query):
         if query.startswith('='):
@@ -435,7 +435,7 @@ class SearchQueryParser:
             raise ParseException(_('Recursive saved search: {0}').format(query))
         self.searches_seen.add(search_name_lower)
         query = self._get_saved_search_text(query)
-        return (query, search_name_lower)
+        return query, search_name_lower
 
     def _get_saved_search_text(self, query):
         try:

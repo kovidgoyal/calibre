@@ -8,11 +8,11 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 class barrons(BasicNewsRecipe):
-    title = 'Barron\'s Magazine'
+    title = "Barron's Magazine"
     __author__ = 'unkn0wn'
     description = (
-        'Barron\'s is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister '
-        'publication to The Wall Street Journal, Barron\'s covers U.S. financial information, market developments, and '
+        "Barron's is an American weekly magazine/newspaper published by Dow Jones & Company. Founded in 1921 as a sister "
+        "publication to The Wall Street Journal, Barron's covers U.S. financial information, market developments, and "
         'relevant statistics.'
     )
     language = 'en_US'
@@ -82,7 +82,7 @@ class barrons(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYYMMDD format)',
-            'long': 'For example, 20240722.\nIf it didn\'t work, try again later.'
+            'long': "For example, 20240722.\nIf it didn't work, try again later."
         }
     }
 
@@ -119,7 +119,7 @@ class barrons(BasicNewsRecipe):
             byl = articles.find(**prefixed_classes('BarronsTheme--byline--'))
             if byl:
                 desc += self.tag_to_string(byl)
-            ttr =  articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
+            ttr = articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
             if ttr:
                 desc += self.tag_to_string(ttr)
             summ = articles.find(**prefixed_classes('BarronsTheme--summary--'))
@@ -127,7 +127,7 @@ class barrons(BasicNewsRecipe):
                 desc += ' | ' + self.tag_to_string(summ)
             self.log('\t', title, ' ', url, '\n\t', desc)
             ans[section].append({'title': title, 'url': url, 'description': desc})
-        return [(section, articles) for section, articles in ans.items()]
+        return list(ans.items())
 
     def print_version(self, url):
         return url.split('?')[0].replace('/articles/', '/amp/articles/')

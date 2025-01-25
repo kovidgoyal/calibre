@@ -495,7 +495,7 @@ def metadata_to_xmp_packet(mi):
     if not mi.is_null('pubdate'):
         create_sequence_property(dc, 'dc:date', [isoformat(mi.pubdate, as_utc=False)])  # Adobe spec recommends local time
     if not mi.is_null('languages'):
-        langs = list(filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages)))
+        langs = list(filter(None, (lang_as_iso639_1(x) or canonicalize_lang(x) for x in mi.languages)))
         if langs:
             create_sequence_property(dc, 'dc:language', langs, ordered=False)
 

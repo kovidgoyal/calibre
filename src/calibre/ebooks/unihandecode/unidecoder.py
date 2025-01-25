@@ -73,7 +73,7 @@ class Unidecoder:
 
     def decode(self, text):
         # Replace characters larger than 127 with their ASCII equivalent.
-        return re.sub('[^\x00-\x7f]',lambda x: self.replace_point(x.group()), text)
+        return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
 
     def replace_point(self, codepoint):
         '''
@@ -94,7 +94,7 @@ class Unidecoder:
         '''
         # Code groups within CODEPOINTS take the form 'xAB'
         if not isinstance(character, str):
-            character = str(character, "utf-8")
+            character = str(character, 'utf-8')
         return 'x%02x' % (ord(character) >> 8)
 
     def grouped_point(self, character):
@@ -103,5 +103,5 @@ class Unidecoder:
         the group character is a part of.
         '''
         if not isinstance(character, str):
-            character = str(character, "utf-8")
+            character = str(character, 'utf-8')
         return ord(character) & 255

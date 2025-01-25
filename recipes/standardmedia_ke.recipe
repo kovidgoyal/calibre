@@ -43,8 +43,8 @@ class StandardMediaKeRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         import re
-        p = re.compile('http://www.standardmedia.co.ke/.*InsidePage.php')
-        return p.sub('http://www.standardmedia.co.ke/print.php', url)
+        p = re.compile(r'http://www.standardmedia.co.ke/.*InsidePage.php')
+        return p.sub(r'http://www.standardmedia.co.ke/print.php', url)
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

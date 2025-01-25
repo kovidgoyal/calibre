@@ -10,11 +10,9 @@ class Kosmonauta(BasicNewsRecipe):
     category = 'astronomy'
     language = 'pl'
     cover_url = 'http://bi.gazeta.pl/im/4/10393/z10393414X,Kosmonauta-net.jpg'
-    no_stylesheets = True
     oldest_article = 7
     no_stylesheets = True
     remove_javascript = True
     remove_attributes = ['style']
     max_articles_per_feed = 100
     feeds = [(u'Kosmonauta.net', u'http://www.kosmonauta.net/feed')]
-

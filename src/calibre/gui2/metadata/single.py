@@ -240,7 +240,7 @@ class MetadataSingleDialogBase(QDialog):
         self.manage_authors_button.setIcon(QIcon.ic('user_profile.png'))
         self.manage_authors_button.setToolTip('<p>' + _(
             'Open the Manage Authors editor. Use to rename authors and correct '
-            'individual author\'s sort values') + '</p>')
+            "individual author's sort values") + '</p>')
         self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series_editor_button = QToolButton(self)
@@ -465,7 +465,7 @@ class MetadataSingleDialogBase(QDialog):
     def update_window_title(self, *args):
         title = self.title.current_val
         if len(title) > 50:
-            title = title[:50] + '\u2026'
+            title = title[:50] + '…'
         self.setWindowTitle(BASE_TITLE + ' - ' +
                 title + ' -' +
                 _(' [%(num)d of %(tot)d]')%dict(num=self.current_row+1,
@@ -674,7 +674,7 @@ class MetadataSingleDialogBase(QDialog):
                 widget.commit(self.db, self.book_id)
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
             except OSError as e:
-                e.locking_violation_msg = _('Could not change on-disk location of this book\'s files.')
+                e.locking_violation_msg = _("Could not change on-disk location of this book's files.")
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
             self.books_to_refresh |= widget.commit(self.book_id)
@@ -841,7 +841,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.tabs = []
         self.labels = []
         self.tabs.append(QWidget(self))
-        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _("&Basic metadata"))
+        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Basic metadata'))
         self.tabs[0].l = l = QVBoxLayout()
         self.tabs[0].tl = tl = QGridLayout()
         self.tabs[0].setLayout(l)
@@ -1006,12 +1006,12 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
         self.on_drag_enter.connect(self.handle_drag_enter)
         self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
-        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _("&Metadata"))
+        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Metadata'))
         self.tabs[0].l = QGridLayout()
         self.tabs[0].setLayout(self.tabs[0].l)
 
         self.tabs.append(QWidget(self))
-        self.central_widget.addTab(ScrollArea(self.tabs[1], self), _("&Cover and formats"))
+        self.central_widget.addTab(ScrollArea(self.tabs[1], self), _('&Cover and formats'))
         self.tabs[1].l = QGridLayout()
         self.tabs[1].setLayout(self.tabs[1].l)
 
@@ -1083,7 +1083,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
-                   13, 1, 1 ,1)
+                   13, 1, 1, 1)
 
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -1166,7 +1166,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
 
         main_splitter = self.main_splitter = Splitter(Qt.Orientation.Horizontal, self)
         self.central_widget.tabBar().setVisible(False)
-        self.central_widget.addTab(ScrollArea(main_splitter, self), _("&Metadata"))
+        self.central_widget.addTab(ScrollArea(main_splitter, self), _('&Metadata'))
 
         # Left side (metadata & comments)
         # basic and custom split from comments
@@ -1242,7 +1242,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         sto(self.tags_editor_button, self.publisher_editor_button)
         sto(self.publisher_editor_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
-                   13, 1, 1 ,1)
+                   13, 1, 1, 1)
 
         # Custom metadata in col 1
         w = getattr(self, 'custom_metadata_widgets_parent', None)

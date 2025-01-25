@@ -182,7 +182,7 @@ class TestFetchBackend(unittest.TestCase):
             ans = Handler(self, *a)
             return ans
 
-        with ThreadingHTTPServer(("", 0), create_handler) as httpd:
+        with ThreadingHTTPServer(('', 0), create_handler) as httpd:
             self.server = httpd
             self.port = httpd.server_address[1]
             self.server_started.set()

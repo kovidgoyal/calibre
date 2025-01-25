@@ -14,6 +14,7 @@ def re_html(y):
         return soup.text
     return ''
 
+
 def get_id(url):
     rq = browser().open(url)
     return re.search(r'\?p=(\S+)>', str(rq.info())).group(1)
@@ -91,7 +92,7 @@ class TLS(BasicNewsRecipe):
         if x['byline']['text']:
             desc = 'By ' + re_html(x['byline']['text']) + ' | ' + desc
         self.log('              ', title, '\n\t', desc, '\n\t', url)
-        return ({ 'title': title, 'description': desc, 'url': url })
+        return ({'title': title, 'description': desc, 'url': url})
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'src':True}):
@@ -120,7 +121,7 @@ class TLS(BasicNewsRecipe):
             if prim['byline']['text']:
                 auth = '<p class="auth"><a href="{}">'.format(prim['byline']['link']) + prim['byline']['text'] + '</a></p>\n'
 
-            if 'bookdetails' in prim and prim['bookdetails']:
+            if prim.get('bookdetails'):
                 bks += '<br>'
                 for a in prim['bookdetails']:
                     for x, y in a.items():
@@ -135,16 +136,16 @@ class TLS(BasicNewsRecipe):
 
         if 'article_data_leadimage' in data:
             i = data['article_data_leadimage']
-            if 'full_image' in i and i['full_image']:
+            if i.get('full_image'):
                 lede = '<br><img src="{}"><div class="figc">{}</div>'.format(
-                    i['full_image'] + '?w600', i['imagecaption'] + ' <i>' \
-                        + i['imagecredit'] + '</i>'
+                    i['full_image'] + '?w600',
+                    i['imagecaption'] + ' <i>' + i['imagecredit'] + '</i>'
                 )
         cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/wp/v2/tls_articles/' + data['ID'], raw=True)
         c_data = json.loads(cont)
         body = c_data['content']['rendered']
 
-        html = '<html><body><div>' \
-                    + label + title + desc + auth + lede + bks + body + \
-                        '</div></body></html>'
+        html = ('<html><body><div>'
+                + label + title + desc + auth + lede + bks + body +
+                '</div></body></html>')
         return BeautifulSoup(html).prettify()

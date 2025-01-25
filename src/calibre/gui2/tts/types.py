@@ -109,7 +109,6 @@ class Voice(NamedTuple):
         return (self.quality.value, self.basic_name.lower())
 
 
-
 def qvoice_to_voice(v: QVoice) -> QVoice:
     lang = canonicalize_lang(QLocale.languageToCode(v.language())) or 'und'
     country = QLocale.territoryToString(v.locale().territory())
@@ -247,7 +246,7 @@ def available_engines() -> dict[str, EngineMetadata]:
         except ImportError:
             pass
         else:
-            cmd = os.getenv("SPEECHD_CMD", SPD_SPAWN_CMD)
+            cmd = os.getenv('SPEECHD_CMD', SPD_SPAWN_CMD)
             if cmd and os.access(cmd, os.X_OK) and os.path.isfile(cmd):
                 ans['speechd'] = EngineMetadata('speechd', _('The Speech Dispatcher Engine'), _(
                     'The "speechd" engine can usually track the currently spoken word on screen, however, it depends on the'

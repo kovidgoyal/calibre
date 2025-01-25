@@ -47,6 +47,8 @@ from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
 
 def string_length(x):
     return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+
+
 KEY = Qt.Key.Key_J
 MODIFIER = Qt.KeyboardModifier.MetaModifier if ismacos else Qt.KeyboardModifier.ControlModifier
 
@@ -107,6 +109,7 @@ obtain some advantage from it? But.</p>
     },
 
 }  # }}}
+
 
 # Parsing of snippets {{{
 escape = unescape = None
@@ -199,11 +202,11 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], str):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip:string_length(key_snip[0].trigger)), reverse=True)
+        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
-# Editor integration {{{
 
+# Editor integration {{{
 
 class EditorTabStop:
 
@@ -457,8 +460,8 @@ class SnippetManager(QObject):
         return False
 # }}}
 
-# Config {{{
 
+# Config {{{
 
 class SnippetTextEdit(PlainTextEdit):
 

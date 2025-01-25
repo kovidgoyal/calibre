@@ -20,7 +20,7 @@ class Dialog(QDialog):
         extra_button_choices=None
     ):
         QDialog.__init__(self, parent)
-        self.setWindowTitle(title or _("Are you sure?"))
+        self.setWindowTitle(title or _('Are you sure?'))
         self.setWindowIcon(QIcon.ic(icon))
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -31,14 +31,14 @@ class Dialog(QDialog):
 
         self.msg = m = QLabel(self)
         m.setOpenExternalLinks(True)
-        m.setMinimumWidth(350), m.setWordWrap(True), m.setObjectName("msg")
+        m.setMinimumWidth(350), m.setWordWrap(True), m.setObjectName('msg')
         m.setMaximumHeight(400)
         m.setText(msg)
 
         h.addWidget(self.icon_widget), h.addSpacing(10), h.addWidget(m)
 
-        self.again = a = QCheckBox((confirm_msg or _("&Show this warning again")), self)
-        a.setChecked(True), a.setObjectName("again")
+        self.again = a = QCheckBox((confirm_msg or _('&Show this warning again')), self)
+        a.setChecked(True), a.setObjectName('again')
         a.stateChanged.connect(self.toggle)
         l.addWidget(a)
 
@@ -49,7 +49,7 @@ class Dialog(QDialog):
             buttons = QDialogButtonBox.StandardButton.Ok
             standard_button = QDialogButtonBox.StandardButton.Ok
         self.buttonBox = bb = QDialogButtonBox(buttons, self)
-        bb.setObjectName("buttonBox")
+        bb.setObjectName('buttonBox')
         bb.setFocus(Qt.FocusReason.OtherFocusReason)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.extra_button_clicked = False

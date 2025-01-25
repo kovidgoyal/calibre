@@ -23,7 +23,6 @@ class czytania_mateusz(BasicNewsRecipe):
     remove_javascript = True
     simultaneous_downloads = 2
     max_articles_per_feed = 100
-    auto_cleanup = True
 
     feeds = [(u'Czytania', u'http://mateusz.pl/rss/czytania/')]
 

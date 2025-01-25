@@ -31,7 +31,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     # cover_url = file:///c:/Users/YOUR_USERNAME/AppData/Roaming/calibre/resources/images/news_covers/Pro_Physik.png
 
-    extra_css      =  '''
+    extra_css      = '''
                         h1 {font-size: 1.6em; text-align: left}
                         h2, h3 {font-size: 1.3em;text-align: left}
                         h2.subtitle {font-size: 1.2em;text-align: left;font-style: italic}
@@ -45,10 +45,10 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
                         ]
 
     remove_tags = [
-                       dict(name='ul', attrs={'class':["wj-share-buttons"]}),  #Block social media
+                       dict(name='ul', attrs={'class':['wj-share-buttons']}),  # Block social media
                   ]
 
     feeds = [
               (u'Nachrichten', u'https://pro-physik.de/rss/news/'),
-#              (u'Veranstaltungen', u'https://pro-physik.de/rss/events/'), # AGe 2024-02-11
+              # (u'Veranstaltungen', u'https://pro-physik.de/rss/events/'), # AGe 2024-02-11
             ]

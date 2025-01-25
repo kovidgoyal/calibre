@@ -9,7 +9,7 @@ uids = {}
 
 def describe(node, depth=2):
     if not hasattr(node, 'tag'):
-        return "[%s]" % type(node)
+        return '[%s]' % type(node)
     name = node.tag
     if node.get('id', ''):
         name += '#'+node.get('id')
@@ -22,7 +22,7 @@ def describe(node, depth=2):
             uid = uids[node] = len(uids)+1
         else:
             uid = uids.get(node)
-        name += "%02d" % (uid)
+        name += '%02d' % (uid)
     if depth and node.getparent() is not None:
         return name+' - '+describe(node.getparent(), depth-1)
     return name

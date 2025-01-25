@@ -69,7 +69,7 @@ def parse_multipart_byterange(buf, content_type):  # {{{
         if not cr.startswith('bytes '):
             raise ValueError('Malformed Content-Range header in sub-part, no prefix')
         try:
-            start, stop = map(lambda x: int(x.strip()), cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])
+            start, stop = (int(x.strip()) for x in cr.partition(' ')[-1].partition('/')[0].partition('-')[::2])
         except Exception:
             raise ValueError('Malformed Content-Range header in sub-part, failed to parse byte range')
         content_length = stop - start + 1
@@ -77,7 +77,7 @@ def parse_multipart_byterange(buf, content_type):  # {{{
         if len(ret) != content_length:
             raise ValueError('Malformed sub-part, length of body not equal to length specified in Content-Range')
         buf.readline()
-        return (start, ret)
+        return start, ret
     while True:
         data = parse_part()
         if data is None:
@@ -118,14 +118,14 @@ def get_ranges(headervalue, content_length):  # {{{
 
     result = []
     try:
-        bytesunit, byteranges = headervalue.split("=", 1)
+        bytesunit, byteranges = headervalue.split('=', 1)
     except Exception:
         return None
     if bytesunit.strip() != 'bytes':
         return None
 
-    for brange in byteranges.split(","):
-        start, stop = (x.strip() for x in brange.split("-", 1))
+    for brange in byteranges.split(','):
+        start, stop = (x.strip() for x in brange.split('-', 1))
         if start:
             if not stop:
                 stop = content_length - 1
@@ -153,8 +153,8 @@ def get_ranges(headervalue, content_length):  # {{{
     return result
 # }}}
 
-# gzip transfer encoding  {{{
 
+# gzip transfer encoding {{{
 
 def gzip_prefix():
     # See http://www.gzip.org/zlib/rfc-gzip.html
@@ -170,7 +170,7 @@ def gzip_prefix():
 
 
 def compress_readable_output(src_file, compress_level=6):
-    crc = zlib.crc32(b"")
+    crc = zlib.crc32(b'')
     size = 0
     zobj = zlib.compressobj(compress_level,
                             zlib.DEFLATED, -zlib.MAX_WBITS,
@@ -187,7 +187,7 @@ def compress_readable_output(src_file, compress_level=6):
             prefix_written = True
             data = gzip_prefix() + data
         yield data
-    yield zobj.flush() + struct.pack(b"<L", crc & 0xffffffff) + struct.pack(b"<L", size)
+    yield zobj.flush() + struct.pack(b'<L', crc & 0xffffffff) + struct.pack(b'<L', size)
 # }}}
 
 
@@ -419,12 +419,12 @@ class HTTPConnection(HTTPRequest):
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
             '%s %d %s' % (self.response_protocol, status_code, http_client.responses[status_code]),
-            "Content-Length: %s" % len(msg),
-            "Content-Type: text/%s; charset=UTF-8" % ct,
-            "Date: " + http_date(),
+            'Content-Length: %s' % len(msg),
+            'Content-Type: text/%s; charset=UTF-8' % ct,
+            'Date: ' + http_date(),
         ]
         if self.close_after_response and self.response_protocol is HTTP11:
-            buf.append("Connection: close")
+            buf.append('Connection: close')
         if extra_headers is not None:
             for h, v in iteritems(extra_headers):
                 buf.append(f'{h}: {v}')
@@ -460,8 +460,8 @@ class HTTPConnection(HTTPRequest):
                 self.response_protocol,
                 http_client.REQUESTED_RANGE_NOT_SATISFIABLE,
                 http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
-            "Date: " + http_date(),
-            "Content-Range: bytes */%d" % content_length,
+            'Date: ' + http_date(),
+            'Content-Range: bytes */%d' % content_length,
         ]
         response_data = header_list_to_file(buf)
         self.log_access(status_code=http_client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
@@ -470,8 +470,8 @@ class HTTPConnection(HTTPRequest):
     def send_not_modified(self, etag=None):
         buf = [
             '%s %d %s' % (self.response_protocol, http_client.NOT_MODIFIED, http_client.responses[http_client.NOT_MODIFIED]),
-            "Content-Length: 0",
-            "Date: " + http_date(),
+            'Content-Length: 0',
+            'Date: ' + http_date(),
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)
@@ -677,8 +677,7 @@ class HTTPConnection(HTTPRequest):
         else:
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
-        compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
-                        ct.partition(';')[0] in COMPRESSIBLE_TYPES)
+        compressible = (not ct or ct.startswith(('text/', 'image/svg')) or ct.partition(';')[0] in COMPRESSIBLE_TYPES)
         compressible = (compressible and request.status_code == http_client.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)
