@@ -708,7 +708,7 @@ class TagsView(QTreeView):  # {{{
                                        # global_vars=None, all_functions=None, builtin_functions=None,
                                        # python_context_object=None, dialog_number=None,
                                        formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
-                    if d.exec():
+                    if d.exec() == QDialog.DialogCode.Accepted:
                         self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[2], False)
                         self.recount()
                     return
@@ -722,16 +722,18 @@ class TagsView(QTreeView):  # {{{
                                     _('Change icon for: %s')%key, filters=[
                                     ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
                                 all_files=False, select_only_single_file=True)
-                        if path:
-                            path = path[0]
-                            p = QIcon(path).pixmap(QSize(128, 128))
-                            d = os.path.join(config_dir, 'tb_icons')
-                            if not os.path.exists(d):
-                                os.makedirs(d)
-                            with open(os.path.join(d, icon_file_name), 'wb') as f:
-                                f.write(pixmap_to_data(p, format='PNG'))
+                        if not path:
+                            return
+                        path = path[0]
+                        p = QIcon(path).pixmap(QSize(128, 128))
+                        d = os.path.join(config_dir, 'tb_icons')
+                        if not os.path.exists(d):
+                            os.makedirs(d)
+                        with open(os.path.join(d, icon_file_name), 'wb') as f:
+                            f.write(pixmap_to_data(p, format='PNG'))
                     except:
                         traceback.print_exc()
+                        return
                 else:
                     # Already have an icon. User wants to change whether it applies to children
                     icon_file_name = desired_file_name
