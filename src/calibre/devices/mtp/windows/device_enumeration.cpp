@@ -283,6 +283,7 @@ get_device_information(const wchar_t *pnp_id, CComPtr<IPortableDevice> &device, 
     bool is_buggy_piece_of_shit_device = false;
     PyObject *q = PyDict_GetItemString(ans, "manufacturer_name");
     if (q && PyUnicode_CompareWithASCIIString(q, "BarnesAndNoble") == 0) {
+        // https://bugs.launchpad.net/calibre/+bug/2068527
         q = PyDict_GetItemString(ans, "model_name");
         if (q && PyUnicode_CompareWithASCIIString(q, "BNRV1300") == 0) is_buggy_piece_of_shit_device = true;
     }
