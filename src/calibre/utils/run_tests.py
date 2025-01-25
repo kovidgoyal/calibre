@@ -324,7 +324,7 @@ def run_test(test_name, verbosity=4, buffer=False):
     # calibre-debug -t test_name
     which_tests = None
     if test_name.startswith('@'):
-        which_tests = test_name[1:], None
+        which_tests = (test_name[1:],)
     tests = find_tests(which_tests)
     if test_name != 'all':
         if test_name.startswith('.'):

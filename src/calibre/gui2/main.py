@@ -433,7 +433,7 @@ def run_gui_(opts, args, app, gui_debug=None):
             winutil.prepare_for_restart()
             with open(debugfile, 'r+b') as f:
                 raw = f.read()
-                raw = re.sub(br'(?<!\r)\n', br'\r\n', raw)
+                raw = re.sub(br'(?<!\r)\n', b'\r\n', raw)
                 f.seek(0)
                 f.truncate()
                 f.write(raw)

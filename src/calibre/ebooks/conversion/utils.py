@@ -58,7 +58,7 @@ class HeuristicProcessor:
             return '<h2>'+chap+'</h2>\n'
         else:
             delete_whitespace = re.compile(r'^\s*(?P<c>.*?)\s*$')
-            delete_quotes = re.compile(r'\'"')
+            delete_quotes = re.compile(''''"''')
             txt_chap = delete_quotes.sub('', delete_whitespace.sub(r'\g<c>', html2text(chap)))
             txt_title = delete_quotes.sub('', delete_whitespace.sub(r'\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
@@ -606,7 +606,7 @@ class HeuristicProcessor:
                         self.log.warn('Invalid replacement scene break'
                                 ' expression, using default')
                     else:
-                        replacement_break = re.sub(r'(?i)(width=\d+\\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                        replacement_break = re.sub(r'(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
                         divpercent = (100 - width) // 2
                         hr_open = re.sub(r'45', str(divpercent), hr_open)
                         scene_break = hr_open+replacement_break+'</div>'

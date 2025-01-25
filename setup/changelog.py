@@ -13,7 +13,7 @@ def parse(raw, parse_dates=True):
         nonlocal current_entry, current_section
         if not stripped_line:
             return normal
-        if stripped_line.startswith('{{{'):
+        if stripped_line.startswith('{' '{' '{'):
             parts = line.split()[1:]
             if len(parts) != 2:
                 raise ValueError(f'The entry start line is malformed: {line}')
@@ -31,7 +31,7 @@ def parse(raw, parse_dates=True):
 
     def in_entry(linenum, line, stripped_line):
         nonlocal current_section, current_entry
-        if stripped_line == '}}}':
+        if stripped_line == '}' '}' '}':
             if current_entry is None:
                 raise ValueError(f'Entry terminator without active entry at line: {linenum}')
             entries.append(current_entry)
@@ -93,7 +93,7 @@ def parse(raw, parse_dates=True):
         if line.startswith('-'):
             finalize_item(item)
             return start_item(linenum, line, stripped_line)
-        if line.startswith('}}}'):
+        if line.startswith('}' '}' '}'):
             return in_entry(linenum, line, stripped_line)
         if not stripped_line:
             if 'description' not in item:
@@ -138,7 +138,7 @@ def migrate():
         lines = []
         for entry in entries:
             lines.append('')
-            lines.append('{{{'+f' {entry["version"]} {entry["date"]}')
+            lines.append('{' '{' '{'+f' {entry["version"]} {entry["date"]}')
             for w in ('new features', 'bug fixes'):
                 nf = entry.get(w)
                 if nf:
@@ -166,7 +166,7 @@ def migrate():
                 lines.append('')
             with open(name.replace('yaml', 'txt'), 'w') as f:
                 f.write('\n'.join(lines))
-            lines.append(''), lines.append('}}}'), lines.append('')
+            lines.append(''), lines.append('}' '}' '}'), lines.append('')
 
 
 if __name__ == '__main__':

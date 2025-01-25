@@ -1830,7 +1830,7 @@ class OEBBook:
                 if is_rtl_lang(lang):
                     self.spine.page_progression_direction = 'rtl'
             except Exception:
-                raise
+                pass
 
     def clean_temp_files(self):
         for path in self._temp_files:
