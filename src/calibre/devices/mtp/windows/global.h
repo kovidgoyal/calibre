@@ -39,7 +39,7 @@ typedef struct {
 } Device;
 extern PyTypeObject DeviceType;
 
-#define hresult_set_exc(msg, hr) set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, msg)
+#define hresult_set_exc(msg, hr, ...) set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, msg, __VA_ARGS__)
 
 extern IPortableDeviceValues* get_client_information();
 extern IPortableDevice* open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information);

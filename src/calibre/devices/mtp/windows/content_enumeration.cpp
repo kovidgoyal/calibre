@@ -436,7 +436,7 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
         Py_END_ALLOW_THREADS;
         if (FAILED(hr)) {
             pyobject_raii parent_name(PyUnicode_FromWideChar(parent_id, -1));
-            set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, "Failed to EnumObjects() of folder from device", parent_name.ptr());
+            hresult_set_exc("Failed to EnumObjects() of folder from device", hr, parent_name.ptr());
             *enum_failed = true;
             return false;
         }
@@ -463,7 +463,7 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
         } else {
             if (hr == S_FALSE && !fetched) break;
             pyobject_raii parent_name(PyUnicode_FromWideChar(parent_id, -1));
-            set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, "Failed to EnumObjects()->Next() of folder from device", parent_name.ptr());
+            hresult_set_exc("Failed to EnumObjects()->Next() of folder from device", hr, parent_name.ptr());
             return false;
         }
     }
