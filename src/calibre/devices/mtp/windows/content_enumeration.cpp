@@ -403,6 +403,7 @@ bulk_get_filesystem(
 	bulk_properties_callback->Release();
     if (PyErr_Occurred()) return false;
     if (FAILED(hr)) {
+        fprintf(stderr, "Bulk get of MTP filesystem properties failed for this folder, retrying with single gets.\n");
         *retry_with_single_get = true;
         return false;
     }
