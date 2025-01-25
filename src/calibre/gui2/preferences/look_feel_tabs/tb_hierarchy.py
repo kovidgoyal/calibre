@@ -11,7 +11,7 @@ from functools import partial
 from qt.core import QListWidgetItem, Qt
 
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs
-from calibre.gui2.preferences import ConfigTabWidget
+from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields
 from calibre.gui2.preferences.look_feel_tabs.tb_hierarchy_ui import Ui_Form
 
@@ -54,18 +54,16 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
 # }}}
 
 
-class TbHierarchyTab(ConfigTabWidget, Ui_Form):
+class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-        self.tab_opened = False
         self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
         self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
         self.tb_search_order.set_movement_functions(self.move_tb_search_up, self.move_tb_search_down)
         self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
 
-    def lazy_populate_content(self):
-        self.tab_opened = True
+    def lazy_initialize(self):
         self.fill_tb_search_order_box()
 
         self.tb_hierarchical_cats_model = TBHierarchicalFields(self.gui.current_db, self.tb_hierarchical_cats,
@@ -170,7 +168,10 @@ class TbHierarchyTab(ConfigTabWidget, Ui_Form):
                 error_dialog(self, _('Import layout'),
                              _('<p>Could not read field list. Error:<br>%s')%err, show=True)
 
+    def restore_defaults(self):
+        self.tb_hierarchical_cats_model.restore_defaults()
+        self.reset_tb_search_order()
+
     def commit(self):
-        if self.tab_opened:
-            self.tb_search_order_commit()
-            self.tb_hierarchical_cats_model.commit()
+        self.tb_search_order_commit()
+        self.tb_hierarchical_cats_model.commit()

@@ -114,9 +114,13 @@ class ConfigWidgetInterface:
     def do_on_child_tabs(self, method, *args):
         r = False
         for t in self.child_tabs:
-            tab_opened = getattr(t, 'tab_opened', True)
-            if method in ('commit', 'refresh_gui') and not tab_opened:
+            lazy_init_called = getattr(t, 'lazy_init_called', True)
+            if method in ('commit', 'refresh_gui') and not lazy_init_called:
                 continue
+            if method == 'restore_defaults' and not lazy_init_called:
+                if hasattr(t, 'lazy_initialize'):
+                    t.lazy_initialize()
+                    t.lazy_init_called = True
             r = r | bool(getattr(t, method)(*args))
         return r
 
@@ -360,7 +364,7 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.tab_opened = False
+        self.lazy_init_called = False
 
     def set_changed_signal(self, changed_signal):
         self.changed_signal.connect(changed_signal)
@@ -370,10 +374,10 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
         # genesis isn't called before everythign else. Why is a mystery.
-        if not self.tab_opened:
+        if not self.lazy_init_called:
             if hasattr(self, 'lazy_initialize'):
                 self.lazy_initialize()
-        self.tab_opened = True
+        self.lazy_init_called = True
         super().showEvent(event)
 
 

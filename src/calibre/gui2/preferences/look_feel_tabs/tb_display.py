@@ -111,7 +111,7 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
-        self.display_model.restore_defaults()
+        self.tb_display_model.restore_defaults()
 
     def commit(self):
         self.tb_display_model.commit()

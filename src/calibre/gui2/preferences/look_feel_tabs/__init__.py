@@ -109,7 +109,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
             return idx
 
 def export_layout(in_widget, model=None):
-    filename = choose_save_file(in_widget, 'tb_display_import_export_field_list',
+    filename = choose_save_file(in_widget, 'look_feel_prefs_import_export_field_list',
             _('Save column list to file'),
             filters=[(_('Column list'), ['json'])])
     if filename:
@@ -121,7 +121,7 @@ def export_layout(in_widget, model=None):
                          _('<p>Could not write field list. Error:<br>%s')%err, show=True)
 
 def import_layout(in_widget, model=None):
-    filename = choose_files(in_widget, 'tb_display_import_export_field_list',
+    filename = choose_files(in_widget, 'look_feel_prefs_import_export_field_list',
             _('Load column list from file'),
             filters=[(_('Column list'), ['json'])])
     if filename:

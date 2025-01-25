@@ -59,6 +59,9 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
     def commit(self):
         return ConfigWidgetBase.commit(self)
 
+    def restore_defaults(self):
+        ConfigWidgetBase.restore_defaults(self)
+
     def refresh_gui(self, gui):
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
