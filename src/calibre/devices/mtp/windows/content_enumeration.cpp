@@ -167,14 +167,15 @@ get_object_filename(IPortableDeviceProperties *devprops, IPortableDeviceKeyColle
 
 
 static PyObject*
-get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCollection *properties, const wchar_t *object_id) {
+get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCollection *properties, const wchar_t *object_id, bool *get_properties_failed) {
     CComPtr<IPortableDeviceValues> values;
     HRESULT hr;
+    *get_properties_failed = false;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = devprops->GetValues(object_id, properties, &values);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); return NULL; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); *get_properties_failed = true; return NULL; }
 
 	pyobject_raii id(PyUnicode_FromWideChar(object_id, -1));
 	if (!id) return NULL;
@@ -204,8 +205,12 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
         hr = object_ids->GetAt(i, &pv);
 		pyobject_raii recurse;
         if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
-            pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
-			if (!item) return false;
+            bool get_properties_failed;
+            pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal, &get_properties_failed));
+			if (!item) {
+                if (!get_properties_failed) return false;
+                fprintf(stderr, "Ignoring object with id: %ls because getting its properties failed.\n", pv.pwszVal);
+            }
 			if (PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr()) != 0) return false;
             if (callback) {
                 pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
@@ -522,7 +527,8 @@ get_metadata(CComPtr<IPortableDeviceContent> &content, const wchar_t *object_id)
     CComPtr<IPortableDeviceProperties> devprops;
     HRESULT hr = content->Properties(&devprops);
     if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
-    return get_object_properties(devprops, properties, object_id);
+    bool get_properties_failed;
+    return get_object_properties(devprops, properties, object_id, &get_properties_failed);
 }
 
 PyObject*
@@ -733,7 +739,8 @@ create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *
     Py_END_ALLOW_THREADS;
     if (FAILED(hr) || !newid) { hresult_set_exc("Failed to create folder", hr); return NULL; }
 
-    return get_object_properties(devprops, properties, newid.ptr());
+    bool get_properties_failed;
+    return get_object_properties(devprops, properties, newid.ptr(), &get_properties_failed);
 } // }}}
 
 PyObject*
@@ -842,7 +849,8 @@ put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name,
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to get id of newly created file", hr); return NULL; }
 
-    return get_object_properties(devprops, properties, newid.ptr());
+    bool get_properties_failed;
+    return get_object_properties(devprops, properties, newid.ptr(), &get_properties_failed);
 
 } // }}}
 
