@@ -43,7 +43,7 @@ extern PyTypeObject DeviceType;
 
 extern IPortableDeviceValues* get_client_information();
 extern IPortableDevice* open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information);
-extern PyObject* get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevicePropertiesBulk> &bulk_properties);
+extern PyObject* get_device_information(const wchar_t *pnp_id, CComPtr<IPortableDevice> &device, CComPtr<IPortableDevicePropertiesBulk> &bulk_properties);
 extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback);
 extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);
 extern PyObject* create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name);

@@ -185,7 +185,7 @@ wpd_device_info(PyObject *self, PyObject *args) {
     if (client_information) {
         device = open_device(pnp_id.ptr(), client_information);
         CComPtr<IPortableDevicePropertiesBulk> properties_bulk;
-        if (device) ans = get_device_information(device, properties_bulk);
+        if (device) ans = get_device_information(pnp_id.ptr(), device, properties_bulk);
     }
 
     if (device) device->Close();

@@ -157,6 +157,7 @@ private:
     HANDLE complete;
     ULONG self_ref;
     PyObject *callback;
+    HRESULT end_status;
 
 	void do_one_object(CComPtr<IPortableDeviceValues> &properties) {
 		com_wchar_raii property;
@@ -200,17 +201,26 @@ public:
 		if (complete == NULL || complete == INVALID_HANDLE_VALUE) return false;
 
 		this->items = items; this->subfolders = subfolders; this->level = level; this->callback = callback;
+        this->end_status = S_OK;
 		self_ref = 0;
 		return true;
 	}
-	void end_processing() {
+	HRESULT end_processing() {
 		if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete);
 		items = NULL; subfolders = NULL; level = 0; complete = INVALID_HANDLE_VALUE; callback = NULL;
+        return this->end_status;
 	}
+
 	bool handle_is_valid() const { return complete != INVALID_HANDLE_VALUE; }
 
     HRESULT __stdcall OnStart(REFGUID Context) { return S_OK; }
-    HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) { if (complete != INVALID_HANDLE_VALUE) SetEvent(complete); return S_OK; }
+
+    HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) {
+        if (complete != INVALID_HANDLE_VALUE) SetEvent(complete);
+        this->end_status = hrStatus;
+        return S_OK;
+    }
+
     ULONG __stdcall AddRef() { InterlockedIncrement((long*) &self_ref); return self_ref; }
     ULONG __stdcall Release() {
         ULONG refcnt = self_ref - 1;
@@ -304,13 +314,18 @@ bulk_get_filesystem(
             PyErr_SetExcFromWindowsErrWithFilename(WPDError, 0, buf);
         }
     }
-    bulk_properties_callback->end_processing();
+    hr = bulk_properties_callback->end_processing();
     if (PyErr_Occurred()) {
         bulk_properties->Cancel(guid_context);
         pump_waiting_messages();
     }
 	bulk_properties_callback->Release();
-    return PyErr_Occurred() ? false : true;
+    if (PyErr_Occurred()) return false;
+    if (FAILED(hr)) {
+        hresult_set_exc("Bulk get properties failed in OnEnd", hr);
+        return false;
+    }
+    return true;
 }
 
 // }}}

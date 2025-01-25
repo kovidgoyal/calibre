@@ -151,7 +151,7 @@ get_storage_info(IPortableDevice *device) { // {{{
 } // }}}
 
 PyObject*
-get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevicePropertiesBulk> &pb) { // {{{
+get_device_information(const wchar_t *pnp_id, CComPtr<IPortableDevice> &device, CComPtr<IPortableDevicePropertiesBulk> &pb) { // {{{
     CComPtr<IPortableDeviceContent> content = NULL;
     CComPtr<IPortableDeviceProperties> properties = NULL;
     CComPtr<IPortableDeviceKeyCollection> keys = NULL;
@@ -260,6 +260,8 @@ get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevice
         }
     }
     PyDict_SetItemString(ans, "has_storage", has_storage ? Py_True : Py_False);
+    pyobject_raii pid(PyUnicode_FromWideChar(pnp_id, -1));
+    if (pid) PyDict_SetItemString(ans, "pnp_id", pid.ptr());
 
     if (has_storage) {
         pyobject_raii storage(get_storage_info(device));
