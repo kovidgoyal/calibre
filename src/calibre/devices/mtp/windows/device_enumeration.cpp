@@ -280,10 +280,22 @@ get_device_information(const wchar_t *pnp_id, CComPtr<IPortableDevice> &device, 
 		}
     }
 
-    Py_BEGIN_ALLOW_THREADS;
-    hr = properties->QueryInterface(IID_PPV_ARGS(&pb));
-    Py_END_ALLOW_THREADS;
-    PyDict_SetItemString(ans, "has_bulk_properties", (FAILED(hr)) ? Py_False: Py_True);
+    bool is_buggy_piece_of_shit_device = false;
+    PyObject *q = PyDict_GetItemString(ans, "manufacturer_name");
+    if (q && PyUnicode_CompareWithASCIIString(q, "BarnesAndNoble") == 0) {
+        q = PyDict_GetItemString(ans, "model_name");
+        if (q && PyUnicode_CompareWithASCIIString(q, "BNRV1300") == 0) is_buggy_piece_of_shit_device = true;
+    }
+
+    if (is_buggy_piece_of_shit_device) {
+        PyDict_SetItemString(ans, "has_bulk_properties", Py_False);
+        pb = NULL;
+    } else {
+        Py_BEGIN_ALLOW_THREADS;
+        hr = properties->QueryInterface(IID_PPV_ARGS(&pb));
+        Py_END_ALLOW_THREADS;
+        PyDict_SetItemString(ans, "has_bulk_properties", (FAILED(hr)) ? Py_False: Py_True);
+    }
     return ans;
 } // }}}
 
