@@ -58,7 +58,7 @@ class HeuristicProcessor:
             return '<h2>'+chap+'</h2>\n'
         else:
             delete_whitespace = re.compile(r'^\s*(?P<c>.*?)\s*$')
-            delete_quotes = re.compile(''''"''')
+            delete_quotes = re.compile(''''"''')  # noqa: RUF039
             txt_chap = delete_quotes.sub('', delete_whitespace.sub(r'\g<c>', html2text(chap)))
             txt_title = delete_quotes.sub('', delete_whitespace.sub(r'\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
