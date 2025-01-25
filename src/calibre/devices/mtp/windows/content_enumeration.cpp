@@ -210,6 +210,7 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
 			if (!item) {
                 if (!get_properties_failed) return false;
                 fprintf(stderr, "Ignoring object with id: %ls because getting its properties failed.\n", pv.pwszVal);
+                if (PyErr_Occurred()) PyErr_Clear();
             }
 			if (PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr()) != 0) return false;
             if (callback) {
@@ -341,8 +342,9 @@ static bool
 bulk_get_filesystem(
 		unsigned int level, IPortableDevice *device, IPortableDevicePropertiesBulk *bulk_properties,
 		CComPtr<IPortableDevicePropVariantCollection> &object_ids,
-		PyObject *pycallback, PyObject *ans, PyObject *subfolders
+		PyObject *pycallback, PyObject *ans, PyObject *subfolders, bool *retry_with_single_get
 ) {
+    *retry_with_single_get = false;
     CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
     if (!properties) return false;
 
@@ -401,7 +403,7 @@ bulk_get_filesystem(
 	bulk_properties_callback->Release();
     if (PyErr_Occurred()) return false;
     if (FAILED(hr)) {
-        hresult_set_exc("Bulk get properties failed in OnEnd", hr);
+        *retry_with_single_get = true;
         return false;
     }
     return true;
@@ -512,11 +514,15 @@ list_folder(IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, I
     bool enum_failed = false;
     if (!find_objects_in(content, object_ids, folder_id, &enum_failed)) return NULL;
 
+#define single_get if (!single_get_filesystem(0, content, object_ids, NULL, ans.ptr(), NULL)) return NULL;
     if (bulk_properties) {
-        if (!bulk_get_filesystem(0, device, bulk_properties, object_ids, NULL, ans.ptr(), NULL)) return NULL;
-    } else {
-        if (!single_get_filesystem(0, content, object_ids, NULL, ans.ptr(), NULL)) return NULL;
-    }
+        bool retry_with_single_get;
+        if (!bulk_get_filesystem(0, device, bulk_properties, object_ids, NULL, ans.ptr(), NULL, &retry_with_single_get)) {
+            if (retry_with_single_get) { single_get; }
+            else return NULL;
+        }
+    } else { single_get; }
+#undef single_get
     return ans.detach();
 }
 
@@ -591,11 +597,15 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
         return true;
     }
 
+#define single_get if (!single_get_filesystem(level, content, object_ids, callback, ans, subfolders.ptr())) return false;
     if (bulk_properties != NULL) {
-		if (!bulk_get_filesystem(level, device, bulk_properties, object_ids, callback, ans, subfolders.ptr())) return false;
-	} else {
-		if (!single_get_filesystem(level, content, object_ids, callback, ans, subfolders.ptr())) return false;
-	}
+        bool retry_with_single_get;
+		if (!bulk_get_filesystem(level, device, bulk_properties, object_ids, callback, ans, subfolders.ptr(), &retry_with_single_get)) {
+            if (retry_with_single_get) { single_get; }
+            else return false;
+        }
+	} else { single_get; }
+#undef single_get
 
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders.ptr()); i++) {
 		wchar_raii child_id(PyUnicode_AsWideCharString(PyList_GET_ITEM(subfolders.ptr(), i), NULL));
