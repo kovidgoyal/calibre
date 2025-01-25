@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="cover_browser_tab">
+  <attribute name="icon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+  </attribute>
+  <layout class="QGridLayout" name="gridLayout_122">
+   <item row="1" column="0" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_122">
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="opt_qv_respects_vls">
+       <property name="toolTip">
+        <string>&lt;p&gt;Check this box to make Quickview show books only in the
+current Virtual library. If unchecked, Quickview ignores Virtual libraries. If
+unchecked then only row changes are taken into account.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Apply Virtual libraries</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="opt_qv_follows_column">
+       <property name="toolTip">
+        <string>&lt;p&gt;Check this box to make Quickview change the column being examined
+when the column in the book list is changed using the cursor arrow keys&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Change Quickview item when book list column changes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="opt_qv_retkey_changes_column">
+       <property name="toolTip">
+        <string>&lt;p&gt;Pressing Enter in a cell changes both the book and the
+column being examined (the left-hand panel)&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Pressing Enter changes the examined column</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="opt_qv_dclick_changes_column">
+       <property name="toolTip">
+        <string>&lt;p&gt;Double-clicking in a cell changes both the book and the
+column being examined (the left-hand panel)&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>&amp;Double click changes examined column</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" rowspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Select columns to display</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_32">
+      <item row="0" column="1">
+       <widget class="QToolButton" name="qv_up_button">
+        <property name="toolTip">
+         <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../resources/images.qrc">
+          <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QToolButton" name="qv_down_button">
+        <property name="toolTip">
+         <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../../resources/images.qrc">
+          <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="3">
+       <widget class="ListViewWithMoveByKeyPress" name="qv_display_order">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ListViewWithMoveByKeyPress</class>
+   <extends>QListView</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListWidgetWithMoveByKeyPress</class>
+   <extends>QListWidget</extends>
+   <header>calibre/gui2/preferences.h</header>
+  </customwidget>
+ </customwidgets>
+
+</ui>

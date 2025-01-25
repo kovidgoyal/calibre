@@ -5,9 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
 
 from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
+from calibre.gui2 import (
+    choose_files,
+    choose_save_file,
+    config,
+    error_dialog,
+    gprefs,
+)
 from calibre.gui2.book_details import get_field_list
 
 
@@ -99,6 +107,36 @@ class DisplayedFields(QAbstractListModel):  # {{{
             self.dataChanged.emit(idx, idx)
             self.changed = True
             return idx
+
+def export_layout(in_widget, model=None):
+    filename = choose_save_file(in_widget, 'tb_display_import_export_field_list',
+            _('Save column list to file'),
+            filters=[(_('Column list'), ['json'])])
+    if filename:
+        try:
+            with open(filename, 'w') as f:
+                json.dump(model.fields, f, indent=1)
+        except Exception as err:
+            error_dialog(in_widget, _('Export field layout'),
+                         _('<p>Could not write field list. Error:<br>%s')%err, show=True)
+
+def import_layout(in_widget, model=None):
+    filename = choose_files(in_widget, 'tb_display_import_export_field_list',
+            _('Load column list from file'),
+            filters=[(_('Column list'), ['json'])])
+    if filename:
+        try:
+            with open(filename[0]) as f:
+                fields = json.load(f)
+            model.initialize(pref_data_override=fields)
+            in_widget.changed_signal.emit()
+        except Exception as err:
+            error_dialog(in_widget, _('Import layout'),
+                         _('<p>Could not read field list. Error:<br>%s')%err, show=True)
+
+def reset_layout(in_widget, model=None):
+    model.initialize(use_defaults=True)
+    in_widget.changed_signal.emit()
 
 
 def move_field_up(widget, model):
