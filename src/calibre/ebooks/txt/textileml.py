@@ -118,7 +118,7 @@ class TextileMLizer(OEB2HTML):
         # blank paragraph
         text = text.replace('\n\xa0', '\np. ')
         # blank paragraph
-        text = re.sub(r'\np[<>=]{1,2}?\\. \xa0', r'\np. ', text)
+        text = re.sub(r'\np[<>=]{1,2}?\. \xa0', r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.|h.*\.)', r'\n\2', text)
         # sort out spaces in tables
