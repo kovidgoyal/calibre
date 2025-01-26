@@ -209,8 +209,8 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
             pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal, &get_properties_failed));
 			if (!item) {
                 if (!get_properties_failed) return false;
-                fprintf(stderr, "Ignoring object with id: %ls because getting its properties failed.\n", pv.pwszVal);
-                if (PyErr_Occurred()) PyErr_Clear();
+                fprintf(stderr, "Ignoring object with id: %ls because getting its properties failed with error:\n", pv.pwszVal);
+                if (PyErr_Occurred()) PyErr_Print();
                 continue;
             }
 			if (PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr()) != 0) return false;
