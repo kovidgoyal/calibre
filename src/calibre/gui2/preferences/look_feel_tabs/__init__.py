@@ -9,13 +9,7 @@ import json
 
 from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
-from calibre.gui2 import (
-    choose_files,
-    choose_save_file,
-    config,
-    error_dialog,
-    gprefs,
-)
+from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
 
 
@@ -108,6 +102,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
             self.changed = True
             return idx
 
+
 def export_layout(in_widget, model=None):
     filename = choose_save_file(in_widget, 'look_feel_prefs_import_export_field_list',
             _('Save column list to file'),
@@ -119,6 +114,7 @@ def export_layout(in_widget, model=None):
         except Exception as err:
             error_dialog(in_widget, _('Export field layout'),
                          _('<p>Could not write field list. Error:<br>%s')%err, show=True)
+
 
 def import_layout(in_widget, model=None):
     filename = choose_files(in_widget, 'look_feel_prefs_import_export_field_list',
@@ -133,6 +129,7 @@ def import_layout(in_widget, model=None):
         except Exception as err:
             error_dialog(in_widget, _('Import layout'),
                          _('<p>Could not read field list. Error:<br>%s')%err, show=True)
+
 
 def reset_layout(in_widget, model=None):
     model.initialize(use_defaults=True)

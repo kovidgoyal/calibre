@@ -10,15 +10,9 @@ from functools import partial
 from calibre.db.categories import is_standard_category
 from calibre.gui2 import config, gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
-from calibre.gui2.preferences.look_feel_tabs import (
-     DisplayedFields,
-     import_layout,
-     export_layout,
-     move_field_down,
-     move_field_up,
-     reset_layout
- )
+from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_display_ui import Ui_Form
+
 
 class TBDisplayedFields(DisplayedFields):  # {{{
     # The code in this class depends on the fact that the tag browser is

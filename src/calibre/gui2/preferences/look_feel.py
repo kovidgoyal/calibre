@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
 from collections import defaultdict
 from functools import partial
 from threading import Thread
@@ -36,7 +35,6 @@ from qt.core import (
     Qt,
     QTableWidget,
     QTableWidgetItem,
-    QTabWidget,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -46,32 +44,13 @@ from calibre import human_readable
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import (
-    choose_files,
-    choose_save_file,
-    config,
-    default_author_link,
-    error_dialog,
-    gprefs,
-    icon_resource_manager,
-    open_local_file,
-    qt_app,
-    question_dialog,
-)
-
+from calibre.gui2 import config, default_author_link, error_dialog, gprefs, icon_resource_manager, open_local_file, qt_app, question_dialog
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
 from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import ConfigWidgetBase, Setting, set_help_tips, test_widget
 from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.preferences.look_feel_tabs import (
-    DisplayedFields,
-    export_layout,
-    import_layout,
-    move_field_down,
-    move_field_up,
-    reset_layout,
-)
+from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog

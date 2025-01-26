@@ -10,7 +10,7 @@ from qt.core import QKeySequence
 
 from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import LazyConfigWidgetBase, ConfigWidgetBase, set_help_tips
+from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
 
 

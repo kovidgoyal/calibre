@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from calibre.gui2 import  gprefs
+from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_partitioning_ui import Ui_Form
@@ -44,7 +44,7 @@ class TBPartitionedFields(DisplayedFields):  # {{{
             ans = [[k, True] for k in cats.keys()]
             self.changed = True
         elif pref_data_override:
-            po = {k:v for k,v in pref_data_override}
+            po = dict(pref_data_override)
             ans = [[k, po.get(k, True)] for k in cats.keys()]
             self.changed = True
         else:
@@ -93,6 +93,3 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
     def commit(self):
         self.tb_categories_to_part_model.commit()
         return ConfigWidgetBase.commit(self)
-
-
-
