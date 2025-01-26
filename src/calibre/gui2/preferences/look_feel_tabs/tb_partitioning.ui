@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1035</width>
+    <height>547</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <layout class="QGridLayout" name="gridLayout_10">
+     <item row="0" column="0">
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>&amp;Category partitioning method:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_partition_method</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="opt_tags_browser_partition_method">
+         <property name="toolTip">
+          <string>&lt;p&gt;Choose how Tag browser subcategories are displayed when
+there are more items than the limit. Select by first
+letter to see an A, B, C list. Choose partitioned to
+have a list of fixed-sized groups. Set to disabled
+if you never want subcategories&lt;/p&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Combine letters &amp;when fewer items than:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_collapse_fl_at</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="opt_tags_browser_collapse_fl_at">
+         <property name="toolTip">
+          <string>&lt;p&gt;If collapsing by first letter, combine adjacent letters together if
+there are fewer items under a letter than specified here. If the partition method is
+not set to first letter, this value is ignored. Set to zero to disable.&lt;/p&gt;</string>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Co&amp;llapse when more items than:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_collapse_at</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
+         <property name="toolTip">
+          <string>&lt;p&gt;If a Tag browser category has more than this number of items, it is divided
+up into subcategories. If the partition method is set to disable, this value is ignored.&lt;/p&gt;</string>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>&lt;p&gt;Check the box for categories that are to
+be partitioned using the criteria above. Uncheck the box if you don't want to
+partition a category even if the number of items is larger than
+the value shown above. This option can be used to
+avoid collapsing hierarchical categories that have only
+a few top-level elements.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Select categories to &amp;partition:</string>
+       </property>
+       <property name="buddy">
+        <cstring>tb_cats_to_partition</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QListView" name="tb_cats_to_partition">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>200</height>
+        </size>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_41">
+       <item>
+        <widget class="QPushButton" name="tb_partition_reset_button">
+         <property name="toolTip">
+          <string>Click this button to reset the list to its default order.</string>
+         </property>
+         <property name="text">
+          <string>Reset list</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="tb_partition_import_layout_button">
+         <property name="toolTip">
+          <string>&lt;p&gt;Click this button to set the list to one
+previously exported. This could be useful if you have several libraries with
+similar structure and you want to use the same for each one.&lt;/p&gt;</string>
+         </property>
+         <property name="text">
+          <string>Import list</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="tb_partition_export_layout_button">
+         <property name="toolTip">
+          <string>&lt;p&gt;Click this button to write the current display
+settings to a file. This could be useful if you have several libraries with similar
+structure and you want to use the same for each one.&lt;/p&gt;</string>
+         </property>
+         <property name="text">
+          <string>Export list</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+</ui>

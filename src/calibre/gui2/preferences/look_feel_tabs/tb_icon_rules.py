@@ -2,7 +2,7 @@
 
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy
@@ -14,7 +14,7 @@ from qt.core import QAbstractItemView, QApplication, QIcon, QMenu, Qt, QTableWid
 from calibre.constants import config_dir
 from calibre.db.constants import TEMPLATE_ICON_INDICATOR
 from calibre.gui2 import gprefs
-from calibre.gui2.preferences import ConfigTabWidget, ConfigWidgetBase
+from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.tb_icon_rules_ui import Ui_Form
 
 DELETED_COLUMN = 0
@@ -98,7 +98,7 @@ class ChildrenTableWidgetItem(QTableWidgetItem):
         self.setIcon(QIcon.cached_icon(icon))
 
 
-class TbIconRulesTab(ConfigTabWidget, Ui_Form):
+class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
@@ -147,7 +147,7 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
         except Exception:
             pass
 
-    def lazy_populate_content(self):
+    def lazy_initialize(self):
         field_metadata = self.gui.current_db.field_metadata
         category_icons = self.gui.tags_view.model().category_custom_icons
         v = gprefs['tags_browser_value_icons']
@@ -256,7 +256,6 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             self.rules_table.sortByColumn(FOR_CHILDREN_COLUMN, Qt.SortOrder(self.for_children_order))
 
     def commit(self):
-        rr = ConfigWidgetBase.commit(self)
         v = copy.deepcopy(gprefs['tags_browser_value_icons'])
         for r in range(self.rules_table.rowCount()):
             cat_item = self.rules_table.item(r, CATEGORY_COLUMN)
@@ -275,4 +274,4 @@ class TbIconRulesTab(ConfigTabWidget, Ui_Form):
             if len(v[category]) == 0:
                 v.pop(category, None)
         gprefs['tags_browser_value_icons'] = v
-        return rr
+        return ConfigWidgetBase.commit(self)

@@ -114,6 +114,13 @@ class ConfigWidgetInterface:
     def do_on_child_tabs(self, method, *args):
         r = False
         for t in self.child_tabs:
+            lazy_init_called = getattr(t, 'lazy_init_called', True)
+            if method in ('commit', 'refresh_gui') and not lazy_init_called:
+                continue
+            if method == 'restore_defaults' and not lazy_init_called:
+                if hasattr(t, 'lazy_initialize'):
+                    t.lazy_initialize()
+                    t.lazy_init_called = True
             r = r | bool(getattr(t, method)(*args))
         return r
 
@@ -291,7 +298,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         self.settings = {}
         self.child_tabs = []
         for v in self.__dict__.values():
-            if isinstance(v, ConfigTabWidget):
+            if isinstance(v, LazyConfigWidgetBase):
                 self.child_tabs.append(v)
 
     def register(self, name, config_obj, gui_name=None, choices=None,
@@ -349,10 +356,29 @@ def get_plugin(category, name):
             (category, name))
 
 
-class ConfigTabWidget(ConfigWidgetBase):
+class LazyConfigWidgetBase(ConfigWidgetBase):
+    '''
+    Use this for dialogs that are tabs, accessed either from the left or on the
+    top. It directly replaces ConfigWidgetBase, supporting the lazy operations.
+    '''
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.lazy_init_called = False
 
     def set_changed_signal(self, changed_signal):
         self.changed_signal.connect(changed_signal)
+
+    def showEvent(self, event):
+        # called when the widget is actually displays. We can't do something like
+        # lazy_genesis because Qt does "things" before showEvent() is called. In
+        # particular, the register function doesn't work with combo boxes if
+        # genesis isn't called before everythign else. Why is a mystery.
+        if not self.lazy_init_called:
+            if hasattr(self, 'lazy_initialize'):
+                self.lazy_initialize()
+        self.lazy_init_called = True
+        super().showEvent(event)
 
 
 class ConfigDialog(QDialog):

@@ -418,6 +418,7 @@ class Preferences(QDialog):
         return self.close_after_initial or (must_restart and rc) or do_restart
 
     def restore_defaults(self, *args):
+        self.showing_widget.do_on_child_tabs('restore_defaults')
         self.showing_widget.restore_defaults()
 
     def on_shutdown(self):

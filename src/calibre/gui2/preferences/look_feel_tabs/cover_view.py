@@ -2,7 +2,7 @@
 
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
@@ -10,15 +10,15 @@ from qt.core import QKeySequence
 
 from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigTabWidget, ConfigWidgetBase, set_help_tips
+from calibre.gui2.preferences import LazyConfigWidgetBase, ConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
 
 
-class CoverView(ConfigTabWidget, Ui_Form):
+class CoverView(LazyConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-        db = gui.library_view.model().db
+        db = self.gui.library_view.model().db
         r = self.register
 
         r('books_autoscroll_time', gprefs)
@@ -41,7 +41,7 @@ class CoverView(ConfigTabWidget, Ui_Form):
         self.fs_help_msg.setText(self.fs_help_msg.text()%(
             QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
 
-    def initialize(self):
+    def lazy_initialize(self):
         ConfigWidgetBase.initialize(self)
         set_help_tips(self.opt_cover_browser_narrow_view_position, _(
             'This option controls the position of the cover browser when using the Narrow user '
@@ -51,10 +51,24 @@ class CoverView(ConfigTabWidget, Ui_Form):
             'list. This option has no effect when using the Wide user interface layout.'))
 
     def edit_cb_title_template(self):
-        t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), fm=self.gui.current_db.field_metadata)
+        rows = self.gui.library_view.selectionModel().selectedRows()
+        mi = None
+        db = self.gui.current_db.new_api
+        if rows:
+            ids = list(map(self.gui.library_view.model().id, rows))
+            mi = []
+            for bk in ids[0:min(10, len(ids))]:
+                mi.append(db.get_proxy_metadata(bk))
+        t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), mi=mi, fm=db.field_metadata)
         t.setWindowTitle(_('Edit template for caption'))
         if t.exec():
             self.opt_cover_browser_title_template.setText(t.rule[1])
+
+    def commit(self):
+        return ConfigWidgetBase.commit(self)
+
+    def restore_defaults(self):
+        ConfigWidgetBase.restore_defaults(self)
 
     def refresh_gui(self, gui):
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
