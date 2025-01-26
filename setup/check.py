@@ -82,10 +82,7 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            if self.auto_fix:
-                p = subprocess.Popen(['ruff', 'check', '--fix', f])
-            else:
-                p = subprocess.Popen(['ruff', 'check', f])
+            p = subprocess.Popen(['ruff', 'check', f])
             return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -99,7 +96,17 @@ class Check(Command):
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         self.auto_fix = opts.fix
+        if self.auto_fix:
+            self.run_auto_fix()
         self.run_check_files()
+
+    def run_auto_fix(self):
+        self.info('\tAuto-fixing')
+        cp = subprocess.run(['ruff', 'check', '--fix-only'], stdout=subprocess.PIPE)
+        if cp.returncode != 0:
+            raise SystemExit('ruff auto-fixing failed')
+        msg = cp.stdout.decode('utf-8') or 'Fixed 0 errors.'
+        self.info(msg+'\n')
 
     def run_check_files(self):
         cache = {}
