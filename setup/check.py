@@ -11,7 +11,7 @@ import json
 import os
 import subprocess
 
-from setup import Command, build_cache_dir, dump_json, edit_file, require_clean_git, require_git_master
+from setup import Command, build_cache_dir, dump_json, edit_file
 
 
 class Message:
