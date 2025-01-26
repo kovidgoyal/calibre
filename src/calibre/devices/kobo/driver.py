@@ -1981,6 +1981,7 @@ class KOBOTOUCH(KOBO):
             return bookshelves
 
         self.debug_index = 0
+        device_db_unicode_errors = []
 
         with closing(self.device_database_connection(use_row_factory=True)) as connection:
             debug_print('KoboTouch:books - reading device database')
@@ -2088,7 +2089,19 @@ class KOBOTOUCH(KOBO):
 
             changed = False
             i = 0
-            for row in cursor:
+            while True:
+                try:
+                    row = cursor.fetchone()
+                except UnicodeDecodeError as e:
+                    device_db_unicode_errors.append(
+                        {
+                            "title": row["Title"],
+                            "attribution": row["Attribution"],
+                            "error": e.__repr__(),
+                        }
+                    )
+                if not row:
+                    break
                 i += 1
                 # self.report_progress((i) / float(books_on_device), _('Getting list of books on device...'))
                 show_debug = self.is_debugging_title(row['Title'])
@@ -2127,7 +2140,6 @@ class KOBOTOUCH(KOBO):
                     need_sync = True
 
             cursor.close()
-
             if not prefs['manage_device_metadata'] == 'on_connect':
                 self.dump_bookshelves(connection)
             else:
@@ -2160,6 +2172,29 @@ class KOBOTOUCH(KOBO):
 
         self.report_progress(1.0, _('Getting list of books on device...'))
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
+
+        if device_db_unicode_errors:
+            from calibre.devices.interface import OpenPopupMessage
+            issue_message = (
+                'The problem is in title "{title}" by "{attribution}".\n'
+                'Exception:\n{error}'
+            )
+            details = "\n\n".join(
+                issue_message.format(**item)
+                for item in device_db_unicode_errors
+            )
+            message = (
+                'The database on your Kobo device has an inconsistency'
+                ' in the unicode character encoding.\n\n'
+                f'{details}\n\n'
+                'Maybe removing and re-adding the title will help.'
+            )
+            print(f"ERROR:\n{message}")
+            self._popup_warning = OpenPopupMessage(
+                _("Unicode error in devicd database - See details"),
+                message,
+                level="warning")
+
         return bl
 
     @classmethod
