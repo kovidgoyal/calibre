@@ -645,7 +645,7 @@ class BasicNewsRecipe(Recipe):
         `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
         instance containing the downloaded :term:`HTML`.
         '''
-        return None
+        return
 
     def abort_article(self, msg=None):
         ''' Call this method inside any of the preprocess methods to abort the

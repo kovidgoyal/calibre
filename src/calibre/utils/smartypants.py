@@ -493,7 +493,7 @@ def smartyPants(text, attr='1'):
             if not in_pre:
                 t = processEscapes(t)
 
-                t = re.sub(r'&quot;', '"', t)
+                t = t.replace('&quot;', '"')
                 t = dashes_func(t)
                 t = ellipses_func(t)
                 # Note: backticks need to be processed before quotes.
@@ -548,10 +548,10 @@ def educateQuotes(text):
     text = re.sub(r''''"(?=\w)''', '''&#8216;&#8220;''', text)
     text = re.sub(r'''""(?=\w)''', '''&#8220;&#8220;''', text)
     text = re.sub(r'''''(?=\w)''', '''&#8216;&#8216;''', text)
-    text = re.sub(r'''\"\'''',     '''&#8221;&#8217;''', text)
-    text = re.sub(r'''\'\"''',     '''&#8217;&#8221;''', text)
-    text = re.sub(r'''""''',       '''&#8221;&#8221;''', text)
-    text = re.sub(r"""''""",       '''&#8217;&#8217;''', text)
+    text = text.replace('"\'', '&#8221;&#8217;')
+    text = text.replace('\'"', '''&#8217;&#8221;''')
+    text = text.replace('""', '&#8221;&#8221;')
+    text = text.replace(r"""''""",  '''&#8217;&#8217;''')
 
     # Special case for decade abbreviations (the '80s --> ’80s):
     # See http://practicaltypography.com/apostrophes.html
@@ -612,7 +612,7 @@ def educateQuotes(text):
     text = closing_single_quotes_regex.sub(r'''\1&#8217;\2''', text)
 
     # Any remaining single quotes should be opening ones:
-    text = re.sub(r"""'""", r'''&#8216;''', text)
+    text = text.replace("'", '&#8216;')
 
     # Get most opening double quotes:
     opening_double_quotes_regex = re.compile(r'''
@@ -648,7 +648,7 @@ def educateQuotes(text):
         text = text[:-1] + '&#8221;'
 
     # Any remaining quotes should be opening ones.
-    text = re.sub(r'"', r'''&#8220;''', text)
+    text = text.replace('"', '&#8220;')
 
     return text
 
@@ -662,8 +662,8 @@ def educateBackticks(text):
     Example output: &#8220;Isn't this fun?&#8221;
     '''
 
-    text = re.sub(r'''``''', r'''&#8220;''', text)
-    text = re.sub(r"""''""", r'''&#8221;''', text)
+    text = text.replace('``', '&#8220;')
+    text = text.replace("''", '&#8221;')
     return text
 
 
@@ -677,8 +677,8 @@ def educateSingleBackticks(text):
     Example output: &#8216;Isn&#8217;t this fun?&#8217;
     '''
 
-    text = re.sub(r'''`''', r'''&#8216;''', text)
-    text = re.sub(r"""'""", r'''&#8217;''', text)
+    text = text.replace('`', '&#8216;')
+    text = text.replace("'", '&#8217;')
     return text
 
 
@@ -690,8 +690,8 @@ def educateDashes(text):
                 an em-dash HTML entity.
     '''
 
-    text = re.sub(r'''---''', r'''&#8211;''', text)  # en  (yes, backwards)
-    text = re.sub(r'''--''', r'''&#8212;''', text)  # em (yes, backwards)
+    text = text.replace('---', '&#8211;')  # en  (yes, backwards)
+    text = text.replace('--', '&#8212;')  # em (yes, backwards)
     return text
 
 
@@ -704,8 +704,8 @@ def educateDashesOldSchool(text):
                 an em-dash HTML entity.
     '''
 
-    text = re.sub(r'''---''', r'''&#8212;''', text)    # em (yes, backwards)
-    text = re.sub(r'''--''', r'''&#8211;''', text)    # en (yes, backwards)
+    text = text.replace('---', '&#8212;')    # em (yes, backwards)
+    text = text.replace('--', '&#8211;')    # en (yes, backwards)
     return text
 
 
@@ -724,8 +724,8 @@ def educateDashesOldSchoolInverted(text):
                 the shortcut should be shorter to type. (Thanks to Aaron
                 Swartz for the idea.)
     '''
-    text = re.sub(r'''---''', r'''&#8211;''', text)    # em
-    text = re.sub(r'''--''', r'''&#8212;''', text)    # en
+    text = text.replace('---', '&#8211;')    # em
+    text = text.replace('--', '&#8212;')    # en
     return text
 
 
@@ -739,8 +739,8 @@ def educateEllipses(text):
     Example output: Huh&#8230;?
     '''
 
-    text = re.sub(r'''\.\.\.''', r'''&#8230;''', text)
-    text = re.sub(r'''\. \. \.''', r'''&#8230;''', text)
+    text = text.replace('...', '&#8230;')
+    text = text.replace('. . .', '&#8230;')
     return text
 
 
@@ -754,16 +754,16 @@ def stupefyEntities(text):
     Example output: "Hello -- world."
     '''
 
-    text = re.sub(r'''&#8211;''', r'''-''', text)  # en-dash
-    text = re.sub(r'''&#8212;''', r'''--''', text)  # em-dash
+    text = text.replace('&#8211;', '-')  # en-dash
+    text = text.replace('&#8212;', '--')  # em-dash
 
-    text = re.sub(r'''&#8216;''', r"""'""", text)  # open single quote
-    text = re.sub(r'''&#8217;''', r"""'""", text)  # close single quote
+    text = text.replace('&#8216;', "'")  # open single quote
+    text = text.replace('&#8217;', "'")  # close single quote
 
-    text = re.sub(r'''&#8220;''', r'''"''', text)  # open double quote
-    text = re.sub(r'''&#8221;''', r'''"''', text)  # close double quote
+    text = text.replace('&#8220;', '"')  # open double quote
+    text = text.replace('&#8221;', '"')  # close double quote
 
-    text = re.sub(r'''&#8230;''', r'''...''', text)  # ellipsis
+    text = text.replace('&#8230;', '...')  # ellipsis
 
     return text
 
@@ -784,12 +784,12 @@ def processEscapes(text):
                 \-      &#45;
                 \`      &#96;
     '''
-    text = re.sub(r'''\\\\''', r'''&#92;''', text)
-    text = re.sub(r'''\\"''', r'''&#34;''', text)
-    text = re.sub(r"""\\'""", r'''&#39;''', text)
-    text = re.sub(r'''\\\.''', r'''&#46;''', text)
-    text = re.sub(r'''\\-''', r'''&#45;''', text)
-    text = re.sub(r'''\\`''', r'''&#96;''', text)
+    text = text.replace(r'\\', '&#92;')
+    text = text.replace(r'\"', '&#34;')
+    text = text.replace(r"\'", '&#39;')
+    text = text.replace(r'\.', '&#46;')
+    text = text.replace(r'\-', '&#45;')
+    text = text.replace(r'\`', '&#96;')
 
     return text
 

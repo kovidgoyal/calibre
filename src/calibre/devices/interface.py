@@ -138,7 +138,7 @@ class DevicePlugin(Plugin):
     @classmethod
     def get_open_popup_message(self):
         ' GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage '
-        return None
+        return
 
     # Device detection {{{
     def test_bcd(self, bcdDevice, bcd):
@@ -631,7 +631,7 @@ class DevicePlugin(Plugin):
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
         '''
-        return None
+        return
 
     def start_plugin(self):
         '''
