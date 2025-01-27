@@ -1487,8 +1487,9 @@ class KOBOTOUCH(KOBO):
     SAGE_PRODUCT_ID     = [0x4231]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
-    LIBRA_COLOR_PRODUCT_ID = [0x4237]   # This is shared by Kobo Libra Color, Clara Color and Clara BW
-                                        # as well as tolino shine 5, shine color and vision color. Sigh.
+    # This product id is shared by Kobo Libra Color, Clara Color and Clara BW
+    # as well as tolino shine 5, shine color and vision color. Sigh.
+    LIBRA_COLOR_PRODUCT_ID = [0x4237]
     # Kobo says the following will be used in future firmware (end 2024/2025)
     CLARA_COLOR_PRODUCT_ID = [0x4238]
     CLARA_BW_PRODUCT_ID    = [0x4239]
