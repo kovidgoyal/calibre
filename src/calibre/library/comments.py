@@ -53,7 +53,7 @@ def comments_to_html(comments):
 
     if '<' not in comments:
         comments = prepare_string_for_xml(comments)
-        parts = ['<p class="description">%s</p>'%x.replace('\n', '<br />')
+        parts = ['<p class="description">{}</p>'.format(x.replace('\n', '<br />'))
                 for x in comments.split('\n\n')]
         return '\n'.join(parts)
 
@@ -70,9 +70,7 @@ def comments_to_html(comments):
         '.\r'), comments)
     for lost_cr in lost_cr_pat.finditer(comments):
         comments = comments.replace(lost_cr.group(),
-                                    '{}{}\n\n{}'.format(lost_cr.group(1),
-                                                    lost_cr.group(2),
-                                                    lost_cr.group(3)))
+                                    f'{lost_cr.group(1)}{lost_cr.group(2)}\n\n{lost_cr.group(3)}')
 
     comments = comments.replace('\r', '')
     # Convert \n\n to <p>s

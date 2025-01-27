@@ -377,7 +377,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 ops = []
                 for op in self.current_plugboards[f][d]:
                     ops.append('([' + op[0] + '] -> ' + op[1] + ')')
-                txt = '%s:%s = %s\n'%(f, d, ', '.join(ops))
+                txt = '{}:{} = {}\n'.format(f, d, ', '.join(ops))
                 item = QListWidgetItem(txt)
                 item.setData(Qt.ItemDataRole.UserRole, (f, d))
                 if d in self.disabled_devices:

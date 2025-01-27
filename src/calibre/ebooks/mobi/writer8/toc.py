@@ -83,7 +83,7 @@ class TOCAdder:
         s = getattr(oeb, 'store_embed_font_rules', None)
         if getattr(s, 'body_font_family', None):
             css = [css_text(x) for x in s.rules] + [
-                    'body { font-family: %s }'%s.body_font_family]
+                    f'body {{ font-family: {s.body_font_family} }}']
             embed_css = '\n\n'.join(css)
 
         root = safe_xml_fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,

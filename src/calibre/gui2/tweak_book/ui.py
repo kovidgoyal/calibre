@@ -335,8 +335,8 @@ class Main(MainWindow):
         for v, h in product(('top', 'bottom'), ('left', 'right')):
             p = f'dock_{v}_{h}'
             pref = tprefs[p] or tprefs.defaults[p]
-            area = getattr(Qt.DockWidgetArea, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
-            self.setCorner(getattr(Qt.Corner, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
+            area = getattr(Qt.DockWidgetArea, '{}DockWidgetArea'.format(capitalize({'vertical':h, 'horizontal':v}[pref])))
+            self.setCorner(getattr(Qt.Corner, '{}{}Corner'.format(*tuple(map(capitalize, (v, h))))), area)
         self.preview.apply_settings()
         self.live_css.apply_theme()
         for bar in (self.global_bar, self.tools_bar, self.plugins_bar):
@@ -852,7 +852,7 @@ class Main(MainWindow):
         cc = current_container()
         if cc is not None:
             fname = os.path.basename(cc.path_to_ebook)
-            self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(cc.book_type_for_display, fname, self.APP_NAME))
+            self.setWindowTitle(self.current_metadata.title + f' [{cc.book_type_for_display}] :: {fname} :: {self.APP_NAME}')
         else:
             self.setWindowTitle(self.APP_NAME)
 

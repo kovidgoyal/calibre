@@ -68,7 +68,7 @@ class ChoosePopupWidget(QWidget):
             text = make_highlighted_text('color: magenta', text, positions)
             desc = self.descriptions.get(otext)
             if desc:
-                text += ' - <i>%s</i>' % prepare_string_for_xml(desc)
+                text += f' - <i>{prepare_string_for_xml(desc)}</i>'
             color = self.palette().color(QPalette.ColorRole.Text).name()
             text = f'<span style="color: {color}">{text}</span>'
             st = self.rendered_text_cache[otext] = QStaticText(text)

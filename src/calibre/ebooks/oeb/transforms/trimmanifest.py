@@ -68,5 +68,5 @@ class ManifestTrimmer:
             unchecked = new
         for item in oeb.manifest.values():
             if item not in used:
-                oeb.logger.info('Trimming %r from manifest' % item.href)
+                oeb.logger.info(f'Trimming {item.href!r} from manifest')
                 oeb.manifest.remove(item)

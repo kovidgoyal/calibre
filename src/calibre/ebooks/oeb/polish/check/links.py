@@ -235,7 +235,7 @@ class MimetypeMismatch(BaseError):
             rename_files(container, {self.file_name:new_name})
             changed = True
         else:
-            for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type="%s"]' % self.opf_mt):
+            for item in container.opf_xpath(f'//opf:manifest/opf:item[@href and @media-type="{self.opf_mt}"]'):
                 name = container.href_to_name(item.get('href'), container.opf_name)
                 if name == self.file_name:
                     changed = True

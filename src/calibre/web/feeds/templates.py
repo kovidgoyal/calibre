@@ -223,7 +223,7 @@ class NavBarTemplate(Template):
             next_art = 'feed_%d'%(feed+1) if art == number_of_articles_in_feed - 1 \
                     else 'article_%d'%(art+1)
             up = '../..' if art == number_of_articles_in_feed - 1 else '..'
-            href = '%s%s/%s/index.html'%(prefix, up, next_art)
+            href = f'{prefix}{up}/{next_art}/index.html'
             navbar.text = '| '
             navbar.append(A(_('Next'), href=href))
         href = '%s../index.html#article_%d'%(prefix, art)
@@ -267,7 +267,7 @@ class TouchscreenIndexTemplate(Template):
             if len(feed):
                 tr = TR()
                 tr.append(TD(attrs(rescale=120), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD('%s' % len(feed.articles), style='text-align:right'))
+                tr.append(TD(f'{len(feed.articles)}', style='text-align:right'))
                 toc.append(tr)
         div = DIV(
                 masthead_p,
@@ -419,7 +419,7 @@ class TouchscreenNavBarTemplate(Template):
                 else 'article_%d'%(art+1)
         up = '../..' if art == number_of_articles_in_feed - 1 else '..'
 
-        link = A(attrs('article_link'), _('Next'), href='%s%s/%s/index.html'%(prefix, up, next_art))
+        link = A(attrs('article_link'), _('Next'), href=f'{prefix}{up}/{next_art}/index.html')
         navbar_tr.append(TD(attrs('article_next'),link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)

@@ -201,7 +201,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             if role == Qt.ItemDataRole.DisplayRole:
                 ver = '.'.join(map(str, plugin.version))
                 desc = '\n'.join(textwrap.wrap(plugin.description, 100))
-                ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
+                ans='{} ({}) {} {}\n{}'.format(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c and not disabled:
                     ans += _('\nCustomization: ')+c
@@ -301,7 +301,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
-        info = '' if iswindows else ' [.zip %s]'%_('files')
+        info = '' if iswindows else ' [.zip {}]'.format(_('files'))
         path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
                 filters=[(_('Plugins') + info, ['zip'])], all_files=False,
                     select_only_single_file=True)

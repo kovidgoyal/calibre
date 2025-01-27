@@ -179,7 +179,7 @@ class RuleItem(RuleItemBase):  # {{{
                     match_type=MATCH_TYPE_MAP[rule['match_type']], query=query)
             if rule['action_data']:
                 ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
-                text += ' <code>%s</code>' % ad
+                text += f' <code>{ad}</code>'
         except Exception:
             import traceback
             traceback.print_exc()
@@ -204,7 +204,7 @@ class Tester(Dialog):  # {{{
     PREFS_NAME = 'test-style-transform-rules'
     LABEL = _('Enter a CSS stylesheet below and click the "Test" button')
     SYNTAX = 'css'
-    RESULTS = '/* %s */\n\n' % _('Resulting stylesheet')
+    RESULTS = '/* {} */\n\n'.format(_('Resulting stylesheet'))
 
     def __init__(self, rules, parent=None):
         self.rules = self.compile_rules(rules)

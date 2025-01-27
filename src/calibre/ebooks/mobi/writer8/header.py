@@ -55,7 +55,7 @@ class Header(OrderedDict):
             else:
                 val = 0
             if name in self:
-                raise ValueError('Duplicate field in definition: %r'%name)
+                raise ValueError(f'Duplicate field in definition: {name!r}')
             self[name] = val
 
     @property
@@ -66,7 +66,7 @@ class Header(OrderedDict):
         positions = {}
         for name, val in iteritems(kwargs):
             if name not in self:
-                raise KeyError('Not a valid header field: %r'%name)
+                raise KeyError(f'Not a valid header field: {name!r}')
             self[name] = val
 
         buf = BytesIO()
@@ -75,7 +75,7 @@ class Header(OrderedDict):
             val = self.format_value(name, val)
             positions[name] = buf.tell()
             if val is None:
-                raise ValueError('Dynamic field %r not set'%name)
+                raise ValueError(f'Dynamic field {name!r} not set')
             if isinstance(val, numbers.Integral):
                 fmt = b'H' if name in self.SHORT_FIELDS else b'I'
                 val = pack(b'>'+fmt, val)

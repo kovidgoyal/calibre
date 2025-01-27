@@ -272,14 +272,14 @@ class CreateVirtualLibrary(QDialog):  # {{{
         if f == 'search':
             names = db.saved_search_names()
         else:
-            names = getattr(db, 'all_%s_names'%f)()
+            names = getattr(db, f'all_{f}_names')()
         d = SelectNames(names, txt, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             prefix = f+'s' if f in {'tag', 'author'} else f
             if f == 'search':
-                search = ['(%s)'%(db.saved_search_lookup(x)) for x in d.names]
+                search = [f'({db.saved_search_lookup(x)})' for x in d.names]
             else:
-                search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
+                search = ['{}:"={}"'.format(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 if not self.editing:
                     self.vl_name.lineEdit().setText(next(d.names))
@@ -541,8 +541,8 @@ class SearchRestrictionMixin:
             return error_dialog(self, _('No Virtual libraries'), _(
                 'No Virtual libraries present, create some first'), show=True)
         example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
-            '<span style="%s">' % emphasis_style(), '</span>')
-        chars = '<pre style="%s">sbc</pre>' % emphasis_style()
+            f'<span style="{emphasis_style()}">', '</span>')
+        chars = f'<pre style="{emphasis_style()}">sbc</pre>'
         help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the library name into the field above.
         For example, if want to choose the VL:
         {example}
@@ -655,7 +655,7 @@ class SearchRestrictionMixin:
         else:
             r = str(self.search_restriction.currentText()).replace('&&', '&')
             if r is not None and r != '':
-                restriction = 'search:"%s"'%(r)
+                restriction = f'search:"{r}"'
             else:
                 restriction = ''
             self._apply_search_restriction(restriction, r)

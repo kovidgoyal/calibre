@@ -165,12 +165,12 @@ def quoteaddr(addr):
         pass
     if m == (None, None):  # Indicates parse failure or AttributeError
         # something weird here.. punt -ddm
-        return '<%s>' % addr
+        return f'<{addr}>'
     elif m is None:
         # the sender wants an empty return address
         return '<>'
     else:
-        return '<%s>' % m
+        return f'<{m}>'
 
 
 def _addr_only(addrstring):
@@ -301,7 +301,7 @@ class SMTP:
                     addr = socket.gethostbyname(socket.gethostname())
                 except socket.gaierror:
                     pass
-                self.local_hostname = '[%s]' % addr
+                self.local_hostname = f'[{addr}]'
 
     def set_debuglevel(self, debuglevel):
         '''Set the debug output level.

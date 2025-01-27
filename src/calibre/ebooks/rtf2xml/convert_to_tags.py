@@ -89,7 +89,7 @@ class ConvertToTags:
             self.__write_new_line()
         if info in self.__two_new_line:
             self.__write_extra_new_line()
-        self.__write_obj.write('<%s>' % info)
+        self.__write_obj.write(f'<{info}>')
 
     def __empty_func(self, line):
         '''
@@ -97,7 +97,7 @@ class ConvertToTags:
         '''
         info = line[17:-1]
         self.__write_obj.write(
-        '<%s/>' % info)
+        f'<{info}/>')
         self.__new_line = 0
         if info in self.__block:
             self.__write_new_line()
@@ -117,7 +117,7 @@ class ConvertToTags:
         tokens = info.split('<')
         element_name = tokens[0]
         tokens = tokens[1:]
-        self.__write_obj.write('<%s' % element_name)
+        self.__write_obj.write(f'<{element_name}')
         for token in tokens:
             groups = token.split('>')
             try:
@@ -148,7 +148,7 @@ class ConvertToTags:
         tokens = info.split('<')
         element_name = tokens[0]
         tokens = tokens[1:]
-        self.__write_obj.write('<%s' % element_name)
+        self.__write_obj.write(f'<{element_name}')
         for token in tokens:
             groups = token.split('>')
             val = groups[0]
@@ -171,7 +171,7 @@ class ConvertToTags:
         # mi<tg<close_____<style-sheet\n
         info = line[17:-1]
         self.__write_obj.write(
-        '</%s>' % info)
+        f'</{info}>')
         self.__new_line = 0
         if info in self.__block:
             self.__write_new_line()
@@ -233,7 +233,7 @@ class ConvertToTags:
             pass
         elif self.__dtd_path:
             self.__write_obj.write(
-            '<!DOCTYPE doc SYSTEM "%s">' % self.__dtd_path
+            f'<!DOCTYPE doc SYSTEM "{self.__dtd_path}">'
             )
         elif self.__dtd_path == '':
             # don't print dtd if further transformations are going to take
@@ -242,7 +242,7 @@ class ConvertToTags:
         else:
             self.__write_obj.write(
                     '<!DOCTYPE doc PUBLIC "publicID" '
-                    '"http://rtf2xml.sourceforge.net/dtd/%s">' % public_dtd
+                    f'"http://rtf2xml.sourceforge.net/dtd/{public_dtd}">'
             )
         self.__new_line = 0
         self.__write_new_line()

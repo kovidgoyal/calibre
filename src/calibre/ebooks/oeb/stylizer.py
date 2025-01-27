@@ -86,7 +86,7 @@ def media_ok(raw):
         return mq.negated ^ matched
 
     try:
-        for mq in CSSMedia3Parser().parse_stylesheet('@media %s {}' % raw).rules[0].media:
+        for mq in CSSMedia3Parser().parse_stylesheet(f'@media {raw} {{}}').rules[0].media:
             if query_ok(mq):
                 return True
         return False
@@ -274,7 +274,7 @@ class Stylizer:
                                 continue
                             sitem = hrefs[ihref]
                             if sitem.media_type not in OEB_STYLES:
-                                self.logger.warn('CSS @import of non-CSS file %r' % rule.href)
+                                self.logger.warn(f'CSS @import of non-CSS file {rule.href!r}')
                                 continue
                             stylesheets.append(sitem.data)
                     # Make links to resources absolute, since these rules will
@@ -291,13 +291,11 @@ class Stylizer:
                 sitem = oeb.manifest.hrefs.get(path, None)
                 if sitem is None:
                     self.logger.warn(
-                        'Stylesheet %r referenced by file %r not in manifest' %
-                        (path, item.href))
+                        f'Stylesheet {path!r} referenced by file {item.href!r} not in manifest')
                     continue
                 if not hasattr(sitem.data, 'cssRules'):
                     self.logger.warn(
-                    'Stylesheet %r referenced by file %r is not CSS'%(path,
-                        item.href))
+                    f'Stylesheet {path!r} referenced by file {item.href!r} is not CSS')
                     continue
                 stylesheets.append(sitem.data)
         csses = {'extra_css':extra_css, 'user_css':user_css}
@@ -309,7 +307,7 @@ class Stylizer:
                             validate=False)
                     stylesheets.append(stylesheet)
                 except Exception:
-                    self.logger.exception('Failed to parse %s, ignoring.'%w)
+                    self.logger.exception(f'Failed to parse {w}, ignoring.')
                     self.logger.debug('Bad css: ')
                     self.logger.debug(x)
 
@@ -324,7 +322,7 @@ class Stylizer:
         self.flatten_style = self.oeb.stylizer_rules.flatten_style
 
         self._styles = {}
-        pseudo_pat = re.compile(':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        pseudo_pat = re.compile(':{{1,2}}({})'.format('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
         select = Select(tree, ignore_inappropriate_pseudo_classes=True)
 
         for _, _, cssdict, text, _ in self.rules:
@@ -354,7 +352,7 @@ class Stylizer:
 
                                 special_text = ''.join(punctuation_chars) + \
                                         (text[0] if text else '')
-                                span = x.makeelement('{%s}span' % XHTML_NS)
+                                span = x.makeelement(f'{{{XHTML_NS}}}span')
                                 span.text = special_text
                                 span.set('data-fake-first-letter', '1')
                                 span.tail = text[1:]
@@ -395,11 +393,11 @@ class Stylizer:
     def _fetch_css_file(self, path):
         hrefs = self.oeb.manifest.hrefs
         if path not in hrefs:
-            self.logger.warn('CSS import of missing file %r' % path)
+            self.logger.warn(f'CSS import of missing file {path!r}')
             return None, None
         item = hrefs[path]
         if item.media_type not in OEB_STYLES:
-            self.logger.warn('CSS import of non-CSS file %r' % path)
+            self.logger.warn(f'CSS import of non-CSS file {path!r}')
             return None, None
         data = item.data.cssText
         if not isinstance(data, bytes):

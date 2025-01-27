@@ -135,8 +135,7 @@ class OldRtf:
                 elif result == 'old_rtf':
                     if self.__run_level > 3:
                         sys.stderr.write(
-                            'Old rtf construction {} (bracket {}, line {})\n'.format(
-                                self.__inline_info, str(self.__ob_group), line_num)
+                            f'Old rtf construction {self.__inline_info} (bracket {self.__ob_group!s}, line {line_num})\n'
                         )
                     return True
                 self.__previous_token = line[6:16]

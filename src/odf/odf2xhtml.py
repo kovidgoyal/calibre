@@ -160,7 +160,7 @@ class StyleToCSS:
             this should really be implemented as an absolutely position <img>
             with a width and a height
         '''
-        sdict['background-image'] = "url('{}')".format(self.fillimages[val])
+        sdict['background-image'] = f"url('{self.fillimages[val]}')"
 
     def c_fo(self, ruleset, sdict, rule, val):
         ''' XSL formatting attributes '''
@@ -645,7 +645,7 @@ class ODF2XHTML(handler.ContentHandler):
         ''' Create a unique anchor id for a href name '''
         if name not in self.anchors:
             # Changed by Kovid
-            self.anchors[name] = 'anchor{}'.format(len(self.anchors) + 1)
+            self.anchors[name] = f'anchor{len(self.anchors) + 1}'
         return self.anchors.get(name)
 
     def purgedata(self):

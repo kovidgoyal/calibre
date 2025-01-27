@@ -198,7 +198,7 @@ class IgnoredDevices(QWidget):  # {{{
                 iteritems(devs)]
         for dev, x in sorted(devs, key=lambda x:x[1][1], reverse=True):
             name = x[0]
-            name = '%s [%s]'%(name, dev)
+            name = f'{name} [{dev}]'
             item = QListWidgetItem(name, f)
             item.setData(Qt.ItemDataRole.UserRole, dev)
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)

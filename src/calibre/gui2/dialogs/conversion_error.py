@@ -18,4 +18,4 @@ class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
             self.show()
 
     def set_message(self, html):
-        self.text.setHtml('<html><body>%s</body></html'%(html,))
+        self.text.setHtml(f'<html><body>{html}</body></html')

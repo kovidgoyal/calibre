@@ -121,10 +121,9 @@ class KF8Writer:
                 idx = to_ref(idx)
                 if is_image:
                     self.used_images.add(ref)
-                    return 'kindle:embed:%s?mime=%s'%(idx,
-                            self.resources.mime_map[ref])
+                    return f'kindle:embed:{idx}?mime={self.resources.mime_map[ref]}'
                 else:
-                    return 'kindle:embed:%s'%idx
+                    return f'kindle:embed:{idx}'
             return oref
 
         for item in self.oeb.manifest:
@@ -173,7 +172,7 @@ class KF8Writer:
                     idx = sheets.get(href, None)
                     if idx is not None:
                         idx = to_ref(idx)
-                        rule.href = 'kindle:flow:%s?mime=text/css'%idx
+                        rule.href = f'kindle:flow:{idx}?mime=text/css'
                         changed = True
             return changed
 
@@ -185,7 +184,7 @@ class KF8Writer:
                 idx = sheets.get(href, None)
                 if idx is not None:
                     idx = to_ref(idx)
-                    link.set('href', 'kindle:flow:%s?mime=text/css'%idx)
+                    link.set('href', f'kindle:flow:{idx}?mime=text/css')
 
             for tag in XPath('//h:style')(root):
                 p = tag.getparent()
@@ -209,7 +208,7 @@ class KF8Writer:
             idx = to_ref(len(self.flows))
             self.flows.append(raw)
             for link in elems:
-                link.set('href', 'kindle:flow:%s?mime=text/css'%idx)
+                link.set('href', f'kindle:flow:{idx}?mime=text/css')
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
@@ -241,7 +240,7 @@ class KF8Writer:
                 p = svg.getparent()
                 pos = p.index(svg)
                 img = etree.Element(XHTML('img'),
-                        src='kindle:flow:%s?mime=image/svg+xml'%to_ref(idx))
+                        src=f'kindle:flow:{to_ref(idx)}?mime=image/svg+xml')
                 p.insert(pos, img)
                 extract(svg)
 
@@ -250,8 +249,7 @@ class KF8Writer:
                 abshref = item.abshref(src)
                 idx = images.get(abshref, None)
                 if idx is not None:
-                    img.set('src', 'kindle:flow:%s?mime=image/svg+xml'%
-                            to_ref(idx))
+                    img.set('src', f'kindle:flow:{to_ref(idx)}?mime=image/svg+xml')
 
     def replace_internal_links_with_placeholders(self):
         self.link_map = {}
@@ -270,7 +268,7 @@ class KF8Writer:
                     # a non utf-8 quoted url? Since we cannot interpret it, pass it through.
                     pass
                 if href in hrefs:
-                    placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
+                    placeholder = f'kindle:pos:fid:0000:off:{to_href(count)}'
                     self.link_map[placeholder] = (href, frag)
                     a.set('href', placeholder)
 

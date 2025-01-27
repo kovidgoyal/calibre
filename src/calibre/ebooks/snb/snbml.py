@@ -156,7 +156,7 @@ class SNBMLizer:
         text = text.replace('\f+', ' ')
 
         # Single line paragraph.
-        text = re.sub(r'(?<=.)%s(?=.)' % os.linesep, ' ', text)
+        text = re.sub(rf'(?<=.){os.linesep}(?=.)', ' ', text)
 
         # Remove multiple spaces.
         # text = re.sub(r'[ ]{2,}', ' ', text)
@@ -260,7 +260,7 @@ class SNBMLizer:
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             if pre:
-                text.append(('\n\n%s' % CALIBRE_SNB_PRE_TAG).join((li + elem.text).splitlines()))
+                text.append((f'\n\n{CALIBRE_SNB_PRE_TAG}').join((li + elem.text).splitlines()))
             else:
                 text.append(li + elem.text)
             li = ''
@@ -277,7 +277,7 @@ class SNBMLizer:
 
         if hasattr(elem, 'tail') and elem.tail:
             if pre:
-                text.append(('\n\n%s' % CALIBRE_SNB_PRE_TAG).join(elem.tail.splitlines()))
+                text.append((f'\n\n{CALIBRE_SNB_PRE_TAG}').join(elem.tail.splitlines()))
             else:
                 text.append(li + elem.tail)
             li = ''

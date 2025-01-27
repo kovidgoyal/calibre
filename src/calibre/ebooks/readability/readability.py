@@ -36,7 +36,7 @@ REGEXES = {
 
 def describe(node, depth=1):
     if not hasattr(node, 'tag'):
-        return '[%s]' % type(node)
+        return f'[{type(node)}]'
     name = node.tag
     if node.get('id', ''):
         name += '#'+node.get('id')
@@ -306,7 +306,7 @@ class Document:
             s = '{} {}'.format(elem.get('class', ''), elem.get('id', ''))
             # self.debug(s)
             if REGEXES['unlikelyCandidatesRe'].search(s) and (not REGEXES['okMaybeItsACandidateRe'].search(s)) and elem.tag != 'body':
-                self.debug('Removing unlikely candidate - %s' % describe(elem))
+                self.debug(f'Removing unlikely candidate - {describe(elem)}')
                 elem.drop_tree()
 
     def transform_misused_divs_into_paragraphs(self):
@@ -338,11 +338,11 @@ class Document:
 
     def tags(self, node, *tag_names):
         for tag_name in tag_names:
-            yield from node.findall('.//%s' % tag_name)
+            yield from node.findall(f'.//{tag_name}')
 
     def reverse_tags(self, node, *tag_names):
         for tag_name in tag_names:
-            yield from reversed(node.findall('.//%s' % tag_name))
+            yield from reversed(node.findall(f'.//{tag_name}'))
 
     def sanitize(self, node, candidates):
         MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
@@ -372,7 +372,7 @@ class Document:
             elif el.text_content().count(',') < 10:
                 counts = {}
                 for kind in ['p', 'img', 'li', 'a', 'embed', 'input']:
-                    counts[kind] = len(el.findall('.//%s' %kind))
+                    counts[kind] = len(el.findall(f'.//{kind}'))
                 counts['li'] -= 100
 
                 content_length = text_length(el)  # Count the text length excluding any surrounding whitespace
@@ -395,7 +395,7 @@ class Document:
                 # if el.tag == 'div' and counts["img"] >= 1:
                 #     continue
                 if counts['p'] and counts['img'] > counts['p']:
-                    reason = 'too many images (%s)' % counts['img']
+                    reason = 'too many images ({})'.format(counts['img'])
                     to_remove = True
                 elif counts['li'] > counts['p'] and tag != 'ul' and tag != 'ol':
                     reason = 'more <li>s than <p>s'
@@ -404,7 +404,7 @@ class Document:
                     reason = 'less than 3x <p>s than <input>s'
                     to_remove = True
                 elif content_length < (MIN_LEN) and (counts['img'] == 0 or counts['img'] > 2):
-                    reason = 'too short content length %s without a single image' % content_length
+                    reason = f'too short content length {content_length} without a single image'
                     to_remove = True
                 elif weight < 25 and link_density > 0.2:
                     reason = f'too many links {link_density:.3f} for its weight {weight}'
@@ -457,13 +457,12 @@ class Document:
                     # self.debug(str(siblings))
                     if siblings and sum(siblings) > 1000:
                         to_remove = False
-                        self.debug('Allowing %s' % describe(el))
+                        self.debug(f'Allowing {describe(el)}')
                         for desnode in self.tags(el, 'table', 'ul', 'div'):
                             allowed[desnode] = True
 
                 if to_remove:
-                    self.debug('Cleaned %6.3f %s with weight %s cause it has %s.' %
-                        (content_score, describe(el), weight, reason))
+                    self.debug(f'Cleaned {content_score:6.3f} {describe(el)} with weight {weight} cause it has {reason}.')
                     # print(tounicode(el))
                     # self.debug("pname %s pweight %.3f" %(pname, pweight))
                     el.drop_tree()

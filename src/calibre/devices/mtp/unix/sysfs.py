@@ -34,7 +34,7 @@ class MTPDetect:
             except OSError:
                 pass
 
-        ipath = os.path.join(self.base, '{0}-*/{0}-*/interface'.format(dev.busnum))
+        ipath = os.path.join(self.base, f'{dev.busnum}-*/{dev.busnum}-*/interface')
         for x in glob.glob(ipath):
             raw = read(x)
             if not raw or raw.strip() != b'MTP':
@@ -44,8 +44,8 @@ class MTPDetect:
             try:
                 if raw and int(raw) == dev.devnum:
                     if debug is not None:
-                        debug('Unknown device {} claims to be an MTP device'
-                              .format(dev))
+                        debug(f'Unknown device {dev} claims to be an MTP device'
+                              )
                     return True
             except (ValueError, TypeError):
                 continue

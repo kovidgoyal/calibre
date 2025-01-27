@@ -83,7 +83,7 @@ class OEBOutput(OutputFormatPlugin):
 
         def manifest_items_with_id(id_):
             return root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
-                ' and @id="%s"]'%id_)
+                f' and @id="{id_}"]')
 
         if len(cov) == 1:
             cov = cov[0]

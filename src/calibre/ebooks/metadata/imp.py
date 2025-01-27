@@ -42,6 +42,6 @@ def get_metadata(stream):
         if category:
             mi.category = category
     except Exception as err:
-        msg = "Couldn't read metadata from imp: %s with error %s"%(mi.title, str(err))
+        msg = f"Couldn't read metadata from imp: {mi.title} with error {err!s}"
         print(msg.encode('utf8'), file=sys.stderr)
     return mi

@@ -90,7 +90,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             try:
                 d.startup()
             except:
-                out('Startup failed for device plugin: %s'%d)
+                out(f'Startup failed for device plugin: {d}')
 
     if disabled_plugins is None:
         disabled_plugins = list(disabled_device_plugins())

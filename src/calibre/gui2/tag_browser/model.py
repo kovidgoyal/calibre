@@ -172,8 +172,7 @@ class TagTreeItem:  # {{{
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY(category_key={!r}, name={!r}, num_children={!r}, temp={!r})'.format(
-                self.category_key, self.name, len(self.children), self.temporary)
+            return f'CATEGORY(category_key={self.category_key!r}, name={self.name!r}, num_children={len(self.children)!r}, temp={self.temporary!r})'
         return f'TAG(name={self.tag.name!r}), temp={self.temporary!r})'
 
     def row(self):
@@ -310,7 +309,7 @@ class TagTreeItem:  # {{{
         count = self.item_count
         rating = self.average_rating
         if rating:
-            rating = ',rating=%.1f' % rating
+            rating = f',rating={rating:.1f}'
         return fmt % (name, count, rating or '')
 
     def toggle(self, set_to=None):
@@ -1920,7 +1919,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     else:
                         ans.append('( not tags:"=' + _('News') + '")')
                 else:
-                    ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
+                    ans.append(f'{node.category_key}:{node_searches[node.tag.state]}')
 
             key = node.category_key
             for tag_item in node.all_children():
@@ -1939,13 +1938,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                         if letters_seen:
                             charclass = ''.join(letters_seen)
                             if k == 'author_sort':
-                                expr = r'%s:"""~(^[%s])|(&\s*[%s])"""'%(k, charclass, charclass)
+                                expr = rf'{k}:"""~(^[{charclass}])|(&\s*[{charclass}])"""'
                             elif k == 'series':
-                                expr = r'series_sort:"""~^[%s]"""'%(charclass)
+                                expr = rf'series_sort:"""~^[{charclass}]"""'
                             else:
-                                expr = r'%s:"""~^[%s]"""'%(k, charclass)
+                                expr = rf'{k}:"""~^[{charclass}]"""'
                         else:
-                            expr = r'%s:false'%(k)
+                            expr = rf'{k}:false'
                         if node_searches[tag_item.tag.state] == 'true':
                             ans.append(expr)
                         else:
@@ -1970,7 +1969,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         rnum = len(tag.name)
                         if tag.name.endswith(stars[-1]):
                             rnum = '%s.5' % (rnum - 1)
-                        ans.append('%s%s:%s'%(prefix, category, rnum))
+                        ans.append(f'{prefix}{category}:{rnum}')
                     else:
                         name = tag.original_name
                         use_prefix = tag.state in [TAG_SEARCH_STATES['mark_plusplus'],
@@ -1985,7 +1984,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         n = name.replace(r'"', r'\"')
                         if name.startswith('.'):
                             n = '.' + n
-                        ans.append('%s%s:"=%s%s%s"'%(prefix, category,
+                        ans.append('{}{}:"={}{}{}"'.format(prefix, category,
                                                 '.' if use_prefix else '', n,
                                                 ':' if add_colon else ''))
         return ans

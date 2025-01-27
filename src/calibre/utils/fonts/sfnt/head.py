@@ -43,7 +43,7 @@ class HeadTable(UnknownTable):
                 'glyph_data_format', 'h'
         )
 
-        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
+        self._fmt = ('>{}'.format(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
@@ -108,7 +108,7 @@ class HorizontalHeader(UnknownTable):
     )
 
     def read_data(self, hmtx, num_glyphs):
-        self._fmt = ('>%s'%(''.join(self.field_types[1::2]))).encode('ascii')
+        self._fmt = ('>{}'.format(''.join(self.field_types[1::2]))).encode('ascii')
         self._fields = self.field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
@@ -157,7 +157,7 @@ class VerticalHeader(UnknownTable):
     )
 
     def read_data(self, vmtx, num_glyphs):
-        self._fmt = ('>%s'%(''.join(self.field_types[1::2]))).encode('ascii')
+        self._fmt = ('>{}'.format(''.join(self.field_types[1::2]))).encode('ascii')
         self._fields = self.field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
@@ -227,7 +227,7 @@ class OS2Table(UnknownTable):
                 'max_context', 'H',
             ]
 
-        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
+        self._fmt = ('>{}'.format(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):

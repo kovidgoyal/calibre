@@ -88,14 +88,14 @@ class Article:
     def __repr__(self):
         return \
 ('''\
-Title       : %s
-URL         : %s
-Author      : %s
-Summary     : %s
-Date        : %s
-TOC thumb   : %s
-Has content : %s
-'''%(self.title, self.url, self.author, self.summary[:20]+'...',
+Title       : {}
+URL         : {}
+Author      : {}
+Summary     : {}
+Date        : {}
+TOC thumb   : {}
+Has content : {}
+'''.format(self.title, self.url, self.author, self.summary[:20]+'...',
      self.localtime.strftime('%a, %d %b, %Y %H:%M'), self.toc_thumbnail,
      bool(self.content)))
 
@@ -160,7 +160,7 @@ class Feed:
             self.id_counter += 1
             id = item.get('id', None)
             if not id:
-                id = 'internal id#%s'%self.id_counter
+                id = f'internal id#{self.id_counter}'
             if id in self.added_articles:
                 return
             self.added_articles.append(id)
@@ -176,8 +176,7 @@ class Feed:
                 self.articles.append(article)
             else:
                 t = strftime('%a, %d %b, %Y %H:%M', article.localtime.timetuple())
-                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
-                        (title, t, self.title))
+                self.logger.debug(f'Skipping article {title} ({t}) from feed {self.title} as it is too old.')
             d = item.get('date', '')
             article.formatted_date = d
 
@@ -185,7 +184,7 @@ class Feed:
         self.id_counter += 1
         id = item.get('id', None)
         if not id:
-            id = 'internal id#%s'%self.id_counter
+            id = f'internal id#{self.id_counter}'
         if id in self.added_articles:
             return
         published = None
@@ -212,7 +211,7 @@ class Feed:
         try:
             link  = self.get_article_url(item)
         except:
-            self.logger.warning('Failed to get link for %s'%title)
+            self.logger.warning(f'Failed to get link for {title}')
             self.logger.debug(traceback.format_exc())
             link = None
 
@@ -233,12 +232,11 @@ class Feed:
             self.articles.append(article)
         else:
             try:
-                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
-                                  (title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+                self.logger.debug('Skipping article {} ({}) from feed {} as it is too old.'.format(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
             except UnicodeDecodeError:
                 if not isinstance(title, str):
                     title = title.decode('utf-8', 'replace')
-                self.logger.debug('Skipping article %s as it is too old'%title)
+                self.logger.debug(f'Skipping article {title} as it is too old')
 
     def reverse(self):
         self.articles.reverse()

@@ -35,7 +35,7 @@ DEFAULT_THUMBNAIL_HEIGHT = 320
 class MTPInvalidSendPathError(PathError):
 
     def __init__(self, folder):
-        PathError.__init__(self, 'Trying to send to ignored folder: %s'%folder)
+        PathError.__init__(self, f'Trying to send to ignored folder: {folder}')
         self.folder = folder
 
 
@@ -405,7 +405,7 @@ class MTP_DEVICE(BASE):
             except Exception as e:
                 ans.append((path, e, traceback.format_exc()))
                 continue
-            base = os.path.join(tdir, '%s'%f.object_id)
+            base = os.path.join(tdir, f'{f.object_id}')
             os.mkdir(base)
             name = f.name
             if iswindows:
@@ -628,8 +628,7 @@ class MTP_DEVICE(BASE):
             try:
                 self.recursive_delete(parent)
             except:
-                prints('Failed to delete parent: %s, ignoring'%(
-                    '/'.join(parent.full_path)))
+                prints('Failed to delete parent: {}, ignoring'.format('/'.join(parent.full_path)))
 
     def delete_books(self, paths, end_session=True):
         self.report_progress(0, _('Deleting books from device...'))
@@ -673,7 +672,7 @@ class MTP_DEVICE(BASE):
         If that is not found looks for a device default and if that is not
         found uses the global default.'''
         dd = self.current_device_defaults if self.is_mtp_device_connected else {}
-        dev_settings = self.prefs.get('device-%s'%self.current_serial_num, {})
+        dev_settings = self.prefs.get(f'device-{self.current_serial_num}', {})
         default_value = dd.get(key, self.prefs[key])
         return dev_settings.get(key, default_value)
 

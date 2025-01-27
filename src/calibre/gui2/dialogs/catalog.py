@@ -56,13 +56,13 @@ class Catalog(QDialog, Ui_Dialog):
                     self.widgets.append(pw)
                     [self.fmts.append([file_type.upper(), pw.sync_enabled, pw]) for file_type in plugin.file_types]
                 except ImportError:
-                    info('ImportError initializing %s' % name)
+                    info(f'ImportError initializing {name}')
                     continue
             else:
                 # Load dynamic tab
-                form = os.path.join(plugin.resources_path,'%s.ui' % name)
-                klass = os.path.join(plugin.resources_path,'%s.py' % name)
-                compiled_form = os.path.join(plugin.resources_path,'%s_ui.py' % name)
+                form = os.path.join(plugin.resources_path,f'{name}.ui')
+                klass = os.path.join(plugin.resources_path,f'{name}.py')
+                compiled_form = os.path.join(plugin.resources_path,f'{name}_ui.py')
 
                 if os.path.exists(form) and os.path.exists(klass):
                     # info("Adding widget for user-installed Catalog plugin %s" % plugin.name)
@@ -89,13 +89,13 @@ class Catalog(QDialog, Ui_Dialog):
                         self.widgets.append(pw)
                         [self.fmts.append([file_type.upper(), pw.sync_enabled, pw]) for file_type in plugin.file_types]
                     except ImportError:
-                        info('ImportError with %s' % name)
+                        info(f'ImportError with {name}')
                         continue
                     finally:
                         sys.path.remove(plugin.resources_path)
 
                 else:
-                    info('No dynamic tab resources found for %s' % name)
+                    info(f'No dynamic tab resources found for {name}')
 
         self.widgets = sorted(self.widgets, key=lambda x: x.TITLE)
 

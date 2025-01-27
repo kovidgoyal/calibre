@@ -76,7 +76,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.clear('series_index')
     if not mi.is_null('rating'):
         m.clear('rating')
-        m.add('rating', '%.2f'%mi.rating)
+        m.add('rating', f'{mi.rating:.2f}')
     elif override_input_metadata:
         m.clear('rating')
     if not mi.is_null('tags'):
@@ -213,8 +213,8 @@ class MergeMetadata:
                 text = ''
             text = re.sub(r'\s+', '', text)
             if not text and not XPath('//h:img|//svg:svg')(item.data):
-                self.log('Removing %s as it is a wrapper around'
-                        ' the cover image'%item.href)
+                self.log(f'Removing {item.href} as it is a wrapper around'
+                        ' the cover image')
                 self.oeb.spine.remove(item)
                 self.oeb.manifest.remove(item)
                 self.oeb.guide.remove_by_href(item.href)

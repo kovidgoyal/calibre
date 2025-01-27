@@ -75,7 +75,7 @@ class ShareConnMenu(QMenu):  # {{{
             prefix = 'Share/Connect Menu '
             gr = ConnectShareAction.action_spec[0]
             for attr in ('folder', ):
-                ac = getattr(self, 'connect_to_%s_action'%attr)
+                ac = getattr(self, f'connect_to_{attr}_action')
                 r(prefix + attr, str(ac.text()), action=ac,
                         group=gr)
             r(prefix+' content server', _('Start/stop Content server'),
@@ -300,12 +300,11 @@ class ConnectShareAction(InterfaceAction):
             use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
             port_number = dm.get_option('smartdevice', 'port_number')
             if show_port and use_fixed_port:
-                text = self.share_conn_menu.DEVICE_MSGS[1]  + ' [%s, port %s]'%(
-                                            formatted_addresses, port_number)
+                text = self.share_conn_menu.DEVICE_MSGS[1]  + f' [{formatted_addresses}, port {port_number}]'
             else:
                 text = self.share_conn_menu.DEVICE_MSGS[1] + ' [' + formatted_addresses + ']'
 
         icon = 'green' if running else 'red'
         ac = self.share_conn_menu.control_smartdevice_action
-        ac.setIcon(QIcon.ic('dot_%s.png'%icon))
+        ac.setIcon(QIcon.ic(f'dot_{icon}.png'))
         ac.setText(text)

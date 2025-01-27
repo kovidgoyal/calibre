@@ -60,7 +60,7 @@ class FileDialog(QObject):
                 else:
                     extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
                             extensions]
-                etext = '%s (%s);;'%(text, ' '.join(extensions))
+                etext = '{} ({});;'.format(text, ' '.join(extensions))
                 if len(etext) > 72:
                     has_long_filter = True
                 ftext += etext

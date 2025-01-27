@@ -329,7 +329,7 @@ class Connection:  # {{{
         except ssl.SSLWantReadError:
             return
         except ssl.SSLError as e:
-            self.log.error('Error while reading SSL data from client: %s' % as_unicode(e))
+            self.log.error(f'Error while reading SSL data from client: {as_unicode(e)}')
             self.ready = False
             return
         except OSError as e:
@@ -514,8 +514,7 @@ class ServerLoop:
                 ip = get_external_ip()
                 if ip == self.bind_address[0]:
                     raise
-                self.log.warn('Failed to bind to {} with error: {}. Trying to bind to the default interface: {} instead'.format(
-                    self.bind_address[0], as_unicode(err), ip))
+                self.log.warn(f'Failed to bind to {self.bind_address[0]} with error: {as_unicode(err)}. Trying to bind to the default interface: {ip} instead')
                 self.bind_address = (ip, self.bind_address[1])
                 self.do_bind()
         else:
@@ -613,7 +612,7 @@ class ServerLoop:
                 write_needed.append(s)
 
         for s, conn in remove:
-            self.log('Closing connection because of extended inactivity: %s' % conn.state_description)
+            self.log(f'Closing connection because of extended inactivity: {conn.state_description}')
             self.close(s, conn)
 
         for x, conn in close_needed:
@@ -653,7 +652,7 @@ class ServerLoop:
                 if not conn.ready:
                     self.close(s, conn)
             except JobQueueFull:
-                self.log.exception('Server busy handling request: %s' % conn.state_description)
+                self.log.exception(f'Server busy handling request: {conn.state_description}')
                 if conn.ready:
                     if conn.response_started:
                         self.close(s, conn)
@@ -669,7 +668,7 @@ class ServerLoop:
                     self.log.warn('Client tried to initiate SSL renegotiation, closing connection')
                     self.close(s, conn)
                 else:
-                    self.log.exception('Unhandled exception in state: %s' % conn.state_description)
+                    self.log.exception(f'Unhandled exception in state: {conn.state_description}')
                     if conn.ready:
                         if conn.response_started:
                             self.close(s, conn)
@@ -679,7 +678,7 @@ class ServerLoop:
                             except Exception:
                                 self.close(s, conn)
                     else:
-                        self.log.error('Error in SSL handshake, terminating connection: %s' % as_unicode(e))
+                        self.log.error(f'Error in SSL handshake, terminating connection: {as_unicode(e)}')
                         self.close(s, conn)
 
     def write_to_control(self, what):

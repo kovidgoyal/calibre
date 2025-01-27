@@ -113,7 +113,7 @@ class MessageBox(QDialog):  # {{{
                     self.INFO:    'information',
                     self.QUESTION: 'question',
             }[type_]
-            icon = 'dialog_%s.png'%icon
+            icon = f'dialog_{icon}.png'
             self.icon = QIcon.ic(icon)
         else:
             self.icon = q_icon if isinstance(q_icon, QIcon) else QIcon.ic(q_icon)
@@ -229,7 +229,7 @@ class ViewLog(QDialog):  # {{{
         self.setLayout(l)
 
         self.tb = QTextBrowser(self)
-        self.tb.setHtml('<pre style="font-family: monospace">%s</pre>' % html)
+        self.tb.setHtml(f'<pre style="font-family: monospace">{html}</pre>')
         l.addWidget(self.tb)
 
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
@@ -446,10 +446,7 @@ class JobError(QDialog):  # {{{
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         QApplication.clipboard().setText(
-                'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
-                (__version__, sys.platform, isfrozen,
-                    str(self.windowTitle()), str(d.toPlainText()),
-                    str(self.det_msg.toPlainText())))
+                f'calibre, version {__version__} ({sys.platform}, embedded-python: {isfrozen})\n{self.windowTitle()!s}: {d.toPlainText()!s}\n\n{self.det_msg.toPlainText()!s}')
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 

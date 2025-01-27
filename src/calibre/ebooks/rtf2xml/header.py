@@ -72,14 +72,14 @@ class Header:
         type = self.__head_dict.get(info)
         if type:
             self.__write_to_head_obj.write(
-                    'mi<tg<open-att__<header-or-footer<type>%s\n' % (type)
+                    f'mi<tg<open-att__<header-or-footer<type>{type}\n'
                     )
         else:
             sys.stderr.write(
             'module is header\n'
             'method is __found_header\n'
             'no dict entry\n'
-            'line is %s' % line)
+            f'line is {line}')
             self.__write_to_head_obj.write(
                     'mi<tg<open-att__<header-or-footer<type>none\n'
                     )

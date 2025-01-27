@@ -25,9 +25,9 @@ class URLMap:
             return self.cache[key]
         except KeyError:
             try:
-                self.cache[key] = ans = json.loads(P('editor-help/%s.json' % key, data=True))
+                self.cache[key] = ans = json.loads(P(f'editor-help/{key}.json', data=True))
             except OSError:
-                raise KeyError('The mapping %s is not available' % key)
+                raise KeyError(f'The mapping {key} is not available')
             return ans
 
 
@@ -68,7 +68,7 @@ def help_url(item, item_type, doc_name, extra_data=None):
 
 
 def get_mdn_tag_index(category):
-    url = 'https://developer.mozilla.org/docs/Web/%s/Element' % category
+    url = f'https://developer.mozilla.org/docs/Web/{category}/Element'
     if category == 'CSS':
         url = url.replace('Element', 'Reference')
     br = browser()
@@ -78,7 +78,7 @@ def get_mdn_tag_index(category):
     if category == 'CSS':
         xpath = '//div[@class="index"]/descendant::a[contains(@href, "/Web/CSS/")]/@href'
     else:
-        xpath = '//a[contains(@href, "/%s/Element/")]/@href' % category
+        xpath = f'//a[contains(@href, "/{category}/Element/")]/@href'
     for href in root.xpath(xpath):
         href = href.replace('/en-US/', '/')
         ans[href.rpartition('/')[-1].lower()] = 'https://developer.mozilla.org' + href
@@ -110,7 +110,7 @@ def get_opf3_tag_index():
             'package', 'metadata', 'identifier', 'title', 'language', 'meta',
             'link', 'manifest', 'item', 'spine', 'itemref', 'guide',
             'bindings', 'mediaType', 'collection'):
-        ans[tag.lower()] = base + 'sec-%s-elem' % tag
+        ans[tag.lower()] = base + f'sec-{tag}-elem'
     for tag in ('contributor', 'creator', 'date', 'source', 'type',):
         ans[tag.lower()] = base + 'sec-opf-dc' + tag
     return ans

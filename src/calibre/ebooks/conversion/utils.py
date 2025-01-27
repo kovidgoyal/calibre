@@ -174,7 +174,7 @@ class HeuristicProcessor:
         ]
 
         for word in ITALICIZE_WORDS:
-            html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
+            html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', f'<i>{word}</i>', html)
 
         search_text = re.sub(r'(?s)<head[^>]*>.*?</head>', '', html)
         search_text = re.sub(r'<[^>]*>', '', search_text)
@@ -183,7 +183,7 @@ class HeuristicProcessor:
                 ital_string = str(match.group('words'))
                 # self.log.debug("italicising "+str(match.group(0))+"    with <i>"+ital_string+"</i>")
                 try:
-                    html = re.sub(re.escape(str(match.group(0))), '<i>%s</i>' % ital_string, html)
+                    html = re.sub(re.escape(str(match.group(0))), f'<i>{ital_string}</i>', html)
                 except OverflowError:
                     # match.group(0) was too large to be compiled into a regex
                     continue
@@ -305,7 +305,7 @@ class HeuristicProcessor:
 
                 chapter_marker = arg_ignorecase+init_lookahead+full_chapter_line+blank_lines+lp_n_lookahead_open+n_lookahead+lp_n_lookahead_close+ \
                     lp_opt_title_open+title_line_open+title_header_open+lp_title+title_header_close+title_line_close+lp_opt_title_close
-                chapdetect = re.compile(r'%s' % chapter_marker)
+                chapdetect = re.compile(rf'{chapter_marker}')
 
                 if analyze:
                     hits = len(chapdetect.findall(html))
@@ -383,9 +383,9 @@ class HeuristicProcessor:
             em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
             shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
-        unwrap = re.compile('%s' % unwrap_regex, re.UNICODE)
-        em_en_unwrap = re.compile('%s' % em_en_unwrap_regex, re.UNICODE)
-        shy_unwrap = re.compile('%s' % shy_unwrap_regex, re.UNICODE)
+        unwrap = re.compile(f'{unwrap_regex}', re.UNICODE)
+        em_en_unwrap = re.compile(f'{em_en_unwrap_regex}', re.UNICODE)
+        shy_unwrap = re.compile(f'{shy_unwrap_regex}', re.UNICODE)
 
         if format == 'txt':
             content = unwrap.sub(' ', content)
@@ -449,7 +449,7 @@ class HeuristicProcessor:
         for i in range(2):
             html = re.sub(r'\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*', ' ', html)
             html = re.sub(
-                r'\s*{open}\s*({open}\s*{close}\s*){{0,2}}\s*{close}'.format(open=open_fmt_pat, close=close_fmt_pat), ' ', html)
+                rf'\s*{open_fmt_pat}\s*({open_fmt_pat}\s*{close_fmt_pat}\s*){{0,2}}\s*{close_fmt_pat}', ' ', html)
         # delete surrounding divs from empty paragraphs
         html = re.sub(r'<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Empty heading tags
@@ -560,7 +560,7 @@ class HeuristicProcessor:
         line_two = '(?P<line_two>'+re.sub(r'(ou|in|cha)', 'linetwo_', self.line_open)+ \
                      r'\s*(?P<line_two_content>.*?)'+re.sub(r'(ou|in|cha)', 'linetwo_', self.line_close)+')'
         div_break_candidate_pattern = line+r'\s*<div[^>]*>\s*</div>\s*'+line_two
-        div_break_candidate = re.compile(r'%s' % div_break_candidate_pattern, re.IGNORECASE|re.UNICODE)
+        div_break_candidate = re.compile(rf'{div_break_candidate_pattern}', re.IGNORECASE|re.UNICODE)
 
         def convert_div_softbreaks(match):
             init_is_paragraph = self.check_paragraph(match.group('init_content'))
@@ -583,7 +583,7 @@ class HeuristicProcessor:
     def detect_scene_breaks(self, html):
         scene_break_regex = self.line_open+'(?!('+self.common_in_text_beginnings+'|.*?'+self.common_in_text_endings+ \
                                              r'<))(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?){1,10})\s*'+self.line_close
-        scene_breaks = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
+        scene_breaks = re.compile(rf'{scene_break_regex}', re.IGNORECASE|re.UNICODE)
         html = scene_breaks.sub(self.scene_break_open+r'\g<break></p>', html)
         return html
 

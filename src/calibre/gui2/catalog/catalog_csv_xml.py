@@ -136,10 +136,10 @@ class PluginWidget(QWidget):
             pos = cpos.get(x, sys.maxsize)
             if x == 'series_index':
                 pos = cpos.get('series', sys.maxsize)
-            ListWidgetItem(x, name(x) + ' (%s)' % x, pos, self.db_fields)
+            ListWidgetItem(x, name(x) + f' ({x})', pos, self.db_fields)
             if x.startswith('#') and fm[x]['datatype'] == 'series':
                 x += '_index'
-                ListWidgetItem(x, name(x) + ' (%s)' % x, pos, self.db_fields)
+                ListWidgetItem(x, name(x) + f' ({x})', pos, self.db_fields)
 
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):

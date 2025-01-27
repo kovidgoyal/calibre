@@ -100,9 +100,7 @@ class TextProps:
 
     def __unicode__(self):
 
-        return '[italic={}, bold=i{}, fixed={}]'.format(unicode_type(self.italic),
-                                          unicode_type(self.bold),
-                                          unicode_type(self.fixed))
+        return f'[italic={unicode_type(self.italic)}, bold=i{unicode_type(self.bold)}, fixed={unicode_type(self.fixed)}]'
     __str__ = __unicode__
 
 
@@ -131,9 +129,7 @@ class ParagraphProps:
 
     def __unicode__(self):
 
-        return '[bq={}, h={}, code={}]'.format(unicode_type(self.blockquote),
-                                           self.headingLevel,
-                                           unicode_type(self.code))
+        return f'[bq={unicode_type(self.blockquote)}, h={self.headingLevel}, code={unicode_type(self.code)}]'
     __str__ = __unicode__
 
 

@@ -42,7 +42,7 @@ def texture_path(fname):
     if not fname:
         return
     if fname.startswith(':'):
-        return I('textures/%s' % fname[1:])
+        return I(f'textures/{fname[1:]}')
     return os.path.join(texture_dir(), fname)
 
 

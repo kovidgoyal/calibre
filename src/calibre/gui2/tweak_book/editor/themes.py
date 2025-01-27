@@ -381,7 +381,7 @@ class CreateNewTheme(Dialog):
 
 
 def col_to_string(color):
-    return '%02X%02X%02X' % color.getRgb()[:3]
+    return '{:02X}{:02X}{:02X}'.format(*color.getRgb()[:3])
 
 
 class ColorButton(QPushButton):

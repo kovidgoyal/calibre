@@ -122,7 +122,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
             if not desc:
                 desc = _('Unknown job')
             p = 100. if job.is_finished else job.percent
-            lines.append('%s:  %.0f%% done'%(desc, p))
+            lines.append(f'{desc}:  {p:.0f}% done')
         l = ngettext('There is a waiting job', 'There are {} waiting jobs', len(waiting_jobs)).format(len(waiting_jobs))
         lines.extend(['', l])
         for job in waiting_jobs:
@@ -488,7 +488,7 @@ class DetailView(Dialog):  # {{{
             if len(html) > self.next_pos:
                 self.next_pos = len(html)
                 self.tb.setHtml(
-                    '<pre style="font-family:monospace">%s</pre>'%html)
+                    f'<pre style="font-family:monospace">{html}</pre>')
         else:
             f = self.job.log_file
             f.seek(self.next_pos)

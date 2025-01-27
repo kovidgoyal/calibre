@@ -108,10 +108,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     @library_id.setter
     def library_id(self, val):
         self._library_id_ = str(val)
-        self.conn.executescript('''
+        self.conn.executescript(f'''
                 DELETE FROM library_id;
-                INSERT INTO library_id (uuid) VALUES ("%s");
-                '''%self._library_id_)
+                INSERT INTO library_id (uuid) VALUES ("{self._library_id_}");
+                ''')
         self.conn.commit()
 
     def connect(self):
@@ -337,7 +337,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
+                prints(f'Renaming user category {cat} to {cat+str(suffix)}')
                 user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
@@ -1138,7 +1138,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 quathors = mi.authors[:10]  # Too many authors causes parsing of
                 # the search expression to fail
-                query = ' and '.join(['author:"=%s"'%(a.replace('"', '')) for a in
+                query = ' and '.join(['author:"={}"'.format(a.replace('"', '')) for a in
                     quathors])
                 qauthors = mi.authors[10:]
             except ValueError:
@@ -1600,7 +1600,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def original_fmt(self, book_id, fmt):
         fmt = fmt
-        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        nfmt = (f'ORIGINAL_{fmt}').upper()
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt
 
@@ -1665,13 +1665,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Don't bother with validity checking. Let the exception fly out so
         # we can see what happened
         def doit(table, ltable_col):
-            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
-                    'FROM books WHERE id=book) < 1;')%table
+            st = (f'DELETE FROM books_{table}_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')
             self.conn.execute(st)
-            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
-                    'FROM books_%(table)s_link WHERE '
-                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
-                            table=table, ltable_col=ltable_col)
+            st = ('DELETE FROM {table} WHERE (SELECT COUNT(id) '
+                    'FROM books_{table}_link WHERE '
+                    '{ltable_col}={table}.id) < 1;').format(**dict(
+                            table=table, ltable_col=ltable_col))
             self.conn.execute(st)
 
         fm = self.field_metadata[field]
@@ -1684,13 +1684,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Remove orphaned entries.
         '''
         def doit(ltable, table, ltable_col):
-            st = ('DELETE FROM books_%s_link WHERE (SELECT COUNT(id) '
-                    'FROM books WHERE id=book) < 1;')%ltable
+            st = (f'DELETE FROM books_{ltable}_link WHERE (SELECT COUNT(id) '
+                    'FROM books WHERE id=book) < 1;')
             self.conn.execute(st)
-            st = ('DELETE FROM %(table)s WHERE (SELECT COUNT(id) '
-                    'FROM books_%(ltable)s_link WHERE '
-                    '%(ltable_col)s=%(table)s.id) < 1;') % dict(
-                            ltable=ltable, table=table, ltable_col=ltable_col)
+            st = ('DELETE FROM {table} WHERE (SELECT COUNT(id) '
+                    'FROM books_{ltable}_link WHERE '
+                    '{ltable_col}={table}.id) < 1;').format(**dict(
+                            ltable=ltable, table=table, ltable_col=ltable_col))
             self.conn.execute(st)
 
         for ltable, table, ltable_col in [
@@ -1941,11 +1941,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tn = cat['table']
         cn = cat['column']
         if ids is None:
-            query = '''SELECT id, {}, count, avg_rating, sort
-                       FROM tag_browser_{}'''.format(cn, tn)
+            query = f'''SELECT id, {cn}, count, avg_rating, sort
+                       FROM tag_browser_{tn}'''
         else:
-            query = '''SELECT id, {}, count, avg_rating, sort
-                       FROM tag_browser_filtered_{}'''.format(cn, tn)
+            query = f'''SELECT id, {cn}, count, avg_rating, sort
+                       FROM tag_browser_filtered_{tn}'''
         # results will be sorted later
         data = self.conn.get(query)
         for r in data:
@@ -3047,8 +3047,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # to be operated on
         tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
                     'temp_bulk_tag_edit_remove')
-        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in tables])
-        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+        drops = '\n'.join([f'DROP TABLE IF EXISTS {t};' for t in tables])
+        creates = '\n'.join([f'CREATE TEMP TABLE {t}(id INTEGER PRIMARY KEY);'
                 for t in tables])
         self.conn.executescript(drops + creates)
 
@@ -3067,17 +3067,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         if remove:
             self.conn.execute(
-              '''DELETE FROM books_tags_link WHERE
-                    book IN (SELECT id FROM %s) AND
-                    tag IN (SELECT id FROM %s)'''
-              % (tables[0], tables[2]))
+              f'''DELETE FROM books_tags_link WHERE
+                    book IN (SELECT id FROM {tables[0]}) AND
+                    tag IN (SELECT id FROM {tables[2]})''')
 
         if add:
             self.conn.execute(
+            f'''
+            INSERT OR REPLACE INTO books_tags_link(book, tag) SELECT {tables[0]}.id, {tables[1]}.id FROM
+            {tables[0]}, {tables[1]}
             '''
-            INSERT OR REPLACE INTO books_tags_link(book, tag) SELECT {0}.id, {1}.id FROM
-            {0}, {1}
-            '''.format(tables[0], tables[1])
             )
         self.conn.executescript(drops)
         self.dirtied(ids, commit=False)
@@ -3329,7 +3328,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute(
                 'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)', (id_, typ, val))
         if changed:
-            raw = ','.join(['%s:%s'%(k, v) for k, v in
+            raw = ','.join([f'{k}:{v}' for k, v in
                 iteritems(identifiers)])
             self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)
@@ -3350,7 +3349,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executemany(
             'INSERT INTO identifiers (book, type, val) VALUES (?, ?, ?)',
             [(id_, k, v) for k, v in iteritems(cleaned)])
-        raw = ','.join(['%s:%s'%(k, v) for k, v in
+        raw = ','.join([f'{k}:{v}' for k, v in
                 iteritems(cleaned)])
         self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)

@@ -94,7 +94,7 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
             '-l', str(last), pdfpath, os.path.join(outputdir, prefix)
         ], **args)
     except subprocess.CalledProcessError as e:
-        raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)
+        raise ValueError(f'Failed to render PDF, pdftoppm errorcode: {e.returncode}')
 
 
 def is_pdf_encrypted(path_to_pdf):

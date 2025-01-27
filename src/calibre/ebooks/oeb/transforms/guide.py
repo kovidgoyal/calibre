@@ -31,7 +31,7 @@ class Clean:
             if covers:
                 ref = covers[0][0]
                 if len(covers) > 1:
-                    self.log('Choosing %s:%s as the cover'%(ref.type, ref.href))
+                    self.log(f'Choosing {ref.type}:{ref.href} as the cover')
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
 

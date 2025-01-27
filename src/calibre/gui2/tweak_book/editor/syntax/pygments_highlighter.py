@@ -52,7 +52,7 @@ def create_lexer(base_class):
                         elif new_state == '#push':
                             statestack.append(statestack[-1])
                         else:
-                            assert False, 'wrong state def: %r' % new_state
+                            assert False, f'wrong state def: {new_state!r}'
                         statetokens = tokendefs[statestack[-1]]
                     break
             else:
@@ -119,7 +119,7 @@ class State:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'PythonState(%r)' % self.pygments_stack
+        return f'PythonState({self.pygments_stack!r})'
     __str__ = __repr__
 
 

@@ -174,8 +174,8 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
         div = E.div(class_='data-container')
         data.append(div)
 
-        series = ('[%s - %s]'%(book.series, book.series_index)) if book.series else ''
-        tags = ('Tags=[%s]'%', '.join(book.tags)) if book.tags else ''
+        series = (f'[{book.series} - {book.series_index}]') if book.series else ''
+        tags = ('Tags=[{}]'.format(', '.join(book.tags))) if book.tags else ''
 
         ctext = ''
         for key in filter(ctx.is_field_displayable, field_metadata.ignorable_field_keys()):
@@ -184,10 +184,9 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
                 continue
             name, val = book.format_field(key)
             if val:
-                ctext += '%s=[%s] '%(name, val)
+                ctext += f'{name}=[{val}] '
 
-        first = E.span('{} {} by {}'.format(book.title, series,
-            authors_to_string(book.authors)), class_='first-line')
+        first = E.span(f'{book.title} {series} by {authors_to_string(book.authors)}', class_='first-line')
         div.append(first)
         ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
         second = E.span(f'{ds} {tags} {ctext}', class_='second-line')

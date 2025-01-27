@@ -50,9 +50,9 @@ def get_image_properties(parent, XPath, get):
             pass
     ans = {}
     if width is not None:
-        ans['width'] = '%.3gpt' % width
+        ans['width'] = f'{width:.3g}pt'
     if height is not None:
-        ans['height'] = '%.3gpt' % height
+        ans['height'] = f'{height:.3g}pt'
 
     alt = None
     title = None
@@ -88,13 +88,13 @@ def get_image_properties(parent, XPath, get):
 def get_image_margins(elem):
     ans = {}
     for w, css in iteritems({'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}):
-        val = elem.get('dist%s' % w, None)
+        val = elem.get(f'dist{w}', None)
         if val is not None:
             try:
                 val = emu_to_pt(val)
             except (TypeError, ValueError):
                 continue
-            ans['padding-%s' % css] = '%.3gpt' % val
+            ans[f'padding-{css}'] = f'{val:.3g}pt'
     return ans
 
 
@@ -163,7 +163,7 @@ class Images:
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         if ext == 'emf':
             # For an example, see: https://bugs.launchpad.net/bugs/1224849
-            self.log('Found an EMF image: %s, trying to extract embedded raster image' % fname)
+            self.log(f'Found an EMF image: {fname}, trying to extract embedded raster image')
             from calibre.utils.wmf.emf import emf_unwrap
             try:
                 raw = emf_unwrap(raw)
@@ -247,9 +247,9 @@ class Images:
                     try:
                         src = self.generate_filename(rid, name)
                     except LinkedImageNotFound as err:
-                        self.log.warn('Linked image: %s not found, ignoring' % err.fname)
+                        self.log.warn(f'Linked image: {err.fname} not found, ignoring')
                         continue
-                    img = IMG(src='images/%s' % src)
+                    img = IMG(src=f'images/{src}')
                     img.set('alt', alt or 'Image')
                     if title:
                         img.set('title', title)
@@ -293,7 +293,7 @@ class Images:
                 pass
             else:
                 if pct > 0:
-                    style['width'] = '%.3g%%' % pct
+                    style['width'] = f'{pct:.3g}%'
             align = get(pict[0], 'o:hralign', 'center')
             if align in {'left', 'right'}:
                 style['margin-left'] = '0' if align == 'left' else 'auto'
@@ -308,10 +308,10 @@ class Images:
                 try:
                     src = self.generate_filename(rid)
                 except LinkedImageNotFound as err:
-                    self.log.warn('Linked image: %s not found, ignoring' % err.fname)
+                    self.log.warn(f'Linked image: {err.fname} not found, ignoring')
                     continue
                 style = get(imagedata.getparent(), 'style')
-                img = IMG(src='images/%s' % src)
+                img = IMG(src=f'images/{src}')
                 alt = get(imagedata, 'o:title')
                 img.set('alt', alt or 'Image')
                 if 'position:absolute' in style:

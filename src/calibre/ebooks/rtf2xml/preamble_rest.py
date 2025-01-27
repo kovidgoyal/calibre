@@ -96,9 +96,8 @@ class Preamble:
         '''
         self.__write_obj.write(
             'mi<tg<empty-att_<rtf-definition'
-            '<default-font>%s<code-page>%s'
-            '<platform>%s\n' % (self.__default_font, self.__code_page,
-            self.__platform)
+            f'<default-font>{self.__default_font}<code-page>{self.__code_page}'
+            f'<platform>{self.__platform}\n'
         )
 
     def __found_list_table_func(self, line):

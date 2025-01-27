@@ -43,8 +43,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.regex.textChanged[native_string_type].connect(self.regex_valid)
         for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
             'goto')):
-            getattr(self, src).clicked.connect(getattr(self, '%s_%s'%(slot,
-                src)))
+            getattr(self, src).clicked.connect(getattr(self, f'{slot}_{src}'))
         self.test.setDefault(True)
 
         self.match_locs = []

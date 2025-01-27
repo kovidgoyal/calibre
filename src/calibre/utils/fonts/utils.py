@@ -320,7 +320,7 @@ def verify_checksums(raw):
             offset = table_offset
             checksum = table_checksum
         elif checksum_of_block(table) != table_checksum:
-            raise ValueError('The %r table has an incorrect checksum'%table_tag)
+            raise ValueError(f'The {table_tag!r} table has an incorrect checksum')
 
     if head_table is not None:
         table = head_table
@@ -358,7 +358,7 @@ def set_table_checksum(f, name):
 def remove_embed_restriction(raw):
     ok, sig = is_truetype_font(raw)
     if not ok:
-        raise UnsupportedFont('Not a supported font, sfnt_version: %r'%sig)
+        raise UnsupportedFont(f'Not a supported font, sfnt_version: {sig!r}')
 
     table, table_index, table_offset = get_table(raw, 'os/2')[:3]
     if table is None:
@@ -384,7 +384,7 @@ def is_font_embeddable(raw):
     # https://www.microsoft.com/typography/otspec/os2.htm#fst
     ok, sig = is_truetype_font(raw)
     if not ok:
-        raise UnsupportedFont('Not a supported font, sfnt_version: %r'%sig)
+        raise UnsupportedFont(f'Not a supported font, sfnt_version: {sig!r}')
 
     table, table_index, table_offset = get_table(raw, 'os/2')[:3]
     if table is None:
@@ -449,7 +449,7 @@ def get_bmp_glyph_ids(table, bmp, codes):
 
 def get_glyph_ids(raw, text, raw_is_table=False):
     if not isinstance(text, str):
-        raise TypeError('%r is not a unicode object'%text)
+        raise TypeError(f'{text!r} is not a unicode object')
     if raw_is_table:
         table = raw
     else:
@@ -474,7 +474,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
 
 def supports_text(raw, text, has_only_printable_chars=False):
     if not isinstance(text, str):
-        raise TypeError('%r is not a unicode object'%text)
+        raise TypeError(f'{text!r} is not a unicode object')
     if not has_only_printable_chars:
         text = get_printable_characters(text)
     try:

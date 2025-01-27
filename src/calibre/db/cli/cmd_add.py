@@ -400,7 +400,7 @@ the folder related options below.
         try:
             getattr(parser.values, option.dest).append(compile_rule(rule))
         except Exception:
-            raise OptionValueError('%r is not a valid filename pattern' % value)
+            raise OptionValueError(f'{value!r} is not a valid filename pattern')
 
     g.add_option(
         '-1',

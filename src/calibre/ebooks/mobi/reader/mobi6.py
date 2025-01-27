@@ -95,7 +95,7 @@ class MobiReader:
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
         if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
-            raise MobiError('Unknown book type: %s' % repr(self.ident))
+            raise MobiError(f'Unknown book type: {self.ident!r}')
 
         self.sections = []
         self.section_headers = []
@@ -345,7 +345,7 @@ class MobiReader:
                     href = ref.get('href', '')
                     if href.startswith('#'):
                         href = href[1:]
-                    anchors = root.xpath('//*[@id="%s"]' % href)
+                    anchors = root.xpath(f'//*[@id="{href}"]')
                     if anchors:
                         cpos = anchors[0]
                         reached = False
@@ -459,10 +459,9 @@ class MobiReader:
                             # Insert nbsp so that the element is never
                             # discarded by a renderer
                             tag.text = '\u00a0'  # nbsp
-                            styles.append('height: %s' %
-                                    self.ensure_unit(height))
+                            styles.append(f'height: {self.ensure_unit(height)}')
                         else:
-                            styles.append('margin-top: %s' % self.ensure_unit(height))
+                            styles.append(f'margin-top: {self.ensure_unit(height)}')
             if 'width' in attrib:
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
@@ -472,14 +471,14 @@ class MobiReader:
                         tag.set('width', width)
                     else:
                         ewidth = self.ensure_unit(width)
-                        styles.append('text-indent: %s' % ewidth)
+                        styles.append(f'text-indent: {ewidth}')
                         try:
                             ewidth_val = unit_convert(ewidth, 12, 500, 166)
                             self.text_indents[tag] = ewidth_val
                         except:
                             pass
                         if width.startswith('-'):
-                            styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
+                            styles.append(f'margin-left: {self.ensure_unit(width[1:])}')
                             try:
                                 ewidth_val = unit_convert(ewidth[1:], 12, 500, 166)
                                 self.left_margins[tag] = ewidth_val
@@ -493,7 +492,7 @@ class MobiReader:
                     if align == 'baseline':
                         styles.append('vertical-align: '+align)
                     else:
-                        styles.append('text-align: %s' % align)
+                        styles.append(f'text-align: {align}')
             if tag.tag == 'hr':
                 if mobi_version == 1:
                     tag.tag = 'div'
@@ -703,7 +702,7 @@ class MobiReader:
         ncx_manifest_entry = None
         if toc:
             ncx_manifest_entry = 'toc.ncx'
-            elems = root.xpath('//*[@id="%s"]' % toc.partition('#')[-1])
+            elems = root.xpath('//*[@id="{}"]'.format(toc.partition('#')[-1]))
             tocobj = None
             if elems:
                 tocobj = TOC()
@@ -828,7 +827,7 @@ class MobiReader:
             def unpack(x):
                 return x
         else:
-            raise MobiError('Unknown compression algorithm: %r' % self.book_header.compression_type)
+            raise MobiError(f'Unknown compression algorithm: {self.book_header.compression_type!r}')
         self.mobi_html = b''.join(map(unpack, text_sections))
         if self.mobi_html.endswith(b'#'):
             self.mobi_html = self.mobi_html[:-1]
@@ -950,4 +949,4 @@ def test_mbp_regex():
         }):
         ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
         if ans != m:
-            raise Exception('%r != %r for %r'%(ans, m, raw))
+            raise Exception(f'{ans!r} != {m!r} for {raw!r}')

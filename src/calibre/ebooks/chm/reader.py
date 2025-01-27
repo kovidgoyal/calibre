@@ -55,7 +55,7 @@ class CHMReader(CHMFile):
                     t.write(open(input, 'rb').read())
                 input = t.name
         if not self.LoadCHM(input):
-            raise CHMError("Unable to open CHM file '%s'"%(input,))
+            raise CHMError(f"Unable to open CHM file '{input}'")
         self.log = log
         self.input_encoding = input_encoding
         self._sourcechm = input
@@ -188,7 +188,7 @@ class CHMReader(CHMFile):
             try:
                 data = self.GetFile(path)
             except:
-                self.log.exception('Failed to extract %s from CHM, ignoring'%path)
+                self.log.exception(f'Failed to extract {path} from CHM, ignoring')
                 continue
             if lpath.find(';') != -1:
                 # fix file names with ";<junk>" at the end, see _reformat()
@@ -203,7 +203,7 @@ class CHMReader(CHMFile):
                     pass
             except:
                 if iswindows and len(lpath) > 250:
-                    self.log.warn('%r filename too long, skipping'%path)
+                    self.log.warn(f'{path!r} filename too long, skipping')
                     continue
                 raise
 

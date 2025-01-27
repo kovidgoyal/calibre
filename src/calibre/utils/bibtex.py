@@ -2568,7 +2568,7 @@ class BibTeX:
         '''
         Convert uppercase letters to bibtex encoded uppercase
         '''
-        return self.upper.sub(lambda m: '{%s}' % m.group(), text)
+        return self.upper.sub(lambda m: f'{{{m.group()}}}', text)
 
     def resolveEntities(self, text):
         return self.rep_ent.mreplace(text)
@@ -2584,7 +2584,7 @@ class BibTeX:
         '''
         text = text.replace('\\', '\\\\')
         text = text.replace('~', '{\\char`\\~}')  # TILDE
-        return self.escape.sub(lambda m: '\\%s' % m.group(), text)
+        return self.escape.sub(lambda m: f'\\{m.group()}', text)
 
     # Calibre functions: Option to go to official ASCII Bibtex or unofficial UTF-8
     def utf8ToBibtex(self, text):

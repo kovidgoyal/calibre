@@ -457,7 +457,7 @@ def test():
     for r in itervalues(get_results(p)):
         c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
-            raise SystemExit('Unexpected result: %s' % r)
+            raise SystemExit(f'Unexpected result: {r}')
     if c != 1000:
         raise SystemExit('Incorrect number of results')
     p.shutdown(), p.join()

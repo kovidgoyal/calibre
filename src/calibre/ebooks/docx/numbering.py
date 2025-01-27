@@ -140,7 +140,7 @@ class Level:
                 except Exception:
                     fname = None
                 else:
-                    ans['list-style-image'] = 'url("images/%s")' % fname
+                    ans['list-style-image'] = f'url("images/{fname}")'
         return ans
 
     def char_css(self):
@@ -290,7 +290,7 @@ class Numbering:
                         counter[ilvl] = self.starts[num_id][ilvl]
                     seen_instances.add(num_id)
                     p.tag = 'li'
-                    p.set('value', '%s' % counter[ilvl])
+                    p.set('value', f'{counter[ilvl]}')
                     p.set('list-lvl', str(ilvl))
                     p.set('list-id', num_id)
                     if lvl.num_template is not None:
@@ -381,8 +381,7 @@ class Numbering:
                 obj = object_map[li]
                 bs = styles.para_cache[obj]
                 if i == 0:
-                    wrap.set('style', 'display:table; padding-left:%s' %
-                             bs.css.get('margin-left', '0'))
+                    wrap.set('style', 'display:table; padding-left:{}'.format(bs.css.get('margin-left', '0')))
                 bs.css.pop('margin-left', None)
                 for child in li:
                     child.set('style', 'display:table-cell')

@@ -106,7 +106,7 @@ class SVGRasterizer:
                 box = [float(x) for x in filter(None, re.split(r'[, ]', view_box))]
                 sizes = [box[2]-box[0], box[3] - box[1]]
             except (TypeError, ValueError, IndexError):
-                logger.warn('SVG image has invalid viewBox="%s", ignoring the viewBox' % view_box)
+                logger.warn(f'SVG image has invalid viewBox="{view_box}", ignoring the viewBox')
             else:
                 for image in elem.xpath('descendant::*[local-name()="image" and '
                         '@height and contains(@height, "%")]'):
@@ -170,7 +170,7 @@ class SVGRasterizer:
             if image and image.media_type == SVG_MIME:
                 style = self.stylizer(item).style(elem)
                 self.rasterize_external(elem, style, item, image)
-        for elem in xpath(html, '//h:object[@type="%s" and @data]' % SVG_MIME):
+        for elem in xpath(html, f'//h:object[@type="{SVG_MIME}" and @data]'):
             data = urlnormalize(elem.attrib['data'])
             image = hrefs.get(item.abshref(data), None)
             if image and image.media_type == SVG_MIME:

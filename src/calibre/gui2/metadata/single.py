@@ -232,7 +232,7 @@ class MetadataSingleDialogBase(QDialog):
         self.swap_title_author_button = QToolButton(self)
         self.swap_title_author_button.setIcon(QIcon.ic('swap.png'))
         self.swap_title_author_button.setToolTip(_(
-            'Swap the author and title') + ' [%s]' % self.swap_title_author_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
+            'Swap the author and title') + f' [{self.swap_title_author_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText)}]')
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
         self.swap_title_author_shortcut.activated.connect(self.swap_title_author_button.click)
 

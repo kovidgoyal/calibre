@@ -1052,8 +1052,8 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         ans = last_tag(troot)[0]
         style = ans.get('style') or ''
         style = (
-            'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
-            'display: flex; align-items: center; overflow: hidden; background-color: unset;').format(height=height) + style
+            f'margin: 0; padding: 0; height: {height}pt; border-width: 0;'
+            'display: flex; align-items: center; overflow: hidden; background-color: unset;') + style
         ans.set('style', style)
         for child in ans.xpath('descendant-or-self::*[@class]'):
             cls = frozenset(child.get('class').split())

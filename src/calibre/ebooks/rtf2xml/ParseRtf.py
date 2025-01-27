@@ -196,7 +196,7 @@ class ParseRtf:
         elif os.path.exists(the_file):
             pass  # do nothing
         else:
-            msg = "\nThe file '%s' cannot be found" % the_file
+            msg = f"\nThe file '{the_file}' cannot be found"
             raise RtfInvalidCodeException(msg)
 
     def __check_dir(self, the_dir):
@@ -205,7 +205,7 @@ class ParseRtf:
             return
         dir_exists = os.path.isdir(the_dir)
         if not dir_exists:
-            msg = '\n%s is not a directory' % the_dir
+            msg = f'\n{the_dir} is not a directory'
             raise RtfInvalidCodeException(msg)
         return 1
 
@@ -277,11 +277,11 @@ class ParseRtf:
             enc = encode_obj.get_codepage()
             # TODO: to check if cp is a good idea or if I should use a dict to convert
             enc = 'cp' + enc
-            msg = '%s\nException in token processing' % str(msg)
+            msg = f'{msg!s}\nException in token processing'
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, bytes) \
                                     else self.__file.encode('utf-8')
-                msg +='\nFile %s does not appear to be correctly encoded.\n' % file_name
+                msg +=f'\nFile {file_name} does not appear to be correctly encoded.\n'
             try:
                 os.remove(self.__temp_file)
             except OSError:
@@ -415,7 +415,7 @@ class ParseRtf:
         old_rtf = old_rtf_obj.check_if_old_rtf()
         if old_rtf:
             if self.__run_level > 5:
-                msg = 'Older RTF\nself.__run_level is "%s"\n' % self.__run_level
+                msg = f'Older RTF\nself.__run_level is "{self.__run_level}"\n'
                 raise RtfInvalidCodeException(msg)
             if self.__run_level > 1:
                 sys.stderr.write('File could be older RTF...\n')

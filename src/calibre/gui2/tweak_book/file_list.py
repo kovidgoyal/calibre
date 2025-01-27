@@ -831,7 +831,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 skip_dialog_name='edit-book-mark-as-titlepage-move-confirm',
                 skip_dialog_skip_precheck=False
             )
-        self.mark_requested.emit(name, 'titlepage:%r' % move_to_start)
+        self.mark_requested.emit(name, f'titlepage:{move_to_start!r}')
 
     def mark_as_nav(self, name):
         self.mark_requested.emit(name, 'nav')
@@ -865,7 +865,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
             error_dialog(self, _('Cannot rename'),
-                         _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
+                         _('The file(s) %s cannot be renamed.') % ('<b>{}</b>'.format(', '.join(bad))), show=True)
             return
         names = sorted(names, key=self.index_of_name)
         return names
@@ -962,7 +962,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         bad = names & current_container().names_that_must_not_be_removed
         if bad:
             return error_dialog(self, _('Cannot delete'),
-                         _('The file(s) %s cannot be deleted.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
+                         _('The file(s) %s cannot be deleted.') % ('<b>{}</b>'.format(', '.join(bad))), show=True)
 
         text = self.categories['text']
         children = (text.child(i) for i in range(text.childCount()))

@@ -24,8 +24,7 @@ class PDBInput(InputFormatPlugin):
         Reader = get_reader(header.ident)
 
         if Reader is None:
-            raise PDBError('No reader available for format within container.\n Identity is %s. Book type is %s' %
-                           (header.ident, IDENTITY_TO_NAME.get(header.ident, _('Unknown'))))
+            raise PDBError('No reader available for format within container.\n Identity is {}. Book type is {}'.format(header.ident, IDENTITY_TO_NAME.get(header.ident, _('Unknown'))))
 
         log.debug(f'Detected ebook format as: {IDENTITY_TO_NAME[header.ident]} with identity: {header.ident}')
 

@@ -193,10 +193,7 @@ class ProceedQuestion(QWidget):
 
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
-                'calibre, version %s\n%s: %s\n\n%s' %
-                (__version__, str(self.windowTitle()),
-                    str(self.msg_label.text()),
-                    str(self.det_msg.toPlainText())))
+                f'calibre, version {__version__}\n{self.windowTitle()!s}: {self.msg_label.text()!s}\n\n{self.det_msg.toPlainText()!s}')
         self.copy_button.setText(_('Copied'))
 
     def action_clicked(self):

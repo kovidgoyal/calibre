@@ -762,7 +762,7 @@ def test(scale=0.25):
     for r, color in enumerate(sorted(default_color_themes)):
         for c, style in enumerate(sorted(all_styles())):
             mi.series_index = c + 1
-            mi.title = 'An algorithmic cover [%s]' % color
+            mi.title = f'An algorithmic cover [{color}]'
             prefs = override_prefs(cprefs, override_color_theme=color, override_style=style)
             scale_cover(prefs, scale)
             img = generate_cover(mi, prefs=prefs, as_qimage=True)

@@ -308,7 +308,7 @@ class FilesModel(FileCollection):
                 return entry.basename
             if col == 2:
                 sz = entry.size / 1024.
-                return '%.2f ' % sz
+                return f'{sz:.2f} '
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
             if col == 4:
@@ -500,7 +500,7 @@ class ImagesModel(FileCollection):
                 return entry.basename
             if col == 1:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else str(sz))
+                return (f'{sz:.2f}' if int(sz) != sz else str(sz))
             if col == 2:
                 return str(len(entry.usage))
             if col == 3:
@@ -770,7 +770,7 @@ class WordsModel(FileCollection):
             if col == 1:
                 ans = calibre_langcode_to_name(canonicalize_lang(entry.locale.langcode)) or ''
                 if entry.locale.countrycode:
-                    ans += ' (%s)' % entry.locale.countrycode
+                    ans += f' ({entry.locale.countrycode})'
                 return ans
             if col == 2:
                 return str(len(entry.usage))
@@ -1418,7 +1418,7 @@ class ReportsWidget(QWidget):
                 'Export of %s data is not supported') % category, show=True)
         data = w.to_csv()
         fname = choose_save_file(self, 'report-csv-export', _('Choose a filename for the data'), filters=[
-            (_('CSV files'), ['csv'])], all_files=False, initial_filename='%s.csv' % category)
+            (_('CSV files'), ['csv'])], all_files=False, initial_filename=f'{category}.csv')
         if fname:
             with open(fname, 'wb') as f:
                 f.write(as_bytes(data))

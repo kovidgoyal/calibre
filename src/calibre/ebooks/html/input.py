@@ -66,7 +66,7 @@ class Link:
         return self.path == getattr(other, 'path', other)
 
     def __str__(self):
-        return 'Link: %s --> %s'%(self.url, self.path)
+        return f'Link: {self.url} --> {self.path}'
 
 
 class IgnoreFile(Exception):
@@ -131,7 +131,7 @@ class HTMLFile:
 
         if not src:
             if level == 0:
-                raise ValueError('The file %s is empty'%self.path)
+                raise ValueError(f'The file {self.path} is empty')
             self.is_binary = True
 
         if not self.is_binary:
@@ -271,7 +271,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
                         continue
                     seen.add(nf.path)
                     if nf.is_binary:
-                        raise IgnoreFile('%s is a binary file'%nf.path, -1)
+                        raise IgnoreFile(f'{nf.path} is a binary file', -1)
                     nl.append(nf)
                     flat.append(nf)
                 except IgnoreFile as err:

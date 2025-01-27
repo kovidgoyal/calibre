@@ -630,7 +630,7 @@ class TextEdit(PlainTextEdit):
             c.movePosition(QTextCursor.MoveOperation.Start)
             self.setTextCursor(c)
             return True
-        base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
+        base = rf'''%s\s*=\s*['"]{{0,1}}{regex.escape(anchor)}'''
         raw = str(self.toPlainText())
         m = regex.search(base % 'id', raw)
         if m is None:
@@ -918,8 +918,8 @@ class TextEdit(PlainTextEdit):
             'strikethrough': ('<span style="text-decoration: line-through">', '</span>'),
             'superscript': ('<sup>', '</sup>'),
             'subscript': ('<sub>', '</sub>'),
-            'color': ('<span style="color: %s">' % color, '</span>'),
-            'background-color': ('<span style="background-color: %s">' % color, '</span>'),
+            'color': (f'<span style="color: {color}">', '</span>'),
+            'background-color': (f'<span style="background-color: {color}">', '</span>'),
         }[formatting]
         self.smarts.surround_with_custom_tag(self, prefix, suffix)
 

@@ -39,19 +39,18 @@ class LRFInput(InputFormatPlugin):
         char_button_map = {}
         for x in doc.xpath('//CharButton[@refobj]'):
             ro = x.get('refobj')
-            jump_button = doc.xpath('//*[@objid="%s"]'%ro)
+            jump_button = doc.xpath(f'//*[@objid="{ro}"]')
             if jump_button:
                 jump_to = jump_button[0].xpath('descendant::JumpTo[@refpage and @refobj]')
                 if jump_to:
-                    char_button_map[ro] = '%s.xhtml#%s'%(jump_to[0].get('refpage'),
+                    char_button_map[ro] = '{}.xhtml#{}'.format(jump_to[0].get('refpage'),
                             jump_to[0].get('refobj'))
         plot_map = {}
         for x in doc.xpath('//Plot[@refobj]'):
             ro = x.get('refobj')
-            image = doc.xpath('//Image[@objid="%s" and @refstream]'%ro)
+            image = doc.xpath(f'//Image[@objid="{ro}" and @refstream]')
             if image:
-                imgstr = doc.xpath('//ImageStream[@objid="%s" and @file]'%
-                    image[0].get('refstream'))
+                imgstr = doc.xpath('//ImageStream[@objid="{}" and @file]'.format(image[0].get('refstream')))
                 if imgstr:
                     plot_map[ro] = imgstr[0].get('file')
 

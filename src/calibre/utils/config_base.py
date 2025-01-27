@@ -198,7 +198,7 @@ class OptionSet:
 
     def add_group(self, name, description=''):
         if name in self.group_list:
-            raise ValueError('A group by the name %s already exists in this set'%name)
+            raise ValueError(f'A group by the name {name} already exists in this set')
         self.groups[name] = description
         self.group_list.append(name)
         return partial(self.add_opt, group=name)
@@ -250,9 +250,9 @@ class OptionSet:
         pref = Option(name, switches=switches, help=help, type=type, choices=choices,
                  group=group, default=default, action=action, metavar=None)
         if group is not None and group not in self.groups.keys():
-            raise ValueError('Group %s has not been added to this section'%group)
+            raise ValueError(f'Group {group} has not been added to this section')
         if pref in self.preferences:
-            raise ValueError('An option with the name %s already exists in this set.'%name)
+            raise ValueError(f'An option with the name {name} already exists in this set.')
         self.preferences.append(pref)
         self.defaults[name] = default
 
@@ -435,7 +435,7 @@ class Config(ConfigInterface):
 
     def set(self, name, val):
         if not self.option_set.has_option(name):
-            raise ValueError('The option %s is not defined.'%name)
+            raise ValueError(f'The option {name} is not defined.')
         if not os.path.exists(config_dir):
             make_config_dir()
         src = b''
@@ -468,7 +468,7 @@ class StringConfig(ConfigInterface):
 
     def set(self, name, val):
         if not self.option_set.has_option(name):
-            raise ValueError('The option %s is not defined.'%name)
+            raise ValueError(f'The option {name} is not defined.')
         opts = self.option_set.parse_string(self.src)
         setattr(opts, name, val)
         self.set_src(self.option_set.serialize(opts))

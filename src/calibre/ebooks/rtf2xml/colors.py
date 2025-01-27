@@ -114,7 +114,7 @@ class Colors:
         self.__color_dict[self.__color_num] = self.__color_string
         self.__write_obj.write(
         'mi<tg<empty-att_'
-        '<color-in-table<num>%s<value>%s\n' % (self.__color_num, self.__color_string)
+        f'<color-in-table<num>{self.__color_num}<value>{self.__color_string}\n'
         )
         self.__color_num += 1
         self.__color_string = '#'
@@ -140,7 +140,7 @@ class Colors:
             if action is None:
                 sys.stderr.write('in module colors.py\n'
                 'function is self.__in_color_func\n'
-                'no action for %s' % self.__token_info
+                f'no action for {self.__token_info}'
                 )
             action(line)
 
@@ -159,7 +159,7 @@ class Colors:
             hex_num = self.__figure_num(hex_num)
             if hex_num:
                 self.__write_obj.write(
-                'cw<ci<font-color<nu<%s\n' % hex_num
+                f'cw<ci<font-color<nu<{hex_num}\n'
                 )
         elif line[0:5] == 'cw<bd':
             the_index = line.find('bdr-color_')
@@ -201,7 +201,7 @@ class Colors:
             else:
                 return 'bdr-color_:no-value'
         hex_num = self.__figure_num(num)
-        return 'bdr-color_:%s' % hex_num
+        return f'bdr-color_:{hex_num}'
 
     def __figure_num(self, num):
         if num == 0:

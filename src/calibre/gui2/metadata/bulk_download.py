@@ -267,7 +267,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
                 lp = os.path.join(tdir, '%d.log'%book_id)
                 if os.path.exists(lp):
                     with open(tf, 'ab') as dest, open(lp, 'rb') as src:
-                        dest.write(('\n'+'#'*20 + ' Log for %s '%title_map[book_id] +
+                        dest.write(('\n'+'#'*20 + f' Log for {title_map[book_id]} ' +
                             '#'*20+'\n').encode('utf-8'))
                         shutil.copyfileobj(src, dest)
 

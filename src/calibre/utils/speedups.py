@@ -201,5 +201,5 @@ def svg_path_to_painter_path(d):
             ):
                 repeated_command = cmd = last_cmd
         else:
-            raise ValueError('Unknown path command: %s' % cmd)
+            raise ValueError(f'Unknown path command: {cmd}')
     return path

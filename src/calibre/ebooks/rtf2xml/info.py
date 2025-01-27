@@ -173,9 +173,9 @@ class Info:
             # Don't print empty tags
             if len(self.rmspace.sub('',self.__text_string)):
                 self.__write_obj.write(
-                    'mi<tg<open______<%s\n'
-                    'tx<nu<__________<%s\n'
-                    'mi<tg<close_____<%s\n' % (self.__tag, self.__text_string, self.__tag)
+                    f'mi<tg<open______<{self.__tag}\n'
+                    f'tx<nu<__________<{self.__text_string}\n'
+                    f'mi<tg<close_____<{self.__tag}\n'
                 )
             self.__text_string = ''
         elif line[0:2] == 'tx':
@@ -195,7 +195,7 @@ class Info:
             start an empty element with attributes.
         '''
         self.__state = 'collect_tokens'
-        self.__text_string = 'mi<tg<empty-att_<%s' % tag
+        self.__text_string = f'mi<tg<empty-att_<{tag}'
         # mi<tg<empty-att_<page-definition<margin>33\n
 
     def __collect_tokens_func(self, line):
@@ -222,7 +222,7 @@ class Info:
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
             self.__write_obj.write(
-            '%s\n' % self.__text_string
+            f'{self.__text_string}\n'
             )
             self.__text_string = ''
         else:
@@ -231,7 +231,7 @@ class Info:
             att_changed = self.__token_dict.get(att)
             if att_changed is None:
                 if self.__run_level > 3:
-                    msg = 'No dictionary match for %s\n' % att
+                    msg = f'No dictionary match for {att}\n'
                     raise self.__bug_handler(msg)
             else:
                 self.__text_string += f'<{att_changed}>{value}'

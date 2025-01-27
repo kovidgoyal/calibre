@@ -20,7 +20,7 @@ class FontMetrics:
         for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
                       b'name', b'maxp'):
             if table not in sfnt:
-                raise UnsupportedFont('This font has no %s table'%table)
+                raise UnsupportedFont(f'This font has no {table} table')
         self.sfnt = sfnt
 
         self.head = self.sfnt[b'head']

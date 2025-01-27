@@ -165,7 +165,7 @@ class HTTPHeaderParser:
             key = normalize_header_name(k.strip().decode('ascii'))
             val = safe_decode(key, v.strip())
             if not key or not val:
-                raise ValueError('Malformed header line: %s' % reprlib.repr(line))
+                raise ValueError(f'Malformed header line: {reprlib.repr(line)}')
             if key in comma_separated_headers:
                 existing = self.hdict.pop(key)
                 if existing is not None:
@@ -336,7 +336,7 @@ class HTTPRequest(Connection):
                 else:
                     # Note that, even if we see "chunked", we must reject
                     # if there is an extension we don't recognize.
-                    return self.simple_response(http_client.NOT_IMPLEMENTED, 'Unknown transfer encoding: %r' % enc)
+                    return self.simple_response(http_client.NOT_IMPLEMENTED, f'Unknown transfer encoding: {enc!r}')
 
         if inheaders.get('Expect', '').lower() == '100-continue':
             buf = BytesIO((HTTP11 + ' 100 Continue\r\n\r\n').encode('ascii'))
@@ -371,7 +371,7 @@ class HTTPRequest(Connection):
         try:
             chunk_size = int(line.strip(), 16)
         except Exception:
-            return self.simple_response(http_client.BAD_REQUEST, '%s is not a valid chunk size' % reprlib.repr(line.strip()))
+            return self.simple_response(http_client.BAD_REQUEST, f'{reprlib.repr(line.strip())} is not a valid chunk size')
         if bytes_read[0] + chunk_size + 2 > self.max_request_body_size:
             return self.simple_response(http_client.REQUEST_ENTITY_TOO_LARGE,
                                         'Chunked request is larger than %d bytes' % self.max_request_body_size)

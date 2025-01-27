@@ -164,7 +164,7 @@ class RTFInput(InputFormatPlugin):
         try:
             return self.rasterize_wmf(name)
         except Exception:
-            self.log.exception('Failed to convert WMF image %r'%name)
+            self.log.exception(f'Failed to convert WMF image {name!r}')
         return self.replace_wmf(name)
 
     def replace_wmf(self, name):
@@ -217,7 +217,7 @@ class RTFInput(InputFormatPlugin):
         css += '\n' +'\n'.join(color_classes)
 
         for cls, val in iteritems(border_styles):
-            css += '\n\n.%s {\n%s\n}'%(cls, val)
+            css += f'\n\n.{cls} {{\n{val}\n}}'
 
         with open('styles.css', 'ab') as f:
             f.write(css.encode('utf-8'))
@@ -229,16 +229,16 @@ class RTFInput(InputFormatPlugin):
             style = ['border-style: hidden', 'border-width: 1px',
                     'border-color: black']
             for x in ('bottom', 'top', 'left', 'right'):
-                bs = elem.get('border-cell-%s-style'%x, None)
+                bs = elem.get(f'border-cell-{x}-style', None)
                 if bs:
                     cbs = border_style_map.get(bs, 'solid')
-                    style.append('border-%s-style: %s'%(x, cbs))
-                bw = elem.get('border-cell-%s-line-width'%x, None)
+                    style.append(f'border-{x}-style: {cbs}')
+                bw = elem.get(f'border-cell-{x}-line-width', None)
                 if bw:
-                    style.append('border-%s-width: %spt'%(x, bw))
-                bc = elem.get('border-cell-%s-color'%x, None)
+                    style.append(f'border-{x}-width: {bw}pt')
+                bc = elem.get(f'border-cell-{x}-color', None)
                 if bc:
-                    style.append('border-%s-color: %s'%(x, bc))
+                    style.append(f'border-{x}-color: {bc}')
             style = ';\n'.join(style)
             if style not in border_styles:
                 border_styles.append(style)

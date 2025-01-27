@@ -67,7 +67,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.devices.clear()
         for dev in self.gui.device_manager.devices:
             for d, name in iteritems(dev.get_user_blacklisted_devices()):
-                item = QListWidgetItem('%s [%s]'%(name, d), self.devices)
+                item = QListWidgetItem(f'{name} [{d}]', self.devices)
                 item.setData(Qt.ItemDataRole.UserRole, (dev, d))
                 item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
                 item.setCheckState(Qt.CheckState.Checked)

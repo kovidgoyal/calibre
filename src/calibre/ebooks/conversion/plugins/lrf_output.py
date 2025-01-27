@@ -153,7 +153,7 @@ class LRFOutput(OutputFormatPlugin):
         ps['textheight']     = height
         book = Book(title=opts.title, author=opts.author,
                 bookid=uuid4().hex,
-                publisher='%s %s'%(__appname__, __version__),
+                publisher=f'{__appname__} {__version__}',
                 category=_('Comic'), pagestyledefault=ps,
                 booksetting=BookSetting(screenwidth=width, screenheight=height))
         for page in pages:

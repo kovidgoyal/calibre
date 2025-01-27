@@ -41,7 +41,7 @@ _ligpat = re.compile('|'.join(LIGATURES))
 def sanitize_head(match):
     x = match.group(1).strip()
     x = _span_pat.sub('', x)
-    return '<head>\n%s\n</head>' % x
+    return f'<head>\n{x}\n</head>'
 
 
 def chap_head(match):
@@ -200,12 +200,12 @@ class Dehyphenator:
             "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|"
             "(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|"
             "(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$")
-        self.suffixes = re.compile(r'^%s' % self.suffix_string, re.IGNORECASE)
-        self.removesuffixes = re.compile(r'%s' % self.suffix_string, re.IGNORECASE)
+        self.suffixes = re.compile(rf'^{self.suffix_string}', re.IGNORECASE)
+        self.removesuffixes = re.compile(rf'{self.suffix_string}', re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
         self.prefix_string = '^(dis|re|un|in|ex)'
-        self.prefixes = re.compile(r'%s$' % self.prefix_string, re.IGNORECASE)
-        self.removeprefix = re.compile(r'%s' % self.prefix_string, re.IGNORECASE)
+        self.prefixes = re.compile(rf'{self.prefix_string}$', re.IGNORECASE)
+        self.removeprefix = re.compile(rf'{self.prefix_string}', re.IGNORECASE)
 
     def dehyphenate(self, match):
         firsthalf = match.group('firstpart')
@@ -295,10 +295,10 @@ class CSSPreProcessor:
     # Remove some of the broken CSS Microsoft products
     # create
     MS_PAT     = re.compile(r'''
-        (?P<start>^|;|\{)\s*    # The end of the previous rule or block start
-        (%s).+?                 # The invalid selectors
-        (?P<end>$|;|\})         # The end of the declaration
-        '''%'mso-|panose-|text-underline|tab-interval',
+        (?P<start>^|;|\{{)\s*    # The end of the previous rule or block start
+        ({}).+?                 # The invalid selectors
+        (?P<end>$|;|\}})         # The end of the declaration
+        '''.format('mso-|panose-|text-underline|tab-interval'),
         re.MULTILINE|re.IGNORECASE|re.VERBOSE)
 
     def ms_sub(self, match):
@@ -433,13 +433,13 @@ def book_designer_rules():
         lambda match : '<span style="page-break-after:always"> </span>'),
         # Create header tags
         (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+        lambda match : '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
         (re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+        lambda match : '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
         (re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-        lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
+        lambda match : f'<h2 class="title">{match.group(1)}</h2>'),
         (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-        lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
+        lambda match : f'<h3 class="subtitle">{match.group(1)}</h3>'),
     ]
     return ans
 
@@ -494,8 +494,7 @@ class HTMLPreProcessor:
                 rules.insert(0, (search_re, replace_txt))
                 user_sr_rules[(search_re, replace_txt)] = search_pattern
             except Exception as e:
-                self.log.error('Failed to parse %r regexp because %s' %
-                        (search, as_unicode(e)))
+                self.log.error(f'Failed to parse {search!r} regexp because {as_unicode(e)}')
 
         # search / replace using the sr?_search / sr?_replace options
         for i in range(1, 4):
@@ -572,9 +571,8 @@ class HTMLPreProcessor:
             except Exception as e:
                 if rule in user_sr_rules:
                     self.log.error(
-                        'User supplied search & replace rule: %s -> %s '
-                        'failed with error: %s, ignoring.'%(
-                            user_sr_rules[rule], rule[1], e))
+                        f'User supplied search & replace rule: {user_sr_rules[rule]} -> {rule[1]} '
+                        f'failed with error: {e}, ignoring.')
                 else:
                     raise
 
@@ -595,10 +593,10 @@ class HTMLPreProcessor:
         # Handle broken XHTML w/ SVG (ugh)
         if 'svg:' in html and SVG_NS not in html:
             html = html.replace(
-                '<html', '<html xmlns:svg="%s"' % SVG_NS, 1)
+                '<html', f'<html xmlns:svg="{SVG_NS}"', 1)
         if 'xlink:' in html and XLINK_NS not in html:
             html = html.replace(
-                '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
+                '<html', f'<html xmlns:xlink="{XLINK_NS}"', 1)
 
         html = XMLDECL_RE.sub('', html)
 

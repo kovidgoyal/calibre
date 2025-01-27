@@ -50,6 +50,6 @@ def run_checkers(func, args_list):
     with closing(pool):
         for result, tb in pool.map(partial(worker, func), args_list):
             if tb is not None:
-                raise Exception('Failed to run worker: \n%s' % tb)
+                raise Exception(f'Failed to run worker: \n{tb}')
             ans.extend(result)
     return ans

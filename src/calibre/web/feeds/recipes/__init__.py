@@ -23,7 +23,7 @@ custom_recipes = JSONConfig('custom_recipes/index.json')
 def custom_recipe_filename(id_, title):
     from calibre.utils.filenames import ascii_filename
     return ascii_filename(title[:50]) + \
-                        ('_%s.recipe'%id_)
+                        (f'_{id_}.recipe')
 
 
 def compile_recipe(src):

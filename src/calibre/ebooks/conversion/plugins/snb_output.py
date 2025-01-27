@@ -141,7 +141,7 @@ class SNBOutput(OutputFormatPlugin):
                 if tocitem.href.find('#') != -1:
                     item = tocitem.href.split('#')
                     if len(item) != 2:
-                        log.error('Error in TOC item: %s' % tocitem)
+                        log.error(f'Error in TOC item: {tocitem}')
                     else:
                         if item[0] in outputFiles:
                             outputFiles[item[0]].append((item[1], tocitem.title))
@@ -176,16 +176,16 @@ class SNBOutput(OutputFormatPlugin):
                 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES
                 if m.hrefs[item.href].media_type in OEB_DOCS:
                     if item.href not in outputFiles:
-                        log.debug('File %s is unused in TOC. Continue in last chapter' % item.href)
+                        log.debug(f'File {item.href} is unused in TOC. Continue in last chapter')
                         mergeLast = True
                     else:
                         if oldTree is not None and mergeLast:
-                            log.debug('Output the modified chapter again: %s' % lastName)
+                            log.debug(f'Output the modified chapter again: {lastName}')
                             with open(os.path.join(snbcDir, lastName), 'wb') as f:
                                 f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                             mergeLast = False
 
-                    log.debug('Converting %s to snbc...' % item.href)
+                    log.debug(f'Converting {item.href} to snbc...')
                     snbwriter = SNBMLizer(log)
                     snbcTrees = None
                     if not mergeLast:
@@ -199,11 +199,11 @@ class SNBOutput(OutputFormatPlugin):
                             with open(os.path.join(snbcDir, lastName), 'wb') as f:
                                 f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                     else:
-                        log.debug('Merge %s with last TOC item...' % item.href)
+                        log.debug(f'Merge {item.href} with last TOC item...')
                         snbwriter.merge_content(oldTree, oeb_book, item, [('', _('Start'))], opts)
 
             # Output the last one if needed
-            log.debug('Output the last modified chapter again: %s' % lastName)
+            log.debug(f'Output the last modified chapter again: {lastName}')
             if oldTree is not None and mergeLast:
                 with open(os.path.join(snbcDir, lastName), 'wb') as f:
                     f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
@@ -211,7 +211,7 @@ class SNBOutput(OutputFormatPlugin):
 
             for item in m:
                 if m.hrefs[item.href].media_type in OEB_IMAGES:
-                    log.debug('Converting image: %s ...' % item.href)
+                    log.debug(f'Converting image: {item.href} ...')
                     content = m.hrefs[item.href].data
                     # Convert & Resize image
                     self.HandleImage(content, os.path.join(snbiDir, ProcessFileName(item.href)))

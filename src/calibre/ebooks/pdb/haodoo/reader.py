@@ -131,7 +131,7 @@ class Reader(FormatReader):
                     title_added = True
                 else:
                     line = prepare_string_for_xml(line)
-                lines.append('<p>%s</p>' % line)
+                lines.append(f'<p>{line}</p>')
             if not title_added:
                 lines.insert(0, '<h1 class="chapter">' + title + '</h1>\n')
             txt += '\n'.join(lines)

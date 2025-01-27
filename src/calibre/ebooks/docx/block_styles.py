@@ -39,7 +39,7 @@ inherit = Inherit()
 
 
 def binary_property(parent, name, XPath, get):
-    vals = XPath('./w:%s' % name)(parent)
+    vals = XPath(f'./w:{name}')(parent)
     if not vals:
         return inherit
     val = get(vals[0], 'w:val', 'on')
@@ -108,7 +108,7 @@ border_edges = ('left', 'top', 'right', 'bottom', 'between')
 
 def read_single_border(parent, edge, XPath, get):
     color = style = width = padding = None
-    for elem in XPath('./w:%s' % edge)(parent):
+    for elem in XPath(f'./w:{edge}')(parent):
         c = get(elem, 'w:color')
         if c is not None:
             color = simple_color(c)
@@ -145,20 +145,20 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
 
 
 def border_to_css(edge, style, css):
-    bs = getattr(style, 'border_%s_style' % edge)
-    bc = getattr(style, 'border_%s_color' % edge)
-    bw = getattr(style, 'border_%s_width' % edge)
+    bs = getattr(style, f'border_{edge}_style')
+    bc = getattr(style, f'border_{edge}_color')
+    bw = getattr(style, f'border_{edge}_width')
     if isinstance(bw, numbers.Number):
         # WebKit needs at least 1pt to render borders and 3pt to render double borders
         bw = max(bw, (3 if bs == 'double' else 1))
     if bs is not inherit and bs is not None:
-        css['border-%s-style' % edge] = bs
+        css[f'border-{edge}-style'] = bs
     if bc is not inherit and bc is not None:
-        css['border-%s-color' % edge] = bc
+        css[f'border-{edge}-color'] = bc
     if bw is not inherit and bw is not None:
         if isinstance(bw, numbers.Number):
-            bw = '%.3gpt' % bw
-        css['border-%s-width' % edge] = bw
+            bw = f'{bw:.3g}pt'
+        css[f'border-{edge}-width'] = bw
 
 
 def read_indent(parent, dest, XPath, get):
@@ -305,12 +305,12 @@ class Frame:
         else:
             if self.h_rule != 'auto':
                 t = 'min-height' if self.h_rule == 'atLeast' else 'height'
-                ans[t] = '%.3gpt' % self.h
+                ans[t] = f'{self.h:.3g}pt'
             if self.w is not None:
-                ans['width'] = '%.3gpt' % self.w
-            ans['padding-top'] = ans['padding-bottom'] = '%.3gpt' % self.v_space
+                ans['width'] = f'{self.w:.3g}pt'
+            ans['padding-top'] = ans['padding-bottom'] = f'{self.v_space:.3g}pt'
             if self.wrap not in {None, 'none'}:
-                ans['padding-left'] = ans['padding-right'] = '%.3gpt' % self.h_space
+                ans['padding-left'] = ans['padding-right'] = f'{self.h_space:.3g}pt'
                 if self.x_align is None:
                     fl = 'left' if self.x/page.width < 0.5 else 'right'
                 else:
@@ -412,12 +412,12 @@ class ParagraphStyle:
                 c['page-break-after'] = 'avoid'
             for edge in ('left', 'top', 'right', 'bottom'):
                 border_to_css(edge, self, c)
-                val = getattr(self, 'padding_%s' % edge)
+                val = getattr(self, f'padding_{edge}')
                 if val is not inherit:
-                    c['padding-%s' % edge] = '%.3gpt' % val
-                val = getattr(self, 'margin_%s' % edge)
+                    c[f'padding-{edge}'] = f'{val:.3g}pt'
+                val = getattr(self, f'margin_{edge}')
                 if val is not inherit:
-                    c['margin-%s' % edge] = val
+                    c[f'margin-{edge}'] = val
 
             if self.line_height not in {inherit, '1'}:
                 c['line-height'] = self.line_height
@@ -426,7 +426,7 @@ class ParagraphStyle:
                 val = getattr(self, x)
                 if val is not inherit:
                     if x == 'font_size':
-                        val = '%.3gpt' % val
+                        val = f'{val:.3g}pt'
                     c[x.replace('_', '-')] = val
             ta = self.text_align
             if ta is not inherit:
@@ -465,11 +465,11 @@ class ParagraphStyle:
 
     def apply_between_border(self):
         for prop in ('width', 'color', 'style'):
-            setattr(self, 'border_bottom_%s' % prop, getattr(self, 'border_between_%s' % prop))
+            setattr(self, f'border_bottom_{prop}', getattr(self, f'border_between_{prop}'))
 
     def has_visible_border(self):
         for edge in border_edges[:-1]:
-            bw, bs = getattr(self, 'border_%s_width' % edge), getattr(self, 'border_%s_style' % edge)
+            bw, bs = getattr(self, f'border_{edge}_width'), getattr(self, f'border_{edge}_style')
             if bw is not inherit and bw and bs is not inherit and bs != 'none':
                 return True
         return False

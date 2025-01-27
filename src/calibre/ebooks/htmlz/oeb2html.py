@@ -55,11 +55,10 @@ class OEB2HTML:
 
     def mlize_spine(self, oeb_book):
         output = [
-            '<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title>%s</title></head><body>' % (
-                prepare_string_for_xml(self.book_title))
+            f'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title>{prepare_string_for_xml(self.book_title)}</title></head><body>'
         ]
         for item in oeb_book.spine:
-            self.log.debug('Converting %s to HTML...' % item.href)
+            self.log.debug(f'Converting {item.href} to HTML...')
             self.rewrite_ids(item.data, item)
             rewrite_links(item.data, partial(self.rewrite_link, page=item))
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts)
@@ -73,9 +72,9 @@ class OEB2HTML:
 
     def get_link_id(self, href, id=''):
         if id:
-            href += '#%s' % id
+            href += f'#{id}'
         if href not in self.links:
-            self.links[href] = '#calibre_link-%s' % len(self.links.keys())
+            self.links[href] = f'#calibre_link-{len(self.links.keys())}'
         return self.links[href]
 
     def map_resources(self, oeb_book):
@@ -111,7 +110,7 @@ class OEB2HTML:
             return url
         abs_url = page.abshref(urlnormalize(url))
         if abs_url in self.images:
-            return 'images/%s' % self.images[abs_url]
+            return f'images/{self.images[abs_url]}'
         if abs_url in self.links:
             return self.links[abs_url]
         return url
@@ -226,7 +225,7 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         tags.reverse()
         for t in tags:
             if t not in SELF_CLOSING_TAGS:
-                text.append('</%s>' % t)
+                text.append(f'</{t}>')
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
@@ -262,14 +261,14 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         tag = barename(elem.tag)
         attribs = elem.attrib
 
-        style_a = '%s' % style
+        style_a = f'{style}'
         style_a = style_a if style_a else ''
         if tag == 'body':
             # Change the body to a div so we can merge multiple files.
             tag = 'div'
             # Add page-break-brefore: always because renders typically treat a new file (we're merging files)
             # as a page break and remove all other page break types that might be set.
-            style_a = 'page-break-before: always; %s' % re.sub(r'page-break-[^:]+:[^;]+;?', '', style_a)
+            style_a = 'page-break-before: always; {}'.format(re.sub(r'page-break-[^:]+:[^;]+;?', '', style_a))
         # Remove unnecessary spaces.
         style_a = re.sub(r'\s{2,}', ' ', style_a).strip()
         tags.append(tag)
@@ -289,7 +288,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         # Turn style into strings for putting in the tag.
         style_t = ''
         if style_a:
-            style_t = ' style="%s"' % style_a.replace('"', "'")
+            style_t = ' style="{}"'.format(style_a.replace('"', "'"))
 
         # Write the tag.
         text.append(f'<{tag}{at}{style_t}')
@@ -310,7 +309,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         tags.reverse()
         for t in tags:
             if t not in SELF_CLOSING_TAGS:
-                text.append('</%s>' % t)
+                text.append(f'</{t}>')
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
@@ -329,7 +328,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
     def mlize_spine(self, oeb_book):
         output = []
         for item in oeb_book.spine:
-            self.log.debug('Converting %s to HTML...' % item.href)
+            self.log.debug(f'Converting {item.href} to HTML...')
             self.rewrite_ids(item.data, item)
             rewrite_links(item.data, partial(self.rewrite_link, page=item))
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts)
@@ -339,7 +338,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
             css = '<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
             css = '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
-        title = '<title>%s</title>' % prepare_string_for_xml(self.book_title)
+        title = f'<title>{prepare_string_for_xml(self.book_title)}</title>'
         output = ['<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'] + \
             [css] + [title, '</head><body>'] + output + ['</body></html>']
         return ''.join(output)
@@ -398,7 +397,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         tags.reverse()
         for t in tags:
             if t not in SELF_CLOSING_TAGS:
-                text.append('</%s>' % t)
+                text.append(f'</{t}>')
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:

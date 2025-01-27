@@ -77,7 +77,7 @@ class FB2Input(InputFormatPlugin):
             parser = css_parser.CSSParser(fetcher=None,
                     log=logging.getLogger('calibre.css'))
 
-            XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
+            XHTML_CSS_NAMESPACE = f'@namespace "{XHTML_NS}";\n'
             text = XHTML_CSS_NAMESPACE + css
             log.debug('Parsing stylesheet...')
             stylesheet = parser.parseString(text)
@@ -115,7 +115,7 @@ class FB2Input(InputFormatPlugin):
                 if not note.get('id', None):
                     note.set('id', 'cite%d' % c)
                     all_ids.add(note.get('id'))
-                a.set('href', '#%s' % note.get('id'))
+                a.set('href', '#{}'.format(note.get('id')))
         for x in result.xpath('//*[@link_note or @link_cite]'):
             x.attrib.pop('link_note', None)
             x.attrib.pop('link_cite', None)
@@ -148,7 +148,7 @@ class FB2Input(InputFormatPlugin):
             cpath = os.path.abspath('fb2_cover_calibre_mi.jpg')
         else:
             for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
-                href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
+                href = img.get(f'{{{XLINK_NS}}}href', img.get('href', None))
                 if href is not None:
                     if href.startswith('#'):
                         href = href[1:]
@@ -182,8 +182,7 @@ class FB2Input(InputFormatPlugin):
                 try:
                     data = base64_decode(raw)
                 except TypeError:
-                    self.log.exception('Binary data with id=%s is corrupted, ignoring'%(
-                        elem.get('id')))
+                    self.log.exception('Binary data with id={} is corrupted, ignoring'.format(elem.get('id')))
                 else:
                     with open(fname, 'wb') as f:
                         f.write(data)

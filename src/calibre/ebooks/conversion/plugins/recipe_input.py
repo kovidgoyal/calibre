@@ -111,8 +111,7 @@ class RecipeInput(InputFormatPlugin):
                     self.recipe_source = raw
                     if recipe.requires_version > numeric_version:
                         log.warn(
-                        'Downloaded recipe needs calibre version at least: %s' %
-                        ('.'.join(recipe.requires_version)))
+                        'Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))
                         builtin = True
                 except:
                     log.exception('Failed to compile downloaded recipe. Falling '
@@ -130,8 +129,7 @@ class RecipeInput(InputFormatPlugin):
                     log('Using downloaded builtin recipe')
 
             if recipe is None:
-                raise ValueError('%r is not a valid recipe file or builtin recipe' %
-                        recipe_or_file)
+                raise ValueError(f'{recipe_or_file!r} is not a valid recipe file or builtin recipe')
 
             disabled = getattr(recipe, 'recipe_disabled', None)
             if disabled is not None:

@@ -51,12 +51,12 @@ def read_cell_width(parent, dest, XPath, get):
 def read_padding(parent, dest, XPath, get):
     name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
     ans = {x:inherit for x in edges}
-    for mar in XPath('./w:%s' % name)(parent):
+    for mar in XPath(f'./w:{name}')(parent):
         for x in edges:
-            for edge in XPath('./w:%s' % x)(mar):
+            for edge in XPath(f'./w:{x}')(mar):
                 ans[x] = _read_width(edge, get)
     for x in edges:
-        setattr(dest, 'cell_padding_%s' % x, ans[x])
+        setattr(dest, f'cell_padding_{x}', ans[x])
 
 
 def read_justification(parent, dest, XPath, get):
@@ -135,7 +135,7 @@ def read_col_span(parent, dest, XPath, get):
 def read_merge(parent, dest, XPath, get):
     for x in ('hMerge', 'vMerge'):
         ans = inherit
-        for m in XPath('./w:%s' % x)(parent):
+        for m in XPath(f'./w:{x}')(parent):
             ans = get(m, 'w:val', 'continue')
         setattr(dest, x, ans)
 
@@ -143,12 +143,12 @@ def read_merge(parent, dest, XPath, get):
 def read_band_size(parent, dest, XPath, get):
     for x in ('Col', 'Row'):
         ans = 1
-        for y in XPath('./w:tblStyle%sBandSize' % x)(parent):
+        for y in XPath(f'./w:tblStyle{x}BandSize')(parent):
             try:
                 ans = int(get(y, 'w:val'))
             except (TypeError, ValueError):
                 continue
-        setattr(dest, '%s_band_size' % x.lower(), ans)
+        setattr(dest, f'{x.lower()}_band_size', ans)
 
 
 def read_look(parent, dest, XPath, get):
@@ -201,9 +201,9 @@ class Style:
         c = {}
         for x in edges:
             border_to_css(x, self, c)
-            val = getattr(self, 'padding_%s' % x)
+            val = getattr(self, f'padding_{x}')
             if val is not inherit:
-                c['padding-%s' % x] = '%.3gpt' % val
+                c[f'padding-{x}'] = f'{val:.3g}pt'
         if self.is_bidi:
             for a in ('padding-%s', 'border-%s-style', 'border-%s-color', 'border-%s-width'):
                 l, r = c.get(a % 'left'), c.get(a % 'right')
@@ -227,7 +227,7 @@ class RowStyle(Style):
             for p in ('hidden', 'cantSplit'):
                 setattr(self, p, binary_property(trPr, p, namespace.XPath, namespace.get))
             for p in ('spacing', 'height'):
-                f = globals()['read_%s' % p]
+                f = globals()[f'read_{p}']
                 f(trPr, self, namespace.XPath, namespace.get)
         self._css = None
 
@@ -263,7 +263,7 @@ class CellStyle(Style):
                 setattr(self, p, inherit)
         else:
             for x in ('borders', 'shd', 'padding', 'cell_width', 'vertical_align', 'col_span', 'merge'):
-                f = globals()['read_%s' % x]
+                f = globals()[f'read_{x}']
                 f(tcPr, self, namespace.XPath, namespace.get)
             self.row_span = inherit
         self._css = None
@@ -278,17 +278,17 @@ class CellStyle(Style):
                 c['width'] = self.width
             c['vertical-align'] = 'top' if self.vertical_align is inherit else self.vertical_align
             for x in edges:
-                val = getattr(self, 'cell_padding_%s' % x)
+                val = getattr(self, f'cell_padding_{x}')
                 if val not in (inherit, 'auto'):
-                    c['padding-%s' % x] = val
+                    c[f'padding-{x}'] = val
                 elif val is inherit and x in {'left', 'right'}:
-                    c['padding-%s' % x] = '%.3gpt' % (115/20)
+                    c[f'padding-{x}'] = '%.3gpt' % (115/20)
             # In Word, tables are apparently rendered with some default top and
             # bottom padding irrespective of the cellMargin values. Simulate
             # that here.
             for x in ('top', 'bottom'):
-                if c.get('padding-%s' % x, '0pt') == '0pt':
-                    c['padding-%s' % x] = '0.5ex'
+                if c.get(f'padding-{x}', '0pt') == '0pt':
+                    c[f'padding-{x}'] = '0.5ex'
             c.update(self.convert_border())
 
         return self._css
@@ -311,7 +311,7 @@ class TableStyle(Style):
             self.overrides = inherit
             self.bidi = binary_property(tblPr, 'bidiVisual', namespace.XPath, namespace.get)
             for x in ('width', 'float', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
-                f = globals()['read_%s' % x]
+                f = globals()[f'read_{x}']
                 f(tblPr, self, self.namespace.XPath, self.namespace.get)
             parent = tblPr.getparent()
             if self.namespace.is_tag(parent, 'w:style'):
@@ -351,12 +351,12 @@ class TableStyle(Style):
                 c['margin-left'] = self.indent
             if self.float is not inherit:
                 for x in ('left', 'top', 'right', 'bottom'):
-                    val = self.float.get('%sFromText' % x, 0)
+                    val = self.float.get(f'{x}FromText', 0)
                     try:
                         val = '%.3gpt' % (int(val) / 20)
                     except (ValueError, TypeError):
                         val = '0'
-                    c['margin-%s' % x] = val
+                    c[f'margin-{x}'] = val
                 if 'tblpXSpec' in self.float:
                     c['float'] = 'right' if self.float['tblpXSpec'] in {'right', 'outside'} else 'left'
                 else:
@@ -516,7 +516,7 @@ class Table:
             cs.update(CellStyle(self.namespace, tcPr))
 
         for x in edges:
-            p = 'cell_padding_%s' % x
+            p = f'cell_padding_{x}'
             val = getattr(cs, p)
             if val is inherit:
                 setattr(cs, p, getattr(self.table_style, p))

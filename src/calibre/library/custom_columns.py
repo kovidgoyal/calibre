@@ -43,7 +43,7 @@ class CustomColumns:
                 'SELECT id FROM custom_columns WHERE mark_for_delete=1'):
             num = record[0]
             table, lt = self.custom_table_names(num)
-            self.conn.executescript('''\
+            self.conn.executescript(f'''\
                     DROP INDEX   IF EXISTS {table}_idx;
                     DROP INDEX   IF EXISTS {lt}_aidx;
                     DROP INDEX   IF EXISTS {lt}_bidx;
@@ -57,7 +57,7 @@ class CustomColumns:
                     DROP VIEW    IF EXISTS tag_browser_filtered_{table};
                     DROP TABLE   IF EXISTS {table};
                     DROP TABLE   IF EXISTS {lt};
-                    '''.format(table=table, lt=lt)
+                    '''
             )
         self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
         self.conn.commit()
@@ -105,15 +105,14 @@ class CustomColumns:
 
             # Create Foreign Key triggers
             if data['normalized']:
-                trigger = 'DELETE FROM %s WHERE book=OLD.id;'%lt
+                trigger = f'DELETE FROM {lt} WHERE book=OLD.id;'
             else:
-                trigger = 'DELETE FROM %s WHERE book=OLD.id;'%table
+                trigger = f'DELETE FROM {table} WHERE book=OLD.id;'
             triggers.append(trigger)
 
         if remove:
             for data in remove:
-                prints('WARNING: Custom column %r not found, removing.' %
-                        data['label'])
+                prints('WARNING: Custom column {!r} not found, removing.'.format(data['label']))
                 self.conn.execute('DELETE FROM custom_columns WHERE id=?',
                         (data['num'],))
             self.conn.commit()
@@ -123,9 +122,9 @@ class CustomColumns:
                 CREATE TEMP TRIGGER custom_books_delete_trg
                     AFTER DELETE ON books
                     BEGIN
-                    %s
+                    {}
                     END;
-                '''%(' \n'.join(triggers)))
+                '''.format(' \n'.join(triggers)))
             self.conn.commit()
 
         # Setup data adapters
@@ -236,8 +235,8 @@ class CustomColumns:
             return None
         ign,lt = self.custom_table_names(data['num'])
         idx = idx if index_is_id else self.id(idx)
-        return self.conn.get('''SELECT extra FROM %s
-                                WHERE book=?'''%lt, (idx,), all=False)
+        return self.conn.get(f'''SELECT extra FROM {lt}
+                                WHERE book=?''', (idx,), all=False)
 
     def get_custom_and_extra(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
@@ -259,8 +258,8 @@ class CustomColumns:
         if data['datatype'] != 'series':
             return ans, None
         ign,lt = self.custom_table_names(data['num'])
-        extra = self.conn.get('''SELECT extra FROM %s
-                                 WHERE book=?'''%lt, (idx,), all=False)
+        extra = self.conn.get(f'''SELECT extra FROM {lt}
+                                 WHERE book=?''', (idx,), all=False)
         return ans, extra
 
     # convenience methods for tag editing
@@ -272,7 +271,7 @@ class CustomColumns:
         table,lt = self.custom_table_names(data['num'])
         if not data['normalized']:
             return []
-        ans = self.conn.get('SELECT id, value FROM %s'%table)
+        ans = self.conn.get(f'SELECT id, value FROM {table}')
         return ans
 
     def rename_custom_item(self, old_id, new_name, label=None, num=None):
@@ -283,22 +282,22 @@ class CustomColumns:
         table,lt = self.custom_table_names(data['num'])
         # check if item exists
         new_id = self.conn.get(
-            'SELECT id FROM %s WHERE value=?'%table, (new_name,), all=False)
+            f'SELECT id FROM {table} WHERE value=?', (new_name,), all=False)
         if new_id is None or old_id == new_id:
-            self.conn.execute('UPDATE %s SET value=? WHERE id=?'%table, (new_name, old_id))
+            self.conn.execute(f'UPDATE {table} SET value=? WHERE id=?', (new_name, old_id))
             new_id = old_id
         else:
             # New id exists. If the column is_multiple, then process like
             # tags, otherwise process like publishers (see database2)
             if data['is_multiple']:
-                books = self.conn.get('''SELECT book from %s
-                                         WHERE value=?'''%lt, (old_id,))
+                books = self.conn.get(f'''SELECT book from {lt}
+                                         WHERE value=?''', (old_id,))
                 for (book_id,) in books:
-                    self.conn.execute('''DELETE FROM %s
-                            WHERE book=? and value=?'''%lt, (book_id, new_id))
-            self.conn.execute('''UPDATE %s SET value=?
-                                 WHERE value=?'''%lt, (new_id, old_id,))
-            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (old_id,))
+                    self.conn.execute(f'''DELETE FROM {lt}
+                            WHERE book=? and value=?''', (book_id, new_id))
+            self.conn.execute(f'''UPDATE {lt} SET value=?
+                                 WHERE value=?''', (new_id, old_id,))
+            self.conn.execute(f'DELETE FROM {table} WHERE id=?', (old_id,))
         self.dirty_books_referencing('#'+data['label'], new_id, commit=False)
         self.conn.commit()
 
@@ -310,8 +309,8 @@ class CustomColumns:
                 data = self.custom_column_num_map[num]
             table,lt = self.custom_table_names(data['num'])
             self.dirty_books_referencing('#'+data['label'], id, commit=False)
-            self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id,))
-            self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id,))
+            self.conn.execute(f'DELETE FROM {lt} WHERE value=?', (id,))
+            self.conn.execute(f'DELETE FROM {table} WHERE id=?', (id,))
             self.conn.commit()
 
     def is_item_used_in_multiple(self, item, label=None, num=None):
@@ -324,7 +323,7 @@ class CustomColumns:
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] != 'text' or not data['is_multiple']:
-            raise ValueError('Column %r is not text/multiple'%data['label'])
+            raise ValueError('Column {!r} is not text/multiple'.format(data['label']))
         existing_tags = list(self.all_custom(label=label, num=num))
         lt = [t.lower() for t in existing_tags]
         try:
@@ -334,14 +333,14 @@ class CustomColumns:
         books_affected = []
         if idx > -1:
             table, lt = self.custom_table_names(data['num'])
-            id_ = self.conn.get('SELECT id FROM %s WHERE value = ?'%table,
+            id_ = self.conn.get(f'SELECT id FROM {table} WHERE value = ?',
                                 (existing_tags[idx],), all=False)
             if id_:
-                books = self.conn.get('SELECT book FROM %s WHERE value = ?'%lt, (id_,))
+                books = self.conn.get(f'SELECT book FROM {lt} WHERE value = ?', (id_,))
                 if books:
                     books_affected = [b[0] for b in books]
-                self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id_,))
-                self.conn.execute('DELETE FROM %s WHERE id=?'%table, (id_,))
+                self.conn.execute(f'DELETE FROM {lt} WHERE value=?', (id_,))
+                self.conn.execute(f'DELETE FROM {table} WHERE id=?', (id_,))
                 self.conn.commit()
         return books_affected
     # end convenience methods
@@ -355,17 +354,17 @@ class CustomColumns:
             return None
         table, lt = self.custom_table_names(data['num'])
         # get the id of the row containing the series string
-        series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
+        series_id = self.conn.get(f'SELECT id from {table} WHERE value=?',
                                                         (series,), all=False)
         if series_id is None:
             if isinstance(tweaks['series_index_auto_increment'], numbers.Number):
                 return float(tweaks['series_index_auto_increment'])
             return 1.0
-        series_indices = self.conn.get('''
+        series_indices = self.conn.get(f'''
                 SELECT {lt}.extra FROM {lt}
                 WHERE {lt}.book IN (SELECT book FROM {lt} where value=?)
                 ORDER BY {lt}.extra
-                '''.format(lt=lt), (series_id,))
+                ''', (series_id,))
         return self._get_next_series_num_for_list(series_indices)
 
     def all_custom(self, label=None, num=None):
@@ -375,9 +374,9 @@ class CustomColumns:
             data = self.custom_column_num_map[num]
         table, lt = self.custom_table_names(data['num'])
         if data['normalized']:
-            ans = self.conn.get('SELECT value FROM %s'%table)
+            ans = self.conn.get(f'SELECT value FROM {table}')
         else:
-            ans = self.conn.get('SELECT DISTINCT value FROM %s'%table)
+            ans = self.conn.get(f'SELECT DISTINCT value FROM {table}')
         ans = {x[0] for x in ans}
         return ans
 
@@ -433,9 +432,9 @@ class CustomColumns:
         if num is not None:
             data = self.custom_column_num_map[num]
         if not data['editable']:
-            raise ValueError('Column %r is not editable'%data['label'])
+            raise ValueError('Column {!r} is not editable'.format(data['label']))
         if data['datatype'] != 'text' or not data['is_multiple']:
-            raise ValueError('Column %r is not text/multiple'%data['label'])
+            raise ValueError('Column {!r} is not text/multiple'.format(data['label']))
 
         add = self.cleanup_tags(add)
         remove = self.cleanup_tags(remove)
@@ -450,15 +449,15 @@ class CustomColumns:
         lt = [t.lower() for t in all_tags]
         new_tags = [t for t in add if t.lower() not in lt]
         if new_tags:
-            self.conn.executemany('INSERT INTO %s(value) VALUES (?)'%cust_table,
+            self.conn.executemany(f'INSERT INTO {cust_table}(value) VALUES (?)',
                                   [(x,) for x in new_tags])
 
         # Create the temporary temp_tables to store the ids for books and tags
         # to be operated on
         temp_tables = ('temp_bulk_tag_edit_books', 'temp_bulk_tag_edit_add',
                     'temp_bulk_tag_edit_remove')
-        drops = '\n'.join(['DROP TABLE IF EXISTS %s;'%t for t in temp_tables])
-        creates = '\n'.join(['CREATE TEMP TABLE %s(id INTEGER PRIMARY KEY);'%t
+        drops = '\n'.join([f'DROP TABLE IF EXISTS {t};' for t in temp_tables])
+        creates = '\n'.join([f'CREATE TEMP TABLE {t}(id INTEGER PRIMARY KEY);'
                 for t in temp_tables])
         self.conn.executescript(drops + creates)
 
@@ -471,22 +470,21 @@ class CustomColumns:
             if not tags:
                 continue
             table = temp_tables[table+1]
-            insert = ('INSERT INTO {tt}(id) SELECT {ct}.id FROM {ct} WHERE value=?'
-                     ' COLLATE PYNOCASE LIMIT 1').format(tt=table, ct=cust_table)
+            insert = (f'INSERT INTO {table}(id) SELECT {cust_table}.id FROM {cust_table} WHERE value=?'
+                     ' COLLATE PYNOCASE LIMIT 1')
             self.conn.executemany(insert, [(x,) for x in tags])
 
         # now do the real work -- removing and adding the tags
         if remove:
             self.conn.execute(
-              '''DELETE FROM %s WHERE
-                    book IN (SELECT id FROM %s) AND
-                    value IN (SELECT id FROM %s)'''
-              % (link_table, temp_tables[0], temp_tables[2]))
+              f'''DELETE FROM {link_table} WHERE
+                    book IN (SELECT id FROM {temp_tables[0]}) AND
+                    value IN (SELECT id FROM {temp_tables[2]})''')
         if add:
             self.conn.execute(
+            f'''
+            INSERT OR REPLACE INTO {link_table}(book, value) SELECT {temp_tables[0]}.id, {temp_tables[1]}.id FROM {temp_tables[0]}, {temp_tables[1]}
             '''
-            INSERT OR REPLACE INTO {0}(book, value) SELECT {1}.id, {2}.id FROM {1}, {2}
-            '''.format(link_table, temp_tables[0], temp_tables[1])
             )
         # get rid of the temp tables
         self.conn.executescript(drops)
@@ -496,7 +494,7 @@ class CustomColumns:
         # set the in-memory copies of the tags
         for x in ids:
             tags = self.conn.get(
-                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
+                    'SELECT custom_{} FROM meta2 WHERE id=?'.format(data['num']),
                     (x,), all=False)
             self.data.set(x, self.FIELD_MAP[data['num']], tags, row_is_id=True)
 
@@ -540,7 +538,7 @@ class CustomColumns:
         if data['datatype'] == 'composite':
             return set()
         if not data['editable']:
-            raise ValueError('Column %r is not editable'%data['label'])
+            raise ValueError('Column {!r} is not editable'.format(data['label']))
         table, lt = self.custom_table_names(data['num'])
         getter = partial(self.get_custom, id_, num=data['num'],
                 index_is_id=True)
@@ -557,10 +555,10 @@ class CustomColumns:
                     val and val not in data['display']['enum_values']):
                 return books_to_refresh
             if not append or not data['is_multiple']:
-                self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
+                self.conn.execute(f'DELETE FROM {lt} WHERE book=?', (id_,))
                 self.conn.execute(
-                '''DELETE FROM {} WHERE (SELECT COUNT(id) FROM {} WHERE
-                    value={}.id) < 1'''.format(table, lt, table))
+                f'''DELETE FROM {table} WHERE (SELECT COUNT(id) FROM {lt} WHERE
+                    value={table}.id) < 1''')
                 self.data._data[id_][self.FIELD_MAP[data['num']]] = None
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
@@ -584,42 +582,42 @@ class CustomColumns:
                 if idx > -1:
                     ex = existing[idx]
                     xid = self.conn.get(
-                        'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
+                        f'SELECT id FROM {table} WHERE value=?', (ex,), all=False)
                     if allow_case_change and ex != x:
                         case_change = True
                         self.conn.execute(
-                            'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
+                            f'UPDATE {table} SET value=? WHERE id=?', (x, xid))
                 else:
                     xid = self.conn.execute(
-                        'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
+                        f'INSERT INTO {table}(value) VALUES(?)', (x,)).lastrowid
                 if not self.conn.get(
-                    'SELECT book FROM %s WHERE book=? AND value=?'%lt, (id_, xid), all=False):
+                    f'SELECT book FROM {lt} WHERE book=? AND value=?', (id_, xid), all=False):
                     if data['datatype'] == 'series':
                         self.conn.execute(
-                            '''INSERT INTO %s(book, value, extra)
-                               VALUES (?,?,?)'''%lt, (id_, xid, extra))
+                            f'''INSERT INTO {lt}(book, value, extra)
+                               VALUES (?,?,?)''', (id_, xid, extra))
                         self.data.set(id_, self.FIELD_MAP[data['num']]+1,
                                       extra, row_is_id=True)
                     else:
                         self.conn.execute(
-                            '''INSERT INTO %s(book, value)
-                                VALUES (?,?)'''%lt, (id_, xid))
+                            f'''INSERT INTO {lt}(book, value)
+                                VALUES (?,?)''', (id_, xid))
                 if case_change:
-                    bks = self.conn.get('SELECT book FROM %s WHERE value=?'%lt,
+                    bks = self.conn.get(f'SELECT book FROM {lt} WHERE value=?',
                                         (xid,))
                     books_to_refresh |= {bk[0] for bk in bks}
             nval = self.conn.get(
-                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
+                    'SELECT custom_{} FROM meta2 WHERE id=?'.format(data['num']),
                     (id_,), all=False)
             self.data.set(id_, self.FIELD_MAP[data['num']], nval,
                     row_is_id=True)
         else:
-            self.conn.execute('DELETE FROM %s WHERE book=?'%table, (id_,))
+            self.conn.execute(f'DELETE FROM {table} WHERE book=?', (id_,))
             if val is not None:
                 self.conn.execute(
-                        'INSERT INTO %s(book,value) VALUES (?,?)'%table, (id_, val))
+                        f'INSERT INTO {table}(book,value) VALUES (?,?)', (id_, val))
             nval = self.conn.get(
-                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'], (id_,), all=False)
+                    'SELECT custom_{} FROM meta2 WHERE id=?'.format(data['num']), (id_,), all=False)
             self.data.set(id_, self.FIELD_MAP[data['num']], nval,
                     row_is_id=True)
         if notify:
@@ -677,7 +675,7 @@ class CustomColumns:
         if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in self.CUSTOM_DATA_TYPES:
-            raise ValueError('%r is not a supported data type'%datatype)
+            raise ValueError(f'{datatype!r} is not a supported data type')
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
                 'float', 'composite')
         is_multiple = is_multiple and datatype in ('text', 'composite')
@@ -706,28 +704,28 @@ class CustomColumns:
             else:
                 s_index = ''
             lines = [
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {table}(
                     id    INTEGER PRIMARY KEY AUTOINCREMENT,
-                    value %s NOT NULL %s,
+                    value {dt} NOT NULL {collate},
                     UNIQUE(value));
-                '''%(table, dt, collate),
+                ''',
 
-                'CREATE INDEX %s_idx ON %s (value %s);'%(table, table, collate),
+                f'CREATE INDEX {table}_idx ON {table} (value {collate});',
 
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {lt}(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     book INTEGER NOT NULL,
                     value INTEGER NOT NULL,
-                    %s
+                    {s_index}
                     UNIQUE(book, value)
-                    );'''%(lt, s_index),
+                    );''',
 
-                'CREATE INDEX %s_aidx ON %s (value);'%(lt,lt),
-                'CREATE INDEX %s_bidx ON %s (book);'%(lt,lt),
+                f'CREATE INDEX {lt}_aidx ON {lt} (value);',
+                f'CREATE INDEX {lt}_bidx ON {lt} (book);',
 
-                '''\
+                f'''\
                 CREATE TRIGGER fkc_update_{lt}_a
                         BEFORE UPDATE OF book ON {lt}
                         BEGIN
@@ -788,22 +786,22 @@ class CustomColumns:
                     value AS sort
                 FROM {table};
 
-                '''.format(lt=lt, table=table),
+                ''',
 
             ]
         else:
             lines = [
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {table}(
                     id    INTEGER PRIMARY KEY AUTOINCREMENT,
                     book  INTEGER,
-                    value %s NOT NULL %s,
+                    value {dt} NOT NULL {collate},
                     UNIQUE(book));
-                '''%(table, dt, collate),
+                ''',
 
-                'CREATE INDEX %s_idx ON %s (book);'%(table, table),
+                f'CREATE INDEX {table}_idx ON {table} (book);',
 
-                '''\
+                f'''\
                 CREATE TRIGGER fkc_insert_{table}
                         BEFORE INSERT ON {table}
                         BEGIN
@@ -820,7 +818,7 @@ class CustomColumns:
                                 THEN RAISE(ABORT, 'Foreign key violation: book not in books')
                             END;
                         END;
-                '''.format(table=table),
+                ''',
             ]
         script = ' \n'.join(lines)
         self.conn.executescript(script)

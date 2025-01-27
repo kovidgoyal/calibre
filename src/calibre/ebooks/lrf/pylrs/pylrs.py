@@ -79,7 +79,7 @@ class ContentError(Exception):
 
 def _checkExists(filename):
     if not os.path.exists(filename):
-        raise LrsError("file '%s' not found" % filename)
+        raise LrsError(f"file '{filename}' not found")
 
 
 def _formatXml(root):
@@ -184,7 +184,7 @@ class Delegator:
                     applied = True
 
         if testValid and not applied:
-            raise LrsError('setting %s not valid' % name)
+            raise LrsError(f'setting {name} not valid')
 
         return applied
 
@@ -234,8 +234,7 @@ class LrsAttributes:
         self.attrs = defaults.copy()
         for name, value in settings.items():
             if name not in self.attrs and name not in alsoAllow:
-                raise LrsError('%s does not support setting %s' %
-                        (self.__class__.__name__, name))
+                raise LrsError(f'{self.__class__.__name__} does not support setting {name}')
             if isinstance(value, int):
                 value = str(value)
             self.attrs[name] = value
@@ -293,9 +292,7 @@ class LrsContainer:
             if isinstance(content, validChild):
                 break
         else:
-            raise LrsError("can't append %s to %s" %
-                    (content.__class__.__name__,
-                    self.__class__.__name__))
+            raise LrsError(f"can't append {content.__class__.__name__} to {self.__class__.__name__}")
 
         if convertText and isinstance(content, string_or_bytes):
             content = Text(content)
@@ -529,7 +526,7 @@ class Book(Delegator):
         try:
             method = getattr(self, 'append' + className)
         except AttributeError:
-            raise LrsError("can't append %s to Book" % className)
+            raise LrsError(f"can't append {className} to Book")
 
         method(content)
 
@@ -816,7 +813,7 @@ class DocInfo:
         self.language = 'en'
         self.creator  = None
         self.creationdate = str(isoformat(date.today()))
-        self.producer = '%s v%s'%(__appname__, __version__)
+        self.producer = f'{__appname__} v{__version__}'
         self.numberofpages = '0'
 
     def appendReferencedObjects(self, parent):
@@ -1280,7 +1277,7 @@ class Page(LrsObject, LrsContainer):
         for settingName in settings.keys():
             if settingName not in PageStyle.defaults and \
                     settingName not in PageStyle.alsoAllow:
-                raise LrsError('setting %s not allowed on Page' % settingName)
+                raise LrsError(f'setting {settingName} not allowed on Page')
 
         self.settings = settings.copy()
 
@@ -1391,7 +1388,7 @@ class TextBlock(LrsObject, LrsContainer):
             elif name == 'toclabel':
                 self.tocLabel = value
             else:
-                raise LrsError('%s not a valid setting for TextBlock' % name)
+                raise LrsError(f'{name} not a valid setting for TextBlock')
 
         self.textStyle = textStyle
         self.blockStyle = blockStyle
@@ -1611,7 +1608,7 @@ class Button(LrsObject, LrsContainer):
                 for sub2 in sub1.contents:
                     if isinstance(sub2, JumpTo):
                         return (sub2.textBlock.objId, sub2.textBlock.parent.objId)
-        raise LrsError('%s has no PushButton or JumpTo subs'%self.__class__.__name__)
+        raise LrsError(f'{self.__class__.__name__} has no PushButton or JumpTo subs')
 
     def toLrf(self, lrfWriter):
         refobj, refpage = self.findJumpToRefs()
@@ -1820,7 +1817,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         for attrname in attrs.keys():
             if attrname not in TextStyle.defaults and \
                     attrname not in TextStyle.alsoAllow:
-                raise LrsError('setting %s not allowed on Span' % attrname)
+                raise LrsError(f'setting {attrname} not allowed on Span')
         self.attrs = attrs
 
     def findCurrentTextStyle(self):
@@ -2422,7 +2419,7 @@ class Font(LrsContainer):
                 _checkExists(file)
                 self.truefile = file
             except:
-                raise LrsError("neither '%s' nor '%s' exists"%(fontfilename, file))
+                raise LrsError(f"neither '{fontfilename}' nor '{file}' exists")
 
         self.file = file
         self.fontname = fontname

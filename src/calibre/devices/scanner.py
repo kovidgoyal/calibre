@@ -45,11 +45,9 @@ class USBDevice(_USBDevice):
         return self
 
     def __repr__(self):
-        return ('USBDevice(busnum=%s, devnum=%s, '
-                'vendor_id=0x%04x, product_id=0x%04x, bcd=0x%04x, '
-                'manufacturer=%s, product=%s, serial=%s)')%(
-                self.busnum, self.devnum, self.vendor_id, self.product_id,
-                self.bcd, self.manufacturer, self.product, self.serial)
+        return (f'USBDevice(busnum={self.busnum}, devnum={self.devnum}, '
+                f'vendor_id=0x{self.vendor_id:04x}, product_id=0x{self.product_id:04x}, bcd=0x{self.bcd:04x}, '
+                f'manufacturer={self.manufacturer}, product={self.product}, serial={self.serial})')
 
     __str__ = __repr__
     __unicode__ = __repr__

@@ -121,15 +121,15 @@ class RBWriter:
                     im.save(data, 'PNG')
                     data = data.getvalue()
 
-                    name = '%s.png' % len(used_names)
+                    name = f'{len(used_names)}.png'
                     name = unique_name(name, used_names)
                     used_names.append(name)
                     self.name_map[item.href] = name
 
                     images.append((name, data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s because '
-                        '%s.' % (item.href, e))
+                    self.log.error(f'Error: Could not include file {item.href} because '
+                        f'{e}.')
 
         return images
 
@@ -137,10 +137,10 @@ class RBWriter:
         text = 'TYPE=2\n'
         if metadata:
             if len(metadata.title) >= 1:
-                text += 'TITLE=%s\n' % metadata.title[0].value
+                text += f'TITLE={metadata.title[0].value}\n'
             if len(metadata.creator) >= 1:
                 from calibre.ebooks.metadata import authors_to_string
-                text += 'AUTHOR=%s\n' % authors_to_string([x.value for x in metadata.creator])
+                text += f'AUTHOR={authors_to_string([x.value for x in metadata.creator])}\n'
         text += f'GENERATOR={__appname__} - {__version__}\n'
         text += 'PARSE=1\n'
         text += 'OUTPUT=1\n'

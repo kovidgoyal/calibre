@@ -54,8 +54,8 @@ def determined_remove_dir(x):
 
 def app_prefix(prefix):
     if iswindows:
-        return '%s_'%__appname__
-    return '%s_%s_%s'%(__appname__, __version__, prefix)
+        return f'{__appname__}_'
+    return f'{__appname__}_{__version__}_{prefix}'
 
 
 _osx_cache_dir = None

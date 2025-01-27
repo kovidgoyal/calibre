@@ -882,7 +882,7 @@ class DetailsPanel(QWidget):
         paras = []
 
         def p(text, tag='p'):
-            paras.append('<{0}>{1}</{0}>'.format(tag, a(text)))
+            paras.append(f'<{tag}>{a(text)}</{tag}>')
 
         if annot['type'] == 'bookmark':
             p(annot['title'])

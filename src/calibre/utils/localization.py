@@ -163,8 +163,7 @@ def get_single_translator(mpath, which='messages'):
             traceback.print_exc()
             import hashlib
             sig = hashlib.sha1(data).hexdigest()
-            raise ValueError('Failed to load translations for: {} (size: {} and signature: {}) with error: {}'.format(
-                path, len(data), sig, e))
+            raise ValueError(f'Failed to load translations for: {path} (size: {len(data)} and signature: {sig}) with error: {e}')
 
 
 def get_iso639_translator(lang):
@@ -218,7 +217,7 @@ def load_po(path):
     try:
         make(path, buf)
     except Exception:
-        print(('Failed to compile translations file: %s, ignoring') % path)
+        print(f'Failed to compile translations file: {path}, ignoring')
         buf = None
     else:
         buf = io.BytesIO(buf.getvalue())
@@ -581,7 +580,7 @@ def localize_user_manual_link(url):
         return url
     from polyglot.urllib import urlparse, urlunparse
     parts = urlparse(url)
-    path = re.sub(r'/generated/[a-z]+/', '/generated/%s/' % lc, parts.path or '')
+    path = re.sub(r'/generated/[a-z]+/', f'/generated/{lc}/', parts.path or '')
     path = f'/{lc}{path}'
     parts = list(parts)
     parts[2] = path

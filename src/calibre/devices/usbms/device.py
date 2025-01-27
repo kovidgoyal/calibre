@@ -256,7 +256,7 @@ class Device(DeviceConfig, DevicePlugin):
             if dl in dlmap['readonly_drives']:
                 filtered.add(dl)
                 if debug:
-                    prints('Ignoring the drive %s as it is readonly' % dl)
+                    prints(f'Ignoring the drive {dl} as it is readonly')
             elif self.windows_filter_pnp_id(pnp_id):
                 filtered.add(dl)
                 if debug:
@@ -264,7 +264,7 @@ class Device(DeviceConfig, DevicePlugin):
             elif not drive_is_ok(dl, debug=debug):
                 filtered.add(dl)
                 if debug:
-                    prints('Ignoring the drive %s because failed to get free space for it' % dl)
+                    prints(f'Ignoring the drive {dl} because failed to get free space for it')
         dlmap['drive_letters'] = [dl for dl in dlmap['drive_letters'] if dl not in filtered]
 
         if not dlmap['drive_letters']:

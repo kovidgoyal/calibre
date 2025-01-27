@@ -100,7 +100,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
             tag = srcpieces[j]
             if tag.startswith('<'):
                 srcpieces[j] = within_tag_AmznPageBreak_position_pattern.sub(
-                    lambda m:' style="page-break-after:%s"'%m.group(1), tag)
+                    lambda m:f' style="page-break-after:{m.group(1)}"', tag)
         part = ''.join(srcpieces)
         parts[i] = part
 
@@ -129,7 +129,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
             try:
                 flow = flow.decode(mr.header.codec)
             except UnicodeDecodeError:
-                log.error('Flow part has invalid %s encoded bytes'%mr.header.codec)
+                log.error(f'Flow part has invalid {mr.header.codec} encoded bytes')
                 flow = flow.decode(mr.header.codec, 'replace')
         return flow
 
@@ -153,8 +153,8 @@ def update_flow_links(mobi8_reader, resource_map, log):
                         replacement = '"%s"'%('../'+ href)
                         tag = img_index_pattern.sub(replacement, tag, 1)
                     else:
-                        log.warn('Referenced image %s was not recognized '
-                                'as a valid image in %s' % (num, tag))
+                        log.warn(f'Referenced image {num} was not recognized '
+                                f'as a valid image in {tag}')
                 srcpieces[j] = tag
         flow = ''.join(srcpieces)
 
@@ -171,16 +171,16 @@ def update_flow_links(mobi8_reader, resource_map, log):
                     replacement = '"%s"'%('../'+ href)
                     tag = url_img_index_pattern.sub(replacement, tag, 1)
                 else:
-                    log.warn('Referenced image %s was not recognized as a '
-                    'valid image in %s' % (num, tag))
+                    log.warn(f'Referenced image {num} was not recognized as a '
+                    f'valid image in {tag}')
 
             # process links to fonts
             for m in font_index_pattern.finditer(tag):
                 num = int(m.group(1), 32)
                 href = resource_map[num-1]
                 if href is None:
-                    log.warn('Referenced font %s was not recognized as a '
-                    'valid font in %s' % (num, tag))
+                    log.warn(f'Referenced font {num} was not recognized as a '
+                    f'valid font in {tag}')
                 else:
                     replacement = '"%s"'%('../'+ href)
                     if href.endswith('.failed'):
@@ -244,7 +244,7 @@ def insert_flows_into_markup(parts, flows, mobi8_reader, log):
                     try:
                         fi = mr.flowinfo[num]
                     except IndexError:
-                        log.warn('Ignoring invalid flow reference: %s'%m.group())
+                        log.warn(f'Ignoring invalid flow reference: {m.group()}')
                         tag = ''
                     else:
                         if fi.format == 'inline':
@@ -283,8 +283,8 @@ def insert_images_into_markup(parts, resource_map, log):
                         replacement = '"%s"'%('../' + href)
                         tag = img_index_pattern.sub(replacement, tag, 1)
                     else:
-                        log.warn('Referenced image %s was not recognized as '
-                                'a valid image in %s' % (num, tag))
+                        log.warn(f'Referenced image {num} was not recognized as '
+                                f'a valid image in {tag}')
                 srcpieces[j] = tag
         part = ''.join(srcpieces)
         # store away modified version
@@ -303,11 +303,11 @@ def insert_images_into_markup(parts, resource_map, log):
                     osep = m.group()[0]
                     csep = m.group()[-1]
                     if href:
-                        replacement = '%s%s%s'%(osep, '../' + href, csep)
+                        replacement = '{}{}{}'.format(osep, '../' + href, csep)
                         tag = img_index_pattern.sub(replacement, tag, 1)
                     else:
-                        log.warn('Referenced image %s was not recognized as '
-                                'a valid image in %s' % (num, tag))
+                        log.warn(f'Referenced image {num} was not recognized as '
+                                f'a valid image in {tag}')
                 srcpieces[j] = tag
         part = ''.join(srcpieces)
         # store away modified version

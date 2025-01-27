@@ -170,7 +170,7 @@ class PRS505(USBMS):
     def filename_callback(self, fname, mi):
         if getattr(mi, 'application_id', None) is not None:
             base = fname.rpartition('.')[0]
-            suffix = '_%s'%mi.application_id
+            suffix = f'_{mi.application_id}'
             if not base.endswith(suffix):
                 fname = base + suffix + '.' + fname.rpartition('.')[-1]
         return fname
@@ -183,7 +183,7 @@ class PRS505(USBMS):
                 ('card_a', CACHE_XML, CACHE_EXT, 1),
                 ('card_b', CACHE_XML, CACHE_EXT, 2)
                 ]:
-            prefix = getattr(self, '_%s_prefix'%prefix)
+            prefix = getattr(self, f'_{prefix}_prefix')
             if prefix is not None and os.path.exists(prefix):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
                 ext_paths[source_id] = os.path.join(prefix, *(ext_path.split('/')))
@@ -298,4 +298,4 @@ class PRS505(USBMS):
             cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
             with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
-            debug_print('Cover uploaded to: %r'%cpath)
+            debug_print(f'Cover uploaded to: {cpath!r}')

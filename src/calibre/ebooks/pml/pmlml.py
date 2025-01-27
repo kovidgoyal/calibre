@@ -133,7 +133,7 @@ class PMLMLizer:
 
         text = ['']
         for item in self.oeb_book.spine:
-            self.log.debug('Converting %s to PML markup...' % item.href)
+            self.log.debug(f'Converting {item.href} to PML markup...')
             content = etree.tostring(item.data, encoding='unicode')
             content = self.prepare_text(content)
             content = safe_xml_fromstring(content)
@@ -148,13 +148,13 @@ class PMLMLizer:
     def get_anchor_id(self, href, aid):
         aid = f'{href}#{aid}'
         if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+            self.link_hrefs[aid] = f'calibre_link-{len(self.link_hrefs.keys())}'
         aid = self.link_hrefs[aid]
         return aid
 
     def get_anchor(self, page, aid):
         aid = self.get_anchor_id(page.href, aid)
-        return r'\Q="%s"' % aid
+        return rf'\Q="{aid}"'
 
     def remove_newlines(self, text):
         text = text.replace('\r\n', ' ')
@@ -185,7 +185,7 @@ class PMLMLizer:
         anchors = set(re.findall(r'(?<=\\Q=").+?(?=")', text))
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
-            text = text.replace(r'\Q="%s"' % unused, '')
+            text = text.replace(rf'\Q="{unused}"', '')
 
         # Remove \Cn tags that are within \x and \Xn tags
         text = re.sub(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', r'\g<t>\g<a>\g<b>\g<t>', text)
@@ -214,7 +214,7 @@ class PMLMLizer:
             text = re.sub(r'\n{2,}', '\n', text)
             # Only indent lines that don't have special formatting
             text = re.sub(r'(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
-                          if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
+                          if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        {}'.format(mo.group('text')), text)
         else:
             text = re.sub(r'\n{3,}', '\n\n', text)
 
@@ -255,15 +255,15 @@ class PMLMLizer:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(
-                            '%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
-                text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
+                            f'{len(self.image_hrefs.keys())}.png', self.image_hrefs.keys()).strip('\x00')
+                text.append('\\m="{}"'.format(self.image_hrefs[page.abshref(elem.attrib['src'])]))
         elif tag == 'hr':
             w = r'\w'
             width = elem.get('width')
             if width:
                 if not width.endswith('%'):
                     width += '%'
-                w += '="%s"' % width
+                w += f'="{width}"'
             else:
                 w += '="50%"'
             text.append(w)
@@ -295,7 +295,7 @@ class PMLMLizer:
         # Process basic PML tags.
         pml_tag = TAG_MAP.get(tag, None)
         if pml_tag and pml_tag not in tag_stack+tags:
-            text.append(r'\%s' % pml_tag)
+            text.append(rf'\{pml_tag}')
             tags.append(pml_tag)
 
         # Special processing of tags that require an argument.
@@ -308,9 +308,9 @@ class PMLMLizer:
                     if '#' not in href:
                         href += '#'
                     if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
-                    href = '#%s' % self.link_hrefs[href]
-                    text.append(r'\q="%s"' % href)
+                        self.link_hrefs[href] = f'calibre_link-{len(self.link_hrefs.keys())}'
+                    href = f'#{self.link_hrefs[href]}'
+                    text.append(rf'\q="{href}"')
                     tags.append('q')
 
         # Anchor ids
@@ -324,14 +324,14 @@ class PMLMLizer:
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack+tags:
-                text.append(r'\%s' % style_tag)
+                text.append(rf'\{style_tag}')
                 tags.append(style_tag)
 
         # margin left
         try:
             mms = int(float(style['margin-left']) * 100 / style.height)
             if mms:
-                text.append(r'\T="%s%%"' % mms)
+                text.append(rf'\T="{mms}%"')
         except:
             pass
 
@@ -379,7 +379,7 @@ class PMLMLizer:
                 # closing \c and \r need to be placed
                 # on the next line per PML spec.
                 if tag in ('c', 'r'):
-                    text.append('\n\\%s' % tag)
+                    text.append(f'\n\\{tag}')
                 else:
-                    text.append(r'\%s' % tag)
+                    text.append(rf'\{tag}')
         return text

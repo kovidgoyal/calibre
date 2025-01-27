@@ -385,7 +385,7 @@ class Styles:
 
         fs = promote_most_common(block_styles, 'font_size', int(self.body_font_size[:2]))
         if fs is not None:
-            self.body_font_size = '%.3gpt' % fs
+            self.body_font_size = f'{fs:.3g}pt'
 
         color = promote_most_common(block_styles, 'color', self.body_color, inherit_means='currentColor')
         if color is not None:

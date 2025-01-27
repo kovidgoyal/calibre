@@ -98,7 +98,7 @@ class TestAuth(BaseTest):
             conn.request('GET', '/closed')
             r = conn.getresponse()
             self.ae(r.status, http_client.UNAUTHORIZED)
-            self.ae(r.getheader('WWW-Authenticate'), 'Basic realm="%s"' % REALM)
+            self.ae(r.getheader('WWW-Authenticate'), f'Basic realm="{REALM}"')
             self.assertFalse(r.read())
             conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(b'testuser:testpw')})
             r = conn.getresponse()

@@ -155,7 +155,7 @@ class SubsetFonts:
 
         for font in fonts.values():
             if not font['chars']:
-                self.log('The font %s is unused. Removing it.'%font['src'])
+                self.log('The font {} is unused. Removing it.'.format(font['src']))
                 remove(font)
                 continue
             old_raw = font['item'].data
@@ -164,7 +164,7 @@ class SubsetFonts:
             try:
                 subset(BytesIO(old_raw), output, font_type, font['chars'])
             except Exception as e:
-                self.log.warn('The font %s is unsupported for subsetting. %s'%(font['src'], e))
+                self.log.warn('The font {} is unsupported for subsetting. {}'.format(font['src'], e))
                 sz = len(font['item'].data)
                 totals[0] += sz
                 totals[1] += sz
@@ -172,8 +172,7 @@ class SubsetFonts:
                 font['item'].data = output.getvalue()
                 nlen = len(font['item'].data)
                 olen = len(old_raw)
-                self.log('Decreased the font %s to %.1f%% of its original size'%
-                        (font['src'], nlen/olen *100))
+                self.log('Decreased the font {} to {:.1f}% of its original size'.format(font['src'], nlen/olen *100))
                 totals[0] += nlen
                 totals[1] += olen
 

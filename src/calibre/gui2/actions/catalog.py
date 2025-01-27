@@ -95,8 +95,7 @@ class GenerateCatalogAction(InterfaceAction):
                     _('Select destination for %(title)s.%(fmt)s') % dict(
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
-                destination = os.path.join(export_dir, '{}.{}'.format(
-                    sanitize_file_name(job.catalog_title), job.fmt.lower()))
+                destination = os.path.join(export_dir, f'{sanitize_file_name(job.catalog_title)}.{job.fmt.lower()}')
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
                 except OSError as err:

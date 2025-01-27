@@ -177,7 +177,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         for x in ('replacereplace', 'insert', 'delete'):
             f = QTextCharFormat()
             f.setBackground(self.diff_backgrounds[x])
-            setattr(self, '%s_format' % x, f)
+            setattr(self, f'{x}_format', f)
 
     def calculate_metrics(self):
         fm = self.fontMetrics()
@@ -551,8 +551,8 @@ class DiffSplit(QSplitter):  # {{{
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
         is_text = isinstance(left_text, str) and isinstance(right_text, str)
-        left_name = left_name or '[%s]'%_('This file was added')
-        right_name = right_name or '[%s]'%_('This file was removed')
+        left_name = left_name or '[{}]'.format(_('This file was added'))
+        right_name = right_name or '[{}]'.format(_('This file was removed'))
         self.left.headers.append((self.left.blockCount() - 1, left_name))
         self.right.headers.append((self.right.blockCount() - 1, right_name))
         for v in (self.left, self.right):
@@ -565,7 +565,7 @@ class DiffSplit(QSplitter):  # {{{
                 for v in (self.left, self.right):
                     c = v.textCursor()
                     c.movePosition(QTextCursor.MoveOperation.End)
-                    c.insertText('[%s]\n\n' % _('The files are identical'))
+                    c.insertText('[{}]\n\n'.format(_('The files are identical')))
             elif left_name != right_name and not left_text and not right_text:
                 self.add_text_diff(_('[This file was renamed to %s]') % right_name, _('[This file was renamed from %s]') % left_name, context, None)
                 for v in (self.left, self.right):
@@ -575,7 +575,7 @@ class DiffSplit(QSplitter):  # {{{
             elif syntax == 'raster_image':
                 self.add_image_diff(left_text, right_text)
             else:
-                text = '[%s]' % _('Binary file of size: %s')
+                text = '[{}]'.format(_('Binary file of size: %s'))
                 left_text, right_text = text % human_readable(len(left_text)), text % human_readable(len(right_text))
                 self.add_text_diff(left_text, right_text, None, None)
                 for v in (self.left, self.right):
@@ -700,7 +700,7 @@ class DiffSplit(QSplitter):  # {{{
                 for v in (self.left, self.right):
                     c = v.textCursor()
                     c.movePosition(QTextCursor.MoveOperation.End)
-                    c.insertText('[%s]\n\n' % _('The files are identical after beautifying'))
+                    c.insertText('[{}]\n\n'.format(_('The files are identical after beautifying')))
                 return
 
         left_lines = self.left_lines = left_text.splitlines()

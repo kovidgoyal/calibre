@@ -239,7 +239,7 @@ class TexturePattern(TilingPattern):
                 paint_type=paint_type)
             m = (self.w, 0, 0, -self.h, 0, self.h)
             self.resources['XObject'] = Dictionary({'Texture':imgref})
-            self.write_line('%s cm /Texture Do'%(' '.join(map(fmtnum, m))))
+            self.write_line('{} cm /Texture Do'.format(' '.join(map(fmtnum, m))))
         else:
             super().__init__(
                 clone.cache_key[1], matrix, w=clone.w, h=clone.h,

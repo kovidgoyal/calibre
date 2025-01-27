@@ -281,7 +281,7 @@ class EPUBInput(InputFormatPlugin):
         path = getattr(stream, 'name', 'stream')
 
         if opf is None:
-            raise ValueError('%s is not a valid EPUB file (could not find opf)'%path)
+            raise ValueError(f'{path} is not a valid EPUB file (could not find opf)')
 
         opf = os.path.relpath(opf, os.getcwd())
         parts = os.path.split(opf)
@@ -369,7 +369,7 @@ class EPUBInput(InputFormatPlugin):
         root = parse(raw, log=log)
         ncx = safe_xml_fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
         navmap = ncx[0]
-        et = '{%s}type' % EPUB_NS
+        et = f'{{{EPUB_NS}}}type'
         bn = os.path.basename(nav_path)
 
         def add_from_li(li, parent):

@@ -164,7 +164,7 @@ class OverrideTable:
             self.__override_list.append(the_dict)
         elif self.__run_level > 3:
             msg = 'No matching token after open bracket\n'
-            msg += 'token is "%s\n"' % (line)
+            msg += f'token is "{line}\n"'
             raise self.__bug_handler(msg)
 
     def __write_final_string(self):

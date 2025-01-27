@@ -70,7 +70,7 @@ class NOOK(USBMS):
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+        with open(f'{os.path.join(path, filename)}.jpg', 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)
 

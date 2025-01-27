@@ -85,7 +85,7 @@ class Tweak:  # {{{
         self.doc = ' ' + self.doc
         self.var_names = var_names
         if self.var_names:
-            self.doc = '%s: %s\n\n%s'%(_('ID'), self.var_names[0], format_doc(self.doc))
+            self.doc = '{}: {}\n\n{}'.format(_('ID'), self.var_names[0], format_doc(self.doc))
         self.default_values = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
@@ -101,7 +101,7 @@ class Tweak:  # {{{
                 ans.append('# ' + line)
         for key, val in iteritems(self.default_values):
             val = self.custom_values.get(key, val)
-            ans.append('%s = %r'%(key, val))
+            ans.append(f'{key} = {val!r}')
         ans = '\n'.join(ans)
         return ans
 
@@ -120,13 +120,13 @@ class Tweak:  # {{{
     @property
     def edit_text(self):
         from pprint import pformat
-        ans = ['# %s'%self.name]
+        ans = [f'# {self.name}']
         for x, val in iteritems(self.default_values):
             val = self.custom_values.get(x, val)
             if isinstance(val, (list, tuple, dict, set, frozenset)):
                 ans.append(f'{x} = {pformat(val)}')
             else:
-                ans.append('%s = %r'%(x, val))
+                ans.append(f'{x} = {val!r}')
         return '\n\n'.join(ans)
 
     def restore_to_default(self):
@@ -166,7 +166,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
                 tt = '<p>'+_('This tweak has been customized')
                 tt += '<pre>'
                 for varn, val in iteritems(tweak.custom_values):
-                    tt += '%s = %r\n\n'%(varn, val)
+                    tt += f'{varn} = {val!r}\n\n'
             return textwrap.fill(tt)
         if role == Qt.ItemDataRole.UserRole:
             return tweak
@@ -230,11 +230,11 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             if spidx > 0:
                 var = line[:spidx]
                 if var not in defaults:
-                    raise ValueError('%r not in default tweaks dict'%var)
+                    raise ValueError(f'{var!r} not in default tweaks dict')
                 var_names.append(var)
             pos += 1
         if not var_names:
-            raise ValueError('Failed to find any variables for %r'%name)
+            raise ValueError(f'Failed to find any variables for {name!r}')
         self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
         return pos
 
@@ -268,14 +268,14 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             ans.extend(['', '',
                 '# The following are tweaks for installed plugins', ''])
             for key, val in iteritems(self.plugin_tweaks):
-                ans.extend(['%s = %r'%(key, val), '', ''])
+                ans.extend([f'{key} = {val!r}', '', ''])
         return '\n'.join(ans)
 
     @property
     def plugin_tweaks_string(self):
         ans = []
         for key, val in iteritems(self.plugin_tweaks):
-            ans.extend(['%s = %r'%(key, val), '', ''])
+            ans.extend([f'{key} = {val!r}', '', ''])
         ans = '\n'.join(ans)
         if isbytestring(ans):
             ans = ans.decode('utf-8')
@@ -476,7 +476,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.context_menu.addAction(self.copy_icon,
                             _('Copy to clipboard'),
                             partial(self.copy_item_to_clipboard,
-                                    val='%s (%s: %s)'%(tweak.name,
+                                    val='{} ({}: {})'.format(tweak.name,
                                                         _('ID'),
                                                         tweak.var_names[0])))
         self.context_menu.popup(self.mapToGlobal(point))

@@ -22,7 +22,7 @@ class DRMErrorMessage(QDialog, Ui_Dialog):
                 ' <a href="{0}">click here</a>.'
                 ' </p>').format(localize_website_link('https://manual.calibre-ebook.com/drm.html'))
         if title is not None:
-            msg = '<h2>%s</h2>%s'%(title, msg)
+            msg = f'<h2>{title}</h2>{msg}'
         self.msg.setText(msg)
         self.resize(self.sizeHint())
 

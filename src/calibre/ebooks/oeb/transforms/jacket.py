@@ -73,7 +73,7 @@ class RemoveFirstImage(Base):
                     raw = xml2text(body[0]).strip()
                     imgs = XPath('//h:img|//svg:svg')(item.data)
                     if not raw and not imgs:
-                        self.log('Removing %s as it has no content'%item.href)
+                        self.log(f'Removing {item.href} as it has no content')
                         self.oeb.manifest.remove(item)
                         deleted_item = item
                 break
@@ -134,7 +134,7 @@ class Jacket(Base):
         self.oeb.spine.insert(0, jacket, True)
         self.oeb.inserted_metadata_jacket = jacket
         for img, path in referenced_images(root):
-            self.oeb.log('Embedding referenced image %s into jacket' % path)
+            self.oeb.log(f'Embedding referenced image {path} into jacket')
             ext = path.rpartition('.')[-1].lower()
             item_id, href = self.oeb.manifest.generate('jacket_image', 'jacket_img.'+ext)
             with open(path, 'rb') as f:
@@ -174,7 +174,7 @@ def get_rating(rating, rchar, e_rchar):
     if num < 1:
         return ans
 
-    ans = ('%s%s') % (rchar * int(num), e_rchar * (5 - int(num)))
+    ans = (f'{rchar * int(num)}{e_rchar * (5 - int(num))}')
     return ans
 
 
@@ -293,7 +293,7 @@ def render_jacket(mi, output_profile,
     except:
         title_str = _('Unknown')
     title_str = escape(title_str)
-    title = '<span class="title">%s</span>' % title_str
+    title = f'<span class="title">{title_str}</span>'
 
     series = Series(mi.series, mi.series_index)
     try:
@@ -366,9 +366,9 @@ def render_jacket(mi, output_profile,
                     val = val or ''
                     ctype = m.get('display', {}).get('interpret_as') or 'html'
                     if ctype == 'long-text':
-                        val = '<pre style="white-space:pre-wrap">%s</pre>' % escape(val)
+                        val = f'<pre style="white-space:pre-wrap">{escape(val)}</pre>'
                     elif ctype == 'short-text':
-                        val = '<span>%s</span>' % escape(val)
+                        val = f'<span>{escape(val)}</span>'
                     elif ctype == 'markdown':
                         val = markdown(val)
                     else:

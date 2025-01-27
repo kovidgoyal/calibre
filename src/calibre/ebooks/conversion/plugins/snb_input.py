@@ -98,9 +98,9 @@ class SNBInput(InputFormatPlugin):
                     lines = []
                     for line in snbc.find('.//body'):
                         if line.tag == 'text':
-                            lines.append('<p>%s</p>' % html_encode(line.text))
+                            lines.append(f'<p>{html_encode(line.text)}</p>')
                         elif line.tag == 'img':
-                            lines.append('<p><img src="%s" /></p>' % html_encode(line.text))
+                            lines.append(f'<p><img src="{html_encode(line.text)}" /></p>')
                     with open(os.path.join(tdir, fname), 'wb') as f:
                         f.write((HTML_TEMPLATE % (chapterName, '\n'.join(lines))).encode('utf-8', 'replace'))
                     oeb.toc.add(ch.text, fname)

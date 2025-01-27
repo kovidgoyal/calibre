@@ -44,7 +44,7 @@ class PDBOutput(OutputFormatPlugin):
         Writer = get_writer(opts.format)
 
         if Writer is None:
-            raise PDBError('No writer available for format %s.' % format)
+            raise PDBError(f'No writer available for format {format}.')
 
         setattr(opts, 'max_line_length', 0)
         setattr(opts, 'force_max_line_length', False)

@@ -95,7 +95,7 @@ def format_is_multiple(x, sep=',', repl=None):
 def format_identifiers(x):
     if not x:
         return None
-    return ','.join('%s:%s'%(k, v) for k, v in iteritems(x))
+    return ','.join(f'{k}:{v}' for k, v in iteritems(x))
 
 
 class View:
@@ -190,7 +190,7 @@ class View:
 
     def _get_id(self, idx, index_is_id=True):
         if index_is_id and not self.cache.has_id(idx):
-            raise IndexError('No book with id %s present'%idx)
+            raise IndexError(f'No book with id {idx} present')
         return idx if index_is_id else self.index_to_id(idx)
 
     def has_id(self, book_id):
@@ -242,7 +242,7 @@ class View:
     def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
         if index_is_id and not self.cache.has_id(id_):
-            raise IndexError('No book with id %s present'%idx)
+            raise IndexError(f'No book with id {idx} present')
         return fmt(self.cache.field_for(field, id_, default_value=default_value))
 
     def get_series_sort(self, idx, index_is_id=True, default_value=''):

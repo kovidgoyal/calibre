@@ -68,7 +68,7 @@ class TXTMLizer:
         output = ['']
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
-            self.log.debug('Converting %s to TXT...' % item.href)
+            self.log.debug(f'Converting {item.href} to TXT...')
             for x in item.data.iterdescendants(etree.Comment):
                 if x.text and '--' in x.text:
                     x.text = x.text.replace('--', '__')
@@ -98,9 +98,9 @@ class TXTMLizer:
         toc = ['']
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
-            toc.append('%s\n\n' % _('Table of Contents:'))
+            toc.append('{}\n\n'.format(_('Table of Contents:')))
             for item in self.toc_titles:
-                toc.append('* %s\n\n' % item)
+                toc.append(f'* {item}\n\n')
         return ''.join(toc)
 
     def create_flat_toc(self, nodes):
@@ -132,7 +132,7 @@ class TXTMLizer:
         text = re.sub(r'\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
             text = re.sub(r'\n{2,}', '\n', text)
-            text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '%s\n\n' % mo.group('t'), text)
+            text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '{}\n\n'.format(mo.group('t')), text)
             text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '{}\n\n\n\n\n\n{}'.format(mo.group('b'), mo.group('t')), text)
         else:
             text = re.sub(r'\n{7,}', '\n\n\n\n\n\n', text)

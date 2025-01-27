@@ -600,7 +600,7 @@ class HTMLDisplay(QTextBrowser):
         if app.is_dark_theme:
             pal = app.palette()
             col = pal.color(QPalette.ColorRole.Link)
-            self.default_css = 'a { color: %s }\n\n' % col.name(QColor.NameFormat.HexRgb)
+            self.default_css = f'a {{ color: {col.name(QColor.NameFormat.HexRgb)} }}\n\n'
         else:
             self.default_css = ''
         self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
@@ -696,7 +696,7 @@ class ScrollingTabWidget(QTabWidget):
         sw.setWidget(page)
         sw.setWidgetResizable(True)
         page.setAutoFillBackground(False)
-        sw.setStyleSheet('#%s { background: transparent }' % name)
+        sw.setStyleSheet(f'#{name} {{ background: transparent }}')
         return sw
 
     def indexOf(self, page):

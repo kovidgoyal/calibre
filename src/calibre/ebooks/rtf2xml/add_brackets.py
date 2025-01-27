@@ -169,7 +169,7 @@ class AddBrackets:
                     if v != 'false'])
         if inline_string:
             self.__write_obj.write('ob<nu<open-brack<0003\n'
-                '%s' % inline_string)
+                f'{inline_string}')
             self.__open_bracket = True
         self.__temp_group = []
 
@@ -217,7 +217,7 @@ class AddBrackets:
                     if action is None:
                         sys.stderr.write(
                             'No matching state in module add_brackets.py\n'
-                            '%s\n' % self.__state)
+                            f'{self.__state}\n')
                     action(line)
         # Check bad brackets
         if self.__check_brackets(self.__write_to):

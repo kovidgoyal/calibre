@@ -945,7 +945,7 @@ OptionRecommendation(name='search_replace',
 
         from calibre import browser
         from calibre.ptempfile import PersistentTemporaryFile
-        self.log('Downloading cover from %r'%url)
+        self.log(f'Downloading cover from {url!r}')
         br = browser()
         raw = br.open_novisit(url).read()
         buf = io.BytesIO(raw)
@@ -999,7 +999,7 @@ OptionRecommendation(name='search_replace',
                     setattr(self.opts, attr, x)
                     return
             self.log.warn(
-                'Profile (%s) %r is no longer available, using default'%(which, sval))
+                f'Profile ({which}) {sval!r} is no longer available, using default')
             for x in profiles():
                 if x.short_name == 'default':
                     setattr(self.opts, attr, x)
@@ -1017,7 +1017,7 @@ OptionRecommendation(name='search_replace',
             self.log('Conversion options changed from defaults:')
             for rec in self.changed_options:
                 if rec.option.name not in ('username', 'password'):
-                    self.log(' ', '%s:' % rec.option.name, repr(rec.recommended_value))
+                    self.log(' ', f'{rec.option.name}:', repr(rec.recommended_value))
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
@@ -1204,7 +1204,7 @@ OptionRecommendation(name='search_replace',
             try:
                 fkey = list(map(float, fkey.split(',')))
             except Exception:
-                self.log.error('Invalid font size key: %r ignoring'%fkey)
+                self.log.error(f'Invalid font size key: {fkey!r} ignoring')
                 fkey = self.opts.dest.fkey
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
@@ -1298,7 +1298,7 @@ OptionRecommendation(name='search_replace',
             self.dump_oeb(self.oeb, out_dir)
             self.log('Processed HTML written to:', out_dir)
 
-        self.log.info('Creating %s...'%self.output_plugin.name)
+        self.log.info(f'Creating {self.output_plugin.name}...')
         our = CompositeProgressReporter(0.67, 1., self.ui_reporter)
         self.output_plugin.report_progress = our
         our(0., _('Running %s plugin')%self.output_plugin.name)

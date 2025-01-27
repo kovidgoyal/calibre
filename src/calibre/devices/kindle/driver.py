@@ -294,7 +294,7 @@ class KINDLE(USBMS):
                                 typ=user_notes[location]['type'],
                                 text=(user_notes[location]['text'] if
                                       user_notes[location]['type'] == 'Note' else
-                                      '<i>%s</i>' % user_notes[location]['text'])))
+                                      '<i>{}</i>'.format(user_notes[location]['text']))))
                 else:
                     if bookmark.book_format == 'pdf':
                         annotations.append(
@@ -351,7 +351,7 @@ class KINDLE(USBMS):
                                             bm.value.path, index_is_id=True)
         elif bm.type == 'kindle_clippings':
             # Find 'My Clippings' author=Kindle in database, or add
-            last_update = 'Last modified %s' % strftime('%x %X',bm.value['timestamp'].timetuple())
+            last_update = 'Last modified {}'.format(strftime('%x %X',bm.value['timestamp'].timetuple()))
             mc_id = list(db.data.search_getting_ids('title:"My Clippings"', '', sort_results=False))
             if mc_id:
                 db.add_format_with_hooks(mc_id[0], 'TXT', bm.value['path'],
@@ -623,7 +623,7 @@ class KINDLE2(KINDLE):
             except:
                 pass
 
-        apnx_path = '%s.apnx' % os.path.join(path, filename)
+        apnx_path = f'{os.path.join(path, filename)}.apnx'
         apnx_builder = APNXBuilder()
         # Check to see if there is an existing apnx file on Kindle we should keep.
         if opts.extra_customization[self.OPT_APNX_OVERWRITE] or not os.path.exists(apnx_path):
@@ -636,7 +636,7 @@ class KINDLE2(KINDLE):
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:
-                            print('Invalid method choice for this book (%r), ignoring.' % temp)
+                            print(f'Invalid method choice for this book ({temp!r}), ignoring.')
                     except:
                         print('Could not retrieve override method choice, using default.')
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)

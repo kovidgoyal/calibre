@@ -163,7 +163,7 @@ class DBPrefs(dict):  # {{{
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
-        key = 'namespaced:%s:%s'%(namespace, key)
+        key = f'namespaced:{namespace}:{key}'
         try:
             return dict.__getitem__(self, key)
         except KeyError:
@@ -174,7 +174,7 @@ class DBPrefs(dict):  # {{{
             raise KeyError('Colons are not allowed in keys')
         if ':' in namespace:
             raise KeyError('Colons are not allowed in the namespace')
-        key = 'namespaced:%s:%s'%(namespace, key)
+        key = f'namespaced:{namespace}:{key}'
         self[key] = val
 
     def write_serialized(self, library_path):
@@ -273,7 +273,7 @@ def IdentifiersConcat():
     '''String concatenation aggregator for the identifiers map'''
 
     def step(ctxt, key, val):
-        ctxt.append('%s:%s'%(key, val))
+        ctxt.append(f'{key}:{val}')
 
     def finalize(ctxt):
         try:
@@ -684,7 +684,7 @@ class DB:
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
+                prints(f'Renaming user category {cat} to {cat+str(suffix)}')
                 user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
@@ -700,7 +700,7 @@ class DB:
             for num, label in self.conn.get(
                     'SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
                 table, lt = self.custom_table_names(num)
-                self.execute('''\
+                self.execute(f'''\
                         DROP INDEX   IF EXISTS {table}_idx;
                         DROP INDEX   IF EXISTS {lt}_aidx;
                         DROP INDEX   IF EXISTS {lt}_bidx;
@@ -714,7 +714,7 @@ class DB:
                         DROP VIEW    IF EXISTS tag_browser_filtered_{table};
                         DROP TABLE   IF EXISTS {table};
                         DROP TABLE   IF EXISTS {lt};
-                        '''.format(table=table, lt=lt)
+                        '''
                 )
                 self.prefs.set('update_all_last_mod_dates_on_start', True)
                 self.deleted_fields.append('#'+label)
@@ -764,16 +764,15 @@ class DB:
 
             # Create Foreign Key triggers
             if data['normalized']:
-                trigger = 'DELETE FROM %s WHERE book=OLD.id;'%lt
+                trigger = f'DELETE FROM {lt} WHERE book=OLD.id;'
             else:
-                trigger = 'DELETE FROM %s WHERE book=OLD.id;'%table
+                trigger = f'DELETE FROM {table} WHERE book=OLD.id;'
             triggers.append(trigger)
 
         if remove:
             with self.conn:
                 for data in remove:
-                    prints('WARNING: Custom column %r not found, removing.' %
-                            data['label'])
+                    prints('WARNING: Custom column {!r} not found, removing.'.format(data['label']))
                     self.execute('DELETE FROM custom_columns WHERE id=?',
                             (data['num'],))
 
@@ -783,9 +782,9 @@ class DB:
                     CREATE TEMP TRIGGER custom_books_delete_trg
                         AFTER DELETE ON books
                         BEGIN
-                        %s
+                        {}
                     END;
-                    '''%(' \n'.join(triggers)))
+                    '''.format(' \n'.join(triggers)))
 
         # Setup data adapters
         def adapt_text(x, d):
@@ -1212,7 +1211,7 @@ class DB:
         if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in CUSTOM_DATA_TYPES:
-            raise ValueError('%r is not a supported data type'%datatype)
+            raise ValueError(f'{datatype!r} is not a supported data type')
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
                 'float', 'composite')
         is_multiple = is_multiple and datatype in ('text', 'composite')
@@ -1241,29 +1240,29 @@ class DB:
             else:
                 s_index = ''
             lines = [
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {table}(
                     id    INTEGER PRIMARY KEY AUTOINCREMENT,
-                    value %s NOT NULL %s,
+                    value {dt} NOT NULL {collate},
                     link TEXT NOT NULL DEFAULT "",
                     UNIQUE(value));
-                '''%(table, dt, collate),
+                ''',
 
-                'CREATE INDEX %s_idx ON %s (value %s);'%(table, table, collate),
+                f'CREATE INDEX {table}_idx ON {table} (value {collate});',
 
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {lt}(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     book INTEGER NOT NULL,
                     value INTEGER NOT NULL,
-                    %s
+                    {s_index}
                     UNIQUE(book, value)
-                    );'''%(lt, s_index),
+                    );''',
 
-                'CREATE INDEX %s_aidx ON %s (value);'%(lt,lt),
-                'CREATE INDEX %s_bidx ON %s (book);'%(lt,lt),
+                f'CREATE INDEX {lt}_aidx ON {lt} (value);',
+                f'CREATE INDEX {lt}_bidx ON {lt} (book);',
 
-                '''\
+                f'''\
                 CREATE TRIGGER fkc_update_{lt}_a
                         BEFORE UPDATE OF book ON {lt}
                         BEGIN
@@ -1324,22 +1323,22 @@ class DB:
                     value AS sort
                 FROM {table};
 
-                '''.format(lt=lt, table=table),
+                ''',
 
             ]
         else:
             lines = [
-                '''\
-                CREATE TABLE %s(
+                f'''\
+                CREATE TABLE {table}(
                     id    INTEGER PRIMARY KEY AUTOINCREMENT,
                     book  INTEGER,
-                    value %s NOT NULL %s,
+                    value {dt} NOT NULL {collate},
                     UNIQUE(book));
-                '''%(table, dt, collate),
+                ''',
 
-                'CREATE INDEX %s_idx ON %s (book);'%(table, table),
+                f'CREATE INDEX {table}_idx ON {table} (book);',
 
-                '''\
+                f'''\
                 CREATE TRIGGER fkc_insert_{table}
                         BEFORE INSERT ON {table}
                         BEGIN
@@ -1356,7 +1355,7 @@ class DB:
                                 THEN RAISE(ABORT, 'Foreign key violation: book not in books')
                             END;
                         END;
-                '''.format(table=table),
+                ''',
             ]
         script = ' \n'.join(lines)
         self.execute(script)
@@ -2396,15 +2395,14 @@ class DB:
         data = []
         if highlight_start is not None and highlight_end is not None:
             if snippet_size is not None:
-                text = "snippet({fts_table}, 0, ?, ?, '…', {snippet_size})".format(
-                        fts_table=fts_table, snippet_size=max(1, min(snippet_size, 64)))
+                text = f"snippet({fts_table}, 0, ?, ?, '…', {max(1, min(snippet_size, 64))})"
             else:
                 text = f'highlight({fts_table}, 0, ?, ?)'
             data.append(highlight_start)
             data.append(highlight_end)
         query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
         query = query.format('annotations', text)
-        query += ' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'.format(fts_table=fts_table)
+        query += f' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'
         query += f' WHERE {fts_table} MATCH ?'
         data.append(fts_engine_query)
         if restrict_to_user:

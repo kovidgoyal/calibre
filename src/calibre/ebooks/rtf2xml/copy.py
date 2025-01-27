@@ -29,7 +29,7 @@ class Copy:
             raise self.__bug_handler(message)
         check = os.path.isdir(deb_dir)
         if not check:
-            message = '%(deb_dir)s is not a directory' % vars()
+            message = '{deb_dir} is not a directory'.format(**vars())
             raise self.__bug_handler(message)
         Copy.__dir = deb_dir
 

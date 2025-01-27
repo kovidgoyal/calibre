@@ -294,7 +294,7 @@ class ThumbnailCache:
             if not hasattr(self, 'total_size'):
                 self._load_index()
             self._invalidate_sizes()
-            ts = ('%.2f' % timestamp).replace('.00', '')
+            ts = (f'{timestamp:.2f}').replace('.00', '')
             path = '%s%s%s%s%d-%s-%d-%dx%d' % (
                 self.group_id, os.sep, book_id % 100, os.sep,
                 book_id, ts, len(data), self.thumbnail_size[0], self.thumbnail_size[1])

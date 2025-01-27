@@ -105,7 +105,7 @@ class TOC:
 
     def get_lines(self, lvl=0):
         frag = ('#'+self.frag) if self.frag else ''
-        ans = [('\t'*lvl) + 'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
+        ans = [('\t'*lvl) + f'TOC: {self.title} --> {self.dest}{frag}']
         for child in self:
             ans.extend(child.get_lines(lvl+1))
         return ans
@@ -132,7 +132,7 @@ class TOC:
 
 
 def child_xpath(tag, name):
-    return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
+    return tag.xpath(f'./*[calibre:lower-case(local-name()) = "{name}"]')
 
 
 def add_from_navpoint(container, navpoint, parent, ncx_name):
@@ -220,7 +220,7 @@ def parse_nav(container, nav_name):
     toc_root = TOC()
     toc_root.lang = toc_root.uid = None
     seen_toc = seen_pagelist = False
-    et = '{%s}type' % EPUB_NS
+    et = f'{{{EPUB_NS}}}type'
     for nav in XPath('descendant::h:nav[@epub:type]')(root):
         nt = nav.get(et)
         if nt == 'toc' and not seen_toc:
@@ -337,7 +337,7 @@ def get_nav_landmarks(container):
     nav = find_existing_nav_toc(container)
     if nav and container.has_name(nav):
         root = container.parsed(nav)
-        et = '{%s}type' % EPUB_NS
+        et = f'{{{EPUB_NS}}}type'
         for elem in root.iterdescendants(XHTML('nav')):
             if elem.get(et) == 'landmarks':
                 for li in elem.iterdescendants(XHTML('li')):
@@ -660,7 +660,7 @@ def commit_ncx_toc(container, toc, lang=None, uid=None):
         uid = uuid_id()
         eid = container.opf.get('unique-identifier', None)
         if eid:
-            m = container.opf_xpath('//*[@id="%s"]'%eid)
+            m = container.opf_xpath(f'//*[@id="{eid}"]')
             if m:
                 uid = xml2text(m[0])
 
@@ -677,7 +677,7 @@ def commit_ncx_toc(container, toc, lang=None, uid=None):
 
 
 def ensure_single_nav_of_type(root, ntype='toc'):
-    et = '{%s}type' % EPUB_NS
+    et = f'{{{EPUB_NS}}}type'
     navs = [n for n in root.iterdescendants(XHTML('nav')) if n.get(et) == ntype]
     for x in navs[1:]:
         extract(x)
@@ -691,7 +691,7 @@ def ensure_single_nav_of_type(root, ntype='toc'):
     else:
         nav = root.makeelement(XHTML('nav'))
         first_child(root, XHTML('body')).append(nav)
-    nav.set('{%s}type' % EPUB_NS, ntype)
+    nav.set(f'{{{EPUB_NS}}}type', ntype)
     return nav
 
 
@@ -716,7 +716,7 @@ def ensure_container_has_nav(container, lang=None, previous_nav=None):
     if lang:
         lang = lang_as_iso639_1(lang) or lang
         root.set('lang', lang)
-        root.set('{%s}lang' % XML_NS, lang)
+        root.set(f'{{{XML_NS}}}lang', lang)
     return tocname, root
 
 
@@ -747,7 +747,7 @@ def set_landmarks(container, root, tocname, landmarks):
     for entry in landmarks:
         if entry['type'] and container.has_name(entry['dest']) and container.mime_map[entry['dest']] in OEB_DOCS:
             a = create_nav_li(container, ol, entry, tocname)
-            a.set('{%s}type' % EPUB_NS, entry['type'])
+            a.set(f'{{{EPUB_NS}}}type', entry['type'])
             a.text = entry['title'] or None
     pretty_xml_tree(nav)
     collapse_li(nav)

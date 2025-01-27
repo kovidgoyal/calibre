@@ -55,7 +55,7 @@ def exe_path(exe_name):
     e = exe_name
     if iswindows:
         return os.path.join(os.path.dirname(sys.executable),
-                e+'.exe' if isfrozen else 'Scripts\\%s.exe'%e)
+                e+'.exe' if isfrozen else f'Scripts\\{e}.exe')
     if ismacos:
         return os.path.join(sys.executables_location, e)
 

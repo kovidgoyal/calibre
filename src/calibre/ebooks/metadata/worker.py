@@ -23,7 +23,7 @@ def serialize_metadata_for(paths, tdir, group_id):
     opf = metadata_to_opf(mi, default_lang='und')
     has_cover = False
     if cdata:
-        with open(os.path.join(tdir, '%s.cdata' % group_id), 'wb') as f:
+        with open(os.path.join(tdir, f'{group_id}.cdata'), 'wb') as f:
             f.write(cdata)
             has_cover = True
     return mi, opf, has_cover

@@ -63,7 +63,7 @@ def run_program(entry, path, parent):
         return error_dialog(
             parent, _('Failed to run'), _(
             'Failed to run program, click "Show details" for more information'),
-            det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
+            det_msg=f'Command line: {cmdline!r}\n{as_unicode(err)}')
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
     t.start()
@@ -152,7 +152,7 @@ if iswindows:
                 return
             qans = ans.replace('"', r'\"')
             name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
-            return {'cmdline':'"%s" "%%1"' % qans, 'name':name}
+            return {'cmdline':f'"{qans}" "%1"', 'name':name}
 
     def entry_to_cmdline(entry, path):
         cmdline = entry['cmdline']
@@ -171,7 +171,7 @@ if iswindows:
         else:
             flags |= subprocess.DETACHED_PROCESS
             console = ''
-        print('Running Open With commandline%s:' % console, repr(entry['cmdline']), ' |==> ', repr(cmdline))
+        print(f'Running Open With commandline{console}:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
         try:
             with sanitize_env_vars():
                 winutil.run_cmdline(cmdline, flags, 2000)
@@ -179,7 +179,7 @@ if iswindows:
             return error_dialog(
                 parent, _('Failed to run'), _(
                 'Failed to run program, click "Show details" for more information'),
-                det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
+                det_msg=f'Command line: {cmdline!r}\n{as_unicode(err)}')
     # }}}
 
 elif ismacos:

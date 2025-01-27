@@ -73,7 +73,7 @@ def find_portable_library():
         return
     import glob
     candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
-        os.path.join(base, '*%smetadata.db'%os.sep))]
+        os.path.join(base, f'*{os.sep}metadata.db'))]
     if not candidates:
         candidates = ['Calibre Library']
     lp = prefs['library_path']
@@ -575,7 +575,7 @@ if __name__ == '__main__':
             with open(logfile) as f:
                 log = f.read().decode('utf-8', 'ignore')
             d = QErrorMessage()
-            d.showMessage(('<b>Error:</b>%s<br><b>Traceback:</b><br>'
-                '%s<b>Log:</b><br>%s')%(str(err),
+            d.showMessage(('<b>Error:</b>{}<br><b>Traceback:</b><br>'
+                '{}<b>Log:</b><br>{}').format(str(err),
                     str(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))

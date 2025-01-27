@@ -20,7 +20,7 @@ def get_book_language(container):
 
 
 def set_guide_item(container, item_type, title, name, frag=None):
-    ref_tag = '{%s}reference' % OPF_NAMESPACES['opf']
+    ref_tag = '{{{}}}reference'.format(OPF_NAMESPACES['opf'])
     href = None
     if name:
         href = container.name_to_href(name, container.opf_name)
@@ -29,7 +29,7 @@ def set_guide_item(container, item_type, title, name, frag=None):
 
     guides = container.opf_xpath('//opf:guide')
     if not guides and href:
-        g = container.opf.makeelement('{%s}guide' % OPF_NAMESPACES['opf'], nsmap={'opf':OPF_NAMESPACES['opf']})
+        g = container.opf.makeelement('{{{}}}guide'.format(OPF_NAMESPACES['opf']), nsmap={'opf':OPF_NAMESPACES['opf']})
         container.insert_into_xml(container.opf, g)
         guides = [g]
 

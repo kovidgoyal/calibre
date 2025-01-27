@@ -50,8 +50,7 @@ class CombineBorders:
     def end_border(self, line, write_obj):
         border_string = '|'.join(self.__bord_att)
         self.__bord_att = []
-        write_obj.write('cw<bd<{}<nu<{}\n'.format(self.__bord_pos,
-                                                border_string))
+        write_obj.write(f'cw<bd<{self.__bord_pos}<nu<{border_string}\n')
         self.__state = 'default'
         self.__bord_string = ''
         if self.__first_five == 'cw<bd':

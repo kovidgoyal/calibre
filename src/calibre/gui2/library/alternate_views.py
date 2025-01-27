@@ -739,7 +739,7 @@ class CoverDelegate(QStyledItemDelegate):
             title = db.field_for('title', book_id)
             authors = db.field_for('authors', book_id)
             if title and authors:
-                title = '<b>%s</b>' % ('<br>'.join(wrap(p(title), 120)))
+                title = '<b>{}</b>'.format('<br>'.join(wrap(p(title), 120)))
                 authors = '<br>'.join(wrap(p(' & '.join(authors)), 120))
                 tt = f'{title}<br><br>{authors}'
                 series = db.field_for('series', book_id)

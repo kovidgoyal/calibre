@@ -75,13 +75,13 @@ class Output:
         '''
         base_name = os.path.basename(self.__orig_file)
         base_name, ext  = os.path.splitext(base_name)
-        output_file = os.path.join(self.__output_dir, '%s.xml' % base_name)
+        output_file = os.path.join(self.__output_dir, f'{base_name}.xml')
         # change if user wants to output to a specific file
         if self.__out_file:
             output_file = os.path.join(self.__output_dir, self.__out_file)
         user_response = 'o'
         if os.path.isfile(output_file) and not self.__no_ask:
-            msg = 'Do you want to overwrite %s?\n' % output_file
+            msg = f'Do you want to overwrite {output_file}?\n'
             msg += ('Type "o" to overwrite.\n'
                     'Type any other key to print to standard output.\n')
             sys.stderr.write(msg)

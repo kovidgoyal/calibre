@@ -47,7 +47,7 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
             try:
                 name = name.decode(filesystem_encoding)
             except UnicodeDecodeError:
-                debug_print('Skipping undecodeable file: %r' % name)
+                debug_print(f'Skipping undecodeable file: {name!r}')
                 continue
         if isdir(join(top, name)):
             dirs.append(name)

@@ -110,11 +110,10 @@ class FormatterFunctions:
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
-            raise ValueError('Class %s is not an instance of FormatterFunction'%(
-                                    func_class.__class__.__name__))
+            raise ValueError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
         if name in self._functions:
-            raise ValueError('Name %s already used'%name)
+            raise ValueError(f'Name {name} already used')
         self._builtins[name] = func_class
         self._functions[name] = func_class
         for a in func_class.aliases:
@@ -122,11 +121,10 @@ class FormatterFunctions:
 
     def _register_function(self, func_class, replace=False):
         if not isinstance(func_class, FormatterFunction):
-            raise ValueError('Class %s is not an instance of FormatterFunction'%(
-                                    func_class.__class__.__name__))
+            raise ValueError(f'Class {func_class.__class__.__name__} is not an instance of FormatterFunction')
         name = func_class.name
         if not replace and name in self._functions:
-            raise ValueError('Name %s already used'%name)
+            raise ValueError(f'Name {name} already used')
         self._functions[name] = func_class
 
     def register_functions(self, library_uuid, funcs):
@@ -722,7 +720,7 @@ separated by ``separator``.
     def evaluate(self, formatter, kwargs, mi, locals, name, separator):
         res = getattr(mi, name, None)
         if not isinstance(res, list):
-            return '%s is not a list' % name
+            return f'{name} is not a list'
         return separator.join(res)
 
 
@@ -3338,9 +3336,9 @@ def compile_user_template_functions(funcs):
                 func_name = func[0]
             except Exception:
                 func_name = 'Unknown'
-            prints('**** Compilation errors in user template function "%s" ****' % func_name)
+            prints(f'**** Compilation errors in user template function "{func_name}" ****')
             traceback.print_exc(limit=10)
-            prints('**** End compilation errors in %s "****"' % func_name)
+            prints(f'**** End compilation errors in {func_name} "****"')
     return compiled_funcs
 
 

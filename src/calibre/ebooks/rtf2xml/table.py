@@ -399,11 +399,11 @@ class Table:
             left_position = float(left_position)
         width = new_cell_position - self.__last_cell_position - left_position
         # width = round(width, 2)
-        width = '%.2f' % width
+        width = f'{width:.2f}'
         self.__last_cell_position = new_cell_position
         widths_exists = self.__row_dict.get('widths')
         if widths_exists:
-            self.__row_dict['widths'] += ', %s' % str(width)
+            self.__row_dict['widths'] += f', {width!s}'
         else:
             self.__row_dict['widths'] = str(width)
         self.__cell_list[-1]['width'] = width

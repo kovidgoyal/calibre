@@ -86,7 +86,7 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None):
     gprefs['quick_start_guide_added'] = True
     imgbuf = BytesIO(calibre_cover2(_('Quick Start Guide'), ''))
     try:
-        with open(P('quick_start/%s.epub' % l), 'rb') as src:
+        with open(P(f'quick_start/{l}.epub'), 'rb') as src:
             buf = BytesIO(src.read())
     except OSError as err:
         if err.errno != errno.ENOENT:
@@ -367,7 +367,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 import traceback
                 traceback.print_exc()
         for view in ('library', 'memory', 'card_a', 'card_b'):
-            v = getattr(self, '%s_view' % view)
+            v = getattr(self, f'{view}_view')
             v.selectionModel().selectionChanged.connect(self.update_status_bar)
             v.model().count_changed_signal.connect(self.update_status_bar)
 
@@ -873,12 +873,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             try:
                 argv = json.loads(msg[len('launched:'):])
             except ValueError:
-                prints('Failed to decode message from other instance: %r' % msg)
+                prints(f'Failed to decode message from other instance: {msg!r}')
                 if DEBUG:
                     error_dialog(self, 'Invalid message',
                                  'Received an invalid message from other calibre instance.'
                                  ' Do you have multiple versions of calibre installed?',
-                                 det_msg='Invalid msg: %r' % msg, show=True)
+                                 det_msg=f'Invalid msg: {msg!r}', show=True)
                 argv = ()
             if isinstance(argv, (list, tuple)) and len(argv) > 1:
                 self.handle_cli_args(argv[1:])
@@ -909,7 +909,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             try:
                 data = json.loads(msg[len('web-store:'):])
             except ValueError:
-                prints('Failed to decode message from other instance: %r' % msg)
+                prints(f'Failed to decode message from other instance: {msg!r}')
             path = data['path']
             if data['tags']:
                 before = self.current_db.new_api.all_book_ids()
@@ -922,7 +922,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     tags += list(data['tags'])
                     self.current_db.new_api.set_field('tags', {book_id: tags})
         else:
-            prints('Ignoring unknown message from other instance: %r' % msg[:20])
+            prints(f'Ignoring unknown message from other instance: {msg[:20]!r}')
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
@@ -1132,7 +1132,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
                     msg = msg.partition(':')[-1]
                     d = error_dialog(self, _('Recipe Disabled'),
-                        '<p>%s</p>'%msg)
+                        f'<p>{msg}</p>')
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -1148,7 +1148,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                             'error':error_dialog}.get(payload['level'],
                                     error_dialog)
                     d = d(self, payload['title'],
-                            '<p>%s</p>'%payload['msg'],
+                            '<p>{}</p>'.format(payload['msg']),
                             det_msg=payload['det_msg'])
                     d.setModal(False)
                     d.show()

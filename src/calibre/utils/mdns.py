@@ -144,7 +144,7 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
             desc += ' (on %s port %d)'%(hostname, port)
         except:
             try:
-                desc += ' (on %s)'%hostname
+                desc += f' (on {hostname})'
             except:
                 pass
 

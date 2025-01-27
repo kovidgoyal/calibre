@@ -135,10 +135,10 @@ class FloatSpec:
         bdr = self.makeelement(parent, 'w:pBdr')
         for edge in border_edges:
             padding = getattr(self, 'padding_' + edge)
-            width = getattr(self, 'border_%s_width' % edge)
-            bstyle = getattr(self, 'border_%s_style' % edge)
+            width = getattr(self, f'border_{edge}_width')
+            bstyle = getattr(self, f'border_{edge}_style')
             self.makeelement(
-                bdr, 'w:'+edge, w_space=str(padding), w_val=bstyle, w_sz=str(width), w_color=getattr(self, 'border_%s_color' % edge))
+                bdr, 'w:'+edge, w_space=str(padding), w_val=bstyle, w_sz=str(width), w_color=getattr(self, f'border_{edge}_color'))
 
 
 class DOCXStyle:
@@ -273,7 +273,7 @@ class TextStyle(DOCXStyle):
                     self.padding = padding
                 elif self.padding != padding:
                     self.padding = ignore
-                val = css['border-%s-width' % edge]
+                val = css[f'border-{edge}-width']
                 if not isinstance(val, numbers.Number):
                     val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
                 val = min(96, max(2, int(val * 8)))
@@ -281,12 +281,12 @@ class TextStyle(DOCXStyle):
                     self.border_width = val
                 elif self.border_width != val:
                     self.border_width = ignore
-                color = convert_color(css['border-%s-color' % edge])
+                color = convert_color(css[f'border-{edge}-color'])
                 if self.border_color is None:
                     self.border_color = color
                 elif self.border_color != color:
                     self.border_color = ignore
-                style = LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none')
+                style = LINE_STYLES.get(css[f'border-{edge}-style'].lower(), 'none')
                 if self.border_style is None:
                     self.border_style = style
                 elif self.border_style != style:
@@ -477,11 +477,11 @@ def read_css_block_borders(self, css, store_css_style=False):
             setattr(self, 'padding_' + edge, 0)
             setattr(self, 'margin_' + edge, 0)
             setattr(self, 'css_margin_' + edge, '')
-            setattr(self, 'border_%s_width' % edge, 2)
-            setattr(self, 'border_%s_color' % edge, None)
-            setattr(self, 'border_%s_style' % edge, 'none')
+            setattr(self, f'border_{edge}_width', 2)
+            setattr(self, f'border_{edge}_color', None)
+            setattr(self, f'border_{edge}_style', 'none')
             if store_css_style:
-                setattr(self, 'border_%s_css_style' % edge, 'none')
+                setattr(self, f'border_{edge}_css_style', 'none')
         else:
             # In DOCX padding can only be a positive integer
             try:
@@ -494,15 +494,15 @@ def read_css_block_borders(self, css, store_css_style=False):
             except ValueError:
                 setattr(self, 'margin_' + edge, 0)  # e.g.: margin: auto
             setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
-            val = css['border-%s-width' % edge]
+            val = css[f'border-{edge}-width']
             if not isinstance(val, numbers.Number):
                 val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
             val = min(96, max(2, int(val * 8)))
-            setattr(self, 'border_%s_width' % edge, val)
-            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]) or 'auto')
-            setattr(self, 'border_%s_style' % edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            setattr(self, f'border_{edge}_width', val)
+            setattr(self, f'border_{edge}_color', convert_color(css[f'border-{edge}-color']) or 'auto')
+            setattr(self, f'border_{edge}_style', LINE_STYLES.get(css[f'border-{edge}-style'].lower(), 'none'))
             if store_css_style:
-                setattr(self, 'border_%s_css_style' % edge, css['border-%s-style' % edge].lower())
+                setattr(self, f'border_{edge}_css_style', css[f'border-{edge}-style'].lower())
 
 
 class BlockStyle(DOCXStyle):
@@ -518,8 +518,8 @@ class BlockStyle(DOCXStyle):
         read_css_block_borders(self, css)
         if is_table_cell:
             for edge in border_edges:
-                setattr(self, 'border_%s_style' % edge, 'none')
-                setattr(self, 'border_%s_width' % edge, 0)
+                setattr(self, f'border_{edge}_style', 'none')
+                setattr(self, f'border_{edge}_width', 0)
                 setattr(self, 'padding_' + edge, 0)
                 setattr(self, 'margin_' + edge, 0)
         if css is None:
@@ -565,14 +565,14 @@ class BlockStyle(DOCXStyle):
             padding = getattr(self, 'padding_' + edge)
             if (self is normal_style and padding > 0) or (padding != getattr(normal_style, 'padding_' + edge)):
                 e.set(w('space'), str(padding))
-            width = getattr(self, 'border_%s_width' % edge)
-            bstyle = getattr(self, 'border_%s_style' % edge)
+            width = getattr(self, f'border_{edge}_width')
+            bstyle = getattr(self, f'border_{edge}_style')
             if (self is normal_style and width > 0 and bstyle != 'none'
-                    ) or width != getattr(normal_style, 'border_%s_width' % edge
-                    ) or bstyle != getattr(normal_style, 'border_%s_style' % edge):
+                    ) or width != getattr(normal_style, f'border_{edge}_width'
+                    ) or bstyle != getattr(normal_style, f'border_{edge}_style'):
                 e.set(w('val'), bstyle)
                 e.set(w('sz'), str(width))
-                e.set(w('color'), getattr(self, 'border_%s_color' % edge))
+                e.set(w('color'), getattr(self, f'border_{edge}_color'))
             if e.attrib:
                 bdr.append(e)
         return bdr

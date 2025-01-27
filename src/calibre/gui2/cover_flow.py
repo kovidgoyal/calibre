@@ -173,7 +173,7 @@ class DatabaseImages(pictureflow.FlowImages):
                         else:
                             val = ''
                         return val
-                    return self.render_template('{%s}' % field, index, db).replace('&', '&&')
+                    return self.render_template(f'{{{field}}}', index, db).replace('&', '&&')
         except Exception:
             if not self.subtitle_error_reported:
                 self.subtitle_error_reported = True

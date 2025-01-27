@@ -165,13 +165,13 @@ class ParseOptions:
                 if arg in self.__opt_with_args:
                     # option is the last in the list
                     if counter + 1 > opt_len:
-                        sys.stderr.write('option "%s" must take an argument\n' % arg)
+                        sys.stderr.write(f'option "{arg}" must take an argument\n')
                         new_system_string.append(arg)
                         self.__options_okay = 0
                     else:
                         #  the next item in list is also an option
                         if self.__system_string[counter][0] == '-':
-                            sys.stderr.write('option "%s" must take an argument\n' % arg)
+                            sys.stderr.write(f'option "{arg}" must take an argument\n')
                             new_system_string.append(arg)
                             self.__options_okay = 0
                         #  the next item in the list is the argument
@@ -212,7 +212,7 @@ class ParseOptions:
         if found_options:
             for item in just_options:
                 if item[0] != '-':
-                    sys.stderr.write('%s is an argument in an option list\n' % item)
+                    sys.stderr.write(f'{item} is an argument in an option list\n')
                     self.__options_okay = 0
         return just_options, arguments
 
@@ -237,7 +237,7 @@ class ParseOptions:
             self.__options_okay = 0
             sys.stderr.write('The following options are not permitted:\n')
             for not_legal in illegal_options:
-                sys.stderr.write('%s\n' % not_legal)
+                sys.stderr.write(f'{not_legal}\n')
 
     def __make_options_dict(self, options):
         options_dict = {}

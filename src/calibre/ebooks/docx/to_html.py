@@ -151,7 +151,7 @@ class Convert:
                 dl = DL(id=anchor)
                 dl.set('class', 'footnote')
                 self.body.append(dl)
-                dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text)))
+                dl.append(DT('[', A('←' + text, href=f'#back_{anchor}', title=text)))
                 dl[-1][0].tail = ']'
                 dl.append(DD())
                 paras = []
@@ -184,7 +184,7 @@ class Convert:
                 if style.text_indent is inherit or (hasattr(style.text_indent, 'endswith') and style.text_indent.endswith('pt')):
                     if style.text_indent is not inherit:
                         indent = float(style.text_indent[:-2]) + indent
-                    style.text_indent = '%.3gpt' % indent
+                    style.text_indent = f'{indent:.3g}pt'
                     parent.text = tabs[-1].tail or ''
                     for i in tabs:
                         parent.remove(i)
@@ -236,7 +236,7 @@ class Convert:
                 notes_header.tag = h.tag
                 cls = h.get('class', None)
                 if cls and cls != 'notes-header':
-                    notes_header.set('class', '%s notes-header' % cls)
+                    notes_header.set('class', f'{cls} notes-header')
                 break
 
         self.fields.polish_markup(self.object_map)
@@ -322,11 +322,11 @@ class Convert:
             try:
                 seraw = self.docx.read(sename)
             except KeyError:
-                self.log.warn('Settings %s do not exist' % sename)
+                self.log.warn(f'Settings {sename} do not exist')
             except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
-                self.log.warn('Settings %s file missing' % sename)
+                self.log.warn(f'Settings {sename} file missing')
             else:
                 self.settings(fromstring(seraw))
 
@@ -334,14 +334,14 @@ class Convert:
             try:
                 foraw = self.docx.read(foname)
             except KeyError:
-                self.log.warn('Footnotes %s do not exist' % foname)
+                self.log.warn(f'Footnotes {foname} do not exist')
             else:
                 forel = self.docx.get_relationships(foname)
         if enname is not None:
             try:
                 enraw = self.docx.read(enname)
             except KeyError:
-                self.log.warn('Endnotes %s do not exist' % enname)
+                self.log.warn(f'Endnotes {enname} do not exist')
             else:
                 enrel = self.docx.get_relationships(enname)
         footnotes(fromstring(foraw) if foraw else None, forel, fromstring(enraw) if enraw else None, enrel)
@@ -351,7 +351,7 @@ class Convert:
             try:
                 raw = self.docx.read(fname)
             except KeyError:
-                self.log.warn('Fonts table %s does not exist' % fname)
+                self.log.warn(f'Fonts table {fname} does not exist')
             else:
                 fonts(fromstring(raw), embed_relationships, self.docx, self.dest_dir)
 
@@ -359,7 +359,7 @@ class Convert:
             try:
                 raw = self.docx.read(tname)
             except KeyError:
-                self.log.warn('Styles %s do not exist' % sname)
+                self.log.warn(f'Styles {sname} do not exist')
             else:
                 self.theme(fromstring(raw))
 
@@ -368,7 +368,7 @@ class Convert:
             try:
                 raw = self.docx.read(sname)
             except KeyError:
-                self.log.warn('Styles %s do not exist' % sname)
+                self.log.warn(f'Styles {sname} do not exist')
             else:
                 self.styles(fromstring(raw), fonts, self.theme)
                 styles_loaded = True
@@ -379,7 +379,7 @@ class Convert:
             try:
                 raw = self.docx.read(nname)
             except KeyError:
-                self.log.warn('Numbering styles %s do not exist' % nname)
+                self.log.warn(f'Numbering styles {nname} do not exist')
             else:
                 numbering(fromstring(raw), self.styles, self.docx.get_relationships(nname)[0])
 
@@ -604,8 +604,7 @@ class Convert:
             if anchor and anchor in self.anchor_map:
                 span.set('href', '#' + self.anchor_map[anchor])
                 continue
-            self.log.warn('Hyperlink with unknown target (rid=%s, anchor=%s), ignoring' %
-                          (rid, anchor))
+            self.log.warn(f'Hyperlink with unknown target (rid={rid}, anchor={anchor}), ignoring')
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
@@ -630,7 +629,7 @@ class Convert:
                 if anchor in self.anchor_map:
                     span.set('href', '#' + self.anchor_map[anchor])
                     continue
-                self.log.warn('Hyperlink field with unknown anchor: %s' % anchor)
+                self.log.warn(f'Hyperlink field with unknown anchor: {anchor}')
             else:
                 if url in self.anchor_map:
                     span.set('href', '#' + self.anchor_map[url])
@@ -709,7 +708,7 @@ class Convert:
             elif self.namespace.is_tag(child, 'w:footnoteReference') or self.namespace.is_tag(child, 'w:endnoteReference'):
                 anchor, name = self.footnotes.get_ref(child)
                 if anchor and name:
-                    l = A(name, id='back_%s' % anchor, href='#' + anchor, title=name)
+                    l = A(name, id=f'back_{anchor}', href='#' + anchor, title=name)
                     l.set('class', 'noteref')
                     l.set('role', 'doc-noteref')
                     text.add_elem(l)

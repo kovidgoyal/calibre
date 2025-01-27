@@ -91,7 +91,7 @@ class BorderParse:
             'module is border_parse.py\n'
             'function is parse_border\n'
             'token does not have a dictionary value\n'
-            'token is "%s"' % line
+            f'token is "{line}"'
             )
             return border_dict
         att_line = line[20:-1]
@@ -121,7 +121,7 @@ class BorderParse:
                     'module is border_parse_def.py\n'
                     'function is parse_border\n'
                     'token does not have an att value\n'
-                    'line is "%s"' % line
+                    f'line is "{line}"'
                     )
                 att = f'{border_type}-{att}'
                 border_dict[att] = value
@@ -131,7 +131,7 @@ class BorderParse:
 
     def __determine_styles(self, border_type, border_style_list):
         new_border_dict = {}
-        att = '%s-style' % border_type
+        att = f'{border_type}-style'
         if 'shadowed-border' in border_style_list:
             new_border_dict[att] = 'shadowed'
         elif 'engraved' in border_style_list:

@@ -349,7 +349,7 @@ class Canvas(QWidget):
                 i.save(buf, 'gif')
                 return buf.getvalue()
             else:
-                raise ValueError('Cannot save %s format images' % fmt)
+                raise ValueError(f'Cannot save {fmt} format images')
         return pixmap_to_data(self.current_image, format=fmt, quality=90)
 
     def copy(self):

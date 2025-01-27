@@ -60,8 +60,7 @@ class Tag:
 
     @property
     def string_representation(self):
-        return '%s:%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state,
-                                    self.category, self.original_categories)
+        return f'{self.name}:{self.count}:{self.id}:{self.state}:{self.category}:{self.original_categories}'
 
     def __str__(self):
         return self.string_representation

@@ -297,7 +297,7 @@ def css_data(container, book_locale, result_data, *args):
             if elem.attrib:
                 attribs = ' '.join('{}="{}"'.format(k, prepare_string_for_xml(elem.get(k, ''), True)) for k in elem.keys())
                 return f'<{tag} {attribs}>'
-            ans = tt_cache[elem] = '<%s>' % tag
+            ans = tt_cache[elem] = f'<{tag}>'
 
     def matches_for_selector(selector, select, class_map, rule):
         lsel = selector.lower()

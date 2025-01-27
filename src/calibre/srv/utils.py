@@ -421,7 +421,7 @@ class Accumulator:  # {{{
 def get_db(ctx, rd, library_id):
     db = ctx.get_library(rd, library_id)
     if db is None:
-        raise HTTPNotFound('Library %r not found' % library_id)
+        raise HTTPNotFound(f'Library {library_id!r} not found')
     return db
 
 
@@ -443,7 +443,7 @@ class Offsets:
         if offset < 0:
             offset = 0
         if offset >= total:
-            raise HTTPNotFound('Invalid offset: %r'%offset)
+            raise HTTPNotFound(f'Invalid offset: {offset!r}')
         last_allowed_index = total - 1
         last_current_index = offset + delta - 1
         self.slice_upper_bound = offset+delta

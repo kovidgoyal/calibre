@@ -41,7 +41,7 @@ class EMF:
         self.pos = 0
         self.found_eof = False
         self.verbose = verbose
-        self.func_map = {v:getattr(self, 'handle_%s' % (k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in iteritems(RECORD_TYPES)}
+        self.func_map = {v:getattr(self, 'handle_{}'.format(k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in iteritems(RECORD_TYPES)}
         self.bitmaps = []
         while self.pos < len(raw) and not self.found_eof:
             self.read_record(raw)

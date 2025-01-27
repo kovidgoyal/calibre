@@ -36,6 +36,6 @@ class SearchResult:
         items = []
         for x in 'store_name title author price formats detail_item cover_url'.split():
             items.append(f'\t{x}={getattr(self, x)!r}')
-        return 'SearchResult(\n%s\n)' % '\n'.join(items)
+        return 'SearchResult(\n{}\n)'.format('\n'.join(items))
     __repr__ = __str__
     __unicode__ = __str__

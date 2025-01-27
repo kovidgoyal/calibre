@@ -61,7 +61,7 @@ def do_remove_custom_column(db, label, force):
                 ' Use calibredb custom_columns to get a list of labels.'
             ) % label
         )
-    prints('Column %r removed.' % label)
+    prints(f'Column {label!r} removed.')
 
 
 def main(opts, args, dbctx):

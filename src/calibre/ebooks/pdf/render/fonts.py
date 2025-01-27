@@ -100,13 +100,13 @@ class CMap(Stream):
             for c in glyph_map[glyph_id]:
                 c = ord(c)
                 val.append(to_hex_string(c))
-            glyph_id = '<%s>'%to_hex_string(glyph_id)
-            current_map[glyph_id] = '<%s>'%''.join(val)
+            glyph_id = f'<{to_hex_string(glyph_id)}>'
+            current_map[glyph_id] = '<{}>'.format(''.join(val))
         if current_map:
             maps.append(current_map)
         mapping = []
         for m in maps:
-            meat = '\n'.join('%s %s'%(k, v) for k, v in iteritems(m))
+            meat = '\n'.join(f'{k} {v}' for k, v in iteritems(m))
             mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
         try:
             name = name.encode('ascii').decode('ascii')
@@ -130,7 +130,7 @@ class Font:
             psname = uuid4()
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
-            'FontName': Name('%s+%s'%(self.subset_tag, psname)),
+            'FontName': Name(f'{self.subset_tag}+{psname}'),
             'Flags': 0b100,  # Symbolic font
             'FontBBox': Array(metrics.pdf_bbox),
             'ItalicAngle': metrics.post.italic_angle,
@@ -172,7 +172,7 @@ class Font:
         try:
             pdf_subset(self.metrics.sfnt, self.used_glyphs)
         except UnsupportedFont as e:
-            debug('Subsetting of %s not supported, embedding full font. Error: %s'%(
+            debug('Subsetting of {} not supported, embedding full font. Error: {}'.format(
                 self.metrics.names.get('full_name', 'Unknown'), as_unicode(e)))
         except NoGlyphs:
             if self.used_glyphs:
@@ -238,7 +238,7 @@ class FontManager:
 
     def add_standard_font(self, name):
         if name not in STANDARD_FONTS:
-            raise ValueError('%s is not a standard font'%name)
+            raise ValueError(f'{name} is not a standard font')
         if name not in self.std_map:
             self.std_map[name] = self.objects.add(Dictionary({
                 'Type':Name('Font'),

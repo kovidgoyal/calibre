@@ -124,7 +124,7 @@ class Polish(QDialog):  # {{{
             connect_lambda(x.stateChanged, self, lambda self, state: self.option_toggled(self.sender().objectName(), state))
             l.addWidget(x, count, 0, 1, 1)
             setattr(self, 'opt_'+name, x)
-            la = QLabel(' <a href="#%s">%s</a>'%(name, _('About')))
+            la = QLabel(' <a href="#{}">{}</a>'.format(name, _('About')))
             setattr(self, 'label_'+name, x)
             la.linkActivated.connect(self.help_link_activated)
             l.addWidget(la, count, 1, 1, 1)
@@ -312,7 +312,7 @@ class Polish(QDialog):  # {{{
         for fmt in formats:
             ext = fmt.replace('ORIGINAL_', '').lower()
             is_orig[ext.upper()] = 'ORIGINAL_' in fmt
-            with open(os.path.join(base, '%s.%s'%(book_id, ext)), 'wb') as f:
+            with open(os.path.join(base, f'{book_id}.{ext}'), 'wb') as f:
                 db.copy_format_to(book_id, fmt, f, index_is_id=True)
                 data['files'].append(f.name)
 
@@ -383,7 +383,7 @@ class Report(QDialog):  # {{{
         from calibre.ebooks.markdown import markdown
         self.current_log = job.details
         self.setWindowTitle(_('Polishing of %s')%book_title)
-        self.view.setText(markdown('# %s\n\n'%book_title + report,
+        self.view.setText(markdown(f'# {book_title}\n\n' + report,
                                    output_format='html4'))
         self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         self.backup_msg.setVisible(bool(fmts))

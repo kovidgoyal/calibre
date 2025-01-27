@@ -584,7 +584,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
         self.first_title = self.db.title(self.ids[0], index_is_id=True)
-        self.cover_clone.setToolTip(str(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
+        self.cover_clone.setToolTip(str(self.cover_clone.toolTip()) + f' ({self.first_title})')
         self.setWindowTitle(ngettext(
             'Editing metadata for one book',
             'Editing metadata for {} books', len(rows)).format(len(rows)))
@@ -939,7 +939,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = ['%s:%s'%(t[0], t[1]) for t in iteritems(val)]
+                    val = [f'{t[0]}:{t[1]}' for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -1129,7 +1129,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = ['%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
+                    dest_val = [f'{t[0]}:{t[1]}' for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):

@@ -200,11 +200,11 @@ class StyleObject:
         for h in self.tag_map.values():
             attr = h[0]
             if hasattr(self, attr):
-                s += '%s="%s" '%(attr, getattr(self, attr))
+                s += f'{attr}="{getattr(self, attr)}" '
         return s
 
     def __str__(self):
-        s = '<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
+        s = '<{} objid="{}" stylelabel="{}" '.format(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
         s += self._tags_to_xml()
         s += '/>\n'
         return s
@@ -252,7 +252,7 @@ class Color:
         self.a, self.r, self.g, self.b = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
 
     def __str__(self):
-        return '0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
+        return f'0x{self.a:02x}{self.r:02x}{self.g:02x}{self.b:02x}'
 
     def __len__(self):
         return 4
@@ -280,8 +280,7 @@ class PageDiv(EmptyPageElement):
         self.linecolor = Color(linecolor)
 
     def __str__(self):
-        return '\n<PageDiv pain="%s" spacesize="%s" linewidth="%s" linecolor="%s" />\n'%\
-                (self.pain, self.spacesize, self.linewidth, self.color)
+        return f'\n<PageDiv pain="{self.pain}" spacesize="{self.spacesize}" linewidth="{self.linewidth}" linecolor="{self.color}" />\n'
 
 
 class RuledLine(EmptyPageElement):
@@ -295,8 +294,7 @@ class RuledLine(EmptyPageElement):
         self.id = -1
 
     def __str__(self):
-        return '\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
-                (self.linelength, self.linetype, self.linewidth, self.linecolor)
+        return f'\n<RuledLine linelength="{self.linelength}" linetype="{self.linetype}" linewidth="{self.linewidth}" linecolor="{self.linecolor}" />\n'
 
 
 class Wait(EmptyPageElement):
@@ -316,7 +314,7 @@ class Locate(EmptyPageElement):
         self.pos = self.pos_map[pos]
 
     def __str__(self):
-        return '\n<Locate pos="%s" />\n'%(self.pos)
+        return f'\n<Locate pos="{self.pos}" />\n'
 
 
 class BlockSpace(EmptyPageElement):
@@ -470,7 +468,7 @@ class BlockAttr(StyleObject, LRFObject):
 
         if hasattr(obj, 'sidemargin'):
             margin = str(obj.sidemargin) + 'px'
-            ans += item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
+            ans += item('margin-left: {m}; margin-right: {m};'.format(**dict(m=margin)))
         if hasattr(obj, 'topskip'):
             ans += item('margin-top: %dpx;'%obj.topskip)
         if hasattr(obj, 'footskip'):
@@ -478,9 +476,9 @@ class BlockAttr(StyleObject, LRFObject):
         if hasattr(obj, 'framewidth'):
             ans += item('border: solid %dpx'%obj.framewidth)
         if hasattr(obj, 'framecolor') and obj.framecolor.a < 255:
-            ans += item('border-color: %s;'%obj.framecolor.to_html())
+            ans += item(f'border-color: {obj.framecolor.to_html()};')
         if hasattr(obj, 'bgcolor') and obj.bgcolor.a < 255:
-            ans += item('background-color: %s;'%obj.bgcolor.to_html())
+            ans += item(f'background-color: {obj.bgcolor.to_html()};')
 
         return ans
 
@@ -506,19 +504,19 @@ class TextCSS:
         fn = getattr(obj, 'fontfacename', None)
         if fn is not None:
             fn = cls.FONT_MAP[fn]
-            ans += item('font-family: %s;'%fn)
+            ans += item(f'font-family: {fn};')
         fg = getattr(obj, 'textcolor', None)
         if fg is not None:
             fg = fg.to_html()
-            ans += item('color: %s;'%fg)
+            ans += item(f'color: {fg};')
         bg = getattr(obj, 'textbgcolor', None)
         if bg is not None:
             bg = bg.to_html()
-            ans += item('background-color: %s;'%bg)
+            ans += item(f'background-color: {bg};')
         al = getattr(obj, 'align', None)
         if al is not None:
             al = dict(head='left', center='center', foot='right')
-            ans += item('text-align: %s;'%al)
+            ans += item(f'text-align: {al};')
         lh = getattr(obj, 'linespace', None)
         if lh is not None:
             ans += item('text-align: %fpt;'%(int(lh)/10))
@@ -608,17 +606,17 @@ class Block(LRFStream, TextCSS):
         if hasattr(self, 'textstyle_id'):
             s += 'textstyle="%d" '%(self.textstyle_id,)
         for attr in self.attrs:
-            s += '%s="%s" '%(attr, self.attrs[attr])
+            s += f'{attr}="{self.attrs[attr]}" '
         if self.name != 'ImageBlock':
             s = s.rstrip()+'>\n'
             s += str(self.content)
-            s += '</%s>\n'%(self.name,)
+            s += f'</{self.name}>\n'
             return s
         return s.rstrip() + ' />\n'
 
     def to_html(self):
         if self.name == 'TextBlock':
-            return '<div class="block%s text%s">%s</div>'%(self.style_id, self.textstyle_id, self.content.to_html())
+            return f'<div class="block{self.style_id} text{self.textstyle_id}">{self.content.to_html()}</div>'
         return ''
 
 
@@ -689,9 +687,9 @@ class Text(LRFStream):
             self.self_closing = self_closing
 
         def __str__(self):
-            s = '<%s '%(self.name,)
+            s = f'<{self.name} '
             for name, val in self.attrs.items():
-                s += '%s="%s" '%(name, val)
+                s += f'{name}="{val}" '
             return s.rstrip() + (' />' if self.self_closing else '>')
 
         def to_html(self):
@@ -879,7 +877,7 @@ class Text(LRFStream):
             elif c is None:
                 if open_containers:
                     p = open_containers.pop()
-                    s += '</%s>'%(p.name,)
+                    s += f'</{p.name}>'
             else:
                 s += str(c)
                 if not c.self_closing:
@@ -887,9 +885,9 @@ class Text(LRFStream):
 
         if len(open_containers) > 0:
             if len(open_containers) == 1:
-                s += '</%s>'%(open_containers[0].name,)
+                s += f'</{open_containers[0].name}>'
             else:
-                raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
+                raise LRFParseError(f'Malformed text stream {[i.name for i in open_containers if isinstance(i, Text.TextTag)]}')
         return s
 
     def to_html(self):
@@ -913,7 +911,7 @@ class Text(LRFStream):
                         open_containers.append(c)
 
         if len(open_containers) > 0:
-            raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],))
+            raise LRFParseError(f'Malformed text stream {[i.name for i in open_containers if isinstance(i, Text.TextTag)]}')
         return s
 
 
@@ -988,13 +986,13 @@ class Canvas(LRFStream):
                 print('Canvas object has errors, skipping.')
 
     def __str__(self):
-        s = '\n<%s objid="%s" '%(self.__class__.__name__, self.id,)
+        s = f'\n<{self.__class__.__name__} objid="{self.id}" '
         for attr in self.attrs:
-            s += '%s="%s" '%(attr, self.attrs[attr])
+            s += f'{attr}="{self.attrs[attr]}" '
         s = s.rstrip() + '>\n'
         for po in self:
             s += str(po) + '\n'
-        s += '</%s>\n'%(self.__class__.__name__,)
+        s += f'</{self.__class__.__name__}>\n'
         return s
 
     def __iter__(self):
@@ -1030,8 +1028,7 @@ class ImageStream(LRFStream):
             self._document.image_map[self.id] = self
 
     def __str__(self):
-        return '<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
-            (self.id, self.encoding, self.file)
+        return f'<ImageStream objid="{self.id}" encoding="{self.encoding}" file="{self.file}" />\n'
 
 
 class Import(LRFStream):
@@ -1109,13 +1106,13 @@ class Button(LRFObject):
         return None, None
 
     def __str__(self):
-        s = '<Button objid="%s">\n'%(self.id,)
+        s = f'<Button objid="{self.id}">\n'
         if self.button_flags & 0x10 != 0:
             s += '<PushButton '
             if 2 in self.refimage:
-                s += 'refimage="%s" '%(self.refimage[2],)
+                s += f'refimage="{self.refimage[2]}" '
             s = s.rstrip() + '>\n'
-            s += '<JumpTo refpage="%s" refobj="%s" />\n'% self.jump_action(2)
+            s += '<JumpTo refpage="{}" refobj="{}" />\n'.format(*self.jump_action(2))
             s += '</PushButton>\n'
         else:
             raise LRFParseError('Unsupported button type')
@@ -1156,8 +1153,7 @@ class Font(LRFStream):
         self.file = self.fontfacename + '.ttf'
 
     def __unicode__(self):
-        s = '<RegistFont objid="%s" fontfilename="%s" fontname="%s" encoding="TTF" file="%s" />\n'%\
-            (self.id, self.fontfilename, self.fontfacename, self.file)
+        s = f'<RegistFont objid="{self.id}" fontfilename="{self.fontfilename}" fontname="{self.fontfacename}" encoding="TTF" file="{self.file}" />\n'
         return s
 
 
@@ -1183,11 +1179,10 @@ class BookAttr(StyleObject, LRFObject):
         self.font_link_list.append(tag.dword)
 
     def __str__(self):
-        s = '<BookStyle objid="%s" stylelabel="%s">\n'%(self.id, self.id)
-        s += '<SetDefault %s />\n'%(self._tags_to_xml(),)
+        s = f'<BookStyle objid="{self.id}" stylelabel="{self.id}">\n'
+        s += f'<SetDefault {self._tags_to_xml()} />\n'
         doc = self._document
-        s += '<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
-        (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth)
+        s += f'<BookSetting bindingdirection="{self.binding_map[doc.binding]}" dpi="{doc.dpi}" screenwidth="{doc.width}" screenheight="{doc.height}" colordepth="{doc.color_depth}" />\n'
         for font in self._document.font_map.values():
             s += str(font)
         s += '</BookStyle>\n'
@@ -1204,7 +1199,7 @@ class TocLabel:
         self.refpage, self.refobject, self.label = refpage, refobject, label
 
     def __str__(self):
-        return '<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
+        return f'<TocLabel refpage="{self.refpage}" refobj="{self.refobject}">{self.label}</TocLabel>\n'
 
 
 class TOCObject(LRFStream):
@@ -1277,4 +1272,4 @@ def get_object(document, stream, id, offset, size, scramble_key):
     if obj_type < len(object_map) and object_map[obj_type] is not None:
         return object_map[obj_type](document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
 
-    raise LRFParseError('Unknown object type: %02X!' % obj_type)
+    raise LRFParseError(f'Unknown object type: {obj_type:02X}!')

@@ -803,7 +803,7 @@ class Format(QListWidgetItem):
         self.path = path
         self.ext = ext
         self.size = float(size)/(1024*1024)
-        text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
+        text = f'{self.ext.upper()} ({self.size:.2f} MB)'
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
                                  text, parent, QListWidgetItem.ItemType.UserType.value)
         if timestamp is not None:
@@ -1711,7 +1711,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                 if v is not None:
                     val[k] = v
         ids = sorted(iteritems(val), key=keygen)
-        txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
+        txt = ', '.join([f'{k.lower()}:{vl}' for k, vl in ids])
         if self.allow_undo:
             self.selectAll(), self.insert(txt.strip())
         else:

@@ -22,7 +22,7 @@ def XPath(x):
         return etree.XPath(x, namespaces=XPNSMAP)
     except etree.XPathSyntaxError:
         raise ConversionError(
-        'The syntax of the XPath expression %s is invalid.' % repr(x))
+        f'The syntax of the XPath expression {x!r} is invalid.')
 
 
 def isspace(x):
@@ -114,7 +114,7 @@ class DetectStructure:
             expr = XPath(expr)
         except:
             self.log.warn(
-                'Invalid start reading at XPath expression, ignoring: %s'%expr)
+                f'Invalid start reading at XPath expression, ignoring: {expr}')
             return
         for item in self.oeb.spine:
             if not hasattr(item.data, 'xpath'):
@@ -129,11 +129,9 @@ class DetectStructure:
                 if 'text' in self.oeb.guide:
                     self.oeb.guide.remove('text')
                 self.oeb.guide.add('text', 'Start', item.href+'#'+eid)
-                self.log('Setting start reading at position to %s in %s'%(
-                    self.opts.start_reading_at, item.href))
+                self.log(f'Setting start reading at position to {self.opts.start_reading_at} in {item.href}')
                 return
-        self.log.warn('Failed to find start reading at position: %s'%
-                self.opts.start_reading_at)
+        self.log.warn(f'Failed to find start reading at position: {self.opts.start_reading_at}')
 
     def get_toc_parts_for_xpath(self, expr):
         # if an attribute is selected by the xpath expr then truncate it
@@ -155,7 +153,7 @@ class DetectStructure:
                 len(ans)
                 return ans
             except:
-                self.log.warn('Invalid chapter expression, ignoring: %s'%expr)
+                self.log.warn(f'Invalid chapter expression, ignoring: {expr}')
                 return []
 
         if self.opts.chapter:
@@ -232,7 +230,7 @@ class DetectStructure:
                                 play_order=self.oeb.toc.next_play_order())
                             num += 1
                         except ValueError:
-                            self.oeb.log.exception('Failed to process link: %r' % href)
+                            self.oeb.log.exception(f'Failed to process link: {href!r}')
                             continue  # Most likely an incorrectly URL encoded link
                         if self.opts.max_toc_links > 0 and \
                                 num >= self.opts.max_toc_links:
@@ -267,7 +265,7 @@ class DetectStructure:
                 len(ans)
                 return ans
             except:
-                self.log.warn('Invalid ToC expression, ignoring: %s'%expr)
+                self.log.warn(f'Invalid ToC expression, ignoring: {expr}')
                 return []
 
         for document in self.oeb.spine:

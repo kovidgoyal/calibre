@@ -34,7 +34,7 @@ class FDST:
         rest = raw[self.sec_off+struct.calcsize(secf):]
         if rest:
             raise ValueError('FDST record has trailing data: '
-                    '%s'%format_bytes(rest))
+                    f'{format_bytes(rest)}')
         self.sections = tuple(zip(secs[::2], secs[1::2]))
 
     def __str__(self):
@@ -182,7 +182,7 @@ class MOBIFile:
             if sig == b'FONT':
                 font = read_font_record(rec.raw)
                 if font['err']:
-                    raise ValueError('Failed to read font record: %s Headers: %s'%(
+                    raise ValueError('Failed to read font record: {} Headers: {}'.format(
                         font['err'], font['headers']))
                 payload = (font['font_data'] if font['font_data'] else
                         font['raw_data'])
@@ -286,7 +286,7 @@ class MOBIFile:
             for j, seq in enumerate(sequences):
                 desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
             if tbs_bytes:
-                desc.append('Remaining bytes: %s'%format_bytes(tbs_bytes))
+                desc.append(f'Remaining bytes: {format_bytes(tbs_bytes)}')
             calculated_sequences = encode_strands_as_sequences(strands,
                     tbs_type=tbs_type)
             try:
@@ -296,7 +296,7 @@ class MOBIFile:
             if calculated_bytes != otbs:
                 print('WARNING: TBS mismatch for record %d'%i)
                 desc.append('WARNING: TBS mismatch!')
-                desc.append('Calculated sequences: %r'%calculated_sequences)
+                desc.append(f'Calculated sequences: {calculated_sequences!r}')
             desc.append('')
             self.indexing_data.append('\n'.join(desc))
 

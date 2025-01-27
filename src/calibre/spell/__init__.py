@@ -21,7 +21,7 @@ def parse_lang_code(raw):
     parts = raw.replace('_', '-').split('-')
     lc = canonicalize_lang(parts[0])
     if lc is None:
-        raise ValueError('Invalid language code: %r' % raw)
+        raise ValueError(f'Invalid language code: {raw!r}')
     cc = None
     for sc in ['Cyrl', 'Latn']:
         if sc in parts:

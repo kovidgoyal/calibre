@@ -65,7 +65,7 @@ def hexs(string, sep=' '):
         string = bytearray(string)
     else:
         string = map(ord, string)
-    return sep.join('%02x' % b for b in string)
+    return sep.join(f'{b:02x}' for b in string)
 
 
 class PackedData:
@@ -109,8 +109,7 @@ class PackedBlock(PackedData):
 
         self.magic = self.unpack_one('4s')
         if self.magic != magic:
-            raise InvalidKFX('%s magic number is incorrect (%s)' %
-                            (magic, hexs(self.magic)))
+            raise InvalidKFX(f'{magic} magic number is incorrect ({hexs(self.magic)})')
 
         self.version = self.unpack_one('<H')
         self.header_len = self.unpack_one('<L')

@@ -85,8 +85,7 @@ class Widget(QWidget):
         self._icon = QIcon.ic(self.ICON)
         for name in self._options:
             if not hasattr(self, 'opt_'+name):
-                raise Exception('Option %s missing in %s'%(name,
-                    self.__class__.__name__))
+                raise Exception(f'Option {name} missing in {self.__class__.__name__}')
             self.connect_gui_obj(getattr(self, 'opt_'+name))
 
     def initialize_options(self, get_option, get_help, db=None, book_id=None):
@@ -194,7 +193,7 @@ class Widget(QWidget):
         elif isinstance(g, RegexEdit):
             return g.regex if g.regex else None
         else:
-            raise Exception("Can't get value from %s"%type(g))
+            raise Exception(f"Can't get value from {type(g)}")
 
     def gui_obj_changed(self, gui_obj, *args):
         self.changed_signal.emit()
@@ -223,7 +222,7 @@ class Widget(QWidget):
         elif isinstance(g, FontFamilyChooser):
             g.family_changed.connect(f)
         else:
-            raise Exception("Can't connect %s"%type(g))
+            raise Exception(f"Can't connect {type(g)}")
 
     def connect_gui_obj_handler(self, gui_obj, slot):
         raise NotImplementedError()
@@ -264,8 +263,7 @@ class Widget(QWidget):
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.setText(val if val else '')
         else:
-            raise Exception("Can't set value %s in %s"%(repr(val),
-                str(g.objectName())))
+            raise Exception(f"Can't set value {val!r} in {g.objectName()!s}")
         self.post_set_value(g, val)
 
     def set_help(self, msg):
@@ -290,7 +288,7 @@ class Widget(QWidget):
 
     def setup_widget_help(self, g):
         w = textwrap.TextWrapper(80)
-        htext = '<div>%s</div>'%prepare_string_for_xml('\n'.join(w.wrap(g._help)))
+        htext = '<div>{}</div>'.format(prepare_string_for_xml('\n'.join(w.wrap(g._help))))
         g.setToolTip(htext)
         g.setWhatsThis(htext)
         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))

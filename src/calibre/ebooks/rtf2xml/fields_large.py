@@ -310,23 +310,22 @@ Examples
         # add a closing bracket, since the closing bracket is not included in
         # the field string
         if self.__symbol:
-            inner_field_string = '%scb<nu<clos-brack<%s\n' % \
-            (instruction, last_bracket)
+            inner_field_string = f'{instruction}cb<nu<clos-brack<{last_bracket}\n'
         elif sec_in_field or par_in_field:
             inner_field_string = (
             'mi<mk<fldbkstart\n'
-            'mi<tg<open-att__<field-block<type>%s\n%s'
+            f'mi<tg<open-att__<field-block<type>{instruction}\n{inner_field_string}'
             'mi<mk<fldbk-end_\n'
             'mi<tg<close_____<field-block\n'
             'mi<mk<fld-bk-end\n'
-            ) % (instruction, inner_field_string)
+            )
         # write a marker to show an inline field for later parsing
         else:
             inner_field_string = (
-            '%s'
-            'mi<tg<open-att__<field<type>%s\n%s'
+            f'{self.__marker}'
+            f'mi<tg<open-att__<field<type>{instruction}\n{inner_field_string}'
             'mi<tg<close_____<field\n'
-            ) % (self.__marker, instruction, inner_field_string)
+            )
         if sec_in_field:
             inner_field_string = 'mi<mk<sec-fd-beg\n' + inner_field_string + 'mi<mk<sec-fd-end\n'
         if par_in_field:

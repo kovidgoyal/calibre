@@ -33,7 +33,7 @@ def daemonize():  # {{{
             # exit first parent
             sys.exit(0)
     except OSError as e:
-        raise SystemExit('fork #1 failed: %s' % as_unicode(e))
+        raise SystemExit(f'fork #1 failed: {as_unicode(e)}')
 
     # decouple from parent environment
     os.chdir('/')
@@ -47,7 +47,7 @@ def daemonize():  # {{{
             # exit from second parent
             sys.exit(0)
     except OSError as e:
-        raise SystemExit('fork #2 failed: %s' % as_unicode(e))
+        raise SystemExit(f'fork #2 failed: {as_unicode(e)}')
 
     # Redirect standard file descriptors.
     speedup.detach(os.devnull)

@@ -259,7 +259,7 @@ class Block:
             makeelement(p, 'w:bookmarkEnd', w_id=bmark)
 
     def __repr__(self):
-        return 'Block(%r)' % self.runs
+        return f'Block({self.runs!r})'
     __str__ = __repr__
 
     def is_empty(self):
@@ -423,7 +423,7 @@ class Blocks:
                     block.block_lang = None
 
     def __repr__(self):
-        return 'Block(%r)' % self.runs
+        return f'Block({self.runs!r})'
 
 
 class Convert:
@@ -544,7 +544,7 @@ class Convert:
                 else:
                     if tagname == 'hr':
                         for edge in 'right bottom left'.split():
-                            tag_style.set('border-%s-style' % edge, 'none')
+                            tag_style.set(f'border-{edge}-style', 'none')
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
             for child in html_tag.iterchildren():

@@ -278,8 +278,8 @@ class ReBinary:
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.logger.warn('More than six anchors in file %r. '
-                'Some links may not work properly.' % self.item.href)
+            self.logger.warn(f'More than six anchors in file {self.item.href!r}. '
+                'Some links may not work properly.')
         data = io.BytesIO()
         data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -472,8 +472,8 @@ class LitWriter:
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self._logger.warn('File %r of unknown media-type %r '
-                    'excluded from output.' % (item.href, item.media_type))
+                self._logger.warn(f'File {item.href!r} of unknown media-type {item.media_type!r} '
+                    'excluded from output.')
                 continue
             name = '/data/' + item.id
             data = item.data
@@ -571,7 +571,7 @@ class LitWriter:
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
-        meta.attrib['ms--guid'] = '{%s}' % native_string_type(uuid.uuid4()).upper()
+        meta.attrib['ms--guid'] = f'{{{native_string_type(uuid.uuid4()).upper()}}}'
         rebin = ReBinary(meta, None, self._oeb, self.opts, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta

@@ -88,7 +88,7 @@ def normalize_edge(name, cssvalue):
 
 
 def simple_normalizer(prefix, names, check_inherit=True):
-    composition = tuple('%s-%s' %(prefix, n) for n in names)
+    composition = tuple(f'{prefix}-{n}' for n in names)
 
     @wraps(normalize_simple_composition)
     def wrapper(name, cssvalue):
@@ -225,7 +225,7 @@ def condense_border(style, props):
     prop_map = {p.name:p for p in props}
     edge_vals = []
     for edge in EDGES:
-        name = 'border-%s' % edge
+        name = f'border-{edge}'
         vals = []
         for prop in BORDER_PROPS:
             x = prop_map.get(f'{name}-{prop}', None)
@@ -294,7 +294,7 @@ def test_normalization(return_tests=False):  # {{{
                  'line-height':'normal', 'font-variant':'small-caps'},
                 '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
             }):
-                val = tuple(parseStyle('font: %s' % raw, validate=False))[0].propertyValue
+                val = tuple(parseStyle(f'font: {raw}', validate=False))[0].propertyValue
                 style = normalizers['font']('font', val)
                 self.assertDictEqual(font_dict(expected), style, raw)
 
@@ -323,7 +323,7 @@ def test_normalization(return_tests=False):  # {{{
                 '2em groove': {'width':'2em', 'style':'groove'},
             }):
                 for edge in EDGES:
-                    br = 'border-%s' % edge
+                    br = f'border-{edge}'
                     val = tuple(parseStyle(f'{br}: {raw}', validate=False))[0].propertyValue
                     self.assertDictEqual(border_edge_dict(expected, edge), normalizers[br](br, val))
 
@@ -356,16 +356,16 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_list_style_normalization(self):
             def ls_dict(expected):
-                ans = {'list-style-%s' % x: DEFAULTS['list-style-%s' % x] for x in ('type', 'image', 'position')}
+                ans = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
                 for k, v in iteritems(expected):
-                    ans['list-style-%s' % k] = v
+                    ans[f'list-style-{k}'] = v
                 return ans
             for raw, expected in iteritems({
                 'url(http://www.example.com/images/list.png)': {'image': 'url(http://www.example.com/images/list.png)'},
                 'inside square': {'position':'inside', 'type':'square'},
                 'upper-roman url(img) outside': {'position':'outside', 'type':'upper-roman', 'image':'url(img)'},
             }):
-                cval = tuple(parseStyle('list-style: %s' % raw, validate=False))[0].propertyValue
+                cval = tuple(parseStyle(f'list-style: {raw}', validate=False))[0].propertyValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
 
         def test_filter_css_normalization(self):
@@ -377,10 +377,10 @@ def test_normalization(return_tests=False):  # {{{
             ae(bvals | {'border'}, normalize_filter_css({'border'}))
             for x in BORDER_PROPS:
                 sbvals = {f'border-{e}-{x}' for e in EDGES}
-                ae(sbvals | {'border-%s' % x}, normalize_filter_css({'border-%s' % x}))
+                ae(sbvals | {f'border-{x}'}, normalize_filter_css({f'border-{x}'}))
             for e in EDGES:
                 sbvals = {f'border-{e}-{x}' for x in BORDER_PROPS}
-                ae(sbvals | {'border-%s' % e}, normalize_filter_css({'border-%s' % e}))
+                ae(sbvals | {f'border-{e}'}, normalize_filter_css({f'border-{e}'}))
             ae({'list-style', 'list-style-image', 'list-style-type', 'list-style-position'}, normalize_filter_css({'list-style'}))
 
         def test_edge_condensation(self):
@@ -413,13 +413,13 @@ def test_normalization(return_tests=False):  # {{{
             condense_rule(style)
             for e, p in product(EDGES, BORDER_PROPS):
                 self.assertFalse(style.getProperty(f'border-{e}-{p}'))
-                self.assertFalse(style.getProperty('border-%s' % e))
-                self.assertFalse(style.getProperty('border-%s' % p))
+                self.assertFalse(style.getProperty(f'border-{e}'))
+                self.assertFalse(style.getProperty(f'border-{p}'))
             self.assertEqual(style.getProperty('border').value, vals)
             css = '; '.join(f'border-{edge}-{p}: {v}' for edge in ('top',) for p, v in zip(BORDER_PROPS, vals.split()))
             style = parseStyle(css)
             condense_rule(style)
-            self.assertEqual(css_text(style).rstrip(';'), 'border-top: %s' % vals)
+            self.assertEqual(css_text(style).rstrip(';'), f'border-top: {vals}')
             css += ';' + '; '.join(f'border-{edge}-{p}: {v}' for edge in ('right', 'left', 'bottom') for p, v in
                              zip(BORDER_PROPS, vals.replace('red', 'green').split()))
             style = parseStyle(css)

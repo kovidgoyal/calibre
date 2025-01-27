@@ -113,7 +113,7 @@ class OptionParser(optparse.OptionParser):
                           '''enclose the arguments in quotation marks. For example: "{}"''').format(
                                'C:\\some path with spaces' if iswindows else '/some path/with spaces') +'\n'
         if version is None:
-            version = '%%prog (%s %s)'%(__appname__, get_version())
+            version = f'%prog ({__appname__} {get_version()})'
         optparse.OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
@@ -261,8 +261,7 @@ class DynamicConfig(dict):
                 try:
                     d = json_loads(raw)
                 except Exception as err:
-                    print('Failed to de-serialize JSON representation of stored dynamic data for {} with error: {}'.format(
-                        self.name, err))
+                    print(f'Failed to de-serialize JSON representation of stored dynamic data for {self.name} with error: {err}')
             else:
                 d = self.read_old_serialized_representation()
                 migrate = bool(d)

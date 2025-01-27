@@ -43,7 +43,7 @@ class Reader:
     def verify_file(self):
         self.stream.seek(0)
         if self.stream.read(14) != HEADER:
-            raise RocketBookError('Could not read file: %s. Does not contain a valid RocketBook Header.' % self.stream.name)
+            raise RocketBookError(f'Could not read file: {self.stream.name}. Does not contain a valid RocketBook Header.')
 
         self.stream.seek(28)
         size = self.read_i32()
@@ -108,11 +108,11 @@ class Reader:
         for item in self.toc:
             iname = as_unicode(item.name)
             if iname.lower().endswith('html'):
-                self.log.debug('HTML item %s found...' % iname)
+                self.log.debug(f'HTML item {iname} found...')
                 html.append(iname)
                 self.get_text(item, output_dir)
             if iname.lower().endswith('png'):
-                self.log.debug('PNG item %s found...' % iname)
+                self.log.debug(f'PNG item {iname} found...')
                 images.append(iname)
                 self.get_image(item, output_dir)
 

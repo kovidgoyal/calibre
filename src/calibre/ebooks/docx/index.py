@@ -69,7 +69,7 @@ def add_xe(xe, t, expand):
         p.append(r)
         t2 = r.makeelement(expand('w:t'))
         t2.set(expand('xml:space'), 'preserve')
-        t2.text = ' [%s]' % pt
+        t2.text = f' [{pt}]'
         r.append(t2)
     # put separate entries on separate lines
     run.insert(idx + 1, run.makeelement(expand('w:br')))

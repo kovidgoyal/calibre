@@ -156,7 +156,7 @@ def main(opts, args, dbctx):
 
     def fmtr(v):
         v = v or 0
-        ans = '%.1f' % v
+        ans = f'{v:.1f}'
         if ans.endswith('.0'):
             ans = ans[:-2]
         return ans

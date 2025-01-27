@@ -72,5 +72,5 @@ class FontsManager:
                 makeelement(embed_relationships, 'Relationship', Id=rid, Type=self.namespace.names['EMBEDDED_FONT'], Target=fname)
                 font_data_map['word/' + fname] = obfuscate_font_data(item.data, key)
             makeelement(font, 'w:embed' + tag, r_id=rid,
-                        w_fontKey='{%s}' % key.urn.rpartition(':')[-1].upper(),
+                        w_fontKey='{{{}}}'.format(key.urn.rpartition(':')[-1].upper()),
                         w_subsetted='true' if self.opts.subset_embedded_fonts else 'false')

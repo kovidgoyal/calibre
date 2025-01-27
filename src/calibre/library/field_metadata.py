@@ -406,7 +406,7 @@ class FieldMetadata:
         self.custom_label_to_key_map = {}
         for k,v in self._field_metadata:
             if v['kind'] == 'field' and v['datatype'] not in self.VALID_DATA_TYPES:
-                raise ValueError('Unknown datatype %s for field %s'%(v['datatype'], k))
+                raise ValueError('Unknown datatype {} for field {}'.format(v['datatype'], k))
             self._tb_cats[k] = v
             self._tb_cats[k]['label'] = k
             self._tb_cats[k]['display'] = {}
@@ -544,7 +544,7 @@ class FieldMetadata:
         if not prefer_custom:
             if label in self.custom_label_to_key_map:
                 return self.custom_label_to_key_map[label]
-        raise ValueError('Unknown key [%s]'%(label))
+        raise ValueError(f'Unknown key [{label}]')
 
     def all_metadata(self):
         l = {}
@@ -565,9 +565,9 @@ class FieldMetadata:
                          is_csp=False):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
-            raise ValueError('Duplicate custom field [%s]'%(label))
+            raise ValueError(f'Duplicate custom field [{label}]')
         if datatype not in self.VALID_DATA_TYPES:
-            raise ValueError('Unknown datatype %s for field %s'%(datatype, key))
+            raise ValueError(f'Unknown datatype {datatype} for field {key}')
         self._tb_cats[key] = {'table':table,       'column':column,
                              'datatype':datatype,  'is_multiple':is_multiple,
                              'kind':'field',       'name':name,
@@ -629,7 +629,7 @@ class FieldMetadata:
 
     def add_user_category(self, label, name):
         if label in self._tb_cats:
-            raise ValueError('Duplicate user field [%s]'%(label))
+            raise ValueError(f'Duplicate user field [{label}]')
         st = [label]
         if icu_lower(label) != label:
             st.append(icu_lower(label))
@@ -644,7 +644,7 @@ class FieldMetadata:
         if label in self._tb_cats:
             if not fail_on_existing:
                 return
-            raise ValueError('Duplicate user field [%s]'%(label))
+            raise ValueError(f'Duplicate user field [{label}]')
         self._tb_cats[label] = {'table':None,        'column':None,
                                 'datatype':None,     'is_multiple':{},
                                 'kind':'search',     'name':name,
@@ -673,7 +673,7 @@ class FieldMetadata:
         if terms is not None:
             for t in terms:
                 if t in self._search_term_map:
-                    raise ValueError('Attempt to add duplicate search term "%s"'%t)
+                    raise ValueError(f'Attempt to add duplicate search term "{t}"')
                 self._search_term_map[t] = key
 
     def search_term_to_field_key(self, term):

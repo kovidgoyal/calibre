@@ -56,7 +56,7 @@ def handle_private_entities(data):
                 user_entities[match.group(1)] = val
             if user_entities:
                 data = ('\n' * num_of_nl_in_pre) + data[idx:]
-                pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
+                pat = re.compile(r'&({});'.format('|'.join(user_entities.keys())))
                 data = pat.sub(lambda m: user_entities[m.group(1)], data)
     return data
 
@@ -83,7 +83,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
         return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
     try:
         ans = safe_xml_fromstring(raw, recover=False)
-        if ans.tag != '{%s}html' % XHTML_NS:
+        if ans.tag != f'{{{XHTML_NS}}}html':
             raise ValueError('Root tag is not <html> in the XHTML namespace')
         if linenumber_attribute:
             for elem in ans.iter(LxmlElement):

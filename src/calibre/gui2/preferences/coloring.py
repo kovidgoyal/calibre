@@ -204,7 +204,7 @@ class ConditionEditor(QWidget):  # {{{
             if c == val:
                 self.column_box.setCurrentIndex(idx)
                 return
-        raise ValueError('Column %r not found'%val)
+        raise ValueError(f'Column {val!r} not found')
 
     @property
     def current_action(self):
@@ -218,7 +218,7 @@ class ConditionEditor(QWidget):  # {{{
             if c == val:
                 self.action_box.setCurrentIndex(idx)
                 return
-        raise ValueError('Action %r not valid for current column'%val)
+        raise ValueError(f'Action {val!r} not valid for current column')
 
     @property
     def current_val(self):

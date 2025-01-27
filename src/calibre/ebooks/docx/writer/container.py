@@ -160,8 +160,8 @@ class DOCX:
         namespaces = self.namespace.namespaces
         self.opts, self.log = opts, log
         self.document_relationships = DocumentRelationships(self.namespace)
-        self.font_table = etree.Element('{%s}fonts' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
-        self.numbering = etree.Element('{%s}numbering' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
+        self.font_table = etree.Element('{{{}}}fonts'.format(namespaces['w']), nsmap={k:namespaces[k] for k in 'wr'})
+        self.numbering = etree.Element('{{{}}}numbering'.format(namespaces['w']), nsmap={k:namespaces[k] for k in 'wr'})
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
         self.embedded_fonts = E.Relationships()
         self.fonts = {}
@@ -245,7 +245,7 @@ class DOCX:
         cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
         ts = utcnow().isoformat(native_string_type('T')).rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
-            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
+            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{{{}}}type'.format(namespaces['xsi']):'dcterms:W3CDTF'})
             x.text = ts
             cp.append(x)
         self.mi = mi

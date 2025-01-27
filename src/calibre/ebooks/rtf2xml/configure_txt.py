@@ -30,7 +30,7 @@ class Configure:
         return_dict = {}
         return_dict['config-location'] = self.__configuration_file
         if self.__show_config_file and self.__configuration_file:
-            sys.stderr.write('configuration file is "%s"\n' % self.__configuration_file)
+            sys.stderr.write(f'configuration file is "{self.__configuration_file}"\n')
         if self.__show_config_file and not self.__configuration_file:
             sys.stderr.write('No configuration file found; using default values\n')
         if self.__configuration_file:
@@ -49,10 +49,9 @@ class Configure:
                 fields = line.split('=')
                 if len(fields) != 2:
                     msg = line
-                    msg += ('Error in configuration.txt, line %s\n' % line_num)
+                    msg += (f'Error in configuration.txt, line {line_num}\n')
                     msg += ('Options take the form of option = value.\n')
-                    msg += ('Please correct the configuration file "%s" before continuing\n'
-                        % self.__configuration_file)
+                    msg += (f'Please correct the configuration file "{self.__configuration_file}" before continuing\n')
                     raise self.__bug_handler(msg)
                 att = fields[0]
                 value = fields[1]
@@ -61,8 +60,7 @@ class Configure:
                 return_dict[att] = value
         return_dict = self.__parse_dict(return_dict)
         if return_dict == 1:
-            msg = ('Please correct the configuration file "%s" before continuing\n'
-                    % self.__configuration_file)
+            msg = (f'Please correct the configuration file "{self.__configuration_file}" before continuing\n')
             raise self.__bug_handler(msg)
         return return_dict
 
@@ -104,16 +102,14 @@ class Configure:
         the_keys = return_dict.keys()
         for the_key in the_keys:
             if the_key not in allowable:
-                sys.stderr.write('options "%s" not a legal option.\n'
-                        % the_key)
+                sys.stderr.write(f'options "{the_key}" not a legal option.\n')
                 return 1
         configuration_dir = return_dict.get('configuration-directory')
         if configuration_dir is None:
             return_dict['configure-directory'] = None
         else:
             if not os.path.isdir(configuration_dir):
-                sys.stderr.write('The directory "%s" does not appear to be a directory.\n'
-                        % configuration_dir)
+                sys.stderr.write(f'The directory "{configuration_dir}" does not appear to be a directory.\n')
                 return 1
             else:
                 return_dict['configure-directory'] = configuration_dir
@@ -138,8 +134,8 @@ class Configure:
                     int_num = int(return_dict[int_option])
                     return_dict[int_option] = int_num
                 except:
-                    sys.stderr.write('"%s" must be a number\n' % int_option)
-                    sys.stderr.write('You choose "%s" ' % return_dict[int_option])
+                    sys.stderr.write(f'"{int_option}" must be a number\n')
+                    sys.stderr.write(f'You choose "{return_dict[int_option]}" ')
                     return 1
         fonts = ['convert-symbol', 'convert-wingdings', 'convert-zapf-dingbats',
             'convert-caps'
@@ -150,7 +146,7 @@ class Configure:
                 return_dict[font] = 0
             elif value != 'true' and value != 'false':
                 sys.stderr.write(
-                    '"%s" must be true or false.\n' % font)
+                    f'"{font}" must be true or false.\n')
             elif value == 'false':
                 return_dict[font] = 0
         return_dict['xslt-processor'] = None

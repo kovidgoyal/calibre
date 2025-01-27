@@ -64,7 +64,7 @@ class DBPrefs(dict):
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
-        key = 'namespaced:%s:%s'%(namespace, key)
+        key = f'namespaced:{namespace}:{key}'
         try:
             return dict.__getitem__(self, key)
         except KeyError:
@@ -76,7 +76,7 @@ class DBPrefs(dict):
         if ':' in namespace:
             raise KeyError('Colons are not allowed in'
                 ' the namespace')
-        key = 'namespaced:%s:%s'%(namespace, key)
+        key = f'namespaced:{namespace}:{key}'
         self[key] = val
 
     def write_serialized(self, library_path):

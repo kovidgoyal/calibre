@@ -29,7 +29,7 @@ class Canvas(etree.XSLTExtension):
         if cid is None or cid in self.processed:
             return
         self.processed.add(cid)
-        input_node = self.doc.xpath('//Canvas[@objid="%s"]'%cid)[0]
+        input_node = self.doc.xpath(f'//Canvas[@objid="{cid}"]')[0]
 
         objects = list(self.get_objects(input_node))
         if len(objects) == 1 and objects[0][0].tag == 'ImageBlock':
@@ -75,7 +75,7 @@ class Canvas(etree.XSLTExtension):
             img.set('height', str(int(height)))
         ref = block.get('refstream', None)
         if ref is not None:
-            imstr = self.doc.xpath('//ImageStream[@objid="%s"]'%ref)
+            imstr = self.doc.xpath(f'//ImageStream[@objid="{ref}"]')
             if imstr:
                 src = imstr[0].get('file', None)
                 if src:
@@ -85,7 +85,7 @@ class Canvas(etree.XSLTExtension):
 
     def get_objects(self, node):
         for x in node.xpath('descendant::PutObj[@refobj and @x1 and @y1]'):
-            objs = node.xpath('//*[@objid="%s"]'%x.get('refobj'))
+            objs = node.xpath('//*[@objid="{}"]'.format(x.get('refobj')))
             x, y = map(self.styles.to_num, (x.get('x1'), x.get('y1')))
             if objs and x is not None and y is not None:
                 yield objs[0], int(x), int(y)
@@ -293,7 +293,7 @@ class Styles(etree.XSLTExtension):
     def write(self, name='styles.css'):
 
         def join(style):
-            ans = ['%s : %s;'%(k, v) for k, v in style.items()]
+            ans = [f'{k} : {v};' for k, v in style.items()]
             if ans:
                 ans[-1] = ans[-1][:-1]
             return '\n\t'.join(ans)
@@ -340,16 +340,16 @@ class Styles(etree.XSLTExtension):
         ans = {}
         sm = self.px_to_pt(node.get('sidemargin', None))
         if sm is not None:
-            ans['margin-left'] = ans['margin-right'] = '%fpt'%sm
+            ans['margin-left'] = ans['margin-right'] = f'{sm:f}pt'
         ts = self.px_to_pt(node.get('topskip', None))
         if ts is not None:
-            ans['margin-top'] = '%fpt'%ts
+            ans['margin-top'] = f'{ts:f}pt'
         fs = self.px_to_pt(node.get('footskip', None))
         if fs is not None:
-            ans['margin-bottom'] = '%fpt'%fs
+            ans['margin-bottom'] = f'{fs:f}pt'
         fw = self.px_to_pt(node.get('framewidth', None))
         if fw is not None:
-            ans['border-width'] = '%fpt'%fw
+            ans['border-width'] = f'{fw:f}pt'
             ans['border-style'] = 'solid'
         fc = self.color(node.get('framecolor', None))
         if fc is not None:
@@ -371,7 +371,7 @@ class Styles(etree.XSLTExtension):
         ans = {}
         fs = self.to_num(node.get('fontsize', None), 0.1)
         if fs is not None:
-            ans['font-size'] = '%fpt'%fs
+            ans['font-size'] = f'{fs:f}pt'
         fw = self.to_num(node.get('fontweight', None))
         if fw is not None:
             ans['font-weight'] = ('bold' if fw >= 700 else 'normal')
@@ -394,7 +394,7 @@ class Styles(etree.XSLTExtension):
         #     ans['line-height'] = '%fpt'%lh
         pi = self.to_num(node.get('parindent', None), 0.1)
         if pi is not None:
-            ans['text-indent'] = '%fpt'%pi
+            ans['text-indent'] = f'{pi:f}pt'
         if not ans:
             return None
         if ans not in self.text_styles:

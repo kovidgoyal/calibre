@@ -1105,9 +1105,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             ids = '(%d)'%ids[0]
         else:
             ids = repr(ids)
-        return self.conn.get('''
-            SELECT data FROM conversion_options WHERE book IN %s AND
-        format=? LIMIT 1'''%(ids,), (format,), all=False) is not None
+        return self.conn.get(f'''
+            SELECT data FROM conversion_options WHERE book IN {ids} AND
+        format=? LIMIT 1''', (format,), all=False) is not None
 
     def delete_conversion_options(self, id, format, commit=True):
         self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?',

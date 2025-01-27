@@ -447,7 +447,7 @@ class Metadata:
         if field is not None:
             if not field.startswith('#'):
                 raise AttributeError(
-                        "Custom field name %s must begin with '#'"%repr(field))
+                        f"Custom field name {field!r} must begin with '#'")
             if metadata is None:
                 traceback.print_stack()
                 return
@@ -505,7 +505,7 @@ class Metadata:
     # Old Metadata API {{{
     def print_all_attributes(self):
         for x in STANDARD_METADATA_FIELDS:
-            prints('%s:'%x, getattr(self, x, 'None'))
+            prints(f'{x}:', getattr(self, x, 'None'))
         for x in self.custom_field_keys():
             meta = self.get_user_metadata(x, make_copy=False)
             if meta is not None:
@@ -702,7 +702,7 @@ class Metadata:
                 res = cmeta['is_multiple']['list_to_ui'].join(res)
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
-                    res = res + ' [%s]'%self.format_series_index(val=self.get_extra(key))
+                    res = res + f' [{self.format_series_index(val=self.get_extra(key))}]'
             elif datatype == 'datetime':
                 res = format_date(res, cmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'bool':
@@ -744,7 +744,7 @@ class Metadata:
                     res = [k + ':' + v for k,v in res.items()]
                 res = fmeta['is_multiple']['list_to_ui'].join(sorted(filter(None, res), key=sort_key))
             elif datatype == 'series' and series_with_index:
-                res = res + ' [%s]'%self.format_series_index()
+                res = res + f' [{self.format_series_index()}]'
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
@@ -781,7 +781,7 @@ class Metadata:
         if self.tags:
             fmt('Tags', ', '.join([str(t) for t in self.tags]))
         if self.series:
-            fmt('Series', self.series + ' #%s'%self.format_series_index())
+            fmt('Series', self.series + f' #{self.format_series_index()}')
         if not self.is_null('languages'):
             fmt('Languages', ', '.join(self.languages))
         if self.rating is not None:
@@ -794,7 +794,7 @@ class Metadata:
         if self.rights is not None:
             fmt('Rights', str(self.rights))
         if self.identifiers:
-            fmt('Identifiers', ', '.join(['%s:%s'%(k, v) for k, v in
+            fmt('Identifiers', ', '.join([f'{k}:{v}' for k, v in
                 iteritems(self.identifiers)]))
         if self.comments:
             fmt('Comments', self.comments)
@@ -820,7 +820,7 @@ class Metadata:
         ans += [('ISBN', str(self.isbn))]
         ans += [(_('Tags'), ', '.join([str(t) for t in self.tags]))]
         if self.series:
-            ans += [(ngettext('Series', 'Series', 1), str(self.series) + ' #%s'%self.format_series_index())]
+            ans += [(ngettext('Series', 'Series', 1), str(self.series) + f' #{self.format_series_index()}')]
         ans += [(_('Languages'), ', '.join(self.languages))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), str(isoformat(self.timestamp, as_utc=False, sep=' ')))]
@@ -834,8 +834,8 @@ class Metadata:
                 name, val = self.format_field(key)
                 ans += [(name, val)]
         for i, x in enumerate(ans):
-            ans[i] = '<tr><td><b>%s</b></td><td>%s</td></tr>'%x
-        return '<table>%s</table>'%'\n'.join(ans)
+            ans[i] = '<tr><td><b>{}</b></td><td>{}</td></tr>'.format(*x)
+        return '<table>{}</table>'.format('\n'.join(ans))
 
     __str__ = __unicode__representation__
 
@@ -868,7 +868,7 @@ def field_from_string(field, raw, field_metadata):
         elif raw.lower() in {'false', 'no', 'n'}:
             val = False
         else:
-            raise ValueError('Unknown value for %s: %s'%(field, raw))
+            raise ValueError(f'Unknown value for {field}: {raw}')
     elif dt == 'text':
         ism = field_metadata['is_multiple']
         if ism:

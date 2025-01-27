@@ -27,7 +27,7 @@ def nonvoid_cdata_elements(test, parse_function):
             root = parse_function(markup.format(x))
             test.assertEqual(
                 len(XPath('//h:body[@id="test"]')(root)), 1,
-                'Incorrect parsing for <%s/>, parsed markup:\n' % x + etree.tostring(root, encoding='unicode'))
+                f'Incorrect parsing for <{x}/>, parsed markup:\n' + etree.tostring(root, encoding='unicode'))
 
 
 def namespaces(test, parse_function):
@@ -45,20 +45,20 @@ def namespaces(test, parse_function):
         'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode'))
     match_and_prefix(root, '//h:body[@id="test"]', None)
 
-    markup = '''
-    <html xmlns="{xhtml}"><head><body id="test">
-    <svg:svg xmlns:svg="{svg}"><svg:image xmlns:xlink="{xlink}" xlink:href="xxx"/></svg:svg>
-    '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
+    markup = f'''
+    <html xmlns="{XHTML_NS}"><head><body id="test">
+    <svg:svg xmlns:svg="{SVG_NS}"><svg:image xmlns:xlink="{XLINK_NS}" xlink:href="xxx"/></svg:svg>
+    '''
     root = parse_function(markup)
     err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//h:body[@id="test"]', None, err)
     match_and_prefix(root, '//svg:svg', 'svg', err)
     match_and_prefix(root, '//svg:image[@xl:href]', 'svg', err)
 
-    markup = '''
-    <html xmlns="{xhtml}"><head><body id="test">
-    <svg xmlns="{svg}" xmlns:xlink="{xlink}" ><image xlink:href="xxx"/></svg>
-    '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
+    markup = f'''
+    <html xmlns="{XHTML_NS}"><head><body id="test">
+    <svg xmlns="{SVG_NS}" xmlns:xlink="{XLINK_NS}" ><image xlink:href="xxx"/></svg>
+    '''
     root = parse_function(markup)
     err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     match_and_prefix(root, '//h:body[@id="test"]', None, err)
@@ -146,7 +146,7 @@ def multiple_html_and_body(test, parse_function):
 
 
 def attribute_replacement(test, parse_function):
-    markup = '<html><body><svg viewbox="0"></svg><svg xmlns="%s" viewbox="1">' % SVG_NS
+    markup = f'<html><body><svg viewbox="0"></svg><svg xmlns="{SVG_NS}" viewbox="1">'
     root = parse_function(markup)
     err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root, encoding='unicode')
     test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
@@ -191,14 +191,14 @@ class ParsingTests(BaseTest):
             src = '\n<html>\n<p>\n<svg><image />\n<b></svg>&nbsp'
             root = parse(src, discard_namespaces=ds)
             for tag, lnum in iteritems({'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}):
-                elem = root.xpath('//*[local-name()="%s"]' % tag)[0]
+                elem = root.xpath(f'//*[local-name()="{tag}"]')[0]
                 self.assertEqual(lnum, elem.sourceline, f'Line number incorrect for {tag}, source: {src}:')
 
         for ds in (False, True):
             src = '\n<html>\n<p b=1 a=2 c=3 d=4 e=5 f=6 g=7 h=8><svg b=1 a=2 c=3 d=4 e=5 f=6 g=7 h=8>\n'
             root = parse(src, discard_namespaces=ds)
             for tag in ('p', 'svg'):
-                for i, (k, v) in enumerate(root.xpath('//*[local-name()="%s"]' % tag)[0].items()):
+                for i, (k, v) in enumerate(root.xpath(f'//*[local-name()="{tag}"]')[0].items()):
                     self.assertEqual(i+1, int(v))
 
         root = parse('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" xmlns:xml="http://www.w3.org/XML/1998/namespace"><body/></html>')

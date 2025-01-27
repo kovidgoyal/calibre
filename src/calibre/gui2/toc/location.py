@@ -221,10 +221,10 @@ class Page(QWebEnginePage):  # {{{
 
     def show_frag(self, ok):
         if ok and self.current_frag:
-            self.runJavaScript('''
+            self.runJavaScript(f'''
                 document.location = '#non-existent-anchor';
-                document.location = '#' + {};
-            '''.format(json.dumps(self.current_frag)))
+                document.location = '#' + {json.dumps(self.current_frag)};
+            ''')
             self.current_frag = None
             self.runJavaScript('window.pageYOffset/document.body.scrollHeight', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.frag_shown.emit)
 
@@ -451,7 +451,7 @@ class ItemEdit(QWidget):
     def elem_clicked(self, tag, frac, elem_id, loc, totals):
         self.current_frag = elem_id or (loc, totals)
         base = _('Location: A &lt;%s&gt; tag inside the file')%tag
-        loctext = base + ' [%s]'%self.get_loctext(frac)
+        loctext = base + f' [{self.get_loctext(frac)}]'
         self.dest_label.setText(self.base_msg + '<br>' +
                     _('File:') + ' ' + self.current_name + '<br>' + loctext)
 

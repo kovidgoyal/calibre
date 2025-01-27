@@ -137,17 +137,17 @@ class Split:
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
             id = x.get('id')
             try:
-                xp = XPath('//*[@id="%s"]'%id)
+                xp = XPath(f'//*[@id="{id}"]')
             except:
                 try:
-                    xp = XPath("//*[@id='%s']"%id)
+                    xp = XPath(f"//*[@id='{id}']")
                 except:
                     # The id has both a quote and an apostrophe or some other
                     # Just replace it since I doubt its going to work anywhere else
                     # either
                     id = 'calibre_pb_%d'%i
                     x.set('id', id)
-                    xp = XPath('//*[@id=%r]'%id)
+                    xp = XPath(f'//*[@id={id!r}]')
             page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
             page_break_ids.append(id)
 
@@ -215,7 +215,7 @@ class FlowSplitter:
 
         if self.max_flow_size > 0:
             lt_found = False
-            self.log('\tLooking for large trees in %s...'%item.href)
+            self.log(f'\tLooking for large trees in {item.href}...')
             trees = list(self.trees)
             self.tree_map = {}
             for i, tree in enumerate(trees):
@@ -253,8 +253,7 @@ class FlowSplitter:
                 tree = self.trees[i]
                 elem = pattern(tree)
                 if elem:
-                    self.log.debug('\t\tSplitting on page-break at id=%s'%
-                                elem[0].get('id'))
+                    self.log.debug('\t\tSplitting on page-break at id={}'.format(elem[0].get('id')))
                     before_tree, after_tree = self.do_split(tree, elem[0], before)
                     self.trees[i:i+1] = [before_tree, after_tree]
                     break
@@ -436,7 +435,7 @@ class FlowSplitter:
                 for anchor in elem.get('id', ''), elem.get('name', ''):
                     if anchor != '' and anchor not in self.anchor_map:
                         self.anchor_map[anchor] = self.files[-1]
-            for elem in root.xpath('//*[@%s]'%SPLIT_POINT_ATTR):
+            for elem in root.xpath(f'//*[@{SPLIT_POINT_ATTR}]'):
                 elem.attrib.pop(SPLIT_POINT_ATTR, '0')
 
         spine_pos = self.item.spine_position

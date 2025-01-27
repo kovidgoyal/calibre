@@ -137,7 +137,7 @@ class DOCX:
         try:
             raw = self.read('[Content_Types].xml')
         except KeyError:
-            raise InvalidDOCX('The file %s docx file has no [Content_Types].xml' % self.name)
+            raise InvalidDOCX(f'The file {self.name} docx file has no [Content_Types].xml')
         root = fromstring(raw)
         self.content_types = {}
         self.default_content_types = {}
@@ -159,7 +159,7 @@ class DOCX:
         try:
             raw = self.read('_rels/.rels')
         except KeyError:
-            raise InvalidDOCX('The file %s docx file has no _rels/.rels' % self.name)
+            raise InvalidDOCX(f'The file {self.name} docx file has no _rels/.rels')
         root = fromstring(raw)
         self.relationships = {}
         self.relationships_rmap = {}
@@ -177,7 +177,7 @@ class DOCX:
         if name is None:
             names = tuple(n for n in self.names if n == 'document.xml' or n.endswith('/document.xml'))
             if not names:
-                raise InvalidDOCX('The file %s docx file has no main document' % self.name)
+                raise InvalidDOCX(f'The file {self.name} docx file has no main document')
             name = names[0]
         return name
 

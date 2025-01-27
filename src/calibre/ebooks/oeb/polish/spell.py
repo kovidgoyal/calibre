@@ -142,7 +142,7 @@ def count_chars_in_text(node, attr, counter, file_name, locale):
 
 def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     text = replace_entities(text)
-    root = parse('<html><body><div>%s</div></body></html>' % text, decoder=lambda x:x.decode('utf-8'))
+    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x:x.decode('utf-8'))
     ewords = defaultdict(list)
     ewords[None] = 0
     read_words_from_html(root, ewords, file_name, locale)
@@ -155,11 +155,11 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
 
 def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
     text = replace_entities(text)
-    root = parse('<html><body><div>%s</div></body></html>' % text, decoder=lambda x:x.decode('utf-8'))
+    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x:x.decode('utf-8'))
     count_chars_in_html(root, counter, file_name, locale)
 
 
-_opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
+_opf_file_as = '{{{}}}file-as'.format(OPF_NAMESPACES['opf'])
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
 

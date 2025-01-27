@@ -96,10 +96,10 @@ def mark_as_cover(container, name):
     Mark the specified image as the cover image.
     '''
     if name not in container.mime_map:
-        raise ValueError('Cannot mark %s as cover as it does not exist' % name)
+        raise ValueError(f'Cannot mark {name} as cover as it does not exist')
     mt = container.mime_map[name]
     if not is_raster_image(mt):
-        raise ValueError('Cannot mark %s as the cover image as it is not a raster image' % name)
+        raise ValueError(f'Cannot mark {name} as the cover image as it is not a raster image')
     if container.book_type == 'azw3':
         mark_as_cover_azw3(container, name)
     else:
@@ -188,7 +188,7 @@ def get_guides(container):
 def mark_as_cover_epub(container, name):
     mmap = {v:k for k, v in iteritems(container.manifest_id_map)}
     if name not in mmap:
-        raise ValueError('Cannot mark %s as cover as it is not in manifest' % name)
+        raise ValueError(f'Cannot mark {name} as cover as it is not in manifest')
     mid = mmap[name]
     ver = container.opf_version_parsed
 
@@ -340,7 +340,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     if existing_image:
         raster_cover = existing_image
         manifest_id = {v:k for k, v in iteritems(container.manifest_id_map)}[existing_image]
-        raster_cover_item = container.opf_xpath('//opf:manifest/*[@id="%s"]' % manifest_id)[0]
+        raster_cover_item = container.opf_xpath(f'//opf:manifest/*[@id="{manifest_id}"]')[0]
     else:
         folder = recommended_folders[cname]
         if folder:

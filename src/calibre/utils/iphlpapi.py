@@ -292,7 +292,7 @@ def _get_forward_table():
                 yield p_forward_table
                 break
             else:
-                raise OSError('Unable to get IP forward table. Error: %s' % err)
+                raise OSError(f'Unable to get IP forward table. Error: {err}')
         if p_forward_table is None:
             raise OSError('Failed to get IP routing table, table appears to be changing rapidly')
     finally:
@@ -320,7 +320,7 @@ def _get_adapters():
                 buf = _heap_alloc(heap, size)
                 addresses = ctypes.cast(buf, ctypes.POINTER(IP_ADAPTER_ADDRESSES))
             else:
-                raise OSError('Failed to determine size for adapters table with error: %s' % err)
+                raise OSError(f'Failed to determine size for adapters table with error: {err}')
         if addresses is None:
             raise OSError('Failed to get adapter addresses, table appears to be changing rapidly')
     finally:

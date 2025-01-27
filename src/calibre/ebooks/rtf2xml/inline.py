@@ -302,7 +302,7 @@ class Inline:
             inline_list = self.__inline_list[last_index:]
             if len(inline_list) <= 0:
                 if self.__run_level > 3:
-                    msg = 'self.__inline_list is %s\n' % self.__inline_list
+                    msg = f'self.__inline_list is {self.__inline_list}\n'
                     raise self.__bug_handler(msg)
                 self.__write_obj.write('error\n')
                 self.__groups_in_waiting[0] = 0
@@ -312,10 +312,10 @@ class Inline:
                     the_keys = the_dict.keys()
                     if 'font-style' in the_keys:
                         face = the_dict['font-style']
-                        self.__write_obj.write('mi<mk<font______<%s\n' % face)
+                        self.__write_obj.write(f'mi<mk<font______<{face}\n')
                     if 'caps' in the_keys:
                         value = the_dict['caps']
-                        self.__write_obj.write('mi<mk<caps______<%s\n' % value)
+                        self.__write_obj.write(f'mi<mk<caps______<{value}\n')
                     self.__write_obj.write('mi<tg<open-att__<inline')
                     for the_key in the_keys:
                         if the_key != 'contains_inline':
@@ -369,10 +369,10 @@ class Inline:
                 the_keys = the_dict.keys()
                 if 'font-style' in the_keys:
                     face = the_dict['font-style']
-                    self.__write_obj.write('mi<mk<font______<%s\n' % face)
+                    self.__write_obj.write(f'mi<mk<font______<{face}\n')
                 if 'caps' in the_keys:
                     value = the_dict['caps']
-                    self.__write_obj.write('mi<mk<caps______<%s\n' % value)
+                    self.__write_obj.write(f'mi<mk<caps______<{value}\n')
                 self.__write_obj.write('mi<tg<open-att__<inline')
                 for the_key in the_keys:
                     if the_key != 'contains_inline':

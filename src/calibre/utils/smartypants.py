@@ -583,64 +583,64 @@ def educateQuotes(text):
     dec_dashes = r'''&#8211;|&#8212;'''
 
     # Get most opening single quotes:
-    opening_single_quotes_regex = re.compile(r'''
+    opening_single_quotes_regex = re.compile(rf'''
             (
                 \s          |   # a whitespace char, or
                 &nbsp;      |   # a non-breaking space entity, or
                 --          |   # dashes, or
                 &[mn]dash;  |   # named dash entities
-                {}          |   # or decimal entities
+                {dec_dashes}          |   # or decimal entities
                 &\#x201[34];    # or hex
             )
             '                 # the quote
             (?=\w)            # followed by a word character
-            '''.format(dec_dashes), re.VERBOSE)
+            ''', re.VERBOSE)
     text = opening_single_quotes_regex.sub(r'''\1&#8216;''', text)
 
-    closing_single_quotes_regex = re.compile(r'''
-            ({})
+    closing_single_quotes_regex = re.compile(rf'''
+            ({close_class})
             '
             (?!\s | s\b | \d)
-            '''.format(close_class), re.VERBOSE)
+            ''', re.VERBOSE)
     text = closing_single_quotes_regex.sub(r'''\1&#8217;''', text)
 
-    closing_single_quotes_regex = re.compile(r'''
-            ({})
+    closing_single_quotes_regex = re.compile(rf'''
+            ({close_class})
             '
             (\s | s\b)
-            '''.format(close_class), re.VERBOSE)
+            ''', re.VERBOSE)
     text = closing_single_quotes_regex.sub(r'''\1&#8217;\2''', text)
 
     # Any remaining single quotes should be opening ones:
     text = text.replace("'", '&#8216;')
 
     # Get most opening double quotes:
-    opening_double_quotes_regex = re.compile(r'''
+    opening_double_quotes_regex = re.compile(rf'''
             (
                 \s          |   # a whitespace char, or
                 &nbsp;      |   # a non-breaking space entity, or
                 --          |   # dashes, or
                 &[mn]dash;  |   # named dash entities
-                {}          |   # or decimal entities
+                {dec_dashes}          |   # or decimal entities
                 &\#x201[34];    # or hex
             )
             "                 # the quote
             (?=\w)            # followed by a word character
-            '''.format(dec_dashes), re.VERBOSE)
+            ''', re.VERBOSE)
     text = opening_double_quotes_regex.sub(r'''\1&#8220;''', text)
 
     # Double closing quotes:
-    closing_double_quotes_regex = re.compile(r'''
-            #({})?   # character that indicates the quote should be closing
+    closing_double_quotes_regex = re.compile(rf'''
+            #({close_class})?   # character that indicates the quote should be closing
             "
             (?=\s)
-            '''.format(close_class), re.VERBOSE)
+            ''', re.VERBOSE)
     text = closing_double_quotes_regex.sub(r'''&#8221;''', text)
 
-    closing_double_quotes_regex = re.compile(r'''
-            ({})   # character that indicates the quote should be closing
+    closing_double_quotes_regex = re.compile(rf'''
+            ({close_class})   # character that indicates the quote should be closing
             "
-            '''.format(close_class), re.VERBOSE)
+            ''', re.VERBOSE)
     text = closing_double_quotes_regex.sub(r'''\1&#8221;''', text)
 
     if text.endswith('-"'):

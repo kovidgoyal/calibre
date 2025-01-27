@@ -425,7 +425,7 @@ cw<ci<font-style<nu<0
             keys = self.__section.keys()
             for key in keys:
                 self.__write_obj.write(
-                '<%s>%s' % (key, self.__section[key])
+                f'<{key}>{self.__section[key]}'
                 )
             self.__write_obj.write('\n')
 

@@ -100,7 +100,7 @@ def import_from_libreoffice_source_tree(source_path):
                 f.write(('\n'.join(locales)).encode('utf-8'))
 
     if want_locales:
-        raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
+        raise Exception(f'Failed to find dictionaries for some wanted locales: {want_locales}')
 
 
 def fill_country_code(x):
@@ -126,7 +126,7 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
 
     root = safe_xml_fromstring(read_file_func('META-INF/manifest.xml'))
     xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
-        '{%s}full-path' % NS_MAP['manifest'])
+        '{{{}}}full-path'.format(NS_MAP['manifest']))
     for (dic, aff), locales in iteritems(parse_xcu(read_file_func(xcu), origin='')):
         dic, aff = dic.lstrip('/'), aff.lstrip('/')
         d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
@@ -137,9 +137,9 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
         with open(os.path.join(d, 'locales'), 'wb') as f:
             f.write(('\n'.join(metadata)).encode('utf-8'))
         dd, ad = convert_to_utf8(read_file_func(dic), read_file_func(aff))
-        with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
+        with open(os.path.join(d, f'{locales[0]}.dic'), 'wb') as f:
             f.write(dd)
-        with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
+        with open(os.path.join(d, f'{locales[0]}.aff'), 'wb') as f:
             f.write(ad)
         num += 1
     return num

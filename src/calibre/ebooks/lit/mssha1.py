@@ -280,7 +280,7 @@ class mssha1:
         used to exchange the value safely in email or other non-
         binary environments.
         '''
-        return ''.join(['%02x' % c for c in bytearray(self.digest())])
+        return ''.join([f'{c:02x}' for c in bytearray(self.digest())])
 
     def copy(self):
         '''Return a clone object.
@@ -323,7 +323,7 @@ if __name__ == '__main__':
         import sys
         file = None
         if len(sys.argv) > 2:
-            print('usage: %s [FILE]' % sys.argv[0])
+            print(f'usage: {sys.argv[0]} [FILE]')
             return
         elif len(sys.argv) < 2:
             file = sys.stdin

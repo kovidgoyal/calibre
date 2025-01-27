@@ -149,8 +149,8 @@ class DeleteInfo:
             return False
         else:
             if self.__run_level > 5:
-                msg = ('After an asterisk, and found neither an allowable or non-allowable token\n\
-                            token is "%s"\n') % self.__token_info
+                msg = (f'After an asterisk, and found neither an allowable or non-allowable token\n\
+                            token is "{self.__token_info}"\n')
                 raise self.__bug_handler(msg)
             if not self.__ob:
                 self.__write_cb = True
@@ -198,8 +198,7 @@ class DeleteInfo:
                     # Get action to perform
                     action = self.__state_dict.get(self.__state)
                     if not action:
-                        sys.stderr.write('No action in dictionary state is "%s" \n'
-                                % self.__state)
+                        sys.stderr.write(f'No action in dictionary state is "{self.__state}" \n')
                     # Print if allowed by action
                     if action(line):
                         self.__write_obj.write(line)

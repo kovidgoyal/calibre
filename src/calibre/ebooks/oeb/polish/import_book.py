@@ -33,7 +33,7 @@ def auto_fill_manifest(container):
 
 def import_book_as_epub(srcpath, destpath, log=default_log):
     if not destpath.lower().endswith('.epub'):
-        raise ValueError('Can only import books into the EPUB format, not %s' % (os.path.basename(destpath)))
+        raise ValueError(f'Can only import books into the EPUB format, not {os.path.basename(destpath)}')
     with TemporaryDirectory('eei') as tdir:
         tdir = os.path.abspath(os.path.realpath(tdir))  # Needed to handle the multiple levels of symlinks for /tmp on OS X
         plumber = Plumber(srcpath, tdir, log)

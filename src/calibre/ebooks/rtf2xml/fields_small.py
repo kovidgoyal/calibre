@@ -85,7 +85,7 @@ file.
         bk_st = 'cw<an<book-mk-st<nu<true'
         tx = 'tx<nu<__________<(.*?)'
         reg_st = ob + bk_st + tx + cb
-        self.__book_start = re.compile(r'%s' % reg_st)
+        self.__book_start = re.compile(rf'{reg_st}')
 
     def __before_body_func(self, line):
         '''
@@ -148,7 +148,7 @@ file.
         '''
         if self.__beg_bracket_count == self.__cb_count:
             self.__state = 'body'
-            type = 'bookmark-%s'  % self.__type_of_bookmark
+            type = f'bookmark-{self.__type_of_bookmark}'
             # change here
             # my_string = self.__string_obj.process_string(self.__text_string, type)
             my_string = self.__parse_bookmark_func(
@@ -184,9 +184,9 @@ file.
         my_changed_string = 'mi<tg<empty-att_<field<type>index-entry'
         my_changed_string += '<update>static'
         if see_string:
-            my_changed_string += '<additional-text>%s' % see_string
+            my_changed_string += f'<additional-text>{see_string}'
         if bookmark_string:
-            my_changed_string += '<bookmark>%s' % bookmark_string
+            my_changed_string += f'<bookmark>{bookmark_string}'
         if italics:
             my_changed_string += '<italics>true'
         if bold:
@@ -203,9 +203,9 @@ file.
                     sub_entry += line[17:]
                 else:
                     main_entry += line[17:]
-        my_changed_string += '<main-entry>%s' % main_entry
+        my_changed_string += f'<main-entry>{main_entry}'
         if found_sub:
-            my_changed_string += '<sub-entry>%s' % sub_entry
+            my_changed_string += f'<sub-entry>{sub_entry}'
         my_changed_string += '\n'
         return my_changed_string
 
@@ -232,7 +232,7 @@ file.
                 if token_info == 'cw<in<index-see_':
                     end_bracket_count = bracket_count - 1
                     in_see = 1
-                changed_string += '%s\n' % line
+                changed_string += f'{line}\n'
         return changed_string, see_string
 
     def __index_bookmark_func(self, my_string):
@@ -259,17 +259,17 @@ file.
             if in_bookmark:
                 if bracket_count == end_bracket_count and token_info == 'cb<nu<clos-brack':
                     in_bookmark = 0
-                    index_string += '%s\n' % line
+                    index_string += f'{line}\n'
                 else:
                     if token_info == 'tx<nu<__________':
                         bookmark_string += line[17:]
                     else:
-                        index_string += '%s\n' % line
+                        index_string += f'{line}\n'
             else:
                 if token_info == 'cw<an<place_____':
                     end_bracket_count = bracket_count - 1
                     in_bookmark = 1
-                index_string += '%s\n' % line
+                index_string += f'{line}\n'
         return index_string, bookmark_string
 
     def __index__format_func(self, my_string):
@@ -300,9 +300,9 @@ file.
         my_changed_string = 'mi<tg<empty-att_<field<type>toc-entry'
         my_changed_string += '<update>static'
         if book_start_string:
-            my_changed_string += '<bookmark-start>%s' % book_start_string
+            my_changed_string += f'<bookmark-start>{book_start_string}'
         if book_end_string:
-            my_changed_string += '<bookmark-end>%s' % book_end_string
+            my_changed_string += f'<bookmark-end>{book_end_string}'
         lines = my_string.split('\n')
         for line in lines:
             token_info = line[:16]
@@ -313,10 +313,10 @@ file.
             if token_info == 'cw<tc<toc-sup-nu':
                 toc_suppress = 1
         if toc_level:
-            my_changed_string += '<toc-level>%s' % toc_level
+            my_changed_string += f'<toc-level>{toc_level}'
         if toc_suppress:
             my_changed_string += '<toc-suppress-number>true'
-        my_changed_string += '<main-entry>%s' % main_entry
+        my_changed_string += f'<main-entry>{main_entry}'
         my_changed_string += '\n'
         return my_changed_string
 
@@ -346,7 +346,7 @@ file.
             if in_bookmark:
                 if bracket_count == end_bracket_count and token_info == 'cb<nu<clos-brack':
                     in_bookmark = 0
-                    toc_string += '%s\n' % line
+                    toc_string += f'{line}\n'
                 else:
                     if token_info == 'tx<nu<__________':
                         if book_type == 'start':
@@ -354,7 +354,7 @@ file.
                         elif book_type == 'end':
                             book_end_string += line[17:]
                     else:
-                        toc_string += '%s\n' % line
+                        toc_string += f'{line}\n'
             else:
                 if token_info == 'cw<an<book-mk-st' or token_info =='cw<an<book-mk-en':
                     if token_info == 'cw<an<book-mk-st':
@@ -363,7 +363,7 @@ file.
                         book_type = 'end'
                     end_bracket_count = bracket_count - 1
                     in_bookmark = 1
-                toc_string += '%s\n' % line
+                toc_string += f'{line}\n'
         return toc_string, book_start_string, book_end_string
 
     def __parse_bookmark_func(self, my_string, type):
@@ -377,8 +377,8 @@ file.
             The type is the name (either bookmark-end or bookmark-start). The
             id is the complete text string.
         '''
-        my_changed_string = ('mi<tg<empty-att_<field<type>%s'
-        '<number>%s<update>none\n' % (type, my_string))
+        my_changed_string = (f'mi<tg<empty-att_<field<type>{type}'
+        f'<number>{my_string}<update>none\n')
         return my_changed_string
 
     def __found_toc_index_func(self, line, tag):

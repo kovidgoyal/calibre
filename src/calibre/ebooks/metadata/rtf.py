@@ -157,24 +157,24 @@ def create_metadata(stream, options):
     md = [r'{\info']
     if options.title:
         title = encode(options.title)
-        md.append(r'{\title %s}'%(title,))
+        md.append(rf'{{\title {title}}}')
     if options.authors:
         au = options.authors
         if not isinstance(au, string_or_bytes):
             au = ', '.join(au)
         author = encode(au)
-        md.append(r'{\author %s}'%(author,))
+        md.append(rf'{{\author {author}}}')
     comp = options.comment if hasattr(options, 'comment') else options.comments
     if comp:
         comment = encode(comp)
-        md.append(r'{\subject %s}'%(comment,))
+        md.append(rf'{{\subject {comment}}}')
     if options.publisher:
         publisher = encode(options.publisher)
-        md.append(r'{\manager %s}'%(publisher,))
+        md.append(rf'{{\manager {publisher}}}')
     if options.tags:
         tags = ', '.join(options.tags)
         tags = encode(tags)
-        md.append(r'{\category %s}'%(tags,))
+        md.append(rf'{{\category {tags}}}')
     if len(md) > 1:
         md.append('}')
         stream.seek(0)

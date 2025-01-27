@@ -335,7 +335,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         key = re.sub(r'[^a-fA-F0-9]', '', uuid)
         if len(key) < 16:
-            raise ValueError('UUID identifier %r is invalid'%uuid)
+            raise ValueError(f'UUID identifier {uuid!r} is invalid')
         key = bytearray(from_hex_bytes((key + key)[:32]))
         paths = []
         with CurrentDir(tdir):
@@ -362,10 +362,10 @@ class EPUBOutput(OutputFormatPlugin):
                 <enc:EncryptedData>
                     <enc:EncryptionMethod Algorithm="http://ns.adobe.com/pdf/enc#RC"/>
                     <enc:CipherData>
-                    <enc:CipherReference URI="%s"/>
+                    <enc:CipherReference URI="{}"/>
                     </enc:CipherData>
                 </enc:EncryptedData>
-                '''%(uri.replace('"', '\\"')))
+                '''.format(uri.replace('"', '\\"')))
             if fonts:
                 ans = '''<encryption
                     xmlns="urn:oasis:names:tc:opendocument:xmlns:container"
@@ -409,7 +409,7 @@ class EPUBOutput(OutputFormatPlugin):
                 frag = urlunquote(frag)
                 if frag and frag_pat.match(frag) is None:
                     self.log.warn(
-                            'Removing fragment identifier %r from TOC as Adobe Digital Editions cannot handle it'%frag)
+                            f'Removing fragment identifier {frag!r} from TOC as Adobe Digital Editions cannot handle it')
                     node.href = base
 
         for x in self.oeb.spine:
@@ -540,7 +540,7 @@ class EPUBOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.polish.toc import item_at_top
 
         def frag_is_at_top(root, frag):
-            elem = XPath('//*[@id="%s" or @name="%s"]'%(frag, frag))(root)
+            elem = XPath(f'//*[@id="{frag}" or @name="{frag}"]')(root)
             if elem:
                 elem = elem[0]
             else:

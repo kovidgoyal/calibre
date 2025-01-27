@@ -45,10 +45,10 @@ class Footnote:
         '''
         if self.__token_info == 'cw<nt<type______':
             self.__write_to_foot_obj.write(
-            'mi<tg<open-att__<footnote<type>endnote<num>%s\n' % self.__footnote_count)
+            f'mi<tg<open-att__<footnote<type>endnote<num>{self.__footnote_count}\n')
         else:
             self.__write_to_foot_obj.write(
-            'mi<tg<open-att__<footnote<num>%s\n' % self.__footnote_count)
+            f'mi<tg<open-att__<footnote<num>{self.__footnote_count}\n')
         self.__first_line = 0
 
     def __in_footnote_func(self, line):
@@ -59,7 +59,7 @@ class Footnote:
             num = str(self.__footnote_count)
             self.__write_to_foot_obj.write(line)
             self.__write_to_foot_obj.write(
-                'tx<nu<__________<%s\n' % num
+                f'tx<nu<__________<{num}\n'
             )
         if self.__cb_count == self.__footnote_bracket_count:
             self.__in_footnote = 0
@@ -95,7 +95,7 @@ class Footnote:
         if self.__token_info == 'cw<ci<footnot-mk':
             num = str(self.__footnote_count + 1)
             self.__write_obj.write(
-                'tx<nu<__________<%s\n' % num
+                f'tx<nu<__________<{num}\n'
             )
 
     def __initiate_sep_values(self):

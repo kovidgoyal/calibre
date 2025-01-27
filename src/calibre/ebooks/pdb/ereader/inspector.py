@@ -17,7 +17,7 @@ from calibre.ebooks.pdb.header import PdbHeaderReader
 def ereader_header_info(header):
     h0 = header.section_data(0)
 
-    print('Header Size:     %s' % len(h0))
+    print(f'Header Size:     {len(h0)}')
 
     if len(h0) == 132:
         print('Header Type:     Dropbook compatible')
@@ -34,9 +34,9 @@ def ereader_header_info(header):
 def pdb_header_info(header):
     print('PDB Header Info:')
     print('')
-    print('Identity:        %s' % header.ident)
-    print('Total Sections:   %s' % header.num_sections)
-    print('Title:           %s' % header.title)
+    print(f'Identity:        {header.ident}')
+    print(f'Total Sections:   {header.num_sections}')
+    print(f'Title:           {header.title}')
     print('')
 
 

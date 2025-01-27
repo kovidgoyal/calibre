@@ -138,7 +138,7 @@ class CheckExternalLinks(Dialog):
 
     def populate_results(self, preserve_pos=False):
         num = len(self.errors) - len(self.fixed_errors)
-        text = '<h3>%s</h3><ol>' % (ngettext(
+        text = '<h3>{}</h3><ol>'.format(ngettext(
             'Found a broken link', 'Found {} broken links', num).format(num))
         for i, (locations, err, url) in enumerate(self.errors):
             if i in self.fixed_errors:

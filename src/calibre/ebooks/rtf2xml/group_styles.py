@@ -164,9 +164,9 @@ class GroupStyles:
 
     def __write_start_wrap(self, name):
         if self.__wrap:
-            self.__write_obj.write('mi<mk<style-grp_<%s\n' % name)
-            self.__write_obj.write('mi<tg<open-att__<style-group<name>%s\n' % name)
-            self.__write_obj.write('mi<mk<style_grp_<%s\n' % name)
+            self.__write_obj.write(f'mi<mk<style-grp_<{name}\n')
+            self.__write_obj.write(f'mi<tg<open-att__<style-group<name>{name}\n')
+            self.__write_obj.write(f'mi<mk<style_grp_<{name}\n')
 
     def __write_end_wrap(self):
         if self.__wrap:

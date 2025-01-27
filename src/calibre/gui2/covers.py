@@ -212,12 +212,12 @@ class CoverSettingsWidget(QWidget):
                 ('subtitle', _('&Subtitle font family:'), _('&Subtitle font size:')),
                 ('footer', _('&Footer font family:'), _('&Footer font size:')),
         ):
-            attr = '%s_font_family' % x
+            attr = f'{x}_font_family'
             ff = FontFamilyChooser(fp)
             setattr(self, attr, ff)
             l.addRow(label, ff)
             ff.family_changed.connect(self.emit_changed)
-            attr = '%s_font_size' % x
+            attr = f'{x}_font_size'
             fs = QSpinBox(fp)
             setattr(self, attr, fs)
             fs.setMinimum(8), fs.setMaximum(200), fs.setSuffix(' px')
@@ -304,9 +304,9 @@ class CoverSettingsWidget(QWidget):
 
     def _apply_prefs(self, prefs):
         for x in ('title', 'subtitle', 'footer'):
-            attr = '%s_font_family' % x
+            attr = f'{x}_font_family'
             getattr(self, attr).font_family = prefs[attr]
-            attr = '%s_font_size' % x
+            attr = f'{x}_font_size'
             getattr(self, attr).setValue(prefs[attr])
 
         for x in ('title', 'subtitle', 'footer'):
@@ -392,9 +392,9 @@ class CoverSettingsWidget(QWidget):
     def current_prefs(self):
         prefs = {k:self.original_prefs[k] for k in self.original_prefs.defaults}
         for x in ('title', 'subtitle', 'footer'):
-            attr = '%s_font_family' % x
+            attr = f'{x}_font_family'
             prefs[attr] = getattr(self, attr).font_family
-            attr = '%s_font_size' % x
+            attr = f'{x}_font_size'
             prefs[attr] = getattr(self, attr).value()
         prefs['color_themes'] = self.custom_colors
         prefs['disabled_styles'] = list(self.disabled_styles)
@@ -498,7 +498,7 @@ class CoverSettingsWidget(QWidget):
         prefs = self.prefs_for_rendering
         hr = h / prefs['cover_height']
         for x in ('title', 'subtitle', 'footer'):
-            attr = '%s_font_size' % x
+            attr = f'{x}_font_size'
             prefs[attr] = int(prefs[attr] * hr)
         prefs['cover_width'], prefs['cover_height'] = w, h
         img = generate_cover(self.mi, prefs=prefs, as_qimage=True)

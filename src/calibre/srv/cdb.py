@@ -35,9 +35,9 @@ def cdb_run(ctx, rd, which, version):
     if not getattr(m, 'readonly', False):
         ctx.check_for_write_access(rd)
     if getattr(m, 'version', 0) != int(version):
-        raise HTTPNotFound(('The module {} is not available in version: {}.'
+        raise HTTPNotFound(f'The module {which} is not available in version: {version}.'
                            'Make sure the version of calibre used for the'
-                            ' server and calibredb match').format(which, version))
+                            ' server and calibredb match')
     db = get_library_data(ctx, rd, strict_library_id=True)[0]
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the command-line db interface with a user who has per library restrictions')

@@ -248,7 +248,7 @@ class AddRemoveTest(BaseTest):
         item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
-            af(os.path.exists(x), 'The file %s exists, when it should not' % x)
+            af(os.path.exists(x), f'The file {x} exists, when it should not')
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
@@ -279,7 +279,7 @@ class AddRemoveTest(BaseTest):
         item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
-            af(os.path.exists(x), 'The file %s exists, when it should not' % x)
+            af(os.path.exists(x), f'The file {x} exists, when it should not')
         b, f = cache.list_trash_entries()
         self.assertEqual(len(b), 1)
         self.assertEqual(len(f), 0)

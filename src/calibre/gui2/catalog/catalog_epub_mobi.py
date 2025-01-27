@@ -134,7 +134,7 @@ class PluginWidget(QWidget, Ui_Form):
 
     def block_all_signals(self, bool):
         if self.DEBUG:
-            print('block_all_signals: %s' % bool)
+            print(f'block_all_signals: {bool}')
         self.blocking_all_signals = bool
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
@@ -244,7 +244,7 @@ class PluginWidget(QWidget, Ui_Form):
                     results = _truncated_results(excluded_tags)
         finally:
             if False and self.DEBUG:
-                print('exclude_genre_changed(): %s' % results)
+                print(f'exclude_genre_changed(): {results}')
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)
 
@@ -532,8 +532,7 @@ class PluginWidget(QWidget, Ui_Form):
             genre_source_spec = self.genre_source_fields[cs]
             self.genre_source_field_name = genre_source_spec['field']
 
-        opts_dict['merge_comments_rule'] = '%s:%s:%s' % \
-            (self.merge_source_field_name, checked, include_hr)
+        opts_dict['merge_comments_rule'] = f'{self.merge_source_field_name}:{checked}:{include_hr}'
 
         opts_dict['header_note_source_field'] = self.header_note_source_field_name
 
@@ -799,8 +798,7 @@ class PluginWidget(QWidget, Ui_Form):
         elif self.merge_after.isChecked():
             checked = 'after'
         include_hr = self.include_hr.isChecked()
-        preset['merge_comments_rule'] = '%s:%s:%s' % \
-            (self.merge_source_field_name, checked, include_hr)
+        preset['merge_comments_rule'] = f'{self.merge_source_field_name}:{checked}:{include_hr}'
 
         preset['header_note_source_field'] = str(self.header_note_source_field.currentText())
         preset['genre_source_field'] = str(self.genre_source_field.currentText())
@@ -839,7 +837,7 @@ class PluginWidget(QWidget, Ui_Form):
         When anything changes, clear Preset combobox
         '''
         if self.DEBUG:
-            print('settings_changed: %s' % source)
+            print(f'settings_changed: {source}')
         self.preset_field.setCurrentIndex(0)
 
     def show_help(self):
@@ -1002,7 +1000,7 @@ class GenericRulesTable(QTableWidget):
 
     def delete_row(self):
         if self.DEBUG:
-            print('%s:delete_row()' % self.objectName())
+            print(f'{self.objectName()}:delete_row()')
 
         self.setFocus()
         rows = self.last_rows_selected
@@ -1036,7 +1034,7 @@ class GenericRulesTable(QTableWidget):
 
     def focusInEvent(self, e):
         if self.DEBUG:
-            print('%s:focusInEvent()' % self.objectName())
+            print(f'{self.objectName()}:focusInEvent()')
 
     def focusOutEvent(self, e):
         # Override of QTableWidget method - clear selection when table loses focus
@@ -1127,7 +1125,7 @@ class GenericRulesTable(QTableWidget):
 
     def rule_name_edited(self):
         if self.DEBUG:
-            print('%s:rule_name_edited()' % self.objectName())
+            print(f'{self.objectName()}:rule_name_edited()')
 
         current_row = self.currentRow()
         self.cellWidget(current_row, 1).home(False)

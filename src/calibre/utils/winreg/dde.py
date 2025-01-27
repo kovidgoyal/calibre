@@ -74,7 +74,7 @@ class DDEError(ValueError):
 
 def init_errcheck(result, func, args):
     if result != 0:
-        raise DDEError('Failed to initialize DDE client with return code: %x' % result)
+        raise DDEError(f'Failed to initialize DDE client with return code: {result:x}')
     return args
 
 
@@ -84,7 +84,7 @@ def no_errcheck(result, func, args):
 
 def dde_error(instance):
     errcode = GetLastError(instance)
-    raise DDEError(DML_ERRORS.get(errcode, 'Unknown DDE error code: %x' % errcode))
+    raise DDEError(DML_ERRORS.get(errcode, f'Unknown DDE error code: {errcode:x}'))
 
 
 def default_errcheck(result, func, args):

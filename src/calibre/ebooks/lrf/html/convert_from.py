@@ -93,8 +93,8 @@ def strip_style_comments(match):
 
 def tag_regex(tagname):
     '''Return non-grouping regular expressions that match the opening and closing tags for tagname'''
-    return dict(open=r'(?:<\s*%(t)s\s+[^<>]*?>|<\s*%(t)s\s*>)'%dict(t=tagname),
-                close=r'</\s*%(t)s\s*>'%dict(t=tagname))
+    return dict(open=r'(?:<\s*{t}\s+[^<>]*?>|<\s*{t}\s*>)'.format(**dict(t=tagname)),
+                close=r'</\s*{t}\s*>'.format(**dict(t=tagname)))
 
 
 class HTMLConverter:
@@ -112,7 +112,7 @@ class HTMLConverter:
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                         # remove <p> tags from within <a href> tags
                         (re.compile(r'<\s*a\s+[^<>]*href\s*=[^<>]*>(.*?)<\s*/\s*a\s*>', re.DOTALL|re.IGNORECASE),
-                         lambda match: re.compile(r'%(open)s|%(close)s'%tag_regex('p'), re.IGNORECASE).sub('', match.group())),
+                         lambda match: re.compile(r'{open}|{close}'.format(**tag_regex('p')), re.IGNORECASE).sub('', match.group())),
 
                         # Replace common line break patterns with line breaks
                         (re.compile(r'<p>(&nbsp;|\s)*</p>', re.IGNORECASE), lambda m: '<br />'),
@@ -132,7 +132,7 @@ class HTMLConverter:
 
                         # BeautifulSoup treats self closing <div> tags as open <div> tags
                         (re.compile(r'(?i)<\s*div([^>]*)/\s*>'),
-                         lambda match: '<div%s></div>'%match.group(1))
+                         lambda match: f'<div{match.group(1)}></div>')
 
                         ]
     # Fix Baen markup
@@ -167,13 +167,13 @@ class HTMLConverter:
                       lambda match : '<span style="page-break-after:always"> </span>'),
                      # Create header tags
                      (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-                      lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+                      lambda match : '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-                      lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+                      lambda match : '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
+                      lambda match : f'<h2 class="title">{match.group(1)}</h2>'),
                      (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
+                      lambda match : f'<h3 class="subtitle">{match.group(1)}</h3>'),
                      # Blank lines
                      (re.compile(r'<div[^><]*?>(&nbsp;){4}</div>', re.IGNORECASE),
                       lambda match : '<p></p>'),
@@ -614,7 +614,7 @@ class HTMLConverter:
                hasattr(target.parent, 'objId'):
                 self.book.addTocEntry(ascii_text, tb)
             else:
-                self.log.debug('Cannot add link %s to TOC'%ascii_text)
+                self.log.debug(f'Cannot add link {ascii_text} to TOC')
 
         def get_target_block(fragment, targets):
             '''Return the correct block for the <a name> element'''
@@ -938,7 +938,7 @@ class HTMLConverter:
         try:
             im = PILImage.open(path)
         except OSError as err:
-            self.log.warning('Unable to process image: %s\n%s'%(original_path, err))
+            self.log.warning(f'Unable to process image: {original_path}\n{err}')
             return
         encoding = detect_encoding(im)
 
@@ -1017,8 +1017,7 @@ class HTMLConverter:
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
             except LrsError as err:
-                self.log.warning(('Could not process image: %s\n%s')%(
-                    original_path, err))
+                self.log.warning(f'Could not process image: {original_path}\n{err}')
                 return
 
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
@@ -1080,7 +1079,7 @@ class HTMLConverter:
 
             if number_of_paragraphs > 2:
                 self.end_page()
-                self.log.debug('Forcing page break at %s'%tagname)
+                self.log.debug(f'Forcing page break at {tagname}')
         return end_page
 
     def block_properties(self, tag_css):
@@ -1470,7 +1469,7 @@ class HTMLConverter:
             (self.chapter_attr[1].lower() == 'none' or
              (tag.has_attr(self.chapter_attr[1]) and
               self.chapter_attr[2].match(tag[self.chapter_attr[1]])))):
-            self.log.debug('Detected chapter %s'%tagname)
+            self.log.debug(f'Detected chapter {tagname}')
             self.end_page()
             self.page_break_found = True
 
@@ -1530,7 +1529,7 @@ class HTMLConverter:
                     elif not urlparse(tag['src'])[0]:
                         self.log.warn('Could not find image: '+tag['src'])
                 else:
-                    self.log.debug('Failed to process: %s'%str(tag))
+                    self.log.debug(f'Failed to process: {tag!s}')
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
@@ -1682,7 +1681,7 @@ class HTMLConverter:
 
                 if not self.disable_chapter_detection and tagname.startswith('h'):
                     if self.chapter_regex.search(src):
-                        self.log.debug('Detected chapter %s'%src)
+                        self.log.debug(f'Detected chapter {src}')
                         self.end_page()
                         self.page_break_found = True
 

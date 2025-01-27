@@ -228,8 +228,7 @@ class MTP_DEVICE(MTPDeviceBase):
             self.dev = self.create_device(connected_device)
         except Exception as e:
             self.blacklisted_devices.add(connected_device)
-            raise OpenFailed('Failed to open %s: Error: %s'%(
-                    connected_device, as_unicode(e)))
+            raise OpenFailed(f'Failed to open {connected_device}: Error: {as_unicode(e)}')
 
         try:
             storage = sorted_storage(self.dev.storage_info)
@@ -259,13 +258,13 @@ class MTP_DEVICE(MTPDeviceBase):
         storage = [x for x in storage if x.get('rw', False)]
         if not storage:
             self.blacklisted_devices.add(connected_device)
-            raise OpenFailed('No storage found for device %s'%(connected_device,))
+            raise OpenFailed(f'No storage found for device {connected_device}')
         snum = self.dev.serial_number
         if snum in self.prefs.get('blacklist', []):
             self.blacklisted_devices.add(connected_device)
             self.dev = None
             raise BlacklistedDevice(
-                'The %s device has been blacklisted by the user'%(connected_device,))
+                f'The {connected_device} device has been blacklisted by the user')
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
@@ -281,11 +280,11 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def device_debug_info(self):
         ans = self.get_gui_name()
-        ans += '\nSerial number: %s'%self.current_serial_num
-        ans += '\nManufacturer: %s'%self.dev.manufacturer_name
-        ans += '\nModel: %s'%self.dev.model_name
-        ans += '\nids: %s'%(self.dev.ids,)
-        ans += '\nDevice version: %s'%self.dev.device_version
+        ans += f'\nSerial number: {self.current_serial_num}'
+        ans += f'\nManufacturer: {self.dev.manufacturer_name}'
+        ans += f'\nModel: {self.dev.model_name}'
+        ans += f'\nids: {self.dev.ids}'
+        ans += f'\nDevice version: {self.dev.device_version}'
         ans += '\nStorage:\n'
         storage = sorted_storage(self.dev.storage_info)
         ans += pprint.pformat(storage)
@@ -306,7 +305,7 @@ class MTP_DEVICE(MTPDeviceBase):
         path = tuple(reversed(path))
         ok = not self.is_folder_ignored(self._currently_getting_sid, path)
         if not ok:
-            debug('Ignored object: %s' % '/'.join(path))
+            debug('Ignored object: {}'.format('/'.join(path)))
         return ok
 
     @property
@@ -335,14 +334,10 @@ class MTP_DEVICE(MTPDeviceBase):
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
                     raise DeviceError(
-                            'Failed to read filesystem from %s with errors: %s'
-                            %(self.current_friendly_name,
-                                self.format_errorstack(all_errs)))
+                            f'Failed to read filesystem from {self.current_friendly_name} with errors: {self.format_errorstack(all_errs)}')
                 if all_errs:
                     prints('There were some errors while getting the '
-                            ' filesystem from %s: %s'%(
-                                self.current_friendly_name,
-                                self.format_errorstack(all_errs)))
+                            f' filesystem from {self.current_friendly_name}: {self.format_errorstack(all_errs)}')
                 self._filesystem_cache = FilesystemCache(storage, all_items)
             debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
                 time.time()-st, len(self._filesystem_cache)))
@@ -377,7 +372,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def create_folder(self, parent, name):
         if not parent.is_folder:
-            raise ValueError('%s is not a folder'%(parent.full_path,))
+            raise ValueError(f'{parent.full_path} is not a folder')
         e = parent.folder_named(name)
         if e is not None:
             return e
@@ -387,21 +382,18 @@ class MTP_DEVICE(MTPDeviceBase):
         ans, errs = self.dev.create_folder(sid, pid, name)
         if ans is None:
             raise DeviceError(
-                    'Failed to create folder named %s in %s with error: %s'%
-                    (name, parent.full_path, self.format_errorstack(errs)))
+                    f'Failed to create folder named {name} in {parent.full_path} with error: {self.format_errorstack(errs)}')
         return parent.add_child(ans)
 
     @synchronous
     def put_file(self, parent, name, stream, size, callback=None, replace=True):
         e = parent.folder_named(name)
         if e is not None:
-            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
-                parent.full_path, e.name))
+            raise ValueError(f'Cannot upload file, {parent.full_path} already has a folder named: {e.name}')
         e = parent.file_named(name)
         if e is not None:
             if not replace:
-                raise ValueError('Cannot upload file %s, it already exists'%(
-                    e.full_path,))
+                raise ValueError(f'Cannot upload file {e.full_path}, it already exists')
             self.delete_file_or_folder(e)
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
@@ -409,21 +401,19 @@ class MTP_DEVICE(MTPDeviceBase):
 
         ans, errs = self.dev.put_file(sid, pid, name, stream, size, callback)
         if ans is None:
-            raise DeviceError('Failed to upload file named: %s to %s: %s'
-                    %(name, parent.full_path, self.format_errorstack(errs)))
+            raise DeviceError(f'Failed to upload file named: {name} to {parent.full_path}: {self.format_errorstack(errs)}')
         return parent.add_child(ans)
 
     @synchronous
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
-            raise ValueError('%s if a folder'%(f.full_path,))
+            raise ValueError(f'{f.full_path} if a folder')
         set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
         ok, errs = self.dev.get_file(f.object_id, stream, callback)
         if not ok:
-            raise DeviceError('Failed to get file: %s with errors: %s'%(
-                f.full_path, self.format_errorstack(errs)))
+            raise DeviceError(f'Failed to get file: {f.full_path} with errors: {self.format_errorstack(errs)}')
         stream.seek(0)
         if set_name:
             stream.name = f.name
@@ -476,18 +466,14 @@ class MTP_DEVICE(MTPDeviceBase):
         if obj.deleted:
             return
         if not obj.can_delete:
-            raise ValueError('Cannot delete %s as deletion not allowed'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as deletion not allowed')
         if obj.is_system:
-            raise ValueError('Cannot delete %s as it is a system object'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as it is a system object')
         if obj.files or obj.folders:
-            raise ValueError('Cannot delete %s as it is not empty'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as it is not empty')
         parent = obj.parent
         ok, errs = self.dev.delete_object(obj.object_id)
         if not ok:
-            raise DeviceError('Failed to delete %s with error: %s'%
-                (obj.full_path, self.format_errorstack(errs)))
+            raise DeviceError(f'Failed to delete {obj.full_path} with error: {self.format_errorstack(errs)}')
         parent.remove_child(obj)
         return parent

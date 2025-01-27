@@ -87,8 +87,7 @@ class ParseItem:
         self.parsing_done = False
 
     def __repr__(self):
-        return 'ParsedItem(name={!r}, length={!r}, fingerprint={!r}, parsing_done={!r}, parsed_data_is_None={!r})'.format(
-            self.name, self.length, self.fingerprint, self.parsing_done, self.parsed_data is None)
+        return f'ParsedItem(name={self.name!r}, length={self.length!r}, fingerprint={self.fingerprint!r}, parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})'
 
 
 class ParseWorker(Thread):
@@ -598,7 +597,7 @@ class Preview(QWidget):
         self.bar.addSeparator()
         self.bar.addWidget(self.search)
         for d in ('next', 'prev'):
-            ac = actions['find-%s-preview' % d]
+            ac = actions[f'find-{d}-preview']
             ac.triggered.connect(getattr(self, 'find_' + d))
             self.bar.addAction(ac)
 

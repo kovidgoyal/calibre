@@ -23,8 +23,7 @@ class MaxpTable(UnknownTable):
         self.fields = ('_version', 'num_glyphs')
 
         if self.version > 1.0:
-            raise UnsupportedFont('This font has a maxp table with version: %s'
-                    %self.version)
+            raise UnsupportedFont(f'This font has a maxp table with version: {self.version}')
         if self.version == 1.0:
             self.fields = ('_version', 'num_glyphs', 'max_points',
                     'max_contours', 'max_composite_points',

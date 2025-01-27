@@ -273,7 +273,7 @@ class ZshCompleter:  # {{{
                 lo = [x+'=' for x in lo]
                 so = [x+'+' for x in so]
             ostrings = lo + so
-            ostrings = '{%s}'%','.join(ostrings) if len(ostrings) > 1 else ostrings[0]
+            ostrings = '{{{}}}'.format(','.join(ostrings)) if len(ostrings) > 1 else ostrings[0]
             exclude = ''
             if opt.dest is None:
                 exclude = "'(- *)'"
@@ -283,17 +283,17 @@ class ZshCompleter:  # {{{
             h = h.replace('%default', str(opt.default))
             arg = ''
             if opt.takes_value():
-                arg = ':"%s":'%h
+                arg = f':"{h}":'
                 if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
-                    arg += '(%s)'%'|'.join(opt.choices)
+                    arg += '({})'.format('|'.join(opt.choices))
                 elif set(file_map).intersection(set(opt._long_opts)):
                     k = tuple(set(file_map).intersection(set(opt._long_opts)))
                     exts = file_map[k[0]]
                     if exts:
-                        exts = ('*.%s'%x for x in sorted(exts + [x.upper() for x in exts]))
-                        arg += "'_files -g \"%s\"'" % ' '.join(exts)
+                        exts = (f'*.{x}' for x in sorted(exts + [x.upper() for x in exts]))
+                        arg += "'_files -g \"{}\"'".format(' '.join(exts))
                     else:
                         arg += '_files'
                 elif (opt.dest in {'pidfile', 'attachment'}):
@@ -301,18 +301,18 @@ class ZshCompleter:  # {{{
                 elif set(opf_opts).intersection(set(opt._long_opts)):
                     arg += "'_files -g \"*.opf\"'"
                 elif set(cover_opts).intersection(set(opt._long_opts)):
-                    exts = ('*.%s'%x for x in sorted(pics + [x.upper() for x in pics]))
-                    arg += "'_files -g \"%s\"'" % ' '.join(exts)
+                    exts = (f'*.{x}' for x in sorted(pics + [x.upper() for x in pics]))
+                    arg += "'_files -g \"{}\"'".format(' '.join(exts))
 
-            help_txt = '"[%s]"'%h
-            yield '%s%s%s%s '%(exclude, ostrings, help_txt, arg)
+            help_txt = f'"[{h}]"'
+            yield f'{exclude}{ostrings}{help_txt}{arg} '
 
     def opts_and_exts(self, name, op, exts, cover_opts=('--cover',),
                       opf_opts=('--opf',), file_map={}):
         if not self.dest:
             return
         exts = sorted({x.lower() for x in exts})
-        extra = ('''"*:filename:_files -g '(#i)*.(%s)'" ''' % '|'.join(exts),)
+        extra = ('''"*:filename:_files -g '(#i)*.({})'" '''.format('|'.join(exts)),)
         opts = '\\\n  '.join(tuple(self.get_options(
             op(), cover_opts=cover_opts, opf_opts=opf_opts, file_map=file_map)) + extra)
         txt = '_arguments -s \\\n  ' + opts
@@ -345,18 +345,18 @@ class ZshCompleter:  # {{{
         w('\n    "--list-recipes:List builtin recipe names"')
         for recipe in sorted(set(get_builtin_recipe_titles())):
             recipe = recipe.replace(':', '\\:').replace('"', '\\"')
-            w('\n    "%s.recipe"'%(recipe))
+            w(f'\n    "{recipe}.recipe"')
         w('\n  ); _describe -t recipes "ebook-convert builtin recipes" extras')
-        w('\n  _files -g "%s"'%' '.join('*.%s'%x for x in iexts))
+        w('\n  _files -g "{}"'.format(' '.join(f'*.{x}' for x in iexts)))
         w('\n}\n')
 
         # Arg 2
         w('\n_ebc_output_args() {')
         w('\n  local extras; extras=(')
         for x in output_fmts:
-            w('\n    ".{0}:Convert to a .{0} file with the same name as the input file"'.format(x))
+            w(f'\n    ".{x}:Convert to a .{x} file with the same name as the input file"')
         w('\n  ); _describe -t output "ebook-convert output" extras')
-        w('\n  _files -g "%s"'%' '.join('*.%s'%x for x in oexts))
+        w('\n  _files -g "{}"'.format(' '.join(f'*.{x}' for x in oexts)))
         w('\n  _path_files -/')
         w('\n}\n')
 
@@ -434,12 +434,12 @@ class ZshCompleter:  # {{{
                 lo = [x+'=' for x in lo]
                 so = [x+'+' for x in so]
             ostrings = lo + so
-            ostrings = '{%s}'%','.join(ostrings) if len(ostrings) > 1 else '"%s"'%ostrings[0]
+            ostrings = '{{{}}}'.format(','.join(ostrings)) if len(ostrings) > 1 else f'"{ostrings[0]}"'
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
                 ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
             h = h.replace('%default', str(opt.default))
-            help_txt = '"[%s]"'%h
+            help_txt = f'"[{h}]"'
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
@@ -488,7 +488,7 @@ _ebook_edit() {{
         w('    {-h,--help}":Show help"\n')
         w('    "--version:Show version"\n')
         for command, desc in iteritems(descs):
-            w('    "%s:%s"\n'%(
+            w('    "{}:{}"\n'.format(
                 command, desc.replace(':', '\\:').replace('"', "'")))
         w('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
@@ -500,14 +500,14 @@ _ebook_edit() {{
             elif command == 'set_metadata':
                 exts = ['opf']
             exts = sorted(set(exts).union(x.upper() for x in exts))
-            pats = ('*.%s'%x for x in exts)
-            extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),) if exts else ()
+            pats = (f'*.{x}' for x in exts)
+            extra = ("'*:filename:_files -g \"{}\"' ".format(' '.join(pats)),) if exts else ()
             if command in {'add', 'add_format'}:
                 extra = ("'*:filename:_files' ",)
             opts = '\\\n        '.join(tuple(self.get_options(
                 parser)) + extra)
             txt = '  _arguments -s \\\n        ' + opts
-            subcommands.append('(%s)'%command)
+            subcommands.append(f'({command})')
             subcommands.append(txt)
             subcommands.append(';;')
 
@@ -529,20 +529,20 @@ _ebook_edit() {{
       (-h|--help|--version)
           _message 'no more arguments' && ret=0
       ;;
-    %s
+    {}
     esac
     ;;
     esac
 
     return ret
-    '''%'\n    '.join(subcommands))
+    '''.format('\n    '.join(subcommands)))
         w('\n}\n\n')
 
     def write(self):
 
         if self.dest:
             for c in ('calibredb', 'ebook-convert', 'ebook-edit'):
-                self.commands[c] = ' _%s "$@"' % c.replace('-', '_')
+                self.commands[c] = ' _{} "$@"'.format(c.replace('-', '_'))
             with open(self.dest, 'wb') as f:
                 w = polyglot_write(f)
                 w('#compdef ' + ' '.join(self.commands)+'\n')
@@ -551,7 +551,7 @@ _ebook_edit() {{
                 self.do_ebook_edit(f)
                 w('case $service in\n')
                 for c, txt in iteritems(self.commands):
-                    w('%s)\n%s\n;;\n'%(c, txt))
+                    w(f'{c})\n{txt}\n;;\n')
                 w('esac\n')
 # }}}
 
@@ -709,7 +709,7 @@ def write_completion(self, bash_comp_dest, zsh):
         complete -o nospace  -F _ebook_device ebook-device''').encode('utf-8'))
     self.manifest.append(os.path.join(bash_comp_dest, 'ebook-device'))
     with open(os.path.join(bash_comp_dest, 'ebook-convert'), 'wb') as f:
-        f.write(('complete -o nospace -C %s ebook-convert'%complete).encode('utf-8'))
+        f.write((f'complete -o nospace -C {complete} ebook-convert').encode('utf-8'))
     self.manifest.append(os.path.join(bash_comp_dest, 'ebook-convert'))
     zsh.write()
 # }}}
@@ -766,13 +766,13 @@ class PostInstall:
                     if os.path.lexists(dest):
                         os.unlink(dest)
                     tgt = os.path.join(getattr(sys, 'frozen_path'), exe)
-                    self.info('\tSymlinking %s to %s'%(tgt, dest))
+                    self.info(f'\tSymlinking {tgt} to {dest}')
                     os.symlink(tgt, dest)
                     self.manifest.append(dest)
             else:
                 self.warning(textwrap.fill(
-                    'No permission to write to %s, not creating program launch symlinks,'
-                    ' you should ensure that %s is in your PATH or create the symlinks yourself' % (
+                    'No permission to write to {}, not creating program launch symlinks,'
+                    ' you should ensure that {} is in your PATH or create the symlinks yourself'.format(
                         self.opts.staging_bindir, getattr(sys, 'frozen_path', 'the calibre installation directory'))))
 
         self.icon_resources = []
@@ -936,7 +936,7 @@ class PostInstall:
             f.write(ETWEAK.encode('utf-8'))
             mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
             mt = sorted(mt)
-            f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
+            f.write(('MimeType={};\n'.format(';'.join(mt))).encode('utf-8'))
         with open('calibre-gui.desktop', 'wb') as f:
             f.write(GUI.encode('utf-8'))
             write_mimetypes(f, 'x-scheme-handler/calibre')
@@ -948,9 +948,9 @@ class PostInstall:
             try:
                 os.mkdir(appdata)
             except:
-                self.warning('Failed to create %s not installing appdata files' % appdata)
+                self.warning(f'Failed to create {appdata} not installing appdata files')
         if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
-            self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
+            self.warning(f'Do not have write permissions for {appdata} not installing appdata files')
         else:
             from calibre.utils.localization import get_all_translators
             translators = dict(get_all_translators())
@@ -1008,30 +1008,30 @@ def opts_and_words(name, op, words, takes_files=False):
     words = '|'.join([w.replace("'", "\\'") for w in words])
     fname = name.replace('-', '_')
     return ('_'+fname+'()'+
-'''
-{
+f'''
+{{
     local cur opts
     local IFS=$'|\\t'
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    opts="%s"
-    words="%s"
+    cur="${{COMP_WORDS[COMP_CWORD]}}"
+    opts="{opts}"
+    words="{words}"
 
-    case "${cur}" in
+    case "${{cur}}" in
       -* )
-         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-         COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
+         COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+         COMPREPLY=( $( echo ${{COMPREPLY[@]}} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
          return 0
          ;;
       *  )
-         COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
-         COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
+         COMPREPLY=( $(compgen -W "${{words}}" -- ${{cur}}) )
+         COMPREPLY=( $( echo ${{COMPREPLY[@]}} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
          return 0
          ;;
     esac
 
-}
-complete -F _'''%(opts, words) + fname + ' ' + name +'\n\n').encode('utf-8')
+}}
+complete -F _''' + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
@@ -1059,33 +1059,33 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
 
     return ('_'+fname+'()'+
 '''
-{
+{{
     local cur prev opts
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="%(opts)s"
-    pics="@(%(pics)s)"
+    cur="${{COMP_WORDS[COMP_CWORD]}}"
+    prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+    opts="{opts}"
+    pics="@({pics})"
 
-    case "${prev}" in
-%(extras)s
+    case "${{prev}}" in
+{extras}
     esac
 
-    case "${cur}" in
-%(extras)s
+    case "${{cur}}" in
+{extras}
       -* )
-         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
          return 0
          ;;
       *  )
-        _filedir '@(%(exts)s)'
+        _filedir '@({exts})'
         return 0
         ;;
     esac
 
-}
-complete -o filenames -F _'''%dict(pics=spics,
-    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +'\n\n').encode('utf-8')
+}}
+complete -o filenames -F _'''.format(**dict(pics=spics,
+    opts=opts, extras=extras, exts=exts)) + fname + ' ' + name +'\n\n').encode('utf-8')
 
 
 VIEWER = '''\
@@ -1262,7 +1262,7 @@ def make_appdata_releases():
 def write_appdata(key, entry, base, translators):
     from lxml.builder import E
     from lxml.etree import tostring
-    fpath = os.path.join(base, '%s.metainfo.xml' % key)
+    fpath = os.path.join(base, f'{key}.metainfo.xml')
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(E.image(url, width=str(w), height=str(h)))

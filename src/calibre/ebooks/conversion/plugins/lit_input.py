@@ -47,7 +47,7 @@ class LITInput(InputFormatPlugin):
                     self.log('LIT file with all text in single <pre> tag detected')
                     html = separate_paragraphs_single_line(pre.text)
                     html = convert_basic(html).replace('<html>',
-                            '<html xmlns="%s">'%XHTML_NS)
+                            f'<html xmlns="{XHTML_NS}">')
                     html = xml_to_unicode(html, strip_encoding_pats=True,
                             resolve_entities=True)[0]
                     if opts.smarten_punctuation:

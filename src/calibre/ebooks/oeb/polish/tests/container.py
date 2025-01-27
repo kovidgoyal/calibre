@@ -41,12 +41,12 @@ class ContainerTests(BaseTest):
 
             for c in (c1, c2):
                 for name, path in iteritems(c.name_path_map):
-                    self.assertEqual(2, nlinks_file(path), 'The file %s is not linked' % name)
+                    self.assertEqual(2, nlinks_file(path), f'The file {name} is not linked')
 
             for name in c1.name_path_map:
                 self.assertIn(name, c2.name_path_map)
                 with c1.open(name) as one, c2.open(name) as two:
-                    self.assertEqual(one.read(), two.read(), 'The file %s differs' % name)
+                    self.assertEqual(one.read(), two.read(), f'The file {name} differs')
 
             spine_names = tuple(x[0] for x in c1.spine_names)
             text = spine_names[0]

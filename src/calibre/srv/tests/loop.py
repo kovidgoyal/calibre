@@ -93,8 +93,7 @@ class LoopTest(BaseTest):
                 res = conn.getresponse()
                 if int(res.status) == int(http_client.REQUEST_TIMEOUT):
                     raise TimeoutError('Timeout')
-                raise Exception('Got unexpected response: code: {} {} headers: {!r} data: {!r}'.format(
-                    res.status, res.reason, res.getheaders(), res.read()))
+                raise Exception(f'Got unexpected response: code: {res.status} {res.reason} headers: {res.getheaders()!r} data: {res.read()!r}')
             self.ae(pool.busy, 1)
         self.ae(1, sum(int(w.is_alive()) for w in pool.workers))
         block.set()

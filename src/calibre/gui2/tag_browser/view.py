@@ -68,7 +68,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, tags_view):
         QStyledItemDelegate.__init__(self, tags_view)
         self.old_look = False
-        self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
+        self.rating_pat = re.compile(rf'[{rating_to_stars(3, True)}]')
         self.rating_font = QFont(rating_font())
         self.tags_view = tags_view
         self.links_icon = QIcon.ic('external-link.png')
@@ -1118,7 +1118,7 @@ class TagsView(QTreeView):  # {{{
                         search_submenu = self.context_menu.addMenu(_('Search for'))
                         search_submenu.setIcon(QIcon.ic('search.png'))
                         search_submenu.addAction(self.search_icon,
-                                '%s'%display_name(tag),
+                                f'{display_name(tag)}',
                                 partial(self.context_menu_handler, action='search',
                                         search_state=TAG_SEARCH_STATES['mark_plus'],
                                         index=index))
@@ -1169,7 +1169,7 @@ class TagsView(QTreeView):  # {{{
                     search_submenu = self.context_menu.addMenu(_('Search for'))
                     search_submenu.setIcon(QIcon.ic('search.png'))
                     search_submenu.addAction(self.search_icon,
-                            '%s'%display_name(tag_item.tag),
+                            f'{display_name(tag_item.tag)}',
                             partial(self.context_menu_handler, action='search',
                                     search_state=TAG_SEARCH_STATES['mark_plus'],
                                     index=index))

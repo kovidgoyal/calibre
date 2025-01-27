@@ -190,7 +190,7 @@ class Tag:
         if tag_id[1] != 0xF5:
             raise LRFParseError('Bad tag ID %02X at %d'%(tag_id[1], self.offset))
         if tag_id[0] not in self.__class__.tags:
-            raise LRFParseError('Unknown tag ID: F5%02X' % tag_id[0])
+            raise LRFParseError(f'Unknown tag ID: F5{tag_id[0]:02X}')
 
         self.id = 0xF500 + tag_id[0]
 
@@ -202,7 +202,7 @@ class Tag:
             self.contents = stream.read(size)
 
     def __str__(self):
-        s = 'Tag %04X ' % self.id
+        s = f'Tag {self.id:04X} '
         if self.name:
             s += self.name
         s += f' at {self.offset:08X}, contents: {self.contents!r}'
@@ -211,29 +211,29 @@ class Tag:
     @property
     def byte(self):
         if len(self.contents) != 1:
-            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+            raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<B', self.contents)[0]
 
     @property
     def word(self):
         if len(self.contents) != 2:
-            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+            raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<H', self.contents)[0]
 
     @property
     def sword(self):
         if len(self.contents) != 2:
-            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+            raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<h', self.contents)[0]
 
     @property
     def dword(self):
         if len(self.contents) != 4:
-            raise LRFParseError('Bad parameter for tag ID: %04X' % self.id)
+            raise LRFParseError(f'Bad parameter for tag ID: {self.id:04X}')
         return struct.unpack('<I', self.contents)[0]
 
     def dummy_parser(self, stream):
-        raise LRFParseError('Unknown tag at %08X' % stream.tell())
+        raise LRFParseError(f'Unknown tag at {stream.tell():08X}')
 
     @classmethod
     def string_parser(self, stream):
@@ -254,7 +254,7 @@ class Tag:
         res.append(struct.unpack('<I', stream.read(4))[0])
         tag = Tag(stream)
         if tag.id != 0xF516:
-            raise LRFParseError('Bad tag 78 at %08X' % pos)
+            raise LRFParseError(f'Bad tag 78 at {pos:08X}')
         res.append(tag.contents)
         res.append(struct.unpack('<H', stream.read(2))[0])
         return res

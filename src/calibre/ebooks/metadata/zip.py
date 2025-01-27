@@ -39,7 +39,7 @@ def get_metadata(stream):
                                 pass
                         mi.timestamp = None
                         return mi
-    raise ValueError('No ebook found in ZIP archive (%s)' % os.path.basename(getattr(stream, 'name', '') or '<stream>'))
+    raise ValueError('No ebook found in ZIP archive ({})'.format(os.path.basename(getattr(stream, 'name', '') or '<stream>')))
 
 
 def zip_opf_metadata(opfpath, zf):

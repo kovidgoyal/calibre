@@ -86,7 +86,7 @@ class ThreadedJob(BaseJob):
         except Exception as e:
             self.exception = e
             self.failed = True
-            self.log.exception('Job: "%s" failed with error:'%self.description)
+            self.log.exception(f'Job: "{self.description}" failed with error:')
             self.log.debug('Called with args:', self.args, self.kwargs)
 
         self.duration = time.time() - self.start_time

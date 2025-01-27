@@ -121,7 +121,7 @@ class NonReplaceDict(dict):
 
     def __setitem__(self, k, v):
         if k in self:
-            raise ValueError('The key %s is already present' % k)
+            raise ValueError(f'The key {k} is already present')
         dict.__setitem__(self, k, v)
 
 

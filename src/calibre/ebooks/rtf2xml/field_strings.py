@@ -293,16 +293,16 @@ class FieldStrings:
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
-            the_string += '<number-format>%s' % num_format
+            the_string += f'<number-format>{num_format}'
         num_type = self.__parse_num_type(line)
         if num_type:
-            the_string += '<number-type>%s' % num_type
+            the_string += f'<number-type>{num_type}'
         # Only QUOTE takes a (mandatory?) argument
         if field_name == 'QUOTE':
             match_group = re.search(r'QUOTE\s{1,}"(.*?)"', line)
             if match_group:
                 arg = match_group.group(1)
-                the_string += '<argument>%s' % arg
+                the_string += f'<argument>{arg}'
         return [None, None, the_string]
 
     def __num_format_func(self, field_name, name, line):
@@ -318,7 +318,7 @@ class FieldStrings:
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
-            the_string += '<number-format>%s' % num_format
+            the_string += f'<number-format>{num_format}'
         return [None, None, the_string]
 
     def __parse_num_format(self, the_string):
@@ -357,7 +357,7 @@ class FieldStrings:
             else:
                 sys.stderr.write('module is fields_string\n')
                 sys.stderr.write('method is __parse_num_type\n')
-                sys.stderr.write('no dictionary entry for %s\n' % name)
+                sys.stderr.write(f'no dictionary entry for {name}\n')
 
     def __date_func(self, field_name, name, line):
         '''
@@ -373,7 +373,7 @@ class FieldStrings:
         the_string = name
         match_group = re.search(self.__date_exp, line)
         if match_group:
-            the_string += '<date-format>%s' % match_group.group(1)
+            the_string += f'<date-format>{match_group.group(1)}'
         return [None, None, the_string]
 
     def __simple_info_func(self, field_name, name, line):
@@ -397,11 +397,11 @@ class FieldStrings:
             name = match_group.group(1)
             changed_name = self.__text_format_dict.get(name)
             if changed_name:
-                the_string += '<format>%s' % changed_name
+                the_string += f'<format>{changed_name}'
             else:
                 sys.stderr.write('module is fields_string\n')
                 sys.stderr.write('method is __parse_num_type\n')
-                sys.stderr.write('no dictionary entry for %s\n' % name)
+                sys.stderr.write(f'no dictionary entry for {name}\n')
         return [None, None, the_string]
 
     def __hyperlink_func(self, field_name, name, line):
@@ -419,14 +419,14 @@ class FieldStrings:
         if match_group:
             link = match_group.group(1)
             link = link.replace('"', '&quot;')
-            the_string += '<link>%s' % link
+            the_string += f'<link>{link}'
         # \l "txt" "link"
         # want "file name" so must get rid of \c "txt"
         line = re.sub(self.__link_switch, '', line)
         match_group = re.search(self.__quote_exp, line)
         if match_group:
             arg = match_group.group(1)
-            the_string += '<argument>%s' % arg
+            the_string += f'<argument>{arg}'
         index = line.find('\\m')
         if index > -1:
             the_string += '<html2-image-map>true'
@@ -454,15 +454,15 @@ class FieldStrings:
             name = match_group.group(1)
             changed_name = self.__text_format_dict.get(name)
             if changed_name:
-                the_string += '<format>%s' % changed_name
+                the_string += f'<format>{changed_name}'
             else:
                 sys.stderr.write('module is fields_string\n')
                 sys.stderr.write('method is __parse_num_type\n')
-                sys.stderr.write('no dictionary entry for %s\n' % name)
+                sys.stderr.write(f'no dictionary entry for {name}\n')
         match_group = re.search(self.__filter_switch, line)
         if match_group:
             arg = match_group.group(1)
-            the_string += '<filter>%s' % arg
+            the_string += f'<filter>{arg}'
         # \c "txt" "file name"
         # want "file name" so must get rid of \c "txt"
         line = re.sub(self.__filter_switch, '', line)
@@ -470,7 +470,7 @@ class FieldStrings:
         if match_group:
             arg = match_group.group(1)
             arg = arg.replace('"', '&quot;')
-            the_string += '<argument>%s' % arg
+            the_string += f'<argument>{arg}'
         else:
             sys.stderr.write('Module is field_strings\n')
             sys.stderr.write('method is include_text_func\n')
@@ -495,14 +495,14 @@ class FieldStrings:
         if match_group:
             arg = match_group.group(1)
             arg = arg.replace('"', '&quot;')
-            the_string += '<filter>%s' % arg
+            the_string += f'<filter>{arg}'
         # \c "txt" "file name"
         # want "file name" so must get rid of \c "txt"
         line = re.sub(self.__filter_switch, '', line)
         match_group = re.search(self.__quote_exp, line)
         if match_group:
             arg = match_group.group(1)
-            the_string += '<argument>%s' % arg
+            the_string += f'<argument>{arg}'
         else:
             sys.stderr.write('Module is field_strings\n')
             sys.stderr.write('method is include_pict_func\n')
@@ -532,17 +532,17 @@ class FieldStrings:
             name = match_group.group(1)
             changed_name = self.__text_format_dict.get(name)
             if changed_name:
-                the_string += '<format>%s' % changed_name
+                the_string += f'<format>{changed_name}'
             else:
                 sys.stderr.write('module is fields_string\n')
                 sys.stderr.write('method is __parse_num_type\n')
-                sys.stderr.write('no dictionary entry for %s\n' % name)
+                sys.stderr.write(f'no dictionary entry for {name}\n')
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
         words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
-                the_string += '<bookmark>%s' % word
+                the_string += f'<bookmark>{word}'
         index = line.find('\\f')
         if index > -1:
             the_string += '<include-note-number>true'
@@ -618,15 +618,15 @@ class FieldStrings:
         match_group = re.search(self.__ta_short_field_exp, line)
         if match_group:
             short_name = match_group.group(1)
-            the_string += '<short-field>%s' % short_name
+            the_string += f'<short-field>{short_name}'
         match_group = re.search(self.__ta_long_field_exp, line)
         if match_group:
             long_name = match_group.group(1)
-            the_string += '<long-field>%s' % long_name
+            the_string += f'<long-field>{long_name}'
         match_group = re.search(self.__ta_category_exp, line)
         if match_group:
             category = match_group.group(1)
-            the_string += '<category>%s' % category
+            the_string += f'<category>{category}'
         index = line.find('\\b')
         if index > -1:
             the_string += '<bold>true'
@@ -655,48 +655,48 @@ class FieldStrings:
             match_group = re.search(self.__index_insert_letter_exp, line)
             if match_group:
                 insert_letter = match_group.group(1)
-                the_string += '<insert-letter>%s' % insert_letter
+                the_string += f'<insert-letter>{insert_letter}'
         match_group = re.search(self.__index_columns_exp, line)
         if match_group:
             columns = match_group.group(1)
-            the_string += '<number-of-columns>%s' % columns
+            the_string += f'<number-of-columns>{columns}'
         # self.__bookmark_exp = re.compile(r'\\b\s{1,}(.*?)\s')
         match_group = re.search(self.__bookmark_exp, line)
         if match_group:
             bookmark = match_group.group(1)
-            the_string += '<use-bookmark>%s' % bookmark
+            the_string += f'<use-bookmark>{bookmark}'
         match_group = re.search(self.__d_separator, line)
         if match_group:
             separator = match_group.group(1)
             separator = separator.replace('"', '&quot;')
-            the_string += '<sequence-separator>%s' % separator
+            the_string += f'<sequence-separator>{separator}'
         # self.__e_separator = re.compile(r'\\e\s{1,}(.*?)\s')
         match_group = re.search(self.__e_separator, line)
         if match_group:
             separator = match_group.group(1)
             separator = separator.replace('"', '&quot;')
-            the_string += '<page-separator>%s' % separator
+            the_string += f'<page-separator>{separator}'
         # self.__index_sequence = re.compile(r'\\s\s{1,}(.*?)\s')
         match_group = re.search(self.__index_sequence, line)
         if match_group:
             sequence = match_group.group(1)
             separator = separator.replace('"', '&quot;')
-            the_string += '<use-sequence>%s' % sequence
+            the_string += f'<use-sequence>{sequence}'
         # self.__index_entry_typ_exp = re.compile(r'\\f\s{1,}"(.*?)"')
         match_group = re.search(self.__index_entry_typ_exp, line)
         if match_group:
             entry_type = match_group.group(1)
-            the_string += '<entry-type>%s' % entry_type
+            the_string += f'<entry-type>{entry_type}'
         # self.__p_separator = re.compile(r'\\p\s{1,}(.*?)\s')
         match_group = re.search(self.__p_separator, line)
         if match_group:
             limit = match_group.group(1)
-            the_string += '<limit-to-letters>%s' % limit
+            the_string += f'<limit-to-letters>{limit}'
         match_group = re.search(self.__l_separator, line)
         if match_group:
             separator = match_group.group(1)
             separator = separator.replace('"', '&quot;')
-            the_string += '<multi-page-separator>%s' % separator
+            the_string += f'<multi-page-separator>{separator}'
         index = line.find('\\a')
         if index > -1:
             the_string += '<accented>true'
@@ -721,16 +721,16 @@ class FieldStrings:
         the_string = name
         num_format = self.__parse_num_format(line)
         if num_format:
-            the_string += '<number-format>%s' % num_format
+            the_string += f'<number-format>{num_format}'
         num_type = self.__parse_num_type(line)
         if num_type:
-            the_string += '<number-type>%s' % num_type
+            the_string += f'<number-type>{num_type}'
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
         words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
-                the_string += '<bookmark>%s' % word
+                the_string += f'<bookmark>{word}'
         index = line.find('\\h')
         if index > -1:
             the_string += '<hyperlink>true'
@@ -755,7 +755,7 @@ class FieldStrings:
         words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
-                the_string += '<bookmark>%s' % word
+                the_string += f'<bookmark>{word}'
         index = line.find('\\h')
         if index > -1:
             the_string += '<hyperlink>true'
@@ -799,16 +799,16 @@ class FieldStrings:
         if search_obj:
             num = search_obj.group(1)
             num = int(num)
-            num = '%X' % num
+            num = f'{num:X}'
         search_obj = re.search(self.__symbol_font_exp, line)
         if search_obj:
             font = search_obj.group(1)
-            changed_line += 'cw<ci<font-style<nu<%s\n' % font
+            changed_line += f'cw<ci<font-style<nu<{font}\n'
         search_obj = re.search(self.__symbol_size_exp, line)
         if search_obj:
             font_size = search_obj.group(1)
             font_size = int(font_size)
-            font_size = '%.2f' % font_size
-            changed_line += 'cw<ci<font-size_<nu<%s\n' % font_size
-        changed_line += "tx<hx<__________<'%s\n" % num
+            font_size = f'{font_size:.2f}'
+            changed_line += f'cw<ci<font-size_<nu<{font_size}\n'
+        changed_line += f"tx<hx<__________<'{num}\n"
         return ['Symbol', None, changed_line]

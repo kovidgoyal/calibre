@@ -214,7 +214,7 @@ class StatsCollector:
                                 cssdict['src'] = fname
                                 break
                         else:
-                            container.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % css_text(prop.propertyValue))
+                            container.log.warn(f'The @font-face rule refers to a font file that does not exist in the book: {css_text(prop.propertyValue)}')
                 if 'src' not in cssdict:
                     continue
                 ff = cssdict.get('font-family')

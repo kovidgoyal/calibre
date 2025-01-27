@@ -38,8 +38,8 @@ class GetCharMap:
         for line in self.__char_file:
             if not line.strip():
                 continue
-            begin_element = '<%s>' % map
-            end_element = '</%s>' % map
+            begin_element = f'<{map}>'
+            end_element = f'</{map}>'
             if not found_map:
                 if begin_element in line:
                     found_map = True
@@ -51,6 +51,6 @@ class GetCharMap:
                 map_dict[fields[1]] = fields[3]
 
         if not found_map:
-            msg = 'no map found\nmap is "%s"\n'%(map,)
+            msg = f'no map found\nmap is "{map}"\n'
             raise self.__bug_handler(msg)
         return map_dict

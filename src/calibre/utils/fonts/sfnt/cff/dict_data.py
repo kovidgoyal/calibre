@@ -199,8 +199,7 @@ class Dict(ByteCode):
                 self.encoding_offset = name in self.OFFSETS
                 if isinstance(arg, tuple):
                     if len(val) != len(arg):
-                        raise ValueError('Invalid argument %s for operator: %s'
-                                %(val, op))
+                        raise ValueError(f'Invalid argument {val} for operator: {op}')
                     for typ, v in zip(arg, val):
                         if typ == 'SID':
                             val = strings(val)

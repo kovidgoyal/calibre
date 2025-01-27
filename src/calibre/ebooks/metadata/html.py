@@ -67,7 +67,7 @@ attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'
 
 def handle_comment(data, comment_tags):
     if not hasattr(handle_comment, 'pat'):
-        handle_comment.pat = re.compile(r'''(?P<name>\S+)\s*=\s*%s''' % attr_pat)
+        handle_comment.pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
     for match in handle_comment.pat.finditer(data):
         x = match.group('name')
         field = None

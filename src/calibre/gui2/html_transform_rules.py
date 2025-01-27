@@ -310,7 +310,7 @@ class Tester(TesterBase):  # {{{
     PREFS_NAME = 'test-html-transform-rules'
     LABEL = _('Enter an HTML document below and click the "Test" button')
     SYNTAX = 'html'
-    RESULTS = '<!-- %s -->\n\n' % _('Resulting HTML')
+    RESULTS = '<!-- {} -->\n\n'.format(_('Resulting HTML'))
 
     def compile_rules(self, rules):
         return rules

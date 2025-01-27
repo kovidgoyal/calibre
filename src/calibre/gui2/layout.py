@@ -161,7 +161,7 @@ class LocationManager(QObject):  # {{{
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             t = self.tooltips[loc]
             if self.free[i] > -1:
-                t += '\n\n%s '%human_readable(self.free[i]) + _('available')
+                t += f'\n\n{human_readable(self.free[i])} ' + _('available')
             ac = getattr(self, 'location_'+loc)
             ac.setToolTip(t)
             ac.setWhatsThis(t)

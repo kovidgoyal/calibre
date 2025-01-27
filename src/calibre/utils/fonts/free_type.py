@@ -47,7 +47,7 @@ class Face:
         Returns True if all the characters in text have glyphs in this font.
         '''
         if not isinstance(text, str):
-            raise TypeError('%r is not a unicode object'%text)
+            raise TypeError(f'{text!r} is not a unicode object')
         if has_non_printable_chars:
             from calibre.utils.fonts.utils import get_printable_characters
             text = get_printable_characters(text)
@@ -57,7 +57,7 @@ class Face:
     @same_thread
     def glyph_ids(self, text):
         if not isinstance(text, str):
-            raise TypeError('%r is not a unicode object'%text)
+            raise TypeError(f'{text!r} is not a unicode object')
         for char in text:
             yield self.face.glyph_id(ord(char))
 

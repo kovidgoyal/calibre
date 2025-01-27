@@ -460,7 +460,7 @@ def plugin_to_index(plugin, count):
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
         'Version: <b>{}</b>'.format(escape('.'.join(map(str, plugin['version'])))),
-        'Released: <b>{}</b>'.format(escape(released)),
+        f'Released: <b>{escape(released)}</b>',
         'Author: {}'.format(escape(plugin['author'])),
         'calibre: {}'.format(escape('.'.join(map(str, plugin['minimum_calibre_version'])))),
         'Platforms: {}'.format(escape(', '.join(sorted(plugin['supported_platforms']) or ['all']))),

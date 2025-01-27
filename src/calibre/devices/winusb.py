@@ -69,8 +69,8 @@ class GUID(Structure):
             self.data1,
             self.data2,
             self.data3,
-            ''.join(['%02x' % d for d in self.data4[:2]]),
-            ''.join(['%02x' % d for d in self.data4[2:]]),
+            ''.join([f'{d:02x}' for d in self.data4[:2]]),
+            ''.join([f'{d:02x}' for d in self.data4[2:]]),
         )
 
 
@@ -394,7 +394,7 @@ def cwrap(name, restype, *argtypes, **kw):
     lib = cfgmgr if name.startswith('CM') else setupapi
     func = prototype((name, kw.pop('lib', lib)))
     if kw:
-        raise TypeError('Unknown keyword arguments: %r' % kw)
+        raise TypeError(f'Unknown keyword arguments: {kw!r}')
     if errcheck is not None:
         func.errcheck = errcheck
     return func
@@ -414,7 +414,7 @@ def bool_err_check(result, func, args):
 
 def config_err_check(result, func, args):
     if result != CR_CODES['CR_SUCCESS']:
-        raise WinError(result, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(result, result))
+        raise WinError(result, f'The cfgmgr32 function failed with err: {CR_CODE_NAMES.get(result, result)}')
     return args
 
 
@@ -575,7 +575,7 @@ def get_device_id(devinst, buf=None):
             buf = create_unicode_buffer(devid_size.value)
             continue
         if ret != CR_CODES['CR_SUCCESS']:
-            raise WinError(ret, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(ret, ret))
+            raise WinError(ret, f'The cfgmgr32 function failed with err: {CR_CODE_NAMES.get(ret, ret)}')
         break
     return wstring_at(buf), buf
 
@@ -610,7 +610,7 @@ def convert_registry_data(raw, size, dtype):
         if size == 0:
             return 0
         return cast(raw, POINTER(QWORD)).contents.value
-    raise ValueError('Unsupported data type: %r' % dtype)
+    raise ValueError(f'Unsupported data type: {dtype!r}')
 
 
 def get_device_registry_property(dev_list, p_devinfo, property_type=SPDRP_HARDWAREID, buf=None):
@@ -712,9 +712,8 @@ class USBDevice(_USBDevice):
         def r(x):
             if x is None:
                 return 'None'
-            return '0x%x' % x
-        return 'USBDevice(vendor_id={} product_id={} bcd={} devid={} devinst={})'.format(
-            r(self.vendor_id), r(self.product_id), r(self.bcd), self.devid, self.devinst)
+            return f'0x{x:x}'
+        return f'USBDevice(vendor_id={r(self.vendor_id)} product_id={r(self.product_id)} bcd={r(self.bcd)} devid={self.devid} devinst={self.devinst})'
 
 
 def parse_hex(x):
@@ -976,7 +975,7 @@ def get_device_string(hub_handle, device_port, index, buf=None, lang=0x409):
     data = cast(buf, PUSB_DESCRIPTOR_REQUEST).contents.Data
     sz, dtype = data.bLength, data.bType
     if dtype != 0x03:
-        raise OSError(errno.EINVAL, 'Invalid datatype for string descriptor: 0x%x' % dtype)
+        raise OSError(errno.EINVAL, f'Invalid datatype for string descriptor: 0x{dtype:x}')
     return buf, wstring_at(addressof(data.String), sz // 2).rstrip('\0')
 
 
@@ -996,7 +995,7 @@ def get_device_languages(hub_handle, device_port, buf=None):
     data = cast(buf, PUSB_DESCRIPTOR_REQUEST).contents.Data
     sz, dtype = data.bLength, data.bType
     if dtype != 0x03:
-        raise OSError(errno.EINVAL, 'Invalid datatype for string descriptor: 0x%x' % dtype)
+        raise OSError(errno.EINVAL, f'Invalid datatype for string descriptor: 0x{dtype:x}')
     data = cast(data.String, POINTER(USHORT*(sz//2)))
     return buf, list(filter(None, data.contents))
 

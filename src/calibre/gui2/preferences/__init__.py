@@ -167,7 +167,7 @@ class Setting:
             self.gui_obj.editTextChanged.connect(self.changed)
             self.gui_obj.currentIndexChanged.connect(self.changed)
         else:
-            raise ValueError('Unknown data type %s' % self.gui_obj.__class__)
+            raise ValueError(f'Unknown data type {self.gui_obj.__class__}')
 
         if isinstance(self.config_obj, ConfigProxy) and \
                 not str(self.gui_obj.toolTip()):
@@ -352,8 +352,7 @@ def get_plugin(category, name):
         if plugin.category == category and plugin.name == name:
             return plugin
     raise ValueError(
-            'No Preferences Plugin with category: %s and name: %s found' %
-            (category, name))
+            f'No Preferences Plugin with category: {category} and name: {name} found')
 
 
 class LazyConfigWidgetBase(ConfigWidgetBase):
@@ -424,7 +423,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     pl = get_plugin(category, name)
     d = ConfigDialog(parent)
     d.resize(750, 550)
-    conf_name = 'config_widget_dialog_geometry_%s_%s'%(category, name)
+    conf_name = f'config_widget_dialog_geometry_{category}_{name}'
     d.setWindowTitle(_('Configure ') + pl.gui_name)
     d.setWindowIcon(QIcon.ic('config.png'))
     bb = QDialogButtonBox(d)

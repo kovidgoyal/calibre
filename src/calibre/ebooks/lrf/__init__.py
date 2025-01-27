@@ -44,17 +44,17 @@ def find_custom_fonts(options, logger):
         f = family(options.serif_family)
         fonts['serif'] = font_scanner.legacy_fonts_for_family(f)
         if not fonts['serif']:
-            logger.warn('Unable to find serif family %s'%f)
+            logger.warn(f'Unable to find serif family {f}')
     if options.sans_family:
         f = family(options.sans_family)
         fonts['sans'] = font_scanner.legacy_fonts_for_family(f)
         if not fonts['sans']:
-            logger.warn('Unable to find sans family %s'%f)
+            logger.warn(f'Unable to find sans family {f}')
     if options.mono_family:
         f = family(options.mono_family)
         fonts['mono'] = font_scanner.legacy_fonts_for_family(f)
         if not fonts['mono']:
-            logger.warn('Unable to find mono family %s'%f)
+            logger.warn(f'Unable to find mono family {f}')
     return fonts
 
 

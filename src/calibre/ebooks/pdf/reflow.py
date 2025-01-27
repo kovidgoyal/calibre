@@ -284,7 +284,7 @@ class Text(Element):
         elif self.font_size_em != other.font_size_em \
           and self.font_size_em != 1.00:
             if re.match(r'<span', self.raw) is None:
-                self.raw = '<span style="font-size:%sem">%s</span>'%(str(self.font_size_em),self.raw)
+                self.raw = f'<span style="font-size:{self.font_size_em!s}em">{self.raw}</span>'
             # Try to allow for a very large initial character
             elif len(self.text_as_string) <= 2 \
               and self.font_size_em >= other.font_size_em * 2.0:
@@ -467,7 +467,7 @@ class Interval:
         return self.left == other.left and self.right == other.right
 
     def __hash__(self):
-        return hash('(%f,%f)'%self.left, self.right)
+        return hash('({:f},{:f})'.format(*self.left), self.right)
 
 
 class Column:
@@ -546,13 +546,13 @@ class Box(list):
         self.tag = type
 
     def to_html(self):
-        ans = ['<%s>'%self.tag]
+        ans = [f'<{self.tag}>']
         for elem in self:
             if isinstance(elem, int):
                 ans.append('<a name="page_%d"/>'%elem)
             else:
                 ans.append(elem.to_html()+' ')
-        ans.append('</%s>'%self.tag)
+        ans.append(f'</{self.tag}>')
         return ans
 
 
@@ -644,7 +644,7 @@ class Region:
                 col = most_suitable_column(elem)
                 if self.opts.verbose > 3:
                     idx = self.columns.index(col)
-                    self.log.debug('Absorbing singleton %s into column'%elem.to_html(),
+                    self.log.debug(f'Absorbing singleton {elem.to_html()} into column',
                             idx)
                 col.add(elem)
 
@@ -1317,7 +1317,7 @@ class Page:
         for text in self.texts:
             text.font_size_em = self.font_map[text.font.id].size_em
             if text.font_size_em != 0.00 and text.font_size_em != 1.00:
-                text.raw = '<span style="font-size:%sem">%s</span>'%(str(text.font_size_em),text.raw)
+                text.raw = f'<span style="font-size:{text.font_size_em!s}em">{text.raw}</span>'
 
     def second_pass(self, stats, opts):
 
@@ -1377,7 +1377,7 @@ class Page:
                 iind += 1
             if text.blank_line_before > 0:
                 ans.append('<p style="text-align:center">&#160;</p>')
-            ans.append('<%s'%text.tag)
+            ans.append(f'<{text.tag}')
             # Should be only for Headings, but there is no guarantee that the heading will be recognised
             # So put in an ID once per page in case the Contents references it
             #   and  text.tag[0] == 'h'
@@ -1404,7 +1404,7 @@ class Page:
                 ans[-1] += 'em"'
             ans[-1] += '>'
             ans[-1] += text.to_html()
-            ans[-1] += '</%s>'%text.tag  # Closing tag
+            ans[-1] += f'</{text.tag}>'  # Closing tag
             if text.blank_line_after > 0:
                 ans.append('<p style="text-align:center">&#160;</p>')
 

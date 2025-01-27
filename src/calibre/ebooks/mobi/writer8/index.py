@@ -32,9 +32,9 @@ class IndexHeader(Header):  # {{{
     ALIGN_BLOCK = True
     HEADER_LENGTH = 192
 
-    DEFINITION = '''
+    DEFINITION = f'''
     # 4 - 8: Header Length
-    header_length = {header_length}
+    header_length = {HEADER_LENGTH}
 
     # 8 - 16: Unknown
     unknown1 = zeroes(8)
@@ -73,7 +73,7 @@ class IndexHeader(Header):  # {{{
     unknown3 = zeroes(124)
 
     # 180 - 184: TAGX offset
-    tagx_offset = {header_length}
+    tagx_offset = {HEADER_LENGTH}
 
     # 184 - 192: Unknown
     unknown4 = zeroes(8)
@@ -86,7 +86,7 @@ class IndexHeader(Header):  # {{{
 
     # IDXT
     idxt = DYN
-    '''.format(header_length=HEADER_LENGTH)
+    '''
 
     POSITIONS = {'idxt_offset':'idxt'}
 # }}}
@@ -163,8 +163,7 @@ class Index:  # {{{
                         try:
                             buf.write(encint(val))
                         except ValueError:
-                            raise ValueError('Invalid values for %r: %r'%(
-                                tag, values))
+                            raise ValueError(f'Invalid values for {tag!r}: {values!r}')
             raw = buf.getvalue()
             offset = index_blocks[-1].tell()
             idxt_pos = idxt_blocks[-1].tell()
@@ -340,7 +339,7 @@ class NCXIndex(Index):
             largest = max(x['index'] for x in toc_table)
         except ValueError:
             largest = 0
-        fmt = '%0{}X'.format(max(2, len('%X' % largest)))
+        fmt = '%0{}X'.format(max(2, len(f'{largest:X}')))
 
         def to_entry(x):
             ans = {}

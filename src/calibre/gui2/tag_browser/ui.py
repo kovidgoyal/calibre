@@ -405,7 +405,7 @@ class TagBrowserMixin:  # {{{
                 tag_names.append(child.tag.original_name)
         n = '\n   '.join(tag_names)
         if n:
-            n = '%s:\n   %s\n%s:\n   %s'%(_('Item'), orig_name, _('Children'), n)
+            n = '{}:\n   {}\n{}:\n   {}'.format(_('Item'), orig_name, _('Children'), n)
         if n:
             # Use a new "see this again" name to force the dialog to appear at
             # least once, thus announcing the new feature.

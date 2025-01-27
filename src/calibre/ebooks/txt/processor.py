@@ -91,7 +91,7 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     for line in txt.split('\n'):
         if line.strip():
             blank_count = 0
-            lines.append('<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+            lines.append('<p>{}</p>'.format(prepare_string_for_xml(line.replace('\n', ' '))))
         else:
             blank_count += 1
             if blank_count == 2:
@@ -190,14 +190,14 @@ def separate_paragraphs_single_line(txt):
 
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub(r'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
+    txt = re.sub(r'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n{}'.format(mo.group('indent')), txt)
     return txt
 
 
 def separate_hard_scene_breaks(txt):
     def sep_break(line):
         if len(line.strip()) > 0:
-            return '\n%s\n' % line
+            return f'\n{line}\n'
         else:
             return line
     txt = re.sub(r'(?miu)^[ \t-=~\/_]+$', lambda mo: sep_break(mo.group()), txt)

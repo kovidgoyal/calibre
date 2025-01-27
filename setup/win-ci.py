@@ -98,7 +98,7 @@ def main():
     else:
         if len(sys.argv) == 1:
             raise SystemExit('Usage: win-ci.py sw|build|test')
-        raise SystemExit('{!r} is not a valid action'.format(sys.argv[-1]))
+        raise SystemExit(f'{sys.argv[-1]!r} is not a valid action')
 
 
 if __name__ == '__main__':

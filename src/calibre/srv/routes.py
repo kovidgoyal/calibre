@@ -94,14 +94,14 @@ def endpoint(route,
         f.needs_db_write = needs_db_write
         argspec = inspect.getfullargspec(f)
         if len(argspec.args) < 2:
-            raise TypeError('The endpoint %r must take at least two arguments' % f.route)
+            raise TypeError(f'The endpoint {f.route!r} must take at least two arguments')
         f.__annotations__ = {
             argspec.args[0]: Context,
             argspec.args[1]: RequestData,
         }
         f.__doc__ = textwrap.dedent(f.__doc__ or '') + '\n\n' + (
-            (':type %s: calibre.srv.handler.Context\n' % argspec.args[0]) +
-            (':type %s: calibre.srv.http_response.RequestData\n' % argspec.args[1])
+            (f':type {argspec.args[0]}: calibre.srv.handler.Context\n') +
+            (f':type {argspec.args[1]}: calibre.srv.http_response.RequestData\n')
         )
         return f
     return annotate
@@ -117,7 +117,7 @@ class Route:
         self.endpoint = endpoint_
         del endpoint_
         if not self.endpoint.route.startswith('/'):
-            raise RouteError('A route must start with /, %s does not' % self.endpoint.route)
+            raise RouteError(f'A route must start with /, {self.endpoint.route} does not')
         parts = list(filter(None, self.endpoint.route.split('/')))
         matchers = self.matchers = []
         self.defaults = {}
@@ -214,7 +214,7 @@ class Route:
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
         args = {k:quoted(v) for k, v in iteritems(args)}
-        route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
+        route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
     def __str__(self):

@@ -59,7 +59,7 @@ def safe_localhost():
             addr = socket.gethostbyname(socket.gethostname())
         except socket.gaierror:
             pass
-        local_hostname = '[%s]' % addr
+        local_hostname = f'[{addr}]'
     return local_hostname
 
 
@@ -132,7 +132,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
     s = smtplib.SMTP(**kwargs)
     s.set_debuglevel(verbose)
     if not hosts:
-        raise ValueError('No mail server found for address: %s'%to)
+        raise ValueError(f'No mail server found for address: {to}')
     last_error = last_traceback = None
     for host in hosts:
         try:

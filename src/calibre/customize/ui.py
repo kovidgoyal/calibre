@@ -85,7 +85,7 @@ def disable_plugin(plugin_or_name):
     if plugin is None:
         raise ValueError(f'No plugin named: {x} found')
     if not plugin.can_be_disabled:
-        raise ValueError('Plugin %s cannot be disabled'%x)
+        raise ValueError(f'Plugin {x} cannot be disabled')
     dp = config['disabled_plugins']
     dp.add(x)
     config['disabled_plugins'] = dp
@@ -199,7 +199,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
             try:
                 nfp = plugin.run(nfp) or nfp
             except:
-                print('Running file type plugin %s failed with traceback:'%plugin.name, file=oe)
+                print(f'Running file type plugin {plugin.name} failed with traceback:', file=oe)
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
     def x(j):
@@ -526,10 +526,10 @@ def add_plugin(path_to_zip_file):
     plugin = load_plugin(path_to_zip_file)
     if plugin.name in builtin_names:
         raise NameConflict(
-            'A builtin plugin with the name %r already exists' % plugin.name)
+            f'A builtin plugin with the name {plugin.name!r} already exists')
     if plugin.name in get_system_plugins():
         raise NameConflict(
-            'A system plugin with the name %r already exists' % plugin.name)
+            f'A system plugin with the name {plugin.name!r} already exists')
     plugin = initialize_plugin(plugin, path_to_zip_file, PluginInstallationType.EXTERNAL)
     plugins = config['plugins']
     zfp = os.path.join(plugin_dir, plugin.name+'.zip')
@@ -892,7 +892,7 @@ def main(args=sys.argv):
             name, custom = opts.customize_plugin, ''
         plugin = find_plugin(name.strip())
         if plugin is None:
-            print('No plugin with the name %s exists'%name)
+            print(f'No plugin with the name {name} exists')
             return 1
         customize_plugin(plugin, custom)
     if opts.enable_plugin is not None:

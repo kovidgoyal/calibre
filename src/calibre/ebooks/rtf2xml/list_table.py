@@ -224,7 +224,7 @@ class ListTable:
             self.__all_lists[-1][-1][0]['level-numbers'] = self.__level_numbers_string
             self.__level_numbers_string = ''
         elif self.__token_info == 'tx<hx<__________':
-            self.__level_numbers_string += '\\&#x0027;%s' % line[18:]
+            self.__level_numbers_string += f'\\&#x0027;{line[18:]}'
         elif self.__token_info == 'tx<nu<__________':
             self.__level_numbers_string += line[17:]
             # num = line[18:]
@@ -290,12 +290,12 @@ class ListTable:
         else:
             the_num += 1
             the_string = str(the_num)
-            level_marker = 'level%s-suffix' % the_string
-            show_marker = 'show-level%s' % the_string
+            level_marker = f'level{the_string}-suffix'
+            show_marker = f'show-level{the_string}'
             self.__level_text_position = level_marker
             self.__all_lists[-1][-1][0][show_marker] = 'true'
             if self.__prefix_string:
-                prefix_marker = 'level%s-prefix' % the_string
+                prefix_marker = f'level{the_string}-prefix'
                 self.__all_lists[-1][-1][0][prefix_marker] = self.__prefix_string
                 self.__prefix_string = None
 
@@ -340,7 +340,7 @@ class ListTable:
         else:
             if self.__run_level > 3:
                 msg = 'No matching token after open bracket\n'
-                msg += 'token is "%s\n"' % (line)
+                msg += f'token is "{line}\n"'
                 raise self.__bug_handler
 
     def __add_to_final_line(self):
@@ -389,7 +389,7 @@ class ListTable:
             for level in levels:
                 level_num += 1
                 self.__list_table_final += 'mi<tg<empty-att_<level-in-table'
-                self.__list_table_final += '<level>%s' % (str(level_num))
+                self.__list_table_final += f'<level>{level_num!s}'
                 the_dict2 = level[0]
                 the_keys2 = the_dict2.keys()
                 is_bullet = 0

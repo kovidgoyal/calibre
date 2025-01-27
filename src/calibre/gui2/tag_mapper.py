@@ -261,9 +261,9 @@ class RuleItem(QListWidgetItem):
             '<b>{action}</b> the tag, if it <i>{match_type}</i>: <b>{query}</b>').format(
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         if rule['action'] == 'replace':
-            text += '<br>' + _('with the tag:') + ' <b>%s</b>' % rule['replace']
+            text += '<br>' + _('with the tag:') + ' <b>{}</b>'.format(rule['replace'])
         if rule['action'] == 'split':
-            text += '<br>' + _('on the character:') + ' <b>%s</b>' % rule['replace']
+            text += '<br>' + _('on the character:') + ' <b>{}</b>'.format(rule['replace'])
         return '<div style="white-space: nowrap">' + text + '</div>'
 
     def __init__(self, rule, parent):

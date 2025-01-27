@@ -106,7 +106,7 @@ class Book(Book_):
         if self.contentID:
             fmt('Content ID', self.contentID)
         if self.kobo_series:
-            fmt('Kobo Series', self.kobo_series + ' #%s'%self.kobo_series_number)
+            fmt('Kobo Series', self.kobo_series + f' #{self.kobo_series_number}')
         if self.kobo_series_id:
             fmt('Kobo Series ID', self.kobo_series_id)
         if self.kobo_subtitle:
@@ -203,7 +203,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 fm = None
                 attr = attr.strip()
                 if show_debug:
-                    debug_print("KTCollectionsBookList:get_collections - attr='%s'"%attr)
+                    debug_print(f"KTCollectionsBookList:get_collections - attr='{attr}'")
 
                 # If attr is device_collections, then we cannot use
                 # format_field, because we don't know the fields where the

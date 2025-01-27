@@ -46,10 +46,10 @@ def read_css_block_borders(self, css):
     rcbb(obj, css, store_css_style=True)
     for edge in border_edges:
         setattr(self, 'border_' + edge, Border(
-            getattr(obj, 'border_%s_css_style' % edge),
-            getattr(obj, 'border_%s_style' % edge),
-            getattr(obj, 'border_%s_width' % edge),
-            getattr(obj, 'border_%s_color' % edge),
+            getattr(obj, f'border_{edge}_css_style'),
+            getattr(obj, f'border_{edge}_style'),
+            getattr(obj, f'border_{edge}_width'),
+            getattr(obj, f'border_{edge}_color'),
             self.BLEVEL
         ))
         setattr(self, 'padding_' + edge, getattr(obj, 'padding_' + edge))

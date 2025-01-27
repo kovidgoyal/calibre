@@ -253,17 +253,17 @@ class TemplateHighlighter(QSyntaxHighlighter):
               r'|\$+#?[a-zA-Z]\w*',
               'identifier')
             a(r'^program:', 'keymode')
-            a('|'.join([r'\b%s\b' % keyword for keyword in self.KEYWORDS_GPM]), 'keyword')
-            a('|'.join([r'\b%s\b' % builtin for builtin in
+            a('|'.join([rf'\b{keyword}\b' for keyword in self.KEYWORDS_GPM]), 'keyword')
+            a('|'.join([rf'\b{builtin}\b' for builtin in
                             (builtin_functions if builtin_functions else
                                                 formatter_functions().get_builtins())]),
                 'builtin')
             a(r'''(?<!:)'[^']*'|"[^"]*\"''', 'string')
         else:
             a(r'^python:', 'keymode')
-            a('|'.join([r'\b%s\b' % keyword for keyword in self.KEYWORDS_PYTHON]), 'keyword')
-            a('|'.join([r'\b%s\b' % builtin for builtin in self.BUILTINS_PYTHON]), 'builtin')
-            a('|'.join([r'\b%s\b' % constant for constant in self.CONSTANTS_PYTHON]), 'constant')
+            a('|'.join([rf'\b{keyword}\b' for keyword in self.KEYWORDS_PYTHON]), 'keyword')
+            a('|'.join([rf'\b{builtin}\b' for builtin in self.BUILTINS_PYTHON]), 'builtin')
+            a('|'.join([rf'\b{constant}\b' for constant in self.CONSTANTS_PYTHON]), 'constant')
             a(r'\bPyQt6\b|\bqt.core\b|\bQt?[A-Z][a-z]\w+\b', 'pyqt')
             a(r'@\w+(\.\w+)?\b', 'decorator')
 
@@ -312,9 +312,9 @@ class TemplateHighlighter(QSyntaxHighlighter):
             ('rparen', None, True, True))
 
         for name, color, bold, italic in all_formats:
-            config['%sfontcolor' % name] = color
-            config['%sfontbold' % name] = bold
-            config['%sfontitalic' % name] = italic
+            config[f'{name}fontcolor'] = color
+            config[f'{name}fontbold'] = bold
+            config[f'{name}fontitalic'] = italic
         base_format = QTextCharFormat()
         base_format.setFontFamilies([config['fontfamily']])
         config['fontsize'] = size
@@ -323,12 +323,12 @@ class TemplateHighlighter(QSyntaxHighlighter):
         self.Formats = {}
         for name, color, bold, italic in all_formats:
             format_ = QTextCharFormat(base_format)
-            color = config['%sfontcolor' % name]
+            color = config[f'{name}fontcolor']
             if color:
                 format_.setForeground(QColor(color))
-            if config['%sfontbold' % name]:
+            if config[f'{name}fontbold']:
                 format_.setFontWeight(QFont.Weight.Bold)
-            format_.setFontItalic(config['%sfontitalic' % name])
+            format_.setFontItalic(config[f'{name}fontitalic'])
             self.Formats[name] = format_
 
     def find_paren(self, bn, pos):
@@ -642,8 +642,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.clear()
         self.function.addItem('')
         for f in func_names:
-            self.function.addItem('{}  --  {}'.format(f,
-                               self.function_type_string(f, longform=False)), f)
+            self.function.addItem(f'{f}  --  {self.function_type_string(f, longform=False)}', f)
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged.connect(self.function_changed)
         self.rule = (None, '')

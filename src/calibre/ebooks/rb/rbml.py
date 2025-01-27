@@ -83,7 +83,7 @@ class RBMLizer:
         output = ''
         if 'cover' in self.oeb_book.guide:
             if self.name_map.get(self.oeb_book.guide['cover'].href, None):
-                output += '<IMG SRC="%s">' % self.name_map[self.oeb_book.guide['cover'].href]
+                output += '<IMG SRC="{}">'.format(self.name_map[self.oeb_book.guide['cover'].href])
         if 'titlepage' in self.oeb_book.guide:
             self.log.debug('Generating cover page...')
             href = self.oeb_book.guide['titlepage'].href
@@ -98,12 +98,12 @@ class RBMLizer:
         toc = ['']
         if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
-            toc.append('<H1>%s</H1><UL>\n' % _('Table of Contents:'))
+            toc.append('<H1>{}</H1><UL>\n'.format(_('Table of Contents:')))
             for item in self.oeb_book.toc:
                 if item.href in self.link_hrefs.keys():
                     toc.append(f'<LI><A HREF="#{self.link_hrefs[item.href]}">{item.title}</A></LI>\n')
                 else:
-                    self.oeb.warn('Ignoring toc item: %s not found in document.' % item)
+                    self.oeb.warn(f'Ignoring toc item: {item} not found in document.')
             toc.append('</UL>')
         return ''.join(toc)
 
@@ -113,7 +113,7 @@ class RBMLizer:
 
         output = ['']
         for item in self.oeb_book.spine:
-            self.log.debug('Converting %s to RocketBook HTML...' % item.href)
+            self.log.debug(f'Converting {item.href} to RocketBook HTML...')
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             output.append(self.add_page_anchor(item))
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
@@ -125,16 +125,16 @@ class RBMLizer:
     def get_anchor(self, page, aid):
         aid = f'{page.href}#{aid}'
         if aid not in self.link_hrefs.keys():
-            self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+            self.link_hrefs[aid] = f'calibre_link-{len(self.link_hrefs.keys())}'
         aid = self.link_hrefs[aid]
-        return '<A NAME="%s"></A>' % aid
+        return f'<A NAME="{aid}"></A>'
 
     def clean_text(self, text):
         # Remove anchors that do not have links
         anchors = set(re.findall(r'(?<=<A NAME=").+?(?="></A>)', text))
         links = set(re.findall(r'(?<=<A HREF="#).+?(?=">)', text))
         for unused in anchors.difference(links):
-            text = text.replace('<A NAME="%s"></A>' % unused, '')
+            text = text.replace(f'<A NAME="{unused}"></A>', '')
 
         return text
 
@@ -165,13 +165,13 @@ class RBMLizer:
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
                 if page.abshref(elem.attrib['src']) not in self.name_map.keys():
-                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name('%s' % len(self.name_map.keys()), self.name_map.keys())
-                text.append('<IMG SRC="%s">' % self.name_map[page.abshref(elem.attrib['src'])])
+                    self.name_map[page.abshref(elem.attrib['src'])] = unique_name(f'{len(self.name_map.keys())}', self.name_map.keys())
+                text.append('<IMG SRC="{}">'.format(self.name_map[page.abshref(elem.attrib['src'])]))
 
         rb_tag = tag.upper() if tag in TAGS else None
         if rb_tag:
             tag_count += 1
-            text.append('<%s>' % rb_tag)
+            text.append(f'<{rb_tag}>')
             tag_stack.append(rb_tag)
 
         # Anchors links
@@ -183,9 +183,9 @@ class RBMLizer:
                     if '#' not in href:
                         href += '#'
                     if href not in self.link_hrefs.keys():
-                        self.link_hrefs[href] = 'calibre_link-%s' % len(self.link_hrefs.keys())
+                        self.link_hrefs[href] = f'calibre_link-{len(self.link_hrefs.keys())}'
                     href = self.link_hrefs[href]
-                    text.append('<A HREF="#%s">' % href)
+                    text.append(f'<A HREF="#{href}">')
                 tag_count += 1
                 tag_stack.append('A')
 
@@ -200,7 +200,7 @@ class RBMLizer:
             if style_tag:
                 style_tag = style_tag.upper()
                 tag_count += 1
-                text.append('<%s>' % style_tag)
+                text.append(f'<{style_tag}>')
                 tag_stack.append(style_tag)
 
         # Process tags that contain text.
@@ -225,6 +225,6 @@ class RBMLizer:
         text = ['']
         for i in range(len(tags)):
             tag = tags.pop()
-            text.append('</%s>' % tag)
+            text.append(f'</{tag}>')
 
         return text

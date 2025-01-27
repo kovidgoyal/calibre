@@ -320,11 +320,11 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
             x.tag not in ('script', 'style')]
 
     if len(elems) > 1:
-        ans = '<div>%s</div>'%(''.join(elems))
+        ans = '<div>{}</div>'.format(''.join(elems))
     else:
         ans = ''.join(elems)
         if not ans.startswith('<'):
-            ans = '<p>%s</p>'%ans
+            ans = f'<p>{ans}</p>'
     return xml_replace_entities(ans)
 
 
@@ -1478,7 +1478,7 @@ class Editor(QWidget):  # {{{
         self.toolbar.add_separator()
 
         for x in ('', 'un'):
-            ac = getattr(self.editor, 'action_%sordered_list'%x)
+            ac = getattr(self.editor, f'action_{x}ordered_list')
             self.toolbar.add_action(ac)
         self.toolbar.add_separator()
         for x in ('superscript', 'subscript', 'indent', 'outdent'):

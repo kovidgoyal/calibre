@@ -33,7 +33,7 @@ class Bookmark:  # {{{
     def record(self, n):
         from calibre.ebooks.metadata.mobi import StreamSlicer
         if n >= self.nrecs:
-            raise ValueError('non-existent record %r' % n)
+            raise ValueError(f'non-existent record {n!r}')
         offoff = 78 + (8 * n)
         start, = unpack('>I', self.data[offoff + 0:offoff + 4])
         stop = None
@@ -141,7 +141,7 @@ class Bookmark:  # {{{
                 # Search looks for book title match, highlight match, and location match
                 # Author is not matched
                 # This will find the first instance of a clipping only
-                book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
+                book_fs = self.path.replace(f'.{self.bookmark_extension}',f'.{self.book_format}')
                 with open(book_fs,'rb') as f2:
                     stream = io.BytesIO(f2.read())
                     mi = get_topaz_metadata(stream)
@@ -152,7 +152,7 @@ class Bookmark:  # {{{
                     with open(my_clippings, encoding='utf-8', errors='replace') as f2:
                         marker_found = 0
                         text = ''
-                        search_str1 = '%s' % (mi.title)
+                        search_str1 = f'{mi.title}'
                         search_str2 = '- Highlight Loc. %d' % (displayed_location)
                         for line in f2:
                             if marker_found == 0:
@@ -271,12 +271,12 @@ class Bookmark:  # {{{
                 self.last_read_location = self.last_read - self.pdf_page_offset
 
         else:
-            print('unsupported bookmark_extension: %s' % self.bookmark_extension)
+            print(f'unsupported bookmark_extension: {self.bookmark_extension}')
         self.user_notes = user_notes
 
     def get_book_length(self):
         from calibre.ebooks.metadata.mobi import StreamSlicer
-        book_fs = self.path.replace('.%s' % self.bookmark_extension,'.%s' % self.book_format)
+        book_fs = self.path.replace(f'.{self.bookmark_extension}',f'.{self.book_format}')
 
         self.book_length = 0
         if self.bookmark_extension == 'mbp':
@@ -300,6 +300,6 @@ class Bookmark:  # {{{
             except:
                 pass
         else:
-            print('unsupported bookmark_extension: %s' % self.bookmark_extension)
+            print(f'unsupported bookmark_extension: {self.bookmark_extension}')
 
 # }}}

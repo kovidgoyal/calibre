@@ -64,7 +64,7 @@ clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
 def test_clean_xml_chars():
     raw = 'asd\x02a\U00010437x\ud801b\udffe\ud802'
     if native_clean_xml_chars(raw) != 'asda\U00010437xb':
-        raise ValueError('Failed to XML clean: %r' % raw)
+        raise ValueError(f'Failed to XML clean: {raw!r}')
 
 
 # Fredrik Lundh: http://effbot.org/zone/re-sub.htm#unescape-html

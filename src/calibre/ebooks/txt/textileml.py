@@ -55,7 +55,7 @@ class TextileMLizer(OEB2HTML):
     def mlize_spine(self, oeb_book):
         output = ['']
         for item in oeb_book.spine:
-            self.log.debug('Converting %s to Textile formatted TXT...' % item.href)
+            self.log.debug(f'Converting {item.href} to Textile formatted TXT...')
             self.rewrite_ids(item.data, item)
             rewrite_links(item.data, partial(self.rewrite_link, page=item))
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts, self.opts.output_profile)
@@ -68,7 +68,7 @@ class TextileMLizer(OEB2HTML):
         def check_escaping(text, tests):
             for t in tests:
                 # I'm not checking for duplicated spans '%' as any that follow each other were being incorrectly merged
-                txt = '%s' % t
+                txt = f'{t}'
                 if txt != '%':
                     text = re.sub(r'([^'+t+'|^\n])'+t+r'\]\['+t+'([^'+t+'])', r'\1\2', text)
                     text = re.sub(r'([^'+t+'|^\n])'+t+t+'([^'+t+'])', r'\1\2', text)
@@ -221,7 +221,7 @@ class TextileMLizer(OEB2HTML):
 
     def prepare_string_for_textile(self, txt):
         if re.search(r'(\s([*&_+\-~@%|]|\?{2})\S)|(\S([*&_+\-~@%|]|\?{2})\s)', txt):
-            return ' ==%s== ' % txt
+            return f' =={txt}== '
         return txt
 
     def dump_text(self, elem, stylizer):
@@ -488,7 +488,7 @@ class TextileMLizer(OEB2HTML):
                     self.style_smallcap = False
                 if t in ('*]', '_]', '+]', '-]', '*', '_'):
                     txt = self.style_embed.pop()
-                text.append('%s' % t)
+                text.append(f'{t}')
 
         # Soft scene breaks.
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':

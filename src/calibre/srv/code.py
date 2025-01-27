@@ -258,7 +258,7 @@ def books(ctx, rd):
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
-        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+        raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     ans = get_library_init_data(ctx, rd, db, num, sorts, orders, vl)
     ans['library_id'] = library_id
@@ -290,7 +290,7 @@ def interface_data(ctx, rd):
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
-        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+        raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     ans.update(get_library_init_data(ctx, rd, db, num, sorts, orders, vl))
     return ans
 
@@ -324,16 +324,16 @@ def more_books(ctx, rd):
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
-        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+        raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     try:
         search_query = load_json_file(rd.request_body_file)
         query, offset, sorts, orders, vl = search_query['query'], search_query[
             'offset'
         ], search_query['sort'], search_query['sort_order'], search_query['vl']
     except KeyError as err:
-        raise HTTPBadRequest('Search query missing key: %s' % as_unicode(err))
+        raise HTTPBadRequest(f'Search query missing key: {as_unicode(err)}')
     except Exception as err:
-        raise HTTPBadRequest('Invalid query: %s' % as_unicode(err))
+        raise HTTPBadRequest(f'Invalid query: {as_unicode(err)}')
     ans = {}
     with db.safe_read_lock:
         ans['search_result'] = search_result(
@@ -360,7 +360,7 @@ def set_session_data(ctx, rd):
             if not isinstance(new_data, dict):
                 raise Exception('session data must be a dict')
         except Exception as err:
-            raise HTTPBadRequest('Invalid data: %s' % as_unicode(err))
+            raise HTTPBadRequest(f'Invalid data: {as_unicode(err)}')
         ud = ctx.user_manager.get_session_data(rd.username)
         ud.update(new_data)
         ctx.user_manager.set_session_data(rd.username, ud)
@@ -377,7 +377,7 @@ def get_books(ctx, rd):
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
     except Exception:
-        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+        raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     searchq = rd.query.get('search', '')
     db = get_library_data(ctx, rd)[0]
     ans = {}
@@ -390,7 +390,7 @@ def get_books(ctx, rd):
         except ParseException as err:
             # This must not be translated as it is used by the front end to
             # detect invalid search expressions
-            raise HTTPBadRequest('Invalid search expression: %s' % as_unicode(err))
+            raise HTTPBadRequest(f'Invalid search expression: {as_unicode(err)}')
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
             if data is not None:

@@ -304,7 +304,7 @@ class Styles:
             if att is None:
                 if info not in self.__ignore_list:
                     if self.__run_level > 3:
-                        msg = 'no value for key %s\n' % info
+                        msg = f'no value for key {info}\n'
                         raise self.__bug_handler(msg)
             else:
                 value = line[20:-1]
@@ -325,19 +325,19 @@ class Styles:
         try:
             if self.__leader_found:
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += '%s:' % self.__tab_type
+                += f'{self.__tab_type}:'
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += '%s;' % line[20:-1]
+                += f'{line[20:-1]};'
             else:
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += '%s:' % self.__tab_type
+                += f'{self.__tab_type}:'
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += '%s;' % line[20:-1]
+                += f'{line[20:-1]};'
         except KeyError:
             self.__enter_dict_entry('tabs', '')
             self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += '%s:' % self.__tab_type
-            self.__styles_dict['par'][self.__styles_num]['tabs'] += '%s;' % line[20:-1]
+                += f'{self.__tab_type}:'
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
         self.__leader_found = 0
 
@@ -349,7 +349,7 @@ class Styles:
             self.__tab_type = type
         else:
             if self.__run_level > 3:
-                msg = 'no entry for %s\n' % self.__token_info
+                msg = f'no entry for {self.__token_info}\n'
                 raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
@@ -368,13 +368,13 @@ class Styles:
         if leader is not None:
             leader += '^'
             try:
-                self.__styles_dict['par'][self.__styles_num]['tabs'] += ':%s;' % leader
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f':{leader};'
             except KeyError:
                 self.__enter_dict_entry('tabs', '')
-                self.__styles_dict['par'][self.__styles_num]['tabs'] += '%s;' % leader
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{leader};'
         else:
             if self.__run_level > 3:
-                msg = 'no entry for %s\n' % self.__token_info
+                msg = f'no entry for {self.__token_info}\n'
                 raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
@@ -390,15 +390,15 @@ class Styles:
         # self.__add_dict_entry('tabs-bar', line[20:-1])
         try:
             self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '%s:' % 'bar'
+            += '{}:'.format('bar')
             self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '%s;' % line[20:-1]
+            += f'{line[20:-1]};'
         except KeyError:
             self.__enter_dict_entry('tabs', '')
             self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '%s:' % 'bar'
+            += '{}:'.format('bar')
             self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '%s;' % line[20:-1]
+            += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __enter_dict_entry(self, att, value):
@@ -551,7 +551,7 @@ class Styles:
                             else:
                                 if self.__run_level > 4:
                                     msg = f'{type} {key} is based on {value}\n'
-                                    msg = 'There is no style with %s\n' % value
+                                    msg = f'There is no style with {value}\n'
                                     raise self.__bug_handler(msg)
                             del self.__styles_dict[type][key][style]
 
@@ -576,7 +576,7 @@ class Styles:
             else:
                 prefix = 'character'
             self.__write_obj.write(
-            'mi<tg<open______<%s-styles\n' % prefix
+            f'mi<tg<open______<{prefix}-styles\n'
             )
             style_numbers = self.__styles_dict[type].keys()
             for num in style_numbers:
@@ -591,7 +591,7 @@ class Styles:
                         )
                 self.__write_obj.write('\n')
             self.__write_obj.write(
-            'mi<tg<close_____<%s-styles\n' % prefix
+            f'mi<tg<close_____<{prefix}-styles\n'
             )
 
     def __found_styles_table_func(self, line):
@@ -666,7 +666,7 @@ class Styles:
             )
         else:
             self.__write_obj.write(
-            'cw<ss<%s_style<nu<not-defined\n' % prefix
+            f'cw<ss<{prefix}_style<nu<not-defined\n'
             )
 
     def __after_styles_func(self, line):

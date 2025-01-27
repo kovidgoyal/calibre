@@ -103,7 +103,7 @@ def initialize_calibre():
 
     def get_command_line(**kwds):
         prog = 'from multiprocessing.spawn import spawn_main; spawn_main(%s)'
-        prog %= ', '.join('%s=%r' % item for item in kwds.items())
+        prog %= ', '.join('{}={!r}'.format(*item) for item in kwds.items())
         return get_debug_executable() + ['--fix-multiprocessing', '--', prog]
     spawn.get_command_line = get_command_line
     orig_spawn_passfds = util.spawnv_passfds

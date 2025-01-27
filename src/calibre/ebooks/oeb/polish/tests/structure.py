@@ -19,16 +19,16 @@ from calibre.ebooks.oeb.polish.toc import from_xpaths as toc_from_xpaths
 from calibre.ebooks.oeb.polish.toc import get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 
-OPF_TEMPLATE = '''
-<package xmlns="http://www.idpf.org/2007/opf" version="{ver}" prefix="calibre: %s" unique-identifier="uid">
+OPF_TEMPLATE = f'''
+<package xmlns="http://www.idpf.org/2007/opf" version="{{ver}}" prefix="calibre: {CALIBRE_PREFIX}" unique-identifier="uid">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
         <dc:identifier id="uid">test</dc:identifier>
-        {metadata}
+        {{metadata}}
     </metadata>
-    <manifest>{manifest}</manifest>
-    <spine>{spine}</spine>
-    <guide>{guide}</guide>
-</package>''' % CALIBRE_PREFIX
+    <manifest>{{manifest}}</manifest>
+    <spine>{{spine}}</spine>
+    <guide>{{guide}}</guide>
+</package>'''
 
 
 def create_manifest_item(name, data=b'', properties=None):
@@ -42,14 +42,14 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     mo = []
     for name, data, properties in manifest:
         mo.append('<item id="{}" href="{}" media-type="{}" {}/>'.format(
-            name, name, guess_type(name), ('properties="%s"' % properties if properties else '')))
+            name, name, guess_type(name), (f'properties="{properties}"' if properties else '')))
     mo = ''.join(mo)
     metadata = ''
     if meta_cover:
-        metadata = '<meta name="cover" content="%s"/>' % meta_cover
+        metadata = f'<meta name="cover" content="{meta_cover}"/>'
     if not spine:
         spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
-    spine = ''.join('<itemref idref="%s"/>' % name for name in spine)
+    spine = ''.join(f'<itemref idref="{name}"/>' for name in spine)
     guide = ''.join(f'<reference href="{name}" type="{typ}" title="{title}"/>' for name, typ, title in guide)
     opf = OPF_TEMPLATE.format(manifest=mo, ver='%d.0'%ver, metadata=metadata, spine=spine, guide=guide)
     buf = BytesIO()
@@ -99,9 +99,9 @@ class Structure(BaseTest):
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
 
         def tfx(linear, expected):
-            items = ['<t{0}>{0}</t{0}>'.format(x) for x in linear]
+            items = [f'<t{x}>{x}</t{x}>' for x in linear]
             html = '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
-            html += '<body>%s</body></html>' % '\n'.join(items)
+            html += '<body>{}</body></html>'.format('\n'.join(items))
             with c.open('nav.html', 'wb') as f:
                 f.write(html.encode('utf-8'))
             toc = toc_from_xpaths(c, ['//h:t'+x for x in sorted(set(linear))])
@@ -114,7 +114,7 @@ class Structure(BaseTest):
                         ans += c.title + p(c)
                     ans += ']'
                 return ans
-            self.assertEqual('[%s]'%expected, p(toc))
+            self.assertEqual(f'[{expected}]', p(toc))
 
         tfx('121333', '1[2]1[333]')
         tfx('1223424', '1[22[3[4]]2[4]]')

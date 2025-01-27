@@ -384,25 +384,25 @@ class KOBO(USBMS):
             if self.dbversion >= 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, IsDownloaded from content where '
-                    'BookID is Null %(previews)s %(recommendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(
+                    'BookID is Null {previews} {recommendations} and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) {expiry}').format(**dict(
                         expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')',
                     previews=' and Accessibility <> 6' if not self.show_previews else '',
-                    recommendations=" and IsDownloaded in ('true', 1)" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else '')
+                    recommendations=" and IsDownloaded in ('true', 1)" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else ''))
             elif self.dbversion >= 16 and self.dbversion < 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, "1" as IsDownloaded from content where '
-                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)'
-                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) {expiry}').format(**dict(expiry=' and ContentType = 6)'
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')'))
             elif self.dbversion < 16 and self.dbversion >= 14:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where '
-                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)'
-                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) {expiry}').format(**dict(expiry=' and ContentType = 6)'
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')'))
             elif self.dbversion < 14 and self.dbversion >= 8:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where '
-                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)'
-                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) {expiry}').format(**dict(expiry=' and ContentType = 6)'
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')'))
             else:
                 query = ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                          'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, '
@@ -608,12 +608,12 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def add_books_to_metadata(self, locations, metadata, booklists):
-        debug_print('KoboTouch::add_books_to_metadata - start. metadata=%s' % metadata[0])
+        debug_print(f'KoboTouch::add_books_to_metadata - start. metadata={metadata[0]}')
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
             info = next(metadata)
-            debug_print('KoboTouch::add_books_to_metadata - info=%s' % info)
+            debug_print(f'KoboTouch::add_books_to_metadata - info={info}')
             blist = 2 if location[1] == 'cardb' else 1 if location[1] == 'carda' else 0
 
             # Extract the correct prefix from the pathname. To do this correctly,
@@ -645,7 +645,7 @@ class KOBO(USBMS):
                 book.size = os.stat(self.normalize_path(path)).st_size
             b = booklists[blist].add_book(book, replace_metadata=True)
             if b:
-                debug_print('KoboTouch::add_books_to_metadata - have a new book - book=%s' % book)
+                debug_print(f'KoboTouch::add_books_to_metadata - have a new book - book={book}')
                 b._new_book = True
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
 
@@ -755,9 +755,9 @@ class KOBO(USBMS):
                     ' selecting "Configure this device" and then the '
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a Factory reset of'
-                    ' your Kobo.') + ((
-                    '\nDevice database version: %s.'
-                    '\nDevice firmware version: %s') % (self.dbversion, self.display_fwversion))
+                    ' your Kobo.') + (
+                    f'\nDevice database version: {self.dbversion}.'
+                    f'\nDevice firmware version: {self.display_fwversion}')
                     , UserFeedback.WARN)
 
                 return False
@@ -807,7 +807,7 @@ class KOBO(USBMS):
                 ('card_a', 'metadata.calibre', 1),
                 ('card_b', 'metadata.calibre', 2)
                 ]:
-            prefix = getattr(self, '_%s_prefix'%prefix)
+            prefix = getattr(self, f'_{prefix}_prefix')
             if prefix is not None and os.path.exists(prefix):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
         return paths
@@ -891,7 +891,7 @@ class KOBO(USBMS):
             cursor.close()
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
-        debug_print("Kobo:update_device_database_collections - oncard='%s'"%oncard)
+        debug_print(f"Kobo:update_device_database_collections - oncard='{oncard}'")
         if self.modify_database_check('update_device_database_collections') is False:
             return
 
@@ -1678,7 +1678,7 @@ class KOBOTOUCH(KOBO):
         return "'true'" if x else "'false'"
 
     def books(self, oncard=None, end_session=True):
-        debug_print("KoboTouch:books - oncard='%s'"%oncard)
+        debug_print(f"KoboTouch:books - oncard='{oncard}'")
         self.debugging_title = self.get_debugging_title()
 
         dummy_bl = self.booklist_class(None, None, None)
@@ -1699,11 +1699,11 @@ class KOBOTOUCH(KOBO):
         prefix = self._card_a_prefix if oncard == 'carda' else \
                  self._card_b_prefix if oncard == 'cardb' \
                  else self._main_prefix
-        debug_print("KoboTouch:books - oncard='%s', prefix='%s'"%(oncard, prefix))
+        debug_print(f"KoboTouch:books - oncard='{oncard}', prefix='{prefix}'")
 
         self.fwversion = self.get_firmware_version()
 
-        debug_print('Kobo device: %s' % self.gui_name)
+        debug_print(f'Kobo device: {self.gui_name}')
         debug_print('Version of driver:', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware:', self.fwversion, 'Has kepubs:', self.has_kepubs)
         debug_print('Firmware supports cover image tree:', self.fwversion >= self.min_fwversion_images_tree)
@@ -1718,7 +1718,7 @@ class KOBOTOUCH(KOBO):
         debug_print('KoboTouch:books - driver options=', self)
         debug_print("KoboTouch:books - prefs['manage_device_metadata']=", prefs['manage_device_metadata'])
         debugging_title = self.debugging_title
-        debug_print("KoboTouch:books - set_debugging_title to '%s'" % debugging_title)
+        debug_print(f"KoboTouch:books - set_debugging_title to '{debugging_title}'")
         bl.set_debugging_title(debugging_title)
         debug_print('KoboTouch:books - length bl=%d'%len(bl))
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
@@ -1739,7 +1739,7 @@ class KOBOTOUCH(KOBO):
             show_debug = self.is_debugging_title(title)
             # show_debug = authors == 'L. Frank Baum'
             if show_debug:
-                debug_print("KoboTouch:update_booklist - title='%s'"%title, 'ContentType=%s'%ContentType, 'isdownloaded=', isdownloaded)
+                debug_print(f"KoboTouch:update_booklist - title='{title}'", f'ContentType={ContentType}', 'isdownloaded=', isdownloaded)
                 debug_print(
                     '         prefix=%s, DateCreated=%s, readstatus=%d, MimeType=%s, expired=%d, favouritesindex=%d, accessibility=%d, isdownloaded=%s'%
                 (prefix, DateCreated, readstatus, MimeType, expired, favouritesindex, accessibility, isdownloaded,))
@@ -1838,19 +1838,19 @@ class KOBOTOUCH(KOBO):
                         try:
                             kobo_metadata.pubdate = datetime.strptime(DateCreated, '%Y-%m-%dT%H:%M:%S.%fZ')
                         except:
-                            debug_print("KoboTouch:update_booklist - Cannot convert date - DateCreated='%s'"%DateCreated)
+                            debug_print(f"KoboTouch:update_booklist - Cannot convert date - DateCreated='{DateCreated}'")
 
                 idx = bl_cache.get(lpath, None)
                 if idx is not None:  # and not (accessibility == 1 and isdownloaded == 'false'):
                     if show_debug:
                         self.debug_index = idx
                         debug_print('KoboTouch:update_booklist - idx=%d'%idx)
-                        debug_print('KoboTouch:update_booklist - lpath=%s'%lpath)
+                        debug_print(f'KoboTouch:update_booklist - lpath={lpath}')
                         debug_print('KoboTouch:update_booklist - bl[idx].device_collections=', bl[idx].device_collections)
                         debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
                         debug_print('KoboTouch:update_booklist - bookshelves=', bookshelves)
                         debug_print('KoboTouch:update_booklist - kobo_collections=', kobo_collections)
-                        debug_print('KoboTouch:update_booklist - series="%s"' % bl[idx].series)
+                        debug_print(f'KoboTouch:update_booklist - series="{bl[idx].series}"')
                         debug_print('KoboTouch:update_booklist - the book=', bl[idx])
                         debug_print('KoboTouch:update_booklist - the authors=', bl[idx].authors)
                         debug_print('KoboTouch:update_booklist - application_id=', bl[idx].application_id)
@@ -1871,7 +1871,7 @@ class KOBOTOUCH(KOBO):
                             debug_print('KoboTouch:update_booklist - book size=', bl[idx].size)
 
                     if show_debug:
-                        debug_print("KoboTouch:update_booklist - ContentID='%s'"%ContentID)
+                        debug_print(f"KoboTouch:update_booklist - ContentID='{ContentID}'")
                     bl[idx].contentID           = ContentID
                     bl[idx].kobo_metadata       = kobo_metadata
                     bl[idx].kobo_series         = series
@@ -1897,8 +1897,8 @@ class KOBOTOUCH(KOBO):
                         debug_print('KoboTouch:update_booklist - updated bl[idx].device_collections=', bl[idx].device_collections)
                         debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map, 'changed=', changed)
                         # debug_print('KoboTouch:update_booklist - book=', bl[idx])
-                        debug_print('KoboTouch:update_booklist - book class=%s'%bl[idx].__class__)
-                        debug_print('KoboTouch:update_booklist - book title=%s'%bl[idx].title)
+                        debug_print(f'KoboTouch:update_booklist - book class={bl[idx].__class__}')
+                        debug_print(f'KoboTouch:update_booklist - book title={bl[idx].title}')
                 else:
                     if show_debug:
                         debug_print('KoboTouch:update_booklist - idx is none')
@@ -1911,10 +1911,10 @@ class KOBOTOUCH(KOBO):
                                 title = 'FILE MISSING: ' + title
                             book = self.book_class(prefix, lpath, title, authors, MimeType, DateCreated, ContentType, ImageID, size=0)
                             if show_debug:
-                                debug_print('KoboTouch:update_booklist - book file does not exist. ContentID="%s"'%ContentID)
+                                debug_print(f'KoboTouch:update_booklist - book file does not exist. ContentID="{ContentID}"')
 
                     except Exception as e:
-                        debug_print("KoboTouch:update_booklist - exception creating book: '%s'"%str(e))
+                        debug_print(f"KoboTouch:update_booklist - exception creating book: '{e!s}'")
                         debug_print('        prefix: ', prefix, 'lpath: ', lpath, 'title: ', title, 'authors: ', authors,
                                     'MimeType: ', MimeType, 'DateCreated: ', DateCreated, 'ContentType: ', ContentType, 'ImageID: ', ImageID)
                         raise
@@ -1922,10 +1922,10 @@ class KOBOTOUCH(KOBO):
                     if show_debug:
                         debug_print('KoboTouch:update_booklist - class:', book.__class__)
                         # debug_print('    resolution:', book.__class__.__mro__)
-                        debug_print("    contentid: '%s'"%book.contentID)
-                        debug_print("    title:'%s'"%book.title)
+                        debug_print(f"    contentid: '{book.contentID}'")
+                        debug_print(f"    title:'{book.title}'")
                         debug_print('    the book:', book)
-                        debug_print("    author_sort:'%s'"%book.author_sort)
+                        debug_print(f"    author_sort:'{book.author_sort}'")
                         debug_print('    bookshelves:', bookshelves)
                         debug_print('    kobo_collections:', kobo_collections)
 
@@ -2021,39 +2021,35 @@ class KOBOTOUCH(KOBO):
             if self.supports_kobo_archive() or self.supports_overdrive():
                 where_clause = (" WHERE BookID IS NULL "
                         " AND ((Accessibility = -1 AND IsDownloaded in ('true', 1 )) "              # Sideloaded books
-                        "      OR (Accessibility IN (%(downloaded_accessibility)s) %(expiry)s) "    # Purchased books
-                        "      %(previews)s %(recommendations)s ) "                                  # Previews or Recommendations
-                    ) % \
-                    dict(
+                        "      OR (Accessibility IN ({downloaded_accessibility}) {expiry}) "    # Purchased books
+                        "      {previews} {recommendations} ) "                                  # Previews or Recommendations
+                    ).format(**dict(
                          expiry='' if self.show_archived_books else "and IsDownloaded in ('true', 1)",
                          previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else '',
                          recommendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else '',
                          downloaded_accessibility='1,2,8,9' if self.supports_overdrive() else '1,2'
-                         )
+                         ))
             elif self.supports_series():
                 where_clause = (" WHERE BookID IS NULL "
-                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) %(previews)s %(recommendations)s )"
-                    " AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) %(expiry)s)"
-                    ) % \
-                    dict(
+                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) {previews} {recommendations} )"
+                    " AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) {expiry})"
+                    ).format(**dict(
                          expiry=' AND ContentType = 6' if self.show_archived_books else '',
                          previews=" or (Accessibility IN (6) AND ___UserID <> '')" if self.show_previews else '',
                          recommendations=" or (Accessibility in (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else ''
-                         )
+                         ))
             elif self.dbversion >= 33:
-                where_clause = (' WHERE BookID IS NULL %(previews)s %(recommendations)s AND NOT'
-                    ' ((___ExpirationStatus=3 or ___ExpirationStatus IS NULL) %(expiry)s)'
-                    ) % \
-                    dict(
+                where_clause = (' WHERE BookID IS NULL {previews} {recommendations} AND NOT'
+                    ' ((___ExpirationStatus=3 or ___ExpirationStatus IS NULL) {expiry})'
+                    ).format(**dict(
                          expiry=' AND ContentType = 6' if self.show_archived_books else '',
                          previews=' AND Accessibility <> 6' if not self.show_previews else '',
                          recommendations=" AND IsDownloaded IN ('true', 1)" if not self.show_recommendations else ''
-                         )
+                         ))
             elif self.dbversion >= 16:
                 where_clause = (' WHERE BookID IS NULL '
-                    'AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus IS Null) %(expiry)s)'
-                    ) % \
-                    dict(expiry=' and ContentType = 6' if self.show_archived_books else '')
+                    'AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus IS Null) {expiry})'
+                    ).format(**dict(expiry=' and ContentType = 6' if self.show_archived_books else ''))
             else:
                 where_clause = ' WHERE BookID IS NULL'
 
@@ -2094,7 +2090,7 @@ class KOBOTOUCH(KOBO):
                 show_debug = self.is_debugging_title(row['Title'])
                 if show_debug:
                     debug_print('KoboTouch:books - looping on database - row=%d' % i)
-                    debug_print("KoboTouch:books - title='%s'"%row['Title'], 'authors=', row['Attribution'])
+                    debug_print("KoboTouch:books - title='{}'".format(row['Title']), 'authors=', row['Attribution'])
                     debug_print('KoboTouch:books - row=', row)
                 if not hasattr(row['ContentID'], 'startswith') or row['ContentID'].lower().startswith(
                         'file:///usr/local/kobo/help/') or row['ContentID'].lower().startswith('/usr/local/kobo/help/'):
@@ -2103,7 +2099,7 @@ class KOBOTOUCH(KOBO):
                 externalId = None if row['ExternalId'] and len(row['ExternalId']) == 0 else row['ExternalId']
                 path = self.path_from_contentid(row['ContentID'], row['ContentType'], row['MimeType'], oncard, externalId)
                 if show_debug:
-                    debug_print("KoboTouch:books - path='%s'"%path, "  ContentID='%s'"%row['ContentID'], ' externalId=%s' % externalId)
+                    debug_print(f"KoboTouch:books - path='{path}'", "  ContentID='{}'".format(row['ContentID']), f' externalId={externalId}')
 
                 bookshelves = get_bookshelvesforbook(connection, row['ContentID'])
 
@@ -2142,7 +2138,7 @@ class KOBOTOUCH(KOBO):
                     need_sync = True
                     del bl[idx]
                 else:
-                    debug_print("KoboTouch:books - Book in mtadata.calibre, on file system but not database - bl[idx].title:'%s'"%bl[idx].title)
+                    debug_print(f"KoboTouch:books - Book in mtadata.calibre, on file system but not database - bl[idx].title:'{bl[idx].title}'")
 
         # print('count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
         #      (len(bl_cache), len(bl), need_sync))
@@ -2159,12 +2155,12 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:books - have done sync_booklists')
 
         self.report_progress(1.0, _('Getting list of books on device...'))
-        debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
+        debug_print(f"KoboTouch:books - end - oncard='{oncard}'")
         return bl
 
     @classmethod
     def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
-        debug_print('KoboTouch:book_from_path - title=%s'%title)
+        debug_print(f'KoboTouch:book_from_path - title={title}')
         book = super().book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
 
         # Kobo Audiobooks are directories with files in them.
@@ -2222,11 +2218,11 @@ class KOBOTOUCH(KOBO):
                 fpath = path + ending
                 if os.path.exists(fpath):
                     if show_debug:
-                        debug_print('KoboTouch:imagefilename_from_imageID - have cover image fpath=%s' % (fpath))
+                        debug_print(f'KoboTouch:imagefilename_from_imageID - have cover image fpath={fpath}')
                     return fpath
 
             if show_debug:
-                debug_print('KoboTouch:imagefilename_from_imageID - no cover image found - ImageID=%s' % (ImageID))
+                debug_print(f'KoboTouch:imagefilename_from_imageID - no cover image found - ImageID={ImageID}')
         return None
 
     def get_extra_css(self):
@@ -2313,7 +2309,7 @@ class KOBOTOUCH(KOBO):
 
                     cursor.close()
             except Exception as e:
-                debug_print('KoboTouch:upload_books - Exception:  %s'%str(e))
+                debug_print(f'KoboTouch:upload_books - Exception:  {e!s}')
 
         return result
 
@@ -2419,7 +2415,7 @@ class KOBOTOUCH(KOBO):
         imageId = super().delete_via_sql(ContentID, ContentType)
 
         if self.dbversion >= 53:
-            debug_print('KoboTouch:delete_via_sql: ContentID="%s"'%ContentID, 'ContentType="%s"'%ContentType)
+            debug_print(f'KoboTouch:delete_via_sql: ContentID="{ContentID}"', f'ContentType="{ContentType}"')
             try:
                 with closing(self.device_database_connection()) as connection:
                     debug_print('KoboTouch:delete_via_sql: have database connection')
@@ -2457,9 +2453,9 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:delete_via_sql: finished SQL')
                 debug_print('KoboTouch:delete_via_sql: After SQL, no exception')
             except Exception as e:
-                debug_print('KoboTouch:delete_via_sql - Database Exception:  %s'%str(e))
+                debug_print(f'KoboTouch:delete_via_sql - Database Exception:  {e!s}')
 
-        debug_print('KoboTouch:delete_via_sql: imageId="%s"'%imageId)
+        debug_print(f'KoboTouch:delete_via_sql: imageId="{imageId}"')
         if imageId is None:
             imageId = self.imageid_from_contentid(ContentID)
 
@@ -2469,12 +2465,12 @@ class KOBOTOUCH(KOBO):
         debug_print('KoboTouch:delete_images - ImageID=', ImageID)
         if ImageID is not None:
             path = self.images_path(book_path, ImageID)
-            debug_print('KoboTouch:delete_images - path=%s' % path)
+            debug_print(f'KoboTouch:delete_images - path={path}')
 
             for ending in self.cover_file_endings().keys():
                 fpath = path + ending
                 fpath = self.normalize_path(fpath)
-                debug_print('KoboTouch:delete_images - fpath=%s' % fpath)
+                debug_print(f'KoboTouch:delete_images - fpath={fpath}')
 
                 if os.path.exists(fpath):
                     debug_print('KoboTouch:delete_images - Image File Exists')
@@ -2488,8 +2484,8 @@ class KOBOTOUCH(KOBO):
     def contentid_from_path(self, path, ContentType):
         show_debug = self.is_debugging_title(path) and True
         if show_debug:
-            debug_print("KoboTouch:contentid_from_path - path='%s'"%path, "ContentType='%s'"%ContentType)
-            debug_print("KoboTouch:contentid_from_path - self._main_prefix='%s'"%self._main_prefix, "self._card_a_prefix='%s'"%self._card_a_prefix)
+            debug_print(f"KoboTouch:contentid_from_path - path='{path}'", f"ContentType='{ContentType}'")
+            debug_print(f"KoboTouch:contentid_from_path - self._main_prefix='{self._main_prefix}'", f"self._card_a_prefix='{self._card_a_prefix}'")
         if ContentType == 6:
             extension = os.path.splitext(path)[1]
             if extension == '.kobo':
@@ -2504,19 +2500,19 @@ class KOBOTOUCH(KOBO):
                 ContentID = ContentID.replace(self._main_prefix, 'file:///mnt/onboard/')
 
             if show_debug:
-                debug_print("KoboTouch:contentid_from_path - 1 ContentID='%s'"%ContentID)
+                debug_print(f"KoboTouch:contentid_from_path - 1 ContentID='{ContentID}'")
 
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, 'file:///mnt/sd/')
         else:  # ContentType = 16
-            debug_print("KoboTouch:contentid_from_path ContentType other than 6 - ContentType='%d'"%ContentType, "path='%s'"%path)
+            debug_print("KoboTouch:contentid_from_path ContentType other than 6 - ContentType='%d'"%ContentType, f"path='{path}'")
             ContentID = path
             ContentID = ContentID.replace(self._main_prefix, 'file:///mnt/onboard/')
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, 'file:///mnt/sd/')
         ContentID = ContentID.replace('\\', '/')
         if show_debug:
-            debug_print("KoboTouch:contentid_from_path - end - ContentID='%s'"%ContentID)
+            debug_print(f"KoboTouch:contentid_from_path - end - ContentID='{ContentID}'")
         return ContentID
 
     def get_content_type_from_path(self, path):
@@ -2538,8 +2534,8 @@ class KOBOTOUCH(KOBO):
         self.plugboard_func = pb_func
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
-        debug_print("KoboTouch:update_device_database_collections - oncard='%s'"%oncard)
-        debug_print("KoboTouch:update_device_database_collections - device='%s'" % self)
+        debug_print(f"KoboTouch:update_device_database_collections - oncard='{oncard}'")
+        debug_print(f"KoboTouch:update_device_database_collections - device='{self}'")
         if self.modify_database_check('update_device_database_collections') is False:
             return
 
@@ -2573,7 +2569,7 @@ class KOBOTOUCH(KOBO):
         update_core_metadata     = self.update_core_metadata
         update_purchased_kepubs  = self.update_purchased_kepubs
         debugging_title          = self.get_debugging_title()
-        debug_print("KoboTouch:update_device_database_collections - set_debugging_title to '%s'" % debugging_title)
+        debug_print(f"KoboTouch:update_device_database_collections - set_debugging_title to '{debugging_title}'")
         booklists.set_debugging_title(debugging_title)
         booklists.set_device_managed_collections(self.ignore_collections_names)
 
@@ -2623,11 +2619,11 @@ class KOBOTOUCH(KOBO):
                             # debug_print('    Title:', book.title, 'category: ', category)
                             show_debug = self.is_debugging_title(book.title)
                             if show_debug:
-                                debug_print('    Title="%s"'%book.title, 'category="%s"'%category)
+                                debug_print(f'    Title="{book.title}"', f'category="{category}"')
                                 # debug_print(book)
-                                debug_print('    class=%s'%book.__class__)
-                                debug_print('    book.contentID="%s"'%book.contentID)
-                                debug_print('    book.application_id="%s"'%book.application_id)
+                                debug_print(f'    class={book.__class__}')
+                                debug_print(f'    book.contentID="{book.contentID}"')
+                                debug_print(f'    book.application_id="{book.application_id}"')
 
                             if book.application_id is None:
                                 continue
@@ -2635,13 +2631,13 @@ class KOBOTOUCH(KOBO):
                             category_added = False
 
                             if book.contentID is None:
-                                debug_print('    Do not know ContentID - Title="%s", Authors="%s", path="%s"'%(book.title, book.author, book.path))
+                                debug_print(f'    Do not know ContentID - Title="{book.title}", Authors="{book.author}", path="{book.path}"')
                                 extension = os.path.splitext(book.path)[1]
                                 ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(book.path)
                                 book.contentID = self.contentid_from_path(book.path, ContentType)
 
                             if category in self.ignore_collections_names:
-                                debug_print('        Ignoring collection=%s' % category)
+                                debug_print(f'        Ignoring collection={category}')
                                 category_added = True
                             elif category in self.bookshelvelist and self.supports_bookshelves:
                                 if show_debug:
@@ -2652,18 +2648,18 @@ class KOBOTOUCH(KOBO):
                                     self.set_bookshelf(connection, book, category)
                                     category_added = True
                             elif category in readstatuslist:
-                                debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
+                                debug_print(f"KoboTouch:update_device_database_collections - about to set_readstatus - category='{category}'")
                                 # Manage ReadStatus
                                 self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
                                 category_added = True
 
                             elif category == 'Shortlist' and self.dbversion >= 14:
                                 if show_debug:
-                                    debug_print('        Have an older version shortlist - %s'%book.title)
+                                    debug_print(f'        Have an older version shortlist - {book.title}')
                                 # Manage FavouritesIndex/Shortlist
                                 if not self.supports_bookshelves:
                                     if show_debug:
-                                        debug_print('            and about to set it - %s'%book.title)
+                                        debug_print(f'            and about to set it - {book.title}')
                                     self.set_favouritesindex(connection, book.contentID)
                                     category_added = True
                             elif category in accessibilitylist:
@@ -2677,7 +2673,7 @@ class KOBOTOUCH(KOBO):
                             else:
                                 if show_debug:
                                     debug_print('            category not added to book.device_collections', book.device_collections)
-                        debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
+                        debug_print(f"KoboTouch:update_device_database_collections - end for category='{category}'")
 
                 elif have_bookshelf_attributes:  # No collections but have set the shelf option
                     # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
@@ -2702,11 +2698,10 @@ class KOBOTOUCH(KOBO):
                         books_in_library += 1
                         show_debug = self.is_debugging_title(book.title)
                         if show_debug:
-                            debug_print('KoboTouch:update_device_database_collections - book.title=%s' % book.title)
+                            debug_print(f'KoboTouch:update_device_database_collections - book.title={book.title}')
                             debug_print(
-                                'KoboTouch:update_device_database_collections - contentId=%s,'
-                                'update_core_metadata=%s,update_purchased_kepubs=%s, book.is_sideloaded=%s' % (
-                                book.contentID, update_core_metadata, update_purchased_kepubs, book.is_sideloaded))
+                                f'KoboTouch:update_device_database_collections - contentId={book.contentID},'
+                                f'update_core_metadata={update_core_metadata},update_purchased_kepubs={update_purchased_kepubs}, book.is_sideloaded={book.is_sideloaded}')
                         if update_core_metadata and (update_purchased_kepubs or book.is_sideloaded):
                             if show_debug:
                                 debug_print('KoboTouch:update_device_database_collections - calling set_core_metadata')
@@ -2717,7 +2712,7 @@ class KOBOTOUCH(KOBO):
                             self.set_core_metadata(connection, book, series_only=True)
                         if self.manage_collections and have_bookshelf_attributes:
                             if show_debug:
-                                debug_print('KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s' % book.title)
+                                debug_print(f'KoboTouch:update_device_database_collections - about to remove a book from shelves book.title={book.title}')
                             self.remove_book_from_device_bookshelves(connection, book)
                             book.device_collections.extend(book.kobo_collections)
                 if not prefs['manage_device_metadata'] == 'manual' and delete_empty_collections:
@@ -2749,8 +2744,8 @@ class KOBOTOUCH(KOBO):
         :param filepath: The full path to the ebook file
 
         '''
-        debug_print("KoboTouch:upload_cover - path='%s' filename='%s' "%(path, filename))
-        debug_print("        filepath='%s' "%(filepath))
+        debug_print(f"KoboTouch:upload_cover - path='{path}' filename='{filename}' ")
+        debug_print(f"        filepath='{filepath}' ")
 
         if not self.upload_covers:
             # Building thumbnails disabled
@@ -2769,7 +2764,7 @@ class KOBOTOUCH(KOBO):
                 self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers,
                 letterbox_color=self.letterbox_fs_covers_color)
         except Exception as e:
-            debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
+            debug_print(f'KoboTouch: FAILED to upload cover={filepath} Exception={e!s}')
 
     def imageid_from_contentid(self, ContentID):
         ImageID = ContentID.replace('/', '_')
@@ -2793,7 +2788,7 @@ class KOBOTOUCH(KOBO):
             hash1 = qhash(imageId)
             dir1  = hash1 & (0xff * 1)
             dir2  = (hash1 & (0xff00 * 1)) >> 8
-            path = os.path.join(path, '%s' % dir1, '%s' % dir2)
+            path = os.path.join(path, f'{dir1}', f'{dir2}')
 
         if imageId:
             path = os.path.join(path, imageId)
@@ -2864,15 +2859,15 @@ class KOBOTOUCH(KOBO):
             ):
         from calibre.utils.img import optimize_png
         from calibre.utils.imghdr import identify
-        debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
+        debug_print(f"KoboTouch:_upload_cover - filename='{filename}' upload_grayscale='{upload_grayscale}' dithered_covers='{dithered_covers}' ")
 
         if not metadata.cover:
             return
 
         show_debug = self.is_debugging_title(filename)
         if show_debug:
-            debug_print("KoboTouch:_upload_cover - path='%s'"%path, "filename='%s'"%filename)
-            debug_print("        filepath='%s'"%filepath)
+            debug_print(f"KoboTouch:_upload_cover - path='{path}'", f"filename='{filename}'")
+            debug_print(f"        filepath='{filepath}'")
         cover = self.normalize_path(metadata.cover.replace('/', os.sep))
 
         if not os.path.exists(cover):
@@ -2895,7 +2890,7 @@ class KOBOTOUCH(KOBO):
                     ImageID = result[0]
                 except StopIteration:
                     ImageID = self.imageid_from_contentid(ContentID)
-                    debug_print("KoboTouch:_upload_cover - No rows exist in the database - generated ImageID='%s'" % ImageID)
+                    debug_print(f"KoboTouch:_upload_cover - No rows exist in the database - generated ImageID='{ImageID}'")
 
                 cursor.close()
 
@@ -2907,7 +2902,7 @@ class KOBOTOUCH(KOBO):
 
                 image_dir = os.path.dirname(os.path.abspath(path))
                 if not os.path.exists(image_dir):
-                    debug_print("KoboTouch:_upload_cover - Image folder does not exist. Creating path='%s'" % (image_dir))
+                    debug_print(f"KoboTouch:_upload_cover - Image folder does not exist. Creating path='{image_dir}'")
                     os.makedirs(image_dir)
 
                 with open(cover, 'rb') as f:
@@ -2924,7 +2919,7 @@ class KOBOTOUCH(KOBO):
 
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:
-                            debug_print("KoboTouch:_upload_cover - creating cover for ending='%s'"%ending)  # , "library_cover_size'%s'"%library_cover_size)
+                            debug_print(f"KoboTouch:_upload_cover - creating cover for ending='{ending}'")  # , "library_cover_size'%s'"%library_cover_size)
                         fpath = path + ending
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
@@ -2943,9 +2938,8 @@ class KOBOTOUCH(KOBO):
                         resize_to, expand_to = self._calculate_kobo_cover_size(library_cover_size, kobo_size, not is_full_size, keep_cover_aspect, letterbox)
                         if show_debug:
                             debug_print(
-                                'KoboTouch:_calculate_kobo_cover_size - expand_to=%s'
-                                ' (vs. kobo_size=%s) & resize_to=%s, keep_cover_aspect=%s & letterbox_fs_covers=%s, png_covers=%s' % (
-                                 expand_to, kobo_size, resize_to, keep_cover_aspect, letterbox_fs_covers, png_covers))
+                                f'KoboTouch:_calculate_kobo_cover_size - expand_to={expand_to}'
+                                f' (vs. kobo_size={kobo_size}) & resize_to={resize_to}, keep_cover_aspect={keep_cover_aspect} & letterbox_fs_covers={letterbox_fs_covers}, png_covers={png_covers}')
 
                         # NOTE: To speed things up, we enforce a lower
                         # compression level for png_covers, as the final
@@ -2983,7 +2977,7 @@ class KOBOTOUCH(KOBO):
                                 fsync(f)
         except Exception as e:
             err = str(e)
-            debug_print('KoboTouch:_upload_cover - Exception string: %s'%err)
+            debug_print(f'KoboTouch:_upload_cover - Exception string: {err}')
             raise
 
     def remove_book_from_device_bookshelves(self, connection, book):
@@ -2993,8 +2987,8 @@ class KOBOTOUCH(KOBO):
         remove_shelf_list = remove_shelf_list - set(self.ignore_collections_names)
 
         if show_debug:
-            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.application_id="%s"'%book.application_id)
-            debug_print('KoboTouch:remove_book_from_device_bookshelves - book.contentID="%s"'%book.contentID)
+            debug_print(f'KoboTouch:remove_book_from_device_bookshelves - book.application_id="{book.application_id}"')
+            debug_print(f'KoboTouch:remove_book_from_device_bookshelves - book.contentID="{book.contentID}"')
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.device_collections=', book.device_collections)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.current_shelves=', book.current_shelves)
             debug_print('KoboTouch:remove_book_from_device_bookshelves - remove_shelf_list=', remove_shelf_list)
@@ -3009,12 +3003,12 @@ class KOBOTOUCH(KOBO):
         if book.device_collections:
             placeholder = '?'
             placeholders = ','.join(placeholder for unused in book.device_collections)
-            query += ' and ShelfName not in (%s)' % placeholders
+            query += f' and ShelfName not in ({placeholders})'
             values.extend(book.device_collections)
 
         if show_debug:
-            debug_print('KoboTouch:remove_book_from_device_bookshelves query="%s"'%query)
-            debug_print('KoboTouch:remove_book_from_device_bookshelves values="%s"'%values)
+            debug_print(f'KoboTouch:remove_book_from_device_bookshelves query="{query}"')
+            debug_print(f'KoboTouch:remove_book_from_device_bookshelves values="{values}"')
 
         cursor = connection.cursor()
         cursor.execute(query, values)
@@ -3023,7 +3017,7 @@ class KOBOTOUCH(KOBO):
     def set_filesize_in_device_database(self, connection, contentID, fpath):
         show_debug = self.is_debugging_title(fpath)
         if show_debug:
-            debug_print('KoboTouch:set_filesize_in_device_database contentID="%s"'%contentID)
+            debug_print(f'KoboTouch:set_filesize_in_device_database contentID="{contentID}"')
 
         test_query = ('SELECT ___FileSize '
                         'FROM content '
@@ -3136,8 +3130,8 @@ class KOBOTOUCH(KOBO):
     def set_bookshelf(self, connection, book, shelfName):
         show_debug = self.is_debugging_title(book.title)
         if show_debug:
-            debug_print('KoboTouch:set_bookshelf book.ContentID="%s"'%book.contentID)
-            debug_print('KoboTouch:set_bookshelf book.current_shelves="%s"'%book.current_shelves)
+            debug_print(f'KoboTouch:set_bookshelf book.ContentID="{book.contentID}"')
+            debug_print(f'KoboTouch:set_bookshelf book.current_shelves="{book.current_shelves}"')
 
         if shelfName in book.current_shelves:
             if show_debug:
@@ -3175,7 +3169,7 @@ class KOBOTOUCH(KOBO):
     def check_for_bookshelf(self, connection, bookshelf_name):
         show_debug = self.is_debugging_title(bookshelf_name)
         if show_debug:
-            debug_print('KoboTouch:check_for_bookshelf bookshelf_name="%s"'%bookshelf_name)
+            debug_print(f'KoboTouch:check_for_bookshelf bookshelf_name="{bookshelf_name}"')
         test_query = 'SELECT InternalName, Name, _IsDeleted FROM Shelf WHERE Name = ?'
         test_values = (bookshelf_name, )
         addquery = 'INSERT INTO "main"."Shelf"'
@@ -3220,7 +3214,7 @@ class KOBOTOUCH(KOBO):
 
         if result is None:
             if show_debug:
-                debug_print('        Did not find a record - adding shelf "%s"' % bookshelf_name)
+                debug_print(f'        Did not find a record - adding shelf "{bookshelf_name}"')
             cursor.execute(addquery, add_values)
         elif self.is_true_value(result['_IsDeleted']):
             debug_print("KoboTouch:check_for_bookshelf - Shelf '{}' is deleted - undeleting. result['_IsDeleted']='{}'".format(
@@ -3253,7 +3247,7 @@ class KOBOTOUCH(KOBO):
         if bookshelves:
             placeholder = '?'
             placeholders = ','.join(placeholder for unused in bookshelves)
-            query += ' and ShelfName in (%s)' % placeholders
+            query += f' and ShelfName in ({placeholders})'
             values.append(bookshelves)
         debug_print('KoboTouch:remove_from_bookshelf query=', query)
         debug_print('KoboTouch:remove_from_bookshelf values=', values)
@@ -3267,8 +3261,8 @@ class KOBOTOUCH(KOBO):
     def set_series(self, connection, book):
         show_debug = self.is_debugging_title(book.title)
         if show_debug:
-            debug_print('KoboTouch:set_series book.kobo_series="%s"'%book.kobo_series)
-            debug_print('KoboTouch:set_series book.series="%s"'%book.series)
+            debug_print(f'KoboTouch:set_series book.kobo_series="{book.kobo_series}"')
+            debug_print(f'KoboTouch:set_series book.series="{book.series}"')
             debug_print('KoboTouch:set_series book.series_index=', book.series_index)
 
         if book.series == book.kobo_series:
@@ -3289,7 +3283,7 @@ class KOBOTOUCH(KOBO):
         elif book.series_index is None:         # This should never happen, but...
             update_values = (book.series, None, book.contentID, )
         else:
-            update_values = (book.series, '%g'%book.series_index, book.contentID, )
+            update_values = (book.series, f'{book.series_index:g}', book.contentID, )
 
         cursor = connection.cursor()
         try:
@@ -3320,7 +3314,7 @@ class KOBOTOUCH(KOBO):
             else:
                 new_value = new_value if len(new_value.strip()) else None
                 if new_value is not None and new_value.startswith('PLUGBOARD TEMPLATE ERROR'):
-                    debug_print("KoboTouch:generate_update_from_template  template error - template='%s'" % template)
+                    debug_print(f"KoboTouch:generate_update_from_template  template error - template='{template}'")
                     debug_print('KoboTouch:generate_update_from_template - new_value=', new_value)
 
             # debug_print(
@@ -3366,7 +3360,7 @@ class KOBOTOUCH(KOBO):
         if newmi.series is not None:
             new_series = newmi.series
             try:
-                new_series_number = '%g' % newmi.series_index
+                new_series_number = f'{newmi.series_index:g}'
             except:
                 new_series_number = None
         else:
@@ -3463,7 +3457,7 @@ class KOBOTOUCH(KOBO):
                 else:
                     new_subtitle = book.subtitle if len(book.subtitle.strip()) else None
                     if new_subtitle is not None and new_subtitle.startswith('PLUGBOARD TEMPLATE ERROR'):
-                        debug_print("KoboTouch:set_core_metadata subtitle template error - self.subtitle_template='%s'" % self.subtitle_template)
+                        debug_print(f"KoboTouch:set_core_metadata subtitle template error - self.subtitle_template='{self.subtitle_template}'")
                         debug_print('KoboTouch:set_core_metadata - new_subtitle=', new_subtitle)
 
                 if (new_subtitle is not None and (book.kobo_subtitle is None or book.subtitle != book.kobo_subtitle)) or \
@@ -3509,9 +3503,9 @@ class KOBOTOUCH(KOBO):
             update_query += ', '.join([col_name + ' = ?' for col_name in set_clause])
             changes_found = True
             if show_debug:
-                debug_print('KoboTouch:set_core_metadata set_clause="%s"' % set_clause)
-                debug_print('KoboTouch:set_core_metadata update_values="%s"' % update_values)
-                debug_print('KoboTouch:set_core_metadata update_values="%s"' % update_query)
+                debug_print(f'KoboTouch:set_core_metadata set_clause="{set_clause}"')
+                debug_print(f'KoboTouch:set_core_metadata update_values="{update_values}"')
+                debug_print(f'KoboTouch:set_core_metadata update_values="{update_query}"')
         if changes_found:
             update_query += ' WHERE ContentID = ? AND BookID IS NULL'
             update_values.append(book.contentID)
@@ -4087,9 +4081,9 @@ class KOBOTOUCH(KOBO):
                       ' Kobo forum at MobileRead. This is at %s.'
                       ) % 'https://www.mobileread.com/forums/forumdisplay.php?f=223' + '\n' +
                     (
-                    '\nDevice database version: %s.'
-                    '\nDevice firmware version: %s'
-                     ) % (self.dbversion, self.display_fwversion),
+                    f'\nDevice database version: {self.dbversion}.'
+                    f'\nDevice firmware version: {self.display_fwversion}'
+                     ),
                     UserFeedback.WARN
                     )
 
@@ -4206,7 +4200,7 @@ class KOBOTOUCH(KOBO):
         try:
             is_debugging = (len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0) or len(title) == 0
         except:
-            debug_print(("KoboTouch::is_debugging_title - Exception checking debugging title for title '{}'.").format(title))
+            debug_print(f"KoboTouch::is_debugging_title - Exception checking debugging title for title '{title}'.")
             is_debugging = False
 
         return is_debugging

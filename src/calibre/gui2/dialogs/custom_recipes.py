@@ -165,7 +165,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
     else:
         feeds = ''
     if feeds:
-        feeds = 'feeds          = [\n%s\n    ]' % feeds
+        feeds = f'feeds          = [\n{feeds}\n    ]'
     src = textwrap.dedent('''\
     #!/usr/bin/env python
     # vim:fileencoding=utf-8
@@ -259,7 +259,7 @@ class RecipeList(QWidget):  # {{{
     def recipe_selected(self, cur, prev=None):
         if cur.isValid():
             self.stacks.setCurrentIndex(1)
-            self.title.setText('<h2 style="text-align:center">%s</h2>' % self.model.title(cur))
+            self.title.setText(f'<h2 style="text-align:center">{self.model.title(cur)}</h2>')
         else:
             self.stacks.setCurrentIndex(0)
 

@@ -50,8 +50,7 @@ class Tag:
         self.self_closing = self_closing
 
     def __repr__(self):
-        return '<{} start_block={} start_offset={} end_block={} end_offset={} self_closing={}>'.format(
-            self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
+        return f'<{self.name} start_block={self.start_block.blockNumber()} start_offset={self.start_offset} end_block={self.end_block.blockNumber()} end_offset={self.end_offset} self_closing={self.self_closing}>'
     __str__ = __repr__
 
 
@@ -241,13 +240,13 @@ def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
         if insert:
             text = f'</{new_name}>{text}'
         else:
-            text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', '</%s' % new_name, text)
+            text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', f'</{new_name}', text)
         cursor.insertText(text)
         text = select_tag(cursor, opening_tag)
         if insert:
-            text += '<%s>' % new_name
+            text += f'<{new_name}>'
         else:
-            text = re.sub(r'^<\s*[a-zA-Z0-9]+', '<%s' % new_name, text)
+            text = re.sub(r'^<\s*[a-zA-Z0-9]+', f'<{new_name}', text)
         cursor.insertText(text)
 
 
@@ -315,7 +314,7 @@ def set_style_property(tag, property_name, value, editor):
         d = parseStyle('')
         d.setProperty(property_name, value)
         c.setPosition(tag.end_block.position() + tag.end_offset)
-        c.insertText(' style="%s"' % css(d))
+        c.insertText(f' style="{css(d)}"')
     else:
         c.setPosition(block.position() + offset - 1)
         end_block, end_offset = find_end_of_attribute(block, offset + 1)
@@ -326,7 +325,7 @@ def set_style_property(tag, property_name, value, editor):
         c.setPosition(end_block.position() + end_offset, QTextCursor.MoveMode.KeepAnchor)
         d = parseStyle(editor.selected_text_from_cursor(c)[1:-1])
         d.setProperty(property_name, value)
-        c.insertText('"%s"' % css(d))
+        c.insertText(f'"{css(d)}"')
 
 
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
@@ -784,7 +783,7 @@ class Smarts(NullSmarts):
         tag = find_closest_containing_tag(block, offset - 1, max_tags=4000)
         if tag is None:
             return False
-        c.insertText('/%s>' % tag.name)
+        c.insertText(f'/{tag.name}>')
         editor.setTextCursor(c)
         return True
 

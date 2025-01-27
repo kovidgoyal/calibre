@@ -85,7 +85,7 @@ def encint(byts, remaining):
 
 def msguid(bytes):
     values = struct.unpack('<LHHBBBBBBBB', bytes[:16])
-    return '{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}' % values
+    return '{{{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}}}'.format(*values)
 
 
 def read_utf8_char(bytes, pos):
@@ -97,18 +97,18 @@ def read_utf8_char(bytes, pos):
             mask >>= 1
             elsize += 1
         if (mask <= 1) or (mask == 0x40):
-            raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
+            raise LitError(f'Invalid UTF8 character: {bytes[pos]!r}')
     else:
         elsize = 1
     if elsize > 1:
         if elsize + pos > len(bytes):
-            raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
+            raise LitError(f'Invalid UTF8 character: {bytes[pos]!r}')
         c &= (mask - 1)
         for i in range(1, elsize):
             b = ord(bytes[pos+i:pos+i+1])
             if (b & 0xC0) != 0x80:
                 raise LitError(
-                    'Invalid UTF8 character: %s' % repr(bytes[pos:pos+i]))
+                    f'Invalid UTF8 character: {bytes[pos:pos+i]!r}')
             c = (c << 6) | (b & 0x3F)
     return codepoint_to_chr(c), pos+elsize
 
@@ -253,7 +253,7 @@ class UnBinary:
                         errors += 1
                         tag_name = '?'+codepoint_to_chr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
-                        print('WARNING: tag %s unknown' % codepoint_to_chr(tag))
+                        print(f'WARNING: tag {codepoint_to_chr(tag)} unknown')
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
@@ -384,7 +384,7 @@ class UnBinary:
                     if frag:
                         path = '#'.join((path, frag))
                     path = urlnormalize(path)
-                    buf.write(encode('"%s"' % path))
+                    buf.write(encode(f'"{path}"'))
                     state = 'get attr'
 
 
@@ -578,7 +578,7 @@ class LitFile:
         for i in range(self.num_pieces):
             piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
-                raise LitError('Piece %s has 64bit value' % repr(piece))
+                raise LitError(f'Piece {piece!r} has 64bit value')
             offset, size = u32(piece), int32(piece[8:])
             piece = self.read_raw(offset, size)
             if i == 0:
@@ -790,7 +790,7 @@ class LitFile:
                 content = self.decompress(content, control, reset_table)
                 control = control[csize:]
             else:
-                raise LitError('Unrecognized transform: %s.' % repr(guid))
+                raise LitError(f'Unrecognized transform: {guid!r}.')
             transform = transform[16:]
         return content
 
@@ -917,7 +917,7 @@ class LitContainer:
             unbin = UnBinary(raw, name, manifest, HTML_MAP, atoms)
             content = HTML_DECL + unbin.unicode_representation
             tags = ('personname', 'place', 'city', 'country-region')
-            pat = r'(?i)</{0,1}st1:(%s)>'%('|'.join(tags))
+            pat = r'(?i)</{{0,1}}st1:({})>'.format('|'.join(tags))
             content = re.sub(pat, '', content)
             content = re.sub(r'<(/{0,1})form>', r'<\1div>', content)
         else:

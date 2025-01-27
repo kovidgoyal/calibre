@@ -543,13 +543,13 @@ class SchedulerDialog(QDialog):
 
         self.blurb.setText('''
         <p>
-        <b>%(title)s</b><br>
-        %(cb)s %(author)s<br/>
-        %(description)s
+        <b>{title}</b><br>
+        {cb} {author}<br/>
+        {description}
         </p>
-        '''%dict(title=recipe.get('title'), cb=_('Created by: '),
+        '''.format(**dict(title=recipe.get('title'), cb=_('Created by: '),
             author=recipe.get('author', _('Unknown')),
-            description=recipe.get('description', '')))
+            description=recipe.get('description', ''))))
         self.download_button.setToolTip(
                 _('Download %s now')%recipe.get('title'))
         scheduled = schedule_info is not None

@@ -147,7 +147,7 @@ def find_icons():
                     try:
                         cache[d] = read_icon_theme_dir(d)
                     except Exception:
-                        prints('Failed to read icon theme dir: %r with error:' % d)
+                        prints(f'Failed to read icon theme dir: {d!r} with error:')
                         import traceback
                         traceback.print_exc()
                     mtimes[d] = mtime

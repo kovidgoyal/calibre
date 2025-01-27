@@ -343,22 +343,20 @@ class DeviceManager(Thread):  # {{{
                 try:
                     cd = dev.detect_managed_devices(self.scanner.devices)
                 except:
-                    prints('Error during device detection for %s:'%dev)
+                    prints(f'Error during device detection for {dev}:')
                     traceback.print_exc()
                 else:
                     if cd is not None:
                         try:
                             dev.open(cd, self.current_library_uuid)
                         except BlacklistedDevice as e:
-                            prints('Ignoring blacklisted device: %s'%
-                                    as_unicode(e))
+                            prints(f'Ignoring blacklisted device: {as_unicode(e)}')
                         except OpenActionNeeded as e:
                             if e.only_once_id not in self.open_feedback_only_once_seen:
                                 self.open_feedback_only_once_seen.add(e.only_once_id)
                                 self.open_feedback_msg(e.device_name, e)
                         except:
-                            prints('Error while trying to open %s (Driver: %s)'%
-                                    (cd, dev))
+                            prints(f'Error while trying to open {cd} (Driver: {dev})')
                             traceback.print_exc()
                         else:
                             self.after_device_connect(dev, 'unmanaged-device')
@@ -428,7 +426,7 @@ class DeviceManager(Thread):  # {{{
             name = dev.__class__.__name__
             dev.startup()
         except:
-            prints('Startup method for device %s threw exception'%name)
+            prints(f'Startup method for device {name} threw exception')
             traceback.print_exc()
 
     def run(self):
@@ -457,7 +455,7 @@ class DeviceManager(Thread):  # {{{
                     self.call_shutdown_on_disconnect = True
                     self.do_connect([[dev, None],], device_kind=device_kind)
                 except:
-                    prints('Unable to open %s as device (%s)'%(device_kind, folder_path))
+                    prints(f'Unable to open {device_kind} as device ({folder_path})')
                     traceback.print_exc()
             else:
                 self.detect_device()
@@ -763,8 +761,7 @@ class DeviceAction(QAction):  # {{{
         self.a_s.emit(self)
 
     def __repr__(self):
-        return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
-                self.specific)
+        return self.__class__.__name__ + f':{self.dest}:{self.delete}:{self.specific}'
     # }}}
 
 
@@ -1630,7 +1627,7 @@ class DeviceMixin:  # {{{
                     self.iactions['Convert Books'].auto_convert(auto, on_card, format)
 
         if bad:
-            bad = '\n'.join('%s'%(i,) for i in bad)
+            bad = '\n'.join(f'{i}' for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
                     _('Could not upload the following books to the device, '
                 'as no suitable formats were found. Convert the book(s) to a '
@@ -1713,7 +1710,7 @@ class DeviceMixin:  # {{{
                 d = error_dialog(self, _('No space on device'),
                                  _('<p>Cannot upload books to device there '
                                  'is no more free space available ')+where+
-                                 '</p>\n<ul>%s</ul>'%(titles,))
+                                 f'</p>\n<ul>{titles}</ul>')
                 d.exec()
             elif isinstance(job.exception, WrongDestinationError):
                 error_dialog(self, _('Incorrect destination'),

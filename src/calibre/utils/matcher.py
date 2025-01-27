@@ -136,7 +136,7 @@ class Matcher:
                     error = x
 
         if error is not None:
-            raise Exception('Failed to score items: %s' % error)
+            raise Exception(f'Failed to score items: {error}')
         items = sorted(((-scores[i], item, positions[i])
                         for i, item in enumerate(self.items)),
                        key=itemgetter(0))
@@ -346,7 +346,7 @@ def main(basedir=None, query=None):
     from calibre.utils.terminal import ColoredStream
     if basedir is None:
         try:
-            basedir = input_unicode('Enter directory to scan [%s]: ' % os.getcwd()
+            basedir = input_unicode(f'Enter directory to scan [{os.getcwd()}]: '
                                 ).strip() or os.getcwd()
         except (EOFError, KeyboardInterrupt):
             return

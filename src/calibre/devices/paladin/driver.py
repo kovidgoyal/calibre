@@ -214,11 +214,11 @@ class PALADIN(USBMS):
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
-                    ' Delete the file %s on your reader and then disconnect '
+                    f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    ' any notes/highlights, etc.'))+' Underlying error:'
                     '\n'+tb)
 
     def get_database_min_id(self, source_id):
@@ -261,11 +261,11 @@ class PALADIN(USBMS):
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
-                    ' Delete the file %s on your reader and then disconnect '
+                    f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    ' any notes/highlights, etc.'))+' Underlying error:'
                     '\n'+tb)
 
         # Get the books themselves, but keep track of any that are less than the minimum.
@@ -398,11 +398,11 @@ class PALADIN(USBMS):
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
-                    ' Delete the file %s on your reader and then disconnect '
+                    f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    ' any notes/highlights, etc.'))+' Underlying error:'
                     '\n'+tb)
 
         db_collections = {}

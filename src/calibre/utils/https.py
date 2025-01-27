@@ -89,7 +89,7 @@ def get_https_resource_securely(
                 raise ValueError('Too many redirects, giving up')
             newurl = response.getheader('Location', None)
             if newurl is None:
-                raise ValueError('%s returned a redirect response with no Location header' % url)
+                raise ValueError(f'{url} returned a redirect response with no Location header')
             return get_https_resource_securely(
                 newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, get_response=get_response)
         if response.status != http_client.OK:

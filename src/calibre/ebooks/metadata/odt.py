@@ -107,8 +107,8 @@ def get_metadata(stream, extract_cover=True):
         mi.tags = uniq(keywords)
         data = {}
         for tag in root.xpath('//ns0:user-defined', namespaces={'ns0': fields['user-defined'][0]}):
-            name = (tag.get('{%s}name' % METANS) or '').lower()
-            vtype = tag.get('{%s}value-type' % METANS) or 'string'
+            name = (tag.get(f'{{{METANS}}}name') or '').lower()
+            vtype = tag.get(f'{{{METANS}}}value-type') or 'string'
             val = tag.text
             if name and val:
                 if vtype == 'boolean':
@@ -190,21 +190,21 @@ def _set_metadata(raw, mi):
                 x.getparent().remove(x)
 
     def add(tag, val=None):
-        ans = meta.makeelement('{%s}%s' % fields[tag])
+        ans = meta.makeelement('{{{}}}{}'.format(*fields[tag]))
         ans.text = val
         meta.append(ans)
         return ans
 
     def remove_user_metadata(*names):
         for x in xpath('//meta:user-defined'):
-            q = (x.get('{%s}name' % METANS) or '').lower()
+            q = (x.get(f'{{{METANS}}}name') or '').lower()
             if q in names:
                 x.getparent().remove(x)
 
     def add_um(name, val, vtype='string'):
         ans = add('user-defined', val)
-        ans.set('{%s}value-type' % METANS, vtype)
-        ans.set('{%s}name' % METANS, name)
+        ans.set(f'{{{METANS}}}value-type', vtype)
+        ans.set(f'{{{METANS}}}name', name)
 
     def add_user_metadata(name, val):
         if not hasattr(add_user_metadata, 'sentinel_added'):
@@ -260,7 +260,7 @@ def _set_metadata(raw, mi):
         add_user_metadata('opf.identifiers', as_unicode(json.dumps(mi.identifiers)))
     if not mi.is_null('rating'):
         remove_user_metadata('opf.rating')
-        add_user_metadata('opf.rating', '%.2g' % mi.rating)
+        add_user_metadata('opf.rating', f'{mi.rating:.2g}')
 
     return tostring(root, encoding='utf-8', pretty_print=True)
 

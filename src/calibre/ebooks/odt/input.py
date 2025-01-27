@@ -66,7 +66,7 @@ class Extract(ODF2XHTML):
             head = head[0]
             ns = head.nsmap.get(None, '')
             if ns:
-                ns = '{%s}'%ns
+                ns = f'{{{ns}}}'
             etree.SubElement(head, ns+'link', {'type':'text/css',
                 'rel':'stylesheet', 'href':'odfpy.css'})
 
@@ -157,7 +157,7 @@ class Extract(ODF2XHTML):
                     style = div1.attrib.get('style', '').strip()
                     if style and not style.endswith(';'):
                         style = style + ';'
-                    style += 'text-align:%s'%aval
+                    style += f'text-align:{aval}'
                     has_align = True
                     div1.attrib['style'] = style
 
@@ -287,7 +287,7 @@ class Extract(ODF2XHTML):
             # the available screen real estate
             html = html.replace('img { width: 100%; height: 100%; }', '')
             # odf2xhtml creates empty title tag
-            html = html.replace('<title></title>','<title>%s</title>'%(mi.title,))
+            html = html.replace('<title></title>',f'<title>{mi.title}</title>')
             try:
                 html = self.fix_markup(html, log)
             except:

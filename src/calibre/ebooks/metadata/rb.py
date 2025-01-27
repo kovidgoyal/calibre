@@ -48,7 +48,7 @@ def get_metadata(stream):
             elif key.strip() == 'AUTHOR':
                 mi.authors = string_to_authors(value)
     except Exception as err:
-        msg = "Couldn't read metadata from rb: %s with error %s"%(mi.title, str(err))
+        msg = f"Couldn't read metadata from rb: {mi.title} with error {err!s}"
         prints(msg, file=sys.stderr)
         raise
     return mi

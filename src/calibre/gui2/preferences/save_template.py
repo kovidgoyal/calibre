@@ -32,12 +32,11 @@ class SaveTemplate(QWidget, Ui_Form):
                 ' by clicking the device icon and choosing "Configure this device".'))
         rows = []
         for var in variables:
-            rows.append('<tr><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%
-                    (var, FORMAT_ARG_DESCS[var]))
-        rows.append('<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
+            rows.append(f'<tr><td>{var}</td><td>&nbsp;</td><td>{FORMAT_ARG_DESCS[var]}</td></tr>')
+        rows.append('<tr><td>{}&nbsp;</td><td>&nbsp;</td><td>{}</td></tr>'.format(
             _('Any custom field'),
             _('The lookup name of any custom field (these names begin with "#").')))
-        table = '<table>%s</table>'%('\n'.join(rows))
+        table = '<table>{}</table>'.format('\n'.join(rows))
         self.template_variables.setText(table)
 
         self.field_metadata = field_metadata

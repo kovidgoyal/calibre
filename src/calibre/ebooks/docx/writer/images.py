@@ -74,7 +74,7 @@ class ImagesManager:
             try:
                 fmt, width, height = identify(item.data)
             except Exception:
-                self.log.warning('Replacing corrupted image with blank: %s' % href)
+                self.log.warning(f'Replacing corrupted image with blank: {href}')
                 item.data = I('blank.png', data=True, allow_user_override=False)
                 fmt, width, height = identify(item.data)
             image_fname = 'media/' + self.create_filename(href, fmt)
@@ -246,7 +246,7 @@ class ImagesManager:
     def write_cover_block(self, body, cover_image):
         makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
         pbb = body[0].xpath('//*[local-name()="pageBreakBefore"]')[0]
-        pbb.set('{%s}val' % namespaces['w'], 'on')
+        pbb.set('{{{}}}val'.format(namespaces['w']), 'on')
         p = makeelement(body, 'w:p', append=False)
         body.insert(0, p)
         r = makeelement(p, 'w:r')

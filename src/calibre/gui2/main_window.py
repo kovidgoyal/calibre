@@ -233,7 +233,7 @@ class MainWindow(QMainWindow):
                     return
             except Exception:
                 traceback.print_exc()
-            msg = '<b>%s</b>:'%exc_type.__name__ + prepare_string_for_xml(as_unicode(value))
+            msg = f'<b>{exc_type.__name__}</b>:' + prepare_string_for_xml(as_unicode(value))
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:

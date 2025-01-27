@@ -145,11 +145,11 @@ class Fields:
         field_types = ('hyperlink', 'xe', 'index', 'ref', 'noteref')
         parsers = {x.upper():getattr(self, 'parse_'+x) for x in field_types}
         parsers.update({x:getattr(self, 'parse_'+x) for x in field_types})
-        field_parsers = {f.upper():globals()['parse_%s' % f] for f in field_types}
-        field_parsers.update({f:globals()['parse_%s' % f] for f in field_types})
+        field_parsers = {f.upper():globals()[f'parse_{f}'] for f in field_types}
+        field_parsers.update({f:globals()[f'parse_{f}'] for f in field_types})
 
         for f in field_types:
-            setattr(self, '%s_fields' % f, [])
+            setattr(self, f'{f}_fields', [])
         unknown_fields = {'TOC', 'toc', 'PAGEREF', 'pageref'}  # The TOC and PAGEREF fields are handled separately
 
         for field in self.fields:
@@ -159,7 +159,7 @@ class Fields:
                 if func is not None:
                     func(field, field_parsers[field.name], log)
                 elif field.name not in unknown_fields:
-                    log.warn('Encountered unknown field: %s, ignoring it.' % field.name)
+                    log.warn(f'Encountered unknown field: {field.name}, ignoring it.')
                     unknown_fields.add(field.name)
 
     def get_runs(self, field):

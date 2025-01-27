@@ -90,7 +90,7 @@ class RuleItem(RuleItemBase):
             '<b>{action}</b> the series name, if it <i>{match_type}</i>: <b>{query}</b>').format(
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         if rule['action'] == 'replace':
-            text += '<br>' + _('to the name') + ' <b>%s</b>' % rule['replace']
+            text += '<br>' + _('to the name') + ' <b>{}</b>'.format(rule['replace'])
         return '<div style="white-space: nowrap">' + text + '</div>'
 
 

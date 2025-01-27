@@ -139,7 +139,7 @@ class ListNumbers:
             self.__state = 'after_list_text'
             self.__right_after_list_text = 1
             self.__list_type = self.__determine_list_type(self.__list_chunk)
-            self.__write_obj.write('mi<mk<list-type_<%s\n' % self.__list_type)
+            self.__write_obj.write(f'mi<mk<list-type_<{self.__list_type}\n')
         if self.__token_info != 'cw<pf<par-def___':
             self.__list_chunk = self.__list_chunk + line
 

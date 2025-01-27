@@ -239,7 +239,7 @@ class Hex2Utf8:
                 and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = self.__utf_token_to_caps_func(converted)
                 self.__write_obj.write(
-                'tx<ut<__________<%s\n' % converted
+                f'tx<ut<__________<{converted}\n'
                 )
             # tag as normal text
             else:
@@ -249,7 +249,7 @@ class Hex2Utf8:
                 and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = converted.upper()
                 self.__write_obj.write(
-                'tx<nu<__________<%s\n' % converted
+                f'tx<nu<__________<{converted}\n'
                 )
         # error
         else:
@@ -258,13 +258,12 @@ class Hex2Utf8:
             if token:
                 the_num = int(token, 16)
             if the_num > 10:
-                self.__write_obj.write('mi<tg<empty-att_<udef_symbol<num>%s<description>not-in-table\n' %
-                    hex_num)
+                self.__write_obj.write(f'mi<tg<empty-att_<udef_symbol<num>{hex_num}<description>not-in-table\n')
                 if self.__run_level > 4:
                     # msg = 'no dictionary entry for %s\n'
                     # msg += 'the hexadecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
-                    msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
+                    msg = f'Character "&#x{token};" does not appear to be valid (or is a control character)\n'
                     raise self.__bug_handler(msg)
 
     def __found_body_func(self, line):
@@ -486,21 +485,21 @@ class Hex2Utf8:
                 hex_num = str(hex_num)
                 hex_num = hex_num.upper()
                 hex_num = hex_num[2:]
-                hex_num = "'%s" % hex_num
+                hex_num = f"'{hex_num}"
                 converted = self.__current_dict.get(hex_num)
                 if converted is None:
                     sys.stderr.write('module is hex_2_ut8\nmethod is __text_func\n')
-                    sys.stderr.write('no hex value for "%s"\n' % hex_num)
+                    sys.stderr.write(f'no hex value for "{hex_num}"\n')
                 else:
                     the_string += converted
-            self.__write_obj.write('tx<nu<__________<%s\n' % the_string)
+            self.__write_obj.write(f'tx<nu<__________<{the_string}\n')
             # print(the_string)
         else:
             if self.__caps_list[-1] == 'true' \
                 and self.__convert_caps\
                 and self.__current_dict_name not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                 text = text.upper()
-            self.__write_obj.write('tx<nu<__________<%s\n' % text)
+            self.__write_obj.write(f'tx<nu<__________<{text}\n')
 
     def __utf_to_caps_func(self, line):
         '''
@@ -515,7 +514,7 @@ class Hex2Utf8:
         if self.__caps_list[-1] == 'true' and self.__convert_caps:
             # utf_text = utf_text.upper()
             utf_text = self.__utf_token_to_caps_func(utf_text)
-        self.__write_obj.write('tx<ut<__________<%s\n' % utf_text)
+        self.__write_obj.write(f'tx<ut<__________<{utf_text}\n')
 
     def __utf_token_to_caps_func(self, char_entity):
         '''
@@ -531,10 +530,10 @@ class Hex2Utf8:
         hex_num = char_entity[3:]
         length = len(hex_num)
         if length == 3:
-            hex_num = '00%s' % hex_num
+            hex_num = f'00{hex_num}'
         elif length == 4:
-            hex_num = '0%s' % hex_num
-        new_char_entity = '&#x%s' % hex_num
+            hex_num = f'0{hex_num}'
+        new_char_entity = f'&#x{hex_num}'
         converted = self.__caps_uni_dict.get(new_char_entity)
         if not converted:
             # bullets and other entities don't have capital equivalents

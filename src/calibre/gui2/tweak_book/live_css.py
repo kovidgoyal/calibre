@@ -304,7 +304,7 @@ class Box(QWidget):
             w.deleteLater()
         self.widgets = []
         for node in data['nodes']:
-            node_name = node['name'] + ' @%s' % node['sourceline']
+            node_name = node['name'] + ' @{}'.format(node['sourceline'])
             if node['ancestor_specificity'] != 0:
                 title = _('Inherited from %s') % node_name
             else:
@@ -394,8 +394,7 @@ class Property:
         self.is_overriden = False
 
     def __repr__(self):
-        return '<Property name={} value={} important={} color={} specificity={} is_overriden={}>'.format(
-            self.name, self.value, self.important, self.color, self.specificity, self.is_overriden)
+        return f'<Property name={self.name} value={self.value} important={self.important} color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>'
 
 
 class LiveCSS(QWidget):

@@ -55,7 +55,7 @@ class IndirectObjects:
         try:
             return self._map[id(self._list[o] if isinstance(o, numbers.Integral) else o)]
         except (KeyError, IndexError):
-            raise KeyError('The object %r was not found'%o)
+            raise KeyError(f'The object {o!r} was not found')
 
     def pdf_serialize(self, stream):
         for i, obj in enumerate(self._list):
@@ -276,9 +276,8 @@ class PDFStream:
         self.compress = compress
         self.write_line(PDFVER)
         self.write_line('%íì¦"'.encode())
-        creator = ('%s %s [https://calibre-ebook.com]'%(__appname__,
-                                    __version__))
-        self.write_line('%% Created by %s'%creator)
+        creator = (f'{__appname__} {__version__} [https://calibre-ebook.com]')
+        self.write_line(f'% Created by {creator}')
         self.objects = IndirectObjects()
         self.objects.add(PageTree(page_size))
         self.objects.add(Catalog(self.page_tree))
@@ -345,7 +344,7 @@ class PDFStream:
         self.current_page.write_line('Q q')
 
     def draw_rect(self, x, y, width, height, stroke=True, fill=False):
-        self.current_page.write('%s re '%' '.join(map(fmtnum, (x, y, width, height))))
+        self.current_page.write('{} re '.format(' '.join(map(fmtnum, (x, y, width, height)))))
         self.current_page.write_line(self.PATH_OPS[(stroke, fill, 'winding')])
 
     def write_path(self, path):
@@ -397,11 +396,10 @@ class PDFStream:
         name = self.current_page.add_font(fontref)
         self.current_page.write(b'BT ')
         serialize(Name(name), self.current_page)
-        self.current_page.write(' %s Tf '%fmtnum(size))
-        self.current_page.write('%s Tm '%' '.join(map(fmtnum, transform)))
+        self.current_page.write(f' {fmtnum(size)} Tf ')
+        self.current_page.write('{} Tm '.format(' '.join(map(fmtnum, transform))))
         for x, y, glyph_id in glyphs:
-            self.current_page.write_raw(('%s %s Td <%04X> Tj '%(
-                fmtnum(x), fmtnum(y), glyph_id)).encode('ascii'))
+            self.current_page.write_raw((f'{fmtnum(x)} {fmtnum(y)} Td <{glyph_id:04X}> Tj ').encode('ascii'))
         self.current_page.write_line(b' ET')
 
     def get_image(self, cache_key):
@@ -496,11 +494,11 @@ class PDFStream:
         if color is not None and pattern is None:
             wl(' '.join(map(fmtnum, color)) + (' RG' if stroke else ' rg'))
         elif color is None and pattern is not None:
-            wl('/Pattern %s /%s %s'%('CS' if stroke else 'cs', pattern,
+            wl('/Pattern {} /{} {}'.format('CS' if stroke else 'cs', pattern,
                                      'SCN' if stroke else 'scn'))
         elif color is not None and pattern is not None:
             col = ' '.join(map(fmtnum, color))
-            wl('/PCSp %s %s /%s %s'%('CS' if stroke else 'cs', col, pattern,
+            wl('/PCSp {} {} /{} {}'.format('CS' if stroke else 'cs', col, pattern,
                                      'SCN' if stroke else 'scn'))
 
     def apply_fill(self, color=None, pattern=None, opacity=None):

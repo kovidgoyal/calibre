@@ -87,7 +87,7 @@ def test_basic():
             if name not in '1 2 symlink'.split():
                 with open(os.path.join(tdir, name), 'rb') as s:
                     if s.read() != tdata[name]:
-                        raise ValueError('Did not extract %s properly' % name)
+                        raise ValueError(f'Did not extract {name} properly')
 
     with TemporaryDirectory('test-7z') as tdir, CurrentDir(tdir):
         do_test()

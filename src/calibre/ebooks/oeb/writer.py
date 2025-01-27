@@ -69,7 +69,7 @@ class OEBWriter:
         elif version == 2:
             metadata = oeb.to_opf2(page_map=self.page_map)
         else:
-            raise OEBError('Unrecognized OPF version %r' % self.version)
+            raise OEBError(f'Unrecognized OPF version {self.version!r}')
         pretty_print = self.pretty_print
         for mime, (href, data) in metadata.items():
             if opfname and mime == OPF_MIME:

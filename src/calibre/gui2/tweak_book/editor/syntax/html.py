@@ -35,10 +35,10 @@ normal_pat = re.compile(r'[^<>&]+')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:-]+')
 space_chars = ' \t\r\n\u000c'
-attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
+attribute_name_pat = re.compile(rf'''[^{space_chars}"'/><=]+''')
 self_closing_pat = re.compile(r'/\s*>')
-unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
-cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
+unquoted_val_pat = re.compile(rf'''[^{space_chars}'"=<>`]+''')
+cdata_close_pats = {x:re.compile(rf'</{x}', flags=re.I) for x in cdata_tags}
 nbsp_pat = re.compile(r'[\xa0\u2000-\u200A\u202F\u205F\u3000\u2011-\u2015\uFE58\uFE63\uFF0D]+')  # special spaces and hyphens
 
 NORMAL = 0

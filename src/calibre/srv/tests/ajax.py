@@ -43,7 +43,7 @@ class ContentTest(LibraryBaseTest):
             r, onedata = request('/1')
             self.ae(r.status, OK)
             self.ae(request('/1/' + db.server_library_id)[1], onedata)
-            self.ae(request('/%s?id_is_uuid=true' % db.field_for('uuid', 1))[1], onedata)
+            self.ae(request('/{}?id_is_uuid=true'.format(db.field_for('uuid', 1)))[1], onedata)
 
             r, data = request('s')
             self.ae(set(data), set(map(str, db.all_book_ids())))

@@ -85,8 +85,8 @@ class ReadFrame:  # {{{
             self.opcode = b1 & 0b1111
             self.is_control = self.opcode in CONTROL_CODES
             if self.opcode not in ALL_CODES:
-                conn.log.error('Unknown OPCODE from client: %r' % self.opcode)
-                conn.websocket_close(PROTOCOL_ERROR, 'Unknown OPCODE: %r' % self.opcode)
+                conn.log.error(f'Unknown OPCODE from client: {self.opcode!r}')
+                conn.websocket_close(PROTOCOL_ERROR, f'Unknown OPCODE: {self.opcode!r}')
                 return
             if not self.fin and self.is_control:
                 conn.log.error('Fragmented control frame from client')
@@ -283,9 +283,9 @@ class WebSocketConnection(HTTPConnection):
         except Exception:
             ver_ok = False
         if not ver_ok:
-            return self.simple_response(http_client.BAD_REQUEST, 'Unsupported WebSocket protocol version: %s' % ver)
+            return self.simple_response(http_client.BAD_REQUEST, f'Unsupported WebSocket protocol version: {ver}')
         if self.method != 'GET':
-            return self.simple_response(http_client.BAD_REQUEST, 'Invalid WebSocket method: %s' % self.method)
+            return self.simple_response(http_client.BAD_REQUEST, f'Invalid WebSocket method: {self.method}')
 
         response = HANDSHAKE_STR % as_base64_unicode(sha1((key + GUID_STR).encode('utf-8')).digest())
         self.optimize_for_sending_packet()
@@ -302,7 +302,7 @@ class WebSocketConnection(HTTPConnection):
                 self.websocket_handler.handle_websocket_upgrade(self.websocket_connection_id, weakref.ref(self), inheaders)
             except Exception as err:
                 self.log.exception('Error in WebSockets upgrade handler:')
-                self.websocket_close(UNEXPECTED_ERROR, 'Unexpected error in handler: %r' % as_unicode(err))
+                self.websocket_close(UNEXPECTED_ERROR, f'Unexpected error in handler: {as_unicode(err)!r}')
             self.handle_event = self.ws_duplex
             self.set_ws_state()
             self.end_send_optimization()
@@ -384,7 +384,7 @@ class WebSocketConnection(HTTPConnection):
             self.handle_websocket_data(data, message_starting, message_finished)
         except Exception as err:
             self.log.exception('Error in WebSockets data handler:')
-            self.websocket_close(UNEXPECTED_ERROR, 'Unexpected error in handler: %r' % as_unicode(err))
+            self.websocket_close(UNEXPECTED_ERROR, f'Unexpected error in handler: {as_unicode(err)!r}')
 
     def ws_control_frame(self, opcode, data):
         if opcode in (PING, CLOSE):

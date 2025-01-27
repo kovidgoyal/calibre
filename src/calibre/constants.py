@@ -146,7 +146,7 @@ def _get_cache_dir():
 
     if iswindows:
         try:
-            candidate = os.path.join(winutil.special_folder_path(winutil.CSIDL_LOCAL_APPDATA), '%s-cache'%__appname__)
+            candidate = os.path.join(winutil.special_folder_path(winutil.CSIDL_LOCAL_APPDATA), f'{__appname__}-cache')
         except ValueError:
             return confcache
     elif ismacos:
@@ -341,7 +341,7 @@ class Plugins(collections.abc.Mapping):
         try:
             return import_module('calibre_extensions.' + name), ''
         except ModuleNotFoundError:
-            raise KeyError('No plugin named %r'%name)
+            raise KeyError(f'No plugin named {name!r}')
         except Exception as err:
             return None, str(err)
 

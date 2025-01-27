@@ -85,7 +85,7 @@ def setup_css_parser_serialization(tab_width=2):
 def actual_case_for_name(container, name):
     from calibre.utils.filenames import samefile
     if not container.exists(name):
-        raise ValueError('Cannot get actual case for %s as it does not exist' % name)
+        raise ValueError(f'Cannot get actual case for {name} as it does not exist')
     parts = name.split('/')
     base = ''
     ans = []

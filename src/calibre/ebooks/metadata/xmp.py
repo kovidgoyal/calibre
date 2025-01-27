@@ -440,7 +440,7 @@ def create_series(calibre, series, series_index):
     except (TypeError, ValueError):
         series_index = 1.0
     si = s.makeelement(expand('calibreSI:series_index'))
-    si.text = '%.2f' % series_index
+    si.text = f'{series_index:.2f}'
     s.append(si)
 
 
@@ -514,7 +514,7 @@ def metadata_to_xmp_packet(mi):
         for scheme, val in iteritems(identifiers):
             if scheme in {'isbn', 'doi'}:
                 for prefix, parent in iteritems(extra_ids):
-                    ie = parent.makeelement(expand('%s:%s'%(prefix, scheme)))
+                    ie = parent.makeelement(expand(f'{prefix}:{scheme}'))
                     ie.text = val
                     parent.append(ie)
 
@@ -531,7 +531,7 @@ def metadata_to_xmp_packet(mi):
         except (TypeError, ValueError):
             pass
         else:
-            create_simple_property(calibre, 'calibre:rating', '%g' % r)
+            create_simple_property(calibre, 'calibre:rating', f'{r:g}')
     if not mi.is_null('series'):
         create_series(calibre, mi.series, mi.series_index)
     if not mi.is_null('timestamp'):
@@ -618,7 +618,7 @@ def merge_xmp_packet(old, new):
     defined_tags |= {expand('xmp:' + x) for x in ('MetadataDate', 'Identifier')}
     # For redundancy also remove all fields explicitly set in the new packet
     defined_tags |= {x.tag for x in item_xpath(new)}
-    calibrens = '{%s}' % NS_MAP['calibre']
+    calibrens = '{{{}}}'.format(NS_MAP['calibre'])
     for elem in item_xpath(old):
         if elem.tag in defined_tags or (elem.tag and elem.tag.startswith(calibrens)):
             elem.getparent().remove(elem)

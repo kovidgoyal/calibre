@@ -98,7 +98,7 @@ class PDNOVEL(USBMS):
     def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+            with open(f'{os.path.join(path, filename)}.jpg', 'wb') as coverfile:
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 

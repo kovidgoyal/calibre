@@ -134,7 +134,7 @@ class Resource:  # {{{
         return self._basedir
 
     def __repr__(self):
-        return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
+        return f'Resource({self.path!r}, {self.href()!r})'
 
 # }}}
 
@@ -158,7 +158,7 @@ class ResourceCollection:  # {{{
 
     def __str__(self):
         resources = map(repr, self)
-        return '[%s]'%', '.join(resources)
+        return '[{}]'.format(', '.join(resources))
     __unicode__ = __str__
 
     def __repr__(self):
@@ -214,7 +214,7 @@ class ManifestItem(Resource):  # {{{
         self.mime_type = val
 
     def __unicode__representation__(self):
-        return '<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
+        return f'<item id="{self.id}" href="{self.href()}" media-type="{self.media_type}" />'
 
     __str__ = __unicode__representation__
 
@@ -314,8 +314,7 @@ class Spine(ResourceCollection):  # {{{
             self.idref = None
 
         def __repr__(self):
-            return 'Spine.Item(path=%r, id=%s, is_linear=%s)' % \
-                    (self.path, self.id, self.is_linear)
+            return f'Spine.Item(path={self.path!r}, id={self.id}, is_linear={self.is_linear})'
 
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
@@ -391,9 +390,9 @@ class Guide(ResourceCollection):  # {{{
             return res
 
         def __repr__(self):
-            ans = '<reference type="%s" href="%s" '%(self.type, self.href())
+            ans = f'<reference type="{self.type}" href="{self.href()}" '
             if self.title:
-                ans += 'title="%s" '%self.title
+                ans += f'title="{self.title}" '
             return ans + '/>'
 
     @staticmethod
@@ -501,7 +500,7 @@ class TitleSortField(MetadataField):
             matches = obj.title_path(obj.metadata)
             if matches:
                 for match in matches:
-                    ans = match.get('{%s}file-as'%obj.NAMESPACES['opf'], None)
+                    ans = match.get('{{{}}}file-as'.format(obj.NAMESPACES['opf']), None)
                     if not ans:
                         ans = match.get('file-as', None)
                     if ans:
@@ -583,7 +582,7 @@ class OPF:  # {{{
                         'dc': 'http://purl.org/dc/elements/1.1/',
                         'opf': 'http://www.idpf.org/2007/opf',
                        }
-    META             = '{%s}meta' % NAMESPACES['opf']
+    META             = '{{{}}}meta'.format(NAMESPACES['opf'])
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
     TEXT             = XPath('string()')
 
@@ -791,7 +790,7 @@ class OPF:  # {{{
             manifest_id = 'id%d'%c
         if not media_type:
             media_type = 'application/xhtml+xml'
-        ans = etree.Element('{%s}item'%self.NAMESPACES['opf'],
+        ans = etree.Element('{{{}}}item'.format(self.NAMESPACES['opf']),
                              attrib={'id':manifest_id, 'href':href, 'media-type':media_type})
         ans.tail = '\n\t\t'
         if append:
@@ -828,7 +827,7 @@ class OPF:  # {{{
                 return x.get('href', None)
 
     def create_spine_item(self, idref):
-        ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
+        ans = etree.Element('{{{}}}itemref'.format(self.NAMESPACES['opf']), idref=idref)
         ans.tail = '\n\t\t'
         return ans
 
@@ -841,7 +840,7 @@ class OPF:  # {{{
             spine[i:i+1] = items
 
     def create_guide_element(self):
-        e = etree.SubElement(self.root, '{%s}guide'%self.NAMESPACES['opf'])
+        e = etree.SubElement(self.root, '{{{}}}guide'.format(self.NAMESPACES['opf']))
         e.text = '\n        '
         e.tail = '\n'
         return e
@@ -852,7 +851,7 @@ class OPF:  # {{{
             self.root.remove(g)
 
     def create_guide_item(self, type, title, href):
-        e = etree.Element('{%s}reference'%self.NAMESPACES['opf'],
+        e = etree.Element('{{{}}}reference'.format(self.NAMESPACES['opf']),
                              type=type, title=title, href=href)
         e.tail='\n'
         return e
@@ -917,11 +916,10 @@ class OPF:  # {{{
         # for broken implementations that always use the first
         # <dc:creator> element with no attention to the role
         for author in reversed(val):
-            elem = self.metadata.makeelement('{%s}creator'%
-                    self.NAMESPACES['dc'], nsmap=self.NAMESPACES)
+            elem = self.metadata.makeelement('{{{}}}creator'.format(self.NAMESPACES['dc']), nsmap=self.NAMESPACES)
             elem.tail = '\n'
             self.metadata.insert(0, elem)
-            elem.set('{%s}role'%self.NAMESPACES['opf'], 'aut')
+            elem.set('{{{}}}role'.format(self.NAMESPACES['opf']), 'aut')
             self.set_text(elem, author.strip())
 
     @property
@@ -929,7 +927,7 @@ class OPF:  # {{{
         matches = self.authors_path(self.metadata) or self.editors_path(self.metadata)
         if matches:
             for match in matches:
-                ans = match.get('{%s}file-as'%self.NAMESPACES['opf']) or match.get('file-as')
+                ans = match.get('{{{}}}file-as'.format(self.NAMESPACES['opf'])) or match.get('file-as')
                 if ans:
                     return ans
 
@@ -940,7 +938,7 @@ class OPF:  # {{{
             for key in matches[0].attrib:
                 if key.endswith('file-as'):
                     matches[0].attrib.pop(key)
-            matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], str(val))
+            matches[0].set('{{{}}}file-as'.format(self.NAMESPACES['opf']), str(val))
 
     @property
     def tags(self):
@@ -1021,7 +1019,7 @@ class OPF:  # {{{
                     x.getparent().remove(x)
             return
         if not matches:
-            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'ISBN'}
+            attrib = {'{{{}}}scheme'.format(self.NAMESPACES['opf']): 'ISBN'}
             matches = [self.create_metadata_element('identifier',
                                                     attrib=attrib)]
         self.set_text(matches[0], str(val))
@@ -1085,7 +1083,7 @@ class OPF:  # {{{
                 x.getparent().remove(x)
 
         for typ, val in iteritems(identifiers):
-            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: typ.upper()}
+            attrib = {'{{{}}}scheme'.format(self.NAMESPACES['opf']): typ.upper()}
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), str(val))
 
@@ -1106,7 +1104,7 @@ class OPF:  # {{{
             if attr.endswith('unique-identifier'):
                 uuid_id = self.root.attrib[attr]
                 break
-        attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
+        attrib = {'{{{}}}scheme'.format(self.NAMESPACES['opf']): 'calibre'}
         if uuid_id and uuid_id in removed_ids:
             attrib['id'] = uuid_id
         self.set_text(self.create_metadata_element(
@@ -1121,7 +1119,7 @@ class OPF:  # {{{
     def uuid(self, val):
         matches = self.uuid_id_path(self.metadata)
         if not matches:
-            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
+            attrib = {'{{{}}}scheme'.format(self.NAMESPACES['opf']): 'uuid'}
             matches = [self.create_metadata_element('identifier',
                                                     attrib=attrib)]
         self.set_text(matches[0], str(val))
@@ -1179,7 +1177,7 @@ class OPF:  # {{{
         matches = self.bkp_path(self.metadata)
         if not matches:
             matches = [self.create_metadata_element('contributor')]
-            matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
+            matches[0].set('{{{}}}role'.format(self.NAMESPACES['opf']), 'bkp')
         self.set_text(matches[0], str(val))
 
     def identifier_iter(self):
@@ -1193,7 +1191,7 @@ class OPF:  # {{{
                 uuid_elem = self.root.attrib[attr]
                 break
         if uuid_elem:
-            matches = self.root.xpath('//*[@id=%s]'%escape_xpath_attr(uuid_elem))
+            matches = self.root.xpath(f'//*[@id={escape_xpath_attr(uuid_elem)}]')
             if matches:
                 for m in matches:
                     raw = m.text
@@ -1350,7 +1348,7 @@ class OPF:  # {{{
             _pretty_print(self.root)
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith(b'<?xml '):
-            raw = ('<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()).encode('ascii') + raw
+            raw = (f'<?xml version="1.0"  encoding="{encoding.upper()}"?>\n').encode('ascii') + raw
         return raw
 
     def smart_update(self, mi, replace_metadata=False, apply_null=False):
@@ -1522,7 +1520,7 @@ class OPFCreator(Metadata):
             else:
                 elem = getattr(DC, tag)(**dc_attrs)
             for k, v in opf_attrs.items():
-                elem.set('{%s}%s'%(OPF2_NS, k), v)
+                elem.set(f'{{{OPF2_NS}}}{k}', v)
             return elem
 
         def CAL_ELEM(name, content):
@@ -1538,7 +1536,7 @@ class OPFCreator(Metadata):
             if i == 0 and self.author_sort:
                 fa['file-as'] = self.author_sort
             a(DC_ELEM('creator', author, opf_attrs=fa))
-        a(DC_ELEM('contributor', '%s (%s) [%s]'%(__appname__, __version__,
+        a(DC_ELEM('contributor', '{} ({}) [{}]'.format(__appname__, __version__,
             'https://calibre-ebook.com'), opf_attrs={'role':'bkp',
                 'file-as':__appname__}))
         a(DC_ELEM('identifier', str(self.application_id),
@@ -1645,7 +1643,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         mi.uuid = str(uuid.uuid4())
 
     if not mi.book_producer:
-        mi.book_producer = __appname__ + ' (%s) '%__version__ + '[https://calibre-ebook.com]'
+        mi.book_producer = __appname__ + f' ({__version__}) ' + '[https://calibre-ebook.com]'
 
     if not mi.languages:
         lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
@@ -1656,12 +1654,12 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
     '''
     <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-            <dc:identifier opf:scheme="%(a)s" id="%(a)s_id">%(id)s</dc:identifier>
-            <dc:identifier opf:scheme="uuid" id="uuid_id">%(uuid)s</dc:identifier>
+            <dc:identifier opf:scheme="{a}" id="{a}_id">{id}</dc:identifier>
+            <dc:identifier opf:scheme="uuid" id="uuid_id">{uuid}</dc:identifier>
             </metadata>
         <guide/>
     </package>
-    '''%dict(a=__appname__, id=mi.application_id, uuid=mi.uuid)))
+    '''.format(**dict(a=__appname__, id=mi.application_id, uuid=mi.uuid))))
     metadata = root[0]
     guide = root[1]
     metadata[0].tail = '\n'+(' '*8)

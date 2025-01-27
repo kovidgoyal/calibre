@@ -292,7 +292,7 @@ def get_proxy_info(proxy_scheme, proxy_string):
     '''
     from polyglot.urllib import urlparse
     try:
-        proxy_url = '%s://%s'%(proxy_scheme, proxy_string)
+        proxy_url = f'{proxy_scheme}://{proxy_string}'
         urlinfo = urlparse(proxy_url)
         ans = {
             'scheme': urlinfo.scheme,

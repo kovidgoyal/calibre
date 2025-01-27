@@ -149,7 +149,7 @@ class Matches(QAbstractItemModel):
                 else:
                     return ('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
             elif col == 1:
-                return ('<p>%s</p>' % result.description)
+                return (f'<p>{result.description}</p>')
             elif col == 2:
                 if result.drm_free_only:
                     return ('<p>' + _('This store only distributes e-books without DRM.') + '</p>')

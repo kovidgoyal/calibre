@@ -275,8 +275,8 @@ class Sections:
             my_string += 'mi<tg<close_____<section\n'
         else:
             self.__found_first_sec = 1
-        my_string += 'mi<tg<open-att__<section<num>%s' % str(self.__section_num)
-        my_string += '<num-in-level>%s' % str(self.__section_num)
+        my_string += f'mi<tg<open-att__<section<num>{self.__section_num!s}'
+        my_string += f'<num-in-level>{self.__section_num!s}'
         my_string += '<type>rtf-native'
         my_string += '<level>0'
         keys = self.__section_values.keys()
@@ -354,22 +354,20 @@ class Sections:
             self.__state = 'body'
             self.__section_num += 1
             self.__write_obj.write(
-                    'mi<tg<open-att__<section<num>%s'
-                    '<num-in-level>%s'
+                    f'mi<tg<open-att__<section<num>{self.__section_num!s}'
+                    f'<num-in-level>{self.__section_num!s}'
                     '<type>rtf-native'
                     '<level>0\n'
-                    % (str(self.__section_num), str(self.__section_num))
                     )
             self.__found_first_sec = 1
         elif self.__token_info == 'tx<nu<__________':
             self.__state = 'body'
             self.__section_num += 1
             self.__write_obj.write(
-                    'mi<tg<open-att__<section<num>%s'
-                    '<num-in-level>%s'
+                    f'mi<tg<open-att__<section<num>{self.__section_num!s}'
+                    f'<num-in-level>{self.__section_num!s}'
                     '<type>rtf-native'
                     '<level>0\n'
-                    % (str(self.__section_num), str(self.__section_num))
                     )
             self.__write_obj.write(
                 'cw<pf<par-def___<true\n'
@@ -462,7 +460,7 @@ class Sections:
         self.__field_num = self.__field_num[1:]
         self.__write_obj.write(
         'mi<tg<close_____<section\n'
-        'mi<tg<open-att__<section<num>%s' % str(num)
+        f'mi<tg<open-att__<section<num>{num!s}'
         )
         if self.__list_of_sec_values:
             keys = self.__list_of_sec_values[0].keys()
@@ -472,7 +470,7 @@ class Sections:
             self.__list_of_sec_values = self.__list_of_sec_values[1:]
         self.__write_obj.write('<level>0')
         self.__write_obj.write('<type>rtf-native')
-        self.__write_obj.write('<num-in-level>%s' % str(self.__section_num))
+        self.__write_obj.write(f'<num-in-level>{self.__section_num!s}')
         self.__write_obj.write('\n')
         # Look here
 

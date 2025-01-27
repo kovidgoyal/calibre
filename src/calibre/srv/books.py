@@ -135,7 +135,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     db, library_id = get_library_data(ctx, rd)[:2]
     force_reload = rd.query.get('force_reload') == '1'
     if plugin_for_input_format(fmt) is None:
-        raise HTTPNotFound('The format %s cannot be viewed' % fmt.upper())
+        raise HTTPNotFound(f'The format {fmt.upper()} cannot be viewed')
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
     with db.safe_read_lock:
@@ -302,8 +302,8 @@ def mathjax(ctx, rd, which):
     if not which:
         return rd.etagged_dynamic_response(manifest['etag'], manifest_as_json, content_type='application/json; charset=UTF-8')
     if which not in manifest['files']:
-        raise HTTPNotFound('No MathJax file named: %s' % which)
+        raise HTTPNotFound(f'No MathJax file named: {which}')
     path = os.path.abspath(P('mathjax/' + which, allow_user_override=False))
     if not path.startswith(P('mathjax', allow_user_override=False)):
-        raise HTTPNotFound('No MathJax file named: %s' % which)
+        raise HTTPNotFound(f'No MathJax file named: {which}')
     return rd.filesystem_file_with_constant_etag(open(path, 'rb'), manifest['etag'])

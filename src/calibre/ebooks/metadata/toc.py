@@ -66,7 +66,7 @@ class TOC(list):
         self.toc_thumbnail = toc_thumbnail
 
     def __str__(self):
-        lines = ['TOC: %s#%s %s'%(self.href, self.fragment, self.text)]
+        lines = [f'TOC: {self.href}#{self.fragment} {self.text}']
         for child in self:
             c = str(child).splitlines()
             for l in c:
@@ -247,8 +247,7 @@ class TOC(list):
                 E.head(
                     E.meta(name='dtb:uid', content=str(uid)),
                     E.meta(name='dtb:depth', content=str(self.depth())),
-                    E.meta(name='dtb:generator', content='%s (%s)'%(__appname__,
-                        __version__)),
+                    E.meta(name='dtb:generator', content=f'{__appname__} ({__version__})'),
                     E.meta(name='dtb:totalPageCount', content='0'),
                     E.meta(name='dtb:maxPageNumber', content='0'),
                 ),

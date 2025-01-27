@@ -91,12 +91,12 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
         mapper = KeyMapper(sbase, dbase, fsizes)
         msize = mapper[fsize]
-        self.input_mapped_font_size.setText('%.1f pt'%msize)
+        self.input_mapped_font_size.setText(f'{msize:.1f} pt')
 
     def use_default(self):
         dbase, fsizes = self.get_profile_values()
         self.output_base_font_size.setValue(dbase)
-        self.font_size_key.setText(', '.join(['%.1f'%x for x in fsizes]))
+        self.font_size_key.setText(', '.join([f'{x:.1f}' for x in fsizes]))
 
 
 if __name__ == '__main__':

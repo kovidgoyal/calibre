@@ -114,7 +114,7 @@ class Check(Command):
             for i, f in enumerate(dirty_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
-                    self.info('{} files left to check'.format(len(dirty_files) - i - 1))
+                    self.info(f'{len(dirty_files) - i - 1} files left to check')
                     try:
                         edit_file(f)
                     except FileNotFoundError:

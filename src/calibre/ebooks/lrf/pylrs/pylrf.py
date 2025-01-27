@@ -374,14 +374,14 @@ class LrfTag:
         try:
             tagInfo = TAG_INFO[name]
         except KeyError:
-            raise LrfError('tag name %s not recognized' % name)
+            raise LrfError(f'tag name {name} not recognized')
 
         self.name = name
         self.type = tagInfo[0]
         self.format = tagInfo[1:]
 
         if len(parameters) > 1:
-            raise LrfError('only one parameter allowed on tag %s' % name)
+            raise LrfError(f'only one parameter allowed on tag {name}')
 
         if len(parameters) == 0:
             self.parameter = None
@@ -508,7 +508,7 @@ class LrfObject:
         try:
             self.type = OBJECT_TYPE_ENCODING[name]
         except KeyError:
-            raise LrfError('object name %s not recognized' % name)
+            raise LrfError(f'object name {name} not recognized')
 
     def __str__(self):
         return 'LRFObject: ' + self.name + ', ' + str(self.objId)

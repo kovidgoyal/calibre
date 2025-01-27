@@ -87,25 +87,25 @@ class LRFDocument(LRFMetaFile):
 
     def to_xml(self, write_files=True):
         bookinfo = '<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
-        bookinfo += '<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
-        bookinfo += '<Author reading="%s">%s</Author>\n'%(self.metadata.author_reading, self.metadata.author)
-        bookinfo += '<BookID>%s</BookID>\n'%(self.metadata.book_id,)
-        bookinfo += '<Publisher reading="">%s</Publisher>\n'%(self.metadata.publisher,)
-        bookinfo += '<Label reading="">%s</Label>\n'%(self.metadata.label,)
-        bookinfo += '<Category reading="">%s</Category>\n'%(self.metadata.category,)
-        bookinfo += '<Classification reading="">%s</Classification>\n'%(self.metadata.classification,)
-        bookinfo += '<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
+        bookinfo += f'<Title reading="{self.metadata.title_reading}">{self.metadata.title}</Title>\n'
+        bookinfo += f'<Author reading="{self.metadata.author_reading}">{self.metadata.author}</Author>\n'
+        bookinfo += f'<BookID>{self.metadata.book_id}</BookID>\n'
+        bookinfo += f'<Publisher reading="">{self.metadata.publisher}</Publisher>\n'
+        bookinfo += f'<Label reading="">{self.metadata.label}</Label>\n'
+        bookinfo += f'<Category reading="">{self.metadata.category}</Category>\n'
+        bookinfo += f'<Classification reading="">{self.metadata.classification}</Classification>\n'
+        bookinfo += f'<FreeText reading="">{self.metadata.free_text}</FreeText>\n</BookInfo>\n<DocInfo>\n'
         th = self.doc_info.thumbnail
         if th:
             prefix = ascii_filename(self.metadata.title)
-            bookinfo += '<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
+            bookinfo += '<CThumbnail file="{}" />\n'.format(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension)
             if write_files:
                 with open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb') as f:
                     f.write(th)
-        bookinfo += '<Language reading="">%s</Language>\n'%(self.doc_info.language,)
-        bookinfo += '<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
-        bookinfo += '<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
-        bookinfo += '<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n%s</BookInformation>\n'%(self.doc_info.page,self.toc)
+        bookinfo += f'<Language reading="">{self.doc_info.language}</Language>\n'
+        bookinfo += f'<Creator reading="">{self.doc_info.creator}</Creator>\n'
+        bookinfo += f'<Producer reading="">{self.doc_info.producer}</Producer>\n'
+        bookinfo += f'<SumPage>{self.doc_info.page}</SumPage>\n</DocInfo>\n</Info>\n{self.toc}</BookInformation>\n'
         pages = ''
         done_main = False
         pt_id = -1

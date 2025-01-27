@@ -672,7 +672,7 @@ class BasicNewsRecipe(Recipe):
             try:
                 raw_html = self.extract_readable_article(raw_html, url)
             except:
-                self.log.exception('Auto cleanup of URL: %r failed'%url)
+                self.log.exception(f'Auto cleanup of URL: {url!r} failed')
 
         return raw_html
 
@@ -724,7 +724,7 @@ class BasicNewsRecipe(Recipe):
         try:
             parts = urlparse(url)
         except Exception:
-            self.log.error('Failed to parse url: %r, ignoring' % url)
+            self.log.error(f'Failed to parse url: {url!r}, ignoring')
             return frozenset()
         nl = parts.netloc
         path = parts.path or ''
@@ -752,7 +752,7 @@ class BasicNewsRecipe(Recipe):
             with closing(open_func(url_or_raw, timeout=self.timeout)) as f:
                 _raw = f.read()
             if not _raw:
-                raise RuntimeError('Could not fetch index from %s'%url_or_raw)
+                raise RuntimeError(f'Could not fetch index from {url_or_raw}')
         else:
             _raw = url_or_raw
         if raw:
@@ -800,13 +800,11 @@ class BasicNewsRecipe(Recipe):
             root = frag
         elif frag.tag == 'body':
             root = document_fromstring(
-                '<html><head><title>%s</title></head></html>' %
-                extracted_title)
+                f'<html><head><title>{extracted_title}</title></head></html>')
             root.append(frag)
         else:
             root = document_fromstring(
-                '<html><head><title>%s</title></head><body/></html>' %
-                extracted_title)
+                f'<html><head><title>{extracted_title}</title></head><body/></html>')
             root.xpath('//body')[0].append(frag)
 
         body = root.xpath('//body')[0]
@@ -911,7 +909,7 @@ class BasicNewsRecipe(Recipe):
 
         src = src.replace('\\', '/')
         if re.search(r'feed_\d+/article_\d+/images/img', src, flags=re.I) is None:
-            self.log.warn('Ignoring invalid TOC thumbnail image: %r'%src)
+            self.log.warn(f'Ignoring invalid TOC thumbnail image: {src!r}')
             return
         article.toc_thumbnail = re.sub(r'^.*?feed', 'feed',
                 src, flags=re.IGNORECASE)
@@ -1287,8 +1285,7 @@ class BasicNewsRecipe(Recipe):
                             seen.add(val)
 
         for feed, article in remove:
-            self.log.debug('Removing duplicate article: %s from section: %s'%(
-                article.title, feed.title))
+            self.log.debug(f'Removing duplicate article: {article.title} from section: {feed.title}')
             feed.remove_article(article)
 
         if self.remove_empty_feeds:
@@ -1633,12 +1630,12 @@ class BasicNewsRecipe(Recipe):
                     else:
                         desc = self.description_limiter(desc)
                     tt = a.toc_thumbnail if a.toc_thumbnail else None
-                    entries.append('%sindex.html'%adir)
+                    entries.append(f'{adir}index.html')
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    arelpath = '%sindex.html'%adir
+                    arelpath = f'{adir}index.html'
                     for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):
                         aumap[curl].add(arelpath)
                     article_toc_entry = parent.add_item(arelpath, None,
@@ -1654,7 +1651,7 @@ class BasicNewsRecipe(Recipe):
                                 arelpath, entry['anchor'], entry['title'] or _('Unknown section'),
                                 play_order=po
                             )
-                    last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
+                    last = os.path.join(self.output_dir, (f'{adir}index.html').replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
                         relp = sp[len(prefix):]
@@ -1951,8 +1948,7 @@ class CalibrePeriodical(BasicNewsRecipe):
         self.log('Fetching downloaded recipe')
         try:
             raw = self.browser.open_novisit(
-                'https://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
-                % self.calibre_periodicals_slug
+                f'https://news.calibre-ebook.com/subscribed_files/{self.calibre_periodicals_slug}/0/temp.downloaded_recipe'
                     ).read()
         except Exception as e:
             if hasattr(e, 'getcode') and e.getcode() == 403:

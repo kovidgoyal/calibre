@@ -387,7 +387,7 @@ def sanitize_args(root, opts):
     length -= 15
     length -= len(root)
     if length < 5:
-        raise ValueError('%r is too long.'%root)
+        raise ValueError(f'{root!r} is too long.')
     return root, opts, length
 
 

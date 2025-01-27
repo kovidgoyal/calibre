@@ -545,7 +545,7 @@ class RecursiveFetcher:
                     newbaseurl = dsrc.newurl
                     if len(dsrc) == 0 or \
                        len(re.compile(br'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
-                        raise ValueError('No content at URL %r'%iurl)
+                        raise ValueError(f'No content at URL {iurl!r}')
                     if callable(self.encoding):
                         dsrc = self.encoding(dsrc)
                     elif self.encoding is not None:

@@ -72,7 +72,7 @@ def do_add_custom_column(db, label, name, datatype, is_multiple, display):
     num = db.create_custom_column(
         label, name, datatype, is_multiple, display=display
     )
-    prints('Custom column created with id: %s' % num)
+    prints(f'Custom column created with id: {num}')
 
 
 def main(opts, args, dbctx):

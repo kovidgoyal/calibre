@@ -291,8 +291,7 @@ if __name__ == '__main__':
 
     # this will be called when an exception occurs within a thread
     def handle_exception(request, exc_info):
-        print('Exception occurred in request #%s: %s' %
-          (request.requestID, exc_info[1]))
+        print(f'Exception occurred in request #{request.requestID}: {exc_info[1]}')
 
     # assemble the arguments for each job to a list...
     data = [random.randint(1,10) for i in range(20)]
@@ -311,7 +310,7 @@ if __name__ == '__main__':
     # then we put the work requests in the queue...
     for req in requests:
         main.putRequest(req)
-        print('Work request #%s added.' % req.requestID)
+        print(f'Work request #{req.requestID} added.')
     # or shorter:
     # [main.putRequest(req) for req in requests]
 

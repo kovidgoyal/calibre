@@ -135,7 +135,7 @@ class Fonts:
             self.__font_table[self.__font_num] = self.__text_line
             self.__write_obj.write(
             'mi<tg<empty-att_'
-            '<font-in-table<name>%s<num>%s\n' % (self.__text_line, self.__font_num)
+            f'<font-in-table<name>{self.__text_line}<num>{self.__font_num}\n'
             )
         elif self.__token_info == 'cw<ci<font-style':
             self.__font_num = line[20:-1]
@@ -180,14 +180,14 @@ class Fonts:
             font_name = self.__font_table.get(font_num)
             if font_name is None:
                 if self.__run_level > 3:
-                    msg = 'no value for %s in self.__font_table\n' % font_num
+                    msg = f'no value for {font_num} in self.__font_table\n'
                     raise self.__bug_handler(msg)
             else:
                 # self.__special_font_dict
                 if font_name in self.__special_font_list:
                     self.__special_font_dict[font_name] = 1
                 self.__write_obj.write(
-                'cw<ci<font-style<nu<%s\n' % font_name
+                f'cw<ci<font-style<nu<{font_name}\n'
                 )
         else:
             self.__write_obj.write(line)

@@ -296,14 +296,14 @@ class CalibrePluginFinder:
 
     def load(self, path_to_zip_file):
         if not os.access(path_to_zip_file, os.R_OK):
-            raise PluginNotFound('Cannot access %r'%path_to_zip_file)
+            raise PluginNotFound(f'Cannot access {path_to_zip_file!r}')
 
         with zipfile.ZipFile(path_to_zip_file) as zf:
             plugin_name = self._locate_code(zf, path_to_zip_file)
 
         try:
             ans = None
-            plugin_module = 'calibre_plugins.%s'%plugin_name
+            plugin_module = f'calibre_plugins.{plugin_name}'
             m = sys.modules.get(plugin_module, None)
             if m is not None:
                 reload(m)
@@ -315,8 +315,7 @@ class CalibrePluginFinder:
                         obj.name != 'Trivial Plugin':
                     plugin_classes.append(obj)
             if not plugin_classes:
-                raise InvalidPlugin('No plugin class found in %s:%s'%(
-                    as_unicode(path_to_zip_file), plugin_name))
+                raise InvalidPlugin(f'No plugin class found in {as_unicode(path_to_zip_file)}:{plugin_name}')
             if len(plugin_classes) > 1:
                 plugin_classes.sort(key=lambda c:(getattr(c, '__module__', None) or '').count('.'))
 
@@ -324,14 +323,12 @@ class CalibrePluginFinder:
 
             if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
-                    'The plugin at %s needs a version of calibre >= %s' %
-                    (as_unicode(path_to_zip_file), '.'.join(map(str,
+                    'The plugin at {} needs a version of calibre >= {}'.format(as_unicode(path_to_zip_file), '.'.join(map(str,
                         ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
                 raise InvalidPlugin(
-                    'The plugin at %s cannot be used on %s' %
-                    (as_unicode(path_to_zip_file), platform))
+                    f'The plugin at {as_unicode(path_to_zip_file)} cannot be used on {platform}')
 
             return ans
         except:
@@ -359,8 +356,7 @@ class CalibrePluginFinder:
         else:
             if self._identifier_pat.match(plugin_name) is None:
                 raise InvalidPlugin(
-                    'The plugin at %r uses an invalid import name: %r' %
-                    (path_to_zip_file, plugin_name))
+                    f'The plugin at {path_to_zip_file!r} uses an invalid import name: {plugin_name!r}')
 
         pynames = [x for x in names if x.endswith('.py')]
 
@@ -394,9 +390,8 @@ class CalibrePluginFinder:
                     break
 
         if '__init__' not in names:
-            raise InvalidPlugin(('The plugin in %r is invalid. It does not '
+            raise InvalidPlugin(f'The plugin in {path_to_zip_file!r} is invalid. It does not '
                     'contain a top-level __init__.py file')
-                    % path_to_zip_file)
 
         with self._lock:
             self.loaded_plugins[plugin_name] = path_to_zip_file, names, tuple(all_names)

@@ -340,7 +340,7 @@ SVG_MIME       = types_map['.svg']
 WEBP_MIME      = types_map['.webp']
 BINARY_MIME    = 'application/octet-stream'
 
-XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
+XHTML_CSS_NAMESPACE = f'@namespace "{XHTML_NS}";\n'
 
 OEB_STYLES        = {CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'}
 OEB_DOCS          = {XHTML_MIME, 'text/html', OEB_DOC_MIME,
@@ -422,7 +422,7 @@ def xml2text(elem, pretty_print=False, method='text'):
 
 def escape_cdata(root):
     pat = re.compile(r'[<>&]')
-    for elem in root.iterdescendants('{%s}style' % XHTML_NS, '{%s}script' % XHTML_NS):
+    for elem in root.iterdescendants(f'{{{XHTML_NS}}}style', f'{{{XHTML_NS}}}script'):
         if elem.text and pat.search(elem.text) is not None:
             elem.text = etree.CDATA(elem.text.replace(']]>', r'\]\]\>'))
 
@@ -693,8 +693,7 @@ class Metadata:
                 allowed = self.allowed
                 if allowed is not None and term not in allowed:
                     raise AttributeError(
-                        'attribute {!r} not valid for metadata term {!r}'.format(
-                            self.attr(term), barename(obj.term)))
+                        f'attribute {self.attr(term)!r} not valid for metadata term {barename(obj.term)!r}')
                 return self.attr(term)
 
             def __get__(self, obj, cls):
@@ -772,8 +771,7 @@ class Metadata:
             return self.attrib.get(key, default)
 
         def __repr__(self):
-            return 'Item(term=%r, value=%r, attrib=%r)' \
-                % (barename(self.term), self.value, self.attrib)
+            return f'Item(term={barename(self.term)!r}, value={self.value!r}, attrib={self.attrib!r})'
 
         def __str__(self):
             return as_unicode(self.value)
@@ -949,8 +947,7 @@ class Manifest:
             self._data = data
 
         def __repr__(self):
-            return 'Item(id=%r, href=%r, media_type=%r)' \
-                % (self.id, self.href, self.media_type)
+            return f'Item(id={self.id!r}, href={self.href!r}, media_type={self.media_type!r})'
 
         # Parsing {{{
         def _parse_xml(self, data):
@@ -1014,11 +1011,11 @@ class Manifest:
         def _fetch_css(self, path):
             hrefs = self.oeb.manifest.hrefs
             if path not in hrefs:
-                self.oeb.logger.warn('CSS import of missing file %r' % path)
+                self.oeb.logger.warn(f'CSS import of missing file {path!r}')
                 return None, None
             item = hrefs[path]
             if item.media_type not in OEB_STYLES:
-                self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
+                self.oeb.logger.warn(f'CSS import of non-CSS file {path!r}')
                 return None, None
             data = item.data.cssText
             enc = None if isinstance(data, str) else 'utf-8'
@@ -1062,7 +1059,7 @@ class Manifest:
             elif mt in OEB_STYLES:
                 data = self._parse_css(data)
             elif mt == 'text/plain':
-                self.oeb.log.warn('%s contains data in TXT format'%self.href,
+                self.oeb.log.warn(f'{self.href} contains data in TXT format',
                         'converting to HTML')
                 data = self._parse_txt(data)
                 self.media_type = XHTML_MIME
@@ -1429,8 +1426,7 @@ class Guide:
             self.href = urlnormalize(href)
 
         def __repr__(self):
-            return 'Reference(type=%r, title=%r, href=%r)' \
-                % (self.type, self.title, self.href)
+            return f'Reference(type={self.type!r}, title={self.title!r}, href={self.href!r})'
 
         @property
         def item(self):
@@ -1616,7 +1612,7 @@ class TOC:
             return 1
 
     def get_lines(self, lvl=0):
-        ans = [('\t'*lvl) + 'TOC: %s --> %s'%(self.title, self.href)]
+        ans = [('\t'*lvl) + f'TOC: {self.title} --> {self.href}']
         for child in self:
             ans.extend(child.get_lines(lvl+1))
         return ans

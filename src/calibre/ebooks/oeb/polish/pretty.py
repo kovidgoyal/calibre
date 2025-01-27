@@ -42,7 +42,7 @@ def pretty_opf(root):
     def dckey(x):
         return {'title':0, 'creator':1}.get(barename(x.tag), 2)
     for metadata in root.xpath('//opf:metadata', namespaces=OPF_NAMESPACES):
-        dc_tags = metadata.xpath('./*[namespace-uri()="%s"]' % OPF_NAMESPACES['dc'])
+        dc_tags = metadata.xpath('./*[namespace-uri()="{}"]'.format(OPF_NAMESPACES['dc']))
         dc_tags.sort(key=dckey)
         for x in reversed(dc_tags):
             metadata.insert(0, x)

@@ -263,7 +263,7 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
         except Exception:
             import traceback
             traceback.print_exc()
-            return 'ERROR WHILE EVALUATING: %s' % field
+            return f'ERROR WHILE EVALUATING: {field}'
         return ret
 
 
@@ -365,7 +365,7 @@ class ProxyMetadata(Metadata):
         try:
             return ga(self, '_cache')[field]
         except KeyError:
-            raise AttributeError('Metadata object has no attribute named: %r' % field)
+            raise AttributeError(f'Metadata object has no attribute named: {field!r}')
 
     def __setattr__(self, field, val, extra=None):
         cache = ga(self, '_cache')

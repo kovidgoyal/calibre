@@ -149,7 +149,7 @@ def read_font(parent, dest, XPath, get):
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:asciiTheme')
         if val:
-            val = '|%s|' % val
+            val = f'|{val}|'
         else:
             val = get(col, 'w:ascii')
         if val:
@@ -168,7 +168,7 @@ def read_font_cs(parent, dest, XPath, get):
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:csTheme')
         if val:
-            val = '|%s|' % val
+            val = f'|{val}|'
         else:
             val = get(col, 'w:cs')
         if val:
@@ -248,9 +248,9 @@ class RunStyle:
         for x in ('color', 'style', 'width'):
             val = getattr(self, 'border_'+x)
             if x == 'width' and val is not inherit:
-                val = '%.3gpt' % val
+                val = f'{val:.3g}pt'
             if val is not inherit:
-                ans['border-%s' % x] = val
+                ans[f'border-{x}'] = val
 
     def clear_border_css(self):
         for x in ('color', 'style', 'width'):
@@ -282,7 +282,7 @@ class RunStyle:
 
             self.get_border_css(c)
             if self.padding is not inherit:
-                c['padding'] = '%.3gpt' % self.padding
+                c['padding'] = f'{self.padding:.3g}pt'
 
             for x in ('color', 'background_color'):
                 val = getattr(self, x)
@@ -292,10 +292,10 @@ class RunStyle:
             for x in ('letter_spacing', 'font_size'):
                 val = getattr(self, x)
                 if val is not inherit:
-                    c[x.replace('_', '-')] = '%.3gpt' % val
+                    c[x.replace('_', '-')] = f'{val:.3g}pt'
 
             if self.position is not inherit:
-                c['vertical-align'] = '%.3gpt' % self.position
+                c['vertical-align'] = f'{self.position:.3g}pt'
 
             if self.highlight is not inherit and self.highlight != 'transparent':
                 c['background-color'] = self.highlight

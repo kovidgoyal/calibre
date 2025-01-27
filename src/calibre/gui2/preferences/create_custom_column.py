@@ -285,7 +285,7 @@ class CreateCustomColumn(QDialog):
                 ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', ngettext('Series', 'Series', 1)), ('rating',
                     _('Rating')), ('people', _('Names')), ('text', _('Short text'))]:
-            text += ' <a href="col:%s">%s</a>,'%(col, name)
+            text += f' <a href="col:{col}">{name}</a>,'
         text = text[:-1]
         s.setText(text)
         l.addWidget(s)

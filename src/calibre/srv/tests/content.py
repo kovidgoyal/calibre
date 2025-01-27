@@ -41,9 +41,9 @@ class ContentTest(LibraryBaseTest):
                 self.ae(r.read(), body)
 
             for prefix in ('static', 'icon'):
-                missing('/%s/missing.xxx' % prefix)
-                missing('/%s/../out.html' % prefix, b'Naughty, naughty!')
-                missing('/%s/C:/out.html' % prefix, b'Naughty, naughty!')
+                missing(f'/{prefix}/missing.xxx')
+                missing(f'/{prefix}/../out.html', b'Naughty, naughty!')
+                missing(f'/{prefix}/C:/out.html', b'Naughty, naughty!')
 
             def test_response(r):
                 self.assertIn('max-age=', r.getheader('Cache-Control'))
@@ -265,7 +265,7 @@ class ContentTest(LibraryBaseTest):
         text = '🐈\n\t\\mūs"'
         t(f"<p id='{text}'>Peña", [{'n':'p','x':'Peña','a':[['id',text]]}])
         text = 'a' * (127 * 1024)
-        t('<p>{0}<p>{0}'.format(text), [{'n':'p','x':text}, {'n':'p','x':text}])
+        t(f'<p>{text}<p>{text}', [{'n':'p','x':text}, {'n':'p','x':text}])
     # }}}
 
     def test_last_read_cache(self):  # {{{

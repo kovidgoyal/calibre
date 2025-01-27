@@ -244,10 +244,10 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
         instances = entries.setdefault(key, [])
         os.rmdir(ans)
         if not robust_rename(src_path, ans):
-            raise Exception((
-                'Failed to rename: "{}" to "{}" probably some software such as an antivirus or file sync program'
+            raise Exception(
+                f'Failed to rename: "{src_path}" to "{ans}" probably some software such as an antivirus or file sync program'
                 ' running on your computer has locked the files'
-            ).format(src_path, ans))
+            )
 
         instance['status'] = 'finished'
         for q in instances:

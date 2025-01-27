@@ -58,8 +58,7 @@ def subset_all_fonts(container, font_stats, report):
                 font_name = get_font_names(raw)[-1]
             except Exception as e:
                 report(
-                    'Corrupted font: %s, ignoring.  Error: %s'%(
-                        name, as_unicode(e)))
+                    f'Corrupted font: {name}, ignoring.  Error: {as_unicode(e)}')
                 continue
             warnings = []
             report('Subsetting font: %s'%(font_name or name))
@@ -69,8 +68,7 @@ def subset_all_fonts(container, font_stats, report):
                 warnings = subset(BytesIO(raw), output, font_type, chars)
             except Exception as e:
                 report(
-                    'Unsupported font: %s, ignoring. Error: %s'%(
-                        name, as_unicode(e)))
+                    f'Unsupported font: {name}, ignoring. Error: {as_unicode(e)}')
                 continue
             nraw = output.getvalue()
             total_old += font_size

@@ -391,7 +391,7 @@ class Adder(QObject):
 
         self.pd.msg = mi.title
 
-        cover_path = os.path.join(self.tdir, '%s.cdata' % group_id) if has_cover else None
+        cover_path = os.path.join(self.tdir, f'{group_id}.cdata') if has_cover else None
 
         if self.db is None:
             if paths:

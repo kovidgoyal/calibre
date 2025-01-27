@@ -284,7 +284,7 @@ class MetadataUpdater:
         result=''
         while src:
             s, src = src[:length],src[length:]
-            hexa = ' '.join(['%02X'%ord(x) for x in s])
+            hexa = ' '.join([f'{ord(x):02X}' for x in s])
             s = s.translate(FILTER)
             result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
             N+=length
@@ -315,7 +315,7 @@ class MetadataUpdater:
 
     def record(self, n):
         if n >= self.nrecs:
-            raise ValueError('non-existent record %r' % n)
+            raise ValueError(f'non-existent record {n!r}')
         offoff = 78 + (8 * n)
         start, = unpack('>I', self.data[offoff + 0:offoff + 4])
         stop = None
@@ -333,7 +333,7 @@ class MetadataUpdater:
 
         if self.type != b'BOOKMOBI':
             raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
-                            "\tThis is a %r file of type %r" % (self.type[0:4], self.type[4:8]))
+                            f"\tThis is a {self.type[0:4]!r} file of type {self.type[4:8]!r}")
 
         recs = []
         added_501 = False
@@ -406,7 +406,7 @@ class MetadataUpdater:
         # Add a 112 record with actual UUID
         if getattr(mi, 'uuid', None):
             update_exth_record((112,
-                    ('calibre:%s' % mi.uuid).encode(self.codec, 'replace')))
+                    (f'calibre:{mi.uuid}').encode(self.codec, 'replace')))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 

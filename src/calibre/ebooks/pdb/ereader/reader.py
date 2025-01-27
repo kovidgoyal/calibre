@@ -22,7 +22,7 @@ class Reader(FormatReader):
         elif record0_size in (116, 202):
             self.reader = Reader202(header, stream, log, options)
         else:
-            raise EreaderError('Size mismatch. eReader header record size %s KB is not supported.' % record0_size)
+            raise EreaderError(f'Size mismatch. eReader header record size {record0_size} KB is not supported.')
 
     def extract_content(self, output_dir):
         return self.reader.extract_content(output_dir)

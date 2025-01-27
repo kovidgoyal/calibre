@@ -99,10 +99,9 @@ class ComicInput(InputFormatPlugin):
         comics = []
         with CurrentDir(tdir):
             if not os.path.exists('comics.txt'):
-                raise ValueError((
-                    '%s is not a valid comic collection'
+                raise ValueError(
+                    f'{stream.name} is not a valid comic collection'
                     ' no comics.txt was found in the file')
-                        %stream.name)
             with open('comics.txt', 'rb') as f:
                 raw = f.read()
             if raw.startswith(codecs.BOM_UTF16_BE):
@@ -125,7 +124,7 @@ class ComicInput(InputFormatPlugin):
                 if os.access(fname, os.R_OK):
                     comics.append([title, fname])
         if not comics:
-            raise ValueError('%s has no comics'%stream.name)
+            raise ValueError(f'{stream.name} has no comics')
         return comics
 
     def get_pages(self, comic, tdir2):
@@ -135,12 +134,11 @@ class ComicInput(InputFormatPlugin):
                 verbose=self.opts.verbose)
         thumbnail = None
         if not new_pages:
-            raise ValueError('Could not find any pages in the comic: %s'
-                    %comic)
+            raise ValueError(f'Could not find any pages in the comic: {comic}')
         if self.opts.no_process:
             n2 = []
             for i, page in enumerate(new_pages):
-                n2.append(os.path.join(tdir2, '{} - {}' .format(i, os.path.basename(page))))
+                n2.append(os.path.join(tdir2, f'{i} - {os.path.basename(page)}'))
                 shutil.copyfile(page, n2[-1])
             new_pages = n2
         else:
@@ -152,8 +150,7 @@ class ComicInput(InputFormatPlugin):
                 for f in failures:
                     self.log.warning('\t', f)
             if not new_pages:
-                raise ValueError('Could not find any valid pages in comic: %s'
-                        % comic)
+                raise ValueError(f'Could not find any valid pages in comic: {comic}')
             thumbnail = os.path.join(tdir2,
                     'thumbnail.'+self.opts.output_format.lower())
             if not os.access(thumbnail, os.R_OK):
@@ -193,7 +190,7 @@ class ComicInput(InputFormatPlugin):
                 comics.append((title, pages, wrappers))
 
         if not comics:
-            raise ValueError('No comic pages found in %s'%stream.name)
+            raise ValueError(f'No comic pages found in {stream.name}')
 
         mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
             [_('Unknown')])
@@ -299,8 +296,8 @@ class ComicInput(InputFormatPlugin):
 
         pages = '\n'.join(page(i, src) for i, src in enumerate(pages))
         base = os.path.dirname(pages[0])
-        wrapper = '''
-        <html xmlns="{}">
+        wrapper = f'''
+        <html xmlns="{XHTML_NS}">
             <head>
                 <meta charset="utf-8"/>
                 <style type="text/css">
@@ -317,10 +314,10 @@ class ComicInput(InputFormatPlugin):
                 </style>
             </head>
             <body>
-            {}
+            {pages}
             </body>
         </html>
-        '''.format(XHTML_NS, pages)
+        '''
         path = os.path.join(base, cdir, 'wrapper.xhtml')
         with open(path, 'wb') as f:
             f.write(wrapper.encode('utf-8'))

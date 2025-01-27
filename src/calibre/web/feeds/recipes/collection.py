@@ -114,7 +114,7 @@ def serialize_builtin_recipes():
             try:
                 recipe_class = compile_recipe(stream.read())
             except:
-                print('Failed to compile: %s'%f)
+                print(f'Failed to compile: {f}')
                 raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class
@@ -138,9 +138,9 @@ def get_custom_recipe_collection(*args):
                 recipe = f.read().decode('utf-8')
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
-                rmap['custom:%s'%id_] = recipe_class
+                rmap[f'custom:{id_}'] = recipe_class
         except:
-            print('Failed to load recipe from: %r'%fname)
+            print(f'Failed to load recipe from: {fname!r}')
             import traceback
             traceback.print_exc()
             continue
@@ -323,17 +323,17 @@ class SchedulerConfig:
 
     def iter_recipes(self):
         for x in self.root:
-            if x.tag == '{%s}scheduled_recipe'%NS:
+            if x.tag == f'{{{NS}}}scheduled_recipe':
                 yield x
 
     def iter_accounts(self):
         for x in self.root:
-            if x.tag == '{%s}account_info'%NS:
+            if x.tag == f'{{{NS}}}account_info':
                 yield x
 
     def iter_customization(self):
         for x in self.root:
-            if x.tag == '{%s}recipe_customization'%NS:
+            if x.tag == f'{{{NS}}}recipe_customization':
                 yield x
 
     def schedule_recipe(self, recipe, schedule_type, schedule, last_downloaded=None):
@@ -425,14 +425,14 @@ class SchedulerConfig:
         if typ == 'interval':
             if schedule < 0.04:
                 schedule = 0.04
-            text = '%f'%schedule
+            text = f'{schedule:f}'
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
             dw = ','.join(map(str, map(int, schedule[0])))
             text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
         else:
-            raise ValueError('Unknown schedule type: %r'%typ)
+            raise ValueError(f'Unknown schedule type: {typ!r}')
         s.text = text
         return s
 

@@ -356,7 +356,7 @@ class Serializer:
                 if child.tail:
                     self.anchor_offset = None
                     self.serialize_text(child.tail)
-        buf.write(('</%s>' % tag).encode('utf-8'))
+        buf.write((f'</{tag}>').encode('utf-8'))
 
     def serialize_text(self, text, quot=False):
         text = text.replace('&', '&amp;')
@@ -381,7 +381,7 @@ class Serializer:
             is_start = (href and href == start_href)
             # Iterate over all filepos items
             if href not in id_offsets:
-                self.logger.warn('Hyperlink target %r not found' % href)
+                self.logger.warn(f'Hyperlink target {href!r} not found')
                 # Link to the top of the document, better than just ignoring
                 href, _ = urldefrag(href)
             if href in self.id_offsets:

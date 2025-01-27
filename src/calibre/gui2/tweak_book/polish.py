@@ -125,7 +125,7 @@ def get_customization(action, name, parent):
 def format_report(title, report):
     from calibre.ebooks.markdown import markdown
     report = [force_unicode(line) for line in report]
-    return markdown('# %s\n\n'%force_unicode(title) + '\n\n'.join(report), output_format='html4')
+    return markdown(f'# {force_unicode(title)}\n\n' + '\n\n'.join(report), output_format='html4')
 
 
 def show_report(changed, title, report, parent, show_current_diff):

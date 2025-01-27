@@ -158,7 +158,7 @@ class CascadeTest(BaseTest):
                 for k, v in iteritems(font):
                     if k == 'src':
                         files[v] = b'xxx'
-                        v = 'url(%s)' % v
+                        v = f'url({v})'
                     styles.append(f'{k} : {v};')
                 styles.append('}\n')
             files['styles.css'] = embeds + '\n'.join(styles)

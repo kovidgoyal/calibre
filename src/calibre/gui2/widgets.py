@@ -952,13 +952,13 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
             r.append((a, b))
 
         a(re.compile(
-                '|'.join([r'\b%s\b' % keyword for keyword in cls.KEYWORDS])),
+                '|'.join([rf'\b{keyword}\b' for keyword in cls.KEYWORDS])),
                 'keyword')
         a(re.compile(
-                '|'.join([r'\b%s\b' % builtin for builtin in cls.BUILTINS])),
+                '|'.join([rf'\b{builtin}\b' for builtin in cls.BUILTINS])),
                 'builtin')
         a(re.compile(
-                '|'.join([r'\b%s\b' % constant
+                '|'.join([rf'\b{constant}\b'
                 for constant in cls.CONSTANTS])), 'constant')
         a(re.compile(
                 r'\b[+-]?[0-9]+[lL]?\b'

@@ -64,10 +64,7 @@ class SavedSearchesChanged(ChangeEvent):
         self.removed = frozenset(removed)
 
     def __repr__(self):
-        return '{}(added={}, removed={})'.format(
-            self.__class__.__name__,
-            sorted(map(str, self.added)), sorted(map(str, self.removed))
-        )
+        return f'{self.__class__.__name__}(added={sorted(map(str, self.added))}, removed={sorted(map(str, self.removed))})'
 
 
 books_added = BooksAdded

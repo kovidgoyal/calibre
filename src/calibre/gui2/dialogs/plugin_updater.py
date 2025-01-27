@@ -44,7 +44,7 @@ from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import itervalues
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
-INDEX_URL = '%splugins.json.bz2' % SERVER
+INDEX_URL = f'{SERVER}plugins.json.bz2'
 FILTER_ALL = 0
 FILTER_INSTALLED = 1
 FILTER_UPDATE_AVAILABLE = 2
@@ -752,7 +752,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             display_plugin.installed_version = display_plugin.available_version
         except:
             if DEBUG:
-                prints('ERROR occurred while installing plugin: %s'%display_plugin.name)
+                prints(f'ERROR occurred while installing plugin: {display_plugin.name}')
                 traceback.print_exc()
             error_dialog(self.gui, _('Install plugin failed'),
                          _('A problem occurred while installing this plugin.'
@@ -761,7 +761,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                            ' the forum thread for this plugin and restart calibre.'),
                          det_msg=traceback.format_exc(), show=True)
             if DEBUG:
-                prints('Due to error now uninstalling plugin: %s'%display_plugin.name)
+                prints(f'Due to error now uninstalling plugin: {display_plugin.name}')
             remove_plugin(display_plugin.name)
             display_plugin.plugin = None
 

@@ -220,7 +220,7 @@ class GetOptions:
                         )
                 return_options['valid'] = 0
             else:
-                return_options['out-file'] = '%s.xml' % the_file_name
+                return_options['out-file'] = f'{the_file_name}.xml'
         if not smart_output and not return_options['out-file']:
             # sys.stderr.write(
             #     'Please provide and file to output with the -o option.\n'

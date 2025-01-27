@@ -188,7 +188,7 @@ class Check(QSplitter):
             if col is not None:
                 loc += _(' column: %d') % col
             if loc:
-                loc = ' (%s)' % loc
+                loc = f' ({loc})'
             return loc
 
         if i is not None:
@@ -213,14 +213,13 @@ class Check(QSplitter):
                     activate.append('<a href="activate:item:%d" title="%s">%s %s</a>' % (
                         i, open_tt, name, loc_to_string(lnum, col)))
                 many = len(activate) > 2
-                activate = '<div>%s</div>' % ('<br>'.join(activate))
+                activate = '<div>{}</div>'.format('<br>'.join(activate))
                 if many:
                     activate += '<br>'
                 activate = activate.replace('%', '%%')
                 template = header + ((msg + activate) if many else (activate + msg)) + footer
             else:
-                activate = '<div><a href="activate:item" title="{}">{} {}</a></div>'.format(
-                       open_tt, err.name, loc)
+                activate = f'<div><a href="activate:item" title="{open_tt}">{err.name} {loc}</a></div>'
                 activate = activate.replace('%', '%%')
                 template = header + activate + msg + footer
             self.help.setText(

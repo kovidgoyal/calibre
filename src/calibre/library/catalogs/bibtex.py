@@ -166,20 +166,20 @@ class BIBTEX(CatalogPlugin):
                     pass
 
                 if field == 'authors':
-                    bibtex_entry.append('author = "%s"' % bibtexdict.bibtex_author_format(item))
+                    bibtex_entry.append(f'author = "{bibtexdict.bibtex_author_format(item)}"')
 
                 elif field == 'id':
-                    bibtex_entry.append('calibreid = "%s"' % int(item))
+                    bibtex_entry.append(f'calibreid = "{int(item)}"')
 
                 elif field == 'rating':
-                    bibtex_entry.append('rating = "%s"' % int(item))
+                    bibtex_entry.append(f'rating = "{int(item)}"')
 
                 elif field == 'size':
                     bibtex_entry.append(f'{field} = "{int(item)} octets"')
 
                 elif field == 'tags':
                     # A list to flatten
-                    bibtex_entry.append('tags = "%s"' % bibtexdict.utf8ToBibtex(', '.join(item)))
+                    bibtex_entry.append('tags = "{}"'.format(bibtexdict.utf8ToBibtex(', '.join(item))))
 
                 elif field == 'comments':
                     # \n removal
@@ -192,34 +192,33 @@ class BIBTEX(CatalogPlugin):
                         item = html2text(item)
                     except:
                         log.warn('Failed to convert comments to text')
-                    bibtex_entry.append('note = "%s"' % bibtexdict.utf8ToBibtex(item))
+                    bibtex_entry.append(f'note = "{bibtexdict.utf8ToBibtex(item)}"')
 
                 elif field == 'isbn':
                     # Could be 9, 10 or 13 digits
-                    bibtex_entry.append('isbn = "%s"' % format_isbn(item))
+                    bibtex_entry.append(f'isbn = "{format_isbn(item)}"')
 
                 elif field == 'formats':
                     # Add file path if format is selected
                     formats = [format.rpartition('.')[2].lower() for format in item]
-                    bibtex_entry.append('formats = "%s"' % ', '.join(formats))
+                    bibtex_entry.append('formats = "{}"'.format(', '.join(formats)))
                     if calibre_files:
                         files = [':{}:{}'.format(format, format.rpartition('.')[2].upper())
                             for format in item]
-                        bibtex_entry.append('file = "%s"' % ', '.join(files))
+                        bibtex_entry.append('file = "{}"'.format(', '.join(files)))
 
                 elif field == 'series_index':
-                    bibtex_entry.append('volume = "%s"' % int(item))
+                    bibtex_entry.append(f'volume = "{int(item)}"')
 
                 elif field == 'timestamp':
-                    bibtex_entry.append('timestamp = "%s"' % isoformat(item).partition('T')[0])
+                    bibtex_entry.append('timestamp = "{}"'.format(isoformat(item).partition('T')[0]))
 
                 elif field == 'pubdate':
-                    bibtex_entry.append('year = "%s"' % item.year)
-                    bibtex_entry.append('month = "%s"' % bibtexdict.utf8ToBibtex(strftime('%b', item)))
+                    bibtex_entry.append(f'year = "{item.year}"')
+                    bibtex_entry.append('month = "{}"'.format(bibtexdict.utf8ToBibtex(strftime('%b', item))))
 
                 elif field.startswith('#') and isinstance(item, string_or_bytes):
-                    bibtex_entry.append('custom_{} = "{}"'.format(field[1:],
-                        bibtexdict.utf8ToBibtex(item)))
+                    bibtex_entry.append(f'custom_{field[1:]} = "{bibtexdict.utf8ToBibtex(item)}"')
 
                 elif isinstance(item, string_or_bytes):
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
@@ -270,10 +269,10 @@ class BIBTEX(CatalogPlugin):
                     return tpl_citation
 
             if len(entry['isbn']) > 0:
-                template_citation = '%s' % re.sub(r'[\D]','', entry['isbn'])
+                template_citation = '{}'.format(re.sub(r'[\D]','', entry['isbn']))
 
             else:
-                template_citation = '%s' % str(entry['id'])
+                template_citation = '{}'.format(str(entry['id']))
 
             return bibtexclass.ValidateCitationKey(template_citation)
 
@@ -311,9 +310,9 @@ class BIBTEX(CatalogPlugin):
             opts_dict = vars(opts)
             log(f'{self.name}(): Generating {self.fmt}')
             if opts.connected_device['is_device_connected']:
-                log(' connected_device: %s' % opts.connected_device['name'])
+                log(' connected_device: {}'.format(opts.connected_device['name']))
             if opts_dict['search_text']:
-                log(" --search='%s'" % opts_dict['search_text'])
+                log(" --search='{}'".format(opts_dict['search_text']))
 
             if opts_dict['ids']:
                 log(' Book count: %d' % len(opts_dict['ids']))
@@ -322,9 +321,9 @@ class BIBTEX(CatalogPlugin):
 
             if opts_dict['fields']:
                 if opts_dict['fields'] == 'all':
-                    log(' Fields: %s' % ', '.join(FIELDS[1:]))
+                    log(' Fields: {}'.format(', '.join(FIELDS[1:])))
                 else:
-                    log(' Fields: %s' % opts_dict['fields'])
+                    log(' Fields: {}'.format(opts_dict['fields']))
 
             log(f' Output file will be encoded in {bibfile_enc} with {bibfile_enctag} flag')
 
@@ -337,13 +336,13 @@ class BIBTEX(CatalogPlugin):
         data = self.search_sort_db(db, opts)
 
         if not len(data):
-            log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
+            log.error(f"\nNo matching database entries for search criteria '{opts.search_text}'")
 
         # Get the requested output fields as a list
         fields = self.get_output_fields(db, opts)
 
         if not len(data):
-            log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
+            log.error(f"\nNo matching database entries for search criteria '{opts.search_text}'")
 
         # Initialize BibTeX class
         bibtexc = BibTeX()

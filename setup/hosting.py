@@ -56,16 +56,16 @@ class ReadFileWithProgressReporting:  # {{{
         eta = int((self._total - self.tell()) / bit_rate) + 1
         eta_m, eta_s = eta / 60, eta % 60
         sys.stdout.write(
-            '  {:.1f}%   {:.1f}/{:.1f}MB {:.1f} KB/sec    {} minutes, {} seconds left'
-            .format(frac * 100, mb_pos, mb_tot, kb_rate, eta_m, eta_s)
+            f'  {frac * 100:.1f}%   {mb_pos:.1f}/{mb_tot:.1f}MB {kb_rate:.1f} KB/sec    {eta_m} minutes, {eta_s} seconds left'
+
         )
         sys.stdout.write('\x1b[u')
         if self.tell() >= self._total:
             sys.stdout.write('\n')
             t = int(time.time() - self.start_time) + 1
             print(
-                'Upload took {} minutes and {} seconds at {:.1f} KB/sec'
-                .format(t/60, t % 60, kb_rate)
+                f'Upload took {t/60} minutes and {t % 60} seconds at {kb_rate:.1f} KB/sec'
+
             )
         sys.stdout.flush()
 

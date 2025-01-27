@@ -25,7 +25,7 @@ class Target(QTextBrowser):
         series = ''
         fm = field_metadata
         if mi.series:
-            series = _('{num} of {series}').format(num=mi.format_series_index(), series='<i>%s</i>' % mi.series)
+            series = _('{num} of {series}').format(num=mi.format_series_index(), series=f'<i>{mi.series}</i>')
         self.setHtml('''
 <h3 style="text-align:center">{mb}</h3>
 <p><b>{title}</b> - <i>{authors}</i><br></p>

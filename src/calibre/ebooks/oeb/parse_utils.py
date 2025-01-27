@@ -130,11 +130,11 @@ def clean_word_doc(data, log):
         # but can become renderable HTML tags like <p/> if the
         # document is parsed by an HTML parser
         pat = re.compile(
-                r'<(%s):([a-zA-Z0-9]+)[^>/]*?></\1:\2>'%('|'.join(prefixes)),
+                r'<({}):([a-zA-Z0-9]+)[^>/]*?></\1:\2>'.format('|'.join(prefixes)),
                 re.DOTALL)
         data = pat.sub('', data)
         pat = re.compile(
-                r'<(%s):([a-zA-Z0-9]+)[^>/]*?/>'%('|'.join(prefixes)))
+                r'<({}):([a-zA-Z0-9]+)[^>/]*?/>'.format('|'.join(prefixes)))
         data = pat.sub('', data)
     return data
 
@@ -197,7 +197,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     val = val[1:-1]
                 user_entities[match.group(1)] = val
             if user_entities:
-                pat = re.compile(r'&(%s);'%('|'.join(list(user_entities.keys()))))
+                pat = re.compile(r'&({});'.format('|'.join(list(user_entities.keys()))))
                 data = pat.sub(lambda m: user_entities[m.group(1)], data)
 
     if preprocessor is not None:
@@ -219,7 +219,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             data = safe_xml_fromstring(data, recover=False)
             check_for_html5(pre, data)
         except (HTML5Doc, etree.XMLSyntaxError):
-            log.debug('Parsing %s as HTML' % filename)
+            log.debug(f'Parsing {filename} as HTML')
             data = raw
             try:
                 data = html5_parse(data)
@@ -244,7 +244,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     if barename(data.tag) != 'html':
         if barename(data.tag) in non_html_file_tags:
             raise NotHTML(data.tag)
-        log.warn('File %r does not appear to be (X)HTML'%filename)
+        log.warn(f'File {filename!r} does not appear to be (X)HTML')
         nroot = safe_xml_fromstring('<html></html>')
         has_body = False
         for child in list(data):
@@ -253,7 +253,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                 break
         parent = nroot
         if not has_body:
-            log.warn('File %r appears to be a HTML fragment'%filename)
+            log.warn(f'File {filename!r} appears to be a HTML fragment')
             nroot = safe_xml_fromstring('<html><body/></html>')
             parent = nroot[0]
         for child in list(data.iter()):
@@ -277,8 +277,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             try:
                 data = safe_xml_fromstring(data, recover=False)
             except etree.XMLSyntaxError:
-                log.warn('Stripping comments from %s'%
-                        filename)
+                log.warn(f'Stripping comments from {filename}')
                 data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
                         data)
                 data = data.replace(
@@ -288,7 +287,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                 try:
                     data = safe_xml_fromstring(data)
                 except etree.XMLSyntaxError:
-                    log.warn('Stripping meta tags from %s'% filename)
+                    log.warn(f'Stripping meta tags from {filename}')
                     data = re.sub(r'<meta\s+[^>]+?>', '', data)
                     data = safe_xml_fromstring(data)
     elif namespace(data.tag) != XHTML_NS:
@@ -313,7 +312,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     head = xpath(data, '/h:html/h:head')
     head = head[0] if head else None
     if head is None:
-        log.warn('File %s missing <head/> element' % filename)
+        log.warn(f'File {filename} missing <head/> element')
         head = etree.Element(XHTML('head'))
         data.insert(0, head)
         title = etree.SubElement(head, XHTML('title'))
@@ -340,7 +339,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             body.getparent().remove(body)
             data.append(body)
         else:
-            log.warn('File %s missing <body/> element' % filename)
+            log.warn(f'File {filename} missing <body/> element')
             etree.SubElement(data, XHTML('body'))
 
     # Remove microsoft office markup

@@ -397,7 +397,7 @@ class ItemView(QStackedWidget):  # {{{
     def populate_item_pane(self):
         item = self.current_item
         name = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
-        self.item_pane.heading.setText('<h2>%s</h2>'%name)
+        self.item_pane.heading.setText(f'<h2>{name}</h2>')
         self.icon_label.setPixmap(item.data(0, Qt.ItemDataRole.DecorationRole
                                             ).pixmap(32, 32))
         tt = _('This entry points to an existing destination')
@@ -704,7 +704,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         def key(k):
             sc = str(QKeySequence(k | Qt.KeyboardModifier.ControlModifier).toString(QKeySequence.SequenceFormat.NativeText))
-            return ' [%s]'%sc
+            return f' [{sc}]'
 
         if item is not None:
             m = QMenu(self)

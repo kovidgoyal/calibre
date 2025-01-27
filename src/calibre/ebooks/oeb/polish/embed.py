@@ -39,14 +39,14 @@ def matching_rule(font, rules):
 def format_fallback_match_report(matched_font, font_family, css_font, report):
     msg = _('Could not find a font in the "%s" family exactly matching the CSS font specification,'
             ' will embed a fallback font instead. CSS font specification:') % font_family
-    msg += '\n\n* font-weight: %s' % css_font.get('font-weight', 'normal')
-    msg += '\n* font-style: %s' % css_font.get('font-style', 'normal')
-    msg += '\n* font-stretch: %s' % css_font.get('font-stretch', 'normal')
+    msg += '\n\n* font-weight: {}'.format(css_font.get('font-weight', 'normal'))
+    msg += '\n* font-style: {}'.format(css_font.get('font-style', 'normal'))
+    msg += '\n* font-stretch: {}'.format(css_font.get('font-stretch', 'normal'))
     msg += '\n\n' + _('Matched font specification:')
     msg += '\n' + matched_font['path']
-    msg += '\n\n* font-weight: %s' % matched_font.get('font-weight', 'normal').strip()
-    msg += '\n* font-style: %s' % matched_font.get('font-style', 'normal').strip()
-    msg += '\n* font-stretch: %s' % matched_font.get('font-stretch', 'normal').strip()
+    msg += '\n\n* font-weight: {}'.format(matched_font.get('font-weight', 'normal').strip())
+    msg += '\n* font-style: {}'.format(matched_font.get('font-style', 'normal').strip())
+    msg += '\n* font-stretch: {}'.format(matched_font.get('font-stretch', 'normal').strip())
     report(msg)
     report('')
 
@@ -147,13 +147,13 @@ def do_embed(container, font, report):
     fname = font['full_name']
     ext = 'otf' if font['is_otf'] else 'ttf'
     fname = ascii_filename(fname).replace(' ', '-').replace('(', '').replace(')', '')
-    item = container.generate_item('fonts/%s.%s'%(fname, ext), id_prefix='font')
+    item = container.generate_item(f'fonts/{fname}.{ext}', id_prefix='font')
     name = container.href_to_name(item.get('href'), container.opf_name)
     with container.open(name, 'wb') as out:
         out.write(data)
     href = container.name_to_href(name)
     rule = {k:font.get(k, v) for k, v in iteritems(props)}
-    rule['src'] = 'url(%s)' % href
+    rule['src'] = f'url({href})'
     rule['name'] = name
     return rule
 
@@ -187,7 +187,7 @@ def embed_font(container, font, all_font_rules, report, warned):
         name = rule['src']
         href = container.name_to_href(name)
         rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in iteritems(props)}
-        rule['src'] = 'url(%s)' % href
+        rule['src'] = f'url({href})'
         rule['name'] = name
         return rule
 
@@ -237,9 +237,9 @@ def embed_all_fonts(container, stats, report):
 
     # Write out CSS
     rules = [';\n\t'.join('{}: {}'.format(
-        k, '"%s"' % v if k == 'font-family' else v) for k, v in iteritems(rulel) if (k in props and props[k] != v and v != '400') or k == 'src')
+        k, f'"{v}"' if k == 'font-family' else v) for k, v in iteritems(rulel) if (k in props and props[k] != v and v != '400') or k == 'src')
         for rulel in rules]
-    css = '\n\n'.join(['@font-face {\n\t%s\n}' % r for r in rules])
+    css = '\n\n'.join([f'@font-face {{\n\t{r}\n}}' for r in rules])
     item = container.generate_item('fonts.css', id_prefix='font_embed')
     name = container.href_to_name(item.get('href'), container.opf_name)
     with container.open(name, 'wb') as out:

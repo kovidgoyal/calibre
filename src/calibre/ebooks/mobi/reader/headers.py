@@ -320,7 +320,7 @@ class MetadataHeader(BookHeader):
         self.stream.seek(60)
         ident = self.stream.read(8).upper()
         if ident not in (b'BOOKMOBI', b'TEXTREAD'):
-            raise MobiError('Unknown book type: %s' % ident)
+            raise MobiError(f'Unknown book type: {ident}')
         return ident
 
     def section_count(self):

@@ -118,7 +118,7 @@ PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
 
 def html_to_lxml(raw):
-    raw = '<div>%s</div>'%raw
+    raw = f'<div>{raw}</div>'
     root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
     root = next(root.iterdescendants('div'))
     root.set('xmlns', 'http://www.w3.org/1999/xhtml')
@@ -159,7 +159,7 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
     else:
         name = item.name
     return E.entry(
-            TITLE(name + ('' if not add_kind else ' (%s)'%item_kind)),
+            TITLE(name + ('' if not add_kind else f' ({item_kind})')),
             ID(id_),
             UPDATED(updated),
             E.content(count, type='text'),
@@ -199,15 +199,14 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
             fm = field_metadata[key]
             datatype = fm['datatype']
             if datatype == 'text' and fm['is_multiple']:
-                extra.append('%s: %s<br />'%
-                             (xml(name),
+                extra.append('{}: {}<br />'.format(xml(name),
                               xml(format_tag_string(val,
                                     fm['is_multiple']['ui_to_list'],
                                     joinval=fm['is_multiple']['list_to_ui']))))
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
-                extra.append('%s: %s<br />'%(xml(name), comments_to_html(str(val))))
+                extra.append(f'{xml(name)}: {comments_to_html(str(val))}<br />')
             else:
-                extra.append('%s: %s<br />'%(xml(name), xml(str(val))))
+                extra.append(f'{xml(name)}: {xml(str(val))}<br />')
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
@@ -216,7 +215,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
     ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(mi.last_modified),
                   E.published(mi.timestamp.isoformat()))
     if mi.pubdate and not is_date_undefined(mi.pubdate):
-        ans.append(ans.makeelement('{%s}date' % DC_NS))
+        ans.append(ans.makeelement(f'{{{DC_NS}}}date'))
         ans[-1].text = mi.pubdate.isoformat()
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
@@ -424,7 +423,7 @@ def get_all_books(rc, which, page_url, up_url, offset=0):
 def get_navcatalog(request_context, which, page_url, up_url, offset=0):
     categories = request_context.get_categories()
     if which not in categories:
-        raise HTTPNotFound('Category %r not found'%which)
+        raise HTTPNotFound(f'Category {which!r} not found')
 
     items = categories[which]
     updated = request_context.last_modified()
@@ -551,17 +550,17 @@ def opds_category(ctx, rd, category, which):
         except Exception:
             # Might be a composite column, where we have the lookup key
             if not (category in rc.db.field_metadata and rc.db.field_metadata[category]['datatype'] == 'composite'):
-                raise HTTPNotFound('Tag %r not found'%which)
+                raise HTTPNotFound(f'Tag {which!r} not found')
 
     categories = rc.get_categories()
     if category not in categories:
-        raise HTTPNotFound('Category %r not found'%which)
+        raise HTTPNotFound(f'Category {which!r} not found')
 
     if category == 'search':
         try:
-            ids = rc.search('search:"%s"'%which)
+            ids = rc.search(f'search:"{which}"')
         except Exception:
-            raise HTTPNotFound('Search: %r not understood'%which)
+            raise HTTPNotFound(f'Search: {which!r} not understood')
         return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-search:'+which)
 
     if type_ != 'I':
@@ -592,7 +591,7 @@ def opds_categorygroup(ctx, rd, category, which):
 
     category = from_hex_unicode(category)
     if category not in categories:
-        raise HTTPNotFound('Category %r not found'%which)
+        raise HTTPNotFound(f'Category {which!r} not found')
     category_meta = rc.db.field_metadata
     meta = category_meta.get(category, {})
     category_name = meta.get('name', which)
@@ -606,7 +605,7 @@ def opds_categorygroup(ctx, rd, category, which):
         return getattr(x, 'sort', x.name).lower().startswith(which.lower())
     items = [x for x in items if belongs(x, which)]
     if not items:
-        raise HTTPNotFound('No items in group %r:%r'%(category, which))
+        raise HTTPNotFound(f'No items in group {category!r}:{which!r}')
     updated = rc.last_modified()
 
     id_ = 'calibre-category-group-feed:'+category+':'+which
@@ -636,6 +635,6 @@ def opds_search(ctx, rd, query):
     try:
         ids = rc.search(query)
     except Exception:
-        raise HTTPNotFound('Search: %r not understood'%query)
+        raise HTTPNotFound(f'Search: {query!r} not understood')
     page_url = rc.url_for('/opds/search', query=query)
     return get_acquisition_feed(rc, ids, offset, page_url, rc.url_for('/opds'), 'calibre-search:'+query)

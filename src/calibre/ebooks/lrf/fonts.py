@@ -27,6 +27,6 @@ def get_font(name, size, encoding='unic'):
     '''
     from calibre.utils.resources import get_path as P
     if name in LIBERATION_FONT_MAP:
-        return ImageFont.truetype(P('fonts/liberation/%s.ttf' % LIBERATION_FONT_MAP[name]), size, encoding=encoding)
+        return ImageFont.truetype(P(f'fonts/liberation/{LIBERATION_FONT_MAP[name]}.ttf'), size, encoding=encoding)
     elif name in FONT_FILE_MAP:
         return ImageFont.truetype(FONT_FILE_MAP[name], size, encoding=encoding)

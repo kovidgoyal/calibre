@@ -27,7 +27,7 @@ for name, src in sources.items():
     try:
         for sz in (16, 32, 128, 256, 512, 1024):
             iname = f'icon_{sz}x{sz}.png'
-            iname2x = 'icon_{0}x{0}@2x.png'.format(sz // 2)
+            iname2x = f'icon_{sz // 2}x{sz // 2}@2x.png'
             if src.endswith('.svg'):
                 subprocess.check_call(['rsvg-convert', src, '-w', str(sz), '-h', str(sz), '-o', iname])
             else:

@@ -48,7 +48,7 @@ class BaseTest(unittest.TestCase):
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
         if LibraryDatabase2.exists_at(library_path):
-            raise ValueError('A library already exists at %r'%library_path)
+            raise ValueError(f'A library already exists at {library_path!r}')
         src = os.path.join(os.path.dirname(__file__), 'metadata.db')
         dest = os.path.join(library_path, 'metadata.db')
         shutil.copyfile(src, dest)
@@ -114,8 +114,8 @@ class BaseTest(unittest.TestCase):
             if isinstance(attr1, (tuple, list)) and 'authors' not in attr and 'languages' not in attr:
                 attr1, attr2 = set(attr1), set(attr2)
             self.assertEqual(attr1, attr2,
-                    '%s not the same: %r != %r'%(attr, attr1, attr2))
+                    f'{attr} not the same: {attr1!r} != {attr2!r}')
             if attr.startswith('#') and attr + '_index' not in exclude:
                 attr1, attr2 = mi1.get_extra(attr), mi2.get_extra(attr)
                 self.assertEqual(attr1, attr2,
-                    '%s {#extra} not the same: %r != %r'%(attr, attr1, attr2))
+                    f'{attr} {{#extra}} not the same: {attr1!r} != {attr2!r}')

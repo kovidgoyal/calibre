@@ -127,7 +127,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                 span[-1].tail = '\xa0'
 
     # Move <hr>s outside paragraphs, if possible.
-    pancestor = XPath('|'.join('ancestor::%s[1]' % x for x in ('p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')))
+    pancestor = XPath('|'.join(f'ancestor::{x}[1]' for x in ('p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')))
     for hr in root.xpath('//span/hr'):
         p = pancestor(hr)
         if p:
@@ -156,7 +156,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
     # Process dir attributes
     class_map = dict(itervalues(styles.classes))
     parents = ('p', 'div') + tuple('h%d' % i for i in range(1, 7))
-    for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
+    for parent in root.xpath('//*[({})]'.format(' or '.join(f'name()="{t}"' for t in parents))):
         # Ensure that children of rtl parents that are not rtl have an
         # explicit dir set. Also, remove dir from children if it is the same as
         # that of the parent.
@@ -172,7 +172,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
 
     # Remove unnecessary span tags that are the only child of a parent block
     # element
-    for parent in root.xpath('//*[(%s) and count(span)=1]' % ' or '.join('name()="%s"' % t for t in parents)):
+    for parent in root.xpath('//*[({}) and count(span)=1]'.format(' or '.join(f'name()="{t}"' for t in parents))):
         if len(parent) == 1 and not parent.text and not parent[0].tail and not parent[0].get('id', None):
             # We have a block whose contents are entirely enclosed in a <span>
             span = parent[0]

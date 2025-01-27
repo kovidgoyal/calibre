@@ -119,7 +119,7 @@ def decompress(stream):
     txt = []
     stream.seek(0)
     if stream.read(9) != b'!!8-Bit!!':
-        raise ValueError('File %s contains an invalid TCR header.' % stream.name)
+        raise ValueError(f'File {stream.name} contains an invalid TCR header.')
 
     # Codes that the file contents are broken down into.
     entries = []

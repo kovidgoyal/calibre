@@ -127,9 +127,8 @@ class IndexEntry:
         self.desc_offset = None
 
     def __repr__(self):
-        return ('IndexEntry(offset=%r, depth=%r, length=%r, index=%r,'
-                ' parent_index=%r)')%(self.offset, self.depth, self.length,
-                        self.index, self.parent_index)
+        return (f'IndexEntry(offset={self.offset!r}, depth={self.depth!r}, length={self.length!r}, index={self.index!r},'
+                f' parent_index={self.parent_index!r})')
 
     @property
     def size(self):
@@ -638,8 +637,7 @@ class Indexer:  # {{{
                 offset = id_offsets[node.href]
                 label = self.cncx[node.title]
             except:
-                self.log.warn('TOC item %s [%s] not found in document'%(
-                    node.title, node.href))
+                self.log.warn(f'TOC item {node.title} [{node.href}] not found in document')
                 continue
 
             if offset in seen:

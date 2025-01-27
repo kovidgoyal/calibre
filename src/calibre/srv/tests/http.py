@@ -323,7 +323,7 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, http_client.OK), self.ae(r.read(), b'an_etagged_path')
             etag = r.getheader('ETag')
-            self.ae(etag, '"%s"' % hashlib.sha1(b'an_etagged_path').hexdigest())
+            self.ae(etag, '"{}"'.format(hashlib.sha1(b'an_etagged_path').hexdigest()))
             conn.request('GET', '/an_etagged_path', headers={'If-None-Match':etag})
             r = conn.getresponse()
             self.ae(r.status, http_client.NOT_MODIFIED)

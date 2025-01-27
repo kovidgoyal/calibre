@@ -43,7 +43,7 @@ class NumberToText:  # {{{
 
         # Build the hundreds component
         if hundredsComponent:
-            hundredsComponentString = '%s hundred' % self.hundreds[hundredsComponent//100]
+            hundredsComponentString = f'{self.hundreds[hundredsComponent//100]} hundred'
         else:
             hundredsComponentString = ''
 
@@ -61,7 +61,7 @@ class NumberToText:  # {{{
             if intToTranslate % 10:
                 tensComponentString = f'{tensPart}-{onesPart}'
             else:
-                tensComponentString = '%s' % tensPart
+                tensComponentString = f'{tensPart}'
 
         # Concatenate the results
         result = ''
@@ -84,7 +84,7 @@ class NumberToText:  # {{{
         self.suffix = ''
 
         if self.verbose:
-            self.log('numberTranslate(): %s' % self.number)
+            self.log(f'numberTranslate(): {self.number}')
 
         # Special case ordinals
         if re.search(r'[st|nd|rd|th]',self.number):
@@ -92,19 +92,19 @@ class NumberToText:  # {{{
             ordinal_suffix = re.search(r'[\D]', self.number)
             ordinal_number = re.sub(r'\D','',self.number.replace(',', ''))
             if self.verbose:
-                self.log('Ordinal: %s' % ordinal_number)
+                self.log(f'Ordinal: {ordinal_number}')
             self.number_as_float = ordinal_number
             self.suffix = self.number[ordinal_suffix.start():]
             if int(ordinal_number) > 9:
                 # Some typos (e.g., 'twentyth'), acceptable
-                self.text = '%s' % (NumberToText(ordinal_number).text)
+                self.text = f'{NumberToText(ordinal_number).text}'
             else:
-                self.text = '%s' % (self.ORDINALS[int(ordinal_number)])
+                self.text = f'{self.ORDINALS[int(ordinal_number)]}'
 
         # Test for time
         elif ':' in self.number:
             if self.verbose:
-                self.log('Time: %s' % self.number)
+                self.log(f'Time: {self.number}')
             self.number_as_float = self.number.replace(':', '.')
             time_strings = self.number.split(':')
             hours = NumberToText(time_strings[0]).text
@@ -114,14 +114,14 @@ class NumberToText:  # {{{
         # Test for %
         elif '%' in self.number:
             if self.verbose:
-                self.log('Percent: %s' % self.number)
+                self.log(f'Percent: {self.number}')
             self.number_as_float = self.number.split('%')[0]
             self.text = NumberToText(self.number.replace('%',' percent')).text
 
         # Test for decimal
         elif '.' in self.number:
             if self.verbose:
-                self.log('Decimal: %s' % self.number)
+                self.log(f'Decimal: {self.number}')
             self.number_as_float = self.number
             decimal_strings = self.number.split('.')
             left = NumberToText(decimal_strings[0]).text
@@ -131,7 +131,7 @@ class NumberToText:  # {{{
         # Test for hyphenated
         elif '-' in self.number:
             if self.verbose:
-                self.log('Hyphenated: %s' % self.number)
+                self.log(f'Hyphenated: {self.number}')
             self.number_as_float = self.number.split('-')[0]
             strings = self.number.split('-')
             if re.search(r'[0-9]+', strings[0]):
@@ -145,14 +145,14 @@ class NumberToText:  # {{{
         # Test for only commas and numbers
         elif ',' in self.number and not re.search(r'[^0-9,]',self.number):
             if self.verbose:
-                self.log('Comma(s): %s' % self.number)
+                self.log(f'Comma(s): {self.number}')
             self.number_as_float = self.number.replace(',', '')
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'
         elif re.search(r'[\D]+', self.number):
             if self.verbose:
-                self.log('Hybrid: %s' % self.number)
+                self.log(f'Hybrid: {self.number}')
             # Split the token into number/text
             number_position = re.search(r'\d',self.number).start()
             text_position = re.search(r'\D',self.number).start()
@@ -167,7 +167,7 @@ class NumberToText:  # {{{
 
         else:
             if self.verbose:
-                self.log('Clean: %s' % self.number)
+                self.log(f'Clean: {self.number}')
             try:
                 self.float_as_number = float(self.number)
                 number = int(self.number)
@@ -195,8 +195,7 @@ class NumberToText:  # {{{
                 # Convert thousandsNumber
                 if thousandsNumber:
                     if number > 1099 and number < 2000:
-                        resultString = '{} {}'.format(self.lessThanTwenty[number//100],
-                                                    self.stringFromInt(number % 100))
+                        resultString = f'{self.lessThanTwenty[number//100]} {self.stringFromInt(number % 100)}'
                         self.text = resultString.strip().capitalize()
                         return
                     else:
@@ -209,18 +208,18 @@ class NumberToText:  # {{{
                 # Concatenate the strings
                 resultString = ''
                 if millionsNumber:
-                    resultString += '%s million ' % millionsString
+                    resultString += f'{millionsString} million '
 
                 if thousandsNumber:
-                    resultString += '%s thousand ' % thousandsString
+                    resultString += f'{thousandsString} thousand '
 
                 if hundredsNumber:
-                    resultString += '%s' % hundredsString
+                    resultString += f'{hundredsString}'
 
                 if not millionsNumber and not thousandsNumber and not hundredsNumber:
                     resultString = 'zero'
 
                 if self.verbose:
-                    self.log('resultString: %s' % resultString)
+                    self.log(f'resultString: {resultString}')
                 self.text = resultString.strip().capitalize()
 # }}}

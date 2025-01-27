@@ -65,19 +65,16 @@ class WritingTest(BaseTest):
                 if test.name.endswith('_index'):
                     val = float(val) if val is not None else 1.0
                     self.assertEqual(sqlite_res, val,
-                        'Failed setting for %s with value %r, sqlite value not the same. val: %r != sqlite_val: %r'%(
-                            test.name, val, val, sqlite_res))
+                        f'Failed setting for {test.name} with value {val!r}, sqlite value not the same. val: {val!r} != sqlite_val: {sqlite_res!r}')
                 else:
                     test.setter(db)(1, val)
                     old_cached_res = getter(1)
                     self.assertEqual(old_cached_res, cached_res,
-                                    'Failed setting for %s with value %r, cached value not the same. Old: %r != New: %r'%(
-                            test.name, val, old_cached_res, cached_res))
+                                    f'Failed setting for {test.name} with value {val!r}, cached value not the same. Old: {old_cached_res!r} != New: {cached_res!r}')
                     db.refresh()
                     old_sqlite_res = getter(1)
                     self.assertEqual(old_sqlite_res, sqlite_res,
-                        'Failed setting for %s, sqlite value not the same: %r != %r'%(
-                            test.name, old_sqlite_res, sqlite_res))
+                        f'Failed setting for {test.name}, sqlite value not the same: {old_sqlite_res!r} != {sqlite_res!r}')
                 del db
     # }}}
 
@@ -755,7 +752,7 @@ class WritingTest(BaseTest):
             self.assertEqual(ldata, {aid:d['link'] for aid, d in iteritems(c.author_data())})
         self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
                          'Setting the author link to the same value as before, incorrectly marked some books as dirty')
-        sdata = {aid:'%s, changed' % aid for aid in adata}
+        sdata = {aid:f'{aid}, changed' for aid in adata}
         self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
         for bid in (1, 2, 3):
             self.assertIn(', changed', cache.field_for('author_sort', bid))

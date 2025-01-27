@@ -23,7 +23,7 @@ class CHMInput(InputFormatPlugin):
         from calibre.ebooks.chm.reader import CHMReader
         log.debug('Opening CHM file')
         rdr = CHMReader(chm_path, log, input_encoding=self.opts.input_encoding)
-        log.debug('Extracting CHM to %s' % output_dir)
+        log.debug(f'Extracting CHM to {output_dir}')
         rdr.extract_content(output_dir, debug_dump=debug_dump)
         self._chm_reader = rdr
         return rdr.hhc_path
@@ -46,8 +46,8 @@ class CHMInput(InputFormatPlugin):
 
             # closing stream so CHM can be opened by external library
             stream.close()
-            log.debug('tdir=%s' % tdir)
-            log.debug('stream.name=%s' % stream.name)
+            log.debug(f'tdir={tdir}')
+            log.debug(f'stream.name={stream.name}')
             debug_dump = False
             odi = options.debug_pipeline
             if odi:

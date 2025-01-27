@@ -64,7 +64,7 @@ class Family:
 
         self.embedded = {}
         for x in ('Regular', 'Bold', 'Italic', 'BoldItalic'):
-            for y in XPath('./w:embed%s[@r:id]' % x)(elem):
+            for y in XPath(f'./w:embed{x}[@r:id]')(elem):
                 rid = get(y, 'r:id')
                 key = get(y, 'w:fontKey')
                 subsetted = get(y, 'w:subsetted') in {'1', 'true', 'on'}
@@ -166,14 +166,14 @@ class Fonts:
                     os.mkdir(dest_dir)
                 fname = self.write(name, dest_dir, docx, variant)
                 if fname is not None:
-                    d = {'font-family':'"%s"' % name.replace('"', ''), 'src': 'url("fonts/%s")' % fname}
+                    d = {'font-family':'"{}"'.format(name.replace('"', '')), 'src': f'url("fonts/{fname}")'}
                     if 'Bold' in variant:
                         d['font-weight'] = 'bold'
                     if 'Italic' in variant:
                         d['font-style'] = 'italic'
                     d = [f'{k}: {v}' for k, v in iteritems(d)]
                     d = ';\n\t'.join(d)
-                    defs.append('@font-face {\n\t%s\n}\n' % d)
+                    defs.append(f'@font-face {{\n\t{d}\n}}\n')
         return '\n'.join(defs)
 
     def write(self, name, dest_dir, docx, variant):

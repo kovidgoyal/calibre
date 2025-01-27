@@ -165,10 +165,10 @@ class ReadingTest(BaseTest):
             x = list(reversed(order))
             ae(order, cache.multisort([(field, True)],
                 ids_to_sort=x),
-                    'Ascending sort of %s failed'%field)
+                    f'Ascending sort of {field} failed')
             ae(x, cache.multisort([(field, False)],
                 ids_to_sort=order),
-                    'Descending sort of %s failed'%field)
+                    f'Descending sort of {field} failed')
 
         # Test sorting of is_multiple fields.
 
@@ -337,8 +337,7 @@ class ReadingTest(BaseTest):
         for query, ans in iteritems(oldvals):
             nr = cache.search(query, '')
             self.assertEqual(ans, nr,
-                'Old result: %r != New result: %r for search: %s'%(
-                    ans, nr, query))
+                f'Old result: {ans!r} != New result: {nr!r} for search: {query}')
 
         # Test searching by id, which was introduced in the new backend
         self.assertEqual(cache.search('id:1', ''), {1})
@@ -414,13 +413,12 @@ class ReadingTest(BaseTest):
                 ):
                     continue
                 self.assertEqual(oval, nval,
-                    'The attribute %s for %s in category %s does not match. Old is %r, New is %r'
-                                %(attr, old.name, category, oval, nval))
+                    f'The attribute {attr} for {old.name} in category {category} does not match. Old is {oval!r}, New is {nval!r}')
 
         for category in old_categories:
             old, new = old_categories[category], new_categories[category]
             self.assertEqual(len(old), len(new),
-                'The number of items in the category %s is not the same'%category)
+                f'The number of items in the category {category} is not the same')
             for o, n in zip(old, new):
                 compare_category(category, o, n)
 
@@ -595,7 +593,7 @@ class ReadingTest(BaseTest):
         test(True, {3}, 'Unknown')
         c.limit = 5
         for i in range(6):
-            test(False, set(), 'nomatch_%s' % i)
+            test(False, set(), f'nomatch_{i}')
         test(False, {3}, 'Unknown')  # cached search expired
         test(False, {3}, '', 'unknown', num=1)
         test(True, {3}, '', 'unknown', num=1)
@@ -638,7 +636,7 @@ class ReadingTest(BaseTest):
                     v = pmi.get_standard_metadata(field)
                     self.assertTrue(v is None or isinstance(v, dict))
                     self.assertEqual(f(mi.get_standard_metadata(field, False)), f(v),
-                                     'get_standard_metadata() failed for field %s' % field)
+                                     f'get_standard_metadata() failed for field {field}')
             for field, meta in cache.field_metadata.custom_iteritems():
                 if meta['datatype'] != 'composite':
                     self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),

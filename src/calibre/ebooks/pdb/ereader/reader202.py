@@ -98,8 +98,7 @@ class Reader202(FormatReader):
         if not isinstance(title, str):
             title = title.decode('utf-8', 'replace')
 
-        html = '<html><head><title>%s</title></head><body>%s</body></html>' % \
-            (title, pml_to_html(pml))
+        html = f'<html><head><title>{title}</title></head><body>{pml_to_html(pml)}</body></html>'
 
         with CurrentDir(output_dir):
             with open('index.html', 'wb') as index:
@@ -116,7 +115,7 @@ class Reader202(FormatReader):
                     name = as_unicode(name)
                     images.append(name)
                     with open(name, 'wb') as imgf:
-                        self.log.debug('Writing image %s to images/' % name)
+                        self.log.debug(f'Writing image {name} to images/')
                         imgf.write(img)
 
         opf_path = self.create_opf(output_dir, images)

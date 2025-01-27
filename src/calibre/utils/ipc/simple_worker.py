@@ -126,7 +126,7 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
     with a:
         env.update({
             'CALIBRE_WORKER_FD': str(a.fileno()),
-            'CALIBRE_SIMPLE_WORKER': environ_item('calibre.utils.ipc.simple_worker:%s' % func),
+            'CALIBRE_SIMPLE_WORKER': environ_item(f'calibre.utils.ipc.simple_worker:{func}'),
         })
 
         w = Worker(env)

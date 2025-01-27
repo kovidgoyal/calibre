@@ -182,7 +182,7 @@ class TestDeviceInteraction(unittest.TestCase):
         return end_mem - start_mem
 
     def check_memory(self, once, many, msg, factor=2):
-        msg += ' for once: %g for many: %g'%(once, many)
+        msg += f' for once: {once:g} for many: {many:g}'
         if once > 0:
             self.assertTrue(many <= once*factor, msg=msg)
         else:

@@ -402,8 +402,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return
             total_elapsed = time.time() - self.debug_start_time
             elapsed = time.time() - self.debug_time
-            print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
-                                                   inspect.stack()[1][3]), end='')
+            print(f'SMART_DEV ({total_elapsed:7.2f}:{elapsed:7.3f}) {inspect.stack()[1][3]}', end='')
             for a in args:
                 try:
                     if isinstance(a, dict):
@@ -712,7 +711,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                           wait_for_response=self.can_send_ok_to_sendbook)
         if self.can_send_ok_to_sendbook:
             if opcode == 'ERROR':
-                raise UserFeedback(msg='Sending book %s to device failed' % lpath,
+                raise UserFeedback(msg=f'Sending book {lpath} to device failed',
                                    details=result.get('message', ''),
                                    level=UserFeedback.ERROR)
                 return
@@ -1493,7 +1492,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             book = SDBook(self.PREFIX, lpath, other=mdata)
             length, lpath = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
-                raise ControlError(desc='Sending book %s to device failed' % lpath)
+                raise ControlError(desc=f'Sending book {lpath} to device failed')
             paths.append((lpath, length))
             # No need to deal with covers. The client will get the thumbnails
             # in the mi structure

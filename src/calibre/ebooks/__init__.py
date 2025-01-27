@@ -245,7 +245,7 @@ def escape_xpath_attr(value):
                 if x:
                     q = "'" if '"' in x else '"'
                     ans.append(q + x + q)
-            return 'concat(%s)' % ', '.join(ans)
+            return 'concat({})'.format(', '.join(ans))
         else:
-            return "'%s'" % value
-    return '"%s"' % value
+            return f"'{value}'"
+    return f'"{value}"'

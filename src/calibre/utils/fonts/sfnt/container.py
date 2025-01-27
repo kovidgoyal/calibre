@@ -46,7 +46,7 @@ class Sfnt:
             self.sfnt_version = raw[:4]
             if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true',
                     b'type1'}:
-                raise UnsupportedFont('Font has unknown sfnt version: %r'%self.sfnt_version)
+                raise UnsupportedFont(f'Font has unknown sfnt version: {self.sfnt_version!r}')
             for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
                 self.tables[table_tag] = self.TABLE_MAP.get(
                     table_tag, UnknownTable)(table)

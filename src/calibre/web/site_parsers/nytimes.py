@@ -243,9 +243,9 @@ def add_live_item(item, item_type, lines):
             for section in b['sections']:
                 add_live_item({'value': section['section']}, 'section', lines)
             return
-        raise Exception('Unknown item: %s' % b)
+        raise Exception(f'Unknown item: {b}')
     else:
-        raise Exception('Unknown item: %s' % b)
+        raise Exception(f'Unknown item: {b}')
 
 
 def live_json_to_html(data):

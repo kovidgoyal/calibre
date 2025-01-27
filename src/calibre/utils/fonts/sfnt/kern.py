@@ -25,7 +25,7 @@ class KernTable(UnknownTable):
 
     def restrict_to_glyphs(self, glyph_ids):
         if self._version not in {0, 0x10000}:
-            raise UnsupportedFont('kern table has version: %x'%self._version)
+            raise UnsupportedFont(f'kern table has version: {self._version:x}')
         offset = 4 if (self._version == 0) else 8
         tables = []
         for i in range(self.num_tables):

@@ -118,7 +118,7 @@ class RTFMLizer:
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
                 output += r'{\page }'
         for item in self.oeb_book.spine:
-            self.log.debug('Converting %s to RTF markup...' % item.href)
+            self.log.debug(f'Converting {item.href} to RTF markup...')
             # Removing comments is needed as comments with -- inside them can
             # cause fromstring() to fail
             content = re.sub(r'<!--.*?-->', '', etree.tostring(item.data, encoding='unicode'), flags=re.DOTALL)
@@ -150,8 +150,7 @@ class RTFMLizer:
         return text
 
     def header(self):
-        header = '{{\\rtf1{{\\info{{\\title {}}}{{\\author {}}}}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n'.format(
-            self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
+        header = f'{{\\rtf1{{\\info{{\\title {self.oeb_book.metadata.title[0].value}}}{{\\author {authors_to_string([x.value for x in self.oeb_book.metadata.creator])}}}}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n'
         return header + (
             '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f2\\fswiss\\fprq2\\fcharset128 Arial;}{\\f3\\fnil\\fprq2\\fcharset128 Arial;}{\\f4\\fnil\\fprq2\\fcharset128 MS Mincho;}{\\f5\\fnil\\fprq2\\fcharset128 Tahoma;}{\\f6\\fnil\\fprq0\\fcharset128 Tahoma;}}\n'  # noqa: E501
             '{\\stylesheet{\\ql \\li0\\ri0\\nowidctlpar\\wrapdefault\\faauto\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\af25\\afs24\\alang1033 \\ltrch\\fcs0 \\fs24\\lang1033\\langfe255\\cgrid\\langnp1033\\langfenp255 \\snext0 Normal;}\n'  # noqa: E501
@@ -175,11 +174,11 @@ class RTFMLizer:
                 try:
                     data, width, height = self.image_to_hexstring(item.data)
                 except Exception:
-                    self.log.exception('Image %s is corrupted, ignoring'%item.href)
+                    self.log.exception(f'Image {item.href} is corrupted, ignoring')
                     repl = '\n\n'
                 else:
                     repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)
-                text = text.replace('SPECIAL_IMAGE-%s-REPLACE_ME' % src, repl)
+                text = text.replace(f'SPECIAL_IMAGE-{src}-REPLACE_ME', repl)
         return text
 
     def image_to_hexstring(self, data):
@@ -195,7 +194,7 @@ class RTFMLizer:
 
     def clean_text(self, text):
         # Remove excessive newlines
-        text = re.sub(r'%s{3,}' % os.linesep, f'{os.linesep}{os.linesep}', text)
+        text = re.sub(rf'{os.linesep}{{3,}}', f'{os.linesep}{os.linesep}', text)
 
         # Remove excessive spaces
         text = re.sub(r'[ ]{2,}', ' ', text)
@@ -260,7 +259,7 @@ class RTFMLizer:
         rtf_tag = TAGS.get(tag, None)
         if rtf_tag and rtf_tag not in tag_stack:
             tag_count += 1
-            text += '{%s\n' % rtf_tag
+            text += f'{{{rtf_tag}\n'
             tag_stack.append(rtf_tag)
 
         # Processes style information
@@ -268,7 +267,7 @@ class RTFMLizer:
             style_tag = s[1].get(style[s[0]], None)
             if style_tag and style_tag not in tag_stack:
                 tag_count += 1
-                text += '{%s\n' % style_tag
+                text += f'{{{style_tag}\n'
                 tag_stack.append(style_tag)
 
         # Process tags that contain text.
@@ -288,8 +287,8 @@ class RTFMLizer:
 
         if hasattr(elem, 'tail') and elem.tail:
             if 'block' in tag_stack:
-                text += '%s' % txt2rtf(elem.tail)
+                text += f'{txt2rtf(elem.tail)}'
             else:
-                text += r'{\par\pard\hyphpar %s}' % txt2rtf(elem.tail)
+                text += rf'{{\par\pard\hyphpar {txt2rtf(elem.tail)}}}'
 
         return text

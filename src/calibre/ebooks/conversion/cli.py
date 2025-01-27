@@ -371,8 +371,7 @@ def read_sr_patterns(path, log=None):
             try:
                 re.compile(line)
             except:
-                msg = 'Invalid regular expression: %r from file: %r'%(
-                        line, path)
+                msg = f'Invalid regular expression: {line!r} from file: {path!r}'
                 if log is not None:
                     log.error(msg)
                     raise SystemExit(1)

@@ -149,7 +149,7 @@ def image_from_x(x):
         return image_from_data(bytes(x))
     if isinstance(x, QPixmap):
         return x.toImage()
-    raise TypeError('Unknown image src type: %s' % type(x))
+    raise TypeError(f'Unknown image src type: {type(x)}')
 
 
 def image_and_format_from_data(data):
@@ -595,7 +595,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             except OSError:
                 sz = 0
             if sz < 1:
-                return '%s returned a zero size image' % cmd[0]
+                return f'{cmd[0]} returned a zero size image'
             if sz < input_size:
                 shutil.copystat(file_path, outfile)
                 atomic_rename(outfile, file_path)
@@ -647,7 +647,7 @@ def encode_jpeg(file_path, quality=80):
     cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]
     img = QImage()
     if not img.load(file_path):
-        raise ValueError('%s is not a valid image file' % file_path)
+        raise ValueError(f'{file_path} is not a valid image file')
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QIODevice.OpenModeFlag.WriteOnly)
@@ -807,20 +807,20 @@ def test():  # {{{
         save_image(img, 'test.jpg')
         ret = optimize_jpeg('test.jpg')
         if ret is not None:
-            raise SystemExit('optimize_jpeg failed: %s' % ret)
+            raise SystemExit(f'optimize_jpeg failed: {ret}')
         ret = encode_jpeg('test.jpg')
         if ret is not None:
-            raise SystemExit('encode_jpeg failed: %s' % ret)
+            raise SystemExit(f'encode_jpeg failed: {ret}')
         shutil.copyfile(I('lt.png'), 'test.png')
         ret = optimize_png('test.png')
         if ret is not None:
-            raise SystemExit('optimize_png failed: %s' % ret)
+            raise SystemExit(f'optimize_png failed: {ret}')
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
         save_image(img, 'test.webp', compression_quality=100)
         ret = optimize_webp('test.webp')
         if ret is not None:
-            raise SystemExit('optimize_webp failed: %s' % ret)
+            raise SystemExit(f'optimize_webp failed: {ret}')
     quantize_image(img)
     oil_paint_image(img)
     gaussian_sharpen_image(img)

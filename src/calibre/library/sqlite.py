@@ -161,7 +161,7 @@ class IdentifiersConcat:
         self.ans = []
 
     def step(self, key, val):
-        self.ans.append('%s:%s'%(key, val))
+        self.ans.append(f'{key}:{val}')
 
     def finalize(self):
         try:

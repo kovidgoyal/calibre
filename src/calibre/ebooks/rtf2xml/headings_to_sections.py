@@ -126,7 +126,7 @@ class HeadingsToSections:
     def __write_start_section(self, current_level, name):
         section_num = ''
         for the_num in self.__section_num:
-            section_num += '%s.' % the_num
+            section_num += f'{the_num}.'
         section_num = section_num[:-1]
         num_in_level = len(self.__all_sections)
         num_in_level = self.__section_num[num_in_level]
@@ -135,9 +135,8 @@ class HeadingsToSections:
             'mi<mk<sect-start\n'
                 )
         self.__write_obj.write(
-                'mi<tg<open-att__<section<num>%s<num-in-level>%s<level>%s'
-                '<type>%s\n'
-                % (section_num, num_in_level, level, name)
+                f'mi<tg<open-att__<section<num>{section_num}<num-in-level>{num_in_level}<level>{level}'
+                f'<type>{name}\n'
                 )
 
     def __write_end_section(self):

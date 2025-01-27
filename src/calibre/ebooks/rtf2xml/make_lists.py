@@ -237,14 +237,14 @@ class MakeLists:
         '''
         if self.__line_num < 25 and self.__found_appt:
             sys.stderr.write('in closing out lists\n')
-            sys.stderr.write('current_indent is "%s"\n' % self.__left_indent)
+            sys.stderr.write(f'current_indent is "{self.__left_indent}"\n')
         current_indent = self.__left_indent
         self.__all_lists.reverse()
         num_levels_closed = 0
         for the_dict in self.__all_lists:
             list_indent = the_dict.get('left-indent')
             if self.__line_num < 25 and self.__found_appt:
-                sys.stderr.write('last indent is "%s"' % list_indent)
+                sys.stderr.write(f'last indent is "{list_indent}"')
             if current_indent <= list_indent:
                 self.__write_end_item()
                 self.__write_end_list()
@@ -295,8 +295,7 @@ class MakeLists:
         else:
             lev_num = self.__level
         self.__write_obj.write(
-            'mi<tg<open-att__<list<list-id>%s<level>%s'
-            % (id, lev_num)
+            f'mi<tg<open-att__<list<list-id>{id}<level>{lev_num}'
                 )
         list_dict = {}
         if self.__list_of_lists:  # older RTF won't generate a list_of_lists
@@ -314,13 +313,13 @@ class MakeLists:
                 else:
                     list_type = 'ordered'
                 self.__write_obj.write(
-                    '<list-type>%s' % (list_type))
+                    f'<list-type>{list_type}')
             else:  # no matching id
                 self.__write_obj.write(
-                    '<list-type>%s' % (self.__list_type))
+                    f'<list-type>{self.__list_type}')
         else:  # older RTF
             self.__write_obj.write(
-                '<list-type>%s' % (self.__list_type))
+                f'<list-type>{self.__list_type}')
         # if you want to dump all the info to the list, rather than
         # keeping it in the table above, change self.__write_list_info
         # to true.
@@ -367,8 +366,7 @@ class MakeLists:
         if self.__run_level > 0:
             sys.stderr.write('Module is make_lists.py\n'
                 'Method is __get_index_of_list\n'
-                'The main list does not appear to have a matching id for %s \n'
-                % (id)
+                f'The main list does not appear to have a matching id for {id} \n'
                 )
             # sys.stderr.write(repr(self.__list_of_lists))
         # if self.__run_level > 3:

@@ -433,7 +433,7 @@ class ZipInfo:
                 elif ln == 0:
                     counts = ()
                 else:
-                    raise RuntimeError('Corrupt extra field %s'%(ln,))
+                    raise RuntimeError(f'Corrupt extra field {ln}')
 
                 idx = 0
 
@@ -646,7 +646,7 @@ class ZipExtFile(io.BufferedIOBase):
         self._running_crc = crc32(newdata, self._running_crc) & 0xffffffff
         # Check the CRC if we're at the end of the file
         if eof and self._running_crc != self._expected_crc:
-            raise BadZipfile('Bad CRC-32 for file %r' % self.name)
+            raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
 
     def read1(self, n):
         '''Read up to n bytes with at most one read() system call.'''
@@ -734,7 +734,7 @@ class ZipFile:
     def __init__(self, file, mode='r', compression=ZIP_DEFLATED, allowZip64=True):
         '''Open the ZIP file with mode read "r", write "w" or append "a".'''
         if mode not in ('r', 'w', 'a'):
-            raise RuntimeError('ZipFile() requires mode "r", "w", or "a" not %s'%mode)
+            raise RuntimeError(f'ZipFile() requires mode "r", "w", or "a" not {mode}')
 
         if compression == ZIP_STORED:
             pass
@@ -743,7 +743,7 @@ class ZipFile:
                 raise RuntimeError(
                       'Compression requires the (missing) zlib module')
         else:
-            raise RuntimeError('The compression method %s is not supported' % compression)
+            raise RuntimeError(f'The compression method {compression} is not supported')
 
         self._allowZip64 = allowZip64
         self._didModify = False
@@ -901,8 +901,7 @@ class ZipFile:
             fname = decode_zip_internal_file_name(fname, zip_info.flag_bits)
             if fname != zip_info.orig_filename:
                 raise RuntimeError(
-                      'File name in directory "{}" and header "{}" differ.'.format(
-                          zip_info.orig_filename, fname))
+                      f'File name in directory "{zip_info.orig_filename}" and header "{fname}" differ.')
 
             zip_info.file_offset = file_offset
 
@@ -995,7 +994,7 @@ class ZipFile:
         info = self.NameToInfo.get(name)
         if info is None:
             raise KeyError(
-                'There is no item named %r in the archive' % name)
+                f'There is no item named {name!r} in the archive')
 
         return info
 
@@ -1049,9 +1048,9 @@ class ZipFile:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
         if fname != zinfo.orig_filename:
-            print(('WARNING: Header (%r) and directory (%r) filenames do not'
-                    ' match inside ZipFile')%(fname, zinfo.orig_filename))
-            print('Using directory filename %r'%zinfo.orig_filename)
+            print(f'WARNING: Header ({fname!r}) and directory ({zinfo.orig_filename!r}) filenames do not'
+                    ' match inside ZipFile')
+            print(f'Using directory filename {zinfo.orig_filename!r}')
             # raise BadZipfile(
             #          'File name in directory "%r" and header "%r" differ.' % (
             #              zinfo.orig_filename, fname))
@@ -1063,8 +1062,8 @@ class ZipFile:
             if not pwd:
                 pwd = self.pwd
             if not pwd:
-                raise RuntimeError(('File %s is encrypted, '
-                      'password required for extraction') % name)
+                raise RuntimeError(f'File {name} is encrypted, '
+                      'password required for extraction')
 
             zd = _ZipDecrypter(pwd)
             # The first 12 bytes in the cypher stream is an encryption header
@@ -1134,7 +1133,7 @@ class ZipFile:
         fname = os.path.splitdrive(fname)[1]
         fname = '/'.join(x for x in fname.split('/') if x not in {'', os.path.curdir, os.path.pardir})
         if not fname:
-            raise BadZipfile('The member %r has an invalid name'%member.filename)
+            raise BadZipfile(f'The member {member.filename!r} has an invalid name')
 
         targetpath = os.path.normpath(os.path.join(base_target, fname))
         # Added by Kovid as normpath fails to convert forward slashes for UNC
@@ -1201,7 +1200,7 @@ class ZipFile:
                   'Compression requires the (missing) zlib module')
         if zinfo.compress_type not in (ZIP_STORED, ZIP_DEFLATED):
             raise RuntimeError(
-                  'The compression method %s is not supported' % zinfo.compress_type)
+                  f'The compression method {zinfo.compress_type} is not supported')
         if zinfo.file_size > ZIP64_LIMIT:
             if not self._allowZip64:
                 raise LargeZipFile('Filesize would require ZIP64 extensions')

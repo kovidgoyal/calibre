@@ -361,12 +361,11 @@ class UploadDemo(Command):  # {{{
 
     def run(self, opts):
         check_call(
-            '''ebook-convert {}/demo.html /tmp/html2lrf.lrf '''
+            f'''ebook-convert {self.j(self.SRC, HTML2LRF)}/demo.html /tmp/html2lrf.lrf '''
             '''--title='Demonstration of html2lrf' --authors='Kovid Goyal' '''
             '''--header '''
             '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
-            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
-            ''''''.format(self.j(self.SRC, HTML2LRF)),
+            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" ''',
             shell=True
         )
 

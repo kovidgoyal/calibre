@@ -72,7 +72,7 @@ def tostring(raw, **kwargs):
     kwargs['xml_declaration'] = False
     ans = etree.tostring(raw, **kwargs)
     if xml_declaration:
-        ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
+        ans = f'<?xml version="1.0" encoding="{encoding}"?>\n' + ans
     return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m: my_unichr(int(m.group(1), 16)),
             ans).encode(encoding)
 
@@ -85,7 +85,7 @@ class Chunk:
         self.ends_tags = []
         self.insert_pos = None
         self.is_first_chunk = False
-        self.selector = "%s-//*[@aid='%s']"%selector
+        self.selector = "{}-//*[@aid='{}']".format(*selector)
 
     def __len__(self):
         return len(self.raw)
@@ -95,8 +95,7 @@ class Chunk:
         self.ends_tags = chunk.ends_tags
 
     def __repr__(self):
-        return 'Chunk(len=%r insert_pos=%r starts_tags=%r ends_tags=%r)'%(
-                len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
+        return f'Chunk(len={len(self.raw)!r} insert_pos={self.insert_pos!r} starts_tags={self.starts_tags!r} ends_tags={self.ends_tags!r})'
 
     __str__ = __repr__
 
@@ -115,7 +114,7 @@ class Skeleton:
 
     def render(self, root):
         raw = tostring(root, xml_declaration=True)
-        raw = raw.replace(b'<html', ('<html xmlns="%s"'%XHTML_NS).encode('ascii'), 1)
+        raw = raw.replace(b'<html', (f'<html xmlns="{XHTML_NS}"').encode('ascii'), 1)
         raw = close_self_closing_tags(raw)
         return raw
 
@@ -179,7 +178,7 @@ class Chunker:
                     with_tail=True))
                 orig_dumps[-1] = close_self_closing_tags(
                         orig_dumps[-1].replace(b'<html',
-                        ('<html xmlns="%s"'%XHTML_NS).encode('ascii'), 1))
+                        (f'<html xmlns="{XHTML_NS}"').encode('ascii'), 1))
 
             # First pass: break up document into rendered strings of length no
             # more than CHUNK_SIZE
@@ -283,8 +282,8 @@ class Chunker:
                     child.tail = None
             else:
                 if len(raw) > CHUNK_SIZE:
-                    self.log.warn('Tag %s has no aid and a too large chunk'
-                            ' size. Adding anyway.'%child.tag)
+                    self.log.warn(f'Tag {child.tag} has no aid and a too large chunk'
+                            ' size. Adding anyway.')
                 chunks.append(Chunk(raw, self.chunk_selector))
                 if child.tail:
                     chunks.extend(self.chunk_up_text(child.tail))
@@ -385,8 +384,7 @@ class Chunker:
                     pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
                             offset)
             if pos_fid is None:
-                raise ValueError('Could not find chunk for aid: %r'%
-                        match.group(1))
+                raise ValueError(f'Could not find chunk for aid: {match.group(1)!r}')
             aid_map[match.group(1)] = pos_fid
 
         self.aid_offset_map = aid_map

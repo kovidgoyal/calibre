@@ -85,7 +85,7 @@ class BZZDecoderError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return 'BZZDecoderError: %s' % (self.msg)
+        return f'BZZDecoderError: {self.msg}'
 
 
 # This table has been designed for the ZPCoder

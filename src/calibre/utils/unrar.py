@@ -151,7 +151,7 @@ def test_basic():
                 if name not in '1 2 symlink'.split():
                     with open(os.path.join(tdir, name), 'rb') as s:
                         if s.read() != tdata[name]:
-                            raise ValueError('Did not extract %s properly' % name)
+                            raise ValueError(f'Did not extract {name} properly')
         for name in tdata:
             if name not in '1 2 symlink'.split():
                 d = extract_member(stream, name=name)

@@ -102,7 +102,7 @@ class MetadataUpdater:
 
         sig = self.data[:4]
         if not sig.startswith(b'TPZ'):
-            raise ValueError("'%s': Not a Topaz file" % getattr(stream, 'name', 'Unnamed stream'))
+            raise ValueError("'{}': Not a Topaz file".format(getattr(stream, 'name', 'Unnamed stream')))
         offset = 4
 
         self.header_records, consumed = self.decode_vwi(self.data[offset:offset+4])
@@ -111,13 +111,13 @@ class MetadataUpdater:
 
         # First integrity test - metadata header
         if 'metadata' not in self.topaz_headers:
-            raise ValueError("'%s': Invalid Topaz format - no metadata record" % getattr(stream, 'name', 'Unnamed stream'))
+            raise ValueError("'{}': Invalid Topaz format - no metadata record".format(getattr(stream, 'name', 'Unnamed stream')))
 
         # Second integrity test - metadata body
         md_offset = self.topaz_headers['metadata']['blocks'][0]['offset']
         md_offset += self.base
         if self.data[md_offset+1:md_offset+9] != b'metadata':
-            raise ValueError("'%s': Damaged metadata record" % getattr(stream, 'name', 'Unnamed stream'))
+            raise ValueError("'{}': Damaged metadata record".format(getattr(stream, 'name', 'Unnamed stream')))
 
     def book_length(self):
         ''' convenience method for retrieving book length '''
@@ -146,11 +146,11 @@ class MetadataUpdater:
         ''' Diagnostic '''
         print('\ndump_headers():')
         for tag in self.topaz_headers:
-            print('%s: ' % (tag))
+            print(f'{tag}: ')
             num_recs = len(self.topaz_headers[tag]['blocks'])
             print(' num_recs: %d' % num_recs)
             if num_recs:
-                print(' starting offset: 0x%x' % self.topaz_headers[tag]['blocks'][0]['offset'])
+                print(' starting offset: 0x{:x}'.format(self.topaz_headers[tag]['blocks'][0]['offset']))
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
@@ -159,7 +159,7 @@ class MetadataUpdater:
         result=''
         while src:
             s, src = src[:length],src[length:]
-            hexa = ' '.join(['%02X'%ord(x) for x in s])
+            hexa = ' '.join([f'{ord(x):02X}' for x in s])
             s = s.translate(FILTER)
             result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
             N+=length

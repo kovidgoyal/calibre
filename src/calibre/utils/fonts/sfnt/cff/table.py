@@ -62,7 +62,7 @@ class CFF:
         cs_type = self.top_dict.safe_get('CharstringType')
         if cs_type != 2:
             raise UnsupportedFont('This font has unsupported CharstringType: '
-                    '%s'%cs_type)
+                    f'{cs_type}')
         self.char_strings = CharStringsIndex(raw, offset)
         self.num_glyphs = len(self.char_strings)
 

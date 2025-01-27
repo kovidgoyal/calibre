@@ -205,7 +205,7 @@ class TestICU(unittest.TestCase):
         from calibre.spell.break_iterator import count_words, index_of, split_into_words_and_positions
         from calibre.spell.break_iterator import split_into_words as split
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
-            self.ae(split(str(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+            self.ae(split(str(q)), ['one', 'two', 'three'], f'Failed to split: {q!r}')
         self.ae(split("I I'm"), ['I', "I'm"])
         self.ae(split('out-of-the-box'), ['out-of-the-box'])
         self.ae(split('-one two-'), ['-one', 'two-'])

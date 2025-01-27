@@ -37,7 +37,7 @@ def set_metadata(stream, mi):
                 mi.title, mi.authors, mi.book_producer, mi.tags, xmp_packet))
             touched = result['result']
         except WorkerError as e:
-            raise Exception('Failed to set PDF metadata in (%s): %s'%(mi.title, e.orig_tb))
+            raise Exception(f'Failed to set PDF metadata in ({mi.title}): {e.orig_tb}')
         if touched:
             with open(os.path.join(tdir, 'output.pdf'), 'rb') as f:
                 f.seek(0, 2)

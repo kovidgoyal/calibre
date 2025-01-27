@@ -330,7 +330,7 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None,
 
     comments = ''
     if comment_fields:
-        comments = '\n'.join('<div>%s</div>' % x for x in comment_fields)
+        comments = '\n'.join(f'<div>{x}</div>' for x in comment_fields)
         # Comments cause issues with rendering in QTextBrowser
         comments = comments_pat().sub('', comments)
 
@@ -353,8 +353,7 @@ def render_parts(table, comments, vertical):
         ans = templ%(table+right_pane)
     else:
         ans = templ % (
-                '<table><tr><td valign="top" width="40%">{}</td><td valign="top" width="60%">{}</td></tr></table>'.format(
-                    table, right_pane))
+                f'<table><tr><td valign="top" width="40%">{table}</td><td valign="top" width="60%">{right_pane}</td></tr></table>')
     return ans
 
 
@@ -437,7 +436,7 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
             t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
         else:
             t = t % fmt
-        ac = getattr(book_info, '%s_format_action'%a)
+        ac = getattr(book_info, f'{a}_format_action')
         ac.current_fmt = (book_id, fmt)
         ac.setText(t)
         menu.addAction(ac)
@@ -1072,8 +1071,8 @@ class BookInfo(HTMLDisplay):
             ac = QAction(QIcon.ic(icon), '', self)
             ac.current_fmt = None
             ac.current_url = None
-            ac.triggered.connect(getattr(self, '%s_triggerred'%x))
-            setattr(self, '%s_action'%x, ac)
+            ac.triggered.connect(getattr(self, f'{x}_triggerred'))
+            setattr(self, f'{x}_action', ac)
         self.manage_action = QAction(self)
         self.manage_action.current_fmt = self.manage_action.current_url = None
         self.manage_action.triggered.connect(self.manage_action_triggered)
@@ -1111,8 +1110,8 @@ class BookInfo(HTMLDisplay):
             self.remove_item.emit(book_id, field, value)
 
     def context_action_triggered(self, which):
-        f = getattr(self, '%s_action'%which).current_fmt
-        url = getattr(self, '%s_action'%which).current_url
+        f = getattr(self, f'{which}_action').current_fmt
+        url = getattr(self, f'{which}_action').current_url
         if f and 'format' in which:
             book_id, fmt = f
             getattr(self, which).emit(book_id, fmt)

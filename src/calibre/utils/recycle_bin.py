@@ -59,7 +59,7 @@ if iswindows:
 
     def delegate_recycle(path):
         if '\n' in path:
-            raise ValueError('Cannot recycle paths that have newlines in them (%r)' % path)
+            raise ValueError(f'Cannot recycle paths that have newlines in them ({path!r})')
         with rlock:
             start_recycler()
             recycler.stdin.write(path.encode('utf-8'))
@@ -70,7 +70,7 @@ if iswindows:
             # so I am leaving it as blocking.
             result = eintr_retry_call(recycler.stdout.readline)
             if result.rstrip() != b'OK':
-                raise RuntimeError('recycler failed to recycle: %r' % path)
+                raise RuntimeError(f'recycler failed to recycle: {path!r}')
 
     def recycle(path):
         # We have to run the delete to recycle bin in a separate process as the

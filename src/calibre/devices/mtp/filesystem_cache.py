@@ -69,8 +69,7 @@ class FileOrFolder:
         self.last_modified = as_utc(self.last_modified)
 
         if self.storage_id not in fs_cache.all_storage_ids:
-            raise ValueError('Storage id %s not valid for %s, valid values: %s'%(self.storage_id,
-                entry, fs_cache.all_storage_ids))
+            raise ValueError(f'Storage id {self.storage_id} not valid for {entry}, valid values: {fs_cache.all_storage_ids}')
 
         self.is_hidden = entry.get('is_hidden', False)
         self.is_system = entry.get('is_system', False)
@@ -92,7 +91,7 @@ class FileOrFolder:
         self.deleted = False
 
         if self.is_storage:
-            self.storage_prefix = 'mtp:::%s:::'%self.persistent_id
+            self.storage_prefix = f'mtp:::{self.persistent_id}:::'
 
         # Ignore non ebook files and AppleDouble files
         self.is_ebook = (not self.is_folder and not self.is_storage and
@@ -107,11 +106,10 @@ class FileOrFolder:
             path = str(self.full_path)
         except Exception:
             path = ''
-        datum = 'size=%s'%(self.size)
+        datum = f'size={self.size}'
         if self.is_folder or self.is_storage:
             datum = 'children=%s'%(len(self.files) + len(self.folders))
-        return '%s(id=%s, storage_id=%s, %s, path=%s, modified=%s)'%(name, self.object_id,
-                self.storage_id, datum, path, self.last_mod_string)
+        return f'{name}(id={self.object_id}, storage_id={self.storage_id}, {datum}, path={path}, modified={self.last_mod_string})'
 
     __str__ = __repr__
     __unicode__ = __repr__
@@ -171,10 +169,10 @@ class FileOrFolder:
 
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'
-        data = ('%s children'%(sum(map(len, (self.files, self.folders))))
+        data = (f'{sum(map(len, (self.files, self.folders)))} children'
             if self.is_folder else human_readable(self.size))
-        data += ' modified=%s'%self.last_mod_string
-        line = '%s%s %s [id:%s %s]'%(prefix, c, self.name, self.object_id, data)
+        data += f' modified={self.last_mod_string}'
+        line = f'{prefix}{c} {self.name} [id:{self.object_id} {data}]'
         prints(line, file=out)
         for c in (self.folders, self.files):
             for e in sorted(c, key=lambda x: sort_key(x.name)):
@@ -290,14 +288,14 @@ class FilesystemCache:
 
     def resolve_mtp_id_path(self, path):
         if not path.startswith('mtp:::'):
-            raise ValueError('%s is not a valid MTP path'%path)
+            raise ValueError(f'{path} is not a valid MTP path')
         parts = path.split(':::', 2)
         if len(parts) < 3:
-            raise ValueError('%s is not a valid MTP path'%path)
+            raise ValueError(f'{path} is not a valid MTP path')
         try:
             object_id = json.loads(parts[1])
         except Exception:
-            raise ValueError('%s is not a valid MTP path'%path)
+            raise ValueError(f'{path} is not a valid MTP path')
         id_map = {}
         path = parts[2]
         storage_name = path.partition('/')[0]
@@ -308,4 +306,4 @@ class FilesystemCache:
         try:
             return id_map[object_id]
         except KeyError:
-            raise ValueError('No object found with MTP path: %s'%path)
+            raise ValueError(f'No object found with MTP path: {path}')

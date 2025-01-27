@@ -198,13 +198,13 @@ class TXTInput(InputFormatPlugin):
             if file_ext in {'md', 'textile', 'markdown'}:
                 options.formatting_type = {'md': 'markdown'}.get(file_ext, file_ext)
                 log.info('File extension indicates particular formatting. '
-                        'Forcing formatting type to: %s'%options.formatting_type)
+                        f'Forcing formatting type to: {options.formatting_type}')
                 options.paragraph_type = 'off'
 
         # Get the encoding of the document.
         if options.input_encoding:
             ienc = options.input_encoding
-            log.debug('Using user specified input encoding of %s' % ienc)
+            log.debug(f'Using user specified input encoding of {ienc}')
         else:
             det_encoding = detect(txt[:4096])
             det_encoding, confidence = det_encoding['encoding'], det_encoding['confidence']
@@ -218,7 +218,7 @@ class TXTInput(InputFormatPlugin):
             log.debug(f'Detected input encoding as {ienc} with a confidence of {confidence * 100}%')
         if not ienc:
             ienc = 'utf-8'
-            log.debug('No input encoding specified and could not auto detect using %s' % ienc)
+            log.debug(f'No input encoding specified and could not auto detect using {ienc}')
         # Remove BOM from start of txt as its presence can confuse markdown
         import codecs
         for bom in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE, codecs.BOM_UTF8, codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
@@ -240,12 +240,12 @@ class TXTInput(InputFormatPlugin):
                 log.debug('Could not reliably determine paragraph type using block')
                 options.paragraph_type = 'block'
             else:
-                log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
+                log.debug(f'Auto detected paragraph type as {options.paragraph_type}')
 
         # Detect formatting
         if options.formatting_type == 'auto':
             options.formatting_type = detect_formatting_type(txt)
-            log.debug('Auto detected formatting as %s' % options.formatting_type)
+            log.debug(f'Auto detected formatting as {options.formatting_type}')
 
         if options.formatting_type == 'heuristic':
             setattr(options, 'enable_heuristics', True)

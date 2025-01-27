@@ -250,7 +250,7 @@ def icon_map():
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + quote(v)
             _icon_map['file_type_icons'] = {
-                k:'mimetypes/%s.png' % v for k, v in iteritems(EXT_MAP)
+                k:f'mimetypes/{v}.png' for k, v in iteritems(EXT_MAP)
             }
         return _icon_map
 
@@ -272,7 +272,7 @@ def categories_settings(query, db, gst_container=GroupedSearchTerms):
     if collapse_model != 'disable':
         if sort_by != 'name':
             collapse_model = 'partition'
-        template = tweaks['categories_collapsed_%s_template' % sort_by]
+        template = tweaks[f'categories_collapsed_{sort_by}_template']
     using_hierarchy = frozenset(db.pref('categories_using_hierarchy', []))
     hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     return CategoriesSettings(
@@ -629,7 +629,7 @@ def dump_categories_tree(data):
         item = items[node['id']]
         rating = item.get('avg_rating', None) or 0
         if rating:
-            rating = ',rating=%.1f' % rating
+            rating = f',rating={rating:.1f}'
         try:
             ans.append(indent*level + item['name'] + ' [count={}{}]'.format(item['count'], rating or ''))
         except KeyError:

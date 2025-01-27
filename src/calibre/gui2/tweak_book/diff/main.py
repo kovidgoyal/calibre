@@ -394,7 +394,7 @@ class Diff(Dialog):
     def set_names(self, names):
         t = ''
         if isinstance(names, tuple):
-            t = '%s <--> %s' % names
+            t = '{} <--> {}'.format(*names)
         self.names.setText(t)
 
     def ebook_diff(self, path1, path2, names=None):

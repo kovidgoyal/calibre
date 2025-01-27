@@ -50,9 +50,9 @@ class Stage2(Command):
         platforms = 'linux64', 'linuxarm64', 'osx', 'win'
         for x in platforms:
             cmd = (
-                '''{exe} -c "import subprocess; subprocess.Popen(['{exe}', './setup.py', '{x}']).wait() != 0 and'''
-                ''' input('Build of {x} failed, press Enter to exit');"'''
-            ).format(exe=sys.executable, x=x)
+                f'''{sys.executable} -c "import subprocess; subprocess.Popen(['{sys.executable}', './setup.py', '{x}']).wait() != 0 and'''
+                f''' input('Build of {x} failed, press Enter to exit');"'''
+            )
             session.append('title ' + x)
             session.append('launch ' + cmd)
 
@@ -220,8 +220,8 @@ class Manual(Command):
                 if x and not os.path.exists(x):
                     os.symlink('.', x)
             self.info(
-                'Built manual for {} languages in {} minutes'
-                .format(len(jobs), int((time.time() - st) / 60.))
+                f'Built manual for {len(jobs)} languages in {int((time.time() - st) / 60.)} minutes'
+
             )
         finally:
             os.chdir(cwd)
@@ -335,6 +335,6 @@ class TagRelease(Command):
     def run(self, opts):
         self.info('Tagging release')
         subprocess.check_call(
-            'git tag -s v{0} -m "version-{0}"'.format(__version__).split()
+            f'git tag -s v{__version__} -m "version-{__version__}"'.split()
         )
         subprocess.check_call(f'git push origin v{__version__}'.split())

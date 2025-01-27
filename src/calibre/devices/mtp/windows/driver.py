@@ -258,7 +258,7 @@ class MTP_DEVICE(MTPDeviceBase):
         path = tuple(reversed(path))
         ok = not self.is_folder_ignored(self._currently_getting_sid, path)
         if not ok:
-            debug('Ignored object: %s' % '/'.join(path))
+            debug('Ignored object: {}'.format('/'.join(path)))
         return ok
 
     @property
@@ -330,19 +330,18 @@ class MTP_DEVICE(MTPDeviceBase):
                 self.dev = self.wpd.Device(connected_device)
             except self.wpd.WPDError as e:
                 self.blacklisted_devices.add(connected_device)
-                raise OpenFailed('Failed to open %s with error: %s'%(
-                    connected_device, as_unicode(e)))
+                raise OpenFailed(f'Failed to open {connected_device} with error: {as_unicode(e)}')
         devdata = self.dev.data
         storage = [s for s in devdata.get('storage', []) if s.get('rw', False)]
         if not storage:
             self.blacklisted_devices.add(connected_device)
-            raise OpenFailed('No storage found for device %s'%(connected_device,))
+            raise OpenFailed(f'No storage found for device {connected_device}')
         snum = devdata.get('serial_number', None)
         if snum in self.prefs.get('blacklist', []):
             self.blacklisted_devices.add(connected_device)
             self.dev = None
             raise BlacklistedDevice(
-                'The %s device has been blacklisted by the user'%(connected_device,))
+                f'The {connected_device} device has been blacklisted by the user')
 
         storage = sorted_storage(storage)
 
@@ -435,7 +434,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @same_thread
     def get_mtp_file(self, f, stream=None, callback=None):
         if f.is_folder:
-            raise ValueError('%s if a folder'%(f.full_path,))
+            raise ValueError(f'{f.full_path} if a folder')
         set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
@@ -446,8 +445,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 time.sleep(2)
                 self.dev.get_file(f.object_id, stream, callback)
         except Exception as e:
-            raise DeviceError('Failed to fetch the file %s with error: %s'%
-                    (f.full_path, as_unicode(e)))
+            raise DeviceError(f'Failed to fetch the file {f.full_path} with error: {as_unicode(e)}')
         stream.seek(0)
         if set_name:
             stream.name = f.name
@@ -456,7 +454,7 @@ class MTP_DEVICE(MTPDeviceBase):
     @same_thread
     def create_folder(self, parent, name):
         if not parent.is_folder:
-            raise ValueError('%s is not a folder'%(parent.full_path,))
+            raise ValueError(f'{parent.full_path} is not a folder')
         e = parent.folder_named(name)
         if e is not None:
             return e
@@ -472,14 +470,11 @@ class MTP_DEVICE(MTPDeviceBase):
         if obj.deleted:
             return
         if not obj.can_delete:
-            raise ValueError('Cannot delete %s as deletion not allowed'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as deletion not allowed')
         if obj.is_system:
-            raise ValueError('Cannot delete %s as it is a system object'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as it is a system object')
         if obj.files or obj.folders:
-            raise ValueError('Cannot delete %s as it is not empty'%
-                    (obj.full_path,))
+            raise ValueError(f'Cannot delete {obj.full_path} as it is not empty')
         parent = obj.parent
         self.dev.delete_object(obj.object_id)
         parent.remove_child(obj)
@@ -489,13 +484,11 @@ class MTP_DEVICE(MTPDeviceBase):
     def put_file(self, parent, name, stream, size, callback=None, replace=True):
         e = parent.folder_named(name)
         if e is not None:
-            raise ValueError('Cannot upload file, %s already has a folder named: %s'%(
-                parent.full_path, e.name))
+            raise ValueError(f'Cannot upload file, {parent.full_path} already has a folder named: {e.name}')
         e = parent.file_named(name)
         if e is not None:
             if not replace:
-                raise ValueError('Cannot upload file %s, it already exists'%(
-                    e.full_path,))
+                raise ValueError(f'Cannot upload file {e.full_path}, it already exists')
             self.delete_file_or_folder(e)
         sid, pid = parent.storage_id, parent.object_id
         ans = self.dev.put_file(pid, name, stream, size, callback)

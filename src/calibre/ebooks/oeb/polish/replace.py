@@ -48,7 +48,7 @@ class LinkReplacer:
         if purl.fragment:
             nfrag = self.frag_map(name, purl.fragment)
             if nfrag:
-                href += '#%s'%nfrag
+                href += f'#{nfrag}'
         if href != url:
             self.replaced = True
         return href
@@ -190,13 +190,13 @@ def rename_files(container, file_map):
     '''
     overlap = set(file_map).intersection(set(itervalues(file_map)))
     if overlap:
-        raise ValueError('Circular rename detected. The files %s are both rename targets and destinations' % ', '.join(overlap))
+        raise ValueError('Circular rename detected. The files {} are both rename targets and destinations'.format(', '.join(overlap)))
     for name, dest in iteritems(file_map):
         if container.exists(dest):
             if name != dest and name.lower() == dest.lower():
                 # A case change on an OS with a case insensitive file-system.
                 continue
-            raise ValueError('Cannot rename {0} to {1} as {1} already exists'.format(name, dest))
+            raise ValueError(f'Cannot rename {name} to {dest} as {dest} already exists')
     if len(tuple(itervalues(file_map))) != len(set(itervalues(file_map))):
         raise ValueError('Cannot rename, the set of destination files contains duplicates')
     link_map = {}
@@ -224,7 +224,7 @@ def replace_file(container, name, path, basename, force_mt=None):
             container.mime_map[nname] = mt
             for itemid, q in iteritems(container.manifest_id_map):
                 if q == nname:
-                    for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
+                    for item in container.opf_xpath(f'//opf:manifest/opf:item[@href and @id="{itemid}"]'):
                         item.set('media-type', mt)
         container.dirty(container.opf_name)
         with container.open(nname, 'wb') as dest:

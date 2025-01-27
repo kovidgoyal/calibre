@@ -90,8 +90,7 @@ class Sendmail:
                 if time.time() - start_time > self.TIMEOUT:
                     log('Sending timed out')
                     raise Exception(
-                            'Sending email %r to %r timed out, aborting'% (subject,
-                                to))
+                            f'Sending email {subject!r} to {to!r} timed out, aborting')
             if worker.exception is None:
                 log('Email successfully sent')
                 return
@@ -105,7 +104,7 @@ class Sendmail:
         logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
             if not logged and self.rate_limit > 0:
-                log('Waiting %s seconds before sending, to avoid being marked as spam.\nYou can control this delay via Preferences->Tweaks' % self.rate_limit)
+                log(f'Waiting {self.rate_limit} seconds before sending, to avoid being marked as spam.\nYou can control this delay via Preferences->Tweaks')
                 logged = True
             time.sleep(1)
         try:
@@ -493,7 +492,7 @@ class EmailMixin:  # {{{
                     self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format, subject)
 
         if bad:
-            bad = '\n'.join('%s'%(i,) for i in bad)
+            bad = '\n'.join(f'{i}' for i in bad)
             d = warning_dialog(self, _('No suitable formats'),
                 _('Could not email the following books '
                 'as no suitable formats were found:'), bad)

@@ -60,7 +60,7 @@ def build_template_regexp(template):
         template = template.rpartition('/')[2]
         return re.compile(re.sub(r'{([^}]*)}', f, template) + r'([_\d]*$)')
     except:
-        prints('Failed to parse template: %r'%template)
+        prints(f'Failed to parse template: {template!r}')
         template = '{title} - {authors}'
         return re.compile(re.sub(r'{([^}]*)}', f, template) + r'([_\d]*$)')
 

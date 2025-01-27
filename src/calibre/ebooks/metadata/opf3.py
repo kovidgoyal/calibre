@@ -596,8 +596,8 @@ def set_pubdate(root, prefixes, refines, val):
 
 
 def read_timestamp(root, prefixes, refines):
-    pq = '%s:timestamp' % CALIBRE_PREFIX
-    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    pq = f'{CALIBRE_PREFIX}:timestamp'
+    sq = '{}:w3cdtf'.format(reserved_prefixes['dcterms'])
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         val = (meta.text or '').strip()
         if val:
@@ -628,7 +628,7 @@ def create_timestamp(root, prefixes, m, val):
 
 
 def set_timestamp(root, prefixes, refines, val):
-    pq = '%s:timestamp' % CALIBRE_PREFIX
+    pq = f'{CALIBRE_PREFIX}:timestamp'
     for meta in XPath('./opf:metadata/opf:meta')(root):
         prop = expand_prefix(meta.get('property'), prefixes)
         if prop.lower() == pq or meta.get('name') == 'calibre:timestamp':
@@ -637,8 +637,8 @@ def set_timestamp(root, prefixes, refines, val):
 
 
 def read_last_modified(root, prefixes, refines):
-    pq = '%s:modified' % reserved_prefixes['dcterms']
-    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    pq = '{}:modified'.format(reserved_prefixes['dcterms'])
+    sq = '{}:w3cdtf'.format(reserved_prefixes['dcterms'])
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         val = (meta.text or '').strip()
         if val:
@@ -652,7 +652,7 @@ def read_last_modified(root, prefixes, refines):
 
 
 def set_last_modified(root, prefixes, refines, val=None):
-    pq = '%s:modified' % reserved_prefixes['dcterms']
+    pq = '{}:modified'.format(reserved_prefixes['dcterms'])
     val = w3cdtf(val or utcnow())
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         prop = expand_prefix(meta.get('property'), prefixes)
@@ -741,7 +741,7 @@ def set_tags(root, prefixes, refines, val):
 # Rating {{{
 
 def read_rating(root, prefixes, refines):
-    pq = '%s:rating' % CALIBRE_PREFIX
+    pq = f'{CALIBRE_PREFIX}:rating'
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
         val = (meta.text or '').strip()
         if val:
@@ -769,7 +769,7 @@ def create_rating(root, prefixes, val):
 
 
 def set_rating(root, prefixes, refines, val):
-    pq = '%s:rating' % CALIBRE_PREFIX
+    pq = f'{CALIBRE_PREFIX}:rating'
     for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
         remove_element(meta, refines)
     for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
@@ -777,7 +777,7 @@ def set_rating(root, prefixes, refines, val):
         if prop.lower() == pq:
             remove_element(meta, refines)
     if val:
-        create_rating(root, prefixes, '%.2g' % float(val))
+        create_rating(root, prefixes, f'{float(val):.2g}')
 # }}}
 
 
@@ -844,7 +844,7 @@ def dict_reader(name, load=json.loads, try2=True):
                     except Exception:
                         continue
         if try2:
-            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % name)(root):
+            for meta in XPath(f'./opf:metadata/opf:meta[@name="calibre:{name}"]')(root):
                 val = meta.get('content')
                 if val:
                     try:
@@ -877,10 +877,10 @@ def dict_writer(name, serialize=dump_dict, remove2=True, extra_remove=''):
 
     def writer(root, prefixes, refines, val):
         if remove2:
-            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % name)(root):
+            for meta in XPath(f'./opf:metadata/opf:meta[@name="calibre:{name}"]')(root):
                 remove_element(meta, refines)
         if extra_remove:
-            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % extra_remove)(root):
+            for meta in XPath(f'./opf:metadata/opf:meta[@name="calibre:{extra_remove}"]')(root):
                 remove_element(meta, refines)
         for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
             prop = expand_prefix(meta.get('property'), prefixes)
@@ -889,7 +889,7 @@ def dict_writer(name, serialize=dump_dict, remove2=True, extra_remove=''):
         if val:
             ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
             m = XPath('./opf:metadata')(root)[0]
-            d = m.makeelement(OPF('meta'), attrib={'property':'calibre:%s' % name})
+            d = m.makeelement(OPF('meta'), attrib={'property':f'calibre:{name}'})
             d.text = serialize(val)
             m.append(d)
     return writer

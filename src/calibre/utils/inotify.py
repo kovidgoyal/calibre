@@ -315,7 +315,7 @@ class INotifyTreeWatcher(INotify):
                     else:
                         raise
             if (mask & self.DELETE_SELF or mask & self.MOVE_SELF) and path == self.basedir:
-                raise BaseDirChanged('The directory %s was moved/deleted' % path)
+                raise BaseDirChanged(f'The directory {path} was moved/deleted')
 
     def __call__(self):
         self.read()

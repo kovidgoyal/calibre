@@ -114,7 +114,7 @@ class Resources:
             try:
                 data = self.process_image(item.data)
             except Exception:
-                self.log.warn('Bad image file %r' % item.href)
+                self.log.warn(f'Bad image file {item.href!r}')
                 continue
             else:
                 if mh_href and item.href == mh_href:
@@ -124,7 +124,7 @@ class Resources:
                 self.image_indices.add(len(self.records))
                 self.records.append(data)
                 self.item_map[item.href] = index
-                self.mime_map[item.href] = 'image/%s'%what(None, data)
+                self.mime_map[item.href] = f'image/{what(None, data)}'
                 index += 1
 
                 if cover_href and item.href == cover_href:
@@ -169,7 +169,7 @@ class Resources:
             try:
                 data = self.process_image(item.data)
             except:
-                self.log.warn('Bad image file %r' % item.href)
+                self.log.warn(f'Bad image file {item.href!r}')
             else:
                 self.records.append(data)
                 self.item_map[item.href] = len(self.records)

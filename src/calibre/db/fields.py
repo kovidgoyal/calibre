@@ -89,7 +89,7 @@ class Field:
             if tweaks['sort_dates_using_visible_fields']:
                 fmt = None
                 if name in {'timestamp', 'pubdate', 'last_modified'}:
-                    fmt = tweaks['gui_%s_display_format' % name]
+                    fmt = tweaks[f'gui_{name}_display_format']
                 elif self.metadata['is_custom']:
                     fmt = self.metadata.get('display', {}).get('date_format', None)
                 self._sort_key = partial(clean_date_for_sort, fmt=fmt)
@@ -454,7 +454,7 @@ class OnDeviceField(OneToOneField):
                 loc.append(_('Card A'))
             if b is not None:
                 loc.append(_('Card B'))
-        return ', '.join(loc) + ((' (%s books)'%count) if count > 1 else '')
+        return ', '.join(loc) + ((f' ({count} books)') if count > 1 else '')
 
     def __iter__(self):
         return iter(())

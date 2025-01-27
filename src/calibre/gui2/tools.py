@@ -96,7 +96,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                 if same_fmt:
                     parts.append('same_fmt')
                 if parts:
-                    func += ':%s'%(';'.join(parts))
+                    func += ':{}'.format(';'.join(parts))
                 jobs.append((func, args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
@@ -122,9 +122,9 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                         ', '.join(available_formats))
                 else:
                     msg = _('This book has no actual e-book files')
-                res.append('%s - %s'%(title, msg))
+                res.append(f'{title} - {msg}')
 
-            msg = '%s' % '\n'.join(res)
+            msg = '{}'.format('\n'.join(res))
             warning_dialog(parent, _('Could not convert some books'),
                 (
                     _('Could not convert the book because no supported source format was found')
@@ -261,9 +261,9 @@ class QueueBulk(QProgressDialog):
             res = []
             for id in self.bad:
                 title = self.db.title(id, True)
-                res.append('%s'%title)
+                res.append(f'{title}')
 
-            msg = '%s' % '\n'.join(res)
+            msg = '{}'.format('\n'.join(res))
             warning_dialog(self.parent, _('Could not convert some books'),
                 _('Could not convert %(num)d of %(tot)d books, because no suitable '
                 'source format was found.') % dict(num=len(res), tot=len(self.book_ids)),
@@ -280,7 +280,7 @@ def fetch_scheduled_recipe(arg):  # {{{
     # Never use AZW3 for periodicals...
     if fmt == 'azw3':
         fmt = 'mobi'
-    pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
+    pt = PersistentTemporaryFile(suffix=f'_recipe_out.{fmt.lower()}')
     pt.close()
     recs = []
     ps = load_defaults('page_setup')

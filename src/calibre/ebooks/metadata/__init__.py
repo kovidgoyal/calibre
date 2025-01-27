@@ -166,7 +166,7 @@ def get_title_sort_pat(lang=None):
         ans = frozenset((r'A\s+', r'The\s+', r'An\s+'))
     if ans:
         ans = '|'.join(ans)
-        ans = '^(%s)'%ans
+        ans = f'^({ans})'
         try:
             ans = re.compile(ans, re.IGNORECASE)
         except:
@@ -335,7 +335,7 @@ class Resource:
         return self._basedir
 
     def __repr__(self):
-        return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
+        return f'Resource({self.path!r}, {self.href()!r})'
 
 
 class ResourceCollection:
@@ -357,7 +357,7 @@ class ResourceCollection:
 
     def __str__(self):
         resources = map(repr, self)
-        return '[%s]'%', '.join(resources)
+        return '[{}]'.format(', '.join(resources))
 
     def __repr__(self):
         return str(self)

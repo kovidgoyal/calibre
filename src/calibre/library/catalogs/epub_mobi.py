@@ -264,11 +264,10 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
-        build_log.append("%s('%s'): Generating %s %sin %s environment, locale: '%s'" %
-            (self.name,
+        build_log.append("{}('{}'): Generating {} {}in {} environment, locale: '{}'".format(self.name,
              current_library_name(),
              self.fmt,
-             'for %s ' % opts.output_profile if opts.output_profile else '',
+             f'for {opts.output_profile} ' if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI',
              calibre_langcode_to_name(canonicalize_lang(get_lang()), localize=False))
              )
@@ -282,23 +281,22 @@ class EPUB_MOBI(CatalogPlugin):
         if opts.connected_device['is_device_connected'] and \
            opts.connected_device['kind'] == 'device':
             if opts.connected_device['serial']:
-                build_log.append(" connected_device: '%s' #%s%s " %
-                    (opts.connected_device['name'],
+                build_log.append(" connected_device: '{}' #{}{} ".format(opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
                 for storage in opts.connected_device['storage']:
                     if storage:
-                        build_log.append('  mount point: %s' % storage)
+                        build_log.append(f'  mount point: {storage}')
             else:
-                build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
+                build_log.append(" connected_device: '{}'".format(opts.connected_device['name']))
                 try:
                     for storage in opts.connected_device['storage']:
                         if storage:
-                            build_log.append('  mount point: %s' % storage)
+                            build_log.append(f'  mount point: {storage}')
                 except:
                     build_log.append('  (no mount points)')
         else:
-            build_log.append(" connected_device: '%s'" % opts.connected_device['name'])
+            build_log.append(" connected_device: '{}'".format(opts.connected_device['name']))
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
@@ -337,7 +335,7 @@ class EPUB_MOBI(CatalogPlugin):
             sections_list.insert(0, 'Authors')
             opts.generate_authors = True
 
-        opts.log(' Sections: %s' % ', '.join(sections_list))
+        opts.log(' Sections: {}'.format(', '.join(sections_list)))
         opts.section_list = sections_list
 
         # Limit thumb_width to 1.0" - 2.0"
@@ -348,7 +346,7 @@ class EPUB_MOBI(CatalogPlugin):
             if float(opts.thumb_width) > float(self.THUMB_LARGEST):
                 log.warning(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_LARGEST}'")
                 opts.thumb_width = self.THUMB_LARGEST
-            opts.thumb_width = '%.2f' % float(opts.thumb_width)
+            opts.thumb_width = f'{float(opts.thumb_width):.2f}'
         except Exception:
             log.error(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_SMALLEST}'")
             opts.thumb_width = '1.0'
@@ -358,22 +356,22 @@ class EPUB_MOBI(CatalogPlugin):
             try:
                 opts.prefix_rules = eval(opts.prefix_rules)
             except:
-                log.error('malformed --prefix-rules: %s' % opts.prefix_rules)
+                log.error(f'malformed --prefix-rules: {opts.prefix_rules}')
                 raise
             for rule in opts.prefix_rules:
                 if len(rule) != 4:
-                    log.error('incorrect number of args for --prefix-rules: %s' % repr(rule))
+                    log.error(f'incorrect number of args for --prefix-rules: {rule!r}')
 
         # eval exclusion_rules if passed from command line
         if type(opts.exclusion_rules) is not tuple:
             try:
                 opts.exclusion_rules = eval(opts.exclusion_rules)
             except:
-                log.error('malformed --exclusion-rules: %s' % opts.exclusion_rules)
+                log.error(f'malformed --exclusion-rules: {opts.exclusion_rules}')
                 raise
             for rule in opts.exclusion_rules:
                 if len(rule) != 3:
-                    log.error('incorrect number of args for --exclusion-rules: %s' % repr(rule))
+                    log.error(f'incorrect number of args for --exclusion-rules: {rule!r}')
 
         # Display opts
         keys = sorted(opts_dict.keys())
@@ -396,8 +394,7 @@ class EPUB_MOBI(CatalogPlugin):
         self.opts = opts
 
         if opts.verbose:
-            log.info(' Begin catalog source generation (%s)' %
-                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+            log.info(f' Begin catalog source generation ({datetime.timedelta(seconds=int(time.time() - opts.start_time))!s})')
 
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
@@ -405,10 +402,9 @@ class EPUB_MOBI(CatalogPlugin):
         try:
             catalog.build_sources()
             if opts.verbose:
-                log.info(' Completed catalog source generation (%s)\n'  %
-                         str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+                log.info(f' Completed catalog source generation ({datetime.timedelta(seconds=int(time.time() - opts.start_time))!s})\n')
         except (AuthorSortMismatchException, EmptyCatalogException) as e:
-            log.error(' *** Terminated catalog generation: %s ***' % e)
+            log.error(f' *** Terminated catalog generation: {e} ***')
         except:
             log.error(' unhandled exception in catalog generator')
             raise
@@ -496,8 +492,7 @@ class EPUB_MOBI(CatalogPlugin):
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path, 'input.epub'))
 
             if opts.verbose:
-                log.info(' Catalog creation complete (%s)\n' %
-                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
+                log.info(f' Catalog creation complete ({datetime.timedelta(seconds=int(time.time() - opts.start_time))!s})\n')
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

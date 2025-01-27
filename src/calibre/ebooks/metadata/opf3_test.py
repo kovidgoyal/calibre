@@ -63,7 +63,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 read_user_categories, set_user_categories, read_link_maps, set_link_maps
 
-TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa: E501
+TEMPLATE = f'''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: {CALIBRE_PREFIX}" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{{metadata}}</metadata><manifest>{{manifest}}</manifest></package>'''  # noqa: E501
 default_refines = defaultdict(list)
 
 
@@ -91,7 +91,7 @@ class TestOPF3(unittest.TestCase):
 
     def test_identifiers(self):  # {{{
         def idt(val, scheme=None, iid=''):
-            return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val, id=iid)
+            return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=(f'opf:scheme="{scheme}"' if scheme else ''), val=val, id=iid)
 
         def ri(root):
             return dict(read_identifiers(root, read_prefixes(root), default_refines))
@@ -170,7 +170,7 @@ class TestOPF3(unittest.TestCase):
         self.ae([Author('a b', None)], rl(root))
         for scheme in ('scheme="marc:relators"', ''):
             root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator id="1">c d</dc:creator>'''
-                                '''<meta refines="#1" property="role" %s>aut</meta>''' % scheme)
+                                f'''<meta refines="#1" property="role" {scheme}>aut</meta>''')
             self.ae([Author('c d', None)], rl(root))
         root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
         self.ae([Author('c d', None)], rl(root))
@@ -179,7 +179,7 @@ class TestOPF3(unittest.TestCase):
         self.ae([Author('a b', 'b, a'), Author('c d', 'd, c')], rl(root))
         authors = [Author('x y', 'y, x'), Author('u i', None)]
         self.ae(authors, st(root, authors))
-        self.ae(root.get('prefix'), 'calibre: %s' % CALIBRE_PREFIX)
+        self.ae(root.get('prefix'), f'calibre: {CALIBRE_PREFIX}')
         root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
         self.ae([Author('c d', None)], rl(root))
         self.ae(authors, st(root, authors))
@@ -198,7 +198,7 @@ class TestOPF3(unittest.TestCase):
             return rl(root)
         for scheme in ('scheme="marc:relators"', ''):
             root = self.get_opf('''<dc:contributor>a  b</dc:contributor><dc:contributor id="1">c d</dc:contributor>'''
-                                '''<meta refines="#1" property="role" %s>bkp</meta>''' % scheme)
+                                f'''<meta refines="#1" property="role" {scheme}>bkp</meta>''')
             self.ae(['c d'], rl(root))
         root = self.get_opf('''<dc:contributor>a  b</dc:contributor><dc:contributor opf:role="bkp">c d</dc:contributor>''')
         self.ae(['c d'], rl(root))
@@ -326,7 +326,7 @@ class TestOPF3(unittest.TestCase):
             f(root, read_prefixes(root), read_refines(root), val)
             return rt(root, name)
         for name in 'link_maps user_categories'.split():
-            root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/>''' % name)
+            root = self.get_opf(f'''<meta name="calibre:{name}" content='{{"1":1}}'/>''')
             self.ae({'1':1}, rt(root, name))
             root = self.get_opf(f'''<meta name="calibre:{name}" content='{{"1":1}}'/><meta property="calibre:{name}">{{"2":2}}</meta>''')
             self.ae({'2':2}, rt(root, name))

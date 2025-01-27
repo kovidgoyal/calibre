@@ -98,7 +98,7 @@ def do_rebuild(opf, dest_path):
 def rebuild(src_dir, dest_path):
     opf = glob.glob(os.path.join(src_dir, '*.opf'))
     if not opf:
-        raise ValueError('No OPF file found in %s'%src_dir)
+        raise ValueError(f'No OPF file found in {src_dir}')
     opf = opf[0]
     # For debugging, uncomment the following two lines
     # def fork_job(a, b, args=None, no_output=True):

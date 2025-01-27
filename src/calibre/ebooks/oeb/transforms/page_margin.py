@@ -75,7 +75,7 @@ class RemoveFakeMargins:
                 self.process_level(level)
             except NegativeTextIndent:
                 self.log.debug('Negative text indent detected at level '
-                        ' %s, ignoring this level'%level)
+                        f' {level}, ignoring this level')
 
     def get_margins(self, elem):
         cls = elem.get('class', None)
@@ -110,11 +110,11 @@ class RemoveFakeMargins:
 
         if remove_left:
             mcl = self.stats[level+'_left'].most_common(1)[0][0]
-            self.log('Removing level %s left margin of:'%level, mcl)
+            self.log(f'Removing level {level} left margin of:', mcl)
 
         if remove_right:
             mcr = self.stats[level+'_right'].most_common(1)[0][0]
-            self.log('Removing level %s right margin of:'%level, mcr)
+            self.log(f'Removing level {level} right margin of:', mcr)
 
         if remove_left or remove_right:
             for elem in elems:

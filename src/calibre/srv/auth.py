@@ -178,8 +178,7 @@ class DigestAuth:  # {{{
         ha2 = self.H_A2(data)
         # Request-Digest -- RFC 2617 3.2.2.1
         if self.qop:
-            req = '{}:{}:{}:{}:{}'.format(
-                self.nonce, self.nonce_count, self.cnonce, self.qop, ha2)
+            req = f'{self.nonce}:{self.nonce_count}:{self.cnonce}:{self.qop}:{ha2}'
         else:
             req = f'{self.nonce}:{ha2}'
 
@@ -207,8 +206,7 @@ class DigestAuth:  # {{{
         path = parse_uri(self.uri.encode('utf-8'))[1]
         if path != data.path:
             if log is not None:
-                log.warn('Authorization URI mismatch: {} != {} from client: {}'.format(
-                    data.path, path, data.remote_addr))
+                log.warn(f'Authorization URI mismatch: {data.path} != {path} from client: {data.remote_addr}')
             raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
 # }}}
@@ -291,7 +289,7 @@ class AuthController:
                         if not nonce_is_stale:
                             data.username = da.username
                             return
-                log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                log_msg = f'Failed login attempt from: {data.remote_addr}'
                 self.ban_list.failed(ban_key)
             elif self.prefer_basic_auth and scheme == 'basic':
                 try:
@@ -303,16 +301,15 @@ class AuthController:
                 if self.check(un, pw):
                     data.username = un
                     return
-                log_msg = 'Failed login attempt from: %s' % data.remote_addr
+                log_msg = f'Failed login attempt from: {data.remote_addr}'
                 self.ban_list.failed(ban_key)
             else:
                 raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported authentication method')
 
         if self.prefer_basic_auth:
-            raise HTTPAuthRequired('Basic realm="%s"' % self.realm, log=log_msg)
+            raise HTTPAuthRequired(f'Basic realm="{self.realm}"', log=log_msg)
 
-        s = 'Digest realm="{}", nonce="{}", algorithm="MD5", qop="auth"'.format(
-            self.realm, synthesize_nonce(self.key_order, self.realm, self.secret))
+        s = f'Digest realm="{self.realm}", nonce="{synthesize_nonce(self.key_order, self.realm, self.secret)}", algorithm="MD5", qop="auth"'
         if nonce_is_stale:
             s += ', stale="true"'
         raise HTTPAuthRequired(s, log=log_msg)

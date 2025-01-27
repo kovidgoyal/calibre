@@ -362,8 +362,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
     def __tab_stop_func(self, line):
         '''
         '''
-        self.__att_val_dict['tabs'] += '%s:' % self.__tab_type
-        self.__att_val_dict['tabs'] += '%s;' % line[20:-1]
+        self.__att_val_dict['tabs'] += f'{self.__tab_type}:'
+        self.__att_val_dict['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __tab_type_func(self, line):
@@ -374,7 +374,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__tab_type = type
         else:
             if self.__run_level > 3:
-                msg = 'no entry for %s\n' % self.__token_info
+                msg = f'no entry for {self.__token_info}\n'
                 raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
@@ -382,17 +382,17 @@ if another paragraph_def is found, the state changes to collect_tokens.
         '''
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
-            self.__att_val_dict['tabs'] += '%s^' % leader
+            self.__att_val_dict['tabs'] += f'{leader}^'
         else:
             if self.__run_level > 3:
-                msg = 'no entry for %s\n' % self.__token_info
+                msg = f'no entry for {self.__token_info}\n'
                 raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
         '''
         '''
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
-        self.__att_val_dict['tabs'] += 'bar:%s;' % (line[20:-1])
+        self.__att_val_dict['tabs'] += f'bar:{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __parse_border(self, line):
@@ -628,8 +628,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
     def __write_body_styles(self):
         style_string = ''
         style_string += 'mi<tg<empty-att_<paragraph-style-in-body'
-        style_string += '<name>%s' % self.__att_val_dict['name']
-        style_string += '<style-number>%s' % self.__att_val_dict['style-num']
+        style_string += '<name>{}'.format(self.__att_val_dict['name'])
+        style_string += '<style-number>{}'.format(self.__att_val_dict['style-num'])
         tabs_list = ['tabs-left', 'tabs-right', 'tabs-decimal', 'tabs-center',
             'tabs-bar', 'tabs']
         if self.__att_val_dict['tabs'] != '':
@@ -663,17 +663,17 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write('mi<mk<not-in-tbl\n')
         left_indent = self.__att_val_dict.get('left-indent')
         if left_indent:
-            self.__write_obj.write('mi<mk<left_inden<%s\n' % left_indent)
+            self.__write_obj.write(f'mi<mk<left_inden<{left_indent}\n')
         is_list = self.__att_val_dict.get('list-id')
         if is_list:
-            self.__write_obj.write('mi<mk<list-id___<%s\n' % is_list)
+            self.__write_obj.write(f'mi<mk<list-id___<{is_list}\n')
         else:
             self.__write_obj.write('mi<mk<no-list___\n')
-        self.__write_obj.write('mi<mk<style-name<%s\n' % self.__att_val_dict['name'])
+        self.__write_obj.write('mi<mk<style-name<{}\n'.format(self.__att_val_dict['name']))
         self.__write_obj.write(self.__start_marker)
         self.__write_obj.write('mi<tg<open-att__<paragraph-definition')
-        self.__write_obj.write('<name>%s' % self.__att_val_dict['name'])
-        self.__write_obj.write('<style-number>%s' % self.__att_val_dict['style-num'])
+        self.__write_obj.write('<name>{}'.format(self.__att_val_dict['name']))
+        self.__write_obj.write('<style-number>{}'.format(self.__att_val_dict['style-num']))
         tabs_list = ['tabs-left', 'tabs-right', 'tabs-decimal', 'tabs-center', 'tabs-bar', 'tabs']
         # for tab_item in tabs_list:
         #     if self.__att_val_dict[tab_item] != '':
@@ -693,10 +693,10 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write(self.__start2_marker)
         if 'font-style' in keys:
             face = self.__att_val_dict['font-style']
-            self.__write_obj.write('mi<mk<font______<%s\n' % face)
+            self.__write_obj.write(f'mi<mk<font______<{face}\n')
         if 'caps' in keys:
             value = self.__att_val_dict['caps']
-            self.__write_obj.write('mi<mk<caps______<%s\n' % value)
+            self.__write_obj.write(f'mi<mk<caps______<{value}\n')
 
     def __empty_table_element_func(self, line):
         self.__write_obj.write('mi<mk<in-table__\n')

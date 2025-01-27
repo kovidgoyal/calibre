@@ -24,7 +24,7 @@ class Job(Thread):
     daemon = True
 
     def __init__(self, start_event, events_queue):
-        Thread.__init__(self, name='JobsMonitor%s' % start_event.job_id)
+        Thread.__init__(self, name=f'JobsMonitor{start_event.job_id}')
         self.abort_event = Event()
         self.events_queue = events_queue
         self.job_name = start_event.name

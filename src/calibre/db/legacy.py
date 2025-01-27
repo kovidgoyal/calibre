@@ -616,9 +616,9 @@ class LibraryDatabase:
     def set_custom_bulk_multiple(self, ids, add=[], remove=[], label=None, num=None, notify=False):
         data = self.backend.custom_field_metadata(label, num)
         if not data['editable']:
-            raise ValueError('Column %r is not editable'%data['label'])
+            raise ValueError('Column {!r} is not editable'.format(data['label']))
         if data['datatype'] != 'text' or not data['is_multiple']:
-            raise ValueError('Column %r is not text/multiple'%data['label'])
+            raise ValueError('Column {!r} is not text/multiple'.format(data['label']))
         field = self.custom_field_name(label, num)
         self._do_bulk_modify(field, ids, add, remove, notify)
 
@@ -756,7 +756,7 @@ class LibraryDatabase:
         if data['datatype'] == 'composite':
             return set()
         if not data['editable']:
-            raise ValueError('Column %r is not editable'%data['label'])
+            raise ValueError('Column {!r} is not editable'.format(data['label']))
         if data['datatype'] == 'enumeration' and (
                 val and val not in data['display']['enum_values']):
             return set()
@@ -789,7 +789,7 @@ class LibraryDatabase:
                 val and val not in data['display']['enum_values']):
             return
         if not data['editable']:
-            raise ValueError('Column %r is not editable'%data['label'])
+            raise ValueError('Column {!r} is not editable'.format(data['label']))
 
         if append:
             for book_id in ids:
@@ -826,7 +826,7 @@ class LibraryDatabase:
             self.notify('cover', [book_id])
 
     def original_fmt(self, book_id, fmt):
-        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        nfmt = (f'ORIGINAL_{fmt}').upper()
         return nfmt if self.new_api.has_format(book_id, nfmt) else fmt
 
     def save_original_format(self, book_id, fmt, notify=True):
@@ -931,7 +931,7 @@ for field in (
                     self.notify([book_id])
                 return ret if field == 'languages' else retval
         return func
-    setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), setter(field))
+    setattr(LibraryDatabase, 'set_{}'.format(field.replace('!', '')), setter(field))
 
 for field in ('authors', 'tags', 'publisher'):
     def renamer(field):
@@ -941,7 +941,7 @@ for field in ('authors', 'tags', 'publisher'):
                 return id_map[old_id]
         return func
     fname = field[:-1] if field in {'tags', 'authors'} else field
-    setattr(LibraryDatabase, 'rename_%s' % fname, renamer(field))
+    setattr(LibraryDatabase, f'rename_{fname}', renamer(field))
 
 LibraryDatabase.update_last_modified = lambda self, book_ids, commit=False, now=None: self.new_api.update_last_modified(book_ids, now=now)
 
@@ -954,7 +954,7 @@ for field in ('authors', 'tags', 'publisher', 'series'):
             return self.new_api.all_field_names(field)
         return func
     name = field[:-1] if field in {'authors', 'tags'} else field
-    setattr(LibraryDatabase, 'all_%s_names' % name, getter(field))
+    setattr(LibraryDatabase, f'all_{name}_names', getter(field))
 LibraryDatabase.all_formats = lambda self: self.new_api.all_field_names('formats')
 LibraryDatabase.all_custom = lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num))
 
@@ -977,7 +977,7 @@ for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
         def func(self):
             return [[tid, tag] for tid, tag in iteritems(self.new_api.get_id_map(fname))]
         return func
-    setattr(LibraryDatabase, 'get_%s_with_ids' % field, getter(field))
+    setattr(LibraryDatabase, f'get_{field}_with_ids', getter(field))
 
 for field in ('author', 'tag', 'series'):
     def getter(field):
@@ -986,7 +986,7 @@ for field in ('author', 'tag', 'series'):
         def func(self, item_id):
             return self.new_api.get_item_name(field, item_id)
         return func
-    setattr(LibraryDatabase, '%s_name' % field, getter(field))
+    setattr(LibraryDatabase, f'{field}_name', getter(field))
 
 for field in ('publisher', 'series', 'tag'):
     def getter(field):
@@ -995,7 +995,7 @@ for field in ('publisher', 'series', 'tag'):
         def func(self, item_id):
             self.new_api.remove_items(fname, (item_id,))
         return func
-    setattr(LibraryDatabase, 'delete_%s_using_id' % field, getter(field))
+    setattr(LibraryDatabase, f'delete_{field}_using_id', getter(field))
 # }}}
 
 # Legacy field API {{{

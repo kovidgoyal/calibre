@@ -78,10 +78,9 @@ class OptionRecommendation:
     def validate_parameters(self):
         if self.option.choices and self.recommended_value not in \
                                                     self.option.choices:
-            raise ValueError('OpRec: %s: Recommended value not in choices'%
-                             self.option.name)
+            raise ValueError(f'OpRec: {self.option.name}: Recommended value not in choices')
         if not (isinstance(self.recommended_value, (numbers.Number, bytes, str)) or self.recommended_value is None):
-            raise ValueError('OpRec: %s:'%self.option.name + repr(
+            raise ValueError(f'OpRec: {self.option.name}:' + repr(
                 self.recommended_value) + ' is not a string or a number')
 
 
@@ -229,7 +228,7 @@ class InputFormatPlugin(Plugin):
     def __call__(self, stream, options, file_ext, log,
                  accelerators, output_dir):
         try:
-            log('InputFormatPlugin: %s running'%self.name)
+            log(f'InputFormatPlugin: {self.name} running')
             if hasattr(stream, 'name'):
                 log('on', stream.name)
         except:

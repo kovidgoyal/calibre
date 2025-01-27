@@ -612,13 +612,13 @@ class ProcessTokens:
     def __ms_hex_func(self, pre, token, num):
         num = num[1:]  # chop off leading 0, which I added
         num = num.upper()  # the mappings store hex in caps
-        return "tx<hx<__________<'%s\n" % num  # add an ' for the mappings
+        return f"tx<hx<__________<'{num}\n"  # add an ' for the mappings
 
     def ms_sub_func(self, pre, token, num):
-        return 'tx<mc<__________<%s\n' % token
+        return f'tx<mc<__________<{token}\n'
 
     def direct_conv_func(self, pre, token, num):
-        return 'mi<tg<empty_____<%s\n' % token
+        return f'mi<tg<empty_____<{token}\n'
 
     def default_func(self, pre, token, num):
         if num is None:
@@ -639,7 +639,7 @@ class ProcessTokens:
                 num = int(num)
             except ValueError:
                 if self.__run_level > 3:
-                    msg = 'Number "%s" cannot be converted to integer\n' % num
+                    msg = f'Number "{num}" cannot be converted to integer\n'
                     raise self.__bug_handler(msg)
             type = self.__number_type_dict.get(num)
             if type is None:
@@ -654,7 +654,7 @@ class ProcessTokens:
         if not lang_name:
             lang_name = 'not defined'
             if self.__run_level > 3:
-                msg = 'No entry for number "%s"' % num
+                msg = f'No entry for number "{num}"'
                 raise self.__bug_handler(msg)
         return f'cw<{pre}<{token}<nu<{lang_name}\n'
 
@@ -676,7 +676,7 @@ class ProcessTokens:
         # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
     def text_func(self, pre, token, num=None):
-        return 'tx<nu<__________<%s\n' % token
+        return f'tx<nu<__________<{token}\n'
 
     def ob_func(self, pre, token, num=None):
         self.__bracket_count += 1
@@ -692,7 +692,7 @@ class ProcessTokens:
         if num[-1] == ';':
             num = num[:-1]
             third_field = 'en'
-        num = '%X' % int(num)
+        num = f'{int(num):X}'
         if len(num) != 2:
             num = '0' + num
         return f'cw<{pre}<{token}<{third_field}<{num}\n'
@@ -722,12 +722,12 @@ class ProcessTokens:
             if self.__run_level > 3:
                 msg = ('No number to process?\nthis indicates that the token \\(\\li\\)'
                        'should have a number and does not\nnumerator is'
-                       '"%s"\ndenominator is "%s"\n') % (numerator, denominator)
+                       f'"{numerator}"\ndenominator is "{denominator}"\n')
                 raise self.__bug_handler(msg)
             if 5 > self.__return_code:
                 self.__return_code = 5
             return 0
-        num = '%0.2f' % round(numerator/denominator, 2)
+        num = f'{round(numerator/denominator, 2):0.2f}'
         return num
         string_num = str(num)
         if string_num[-2:] == '.0':
@@ -741,12 +741,12 @@ class ProcessTokens:
             second = match_obj.group(2)
             if not second:
                 if self.__run_level > 3:
-                    msg = "token is '%s' \n" % token
+                    msg = f"token is '{token}' \n"
                     raise self.__bug_handler(msg)
                 return first, 0
         else:
             if self.__run_level > 3:
-                msg = "token is '%s' \n" % token
+                msg = f"token is '{token}' \n"
                 raise self.__bug_handler
             return token, 0
         return first, second
@@ -755,7 +755,7 @@ class ProcessTokens:
         '''Convert a string to uppercase hexadecimal'''
         num = int(number)
         try:
-            hex_num = '%X' % num
+            hex_num = f'{num:X}'
             return hex_num
         except:
             raise self.__bug_handler
@@ -812,9 +812,9 @@ class ProcessTokens:
                             if not field:
                                 continue
                             if field[0:1] == '&':
-                                write_obj.write('tx<ut<__________<%s\n' % field)
+                                write_obj.write(f'tx<ut<__________<{field}\n')
                             else:
-                                write_obj.write('tx<nu<__________<%s\n' % field)
+                                write_obj.write(f'tx<nu<__________<{field}\n')
 
         if not line_count:
             msg = '\nInvalid RTF: file appears to be empty.\n'

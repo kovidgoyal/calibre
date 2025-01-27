@@ -472,7 +472,7 @@ class CopyToLibraryAction(InterfaceAction):
 
     def do_copy(self, ids, db, loc, delete_after, add_duplicates=False):
         aname = _('Moving to') if delete_after else _('Copying to')
-        dtitle = '%s %s'%(aname, os.path.basename(loc))
+        dtitle = f'{aname} {os.path.basename(loc)}'
         self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
                 parent=self.gui, cancelable=True, icon='lt.png', cancel_confirm_msg=_(
                     'Aborting this operation means that only some books will be copied'

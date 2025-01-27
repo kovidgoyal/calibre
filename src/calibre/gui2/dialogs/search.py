@@ -484,10 +484,10 @@ class SearchDialog(QDialog):
             ans = f'{prefix}{self.date_year.value()}'
             m = self.date_month.itemData(self.date_month.currentIndex())
             if m > 0:
-                ans += '-%s' % m
+                ans += f'-{m}'
                 d = self.date_day.value()
                 if d > 0:
-                    ans += '-%s' % d
+                    ans += f'-{d}'
             return ans
         if self.sel_daysago.isChecked():
             val = self.date_daysago.value()
@@ -513,7 +513,7 @@ class SearchDialog(QDialog):
         none = ' and not '.join(none)
         ans = ''
         if phrase:
-            ans += '"%s"'%phrase
+            ans += f'"{phrase}"'
         if all:
             ans += (' and ' if ans else '') + all
         if none:
@@ -532,7 +532,7 @@ class SearchDialog(QDialog):
                 txt = '!'+txt
             tok = self.FIELDS[str(self.field.currentText())]+txt
             if re.search(r'\s', tok):
-                tok = '"%s"'%tok
+                tok = f'"{tok}"'
             return tok
 
     def box_search_string(self):

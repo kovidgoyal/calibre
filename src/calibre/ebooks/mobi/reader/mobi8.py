@@ -212,8 +212,8 @@ class Mobi8Reader:
                     # example, https://bugs.launchpad.net/bugs/1082669
                     if not inspos_warned:
                         self.log.warn(
-                            'The div table for %s has incorrect insert '
-                            'positions. Calculating manually.'%skelname)
+                            f'The div table for {skelname} has incorrect insert '
+                            'positions. Calculating manually.')
                         inspos_warned = True
                     bp, ep = locate_beg_end_of_tag(skeleton, aidtext if
                         isinstance(aidtext, bytes) else aidtext.encode('utf-8'))
@@ -313,7 +313,7 @@ class Mobi8Reader:
         # so find the closest "id=" before position the file by actually
         # searching in that file
         idtext = self.get_id_tag(pos)
-        return '%s/%s'%(fi.type, fi.filename), idtext
+        return f'{fi.type}/{fi.filename}', idtext
 
     def get_id_tag(self, pos):
         # Find the first tag with a named anchor (name or id attribute) before
@@ -373,7 +373,7 @@ class Mobi8Reader:
                 linktgt = fi.filename
                 if idtext:
                     linktgt += '#' + idtext
-                g = Guide.Reference('%s/%s'%(fi.type, linktgt), os.getcwd())
+                g = Guide.Reference(f'{fi.type}/{linktgt}', os.getcwd())
                 g.title, g.type = 'start', 'text'
                 guide.append(g)
 
@@ -393,13 +393,12 @@ class Mobi8Reader:
                 if fi.filename is None:
                     raise ValueError('Index entry has invalid pos: %d'%pos)
                 idtag = self.get_id_tag(pos)
-                href = '%s/%s'%(fi.type, fi.filename)
+                href = f'{fi.type}/{fi.filename}'
             else:
                 try:
                     href, idtag = self.get_id_tag_by_pos_fid(*pos_fid)
                 except ValueError:
-                    self.log.warn('Invalid entry in NCX (title: %s), ignoring'
-                                  %entry['text'])
+                    self.log.warn('Invalid entry in NCX (title: {}), ignoring'.format(entry['text']))
                     remove.append(entry)
                     continue
 
@@ -435,7 +434,7 @@ class Mobi8Reader:
                         self.log.warn('Reading font record %d failed: %s'%(
                             fname_idx, font['err']))
                         if font['headers']:
-                            self.log.debug('Font record headers: %s'%font['headers'])
+                            self.log.debug('Font record headers: {}'.format(font['headers']))
                     with open(href.replace('/', os.sep), 'wb') as f:
                         f.write(font['font_data'] if font['font_data'] else
                                 font['raw_data'])
@@ -545,7 +544,7 @@ class Mobi8Reader:
             start = None
             reached = True
         if frag:
-            elems = XPath('//*[@id="%s"]'%frag)(root)
+            elems = XPath(f'//*[@id="{frag}"]')(root)
             if elems:
                 start = elems[0]
 

@@ -916,7 +916,7 @@ class Cache:
         try:
             return frozenset(self.fields[field].table.id_map.values())
         except AttributeError:
-            raise ValueError('%s is not a many-one or many-many field' % field)
+            raise ValueError(f'{field} is not a many-one or many-many field')
 
     @read_api
     def get_usage_count_by_id(self, field):
@@ -925,7 +925,7 @@ class Cache:
         try:
             return {k:len(v) for k, v in iteritems(self.fields[field].table.col_book_map)}
         except AttributeError:
-            raise ValueError('%s is not a many-one or many-many field' % field)
+            raise ValueError(f'{field} is not a many-one or many-many field')
 
     @read_api
     def get_id_map(self, field):
@@ -937,7 +937,7 @@ class Cache:
         except AttributeError:
             if field == 'title':
                 return self.fields[field].table.book_col_map.copy()
-            raise ValueError('%s is not a many-one or many-many field' % field)
+            raise ValueError(f'{field} is not a many-one or many-many field')
 
     @read_api
     def get_item_name(self, field, item_id):
@@ -2319,7 +2319,7 @@ class Cache:
         try:
             func = f.table.rename_item
         except AttributeError:
-            raise ValueError('Cannot rename items for one-one fields: %s' % field)
+            raise ValueError(f'Cannot rename items for one-one fields: {field}')
         moved_books = set()
         id_map = {}
         for item_id, new_name in item_id_to_new_name_map.items():
@@ -2705,7 +2705,7 @@ class Cache:
         if mi.authors:
             try:
                 quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail
-                query = ' and '.join('authors:"=%s"'%(a.replace('"', '')) for a in quathors)
+                query = ' and '.join('authors:"={}"'.format(a.replace('"', '')) for a in quathors)
                 qauthors = mi.authors[20:]
             except ValueError:
                 return identical_book_ids

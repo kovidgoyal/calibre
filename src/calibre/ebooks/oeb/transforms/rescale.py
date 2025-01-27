@@ -70,11 +70,11 @@ class RescaleImages:
                 try:
                     if self.check_colorspaces and img.mode == 'CMYK':
                         self.log.warn(
-                            'The image %s is in the CMYK colorspace, converting it '
-                            'to RGB as Adobe Digital Editions cannot display CMYK' % item.href)
+                            f'The image {item.href} is in the CMYK colorspace, converting it '
+                            'to RGB as Adobe Digital Editions cannot display CMYK')
                         img = img.convert('RGB')
                 except Exception:
-                    self.log.exception('Failed to convert image %s from CMYK to RGB' % item.href)
+                    self.log.exception(f'Failed to convert image {item.href} from CMYK to RGB')
 
                 scaled, new_width, new_height = fit_image(width, height, page_width, page_height)
                 if scaled:
@@ -85,13 +85,13 @@ class RescaleImages:
                     try:
                         img = img.resize((new_width, new_height))
                     except Exception:
-                        self.log.exception('Failed to rescale image: %s' % item.href)
+                        self.log.exception(f'Failed to rescale image: {item.href}')
                         continue
                     buf = BytesIO()
                     try:
                         img.save(buf, ext)
                     except Exception:
-                        self.log.exception('Failed to rescale image: %s' % item.href)
+                        self.log.exception(f'Failed to rescale image: {item.href}')
                     else:
                         item.data = buf.getvalue()
                         item.unload_data_from_memory()
