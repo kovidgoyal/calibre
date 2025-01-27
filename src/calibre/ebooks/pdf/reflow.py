@@ -236,7 +236,7 @@ class Text(Element):
         # Or assume any gap = a space?
         if (self.top <= other.top and self.bottom >= other.bottom) \
           and abs(other.left - self.right) < 2.0:
-          # and abs(other.left - self.right) < self.average_character_width / 3.0:
+            # and abs(other.left - self.right) < self.average_character_width / 3.0:
             has_gap = 0
         else:  # Insert n spaces to fill gap.  Use TAB?  Columns?
             if other.left < self.right:
@@ -782,7 +782,7 @@ class Page:
               or text.top > self.height \
               or text.left > self.left+self.width \
               or text.left < self.left:
-              # and re.match(r'href=', text.raw) is None:
+                # and re.match(r'href=', text.raw) is None:
                 self.texts.remove(text)
             elif  (self.opts.pdf_header_skip <= 0 or text.top >= self.opts.pdf_header_skip) \
               and (self.opts.pdf_footer_skip <= 0 or text.top <= self.opts.pdf_footer_skip):
@@ -960,19 +960,19 @@ class Page:
               and lmargin >= rmargin - rmargin*CENTER_FACTOR \
               and lmargin <= rmargin + rmargin*CENTER_FACTOR \
               and '"float:right"' not in t.raw:
-               # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
-               # and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
+                # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
+                # and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
             # Right aligned if left > FACTOR% of right
             elif lmargin > indent_max \
               and lmargin > rmargin*RIGHT_FACTOR:
-              # and t.right >= self.width - t.average_character_width:
+                # and t.right >= self.width - t.average_character_width:
                 # What about right-aligned but indented on right?
                 # What about indented rather than right-aligned?
                 t.align = 'R'
             if not self.contents:
-              # We can get <a href=...Chapter...  Should this check be done?
-              # if 'href=' not in t.raw:
+                # We can get <a href=...Chapter...  Should this check be done?
+                # if 'href=' not in t.raw:
                 # Check for Roman numerals as the only thing on a line
                 if re.match(r'^\s*[iIxXvV]+\s*$', t.text_as_string) is not None:
                     t.tag = 'h3'
@@ -1082,7 +1082,7 @@ class Page:
                         if last_frag is not None \
                           and stats.para_space > 0 \
                           and frag.bottom - last_frag.bottom > stats.para_space*SECTION_FACTOR:
-                          # and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
+                            # and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
                             frag.blank_line_before = 1
                 last_frag = frag
                 tind += 1
@@ -1752,7 +1752,7 @@ class PDFDocument:
         bcount = 0
         for b in self.bottoms:
             if bcount < self.bottoms[b]:
-              # and b > self.stats.bottom*0.9:
+                # and b > self.stats.bottom*0.9:
                 bcount = self.bottoms[b]
             if b > self.stats.bottom:
                 self.stats.bottom = b
