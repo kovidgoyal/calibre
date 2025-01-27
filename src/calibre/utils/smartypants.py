@@ -493,7 +493,7 @@ def smartyPants(text, attr='1'):
             if not in_pre:
                 t = processEscapes(t)
 
-                t = re.sub('&quot;', '"', t)
+                t = re.sub(r'&quot;', '"', t)
                 t = dashes_func(t)
                 t = ellipses_func(t)
                 # Note: backticks need to be processed before quotes.
