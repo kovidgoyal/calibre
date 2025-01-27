@@ -446,7 +446,8 @@ class JobError(QDialog):  # {{{
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         QApplication.clipboard().setText(
-                f'calibre, version {__version__} ({sys.platform}, embedded-python: {isfrozen})\n{self.windowTitle()!s}: {d.toPlainText()!s}\n\n{self.det_msg.toPlainText()!s}')
+                f'calibre, version {__version__} ({sys.platform}, embedded-python: {isfrozen})\n'
+                f'{self.windowTitle()!s}: {d.toPlainText()!s}\n\n{self.det_msg.toPlainText()!s}')
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 

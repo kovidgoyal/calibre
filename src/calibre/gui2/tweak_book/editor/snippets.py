@@ -234,7 +234,9 @@ class EditorTabStop:
         self.join_previous_edit = False
 
     def __repr__(self):
-        return f'EditorTabStop(num={self.num!r} text={self.text!r} left={self.left!r} right={self.right!r} is_deleted={self.is_deleted!r} mirrors={self.mirrors!r})'
+        return (
+            f'EditorTabStop(num={self.num!r} text={self.text!r} left={self.left!r} right={self.right!r} '
+            f'is_deleted={self.is_deleted!r} mirrors={self.mirrors!r})')
     __str__ = __unicode__ = __repr__
 
     def apply_selected_text(self, text):

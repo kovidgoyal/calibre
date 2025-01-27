@@ -87,7 +87,9 @@ class ParseItem:
         self.parsing_done = False
 
     def __repr__(self):
-        return f'ParsedItem(name={self.name!r}, length={self.length!r}, fingerprint={self.fingerprint!r}, parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})'
+        return (
+            f'ParsedItem(name={self.name!r}, length={self.length!r}, fingerprint={self.fingerprint!r}, '
+            f'parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})')
 
 
 class ParseWorker(Thread):

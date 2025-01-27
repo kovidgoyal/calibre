@@ -150,7 +150,7 @@ class RTFMLizer:
         return text
 
     def header(self):
-        header = f'{{\\rtf1{{\\info{{\\title {self.oeb_book.metadata.title[0].value}}}{{\\author {authors_to_string([x.value for x in self.oeb_book.metadata.creator])}}}}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n'
+        header = f'{{\\rtf1{{\\info{{\\title {self.oeb_book.metadata.title[0].value}}}{{\\author {authors_to_string([x.value for x in self.oeb_book.metadata.creator])}}}}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n'  # noqa: E501
         return header + (
             '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f2\\fswiss\\fprq2\\fcharset128 Arial;}{\\f3\\fnil\\fprq2\\fcharset128 Arial;}{\\f4\\fnil\\fprq2\\fcharset128 MS Mincho;}{\\f5\\fnil\\fprq2\\fcharset128 Tahoma;}{\\f6\\fnil\\fprq0\\fcharset128 Tahoma;}}\n'  # noqa: E501
             '{\\stylesheet{\\ql \\li0\\ri0\\nowidctlpar\\wrapdefault\\faauto\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\af25\\afs24\\alang1033 \\ltrch\\fcs0 \\fs24\\lang1033\\langfe255\\cgrid\\langnp1033\\langfenp255 \\snext0 Normal;}\n'  # noqa: E501

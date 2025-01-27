@@ -32,7 +32,8 @@ class ET:
         legacy = self.legacy or test.init_legacy(test.cloned_library)
         oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
         newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
-        test.assertEqual(oldres, newres, f'Equivalence test for {self.func_name} with args: {reprlib.repr(self.args)} and kwargs: {reprlib.repr(self.kwargs)} failed')
+        test.assertEqual(oldres, newres,
+            f'Equivalence test for {self.func_name} with args: {reprlib.repr(self.args)} and kwargs: {reprlib.repr(self.kwargs)} failed')
         self.retval = newres
         return newres
 

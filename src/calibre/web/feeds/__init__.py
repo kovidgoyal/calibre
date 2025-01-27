@@ -232,7 +232,9 @@ class Feed:
             self.articles.append(article)
         else:
             try:
-                self.logger.debug('Skipping article {} ({}) from feed {} as it is too old.'.format(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+                self.logger.debug(
+                    'Skipping article {} ({}) from feed {} as it is too old.'.format(
+                        title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
             except UnicodeDecodeError:
                 if not isinstance(title, str):
                     title = title.decode('utf-8', 'replace')

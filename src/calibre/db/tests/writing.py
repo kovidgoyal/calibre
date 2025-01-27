@@ -70,7 +70,7 @@ class WritingTest(BaseTest):
                     test.setter(db)(1, val)
                     old_cached_res = getter(1)
                     self.assertEqual(old_cached_res, cached_res,
-                                    f'Failed setting for {test.name} with value {val!r}, cached value not the same. Old: {old_cached_res!r} != New: {cached_res!r}')
+                        f'Failed setting for {test.name} with value {val!r}, cached value not the same. Old: {old_cached_res!r} != New: {cached_res!r}')
                     db.refresh()
                     old_sqlite_res = getter(1)
                     self.assertEqual(old_sqlite_res, sqlite_res,

@@ -111,7 +111,9 @@ class to_js_bound(QObject):
         self.name = name
 
     def __call__(self, *args):
-        self.parent().page.runJavaScript(f'if (window.python_comm) python_comm._from_python({json.dumps(self.name)}, {json.dumps(args)})', QWebEngineScript.ScriptWorldId.ApplicationWorld)
+        self.parent().page.runJavaScript(
+            f'if (window.python_comm) python_comm._from_python({json.dumps(self.name)}, {json.dumps(args)})',
+            QWebEngineScript.ScriptWorldId.ApplicationWorld)
     emit = __call__
 
 

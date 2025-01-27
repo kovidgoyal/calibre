@@ -50,7 +50,9 @@ class Tag:
         self.self_closing = self_closing
 
     def __repr__(self):
-        return f'<{self.name} start_block={self.start_block.blockNumber()} start_offset={self.start_offset} end_block={self.end_block.blockNumber()} end_offset={self.end_offset} self_closing={self.self_closing}>'
+        return (
+            f'<{self.name} start_block={self.start_block.blockNumber()} start_offset={self.start_offset} '
+            f'end_block={self.end_block.blockNumber()} end_offset={self.end_offset} self_closing={self.self_closing}>')
     __str__ = __repr__
 
 

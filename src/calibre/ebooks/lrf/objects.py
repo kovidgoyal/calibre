@@ -1182,7 +1182,8 @@ class BookAttr(StyleObject, LRFObject):
         s = f'<BookStyle objid="{self.id}" stylelabel="{self.id}">\n'
         s += f'<SetDefault {self._tags_to_xml()} />\n'
         doc = self._document
-        s += f'<BookSetting bindingdirection="{self.binding_map[doc.binding]}" dpi="{doc.dpi}" screenwidth="{doc.width}" screenheight="{doc.height}" colordepth="{doc.color_depth}" />\n'
+        s += f'<BookSetting bindingdirection="{self.binding_map[doc.binding]}" dpi="{doc.dpi}" screenwidth="{doc.width}"'
+        s += f' screenheight="{doc.height}" colordepth="{doc.color_depth}" />\n'
         for font in self._document.font_map.values():
             s += str(font)
         s += '</BookStyle>\n'

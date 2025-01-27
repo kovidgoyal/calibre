@@ -157,8 +157,10 @@ class PML_HTMLizer:
     def prepare_pml(self, pml):
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
-        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
-        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(
+            match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(
+            match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
 
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
@@ -170,8 +172,10 @@ class PML_HTMLizer:
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
 
         # Footnotes and Sidebars.
-        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="{}"{}\\FN'.format(match.group('target'), match.group('text')) if match.group('text') else '', pml)
-        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="{}"{}\\SB'.format(match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="{}"{}\\FN'.format(
+            match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="{}"{}\\SB'.format(
+            match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
         # Convert &'s into entities so &amp; in the text doesn't get turned into
         # &. It will display as &amp;
@@ -751,7 +755,9 @@ def pml_to_html(pml):
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
     if id.strip():
-        html = f'<br /><br style="page-break-after: always;" /><div id="{pre_id}-{id}">{pml_to_html(pml)}<small><a href="#r{pre_id}-{id}">return</a></small></div>'
+        html = (
+            f'<br /><br style="page-break-after: always;" /><div id="{pre_id}-{id}">{pml_to_html(pml)}'
+            f'<small><a href="#r{pre_id}-{id}">return</a></small></div>')
     else:
         html = f'<br /><br style="page-break-after: always;" /><div>{pml_to_html(pml)}</div>'
     return html

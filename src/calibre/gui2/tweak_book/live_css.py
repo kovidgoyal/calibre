@@ -394,7 +394,9 @@ class Property:
         self.is_overriden = False
 
     def __repr__(self):
-        return f'<Property name={self.name} value={self.value} important={self.important} color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>'
+        return (
+            f'<Property name={self.name} value={self.value} important={self.important} '
+            f'color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>')
 
 
 class LiveCSS(QWidget):

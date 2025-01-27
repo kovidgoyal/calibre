@@ -2701,7 +2701,8 @@ class KOBOTOUCH(KOBO):
                             debug_print(f'KoboTouch:update_device_database_collections - book.title={book.title}')
                             debug_print(
                                 f'KoboTouch:update_device_database_collections - contentId={book.contentID},'
-                                f'update_core_metadata={update_core_metadata},update_purchased_kepubs={update_purchased_kepubs}, book.is_sideloaded={book.is_sideloaded}')
+                                f'update_core_metadata={update_core_metadata},update_purchased_kepubs={update_purchased_kepubs}, '
+                                f'book.is_sideloaded={book.is_sideloaded}')
                         if update_core_metadata and (update_purchased_kepubs or book.is_sideloaded):
                             if show_debug:
                                 debug_print('KoboTouch:update_device_database_collections - calling set_core_metadata')
@@ -2939,7 +2940,8 @@ class KOBOTOUCH(KOBO):
                         if show_debug:
                             debug_print(
                                 f'KoboTouch:_calculate_kobo_cover_size - expand_to={expand_to}'
-                                f' (vs. kobo_size={kobo_size}) & resize_to={resize_to}, keep_cover_aspect={keep_cover_aspect} & letterbox_fs_covers={letterbox_fs_covers}, png_covers={png_covers}')
+                                f' (vs. kobo_size={kobo_size}) & resize_to={resize_to}, keep_cover_aspect={keep_cover_aspect} '
+                                f'& letterbox_fs_covers={letterbox_fs_covers}, png_covers={png_covers}')
 
                         # NOTE: To speed things up, we enforce a lower
                         # compression level for png_covers, as the final
