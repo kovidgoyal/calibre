@@ -487,7 +487,7 @@ class Source(Plugin):
         consistent, so only implement it if it is possible to construct the URL
         from a known scheme given identifiers.
         '''
-        return None
+        return
 
     def get_book_url_name(self, idtype, idval, url):
         '''
@@ -513,7 +513,7 @@ class Source(Plugin):
         Note that this method must only return validated URLs, i.e. not URLS
         that could result in a generic cover image or a not found error.
         '''
-        return None
+        return
 
     def id_from_url(self, url):
         '''
@@ -522,7 +522,7 @@ class Source(Plugin):
         If the URL does not match the pattern for the metadata source,
         return None.
         '''
-        return None
+        return
 
     def identify_results_keygen(self, title=None, authors=None,
             identifiers={}):
@@ -581,7 +581,7 @@ class Source(Plugin):
                  of the error suitable for showing to the user
 
         '''
-        return None
+        return
 
     def download_cover(self, log, result_queue, abort,
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
