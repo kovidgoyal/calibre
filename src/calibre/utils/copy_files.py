@@ -83,8 +83,8 @@ class WindowsFileCopier:
         self.allow_move = allow_move
         self.path_to_fileid_map: dict[str, WindowsFileId] = {}
         self.fileid_to_paths_map: dict[WindowsFileId, set[str]] = defaultdict(set)
-        self.path_to_handle_map: dict[str, 'winutil.Handle'] = {}
-        self.folder_to_handle_map: dict[str, 'winutil.Handle'] = {}
+        self.path_to_handle_map: dict[str, winutil.Handle] = {}
+        self.folder_to_handle_map: dict[str, winutil.Handle] = {}
         self.folders: list[str] = []
         self.copy_map: dict[str, str] = {}
 

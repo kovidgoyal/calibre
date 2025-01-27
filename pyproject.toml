@@ -56,8 +56,6 @@ unfixable = ['PIE794', 'ISC001']
 "src/calibre/ebooks/metadata/sources/base.py" = ['RET501']
 "src/calibre/ebooks/pdf/reflow.py" = ['E114']
 "src/calibre/gui2/store/stores/*" = ['UP']
-"src/calibre/gui2/tts/manager.py" = ['UP037']
-"src/calibre/utils/copy_files.py" = ['UP037']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 
