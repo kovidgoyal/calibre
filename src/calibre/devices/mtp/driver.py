@@ -729,13 +729,21 @@ def main():
         print(dev.device_debug_info(), flush=True)
         docs = dev.prefix_for_location(None)
         print('Prefix for main mem:', docs, flush=True)
-        entries = dev.list_folder_by_name(dev.filesystem_cache.entries[0], docs)
+        parent = dev.filesystem_cache.entries[0]
+        entries = dev.list_folder_by_name(parent, docs)
         pprint(entries)
-        pprint(dev.get_mtp_metadata_by_name(dev.filesystem_cache.entries[0], docs, entries[0].name))
+        pprint(dev.get_mtp_metadata_by_name(parent, docs, entries[0].name))
         files = [x for x in entries if not x.is_folder]
         f = io.BytesIO()
-        dev.get_file_by_name(f, dev.filesystem_cache.entries[0], docs, files[0].name)
-        print('Got', files[0].name, 'of size:', len(f.getvalue()))
+        dev.get_file_by_name(f, parent, docs, files[0].name)
+        data = f.getvalue()
+        print('Got', files[0].name, 'of size:', len(data))
+        parent = parent.folder_named(docs)
+        f.seek(0)
+        destname = 'mtp-driver-test.' + files[0].name.rpartition('.')[2]
+        m = dev.put_file(parent, destname, f, len(data))
+        print('Put', destname, 'in the', docs, 'folder')
+        pprint(m)
     except Exception:
         import traceback
         traceback.print_exc()
