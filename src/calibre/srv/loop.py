@@ -773,7 +773,7 @@ class ServerLoop:
         for pool in (self.plugin_pool, self.pool):
             pool.stop(wait_till)
             if pool.workers:
-                self.log.warn('Failed to shutdown %d workers in %s cleanly' % (len(pool.workers), pool.__class__.__name__))
+                self.log.warn(f'Failed to shutdown {len(pool.workers)} workers in {pool.__class__.__name__} cleanly')
         self.jobs_manager.wait_for_shutdown(wait_till)
 
 

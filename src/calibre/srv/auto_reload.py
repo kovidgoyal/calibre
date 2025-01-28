@@ -412,7 +412,7 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_o
         cmd.insert(1, 'calibre-server')
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
-    log('Watching %d directory trees for changes' % len(dirs))
+    log(f'Watching {len(dirs)} directory trees for changes')
     with ReloadServer(listen_on) as server, Worker(cmd, log, server) as worker:
         w = Watcher(dirs, worker, log)
         worker.wakeup = w.wakeup

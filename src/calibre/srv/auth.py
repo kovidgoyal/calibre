@@ -271,7 +271,7 @@ class AuthController:
     def do_http_auth(self, data, endpoint):
         ban_key = data.remote_addr, data.forwarded_for
         if self.ban_list.is_banned(ban_key):
-            raise HTTPForbidden('Too many login attempts', log='Too many login attempts from: %s' % (ban_key if data.forwarded_for else data.remote_addr))
+            raise HTTPForbidden('Too many login attempts', log=f'Too many login attempts from: {ban_key if data.forwarded_for else data.remote_addr}')
         auth = data.inheaders.get('Authorization')
         nonce_is_stale = False
         log_msg = None

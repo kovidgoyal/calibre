@@ -313,7 +313,7 @@ class TouchscreenFeedTemplate(Template):
         if f > 0:
             link = A(attrs('feed_link'),
                      trim_title(feeds[f-1].title),
-                     href='../feed_%d/index.html' % int(f-1))
+                     href=f'../feed_{int(f-1)}/index.html')
         navbar_tr.append(TD(attrs('feed_prev'),link))
 
         # Up to Sections
@@ -325,7 +325,7 @@ class TouchscreenFeedTemplate(Template):
         if f < len(feeds)-1:
             link = A(attrs('feed_link'),
                      trim_title(feeds[f+1].title),
-                     href='../feed_%d/index.html' % int(f+1))
+                     href=f'../feed_{int(f+1)}/index.html')
         navbar_tr.append(TD(attrs('feed_next'),link))
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t

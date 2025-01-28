@@ -90,7 +90,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @user_version.setter
     def user_version(self, val):
-        self.conn.execute('pragma user_version=%d'%int(val))
+        self.conn.execute(f'pragma user_version={int(val)}')
         self.conn.commit()
 
     @property

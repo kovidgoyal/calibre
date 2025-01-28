@@ -762,7 +762,7 @@ class SMTP:
             # Hmmm? what's this? -ddm
             # self.esmtp_features['7bit']=""
             if self.has_extn('size'):
-                esmtp_opts.append('size=%d' % len(msg))
+                esmtp_opts.append(f'size={len(msg)}')
             for option in mail_options:
                 esmtp_opts.append(option)
 
@@ -909,7 +909,7 @@ if __name__ == '__main__':
         if not line:
             break
         msg = msg + line
-    print('Message length is %d' % len(msg))
+    print(f'Message length is {len(msg)}')
 
     server = SMTP('localhost')
     server.set_debuglevel(1)

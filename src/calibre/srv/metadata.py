@@ -462,7 +462,7 @@ def process_category_node(
         # reflect that in the node structure as well.
         node_data = tag_map.get(id(tag), None)
         if node_data is None:
-            node_id = 'n%d' % len(tag_map)
+            node_id = f'n{len(tag_map)}'
             node_data = items[node_id] = category_item_as_json(tag, clear_rating=clear_rating)
             tag_map[id(tag)] = (node_id, node_data)
             node_to_tag_map[node_id] = tag

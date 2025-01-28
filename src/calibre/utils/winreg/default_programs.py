@@ -183,7 +183,7 @@ class Register(Thread):
                     prints('Registering with default programs...')
                 register()
                 if DEBUG:
-                    prints('Registered with default programs in %.1f seconds' % (time.monotonic() - st))
+                    prints(f'Registered with default programs in {time.monotonic()-st:.1f} seconds')
 
     def __enter__(self):
         return self

@@ -234,7 +234,7 @@ def print_stats(old_stats, new_stats):
         np = nsz/new_total * 100
         suffix = ' | same size'
         if nsz != osz:
-            suffix = ' | reduced to %.1f %%'%(nsz/osz * 100)
+            suffix = f' | reduced to {nsz/osz*100:.1f} %'
         prints('%4s'%table, '  ', '%10s'%osz, '  ', f'{op:5.1f} %', '   ',
                 '%10s'%nsz, '  ', f'{np:5.1f} %', suffix)
     prints('='*80)
@@ -289,7 +289,7 @@ def main(args):
     reduced = (len(sf)/len(orig)) * 100
 
     def sz(x):
-        return '%gKB'%(len(x)/1024.)
+        return f'{len(x)/1024.0:g}KB'
     print_stats(old_stats, new_stats)
     prints('Original size:', sz(orig), 'Subset size:', sz(sf), f'Reduced to: {reduced:g}%')
     prints(f'Subsetting took {taken:g} seconds')
@@ -381,7 +381,7 @@ def all():
             print(name, path, err)
             print()
 
-    print('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
+    print(f'Average reduction to: {sum(averages)/len(averages):.1f}%')
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
 

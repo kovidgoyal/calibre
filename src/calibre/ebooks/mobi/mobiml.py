@@ -160,8 +160,8 @@ class MobiMLizer:
             return ptsize
         embase = self.profile.fbase
         if round(ptsize) < embase:
-            return '%dpt' % int(round(ptsize))
-        return '%dem' % int(round(ptsize / embase))
+            return f'{int(round(ptsize))}pt'
+        return f'{int(round(ptsize/embase))}em'
 
     def preize_text(self, text, pre_wrap=False):
         text = str(text)
@@ -503,7 +503,7 @@ class MobiMLizer:
                 istate.attrib['width'] = raww
             else:
                 prop = style['width'] / self.profile.width
-                istate.attrib['width'] = '%d%%' % int(round(prop * 100))
+                istate.attrib['width'] = f'{int(round(prop*100))}%'
         elif display == 'table':
             tag = 'table'
         elif display == 'table-row':

@@ -798,7 +798,7 @@ class PostInstall:
                     os.rmdir(config_dir)
 
         if warn is None and self.warnings:
-            self.info('\n\nThere were %d warnings\n'%len(self.warnings))
+            self.info(f'\n\nThere were {len(self.warnings)} warnings\n')
             for args, kwargs in self.warnings:
                 self.info('*', *args, **kwargs)
                 print()

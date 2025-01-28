@@ -197,7 +197,7 @@ class IndexHeader:  # {{{
         #     raise ValueError('Non null trailing bytes after IDXT')
 
     def __str__(self):
-        ans = ['*'*20 + ' Index Header (%d bytes)'%len(self.record.raw)+ '*'*20]
+        ans = ['*'*20 + f' Index Header ({len(self.record.raw)} bytes)'+ '*'*20]
         a = ans.append
 
         def u(w):
@@ -363,8 +363,7 @@ class IndexEntry:  # {{{
         return [0, 0]
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, length=%d)'%(
-            self.index, len(self.tags))]
+        ans = [f'Index Entry(index={self.index}, length={len(self.tags)})']
         for tag in self.tags:
             if tag.value is not None:
                 ans.append('\t'+str(tag))
@@ -412,7 +411,7 @@ class IndexRecord:  # {{{
                 continue
 
     def __str__(self):
-        ans = ['*'*20 + ' Index Entries (%d entries) '%len(self.indices)+ '*'*20]
+        ans = ['*'*20 + f' Index Entries ({len(self.indices)} entries) '+ '*'*20]
         a = ans.append
 
         def u(w):
@@ -470,7 +469,7 @@ class CNCX:  # {{{
         return self.records.get(offset)
 
     def __str__(self):
-        ans = ['*'*20 + ' cncx (%d strings) '%len(self.records)+ '*'*20]
+        ans = ['*'*20 + f' cncx ({len(self.records)} strings) '+ '*'*20]
         for k, v in iteritems(self.records):
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
@@ -568,7 +567,7 @@ class TBSIndexing:  # {{{
         raise IndexError('Index %d not found'%idx)
 
     def __str__(self):
-        ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
+        ans = ['*'*20 + f' TBS Indexing ({len(self.record_indices)} records) '+ '*'*20]
         for r, dat in iteritems(self.record_indices):
             ans += self.dump_record(r, dat)[-1]
         return '\n'.join(ans)

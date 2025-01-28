@@ -834,11 +834,11 @@ class CatalogBuilder:
         self.individual_authors = list(individual_authors)
 
         if self.DEBUG and self.opts.verbose:
-            self.opts.log.info('\nfetch_books_by_author(): %d unique authors' % len(unique_authors))
+            self.opts.log.info(f'\nfetch_books_by_author(): {len(unique_authors)} unique authors')
             for author in unique_authors:
                 self.opts.log.info((' %-50s %-25s %2d' % (author[0][0:45], author[1][0:20],
                     author[2])).encode('utf-8'))
-            self.opts.log.info('\nfetch_books_by_author(): %d individual authors' % len(individual_authors))
+            self.opts.log.info(f'\nfetch_books_by_author(): {len(individual_authors)} individual authors')
             for author in sorted(individual_authors):
                 self.opts.log.info(f'{author}')
 
@@ -865,7 +865,7 @@ class CatalogBuilder:
             self.books_by_title = sorted(self.books_to_catalog, key=lambda x: sort_key(x['title_sort'].upper()))
 
             if self.DEBUG and self.opts.verbose:
-                self.opts.log.info('fetch_books_by_title(): %d books' % len(self.books_by_title))
+                self.opts.log.info(f'fetch_books_by_title(): {len(self.books_by_title)} books')
                 self.opts.log.info(' %-40s %-40s' % ('title', 'title_sort'))
                 for title in self.books_by_title:
                     self.opts.log.info((' %-40s %-40s' % (title['title'][0:40],
@@ -1202,7 +1202,7 @@ class CatalogBuilder:
                     else:
                         yield tag
 
-            ans = '%s%d %s:\n' % (' ' * indent, len(tags), header)
+            ans = '{}{} {}:\n'.format(' '*indent, len(tags), header)
             ans += ' ' * (indent + 1)
             out_str = ''
             sorted_tags = sorted(tags, key=sort_key)
@@ -1555,7 +1555,7 @@ class CatalogBuilder:
 
             aTag = soup.new_tag('a')
             if self.opts.generate_descriptions:
-                aTag['href'] = 'book_%d.html' % (int(float(book['id'])))
+                aTag['href'] = 'book_{}.html'.format(int(float(book['id'])))
 
             # Generate the title from the template
             args = self.generate_format_args(book)
@@ -1706,7 +1706,7 @@ class CatalogBuilder:
 
                     aTag = soup.new_tag('a')
                     if self.opts.generate_descriptions:
-                        aTag['href'] = 'book_%d.html' % (int(float(new_entry['id'])))
+                        aTag['href'] = 'book_{}.html'.format(int(float(new_entry['id'])))
 
                     # Generate the title from the template
                     args = self.generate_format_args(new_entry)
@@ -1758,7 +1758,7 @@ class CatalogBuilder:
 
                     aTag = soup.new_tag('a')
                     if self.opts.generate_descriptions:
-                        aTag['href'] = 'book_%d.html' % (int(float(new_entry['id'])))
+                        aTag['href'] = 'book_{}.html'.format(int(float(new_entry['id'])))
 
                     # Generate the title from the template
                     args = self.generate_format_args(new_entry)
@@ -1923,7 +1923,7 @@ class CatalogBuilder:
 
                     aTag = soup.new_tag('a')
                     if self.opts.generate_descriptions:
-                        aTag['href'] = 'book_%d.html' % (int(float(new_entry['id'])))
+                        aTag['href'] = 'book_{}.html'.format(int(float(new_entry['id'])))
                     aTag.insert(0, NavigableString(new_entry['title']))
                     pBookTag.insert(ptc, aTag)
                     ptc += 1
@@ -1972,7 +1972,7 @@ class CatalogBuilder:
 
                     aTag = soup.new_tag('a')
                     if self.opts.generate_descriptions:
-                        aTag['href'] = 'book_%d.html' % (int(float(new_entry['id'])))
+                        aTag['href'] = 'book_{}.html'.format(int(float(new_entry['id'])))
                     aTag.insert(0, NavigableString(new_entry['title']))
                     pBookTag.insert(ptc, aTag)
                     ptc += 1
@@ -2119,12 +2119,11 @@ class CatalogBuilder:
 
         if self.opts.verbose:
             if len(genre_list):
-                self.opts.log.info('  Genre summary: %d active genre tags used in generating catalog with %d titles' %
-                                (len(genre_list), len(self.books_to_catalog)))
+                self.opts.log.info(f'  Genre summary: {len(genre_list)} active genre tags used in generating catalog with {len(self.books_to_catalog)} titles')
 
                 for genre in genre_list:
                     for key in genre:
-                        self.opts.log.info('   %s: %d %s' % (self.get_friendly_genre_tag(key),
+                        self.opts.log.info('   {}: {} {}'.format(self.get_friendly_genre_tag(key),
                                             len(genre[key]),
                                             'titles' if len(genre[key]) > 1 else 'title'))
 
@@ -2275,7 +2274,7 @@ class CatalogBuilder:
             # Add the book title
             aTag = soup.new_tag('a')
             if self.opts.generate_descriptions:
-                aTag['href'] = 'book_%d.html' % (int(float(book['id'])))
+                aTag['href'] = 'book_{}.html'.format(int(float(book['id'])))
 
             # Generate the title from the template
             args = self.generate_format_args(book)
@@ -2407,7 +2406,7 @@ class CatalogBuilder:
 
             aTag = soup.new_tag('a')
             if self.opts.generate_descriptions:
-                aTag['href'] = 'book_%d.html' % (int(float(book['id'])))
+                aTag['href'] = 'book_{}.html'.format(int(float(book['id'])))
             # Use series, series index if avail else just title
             # aTag.insert(0,'%d. %s · %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
@@ -2567,7 +2566,7 @@ class CatalogBuilder:
             # Link to book
             aTag = soup.new_tag('a')
             if self.opts.generate_descriptions:
-                aTag['href'] = 'book_%d.html' % (int(float(book['id'])))
+                aTag['href'] = 'book_{}.html'.format(int(float(book['id'])))
 
             # Generate the title from the template
             args = self.generate_format_args(book)
@@ -2729,7 +2728,7 @@ class CatalogBuilder:
         _soup = BeautifulSoup('<html>', selfClosingTags=['img'])
         thumb = _soup.new_tag('img')
         if book.get('cover'):
-            thumb['src'] = '../images/thumbnail_%d.jpg' % int(book['id'])
+            thumb['src'] = '../images/thumbnail_{}.jpg'.format(int(book['id']))
         else:
             thumb['src'] = '../images/thumbnail_default.jpg'
         thumb['alt'] = 'cover thumbnail'
@@ -2767,7 +2766,7 @@ class CatalogBuilder:
         btc = 0
         # Insert the title anchor for inbound links
         aTag = soup.new_tag('a')
-        aTag['id'] = 'book%d' % int(book['id'])
+        aTag['id'] = 'book{}'.format(int(book['id']))
         divTag = soup.new_tag('div')
         divTag.insert(0, aTag)
         body.insert(btc, divTag)
@@ -2840,7 +2839,7 @@ class CatalogBuilder:
             soup = self.generate_html_description_header(title)
 
             # Write the book entry to content_dir
-            with open('%s/book_%d.html' % (self.content_dir, int(title['id'])), 'wb') as outfile:
+            with open('{}/book_{}.html'.format(self.content_dir, int(title['id'])), 'wb') as outfile:
                 outfile.write(prettify(soup).encode('utf-8'))
 
     def generate_html_empty_header(self, title):
@@ -2991,7 +2990,7 @@ class CatalogBuilder:
                 makeelement('content', navPointTag, src='content/ByDateAdded.html')
             elif self.opts.generate_descriptions:
                 # Descriptions only
-                makeelement('content', navPointTag, src='content/book_%d.html' % int(self.books_by_description[0]['id']))
+                makeelement('content', navPointTag, src='content/book_{}.html'.format(int(self.books_by_description[0]['id'])))
 
     def generate_ncx_section_header(self, section_id, section_header, content_src):
         root = self.ncx_root
@@ -3036,10 +3035,11 @@ class CatalogBuilder:
         Outputs:
          ncx_soup (file): updated
         '''
-        section_header = '%s [%d]' % (tocTitle, len(self.books_by_description))
+        section_header = f'{tocTitle} [{len(self.books_by_description)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
-        navPointTag = self.generate_ncx_section_header('bydescription-ID', section_header, 'content/book_%d.html' % int(self.books_by_description[0]['id']))
+        navPointTag = self.generate_ncx_section_header(
+            'bydescription-ID', section_header, 'content/book_{}.html'.format(int(self.books_by_description[0]['id'])))
 
         self.update_progress_full_step(_('NCX for descriptions'))
 
@@ -3048,7 +3048,7 @@ class CatalogBuilder:
         # Loop over the titles
 
         for book in self.books_by_description:
-            sec_id = 'book%dID' % int(book['id'])
+            sec_id = 'book{}ID'.format(int(book['id']))
             if book['series']:
                 series_index = str(book['series_index'])
                 if series_index.endswith('.0'):
@@ -3074,7 +3074,7 @@ class CatalogBuilder:
                     # Include Author for non-Kindle
                     sec_text = self.format_ncx_text('{} · {}'.format(book['title'], book['author']), dest='title')
 
-            content_src='content/book_%d.html#book%d' % (int(book['id']), int(book['id']))
+            content_src='content/book_{}.html#book{}'.format(int(book['id']), int(book['id']))
             cm_tags = {}
 
             if book['date']:
@@ -3115,7 +3115,7 @@ class CatalogBuilder:
             series_by_letter.append(current_series_list)
 
         # --- Construct the 'Books By Series' section ---
-        section_header = '%s [%d]' % (tocTitle, len(self.all_series))
+        section_header = f'{tocTitle} [{len(self.all_series)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         output = 'BySeries'
@@ -3197,7 +3197,7 @@ class CatalogBuilder:
             books_by_letter.append(current_book_list)
 
         # --- Construct the 'Books By Title' section ---
-        section_header = '%s [%d]' % (tocTitle, len(self.books_by_title))
+        section_header = f'{tocTitle} [{len(self.books_by_title)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         output = 'ByAlphaTitle'
@@ -3285,7 +3285,7 @@ class CatalogBuilder:
         # --- Construct the 'Books By Author' *section* ---
         file_ID = f'{tocTitle.lower()}'
         file_ID = file_ID.replace(' ', '')
-        section_header = '%s [%d]' % (tocTitle, len(self.individual_authors))
+        section_header = f'{tocTitle} [{len(self.individual_authors)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header(f'{file_ID}-ID', section_header, f'{HTML_file}#section_start')
@@ -3563,7 +3563,7 @@ class CatalogBuilder:
         # --- Construct the 'Books By Genre' *section* ---
         file_ID = f'{tocTitle.lower()}'
         file_ID = file_ID.replace(' ', '')
-        section_header = '%s [%d]' % (tocTitle, len(self.genres))
+        section_header = f'{tocTitle} [{len(self.genres)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header(f'{file_ID}-ID', section_header, 'content/Genre_{}.html#section_start'.format(self.genres[0]['tag']))
@@ -3678,7 +3678,7 @@ class CatalogBuilder:
 
         for book in self.books_by_description:
             # manifest
-            manifest_item('book%d' % int(book['id']), 'content/book_%d.html' % int(book['id']), 'application/xhtml+xml', add_to_spine=True)
+            manifest_item('book{}'.format(int(book['id'])), 'content/book_{}.html'.format(int(book['id'])), 'application/xhtml+xml', add_to_spine=True)
 
         # Guide
         if self.generate_for_kindle_mobi:
@@ -3923,12 +3923,12 @@ class CatalogBuilder:
                 (_('Thumbnail'), i, len(self.books_by_title)),
                  i / float(len(self.books_by_title)))
 
-            thumb_file = 'thumbnail_%d.jpg' % int(title['id'])
+            thumb_file = 'thumbnail_{}.jpg'.format(int(title['id']))
             thumb_generated = True
             valid_cover = True
             try:
                 self.generate_thumbnail(title, image_dir, thumb_file)
-                thumbs.append('thumbnail_%d.jpg' % int(title['id']))
+                thumbs.append('thumbnail_{}.jpg'.format(int(title['id'])))
             except:
                 if 'cover' in title and os.path.exists(title['cover']):
                     valid_cover = False

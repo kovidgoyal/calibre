@@ -506,7 +506,7 @@ class HTTPConnection(HTTPRequest):
         outheaders.set('Server', f'calibre {__version__}', replace_all=True)
         keep_alive = not self.close_after_response and self.opts.timeout > 0
         if keep_alive:
-            outheaders.set('Keep-Alive', 'timeout=%d' % int(self.opts.timeout))
+            outheaders.set('Keep-Alive', f'timeout={int(self.opts.timeout)}')
         if 'Connection' not in outheaders:
             if self.response_protocol is HTTP11:
                 if self.close_after_response:

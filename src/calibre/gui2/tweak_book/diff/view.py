@@ -904,7 +904,7 @@ class DiffSplit(QSplitter):  # {{{
                     continue
 
                 if tag in {'replace', 'insert', 'delete'}:
-                    fmt = getattr(self.left, '%s_format' % ('replacereplace' if tag == 'replace' else tag))
+                    fmt = getattr(self.left, '{}_format'.format('replacereplace' if tag == 'replace' else tag))
                     f = QTextLayout.FormatRange()
                     f.start, f.length, f.format = pos, len(word), fmt
                     fmts.append(f)

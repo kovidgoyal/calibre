@@ -80,7 +80,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
                         aid = None
                     replacement = ''
                     if aid in linked_aids:
-                        replacement = ' id="%s"' % (aid + '-' + aid_anchor_suffix)
+                        replacement = ' id="{}"'.format(aid + '-' + aid_anchor_suffix)
                     tag = within_tag_aid_position_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = ''.join(srcpieces)
@@ -150,7 +150,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                     num = int(m.group(1), 32)
                     href = resource_map[num-1]
                     if href:
-                        replacement = '"%s"'%('../'+ href)
+                        replacement = '"{}"'.format('../'+ href)
                         tag = img_index_pattern.sub(replacement, tag, 1)
                     else:
                         log.warn(f'Referenced image {num} was not recognized '
@@ -168,7 +168,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                 num = int(m.group(1), 32)
                 href = resource_map[num-1]
                 if href:
-                    replacement = '"%s"'%('../'+ href)
+                    replacement = '"{}"'.format('../'+ href)
                     tag = url_img_index_pattern.sub(replacement, tag, 1)
                 else:
                     log.warn(f'Referenced image {num} was not recognized as a '
@@ -182,9 +182,9 @@ def update_flow_links(mobi8_reader, resource_map, log):
                     log.warn(f'Referenced font {num} was not recognized as a '
                     f'valid font in {tag}')
                 else:
-                    replacement = '"%s"'%('../'+ href)
+                    replacement = '"{}"'.format('../'+ href)
                     if href.endswith('.failed'):
-                        replacement = '"%s"'%('failed-'+href)
+                        replacement = '"{}"'.format('failed-'+href)
                     tag = font_index_pattern.sub(replacement, tag, 1)
 
             # process links to other css pieces
@@ -280,7 +280,7 @@ def insert_images_into_markup(parts, resource_map, log):
                     except IndexError:
                         href = ''
                     if href:
-                        replacement = '"%s"'%('../' + href)
+                        replacement = '"{}"'.format('../' + href)
                         tag = img_index_pattern.sub(replacement, tag, 1)
                     else:
                         log.warn(f'Referenced image {num} was not recognized as '

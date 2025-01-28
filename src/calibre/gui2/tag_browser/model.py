@@ -1968,7 +1968,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if tag.name and tag.name[0] in stars:  # char is a star or a half. Assume rating
                         rnum = len(tag.name)
                         if tag.name.endswith(stars[-1]):
-                            rnum = '%s.5' % (rnum - 1)
+                            rnum = f'{rnum-1}.5'
                         ans.append(f'{prefix}{category}:{rnum}')
                     else:
                         name = tag.original_name

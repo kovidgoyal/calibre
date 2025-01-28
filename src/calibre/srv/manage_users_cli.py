@@ -216,7 +216,7 @@ def manage_users_cli(path=None, args=()):
             prints('%d)' % (i + 1), choice)
         print()
         while True:
-            prompt = question + ' [1-%d]:' % len(choices)
+            prompt = question + f' [1-{len(choices)}]:'
             if default is not None:
                 prompt = question + ' [1-%d %s: %d]' % (
                     len(choices), _('default'), default + 1)

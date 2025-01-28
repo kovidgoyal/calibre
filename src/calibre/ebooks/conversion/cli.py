@@ -320,7 +320,7 @@ def create_option_parser(args, log):
                 log('\t'+title)
             except:
                 log('\t'+repr(title))
-        log('%d recipes available'%len(titles))
+        log(f'{len(titles)} recipes available')
         raise SystemExit(0)
 
     parser = option_parser()

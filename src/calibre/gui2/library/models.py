@@ -888,7 +888,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
                     if val == 0:
                         return None
-                    ans = '%.1f' % (val * sz_mult)
+                    ans = f'{val*sz_mult:.1f}'
                     return ('<0.1' if ans == '0.0' else ans)
             elif field == 'languages':
                 def func(idx):

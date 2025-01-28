@@ -320,7 +320,7 @@ class UnBinary:
             elif state == 'get value':
                 if count == 0xfffe:
                     if not in_censorship:
-                        buf.write(encode('%s"' % (oc - 1)))
+                        buf.write(encode(f'{oc-1}"'))
                     in_censorship = False
                     state = 'get attr'
                 elif count > 0:

@@ -273,7 +273,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
 
         if abort.is_set():
             aborted = True
-        log('Download complete, with %d failures'%len(failed_ids))
+        log(f'Download complete, with {len(failed_ids)} failures')
         return (aborted, ans, tdir, tf, failed_ids, failed_covers, title_map,
                 lm_map, all_failed)
     finally:

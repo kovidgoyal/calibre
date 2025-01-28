@@ -233,7 +233,7 @@ def zenity_cmd(window, title, *rest):
     ans = ['zenity', '--modal', '--file-selection', '--title=' + title, '--separator=\n']
     winid = get_winid(window)
     if winid is not None:
-        ans += ['--attach=%d' % int(winid)]
+        ans += [f'--attach={int(winid)}']
     return ans + list(rest)
 
 

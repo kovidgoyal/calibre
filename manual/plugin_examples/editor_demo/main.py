@@ -116,7 +116,7 @@ class DemoTool(Tool):
         num = re.search(r'[0-9.]+', val)
         if num is not None:
             num = num.group()
-            val = val.replace(num, '%f' % (float(num) * factor))
+            val = val.replace(num, f'{float(num)*factor:f}')
             style.setProperty('font-size', val)
         # We should also be dealing with the font shorthand property and
         # font sizes specified as non numbers, but those are left as exercises

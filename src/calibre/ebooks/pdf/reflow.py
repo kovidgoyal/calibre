@@ -151,8 +151,7 @@ class Image(Element):
         self.align = 'L'
 
     def to_html(self):
-        return '<img src="%s" alt="" width="%dpx" height="%dpx"/>' % \
-                (self.src, int(self.width), int(self.height))
+        return f'<img src="{self.src}" alt="" width="{int(self.width)}px" height="{int(self.height)}px"/>'
 
     def dump(self, f):
         f.write(self.to_html())
@@ -696,7 +695,7 @@ class Region:
 
     def dump(self, f):
         f.write('############################################################\n')
-        f.write('########## Region (%d columns) ###############\n'%len(self.columns))
+        f.write(f'########## Region ({len(self.columns)} columns) ###############\n')
         f.write('############################################################\n\n')
         for i, col in enumerate(self.columns):
             col.dump(f, i)

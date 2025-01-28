@@ -342,7 +342,7 @@ class Saver(QObject):
 
     def updating_metadata_finished(self):
         if DEBUG:
-            prints('Saved %d books in %.1f seconds' % (len(self.all_book_ids), time.time() - self.start_time))
+            prints(f'Saved {len(self.all_book_ids)} books in {time.time()-self.start_time:.1f} seconds')
         self.pd.close()
         self.pd.deleteLater()
         self.report()

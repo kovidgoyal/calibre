@@ -107,7 +107,7 @@ class CMap(Stream):
         mapping = []
         for m in maps:
             meat = '\n'.join(f'{k} {v}' for k, v in iteritems(m))
-            mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
+            mapping.append(f'{len(m)} beginbfchar\n{meat}\nendbfchar')
         try:
             name = name.encode('ascii').decode('ascii')
         except Exception:
@@ -177,8 +177,8 @@ class Font:
         except NoGlyphs:
             if self.used_glyphs:
                 debug(
-                    'Subsetting of %s failed, font appears to have no glyphs for the %d characters it is used with, some text may not be rendered in the PDF' %
-                    (self.metrics.names.get('full_name', 'Unknown'), len(self.used_glyphs)))
+                    'Subsetting of {} failed, font appears to have no glyphs for the {} characters it is used with, some text may not be rendered in the PDF'
+                    .format(self.metrics.names.get('full_name', 'Unknown'), len(self.used_glyphs)))
         if self.is_otf:
             self.font_stream.write(self.metrics.sfnt['CFF '].raw)
         else:

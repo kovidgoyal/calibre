@@ -188,7 +188,7 @@ def do_print():
     if data['page_numbers']:
         args.append('--pdf-page-numbers')
     for edge in 'left top right bottom'.split():
-        args.append('--pdf-page-margin-' + edge), args.append('%.1f' % (data['margin_' + edge] * 72))
+        args.append('--pdf-page-margin-' + edge), args.append('{:.1f}'.format(data['margin_' + edge] * 72))
     from calibre.ebooks.conversion.cli import main
     main(args)
 

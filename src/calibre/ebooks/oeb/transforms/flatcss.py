@@ -350,7 +350,7 @@ class CSSFlattener:
                 if value == 0 or not isinstance(value, numbers.Number):
                     continue
                 if value <= slineh:
-                    cssdict[property] = '%0.5fem' % (dlineh / fsize)
+                    cssdict[property] = f'{dlineh/fsize:0.5f}em'
                 else:
                     try:
                         value = round(value / slineh) * dlineh
@@ -358,7 +358,7 @@ class CSSFlattener:
                         self.oeb.logger.warning(
                                 'Invalid length:', value)
                         value = 0.0
-                    cssdict[property] = '%0.5fem' % (value / fsize)
+                    cssdict[property] = f'{value/fsize:0.5f}em'
 
     def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id, recurse=True):
         if not isinstance(node.tag, string_or_bytes) or namespace(node.tag) not in (XHTML_NS, SVG_NS):
@@ -473,12 +473,12 @@ class CSSFlattener:
                     dyn_rescale = 1
                 fsize = self.fmap[_sbase]
                 fsize *= dyn_rescale
-                cssdict['font-size'] = '%0.5fem'%(fsize/psize)
+                cssdict['font-size'] = f'{fsize/psize:0.5f}em'
                 psize = fsize
             elif 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[font_size]
                 try:
-                    cssdict['font-size'] = '%0.5fem' % (fsize / psize)
+                    cssdict['font-size'] = f'{fsize/psize:0.5f}em'
                 except ZeroDivisionError:
                     cssdict['font-size'] = f'{fsize:.1f}pt'
                 psize = fsize

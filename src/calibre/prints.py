@@ -79,4 +79,4 @@ def debug_print(*args, **kw):
     # Check if debugging is enabled
     if is_debugging():
         # Print the elapsed time and the provided arguments if debugging is enabled
-        prints('DEBUG: %6.1f' % (time.monotonic() - base_time), *args, **kw)
+        prints(f'DEBUG: {time.monotonic()-base_time:6.1f}', *args, **kw)

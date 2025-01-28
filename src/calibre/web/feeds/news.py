@@ -1760,7 +1760,7 @@ class BasicNewsRecipe(Recipe):
                 url = url.decode('utf-8')
             if url.startswith('feed://'):
                 url = 'http'+url[4:]
-            self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
+            self.report_progress(0, _('Fetching feed')+f' {title if title else url}...')
             try:
                 purl = urlparse(url, allow_fragments=False)
                 if purl.username or purl.password:
@@ -1780,7 +1780,7 @@ class BasicNewsRecipe(Recipe):
                 ))
             except Exception as err:
                 feed = Feed()
-                msg = 'Failed feed: %s'%(title if title else url)
+                msg = f'Failed feed: {title if title else url}'
                 feed.populate_from_preparsed_feed(msg, [])
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)

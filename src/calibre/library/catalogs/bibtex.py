@@ -315,7 +315,7 @@ class BIBTEX(CatalogPlugin):
                 log(" --search='{}'".format(opts_dict['search_text']))
 
             if opts_dict['ids']:
-                log(' Book count: %d' % len(opts_dict['ids']))
+                log(' Book count: {}'.format(len(opts_dict['ids'])))
                 if opts_dict['search_text']:
                     log(' (--search ignored when a subset of the database is specified)')
 

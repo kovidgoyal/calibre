@@ -255,7 +255,7 @@ class GuiRunner(QObject):
                 self.splash_screen.finish(main)
                 timed_print('splash screen hidden')
             self.splash_screen = None
-        timed_print('Started up in %.2f seconds'%(monotonic() - self.startup_time), 'with', len(db.data), 'books')
+        timed_print(f'Started up in {monotonic()-self.startup_time:.2f} seconds', 'with', len(db.data), 'books')
         main.set_exception_handler()
         if len(self.args) > 1:
             main.handle_cli_args(self.args[1:])
