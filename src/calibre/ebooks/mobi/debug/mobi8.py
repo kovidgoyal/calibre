@@ -43,7 +43,7 @@ class FDST:
             return ans.append(f'{k}: {v}')
         a('Offset to sections', self.sec_off)
         a('Number of section records', self.num_sections)
-        ans.append('**** %d Sections ****'% len(self.sections))
+        ans.append(f'**** {len(self.sections)} Sections ****')
         for sec in self.sections:
             ans.append('Start: %20d End: %d'%sec)
 

@@ -98,7 +98,7 @@ class Index:
             for field in INDEX_HEADER_FIELDS:
                 a('%-12s: %r'%(FIELD_NAMES.get(field, field), self.header[field]))
         ans.extend(['', ''])
-        ans += ['*'*10 + ' Index Record Headers (%d records) ' % len(self.index_headers) + '*'*10]
+        ans += ['*'*10 + f' Index Record Headers ({len(self.index_headers)} records) ' + '*'*10]
         for i, header in enumerate(self.index_headers):
             ans += ['*'*10 + ' Index Record %d ' % i + '*'*10]
             for field in INDEX_HEADER_FIELDS:
@@ -111,7 +111,7 @@ class Index:
             ans.extend(['', ''])
 
         if self.table is not None:
-            a('*'*10 + ' %d Index Entries '%len(self.table) + '*'*10)
+            a('*'*10 + f' {len(self.table)} Index Entries ' + '*'*10)
             for k, v in iteritems(self.table):
                 a(f'{k}: {v!r}')
 
@@ -139,8 +139,7 @@ class SKELIndex(Index):
             for i, text in enumerate(self.table):
                 tag_map = self.table[text]
                 if set(tag_map) != {1, 6}:
-                    raise ValueError('SKEL Index has unknown tags: %s'%
-                            (set(tag_map)-{1,6}))
+                    raise ValueError(f'SKEL Index has unknown tags: {set(tag_map)-{1,6}}')
                 self.records.append(File(
                     i,  # file_number
                     text,  # name
@@ -160,8 +159,7 @@ class SECTIndex(Index):
             for i, text in enumerate(self.table):
                 tag_map = self.table[text]
                 if set(tag_map) != {2, 3, 4, 6}:
-                    raise ValueError('Chunk Index has unknown tags: %s'%
-                            (set(tag_map)-{2, 3, 4, 6}))
+                    raise ValueError(f'Chunk Index has unknown tags: {set(tag_map)-{2,3,4,6}}')
 
                 toc_text = self.cncx[tag_map[2][0]]
                 self.records.append(Elem(

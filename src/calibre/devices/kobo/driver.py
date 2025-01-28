@@ -1721,9 +1721,9 @@ class KOBOTOUCH(KOBO):
         debugging_title = self.debugging_title
         debug_print(f"KoboTouch:books - set_debugging_title to '{debugging_title}'")
         bl.set_debugging_title(debugging_title)
-        debug_print('KoboTouch:books - length bl=%d'%len(bl))
+        debug_print(f'KoboTouch:books - length bl={len(bl)}')
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
-        debug_print('KoboTouch:books - length bl after sync=%d'%len(bl))
+        debug_print(f'KoboTouch:books - length bl after sync={len(bl)}')
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache = {}
@@ -2266,7 +2266,7 @@ class KOBOTOUCH(KOBO):
 
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
-        debug_print('KoboTouch:upload_books - %d books'%(len(files)))
+        debug_print(f'KoboTouch:upload_books - {len(files)} books')
         debug_print('KoboTouch:upload_books - files=', files)
 
         if self.modifying_epub():
@@ -2611,7 +2611,7 @@ class KOBOTOUCH(KOBO):
                     # debug_print("KoboTouch:update_device_database_collections - self.bookshelvelist=", self.bookshelvelist)
                     # Process any collections that exist
                     for category, books in collections.items():
-                        debug_print("KoboTouch:update_device_database_collections - category='%s' books=%d"%(category, len(books)))
+                        debug_print(f"KoboTouch:update_device_database_collections - category='{category}' books={len(books)}")
                         if create_collections and not (category in supportedcategories or category in readstatuslist or category in accessibilitylist):
                             self.check_for_bookshelf(connection, category)
                         # if category in self.bookshelvelist:
@@ -2642,7 +2642,7 @@ class KOBOTOUCH(KOBO):
                                 category_added = True
                             elif category in self.bookshelvelist and self.supports_bookshelves:
                                 if show_debug:
-                                    debug_print('        length book.device_collections=%d'%len(book.device_collections))
+                                    debug_print(f'        length book.device_collections={len(book.device_collections)}')
                                 if category not in book.device_collections:
                                     if show_debug:
                                         debug_print('        Setting bookshelf on device')

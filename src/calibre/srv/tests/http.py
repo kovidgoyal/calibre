@@ -376,14 +376,14 @@ class TestHTTP(BaseTest):
                 r = conn.getresponse()
                 self.ae(r.status, http_client.PARTIAL_CONTENT)
                 self.ae(str(r.getheader('Accept-Ranges')), 'bytes')
-                self.ae(str(r.getheader('Content-Range')), 'bytes 2-25/%d' % len(fdata))
+                self.ae(str(r.getheader('Content-Range')), f'bytes 2-25/{len(fdata)}')
                 self.ae(int(r.getheader('Content-Length')), 24)
                 self.ae(r.read(), fdata[2:26])
 
                 conn.request('GET', '/test', headers={'Range':'bytes=100000-'})
                 r = conn.getresponse()
                 self.ae(r.status, http_client.REQUESTED_RANGE_NOT_SATISFIABLE)
-                self.ae(str(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
+                self.ae(str(r.getheader('Content-Range')), f'bytes */{len(fdata)}')
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
                 r = conn.getresponse()

@@ -62,16 +62,16 @@ def serialize_string(key, val):
     val = str(val).encode('utf-8')
     if len(val) > 2**16 - 1:
         raise ValueError(f'{key} is too long')
-    return struct.pack('=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
+    return struct.pack(f'=B{len(key)}sH{len(val)}s', len(key), key, len(val), val)
 
 
 def serialize_file_types(file_types):
     key = b'FILE_TYPES'
-    buf = [struct.pack('=B%dsH' % len(key), len(key), key, len(file_types))]
+    buf = [struct.pack(f'=B{len(key)}sH', len(key), key, len(file_types))]
 
     def add(x):
         x = x.encode('utf-8').replace(b'\0', b'')
-        buf.append(struct.pack('=H%ds' % len(x), len(x), x))
+        buf.append(struct.pack(f'=H{len(x)}s', len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
         if isinstance(extensions, string_or_bytes):

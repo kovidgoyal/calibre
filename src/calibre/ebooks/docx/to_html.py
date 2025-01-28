@@ -696,7 +696,7 @@ class Convert:
                 else:
                     clear = child.get('clear', None)
                     if clear in {'all', 'left', 'right'}:
-                        br = BR(style='clear:%s'%('both' if clear == 'all' else clear))
+                        br = BR(style='clear:{}'.format('both' if clear == 'all' else clear))
                     else:
                         br = BR()
                 text.add_elem(br)

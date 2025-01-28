@@ -28,9 +28,9 @@ def _read_width(elem, get):
     elif typ == 'auto':
         ans = 'auto'
     elif typ == 'dxa':
-        ans = '%.3gpt' % (w/20)
+        ans = f'{w/20:.3g}pt'
     elif typ == 'pct':
-        ans = '%.3g%%' % (w/50)
+        ans = f'{w/50:.3g}%'
     return ans
 
 
@@ -243,7 +243,7 @@ class RowStyle(Style):
                 rule, val = self.height
                 if rule != 'auto':
                     try:
-                        c['min-height' if rule == 'atLeast' else 'height'] = '%.3gpt' % (int(val)/20)
+                        c['min-height' if rule == 'atLeast' else 'height'] = f'{int(val)/20:.3g}pt'
                     except (ValueError, TypeError):
                         pass
             c.update(self.convert_spacing())
@@ -282,7 +282,7 @@ class CellStyle(Style):
                 if val not in (inherit, 'auto'):
                     c[f'padding-{x}'] = val
                 elif val is inherit and x in {'left', 'right'}:
-                    c[f'padding-{x}'] = '%.3gpt' % (115/20)
+                    c[f'padding-{x}'] = f'{115/20:.3g}pt'
             # In Word, tables are apparently rendered with some default top and
             # bottom padding irrespective of the cellMargin values. Simulate
             # that here.
@@ -353,7 +353,7 @@ class TableStyle(Style):
                 for x in ('left', 'top', 'right', 'bottom'):
                     val = self.float.get(f'{x}FromText', 0)
                     try:
-                        val = '%.3gpt' % (int(val) / 20)
+                        val = f'{int(val)/20:.3g}pt'
                     except (ValueError, TypeError):
                         val = '0'
                     c[f'margin-{x}'] = val

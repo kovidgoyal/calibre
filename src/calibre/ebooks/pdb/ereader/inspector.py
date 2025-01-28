@@ -28,7 +28,7 @@ def ereader_header_info(header):
         print('')
         ereader_header_info202(h0)
     else:
-        raise EreaderError('Size mismatch. eReader header record size %i KB is not supported.' % len(h0))
+        raise EreaderError(f'Size mismatch. eReader header record size {len(h0)} KB is not supported.')
 
 
 def pdb_header_info(header):

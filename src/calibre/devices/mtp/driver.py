@@ -27,8 +27,7 @@ from calibre.utils.filenames import shorten_components_to
 from calibre.utils.icu import lower as icu_lower
 from polyglot.builtins import as_bytes, iteritems, itervalues
 
-BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
-    'windows' if iswindows else 'unix')).MTP_DEVICE
+BASE = importlib.import_module('calibre.devices.mtp.{}.driver'.format('windows' if iswindows else 'unix')).MTP_DEVICE
 DEFAULT_THUMBNAIL_HEIGHT = 320
 
 

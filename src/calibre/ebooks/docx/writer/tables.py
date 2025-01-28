@@ -34,7 +34,7 @@ class SpannedCell:
     def serialize(self, tr, makeelement):
         tc = makeelement(tr, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
-        makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
+        makeelement(tcPr, 'w:{}Merge'.format('h' if self.horizontal else 'v'), w_val='continue')
         makeelement(tc, 'w:p')
 
     def applicable_borders(self, edge):

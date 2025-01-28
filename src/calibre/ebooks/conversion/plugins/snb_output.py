@@ -163,7 +163,7 @@ class SNBOutput(OutputFormatPlugin):
                 ch.set('src', ProcessFileName(tocitem.href) + '.snbc')
                 ch.text = tocitem.title
 
-            etree.SubElement(tocHead, 'chapters').text = '%d' % len(tocBody)
+            etree.SubElement(tocHead, 'chapters').text = str(len(tocBody))
 
             with open(os.path.join(snbfDir, 'toc.snbf'), 'wb') as f:
                 f.write(etree.tostring(tocInfoTree, pretty_print=True, encoding='utf-8'))

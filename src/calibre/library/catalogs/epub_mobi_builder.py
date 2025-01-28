@@ -834,11 +834,11 @@ class CatalogBuilder:
         self.individual_authors = list(individual_authors)
 
         if self.DEBUG and self.opts.verbose:
-            self.opts.log.info('\nfetch_books_by_author(): %d unique authors' % len(unique_authors))
+            self.opts.log.info(f'\nfetch_books_by_author(): {len(unique_authors)} unique authors')
             for author in unique_authors:
                 self.opts.log.info((' %-50s %-25s %2d' % (author[0][0:45], author[1][0:20],
                     author[2])).encode('utf-8'))
-            self.opts.log.info('\nfetch_books_by_author(): %d individual authors' % len(individual_authors))
+            self.opts.log.info(f'\nfetch_books_by_author(): {len(individual_authors)} individual authors')
             for author in sorted(individual_authors):
                 self.opts.log.info(f'{author}')
 
@@ -865,7 +865,7 @@ class CatalogBuilder:
             self.books_by_title = sorted(self.books_to_catalog, key=lambda x: sort_key(x['title_sort'].upper()))
 
             if self.DEBUG and self.opts.verbose:
-                self.opts.log.info('fetch_books_by_title(): %d books' % len(self.books_by_title))
+                self.opts.log.info(f'fetch_books_by_title(): {len(self.books_by_title)} books')
                 self.opts.log.info(' %-40s %-40s' % ('title', 'title_sort'))
                 for title in self.books_by_title:
                     self.opts.log.info((' %-40s %-40s' % (title['title'][0:40],
@@ -1202,7 +1202,7 @@ class CatalogBuilder:
                     else:
                         yield tag
 
-            ans = '%s%d %s:\n' % (' ' * indent, len(tags), header)
+            ans = '{}{} {}:\n'.format(' '*indent, len(tags), header)
             ans += ' ' * (indent + 1)
             out_str = ''
             sorted_tags = sorted(tags, key=sort_key)
@@ -2119,12 +2119,11 @@ class CatalogBuilder:
 
         if self.opts.verbose:
             if len(genre_list):
-                self.opts.log.info('  Genre summary: %d active genre tags used in generating catalog with %d titles' %
-                                (len(genre_list), len(self.books_to_catalog)))
+                self.opts.log.info(f'  Genre summary: {len(genre_list)} active genre tags used in generating catalog with {len(self.books_to_catalog)} titles')
 
                 for genre in genre_list:
                     for key in genre:
-                        self.opts.log.info('   %s: %d %s' % (self.get_friendly_genre_tag(key),
+                        self.opts.log.info('   {}: {} {}'.format(self.get_friendly_genre_tag(key),
                                             len(genre[key]),
                                             'titles' if len(genre[key]) > 1 else 'title'))
 
@@ -3036,7 +3035,7 @@ class CatalogBuilder:
         Outputs:
          ncx_soup (file): updated
         '''
-        section_header = '%s [%d]' % (tocTitle, len(self.books_by_description))
+        section_header = f'{tocTitle} [{len(self.books_by_description)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header('bydescription-ID', section_header, 'content/book_%d.html' % int(self.books_by_description[0]['id']))
@@ -3115,7 +3114,7 @@ class CatalogBuilder:
             series_by_letter.append(current_series_list)
 
         # --- Construct the 'Books By Series' section ---
-        section_header = '%s [%d]' % (tocTitle, len(self.all_series))
+        section_header = f'{tocTitle} [{len(self.all_series)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         output = 'BySeries'
@@ -3197,7 +3196,7 @@ class CatalogBuilder:
             books_by_letter.append(current_book_list)
 
         # --- Construct the 'Books By Title' section ---
-        section_header = '%s [%d]' % (tocTitle, len(self.books_by_title))
+        section_header = f'{tocTitle} [{len(self.books_by_title)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         output = 'ByAlphaTitle'
@@ -3285,7 +3284,7 @@ class CatalogBuilder:
         # --- Construct the 'Books By Author' *section* ---
         file_ID = f'{tocTitle.lower()}'
         file_ID = file_ID.replace(' ', '')
-        section_header = '%s [%d]' % (tocTitle, len(self.individual_authors))
+        section_header = f'{tocTitle} [{len(self.individual_authors)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header(f'{file_ID}-ID', section_header, f'{HTML_file}#section_start')
@@ -3563,7 +3562,7 @@ class CatalogBuilder:
         # --- Construct the 'Books By Genre' *section* ---
         file_ID = f'{tocTitle.lower()}'
         file_ID = file_ID.replace(' ', '')
-        section_header = '%s [%d]' % (tocTitle, len(self.genres))
+        section_header = f'{tocTitle} [{len(self.genres)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header(f'{file_ID}-ID', section_header, 'content/Genre_{}.html#section_start'.format(self.genres[0]['tag']))

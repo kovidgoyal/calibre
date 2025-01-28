@@ -23,10 +23,8 @@ class StoreAction(InterfaceAction):
         self.qaction.triggered.connect(self.do_search)
         self.store_menu = self.qaction.menu()
         cm = partial(self.create_menu_action, self.store_menu)
-        for x, t in [('author', _('this author')), ('title', _('this title')),
-                ('book', _('this book'))]:
-            func = getattr(self, 'search_%s'%('author_title' if x == 'book'
-                else x))
+        for x, t in [('author', _('this author')), ('title', _('this title')), ('book', _('this book'))]:
+            func = getattr(self, 'search_{}'.format('author_title' if x == 'book' else x))
             ac = cm(x, _('Search for %s')%t, triggered=func)
             setattr(self, 'action_search_by_'+x, ac)
         self.store_menu.addSeparator()

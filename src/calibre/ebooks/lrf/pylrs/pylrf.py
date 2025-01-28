@@ -95,7 +95,7 @@ def writeSignedWord(f, sword):
 
 
 def writeWords(f, *words):
-    f.write(struct.pack('<%dH' % len(words), *words))
+    f.write(struct.pack(f'<{len(words)}H', *words))
 
 
 def writeDWord(f, dword):
@@ -103,7 +103,7 @@ def writeDWord(f, dword):
 
 
 def writeDWords(f, *dwords):
-    f.write(struct.pack('<%dI' % len(dwords), *dwords))
+    f.write(struct.pack(f'<{len(dwords)}I', *dwords))
 
 
 def writeQWord(f, qword):

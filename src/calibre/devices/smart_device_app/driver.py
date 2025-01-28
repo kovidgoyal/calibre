@@ -1499,12 +1499,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.report_progress((i + 1) / float(len(files)), _('Transferring books to device...'))
 
         self.report_progress(1.0, _('Transferring books to device...'))
-        self._debug('finished uploading %d books' % (len(files)))
+        self._debug(f'finished uploading {len(files)} books')
         return paths
 
     @synchronous('sync_lock')
     def add_books_to_metadata(self, locations, metadata, booklists):
-        self._debug('adding metadata for %d books' % (len(metadata)))
+        self._debug(f'adding metadata for {len(metadata)} books')
 
         metadata = iter(metadata)
         for i, location in enumerate(locations):
@@ -1558,7 +1558,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         bl.remove_book(book)
                         self._set_known_metadata(book, remove=True)
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
-        self._debug('finished removing metadata for %d books' % (len(paths)))
+        self._debug(f'finished removing metadata for {len(paths)} books')
 
     @synchronous('sync_lock')
     def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):

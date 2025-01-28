@@ -95,7 +95,7 @@ class Unidecoder:
         # Code groups within CODEPOINTS take the form 'xAB'
         if not isinstance(character, str):
             character = str(character, 'utf-8')
-        return 'x%02x' % (ord(character) >> 8)
+        return f'x{ord(character) >> 8:02x}'
 
     def grouped_point(self, character):
         '''

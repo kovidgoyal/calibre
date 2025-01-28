@@ -234,7 +234,7 @@ class FlowSplitter:
 
         self.was_split = len(self.trees) > 1
         if self.was_split:
-            self.log('\tSplit into %d parts'%len(self.trees))
+            self.log(f'\tSplit into {len(self.trees)} parts')
         self.commit()
 
     def split_on_page_breaks(self, orig_tree):
@@ -309,10 +309,10 @@ class FlowSplitter:
         return True
 
     def split_text(self, text, root, size):
-        self.log.debug('\t\t\tSplitting text of length: %d'%len(text))
+        self.log.debug(f'\t\t\tSplitting text of length: {len(text)}')
         rest = text.replace('\r', '')
         parts = rest.split('\n\n')
-        self.log.debug('\t\t\t\tFound %d parts'%len(parts))
+        self.log.debug(f'\t\t\t\tFound {len(parts)} parts')
         if max(map(len, parts)) > size:
             raise SplitError('Cannot split as file contains a <pre> tag '
                 'with a very large paragraph', root)

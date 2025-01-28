@@ -178,7 +178,7 @@ class LRFStream(LRFObject):
             if len(self.stream) != decomp_size:
                 raise LRFParseError('Stream decompressed size is wrong!')
         if stream.read(2) != b'\x06\xF5':
-            print('Warning: corrupted end-of-stream tag at %08X; skipping it'%(stream.tell()-2))
+            print(f'Warning: corrupted end-of-stream tag at {stream.tell()-2:08X}; skipping it')
         self.end_stream(None, None)
 
 
@@ -497,10 +497,10 @@ class TextCSS:
 
         fs = getattr(obj, 'fontsize', None)
         if fs is not None:
-            ans += item('font-size: %fpt;'%(int(fs)/10))
+            ans += item(f'font-size: {int(fs)/10:f}pt;')
         fw = getattr(obj, 'fontweight', None)
         if fw is not None:
-            ans += item('font-weight: %s;'%('bold' if int(fw) >= 700 else 'normal'))
+            ans += item('font-weight: {};'.format('bold' if int(fw) >= 700 else 'normal'))
         fn = getattr(obj, 'fontfacename', None)
         if fn is not None:
             fn = cls.FONT_MAP[fn]
@@ -519,10 +519,10 @@ class TextCSS:
             ans += item(f'text-align: {al};')
         lh = getattr(obj, 'linespace', None)
         if lh is not None:
-            ans += item('text-align: %fpt;'%(int(lh)/10))
+            ans += item(f'text-align: {int(lh)/10:f}pt;')
         pi = getattr(obj, 'parindent', None)
         if pi is not None:
-            ans += item('text-indent: %fpt;'%(int(pi)/10))
+            ans += item(f'text-indent: {int(pi)/10:f}pt;')
 
         return ans
 

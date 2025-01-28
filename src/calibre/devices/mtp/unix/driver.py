@@ -339,8 +339,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     prints('There were some errors while getting the '
                             f' filesystem from {self.current_friendly_name}: {self.format_errorstack(all_errs)}')
                 self._filesystem_cache = FilesystemCache(storage, all_items)
-            debug('Filesystem metadata loaded in %g seconds (%d objects)'%(
-                time.time()-st, len(self._filesystem_cache)))
+            debug(f'Filesystem metadata loaded in {time.time()-st:g} seconds ({len(self._filesystem_cache)} objects)')
         return self._filesystem_cache
 
     @synchronous

@@ -447,8 +447,7 @@ class Indexer:  # {{{
         if self.is_periodical and self.masthead_offset is None:
             raise ValueError('Periodicals must have a masthead')
 
-        self.log('Generating MOBI index for a %s'%('periodical' if
-            self.is_periodical else 'book'))
+        self.log('Generating MOBI index for a {}'.format('periodical' if self.is_periodical else 'book'))
         self.is_flat_periodical = False
         if self.is_periodical:
             periodical_node = next(iter(oeb.toc))
@@ -530,7 +529,7 @@ class Indexer:  # {{{
 
         ans = header + body
         if len(ans) > 0x10000:
-            raise ValueError('Too many entries (%d) in the TOC'%len(offsets))
+            raise ValueError(f'Too many entries ({len(offsets)}) in the TOC')
         return ans
     # }}}
 

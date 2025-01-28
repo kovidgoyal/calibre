@@ -165,8 +165,7 @@ def test_roundtrip(ff=None):
     if data[:12] != rd[:12]:
         raise ValueError('Roundtripping failed, font header not the same')
     if len(data) != len(rd):
-        raise ValueError('Roundtripping failed, size different (%d vs. %d)'%
-                         (len(data), len(rd)))
+        raise ValueError(f'Roundtripping failed, size different ({len(data)} vs. {len(rd)})')
 
 
 if __name__ == '__main__':

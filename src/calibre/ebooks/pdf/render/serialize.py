@@ -92,24 +92,24 @@ class Page(Stream):
 
     def set_opacity(self, opref):
         if opref not in self.opacities:
-            self.opacities[opref] = 'Opa%d'%len(self.opacities)
+            self.opacities[opref] = f'Opa{len(self.opacities)}'
         name = self.opacities[opref]
         serialize(Name(name), self)
         self.write(b' gs ')
 
     def add_font(self, fontref):
         if fontref not in self.fonts:
-            self.fonts[fontref] = 'F%d'%len(self.fonts)
+            self.fonts[fontref] = f'F{len(self.fonts)}'
         return self.fonts[fontref]
 
     def add_image(self, imgref):
         if imgref not in self.xobjects:
-            self.xobjects[imgref] = 'Image%d'%len(self.xobjects)
+            self.xobjects[imgref] = f'Image{len(self.xobjects)}'
         return self.xobjects[imgref]
 
     def add_pattern(self, patternref):
         if patternref not in self.patterns:
-            self.patterns[patternref] = 'Pat%d'%len(self.patterns)
+            self.patterns[patternref] = f'Pat{len(self.patterns)}'
         return self.patterns[patternref]
 
     def add_resources(self):

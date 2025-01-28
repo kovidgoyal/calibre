@@ -76,5 +76,20 @@ docstring-quotes = 'single'
 inline-quotes = 'single'
 multiline-quotes = 'single'
 
+[tool.flynt]
+line-length = 400  # over value to catch every case
+transform-format = false  # don't transform already existing format call
+exclude = [
+    "bypy/",
+    "setup/polib.py",
+    "setup/linux-installer.py",
+    "src/calibre/ebooks/metadata/sources/",
+    "src/calibre/gui2/store/stores/",
+    "src/css_selectors/",
+    "src/polyglot/",
+    "src/templite/",
+    "src/tinycss/",
+]
+
 [tool.pylsp-mypy]
 enabled = false

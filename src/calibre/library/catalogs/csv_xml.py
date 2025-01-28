@@ -75,7 +75,7 @@ class CSV_XML(CatalogPlugin):
                 log(" --search='{}'".format(opts_dict['search_text']))
 
             if opts_dict['ids']:
-                log(' Book count: %d' % len(opts_dict['ids']))
+                log(' Book count: {}'.format(len(opts_dict['ids'])))
                 if opts_dict['search_text']:
                     log(' (--search ignored when a subset of the database is specified)')
 
@@ -153,7 +153,7 @@ class CSV_XML(CatalogPlugin):
                         item = item.replace('\r\n', ' ')
                         item = item.replace('\n', ' ')
                     elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
-                        item = '%.2g' % (item / 2)
+                        item = f'{item/2:.2g}'
 
                     # Convert HTML to markdown text
                     if isinstance(item, str):
@@ -197,7 +197,7 @@ class CSV_XML(CatalogPlugin):
                             if not isinstance(val, (bytes, str)):
                                 if (fm.get(field, {}).get('datatype', None) ==
                                         'rating' and val):
-                                    val = '%.2g' % (val / 2)
+                                    val = f'{val/2:.2g}'
                                 val = str(val)
                             item = getattr(E, field)(val)
                             record.append(item)

@@ -696,7 +696,7 @@ class Region:
 
     def dump(self, f):
         f.write('############################################################\n')
-        f.write('########## Region (%d columns) ###############\n'%len(self.columns))
+        f.write(f'########## Region ({len(self.columns)} columns) ###############\n')
         f.write('############################################################\n\n')
         for i, col in enumerate(self.columns):
             col.dump(f, i)

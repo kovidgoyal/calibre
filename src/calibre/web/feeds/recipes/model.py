@@ -94,7 +94,7 @@ class NewsCategory(NewsTreeItem):
 
     def data(self, role):
         if role == Qt.ItemDataRole.DisplayRole:
-            return (self.cdata + ' [%d]'%len(self.children))
+            return (self.cdata + f' [{len(self.children)}]')
         elif role == Qt.ItemDataRole.FontRole:
             return self.bold_font
         elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):

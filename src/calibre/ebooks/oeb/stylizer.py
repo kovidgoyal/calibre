@@ -184,7 +184,7 @@ class StylizerRules:
             if size == 'smallest':
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = '%.1frem' % (self.profile.fnames[size] / float(self.profile.fbase))
+                style['font-size'] = f'{self.profile.fnames[size]/float(self.profile.fbase):.1f}rem'
         if '-epub-writing-mode' in style:
             for x in ('-webkit-writing-mode', 'writing-mode'):
                 style[x] = style.get(x, style['-epub-writing-mode'])
@@ -419,7 +419,7 @@ class Stylizer:
                     style['font-size'].endswith('pt'):
                 style = copy.copy(style)
                 size = float(style['font-size'][:-2])
-                style['font-size'] = '%.2fpt' % (size * font_scale)
+                style['font-size'] = f'{size*font_scale:.2f}pt'
             style = ';\n    '.join(': '.join(item) for item in style.items())
             rules.append(f'{selector} {{\n    {style};\n}}')
         return '\n'.join(rules)

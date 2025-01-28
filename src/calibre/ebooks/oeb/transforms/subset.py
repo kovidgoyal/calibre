@@ -179,8 +179,7 @@ class SubsetFonts:
             font['item'].unload_data_from_memory()
 
         if totals[0]:
-            self.log('Reduced total font size to %.1f%% of original'%
-                    (totals[0]/totals[1] * 100))
+            self.log(f'Reduced total font size to {totals[0]/totals[1]*100:.1f}% of original')
 
     def find_embedded_fonts(self):
         '''

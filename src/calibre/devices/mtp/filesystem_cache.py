@@ -108,7 +108,7 @@ class FileOrFolder:
             path = ''
         datum = f'size={self.size}'
         if self.is_folder or self.is_storage:
-            datum = 'children=%s'%(len(self.files) + len(self.folders))
+            datum = f'children={len(self.files)+len(self.folders)}'
         return f'{name}(id={self.object_id}, storage_id={self.storage_id}, {datum}, path={path}, modified={self.last_mod_string})'
 
     __str__ = __repr__

@@ -300,7 +300,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         opts_dict = vars(opts)
         if opts_dict['ids']:
-            build_log.append(' book count: %d' % len(opts_dict['ids']))
+            build_log.append(' book count: {}'.format(len(opts_dict['ids'])))
 
         sections_list = []
         if opts.generate_authors:

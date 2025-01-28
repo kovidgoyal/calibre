@@ -2172,7 +2172,7 @@ returns the empty string.
         except:
             return ''
         i = d1 - d2
-        return '%.1f'%(i.days + (i.seconds/(24.0*60.0*60.0)))
+        return f'{i.days+(i.seconds/(24.0*60.0*60.0)):.1f}'
 
 
 class BuiltinDateArithmetic(BuiltinFormatterFunction):
