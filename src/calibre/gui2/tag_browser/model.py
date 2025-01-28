@@ -164,8 +164,13 @@ class TagTreeItem:  # {{{
                             cc = self.category_custom_icons.get(self.tag.category, None)
                     else:
                         cc = self.icon
-        elif self.type == self.CATEGORY and gprefs['tag_browser_show_category_icons']:
-            cc = self.category_custom_icons.get(self.category_key, None)
+        elif self.type == self.CATEGORY:
+            if self.parent.type == self.ROOT:
+                if gprefs['tag_browser_show_category_icons']:
+                    cc = self.category_custom_icons.get(self.category_key, None)
+            else:
+                if gprefs['tag_browser_show_value_icons']:
+                    cc = self.category_custom_icons.get(self.category_key, None)
         self.icon_state_map[0] = cc or QIcon()
 
     def __str__(self):
