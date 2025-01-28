@@ -157,7 +157,7 @@ get_object_filename(IPortableDeviceProperties *devprops, IPortableDeviceKeyColle
     Py_BEGIN_ALLOW_THREADS;
     hr = devprops->GetValues(object_id, properties, &values);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to get properties for object", hr); return NULL; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filename for object", hr); return NULL; }
 	com_wchar_raii property;
     hr = values->GetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, property.unsafe_address());
     if (SUCCEEDED(hr)) return PyUnicode_FromWideChar(property.ptr(), -1);
