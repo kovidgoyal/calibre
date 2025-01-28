@@ -574,7 +574,7 @@ class SchedulerConfig:
                     if urn.startswith('recipe_'):
                         urn = 'builtin:'+urn[7:]
                     else:
-                        urn = 'custom:%d'%int(urn)
+                        urn = f'custom:{int(urn)}'
                     try:
                         username, password = c[k]
                     except:
@@ -596,14 +596,14 @@ class SchedulerConfig:
             urn = 'builtin:'+r['id'][7:]
         elif not r['builtin']:
             try:
-                urn = 'custom:%d'%int(r['id'])
+                urn = 'custom:{}'.format(int(r['id']))
             except:
                 return
         schedule = r['schedule']
         typ = 'interval'
         if schedule > 1e5:
             typ = 'day/time'
-            raw = '%d'%int(schedule)
+            raw = str(int(schedule))
             day = int(raw[0]) - 1
             hour = int(raw[2:4]) - 1
             minute = int(raw[-2:]) - 1

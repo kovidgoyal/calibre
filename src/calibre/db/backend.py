@@ -1432,7 +1432,7 @@ class DB:
 
     @user_version.setter
     def user_version(self, val):
-        self.execute('PRAGMA user_version=%d'%int(val))
+        self.execute(f'PRAGMA user_version={int(val)}')
 
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,

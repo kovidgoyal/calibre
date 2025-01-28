@@ -154,7 +154,7 @@ def py3_repr(x):
 
 
 def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
-    classname = 'BasicUserRecipe%d' % int(time.time())
+    classname = f'BasicUserRecipe{int(time.time())}'
     title = str(title).strip() or classname
     indent = ' ' * 8
     if feeds:

@@ -54,7 +54,7 @@ class Progress:
         if msg is None:
             self.total = float(step)
         else:
-            prints(msg, '...', '%d%%' % int(100 * (step / self.total)))
+            prints(msg, '...', f'{int(100*(step/self.total))}%')
 
 
 def main(opts, args, dbctx):
