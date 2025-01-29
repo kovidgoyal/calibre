@@ -354,6 +354,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def populate_content(self):
         field_metadata = self.gui.current_db.field_metadata
         category_icons = self.gui.tags_view.model().category_custom_icons
+        only_current_library = self.show_only_current_library.isChecked()
         v = gprefs['tags_browser_value_icons']
         row = 0
 
@@ -363,11 +364,15 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         for category,vdict in v.items():
             if category in field_metadata:
                 display_name = field_metadata[category]['name']
-            elif self.show_only_current_library.isChecked():
+                all_values = self.gui.current_db.new_api.all_field_names(category)
+            elif only_current_library:
                 continue
             else:
                 display_name = category.removeprefix('#')
+                all_values = ()
             for item_value in vdict:
+                if only_current_library and item_value != TEMPLATE_ICON_INDICATOR and item_value not in all_values:
+                    continue
                 t.setRowCount(row + 1)
                 d = v[category][item_value]
                 t.setItem(row, DELETED_COLUMN, StateTableWidgetItem(''))

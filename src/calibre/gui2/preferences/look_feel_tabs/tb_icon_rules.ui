@@ -54,7 +54,7 @@ are defined per-user, not per-library.&lt;/p&gt;</string>
       <item row="1" column="0" colspan="2">
       <widget class="QCheckBox" name="show_only_current_library">
        <property name="text">
-        <string>Show only category available in the current library</string>
+        <string>Show only categories and values available in the current library</string>
        </property>
       </widget>
       </item>
