@@ -67,6 +67,17 @@ this dialog using the button, the delete key, or the context menu.&lt;/p&gt;</st
          </widget>
         </item>
         <item>
+         <widget class="QToolButton" name="edit_button">
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
+          </property>
+          <property name="toolTip">
+           <string>Edit the selected column</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="undo_button">
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
