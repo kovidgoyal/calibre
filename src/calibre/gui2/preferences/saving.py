@@ -34,6 +34,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.save_template.initialize('save_to_disk', self.proxy['template'],
                 self.proxy.help('template'),
                 self.gui.library_view.model().db.field_metadata)
+        self.opt_timefmt.setToolTip('<p>' + self.opt_timefmt.toolTip() + '</p><p>' +
+                    _('Changes will not appear in the template editor until you press the apply button.') + '</p>')
         self.save_template.blockSignals(False)
 
     def restore_defaults(self):

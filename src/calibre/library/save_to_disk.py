@@ -172,10 +172,7 @@ class Formatter(TemplateFormatter):
             return key
 
 
-def get_components(template, mi, id, timefmt='%b %Y', length=250,
-        sanitize_func=ascii_filename, replace_whitespace=False,
-        to_lowercase=False, safe_format=True, last_has_extension=True,
-        single_dir=False):
+def get_component_metadata(template, mi, id_, timefmt='%b %Y'):
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
@@ -201,8 +198,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['series'] = title_sort(mi.series, order=tsorder)
         if mi.series_index is not None:
             format_args['series_index'] = mi.format_series_index()
-    else:
-        template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating(divide_by=2.0)
     if mi.identifiers:
@@ -214,11 +209,13 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if not is_date_undefined(mi.pubdate) and hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
+    else:
+        format_args.pop('pubdate', None)
     if (hasattr(mi, 'last_modified') and not is_date_undefined(mi.last_modified) and
                 hasattr(mi.last_modified, 'timetuple')):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
-    format_args['id'] = str(id)
+    format_args['id'] = str(id_)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
@@ -240,6 +237,13 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                     format_args[key] = str(format_args[key])
                 else:
                     format_args[key] = ''
+    return format_args
+
+def get_components(template, mi, id_, timefmt='%b %Y', length=250,
+        sanitize_func=ascii_filename, replace_whitespace=False,
+        to_lowercase=False, safe_format=True, last_has_extension=True,
+        single_dir=False):
+    format_args = get_component_metadata(template, mi, id_, timefmt)
     if safe_format:
         components = Formatter().safe_format(template, format_args,
                                             'G_C-EXCEPTION!', mi)

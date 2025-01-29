@@ -10,7 +10,7 @@ from qt.core import QWidget, pyqtSignal
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
-from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
+from calibre.library.save_to_disk import FORMAT_ARG_DESCS, Formatter, get_component_metadata, preprocess_template
 from calibre.utils.formatter import validation_formatter
 
 
@@ -26,10 +26,14 @@ class SaveTemplate(QWidget, Ui_Form):
 
     def initialize(self, name, default, help, field_metadata):
         variables = sorted(FORMAT_ARG_DESCS.keys())
+        help_text = self.orig_help_text
         if name == 'send_to_device':
-            self.help_label.setText(self.orig_help_text + ' ' + _(
+            help_text = help_text + ' ' + _(
                 'This setting can be overridden for <b>individual devices</b>,'
-                ' by clicking the device icon and choosing "Configure this device".'))
+                ' by clicking the device icon and choosing "Configure this device".')
+        self.help_label.setText(help_text + ' ' +
+            _('<b>Title and series</b> will have articles moved to the end unless '
+              'you change the tweak "{}"').format('save_template_title_series_sorting'))
         rows = []
         for var in variables:
             rows.append(f'<tr><td>{var}</td><td>&nbsp;</td><td>{FORMAT_ARG_DESCS[var]}</td></tr>')
@@ -52,13 +56,22 @@ class SaveTemplate(QWidget, Ui_Form):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
         view = get_gui().library_view
-        mi = tuple(map(db.new_api.get_proxy_metadata, view.get_selected_ids()[:10]))
+        mi = tuple(map(db.new_api.get_metadata, view.get_selected_ids()[:10]))
         if not mi:
             error_dialog(self, _('Must select books'),
                          _('One or more books must be selected so the template '
                            'editor can show the template results'), show=True)
             return
-        t = TemplateDialog(self, self.opt_template.text(), fm=self.field_metadata, mi=mi)
+        from calibre.library.save_to_disk import config
+        opts = config().parse()
+        if self.option_name == 'save_to_disk':
+            timefmt = opts.timefmt
+        elif self.option_name == 'send_to_device':
+            timefmt = opts.send_timefmt
+
+        template = self.opt_template.text()
+        fmt_args = [get_component_metadata(template, one, one.get('id'), timefmt=timefmt) for one in mi]
+        t = TemplateDialog(self, template, fm=self.field_metadata, kwargs=fmt_args, mi=mi, formatter=Formatter)
         t.setWindowTitle(_('Edit template'))
         if t.exec():
             self.opt_template.set_value(t.rule[1])

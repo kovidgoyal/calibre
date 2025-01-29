@@ -488,7 +488,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
                  global_vars=None, all_functions=None, builtin_functions=None,
-                 python_context_object=None, dialog_number=None,
+                 python_context_object=None, dialog_number=None, kwargs=None,
                  formatter=SafeFormat, icon_dir='cc_icons'):
         # If dialog_number isn't None then we want separate non-modal windows
         # that don't stay on top of the main dialog. This lets Alt-Tab work to
@@ -517,6 +517,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.dialog_is_st_editor = dialog_is_st_editor
         self.global_vars = global_vars or {}
         self.python_context_object = python_context_object or PythonTemplateContext()
+        self.kwargs = kwargs
 
         cols = []
         self.fm = fm
@@ -779,7 +780,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             tb.setIcon(QIcon.ic('edit_input.png'))
             tb.setToolTip(_('Open Edit metadata on this book'))
             tb.clicked.connect(partial(self.metadata_button_clicked, r))
-            tb.setEnabled(mi[r].get('id', -1) >= 0)
+            tb.setEnabled(int(mi[r].get('id', -1)) >= 0)
             tv.setCellWidget(r, 1, tb)
             w = QLineEdit(tv)
             w.setReadOnly(True)
@@ -1092,12 +1093,11 @@ def evaluate(book, context):
             else:
                 sys.settrace(None)
             try:
-                v = self.formatter().safe_format(txt, mi, _('EXCEPTION:'),
-                                 mi, global_vars=self.global_vars,
+                v = self.formatter().safe_format(txt, self.kwargs[r] if self.kwargs is not None else mi,
+                                  _('EXCEPTION:'), mi, global_vars=self.global_vars,
                                  template_functions=self.all_functions,
                                  break_reporter=self.break_reporter if r == break_on_mi else None,
-                                 python_context_object=self.python_context_object,
-                                 database=db)
+                                 python_context_object=self.python_context_object, database=db)
                 w = tv.cellWidget(r, 2)
                 w.setText(v.translate(translate_table))
                 w.setCursorPosition(0)
