@@ -51,13 +51,13 @@ class StateTableWidgetItem(QTableWidgetItem):
 
 class CategoryTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self, lookup_name, category_icons, field_metadata, table):
-        txt = field_metadata[lookup_name]['name'] + f' ({lookup_name})'
+    def __init__(self, lookup_name, category_icons, display_name, table):
+        txt = display_name + f' ({lookup_name})'
         super().__init__(txt)
         self._lookup_name = lookup_name
         self._table = table
         self._is_modified = False
-        self.setIcon(category_icons[lookup_name])
+        self.setIcon(category_icons.get(lookup_name) or QIcon.cached_icon('column.png'))
         self._txt = txt
         self.setFlags(self.flags() & ~Qt.ItemFlag.ItemIsEditable)
 
@@ -351,12 +351,16 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                                    ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
 
         for category,vdict in v.items():
+            if category in field_metadata:
+                display_name = field_metadata[category]['name']
+            else:
+                display_name = category.removeprefix('#')
             for item_value in vdict:
                 t.setRowCount(row + 1)
                 d = v[category][item_value]
                 t.setItem(row, DELETED_COLUMN, StateTableWidgetItem(''))
                 t.setItem(row, CATEGORY_COLUMN,
-                          CategoryTableWidgetItem(category, category_icons, field_metadata, t))
+                          CategoryTableWidgetItem(category, category_icons, display_name, t))
                 t.setItem(row, ICON_MODIFIED_COLUMN, StateTableWidgetItem(''))
                 t.setItem(row, VALUE_COLUMN, ValueTableWidgetItem(item_value, t))
                 t.setItem(row, ICON_COLUMN, IconFileTableWidgetItem(d[0], item_value, t))
