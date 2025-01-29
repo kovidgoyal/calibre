@@ -348,6 +348,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                                    ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
         self.populate_content()
         self.section_order = [0, 1, 1, 0, 0, 0, 0]
+        self.last_section_sorted = 0
         self.do_sort(VALUE_COLUMN)
         self.do_sort(CATEGORY_COLUMN)
 
@@ -432,6 +433,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def change_filter_library(self, state):
         gprefs['tag_browser_rules_show_only_current_library'] = self.show_only_current_library.isChecked()
         self.populate_content()
+        self.rules_table.sortByColumn(self.last_section_sorted, Qt.SortOrder(self.section_order[self.last_section_sorted]))
 
     def undo_changes(self):
         idx = self.rules_table.currentIndex()
@@ -507,6 +509,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def do_sort(self, section):
         order = 1 - self.section_order[section]
         self.section_order[section] = order
+        self.last_section_sorted = section
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
     def commit(self):
