@@ -9,21 +9,11 @@ import copy
 import os
 from functools import partial
 
-from qt.core import (
-    QAbstractItemView,
-    QApplication,
-    QDialog,
-    QIcon,
-    QMenu,
-    QSize,
-    QStyledItemDelegate,
-    Qt,
-    QTableWidgetItem,
-)
+from qt.core import QAbstractItemView, QApplication, QDialog, QIcon, QMenu, QSize, QStyledItemDelegate, Qt, QTableWidgetItem
 
 from calibre.constants import config_dir
 from calibre.db.constants import TEMPLATE_ICON_INDICATOR
-from calibre.gui2 import gprefs, choose_files, pixmap_to_data
+from calibre.gui2 import choose_files, gprefs, pixmap_to_data
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.library.delegates import DelegateCB
 from calibre.gui2.preferences import LazyConfigWidgetBase
@@ -44,7 +34,7 @@ class StateTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, txt):
         super().__init__(txt)
-        self.setIcon(QIcon.cached_icon("blank.png"))
+        self.setIcon(QIcon.cached_icon('blank.png'))
         self.setFlags(Qt.ItemFlag.NoItemFlags)
 
     def setText(self, txt):
@@ -53,10 +43,10 @@ class StateTableWidgetItem(QTableWidgetItem):
             if self.column() == DELETED_COLUMN:
                 self.setIcon(QIcon.cached_icon('trash.png'))
             else:
-                self.setIcon(QIcon.cached_icon("modified.png"))
+                self.setIcon(QIcon.cached_icon('modified.png'))
         else:
             super().setText('')
-            self.setIcon(QIcon.cached_icon("blank.png"))
+            self.setIcon(QIcon.cached_icon('blank.png'))
 
 
 class CategoryTableWidgetItem(QTableWidgetItem):
@@ -186,7 +176,7 @@ class IconColumnDelegate(QStyledItemDelegate):
                 icon_item.set_text(d.rule[2])
                 icon_item.is_modified = True
                 self._changed_signal.emit()
-            return None
+            return
 
         path = choose_files(self.parent(), 'choose_category_icon',
                     _('Change icon for: %s')%value_item.text(), filters=[
@@ -405,13 +395,13 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         if action == 'copy':
             QApplication.clipboard().setText(item.text())
             return
-        if action == "delete":
+        if action == 'delete':
             self.delete_rule()
-        elif action == "undo_delete":
+        elif action == 'undo_delete':
             self.undo_delete()
-        elif action == "modify":
+        elif action == 'modify':
             self.edit_column()
-        elif action == "undo_modification":
+        elif action == 'undo_modification':
             self.undo_modification()
         self.changed_signal.emit()
 
@@ -504,7 +494,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             value_item = self.rules_table.item(r, VALUE_COLUMN)
             value_text = value_item._original_text
 
-            if cat_item.is_modified: # deleted
+            if cat_item.is_modified:  # deleted
                 if not value_item.is_template:
                     # Need to delete the icon file to clean up
                     icon_file = self.rules_table.item(r, ICON_COLUMN).text()
