@@ -43,7 +43,8 @@
         <property name="text">
          <string>&lt;p&gt;View all the defined value icon rules, including template rules.
 Rules are defined and edited in the Tag browser context menus. Rules can be deleted in
-this dialog using the button, the delete key, or the context menu.&lt;/p&gt;</string>
+this dialog using the button, the delete key, or the context menu. The icon value rules
+are defined per-user, not per-library.&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
