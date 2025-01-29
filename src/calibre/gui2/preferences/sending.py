@@ -43,6 +43,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_template.initialize('send_to_device', self.proxy['send_template'],
                 self.proxy.help('send_template'),
                 self.gui.library_view.model().db.field_metadata)
+        self.opt_send_timefmt.setToolTip('<p>' + self.opt_send_timefmt.toolTip() + '</p><p>' +
+                        _('Changes will not appear in the template editor until you press the apply button.') + '</p>')
+
         self.send_template.blockSignals(False)
 
     def restore_defaults(self):
