@@ -172,7 +172,7 @@ class Formatter(TemplateFormatter):
             return key
 
 
-def get_component_metadata(template, mi, id_, timefmt='%b %Y'):
+def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
@@ -215,7 +215,7 @@ def get_component_metadata(template, mi, id_, timefmt='%b %Y'):
                 hasattr(mi.last_modified, 'timetuple')):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
-    format_args['id'] = str(id_)
+    format_args['id'] = str(book_id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
@@ -239,20 +239,20 @@ def get_component_metadata(template, mi, id_, timefmt='%b %Y'):
                     format_args[key] = ''
     return format_args
 
-def get_components(template, mi, id_, timefmt='%b %Y', length=250,
+
+def get_components(template, mi, book_id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False, safe_format=True, last_has_extension=True,
         single_dir=False):
-    format_args = get_component_metadata(template, mi, id_, timefmt)
+    format_args = get_component_metadata(template, mi, book_id, timefmt)
     if safe_format:
-        components = Formatter().safe_format(template, format_args,
-                                            'G_C-EXCEPTION!', mi)
+        components = Formatter().safe_format(template, format_args, 'G_C-EXCEPTION!', mi)
     else:
         components = Formatter().unsafe_format(template, format_args, mi)
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
-        components = [str(id)]
+        components = [str(book_id)]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
