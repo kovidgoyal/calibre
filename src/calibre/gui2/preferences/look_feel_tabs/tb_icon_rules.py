@@ -532,7 +532,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 continue
 
             icon_item = self.rules_table.item(r, ICON_COLUMN)
-            d = v[cat_item.lookup_name][value_text]
+            d = list(v[cat_item.lookup_name][value_text])
 
             if icon_item.is_modified:
                 if value_item.is_template:
