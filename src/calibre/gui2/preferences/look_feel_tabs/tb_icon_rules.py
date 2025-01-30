@@ -355,6 +355,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def populate_content(self):
         field_metadata = self.gui.current_db.field_metadata
         category_icons = self.gui.tags_view.model().category_custom_icons
+        is_hierarchical_category = self.gui.tags_view.model().is_key_a_hierarchical_category
         only_current_library = self.show_only_current_library.isChecked()
         v = gprefs['tags_browser_value_icons']
         row = 0
@@ -366,6 +367,15 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             if category in field_metadata:
                 display_name = field_metadata[category]['name']
                 all_values = self.gui.current_db.new_api.all_field_names(category)
+                if is_hierarchical_category(category):
+                    rslt = set()
+                    for value in all_values:
+                        idx = 0
+                        while idx >= 0:
+                            rslt.add(value)
+                            idx = value.rfind('.')
+                            value = value[:idx]
+                    all_values = rslt
             elif only_current_library:
                 continue
             else:
