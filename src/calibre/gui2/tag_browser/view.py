@@ -673,11 +673,12 @@ class TagsView(QTreeView):  # {{{
             # category is None if the user asked to specify a template
             # index is None if the user clicked on a category (top level) node
             # extra is a tuple: (icon_file_name: string or None, children: True or False)
-            def make_icon_name(key, index):
+            def make_icon_name(key, index, db):
                 icon_file_name = 'icon_' + sanitize_file_name(key)
                 if index is not None:
                     item_val = self._model.get_node(index).tag.original_name
-                    icon_file_name = icon_file_name + '@@' + sanitize_file_name(item_val)
+                    item_id = db.new_api.get_item_id(key, item_val)
+                    icon_file_name = f'{icon_file_name}@@{sanitize_file_name(item_val)}_{item_id}'
                 else:
                     item_val = None
                 icon_file_name += '.png'
@@ -713,7 +714,7 @@ class TagsView(QTreeView):  # {{{
                         self.recount()
                     return
                 icon_file_name, for_children = extra if extra is not None else (None, None)
-                item_val, desired_file_name = make_icon_name(key, index)
+                item_val, desired_file_name = make_icon_name(key, index, self.db)
                 if icon_file_name is None:
                     # User wants to specify a specific icon
                     try:
@@ -753,7 +754,7 @@ class TagsView(QTreeView):  # {{{
                     self._model.remove_all_value_icons(key, keep_template=True)
                 elif extra == 'value':
                     if index is not None:
-                        val, icon_name = make_icon_name(key, index)
+                        val, icon_name = make_icon_name(key, index, self.db)
                         if not confirm(
                             _('The icon for the value "{0}" of the "{1}" category '
                             'will be <b>permanently deleted</b>. Are you sure?').format(val, category),
