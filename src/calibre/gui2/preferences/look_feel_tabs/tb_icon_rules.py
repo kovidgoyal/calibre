@@ -288,6 +288,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         r('tag_browser_show_category_icons', gprefs)
         r('tag_browser_show_value_icons', gprefs)
 
+        self.show_only_current_library.setChecked(gprefs.get('tag_browser_rules_show_only_current_library', False))
+
         self.rules_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
         self.rules_table.setColumnCount(HEADER_SECTION_COUNT)
         self.rules_table.setHorizontalHeaderLabels(('', _('Category'), _('Value'), '',
@@ -330,6 +332,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.delete_button.clicked.connect(self.delete_rule)
         self.edit_button.clicked.connect(self.edit_column)
         self.undo_button.clicked.connect(self.undo_changes)
+        self.show_only_current_library.stateChanged.connect(self.change_filter_library)
 
         self.tb_icon_rules_groupbox.setContentsMargins(0, 0, 0, 0)
         self.tb_icon_rules_gridlayout.setContentsMargins(2, 2, 2, 2)
@@ -340,22 +343,37 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             pass
 
     def lazy_initialize(self):
+        self.rules_table.setItemDelegateForColumn(ICON_COLUMN, IconColumnDelegate(self, self.rules_table, self.changed_signal))
+        self.rules_table.setItemDelegateForColumn(FOR_CHILDREN_COLUMN,
+                                   ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
+        self.populate_content()
+        self.section_order = [0, 1, 1, 0, 0, 0, 0]
+        self.last_section_sorted = 0
+        self.do_sort(VALUE_COLUMN)
+        self.do_sort(CATEGORY_COLUMN)
+
+    def populate_content(self):
         field_metadata = self.gui.current_db.field_metadata
         category_icons = self.gui.tags_view.model().category_custom_icons
+        only_current_library = self.show_only_current_library.isChecked()
         v = gprefs['tags_browser_value_icons']
         row = 0
 
         t = self.rules_table
-        t.setItemDelegateForColumn(ICON_COLUMN, IconColumnDelegate(self, self.rules_table, self.changed_signal))
-        t.setItemDelegateForColumn(FOR_CHILDREN_COLUMN,
-                                   ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
+        t.clearContents()
 
         for category,vdict in v.items():
             if category in field_metadata:
                 display_name = field_metadata[category]['name']
+                all_values = self.gui.current_db.new_api.all_field_names(category)
+            elif only_current_library:
+                continue
             else:
                 display_name = category.removeprefix('#')
+                all_values = ()
             for item_value in vdict:
+                if only_current_library and item_value != TEMPLATE_ICON_INDICATOR and item_value not in all_values:
+                    continue
                 t.setRowCount(row + 1)
                 d = v[category][item_value]
                 t.setItem(row, DELETED_COLUMN, StateTableWidgetItem(''))
@@ -368,10 +386,6 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 item = ChildrenTableWidgetItem(d[1], item_value, t)
                 t.setItem(row, FOR_CHILDREN_COLUMN, item)
                 row += 1
-
-        self.section_order = [0, 1, 1, 0, 0, 0, 0]
-        self.do_sort(VALUE_COLUMN)
-        self.do_sort(CATEGORY_COLUMN)
 
     def show_context_menu(self, point):
         item = self.rules_table.itemAt(point)
@@ -415,6 +429,11 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             ev.accept()
             return
         return super().keyPressEvent(ev)
+
+    def change_filter_library(self, state):
+        gprefs['tag_browser_rules_show_only_current_library'] = self.show_only_current_library.isChecked()
+        self.populate_content()
+        self.rules_table.sortByColumn(self.last_section_sorted, Qt.SortOrder(self.section_order[self.last_section_sorted]))
 
     def undo_changes(self):
         idx = self.rules_table.currentIndex()
@@ -484,11 +503,13 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 else:
                     self.rules_table.setColumnWidth(c, w)
                 self.table_column_widths.append(self.rules_table.columnWidth(c))
+
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
     def do_sort(self, section):
         order = 1 - self.section_order[section]
         self.section_order[section] = order
+        self.last_section_sorted = section
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
     def commit(self):
