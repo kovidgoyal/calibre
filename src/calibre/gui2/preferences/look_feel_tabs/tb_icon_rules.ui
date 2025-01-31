@@ -35,7 +35,7 @@
    <item>
     <widget class="QGroupBox" name="tb_icon_rules_groupbox">
      <property name="title">
-      <string>Icon value rules</string>
+      <string>Value icon rules</string>
      </property>
      <layout class="QGridLayout" name="tb_icon_rules_gridlayout">
       <item row="0" column="0" colspan="2">
@@ -43,7 +43,7 @@
         <property name="text">
          <string>&lt;p&gt;View all the defined value icon rules, including template rules.
 Rules are defined and edited in the Tag browser context menus. Rules can be deleted in
-this dialog using the button, the delete key, or the context menu. The icon value rules
+this dialog using the button, the delete key, or the context menu. The value icon rules
 are defined per-user, not per-library.&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
