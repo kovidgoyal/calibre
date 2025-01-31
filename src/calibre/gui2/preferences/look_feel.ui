@@ -1367,50 +1367,45 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
    <header>calibre/gui2/preferences.h</header>
   </customwidget>
   <customwidget>
-   <class>ListWidgetWithMoveByKeyPress</class>
-   <extends>QListWidget</extends>
-   <header>calibre/gui2/preferences.h</header>
-  </customwidget>
-  <customwidget>
    <class>ScrollingTabWidget</class>
    <extends>QTabWidget</extends>
    <header>calibre/gui2/widgets2.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ConfigWidget</class>
+   <class>ConfigWidgetBase</class>
    <extends>QWidget</extends>
-   <header>calibre/gui2/preferences/look_feel.h</header>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>
    <class>TbDisplayTab</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.tb_display.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/tb_display.h</header>
   </customwidget>
   <customwidget>
    <class>TbPartitioningTab</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.tb_partitioning.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/tb_partitioning.h</header>
   </customwidget>
   <customwidget>
    <class>TbIconRulesTab</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.tb_icon_rules.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/tb_icon_rules.h</header>
   </customwidget>
   <customwidget>
    <class>TbHierarchyTab</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.tb_hierarchy.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/tb_hierarchy.h</header>
   </customwidget>
   <customwidget>
    <class>CoverView</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.cover_view.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/cover_view.h</header>
   </customwidget>
   <customwidget>
    <class>QuickviewTab</class>
-   <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.quickview.h</header>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/quickview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

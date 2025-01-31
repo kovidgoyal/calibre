@@ -9,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.gui2 import gprefs
-from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
+from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_partitioning_ui import Ui_Form
 
 
-class TBPartitionedFields(DisplayedFields):  # {{{
+class TBPartitionedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
@@ -60,7 +60,6 @@ class TBPartitionedFields(DisplayedFields):  # {{{
         if self.changed:
             # Migrate to a per-library setting
             self.db.prefs.set('tag_browser_dont_collapse', [k for k,v in self.fields if not v])
-# }}}
 
 
 class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
@@ -92,4 +91,7 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
 
     def commit(self):
         self.tb_categories_to_part_model.commit()
-        return ConfigWidgetBase.commit(self)
+        return LazyConfigWidgetBase.commit(self)
+
+    def refresh_gui(self, gui):
+        gui.tags_view.reread_collapse_parameters()

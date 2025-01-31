@@ -46,7 +46,6 @@ from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import config, default_author_link, error_dialog, gprefs, icon_resource_manager, open_local_file, qt_app, question_dialog
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
-from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import ConfigWidgetBase, Setting, set_help_tips, test_widget
 from calibre.gui2.preferences.coloring import EditRules
@@ -252,106 +251,6 @@ class EMDisplayedFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.new_api.set_pref('edit_metadata_custom_columns_to_display', self.fields)
-# }}}
-
-
-class QVDisplayedFields(DisplayedFields):  # {{{
-
-    def __init__(self, db, parent=None):
-        DisplayedFields.__init__(self, db, parent)
-
-    def initialize(self, use_defaults=False):
-        self.beginResetModel()
-        self.fields = [[x[0], x[1]] for x in
-                get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
-        self.endResetModel()
-        self.changed = True
-
-    def commit(self):
-        if self.changed:
-            self.db.new_api.set_pref('qv_display_fields', self.fields)
-# }}}
-
-
-class TBDisplayedFields(DisplayedFields):  # {{{
-    # The code in this class depends on the fact that the tag browser is
-    # initialized before this class is instantiated.
-
-    def __init__(self, db, parent=None, category_icons=None):
-        DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
-        from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
-
-    def initialize(self, use_defaults=False, pref_data_override=None):
-        tv = self.gui.tags_view
-        cat_ord = tv.model().get_ordered_categories(use_defaults=use_defaults,
-                                                    pref_data_override=pref_data_override)
-        if use_defaults:
-            hc = []
-            self.changed = True
-        elif pref_data_override:
-            hc = [k for k,v in pref_data_override if not v]
-            self.changed = True
-        else:
-            hc = tv.hidden_categories
-
-        self.beginResetModel()
-        self.fields = [[x, x not in hc] for x in cat_ord]
-        self.endResetModel()
-
-    def commit(self):
-        if self.changed:
-            self.db.prefs.set('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
-            self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
-# }}}
-
-
-class TBPartitionedFields(DisplayedFields):  # {{{
-    # The code in this class depends on the fact that the tag browser is
-    # initialized before this class is instantiated.
-
-    def __init__(self, db, parent=None, category_icons=None):
-        DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
-        from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
-
-    def filter_user_categories(self, tv):
-        cats = tv.model().categories
-        answer = {}
-        filtered = set()
-        for key,name in cats.items():
-            if key.startswith('@'):
-                key = key.partition('.')[0]
-                name = key[1:]
-            if key not in filtered:
-                answer[key] = name
-                filtered.add(key)
-        return answer
-
-    def initialize(self, use_defaults=False, pref_data_override=None):
-        tv = self.gui.tags_view
-        cats = self.filter_user_categories(tv)
-        ans = []
-        if use_defaults:
-            ans = [[k, True] for k in cats.keys()]
-            self.changed = True
-        elif pref_data_override:
-            po = dict(pref_data_override)
-            ans = [[k, po.get(k, True)] for k in cats.keys()]
-            self.changed = True
-        else:
-            # Check if setting not migrated yet
-            cats_to_partition = frozenset(self.db.prefs.get('tag_browser_dont_collapse', gprefs.get('tag_browser_dont_collapse')) or ())
-            for key in cats:
-                ans.append([key, key not in cats_to_partition])
-        self.beginResetModel()
-        self.fields = ans
-        self.endResetModel()
-
-    def commit(self):
-        if self.changed:
-            # Migrate to a per-library setting
-            self.db.prefs.set('tag_browser_dont_collapse', [k for k,v in self.fields if not v])
 # }}}
 
 
@@ -768,7 +667,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.restore_defaults()
         self.em_display_model.restore_defaults()
         self.bd_vertical_cats_model.restore_defaults()
-        gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
         self.edit_rules.clear()
         self.icon_rules.clear()
         self.grid_rules.clear()
@@ -864,8 +762,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         m.update_db_prefs_cache()
         m.beginResetModel(), m.endResetModel()
         self.update_font_display()
-        gui.tags_view.set_look_and_feel()
-        gui.tags_view.reread_collapse_parameters()
         gui.tags_view.model().reset_tag_browser()
         gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_grid()

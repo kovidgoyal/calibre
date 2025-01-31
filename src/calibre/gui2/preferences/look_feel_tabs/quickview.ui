@@ -2,10 +2,6 @@
 <ui version="4.0">
  <class>Form</class>
  <widget class="QWidget" name="cover_browser_tab">
-  <attribute name="icon">
-   <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
-  </attribute>
   <layout class="QGridLayout" name="gridLayout_122">
    <item row="1" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_122">

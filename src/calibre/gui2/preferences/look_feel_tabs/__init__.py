@@ -13,7 +13,7 @@ from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
 
 
-class DisplayedFields(QAbstractListModel):  # {{{
+class DisplayedFields(QAbstractListModel):
 
     def __init__(self, db, parent=None, pref_name=None, category_icons=None):
         self.pref_name = pref_name or 'book_display_fields'
@@ -154,5 +154,3 @@ def move_field_down(widget, model):
             sm = widget.selectionModel()
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
-
-# }}}

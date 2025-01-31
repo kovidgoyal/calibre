@@ -397,7 +397,7 @@ class Preferences(QDialog):
 
     def commit(self, *args):
         # Commit the child widgets first in case the main widget uses the information
-        must_restart = bool(self.showing_widget.do_on_child_tabs('commit')) | self.showing_widget.commit()
+        must_restart = bool(self.showing_widget.do_on_child_tabs('commit')) | bool(self.showing_widget.commit())
         rc = self.showing_widget.restart_critical
         self.committed = True
         do_restart = False
