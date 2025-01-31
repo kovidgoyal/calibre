@@ -7,12 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from collections import defaultdict
 from functools import partial
-from threading import Thread
 
 from qt.core import (
-    QBrush,
-    QColor,
-    QColorDialog,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -23,11 +19,8 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QListWidgetItem,
-    QPainter,
-    QPixmap,
     QPushButton,
     QSize,
-    QSizePolicy,
     Qt,
     QTableWidget,
     QTableWidgetItem,
@@ -36,15 +29,21 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import config, default_author_link, error_dialog, gprefs, open_local_file, question_dialog
+from calibre.gui2 import config, default_author_link, error_dialog, gprefs
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
-from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
+from calibre.gui2.preferences.look_feel_tabs import (
+    DisplayedFields,
+    export_layout,
+    import_layout,
+    move_field_down,
+    move_field_up,
+    reset_layout,
+    selected_rows_metadatas,
+)
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
@@ -281,43 +280,7 @@ class BDVerticalCats(DisplayedFields):  # {{{
 # }}}
 
 
-class Background(QWidget):  # {{{
-
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        self.bcol = QColor(*gprefs['cover_grid_color'])
-        self.btex = gprefs['cover_grid_texture']
-        self.update_brush()
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-
-    def update_brush(self):
-        self.brush = QBrush(self.bcol)
-        if self.btex:
-            from calibre.gui2.preferences.texture_chooser import texture_path
-            path = texture_path(self.btex)
-            if path:
-                p = QPixmap(path)
-                try:
-                    dpr = self.devicePixelRatioF()
-                except AttributeError:
-                    dpr = self.devicePixelRatio()
-                p.setDevicePixelRatio(dpr)
-                self.brush.setTexture(p)
-        self.update()
-
-    def sizeHint(self):
-        return QSize(200, 120)
-
-    def paintEvent(self, ev):
-        painter = QPainter(self)
-        painter.fillRect(ev.rect(), self.brush)
-        painter.end()
-# }}}
-
-
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
-    size_calculated = pyqtSignal(object)
 
     def genesis(self, gui):
         self.gui = gui
@@ -330,27 +293,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
-        r('cover_grid_width', gprefs)
-        r('cover_grid_height', gprefs)
-        r('cover_grid_cache_size_multiple', gprefs)
-        r('cover_grid_disk_cache_size', gprefs)
-        r('cover_grid_spacing', gprefs)
-        r('cover_grid_show_title', gprefs)
-
-        r('emblem_size', gprefs)
-        r('emblem_position', gprefs, choices=[
-            (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_details_comments_heading_pos', gprefs, choices=[
             (_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')])
         r('book_details_note_link_icon_width', gprefs)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
         r('use_roman_numerals_for_series_number', config)
-
-        fm = db.field_metadata
-        choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
-                         key=lambda x:sort_key(x[0]))
-        r('field_under_covers_in_grid', db.prefs, choices=choices)
 
         choices = [(_('Default'), 'default'), (_('Compact metadata'), 'alt1'),
                    (_('All on 1 tab'), 'alt2')]
@@ -400,43 +348,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.icon_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.icon_rules, QIcon.ic('icon_choose.png'), _('Column &icons'))
 
-        self.grid_rules = EditRules(self.emblems_tab)
-        self.grid_rules.changed.connect(self.changed_signal)
-        self.emblems_tab.setLayout(QVBoxLayout())
-        self.emblems_tab.layout().addWidget(self.grid_rules)
-
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget.tabBar().setVisible(False)
         keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
         keys = [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
-        self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
-        self.tabWidget.currentChanged.connect(self.tab_changed)
 
-        l = self.cg_background_box.layout()
-        self.cg_bg_widget = w = Background(self)
-        l.addWidget(w, 0, 0, 3, 1)
-        self.cover_grid_color_button = b = QPushButton(_('Change &color'), self)
-        b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 0, 1)
-        b.clicked.connect(self.change_cover_grid_color)
-        self.cover_grid_texture_button = b = QPushButton(_('Change &background image'), self)
-        b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 1, 1)
-        b.clicked.connect(self.change_cover_grid_texture)
-        self.cover_grid_default_appearance_button = b = QPushButton(_('Restore default &appearance'), self)
-        b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 2, 1)
-        b.clicked.connect(self.restore_cover_grid_appearance)
-        self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
-        self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
-        connect_lambda(self.cover_grid_smaller_cover.clicked, self, lambda self: self.resize_cover(True))
-        connect_lambda(self.cover_grid_larger_cover.clicked, self, lambda self: self.resize_cover(False))
-        self.cover_grid_reset_size.clicked.connect(self.cg_reset_size)
-        self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
-        self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
-        self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
-        self.opt_cover_grid_height.valueChanged.connect(self.update_aspect_ratio)
         self.opt_book_details_css.textChanged.connect(self.changed_signal)
         from calibre.gui2.tweak_book.editor.text import get_highlighter, get_theme
         self.css_highlighter = get_highlighter('css')()
@@ -458,35 +375,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if IdLinksEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
-    @property
-    def current_cover_size(self):
-        cval = self.opt_cover_grid_height.value()
-        wval = self.opt_cover_grid_width.value()
-        if cval < 0.1:
-            dpi = self.opt_cover_grid_height.logicalDpiY()
-            cval = auto_height(self.opt_cover_grid_height) / dpi / CM_TO_INCH
-        if wval < 0.1:
-            wval = 0.75 * cval
-        return wval, cval
-
-    def update_aspect_ratio(self, *args):
-        width, height = self.current_cover_size
-        ar = width / height
-        self.cover_grid_aspect_ratio.setText(_('Current aspect ratio (width/height): %.2g') % ar)
-
-    def resize_cover(self, smaller):
-        wval, cval = self.current_cover_size
-        ar = wval / cval
-        delta = 0.2 * (-1 if smaller else 1)
-        cval += delta
-        cval = max(0, cval)
-        self.opt_cover_grid_height.setValue(cval)
-        self.opt_cover_grid_width.setValue(cval * ar)
-
-    def cg_reset_size(self):
-        self.opt_cover_grid_width.setValue(0)
-        self.opt_cover_grid_height.setValue(0)
-
     def initialize(self):
         ConfigWidgetBase.initialize(self)
 
@@ -495,54 +383,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.em_display_model.initialize()
         self.bd_vertical_cats_model.initialize()
         db = self.gui.current_db
-        mi = []
-        try:
-            rows = self.gui.current_view().selectionModel().selectedRows()
-            for row in rows:
-                if row.isValid():
-                    mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
-        except:
-            pass
+        mi = selected_rows_metadatas()
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
-        self.grid_rules.initialize(db.field_metadata, db.prefs, mi, 'cover_grid_icon_rules')
-        self.set_cg_color(gprefs['cover_grid_color'])
-        self.set_cg_texture(gprefs['cover_grid_texture'])
-        self.update_aspect_ratio()
         self.opt_book_details_css.blockSignals(True)
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', data=True).decode('utf-8'))
         self.opt_book_details_css.blockSignals(False)
-
-    def open_cg_cache(self):
-        open_local_file(self.gui.grid_view.thumbnail_cache.location)
-
-    def update_cg_cache_size(self, size):
-        self.cover_grid_current_disk_cache.setText(
-            _('Current space used: %s') % human_readable(size))
-
-    def tab_changed(self, index):
-        if self.tabWidget.currentWidget() is self.cover_grid_tab:
-            self.show_current_cache_usage()
-
-    def show_current_cache_usage(self):
-        t = Thread(target=self.calc_cache_size)
-        t.daemon = True
-        t.start()
-
-    def calc_cache_size(self):
-        self.size_calculated.emit(self.gui.grid_view.thumbnail_cache.current_size)
-
-    def set_cg_color(self, val):
-        self.cg_bg_widget.bcol = QColor(*val)
-        self.cg_bg_widget.update_brush()
-
-    def set_cg_texture(self, val):
-        self.cg_bg_widget.btex = val
-        self.cg_bg_widget.update_brush()
-
-    def empty_cache(self):
-        self.gui.grid_view.thumbnail_cache.empty()
-        self.calc_cache_size()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -552,37 +398,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.bd_vertical_cats_model.restore_defaults()
         self.edit_rules.clear()
         self.icon_rules.clear()
-        self.grid_rules.clear()
         self.changed_signal.emit()
-        self.set_cg_color(gprefs.defaults['cover_grid_color'])
-        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', allow_user_override=False, data=True).decode('utf-8'))
-
-    def change_cover_grid_color(self):
-        col = QColorDialog.getColor(self.cg_bg_widget.bcol,
-                              self.gui, _('Choose background color for the Cover grid'))
-        if col.isValid():
-            col = tuple(col.getRgb())[:3]
-            self.set_cg_color(col)
-            self.changed_signal.emit()
-            if self.cg_bg_widget.btex:
-                if question_dialog(
-                    self, _('Remove background image?'),
-                    _('There is currently a background image set, so the color'
-                      ' you have chosen will not be visible. Remove the background image?')):
-                    self.set_cg_texture(None)
-
-    def change_cover_grid_texture(self):
-        from calibre.gui2.preferences.texture_chooser import TextureChooser
-        d = TextureChooser(parent=self, initial=self.cg_bg_widget.btex)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            self.set_cg_texture(d.texture)
-            self.changed_signal.emit()
-
-    def restore_cover_grid_appearance(self):
-        self.set_cg_color(gprefs.defaults['cover_grid_color'])
-        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
-        self.changed_signal.emit()
 
     def commit(self, *args):
         with BusyCursor():
@@ -591,9 +408,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.bd_vertical_cats_model.commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
             self.icon_rules.commit(self.gui.current_db.prefs)
-            self.grid_rules.commit(self.gui.current_db.prefs)
-            gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
-            gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
             gprefs['default_author_link'] = self.default_author_link.value
             bcss = self.opt_book_details_css.toPlainText().encode('utf-8')
             defcss = P('templates/book_details.css', data=True, allow_user_override=False)
@@ -608,10 +422,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         m.beginResetModel(), m.endResetModel()
         gui.tags_view.model().reset_tag_browser()
         gui.library_view.refresh_book_details(force=True)
-        gui.library_view.refresh_grid()
         gui.library_view.refresh_composite_edit()
-        gui.grid_view.refresh_settings()
-        gui.update_auto_scroll_timeout()
 
 
 if __name__ == '__main__':

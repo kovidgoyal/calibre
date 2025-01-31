@@ -11,6 +11,7 @@ from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.ui import get_gui
 
 
 class DisplayedFields(QAbstractListModel):
@@ -154,3 +155,16 @@ def move_field_down(widget, model):
             sm = widget.selectionModel()
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
+
+
+def selected_rows_metadatas():
+    rslt = []
+    try:
+        db = get_gui().current_db
+        rows = get_gui().current_view().selectionModel().selectedRows()
+        for row in rows:
+            if row.isValid():
+                rslt.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
+    except:
+        pass
+    return rslt
