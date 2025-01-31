@@ -545,6 +545,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
+        self.display_model = DisplayedFields(self.gui.current_db, self.field_display_order)
+        self.display_model.dataChanged.connect(self.changed_signal)
+        self.field_display_order.setModel(self.display_model)
+        mu = partial(move_field_up, self.field_display_order, self.display_model)
+        md = partial(move_field_down, self.field_display_order, self.display_model)
+        self.df_up_button.clicked.connect(mu)
+        self.df_down_button.clicked.connect(md)
+        self.field_display_order.set_movement_functions(mu, md)
+
         self.em_display_model = EMDisplayedFields(self.gui.current_db, self.em_display_order)
         self.em_display_model.dataChanged.connect(self.changed_signal)
         self.em_display_order.setModel(self.em_display_model)
@@ -693,6 +702,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             font.append(gprefs.get('font_stretch', QFont.Stretch.Unstretched))
         self.current_font = self.initial_font = font
         self.update_font_display()
+        self.display_model.initialize()
         self.em_display_model.initialize()
         self.bd_vertical_cats_model.initialize()
         db = self.gui.current_db
@@ -755,6 +765,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if ofont is not None:
             self.changed_signal.emit()
             self.update_font_display()
+        self.display_model.restore_defaults()
         self.em_display_model.restore_defaults()
         self.bd_vertical_cats_model.restore_defaults()
         gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
@@ -827,6 +838,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         is not None else QFont.Stretch.Unstretched)
                 QApplication.setFont(self.font_display.font())
                 rr = True
+            self.display_model.commit()
             self.em_display_model.commit()
             self.bd_vertical_cats_model.commit()
             self.edit_rules.commit(self.gui.current_db.prefs)
