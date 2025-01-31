@@ -92,7 +92,7 @@ class ValueTableWidgetItem(QTableWidgetItem):
         self._is_editable = False
         super().__init__(('{' + _('template') + '}') if is_template else txt)
         if not is_template and txt not in all_values:
-            icon = "dialog_error.png"
+            icon = 'dialog_error.png'
             self.setToolTip(_("The value {} doesn't exist in the library").format(txt))
             self._is_editable = True
         else:
@@ -567,7 +567,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             column = idx.column()
             if column in (VALUE_COLUMN, ICON_COLUMN, FOR_CHILDREN_COLUMN):
                 self.rules_table.edit(idx)
-            self.check_button_state(None) # Here to make buttons enabled/disabled
+            self.check_button_state(None)  # Here to make buttons enabled/disabled
 
     def delete_rule(self):
         idx = self.rules_table.currentIndex()
