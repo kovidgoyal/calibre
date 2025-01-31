@@ -43,8 +43,8 @@
         <property name="text">
          <string>&lt;p&gt;View all the defined value icon rules, including template rules.
 Rules are defined and edited in the Tag browser context menus. Rules can be deleted in
-this dialog using the button, the delete key, or the context menu. The value icon rules
-are defined per-user, not per-library.&lt;/p&gt;</string>
+this dialog by selecting the Category cell then using the button, the delete key,
+or the context menu. The value icon rules are defined per-user, not per-library.&lt;/p&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -70,7 +70,7 @@ are defined per-user, not per-library.&lt;/p&gt;</string>
             <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
           </property>
           <property name="toolTip">
-           <string>Delete the selected rule</string>
+           <string>Delete the selected rule. The Category cell for the rule must be selected</string>
           </property>
          </widget>
         </item>
@@ -81,7 +81,7 @@ are defined per-user, not per-library.&lt;/p&gt;</string>
             <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
           </property>
           <property name="toolTip">
-           <string>Edit the selected column</string>
+           <string>Edit the selected cell</string>
           </property>
          </widget>
         </item>
@@ -92,7 +92,7 @@ are defined per-user, not per-library.&lt;/p&gt;</string>
             <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
           </property>
           <property name="toolTip">
-           <string>Undelete the selected rule if it is deleted</string>
+           <string>Undo changes in the selected cell, if any.</string>
           </property>
          </widget>
         </item>

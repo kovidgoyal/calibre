@@ -1611,6 +1611,11 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.db.new_api.rename_items(lookup_key, {an_item.tag.id: new_name},
                                          restrict_to_book_ids=restrict_to_books)
             self.tag_item_renamed.emit()
+            val_icon_data = self.value_icons.get(an_item.tag.category, {}).get(an_item.tag.original_name)
+            if val_icon_data:
+                # There is an icon for the old value. Rename it
+                self.value_icons[an_item.tag.category].pop(an_item.tag.original_name, None)
+                self.value_icons[an_item.tag.category][new_name] = val_icon_data
             an_item.tag.name = new_name
             an_item.tag.state = TAG_SEARCH_STATES['clear']
             self.use_position_based_index_on_next_recount = True
