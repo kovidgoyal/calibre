@@ -673,11 +673,10 @@ class TagsView(QTreeView):  # {{{
             # category is None if the user asked to specify a template
             # index is None if the user clicked on a category (top level) node
             # extra is a tuple: (icon_file_name: string or None, children: True or False)
-            def make_icon_name(key, index, db):
+            def make_icon_name(key, index, item_id):
                 icon_file_name = 'icon_' + sanitize_file_name(key)
                 if index is not None:
                     item_val = self._model.get_node(index).tag.original_name
-                    item_id = db.new_api.get_item_id(key, item_val)
                     icon_file_name = f'{icon_file_name}@@{sanitize_file_name(item_val)}_{item_id}'
                 else:
                     item_val = None
@@ -714,7 +713,7 @@ class TagsView(QTreeView):  # {{{
                         self.recount()
                     return
                 icon_file_name, for_children = extra if extra is not None else (None, None)
-                item_val, desired_file_name = make_icon_name(key, index, self.db)
+                item_val, desired_file_name = make_icon_name(key, index, self._model.get_node(index).tag.id)
                 if icon_file_name is None:
                     # User wants to specify a specific icon
                     try:
