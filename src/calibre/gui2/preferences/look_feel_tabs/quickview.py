@@ -12,7 +12,7 @@ from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.quickview import get_qv_field_list
 from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
-from calibre.gui2.preferences.look_feel_tabs.tb_quickview_ui import Ui_Form
+from calibre.gui2.preferences.look_feel_tabs.quickview_ui import Ui_Form
 
 
 class QVDisplayedFields(DisplayedFields):  # {{{
