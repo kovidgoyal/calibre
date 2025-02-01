@@ -10,7 +10,7 @@ from qt.core import QKeySequence
 
 from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase, set_help_tips
+from calibre.gui2.preferences import LazyConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
 
 
@@ -41,8 +41,6 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         self.fs_help_msg.setText(self.fs_help_msg.text()%(
             QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
 
-    def lazy_initialize(self):
-        ConfigWidgetBase.initialize(self)
         set_help_tips(self.opt_cover_browser_narrow_view_position, _(
             'This option controls the position of the cover browser when using the Narrow user '
             'interface layout.  "Automatic" will place the cover browser on top or on the right '
@@ -63,12 +61,6 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         t.setWindowTitle(_('Edit template for caption'))
         if t.exec():
             self.opt_cover_browser_title_template.setText(t.rule[1])
-
-    def commit(self):
-        return ConfigWidgetBase.commit(self)
-
-    def restore_defaults(self):
-        ConfigWidgetBase.restore_defaults(self)
 
     def refresh_gui(self, gui):
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
