@@ -102,6 +102,24 @@
        <string>&amp;Quickview</string>
       </attribute>
      </widget>
+     <widget class="ColumnColorRules" name="edit_rules">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/format-fill-color.png</normaloff>:/images/format-fill-color.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Column &amp;coloring</string>
+      </attribute>
+     </widget>
+     <widget class="ColumnIconRules" name="icon_rules">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/icon_choose.png</normaloff>:/images/icon_choose.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Column &amp;icons</string>
+      </attribute>
+     </widget>
     </widget>
    </item>
    <item row="0" column="0">
@@ -177,6 +195,16 @@
    <class>QuickviewTab</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs/quickview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ColumnColorRules</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ColumnIconRules</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
  </customwidgets>
  <resources>

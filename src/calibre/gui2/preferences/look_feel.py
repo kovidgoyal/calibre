@@ -5,27 +5,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QIcon, QKeySequence, QListWidgetItem, Qt
+from qt.core import QKeySequence, QListWidgetItem, Qt
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.preferences.look_feel_tabs import selected_rows_metadatas
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2.widgets import BusyCursor
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-
-        self.edit_rules = EditRules(self.tabWidget)
-        self.edit_rules.changed.connect(self.changed_signal)
-        self.tabWidget.addTab(self.edit_rules, QIcon.ic('format-fill-color.png'), _('Column &coloring'))
-
-        self.icon_rules = EditRules(self.tabWidget)
-        self.icon_rules.changed.connect(self.changed_signal)
-        self.tabWidget.addTab(self.icon_rules, QIcon.ic('icon_choose.png'), _('Column &icons'))
 
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget.tabBar().setVisible(False)
@@ -45,24 +34,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
 
-    def initialize(self):
-        ConfigWidgetBase.initialize(self)
-
-        db = self.gui.current_db
-        mi = selected_rows_metadatas()
-        self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
-        self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
-
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
-        self.edit_rules.clear()
-        self.icon_rules.clear()
         self.changed_signal.emit()
-
-    def commit(self, *args):
-        with BusyCursor():
-            self.edit_rules.commit(self.gui.current_db.prefs)
-            self.icon_rules.commit(self.gui.current_db.prefs)
 
     def refresh_gui(self, gui):
         m = gui.library_view.model()

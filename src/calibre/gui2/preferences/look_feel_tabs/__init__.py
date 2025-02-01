@@ -12,6 +12,8 @@ from qt.core import QAbstractListModel, QComboBox, QFormLayout, QIcon, QItemSele
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.preferences import LazyConfigWidgetBase
+from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 
 
@@ -165,6 +167,47 @@ class DisplayedFields(QAbstractListModel):
             self.dataChanged.emit(idx, idx)
             self.changed = True
             return idx
+
+
+class LazyEditRulesBase(LazyConfigWidgetBase):
+
+    rule_set_name = None
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.rules_editor = EditRules(parent)
+        self.setLayout(self.rules_editor.layout())
+
+    def genesis(self, gui):
+        self.gui = gui
+        self.rules_editor.changed.connect(self.changed_signal)
+
+    def lazy_initialize(self):
+        if not self.rule_set_name:
+            raise NotImplementedError('You must define the attribut "rule_set_name" in LazyEditRulesBase subclasses')
+        self.load_rule_set(self.rule_set_name)
+
+    def load_rule_set(self, name):
+        db = self.gui.current_db
+        mi = selected_rows_metadatas()
+        self.rules_editor.initialize(db.field_metadata, db.prefs, mi, name)
+
+    def commit(self):
+        self.rules_editor.commit(self, self.gui.current_db.prefs)
+        return LazyConfigWidgetBase.commit(self)
+
+    def restore_defaults(self):
+        LazyConfigWidgetBase.restore_defaults(self)
+        self.rules_editor.clear(self)
+        self.changed_signal.emit()
+
+
+class ColumnColorRules(LazyEditRulesBase):
+    rule_set_name = 'column_color_rules'
+
+
+class ColumnIconRules(LazyEditRulesBase):
+    rule_set_name = 'column_icon_rules'
 
 
 def export_layout(in_widget, model=None):
