@@ -219,9 +219,9 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.css_highlighter.set_document(self.opt_book_details_css.document())
 
     def lazy_initialize(self):
+        self.blockSignals(True)
         self.default_author_link.value = default_author_link()
         self.display_model.initialize()
-        self.blockSignals(True)
         self.bd_vertical_cats_model.initialize()
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', data=True).decode('utf-8'))
         self.blockSignals(False)
