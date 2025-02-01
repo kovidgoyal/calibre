@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 
-from qt.core import QBrush, QColor, QColorDialog, QDialog, QPainter, QPixmap, QPushButton, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QBrush, QColor, QColorDialog, QDialog, QPainter, QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTabWidget, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import human_readable
 from calibre.gui2 import gprefs, open_local_file, question_dialog
@@ -54,9 +54,14 @@ class Background(QWidget):
         painter.end()
 
 
-class CoverGridTab(LazyConfigWidgetBase, Ui_Form):
+class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
+    changed_signal = pyqtSignal()
+    restart_now = pyqtSignal()
     size_calculated = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
     def genesis(self, gui):
         self.gui = gui

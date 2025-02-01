@@ -1,423 +1,417 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
-  <layout class="QVBoxLayout" name="vBoxLayout_cover_grid">
-   <item>
-    <widget class="QTabWidget" name="cover_grid_tab">
-     <property name="currentIndex">
-      <number>0</number>
+  <widget class="QTabWidget" name="cover_grid_tab">
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="tab_5">
+    <attribute name="title">
+     <string>&amp;Layout</string>
+    </attribute>
+    <layout class="QFormLayout" name="formLayout_2">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
      </property>
-     <widget class="QWidget" name="tab_5">
-      <attribute name="title">
-       <string>&amp;Layout</string>
-      </attribute>
-      <layout class="QFormLayout" name="formLayout_2">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="label_19">
+       <property name="text">
+        <string>Control the Cover grid view. You can enable this view by clicking the &quot;Layout&quot; button in the bottom right corner of the main calibre window.</string>
        </property>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label_19">
-         <property name="text">
-          <string>Control the Cover grid view. You can enable this view by clicking the &quot;Layout&quot; button in the bottom right corner of the main calibre window.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <spacer name="verticalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Field to show &amp;under the covers:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_field_under_covers_in_grid</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QComboBox" name="opt_field_under_covers_in_grid"/>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Spac&amp;ing between covers:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_cover_grid_spacing</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QDoubleSpinBox" name="opt_cover_grid_spacing">
-         <property name="toolTip">
-          <string>The spacing between covers. A value of zero means calculate automatically based on cover size.</string>
-         </property>
-         <property name="specialValueText">
-          <string>Automatic</string>
-         </property>
-         <property name="suffix">
-          <string> cm</string>
-         </property>
-         <property name="decimals">
-          <number>2</number>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="QGroupBox" name="cg_background_box">
-         <property name="title">
-          <string>Background for the Cover grid</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_5"/>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>Cover size</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="1" column="2">
-           <widget class="QPushButton" name="cover_grid_larger_cover">
-            <property name="toolTip">
-             <string>Make the covers larger, maintaining current aspect ratio.</string>
-            </property>
-            <property name="text">
-             <string>&amp;Larger covers</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QPushButton" name="cover_grid_smaller_cover">
-            <property name="toolTip">
-             <string>Make the covers smaller, maintaining current aspect ratio.</string>
-            </property>
-            <property name="text">
-             <string>&amp;Smaller covers</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Cover &amp;height: </string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_cover_grid_height</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Cover &amp;width: </string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_cover_grid_width</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="opt_cover_grid_height">
-            <property name="toolTip">
-             <string>The height of displayed covers.
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <spacer name="verticalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Field to show &amp;under the covers:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_field_under_covers_in_grid</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="opt_field_under_covers_in_grid"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>Spac&amp;ing between covers:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_cover_grid_spacing</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QDoubleSpinBox" name="opt_cover_grid_spacing">
+       <property name="toolTip">
+        <string>The spacing between covers. A value of zero means calculate automatically based on cover size.</string>
+       </property>
+       <property name="specialValueText">
+        <string>Automatic</string>
+       </property>
+       <property name="suffix">
+        <string> cm</string>
+       </property>
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QGroupBox" name="cg_background_box">
+       <property name="title">
+        <string>Background for the Cover grid</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5"/>
+      </widget>
+     </item>
+     <item row="10" column="0" colspan="2">
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>Cover size</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="cover_grid_larger_cover">
+          <property name="toolTip">
+           <string>Make the covers larger, maintaining current aspect ratio.</string>
+          </property>
+          <property name="text">
+           <string>&amp;Larger covers</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="cover_grid_smaller_cover">
+          <property name="toolTip">
+           <string>Make the covers smaller, maintaining current aspect ratio.</string>
+          </property>
+          <property name="text">
+           <string>&amp;Smaller covers</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Cover &amp;height: </string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_cover_grid_height</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Cover &amp;width: </string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_cover_grid_width</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QDoubleSpinBox" name="opt_cover_grid_height">
+          <property name="toolTip">
+           <string>The height of displayed covers.
 Aue of zero means calculate automatically.</string>
-            </property>
-            <property name="specialValueText">
-             <string>Automatic</string>
-            </property>
-            <property name="suffix">
-             <string> cm</string>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3" rowspan="2">
-           <widget class="QPushButton" name="cover_grid_reset_size">
-            <property name="toolTip">
-             <string>Reset size to automatic</string>
-            </property>
-            <property name="text">
-             <string>&amp;Reset size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="5">
-           <widget class="QLabel" name="cover_grid_aspect_ratio">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="opt_cover_grid_width">
-            <property name="toolTip">
-             <string>The width of displayed covers.
+          </property>
+          <property name="specialValueText">
+           <string>Automatic</string>
+          </property>
+          <property name="suffix">
+           <string> cm</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3" rowspan="2">
+         <widget class="QPushButton" name="cover_grid_reset_size">
+          <property name="toolTip">
+           <string>Reset size to automatic</string>
+          </property>
+          <property name="text">
+           <string>&amp;Reset size</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="5">
+         <widget class="QLabel" name="cover_grid_aspect_ratio">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="opt_cover_grid_width">
+          <property name="toolTip">
+           <string>The width of displayed covers.
 Aue of zero means calculate automatically.</string>
-            </property>
-            <property name="specialValueText">
-             <string>Automatic</string>
-            </property>
-            <property name="suffix">
-             <string> cm</string>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="5">
-           <widget class="QLabel" name="cover_size_label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="11" column="1">
-        <widget class="QSpinBox" name="opt_emblem_size">
-         <property name="suffix">
-          <string> px</string>
-         </property>
-         <property name="minimum">
-          <number>16</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_21">
-         <property name="text">
-          <string>Size of the emblems (if any) shown &amp;next to the covers: </string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_emblem_size</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_cover_grid_show_title">
-         <property name="text">
-          <string>Show a &amp;field (such as title) under the covers</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="label_22">
-         <property name="text">
-          <string>&amp;Location of the emblems shown next to the covers:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_emblem_position</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1">
-        <widget class="QComboBox" name="opt_emblem_position"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="emblems_tab">
-      <attribute name="title">
-       <string>&amp;Emblems</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tab_6">
-      <attribute name="title">
-       <string>&amp;Performance</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QGroupBox" name="groupBox_3">
-         <property name="title">
-          <string>Caching of covers for improved performance</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0" colspan="5">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view. A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large, unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache.</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QSpinBox" name="opt_cover_grid_disk_cache_size">
-            <property name="specialValueText">
-             <string>Disable</string>
-            </property>
-            <property name="suffix">
-             <string> MB</string>
-            </property>
-            <property name="minimum">
-             <number>100</number>
-            </property>
-            <property name="singleStep">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QPushButton" name="cover_grid_empty_cache">
-            <property name="text">
-             <string>&amp;Empty disk cache</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QPushButton" name="cover_grid_open_cache">
-            <property name="text">
-             <string>&amp;Open cache folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2" colspan="3">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>310</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="5" column="1">
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="3">
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Number of screenfulls of covers to cache in &amp;memory (keep this small):</string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_cover_grid_cache_size_multiple</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Maximum amount of &amp;disk space to use for caching thumbnails: </string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_cover_grid_disk_cache_size</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
-            <property name="toolTip">
-             <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hundred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
-            </property>
-            <property name="minimum">
-             <number>2</number>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="cover_grid_current_disk_cache">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-  </layout>
- </widget>
+          </property>
+          <property name="specialValueText">
+           <string>Automatic</string>
+          </property>
+          <property name="suffix">
+           <string> cm</string>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="5">
+         <widget class="QLabel" name="cover_size_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QSpinBox" name="opt_emblem_size">
+       <property name="suffix">
+        <string> px</string>
+       </property>
+       <property name="minimum">
+        <number>16</number>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_21">
+       <property name="text">
+        <string>Size of the emblems (if any) shown &amp;next to the covers: </string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_emblem_size</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_cover_grid_show_title">
+       <property name="text">
+        <string>Show a &amp;field (such as title) under the covers</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_22">
+       <property name="text">
+        <string>&amp;Location of the emblems shown next to the covers:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_emblem_position</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1">
+      <widget class="QComboBox" name="opt_emblem_position"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="emblems_tab">
+    <attribute name="title">
+     <string>&amp;Emblems</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="tab_6">
+    <attribute name="title">
+     <string>&amp;Performance</string>
+    </attribute>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Caching of covers for improved performance</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" colspan="5">
+         <widget class="QLabel" name="label_13">
+          <property name="text">
+           <string>There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view. A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large, unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="opt_cover_grid_disk_cache_size">
+          <property name="specialValueText">
+           <string>Disable</string>
+          </property>
+          <property name="suffix">
+           <string> MB</string>
+          </property>
+          <property name="minimum">
+           <number>100</number>
+          </property>
+          <property name="singleStep">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QPushButton" name="cover_grid_empty_cache">
+          <property name="text">
+           <string>&amp;Empty disk cache</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QPushButton" name="cover_grid_open_cache">
+          <property name="text">
+           <string>&amp;Open cache folder</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" colspan="3">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>310</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="5" column="1">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="3">
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>Number of screenfulls of covers to cache in &amp;memory (keep this small):</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_cover_grid_cache_size_multiple</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Maximum amount of &amp;disk space to use for caching thumbnails: </string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_cover_grid_disk_cache_size</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
+          <property name="toolTip">
+           <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hundred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
+          </property>
+          <property name="minimum">
+           <number>2</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="cover_grid_current_disk_cache">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>
