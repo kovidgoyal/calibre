@@ -37,7 +37,7 @@
        <string>Cover &amp;grid</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="book_details_tab">
+     <widget class="BookDetailsTab" name="book_details_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
@@ -45,243 +45,6 @@
       <attribute name="title">
        <string>&amp;Book details</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_6">
-       <item row="6" column="0">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>Text styling</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QPlainTextEdit" name="opt_book_details_css"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="3">
-        <widget class="QPushButton" name="id_links_button">
-         <property name="text">
-          <string>Create rules to convert &amp;identifiers into links</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="3">
-        <widget class="QWidget" name="default_author_link_container" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QGroupBox" name="categories_on_separate_lines_group_box">
-         <property name="toolTip">
-          <string>&lt;p&gt;Check the box if you want the category's values displayed on separate lines instead of separated by commas&lt;/p&gt;</string>
-         </property>
-         <property name="title">
-          <string>Categories on separate lines</string>
-         </property>
-         <layout class="QVBoxLayout" name="vblayout_3">
-          <item>
-           <widget class="QListView" name="bd_vertical_cats">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Select displayed metadata</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="3" column="1">
-           <widget class="QToolButton" name="df_down_button">
-            <property name="toolTip">
-             <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QToolButton" name="df_up_button">
-            <property name="toolTip">
-             <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="0" rowspan="3">
-           <widget class="ListViewWithMoveByKeyPress" name="field_display_order">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>&lt;p&gt;Note: &lt;b&gt;comments&lt;/b&gt;-like columns will always
-                     be displayed at the end unless their &quot;Heading position&quot; is
-                     &quot;Show heading to the side&quot;.&lt;/p&gt;</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <layout class="QHBoxLayout">
-         <item>
-          <widget class="QCheckBox" name="opt_bd_show_cover">
-           <property name="text">
-            <string>Show &amp;cover</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
-           <property name="toolTip">
-            <string>Show the size of the book's cover in pixels</string>
-           </property>
-           <property name="text">
-            <string>Show cover &amp;size</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
-           <property name="text">
-            <string>Use &amp;Roman numerals for series</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_bd1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0" colspan="3">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_25">
-           <property name="text">
-            <string>Show comments &amp;heading:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_book_details_comments_heading_pos</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="opt_book_details_comments_heading_pos">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_bd13">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>10</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_1022">
-           <property name="text">
-            <string>Link and note icon si&amp;ze:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_book_details_note_link_icon_width</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="opt_book_details_note_link_icon_width">
-           <property name="toolTip">
-            <string>Increase or decrease the size of the links and notes icons by this number. Larger
-than one increases the icon size while smaller than one decreases it.</string>
-           </property>
-           <property name="decimals">
-            <number>1</number>
-           </property>
-           <property name="minimum">
-            <double>0.5</double>
-           </property>
-           <property name="maximum">
-            <double>4.0</double>
-           </property>
-           <property name="singleStep">
-            <double>0.1</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_bd13">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>30</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-      </layout>
      </widget>
      <widget class="QWidget" name="edit_metadata_tab">
       <attribute name="icon">
@@ -630,6 +393,11 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
    <class>CoverGridTab</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs/cover_grid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BookDetailsTab</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/book_details.h</header>
   </customwidget>
   <customwidget>
    <class>TbDisplayTab</class>

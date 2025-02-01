@@ -7,11 +7,74 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
-from qt.core import QAbstractListModel, QIcon, QItemSelectionModel, Qt
+from qt.core import QAbstractListModel, QComboBox, QFormLayout, QIcon, QItemSelectionModel, QLineEdit, Qt, QVBoxLayout, QWidget, pyqtSignal
 
+from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.ui import get_gui
+
+
+class DefaultAuthorLink(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        l = QVBoxLayout()
+        l.addWidget(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        l = QFormLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        self.choices = c = QComboBox()
+        c.setMinimumContentsLength(30)
+        for text, data in [
+                (_('Search for the author on Goodreads'), 'search-goodreads'),
+                (_('Search for the author on Amazon'), 'search-amzn'),
+                (_('Search for the author in your calibre library'), 'search-calibre'),
+                (_('Search for the author on Wikipedia'), 'search-wikipedia'),
+                (_('Search for the author on Google Books'), 'search-google'),
+                (_('Search for the book on Goodreads'), 'search-goodreads-book'),
+                (_('Search for the book on Amazon'), 'search-amzn-book'),
+                (_('Search for the book on Google Books'), 'search-google-book'),
+                (_('Use a custom search URL'), 'url'),
+        ]:
+            c.addItem(text, data)
+        l.addRow(_('Clicking on &author names should:'), c)
+        self.custom_url = u = QLineEdit(self)
+        u.setToolTip(_(
+            'Enter the URL to search. It should contain the string {0}'
+            '\nwhich will be replaced by the author name. For example,'
+            '\n{1}').format('{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
+        u.textChanged.connect(self.changed_signal)
+        u.setPlaceholderText(_('Enter the URL'))
+        c.currentIndexChanged.connect(self.current_changed)
+        l.addRow(u)
+        self.current_changed()
+        c.currentIndexChanged.connect(self.changed_signal)
+
+    @property
+    def value(self):
+        k = self.choices.currentData()
+        if k == 'url':
+            return self.custom_url.text()
+        return k if k != DEFAULT_AUTHOR_LINK else None
+
+    @value.setter
+    def value(self, val):
+        i = self.choices.findData(val)
+        if i < 0:
+            i = self.choices.findData('url')
+            self.custom_url.setText(val)
+        self.choices.setCurrentIndex(i)
+
+    def current_changed(self):
+        k = self.choices.currentData()
+        self.custom_url.setVisible(k == 'url')
+
+    def restore_defaults(self):
+        self.value = DEFAULT_AUTHOR_LINK
 
 
 class DisplayedFields(QAbstractListModel):
