@@ -46,7 +46,7 @@
        <string>&amp;Book details</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="edit_metadata_tab">
+     <widget class="EditMetadataTab" name="edit_metadata_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
@@ -54,257 +54,6 @@
       <attribute name="title">
        <string>Edit &amp;metadata</string>
       </attribute>
-      <layout class="QVBoxLayout" name="vbox_layout_61">
-       <item>
-        <layout class="QFormLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="edit_metadata_single_label">
-           <property name="text">
-            <string>Edit metadata (single) &amp;layout:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_edit_metadata_single_layout</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="opt_edit_metadata_single_layout">
-           <property name="toolTip">
-            <string>Choose a different layout for the Edit metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Select the custom columns (for this library) to display in the edit metadata dialogs and their order:</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="3" column="1">
-           <widget class="QToolButton" name="em_down_button">
-            <property name="toolTip">
-             <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QToolButton" name="em_up_button">
-            <property name="toolTip">
-             <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="0" rowspan="3">
-           <widget class="ListViewWithMoveByKeyPress" name="em_display_order">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QPushButton" name="em_reset_layout_button">
-              <property name="toolTip">
-               <string>Click this button to reset the list to its default order.</string>
-              </property>
-              <property name="text">
-               <string>Reset list</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="em_import_layout_button">
-              <property name="toolTip">
-               <string>&lt;p&gt;Click this button to set the list to one
-previously exported. This could be useful if you have several libraries with
-similar structure and you want to use the same column order for each one. Columns
-in the imported list that aren't in the current library are ignored. Columns in
-the library that are not in the imported list are put at the end and marked
-as displayable.&lt;/p&gt;</string>
-              </property>
-              <property name="text">
-               <string>Import list</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="em_export_layout_button">
-              <property name="toolTip">
-               <string>&lt;p&gt;Click this button to write the current display
-settings to a file. This could be useful if you have several libraries with similar
-structure and you want to use the same column order for each one.&lt;/p&gt;</string>
-              </property>
-              <property name="text">
-               <string>Export list</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout">
-         <item>
-          <layout class="QFormLayout">
-           <item row="0" column="0" colspan="2">
-            <widget class="QCheckBox" name="opt_edit_metadata_ignore_display_order">
-             <property name="toolTip">
-              <string>&lt;p&gt;Check this box to make the edit metadata dialogs ignore the
-above specifications, showing all the columns in the default order. This is
-useful for temporarily seeing all your columns in the dialogs without losing
-the display and order specifications.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Show &amp;all columns in default order when editing metadata</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QCheckBox" name="opt_edit_metadata_elide_labels">
-             <property name="toolTip">
-              <string>If checked then labels wider than the label width
-will be elided, otherwise they will be word wrapped.</string>
-             </property>
-             <property name="text">
-              <string>&amp;Elide labels when editing custom columns</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_1023">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout">
-             <item>
-              <widget class="QLabel" name="label_102">
-               <property name="text">
-                <string>Elision point:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_edit_metadata_elision_point</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="opt_edit_metadata_elision_point">
-               <property name="toolTip">
-                <string>Choose where in the label to put the...</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QCheckBox" name="opt_edit_metadata_templates_only_F2_on_booklist">
-             <property name="toolTip">
-              <string>&lt;p&gt;Check this box to allow only the F2 (Edit) key to
-open the template editor in the book list for a &quot;Column built from other
-columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p&gt;</string>
-             </property>
-             <property name="text">
-              <string>Only the &amp;F2 (Edit) key edits column templates in the book list</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QFormLayout">
-           <item row="0" column="0" colspan="2">
-            <widget class="QCheckBox" name="opt_edit_metadata_single_use_2_cols_for_custom_fields">
-             <property name="text">
-              <string>Use &amp;two columns for custom columns in the Default layout</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_102">
-             <property name="text">
-              <string>&amp;Bulk edit custom column label length:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_edit_metadata_bulk_cc_label_length</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="opt_edit_metadata_bulk_cc_label_length">
-             <property name="toolTip">
-              <string>The maximum width of a custom column label for the bulk metadata edit dialog in average characters.</string>
-             </property>
-             <property name="suffix">
-              <string> chars</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_1022">
-             <property name="text">
-              <string>&amp;Single edit custom column label length:</string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_edit_metadata_single_cc_label_length</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="opt_edit_metadata_single_cc_label_length">
-             <property name="toolTip">
-              <string>The maximum width of a custom column label for the single metadata edit dialog in average characters.</string>
-             </property>
-             <property name="suffix">
-              <string> chars</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
      </widget>
      <widget class="QTabWidget" name="tag_browser_tab">
       <attribute name="icon">
@@ -369,11 +118,6 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListViewWithMoveByKeyPress</class>
-   <extends>QListView</extends>
-   <header>calibre/gui2/preferences.h</header>
-  </customwidget>
-  <customwidget>
    <class>ScrollingTabWidget</class>
    <extends>QTabWidget</extends>
    <header>calibre/gui2/widgets2.h</header>
@@ -398,6 +142,11 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
    <class>BookDetailsTab</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs/book_details.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EditMetadataTab</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/edit_metadata.h</header>
   </customwidget>
   <customwidget>
    <class>TbDisplayTab</class>
