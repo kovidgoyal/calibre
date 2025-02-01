@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 ##
-# Written:      October 2012 (new coding)
-# Version:      9.0
-# Last update:  2018-02-22
+## Written:      October 2012 (new coding)
+## Version:      10.0
+## Last update:  2025-01-15
 ##
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -31,7 +31,7 @@ class Spektrum(BasicNewsRecipe):
     description = u'German  online portal of Spektrum der Wissenschaft'
     publisher = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category = 'science news, Germany'
-    oldest_article = 7
+    oldest_article = 3
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
@@ -39,27 +39,19 @@ class Spektrum(BasicNewsRecipe):
     language = 'de'
     encoding = 'utf8'
     ignore_duplicate_articles = {'title'}
+    scale_news_images_to_device = True
+    compress_news_images = True
 
-    cover_url = 'https://www.spektrum.de/js_css/sde/assets/img/svg/sdw_dark.svg'
+    cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Spektrum_der_Wissenschaft_Logo_seit_2016.svg/640px-Spektrum_der_Wissenschaft_Logo_seit_2016.svg.png'
     masthead_url = 'http://www.spektrum.de/fm/861/spektrum.de.png'
 
     feeds = [
-        (
-            u'Spektrum.de',
-            u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'
-        ),
-        #              (u'Spektrum der Wissenschaft', u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
-        #              (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
-        (
-            u'Sterne und Weltraum',
-            u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'
-        ),
-        #              (u'Meistgelesene Artikel',u'http://www.spektrum.de/alias/rss/spektrum-de-meistgelesene-artikel/1224665'), # AGe 2014-08-21 new
-    ]
+              (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
+             ]
 
     keep_only_tags = [
-        dict(name='article', attrs={'class': 'content'}),
-    ]
+                        dict(name='article', attrs={'class':'content'}),classes('callout-box')
+                      ]
 
     remove_tags = [
         classes('hide-for-print'),
@@ -71,6 +63,15 @@ class Spektrum(BasicNewsRecipe):
     ]
 
     def parse_feeds(self):
+        unwanted_article_types = [
+            'podcast',
+            'video',
+            'raetsel',
+            'leseprobe',
+            # 'kolumne',
+            # 'rezension',
+            # 'news',
+        ]
         # Call parent's method.
         feeds = BasicNewsRecipe.parse_feeds(self)
         # Loop through all feeds.
@@ -79,16 +80,23 @@ class Spektrum(BasicNewsRecipe):
             for article in feed.articles[:]:
                 if 'VIDEO' in article.title:
                     feed.articles.remove(article)
-                # Remove articles with 'video','podcast' or 'rezension' in the url.
-                elif 'podcast' in article.url:
-                    feed.articles.remove(article)
-                elif 'video' in article.url:
-                    feed.articles.remove(article)
-                elif 'rezension' in article.url:
-                    feed.articles.remove(article)
+                    continue
+                # Remove articles with '..' in the url.
+                for keyword in unwanted_article_types:
+                    if keyword in article.url:
+                        feed.articles.remove(article)
+                        continue
+
         return feeds
 
-    def preprocess_html(self, soup, *a):
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
+    def preprocess_html(self, soup):
+        for noscript in soup.findAll('noscript'):
+            noscript.name = 'div'
         return soup
+
+    def preprocess_raw_html(self, raw, url):
+        # remove articles requiring login and advertisements
+        unwantedtag = 'content pw-premium'
+        if unwantedtag in raw:
+            self.abort_article('Skipping unwanted article with tag:' + unwantedtag)
+        return raw
