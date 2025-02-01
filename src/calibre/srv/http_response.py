@@ -194,7 +194,7 @@ def compress_readable_output(src_file, compress_level=6):
 def get_range_parts(ranges, content_type, content_length):  # {{{
 
     def part(r):
-        ans = [f'--{MULTIPART_SEPARATOR}', f'Content-Range: bytes {r.start}-{r.stop}/{content_length}']
+        ans = [f'--{MULTIPART_SEPARATOR}', f'Content-Range: bytes {int(r.start)}-{int(r.stop)}/{content_length}']
         if content_type:
             ans.append(f'Content-Type: {content_type}')
         ans.append('')
@@ -719,7 +719,7 @@ class HTTPConnection(HTTPRequest):
             if len(ranges) == 1:
                 r = ranges[0]
                 outheaders.set('Content-Length', f'{r.size}', replace_all=True)
-                outheaders.set('Content-Range', f'bytes {r.start}-{r.stop}/{output.content_length}', replace_all=True)
+                outheaders.set('Content-Range', f'bytes {int(r.start)}-{int(r.stop)}/{output.content_length}', replace_all=True)
                 output.ranges = r
             else:
                 range_parts = get_range_parts(ranges, outheaders.get('Content-Type'), output.content_length)
